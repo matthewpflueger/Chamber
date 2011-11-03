@@ -1,0 +1,309 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.echoed</groupId>
+	<artifactId>chamber</artifactId>
+	<version>0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>Chamber</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+
+        <org.springframework.version>3.0.6.RELEASE</org.springframework.version>
+        <scala.version>2.9.1</scala.version>
+        <akka.version>1.2</akka.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${org.springframework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+            <version>${org.springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+            <version>${org.springframework.version}</version>
+		</dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>		
+		<dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.batchfb</groupId>
+            <artifactId>batchfb</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.sps.mustache</groupId>
+            <artifactId>mustache-spring-view</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>10.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.codahale</groupId>
+            <artifactId>jerkson_${scala.version}</artifactId>
+            <version>0.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!-- Typically this is provided scope but we include it as 
+                         compile scope for allinone packaging
+                        NOTE: If you change the scope to provided then you will have to add it
+                        to the allinone profile's dependencies -->
+        <!--<dependency>-->
+            <!--<groupId>log4j</groupId> -->
+            <!--<artifactId>log4j</artifactId> -->
+            <!--<version>1.2.16</version> -->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>           -->
+
+        <!-- JBoss is nice enough to provide implmentations of javaee...  We
+             define them here as a nicetie to child projects (easy testing).
+             These api's are at provided scope as they should be provided by
+             whatever container we run in like Tomcat.  However Tomcat doesn't
+             provide jstl so you may need to explicitly require jstl at
+             compile scope (or make sure Ops has jstl in the lib directory).
+             See the commented out section below if you need to explicity
+             require jstl in your project. -->
+        <dependency>
+           <groupId>org.jboss.spec</groupId>
+           <artifactId>jboss-javaee-6.0</artifactId>
+           <version>1.0.0.Final</version>
+           <type>pom</type>
+           <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>8.0.4.v20111024</version>
+        </dependency>
+
+
+        <!-- Scala dependencies -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>se.scalablesolutions.akka</groupId>
+            <artifactId>akka-actor</artifactId>
+            <version>${akka.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>se.scalablesolutions.akka</groupId>
+            <artifactId>akka-spring</artifactId>
+            <version>${akka.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>se.scalablesolutions.akka</groupId>
+            <artifactId>akka-http</artifactId>
+            <version>${akka.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+
+    <repositories>
+        <repository>
+            <id>MavenCentralRepo</id>
+            <name>Maven Central Repo</name>
+            <url>http://repo2.maven.org/maven2/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>AkkaRepo</id>
+            <name>Akka Repo</name>
+            <url>http://akka.io/repository/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>ScalaToolsMaven2Repository</id>
+            <name>Scala-Tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases/</url>
+            <layout>default</layout>
+        </repository>
+        <!-- Jerkson for Scala JSON parsing repository -->
+        <repository>
+          <id>repo.codahale.com</id>
+          <url>http://repo.codahale.com</url>
+        </repository>
+    </repositories>
+
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>scala-tools.org</id>
+            <name>Scala-tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+
+    <build>
+        <resources>
+            <resource>
+               <directory>${basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+               <directory>${basedir}/src/main/webapp</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                    </execution>
+                        <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+	<profiles>
+        <profile>
+            <id>allinone</id>
+            <build>
+	            <resources>
+	                <resource>
+	                    <directory>${basedir}/src/main/resources</directory>                    
+	                </resource>
+	                <resource>
+	                    <directory>${basedir}/src/main/webapp</directory>                    
+	                </resource>
+	            </resources>
+	            <plugins>
+	                <plugin>
+	                    <groupId>org.apache.maven.plugins</groupId>
+	                    <artifactId>maven-shade-plugin</artifactId>
+	                    <executions>
+	                        <execution>
+	                            <phase>package</phase>
+	                            <goals>
+	                                <goal>shade</goal>
+	                            </goals>
+	                            <configuration>
+	                                <shadedArtifactAttached>true</shadedArtifactAttached>
+	                                <shadedClassifierName>allinone</shadedClassifierName> 
+	                                <artifactSet>
+	                                    <includes>
+	                                        <include>*:*</include>
+	                                    </includes>
+	                                 </artifactSet>
+	                                 <transformers>
+	                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+	                                        <resource>META-INF/spring.handlers</resource>
+	                                    </transformer>
+	                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+	                                        <resource>META-INF/spring.schemas</resource>
+	                                    </transformer>
+	                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+	                                        <manifestEntries>
+	                                            <Main-Class>com.echoed.chamber.Main</Main-Class>
+	                                        </manifestEntries>
+	                                    </transformer>
+	                                </transformers>
+	                            </configuration>
+	                        </execution>
+	                    </executions>
+	                 </plugin>
+	            </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

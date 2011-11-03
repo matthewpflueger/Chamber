@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans" 
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xmlns:p="http://www.springframework.org/schema/p" 
+	    xmlns:context="http://www.springframework.org/schema/context"
+	    xmlns:util="http://www.springframework.org/schema/util"
+	    xsi:schemaLocation="
+	        http://www.springframework.org/schema/beans 
+	        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	        http://www.springframework.org/schema/context 
+	        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	        http://www.springframework.org/schema/util 
+	        http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+	    default-init-method="init"
+	    default-destroy-method="destroy">
+
+                
+    <context:property-placeholder
+                location="classpath:database.properties"
+                ignore-unresolvable="true"
+                properties-ref="databaseProperties"
+                order="20000"/>
+    <!--suppress SpringModelInspection -->
+    <util:properties id="databaseProperties">
+        <prop key="jdbc.driverClassName">com.mysql.jdbc.Driver</prop>
+        <prop key="jdbc.url">jdbc:mysql://localhost:3306/Echoed</prop>
+        <prop key="jdbc.username">root</prop>
+        <prop key="jdbc.password">password</prop>
+        <prop key="mybatis.sqlMapConfig">classpath:SqlMapConfig.xml</prop>
+        <prop key="mybatis.executorType">BATCH</prop>
+    </util:properties>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="${jdbc.driverClassName}" />
+       <property name="url" value="${jdbc.url}" />
+       <property name="username" value="${jdbc.username}" />
+       <property name="password" value="${jdbc.password}" />
+   </bean>
+
+
+   <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+       <property name="dataSource" ref="dataSource" />
+       <property name="configLocation" value="${mybatis.sqlMapConfig}" />
+   </bean>
+
+   <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+       <constructor-arg index="0" ref="sqlSessionFactory" />
+       <constructor-arg index="1" value="${mybatis.executorType}" />
+   </bean>
+
+
+   <bean id="retailerConfirmationDao" class="com.echoed.chamber.dao.RetailerConfirmationDaoMyBatis">
+       <property name="sqlSession" ref="sqlSession" />
+   </bean>
+
+   <bean id="facebookUserDao" class="com.echoed.chamber.dao.FacebookUserDaoMyBatis">
+       <property name="sqlSession" ref="sqlSession" />
+   </bean>
+
+</beans>

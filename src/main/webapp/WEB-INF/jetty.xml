@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:p="http://www.springframework.org/schema/p" 
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:util="http://www.springframework.org/schema/util"
+        xsi:schemaLocation="
+            http://www.springframework.org/schema/beans 
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/context 
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd
+            http://www.springframework.org/schema/util 
+            http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+    <!-- NOTE: the default-init-method and default-destroy-method is not defined here as it does something weird to Jetty -->
+
+                           
+    <!-- This is the Jetty configuration - only the configuration necessary to start-up Jetty
+         should be located in here and should match the setup in web.xml.  This configuration
+         is used when the application is deployed as a service, the web.xml is used when/if
+         the application is deployed as a webapp (in Tomcat). -->
+         
+    <context:property-placeholder
+                location="classpath:jetty.properties" 
+                ignore-resource-not-found="true" 
+                properties-ref="jettyProperties"/>
+    <!--suppress SpringModelInspection -->
+    <util:properties id="jettyProperties">
+        <prop key="port">8080</prop>
+        <prop key="context"></prop>
+        <prop key="resourceBase">/var/www</prop>
+
+        <prop key="springframework.applicationContext">classpath:/WEB-INF/applicationContext.xml</prop>
+        <prop key="springframework.servletContext">classpath:/WEB-INF/servlet-context.xml</prop>
+        
+        <prop key="executor.minThreads">16</prop>
+        <prop key="executor.maxThreads">256</prop>
+        <prop key="executor.keepAlive">60000</prop>
+    </util:properties>
+
+        
+    
+    <bean id="webApplicationContext" class="org.springframework.web.context.support.XmlWebApplicationContext">
+        <property name="configLocations">
+            <list>
+                <value>${springframework.applicationContext}</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="server"
+          class="org.eclipse.jetty.server.Server" 
+          init-method="start" 
+          destroy-method="stop">
+          
+        <!-- Thread pool that uses the set defaults 
+                         http://download.eclipse.org/jetty/stable-8/apidocs/org/eclipse/jetty/util/thread/ExecutorThreadPool.html  -->
+        <property name="threadPool" >
+            <bean class="org.eclipse.jetty.util.thread.ExecutorThreadPool" >
+                <constructor-arg value="${executor.minThreads}" />
+                <constructor-arg value="${executor.maxThreads}" />
+                <constructor-arg value="${executor.keepAlive}" />
+            </bean>
+        </property>
+        
+        <property name="connectors">
+            <list>
+                <bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                    <property name="port" value="${port}"/>
+                </bean>
+            </list>
+        </property>
+
+        <property name="handler">
+            <bean id="handlers"
+                  class="org.eclipse.jetty.server.handler.HandlerCollection">
+                <property name="handlers">
+                    <list>   
+                        <bean class="org.eclipse.jetty.servlet.ServletContextHandler"
+                              p:contextPath="/${context}">
+                            <property name="attributes">
+                                <bean class="org.eclipse.jetty.util.AttributesMap">
+                                    <constructor-arg>
+                                        <map>
+                                            <entry key="org.springframework.web.context.WebApplicationContext.ROOT">
+                                                <ref local="webApplicationContext"/>
+                                            </entry>
+                                        </map>
+                                    </constructor-arg>
+                                </bean>
+                            </property>
+
+                            <property name="eventListeners">
+                                <util:list>
+                                    <bean class="com.echoed.chamber.Initializer" />
+                                </util:list>
+                            </property>
+
+                            <property name="servletHandler">
+                                <bean class="org.eclipse.jetty.servlet.ServletHandler">
+                                    <property name="servlets">
+                                        <list>
+                                            <bean class="org.eclipse.jetty.servlet.ServletHolder">
+                                                <property name="name" value="dispatcher" />
+                                                <property name="servlet">
+                                                    <bean class="org.springframework.web.servlet.DispatcherServlet" />
+                                                </property>
+                                                <property name="initParameters">
+                                                    <map>
+                                                        <entry key="contextConfigLocation" 
+                                                               value="${springframework.servletContext}" />
+                                                    </map>
+                                                </property>
+                                            </bean>
+                                            <bean class="org.eclipse.jetty.servlet.ServletHolder">
+                                                <property name="name" value="default" />
+                                                <property name="servlet">
+                                                    <bean class="org.eclipse.jetty.servlet.DefaultServlet" />
+                                                </property>
+                                                <property name="initParameters">
+                                                    <map>
+                                                        <entry key="resourceBase"
+                                                               value="${resourceBase}" />
+                                                    </map>
+                                                </property>
+                                            </bean>
+                                        </list>
+                                    </property>
+                                    <property name="servletMappings">
+                                        <list>
+                                            <bean class="org.eclipse.jetty.servlet.ServletMapping"
+                                                  p:servletName="dispatcher"
+                                                  p:pathSpec="/" /> 
+                                        </list>
+                                    </property>
+                                </bean>
+                            </property>
+                        </bean>
+                    </list>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    
+</beans>
