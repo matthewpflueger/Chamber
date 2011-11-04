@@ -24,6 +24,7 @@
             <artifactId>spring-context</artifactId>
             <version>${org.springframework.version}</version>
             <exclusions>
+                <!-- This is being excluded because we are using logback and slfj -->
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
@@ -43,11 +44,6 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-            <version>${org.springframework.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
             <version>${org.springframework.version}</version>
 		</dependency>
         <dependency>
@@ -106,25 +102,14 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!-- Typically this is provided scope but we include it as 
-                         compile scope for allinone packaging
-                        NOTE: If you change the scope to provided then you will have to add it
-                        to the allinone profile's dependencies -->
-        <!--<dependency>-->
-            <!--<groupId>log4j</groupId> -->
-            <!--<artifactId>log4j</artifactId> -->
-            <!--<version>1.2.16</version> -->
-            <!--<scope>compile</scope>-->
-        <!--</dependency>           -->
-
         <!-- JBoss is nice enough to provide implmentations of javaee...  We
-             define them here as a nicetie to child projects (easy testing).
-             These api's are at provided scope as they should be provided by
-             whatever container we run in like Tomcat.  However Tomcat doesn't
-             provide jstl so you may need to explicitly require jstl at
-             compile scope (or make sure Ops has jstl in the lib directory).
-             See the commented out section below if you need to explicity
-             require jstl in your project. -->
+                        define them here as a nicetie to child projects (easy testing).
+                        These api's are at provided scope as they should be provided by
+                        whatever container we run in like Tomcat.  However Tomcat doesn't
+                        provide jstl so you may need to explicitly require jstl at
+                        compile scope (or make sure Ops has jstl in the lib directory).
+                        See the commented out section below if you need to explicity
+                        require jstl in your project. -->
         <dependency>
            <groupId>org.jboss.spec</groupId>
            <artifactId>jboss-javaee-6.0</artifactId>
@@ -164,20 +149,35 @@
             <version>${akka.version}</version>
             <scope>compile</scope>
         </dependency>
+
+
+        <!-- Test dependencies -->
         <dependency>
-            <groupId>se.scalablesolutions.akka</groupId>
-            <artifactId>akka-http</artifactId>
-            <version>${akka.version}</version>
-            <scope>compile</scope>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>2.11.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.version}</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
 
     <repositories>
         <repository>
-            <id>MavenCentralRepo</id>
-            <name>Maven Central Repo</name>
-            <url>http://repo2.maven.org/maven2/</url>
+            <id>ScalaToolsMaven2Repository</id>
+            <name>Scala-Tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases/</url>
             <layout>default</layout>
         </repository>
         <repository>
@@ -186,12 +186,7 @@
             <url>http://akka.io/repository/</url>
             <layout>default</layout>
         </repository>
-        <repository>
-            <id>ScalaToolsMaven2Repository</id>
-            <name>Scala-Tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases/</url>
-            <layout>default</layout>
-        </repository>
+
         <!-- Jerkson for Scala JSON parsing repository -->
         <repository>
           <id>repo.codahale.com</id>
@@ -220,15 +215,34 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerArguments>
+                        <endorseddirs>${endorsed.dir}</endorseddirs>
+                    </compilerArguments>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
+                <configuration>
+                    <launchers>
+                        <launcher>
+                            <id>scalatest</id>
+                            <mainClass>org.scalatest.tools.Runner</mainClass>
+                            <args>
+                                <arg>-p</arg>
+                                <arg>target/test-classes</arg>
+                            </args>
+                        </launcher>
+                    </launchers>
+                </configuration>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -244,7 +258,7 @@
                         </goals>
                         <phase>test-compile</phase>
                     </execution>
-                        <execution>
+                    <execution>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>compile</goal>
@@ -271,6 +285,7 @@
 	                <plugin>
 	                    <groupId>org.apache.maven.plugins</groupId>
 	                    <artifactId>maven-shade-plugin</artifactId>
+                        <version>1.5</version>
 	                    <executions>
 	                        <execution>
 	                            <phase>package</phase>
@@ -303,6 +318,50 @@
 	                    </executions>
 	                 </plugin>
 	            </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>itest</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.10</version>
+                        <configuration>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.5.3.201107060350</version>
+                        <executions>
+                            <execution>
+                                <id>pre-unit-test</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>post-unit-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
     </profiles>
