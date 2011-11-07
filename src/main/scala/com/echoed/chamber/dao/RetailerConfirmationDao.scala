@@ -7,4 +7,6 @@ trait RetailerConfirmationDao {
 
     def insertRetailerConfirmation(retailerConfirmation: RetailerConfirmation): RetailerConfirmation
 
+    def selectRetailerConfirmationCount: Long
+
 }
