@@ -18,21 +18,8 @@
 	    default-destroy-method="destroy">
 
 
-    <context:property-placeholder
-                location="classpath:servlet-context.properties"
-                ignore-resource-not-found="true"
-                properties-ref="servletContextProperties"/>
-    <!--suppress SpringModelInspection -->
-    <util:properties id="servletContextProperties">
-        <prop key="mustache.cache">true</prop>
-        <prop key="mustache.prefix">http://v1-cdn.echoed.com/</prop>
-        <!--<prop key="mustache.prefix">classpath:com/echoed/templates/mustache/</prop> -->
-        <prop key="mustache.suffix">.mustache</prop>
+    <import resource="classpath:servlet-context-properties.xml" />
 
-        <!--<prop key="echoController.buttonRedirectUrl">http://v1-cdn.echoed.com/button_echoed.png</prop>-->
-        <prop key="echoController.buttonRedirectUrl">http://v1-cdn.echoed.com/button_echoed.png</prop>
-        <prop key="echoController.loginRedirectUrl">http://v1-cdn.echoed.com/login.html</prop>
-    </util:properties>
 
     <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
         <property name="interceptors">
@@ -69,10 +56,11 @@
     <!-- Search package for annotated classes -->
     <context:component-scan base-package="com.echoed.chamber"/>
 
+    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="echoController" class="com.echoed.chamber.controllers.EchoController">
         <property name="retailerConfirmationDao" ref="retailerConfirmationDao" />
-        <property name="buttonRedirectUrl" value="${echoController.buttonRedirectUrl}" />
-        <property name="loginRedirectUrl" value="${echoController.loginRedirectUrl}" />
+        <property name="buttonRedirectUrl" value="${buttonRedirectUrl}" />
+        <property name="loginRedirectUrl" value="${loginRedirectUrl}" />
     </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->

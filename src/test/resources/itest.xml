@@ -18,8 +18,19 @@
 	    default-destroy-method="destroy">
 
 
+    <import resource="classpath:servlet-context-properties.xml" />
+    <import resource="classpath:database.xml" />
+
+    <!-- This is a hack to get url properties injected into our tests.  The actual values are defined in servlet-context-properties.xml but
+                 we reference them via the properties bean below because we could not get the test instances to wire correctly :( -->
+    <!--suppress SpringModelInspection -->
+    <util:properties id="urls">
+        <prop key="echoUrl">${echoUrl}</prop>
+        <prop key="buttonUrl">${buttonUrl}</prop>
+        <prop key="buttonRedirectUrl">${buttonRedirectUrl}</prop>
+        <prop key="loginRedirectUrl">${loginRedirectUrl}</prop>
+    </util:properties>
+
     <bean id="webDriver" class="org.openqa.selenium.firefox.FirefoxDriver" />
 
-
-    <import resource="classpath:database.xml" />
 </beans>

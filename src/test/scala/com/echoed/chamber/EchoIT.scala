@@ -19,9 +19,6 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
     @Autowired @BeanProperty var retailerConfirmationDao: RetailerConfirmationDao = null
     @Autowired @BeanProperty var webDriver: WebDriver = null
 
-    val buttonUrl = "http://v1-api.echoed.com/echo/button"
-    val buttonRedirectUrl = "http://v1-cdn.echoed.com/button_echoed.png"
-
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
 

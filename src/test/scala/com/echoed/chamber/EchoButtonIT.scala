@@ -9,6 +9,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import org.openqa.selenium.WebDriver
+import java.util.Properties
 
 
 @RunWith(classOf[JUnitRunner])
@@ -18,11 +19,19 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
     @Autowired @BeanProperty var retailerConfirmationDao: RetailerConfirmationDao = null
     @Autowired @BeanProperty var webDriver: WebDriver = null
 
-    val buttonUrl = "http://v1-api.echoed.com/echo/button"
-    val buttonRedirectUrl = "http://v1-cdn.echoed.com/button_echoed.png"
+    @Autowired @BeanProperty var urls: Properties = null
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
+
+    var buttonUrl: String = null
+    var buttonRedirectUrl: String = null
+
+    {
+        buttonUrl = urls.getProperty("buttonUrl")
+        buttonRedirectUrl = urls.getProperty("buttonRedirectUrl")
+        buttonUrl != null && buttonRedirectUrl != null
+    } ensuring (_ == true, "Missing parameters")
 
 
 
@@ -39,7 +48,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl)
-//            driver.get(buttonUrl)
+
 
             when("there is no other information")
             then("redirect to the button")
