@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.FacebookUserDao">
+    <resultMap id="facebookUserResult" type="com.echoed.chamber.domain.FacebookUser">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="username" javaType="String" />
+            <arg column="firstName" javaType="String" />
+			<arg column="lastName" javaType="String" />
+			<arg column="link" javaType="String" />
+			<arg column="gender" javaType="String" />
+			<arg column="email" javaType="String" />
+			<arg column="timezone" javaType="String" />
+			<arg column="locale" javaType="String" />
+        </constructor>
+    </resultMap>
+
+
+    <select id="selectFacebookUserWithId" resultMap="facebookUserResult">
+    	select * from FacebookUser where id = #{value}
+    </select>
+    <!--<insert id="insertFacebookUser" parameterType="com.echoed.chamber.domain.FacebookUser">-->
+    	<!--insert into FacebookUser(-->
+    			<!--id,-->
+    			<!--echoedUserId,-->
+    			<!--username,-->
+    			<!--firstName,-->
+    			<!--lastName,-->
+    			<!--email,-->
+    			<!--link,-->
+    			<!--timezone,-->
+    			<!--locale,-->
+    			<!--gender,-->
+    			<!--accessToken)-->
+    		<!--values (-->
+    			<!--#{id},-->
+    			<!--#{echoedUserId},-->
+    			<!--#{username},-->
+    			<!--#{firstName},-->
+    			<!--#{lastName},-->
+    			<!--#{email},-->
+    			<!--#{link},-->
+    			<!--#{timezone},-->
+    			<!--#{locale},-->
+    			<!--#{gender},-->
+    			<!--#{accessToken})-->
+    <!--</insert>-->
+    <insert id="insertOrUpdateFacebookUser" parameterType="com.echoed.chamber.domain.FacebookUser">
+    	insert into FacebookUser(
+    			id,
+    			echoedUserId,
+    			username,
+    			firstName,
+    			lastName,
+    			email,
+    			link,
+    			timezone,
+    			locale,
+    			gender,
+    			accessToken)
+    		values (
+    			#{id},
+    			#{echoedUserId},
+    			#{username},
+    			#{firstName},
+    			#{lastName},
+    			#{email},
+    			#{link},
+    			#{timezone},
+    			#{locale},
+    			#{gender},
+    			#{accessToken})
+            on duplicate key update
+                id=#{id},
+	    		echoedUserId=#{echoedUserId},
+	    		username=#{username},
+	    		firstName=#{firstName},
+	    		lastName=#{lastName},
+	    		email=#{email},
+	    		link=#{link},
+	    		timezone=#{timezone},
+	    		locale=#{locale},
+                gender=#{gender},
+	    		accessToken=#{accessToken}
+    </insert>
+    <!--<update id="updateFacebookUser" parameterType="com.echoed.chamber.domain.FacebookUser">-->
+    	<!--update FacebookUser set-->
+    			<!--id=#{id},-->
+	    		<!--echoedUserId=#{echoedUserId},-->
+	    		<!--username=#{username},-->
+	    		<!--firstName=#{firstName},-->
+	    		<!--lastName=#{lastName},-->
+	    		<!--email=#{email},-->
+	    		<!--link=#{link},-->
+	    		<!--timezone=#{timezone},-->
+	    		<!--locale=#{locale},-->
+	    		<!--accessToken=#{accessToken}-->
+	    	<!--where-->
+	    		<!--id=#{id}-->
+    <!--</update>-->
+
+    <!--<insert id="insertFacebookFriend" parameterType="com.echoed.chamber.domain.FacebookFriend">-->
+    	<!--insert into FacebookFriend(-->
+    			<!--id,-->
+                <!--facebookUserId,-->
+                <!--name)-->
+    		<!--values (-->
+    			<!--#{id},-->
+                <!--#{facebookUserId},-->
+                <!--#{name})-->
+    <!--</insert>-->
+</mapper>

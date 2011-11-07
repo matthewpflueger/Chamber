@@ -9,7 +9,6 @@ import org.openqa.selenium.firefox.FirefoxDriver
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import org.apache.ibatis.session.SqlSession
 
 
 @RunWith(classOf[JUnitRunner])
@@ -40,7 +39,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
             and("no info should be recorded in the database")
             //This is a nasty hack to allow time for the underlying database to be updated.  To repeat this bug start
-            // Chamber up in debug mode with no breakpoints set and then run this test, if your machine is like mine the test
+            //Chamber up in debug mode with no breakpoints set and then run this test, if your machine is like mine the test
             //will pass the first time but fail the second time (of course it should always pass so you will have to force a database update).
             //Anyway, for some reason manually flushing the SQL statement caches does not work...
             Thread.sleep(1000)

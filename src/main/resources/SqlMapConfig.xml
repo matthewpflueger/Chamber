@@ -4,10 +4,6 @@
     "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 
-  	<!--<typeAliases>-->
-          <!--<typeAlias alias="RetailerConfirmation" type="com.echoed.chamber.domain.RetailerConfirmation"/>-->
-    <!--</typeAliases>-->
-
     <settings>
         <setting name="cacheEnabled" value="false"/>
         <setting name="lazyLoadingEnabled" value="false"/>
@@ -18,8 +14,4 @@
         <setting name="defaultStatementTimeout" value="25000"/>
     </settings>
 
-
-    <mappers>
-        <mapper resource="Mapper.xml"/>
-    </mappers>
 </configuration>

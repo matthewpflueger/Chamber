@@ -5,6 +5,7 @@ import com.echoed.chamber.domain.FacebookUser
 import reflect.BeanProperty
 import com.echoed.chamber.dao.FacebookUserDao
 import org.slf4j.LoggerFactory
+import akka.dispatch.Future
 
 
 class FacebookServiceCreatorActor extends Actor {
@@ -20,7 +21,8 @@ class FacebookServiceCreatorActor extends Actor {
             val facebookUser = for {
                 accessToken: String <- facebookAccess.getAccessToken(code)
                 me: FacebookUser <- facebookAccess.getMe(accessToken)
-            } yield facebookUserDao.insertOrUpdateFacebookUser(me)
+                inserted: Int <- Future[Int] { facebookUserDao.insertOrUpdateFacebookUser(me) }
+            } yield me //facebookUserDao.insertOrUpdateFacebookUser(me)
 
             logger.debug("Creating FacebookService with user {}", facebookUser)
 
