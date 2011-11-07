@@ -66,15 +66,5 @@ class FacebookAccessActor extends Actor {
             cache += (accessToken -> facebookBatcher)
             facebookBatcher
         })
-
-//        cache.get(accessToken) match {
-//            case None => {
-//                val facebookBatcher = new FacebookBatcher(accessToken)
-//                facebookBatcher.getMapper.registerModule(new ScalaModule(Thread.currentThread().getContextClassLoader))
-//                cache += (accessToken -> facebookBatcher)
-//                facebookBatcher
-//            }
-//            case Some(fb) => fb
-//        }
     }
 }

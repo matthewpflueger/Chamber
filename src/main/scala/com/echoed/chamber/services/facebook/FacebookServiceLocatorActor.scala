@@ -27,15 +27,6 @@ class FacebookServiceLocatorActor extends Actor {
                 logger.debug("Seeded cache with FacebookService key {}", code)
                 f
             })
-
-//            cache.get(code) match {
-//                case None => {
-//                    val f = facebookServiceCreator.createFacebookServiceUsingCode(code)
-//                    cache += (code -> f)
-//                    self.channel ! f
-//                }
-//                case Some(f) => self.channel ! f
-//            }
         }
     }
 

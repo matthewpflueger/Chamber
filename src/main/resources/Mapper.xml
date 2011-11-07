@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Echoed">
 
+    <!-- select id="selectRetailerConfirmationCount" resultType="long">
+        select count(*) from RetailerConfirmation
+    </select>
+
     <insert id="insertEchoButtonData" parameterType="com.echoed.chamber.domain.RetailerConfirmation">
     	<selectKey keyProperty="id" resultType="string" order="BEFORE">select uuid()</selectKey>
     	insert into RetailerConfirmation(
@@ -16,7 +20,7 @@
     			#{productId}, 
     			#{shownOn}, 
     			#{step}) 
-    </insert>
+    </insert -->
 
 
     <resultMap id="facebookUserResult" type="com.echoed.chamber.domain.FacebookUser">
