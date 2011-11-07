@@ -20,3 +20,4 @@ service.pid
 .idea
 chamber.iml
 chamber.pid
+.DS_Store
