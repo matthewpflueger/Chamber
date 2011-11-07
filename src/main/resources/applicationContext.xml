@@ -29,6 +29,7 @@
                 location="classpath:applicationContext.properties"
                 properties-ref="applicationProperties"
                 ignore-unresolvable="true"
+                ignore-resource-not-found="true"
                 order="10000"/>
     <!--suppress SpringModelInspection -->
     <util:properties id="applicationProperties">

@@ -18,6 +18,7 @@
     <context:property-placeholder
                 location="classpath:database.properties"
                 ignore-unresolvable="true"
+                ignore-resource-not-found="true"
                 properties-ref="databaseProperties"
                 order="20000"/>
     <!--suppress SpringModelInspection -->
