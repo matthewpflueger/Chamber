@@ -25,12 +25,12 @@
     <!--suppress SpringModelInspection -->
     <util:properties id="servletContextProperties">
         <prop key="mustache.cache">true</prop>
-        <prop key="mustache.prefix">http://v1-api.echoed.com/</prop>
+        <prop key="mustache.prefix">http://v1-cdn.echoed.com/</prop>
         <!--<prop key="mustache.prefix">classpath:com/echoed/templates/mustache/</prop> -->
         <prop key="mustache.suffix">.mustache</prop>
 
         <!--<prop key="echoController.buttonRedirectUrl">http://v1-cdn.echoed.com/button_echoed.png</prop>-->
-        <prop key="echoController.buttonRedirectUrl">http://localhost:8080/button_echoed.png</prop>
+        <prop key="echoController.buttonRedirectUrl">http://v1-cdn.echoed.com/button_echoed.png</prop>
         <prop key="echoController.loginRedirectUrl">http://v1-cdn.echoed.com/login.html</prop>
     </util:properties>
 

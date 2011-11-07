@@ -29,8 +29,8 @@
         <prop key="context"></prop>
         <prop key="resourceBase">/var/www</prop>
 
-        <prop key="springframework.applicationContext">classpath:/WEB-INF/applicationContext.xml</prop>
-        <prop key="springframework.servletContext">classpath:/WEB-INF/servlet-context.xml</prop>
+        <prop key="springframework.applicationContext">classpath:applicationContext.xml</prop>
+        <prop key="springframework.servletContext">classpath:servlet-context.xml</prop>
         
         <prop key="executor.minThreads">16</prop>
         <prop key="executor.maxThreads">256</prop>

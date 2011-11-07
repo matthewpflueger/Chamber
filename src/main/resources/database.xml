@@ -35,26 +35,32 @@
        <property name="url" value="${jdbc.url}" />
        <property name="username" value="${jdbc.username}" />
        <property name="password" value="${jdbc.password}" />
-   </bean>
+    </bean>
 
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-   <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-       <property name="dataSource" ref="dataSource" />
-       <property name="configLocation" value="${mybatis.sqlMapConfig}" />
-   </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="${mybatis.sqlMapConfig}" />
+    </bean>
 
-   <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
-       <constructor-arg index="0" ref="sqlSessionFactory" />
-       <constructor-arg index="1" value="${mybatis.executorType}" />
-   </bean>
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory" />
+        <constructor-arg index="1" value="${mybatis.executorType}" />
+    </bean>
 
+    <!-- NOTE: We have to manually register our dao's here instead of using MyBatis's
+                 MapperScannerConfigurer because placeholders do not get resolved :( -->
+    <bean id="retailerConfirmationDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerConfirmationDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
 
-   <bean id="retailerConfirmationDao" class="com.echoed.chamber.dao.RetailerConfirmationDaoMyBatis">
-       <property name="sqlSession" ref="sqlSession" />
-   </bean>
-
-   <bean id="facebookUserDao" class="com.echoed.chamber.dao.FacebookUserDaoMyBatis">
-       <property name="sqlSession" ref="sqlSession" />
-   </bean>
+    <bean id="facebookUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookUserDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
 
 </beans>

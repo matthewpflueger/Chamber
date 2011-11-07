@@ -38,7 +38,7 @@
     </util:properties>
 
 
-    <import resource="database.xml" />
+    <import resource="classpath:database.xml" />
 
 
     <bean id="facebookAccess" class="com.echoed.chamber.services.facebook.FacebookAccessActorClient">
