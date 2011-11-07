@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTEXT=src/main/webapp/WEB-INF/jetty.xml
+CONTEXT=src/main/resources/jetty.xml
 TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
 MAIN=com.echoed.chamber.Main
 
