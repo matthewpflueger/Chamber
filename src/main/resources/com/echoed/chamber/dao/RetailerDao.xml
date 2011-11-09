@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.RetailerDao">
+    <resultMap id="retailerResult" type="com.echoed.chamber.domain.Retailer">
+        <constructor>
+            <idArg column="id" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <select id="findById" resultMap="retailerResult">
+        select * from Retailer where id = #{id}
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.Retailer">
+        insert into Retailer(
+    			id)
+    		values (
+    			#{id})
+            on duplicate key update
+                id=#{id}
+    </insert>
+</mapper>

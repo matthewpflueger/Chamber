@@ -34,8 +34,8 @@
 
         <prop key="echoUrl">${apiUrl}/echo</prop>
         <prop key="buttonUrl">${apiUrl}/echo/button</prop>
-        <prop key="buttonRedirectUrl">${cdnUrl}/button_echoed.png</prop>
-        <prop key="loginRedirectUrl">${cdnUrl}/login.html</prop>
+        <prop key="buttonViewUrl">${cdnUrl}/button_echoed.png</prop>
+        <prop key="loginViewUrl">${cdnUrl}/login.html</prop>
     </util:properties>
 
 </beans>

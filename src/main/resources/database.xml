@@ -54,13 +54,18 @@
 
     <!-- NOTE: We have to manually register our dao's here instead of using MyBatis's
                  MapperScannerConfigurer because placeholders do not get resolved :( -->
-    <bean id="retailerConfirmationDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerConfirmationDao" />
+    <bean id="echoPossibilityDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.EchoPossibilityDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
     <bean id="facebookUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookUserDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
+    <bean id="retailerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.EchoPossibilityDao">
+
+    <select id="selectCount" resultType="long">
+        select count(*) from EchoPossibility
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.EchoPossibility">
+    	insert into EchoPossibility (
+    			id,
+    			retailerId,
+                customerId,
+    			productId,
+    			boughtOn,
+    			step,
+                echoedUserId)
+    	values (
+    			#{id},
+    			#{retailerId},
+    			#{productId},
+                #{customerId},
+    			#{boughtOn},
+    			#{step},
+                #{echoedUserId})
+        on duplicate key update
+                id=#{id},
+                retailerId=#{retailerId},
+                productId=#{productId},
+                customerId=#{customerId},
+                boughtOn=#{boughtOn},
+                step=#{step},
+	    		echoedUserId=#{echoedUserId}
+    </insert>
+
+    <delete id="deleteById">
+        delete from EchoPossibility where id = #{id}
+    </delete>
+</mapper>

@@ -27,8 +27,8 @@
     <util:properties id="urls">
         <prop key="echoUrl">${echoUrl}</prop>
         <prop key="buttonUrl">${buttonUrl}</prop>
-        <prop key="buttonRedirectUrl">${buttonRedirectUrl}</prop>
-        <prop key="loginRedirectUrl">${loginRedirectUrl}</prop>
+        <prop key="buttonViewUrl">${buttonViewUrl}</prop>
+        <prop key="loginViewUrl">${loginViewUrl}</prop>
     </util:properties>
 
     <bean id="webDriver" class="org.openqa.selenium.firefox.FirefoxDriver" />

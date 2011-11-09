@@ -31,8 +31,8 @@ class FacebookAccessActor extends Actor {
             clientId = properties.getProperty("clientId")
             clientSecret = properties.getProperty("clientSecret")
             redirectUrl = properties.getProperty("redirectUrl")
-            clientId != null && clientSecret != null && redirectUrl != null
-        } ensuring (_ == true, "Missing parameters")
+            //clientId != null && clientSecret != null && redirectUrl != null
+        } ensuring (clientId != null && clientSecret != null && redirectUrl != null, "Missing parameters")
     }
 
     def receive = {

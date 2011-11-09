@@ -3,15 +3,24 @@ create database Echoed default character set utf8;
 use Echoed;
 
 
-drop table if exists RetailerConfirmation;
-create table RetailerConfirmation (
+
+drop table if exists Retailer;
+create table Retailer (
     id varchar(36) not null,
-    retailerId varchar(36) not null,
-    productId varchar(36) not null,
-    shownOn timestamp not null,
-    step tinyint not null,
     primary key(id)
-) engine = MyISAM;
+) engine = InnoDB;
+
+drop table if exists EchoPossibility;
+create table EchoPossibility (
+    id varchar(255) not null,
+    retailerId varchar(36) not null,
+    customerId varchar(255) not null,
+    productId varchar(255) not null,
+    boughtOn timestamp not null,
+    step varchar(36) not null,
+    echoedUserId varchar(36),
+    primary key(id)
+) engine = InnoDB;
 
 
 drop table if exists EchoedUser;

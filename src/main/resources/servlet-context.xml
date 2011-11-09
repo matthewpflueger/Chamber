@@ -58,9 +58,9 @@
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="echoController" class="com.echoed.chamber.controllers.EchoController">
-        <property name="retailerConfirmationDao" ref="retailerConfirmationDao" />
-        <property name="buttonRedirectUrl" value="${buttonRedirectUrl}" />
-        <property name="loginRedirectUrl" value="${loginRedirectUrl}" />
+        <property name="echoService" ref="echoService" />
+        <property name="buttonView" value="redirect:${buttonViewUrl}" />
+        <property name="loginView" value="redirect:${loginViewUrl}" />
     </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->

@@ -54,6 +54,9 @@
         <property name="actorRef" ref="facebookServiceLocatorActor" />
     </bean>
 
+    <bean id="echoService" class="com.echoed.chamber.services.EchoServiceActorClient">
+        <property name="echoServiceActor" ref="echoServiceActor" />
+    </bean>
 
     <!-- NOTE: defining a separate properties object is an ugly hack to fix a bug in Akka's Spring integration where placeholder's
                 were not getting resolved - see ActorFactoryBean#setProperties -->
@@ -67,6 +70,7 @@
             id="facebookAccessActor"
             implementation="com.echoed.chamber.services.facebook.FacebookAccessActor"
             autostart="true">
+        <!--suppress SpringModelInspection -->
         <property name="properties" ref="facebookAccessActorProperties" />
     </akka:untyped-actor>
 
@@ -74,7 +78,9 @@
             id="facebookServiceCreatorActor"
             implementation="com.echoed.chamber.services.facebook.FacebookServiceCreatorActor"
             autostart="true">
+        <!--suppress SpringModelInspection -->
         <property name="facebookAccess" ref="facebookAccess" />
+        <!--suppress SpringModelInspection -->
         <property name="facebookUserDao" ref="facebookUserDao" />
     </akka:untyped-actor>
 
@@ -82,8 +88,17 @@
             id="facebookServiceLocatorActor"
             implementation="com.echoed.chamber.services.facebook.FacebookServiceLocatorActor"
             autostart="true">
+        <!--suppress SpringModelInspection -->
         <property name="facebookServiceCreator" ref="facebookServiceCreator" />
     </akka:untyped-actor>
 
-
+    <akka:untyped-actor
+            id="echoServiceActor"
+            implementation="com.echoed.chamber.services.EchoServiceActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="echoPossibilityDao" ref="echoPossibilityDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="retailerDao" ref="retailerDao" />
+    </akka:untyped-actor>
 </beans>

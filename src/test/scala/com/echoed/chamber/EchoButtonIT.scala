@@ -1,6 +1,7 @@
 package com.echoed.chamber
 
-import dao.RetailerConfirmationDao
+import dao.{RetailerDao, EchoPossibilityDao}
+import domain.{EchoPossibilityHelper, EchoPossibility, Retailer}
 import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +17,8 @@ import java.util.Properties
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
 class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
-    @Autowired @BeanProperty var retailerConfirmationDao: RetailerConfirmationDao = null
+    @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = null
+    @Autowired @BeanProperty var retailerDao: RetailerDao = null
     @Autowired @BeanProperty var webDriver: WebDriver = null
 
     @Autowired @BeanProperty var urls: Properties = null
@@ -25,12 +27,12 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
 
     var buttonUrl: String = null
-    var buttonRedirectUrl: String = null
+    var buttonViewUrl: String = null
 
     {
         buttonUrl = urls.getProperty("buttonUrl")
-        buttonRedirectUrl = urls.getProperty("buttonRedirectUrl")
-        buttonUrl != null && buttonRedirectUrl != null
+        buttonViewUrl = urls.getProperty("buttonViewUrl")
+        buttonUrl != null && buttonViewUrl != null
     } ensuring (_ == true, "Missing parameters")
 
 
@@ -44,7 +46,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
 
         scenario("button is requested with no retailer, customer, or purchase info") {
-            val count = retailerConfirmationDao.selectRetailerConfirmationCount
+            val count = echoPossibilityDao.selectCount
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl)
@@ -52,7 +54,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
             when("there is no other information")
             then("redirect to the button")
-            webDriver.getCurrentUrl should equal (buttonRedirectUrl)
+            webDriver.getCurrentUrl should equal (buttonViewUrl)
 
             and("no info should be recorded in the database")
             //This is a nasty hack to allow time for the underlying database to be updated.  To repeat this bug start
@@ -60,22 +62,22 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             //will pass the first time but fail the second time (of course it should always pass so you will have to force a database update).
             //Anyway, for some reason manually flushing the SQL statement caches does not work...
             Thread.sleep(1000)
-            count should equal (retailerConfirmationDao.selectRetailerConfirmationCount)
+            count should equal (echoPossibilityDao.selectCount)
         }
 
         scenario("button is requested with invalid retailer id") {
-            val count = retailerConfirmationDao.selectRetailerConfirmationCount
+            val count = echoPossibilityDao.selectCount
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl + "?retailerId=foo")
 
             when("there is an invalid retailer id")
             then("redirect to the button")
-            webDriver.getCurrentUrl should equal (buttonRedirectUrl)
+            webDriver.getCurrentUrl should equal (buttonViewUrl)
 
             and("no info should be recorded in the database")
             Thread.sleep(1000)
-            count should equal (retailerConfirmationDao.selectRetailerConfirmationCount)
+            count should equal (echoPossibilityDao.selectCount)
         }
 
         scenario("button is requested from an unknown site") {
@@ -86,19 +88,23 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             pending
         }
 
-        scenario("button is requested with a valid retailer id") {
-            val count = retailerConfirmationDao.selectRetailerConfirmationCount
+        scenario("button is requested with valid parameters") {
+            val (echoPossibility, expectedBase64Value) = EchoPossibilityHelper.getValidEchoPossibilityAndHash
+
+            retailerDao.insertOrUpdate(new Retailer(echoPossibility.retailerId))
+            echoPossibilityDao.deleteById(echoPossibility.id)
+            val count = echoPossibilityDao.selectCount
 
             given("a request for the button")
-            webDriver.navigate.to(buttonUrl + "?retailerId=avalidretailerid")
+            webDriver.navigate.to(buttonUrl + echoPossibility.generateUrlParameters)
 
-            when("there is a valid retailer id")
+            when("there are valid parameters")
             then("redirect to the button")
-            webDriver.getCurrentUrl should equal (buttonRedirectUrl)
+            webDriver.getCurrentUrl should equal (buttonViewUrl)
 
-            and("record any information given in the database")
+            and("record the EchoPossibility in the database")
             Thread.sleep(1000)
-            (count+1) should equal (retailerConfirmationDao.selectRetailerConfirmationCount)
+            (count+1) should equal (echoPossibilityDao.selectCount)
         }
 
     }

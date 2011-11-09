@@ -1,47 +1,65 @@
 package com.echoed.chamber.controllers
 
-import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod}
-import com.echoed.chamber.domain.RetailerConfirmation
+import com.echoed.chamber.domain.EchoPossibility
 import org.springframework.stereotype.Controller
-import com.echoed.chamber.dao.RetailerConfirmationDao
 import reflect.BeanProperty
-import akka.dispatch.Future
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import java.util.Date
 import org.slf4j.LoggerFactory
+import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import com.echoed.chamber.services.EchoService
+import org.springframework.web.servlet.ModelAndView
 
 
 @Controller
 @RequestMapping(Array("/echo"))
-class EchoController extends {
+class EchoController {
 
     private val logger = LoggerFactory.getLogger(classOf[EchoController])
 
-    @BeanProperty var retailerConfirmationDao: RetailerConfirmationDao = null
-    @BeanProperty var buttonRedirectUrl: String = null
-    @BeanProperty var loginRedirectUrl: String = null
+    @BeanProperty var buttonView: String = null
+    @BeanProperty var loginView: String = null
+    @BeanProperty var echoService: EchoService = null
 
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
-    def button(retailerConfirmation: RetailerConfirmation, httpServletResponse: HttpServletResponse) {
-        insertRetailerConfirmation(retailerConfirmation, 1)
-        httpServletResponse.sendRedirect(buttonRedirectUrl)
+    def button(
+            //TODO cookies should be encrypted
+            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
+            echoPossibility: EchoPossibility,
+            httpServletResponse: HttpServletResponse) = {
+        echoPossibility.echoedUserId = echoedUserId
+        echoPossibility.step = "button" //TODO externalize this...
+        echoService.recordEchoPossibility(echoPossibility)
+                .onComplete(_.value.get.fold(e => logger.error("Failed to record EchoPossibility {} due to error {}", echoPossibility, e),
+                                             p => logger.debug("Recorded EchoPossibility {}", p)))
+                .onTimeout(_ => logger.error("Timeout recording EchoPossibility {}", echoPossibility))
+
+        new ModelAndView(buttonView)
     }
+
+//    @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
+//    def button(echoPossibility: EchoPossibility, httpServletResponse: HttpServletResponse) {
+//        insertOrUpdate(echoPossibility, 1)
+//        httpServletResponse.sendRedirect(buttonRedirectUrl)
+//    }
 
     @RequestMapping(method = Array(RequestMethod.GET))
-    def echo(retailerConfirmation: RetailerConfirmation, httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse): Unit = {
-        insertRetailerConfirmation(retailerConfirmation, 2)
-        httpServletResponse.sendRedirect(loginRedirectUrl)
+    def echo(
+            retailerConfirmation: EchoPossibility,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+//        insertOrUpdate(echoPossibility, 2)
+        new ModelAndView(loginView)
     }
 
-    private def insertRetailerConfirmation(retailerConfirmation: RetailerConfirmation, step: Int) {
-        Future {
-            retailerConfirmation.step = step
-            retailerConfirmation.shownOn = new Date
-            retailerConfirmationDao.insertRetailerConfirmation(retailerConfirmation)
-        }.onResult({case r => logger.debug("Inserted RetailerConfirmation record %s" format r)})
-         .onException({case e => logger.error("Error inserting RetailerConfirmation record %s" format e)})
-         .onTimeout(f => logger.warn("Future timed out %s" format f))
-    }
+//    private def insertOrUpdate(echoPossibility: EchoPossibility, step: Int) {
+//        Future {
+//            echoPossibility.step = step
+//            echoPossibility.shownOn = new Date
+//            retailerConfirmationDao.insertOrUpdate(echoPossibility)
+//        }.onResult({case r => logger.debug("Inserted EchoPossibility record %s" format r)})
+//         .onException({case e => logger.error("Error inserting EchoPossibility record %s" format e)})
+//         .onTimeout(f => logger.warn("Future timed out %s" format f))
+//    }
 
 
 }
