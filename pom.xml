@@ -175,6 +175,12 @@
             <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>se.scalablesolutions.akka</groupId>
+            <artifactId>akka-testkit</artifactId>
+            <version>${akka.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 
