@@ -30,6 +30,7 @@ class EchoHelper extends ShouldMatchers {
         validateCountIs(count + 1)
         val recordedEchoPossibility = echoPossibilityDao.findById(echoPossibility.id)
         recordedEchoPossibility.id should equal (echoPossibility.id)
+        recordedEchoPossibility.step should equal (echoPossibility.step)
     }
 
     def getEchoPossibilityCount = echoPossibilityDao.selectCount
