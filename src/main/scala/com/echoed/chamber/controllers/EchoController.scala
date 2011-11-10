@@ -28,11 +28,7 @@ class EchoController {
             httpServletResponse: HttpServletResponse) = {
         echoPossibility.echoedUserId = echoedUserId
         echoPossibility.step = "button" //TODO externalize this...
-        echoService.recordEchoPossibility(echoPossibility)
-                .onComplete(_.value.get.fold(e => logger.error("Failed to record EchoPossibility {} due to error {}", echoPossibility, e),
-                                             p => logger.debug("Recorded EchoPossibility {}", p)))
-                .onTimeout(_ => logger.error("Timeout recording EchoPossibility {}", echoPossibility))
-
+        recordEchoPossibility(echoPossibility)
         new ModelAndView(buttonView)
     }
 
@@ -44,11 +40,18 @@ class EchoController {
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def echo(
-            retailerConfirmation: EchoPossibility,
+            echoPossibility: EchoPossibility,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 //        insertOrUpdate(echoPossibility, 2)
         new ModelAndView(loginView)
+    }
+
+    def recordEchoPossibility(echoPossibility: EchoPossibility) {
+        echoService.recordEchoPossibility(echoPossibility)
+                .onComplete(_.value.get.fold(e => logger.error("Failed to record {} due to {}", echoPossibility, e),
+                                             p => logger.debug("Recorded {}", p)))
+                .onTimeout(_ => logger.error("Timeout recording {}", echoPossibility))
     }
 
 //    private def insertOrUpdate(echoPossibility: EchoPossibility, step: Int) {

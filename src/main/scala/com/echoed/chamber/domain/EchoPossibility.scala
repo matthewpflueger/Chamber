@@ -7,6 +7,7 @@ import collection.mutable.ArrayBuilder
 import java.net.URLEncoder
 
 case class EchoPossibility(
+                      var _id: String,
         @BeanProperty var retailerId: String,
         @BeanProperty var customerId: String,
         @BeanProperty var productId: String,
@@ -15,18 +16,16 @@ case class EchoPossibility(
         @BeanProperty var echoedUserId: String) {
 
     def this() = {
-        this(null, null, null, null, null, null)
+        this(null, null, null, null, null, null, null)
     }
 
     private val encoding: String = "UTF-8"
 
-    private var _id: Option[String] = None
-
     def getId = id
-    def setId(id: String) = id_=(id)
+//    def setId(id: String) = id_=(id)
 
     def id = {
-        _id = for {
+        val optionalId: Option[String] = for {
             r <- Option(retailerId)
             c <- Option(customerId)
             p <- Option(productId)
@@ -39,12 +38,12 @@ case class EchoPossibility(
             arrayBuilder ++= b.toString.getBytes(encoding)
             Base64.encodeBase64URLSafeString(arrayBuilder.result())
         }
-        _id.orNull
+        optionalId.orNull
     }
 
-    def id_=(id: String) {
-        _id = Option(id)
-    }
+//    def id_=(id: String) {
+//        _id = id
+//    }
 
     def generateUrlParameters: String = {
         val params: Option[String] = for {

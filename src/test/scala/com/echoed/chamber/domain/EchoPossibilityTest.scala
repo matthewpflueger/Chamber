@@ -23,7 +23,7 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
 
         it("should return a url safe base 64 string when all necessary properties are set") {
             given("an EchoPossibility with all necessary properties set")
-            val (echoPossibility, expectedBase64Value) = EchoPossibilityHelper.getValidEchoPossibilityAndHash
+            val (echoPossibility, expectedBase64Value) = EchoPossibilityHelper.getValidEchoPossibilityAndHash()
 
             when("all necessary properties have been set")
             then("the id should return a valid base64 string")
@@ -33,17 +33,22 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
 }
 
 object EchoPossibilityHelper {
-    def getValidEchoPossibilityAndHash = {
+    def getValidEchoPossibilityAndHash(
+            step: String = "button",
+            echoedUserId: String = null,
+            //a normal base64 will have one or more '=' characters for padding - they are ripped off for url safe base64 strings...
+            expectedEchoPossibilityId: String = "dGVzdFJldGFpbGVySWR0ZXN0UmV0YWlsZXJDdXN0b21lcklkdGVzdFByb2R1Y3RJZFdlZCBOb3YgMDkgMTU6MzY6NTYgRVNUIDIwMTE") = {
+
         (new EchoPossibility(
+                expectedEchoPossibilityId,
                 "testRetailerId",
                 "testRetailerCustomerId",
                 "testProductId",
                 new Date(1320871016126L), //Wed Nov 09 15:36:56 EST 2011
-                null,
-                null
+                step,
+                echoedUserId
                 ),
 
-        //a normal base64 will have one or more '=' characters for padding - they are ripped off for url safe base64 strings...
-        "dGVzdFJldGFpbGVySWR0ZXN0UmV0YWlsZXJDdXN0b21lcklkdGVzdFByb2R1Y3RJZFdlZCBOb3YgMDkgMTU6MzY6NTYgRVNUIDIwMTE")
+        expectedEchoPossibilityId)
     }
 }

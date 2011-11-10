@@ -1,7 +1,6 @@
 package com.echoed.chamber
 
 import dao.{RetailerDao, EchoPossibilityDao}
-import domain.{EchoPossibilityHelper, EchoPossibility, Retailer}
 import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,8 +16,7 @@ import java.util.Properties
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
 class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
-    @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = null
-    @Autowired @BeanProperty var retailerDao: RetailerDao = null
+    @Autowired @BeanProperty var echoHelper: EchoHelper = null
     @Autowired @BeanProperty var webDriver: WebDriver = null
 
     @Autowired @BeanProperty var urls: Properties = null
@@ -46,7 +44,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
 
         scenario("button is requested with no retailer, customer, or purchase info") {
-            val count = echoPossibilityDao.selectCount
+            val count = echoHelper.getEchoPossibilityCount
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl)
@@ -57,16 +55,11 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
             and("no info should be recorded in the database")
-            //This is a nasty hack to allow time for the underlying database to be updated.  To repeat this bug start
-            //Chamber up in debug mode with no breakpoints set and then run this test, if your machine is like mine the test
-            //will pass the first time but fail the second time (of course it should always pass so you will have to force a database update).
-            //Anyway, for some reason manually flushing the SQL statement caches does not work...
-            Thread.sleep(1000)
-            count should equal (echoPossibilityDao.selectCount)
+            echoHelper.validateCountIs(count)
         }
 
         scenario("button is requested with invalid retailer id") {
-            val count = echoPossibilityDao.selectCount
+            val count = echoHelper.getEchoPossibilityCount
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl + "?retailerId=foo")
@@ -76,8 +69,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
             and("no info should be recorded in the database")
-            Thread.sleep(1000)
-            count should equal (echoPossibilityDao.selectCount)
+            echoHelper.validateCountIs(count)
         }
 
         scenario("button is requested from an unknown site") {
@@ -89,11 +81,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         }
 
         scenario("button is requested with valid parameters") {
-            val (echoPossibility, expectedBase64Value) = EchoPossibilityHelper.getValidEchoPossibilityAndHash
-
-            retailerDao.insertOrUpdate(new Retailer(echoPossibility.retailerId))
-            echoPossibilityDao.deleteById(echoPossibility.id)
-            val count = echoPossibilityDao.selectCount
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl + echoPossibility.generateUrlParameters)
@@ -103,10 +91,10 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
             and("record the EchoPossibility in the database")
-            Thread.sleep(1000)
-            (count+1) should equal (echoPossibilityDao.selectCount)
+            echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 
     }
 
 }
+

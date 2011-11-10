@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.echoed.chamber.dao.EchoPossibilityDao">
+    <resultMap id="echoPossibilityResult" type="com.echoed.chamber.domain.EchoPossibility">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="customerId" javaType="String" />
+			<arg column="productId" javaType="String" />
+			<arg column="boughtOn" javaType="Date" />
+			<arg column="step" javaType="String" />
+			<arg column="echoedUserId" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <select id="findById" resultMap="echoPossibilityResult">
+    	select * from EchoPossibility where id = #{id}
+    </select>
 
     <select id="selectCount" resultType="long">
         select count(*) from EchoPossibility
@@ -18,16 +33,16 @@
     	values (
     			#{id},
     			#{retailerId},
-    			#{productId},
                 #{customerId},
+    			#{productId},
     			#{boughtOn},
     			#{step},
                 #{echoedUserId})
         on duplicate key update
                 id=#{id},
                 retailerId=#{retailerId},
-                productId=#{productId},
                 customerId=#{customerId},
+                productId=#{productId},
                 boughtOn=#{boughtOn},
                 step=#{step},
 	    		echoedUserId=#{echoedUserId}

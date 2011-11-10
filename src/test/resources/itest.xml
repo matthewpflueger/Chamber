@@ -33,4 +33,6 @@
 
     <bean id="webDriver" class="org.openqa.selenium.firefox.FirefoxDriver" />
 
+    <bean id="echoHelper" class="com.echoed.chamber.EchoHelper" />
+
 </beans>
