@@ -10,7 +10,8 @@ MAIN=com.echoed.chamber.Main
 PACKAGE="mvn -DskipTests -Pallinone package"
 CLASSPATH=".:`ls -1 ${TARGET}`"
 OVERRIDES="src/overrides/resources"
-ARGS="-server -Xms1024m -Xmx2048m -XX:PermSize=256m -Djava.net.preferIPv4Stack=true"
+ARGS_INTERESTING="-XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled"
+ARGS="-server -Xms1024m -Xmx2048m -XX:PermSize=256m  -Djava.net.preferIPv4Stack=true"
 
 case "$1" in
     start)

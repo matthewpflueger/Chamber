@@ -11,7 +11,7 @@ case class EchoPossibility(
         @BeanProperty var retailerId: String,
         @BeanProperty var customerId: String,
         @BeanProperty var productId: String,
-        @BeanProperty var boughtOn: Date, //Date = new Date,
+        @BeanProperty var boughtOn: Date,
         @BeanProperty var step: String,
         @BeanProperty var echoedUserId: String) {
 
@@ -22,9 +22,10 @@ case class EchoPossibility(
     private val encoding: String = "UTF-8"
 
     def getId = id
-//    def setId(id: String) = id_=(id)
 
     def id = {
+        //NOTE: do not include any changing attributes in the hash calc.  For example, step should never
+        // be included as it changes with every step the user takes to echo a purchase (button, login, etc)
         val optionalId: Option[String] = for {
             r <- Option(retailerId)
             c <- Option(customerId)
@@ -40,10 +41,6 @@ case class EchoPossibility(
         }
         optionalId.orNull
     }
-
-//    def id_=(id: String) {
-//        _id = id
-//    }
 
     def generateUrlParameters: String = {
         val params: Option[String] = for {

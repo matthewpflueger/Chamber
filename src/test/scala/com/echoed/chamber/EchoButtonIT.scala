@@ -81,7 +81,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         }
 
         scenario("button is requested with valid parameters") {
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility()
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl + echoPossibility.generateUrlParameters)

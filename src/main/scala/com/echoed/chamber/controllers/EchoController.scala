@@ -4,10 +4,11 @@ import com.echoed.chamber.domain.EchoPossibility
 import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.chamber.services.EchoService
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod}
+import org.springframework.web.bind.annotation.CookieValue._
 
 
 @Controller
@@ -24,26 +25,21 @@ class EchoController {
     def button(
             //TODO cookies should be encrypted
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            echoPossibility: EchoPossibility,
-            httpServletResponse: HttpServletResponse) = {
+            echoPossibility: EchoPossibility) = {
         echoPossibility.echoedUserId = echoedUserId
         echoPossibility.step = "button" //TODO externalize this...
         recordEchoPossibility(echoPossibility)
         new ModelAndView(buttonView)
     }
 
-//    @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
-//    def button(echoPossibility: EchoPossibility, httpServletResponse: HttpServletResponse) {
-//        insertOrUpdate(echoPossibility, 1)
-//        httpServletResponse.sendRedirect(buttonRedirectUrl)
-//    }
-
     @RequestMapping(method = Array(RequestMethod.GET))
     def echo(
+            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
             echoPossibility: EchoPossibility,
-            httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
-//        insertOrUpdate(echoPossibility, 2)
+        echoPossibility.echoedUserId = echoedUserId
+        echoPossibility.step = "login"
+        recordEchoPossibility(echoPossibility)
         new ModelAndView(loginView)
     }
 
@@ -53,16 +49,5 @@ class EchoController {
                                              p => logger.debug("Recorded {}", p)))
                 .onTimeout(_ => logger.error("Timeout recording {}", echoPossibility))
     }
-
-//    private def insertOrUpdate(echoPossibility: EchoPossibility, step: Int) {
-//        Future {
-//            echoPossibility.step = step
-//            echoPossibility.shownOn = new Date
-//            retailerConfirmationDao.insertOrUpdate(echoPossibility)
-//        }.onResult({case r => logger.debug("Inserted EchoPossibility record %s" format r)})
-//         .onException({case e => logger.error("Error inserting EchoPossibility record %s" format e)})
-//         .onTimeout(f => logger.warn("Future timed out %s" format f))
-//    }
-
 
 }

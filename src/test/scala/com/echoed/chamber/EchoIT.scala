@@ -1,6 +1,7 @@
 package com.echoed.chamber
 
 import dao.EchoPossibilityDao
+import domain.{Retailer, EchoPossibilityHelper}
 import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +18,7 @@ import java.util.Properties
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
 class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
-    @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = null
+    @Autowired @BeanProperty var echoHelper: EchoHelper = null
     @Autowired @BeanProperty var webDriver: WebDriver = null
 
     @Autowired @BeanProperty var urls: Properties = null
@@ -41,17 +42,33 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         info("I want to be able to click on the Echo button")
         info("So that I can share my purchase with friends")
 
-
-        scenario("unknown user clicks on echo button and is redirected to login page") {
+        scenario("unknown user clicks on echo button with invalid parameters and is redirected to Echoed's info page") {
             given("a request to echo a purchase")
-            webDriver.manage().deleteCookieNamed("echoedinc")
-            webDriver.navigate.to(echoUrl)
+            when("the user is unrecognized (no cookie) and invalid parameters")
+            then("redirect to Echoed's info page")
+            pending
+        }
 
-            when("the user is unrecognized (no cookie)")
+        scenario("when a known user clicks on echo button with invalid parameters and is redirected to closet") {
+            given("a request to echo a purchase")
+            when("the user is recognized (has cookie) and invalid parameters")
+            then("redirect to the user's Echoed closet")
+            and("ask user to report the error (so we may contact the retailer)")
+            pending
+        }
+
+        scenario("unknown user clicks on echo button with valid parameters and is redirected to login page") {
+            given("a request to echo a purchase")
+            when("the user is unrecognized (no cookie) and with valid parameters")
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
+            webDriver.manage().deleteCookieNamed("echoedUserId")
+            webDriver.navigate.to(echoUrl + echoPossibility.generateUrlParameters)
 
             then("redirect to the login page")
-            and("record the attempt to echo in the database as a retailer confirmation")
-            1 should equal (2) //force failure here
+            webDriver.getCurrentUrl should equal (loginViewUrl)
+
+            and("record the EchoPossibility in the database")
+            echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 
     }
