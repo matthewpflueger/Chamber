@@ -19,7 +19,8 @@ class EchoHelper extends ShouldMatchers {
             //a normal base64 will have one or more '=' characters for padding - they are ripped off for url safe base64 strings...
             expectedEchoPossibilityId: String = "dGVzdFJldGFpbGVySWR0ZXN0UmV0YWlsZXJDdXN0b21lcklkdGVzdFByb2R1Y3RJZFdlZCBOb3YgMDkgMTU6MzY6NTYgRVNUIDIwMTE") = {
 
-        val (echoPossibility, _) = EchoPossibilityHelper.getValidEchoPossibilityAndHash()
+        val (echoPossibility, _) = EchoPossibilityHelper.getValidEchoPossibilityAndHash(
+                step, echoedUserId, expectedEchoPossibilityId)
         retailerDao.insertOrUpdate(new Retailer(echoPossibility.retailerId))
         echoPossibilityDao.deleteById(echoPossibility.id)
         val count = echoPossibilityDao.selectCount
