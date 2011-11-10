@@ -36,6 +36,10 @@
         <prop key="facebook.clientId">177687295582534</prop>
         <prop key="facebook.clientSecret">32dc29f669ce9f97bc9bade3bdf1ca79</prop>
         <prop key="facebook.redirectUrl">http://v1-api.echoed.com/facebook/login</prop>
+
+        <prop key="twitter.consumerKey">Gb6kawhjcWu3wLc9aWJqQ</prop>
+        <prop key="twitter.consumerSecret">cpJ8p207SeDSiCvMVMeuBROS0j3KG421C2BrdePweS4</prop>
+        <prop key="twitter.callbackUrl">http://v1-api.echoed.com/twitter/login</prop>
     </util:properties>
 
 
@@ -58,6 +62,18 @@
         <property name="echoServiceActor" ref="echoServiceActor" />
     </bean>
 
+     <bean id="twitterAccess" class="com.echoed.chamber.services.twitter.TwitterAccessActorClient">
+        <property name="twitterAccessActor" ref="twitterAccessActor" />
+    </bean>
+
+    <bean id="twitterServiceCreator" class="com.echoed.chamber.services.twitter.TwitterServiceCreatorActorClient">
+        <property name="twitterServiceCreatorActor" ref="twitterServiceCreatorActor" />
+    </bean>
+
+    <bean id="twitterServiceLocator" class="com.echoed.chamber.services.twitter.TwitterServiceLocatorActorClient">
+        <property name="actorRef" ref="twitterServiceLocatorActor" />
+    </bean>
+
     <!-- NOTE: defining a separate properties object is an ugly hack to fix a bug in Akka's Spring integration where placeholder's
                 were not getting resolved - see ActorFactoryBean#setProperties -->
     <!--suppress SpringModelInspection -->
@@ -66,6 +82,14 @@
         <prop key="clientSecret">${facebook.clientSecret}</prop>
         <prop key="redirectUrl">${facebook.redirectUrl}</prop>
     </util:properties>
+
+    <util:properties id="twitterAccessActorProperties">
+        <prop key="consumerKey">${twitter.consumerKey}</prop>
+        <prop key="consumerSecret">${twitter.consumerSecret}</prop>
+        <prop key="callbackUrl">${twitter.callbackUrl}</prop>
+    </util:properties>
+
+
     <akka:untyped-actor
             id="facebookAccessActor"
             implementation="com.echoed.chamber.services.facebook.FacebookAccessActor"
@@ -100,5 +124,27 @@
         <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->
         <property name="retailerDao" ref="retailerDao" />
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+           id="twitterAccessActor"
+           implementation="com.echoed.chamber.services.twitter.TwitterAccessActor"
+           autostart="true">
+       <property name="properties" ref="twitterAccessActorProperties"/>
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+           id="twitterServiceCreatorActor"
+           implementation="com.echoed.chamber.services.twitter.TwitterServiceCreatorActor"
+           autostart="true">
+       <property name="twitterAccess" ref="twitterAccess"/>
+       <property name="twitterUserDao" ref="twitterUserDao"/>
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+           id="twitterServiceLocatorActor"
+           implementation="com.echoed.chamber.services.twitter.TwitterServiceLocatorActor"
+           autostart="true">
+       <property name="twitterServiceCreator" ref="twitterServiceCreator"/>
     </akka:untyped-actor>
 </beans>

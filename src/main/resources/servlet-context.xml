@@ -63,6 +63,10 @@
         <property name="loginView" value="redirect:${loginViewUrl}" />
     </bean>
 
+
+     <bean id="twitterController" class="com.echoed.chamber.controllers.TwitterController">
+        <property name="twitterRedirectUrl" value="${twitterController.loginRedirectUrl}"/>
+    </bean>
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>
 </beans>

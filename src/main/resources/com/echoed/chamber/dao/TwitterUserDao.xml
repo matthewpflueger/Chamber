@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.TwitterUserDao">
+
+    <resultMap id="twitterUserResult" type="com.echoed.chamber.domain.TwitterUser">
+        <constructor>
+            <idArg column="id" javaType="String"/>
+            <arg column="username" javaType="String"/>
+            <arg column="name" javaType="String"/>
+            <arg column="location" javaType="String"/>
+            <arg column="timezone" javaType="String"/>
+            <arg column="accessToken" javaType="String"/>
+            <arg column="accessTokenSecret" javaType="String"/>
+        </constructor>
+    </resultMap>
+
+
+    <insert id="insertOrUpdateTwitterUser" parameterType="com.echoed.chamber.domain.TwitterUser">
+        insert into TwitterUser(
+            id,
+            echoedUserId,
+            username,
+            name,
+            location,
+            timezone,
+            accessToken,
+            accessTokenSecret)
+        values(
+            #{id},
+            #{echoedUserId},
+            #{username},
+            #{name},
+            #{location},
+            #{timezone},
+            #{accessToken},
+            #{accessTokenSecret})
+        on duplicate key update
+            id = #{id},
+            echoedUserId = #{echoedUserId},
+            name = #{name},
+            username = #{username},
+            location = #{location},
+            timezone = #{timezone},
+            accessToken = #{accessToken},
+            accessTokenSecret= #{accessTokenSecret}
+   </insert>
+
+    <select id="selectTwitterUser" resultMap="twitterUserResult">
+    	select * from TwitterUser where id = #{value}
+    </select>
+
+
+</mapper>

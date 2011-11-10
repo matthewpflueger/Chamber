@@ -39,7 +39,19 @@ create table EchoedUser (
 	unique key(facebookUserId),
 	unique key(username)
 ) engine = InnoDB;
-	
+
+drop table if exists TwitterUser;
+create table TwitterUser(
+  id varchar(36) not null,
+  echoedUserId varchar(36),
+  username varchar(36) not null,
+  name varchar(36) not null,
+  location varchar(36) null,
+  timezone varchar(36) null,
+  accessToken varchar(255) not null,
+  accessTokenSecret varchar(255) not null,
+  primary key(id)
+) engine = InnoDB;
 
 drop table if exists FacebookUser;
 create table FacebookUser (
@@ -65,7 +77,7 @@ create table FacebookFriend (
     facebookUserId varchar(36) not null,
     name varchar(255) not null,
     primary key(id, facebookUserId)
-) type = InnoDB;
+) engine = InnoDB;
 
 drop table if exists DatabaseVersion;
 create table DatabaseVersion (
