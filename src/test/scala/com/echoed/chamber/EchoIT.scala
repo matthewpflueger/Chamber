@@ -12,6 +12,7 @@ import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import org.openqa.selenium.WebDriver
 import java.util.Properties
+import tags.IntegrationTest
 
 
 @RunWith(classOf[JUnitRunner])
@@ -42,14 +43,14 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         info("I want to be able to click on the Echo button")
         info("So that I can share my purchase with friends")
 
-        scenario("unknown user clicks on echo button with invalid parameters and is redirected to Echoed's info page") {
+        scenario("unknown user clicks on echo button with invalid parameters and is redirected to Echoed's info page", IntegrationTest) {
             given("a request to echo a purchase")
             when("the user is unrecognized (no cookie) and invalid parameters")
             then("redirect to Echoed's info page")
             pending
         }
 
-        scenario("when a known user clicks on echo button with invalid parameters and is redirected to closet") {
+        scenario("when a known user clicks on echo button with invalid parameters and is redirected to closet", IntegrationTest) {
             given("a request to echo a purchase")
             when("the user is recognized (has cookie) and invalid parameters")
             then("redirect to the user's Echoed closet")
@@ -57,7 +58,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             pending
         }
 
-        scenario("unknown user clicks on echo button with valid parameters and is redirected to login page") {
+        scenario("unknown user clicks on echo button with valid parameters and is redirected to login page", IntegrationTest) {
             given("a request to echo a purchase")
             when("the user is unrecognized (no cookie) and with valid parameters")
             val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
@@ -69,6 +70,14 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
             and("record the EchoPossibility in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)
+        }
+
+        scenario("a known user clicks on echo button with valid parameters and is redirected to confirmation page", IntegrationTest) {
+            given("a request to echo a purchase")
+            when("the user is recognized (has a cookie) and with valid parameters")
+            then("redirect to the echo confirmation page")
+            and("record the EchoPossibility in the database")
+            "Forcing failure" should equal ("Implement me")
         }
 
     }

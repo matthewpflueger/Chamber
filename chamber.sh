@@ -2,21 +2,23 @@
 
 NAME=Chamber
 DESC=Chamber
-CONTEXT=src/main/resources/jetty.xml
-TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
-MAIN=com.echoed.chamber.Main
-
-
-PACKAGE="mvn -DskipTests -Pallinone package"
-CLASSPATH=".:`ls -1 ${TARGET}`"
-OVERRIDES="src/overrides/resources"
-ARGS_INTERESTING="-XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled"
-ARGS="-server -Xms1024m -Xmx2048m -XX:PermSize=256m  -Djava.net.preferIPv4Stack=true"
 
 case "$1" in
     start)
         echo "Starting $DESC"
         shift
+
+        CONTEXT=src/main/resources/jetty.xml
+        TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
+        MAIN=com.echoed.chamber.Main
+
+        PACKAGE="mvn -DskipTests -Pallinone package"
+        CLASSPATH=".:${TARGET}"
+        OVERRIDES="src/overrides/resources"
+        ARGS_INTERESTING="-XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled"
+        ARGS="-server -Xms1024m -Xmx2048m -XX:PermSize=256m  -Djava.net.preferIPv4Stack=true"
+
+
         if [[ "$1" == "-o" ]]; then
             CLASSPATH="${OVERRIDES}:${CLASSPATH}"
             shift

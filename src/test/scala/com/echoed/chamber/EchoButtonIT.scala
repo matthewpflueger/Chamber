@@ -10,6 +10,7 @@ import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import org.openqa.selenium.WebDriver
 import java.util.Properties
+import tags.IntegrationTest
 
 
 @RunWith(classOf[JUnitRunner])
@@ -43,7 +44,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         info("So that my customers can share their purchases with friends")
 
 
-        scenario("button is requested with no retailer, customer, or purchase info") {
+        scenario("button is requested with no retailer, customer, or purchase info", IntegrationTest) {
             val count = echoHelper.getEchoPossibilityCount
 
             given("a request for the button")
@@ -58,7 +59,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             echoHelper.validateCountIs(count)
         }
 
-        scenario("button is requested with invalid retailer id") {
+        scenario("button is requested with invalid retailer id", IntegrationTest) {
             val count = echoHelper.getEchoPossibilityCount
 
             given("a request for the button")
@@ -72,7 +73,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             echoHelper.validateCountIs(count)
         }
 
-        scenario("button is requested from an unknown site") {
+        scenario("button is requested from an unknown site", IntegrationTest) {
             given("a request for the button")
             when("the referrer is an unknown site")
             then("redirect to the button")
@@ -80,7 +81,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             pending
         }
 
-        scenario("button is requested with valid parameters") {
+        scenario("button is requested with valid parameters", IntegrationTest) {
             val (echoPossibility, count) = echoHelper.setupEchoPossibility()
 
             given("a request for the button")

@@ -248,6 +248,8 @@
                             <id>scalatest</id>
                             <mainClass>org.scalatest.tools.Runner</mainClass>
                             <args>
+                                <arg>-l</arg>
+                                <arg>com.echoed.chamber.tags.IntegrationTest</arg>
                                 <arg>-p</arg>
                                 <arg>target/test-classes</arg>
                             </args>
