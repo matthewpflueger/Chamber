@@ -28,7 +28,7 @@
         <prop key="cdnUrl">http://v1-cdn.echoed.com</prop>
 
         <prop key="mustache.cache">true</prop>
-        <prop key="mustache.prefix">${cdnUrl}</prop>
+        <prop key="mustache.prefix">${cdnUrl}/</prop>
         <!--<prop key="mustache.prefix">classpath:com/echoed/templates/mustache/</prop> -->
         <prop key="mustache.suffix">.mustache</prop>
 
