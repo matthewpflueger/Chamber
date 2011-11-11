@@ -37,9 +37,10 @@
         <prop key="buttonViewUrl">${cdnUrl}/button_echoed.png</prop>
         <prop key="loginViewUrl">${cdnUrl}/login.html</prop>
 
-        <prop key="echoController.buttonRedirectUrl">http://localhost:8080/button_echoed.png</prop>
-        <prop key="echoController.loginRedirectUrl">http://v1-cdn.echoed.com/login.html</prop>
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
+
+        <prop key="confirmViewUrl">${cdnUrl}/confirm.html</prop>
+
     </util:properties>
 
 </beans>

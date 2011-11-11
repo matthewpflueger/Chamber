@@ -27,17 +27,16 @@ drop table if exists EchoedUser;
 create table EchoedUser (
 	id varchar(36) not null,
 	username varchar(255) not null,
-	password varchar(255),
 	email varchar(255) not null,
 	firstName varchar(255) not null,
 	lastName varchar(255) not null,
-	zipcode varchar(5) not null,
 	facebookUserId varchar(36),
-	twitterUserUuid varchar(36),
+	twitterUserId varchar(36),
 	primary key(id),
+    unique key(username),
 	unique key(email),
 	unique key(facebookUserId),
-	unique key(username)
+    unique key(twitterUserId)
 ) engine = InnoDB;
 
 drop table if exists TwitterUser;

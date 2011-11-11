@@ -102,7 +102,7 @@
                                             <bean class="org.eclipse.jetty.servlet.ServletHolder">
                                                 <property name="name" value="dispatcher" />
                                                 <property name="servlet">
-                                                    <bean class="org.springframework.web.servlet.DispatcherServlet" />
+                                                    <bean class="org.springframework.web.servlet.ContinuationDispatcherServlet" />
                                                 </property>
                                                 <property name="initParameters">
                                                     <map>

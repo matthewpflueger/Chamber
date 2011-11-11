@@ -62,7 +62,7 @@
         <property name="echoServiceActor" ref="echoServiceActor" />
     </bean>
 
-     <bean id="twitterAccess" class="com.echoed.chamber.services.twitter.TwitterAccessActorClient">
+    <bean id="twitterAccess" class="com.echoed.chamber.services.twitter.TwitterAccessActorClient">
         <property name="twitterAccessActor" ref="twitterAccessActor" />
     </bean>
 
@@ -74,6 +74,14 @@
         <property name="actorRef" ref="twitterServiceLocatorActor" />
     </bean>
 
+    <bean id="echoedUserServiceCreator" class="com.echoed.chamber.services.echoeduser.EchoedUserServiceCreatorActorClient">
+        <property name="echoedUserServiceCreatorActor" ref="echoedUserServiceCreatorActor" />
+    </bean>
+
+    <bean id="echoedUserServiceLocator" class="com.echoed.chamber.services.echoeduser.EchoedUserServiceLocatorActorClient">
+        <property name="echoedUserServiceLocatorActor" ref="echoedUserServiceLocatorActor" />
+    </bean>
+
     <!-- NOTE: defining a separate properties object is an ugly hack to fix a bug in Akka's Spring integration where placeholder's
                 were not getting resolved - see ActorFactoryBean#setProperties -->
     <!--suppress SpringModelInspection -->
@@ -83,6 +91,7 @@
         <prop key="redirectUrl">${facebook.redirectUrl}</prop>
     </util:properties>
 
+    <!--suppress SpringModelInspection -->
     <util:properties id="twitterAccessActorProperties">
         <prop key="consumerKey">${twitter.consumerKey}</prop>
         <prop key="consumerSecret">${twitter.consumerSecret}</prop>
@@ -130,21 +139,41 @@
            id="twitterAccessActor"
            implementation="com.echoed.chamber.services.twitter.TwitterAccessActor"
            autostart="true">
-       <property name="properties" ref="twitterAccessActorProperties"/>
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="twitterAccessActorProperties"/>
     </akka:untyped-actor>
 
     <akka:untyped-actor
            id="twitterServiceCreatorActor"
            implementation="com.echoed.chamber.services.twitter.TwitterServiceCreatorActor"
            autostart="true">
-       <property name="twitterAccess" ref="twitterAccess"/>
-       <property name="twitterUserDao" ref="twitterUserDao"/>
+        <!--suppress SpringModelInspection -->
+        <property name="twitterAccess" ref="twitterAccess"/>
+        <!--suppress SpringModelInspection -->
+        <property name="twitterUserDao" ref="twitterUserDao"/>
     </akka:untyped-actor>
 
     <akka:untyped-actor
            id="twitterServiceLocatorActor"
            implementation="com.echoed.chamber.services.twitter.TwitterServiceLocatorActor"
            autostart="true">
-       <property name="twitterServiceCreator" ref="twitterServiceCreator"/>
+        <!--suppress SpringModelInspection -->
+        <property name="twitterServiceCreator" ref="twitterServiceCreator"/>
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+            id="echoedUserServiceCreatorActor"
+            implementation="com.echoed.chamber.services.echoeduser.EchoedUserServiceCreatorActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="echoedUserDao" ref="echoedUserDao" />
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+            id="echoedUserServiceLocatorActor"
+            implementation="com.echoed.chamber.services.echoeduser.EchoedUserServiceLocatorActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="echoedUserServiceCreator" ref="echoedUserServiceCreator" />
     </akka:untyped-actor>
 </beans>

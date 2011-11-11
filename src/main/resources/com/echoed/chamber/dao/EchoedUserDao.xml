@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.EchoedUserDao">
+    <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="username" javaType="String" />
+			<arg column="email" javaType="String" />
+            <arg column="firstName" javaType="String" />
+			<arg column="lastName" javaType="String" />
+            <arg column="facebookUserId" javaType="String" />
+			<arg column="twitterUserId" javaType="String" />
+        </constructor>
+    </resultMap>
+
+
+    <select id="findById" resultMap="echoedUserResult">
+    	select * from EchoedUser where id = #{id}
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.EchoedUser">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            select uuid()
+        </selectKey>
+
+    	insert into EchoedUser(
+    			id,
+    			username,
+                email,
+    			firstName,
+    			lastName,
+                facebookUserId,
+                twitterUserId)
+    		values (
+    			#{id},
+    			#{username},
+    			#{email},
+    			#{firstName},
+    			#{lastName},
+                #{facebookUserId},
+    			#{twitterUserId})
+            on duplicate key update
+                id=#{id},
+	    		email=#{email},
+	    		username=#{username},
+	    		firstName=#{firstName},
+	    		lastName=#{lastName},
+                facebookUserId=#{facebookUserId},
+	    		twitterUserId=#{twitterUserId}
+    </insert>
+
+</mapper>
