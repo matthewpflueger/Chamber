@@ -18,12 +18,12 @@ class EchoController {
 
     private val logger = LoggerFactory.getLogger(classOf[EchoController])
 
-    @BeanProperty var buttonView: String = null
-    @BeanProperty var loginView: String = null
-    @BeanProperty var confirmView: String = null
+    @BeanProperty var buttonView: String = _
+    @BeanProperty var loginView: String = _
+    @BeanProperty var confirmView: String = _
 
-    @BeanProperty var echoService: EchoService = null
-    @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = null
+    @BeanProperty var echoService: EchoService = _
+    @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
 
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
     def button(
@@ -47,17 +47,20 @@ class EchoController {
         echoPossibility.step = "login"
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired) {
+        if (Option(echoPossibility.echoedUserId) == None) {
+            logger.debug("Unknown user trying to echo {}", echoPossibility)
+            recordEchoPossibility(echoPossibility)
+            new ModelAndView(loginView)
+        } else if (continuation.isExpired) {
             logger.error("Request expired to echo {}", echoPossibility)
             new ModelAndView(loginView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
             continuation.suspend(httpServletResponse)
 
-            val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
-
             recordEchoPossibility(echoPossibility)
 
+            val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
             futureEchoedUserService
                     .onResult {
                         case s: EchoedUserService =>
@@ -70,27 +73,23 @@ class EchoController {
                             logger.error("Unexpected result {}", e)
                             continuation.setAttribute("modelAndView", new ModelAndView(loginView))
                             continuation.resume
-    //                        new ModelAndView(loginView)
                     }
                     .onException {
                         case e =>
                             logger.error("Failed to find EchoedUser with id {} due to {}", echoedUserId, e)
                             continuation.setAttribute("modelAndView", new ModelAndView(loginView))
                             continuation.resume
-    //                        new ModelAndView(loginView)
                     }
                     .onTimeout(
                         _ => {
                             logger.error("Timeout trying to find EchoedUser with id {}", echoedUserId)
                             continuation.setAttribute("modelAndView", new ModelAndView(loginView))
                             continuation.resume
-    //                        new ModelAndView(loginView)
                         }
                     )
 
             continuation.undispatch
         })
-//        }
     }
 
     def recordEchoPossibility(echoPossibility: EchoPossibility) {
