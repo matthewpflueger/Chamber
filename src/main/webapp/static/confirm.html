@@ -1,38 +1,301 @@
+<style>
+html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
+pre, form, fieldset, table, th, td,textarea{
+	margin:0;
+	padding: 0;
+	font-family: "HelveticaNeue-Light","Helvetica Neue", Helvetica,Arial,sans-serif;
+}
+
+textarea{
+	padding:2px;
+	font-size: 14px;
+	resize:none;
+	border: 1px #CCC solid;
+}
+
+.bg-color{
+	background-color:#DDD;	
+}
+
+.bg-color-white{
+	background-color:#FFF;
+}
+
+.bg-color-blue{
+	background-color:#06F;
+}
+.bg-color-orange{
+	background-color:#F73;
+}
+.bg-color-tweet{
+	background-color:#0CF;	
+}
+
+.drop-shadow {
+	box-shadow: 2px 2px 2px #888;
+	-moz-box-shadow: 2px 2px 2px #888;
+	-webkit-box-shadow: 2px 2px 2px #888;	
+}
+
+.bold{
+	font-weight:bold;
+}
+
+.rounded-corners{
+	border-radius: 5px;
+}
+
+.drop-shadow{
+}
+
+.underline{
+	text-decoration:underline;
+}
+
+.text-orange{
+	color:#F73;
+}
+
+.text-large{
+	font-size:48px;
+}
+
+.border-grey{
+	border: 1px #999 dashed;
+}
+
+
+#container{
+	padding:5px;
+	width:960px;
+	height:360px;
+	background-color:#EFEFEF;
+}
+
+#upper{
+	height: 30px;
+	width: 100%
+}
+
+#title{
+	width: 100%;
+	height: 30px;
+	font-size:30px;
+}
+
+#lower{
+	height: 360px;
+	margin-top:5px;
+}
+
+#left{
+	width: 460px;
+	padding: 5px;
+	float:left;
+}
+
+	#left_title{
+		width:100%;
+		height:20px;
+		font-size:20px;
+		margin-bottom:5px
+	}
+	
+	#left_content{
+		width:100%;
+		margin-top: 10px;
+		padding:5px;
+	}
+		
+		#rewards{
+			width: 200px;
+			float:left;
+		}
+			
+			.reward_box{
+				width:185px;
+	 			padding: 5px;
+				padding-top: 25px;
+				margin-bottom:10px;
+			}
+
+		
+		#product{
+			margin-top:5px;
+			width:450px;
+		}
+			#product_upper{
+				border-bottom: 1px solid #000;
+				padding-bottom: 5px;
+			}
+			
+			#product_picture_container{
+				text-align:center;
+				width: 230px;
+				height: 150px;
+				border: 5px solid #DDD;
+			}
+				#product_picture{
+					max-height: 150px;
+					max-width: 240px;
+				}
+			
+			#product_text{
+				width:100%;
+				margin-top:10px;
+			}
+			
+			#product_text table td{
+				font-size: 14px;
+			}
+
+#right{
+	width: 450;
+	margin-left: 18px;
+	padding: 5px;
+	float:left;
+}
+	
+	#right_title{
+		width:100%;
+		height:20px;
+		font-size:20px;
+		margin-bottom:5px		
+	}
+	
+	#right_content{
+		width:100%;
+		margin-top: 10px;
+		padding:5px;
+	}
+</style>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Echoed.com</title>
-<link id="stylecss" rel="stylesheet" href="style.css" />
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Popup</title>
 </head>
-<body class="share">
+<body>
 	<div id="container">
-    	<div id="header">
-        	<img src="echoed_new.png" />        
+    	<div id="upper">
+        	<div id="title">
+            	Thank you for <span class="text-orange">echoing</span> your RedHawk Brigade Purchase
+            </div>
         </div>
-        <div class="share-content">
-                <div class="share_image">
-                    some product image goes here...
-                	<img src="" />
+        <div id="lower">
+	    	<div id="left" >
+                <div id="left_content" class="bg-color-white rounded-corners border-grey">
+                    <div id="product">
+                    	<div id="product_upper">
+							<div id="product_picture_container" style="float:left">
+                            	<img id="product_picture" src="pic5.jpg"/>
+	                        </div>
+                            <div style="margin-left:5px; float:left; font-size:14px;">
+		                        	Rescue<br />
+		                            by Redhawk Brigade<br />
+		                            @ RedhawkBrigade.com<br />
+		                            $29.99
+                            </div>
+                            <div style="clear:both">
+                            </div>
+						</div>
+                        <div id="product_text" style="margin-top:10px">
+                        	<strong>Rewards</strong>
+                            <table width="100%">
+                            	<tbody>
+									<tr>
+                                    	<td>
+                                        <span class="text-orange bold">Echo</span> to your closet
+                                        </td>
+                                        <td align="right" width="80px" valign="top">
+                                        <span class="text-orange bold">1%</span>
+                                        </td>
+                                    </tr>                                
+									<tr>
+                                    	<td>
+                                        Get <span class="text-orange bold">20 clicks</span> on your social network
+                                        </td>
+                                        <td align="right">
+                                        <span class="text-orange bold">5%</span>
+                                        </td>
+                                    </tr>    
+									<tr>
+                                    	<td>
+                                        Encourage <span class="text-orange bold">social activity</span>. More activity more reward.
+                                        </td>
+                                        <td align="right" valign="top">
+                                        up to <span class="text-orange bold">15%</span>
+                                        </td>
+                                    </tr>                                                                            
+                                </tbody>
+                            </table>
+	                    </div>
+                    </div>                
                 </div>
-                <div class="share_text">
-                    <strong>some product</strong><br />
-                    by Awesome Company<br />
-                    @ Shopify.com<br />
-                    $19.99<br /><br />
-			</div>
+	        </div>
+	        <div id="right" >
+                <div id="right_content" class="border-grey bg-color-white rounded-corners">
+                    <div id="right_title">
+                        <strong>Your Echoes</strong>
+                    </div>
+                
+                	<table id="echoes" width="100%" cellspacing="5px">
+                    	<form>
+                            <tbody>
+                                <tr> 
+                                    <td width="50">
+                                        <div style="width:50px;height:50px;" class="bg-color-orange rounded-corners border-grey">
+                                        </div>                                    
+                                    </td>
+                                    <td>
+                                    <textarea style="width:320px; height:50px;" class="rounded-corners" disabled="disabled">Items will appear in your echoed closet</textarea>
+                                    </td>
+                                    <td width="50">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    	<img src="facebook logo.png" height="50px"/>
+                                    </td>
+                                    <td>
+                                    <textarea style="width:320px; height:50px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    	<img src="twitter logo.png" height="50px"/>
+                                    </td>
+                                    <td>
+                                    <textarea style="width:320px; height:50px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>  
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    </td>
+                                    <td align="center">
+										<a href="https://v1-api.echoed.com/echo/it">
+	                                        <div style="width:200px;height:50px;text-align:center;color:#FFF;line-height:50px;font-size:24px;font-weight:bold;border:1px solid #000;" class="bg-color-orange rounded-corners">
+	                                        echo it
+	                                        </div>
+										</a>                                            
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                </tr>
+                            </tbody>                            
+                        </form>
+                    </table>
+                </div>
+	        </div>
         </div>
-        <div style="clear:both"></div>
-        <form id="share_form" action="" method="post">        
-        <div class="share-content">
-            <p>Please click to echo your purchase:<br/><br/>
-                <a href="https://v1-api.echoed.com/echo/it" >
-                    <img class='icon' src='echoed.png'/>
-                </a>
-            </p>
-        </div>
-        </form>        
-	</div>
+    </div>
 </body>
 </html>
