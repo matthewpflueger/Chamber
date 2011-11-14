@@ -22,6 +22,10 @@
     	select * from EchoedUser where facebookUserId = #{facebookUserId}
     </select>
 
+    <select id="findByTwitterUserId" resultMap="echoedUserResult">
+        select * from EchoedUser where twitterUserId = #{twitterUserId}
+    </select>
+
 
     <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.EchoedUser">
         <selectKey keyProperty="id" resultType="string" order="BEFORE">

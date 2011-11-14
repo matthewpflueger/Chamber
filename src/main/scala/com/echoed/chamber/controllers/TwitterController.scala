@@ -3,7 +3,7 @@ package com.echoed.chamber.controllers
 
 import com.echoed.chamber.services.twitter.TwitterServiceLocator
 import com.echoed.chamber.services.twitter.TwitterService
-import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod}
+import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
 import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import akka.dispatch.Future
@@ -17,6 +17,10 @@ import twitter4j.{TwitterFactory, Twitter, TwitterException, User}
 import org.springframework.beans.factory.annotation.Autowired
 import com.echoed.chamber.dao.TwitterUserDao
 import com.echoed.chamber.domain.TwitterUser
+import com.echoed.chamber.services.EchoService
+import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
+import com.echoed.chamber.services.echoeduser.EchoedUserService
+import org.eclipse.jetty.continuation.ContinuationSupport
 
 @Controller
 @RequestMapping(Array("/twitter"))
@@ -28,11 +32,26 @@ class TwitterController {
   @BeanProperty var twitterUserDao: TwitterUserDao = null
   @BeanProperty var twitterRedirectUrl: String = null
   @Autowired @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
+  @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
+  @BeanProperty var echoService: EchoService = _
+
+
+  //@BeanProperty var twitterLoginErrorView: String = _
+  @BeanProperty var confirmView: String = _
+  @BeanProperty var dashboardView: String = _
 
   @RequestMapping(method = Array(RequestMethod.GET))
-  def twitter(httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse): Unit = {
-    var t:TwitterService = twitterServiceLocator.getTwitterService().get.asInstanceOf[TwitterService]
-    httpServletResponse.sendRedirect(t.getRequestToken().get.asInstanceOf[RequestToken].getAuthenticationURL)
+  def twitter(@RequestParam("oauth_token") oAuthToken: String,
+              @RequestParam("oauth_verifier") oAuthVerifier: String,
+              httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse): Unit = {
+
+    val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+    if( (Option(oAuthToken) == None && Option(oAuthVerifier)==None) ||
+        continuation.isExpired
+        ){
+      var t:TwitterService = twitterServiceLocator.getTwitterService().get.asInstanceOf[TwitterService]
+      httpServletResponse.sendRedirect(t.getRequestToken().get.asInstanceOf[RequestToken].getAuthenticationURL)
+    }
   }
 
   @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))

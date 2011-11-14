@@ -10,6 +10,7 @@ trait EchoedUserDao {
     def insertOrUpdate(echoedUser: EchoedUser): Int
 
     def findByFacebookUserId(facebookId: String): EchoedUser
+    def findByTwitterUserId(twitterId: String): EchoedUser
 
     def deleteByEmail(email: String): Int
 
