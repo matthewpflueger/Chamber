@@ -29,7 +29,6 @@
 
         <prop key="mustache.cache">true</prop>
         <prop key="mustache.prefix">${cdnUrl}/</prop>
-        <!--<prop key="mustache.prefix">classpath:com/echoed/templates/mustache/</prop> -->
         <prop key="mustache.suffix">.mustache</prop>
 
         <prop key="echoUrl">${apiUrl}/echo</prop>
@@ -40,6 +39,8 @@
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
 
         <prop key="confirmViewUrl">${cdnUrl}/confirm.html</prop>
+        <prop key="facebookLoginErrorViewUrl">${cdnUrl}/facebook_login_error.html</prop>
+        <prop key="dashboardViewUrl">${cdnUrl}/dashboard.html</prop>
 
     </util:properties>
 

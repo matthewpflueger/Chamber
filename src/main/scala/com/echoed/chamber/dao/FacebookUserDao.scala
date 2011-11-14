@@ -4,7 +4,9 @@ import com.echoed.chamber.domain.FacebookUser
 
 
 trait FacebookUserDao {
-    def selectFacebookUserWithId(id: String): FacebookUser
+    def findById(id: String): FacebookUser
 
-    def insertOrUpdateFacebookUser(facebookUser: FacebookUser): Int
+    def insertOrUpdate(facebookUser: FacebookUser): Int
+
+    def deleteByEmail(email: String): Int
 }

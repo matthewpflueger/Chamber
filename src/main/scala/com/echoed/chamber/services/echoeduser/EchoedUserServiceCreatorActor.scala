@@ -5,6 +5,7 @@ import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.services.facebook.FacebookService
 
 
 class EchoedUserServiceCreatorActor extends Actor {
@@ -25,6 +26,24 @@ class EchoedUserServiceCreatorActor extends Actor {
                 case None =>
                     logger.warn("Did not find an EchoedUser with id {}", id)
                     throw new RuntimeException("No EchoedUser with id %s" format id)
+            }
+        }
+        case ("facebookService", facebookService: FacebookService) => {
+            logger.debug("Creating EchoedUserService with {}", facebookService)
+            val facebookUser = facebookService.facebookUser.get
+            Option(echoedUserDao.findByFacebookUserId(facebookUser.id)) match {
+                case Some(echoedUser) =>
+                    logger.debug("Found {} with {}", echoedUser, facebookUser)
+                    self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
+                            new EchoedUserServiceActor(echoedUser, echoedUserDao, facebookService)).start)
+                case None =>
+                    logger.debug("Creating EchoedUser with {}", facebookUser)
+                    val echoedUser = new EchoedUser(facebookUser)
+                    echoedUserDao.insertOrUpdate(echoedUser)
+                    facebookService.assignEchoedUser(echoedUser)
+                    self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
+                            new EchoedUserServiceActor(echoedUser, echoedUserDao, facebookService)).start)
+
             }
         }
     }

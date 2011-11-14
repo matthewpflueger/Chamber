@@ -7,16 +7,17 @@ import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.EchoService
 import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod}
 import org.eclipse.jetty.continuation.ContinuationSupport
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
 import org.springframework.web.servlet.ModelAndView
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import com.echoed.util.CookieManager
 
 
 @Controller
 @RequestMapping(Array("/echo"))
 class EchoController {
 
-    private val logger = LoggerFactory.getLogger(classOf[EchoController])
+    private final val logger = LoggerFactory.getLogger(classOf[EchoController])
 
     @BeanProperty var buttonView: String = _
     @BeanProperty var loginView: String = _
@@ -25,14 +26,17 @@ class EchoController {
     @BeanProperty var echoService: EchoService = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
 
+    @BeanProperty var cookieManager: CookieManager = _
+
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
     def button(
             //TODO cookies should be encrypted
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            echoPossibility: EchoPossibility) = {
+            echoPossibility: EchoPossibility,
+            httpServletResponse: HttpServletResponse) = {
         echoPossibility.echoedUserId = echoedUserId
         echoPossibility.step = "button" //TODO externalize this...
-        recordEchoPossibility(echoPossibility)
+        recordEchoPossibility(echoPossibility, httpServletResponse)
         new ModelAndView(buttonView)
     }
 
@@ -49,7 +53,7 @@ class EchoController {
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (Option(echoPossibility.echoedUserId) == None) {
             logger.debug("Unknown user trying to echo {}", echoPossibility)
-            recordEchoPossibility(echoPossibility)
+            recordEchoPossibility(echoPossibility, httpServletResponse)
             new ModelAndView(loginView)
         } else if (continuation.isExpired) {
             logger.error("Request expired to echo {}", echoPossibility)
@@ -58,7 +62,7 @@ class EchoController {
 
             continuation.suspend(httpServletResponse)
 
-            recordEchoPossibility(echoPossibility)
+            recordEchoPossibility(echoPossibility, httpServletResponse)
 
             val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
             futureEchoedUserService
@@ -66,8 +70,13 @@ class EchoController {
                         case s: EchoedUserService =>
                             logger.debug("Found EchoedUser with id {}", echoedUserId)
                             echoPossibility.step = "confirm"
-                            recordEchoPossibility(echoPossibility)
-                            continuation.setAttribute("modelAndView", new ModelAndView(confirmView))
+                            recordEchoPossibility(echoPossibility, httpServletResponse)
+
+                            val modelAndView = new ModelAndView(confirmView)
+                            modelAndView.addObject("echoPossibility", echoPossibility)
+                            modelAndView.addObject("echoedUser", s.echoedUser.get)
+
+                            continuation.setAttribute("modelAndView", modelAndView)
                             continuation.resume
                         case e =>
                             logger.error("Unexpected result {}", e)
@@ -92,11 +101,13 @@ class EchoController {
         })
     }
 
-    def recordEchoPossibility(echoPossibility: EchoPossibility) {
+    def recordEchoPossibility(echoPossibility: EchoPossibility, httpServletResponse: HttpServletResponse) {
         echoService.recordEchoPossibility(echoPossibility)
                 .onComplete(_.value.get.fold(e => logger.error("Failed to record {} due to {}", echoPossibility, e),
                                              p => logger.debug("Recorded {}", p)))
                 .onTimeout(_ => logger.error("Timeout recording {}", echoPossibility))
+
+        httpServletResponse.addCookie(cookieManager.createCookie("echoPossibility", echoPossibility.id))
     }
 
 }

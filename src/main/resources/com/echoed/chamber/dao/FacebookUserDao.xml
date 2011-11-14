@@ -4,7 +4,6 @@
     <resultMap id="facebookUserResult" type="com.echoed.chamber.domain.FacebookUser">
         <constructor>
             <idArg column="id" javaType="String" />
-            <arg column="username" javaType="String" />
             <arg column="firstName" javaType="String" />
 			<arg column="lastName" javaType="String" />
 			<arg column="link" javaType="String" />
@@ -13,39 +12,15 @@
 			<arg column="timezone" javaType="String" />
 			<arg column="locale" javaType="String" />
         </constructor>
+        <result property="username" column="username" javaType="String" />
     </resultMap>
 
 
-    <select id="selectFacebookUserWithId" resultMap="facebookUserResult">
+    <select id="findById" resultMap="facebookUserResult">
     	select * from FacebookUser where id = #{value}
     </select>
-    <!--<insert id="insertFacebookUser" parameterType="com.echoed.chamber.domain.FacebookUser">-->
-    	<!--insert into FacebookUser(-->
-    			<!--id,-->
-    			<!--echoedUserId,-->
-    			<!--username,-->
-    			<!--firstName,-->
-    			<!--lastName,-->
-    			<!--email,-->
-    			<!--link,-->
-    			<!--timezone,-->
-    			<!--locale,-->
-    			<!--gender,-->
-    			<!--accessToken)-->
-    		<!--values (-->
-    			<!--#{id},-->
-    			<!--#{echoedUserId},-->
-    			<!--#{username},-->
-    			<!--#{firstName},-->
-    			<!--#{lastName},-->
-    			<!--#{email},-->
-    			<!--#{link},-->
-    			<!--#{timezone},-->
-    			<!--#{locale},-->
-    			<!--#{gender},-->
-    			<!--#{accessToken})-->
-    <!--</insert>-->
-    <insert id="insertOrUpdateFacebookUser" parameterType="com.echoed.chamber.domain.FacebookUser">
+
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.FacebookUser">
     	insert into FacebookUser(
     			id,
     			echoedUserId,
@@ -83,30 +58,9 @@
                 gender=#{gender},
 	    		accessToken=#{accessToken}
     </insert>
-    <!--<update id="updateFacebookUser" parameterType="com.echoed.chamber.domain.FacebookUser">-->
-    	<!--update FacebookUser set-->
-    			<!--id=#{id},-->
-	    		<!--echoedUserId=#{echoedUserId},-->
-	    		<!--username=#{username},-->
-	    		<!--firstName=#{firstName},-->
-	    		<!--lastName=#{lastName},-->
-	    		<!--email=#{email},-->
-	    		<!--link=#{link},-->
-	    		<!--timezone=#{timezone},-->
-	    		<!--locale=#{locale},-->
-	    		<!--accessToken=#{accessToken}-->
-	    	<!--where-->
-	    		<!--id=#{id}-->
-    <!--</update>-->
 
-    <!--<insert id="insertFacebookFriend" parameterType="com.echoed.chamber.domain.FacebookFriend">-->
-    	<!--insert into FacebookFriend(-->
-    			<!--id,-->
-                <!--facebookUserId,-->
-                <!--name)-->
-    		<!--values (-->
-    			<!--#{id},-->
-                <!--#{facebookUserId},-->
-                <!--#{name})-->
-    <!--</insert>-->
+
+    <delete id="deleteByEmail">
+        delete from FacebookUser where email = #{email}
+    </delete>
 </mapper>

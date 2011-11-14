@@ -7,7 +7,6 @@ import com.codahale.jerkson.JsonSnakeCase
 @JsonSnakeCase
 case class FacebookUser(
         id: String,
-        username: String,
         firstName: String,
         lastName: String,
         link: String,
@@ -16,8 +15,9 @@ case class FacebookUser(
         timezone: String,
         locale: String) {
 
-    @BeanProperty var accessToken: String = null
-    @BeanProperty var echoedUserId: String = null
+    @BeanProperty var username: String = _
+    @BeanProperty var accessToken: String = _
+    @BeanProperty var echoedUserId: String = _
 
     def getId = id
 }

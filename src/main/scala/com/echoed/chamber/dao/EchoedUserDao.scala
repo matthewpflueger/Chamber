@@ -8,4 +8,9 @@ trait EchoedUserDao {
     def findById(id: String): EchoedUser
 
     def insertOrUpdate(echoedUser: EchoedUser): Int
+
+    def findByFacebookUserId(facebookId: String): EchoedUser
+
+    def deleteByEmail(email: String): Int
+
 }

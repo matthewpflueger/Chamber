@@ -1,6 +1,5 @@
 package com.echoed.chamber
 
-import dao.{RetailerDao, EchoPossibilityDao}
 import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,11 +10,15 @@ import org.springframework.test.context.{TestContextManager, ContextConfiguratio
 import org.openqa.selenium.WebDriver
 import java.util.Properties
 import tags.IntegrationTest
+import org.slf4j.LoggerFactory
+import com.echoed.util.CookieValidator._
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
 class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
+
+    private final val logger = LoggerFactory.getLogger(classOf[EchoButtonIT])
 
     @Autowired @BeanProperty var echoHelper: EchoHelper = null
     @Autowired @BeanProperty var webDriver: WebDriver = null
@@ -50,24 +53,30 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             given("a request for the button")
             webDriver.navigate.to(buttonUrl)
 
-
             when("there is no other information")
             then("redirect to the button")
             webDriver.getCurrentUrl should equal (buttonViewUrl)
+
+            and("there be an echoPossibility cookie with no value")
+            validateNoCookie(webDriver, "echoPossibility")
 
             and("no info should be recorded in the database")
             echoHelper.validateCountIs(count)
         }
 
         scenario("button is requested with invalid retailer id", IntegrationTest) {
-            val count = echoHelper.getEchoPossibilityCount
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility()
+            echoPossibility.retailerId = "foo"
 
             given("a request for the button")
-            webDriver.navigate.to(buttonUrl + "?retailerId=foo")
+            webDriver.navigate.to(buttonUrl + echoPossibility.generateUrlParameters)
 
             when("there is an invalid retailer id")
             then("redirect to the button")
             webDriver.getCurrentUrl should equal (buttonViewUrl)
+
+            and("there should an echoPossibility cookie that points to no EchoPossibility")
+            validate(webDriver, "echoPossibility", echoPossibility.id)
 
             and("no info should be recorded in the database")
             echoHelper.validateCountIs(count)
@@ -90,6 +99,9 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             when("there are valid parameters")
             then("redirect to the button")
             webDriver.getCurrentUrl should equal (buttonViewUrl)
+
+            and("there should not be an echoPossibility cookie")
+            validate(webDriver, "echoPossibility", echoPossibility.id)
 
             and("record the EchoPossibility in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)

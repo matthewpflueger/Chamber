@@ -21,8 +21,8 @@ class FacebookServiceCreatorActor extends Actor {
             val facebookUser = for {
                 accessToken: String <- facebookAccess.getAccessToken(code)
                 me: FacebookUser <- facebookAccess.getMe(accessToken)
-                inserted: Int <- Future[Int] { facebookUserDao.insertOrUpdateFacebookUser(me) }
-            } yield me //facebookUserDao.insertOrUpdateFacebookUser(me)
+                inserted: Int <- Future[Int] { facebookUserDao.insertOrUpdate(me) }
+            } yield me //facebookUserDao.insertOrUpdate(me)
 
             logger.debug("Creating FacebookService with user {}", facebookUser)
 

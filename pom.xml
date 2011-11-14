@@ -149,8 +149,14 @@
             <version>${akka.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.scalaz</groupId>
+            <artifactId>scalaz-full_${scala.version}</artifactId>
+            <version>6.0.3</version>
+            <scope>compile</scope>
+        </dependency>
 
-        <!-- Twitter4J depdencies -->
+        <!-- Twitter4J dependencies -->
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-core</artifactId>

@@ -18,6 +18,11 @@
     	select * from EchoedUser where id = #{id}
     </select>
 
+    <select id="findByFacebookUserId" resultMap="echoedUserResult">
+    	select * from EchoedUser where facebookUserId = #{facebookUserId}
+    </select>
+
+
     <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.EchoedUser">
         <selectKey keyProperty="id" resultType="string" order="BEFORE">
             select uuid()
@@ -49,4 +54,7 @@
 	    		twitterUserId=#{twitterUserId}
     </insert>
 
+    <delete id="deleteByEmail">
+        delete from EchoedUser where email = #{email}
+    </delete>
 </mapper>

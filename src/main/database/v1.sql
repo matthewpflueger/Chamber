@@ -26,7 +26,7 @@ create table EchoPossibility (
 drop table if exists EchoedUser;
 create table EchoedUser (
 	id varchar(36) not null,
-	username varchar(255) not null,
+	username varchar(255),
 	email varchar(255) not null,
 	firstName varchar(255) not null,
 	lastName varchar(255) not null,
@@ -56,7 +56,7 @@ drop table if exists FacebookUser;
 create table FacebookUser (
 	id varchar(36) not null,
 	echoedUserId varchar(36),
-	username varchar(36) not null,
+	username varchar(36),
 	firstName varchar(255) not null,
 	lastName varchar(255) not null,
 	email varchar(255) not null,

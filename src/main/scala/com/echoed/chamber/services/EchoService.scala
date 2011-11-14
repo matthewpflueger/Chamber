@@ -8,4 +8,5 @@ trait EchoService {
 
     def recordEchoPossibility(echoPossibility: EchoPossibility): Future[EchoPossibility]
 
+    def getEchoPossibility(echoPossibilityId: String): Future[EchoPossibility]
 }

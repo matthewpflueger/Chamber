@@ -17,4 +17,9 @@ class EchoServiceActorClient extends EchoService {
             (echoServiceActor ? ("recordEchoPossibility", echoPossibility)).get.asInstanceOf[EchoPossibility]
         }
     }
+
+    def getEchoPossibility(echoPossibilityId: String) =
+        Future[EchoPossibility] {
+            (echoServiceActor ? ("echoPossibility", echoPossibilityId)).get.asInstanceOf[EchoPossibility]
+        }
 }

@@ -3,6 +3,7 @@ package com.echoed.chamber.services.echoeduser
 import akka.dispatch.Future
 import reflect.BeanProperty
 import akka.actor.ActorRef
+import com.echoed.chamber.services.facebook.FacebookService
 
 
 class EchoedUserServiceLocatorActorClient extends EchoedUserServiceLocator {
@@ -15,4 +16,9 @@ class EchoedUserServiceLocatorActorClient extends EchoedUserServiceLocator {
         }
     }
 
+    def getEchoedUserServiceWithFacebookService(facebookService: FacebookService) = {
+        Future[EchoedUserService] {
+            (echoedUserServiceLocatorActor ? ("facebookService", facebookService)).get.asInstanceOf[EchoedUserService]
+        }
+    }
 }

@@ -24,5 +24,8 @@ class EchoServiceActor extends Actor {
                 }
             }
         }
+        case ("echoPossibility", echoPossibilityId: String) => {
+            self.channel ! Option(echoPossibilityDao.findById(echoPossibilityId)).get
+        }
     }
 }

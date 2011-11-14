@@ -53,6 +53,8 @@
     </bean>
 
 
+    <bean id="cookieManager" class="com.echoed.util.CookieManagerSimple" />
+
     <!-- Search package for annotated classes -->
     <context:component-scan base-package="com.echoed.chamber"/>
 
@@ -63,12 +65,28 @@
         <property name="buttonView" value="redirect:${buttonViewUrl}" />
         <property name="loginView" value="redirect:${loginViewUrl}" />
         <property name="confirmView" value="redirect:${confirmViewUrl}" />
+        <property name="cookieManager" ref="cookieManager" />
     </bean>
 
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="facebookController" class="com.echoed.chamber.controllers.FacebookController">
+        <property name="echoService" ref="echoService" />
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="facebookServiceLocator" ref="facebookServiceLocator" />
 
-     <bean id="twitterController" class="com.echoed.chamber.controllers.TwitterController">
+        <property name="cookieManager" ref="cookieManager" />
+
+        <property name="confirmView" value="redirect:${confirmViewUrl}" />
+        <property name="dashboardView" value="redirect:${dashboardViewUrl}" />
+        <property name="facebookLoginErrorView" value="redirect:${facebookLoginErrorViewUrl}" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="twitterController" class="com.echoed.chamber.controllers.TwitterController">
         <property name="twitterRedirectUrl" value="${twitterController.loginRedirectUrl}"/>
     </bean>
+
+
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>
 </beans>

@@ -7,4 +7,5 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class EchoedSiteSuite extends Suites(
     new EchoButtonIT,
-    new EchoIT)
+    new EchoIT,
+    new FacebookLoginIT)

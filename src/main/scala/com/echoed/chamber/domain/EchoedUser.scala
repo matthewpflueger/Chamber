@@ -13,4 +13,13 @@ case class EchoedUser(
         facebookUserId: String,
         twitterUserId: String) {
 
+    def this(facebookUser: FacebookUser) = this(
+            null,
+            facebookUser.username,
+            facebookUser.email,
+            facebookUser.firstName,
+            facebookUser.lastName,
+            facebookUser.id,
+            null)
+
 }
