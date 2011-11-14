@@ -29,7 +29,7 @@
 
         <prop key="mustache.cache">true</prop>
         <prop key="mustache.prefix">${cdnUrl}/</prop>
-        <prop key="mustache.suffix">.mustache</prop>
+        <prop key="mustache.suffix">.html</prop>
 
         <prop key="echoUrl">${apiUrl}/echo</prop>
         <prop key="buttonUrl">${apiUrl}/echo/button</prop>

@@ -76,7 +76,7 @@
 
         <property name="cookieManager" ref="cookieManager" />
 
-        <property name="confirmView" value="redirect:${confirmViewUrl}" />
+        <property name="confirmView" value="confirm" />
         <property name="dashboardView" value="redirect:${dashboardViewUrl}" />
         <property name="facebookLoginErrorView" value="redirect:${facebookLoginErrorViewUrl}" />
     </bean>
