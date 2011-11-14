@@ -37,7 +37,7 @@ object EchoPossibilityHelper {
             step: String = "button",
             echoedUserId: String = null,
             //a normal base64 will have one or more '=' characters for padding - they are ripped off for url safe base64 strings...
-            expectedEchoPossibilityId: String = "dGVzdFJldGFpbGVySWR0ZXN0UmV0YWlsZXJDdXN0b21lcklkdGVzdFByb2R1Y3RJZFdlZCBOb3YgMDkgMTU6MzY6NTYgRVNUIDIwMTE") = {
+            expectedEchoPossibilityId: String = "dGVzdFJldGFpbGVySWR0ZXN0UmV0YWlsZXJDdXN0b21lcklkdGVzdFByb2R1Y3RJZFdlZCBOb3YgMDkgMTU6MzY6NTYgRVNUIDIwMTF0ZXN0T3JkZXJJZDEwMGh0dHA6Ly92MS1jZG4uZWNob2VkLmNvbS9lY2hvX2RlbW9fc3RvcmUtdGllX3RodW1iLmpwZWc") = {
 
         (new EchoPossibility(
                 expectedEchoPossibilityId,
