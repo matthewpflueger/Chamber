@@ -2,15 +2,18 @@ package com.echoed.chamber.services
 
 import akka.actor.Actor
 import reflect.BeanProperty
-import com.echoed.chamber.dao.{RetailerDao, EchoPossibilityDao}
 import akka.dispatch.Future
-import com.echoed.chamber.domain.{Retailer, EchoPossibility}
+import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
+import com.echoed.chamber.domain.{Echo, Retailer, EchoPossibility}
+import com.echoed.chamber.dao.{EchoDao, RetailerDao, EchoPossibilityDao}
 
 
 class EchoServiceActor extends Actor {
 
-    @BeanProperty var echoPossibilityDao: EchoPossibilityDao = null
-    @BeanProperty var retailerDao: RetailerDao = null
+    @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
+    @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
+    @BeanProperty var retailerDao: RetailerDao = _
+    @BeanProperty var echoDao: EchoDao = _
 
     def receive = {
         case ("recordEchoPossibility", echoPossibility: EchoPossibility) => {
@@ -26,6 +29,18 @@ class EchoServiceActor extends Actor {
         }
         case ("echoPossibility", echoPossibilityId: String) => {
             self.channel ! Option(echoPossibilityDao.findById(echoPossibilityId)).getOrElse(None)
+        }
+        case ("echo", echoedUserId: String, echoPossibilityId: String) => {
+            val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
+            val echoPossibility = echoPossibilityDao.findById(echoPossibilityId)
+
+            val echo = new Echo(null, futureEchoedUserService.get.echoedUser.get.id, echoPossibility.id)
+            echoDao.insertOrUpdate(echo)
+
+            echoPossibility.echoId = echo.id
+            echoPossibility.step = "echoed"
+
+            self.channel ! echo
         }
     }
 }

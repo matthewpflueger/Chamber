@@ -1,7 +1,7 @@
 package com.echoed.chamber.services
 
-import com.echoed.chamber.domain.EchoPossibility
 import akka.dispatch.Future
+import com.echoed.chamber.domain.{Echo, EchoPossibility}
 
 
 trait EchoService {
@@ -9,4 +9,6 @@ trait EchoService {
     def recordEchoPossibility(echoPossibility: EchoPossibility): Future[EchoPossibility]
 
     def getEchoPossibility(echoPossibilityId: String): Future[EchoPossibility]
+
+    def echo(echoedUserId: String, echoPossibilityId: String): Future[Echo]
 }

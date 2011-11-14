@@ -12,8 +12,8 @@ import com.echoed.util.CookieManager
 import akka.dispatch.Future
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.domain.{EchoedUser, EchoPossibility}
 import org.springframework.web.servlet.ModelAndView
+import com.echoed.chamber.domain.{Echo, EchoedUser, EchoPossibility}
 
 
 @Controller
@@ -22,6 +22,7 @@ class EchoController {
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoController])
 
+    @BeanProperty var echoItView: String = _
     @BeanProperty var buttonView: String = _
     @BeanProperty var loginView: String = _
     @BeanProperty var confirmView: String = _
@@ -104,6 +105,33 @@ class EchoController {
 
             continuation.undispatch
         })
+    }
+
+    @RequestMapping(value = Array("/it"), method = Array(RequestMethod.GET))
+    def it(
+            @CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
+            @CookieValue(value = "echoPossibility", required = true) echoPossibilityId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            logger.error("Request expired to echo possibility {} for user {}", echoPossibilityId, echoedUserId)
+            new ModelAndView(errorView)
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            echoService.echo(echoedUserId, echoPossibilityId)
+                    .onResult {
+                        case echo: Echo =>
+                            continuation.setAttribute("modelAndView", new ModelAndView(echoItView, "echo", echo))
+                            continuation.resume
+                    }
+
+            continuation.undispatch()
+        })
+
     }
 
     def recordEchoPossibility(echoPossibility: EchoPossibility, httpServletResponse: HttpServletResponse) {

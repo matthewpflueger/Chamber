@@ -1,6 +1,5 @@
 package com.echoed.chamber
 
-import dao.EchoedUserDao
 import domain.EchoedUser
 import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.junit.runner.RunWith
@@ -14,13 +13,14 @@ import org.openqa.selenium.WebDriver
 import java.util.Properties
 import java.util.Date
 import tags.IntegrationTest
-
+import com.echoed.chamber.dao.{EchoDao, EchoedUserDao}
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
 class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
+    @Autowired @BeanProperty var echoDao: EchoDao = null
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = null
     @Autowired @BeanProperty var echoHelper: EchoHelper = null
     @Autowired @BeanProperty var webDriver: WebDriver = null
@@ -31,14 +31,16 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
 
     var echoUrl: String = null
+    var echoItUrl: String = null
     var loginViewUrl: String = null
     var confirmViewUrl: String = null
 
     {
         echoUrl = urls.getProperty("echoUrl")
+        echoItUrl = urls.getProperty("echoItUrl")
         loginViewUrl = urls.getProperty("loginViewUrl")
         confirmViewUrl = urls.getProperty("confirmViewUrl")
-        echoUrl != null && loginViewUrl != null && confirmViewUrl != null
+        echoUrl != null && echoItUrl != null && loginViewUrl != null && confirmViewUrl != null
     } ensuring (_ == true, "Missing parameters")
 
 
@@ -79,6 +81,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             when("the user is recognized (has a cookie) and with valid parameters")
             val cookie = new Cookie.Builder("echoedUserId", echoedUser.id)
                     .domain(".echoed.com")
+                    .path("/")
                     .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
                     .build()
             webDriver.manage().addCookie(cookie)
@@ -90,6 +93,49 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.getTitle should equal ("Popup")
 
             and("record the EchoPossibility in the database")
+            echoHelper.validateEchoPossibility(echoPossibility, count)
+        }
+
+        scenario("a known user clicks to confirm their echo and is directed to thanks for echoing page", IntegrationTest) {
+            val testUserFacebookId = "100003076656188"
+            val testUserEmail = "tech@echoed.com"
+            val testUserPass = "etech25"
+
+            val echoedUser = new EchoedUser(null, null, testUserEmail, "TestUser", "TestUser", testUserFacebookId, null)
+            echoedUserDao.insertOrUpdate(echoedUser)
+
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "confirm", echoedUserId = echoedUser.id)
+            echoHelper.echoPossibilityDao.insertOrUpdate(echoPossibility)
+
+
+            given("a request to confirm the echo")
+            when("the user is known with a valid echo possibility")
+            val echoedUserIdCookie = new Cookie.Builder("echoedUserId", echoedUser.id)
+                    .domain(".echoed.com")
+                    .path("/")
+                    .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
+                    .build()
+            val echoPossibilityCookie = new Cookie.Builder("echoPossibility", echoPossibility.id)
+                    .domain(".echoed.com")
+                    .path("/")
+                    .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
+                    .build()
+            webDriver.manage().addCookie(echoedUserIdCookie)
+            webDriver.manage().addCookie(echoPossibilityCookie)
+
+            webDriver.navigate().to(echoItUrl)
+
+            then("show the thank you page")
+            webDriver.getTitle should equal ("Thank you")
+
+            and("record the Echo in the database")
+            val echo = echoDao.findByEchoPossibilityId(echoPossibility.id)
+            echo should not be (null)
+            echo.echoedUserId should equal (echoedUser.id)
+            //add checking of Facebook post object id...
+
+            and("update the EchoPossibility with the Echo information")
+            echoPossibility.echoId = echo.id
             echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 

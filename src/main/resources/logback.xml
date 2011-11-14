@@ -9,7 +9,9 @@
     </encoder>
   </appender>
 
-  <root level="debug">
+  <logger name="com.echoed" level="debug" />
+
+  <root level="error">
     <appender-ref ref="stdout" />
   </root>
 </configuration>

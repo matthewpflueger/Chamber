@@ -26,6 +26,7 @@
     <!--suppress SpringModelInspection -->
     <util:properties id="urls">
         <prop key="echoUrl">${echoUrl}</prop>
+        <prop key="echoItUrl">${echoItUrl}</prop>
         <prop key="buttonUrl">${buttonUrl}</prop>
         <prop key="buttonViewUrl">${buttonViewUrl}</prop>
         <prop key="loginViewUrl">${loginViewUrl}</prop>

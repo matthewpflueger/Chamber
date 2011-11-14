@@ -65,6 +65,8 @@
         <property name="buttonView" value="redirect:${buttonViewUrl}" />
         <property name="loginView" value="redirect:${loginViewUrl}" />
         <property name="confirmView" value="confirm" />
+        <property name="echoItView" value="echoIt" />
+        <property name="errorView" value="redirect:${errorViewUrl}" />
         <property name="cookieManager" ref="cookieManager" />
     </bean>
 

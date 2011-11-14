@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.EchoDao">
+    <resultMap id="echoResult" type="com.echoed.chamber.domain.Echo">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="echoedUserId" javaType="String" />
+            <arg column="echoPossibilityId" javaType="String" />
+        </constructor>
+    </resultMap>
+
+
+    <select id="findByEchoPossibilityId" resultMap="echoResult">
+    	select * from Echo where echoPossibilityId = #{echoPossibilityId}
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.Echo">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            select uuid()
+        </selectKey>
+
+    	insert into Echo(
+    			id,
+    			echoedUserId,
+                echoPossibilityId)
+    		values (
+    			#{id},
+    			#{echoedUserId},
+                #{echoPossibilityId})
+            on duplicate key update
+                id=#{id},
+                echoedUserId=#{echoedUserId},
+	    		echoPossibilityId=#{echoPossibilityId}
+    </insert>
+
+</mapper>

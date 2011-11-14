@@ -10,6 +10,15 @@ create table Retailer (
     primary key(id)
 ) engine = InnoDB;
 
+drop table if exists Echo;
+create table Echo (
+    id varchar(36) not null,
+    echoedUserId varchar(36) not null,
+    echoPossibilityId varchar(255) not null,
+    primary key(id),
+    unique key(echoPossibilityId)
+) engine = InnoDB;
+
 drop table if exists EchoPossibility;
 create table EchoPossibility (
     id varchar(255) not null,
@@ -22,6 +31,7 @@ create table EchoPossibility (
     price varchar(255) not null,
     imageUrl varchar(255) not null,
     echoedUserId varchar(36),
+    echoId varchar(36),
     primary key(id)
 ) engine = InnoDB;
 

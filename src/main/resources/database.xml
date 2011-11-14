@@ -78,4 +78,10 @@
         <property name="mapperInterface" value="com.echoed.chamber.dao.EchoedUserDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
+
+    <bean id="echoDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.EchoDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
 </beans>

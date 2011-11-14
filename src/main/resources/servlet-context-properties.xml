@@ -32,9 +32,12 @@
         <prop key="mustache.suffix">.html</prop>
 
         <prop key="echoUrl">${apiUrl}/echo</prop>
+        <prop key="echoItUrl">${apiUrl}/echo/it</prop>
         <prop key="buttonUrl">${apiUrl}/echo/button</prop>
+
         <prop key="buttonViewUrl">${cdnUrl}/button_echoed.png</prop>
         <prop key="loginViewUrl">${cdnUrl}/login.html</prop>
+        <prop key="errorViewUrl">${cdnUrl}/error.html</prop>
 
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
 

@@ -16,7 +16,8 @@ case class EchoPossibility(
         @BeanProperty var orderId: String = null,
         @BeanProperty var price: String = null,
         @BeanProperty var imageUrl: String = null,
-        @BeanProperty var echoedUserId: String = null) {
+        @BeanProperty var echoedUserId: String = null,
+        @BeanProperty var echoId: String = null) {
 
     def this() = {
         this(null)

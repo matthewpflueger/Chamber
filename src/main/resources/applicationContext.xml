@@ -134,6 +134,10 @@
             implementation="com.echoed.chamber.services.EchoServiceActor"
             autostart="true">
         <!--suppress SpringModelInspection -->
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
         <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->
         <property name="retailerDao" ref="retailerDao" />
