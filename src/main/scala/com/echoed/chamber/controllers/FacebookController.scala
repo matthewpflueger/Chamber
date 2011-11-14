@@ -31,7 +31,7 @@ class FacebookController {
     @BeanProperty var cookieManager: CookieManager = _
 
     @BeanProperty var facebookLoginErrorView: String = _
-    @BeanProperty var confirmView: String = _
+    @BeanProperty var echoView: String = _
     @BeanProperty var dashboardView: String = _
 
 
@@ -71,10 +71,8 @@ class FacebookController {
                                                     val echoedUser = s.echoedUser.get
                                                     cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
                                                     val echoPossibility = futureEchoPossibility.get
-                                                    echoPossibility.step = "confirm"
-                                                    echoService.recordEchoPossibility(echoPossibility)
 
-                                                    val modelAndView = new ModelAndView(confirmView)
+                                                    val modelAndView = new ModelAndView(echoView)
                                                     modelAndView.addObject("echoPossibility", futureEchoPossibility.get)
                                                     modelAndView.addObject("echoedUser", echoedUser)
                                                 } catch {

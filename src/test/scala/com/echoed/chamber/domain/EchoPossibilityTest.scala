@@ -46,6 +46,9 @@ object EchoPossibilityHelper {
                 "testProductId",
                 new Date(1320871016126L), //Wed Nov 09 15:36:56 EST 2011
                 step,
+                "testOrderId",
+                "100", //one dollar
+                "http://v1-cdn.echoed.com/echo_demo_store-tie_thumb.jpeg",
                 echoedUserId
                 ),
 

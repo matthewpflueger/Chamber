@@ -79,12 +79,13 @@ class FacebookLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             pass.submit()
 
 
-            then("redirect to the confirm page")
-            webDriver.getCurrentUrl.startsWith(confirmViewUrl) should be (true)
+            then("redirect to the echo confirm page")
+            webDriver.getCurrentUrl.startsWith(echoUrl) should be (true)
 
             and("create an EchoedUser account using the Facebook info")
             val echoedUser = echoedUserDao.findByFacebookUserId(testUserFacebookId)
             echoedUser.email should be (testUserEmail)
+            echoPossibility.echoedUserId = echoedUser.id
 
             val facebookUser = facebookUserDao.findById(echoedUser.facebookUserId)
             facebookUser.email should be (testUserEmail)

@@ -48,18 +48,11 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         info("I want to be able to click on the Echo button")
         info("So that I can share my purchase with friends")
 
-        scenario("unknown user clicks on echo button with invalid parameters and is redirected to Echoed's info page", IntegrationTest) {
+        scenario("user clicks on echo button with invalid parameters and is redirected to Echoed's error page", IntegrationTest) {
             given("a request to echo a purchase")
-            when("the user is unrecognized (no cookie) and invalid parameters")
-            then("redirect to Echoed's info page")
-            pending
-        }
-
-        scenario("when a known user clicks on echo button with invalid parameters and is redirected to closet", IntegrationTest) {
-            given("a request to echo a purchase")
-            when("the user is recognized (has cookie) and invalid parameters")
-            then("redirect to the user's Echoed closet")
-            and("ask user to report the error (so we may contact the retailer)")
+            when("there is invalid parameters")
+            then("redirect to Echoed's error page")
+            and("collect information about the retailer and order so we may contact the retailer to fix")
             pending
         }
 
@@ -89,10 +82,12 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
                     .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
                     .build()
             webDriver.manage().addCookie(cookie)
-            webDriver.navigate().to(echoUrl + echoPossibility.generateUrlParameters)
+            val echoUrlWithParams = echoUrl + echoPossibility.generateUrlParameters
+            webDriver.navigate().to(echoUrlWithParams)
 
             then("redirect to the echo confirmation page")
-            webDriver.getCurrentUrl should equal (confirmViewUrl)
+            webDriver.getCurrentUrl should equal (echoUrlWithParams) //we did not redirect...
+            webDriver.getTitle should equal ("Popup")
 
             and("record the EchoPossibility in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)

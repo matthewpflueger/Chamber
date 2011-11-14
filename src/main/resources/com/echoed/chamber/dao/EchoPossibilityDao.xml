@@ -9,6 +9,9 @@
 			<arg column="productId" javaType="String" />
 			<arg column="boughtOn" javaType="Date" />
 			<arg column="step" javaType="String" />
+            <arg column="orderId" javaType="String" />
+            <arg column="price" javaType="String" />
+            <arg column="imageUrl" javaType="String" />
 			<arg column="echoedUserId" javaType="String" />
         </constructor>
     </resultMap>
@@ -29,6 +32,9 @@
     			productId,
     			boughtOn,
     			step,
+                orderId,
+                price,
+                imageUrl,
                 echoedUserId)
     	values (
     			#{id},
@@ -37,6 +43,9 @@
     			#{productId},
     			#{boughtOn},
     			#{step},
+                #{orderId},
+                #{price},
+                #{imageUrl},
                 #{echoedUserId})
         on duplicate key update
                 id=#{id},
@@ -45,6 +54,9 @@
                 productId=#{productId},
                 boughtOn=#{boughtOn},
                 step=#{step},
+                orderId=#{orderId},
+                price=#{price},
+                imageUrl=#{imageUrl},
 	    		echoedUserId=#{echoedUserId}
     </insert>
 

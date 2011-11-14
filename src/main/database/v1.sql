@@ -18,6 +18,9 @@ create table EchoPossibility (
     productId varchar(255) not null,
     boughtOn timestamp not null,
     step varchar(36) not null,
+    orderId varchar(255) not null,
+    price varchar(255) not null,
+    imageUrl varchar(255) not null,
     echoedUserId varchar(36),
     primary key(id)
 ) engine = InnoDB;

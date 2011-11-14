@@ -1,6 +1,5 @@
 package com.echoed.chamber.controllers
 
-import com.echoed.chamber.domain.EchoPossibility
 import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
@@ -8,9 +7,13 @@ import com.echoed.chamber.services.EchoService
 import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod}
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
-import org.springframework.web.servlet.ModelAndView
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.util.CookieManager
+import akka.dispatch.Future
+import scalaz._
+import Scalaz._
+import com.echoed.chamber.domain.{EchoedUser, EchoPossibility}
+import org.springframework.web.servlet.ModelAndView
 
 
 @Controller
@@ -22,6 +25,8 @@ class EchoController {
     @BeanProperty var buttonView: String = _
     @BeanProperty var loginView: String = _
     @BeanProperty var confirmView: String = _
+    @BeanProperty var errorView: String = _
+    @BeanProperty var echoConfirm: String = _
 
     @BeanProperty var echoService: EchoService = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
@@ -40,9 +45,11 @@ class EchoController {
         new ModelAndView(buttonView)
     }
 
+
     @RequestMapping(method = Array(RequestMethod.GET))
     def echo(
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
+            @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
             echoPossibility: EchoPossibility,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -62,40 +69,38 @@ class EchoController {
 
             continuation.suspend(httpServletResponse)
 
-            recordEchoPossibility(echoPossibility, httpServletResponse)
+            val futureEchoPossibility = echoService.getEchoPossibility(echoPossibilityId)
+            val futureEchoedUser = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
 
-            val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
-            futureEchoedUserService
-                    .onResult {
-                        case s: EchoedUserService =>
-                            logger.debug("Found EchoedUser with id {}", echoedUserId)
-                            echoPossibility.step = "confirm"
-                            recordEchoPossibility(echoPossibility, httpServletResponse)
+            Future {
+                try {
+                    val modelAndView = new ModelAndView(confirmView)
+                    val echoedUser = futureEchoedUser.get.echoedUser.get
+                    modelAndView.addObject("echoedUser", echoedUser)
 
-                            val modelAndView = new ModelAndView(confirmView)
-                            modelAndView.addObject("echoPossibility", echoPossibility)
-                            modelAndView.addObject("echoedUser", s.echoedUser.get)
+                    val confirmEchoPossibility = try { futureEchoPossibility.get } catch { case e => echoPossibility }
+                    modelAndView.addObject("echoPossibility", confirmEchoPossibility)
+                    continuation.setAttribute("modelAndView", modelAndView)
 
-                            continuation.setAttribute("modelAndView", modelAndView)
-                            continuation.resume
-                        case e =>
-                            logger.error("Unexpected result {}", e)
-                            continuation.setAttribute("modelAndView", new ModelAndView(loginView))
-                            continuation.resume
-                    }
-                    .onException {
-                        case e =>
-                            logger.error("Failed to find EchoedUser with id {} due to {}", echoedUserId, e)
-                            continuation.setAttribute("modelAndView", new ModelAndView(loginView))
-                            continuation.resume
-                    }
-                    .onTimeout(
-                        _ => {
-                            logger.error("Timeout trying to find EchoedUser with id {}", echoedUserId)
-                            continuation.setAttribute("modelAndView", new ModelAndView(loginView))
-                            continuation.resume
-                        }
-                    )
+                    confirmEchoPossibility.step = "confirm"
+                    confirmEchoPossibility.echoedUserId = echoedUser.id
+                    recordEchoPossibility(confirmEchoPossibility, httpServletResponse)
+                } catch {
+                    case e =>
+                        logger.debug(
+                            "Failed echo confirmation for {} with {} due to {}",
+                            Array(echoedUserId, echoPossibility, e))
+
+                        recordEchoPossibility(echoPossibility, httpServletResponse)
+
+                        val modelAndView = new ModelAndView(loginView)
+                        modelAndView.addObject("echoPossibility", echoPossibility)
+
+                        continuation.setAttribute("modelAndView", modelAndView)
+                } finally {
+                    continuation.resume()
+                }
+            }
 
             continuation.undispatch
         })

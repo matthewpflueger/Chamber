@@ -11,7 +11,7 @@ import org.openqa.selenium.WebDriver
 import java.util.Properties
 import tags.IntegrationTest
 import org.slf4j.LoggerFactory
-import com.echoed.util.CookieValidator._
+import com.echoed.util.CookieValidator
 
 
 @RunWith(classOf[JUnitRunner])
@@ -58,7 +58,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
             and("there be an echoPossibility cookie with no value")
-            validateNoCookie(webDriver, "echoPossibility")
+            CookieValidator.validateNoCookie(webDriver, "echoPossibility")
 
             and("no info should be recorded in the database")
             echoHelper.validateCountIs(count)
@@ -76,7 +76,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
             and("there should an echoPossibility cookie that points to no EchoPossibility")
-            validate(webDriver, "echoPossibility", echoPossibility.id)
+            CookieValidator.validate(webDriver, "echoPossibility", echoPossibility.id)
 
             and("no info should be recorded in the database")
             echoHelper.validateCountIs(count)
@@ -101,7 +101,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
             and("there should not be an echoPossibility cookie")
-            validate(webDriver, "echoPossibility", echoPossibility.id)
+            CookieValidator.validate(webDriver, "echoPossibility", echoPossibility.id)
 
             and("record the EchoPossibility in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)
