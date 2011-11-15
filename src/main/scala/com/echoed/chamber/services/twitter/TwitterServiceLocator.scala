@@ -2,6 +2,7 @@ package com.echoed.chamber.services.twitter
 
 
 import akka.dispatch.Future
+import twitter4j.auth.AccessToken
 /**
  * Created by IntelliJ IDEA.
  * User: jonlwu
@@ -11,10 +12,9 @@ import akka.dispatch.Future
  */
 
 trait TwitterServiceLocator {
-  //def getTwitterServiceWithCode(code: String): Future[TwitterService]
+
   def getTwitterService(): Future[TwitterService]
   def getTwitterServiceWithToken(oAuthToken:String): Future[TwitterService]
 
-  def getTwitterServiceWithAccessToken(accessToken:String, accessTokenSecret:String): Future[TwitterService]
-
+  def getTwitterServiceWithAccessToken(accessToken:AccessToken): Future[TwitterService]
 }

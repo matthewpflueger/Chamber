@@ -28,9 +28,9 @@ class TwitterAccessActorClient extends TwitterAccess{
       }
   }
 
-  def getMe(accessToken:String,  accessTokenSecret:String, userId: Long) = {
+  def getUser(accessToken:String,  accessTokenSecret:String, userId: Long) = {
      Future[TwitterUser] {
-            (twitterAccessActor ? ("getMe", accessToken, accessTokenSecret, userId)).get.asInstanceOf[TwitterUser]
+            (twitterAccessActor ? ("getUser", accessToken, accessTokenSecret, userId)).get.asInstanceOf[TwitterUser]
      }
   }
 
@@ -39,6 +39,5 @@ class TwitterAccessActorClient extends TwitterAccess{
             (twitterAccessActor ? ("updateStatus",accessToken,accessTokenSecret,status)).get.asInstanceOf[String]
       }
   }
-
 
 }

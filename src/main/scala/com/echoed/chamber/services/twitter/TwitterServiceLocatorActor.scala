@@ -20,19 +20,24 @@ class TwitterServiceLocatorActor extends Actor {
 
   def receive = {
     case ("none") =>{
-      logger.debug("Creating New Twitter Service {}")
+      logger.debug("Creating New Twitter Service with No Token")
       val t = twitterServiceCreator.createTwitterService().await(Duration(10,TimeUnit.SECONDS)).get
       val requestToken: RequestToken = t.getRequestToken().get
-      cache += (requestToken.getToken -> t)
+      cache += ("requestToken:" + requestToken.getToken -> t)
       self.channel ! t
     }
     case ("requestToken",oAuthToken:String) =>{
-      self.channel ! cache.getOrElse(oAuthToken,null)
+      logger.debug("Locating Twitter Service with Request Token {}", oAuthToken)
+      self.channel ! cache.getOrElse("requestToken:" + oAuthToken,null)
     }
-    case ("accessToken",accessToken:String, accessTokenSecret: String) =>{
-      val t = cache.getOrElse(accessToken,{
-        val twitterService = twitterServiceCreator.createTwitterServiceWithAccessToken(accessToken,accessTokenSecret).await(Duration(10,TimeUnit.SECONDS)).get
-        cache += (accessToken -> twitterService)
+    case ("accessToken",accessToken:AccessToken) =>{
+
+
+      val accessTokenKey:String = "accessToken:" + accessToken.getToken
+
+      val t = cache.getOrElse(accessTokenKey,{
+        val twitterService = twitterServiceCreator.createTwitterServiceWithAccessToken(accessToken).await(Duration(10,TimeUnit.SECONDS)).get
+        cache += (accessTokenKey -> twitterService)
         twitterService
       })
       self.channel ! t

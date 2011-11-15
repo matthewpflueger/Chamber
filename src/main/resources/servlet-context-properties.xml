@@ -42,6 +42,9 @@
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
 
         <prop key="confirmViewUrl">${cdnUrl}/confirm.html</prop>
+
+
+        <prop key="twitterLoginErrorViewUrl">${cdnUrl}/twitter_login_error.html</prop>
         <prop key="facebookLoginErrorViewUrl">${cdnUrl}/facebook_login_error.html</prop>
         <prop key="dashboardViewUrl">${cdnUrl}/dashboard.html</prop>
 

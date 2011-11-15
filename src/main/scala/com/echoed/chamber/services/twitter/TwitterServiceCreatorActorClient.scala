@@ -16,9 +16,15 @@ class TwitterServiceCreatorActorClient extends TwitterServiceCreator{
         }
     }
 
-    def createTwitterServiceWithAccessToken(accessToken:String, accessTokenSecret: String) ={
+    def createTwitterServiceWithAccessToken(accessToken:AccessToken) ={
         Future[TwitterService] {
-            (twitterServiceCreatorActor ? ("accessToken",accessToken,accessTokenSecret)).get.asInstanceOf[TwitterService]
+            (twitterServiceCreatorActor ? ("accessToken",accessToken)).get.asInstanceOf[TwitterService]
+        }
+    }
+
+    def createTwitterServiceWithId(id: String) = {
+        Future[TwitterService]{
+            (twitterServiceCreatorActor ? ("id",id)).get.asInstanceOf[TwitterService]
         }
     }
 }

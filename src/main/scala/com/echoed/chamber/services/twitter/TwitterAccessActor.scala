@@ -67,7 +67,7 @@ class TwitterAccessActor extends Actor{
             self.channel ! twitterHandler.getOAuthAccessToken()
         }
 
-        case ("getMe",accessToken:String,  accessTokenSecret: String, userId: Long ) => {
+        case ("getUser",accessToken:String,  accessTokenSecret: String, userId: Long ) => {
             val twitterHandler = getTwitterHandler("accessToken:" + accessToken,accessToken,accessTokenSecret)
             val user: User = twitterHandler.showUser(userId)
             val twitterUser: TwitterUser = new TwitterUser(user.getId.toString, user.getScreenName,user.getName, user.getLocation, user.getTimeZone)

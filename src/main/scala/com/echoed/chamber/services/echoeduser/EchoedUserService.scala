@@ -4,6 +4,8 @@ import com.echoed.chamber.domain.EchoedUser
 import akka.dispatch.Future
 import org.slf4j.LoggerFactory
 import com.echoed.util.FutureHelper
+import com.echoed.chamber.services.facebook.FacebookService
+import com.echoed.chamber.services.twitter.TwitterService
 
 trait EchoedUserService {
 
@@ -21,4 +23,10 @@ trait EchoedUserService {
 //    }
 
     def getEchoedUser(): Future[EchoedUser]
+
+    def assignTwitterService(twitterService:TwitterService): Future[TwitterService]
+    def assignFacebookService(facebookService:FacebookService): Future[FacebookService]
+
+    def updateTwitterStatus(status:String): Future[String]
+
 }

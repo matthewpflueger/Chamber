@@ -11,7 +11,7 @@ trait TwitterAccess {
 
     def getAccessToken(accessToken:String, accessTokenSecret: String): Future[AccessToken]
 
-    def getMe(accessToken:String, accessTokenSecret:String,userId:Long): Future[TwitterUser]
+    def getUser(accessToken:String, accessTokenSecret:String,userId:Long): Future[TwitterUser]
 
     def updateStatus(accessToken:String, accessTokenSecret:String,  status:String ): Future[String]
 

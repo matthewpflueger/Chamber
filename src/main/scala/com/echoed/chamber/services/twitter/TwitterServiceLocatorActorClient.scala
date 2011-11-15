@@ -3,6 +3,7 @@ package com.echoed.chamber.services.twitter
 import akka.dispatch.Future
 import reflect.BeanProperty
 import akka.actor.{ActorRef, TypedActor}
+import twitter4j.auth.AccessToken
 
 class TwitterServiceLocatorActorClient extends TwitterServiceLocator {
 
@@ -21,9 +22,9 @@ class TwitterServiceLocatorActorClient extends TwitterServiceLocator {
     }
   }
 
-  def getTwitterServiceWithAccessToken(accessToken:String,accessTokenSecret: String)={
+  def getTwitterServiceWithAccessToken(accessToken:AccessToken)={
     Future[TwitterService]{
-      (actorRef ? ("accessToken", accessToken, accessTokenSecret)).get.asInstanceOf[TwitterService]
+      (actorRef ? ("accessToken", accessToken)).get.asInstanceOf[TwitterService]
     }
   }
 

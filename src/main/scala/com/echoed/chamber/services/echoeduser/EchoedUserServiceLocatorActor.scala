@@ -5,6 +5,7 @@ import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.facebook.FacebookService
+import com.echoed.chamber.services.twitter.TwitterService
 
 
 class EchoedUserServiceLocatorActor extends Actor {
@@ -15,6 +16,7 @@ class EchoedUserServiceLocatorActor extends Actor {
 
     private val cache = WeakHashMap[String, EchoedUserService]()
     private val cacheFacebookService = WeakHashMap[FacebookService, EchoedUserService]()
+    private val cacheTwitterService = WeakHashMap[TwitterService,EchoedUserService]()
 
     def receive = {
         case ("id", id: String) => {
@@ -35,6 +37,17 @@ class EchoedUserServiceLocatorActor extends Actor {
                 cacheFacebookService += (facebookService -> f)
                 logger.debug("Seeded cacheFacebookService with EchoedUserService key {}", facebookService)
                 f
+            })
+        }
+
+        case ("twitterService", twitterService: TwitterService) => {
+            logger.debug("Locating EchoedUserService with TwitterService: {}", twitterService)
+            self.channel ! cacheTwitterService.getOrElse(twitterService, {
+                logger.debug("Cache miss for EchoedUserService with TwitterService {} ", twitterService)
+                val t = echoedUserServiceCreator.createEchoedUserServiceUsingTwitterService(twitterService).get
+                cacheTwitterService += (twitterService -> t)
+                logger.debug("Seeded cacheTwitterService with EchoedUserService key {}", twitterService)
+                t
             })
         }
     }

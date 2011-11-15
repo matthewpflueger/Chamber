@@ -25,28 +25,23 @@ class TwitterServiceCreatorActor extends Actor{
       logger.debug("Creating New Twitter Service")
       val requestToken: RequestToken = twitterAccess.getRequestToken().get.asInstanceOf[RequestToken]
       self.channel ! new TwitterServiceActorClient(Actor.actorOf(
-                new TwitterServiceActor(null,requestToken,twitterAccess,twitterUserDao)).start)
+                new TwitterServiceActor(twitterAccess,twitterUserDao,requestToken)).start)
     }
-    case ("accessToken", accessToken: String, accessTokenSecret:String) =>{
-      logger.debug("Creating New Twitter Service With Access Token {}")
-
-        /*val twitterUser = for{
-          aToken: AccessToken <- twitterAccess.getAccessToken(accessToken,accessTokenSecret)
-          me:TwitterUser <- twitterAccess.getMe(aToken.getToken,aToken.getTokenSecret,aToken.getUserId)
-          me.setAccessToken(accessToken)
-          me.setAccessTokenSecret(accessTokenSecret)
-          inserted : Int <- Future[Int] {twitterUserDao.insertOrUpdateTwitterUser(me)}
-        } yield me*/
-
-        //CREATE OR UPDATE TWITTERUSER DAO
-        val aToken: AccessToken = twitterAccess.getAccessToken(accessToken,accessTokenSecret).get.asInstanceOf[AccessToken]
-        var twitterUser: TwitterUser = twitterAccess.getMe(aToken.getToken,aToken.getTokenSecret,aToken.getUserId).get.asInstanceOf[TwitterUser]
-        twitterUser.accessToken = accessToken
-        twitterUser.accessTokenSecret = accessTokenSecret
-        twitterUserDao.insertOrUpdateTwitterUser(twitterUser)
-        self.channel ! new TwitterServiceActorClient(Actor.actorOf(
-                           new TwitterServiceActor(twitterUser,null,twitterAccess,twitterUserDao)).start)
+    case ("accessToken", accessToken:AccessToken) =>{
+      logger.debug("Creating New Twitter Service With Access Token {} for User Id", accessToken.getToken,accessToken.getUserId)
+      var twitterUser: TwitterUser = twitterAccess.getUser(accessToken.getToken,accessToken.getTokenSecret,accessToken.getUserId).get.asInstanceOf[TwitterUser]
+      twitterUser.accessToken = accessToken.getToken
+      twitterUser.accessTokenSecret = accessToken.getTokenSecret
+      twitterUserDao.insertOrUpdateTwitterUser(twitterUser)
+      self.channel ! new TwitterServiceActorClient(Actor.actorOf(
+                         new TwitterServiceActor(twitterAccess,twitterUserDao,twitterUser)).start)
     }
+    case ("id", id:String) =>{
+      logger.debug("Creating New Twitter Service With Id {}", id)
+      var twitterUser: TwitterUser = twitterUserDao.selectTwitterUserWithId(id)
+      self.channel ! new TwitterServiceActorClient(Actor.actorOf(
+                          new TwitterServiceActor(twitterAccess,twitterUserDao,twitterUser)).start)
+      }
   }
 
 }

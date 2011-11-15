@@ -22,4 +22,12 @@ case class EchoedUser(
             facebookUser.id,
             null)
 
+    def this(twitterUser: TwitterUser) = this(
+            null,
+            twitterUser.username,
+            "JonLWu@gmail.com",
+            twitterUser.name,
+            twitterUser.name,
+            null,
+            twitterUser.id)
 }

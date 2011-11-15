@@ -21,16 +21,27 @@ class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterSe
     }
   }
 
-  def getMe(accessToken:String, accessTokenSecret:String) = {
+  def getUser() = {
     Future[TwitterUser]{
-       (twitterServiceActor? ("getMe",accessToken, accessTokenSecret)).get.asInstanceOf[TwitterUser]
+       (twitterServiceActor? ("getUser")).get.asInstanceOf[TwitterUser]
     }
   }
 
-  def updateStatus(accessToken:String,accessTokenSecret: String, status:String) = {
+  def getTwitterUser ={
+    Future[TwitterUser]{
+      (twitterServiceActor ? ("getTwitterUser")).get.asInstanceOf[TwitterUser]
+    }
+  }
+
+  def assignEchoedUserId(id: String) =  {
+    Future[TwitterUser] {
+      (twitterServiceActor ? ("assignEchoedUserId",id)).get.asInstanceOf[TwitterUser]
+    }
+  }
+
+  def updateStatus(status:String) = {
     Future[String]{
-      (twitterServiceActor ? ("updateStatus",accessToken,accessTokenSecret,status)).get.asInstanceOf[String]
+      (twitterServiceActor ? ("updateStatus",status)).get.asInstanceOf[String]
     }
   }
-
 }

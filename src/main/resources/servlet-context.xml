@@ -85,7 +85,19 @@
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="twitterController" class="com.echoed.chamber.controllers.TwitterController">
+        <property name="echoService" ref="echoService" />
+        <property name="twitterServiceLocator" ref="twitterServiceLocator" />
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+
+        <property name="cookieManager" ref="cookieManager" />
+
         <property name="twitterRedirectUrl" value="${twitterController.loginRedirectUrl}"/>
+
+
+        <property name="twitterLoginErrorView" value="redirect:${twitterLoginErrorViewUrl}"/>
+        <property name="echoView" value="redirect:${echoUrl}" />
+        <property name="confirmView" value="redirect:${confirmViewUrl}" />
+        <property name="dashboardView" value="redirect:${dashboardViewUrl}" />
     </bean>
 
 

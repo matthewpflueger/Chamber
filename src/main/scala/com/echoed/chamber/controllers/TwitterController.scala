@@ -6,21 +6,17 @@ import com.echoed.chamber.services.twitter.TwitterService
 import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
 import org.springframework.stereotype.Controller
 import reflect.BeanProperty
-import akka.dispatch.Future
-import collection.mutable.WeakHashMap
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import java.util.Date
 import org.slf4j.LoggerFactory
 import twitter4j.auth.{RequestToken,AccessToken}
-import javax.servlet.http.HttpSession
-import twitter4j.{TwitterFactory, Twitter, TwitterException, User}
 import org.springframework.beans.factory.annotation.Autowired
 import com.echoed.chamber.dao.TwitterUserDao
-import com.echoed.chamber.domain.TwitterUser
 import com.echoed.chamber.services.EchoService
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import com.echoed.chamber.services.echoeduser.EchoedUserService
 import org.eclipse.jetty.continuation.ContinuationSupport
+import com.echoed.util.CookieManager
+import org.springframework.web.servlet.ModelAndView
 
 @Controller
 @RequestMapping(Array("/twitter"))
@@ -30,44 +26,103 @@ class TwitterController {
 
 
   @BeanProperty var twitterUserDao: TwitterUserDao = null
-  @BeanProperty var twitterRedirectUrl: String = null
   @Autowired @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
   @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
   @BeanProperty var echoService: EchoService = _
 
-
-  //@BeanProperty var twitterLoginErrorView: String = _
+  @BeanProperty var twitterRedirectUrl: String = null
+  @BeanProperty var cookieManager: CookieManager = _
+  @BeanProperty var twitterLoginErrorView: String = _
   @BeanProperty var confirmView: String = _
   @BeanProperty var dashboardView: String = _
+  @BeanProperty var echoView: String = _
+
+  @BeanProperty var facebookLoginErrorView: String = _
 
   @RequestMapping(method = Array(RequestMethod.GET))
-  def twitter(@RequestParam("oauth_token") oAuthToken: String,
-              @RequestParam("oauth_verifier") oAuthVerifier: String,
-              httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse): Unit = {
-
-    val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-    if( (Option(oAuthToken) == None && Option(oAuthVerifier)==None) ||
-        continuation.isExpired
-        ){
-      var t:TwitterService = twitterServiceLocator.getTwitterService().get.asInstanceOf[TwitterService]
-      httpServletResponse.sendRedirect(t.getRequestToken().get.asInstanceOf[RequestToken].getAuthenticationURL)
-    }
+  def twitter(@CookieValue(value="echoPossibly", required=false) echoPossibilityId: String,
+              @CookieValue(value="echoedUserId", required=false) echoedUserId: String,
+              httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse) = {
+    //GET THE PROPER REDIRECT URL FROM TWITTER
+    var twitterService:TwitterService = twitterServiceLocator.getTwitterService().get.asInstanceOf[TwitterService]
+    httpServletResponse.sendRedirect(twitterService.getRequestToken().get.asInstanceOf[RequestToken].getAuthenticationURL)
   }
 
+
   @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
-  def login(httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse): Unit ={
-    val oAuthToken: String = httpServletRequest.getParameter("oauth_token")
-    val oAuthVerifier: String = httpServletRequest.getParameter("oauth_verifier")
+  def login(@RequestParam("oauth_token") oAuthToken:String,
+            @RequestParam("oauth_verifier") oAuthVerifier: String,
+            @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
+            httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse) ={
+    val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
+    logger.debug("Continuation attribute Model and View = {}",continuation.getAttribute("modelAndView"))
+    if(Option(oAuthToken) == None || oAuthVerifier == None || continuation.isExpired){
+      logger.error("Request expired to login via Twitter with code {}")
+      new ModelAndView("test")
 
-    var t:TwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).get.asInstanceOf[TwitterService]
-    var accessToken: AccessToken = t.getAccessToken(oAuthVerifier).get.asInstanceOf[AccessToken]
+    } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
+      continuation.suspend(httpServletResponse)
 
+      logger.debug("Requesting EchoPossibility with id {}", echoPossibilityId)
 
-    var t2 :TwitterService = twitterServiceLocator.getTwitterServiceWithAccessToken(accessToken.getToken,accessToken.getTokenSecret).get.asInstanceOf[TwitterService]
-    val me: TwitterUser = t2.getMe(accessToken.getToken,accessToken.getTokenSecret).get.asInstanceOf[TwitterUser]
-    httpServletResponse.getWriter.println(me.username)
-
+      val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
+      futureTwitterService
+      .onResult({
+          case twitterService:TwitterService =>
+            logger.debug("Received twitterservice with oAuthToken {}" , oAuthToken )
+            val accessToken = twitterService.getAccessToken(oAuthVerifier)
+            accessToken.onResult({
+              case aToken:AccessToken =>
+                  logger.debug("Received AccessToken with oAuthVerifier {}", oAuthVerifier)
+                  val twitterServiceWithAccessToken = twitterServiceLocator.getTwitterServiceWithAccessToken(aToken)
+                  twitterServiceWithAccessToken
+                  .onResult({
+                    case ts: TwitterService =>
+                      logger.debug("Requesting EchoedUserService with TwitterService {}", ts)
+                      val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts)
+                      logger.debug("Received EchoedUserService {} with TwitterService {}", futureEchoedUserService, ts)
+                      futureEchoedUserService
+                      .onResult({
+                        case es: EchoedUserService =>
+                          continuation.setAttribute("modelAndView",{
+                            logger.debug("Successfully recieved EchoedUserService {} with TwitterService {}",es,ts)
+                            try{
+                              val echoedUser = es.echoedUser.get
+                              ts.assignEchoedUserId(echoedUser.id)
+                              logger.debug("Added Cooking EchoedUserId: {}", echoedUser )
+                              cookieManager.addCookie(httpServletResponse,"echoedUserId",echoedUser.id)
+                              logger.debug("Setting Model and View to {}", confirmView)
+                              val modelAndView = new ModelAndView(confirmView)
+                              modelAndView.addObject("echoedUser",echoedUser)
+                              modelAndView
+                            }
+                            catch{
+                              case n: NoSuchElementException=>
+                                logger.debug("No Such Element Exception {}", n)
+                                new ModelAndView("test")
+                              case e=>
+                                logger.debug("Echoed User Service throws exception {}", e )
+                                new ModelAndView("test")
+                            }
+                          })
+                        continuation.resume
+                      })
+                  })
+                  .onException({
+                    case e=>
+                        logger.debug("Exception")
+                        continuation.setAttribute("modelAndView",new ModelAndView("test"))
+                        continuation.resume
+                  })
+            })
+      })
+      .onException({
+        case e=>
+        throw new RuntimeException("Error")
+      })
+      continuation.undispatch()
+    })
   }
 }

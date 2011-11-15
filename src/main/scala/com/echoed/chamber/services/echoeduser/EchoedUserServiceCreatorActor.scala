@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.facebook.FacebookService
-
+import com.echoed.chamber.services.twitter.TwitterService
 
 class EchoedUserServiceCreatorActor extends Actor {
 
@@ -44,6 +44,24 @@ class EchoedUserServiceCreatorActor extends Actor {
                     self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
                             new EchoedUserServiceActor(echoedUser, echoedUserDao, facebookService)).start)
 
+            }
+        }
+
+        case ("twitterService", twitterService:TwitterService) => {
+            logger.debug("Creating EchoedUserService with {}", twitterService)
+            val twitterUser = twitterService.twitterUser.get
+            Option(echoedUserDao.findByTwitterUserId(twitterUser.id)) match{
+              case Some(echoedUser) =>
+                   logger.debug("Found EchoedUser {} with TwitterUser {}",echoedUser, twitterUser)
+                   self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
+                        new EchoedUserServiceActor(echoedUser,echoedUserDao,twitterService)).start)
+              case None =>
+                   logger.debug("Creating EchoedUser with {}", twitterUser)
+                   val echoedUser = new EchoedUser(twitterUser)
+                   echoedUserDao.insertOrUpdate(echoedUser)
+                   twitterService.assignEchoedUserId(echoedUser.id)
+                   self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
+                        new EchoedUserServiceActor(echoedUser,echoedUserDao,twitterService)).start)
             }
         }
     }
