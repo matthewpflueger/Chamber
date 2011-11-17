@@ -20,7 +20,7 @@ import org.springframework.web.servlet.ModelAndView
 
 @Controller
 @RequestMapping(Array("/twitter"))
-class TwitterController {
+class   TwitterController {
 
   private val logger = LoggerFactory.getLogger(classOf[TwitterController])
 
@@ -29,21 +29,18 @@ class TwitterController {
   @Autowired @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
   @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
   @BeanProperty var echoService: EchoService = _
-
   @BeanProperty var twitterRedirectUrl: String = null
   @BeanProperty var cookieManager: CookieManager = _
   @BeanProperty var twitterLoginErrorView: String = _
-  @BeanProperty var confirmView: String = _
-  @BeanProperty var dashboardView: String = _
   @BeanProperty var echoView: String = _
 
   @BeanProperty var facebookLoginErrorView: String = _
 
   @RequestMapping(method = Array(RequestMethod.GET))
-  def twitter(@CookieValue(value="echoPossibly", required=false) echoPossibilityId: String,
-              @CookieValue(value="echoedUserId", required=false) echoedUserId: String,
+  def twitter(@CookieValue(value="echoedUserId", required=false) echoedUserId: String,
+              @CookieValue(value="echoPossibility", required=false) echoPossibilityId: String,
               httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse) = {
-    //GET THE PROPER REDIRECT URL FROM TWITTER
+
     var twitterService:TwitterService = twitterServiceLocator.getTwitterService().get.asInstanceOf[TwitterService]
     httpServletResponse.sendRedirect(twitterService.getRequestToken().get.asInstanceOf[RequestToken].getAuthenticationURL)
   }
@@ -54,6 +51,7 @@ class TwitterController {
             @RequestParam("oauth_verifier") oAuthVerifier: String,
             @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
             httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse) ={
+
     val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
     logger.debug("Continuation attribute Model and View = {}",continuation.getAttribute("modelAndView"))
@@ -66,6 +64,8 @@ class TwitterController {
       continuation.suspend(httpServletResponse)
 
       logger.debug("Requesting EchoPossibility with id {}", echoPossibilityId)
+
+      val futureEchoPossibility = echoService.getEchoPossibility(echoPossibilityId)
 
       val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
       futureTwitterService
@@ -91,20 +91,22 @@ class TwitterController {
                             try{
                               val echoedUser = es.echoedUser.get
                               ts.assignEchoedUserId(echoedUser.id)
-                              logger.debug("Added Cooking EchoedUserId: {}", echoedUser )
+                              logger.debug("Added Cookie EchoedUserId: {}", echoedUser )
                               cookieManager.addCookie(httpServletResponse,"echoedUserId",echoedUser.id)
-                              logger.debug("Setting Model and View to {}", confirmView)
-                              val modelAndView = new ModelAndView(confirmView)
+                              logger.debug("Setting Model and View to {}", echoView)
+
+                              val modelAndView = new ModelAndView(echoView)
                               modelAndView.addObject("echoedUser",echoedUser)
+                              modelAndView.addObject("echoPossibility", futureEchoPossibility.get)
                               modelAndView
                             }
                             catch{
                               case n: NoSuchElementException=>
                                 logger.debug("No Such Element Exception {}", n)
-                                new ModelAndView("test")
+                                new ModelAndView(echoView)
                               case e=>
                                 logger.debug("Echoed User Service throws exception {}", e )
-                                new ModelAndView("test")
+                                new ModelAndView(echoView)
                             }
                           })
                         continuation.resume
@@ -113,7 +115,7 @@ class TwitterController {
                   .onException({
                     case e=>
                         logger.debug("Exception")
-                        continuation.setAttribute("modelAndView",new ModelAndView("test"))
+                        continuation.setAttribute("modelAndView",new ModelAndView(twitterLoginErrorView))
                         continuation.resume
                   })
             })
@@ -121,6 +123,8 @@ class TwitterController {
       .onException({
         case e=>
         throw new RuntimeException("Error")
+        continuation.setAttribute("modelAndView", new ModelAndView(twitterLoginErrorView))
+        continuation.resume
       })
       continuation.undispatch()
     })

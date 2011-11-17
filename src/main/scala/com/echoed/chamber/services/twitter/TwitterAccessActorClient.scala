@@ -1,10 +1,11 @@
 package com.echoed.chamber.services.twitter
 
 import akka.dispatch.Future
-import com.echoed.chamber.domain.{TwitterFollower, TwitterUser}
+import com.echoed.chamber.domain.{TwitterFollower, TwitterUser,TwitterStatus}
 import reflect.BeanProperty
 import akka.actor.{Actor, ActorRef}
 import twitter4j.auth.{RequestToken,AccessToken}
+import twitter4j.Status
 
 class TwitterAccessActorClient extends TwitterAccess{
 
@@ -34,9 +35,27 @@ class TwitterAccessActorClient extends TwitterAccess{
      }
   }
 
+  def getFollowers(accessToken:String,  accessTokenSecret:String, userId: Long) = {
+    Future[Array[TwitterFollower]]{
+          (twitterAccessActor ? ("getFollowers",accessToken, accessTokenSecret,userId)).get.asInstanceOf[Array[TwitterFollower]]
+    }
+  }
+
   def updateStatus(accessToken:String, accessTokenSecret: String, status:String) ={
-      Future[String]{
-            (twitterAccessActor ? ("updateStatus",accessToken,accessTokenSecret,status)).get.asInstanceOf[String]
+      Future[TwitterStatus]{
+            (twitterAccessActor ? ("updateStatus",accessToken,accessTokenSecret,status)).get.asInstanceOf[TwitterStatus]
+      }
+  }
+
+  def getStatus(accessToken:String, accessTokenSecret:String, statusId:String) = {
+      Future[TwitterStatus]{
+            (twitterAccessActor ? ("getStatus",accessToken, accessTokenSecret,statusId)).get.asInstanceOf[TwitterStatus]
+      }
+  }
+
+  def getRetweetIds(accessToken:String, accessTokenSecret:String,  tweetId:String) = {
+      Future[Array[Long]]{
+            (twitterAccessActor ? ("getRetweetIds",accessToken, accessTokenSecret,tweetId)).get.asInstanceOf[Array[Long]]
       }
   }
 

@@ -84,4 +84,9 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
+    <bean id="twitterStatusDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.TwitterStatusDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession"/>
+    </bean>
+
 </beans>

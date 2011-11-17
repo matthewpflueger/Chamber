@@ -28,4 +28,10 @@ class TwitterServiceLocatorActorClient extends TwitterServiceLocator {
     }
   }
 
+  def getTwitterServiceWithId(twitterUserId: String) = {
+    Future[TwitterService]{
+      (actorRef ? ("id", twitterUserId)).get.asInstanceOf[TwitterService]
+    }
+  }
+
 }

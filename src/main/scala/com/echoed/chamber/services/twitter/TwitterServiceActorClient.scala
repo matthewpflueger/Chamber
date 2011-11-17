@@ -3,8 +3,7 @@ package com.echoed.chamber.services.twitter
 import akka.actor.ActorRef
 import twitter4j.auth.{RequestToken,AccessToken}
 import akka.dispatch.Future
-import reflect.BeanProperty
-import com.echoed.chamber.domain.TwitterUser
+import com.echoed.chamber.domain.{TwitterUser,TwitterStatus,TwitterFollower}
 
 
 class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterService  {
@@ -33,6 +32,12 @@ class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterSe
     }
   }
 
+  def getFollowers ={
+     Future[Array[TwitterFollower]]{
+       (twitterServiceActor ? ("getFollowers")).get.asInstanceOf[Array[TwitterFollower]]
+     }
+  }
+
   def assignEchoedUserId(id: String) =  {
     Future[TwitterUser] {
       (twitterServiceActor ? ("assignEchoedUserId",id)).get.asInstanceOf[TwitterUser]
@@ -40,8 +45,20 @@ class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterSe
   }
 
   def updateStatus(status:String) = {
-    Future[String]{
-      (twitterServiceActor ? ("updateStatus",status)).get.asInstanceOf[String]
+    Future[TwitterStatus]{
+      (twitterServiceActor ? ("updateStatus",status)).get.asInstanceOf[TwitterStatus]
+    }
+  }
+
+  def getStatus(statusId:String) = {
+    Future[TwitterStatus]{
+      (twitterServiceActor ? ("getStatus",statusId)).get.asInstanceOf[TwitterStatus]
+    }
+  }
+
+  def getRetweetIds(tweetId:String) = {
+    Future[Array[Long]]{
+      (twitterServiceActor ? ("getRetweetIds",tweetId)).get.asInstanceOf[Array[Long]]
     }
   }
 }

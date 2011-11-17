@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import com.echoed.util.FutureHelper
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
+import com.echoed.chamber.domain.{TwitterFollower,TwitterStatus, TwitterUser}
 
 trait EchoedUserService {
 
@@ -27,6 +28,9 @@ trait EchoedUserService {
     def assignTwitterService(twitterService:TwitterService): Future[TwitterService]
     def assignFacebookService(facebookService:FacebookService): Future[FacebookService]
 
-    def updateTwitterStatus(status:String): Future[String]
+    // TWITTER RELATED FUNCTIONS
+    def updateTwitterStatus(status:String): Future[TwitterStatus]
+    def getTwitterFollowers(): Future[Array[TwitterFollower]]
+
 
 }

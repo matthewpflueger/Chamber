@@ -7,12 +7,16 @@ import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
+import com.echoed.chamber.services.facebook.FacebookServiceLocator
+import com.echoed.chamber.services.twitter.TwitterServiceLocator
 
 class EchoedUserServiceCreatorActor extends Actor {
 
     private val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceCreatorActor])
 
     @BeanProperty var echoedUserDao: EchoedUserDao = null
+    @BeanProperty var facebookServiceLocator: FacebookServiceLocator = _
+    @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
 
     def receive = {
         case ("id", id: String) => {
@@ -20,8 +24,16 @@ class EchoedUserServiceCreatorActor extends Actor {
 
             Option(echoedUserDao.findById(id)) match {
                 case Some(echoedUser) =>
+                    var facebookService: FacebookService = null
+                    var twitterService:TwitterService = null
+                    if(echoedUser.facebookUserId != null)
+                      facebookService = locateFacebookService(echoedUser.facebookUserId)
+
+                    if(echoedUser.twitterUserId != null)
+                      twitterService = locateTwitterService(echoedUser.twitterUserId)
+
                     self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-                            new EchoedUserServiceActor(echoedUser, echoedUserDao)).start)
+                            new EchoedUserServiceActor(echoedUser, echoedUserDao,facebookService,twitterService)).start)
                     logger.debug("Created EchoedUserService with id {}", id)
                 case None =>
                     logger.warn("Did not find an EchoedUser with id {}", id)
@@ -64,5 +76,15 @@ class EchoedUserServiceCreatorActor extends Actor {
                         new EchoedUserServiceActor(echoedUser,echoedUserDao,twitterService)).start)
             }
         }
+    }
+
+    private def locateTwitterService(twitterUserId: String) = {
+      val twitterService:TwitterService = twitterServiceLocator.getTwitterServiceWithId(twitterUserId).get.asInstanceOf[TwitterService]
+      twitterService
+    }
+
+    private def locateFacebookService(twitterFacebookId:String) = {
+      val facebookService:FacebookService = null
+      facebookService
     }
 }

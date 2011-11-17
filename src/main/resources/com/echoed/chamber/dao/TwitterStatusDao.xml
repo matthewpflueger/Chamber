@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.TwitterStatusDao">
+    <resultMap id="twitterStatusResult" type="com.echoed.chamber.domain.TwitterStatus">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="twitterId" javaType="String" />
+            <arg column="twitterUserId" javaType="String"/>
+            <arg column="text" javaType="String" />
+            <arg column="source" javaType="String"/>
+			<arg column="createdAt" javaType="Date" />
+        </constructor>
+    </resultMap>
+
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.TwitterStatus">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            select uuid()
+        </selectKey>
+
+    	insert into TwitterStatus(
+    			id,
+    			twitterId,
+                twitterUserId,
+                text,
+    			source,
+    			createdAt)
+    		values (
+    			#{id},
+                #{twitterId},
+                #{twitterUserId},
+                #{text},
+                #{source},
+                #{createdAt})
+            on duplicate key update
+	    		twitterId=#{twitterId},
+	    		twitterUserId=#{twitterUserId},
+	    		text=#{text},
+	    		source=#{source},
+                createdAt=#{createdAt}
+    </insert>
+
+</mapper>

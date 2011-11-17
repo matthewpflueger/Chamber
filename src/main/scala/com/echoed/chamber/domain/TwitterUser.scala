@@ -11,9 +11,10 @@ case class TwitterUser (
         location: String,
         timezone: String
         ){
-  @BeanProperty var accessToken: String = null
-  @BeanProperty var accessTokenSecret: String = null
-  @BeanProperty var echoedUserId: String = null
+
+  @BeanProperty var accessToken: String = _
+  @BeanProperty var accessTokenSecret: String = _
+  @BeanProperty var echoedUserId: String = _
 
 }
 

@@ -1,9 +1,8 @@
 package com.echoed.chamber.services.twitter
 
 import akka.actor.Actor
-import com.echoed.chamber.domain.{TwitterFollower, TwitterUser}
+import com.echoed.chamber.domain.{TwitterFollower, TwitterUser, TwitterStatus}
 import collection.mutable.WeakHashMap
-import twitter4j.User
 import org.codehaus.jackson.`type`.TypeReference
 import reflect.BeanProperty
 import java.util.Properties
@@ -12,14 +11,7 @@ import org.slf4j.LoggerFactory
 import twitter4j.auth.{RequestToken,AccessToken}
 import twitter4j.{TwitterFactory, Twitter, TwitterException}
 import twitter4j.conf.ConfigurationBuilder
-
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 11/7/11
- * Time: 3:24 PM
- * To change this template use File | Settings | File Templates.
- */
+import twitter4j.{Status,IDs,User}
 
 class TwitterAccessActor extends Actor{
 
@@ -48,7 +40,7 @@ class TwitterAccessActor extends Actor{
 
         case ("requestToken") =>{
             val twitterHandler = getTwitterHandler(null)
-            var requestToken: RequestToken = twitterHandler.getOAuthRequestToken("http://localhost:8080/twitter/login")
+            var requestToken: RequestToken = twitterHandler.getOAuthRequestToken(callbackUrl)
             val key: String = "requestToken:" + requestToken.getToken
             cache +=(key -> twitterHandler)
             self.channel ! requestToken
@@ -74,10 +66,42 @@ class TwitterAccessActor extends Actor{
             self.channel ! twitterUser
         }
 
-        case ("updateStatus", accessToken: String, accessTokenSecret: String,  status: String) => {
+        case ("getFollowers", accessToken:String, accessTokenSecret: String, userId: Long) =>{
+            logger.debug("Attempting to receive TwitterFollowers for UserId {} ", userId)
+            val twitterHandler = getTwitterHandler("accessToken:" + accessToken, accessToken, accessTokenSecret)
+            val idList:Array[Long] = twitterHandler.getFollowersIDs(userId,-1).getIDs
+            var twitterFollowers: Array[TwitterFollower] = new Array[TwitterFollower](0);
+            logger.debug("Size of twitter follower list: {}", idList.length)
+            for(id <- idList){
+              val twitterFollower: TwitterFollower = new TwitterFollower(userId.toString,id.toString,"None")
+              logger.debug("TwitterFollower with Id: {}", twitterFollower.twitterFollowerId)
+              twitterFollowers :+= twitterFollower
+            }
+            logger.debug("TwitterFollowersArray Size: {}",twitterFollowers.length)
+            self.channel ! twitterFollowers
+        }
+
+        case ("updateStatus", accessToken: String, accessTokenSecret: String,  statusString: String) => {
           val key="accessToken:" + accessToken
           val twitterHandler = getTwitterHandler(key,accessToken,accessTokenSecret)
-          self.channel ! twitterHandler.updateStatus(status).toString()
+          val status: Status = twitterHandler.updateStatus(statusString)
+          val twitterStatus: TwitterStatus = new TwitterStatus(status.getId.toString,status.getUser.getId.toString,status.getText,status.getCreatedAt,status.getSource)
+          self.channel ! twitterStatus
+        }
+
+        case ("getStatus", accessToken: String,  accessTokenSecret:String,  statusId:String) =>{
+          val key="accessToken:" + accessToken
+          val twitterHandler = getTwitterHandler(key,accessToken,accessTokenSecret)
+          val status:Status = twitterHandler.showStatus(statusId.toLong)
+          val twitterStatus: TwitterStatus = new TwitterStatus(status.getId.toString,status.getUser.getId.toString,status.getText,status.getCreatedAt,status.getSource)
+          self.channel ! twitterStatus
+        }
+
+        case ("getRetweets", accessToken:String, accessTokenSecret:String, tweetId:String) =>{
+          val key="accessToken:" + accessToken
+          val twitterHandler = getTwitterHandler(key,accessToken,accessTokenSecret)
+          //val responseList = twitterHandler.getRetweets(tweetId.toLong)
+          self.channel ! null
         }
     }
 

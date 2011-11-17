@@ -9,11 +9,39 @@
             <arg column="name" javaType="String"/>
             <arg column="location" javaType="String"/>
             <arg column="timezone" javaType="String"/>
-            <arg column="accessToken" javaType="String"/>
-            <arg column="accessTokenSecret" javaType="String"/>
         </constructor>
     </resultMap>
 
+    <resultMap id="twitterFollowerResult" type="com.echoed.chamber.domain.TwitterFollower">
+        <constructor>
+            <idArg column="id" javaType="String"/>
+            <arg column="twitterUserId" javaType="String"/>
+            <arg column="twitterFollowerId" javaType="String"/>
+        </constructor>
+    </resultMap>
+
+    <insert id="insertTwitterFollower" parameterType="com.echoed.chamber.domain.TwitterFollower">
+        insert into TwitterFollower(
+          id,
+          twitterUserId,
+          twitterFollowerId
+        )
+        values(
+          #{twitterUserId},
+          #{twitterFollowerId}
+        )
+    </insert>
+
+    <select id="selectTwitterFollowers" parameterType="java.lang.String" resultType="com.echoed.chamber.domain.TwitterFollower">
+        select
+            twitterUserId,
+            twitterFollowerId,
+            twitterUserName
+        from
+            TwitterFollower
+        where
+            twitterUserId = #{id}
+    </select>
 
     <insert id="insertOrUpdateTwitterUser" parameterType="com.echoed.chamber.domain.TwitterUser">
         insert into TwitterUser(
@@ -45,7 +73,7 @@
             accessTokenSecret= #{accessTokenSecret}
    </insert>
 
-    <select id="selectTwitterUser" resultMap="twitterUserResult">
+    <select id="selectTwitterUserWithId" resultMap="twitterUserResult">
     	select * from TwitterUser where id = #{value}
     </select>
 

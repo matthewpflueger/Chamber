@@ -96,10 +96,7 @@
 
         <property name="twitterLoginErrorView" value="redirect:${twitterLoginErrorViewUrl}"/>
         <property name="echoView" value="redirect:${echoUrl}" />
-        <property name="confirmView" value="redirect:${confirmViewUrl}" />
-        <property name="dashboardView" value="redirect:${dashboardViewUrl}" />
     </bean>
-
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>

@@ -91,9 +91,22 @@ create table FacebookFriend (
     primary key(id, facebookUserId)
 ) engine = InnoDB;
 
+drop table if exists TwitterStatus;
+create table TwitterStatus(
+    id varchar(255) not null,
+    twitterId varchar(255) not null,
+    twitterUserId varchar(255) not null,
+    text varchar(255) not null,
+    createdAt date,
+    source varchar(255),
+    primary key(id, twitterId)
+) engine = InnoDB;
+
 drop table if exists DatabaseVersion;
 create table DatabaseVersion (
     id integer auto_increment not null,
     updateOn timestamp not null,
     primary key(id)
 ) engine = MyISAM;
+
+

@@ -3,9 +3,10 @@ package com.echoed.chamber.services.echoeduser
 import akka.actor.ActorRef
 import akka.dispatch.Future._
 import akka.dispatch.Future
-import com.echoed.chamber.domain.{EchoedUser, EchoPossibility}
+import com.echoed.chamber.domain.{EchoedUser, EchoPossibility,TwitterFollower,TwitterStatus,TwitterUser}
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
+
 
 class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends EchoedUserService {
 
@@ -27,8 +28,14 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     }
 
     def updateTwitterStatus(status:String) = {
-        Future[String] {
-            (echoedUserServiceActor ? ("updateTwitterStatus", status)).get.asInstanceOf[String]
+        Future[TwitterStatus] {
+            (echoedUserServiceActor ? ("updateTwitterStatus", status)).get.asInstanceOf[TwitterStatus]
+        }
+    }
+
+    def getTwitterFollowers() = {
+        Future[Array[TwitterFollower]] {
+            (echoedUserServiceActor ? ("getTwitterFollowers")).get.asInstanceOf[Array[TwitterFollower]]
         }
     }
 }

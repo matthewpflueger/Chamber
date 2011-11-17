@@ -159,6 +159,8 @@
         <property name="twitterAccess" ref="twitterAccess"/>
         <!--suppress SpringModelInspection -->
         <property name="twitterUserDao" ref="twitterUserDao"/>
+        <!--suppress SpringModelInspection -->
+        <property name="twitterStatusDao" ref="twitterStatusDao"/>
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -174,8 +176,13 @@
             implementation="com.echoed.chamber.services.echoeduser.EchoedUserServiceCreatorActor"
             autostart="true">
         <!--suppress SpringModelInspection -->
+        <property name="twitterServiceLocator" ref="twitterServiceLocator"/>
+        <!--suppress SpringModelInspection -->
+        <property name="facebookServiceLocator" ref="facebookServiceLocator"/>
+        <!--suppress SpringModelInspection -->
         <property name="echoedUserDao" ref="echoedUserDao" />
     </akka:untyped-actor>
+
 
     <akka:untyped-actor
             id="echoedUserServiceLocatorActor"
@@ -184,4 +191,5 @@
         <!--suppress SpringModelInspection -->
         <property name="echoedUserServiceCreator" ref="echoedUserServiceCreator" />
     </akka:untyped-actor>
+
 </beans>

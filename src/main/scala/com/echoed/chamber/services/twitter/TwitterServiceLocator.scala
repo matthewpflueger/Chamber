@@ -15,6 +15,6 @@ trait TwitterServiceLocator {
 
   def getTwitterService(): Future[TwitterService]
   def getTwitterServiceWithToken(oAuthToken:String): Future[TwitterService]
-
   def getTwitterServiceWithAccessToken(accessToken:AccessToken): Future[TwitterService]
+  def getTwitterServiceWithId(twitterUserId: String): Future[TwitterService]
 }

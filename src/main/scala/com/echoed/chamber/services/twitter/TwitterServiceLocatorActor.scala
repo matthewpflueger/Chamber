@@ -17,6 +17,7 @@ class TwitterServiceLocatorActor extends Actor {
   @BeanProperty var twitterServiceCreator: TwitterServiceCreator = null
 
   private val cache = WeakHashMap[String, TwitterService]()
+  private val idCache = WeakHashMap[String, TwitterService]() //hashmap of TwitterUserId : TwitterService
 
   def receive = {
     case ("none") =>{
@@ -37,7 +38,18 @@ class TwitterServiceLocatorActor extends Actor {
 
       val t = cache.getOrElse(accessTokenKey,{
         val twitterService = twitterServiceCreator.createTwitterServiceWithAccessToken(accessToken).await(Duration(10,TimeUnit.SECONDS)).get
+        val twitterUserId = twitterService.getUser().get.id
+        idCache +=(twitterUserId ->twitterService)
         cache += (accessTokenKey -> twitterService)
+        twitterService
+      })
+      self.channel ! t
+    }
+
+    case ("id", twitterUserId:String) =>{
+      val t = idCache.getOrElse(twitterUserId,{
+        val twitterService = twitterServiceCreator.createTwitterServiceWithId(twitterUserId).await(Duration(10,TimeUnit.SECONDS)).get
+        idCache += (twitterUserId -> twitterService)
         twitterService
       })
       self.channel ! t
