@@ -1,9 +1,9 @@
 package com.echoed.chamber.services.facebook
 
 import akka.dispatch.Future
-import com.echoed.chamber.domain.{FacebookFriend, FacebookUser}
 import reflect.BeanProperty
 import akka.actor.{Actor, ActorRef}
+import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
 
 
 class FacebookAccessActorClient extends FacebookAccess {
@@ -28,5 +28,9 @@ class FacebookAccessActorClient extends FacebookAccess {
             (facebookAccessActor ? ("friends", accessToken)).get.asInstanceOf[List[FacebookFriend]]
         }
     }
+
+    def post(accessToken: String, facebookId: String, facebookPost: FacebookPost) =
+        (facebookAccessActor ? ("post", accessToken, facebookId, facebookPost)).mapTo[FacebookPost]
+
 }
 

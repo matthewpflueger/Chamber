@@ -4,7 +4,15 @@
     <resultMap id="echoResult" type="com.echoed.chamber.domain.Echo">
         <constructor>
             <idArg column="id" javaType="String" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="customerId" javaType="String" />
+            <arg column="productId" javaType="String" />
+            <arg column="boughtOn" javaType="Date" />
+            <arg column="orderId" javaType="String" />
+            <arg column="price" javaType="String" />
+            <arg column="imageUrl" javaType="String" />
             <arg column="echoedUserId" javaType="String" />
+            <arg column="facebookPostId" javaType="String" />
             <arg column="echoPossibilityId" javaType="String" />
         </constructor>
     </resultMap>
@@ -14,23 +22,45 @@
     	select * from Echo where echoPossibilityId = #{echoPossibilityId}
     </select>
 
-    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.Echo">
+    <insert id="insert" parameterType="com.echoed.chamber.domain.Echo">
         <selectKey keyProperty="id" resultType="string" order="BEFORE">
             select uuid()
         </selectKey>
 
     	insert into Echo(
     			id,
-    			echoedUserId,
+                retailerId,
+                customerId,
+                productId,
+                boughtOn,
+                orderId,
+                price,
+                imageUrl,
+                echoedUserId,
+                facebookPostId,
                 echoPossibilityId)
-    		values (
-    			#{id},
-    			#{echoedUserId},
+        values (
+                #{id},
+                #{retailerId},
+                #{customerId},
+                #{productId},
+                #{boughtOn},
+                #{orderId},
+                #{price},
+                #{imageUrl},
+                #{echoedUserId},
+                #{facebookPostId},
                 #{echoPossibilityId})
-            on duplicate key update
-                id=#{id},
-                echoedUserId=#{echoedUserId},
-	    		echoPossibilityId=#{echoPossibilityId}
     </insert>
 
+    <update id="updateFacebookPostId" parameterType="com.echoed.chamber.domain.Echo">
+        update Echo set
+            facebookPostId=#{facebookPostId}
+        where
+            id=#{id}
+    </update>
+
+    <delete id="deleteByEchoPossibilityId">
+        delete from Echo where echoPossibilityId=#{echoPossibilityId}
+    </delete>
 </mapper>

@@ -15,4 +15,6 @@ class FacebookServiceCreatorActorClient extends FacebookServiceCreator {
         }
     }
 
+    def createFacebookServiceUsingFacebookUserId(facebookUserId: String) =
+        (facebookServiceCreatorActor ? ("facebookUserId", facebookUserId)).mapTo[FacebookService]
 }

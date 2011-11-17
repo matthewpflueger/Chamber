@@ -51,15 +51,7 @@
                 #{echoedUserId},
                 #{echoId})
         on duplicate key update
-                id=#{id},
-                retailerId=#{retailerId},
-                customerId=#{customerId},
-                productId=#{productId},
-                boughtOn=#{boughtOn},
                 step=#{step},
-                orderId=#{orderId},
-                price=#{price},
-                imageUrl=#{imageUrl},
 	    		echoedUserId=#{echoedUserId},
                 echoId=#{echoId}
     </insert>

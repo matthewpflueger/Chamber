@@ -5,7 +5,7 @@ import akka.dispatch.Future._
 import facebook.FacebookService
 import akka.dispatch.Future
 import reflect.BeanProperty
-import com.echoed.chamber.domain.{Echo, EchoPossibility}
+import com.echoed.chamber.domain.{FacebookPost, Echo, EchoPossibility}
 
 
 class EchoServiceActorClient extends EchoService {
@@ -24,9 +24,7 @@ class EchoServiceActorClient extends EchoService {
         }
 
 
-    def echo(echoedUserId: String, echoPossibilityId: String) =
-        Future[Echo] {
-            (echoServiceActor ? ("echo", echoedUserId, echoPossibilityId)).get.asInstanceOf[Echo]
-        }
+    def echo(echoedUserId: String, echoPossibilityId: String, message: String) =
+        (echoServiceActor ? ("echo", echoedUserId, echoPossibilityId, message)).mapTo[(Echo, FacebookPost)]
 
 }

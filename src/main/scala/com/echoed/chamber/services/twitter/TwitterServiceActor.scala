@@ -24,8 +24,10 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
         }
 
         case ("getAccessToken",oAuthVerifier:String) =>{
-          var accessToken: AccessToken = twitterAccess.getAccessToken(requestToken,oAuthVerifier).get.asInstanceOf[AccessToken]
-          self.channel ! accessToken
+          val channel = self.channel
+          twitterAccess.getAccessToken(requestToken,oAuthVerifier).map { accessToken =>
+              channel ! accessToken
+          }
         }
 
         case("getUser") =>{

@@ -13,10 +13,35 @@ create table Retailer (
 drop table if exists Echo;
 create table Echo (
     id varchar(36) not null,
+    retailerId varchar(36) not null,
+    customerId varchar(255) not null,
+    productId varchar(255) not null,
+    boughtOn datetime not null,
+    orderId varchar(255) not null,
+    price varchar(255) not null,
+    imageUrl varchar(255) not null,
     echoedUserId varchar(36) not null,
+    facebookPostId varchar(36),
     echoPossibilityId varchar(255) not null,
     primary key(id),
+    unique key(facebookPostId),
     unique key(echoPossibilityId)
+) engine = InnoDB;
+
+drop table if exists FacebookPost;
+create table FacebookPost (
+    id varchar(36) not null,
+    message varchar(255) not null,
+    picture varchar(255) not null,
+    link varchar(255) not null,
+    facebookUserId varchar(36) not null,
+    echoedUserId varchar(36) not null,
+    echoId varchar(36) not null,
+    postedOn datetime,
+    createdOn datetime not null,
+    objectId varchar(255),
+    primary key(id),
+    unique key(echoId)
 ) engine = InnoDB;
 
 drop table if exists EchoPossibility;
@@ -25,14 +50,15 @@ create table EchoPossibility (
     retailerId varchar(36) not null,
     customerId varchar(255) not null,
     productId varchar(255) not null,
-    boughtOn timestamp not null,
+    boughtOn datetime not null,
     step varchar(36) not null,
     orderId varchar(255) not null,
     price varchar(255) not null,
     imageUrl varchar(255) not null,
     echoedUserId varchar(36),
     echoId varchar(36),
-    primary key(id)
+    primary key(id),
+    unique key(echoId)
 ) engine = InnoDB;
 
 
@@ -105,7 +131,7 @@ create table TwitterStatus(
 drop table if exists DatabaseVersion;
 create table DatabaseVersion (
     id integer auto_increment not null,
-    updateOn timestamp not null,
+    updatedOn timestamp not null,
     primary key(id)
 ) engine = MyISAM;
 

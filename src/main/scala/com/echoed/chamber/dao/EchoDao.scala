@@ -5,7 +5,11 @@ import com.echoed.chamber.domain.Echo
 
 trait EchoDao {
 
-    def insertOrUpdate(echo: Echo): Int
+    def insert(echo: Echo): Int
+
+    def updateFacebookPostId(echo: Echo): Int
 
     def findByEchoPossibilityId(echoPossibilityId: String): Echo
+
+    def deleteByEchoPossibilityId(echoPossibilityId: String): Int
 }

@@ -1,11 +1,10 @@
 package com.echoed.chamber.services.echoeduser
 
 import akka.actor.Actor
-import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
-import com.echoed.chamber.domain.TwitterFollower
+import com.echoed.chamber.domain.{TwitterStatus, TwitterFollower, Echo, EchoedUser}
 
 
 class EchoedUserServiceActor(
@@ -21,24 +20,34 @@ class EchoedUserServiceActor(
 
     def receive = {
         case "echoedUser" => self.channel ! echoedUser
-
         case ("assignTwitterService",twitterService:TwitterService) => {
-          this.twitterService = twitterService
-          self.channel ! this.twitterService
+            this.twitterService = twitterService
+            self.channel ! this.twitterService
         }
         case ("assignFacebookService",facebookService:FacebookService) =>{
-          this.facebookService = facebookService
-          self.channel ! this.facebookService
+            this.facebookService = facebookService
+            self.channel ! this.facebookService
         }
 
         case ("updateTwitterStatus", status:String) =>{
-          //TODO Check to make sure there is an active TwitterService
-          self.channel ! twitterService.updateStatus(status)
-          //TODO add ONRESULT etc...
+            //TODO Check to make sure there is an active TwitterService
+            //TODO this is just a stop gap for now - need a better to handle no TwitterService...
+            if (twitterService != null) {
+                val channel = self.channel
+                twitterService.updateStatus(status).map { channel ! _ }
+                //TODO add ONRESULT etc...
+            } else {
+                //TODO FIXME!!!!!  Should not be sending a null...
+                self.channel ! null
+            }
         }
 
         case("getTwitterFollowers") =>{
-          self.channel ! twitterService.getFollowers().get.asInstanceOf[Array[TwitterFollower]]
+            self.channel ! twitterService.getFollowers().get.asInstanceOf[Array[TwitterFollower]]
         }
+        case ("echoToFacebook", echo: Echo, message: String) =>
+            val channel = self.channel
+            facebookService.echo(echo, message).map { channel ! _ }
+
     }
 }

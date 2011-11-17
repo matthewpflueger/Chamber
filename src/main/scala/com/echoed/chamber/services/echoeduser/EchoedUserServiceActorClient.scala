@@ -1,14 +1,19 @@
 package com.echoed.chamber.services.echoeduser
 
 import akka.actor.ActorRef
-import akka.dispatch.Future._
 import akka.dispatch.Future
 import com.echoed.chamber.domain.{EchoedUser, EchoPossibility,TwitterFollower,TwitterStatus,TwitterUser}
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
+import com.echoed.chamber.domain.{FacebookPost, Echo, EchoedUser}
+import akka.util.Duration
+import org.slf4j.{LoggerFactory, Logger}
+
 
 
 class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends EchoedUserService {
+
+    private final val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceActorClient])
 
     def getEchoedUser() =
         Future[EchoedUser] {
@@ -38,4 +43,9 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
             (echoedUserServiceActor ? ("getTwitterFollowers")).get.asInstanceOf[Array[TwitterFollower]]
         }
     }
+
+    def echoToFacebook(echo: Echo, message: String) =
+        (echoedUserServiceActor ? ("echoToFacebook", echo, message)).mapTo[FacebookPost]
+
+
 }

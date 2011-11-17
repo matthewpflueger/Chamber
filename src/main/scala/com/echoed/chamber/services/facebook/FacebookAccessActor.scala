@@ -1,15 +1,15 @@
 package com.echoed.chamber.services.facebook
 
 import akka.actor.Actor
-import com.echoed.chamber.domain.{FacebookFriend, FacebookUser}
 import collection.mutable.WeakHashMap
 import org.codehaus.jackson.`type`.TypeReference
-import com.googlecode.batchfb.FacebookBatcher
 import com.googlecode.batchfb.`type`.Paged
 import reflect.BeanProperty
 import java.util.Properties
 import com.codahale.jerkson.ScalaModule
 import org.slf4j.LoggerFactory
+import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
+import com.googlecode.batchfb.{Param, FacebookBatcher}
 
 
 class FacebookAccessActor extends Actor {
@@ -55,6 +55,17 @@ class FacebookAccessActor extends Actor {
                     new TypeReference[Paged[FacebookFriend]] {}).get
             self.channel ! pagedFriends.getData
             logger.debug("Got friends for {}", facebookId)
+        }
+        case ("post", accessToken: String, facebookId: String, facebookPost: FacebookPost) => {
+            logger.debug("Creating new post for {} with access token {}", facebookId, accessToken)
+            val result = getFacebookBatcher(accessToken).post(
+                ("%s/feed" format facebookId),
+                new Param("message", facebookPost.message),
+                new Param("picture", facebookPost.picture),
+                new Param("link", facebookPost.link)).get()
+            facebookPost.objectId = result
+            logger.debug("Successfully posted {}", facebookPost)
+            self.channel ! facebookPost
         }
     }
 

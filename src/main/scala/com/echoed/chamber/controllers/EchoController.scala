@@ -4,7 +4,6 @@ import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.EchoService
-import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod}
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -13,7 +12,8 @@ import akka.dispatch.Future
 import scalaz._
 import Scalaz._
 import org.springframework.web.servlet.ModelAndView
-import com.echoed.chamber.domain.{Echo, EchoedUser, EchoPossibility}
+import org.springframework.web.bind.annotation.{RequestParam, CookieValue, RequestMapping, RequestMethod}
+import com.echoed.chamber.domain.{FacebookPost, Echo, EchoedUser, EchoPossibility}
 
 
 @Controller
@@ -111,6 +111,7 @@ class EchoController {
     def it(
             @CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
             @CookieValue(value = "echoPossibility", required = true) echoPossibilityId: String,
+            @RequestParam("message") message: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -122,12 +123,15 @@ class EchoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoService.echo(echoedUserId, echoPossibilityId)
-                    .onResult {
-                        case echo: Echo =>
-                            continuation.setAttribute("modelAndView", new ModelAndView(echoItView, "echo", echo))
-                            continuation.resume
-                    }
+            echoService.echo(echoedUserId, echoPossibilityId, message).map { tuple => //TODO really should be its own class...
+                    logger.debug("Successfully echoed {}", tuple)
+                    val modelAndView = new ModelAndView(echoItView)
+                    modelAndView.addObject("echo", tuple._1)
+                    modelAndView.addObject("facebookPost", tuple._2)
+                    //modelAndView.addObject("twitterStatus", tuple._3)
+                    continuation.setAttribute("modelAndView", modelAndView)
+                    continuation.resume
+            }
 
             continuation.undispatch()
         })

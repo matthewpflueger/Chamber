@@ -27,11 +27,10 @@
     </select>
 
 
-    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.EchoedUser">
+    <insert id="insert" parameterType="com.echoed.chamber.domain.EchoedUser">
         <selectKey keyProperty="id" resultType="string" order="BEFORE">
             select uuid()
         </selectKey>
-
     	insert into EchoedUser(
     			id,
     			username,
@@ -48,14 +47,6 @@
     			#{lastName},
                 #{facebookUserId},
     			#{twitterUserId})
-            on duplicate key update
-                id=#{id},
-	    		email=#{email},
-	    		username=#{username},
-	    		firstName=#{firstName},
-	    		lastName=#{lastName},
-                facebookUserId=#{facebookUserId},
-	    		twitterUserId=#{twitterUserId}
     </insert>
 
     <delete id="deleteByEmail">

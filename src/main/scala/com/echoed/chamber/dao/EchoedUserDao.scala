@@ -7,7 +7,7 @@ trait EchoedUserDao {
 
     def findById(id: String): EchoedUser
 
-    def insertOrUpdate(echoedUser: EchoedUser): Int
+    def insert(echoedUser: EchoedUser): Int
 
     def findByFacebookUserId(facebookId: String): EchoedUser
     def findByTwitterUserId(twitterId: String): EchoedUser

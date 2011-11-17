@@ -63,7 +63,6 @@
             #{accessToken},
             #{accessTokenSecret})
         on duplicate key update
-            id = #{id},
             echoedUserId = #{echoedUserId},
             name = #{name},
             username = #{username},

@@ -15,4 +15,6 @@ class FacebookServiceLocatorActorClient extends FacebookServiceLocator {
         }
     }
 
+    def getFacebookServiceWithFacebookUserId(facebookUserId: String) =
+        (actorRef ? ("facebookUserId", facebookUserId)).mapTo[FacebookService]
 }

@@ -1,6 +1,5 @@
 package com.echoed.chamber
 
-import domain.EchoedUser
 import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,19 +12,22 @@ import org.openqa.selenium.WebDriver
 import java.util.Properties
 import java.util.Date
 import tags.IntegrationTest
-import com.echoed.chamber.dao.{EchoDao, EchoedUserDao}
+import com.echoed.chamber.domain.{FacebookUser, FacebookPost, EchoedUser}
+import com.echoed.chamber.dao.{FacebookUserDao, FacebookPostDao, EchoDao, EchoedUserDao}
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
 class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
-    @Autowired @BeanProperty var echoDao: EchoDao = null
-    @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = null
-    @Autowired @BeanProperty var echoHelper: EchoHelper = null
-    @Autowired @BeanProperty var webDriver: WebDriver = null
+    @Autowired @BeanProperty var echoDao: EchoDao = _
+    @Autowired @BeanProperty var facebookUserDao: FacebookUserDao = _
+    @Autowired @BeanProperty var facebookPostDao: FacebookPostDao = _
+    @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
+    @Autowired @BeanProperty var echoHelper: EchoHelper = _
+    @Autowired @BeanProperty var webDriver: WebDriver = _
 
-    @Autowired @BeanProperty var urls: Properties = null
+    @Autowired @BeanProperty var urls: Properties = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
@@ -74,7 +76,8 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
         scenario("a known user clicks on echo button with valid parameters and is redirected to confirmation page", IntegrationTest) {
             val echoedUser = new EchoedUser(null, "matthew.pflueger", "matthew.pflueger@gmail.com", "Matthew", "Pflueger", null, null)
-            echoedUserDao.insertOrUpdate(echoedUser)
+            echoedUserDao.deleteByEmail("matthew.pflueger@gmail.com")
+            echoedUserDao.insert(echoedUser)
             val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "confirm", echoedUserId = echoedUser.id)
 
             given("a request to echo a purchase")
@@ -97,15 +100,27 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         }
 
         scenario("a known user clicks to confirm their echo and is directed to thanks for echoing page", IntegrationTest) {
-            val testUserFacebookId = "100003076656188"
-            val testUserEmail = "tech@echoed.com"
-            val testUserPass = "etech25"
+            /*
+            curl -v 'https://graph.facebook.com/177687295582534/accounts/test-users?access_token=177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA&name=TestUser&permissions=email,publish_stream,offline_access&method=post&installed=true'
+
+            {"id":"100003128184602","access_token":"AAAChmwwiYUYBAJG7MomgcAy1ZCg0fEuXBSjM45n80FV0CHofT1VLZCeGp805f5qt6odHkKBMUwB9n75GJZCrzmbc3nZCDUZBpuxT4WyXliQZDZD","login_url":"https:\/\/www.facebook.com\/platform\/test_account_login.php?user_id=100003128184602&n=R0ZipMc3NCuutvb","email":"testuser_jasdmrk_testuser\u0040tfbnw.net","password":"970285973"}
+            {"id":"100003177284815","access_token":"AAAChmwwiYUYBAKI2bxTrAgnIgLMok1r8Xel3lgBqu0uqR8RtFaxdzXVEzek7MYNlkIxZB4TXcZCZCZBnzM8auZAWZAZCJLNotEhu1tL24ImxAZDZD","login_url":"https:\/\/www.facebook.com\/platform\/test_account_login.php?user_id=100003177284815&n=8L2tMNJBPGMWlAE","email":"testuser_jpmknrv_testuser\u0040tfbnw.net","password":"273385869"}
+            */
+            val testUserFacebookId = "100003177284815"
+            val testUserEmail = "testuser_jpmknrv_testuser@tfbnw.net"
+            val testUserAccessToken = "AAAChmwwiYUYBAKI2bxTrAgnIgLMok1r8Xel3lgBqu0uqR8RtFaxdzXVEzek7MYNlkIxZB4TXcZCZCZBnzM8auZAWZAZCJLNotEhu1tL24ImxAZDZD"
 
             val echoedUser = new EchoedUser(null, null, testUserEmail, "TestUser", "TestUser", testUserFacebookId, null)
-            echoedUserDao.insertOrUpdate(echoedUser)
+            echoedUserDao.deleteByEmail(testUserEmail)
+            echoedUserDao.insert(echoedUser)
+            val facebookUser = new FacebookUser(testUserFacebookId, "TestUser", "TestUser", "", "male", testUserEmail, "", "")
+            facebookUser.accessToken = testUserAccessToken
+            facebookUser.echoedUserId = echoedUser.id
+            facebookUserDao.insertOrUpdate(facebookUser)
 
             val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "confirm", echoedUserId = echoedUser.id)
             echoHelper.echoPossibilityDao.insertOrUpdate(echoPossibility)
+            echoDao.deleteByEchoPossibilityId(echoPossibility.id)
 
 
             given("a request to confirm the echo")
@@ -120,10 +135,12 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
                     .path("/")
                     .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
                     .build()
+            webDriver.navigate.to("http://www.echoed.com")
             webDriver.manage().addCookie(echoedUserIdCookie)
             webDriver.manage().addCookie(echoPossibilityCookie)
 
-            webDriver.navigate().to(echoItUrl)
+            val message = "This is my echoed purchase!"
+            webDriver.navigate().to("%s?message=%s" format(echoItUrl, message))
 
             then("show the thank you page")
             webDriver.getTitle should equal ("Thank you")
@@ -132,10 +149,15 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             val echo = echoDao.findByEchoPossibilityId(echoPossibility.id)
             echo should not be (null)
             echo.echoedUserId should equal (echoedUser.id)
-            //add checking of Facebook post object id...
+
+            val facebookPost: FacebookPost = facebookPostDao.findByEchoId(echo.id)
+            facebookPost should not be (null)
+            facebookPost.postedOn should not be (null)
+            facebookPost.objectId should not be (null)
 
             and("update the EchoPossibility with the Echo information")
             echoPossibility.echoId = echo.id
+            echoPossibility.step = "echoed"
             echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 

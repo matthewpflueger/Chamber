@@ -46,16 +46,7 @@
     			#{gender},
     			#{accessToken})
             on duplicate key update
-                id=#{id},
 	    		echoedUserId=#{echoedUserId},
-	    		username=#{username},
-	    		firstName=#{firstName},
-	    		lastName=#{lastName},
-	    		email=#{email},
-	    		link=#{link},
-	    		timezone=#{timezone},
-	    		locale=#{locale},
-                gender=#{gender},
 	    		accessToken=#{accessToken}
     </insert>
 
