@@ -6,7 +6,6 @@ import com.echoed.chamber.domain.TwitterUser
 import reflect.BeanProperty
 import com.echoed.chamber.dao.{TwitterUserDao,TwitterStatusDao}
 import org.slf4j.LoggerFactory
-import akka.dispatch.Future
 import twitter4j.auth.{AccessToken,RequestToken}
 
 class TwitterServiceCreatorActor extends Actor{
@@ -14,9 +13,9 @@ class TwitterServiceCreatorActor extends Actor{
   private val logger = LoggerFactory.getLogger(classOf[TwitterServiceCreatorActor])
 
 
-  @BeanProperty var twitterAccess: TwitterAccess = null
-  @BeanProperty var twitterUserDao: TwitterUserDao = null
-  @BeanProperty var twitterStatusDao: TwitterStatusDao = null
+  @BeanProperty var twitterAccess: TwitterAccess = _
+  @BeanProperty var twitterUserDao: TwitterUserDao = _
+  @BeanProperty var twitterStatusDao: TwitterStatusDao = _
 
   def receive = {
     case ("code") => {

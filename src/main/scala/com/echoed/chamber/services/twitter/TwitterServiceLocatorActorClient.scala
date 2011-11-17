@@ -1,37 +1,23 @@
 package com.echoed.chamber.services.twitter
 
-import akka.dispatch.Future
 import reflect.BeanProperty
-import akka.actor.{ActorRef, TypedActor}
+import akka.actor.ActorRef
 import twitter4j.auth.AccessToken
 
 class TwitterServiceLocatorActorClient extends TwitterServiceLocator {
 
+    @BeanProperty var twitterServiceLocatorActor: ActorRef = _
 
-  @BeanProperty var actorRef: ActorRef = null
+    def getTwitterService() =
+            (twitterServiceLocatorActor ? ("none")).mapTo[TwitterService]
 
-  def getTwitterService()={
-    Future[TwitterService]{
-      (actorRef ? ("none")).get.asInstanceOf[TwitterService]
-    }
-  }
+    def getTwitterServiceWithToken(oAuthToken:String) =
+            (twitterServiceLocatorActor ? ("requestToken", oAuthToken)).mapTo[TwitterService]
 
-  def getTwitterServiceWithToken(oAuthToken:String) ={
-    Future[TwitterService]{
-      (actorRef ? ("requestToken", oAuthToken)).get.asInstanceOf[TwitterService]
-    }
-  }
+    def getTwitterServiceWithAccessToken(accessToken:AccessToken) =
+            (twitterServiceLocatorActor ? ("accessToken", accessToken)).mapTo[TwitterService]
 
-  def getTwitterServiceWithAccessToken(accessToken:AccessToken)={
-    Future[TwitterService]{
-      (actorRef ? ("accessToken", accessToken)).get.asInstanceOf[TwitterService]
-    }
-  }
-
-  def getTwitterServiceWithId(twitterUserId: String) = {
-    Future[TwitterService]{
-      (actorRef ? ("id", twitterUserId)).get.asInstanceOf[TwitterService]
-    }
-  }
+    def getTwitterServiceWithId(twitterUserId: String) =
+            (twitterServiceLocatorActor ? ("id", twitterUserId)).mapTo[TwitterService]
 
 }

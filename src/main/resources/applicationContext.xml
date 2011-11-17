@@ -59,7 +59,7 @@
     </bean>
 
     <bean id="facebookServiceLocator" class="com.echoed.chamber.services.facebook.FacebookServiceLocatorActorClient">
-        <property name="actorRef" ref="facebookServiceLocatorActor" />
+        <property name="facebookServiceLocatorActor" ref="facebookServiceLocatorActor" />
     </bean>
 
     <bean id="echoService" class="com.echoed.chamber.services.EchoServiceActorClient">
@@ -75,7 +75,7 @@
     </bean>
 
     <bean id="twitterServiceLocator" class="com.echoed.chamber.services.twitter.TwitterServiceLocatorActorClient">
-        <property name="actorRef" ref="twitterServiceLocatorActor" />
+        <property name="twitterServiceLocatorActor" ref="twitterServiceLocatorActor" />
     </bean>
 
     <bean id="echoedUserServiceCreator" class="com.echoed.chamber.services.echoeduser.EchoedUserServiceCreatorActorClient">

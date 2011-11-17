@@ -16,36 +16,22 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     private final val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceActorClient])
 
     def getEchoedUser() =
-        Future[EchoedUser] {
-            (echoedUserServiceActor ? "echoedUser").get.asInstanceOf[EchoedUser]
-        }
+            (echoedUserServiceActor ? "echoedUser").mapTo[EchoedUser]
 
-    def assignFacebookService(facebookService:FacebookService) = {
-        Future[FacebookService] {
-            (echoedUserServiceActor ? ("assignFacebookService",facebookService)).get.asInstanceOf[FacebookService]
-        }
-    }
+    def assignFacebookService(facebookService:FacebookService) =
+            (echoedUserServiceActor ? ("assignFacebookService",facebookService)).mapTo[FacebookService]
 
-    def assignTwitterService(twitterService:TwitterService) = {
-        Future[TwitterService] {
-            (echoedUserServiceActor ? ("assignTwitterService", twitterService)).get.asInstanceOf[TwitterService]
-        }
-    }
+    def assignTwitterService(twitterService:TwitterService) =
+            (echoedUserServiceActor ? ("assignTwitterService", twitterService)).mapTo[TwitterService]
 
-    def updateTwitterStatus(status:String) = {
-        Future[TwitterStatus] {
-            (echoedUserServiceActor ? ("updateTwitterStatus", status)).get.asInstanceOf[TwitterStatus]
-        }
-    }
+    def updateTwitterStatus(status:String) =
+            (echoedUserServiceActor ? ("updateTwitterStatus", status)).mapTo[TwitterStatus]
 
-    def getTwitterFollowers() = {
-        Future[Array[TwitterFollower]] {
-            (echoedUserServiceActor ? ("getTwitterFollowers")).get.asInstanceOf[Array[TwitterFollower]]
-        }
-    }
+    def getTwitterFollowers() =
+            (echoedUserServiceActor ? ("getTwitterFollowers")).mapTo[Array[TwitterFollower]]
 
     def echoToFacebook(echo: Echo, message: String) =
-        (echoedUserServiceActor ? ("echoToFacebook", echo, message)).mapTo[FacebookPost]
+            (echoedUserServiceActor ? ("echoToFacebook", echo, message)).mapTo[FacebookPost]
 
 
 }

@@ -1,30 +1,21 @@
 package com.echoed.chamber.services
 
 import akka.actor.ActorRef
-import akka.dispatch.Future._
-import facebook.FacebookService
-import akka.dispatch.Future
 import reflect.BeanProperty
 import com.echoed.chamber.domain.{FacebookPost, Echo, EchoPossibility}
 
 
 class EchoServiceActorClient extends EchoService {
 
-    @BeanProperty var echoServiceActor: ActorRef = null
+    @BeanProperty var echoServiceActor: ActorRef = _
 
     def recordEchoPossibility(echoPossibility: EchoPossibility) =
-        Future[EchoPossibility] {
-            (echoServiceActor ? ("recordEchoPossibility", echoPossibility)).get.asInstanceOf[EchoPossibility]
-        }
-
+            (echoServiceActor ? ("recordEchoPossibility", echoPossibility)).mapTo[EchoPossibility]
 
     def getEchoPossibility(echoPossibilityId: String) =
-        Future[EchoPossibility] {
-            (echoServiceActor ? ("echoPossibility", echoPossibilityId)).get.asInstanceOf[EchoPossibility]
-        }
-
+            (echoServiceActor ? ("echoPossibility", echoPossibilityId)).mapTo[EchoPossibility]
 
     def echo(echoedUserId: String, echoPossibilityId: String, message: String) =
-        (echoServiceActor ? ("echo", echoedUserId, echoPossibilityId, message)).mapTo[(Echo, FacebookPost)]
+            (echoServiceActor ? ("echo", echoedUserId, echoPossibilityId, message)).mapTo[(Echo, FacebookPost)]
 
 }

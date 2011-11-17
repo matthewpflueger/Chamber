@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.facebook
 
 import akka.actor.Actor
-import akka.dispatch.Future
 import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import akka.util.Duration
@@ -13,7 +12,7 @@ class FacebookServiceLocatorActor extends Actor {
 
     private val logger = LoggerFactory.getLogger(classOf[FacebookServiceLocatorActor])
 
-    @BeanProperty var facebookServiceCreator: FacebookServiceCreator = null
+    @BeanProperty var facebookServiceCreator: FacebookServiceCreator = _
 
     private val cache = WeakHashMap[String, FacebookService]()
     private val cacheByFacebookUserId = WeakHashMap[String, FacebookService]()

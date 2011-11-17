@@ -1,36 +1,26 @@
 package com.echoed.chamber.services.facebook
 
-import akka.dispatch.Future
 import reflect.BeanProperty
-import akka.actor.{Actor, ActorRef}
+import akka.actor.ActorRef
 import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
 
 
 class FacebookAccessActorClient extends FacebookAccess {
 
-    @BeanProperty var facebookAccessActor: ActorRef = null
+    @BeanProperty var facebookAccessActor: ActorRef = _
 
 
-    def getAccessToken(code: String) = {
-        Future[String] {
-            (facebookAccessActor ? ("accessToken", code)).get.asInstanceOf[String]
-        }
-    }
+    def getAccessToken(code: String) =
+            (facebookAccessActor ? ("accessToken", code)).mapTo[String]
 
-    def getMe(accessToken: String) = {
-        Future[FacebookUser] {
-            (facebookAccessActor ? ("me", accessToken)).get.asInstanceOf[FacebookUser]
-        }
-    }
+    def getMe(accessToken: String) =
+            (facebookAccessActor ? ("me", accessToken)).mapTo[FacebookUser]
 
-    def getFriends(accessToken: String) = {
-        Future[List[FacebookFriend]] {
-            (facebookAccessActor ? ("friends", accessToken)).get.asInstanceOf[List[FacebookFriend]]
-        }
-    }
+    def getFriends(accessToken: String) =
+            (facebookAccessActor ? ("friends", accessToken)).mapTo[List[FacebookFriend]]
 
     def post(accessToken: String, facebookId: String, facebookPost: FacebookPost) =
-        (facebookAccessActor ? ("post", accessToken, facebookId, facebookPost)).mapTo[FacebookPost]
+            (facebookAccessActor ? ("post", accessToken, facebookId, facebookPost)).mapTo[FacebookPost]
 
 }
 

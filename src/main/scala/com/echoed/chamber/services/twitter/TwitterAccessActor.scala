@@ -3,25 +3,23 @@ package com.echoed.chamber.services.twitter
 import akka.actor.Actor
 import com.echoed.chamber.domain.{TwitterFollower, TwitterUser, TwitterStatus}
 import collection.mutable.WeakHashMap
-import org.codehaus.jackson.`type`.TypeReference
 import reflect.BeanProperty
 import java.util.Properties
-import com.codahale.jerkson.ScalaModule
 import org.slf4j.LoggerFactory
 import twitter4j.auth.{RequestToken,AccessToken}
-import twitter4j.{TwitterFactory, Twitter, TwitterException}
+import twitter4j.{TwitterFactory, Twitter}
 import twitter4j.conf.ConfigurationBuilder
-import twitter4j.{Status,IDs,User}
+import twitter4j.{Status,User}
 
-class TwitterAccessActor extends Actor{
+class TwitterAccessActor extends Actor {
 
   private final val logger = LoggerFactory.getLogger(classOf[TwitterAccessActor])
 
-  @BeanProperty var consumerKey: String = null //Called Consumer Key for Twitter
-  @BeanProperty var consumerSecret: String = null  //Called Consumer Secret for Twitter
-  @BeanProperty var callbackUrl: String = null  //Callback Url
+  @BeanProperty var consumerKey: String = _ //Called Consumer Key for Twitter
+  @BeanProperty var consumerSecret: String = _  //Called Consumer Secret for Twitter
+  @BeanProperty var callbackUrl: String = _  //Callback Url
 
-  @BeanProperty var properties: Properties = null
+  @BeanProperty var properties: Properties = _
 
   private val cache = WeakHashMap[String, Twitter]()
 

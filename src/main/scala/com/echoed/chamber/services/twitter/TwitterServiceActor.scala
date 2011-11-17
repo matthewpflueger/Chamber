@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.twitter
 
 import akka.actor.Actor
-import twitter4j.auth.{RequestToken, AccessToken}
+import twitter4j.auth.RequestToken
 import com.echoed.chamber.dao.{TwitterStatusDao, TwitterUserDao}
 import com.echoed.chamber.domain.{TwitterUser, TwitterStatus, TwitterFollower}
 import org.slf4j.LoggerFactory

@@ -6,10 +6,8 @@ import akka.dispatch.Future
 import com.echoed.chamber.domain._
 
 
-import com.echoed.chamber.services.echoeduser.{EchoedUserServiceLocator,EchoedUserService}
 import com.echoed.chamber.dao.{EchoDao, RetailerDao, EchoPossibilityDao}
-import com.echoed.chamber.dao.{EchoDao, RetailerDao, EchoPossibilityDao}
-import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
+import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 
 import org.slf4j.LoggerFactory
 

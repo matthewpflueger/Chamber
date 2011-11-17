@@ -2,7 +2,6 @@ package com.echoed.chamber.services.twitter
 
 
 import akka.actor.Actor
-import akka.dispatch.Future
 import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import akka.util.Duration
@@ -14,7 +13,7 @@ class TwitterServiceLocatorActor extends Actor {
 
   private val logger = LoggerFactory.getLogger(classOf[TwitterServiceLocatorActor])
 
-  @BeanProperty var twitterServiceCreator: TwitterServiceCreator = null
+  @BeanProperty var twitterServiceCreator: TwitterServiceCreator = _
 
   private val cache = WeakHashMap[String, TwitterService]()
   private val idCache = WeakHashMap[String, TwitterService]() //hashmap of TwitterUserId : TwitterService
