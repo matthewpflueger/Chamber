@@ -26,6 +26,7 @@ trait EchoedUserService {
     def getTwitterFollowers(): Future[Array[TwitterFollower]]
 
     def echoToFacebook(echo: Echo, message: String): Future[FacebookPost]
+    def echoToTwitter(echo:Echo,  message:String): Future[TwitterStatus]
 
 }
 

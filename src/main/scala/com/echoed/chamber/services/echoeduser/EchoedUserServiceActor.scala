@@ -45,9 +45,13 @@ class EchoedUserServiceActor(
         case("getTwitterFollowers") =>{
             self.channel ! twitterService.getFollowers().get.asInstanceOf[Array[TwitterFollower]]
         }
+
+        case ("echoToTwitter", echo:Echo,  message:String) =>
+            val channel = self.channel
+            twitterService.echo(echo,message).map { channel ! _ }
+
         case ("echoToFacebook", echo: Echo, message: String) =>
             val channel = self.channel
             facebookService.echo(echo, message).map { channel ! _ }
-
     }
 }

@@ -33,5 +33,7 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def echoToFacebook(echo: Echo, message: String) =
             (echoedUserServiceActor ? ("echoToFacebook", echo, message)).mapTo[FacebookPost]
 
+    def echoToTwitter(echo:Echo, message:String) =
+        (echoedUserServiceActor ? ("echoToTwitter",echo,message)).mapTo[TwitterStatus]
 
 }

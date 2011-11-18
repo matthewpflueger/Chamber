@@ -241,7 +241,7 @@ textarea{
                     </div>
                 
                 	<table id="echoes" width="100%" cellspacing="5px">
-                    	<form>
+                    	<form name="message" id="echo" action="http://v1-api.echoed.com/echo/it">
                             <tbody>
                                 <tr> 
                                     <td width="50">
@@ -259,7 +259,7 @@ textarea{
                                     	<img src="facebook logo.png" height="50px"/>
                                     </td>
                                     <td>
-                                    <textarea style="width:320px; height:50px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
+                                    <textarea name="message" style="width:320px; height:50px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
                                     </td>
                                     <td>
 
@@ -280,11 +280,7 @@ textarea{
                                     <td>
                                     </td>
                                     <td align="center">
-										<a href="https://v1-api.echoed.com/echo/it">
-	                                        <div style="width:200px;height:50px;text-align:center;color:#FFF;line-height:50px;font-size:24px;font-weight:bold;border:1px solid #000;" class="bg-color-orange rounded-corners">
-	                                        echo it
-	                                        </div>
-										</a>                                            
+										<input id="echoit" type="submit" style="cursor:pointer;width:200px;height:50px;text-align:center;color:#FFF;line-height:50px;font-size:24px;font-weight:bold;border:1px solid #000;" class="bg-color-orange rounded-corners" value="echo it" />
                                     </td>
                                     <td>
 

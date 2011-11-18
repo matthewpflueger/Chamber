@@ -2,7 +2,7 @@ package com.echoed.chamber.services
 
 import akka.actor.ActorRef
 import reflect.BeanProperty
-import com.echoed.chamber.domain.{FacebookPost, Echo, EchoPossibility}
+import com.echoed.chamber.domain.{FacebookPost, Echo, EchoPossibility,TwitterStatus}
 
 
 class EchoServiceActorClient extends EchoService {

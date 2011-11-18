@@ -13,6 +13,7 @@
             <arg column="imageUrl" javaType="String" />
             <arg column="echoedUserId" javaType="String" />
             <arg column="facebookPostId" javaType="String" />
+            <arg column="twitterStatusId" javaType="String"/>
             <arg column="echoPossibilityId" javaType="String" />
         </constructor>
     </resultMap>
@@ -56,6 +57,13 @@
     <update id="updateFacebookPostId" parameterType="com.echoed.chamber.domain.Echo">
         update Echo set
             facebookPostId=#{facebookPostId}
+        where
+            id=#{id}
+    </update>
+
+    <update id="updateTwitterStatusId" parameterType="com.echoed.chamber.domain.Echo">
+        update Echo set
+            twitterStatusId=#{twitterStatusId}
         where
             id=#{id}
     </update>

@@ -98,6 +98,10 @@
         <property name="echoView" value="redirect:${echoUrl}" />
     </bean>
 
+    <bean id="redirectController" class="com.echoed.chamber.controllers.RedirectController">
+        <property name="echoService" ref="echoService"/>
+    </bean>
+
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>
 </beans>

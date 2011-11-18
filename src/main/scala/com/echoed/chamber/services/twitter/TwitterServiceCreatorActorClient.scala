@@ -5,7 +5,7 @@ import reflect.BeanProperty
 import twitter4j.auth.AccessToken
 
 
-class TwitterServiceCreatorActorClient extends TwitterServiceCreator{
+class TwitterServiceCreatorActorClient extends TwitterServiceCreator {
 
     @BeanProperty var twitterServiceCreatorActor: ActorRef = _
 

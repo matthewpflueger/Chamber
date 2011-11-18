@@ -22,6 +22,7 @@ create table Echo (
     imageUrl varchar(255) not null,
     echoedUserId varchar(36) not null,
     facebookPostId varchar(36),
+    twitterStatusId varchar(36),
     echoPossibilityId varchar(255) not null,
     primary key(id),
     unique key(facebookPostId),

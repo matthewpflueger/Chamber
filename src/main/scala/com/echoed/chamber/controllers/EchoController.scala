@@ -115,6 +115,10 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+
+        logger.debug("Echoed User Id: {} ",echoedUserId)
+        logger.debug("Echoed Possibility: {} ", echoPossibilityId)
+
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         if (continuation.isExpired) {

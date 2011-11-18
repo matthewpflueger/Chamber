@@ -32,5 +32,4 @@ class TwitterAccessActorClient extends TwitterAccess {
 
   def getRetweetIds(accessToken:String, accessTokenSecret:String,  tweetId:String) =
           (twitterAccessActor ? ("getRetweetIds",accessToken, accessTokenSecret,tweetId)).mapTo[Array[Long]]
-
 }

@@ -8,6 +8,7 @@ trait EchoDao {
     def insert(echo: Echo): Int
 
     def updateFacebookPostId(echo: Echo): Int
+    def updateTwitterStatusId(echo: Echo): Int
 
     def findByEchoPossibilityId(echoPossibilityId: String): Echo
 

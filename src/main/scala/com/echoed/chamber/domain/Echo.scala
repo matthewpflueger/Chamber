@@ -15,6 +15,7 @@ case class Echo(
         imageUrl: String,
         echoedUserId: String,
         var facebookPostId: String,
+        var twitterStatusId: String,
         echoPossibilityId: String) {
 
     def this(echoPossibility: EchoPossibility) = this(
@@ -27,6 +28,7 @@ case class Echo(
             echoPossibility.price,
             echoPossibility.imageUrl,
             echoPossibility.echoedUserId,
+            null,
             null,
             echoPossibility.id)
 

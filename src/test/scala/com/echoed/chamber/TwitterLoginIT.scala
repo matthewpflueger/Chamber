@@ -81,6 +81,8 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             then("redirect to the echo confirm page")
             webDriver.getCurrentUrl.startsWith(echoUrl) should be (true)
 
+            //webDriver.findElement(By.id("echoit")).click()
+
             and("create an EchoedUser account using the Facebook info")
             val echoedUser = echoedUserDao.findByTwitterUserId(testUserTwitterId)
             echoedUser.username should be (testUserEmail)

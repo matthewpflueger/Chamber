@@ -1,11 +1,12 @@
 package com.echoed.chamber.services.twitter
 
 import akka.actor.ActorRef
-import twitter4j.auth.{RequestToken,AccessToken}
-import com.echoed.chamber.domain.{TwitterUser,TwitterStatus,TwitterFollower}
+import twitter4j.auth.{RequestToken, AccessToken}
+import akka.dispatch.Future
+import com.echoed.chamber.domain.{TwitterUser, TwitterStatus, TwitterFollower,Echo}
 
 
-class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterService  {
+class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterService {
 
     def getRequestToken() =
             (twitterServiceActor ? ("getRequestToken")).mapTo[RequestToken]
@@ -34,4 +35,7 @@ class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterSe
     def getRetweetIds(tweetId:String) =
             (twitterServiceActor ? ("getRetweetIds",tweetId)).mapTo[Array[Long]]
 
+    def echo(echo:Echo,  message:String) = {
+            (twitterServiceActor ? ("echo",echo,message)).mapTo[TwitterStatus]
+    }
 }
