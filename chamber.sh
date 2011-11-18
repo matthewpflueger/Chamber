@@ -84,8 +84,12 @@ case "$1" in
         mvn scala:run -Dlauncher=scalatest -DaddArgs="$display"
         ;;
 
+    console)
+        rlwrap mvn scala:console
+        ;;
+
     *)
-        echo "Usage: $NAME {start|stop|status|verify|scalatest}" >&2
+        echo "Usage: $NAME {start|stop|status|verify|scalatest|console}" >&2
         exit 1
         ;;
 esac
