@@ -27,12 +27,15 @@ class FacebookServiceCreatorActor extends Actor {
 
             logger.debug("Creating FacebookService with user {}", facebookUser)
 
-            self.channel ! new FacebookServiceActorClient(Actor.actorOf(
-                new FacebookServiceActor(
-                        facebookUser.get,
+            val channel = self.channel
+            facebookUser.map { facebookUser =>
+                channel ! new FacebookServiceActorClient(Actor.actorOf(
+                    new FacebookServiceActor(
+                        facebookUser,
                         facebookAccess,
                         facebookUserDao,
                         facebookPostDao)).start)
+            }
 
             logger.debug("Created FacebookService with user {}", facebookUser)
         }
