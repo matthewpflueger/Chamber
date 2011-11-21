@@ -19,11 +19,11 @@
 
 
     <!-- This is here for validation purposes - any unresolved placeholders will prevent the application from starting...
-                 The order is set to explicitly communicate that this property placeholder configurer will be run last (the default) and all
-                 other property placeholder configurers should set their order to less than this.  Also, all other configurers should
-                 set ignore unresolvable to true in order to allow the context to fully startup...
+         The order is set to explicitly communicate that this property placeholder configurer will be run last (the default) and all
+         other property placeholder configurers should set their order to less than this.  Also, all other configurers should
+         set ignore unresolvable to true in order to allow the context to fully startup...
 
-                 See http://tarlogonjava.blogspot.com/2009/02/tips-regarding-springs.html for an explanation of what is going on here. -->
+         See http://tarlogonjava.blogspot.com/2009/02/tips-regarding-springs.html for an explanation of what is going on here. -->
     <context:property-placeholder order="2147483647"/>
     <context:property-placeholder
                 location="classpath:applicationContext.properties"
@@ -183,6 +183,8 @@
         <property name="facebookServiceLocator" ref="facebookServiceLocator"/>
         <!--suppress SpringModelInspection -->
         <property name="echoedUserDao" ref="echoedUserDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="closetDao" ref="closetDao" />
         <!--suppress SpringModelInspection -->
         <property name="facebookServiceLocator" ref="facebookServiceLocator" />
     </akka:untyped-actor>

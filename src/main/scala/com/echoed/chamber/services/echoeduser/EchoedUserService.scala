@@ -5,8 +5,8 @@ import com.echoed.util.FutureHelper
 
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
-import com.echoed.chamber.domain.{TwitterFollower,TwitterStatus}
-import com.echoed.chamber.domain.{FacebookPost, Echo, EchoedUser}
+import com.echoed.chamber.domain._
+import com.echoed.chamber.domain.views.Closet
 
 
 trait EchoedUserService {
@@ -28,5 +28,6 @@ trait EchoedUserService {
     def echoToFacebook(echo: Echo, message: String): Future[FacebookPost]
     def echoToTwitter(echo:Echo,  message:String): Future[TwitterStatus]
 
+    def getCloset(): Future[Closet]
 }
 

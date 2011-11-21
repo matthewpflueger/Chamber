@@ -98,8 +98,15 @@
         <property name="echoView" value="redirect:${echoUrl}" />
     </bean>
 
+    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="redirectController" class="com.echoed.chamber.controllers.RedirectController">
         <property name="echoService" ref="echoService"/>
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="closetController" class="com.echoed.chamber.controllers.ClosetController">
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="closetView" value="closet" />
     </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->

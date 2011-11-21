@@ -4,18 +4,23 @@ import akka.actor.Actor
 import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
-import com.echoed.chamber.domain.{TwitterStatus, TwitterFollower, Echo, EchoedUser}
+import com.echoed.chamber.domain.{TwitterFollower, Echo, EchoedUser}
+import com.echoed.chamber.dao.views.ClosetDao
 
 
 class EchoedUserServiceActor(
         echoedUser: EchoedUser,
         echoedUserDao: EchoedUserDao,
+        closetDao: ClosetDao,
         var facebookService: FacebookService,
         var twitterService:TwitterService) extends Actor {
 
-    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao) = this(echoedUser, echoedUserDao, null, null)
-    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, facebookService:FacebookService) = this(echoedUser,echoedUserDao,facebookService,null)
-    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, twitterService:TwitterService) = this(echoedUser,echoedUserDao,null,twitterService)
+    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao) =
+            this(echoedUser, echoedUserDao, closetDao, null, null)
+    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao, facebookService:FacebookService) =
+            this(echoedUser,echoedUserDao, closetDao, facebookService, null)
+    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao, twitterService:TwitterService) =
+            this(echoedUser,echoedUserDao, closetDao, null, twitterService)
 
 
     def receive = {
@@ -53,5 +58,7 @@ class EchoedUserServiceActor(
         case ("echoToFacebook", echo: Echo, message: String) =>
             val channel = self.channel
             facebookService.echo(echo, message).map { channel ! _ }
+        case "closet" =>
+            self.channel ! closetDao.findByEchoedUserId(echoedUser.id)
     }
 }

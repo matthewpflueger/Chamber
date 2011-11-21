@@ -14,6 +14,7 @@ import com.echoed.chamber.services.facebook.{FacebookServiceLocator, FacebookSer
 import scalaz._
 import Scalaz._
 import akka.dispatch.Future
+import com.echoed.chamber.dao.views.ClosetDao
 
 
 class EchoedUserServiceCreatorActor extends Actor {
@@ -21,7 +22,8 @@ class EchoedUserServiceCreatorActor extends Actor {
     private val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceCreatorActor])
 
 
-    @BeanProperty var echoedUserDao: EchoedUserDao = null
+    @BeanProperty var echoedUserDao: EchoedUserDao = _
+    @BeanProperty var closetDao: ClosetDao = _
     @BeanProperty var facebookServiceLocator: FacebookServiceLocator = _
     @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
 
@@ -51,51 +53,10 @@ class EchoedUserServiceCreatorActor extends Actor {
                         twitterService <- futureTwitterService
                     } yield {
                         channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-                                new EchoedUserServiceActor(echoedUser, echoedUserDao,facebookService,twitterService)).start)
+                                new EchoedUserServiceActor(echoedUser, echoedUserDao, closetDao, facebookService, twitterService)).start)
                         logger.debug("Created EchoedUserService with id {}", id)
                     }
-//                    val futureFacebookService = Future[Option[FacebookService]] {
-//                        Option(echoedUser.facebookUserId) match {
-//                            Some(id) => facebookServiceLocator.getFacebookServiceWithFacebookUserId(id).
-//                        facebookServiceLocator.getFacebookServiceWithFacebookUserId(id).map { facebookService =>
-//                            channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-//                                new EchoedUserServiceActor(echoedUser, echoedUserDao, facebookService)).start)
-//                            logger.debug("Created EchoedUserService with id {} with a FacebookService", id)
-//                        }
-//
-//                        }
-//                    }
-//<<<<<<< HEAD
-//                    var facebookService: FacebookService = null
-//                    var twitterService:TwitterService = null
-//                    if(echoedUser.facebookUserId != null)
-//                      facebookService = locateFacebookService(echoedUser.facebookUserId)
-//
-//                    if(echoedUser.twitterUserId != null)
-//                      twitterService = locateTwitterService(echoedUser.twitterUserId)
-//
-//                    self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-//                            new EchoedUserServiceActor(echoedUser, echoedUserDao,facebookService,twitterService)).start)
-//                    logger.debug("Created EchoedUserService with id {}", id)
-//=======
-//                    Option(echoedUser.facebookUserId) match {
-//                        //TODO this really needs to be reworked - use an default completable future to encapsulate
-//                        //the creation of the actor to be completed with the results of looking up the facebook service
-//                        //and the twitter service...
-//                        case Some(id) =>
-//                            val channel = self.channel
-//                            facebookServiceLocator.getFacebookServiceWithFacebookUserId(id).map { facebookService =>
-//                                channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-//                                    new EchoedUserServiceActor(echoedUser, echoedUserDao, facebookService)).start)
-//                                logger.debug("Created EchoedUserService with id {} with a FacebookService", id)
-//                            }
-//                        case None =>
-//                            self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-//                                new EchoedUserServiceActor(echoedUser, echoedUserDao)).start)
-//                            logger.debug("Created EchoedUserService with id {} without a FacebookService", id)
-//                    }
-//
-//>>>>>>> Now posting echoes to Facebook
+
                 case None =>
                     logger.warn("Did not find an EchoedUser with id {}", id)
                     throw new RuntimeException("No EchoedUser with id %s" format id)
@@ -108,14 +69,14 @@ class EchoedUserServiceCreatorActor extends Actor {
                 case Some(echoedUser) =>
                     logger.debug("Found {} with {}", echoedUser, facebookUser)
                     self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-                            new EchoedUserServiceActor(echoedUser, echoedUserDao, facebookService)).start)
+                            new EchoedUserServiceActor(echoedUser, echoedUserDao, closetDao, facebookService)).start)
                 case None =>
                     logger.debug("Creating EchoedUser with {}", facebookUser)
                     val echoedUser = new EchoedUser(facebookUser)
                     echoedUserDao.insert(echoedUser)
                     facebookService.assignEchoedUser(echoedUser)
                     self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-                            new EchoedUserServiceActor(echoedUser, echoedUserDao, facebookService)).start)
+                            new EchoedUserServiceActor(echoedUser, echoedUserDao, closetDao, facebookService)).start)
 
             }
         }
@@ -124,28 +85,28 @@ class EchoedUserServiceCreatorActor extends Actor {
             logger.debug("Creating EchoedUserService with {}", twitterService)
             val twitterUser = twitterService.twitterUser.get
             Option(echoedUserDao.findByTwitterUserId(twitterUser.id)) match {
-              case Some(echoedUser) =>
-                   logger.debug("Found EchoedUser {} with TwitterUser {}",echoedUser, twitterUser)
-                   self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-                        new EchoedUserServiceActor(echoedUser,echoedUserDao,twitterService)).start)
-              case None =>
-                   logger.debug("Creating EchoedUser with {}", twitterUser)
-                   val echoedUser = new EchoedUser(twitterUser)
-                   echoedUserDao.insert(echoedUser)
-                   twitterService.assignEchoedUserId(echoedUser.id)
-                   self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
-                        new EchoedUserServiceActor(echoedUser,echoedUserDao,twitterService)).start)
+                case Some(echoedUser) =>
+                    logger.debug("Found EchoedUser {} with TwitterUser {}", echoedUser, twitterUser)
+                    self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
+                            new EchoedUserServiceActor(echoedUser, echoedUserDao, closetDao, twitterService)).start)
+                case None =>
+                    logger.debug("Creating EchoedUser with {}", twitterUser)
+                    val echoedUser = new EchoedUser(twitterUser)
+                    echoedUserDao.insert(echoedUser)
+                    twitterService.assignEchoedUserId(echoedUser.id)
+                    self.channel ! new EchoedUserServiceActorClient(Actor.actorOf(
+                            new EchoedUserServiceActor(echoedUser, echoedUserDao, closetDao, twitterService)).start)
             }
         }
     }
 
     private def locateTwitterService(twitterUserId: String) = {
-      val twitterService:TwitterService = twitterServiceLocator.getTwitterServiceWithId(twitterUserId).get.asInstanceOf[TwitterService]
-      twitterService
+        val twitterService:TwitterService = twitterServiceLocator.getTwitterServiceWithId(twitterUserId).get.asInstanceOf[TwitterService]
+        twitterService
     }
 
     private def locateFacebookService(twitterFacebookId:String) = {
-      val facebookService:FacebookService = null
-      facebookService
+        val facebookService:FacebookService = null
+        facebookService
     }
 }

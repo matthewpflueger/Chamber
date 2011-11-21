@@ -34,10 +34,12 @@
         <prop key="echoUrl">${apiUrl}/echo</prop>
         <prop key="echoItUrl">${apiUrl}/echo/it</prop>
         <prop key="buttonUrl">${apiUrl}/echo/button</prop>
+        <prop key="closetUrl">${apiUrl}/closet</prop>
 
         <prop key="buttonViewUrl">${cdnUrl}/button_echoed.png</prop>
         <prop key="loginViewUrl">${cdnUrl}/login.html</prop>
         <prop key="errorViewUrl">${cdnUrl}/error.html</prop>
+        <prop key="closetViewUrl">${cdnUrl}/closet.html</prop>
 
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
 

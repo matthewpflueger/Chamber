@@ -1,14 +1,11 @@
 package com.echoed.chamber.services.echoeduser
 
 import akka.actor.ActorRef
-import akka.dispatch.Future
-import com.echoed.chamber.domain.{EchoedUser, EchoPossibility,TwitterFollower,TwitterStatus,TwitterUser}
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
-import com.echoed.chamber.domain.{FacebookPost, Echo, EchoedUser}
-import akka.util.Duration
-import org.slf4j.{LoggerFactory, Logger}
-
+import org.slf4j.LoggerFactory
+import com.echoed.chamber.domain._
+import com.echoed.chamber.domain.views.Closet
 
 
 class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends EchoedUserService {
@@ -35,5 +32,8 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
 
     def echoToTwitter(echo:Echo, message:String) =
         (echoedUserServiceActor ? ("echoToTwitter",echo,message)).mapTo[TwitterStatus]
+
+    def getCloset =
+            (echoedUserServiceActor ? "closet").mapTo[Closet]
 
 }

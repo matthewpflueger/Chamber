@@ -9,5 +9,6 @@ class EchoedSiteSuite extends Suites(
     new EchoButtonIT,
     new FacebookLoginIT,
     new EchoIT,
-    new TwitterLoginIT
-    )
+    new TwitterLoginIT,
+    new ClosetLoginIT)
+

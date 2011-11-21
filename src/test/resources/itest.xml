@@ -31,6 +31,7 @@
         <prop key="buttonViewUrl">${buttonViewUrl}</prop>
         <prop key="loginViewUrl">${loginViewUrl}</prop>
         <prop key="confirmViewUrl">${confirmViewUrl}</prop>
+        <prop key="closetUrl">${closetUrl}</prop>
     </util:properties>
 
     <bean id="webDriver" class="org.openqa.selenium.firefox.FirefoxDriver" />

@@ -1,6 +1,5 @@
 package com.echoed.chamber.domain
 
-import scala.reflect.BeanProperty
 import java.util.Date
 
 
@@ -17,6 +16,20 @@ case class Echo(
         var facebookPostId: String,
         var twitterStatusId: String,
         echoPossibilityId: String) {
+
+    def this(id: String, boughtOn: Date, price: String, imageUrl: String) = this(
+            id,
+            null,
+            null,
+            null,
+            boughtOn,
+            null,
+            price,
+            imageUrl,
+            null,
+            null,
+            null,
+            null)
 
     def this(echoPossibility: EchoPossibility) = this(
             null,
