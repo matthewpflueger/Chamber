@@ -14,7 +14,7 @@ textarea{
 }
 
 .bg-color{
-	background-color:#DDD;	
+	background-color:#DDD;
 }
 
 .bg-color-white{
@@ -28,13 +28,13 @@ textarea{
 	background-color:#F73;
 }
 .bg-color-tweet{
-	background-color:#0CF;	
+	background-color:#0CF;
 }
 
 .drop-shadow {
 	box-shadow: 2px 2px 2px #888;
 	-moz-box-shadow: 2px 2px 2px #888;
-	-webkit-box-shadow: 2px 2px 2px #888;	
+	-webkit-box-shadow: 2px 2px 2px #888;
 }
 
 .bold{
@@ -100,18 +100,18 @@ textarea{
 		font-size:20px;
 		margin-bottom:5px
 	}
-	
+
 	#left_content{
 		width:100%;
 		margin-top: 10px;
 		padding:5px;
 	}
-		
+
 		#rewards{
 			width: 200px;
 			float:left;
 		}
-			
+
 			.reward_box{
 				width:185px;
 	 			padding: 5px;
@@ -119,7 +119,7 @@ textarea{
 				margin-bottom:10px;
 			}
 
-		
+
 		#product{
 			margin-top:5px;
 			width:450px;
@@ -128,7 +128,7 @@ textarea{
 				border-bottom: 1px solid #000;
 				padding-bottom: 5px;
 			}
-			
+
 			#product_picture_container{
 				text-align:center;
 				width: 230px;
@@ -139,12 +139,12 @@ textarea{
 					max-height: 150px;
 					max-width: 240px;
 				}
-			
+
 			#product_text{
 				width:100%;
 				margin-top:10px;
 			}
-			
+
 			#product_text table td{
 				font-size: 14px;
 			}
@@ -155,14 +155,14 @@ textarea{
 	padding: 5px;
 	float:left;
 }
-	
+
 	#right_title{
 		width:100%;
 		height:20px;
 		font-size:20px;
-		margin-bottom:5px		
+		margin-bottom:5px
 	}
-	
+
 	#right_content{
 		width:100%;
 		margin-top: 10px;
@@ -211,7 +211,7 @@ textarea{
                                         <td align="right" width="80px" valign="top">
                                         <span class="text-orange bold">1%</span>
                                         </td>
-                                    </tr>                                
+                                    </tr>
 									<tr>
                                     	<td>
                                         Get <span class="text-orange bold">20 clicks</span> on your social network
@@ -219,7 +219,7 @@ textarea{
                                         <td align="right">
                                         <span class="text-orange bold">5%</span>
                                         </td>
-                                    </tr>    
+                                    </tr>
 									<tr>
                                     	<td>
                                         Encourage <span class="text-orange bold">social activity</span>. More activity more reward.
@@ -227,11 +227,11 @@ textarea{
                                         <td align="right" valign="top">
                                         up to <span class="text-orange bold">15%</span>
                                         </td>
-                                    </tr>                                                                            
+                                    </tr>
                                 </tbody>
                             </table>
 	                    </div>
-                    </div>                
+                    </div>
                 </div>
 	        </div>
 	        <div id="right" >
@@ -239,19 +239,20 @@ textarea{
                     <div id="right_title">
                         <strong>Your Echoes</strong>
                     </div>
-                
+
                 	<table id="echoes" width="100%" cellspacing="5px">
                     	<form name="message" id="echo" action="http://v1-api.echoed.com/echo/it">
                             <tbody>
-                                <tr> 
+                                <tr>
                                     <td width="50">
                                         <div style="width:50px;height:50px;" class="bg-color-orange rounded-corners border-grey">
-                                        </div>                                    
+                                        </div>
                                     </td>
                                     <td>
                                     <textarea style="width:320px; height:50px;" class="rounded-corners" disabled="disabled">Items will appear in your echoed closet</textarea>
                                     </td>
                                     <td width="50">
+                                        <input type="checkbox" name="postToEchoedCloset" checked="true" disabled="true"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -259,10 +260,10 @@ textarea{
                                     	<img src="facebook logo.png" height="50px"/>
                                     </td>
                                     <td>
-                                    <textarea name="message" style="width:320px; height:50px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
+                                    <textarea name="facebookMessage" style="width:320px; height:50px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
                                     </td>
                                     <td>
-
+                                        <input type="checkbox" name="postToFacebook" checked="true"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -270,10 +271,10 @@ textarea{
                                     	<img src="twitter logo.png" height="50px"/>
                                     </td>
                                     <td>
-                                    <textarea style="width:320px; height:50px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>  
+                                    <textarea name="twitterMessage" style="width:320px; height:50px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
                                     </td>
                                     <td>
-
+                                        <input type="checkbox" name="postToTwitter" checked="true"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -286,7 +287,7 @@ textarea{
 
                                     </td>
                                 </tr>
-                            </tbody>                            
+                            </tbody>
                         </form>
                     </table>
                 </div>

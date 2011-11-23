@@ -7,7 +7,7 @@ import com.echoed.chamber.domain.{Echo, EchoedUser}
 case class Closet(
         id: String,
         echoedUser: EchoedUser,
-        var echoes: List[Echo]) {
+        echoes: List[Echo]) {
 
     def this(id: String, echoedUser: EchoedUser) = this(id, echoedUser, new ArrayList[Echo]())
 

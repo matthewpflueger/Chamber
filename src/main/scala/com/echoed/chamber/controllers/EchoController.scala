@@ -105,27 +105,37 @@ class EchoController {
         })
     }
 
+    case class EchoItParameters(
+            @BeanProperty var facebookMessage: String = null,
+            @BeanProperty var postToFacebook: Boolean = false,
+            @BeanProperty var twitterMessage: String = null,
+            @BeanProperty var postToTwitter: Boolean = false,
+            @BeanProperty var echoedUserId: String = null,
+            @BeanProperty var echoPossibility: String = null)
+
+
     @RequestMapping(value = Array("/it"), method = Array(RequestMethod.GET))
     def it(
-            @CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
-            @CookieValue(value = "echoPossibility", required = true) echoPossibilityId: String,
-            @RequestParam("message") message: String,
+            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
+            @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
+            echoItParameters: EchoItParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        if (echoedUserId != null) echoItParameters.echoedUserId = echoedUserId
+        if (echoPossibilityId != null) echoItParameters.echoPossibility = echoPossibilityId
 
-        logger.debug("Echoed User Id: {} ",echoedUserId)
-        logger.debug("Echoed Possibility: {} ", echoPossibilityId)
+        logger.debug("Echoing {}", echoItParameters)
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         if (continuation.isExpired) {
-            logger.error("Request expired to echo possibility {} for user {}", echoPossibilityId, echoedUserId)
+            logger.error("Request expired to echo ", echoItParameters)
             new ModelAndView(errorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoService.echo(echoedUserId, echoPossibilityId, message).map { tuple => //TODO really should be its own class...
+            echoService.echo(echoedUserId, echoPossibilityId, confirmationParameters).map { tuple => //TODO really should be its own class...
                     logger.debug("Successfully echoed {}", tuple)
                     val modelAndView = new ModelAndView(echoItView)
                     modelAndView.addObject("echo", tuple._1)
@@ -180,3 +190,4 @@ class EchoController {
     }
 
 }
+
