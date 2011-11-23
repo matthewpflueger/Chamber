@@ -64,8 +64,8 @@ class FacebookAccessActor extends Actor {
                 new Param("picture", facebookPost.picture),
                 new Param("link", facebookPost.link)).get()
             facebookPost.objectId = result
-            logger.debug("Successfully posted {}", facebookPost)
             self.channel ! facebookPost
+            logger.debug("Successfully posted {}", facebookPost)
         }
     }
 

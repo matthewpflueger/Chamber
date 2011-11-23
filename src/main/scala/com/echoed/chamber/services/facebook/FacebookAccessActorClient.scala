@@ -1,8 +1,8 @@
 package com.echoed.chamber.services.facebook
 
 import reflect.BeanProperty
-import akka.actor.ActorRef
 import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
+import akka.actor.{Actor, ActorRef}
 
 
 class FacebookAccessActorClient extends FacebookAccess {
@@ -20,7 +20,7 @@ class FacebookAccessActorClient extends FacebookAccess {
             (facebookAccessActor ? ("friends", accessToken)).mapTo[List[FacebookFriend]]
 
     def post(accessToken: String, facebookId: String, facebookPost: FacebookPost) =
-            (facebookAccessActor ? ("post", accessToken, facebookId, facebookPost)).mapTo[FacebookPost]
+            (facebookAccessActor.?("post", accessToken, facebookId, facebookPost)(timeout = Actor.Timeout(600000L))).mapTo[FacebookPost]
 
 }
 

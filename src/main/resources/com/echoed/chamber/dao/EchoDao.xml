@@ -15,9 +15,13 @@
             <arg column="facebookPostId" javaType="String" />
             <arg column="twitterStatusId" javaType="String"/>
             <arg column="echoPossibilityId" javaType="String" />
+            <arg column="landingPageUrl" javaType="String" />
         </constructor>
     </resultMap>
 
+    <select id="findById" resultMap="echoResult">
+        select * from Echo where id = #{id}
+    </select>
 
     <select id="findByEchoPossibilityId" resultMap="echoResult">
     	select * from Echo where echoPossibilityId = #{echoPossibilityId}
@@ -39,7 +43,8 @@
                 imageUrl,
                 echoedUserId,
                 facebookPostId,
-                echoPossibilityId)
+                echoPossibilityId,
+                landingPageUrl)
         values (
                 #{id},
                 #{retailerId},
@@ -51,7 +56,8 @@
                 #{imageUrl},
                 #{echoedUserId},
                 #{facebookPostId},
-                #{echoPossibilityId})
+                #{echoPossibilityId},
+                #{landingPageUrl})
     </insert>
 
     <update id="updateFacebookPostId" parameterType="com.echoed.chamber.domain.Echo">

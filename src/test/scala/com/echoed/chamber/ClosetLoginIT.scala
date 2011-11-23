@@ -50,9 +50,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             when("there is no user information")
             then("redirect to Echoed's login page")
             and("prompt the user to login using a social platform")
-
-
-
+            pending
         }
 
         scenario("a known user with no access token navigates to echoed.com/closet and is asked to login", IntegrationTest) {

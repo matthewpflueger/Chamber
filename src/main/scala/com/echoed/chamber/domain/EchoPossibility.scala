@@ -17,7 +17,8 @@ case class EchoPossibility(
         @BeanProperty var price: String = null,
         @BeanProperty var imageUrl: String = null,
         @BeanProperty var echoedUserId: String = null,
-        @BeanProperty var echoId: String = null) {
+        @BeanProperty var echoId: String = null,
+        @BeanProperty var landingPageUrl: String = null) {
 
     def this() = {
         this(null)
@@ -36,8 +37,6 @@ case class EchoPossibility(
             p <- Option(productId)
             b <- Option(boughtOn)
             o <- Option(orderId)
-            e <- Option(price)
-            i <- Option(imageUrl)
         } yield {
             val arrayBuilder = ArrayBuilder.make[Byte]
             arrayBuilder ++= r.getBytes(encoding)
@@ -45,8 +44,6 @@ case class EchoPossibility(
             arrayBuilder ++= p.getBytes(encoding)
             arrayBuilder ++= b.toString.getBytes(encoding)
             arrayBuilder ++= o.getBytes(encoding)
-            arrayBuilder ++= e.getBytes(encoding)
-            arrayBuilder ++= i.getBytes(encoding)
             Base64.encodeBase64URLSafeString(arrayBuilder.result())
         }
         optionalId.orNull
@@ -61,6 +58,7 @@ case class EchoPossibility(
             o <- Option(orderId)
             e <- Option(price)
             i <- Option(imageUrl)
+            l <- Option(landingPageUrl)
         } yield {
             new StringBuilder("?retailerId=")
                     .append(r)
@@ -76,6 +74,8 @@ case class EchoPossibility(
                     .append(e)
                     .append("&imageUrl=")
                     .append(URLEncoder.encode(i, "UTF-8"))
+                    .append("&landingPageUrl=")
+                    .append(URLEncoder.encode(l, "UTF-8"))
                     .toString
         }
         params.getOrElse("")

@@ -5,10 +5,12 @@ import reflect.BeanProperty
 import akka.dispatch.Future
 import com.echoed.chamber.domain._
 
-import com.echoed.chamber.dao.{EchoDao, RetailerDao, EchoPossibilityDao}
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
 
 import org.slf4j.LoggerFactory
+import com.echoed.chamber.dao.{EchoClickDao, EchoDao, RetailerDao, EchoPossibilityDao}
+import java.util.regex.Pattern
+import java.net.URI
 
 
 class EchoServiceActor extends Actor {
@@ -19,6 +21,8 @@ class EchoServiceActor extends Actor {
     @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @BeanProperty var retailerDao: RetailerDao = _
     @BeanProperty var echoDao: EchoDao = _
+    @BeanProperty var echoClickDao: EchoClickDao = _
+
 
     def receive = {
         case ("recordEchoPossibility", echoPossibility: EchoPossibility) => {
@@ -73,5 +77,33 @@ class EchoServiceActor extends Actor {
                 echoPossibilityDao.insertOrUpdate(echoPossibility)
             }
         }
+
+        case ("recordEchoClick", echoClick: EchoClick, postId: String) =>
+            val channel = self.channel
+            Future[Echo] {
+                echoDao.findById(echoClick.echoId)
+            }.map { Option(_) match {
+                    case None => logger.error("Did not find echo to record click {}", echoClick)
+                    case Some(echo) =>
+                        logger.debug("Recording click {} for {}", echoClick, echo)
+                        val ec = determinePostId(echo, echoClick, postId)
+                        channel ! (ec, echo.landingPageUrl)
+                        echoClickDao.insert(ec)
+                        logger.debug("Successfully recorded click {}", echoClick)
+                }
+            }
     }
+
+    def determinePostId(echo: Echo, echoClick: EchoClick, postId: String) =
+        Option(postId) match {
+            case Some(f) if echo.facebookPostId == f  => echoClick.copy(facebookPostId = postId)
+            case Some(t) if echo.twitterStatusId == t => echoClick.copy(twitterStatusId = postId)
+            case Some(_) =>
+                logger.warn("Invalid post id {}", postId)
+                echoClick
+            case None =>
+                logger.warn("Null post id")
+                echoClick
+        }
+
 }

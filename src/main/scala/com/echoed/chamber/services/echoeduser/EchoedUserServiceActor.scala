@@ -4,8 +4,9 @@ import akka.actor.Actor
 import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
-import com.echoed.chamber.domain.{TwitterFollower, Echo, EchoedUser}
 import com.echoed.chamber.dao.views.ClosetDao
+import com.echoed.chamber.domain.{FacebookPost, TwitterFollower, Echo, EchoedUser}
+import org.slf4j.LoggerFactory
 
 
 class EchoedUserServiceActor(
@@ -14,6 +15,8 @@ class EchoedUserServiceActor(
         closetDao: ClosetDao,
         var facebookService: FacebookService,
         var twitterService:TwitterService) extends Actor {
+
+    private final val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceActor])
 
     def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao) =
             this(echoedUser, echoedUserDao, closetDao, null, null)
@@ -57,7 +60,10 @@ class EchoedUserServiceActor(
 
         case ("echoToFacebook", echo: Echo, message: String) =>
             val channel = self.channel
-            facebookService.echo(echo, message).map { channel ! _ }
+            facebookService.echo(echo, message).map[FacebookPost] { fp: FacebookPost =>
+                channel ! fp
+                fp
+            }
         case "closet" =>
             self.channel ! closetDao.findByEchoedUserId(echoedUser.id)
     }

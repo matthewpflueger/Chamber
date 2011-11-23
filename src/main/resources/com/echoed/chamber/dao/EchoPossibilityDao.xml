@@ -14,6 +14,7 @@
             <arg column="imageUrl" javaType="String" />
 			<arg column="echoedUserId" javaType="String" />
             <arg column="echoId" javaType="String" />
+            <arg column="landingPageUrl" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -37,7 +38,8 @@
                 price,
                 imageUrl,
                 echoedUserId,
-                echoId)
+                echoId,
+                landingPageUrl)
     	values (
     			#{id},
     			#{retailerId},
@@ -49,7 +51,8 @@
                 #{price},
                 #{imageUrl},
                 #{echoedUserId},
-                #{echoId})
+                #{echoId},
+                #{landingPageUrl})
         on duplicate key update
                 step=#{step},
 	    		echoedUserId=#{echoedUserId},

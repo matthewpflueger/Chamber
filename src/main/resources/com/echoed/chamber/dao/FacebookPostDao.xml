@@ -22,9 +22,10 @@
     </select>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.FacebookPost">
-        <selectKey keyProperty="id" resultType="string" order="BEFORE">
-            select uuid()
-        </selectKey>
+        <!-- setting the uuid in code as we need it to form a proper post url - see FacebookServiceActor -->
+        <!--<selectKey keyProperty="id" resultType="string" order="BEFORE">-->
+            <!--select uuid()-->
+        <!--</selectKey>-->
 
     	insert into FacebookPost(
                 id,

@@ -143,6 +143,8 @@
         <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->
         <property name="retailerDao" ref="retailerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoClickDao" ref="echoClickDao" />
     </akka:untyped-actor>
 
     <akka:untyped-actor

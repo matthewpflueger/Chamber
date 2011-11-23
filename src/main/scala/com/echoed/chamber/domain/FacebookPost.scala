@@ -11,7 +11,8 @@ case class FacebookPost(
         facebookUserId: String,
         echoedUserId: String,
         echoId: String,
-        var postedOn: Date,
+        var postedOn: Date = null,
         var createdOn: Date = new Date,
-        var objectId: String)
+        var objectId: String = null)
+
 

@@ -15,9 +15,10 @@ case class Echo(
         echoedUserId: String,
         var facebookPostId: String,
         var twitterStatusId: String,
-        echoPossibilityId: String) {
+        echoPossibilityId: String,
+        landingPageUrl: String) {
 
-    def this(id: String, boughtOn: Date, price: String, imageUrl: String) = this(
+    def this(id: String, boughtOn: Date, price: String, imageUrl: String, landingPageUrl: String) = this(
             id,
             null,
             null,
@@ -29,7 +30,8 @@ case class Echo(
             null,
             null,
             null,
-            null)
+            null,
+            landingPageUrl)
 
     def this(echoPossibility: EchoPossibility) = this(
             null,
@@ -43,6 +45,9 @@ case class Echo(
             echoPossibility.echoedUserId,
             null,
             null,
-            echoPossibility.id)
+            echoPossibility.id,
+            echoPossibility.landingPageUrl)
 
 }
+
+

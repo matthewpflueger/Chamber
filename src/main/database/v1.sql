@@ -19,22 +19,36 @@ create table Echo (
     boughtOn datetime not null,
     orderId varchar(255) not null,
     price varchar(255) not null,
-    imageUrl varchar(255) not null,
+    imageUrl varchar(1024) not null,
     echoedUserId varchar(36) not null,
     facebookPostId varchar(36),
     twitterStatusId varchar(36),
     echoPossibilityId varchar(255) not null,
+    landingPageUrl varchar(1024) not null,
     primary key(id),
     unique key(facebookPostId),
     unique key(echoPossibilityId)
 ) engine = InnoDB;
 
+drop table if exists EchoClick;
+create table EchoClick (
+    id varchar(36) not null,
+    echoId varchar(36) not null,
+    facebookPostId varchar(36),
+    twitterStatusId varchar(36),
+    echoedUserId varchar(36),
+    referrerUrl varchar(1024) not null,
+    ipAddress varchar(36) not null,
+    clickedOn datetime not null,
+    primary key(id)
+) engine = MyIsam;
+
 drop table if exists FacebookPost;
 create table FacebookPost (
     id varchar(36) not null,
     message varchar(255) not null,
-    picture varchar(255) not null,
-    link varchar(255) not null,
+    picture varchar(1024) not null,
+    link varchar(1024) not null,
     facebookUserId varchar(36) not null,
     echoedUserId varchar(36) not null,
     echoId varchar(36) not null,
@@ -55,9 +69,10 @@ create table EchoPossibility (
     step varchar(36) not null,
     orderId varchar(255) not null,
     price varchar(255) not null,
-    imageUrl varchar(255) not null,
+    imageUrl varchar(1024) not null,
     echoedUserId varchar(36),
     echoId varchar(36),
+    landingPageUrl varchar(1024),
     primary key(id),
     unique key(echoId)
 ) engine = InnoDB;
@@ -100,7 +115,7 @@ create table FacebookUser (
 	firstName varchar(255) not null,
 	lastName varchar(255) not null,
 	email varchar(255) not null,
-	link varchar(255) not null,
+	link varchar(1024) not null,
 	timezone varchar(36) not null,
 	locale varchar(36) not null,
 	gender varchar(36) not null,

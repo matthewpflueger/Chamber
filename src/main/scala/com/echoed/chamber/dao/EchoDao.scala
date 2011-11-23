@@ -13,4 +13,6 @@ trait EchoDao {
     def findByEchoPossibilityId(echoPossibilityId: String): Echo
 
     def deleteByEchoPossibilityId(echoPossibilityId: String): Int
+
+    def findById(id: String): Echo
 }

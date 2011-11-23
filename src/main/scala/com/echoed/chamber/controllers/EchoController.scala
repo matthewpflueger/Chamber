@@ -5,15 +5,13 @@ import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.EchoService
 import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
+import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.util.CookieManager
 import akka.dispatch.Future
-import scalaz._
-import Scalaz._
 import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.bind.annotation.{RequestParam, CookieValue, RequestMapping, RequestMethod}
-import com.echoed.chamber.domain.{FacebookPost, Echo, EchoedUser, EchoPossibility}
+import org.springframework.web.bind.annotation._
+import com.echoed.chamber.domain.{EchoClick, EchoPossibility}
 
 
 @Controller
@@ -141,6 +139,36 @@ class EchoController {
         })
 
     }
+
+    @RequestMapping(value = Array("/{echoId}/{postId}"), method = Array(RequestMethod.GET))
+    def echoes(
+            @PathVariable(value = "echoId") echoId: String,
+            @PathVariable(value = "postId") postId: String,
+            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
+            @RequestHeader(value = "Referer", required = true) referrerUrl: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (continuation.isExpired) {
+            logger.error("Request expired to record echo click for echo {}", echoId)
+            new ModelAndView(errorView)
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
+
+            continuation.suspend(httpServletResponse)
+
+            val echoClick = new EchoClick(echoId, echoedUserId, referrerUrl, httpServletRequest.getRemoteAddr)
+            echoService.recordEchoClick(echoClick, postId).map { tuple =>
+                cookieManager.addCookie(httpServletResponse, "echoClick", tuple._1.id)
+                continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format tuple._2))
+                continuation.resume
+            }
+
+            continuation.undispatch()
+        })
+
+    }
+
 
     def recordEchoPossibility(echoPossibility: EchoPossibility, httpServletResponse: HttpServletResponse) {
         echoService.recordEchoPossibility(echoPossibility)

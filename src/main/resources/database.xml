@@ -94,8 +94,15 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
+    <bean id="echoClickDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+       <property name="mapperInterface" value="com.echoed.chamber.dao.EchoClickDao" />
+       <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
+
     <bean id="closetDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.views.ClosetDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
+
 </beans>

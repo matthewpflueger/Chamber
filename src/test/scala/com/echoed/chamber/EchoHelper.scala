@@ -5,6 +5,7 @@ import domain.{EchoPossibilityHelper, EchoPossibility, Retailer}
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.scalatest.matchers.ShouldMatchers
+import java.util.Date
 
 
 class EchoHelper extends ShouldMatchers {
@@ -14,14 +15,34 @@ class EchoHelper extends ShouldMatchers {
 
 
     def setupEchoPossibility(
-            step: String = "button",
-            echoedUserId: String = null,
-            retailerId: String = "testRetailerId",
             //a normal base64 will have one or more '=' characters for padding - they are ripped off for url safe base64 strings...
-            expectedEchoPossibilityId: String = "dGVzdFJldGFpbGVySWR0ZXN0UmV0YWlsZXJDdXN0b21lcklkdGVzdFByb2R1Y3RJZFdlZCBOb3YgMDkgMTU6MzY6NTYgRVNUIDIwMTE") = {
+            expectedEchoPossibilityId: String = "dGVzdFJldGFpbGVySWR0ZXN0UmV0YWlsZXJDdXN0b21lcklkdGVzdFByb2R1Y3RJZFdlZCBOb3YgMDkgMTU6MzY6NTYgRVNUIDIwMTF0ZXN0T3JkZXJJZDEwMGh0dHA6Ly92MS1jZG4uZWNob2VkLmNvbS9lY2hvX2RlbW9fc3RvcmUtdGllX3RodW1iLmpwZWc",
+            retailerId: String = "testRetailerId",
+            customerId: String = "testRetailerCustomerId",
+            productId: String = "testProductId",
+            boughtOn: Date = new Date(1320871016126L), //Wed Nov 09 15:36:56 EST 2011,
+            step: String = "button",
+            orderId: String = "testOrderId",
+            price: String = "100", //one dollar
+            imageUrl: String = "http://v1-cdn.echoed.com/echo_demo_store-tie_thumb.jpeg",
+            echoedUserId: String = null,
+            echoId: String = null,
+            landingPageUrl: String = "http://echoed.com") = {
 
         val (echoPossibility, _) = EchoPossibilityHelper.getValidEchoPossibilityAndHash(
-                step, echoedUserId, retailerId, expectedEchoPossibilityId)
+                expectedEchoPossibilityId = expectedEchoPossibilityId,
+                retailerId = retailerId,
+                customerId = customerId,
+                productId = productId,
+                boughtOn = boughtOn,
+                step = step,
+                orderId = orderId,
+                price = price,
+                imageUrl = imageUrl,
+                echoedUserId = echoedUserId,
+                echoId = echoId,
+                landingPageUrl = landingPageUrl);
+
         retailerDao.insertOrUpdate(new Retailer(echoPossibility.retailerId))
         echoPossibilityDao.deleteById(echoPossibility.id)
         val count = echoPossibilityDao.selectCount

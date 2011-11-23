@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.EchoClickDao">
+    <resultMap id="echoClickResult" type="com.echoed.chamber.domain.EchoClick">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="echoId" javaType="String" />
+            <arg column="facebookPostId" javaType="String" />
+            <arg column="twitterStatusId" javaType="String" />
+            <arg column="echoedUserId" javaType="String" />
+            <arg column="referrerUrl" javaType="String" />
+            <arg column="ipAddress" javaType="String" />
+            <arg column="clickedOn" javaType="Date" />
+        </constructor>
+    </resultMap>
+
+    <select id="findByEchoId" resultMap="echoClickResult">
+        select * from EchoClick where echoId = #{echoId}
+    </select>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.EchoClick">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            select uuid()
+        </selectKey>
+
+    	insert into EchoClick(
+    			id,
+                echoId,
+                facebookPostId,
+                twitterStatusId,
+                echoedUserId,
+                referrerUrl,
+                ipAddress,
+                clickedOn)
+        values (
+                #{id},
+                #{echoId},
+                #{facebookPostId},
+                #{twitterStatusId},
+                #{echoedUserId},
+                #{referrerUrl},
+                #{ipAddress},
+                #{clickedOn})
+    </insert>
+
+</mapper>

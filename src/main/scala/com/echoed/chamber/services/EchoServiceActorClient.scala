@@ -2,7 +2,7 @@ package com.echoed.chamber.services
 
 import akka.actor.ActorRef
 import reflect.BeanProperty
-import com.echoed.chamber.domain.{FacebookPost, Echo, EchoPossibility,TwitterStatus}
+import com.echoed.chamber.domain._
 
 
 class EchoServiceActorClient extends EchoService {
@@ -18,4 +18,6 @@ class EchoServiceActorClient extends EchoService {
     def echo(echoedUserId: String, echoPossibilityId: String, message: String) =
             (echoServiceActor ? ("echo", echoedUserId, echoPossibilityId, message)).mapTo[(Echo, FacebookPost)]
 
+    def recordEchoClick(echoClick: EchoClick, postId: String) =
+            (echoServiceActor ? ("recordEchoClick", echoClick, postId)).mapTo[(EchoClick, String)]
 }
