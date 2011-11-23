@@ -1,0 +1,206 @@
+
+
+html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
+pre, form, fieldset, table, th, td{
+	margin:0;
+	padding: 0;
+	font-family: Helvetica,BankGothicLight,"HelveticaNeue-Light", Helvetica, Arial;
+}
+
+a{
+	text-decoration:none;
+	color:inherit;
+}
+
+h2{
+    font-family: BebasNeue, Arial, sans-serif;
+    color: #666;
+}
+
+/*Echoed Colors*/
+.echoed-text{
+    color:#FF7733;
+}
+
+/*Facebook Colors*/
+.like-text,.comment-text{
+    color: #3B5998;
+}
+
+/*Twitter Colors*/
+.retweet-text{
+    color: #4099FF;
+}
+
+/*White Areas*/
+.third,.half,.table_container{
+    background-color:#FFF;
+}
+
+#container{
+	width: 100%;
+}
+	
+	#header{
+		height:50px;
+		width:100%;
+		border-bottom: 1px solid #999;
+		background-color:#FFF;
+	}
+	
+		#logo{
+            margin-left:15px;
+			font-size:48px;
+			line-height: 50px;
+			height:50px;
+			float:left;
+			font-family: BebasNeue,BankGothicLight,"HelveticaNeue-Light",Helvetica, sans-serif;
+		}
+		
+		
+		#user{
+			position:absolute;
+			padding:10px;
+			font-size: 14px;
+			right:0px;
+			height:50px;
+			text-align:right;
+		}
+		
+		#header-nav{
+			margin-left:50px;
+			float:left;
+		}
+		
+			#header-nav li{
+				padding:5px 20px;
+				height: 40px;
+				line-height: 50px;			
+				list-style:none;
+				float:left;
+                font-size:24px;
+				font-family: BebasNeue,BankGothicLight,"HelveticaNeue-Light",Helvetica, sans-serif;
+                color: #333;
+			}
+			
+			#header-nav li:hover{
+				color:#F93;
+				background-image:url(http://v1-cdn.echoed.com/arrow.png);
+				background-position:bottom;
+				background-repeat:no-repeat;
+			}
+	
+	#content{
+		text-align:center;
+        background-color: #999;
+	}
+
+
+
+
+		#content-selector{
+			margin:10px 0px;
+		}
+		
+			#content-selector a{
+				margin:0px 10px;
+			}
+			
+			
+	
+		#closet{
+			width:80%;
+			margin:auto;
+		}
+			#closet img{
+				width: 230px;
+ 				border:3px solid #CCC;
+			}
+			
+			
+		#friends{
+			width:80%;
+			margin:auto;
+		}
+			
+			
+			.friend img{
+			}
+			
+			.friend{
+				width: 150px;
+				height:100px;
+				float:left;
+			}
+		
+			
+			.item_wrap{
+				float:left;
+				margin:2px;
+			}
+			
+			.item_hover{
+				position:absolute;
+				top:0;
+				left:0;
+				width:100%;
+				height:100%;
+				background:url(http://v1-cdn.echoed.com/blackPx.png) repeat;
+				display:none;
+			}
+			
+			.item_hover_wrap{
+				padding: 10px 10px 0px 10px;
+				float:left;
+				text-align:left;
+				color: #FFF;
+			}
+			
+			
+	
+.clear{
+	clear:both;
+}
+
+/*** ISOTOPE ***/
+
+.isotope-item {
+  z-index: 2;
+}
+
+.isotope-hidden.isotope-item {
+  pointer-events: none;
+  z-index: 1;
+}
+
+/**** Isotope CSS3 transitions ****/
+
+.isotope,
+.isotope .isotope-item {
+  -webkit-transition-duration: 0.8s;
+	 -moz-transition-duration: 0.8s;
+		  transition-duration: 0.8s;
+}
+
+.isotope {
+  -webkit-transition-property: height, width;
+	 -moz-transition-property: height, width;
+		  transition-property: height, width;
+}
+
+.isotope .isotope-item {
+  -webkit-transition-property: -webkit-transform, opacity;
+	 -moz-transition-property:    -moz-transform, opacity;
+		  transition-property:         transform, opacity;
+}
+
+/**** disabling Isotope CSS3 transitions ****/
+
+.isotope.no-transition,
+.isotope.no-transition .isotope-item,
+.isotope .isotope-item.no-transition {
+  -webkit-transition-duration: 0s;
+	 -moz-transition-duration: 0s;
+		  transition-duration: 0s;
+}	
+
