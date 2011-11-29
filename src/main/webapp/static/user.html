@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title></title>
+<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="jquery.masonry.min.js"></script>
+<script type="text/javascript" src="jquery.isotope.min.js"></script>   
+<script type="text/javascript" src="jquery.imagesloaded.js"></script> 
+<script type="text/javascript" src="jquery.blockUI.js"></script>
+<script type="text/javascript" src="jquery.infinitescroll.min.js"></script> 
+<script>
+
+var loading = null;
+var contentContainer = null;
+var currentAnchor = null;
+var currentNav = null;
+var currentPage = null;
+
+$(document).ready(function(){
+	setInterval("checkAnchor()",300);
+	content = $('#content'); 
+});
+
+$('#header-nav').live('click',function(){
+	checkAnchor();
+});
+
+
+function checkAnchor(){
+	if(document.location.hash == '')
+		document.location.hash = '#exhibit'; // SET default
+	
+	var params = document.location.hash.substr(1).split('/'); //SPLIT THE STRING
+	var page = params[0];
+	
+	if(page != currentPage){
+		
+		currentPage = page;
+		
+		var newNavigation = $('#' + page +'_nav');
+		
+		updateCurrentNav(newNavigation);
+		var jsonUrl = page + '.json';
+
+		switch(page){
+			case 'friends':
+				$.ajax({
+					url: jsonUrl,
+					dataType: "json",
+					success: function(data){
+						generateFriends(data);
+						updateCurrentNav(newNavigation);
+					}
+				});			
+				break;
+			case 'exhibit':
+				$.ajax({
+					url: jsonUrl,
+					dataType: "json",
+					success: function(data){
+						generateExhibit(data);
+						updateCurrentNav(newNavigation);
+					}
+				});			
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+$('#content-selector a').live('click',function(){
+	var selector = $(this).attr('data-filter');
+	$('#closet').isotope({ filter: selector });
+});	
+
+function generateFriends(data){
+	var friends = $('<div id="friends"></div>');
+	var content = $('#content');
+	content.html('');
+	content.append(friends);
+	friends.isotope({
+		layoutMode: 'fitRows',
+		getSortData:{
+			text: function($elem){
+				return $elem.find(".text").text();
+				}
+			}
+		});
+	$.each(data.friends, function(index,friend){
+		var friendDiv = $('<div class="friend item_wrap ' + friend.name+  '" friend="' + friend.name.toLowerCase() + '"></div>');
+			friendDiv.prepend($('<img>').attr("src","http://graph.facebook.com/" + friend.id + "/picture"));
+			$('<div class="text"></div>').html(friend.name).appendTo(friendDiv);				
+			friendDiv.imagesLoaded(function(){
+				friends.append($(this)).isotope('appended',$(this));
+			});
+		});
+}
+
+function generateExhibit(data){
+	var closet = $('<div id="closet"></div>');
+	var selectorContainer = $('<div id="content-selector-container"></div>');
+	var selector = $('<div id="content-selector"></div>');
+	var content = $('#content');
+	
+	
+	var categoryHash = {};
+	content.html('');
+	selectorContainer.append(selector);
+	content.append(selectorContainer);	
+	
+	closet.append('<div style="width:1px;"></div>');
+	
+
+	selector.isotope({
+		getSortData: {
+			text: function($elem){
+				return $elem.attr("data-filter");
+			}
+		}
+	});
+	
+	categoryHash["All"] = "*";
+	var anc = $('<a></a>').attr("href","#exhibit").attr("data-filter","*").html("All")
+	selector.append(anc).isotope('reloadItems').isotope({sortBy: 'text'});
+	
+	content.append(closet);	
+	closet.isotope({});
+	
+	var that = this;
+	
+	$.each(data.products, function(index,product){
+
+
+		var itemWrap = $('<div></div>').addClass("item_wrap").addClass(product.category);		
+		var itemHover = $('<div></div>').appendTo(itemWrap).css("display","none").addClass('item_hover');
+		var itemHoverWrap = $('<div></div>').appendTo(itemHover).html(product.text).addClass("item_hover_wrap");
+		var image = $('<img />').attr("src",product.imageUrl).appendTo(itemWrap);					
+		
+		closet.append(itemWrap);
+		closet.imagesLoaded(function(){
+			closet.isotope('appended',(itemWrap));
+		});		
+		if(categoryHash[product.category] == null){
+			categoryHash[product.category] = product.category;
+			var anc = $('<a></a>').attr("href","#exhibit/" + product.category).attr("data-filter","." + product.category).html(product.category)
+			selector.append(anc).isotope('reloadItems').isotope({sortBy: 'text'});
+		}
+	});
+	
+	
+}
+
+function updateCurrentNav(newNav){
+	if(currentNav != null){
+		currentNav.removeClass("current");
+	}
+	currentNav = newNav;
+	currentNav.addClass("current");
+}
+
+$('.item_wrap').live({
+	mouseenter:
+		function(){
+			$(this).children('.item_hover').fadeIn('fast');
+		},
+	mouseleave:
+		function(){
+			$(this).children('.item_hover').fadeOut('fast');
+		}
+});
+
+
+$.Isotope.prototype._getCenteredMasonryColumns = function() {
+    this.width = this.element.width();
+    
+    var parentWidth = this.element.parent().width();
+    
+                  // i.e. options.masonry && options.masonry.columnWidth
+    var colW = this.options.masonry && this.options.masonry.columnWidth ||
+                  // or use the size of the first item
+                  this.$filteredAtoms.outerWidth(true) ||
+                  // if there's no items, use size of container
+                  parentWidth;
+    
+    var cols = Math.floor( parentWidth / colW );
+	
+    // i.e. this.masonry.cols = ....
+    this.masonry.cols = cols;
+    // i.e. this.masonry.columnWidth = ...
+    this.masonry.columnWidth = colW;
+  };
+  
+  $.Isotope.prototype._masonryReset = function() {
+    // layout-specific props
+    this.masonry = {};
+    // FIXME shouldn't have to call this again
+    this._getCenteredMasonryColumns();
+    var i = this.masonry.cols;
+    this.masonry.colYs = [];
+    while (i--) {
+      this.masonry.colYs.push( 0 );
+    }
+  };
+
+  $.Isotope.prototype._masonryResizeChanged = function() {
+    var prevColCount = this.masonry.cols;
+    // get updated colCount
+    this._getCenteredMasonryColumns();
+    return ( this.masonry.cols !== prevColCount );
+  };
+  
+  $.Isotope.prototype._masonryGetContainerSize = function() {
+    var unusedCols = 0,
+        i = this.masonry.cols;
+    // count unused columns
+    while ( --i ) {
+      if ( this.masonry.colYs[i] !== 0 ) {
+        break;
+      }
+      unusedCols++;
+    }
+    
+    return {
+          height : Math.max.apply( Math, this.masonry.colYs ),
+          // fit container to columns that have been used;
+          width : (this.masonry.cols - unusedCols) * this.masonry.columnWidth 
+        };
+};
+
+</script>
+<link rel="stylesheet" type="text/css" href="echoed.css"/>
+</head>
+<body>
+    <div id="container">
+        <div id="header">
+            <div id="logo">
+                Echoed
+            </div>
+            <div id="user">
+            	{#EchoedUser}{firstName}{lastName}{/EchoedUser}<br />
+                Rewards: {}
+            </div>
+            <div id="header-nav">
+                <ul>
+                    <li id="exhibit_nav">
+                        <a href="#exhibit">
+                            Exhibit
+                        </a>
+                    </li>
+                    <li id="friends_nav">
+                        <a href="#friends">
+                            Friends
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#settings">
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="logout">
+                            Logout
+                        </a>
+                    </li>
+                    <div class="clear"></div>
+                </ul>
+            </div>
+        </div>
+        <div id="content">
+         </div>
+    </div>
+</body>
+</html>	
