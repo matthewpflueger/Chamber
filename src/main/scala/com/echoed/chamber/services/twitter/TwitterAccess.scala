@@ -3,7 +3,6 @@ package com.echoed.chamber.services.twitter
 import akka.dispatch.Future
 import com.echoed.chamber.domain.{TwitterFollower, TwitterUser, TwitterStatus}
 import twitter4j.auth.{RequestToken, AccessToken}
-import twitter4j.Status
 
 trait TwitterAccess {
 

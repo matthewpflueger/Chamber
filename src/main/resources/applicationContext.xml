@@ -25,6 +25,7 @@
 
          See http://tarlogonjava.blogspot.com/2009/02/tips-regarding-springs.html for an explanation of what is going on here. -->
     <context:property-placeholder order="2147483647"/>
+    <!--suppress SpringModelInspection -->
     <context:property-placeholder
                 location="classpath:applicationContext.properties"
                 properties-ref="applicationProperties"
@@ -62,7 +63,7 @@
         <property name="facebookServiceLocatorActor" ref="facebookServiceLocatorActor" />
     </bean>
 
-    <bean id="echoService" class="com.echoed.chamber.services.EchoServiceActorClient">
+    <bean id="echoService" class="com.echoed.chamber.services.echo.EchoServiceActorClient">
         <property name="echoServiceActor" ref="echoServiceActor" />
     </bean>
 
@@ -133,7 +134,7 @@
 
     <akka:untyped-actor
             id="echoServiceActor"
-            implementation="com.echoed.chamber.services.EchoServiceActor"
+            implementation="com.echoed.chamber.services.echo.EchoServiceActor"
             autostart="true">
         <!--suppress SpringModelInspection -->
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />

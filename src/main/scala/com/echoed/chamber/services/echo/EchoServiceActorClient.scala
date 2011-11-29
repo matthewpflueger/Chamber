@@ -1,4 +1,4 @@
-package com.echoed.chamber.services
+package com.echoed.chamber.services.echo
 
 import akka.actor.ActorRef
 import reflect.BeanProperty
@@ -15,9 +15,11 @@ class EchoServiceActorClient extends EchoService {
     def getEchoPossibility(echoPossibilityId: String) =
             (echoServiceActor ? ("echoPossibility", echoPossibilityId)).mapTo[EchoPossibility]
 
-    def echo(echoedUserId: String, echoPossibilityId: String, message: String) =
-            (echoServiceActor ? ("echo", echoedUserId, echoPossibilityId, message)).mapTo[(Echo, FacebookPost)]
+    def echo(echoRequestMessage: EchoRequestMessage) =
+            (echoServiceActor ? echoRequestMessage).mapTo[EchoResponseMessage]
 
     def recordEchoClick(echoClick: EchoClick, postId: String) =
             (echoServiceActor ? ("recordEchoClick", echoClick, postId)).mapTo[(EchoClick, String)]
+
+
 }

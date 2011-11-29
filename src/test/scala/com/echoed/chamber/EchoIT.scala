@@ -11,7 +11,7 @@ import java.util.Properties
 import java.util.Date
 import tags.IntegrationTest
 import scala.collection.JavaConversions
-import org.openqa.selenium.{WebElement, By, Cookie, WebDriver}
+import org.openqa.selenium.{By, Cookie, WebDriver}
 import com.echoed.chamber.domain.{Echo, FacebookUser, FacebookPost, EchoedUser}
 import com.echoed.chamber.dao._
 
@@ -115,6 +115,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
             and("record the EchoPossibility in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)
+
         }
 
         scenario("a known user clicks to confirm their echo and is directed to thanks for echoing page", IntegrationTest) {
@@ -148,8 +149,9 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.manage().addCookie(echoedUserIdCookie)
             webDriver.manage().addCookie(echoPossibilityCookie)
 
-            val message = "This is my echoed purchase!"
-            webDriver.navigate().to("%s?message=%s" format(echoItUrl, message))
+            val postToFacebook = true
+            val facebookMessage = "This is my echoed purchase!"
+            webDriver.navigate().to("%s?postToFacebook=%s&facebookMessage=%s" format(echoItUrl, postToFacebook, facebookMessage))
 
             then("show the thank you page")
             webDriver.getTitle should equal ("Thank you")

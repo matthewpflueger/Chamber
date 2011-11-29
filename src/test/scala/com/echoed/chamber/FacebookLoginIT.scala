@@ -1,7 +1,6 @@
 package com.echoed.chamber
 
 import dao.{FacebookUserDao, EchoedUserDao}
-import domain.EchoedUser
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{GivenWhenThen, FeatureSpec}
@@ -10,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import tags.IntegrationTest
-import java.util.{Date, Properties}
-import org.openqa.selenium.{By, Cookie, WebDriver}
+import java.util.Properties
+import org.openqa.selenium.{By, WebDriver}
 
 
 @RunWith(classOf[JUnitRunner])

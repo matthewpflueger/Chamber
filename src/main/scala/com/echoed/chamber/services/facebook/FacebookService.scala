@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.facebook
 
 import akka.dispatch.Future
-import org.slf4j.LoggerFactory
 import com.echoed.util.FutureHelper
 import com.echoed.chamber.domain.{FacebookPost, Echo, EchoedUser, FacebookUser}
 

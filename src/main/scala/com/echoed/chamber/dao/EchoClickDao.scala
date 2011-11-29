@@ -1,6 +1,6 @@
 package com.echoed.chamber.dao
 
-import com.echoed.chamber.domain.{EchoClick, Echo}
+import com.echoed.chamber.domain.EchoClick
 
 
 trait EchoClickDao {

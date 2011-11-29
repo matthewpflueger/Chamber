@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import twitter4j.auth.{RequestToken, AccessToken}
 import org.springframework.beans.factory.annotation.Autowired
 import com.echoed.chamber.dao.TwitterUserDao
-import com.echoed.chamber.services.EchoService
+import com.echoed.chamber.services.echo.EchoService
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import com.echoed.chamber.services.echoeduser.EchoedUserService
 import org.eclipse.jetty.continuation.ContinuationSupport

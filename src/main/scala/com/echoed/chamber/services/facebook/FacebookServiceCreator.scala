@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.facebook
 
-import akka.dispatch.{CompletableFuture, Future}
+import akka.dispatch.Future
 
 
 trait FacebookServiceCreator {

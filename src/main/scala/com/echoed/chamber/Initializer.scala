@@ -1,9 +1,8 @@
 package com.echoed.chamber
 
-import akka.remote.BootableRemoteActorService
 import javax.servlet.{ServletContextListener, ServletContextEvent}
 import akka.util.AkkaLoader
-import akka.actor.{DefaultBootableActorLoaderService, BootableActorLoaderService}
+import akka.actor.DefaultBootableActorLoaderService
 
 /**
   * This class can be added to web.xml mappings as a listener to for startup/shutdown of services

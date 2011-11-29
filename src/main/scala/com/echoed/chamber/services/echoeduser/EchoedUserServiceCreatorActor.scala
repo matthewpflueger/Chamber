@@ -5,14 +5,10 @@ import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.domain.EchoedUser
-import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
-import com.echoed.chamber.services.facebook.FacebookServiceLocator
 import com.echoed.chamber.services.twitter.TwitterServiceLocator
 
 import com.echoed.chamber.services.facebook.{FacebookServiceLocator, FacebookService}
-import scalaz._
-import Scalaz._
 import akka.dispatch.Future
 import com.echoed.chamber.dao.views.ClosetDao
 

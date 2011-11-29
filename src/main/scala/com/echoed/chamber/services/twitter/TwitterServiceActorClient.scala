@@ -2,7 +2,6 @@ package com.echoed.chamber.services.twitter
 
 import akka.actor.ActorRef
 import twitter4j.auth.{RequestToken, AccessToken}
-import akka.dispatch.Future
 import com.echoed.chamber.domain.{TwitterUser, TwitterStatus, TwitterFollower,Echo}
 
 

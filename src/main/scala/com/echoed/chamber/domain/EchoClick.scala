@@ -1,7 +1,6 @@
 package com.echoed.chamber.domain
 
 import java.util.Date
-import java.net.URI
 
 
 case class EchoClick(

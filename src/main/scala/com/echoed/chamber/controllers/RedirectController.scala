@@ -1,11 +1,11 @@
 package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod, RequestParam}
+import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.services.EchoService
+import com.echoed.chamber.services.echo.EchoService
 import com.echoed.chamber.domain.EchoPossibility
 import org.eclipse.jetty.continuation.ContinuationSupport
 import org.springframework.web.servlet.ModelAndView

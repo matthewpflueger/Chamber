@@ -3,18 +3,13 @@ package com.echoed.chamber.controllers
 import org.springframework.stereotype.Controller
 import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.facebook.{FacebookService, FacebookServiceLocator}
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
 import com.echoed.util.CookieManager
 import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
-import com.echoed.chamber.services.EchoService
-import akka.util.BoxedType._
-import scalaz._
-import Scalaz._
-import com.echoed.chamber.domain.{EchoedUser, EchoPossibility}
+import com.echoed.chamber.services.echo.EchoService
 import org.springframework.web.servlet.ModelAndView
 
 

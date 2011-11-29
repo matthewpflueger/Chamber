@@ -1,11 +1,17 @@
 package com.echoed.chamber.services
 
-import java.util.UUID
+
+case class ErrorMessage(
+        message: String,
+        cause: Option[Throwable] = None) extends Throwable(
+                message,
+                cause.orNull) with Message {
+
+    def this(cause: Throwable) = this(cause.getMessage, Option(cause))
+}
 
 
-abstract case class ErrorMessage(
-        version: Int,
-        description: Option[String] = None) extends Message(version)
+
 
 
 

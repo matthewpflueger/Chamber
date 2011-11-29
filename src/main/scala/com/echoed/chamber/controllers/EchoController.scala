@@ -3,7 +3,6 @@ package com.echoed.chamber.controllers
 import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.services.EchoService
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -12,6 +11,7 @@ import akka.dispatch.Future
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.bind.annotation._
 import com.echoed.chamber.domain.{EchoClick, EchoPossibility}
+import com.echoed.chamber.services.echo.{EchoResponseMessage, EchoRequestMessage, EchoService}
 
 
 @Controller
@@ -105,13 +105,7 @@ class EchoController {
         })
     }
 
-    case class EchoItParameters(
-            @BeanProperty var facebookMessage: String = null,
-            @BeanProperty var postToFacebook: Boolean = false,
-            @BeanProperty var twitterMessage: String = null,
-            @BeanProperty var postToTwitter: Boolean = false,
-            @BeanProperty var echoedUserId: String = null,
-            @BeanProperty var echoPossibility: String = null)
+
 
 
     @RequestMapping(value = Array("/it"), method = Array(RequestMethod.GET))
@@ -125,7 +119,6 @@ class EchoController {
         if (echoedUserId != null) echoItParameters.echoedUserId = echoedUserId
         if (echoPossibilityId != null) echoItParameters.echoPossibility = echoPossibilityId
 
-        logger.debug("Echoing {}", echoItParameters)
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
@@ -134,13 +127,14 @@ class EchoController {
             new ModelAndView(errorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
+            logger.debug("Echoing {}", echoItParameters)
 
-            echoService.echo(echoedUserId, echoPossibilityId, confirmationParameters).map { tuple => //TODO really should be its own class...
-                    logger.debug("Successfully echoed {}", tuple)
-                    val modelAndView = new ModelAndView(echoItView)
-                    modelAndView.addObject("echo", tuple._1)
-                    modelAndView.addObject("facebookPost", tuple._2)
-                    //modelAndView.addObject("twitterStatus", tuple._3)
+            echoService.echo(echoItParameters.createEchoRequestMessage).map { echoResponseMessage =>
+                    logger.debug("Received {}", echoResponseMessage)
+                    val modelAndView = echoResponseMessage.fold(
+                        errorMessage => new ModelAndView(errorView, "errorMessage", errorMessage),
+                        echoFull => new ModelAndView(echoItView, "echoFull", echoFull)
+                    )
                     continuation.setAttribute("modelAndView", modelAndView)
                     continuation.resume
             }
@@ -191,3 +185,27 @@ class EchoController {
 
 }
 
+case class EchoItParameters(
+            @BeanProperty var facebookMessage: String = null,
+            @BeanProperty var postToFacebook: Boolean = false,
+            @BeanProperty var twitterMessage: String = null,
+            @BeanProperty var postToTwitter: Boolean = false,
+            @BeanProperty var echoedUserId: String = null,
+            @BeanProperty var echoPossibility: String = null) {
+
+        def this() = this(
+            null,
+            false,
+            null,
+            false,
+            null,
+            null)
+
+        def createEchoRequestMessage = new EchoRequestMessage(
+                echoedUserId,
+                echoPossibility,
+                Option(facebookMessage),
+                postToFacebook,
+                Option(twitterMessage),
+                postToTwitter)
+}

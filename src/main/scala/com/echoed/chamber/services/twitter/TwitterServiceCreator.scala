@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.twitter
 
-import akka.dispatch.{CompletableFuture, Future}
+import akka.dispatch.Future
 import twitter4j.auth.AccessToken
 
 trait TwitterServiceCreator {
