@@ -30,12 +30,3 @@ abstract case class ResponseMessage[R, M <: Message, E <: ErrorMessage](
         case Right(b) => fb(b)
     }
 }
-
-
-
-
-
-
-
-
-

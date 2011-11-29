@@ -190,6 +190,8 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
             given("a click on an Echoed Facebook post")
             webDriver.navigate.to(testUserLoginPageUrl)
+            webDriver.manage().deleteAllCookies()
+            webDriver.navigate.to(testUserLoginPageUrl)
             webDriver.findElement(By.id("email")).sendKeys(testUserEmail)
             val pass = webDriver.findElement(By.id("pass"))
             pass.sendKeys(testUserPassword)

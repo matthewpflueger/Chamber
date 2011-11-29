@@ -24,6 +24,7 @@
             <arg column="echoBoughtOn" javaType="Date" />
             <arg column="echoPrice" javaType="String" />
             <arg column="echoImageUrl" javaType="String" />
+            <arg column="landingPageUrl" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -36,7 +37,8 @@
                 E.id as echoId,
                 E.boughtOn as echoBoughtOn,
                 E.imageUrl as echoImageUrl,
-                E.price as echoPrice
+                E.price as echoPrice,
+                E.landingPageUrl as landingPageUrl
         from EchoedUser EU
         left outer join Echo E on EU.id = E.echoedUserId
         where EU.id = #{id}
