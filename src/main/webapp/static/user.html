@@ -3,233 +3,228 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title></title>
-<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
-<script type="text/javascript" src="jquery.masonry.min.js"></script>
-<script type="text/javascript" src="jquery.isotope.min.js"></script>   
-<script type="text/javascript" src="jquery.imagesloaded.js"></script> 
-<script type="text/javascript" src="jquery.blockUI.js"></script>
-<script type="text/javascript" src="jquery.infinitescroll.min.js"></script> 
-<script>
+<script type="text/javascript" src="http://v1-cdn.echoed.com/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="http://v1-cdn.echoed.com/jquery.masonry.min.js"></script>
+<script type="text/javascript" src="http://v1-cdn.echoed.com/jquery.isotope.min.js"></script>
+<script type="text/javascript" src="http://v1-cdn.echoed.com/jquery.imagesloaded.js"></script>
+<script type="text/javascript" src="http://v1-cdn.echoed.com/jquery.infinitescroll.min.js"></script>
 
-var loading = null;
-var contentContainer = null;
-var currentAnchor = null;
-var currentNav = null;
-var currentPage = null;
+<script type='text/javascript' src="http://v1-cdn.echoed.com/json2.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/underscore-min.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/backbone.js"></script>
 
-$(document).ready(function(){
-	setInterval("checkAnchor()",300);
-	content = $('#content'); 
+<script type='text/javascript'>
+
+$(document).ready(function() {
+    Echoed.init();
 });
 
-$('#header-nav').live('click',function(){
-	checkAnchor();
-});
+var EventAggregator = _.extend({}, Backbone.Events);
+//Event Aggregator
 
-
-function checkAnchor(){
-	if(document.location.hash == '')
-		document.location.hash = '#exhibit'; // SET default
-	
-	var params = document.location.hash.substr(1).split('/'); //SPLIT THE STRING
-	var page = params[0];
-	
-	if(page != currentPage){
-		
-		currentPage = page;
-		
-		var newNavigation = $('#' + page +'_nav');
-		
-		updateCurrentNav(newNavigation);
-		var jsonUrl = page + '.json';
-
-		switch(page){
-			case 'friends':
-				$.ajax({
-					url: jsonUrl,
-					dataType: "json",
-					success: function(data){
-						generateFriends(data);
-						updateCurrentNav(newNavigation);
-					}
-				});			
-				break;
-			case 'exhibit':
-				$.ajax({
-					url: jsonUrl,
-					dataType: "json",
-					success: function(data){
-						generateExhibit(data);
-						updateCurrentNav(newNavigation);
-					}
-				});			
-				break;
-			default:
-				break;
-		}
-	}
-}
-
-$('#content-selector a').live('click',function(){
-	var selector = $(this).attr('data-filter');
-	$('#closet').isotope({ filter: selector });
-});	
-
-function generateFriends(data){
-	var friends = $('<div id="friends"></div>');
-	var content = $('#content');
-	content.html('');
-	content.append(friends);
-	friends.isotope({
-		layoutMode: 'fitRows',
-		getSortData:{
-			text: function($elem){
-				return $elem.find(".text").text();
-				}
-			}
-		});
-	$.each(data.friends, function(index,friend){
-		var friendDiv = $('<div class="friend item_wrap ' + friend.name+  '" friend="' + friend.name.toLowerCase() + '"></div>');
-			friendDiv.prepend($('<img>').attr("src","http://graph.facebook.com/" + friend.id + "/picture"));
-			$('<div class="text"></div>').html(friend.name).appendTo(friendDiv);				
-			friendDiv.imagesLoaded(function(){
-				friends.append($(this)).isotope('appended',$(this));
-			});
-		});
-}
-
-function generateExhibit(data){
-	var closet = $('<div id="closet"></div>');
-	var selectorContainer = $('<div id="content-selector-container"></div>');
-	var selector = $('<div id="content-selector"></div>');
-	var content = $('#content');
-	
-	
-	var categoryHash = {};
-	content.html('');
-	selectorContainer.append(selector);
-	content.append(selectorContainer);	
-	
-	closet.append('<div style="width:1px;"></div>');
-	
-
-	selector.isotope({
-		getSortData: {
-			text: function($elem){
-				return $elem.attr("data-filter");
-			}
-		}
-	});
-	
-	categoryHash["All"] = "*";
-	var anc = $('<a></a>').attr("href","#exhibit").attr("data-filter","*").html("All")
-	selector.append(anc).isotope('reloadItems').isotope({sortBy: 'text'});
-	
-	content.append(closet);	
-	closet.isotope({});
-	
-	var that = this;
-	
-	$.each(data.products, function(index,product){
-
-
-		var itemWrap = $('<div></div>').addClass("item_wrap").addClass(product.category);		
-		var itemHover = $('<div></div>').appendTo(itemWrap).css("display","none").addClass('item_hover');
-		var itemHoverWrap = $('<div></div>').appendTo(itemHover).html(product.text).addClass("item_hover_wrap");
-		var image = $('<img />').attr("src",product.imageUrl).appendTo(itemWrap);					
-		
-		closet.append(itemWrap);
-		closet.imagesLoaded(function(){
-			closet.isotope('appended',(itemWrap));
-		});		
-		if(categoryHash[product.category] == null){
-			categoryHash[product.category] = product.category;
-			var anc = $('<a></a>').attr("href","#exhibit/" + product.category).attr("data-filter","." + product.category).html(product.category)
-			selector.append(anc).isotope('reloadItems').isotope({sortBy: 'text'});
-		}
-	});
-	
-	
-}
-
-function updateCurrentNav(newNav){
-	if(currentNav != null){
-		currentNav.removeClass("current");
-	}
-	currentNav = newNav;
-	currentNav.addClass("current");
-}
-
-$('.item_wrap').live({
-	mouseenter:
-		function(){
-			$(this).children('.item_hover').fadeIn('fast');
-		},
-	mouseleave:
-		function(){
-			$(this).children('.item_hover').fadeOut('fast');
-		}
-});
-
-
-$.Isotope.prototype._getCenteredMasonryColumns = function() {
-    this.width = this.element.width();
-    
-    var parentWidth = this.element.parent().width();
-    
-                  // i.e. options.masonry && options.masonry.columnWidth
-    var colW = this.options.masonry && this.options.masonry.columnWidth ||
-                  // or use the size of the first item
-                  this.$filteredAtoms.outerWidth(true) ||
-                  // if there's no items, use size of container
-                  parentWidth;
-    
-    var cols = Math.floor( parentWidth / colW );
-	
-    // i.e. this.masonry.cols = ....
-    this.masonry.cols = cols;
-    // i.e. this.masonry.columnWidth = ...
-    this.masonry.columnWidth = colW;
-  };
-  
-  $.Isotope.prototype._masonryReset = function() {
-    // layout-specific props
-    this.masonry = {};
-    // FIXME shouldn't have to call this again
-    this._getCenteredMasonryColumns();
-    var i = this.masonry.cols;
-    this.masonry.colYs = [];
-    while (i--) {
-      this.masonry.colYs.push( 0 );
+Echoed = {
+    Views: {
+        Pages:{},
+        Components:{}
+    },
+    Models:{},
+    Collections:{},
+    init: function() {
+        var router = new Echoed.Router({EvAg: EventAggregator});
+        var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
+        router.bind('all', function(route) {
+        });
+        Backbone.history.start();
     }
-  };
-
-  $.Isotope.prototype._masonryResizeChanged = function() {
-    var prevColCount = this.masonry.cols;
-    // get updated colCount
-    this._getCenteredMasonryColumns();
-    return ( this.masonry.cols !== prevColCount );
-  };
-  
-  $.Isotope.prototype._masonryGetContainerSize = function() {
-    var unusedCols = 0,
-        i = this.masonry.cols;
-    // count unused columns
-    while ( --i ) {
-      if ( this.masonry.colYs[i] !== 0 ) {
-        break;
-      }
-      unusedCols++;
-    }
-    
-    return {
-          height : Math.max.apply( Math, this.masonry.colYs ),
-          // fit container to columns that have been used;
-          width : (this.masonry.cols - unusedCols) * this.masonry.columnWidth 
-        };
 };
 
+Echoed.Models.Product = Backbone.Model.extend({
+    initialize: function(){
+    }
+});
+
+Echoed.Router = Backbone.Router.extend({
+    initialize: function(options) {
+        _.bindAll(this,'exhibit','friends');
+        this.EvAg = options.EvAg;
+        this.page = null;
+
+    },
+    routes:{
+        "exhibit": "exhibit",
+        "exhibit/:id": "exhibit",
+        "friends": "friends"
+    },
+    exhibit: function(id) {
+        if(!id) selector = "*";
+        else selector = "." + id;
+
+        if(this.page != "Summary"){
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector});
+        }
+        else{
+            this.EvAg.trigger('filter/change',selector);
+        }
+        this.page = "Summary";
+    },
+    friends: function() {
+        pageView = new Echoed.Views.Pages.Friends({EvAg: this.EvAg});
+        this.page = "Friends";
+    }
+});
+
+Echoed.Views.Pages.Exhibit = Backbone.View.extend({
+    el: '#content',
+    initialize: function(options){
+        _.bindAll(this,'render','addProduct','filterProducts');
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('products/add', this.addProduct);
+        this.EvAg.bind('filter/change', this.filterProducts);
+        this.render(options.Filter);
+    },
+    render: function(filter){
+        var template = _.template($('#templates-pages-exhibit').html());
+        var productCollection = this.productCollection;
+        $(this.el).html(template);
+        var ex = this;
+        var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg});
+        var exhibit = $('#exhibit');
+        exhibit.append('<div style="width:1px;"></div>');
+        exhibit.isotope({});
+        var jsonUrl = "http://v1-cdn.echoed.com/exhibit.json";
+        $.ajax({
+            url: jsonUrl,
+            dataType: "json",
+            success: function(data){
+                $.each(data.products, function(index,product){
+                    var productModel = new Echoed.Models.Product(product);
+                    ex.addProduct(productModel);
+                    ex.EvAg.trigger('category/add',product.category,product.category);
+                });
+            }
+        });
+    },
+    filterProducts: function(selector){
+        $('#exhibit').isotope({filter: selector});
+    },
+    addProduct: function(productModel){
+
+        var exhibit = $('#exhibit');
+        var productDiv = $('<div></div>');
+        var productComponent = new Echoed.Views.Components.Product({el: productDiv, model:productModel});
+        productDiv.hide().appendTo(exhibit);
+
+        exhibit.imagesLoaded(function(){
+            exhibit.isotope('appended',productDiv);
+            productDiv.show();
+        });
+    }
+});
+
+Echoed.Views.Pages.Friends = Backbone.View.extend({
+    el: '#content',
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    render: function(){
+        $(this.el).html('');
+    }
+});
+
+Echoed.Views.Components.ProductSelector = Backbone.View.extend({
+    el: '#content-selector',
+    initialize: function(options){
+        _.bindAll(this,'addSelector','triggerClick');
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('category/add',this.addSelector);
+        this.categoryHash = {};
+        this.render();
+    },
+    events:{
+        "click a": "triggerClick"
+    },
+    render: function(){
+        $(this.el).isotope({layoutMode: 'fitRows'});
+        this.addSelector("","All");
+    },
+    addSelector: function(selector,text){
+        if(!this.categoryHash[text]){
+            this.categoryHash[text] = 1;
+            var anc = $('<a></a>').attr("href","#exhibit/" + selector).html(text);
+            $(this.el).append(anc).isotope('appended',anc);
+        }
+    },
+    triggerClick: function(e){
+        $(this.el).find("a").removeClass("current");
+        $(e.target).addClass("current");
+    }
+});
+
+Echoed.Views.Components.Nav = Backbone.View.extend({
+    el: "#header-nav",
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    render: function(){
+
+    },
+    events:{
+      "click a": "triggerClick"
+    },
+    triggerClick: function(e){
+        $(this.el).find(".current").removeClass("current");
+        $(e.target).parent().addClass("current");
+    }
+
+
+});
+
+Echoed.Views.Components.Product = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'showOverlay','hideOverlay');
+        this.el = options.el;
+        this.render();
+    },
+    events:{
+        "mouseenter": "showOverlay",
+        "mouseleave": "hideOverlay"
+    },
+    render: function(){
+        var template = _.template($('#templates-components-product').html());
+        this.el.addClass("item_wrap").addClass(this.model.get("category")).html(template(this.model.toJSON()));
+        return this;
+    },
+    showOverlay: function(){
+        this.el.find('.item_hover').fadeIn('fast');
+    },
+    hideOverlay: function(){
+        this.el.find('.item_hover').fadeOut('fast');
+    }
+
+});
 </script>
+<script type="text/template" id="templates-components-product">
+    <div class="item_hover" style="display:none;">
+        <div class="item_hover_wrap">
+            <%= text %>
+        </div>
+    </div>
+    <img class="exhibit_image" src="<%= imageUrl %>"/>
+</script>
+
+<script type="text/templates" id="templates-pages-exhibit">
+    <div id="content-selector-container">
+        <div id="content-selector"></div>
+    </div>
+    <div id="exhibit">
+    </div>
+</script>
+
+
 <link rel="stylesheet" type="text/css" href="echoed.css"/>
 </head>
 <body>
@@ -272,4 +267,226 @@ $.Isotope.prototype._getCenteredMasonryColumns = function() {
          </div>
     </div>
 </body>
-</html>	
+</html>
+
+<script>
+/*
+var loading = null;
+var contentContainer = null;
+var currentAnchor = null;
+var currentNav = null;
+var currentPage = null;
+
+$(document).ready(function(){
+	setInterval("checkAnchor()",300);
+	content = $('#content');
+});
+
+$('#header-nav').live('click',function(){
+	checkAnchor();
+});
+
+
+function checkAnchor(){
+	if(document.location.hash == '')
+		document.location.hash = '#exhibit'; // SET default
+
+	var params = document.location.hash.substr(1).split('/'); //SPLIT THE STRING
+	var page = params[0];
+
+	if(page != currentPage){
+
+		currentPage = page;
+
+		var newNavigation = $('#' + page +'_nav');
+
+		updateCurrentNav(newNavigation);
+		var jsonUrl = page + '.json';
+
+		switch(page){
+			case 'friends':
+				$.ajax({
+					url: jsonUrl,
+					dataType: "json",
+					success: function(data){
+						generateFriends(data);
+						updateCurrentNav(newNavigation);
+					}
+				});
+				break;
+			case 'exhibit':
+				$.ajax({
+					url: jsonUrl,
+					dataType: "json",
+					success: function(data){
+						generateExhibit(data);
+						updateCurrentNav(newNavigation);
+					}
+				});
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+$('#content-selector a').live('click',function(){
+	var selector = $(this).attr('data-filter');
+	$('#closet').isotope({ filter: selector });
+});
+
+function generateFriends(data){
+	var friends = $('<div id="friends"></div>');
+	var content = $('#content');
+	content.html('');
+	content.append(friends);
+	friends.isotope({
+		layoutMode: 'fitRows',
+		getSortData:{
+			text: function($elem){
+				return $elem.find(".text").text();
+				}
+			}
+		});
+	$.each(data.friends, function(index,friend){
+		var friendDiv = $('<div class="friend item_wrap ' + friend.name+  '" friend="' + friend.name.toLowerCase() + '"></div>');
+			friendDiv.prepend($('<img>').attr("src","http://graph.facebook.com/" + friend.id + "/picture"));
+			$('<div class="text"></div>').html(friend.name).appendTo(friendDiv);
+			friendDiv.imagesLoaded(function(){
+				friends.append($(this)).isotope('appended',$(this));
+			});
+		});
+}
+
+function generateExhibit(data){
+	var closet = $('<div id="closet"></div>');
+	var selectorContainer = $('<div id="content-selector-container"></div>');
+	var selector = $('<div id="content-selector"></div>');
+	var content = $('#content');
+
+
+	var categoryHash = {};
+	content.html('');
+	selectorContainer.append(selector);
+	content.append(selectorContainer);
+
+	closet.append('<div style="width:1px;"></div>');
+
+
+	selector.isotope({
+		getSortData: {
+			text: function($elem){
+				return $elem.attr("data-filter");
+			}
+		}
+	});
+
+	categoryHash["All"] = "*";
+	var anc = $('<a></a>').attr("href","#exhibit").attr("data-filter","*").html("All")
+	selector.append(anc).isotope('reloadItems').isotope({sortBy: 'text'});
+
+	content.append(closet);
+	closet.isotope({});
+
+	var that = this;
+
+	$.each(data.products, function(index,product){
+
+
+		var itemWrap = $('<div></div>').addClass("item_wrap").addClass(product.category);
+		var itemHover = $('<div></div>').appendTo(itemWrap).css("display","none").addClass('item_hover');
+		var itemHoverWrap = $('<div></div>').appendTo(itemHover).html(product.text).addClass("item_hover_wrap");
+		var image = $('<img />').attr("src",product.imageUrl).appendTo(itemWrap);
+
+		closet.append(itemWrap);
+		closet.imagesLoaded(function(){
+			closet.isotope('appended',(itemWrap));
+		});
+		if(categoryHash[product.category] == null){
+			categoryHash[product.category] = product.category;
+			var anc = $('<a></a>').attr("href","#exhibit/" + product.category).attr("data-filter","." + product.category).html(product.category)
+			selector.append(anc).isotope('reloadItems').isotope({sortBy: 'text'});
+		}
+	});
+
+
+}
+
+function updateCurrentNav(newNav){
+	if(currentNav != null){
+		currentNav.removeClass("current");
+	}
+	currentNav = newNav;
+	currentNav.addClass("current");
+}
+
+$('.item_wrap').live({
+	mouseenter:
+		function(){
+			$(this).children('.item_hover').fadeIn('fast');
+		},
+	mouseleave:
+		function(){
+			$(this).children('.item_hover').fadeOut('fast');
+		}
+});
+
+
+$.Isotope.prototype._getCenteredMasonryColumns = function() {
+    this.width = this.element.width();
+
+    var parentWidth = this.element.parent().width();
+
+                  // i.e. options.masonry && options.masonry.columnWidth
+    var colW = this.options.masonry && this.options.masonry.columnWidth ||
+                  // or use the size of the first item
+                  this.$filteredAtoms.outerWidth(true) ||
+                  // if there's no items, use size of container
+                  parentWidth;
+
+    var cols = Math.floor( parentWidth / colW );
+
+    // i.e. this.masonry.cols = ....
+    this.masonry.cols = cols;
+    // i.e. this.masonry.columnWidth = ...
+    this.masonry.columnWidth = colW;
+  };
+
+  $.Isotope.prototype._masonryReset = function() {
+    // layout-specific props
+    this.masonry = {};
+    // FIXME shouldn't have to call this again
+    this._getCenteredMasonryColumns();
+    var i = this.masonry.cols;
+    this.masonry.colYs = [];
+    while (i--) {
+      this.masonry.colYs.push( 0 );
+    }
+  };
+
+  $.Isotope.prototype._masonryResizeChanged = function() {
+    var prevColCount = this.masonry.cols;
+    // get updated colCount
+    this._getCenteredMasonryColumns();
+    return ( this.masonry.cols !== prevColCount );
+  };
+
+  $.Isotope.prototype._masonryGetContainerSize = function() {
+    var unusedCols = 0,
+        i = this.masonry.cols;
+    // count unused columns
+    while ( --i ) {
+      if ( this.masonry.colYs[i] !== 0 ) {
+        break;
+      }
+      unusedCols++;
+    }
+
+    return {
+          height : Math.max.apply( Math, this.masonry.colYs ),
+          // fit container to columns that have been used;
+          width : (this.masonry.cols - unusedCols) * this.masonry.columnWidth
+        };
+};
+*/
+</script>
