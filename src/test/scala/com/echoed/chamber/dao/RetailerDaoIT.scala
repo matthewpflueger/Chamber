@@ -24,6 +24,7 @@ class RetailerDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     val retailer = dataCreator.retailer
 
     def cleanup() {
+        retailerDao.deleteByName(retailer.name)
         retailerDao.deleteById(retailer.id)
         retailerDao.findById(retailer.id) should be (null)
     }

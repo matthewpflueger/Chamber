@@ -55,7 +55,7 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
             echoList should not be (null)
             echoList.length should equal (echoes.length)
 
-            for (echo <- echoes) echoList.find(_.id == echo.id) should not be (None)
+            for (echo <- echoes) echoList.find(_.echoId == echo.id) should not be (None)
         }
 
 

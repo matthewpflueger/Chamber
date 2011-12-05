@@ -1,7 +1,6 @@
 package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{CookieValue, RequestMethod, RequestMapping}
 import com.echoed.chamber.domain.EchoPossibility
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
@@ -9,6 +8,7 @@ import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import org.eclipse.jetty.continuation.ContinuationSupport
 import org.springframework.web.servlet.ModelAndView
 import org.slf4j.LoggerFactory
+import org.springframework.web.bind.annotation._
 
 
 @Controller
@@ -47,7 +47,30 @@ class ClosetController {
 
             continuation.undispatch()
         })
+    }
 
+    @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def exhibit(
+            @RequestParam(value = "echoedUserId", required = true) echoedUserId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (continuation.isExpired) {
+            logger.error("Request expired to view exhibit for user {}", echoedUserId)
+            new ModelAndView(errorView)
+        } else Option(continuation.getAttribute("exhibit")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
+                echoedUserService.getCloset.map { closet =>
+                    continuation.setAttribute("exhibit", closet.echoes)
+                    continuation.resume()
+                }
+            }
+
+            continuation.undispatch()
+        })
     }
 }

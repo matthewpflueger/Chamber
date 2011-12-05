@@ -6,7 +6,7 @@
             <idArg column="echoedUserId" javaType="String" />
             <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult" />
         </constructor>
-        <collection property="echoes" ofType="com.echoed.chamber.domain.Echo" javaType="ArrayList" resultMap="echoResult" />
+        <collection property="echoes" ofType="com.echoed.chamber.domain.views.EchoView" javaType="ArrayList" resultMap="echoViewResult" />
     </resultMap>
 
     <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
@@ -17,28 +17,56 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="echoResult" type="com.echoed.chamber.domain.Echo">
+    <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoView">
         <constructor>
             <idArg column="echoId" javaType="String" />
             <arg column="echoBoughtOn" javaType="Date" />
-            <arg column="echoPrice" javaType="_float" />
             <arg column="echoImageUrl" javaType="String" />
-            <arg column="landingPageUrl" javaType="String" />
+            <arg column="echoPrice" javaType="_float" />
+            <arg column="echoLandingPageUrl" javaType="String" />
+            <arg column="echoTotalClicks" javaType="_int" />
+            <arg column="echoCredit" javaType="_float" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="retailerName" javaType="String" />
+            <arg column="retailerSettingsId" javaType="String" />
+            <arg column="retailerSettingsMinClicks" javaType="_int" />
+            <arg column="retailerSettingsMinPercentage" javaType="_float" />
+            <arg column="retailerSettingsMaxPercentage" javaType="_float" />
+            <arg column="facebookPostId" javaType="String" />
+            <arg column="facebookPostFacebookId" javaType="String" />
+            <arg column="twitterStatusId" javaType="String" />
+            <arg column="twitterStatusTwitterId" javaType="String" />
         </constructor>
     </resultMap>
 
     <select id="findByEchoedUserId" resultMap="closetResult">
-    	select
-                EU.id as echoedUserId,
-                EU.email as echoedUserEmail,
-                EU.name as echoedUserName,
-                E.id as echoId,
-                E.boughtOn as echoBoughtOn,
-                E.imageUrl as echoImageUrl,
-                E.price as echoPrice,
-                E.landingPageUrl as landingPageUrl
+        select
+            EU.id as echoedUserId,
+            EU.email as echoedUserEmail,
+            EU.name as echoedUserName,
+            E.id as echoId,
+            E.boughtOn as echoBoughtOn,
+            E.imageUrl as echoImageUrl,
+            coalesce(E.price, 0)  as echoPrice,
+            E.landingPageUrl as echoLandingPageUrl,
+            coalesce(E.totalClicks, 0) as echoTotalClicks,
+            coalesce(E.credit, 0) as echoCredit,
+            R.id as retailerId,
+            R.name as retailerName,
+            RS.id as retailerSettingsId,
+            coalesce(RS.minClicks, 0) as retailerSettingsMinClicks,
+            coalesce(RS.minPercentage, 0) as retailerSettingsMinPercentage,
+            coalesce(RS.maxPercentage, 0) as retailerSettingsMaxPercentage,
+            FP.id as facebookPostId,
+            FP.facebookId as facebookPostFacebookId,
+            TS.id as twitterStatusId,
+            TS.twitterId as twitterStatusTwitterId
         from EchoedUser EU
-        left outer join Echo E on EU.id = E.echoedUserId
+            left outer join Echo E on EU.id = E.echoedUserId
+            left outer join Retailer R on E.retailerId = R.id
+            left outer join RetailerSettings RS on E.retailerSettingsId = RS.id
+            left outer join FacebookPost FP on E.facebookPostId = FP.id
+            left outer join TwitterStatus TS on E.twitterStatusId = TS.id
         where EU.id = #{id}
     </select>
 
