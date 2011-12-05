@@ -1,23 +1,44 @@
 package com.echoed.chamber.domain
 
+import java.util.{UUID, Date}
 
-import reflect.BeanProperty
-import com.codahale.jerkson.JsonSnakeCase
 
-@JsonSnakeCase
 case class FacebookUser(
         id: String,
-        firstName: String,
-        lastName: String,
+        updatedOn: Date,
+        createdOn: Date,
+        echoedUserId: String,
+        facebookId: String,
+        name: String,
+        email: String,
         link: String,
         gender: String,
-        email: String,
         timezone: String,
-        locale: String) {
+        locale: String,
+        accessToken: String) {
 
-    @BeanProperty var username: String = _
-    @BeanProperty var accessToken: String = _
-    @BeanProperty var echoedUserId: String = _
+    def this(
+            echoedUserId: String,
+            facebookId: String,
+            name: String,
+            email: String,
+            link: String,
+            gender: String,
+            timezone: String,
+            locale: String,
+            accessToken: String) = this(
+        UUID.randomUUID.toString,
+        new Date,
+        new Date,
+        echoedUserId,
+        facebookId,
+        name,
+        email,
+        link,
+        gender,
+        timezone,
+        locale,
+        accessToken)
 
-    def getId = id
 }
+

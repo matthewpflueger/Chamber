@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.RetailerUserDao">
+    <resultMap id="retailerUserResult" type="com.echoed.chamber.domain.RetailerUser">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="name" javaType="String" />
+            <arg column="email" javaType="String" />
+            <arg column="salt" javaType="String" />
+            <arg column="password" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <select id="findById" resultMap="retailerUserResult">
+        select * from RetailerUser where id = #{id}
+    </select>
+
+    <select id="findByEmail" resultMap="retailerUserResult">
+        select * from RetailerUser where email = #{email}
+    </select>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.RetailerUser">
+        insert into RetailerUser(
+    			id,
+    			createdOn,
+    			retailerId,
+                name,
+                email,
+                salt,
+                password)
+    	values (
+    			#{id},
+    			#{createdOn},
+    			#{retailerId},
+                #{name},
+                #{email},
+                #{salt},
+                #{password})
+    </insert>
+
+    <delete id="deleteById">
+        delete from RetailerUser where id=#{id}
+    </delete>
+</mapper>

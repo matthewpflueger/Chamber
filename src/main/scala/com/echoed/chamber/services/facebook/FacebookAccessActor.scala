@@ -26,27 +26,29 @@ class FacebookAccessActor extends Actor {
 
     override def preStart {
         //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
-        // where placeholder values were not being resolved
+        //where placeholder values were not being resolved
         {
             clientId = properties.getProperty("clientId")
             clientSecret = properties.getProperty("clientSecret")
             redirectUrl = properties.getProperty("redirectUrl")
-            //clientId != null && clientSecret != null && redirectUrl != null
-        } ensuring (clientId != null && clientSecret != null && redirectUrl != null, "Missing parameters")
+            clientId != null && clientSecret != null && redirectUrl != null
+        } ensuring (_ == true, "Missing parameters")
     }
 
     def receive = {
-        case ("accessToken", code: String) => {
+        case ("accessToken", code: String, queryString: String) => {
             logger.debug("Requesting access token for code {}", code)
-            self.channel ! FacebookBatcher.getAccessToken(clientId, clientSecret, code, redirectUrl)
+            self.channel ! FacebookBatcher.getAccessToken(clientId, clientSecret, code, redirectUrl + queryString)
             logger.debug("Got access token for code {}", code)
         }
         case ("me", accessToken: String) => {
             logger.debug("Requesting me with access token {}", accessToken)
-            val me = getFacebookBatcher(accessToken).graph("me", new TypeReference[FacebookUser] {}).get
-            me.accessToken = accessToken
-            self.channel ! me
-            logger.debug("Got me {}", me)
+            val facebookUser = getFacebookBatcher(accessToken)
+                    .graph("me", new TypeReference[Me] {})
+                    .get
+                    .createFacebookUser(accessToken)
+            self.channel ! facebookUser
+            logger.debug("Got me {}", facebookUser)
         }
         case ("friends", accessToken: String, facebookId: String) => {
             logger.debug("Requesting friends for {} with access token {}", facebookId, accessToken)
@@ -63,9 +65,9 @@ class FacebookAccessActor extends Actor {
                 new Param("message", facebookPost.message),
                 new Param("picture", facebookPost.picture),
                 new Param("link", facebookPost.link)).get()
-            facebookPost.objectId = result
-            self.channel ! facebookPost
-            logger.debug("Successfully posted {}", facebookPost)
+            val fp = facebookPost.copy(facebookId = result)
+            self.channel ! fp
+            logger.debug("Successfully posted {}", fp)
         }
     }
 

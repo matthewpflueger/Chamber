@@ -15,6 +15,7 @@
 	    default-destroy-method="destroy">
 
 
+    <!--suppress SpringModelInspection -->
     <context:property-placeholder
                 location="classpath:database.properties"
                 ignore-unresolvable="true"
@@ -27,7 +28,7 @@
         <prop key="jdbc.url">jdbc:mysql://localhost:3306/Echoed</prop>
         <prop key="jdbc.username">root</prop>
         <prop key="jdbc.password">password</prop>
-        <prop key="mybatis.sqlMapConfig">classpath:SqlMapConfig.xml</prop>
+        <prop key="mybatis.config">classpath:mybatis.xml</prop>
         <prop key="mybatis.executorType">BATCH</prop>
     </util:properties>
 
@@ -44,7 +45,7 @@
 
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource" />
-        <property name="configLocation" value="${mybatis.sqlMapConfig}" />
+        <property name="configLocation" value="${mybatis.config}" />
     </bean>
 
     <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
@@ -99,10 +100,30 @@
        <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
+    <bean id="facebookFriendDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookFriendDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
+    <bean id="retailerSettingsDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerSettingsDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
+    <bean id="retailerUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerUserDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
+    <bean id="twitterFollowerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.TwitterFollowerDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
 
     <bean id="closetDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.views.ClosetDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
+
 
 </beans>

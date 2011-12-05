@@ -2,12 +2,18 @@ package com.echoed.chamber.dao
 
 import com.echoed.chamber.domain.TwitterStatus
 
+import java.util.{List => JList}
+
 trait TwitterStatusDao {
 
-  def selectTwitterStatusWithId(id:String): TwitterStatus
+    def findById(id: String): TwitterStatus
 
-  def insertOrUpdate(twitterStatus:TwitterStatus): Int
-  //def updateStatus(twitterStatus:TwitterStatus): Int
-  //def insertStatus(twitterStatus:TwitterStatus): Int
+    def insert(twitterStatus:TwitterStatus): Int
+
+    def findByEchoedUserId(echoedUserId: String): JList[TwitterStatus]
+
+    def updatePostedOn(twitterStatus: TwitterStatus): Int
+
+    def deleteByEchoedUserId(echoedUserId: String): Int
 
 }

@@ -10,8 +10,8 @@ class FacebookAccessActorClient extends FacebookAccess {
     @BeanProperty var facebookAccessActor: ActorRef = _
 
 
-    def getAccessToken(code: String) =
-            (facebookAccessActor ? ("accessToken", code)).mapTo[String]
+    def getAccessToken(code: String, queryString: String) =
+            (facebookAccessActor ? ("accessToken", code, queryString)).mapTo[String]
 
     def getMe(accessToken: String) =
             (facebookAccessActor ? ("me", accessToken)).mapTo[FacebookUser]

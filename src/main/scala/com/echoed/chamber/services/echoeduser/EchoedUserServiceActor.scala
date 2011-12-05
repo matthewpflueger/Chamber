@@ -37,18 +37,18 @@ class EchoedUserServiceActor(
             self.channel ! this.facebookService
         }
 
-        case ("updateTwitterStatus", status:String) =>{
-            //TODO Check to make sure there is an active TwitterService
-            //TODO this is just a stop gap for now - need a better to handle no TwitterService...
-            if (twitterService != null) {
-                val channel = self.channel
-                twitterService.updateStatus(status).map { channel ! _ }
-                //TODO add ONRESULT etc...
-            } else {
-                //TODO FIXME!!!!!  Should not be sending a null...
-                self.channel ! null
-            }
-        }
+//        case ("updateTwitterStatus", status:String) =>{
+//            //TODO Check to make sure there is an active TwitterService
+//            //TODO this is just a stop gap for now - need a better to handle no TwitterService...
+//            if (twitterService != null) {
+//                val channel = self.channel
+//                //twitterService.updateStatus(status).map { channel ! _ }
+//                //TODO add ONRESULT etc...
+//            } else {
+//                //TODO FIXME!!!!!  Should not be sending a null...
+//                self.channel ! null
+//            }
+//        }
 
         case("getTwitterFollowers") =>{
             self.channel ! twitterService.getFollowers().get.asInstanceOf[Array[TwitterFollower]]

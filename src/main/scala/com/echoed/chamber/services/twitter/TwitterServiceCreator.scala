@@ -4,7 +4,7 @@ import akka.dispatch.Future
 import twitter4j.auth.AccessToken
 
 trait TwitterServiceCreator {
-    def createTwitterService(): Future[TwitterService]
+    def createTwitterService(callbackUrl: String): Future[TwitterService]
 
     def createTwitterServiceWithAccessToken(accessToken: AccessToken): Future[TwitterService]
 

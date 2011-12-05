@@ -6,13 +6,6 @@ import akka.dispatch.Future
 import com.echoed.util.FutureHelper
 import com.echoed.chamber.domain.{TwitterUser, TwitterStatus, TwitterFollower,Echo}
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 11/7/11
- * Time: 3:58 PM
- * To change this template use File | Settings | File Templates.
- */
 
 trait TwitterService {
     def twitterUser: Option[TwitterUser] = FutureHelper.get[TwitterUser](getTwitterUser _)
@@ -33,9 +26,9 @@ trait TwitterService {
 
     def echo(echo:Echo, message:String): Future[TwitterStatus]
 
-    def updateStatus(status: String): Future[TwitterStatus]
+//    def updateStatus(status: String): Future[TwitterStatus]
 
-    def getStatus(statusId: String): Future[TwitterStatus]
+//    def getStatus(statusId: String): Future[TwitterStatus]
 
     def getRetweetIds(tweetId: String): Future[Array[Long]]
 

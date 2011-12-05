@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.bind.annotation._
 import com.echoed.chamber.domain.{EchoClick, EchoPossibility}
 import com.echoed.chamber.services.echo.{EchoResponseMessage, EchoRequestMessage, EchoService}
+import java.net.URLEncoder
 
 
 @Controller
@@ -36,11 +37,10 @@ class EchoController {
     def button(
             //TODO cookies should be encrypted
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            echoPossibility: EchoPossibility,
+            echoPossibilityParameters: EchoPossibilityParameters,
             httpServletResponse: HttpServletResponse) = {
-        echoPossibility.echoedUserId = echoedUserId
-        echoPossibility.step = "button" //TODO externalize this...
-        recordEchoPossibility(echoPossibility, httpServletResponse)
+        if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
+        echoService.recordEchoPossibility(echoPossibilityParameters.createButtonEchoPossibility)
         new ModelAndView(buttonView)
     }
 
@@ -48,56 +48,51 @@ class EchoController {
     @RequestMapping(method = Array(RequestMethod.GET))
     def echo(
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
-            echoPossibility: EchoPossibility,
+            echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        echoPossibility.echoedUserId = echoedUserId
-        echoPossibility.step = "login"
+        if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
+
+        def loginModelAndView = {
+            val echoPossibility = echoPossibilityParameters.createLoginEchoPossibility
+            echoService.recordEchoPossibility(echoPossibility)
+            val modelAndView = new ModelAndView(loginView)
+//            modelAndView.addObject("redirectUrl", URLEncoder.encode("http://v1-api.echoed.com/facebook/login", "UTF-8"))
+            modelAndView.addObject(
+                "twitterUrl",
+                echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter?", true))
+//                "http://v1-api.echoed.com/twitter?%s" format URLEncoder.encode(echoPossibility.asUrlParams(), "UTF-8"))
+            modelAndView.addObject("redirectUrl",
+                URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login?"), "UTF-8"))
+
+//            modelAndView.addObject("redirectUrl", URLEncoder.encode(
+//                "http://v1-api.echoed.com/facebook/login?%s" format echoPossibility.generateUrlParameters,
+//                "UTF-8"))
+        }
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (Option(echoPossibility.echoedUserId) == None) {
-            logger.debug("Unknown user trying to echo {}", echoPossibility)
-            recordEchoPossibility(echoPossibility, httpServletResponse)
-            new ModelAndView(loginView)
+        if (Option(echoPossibilityParameters.echoedUserId) == None) {
+            logger.debug("Unknown user trying to echo {}", echoPossibilityParameters)
+            loginModelAndView
         } else if (continuation.isExpired) {
-            logger.error("Request expired to echo {}", echoPossibility)
-            new ModelAndView(loginView)
+            logger.error("Request expired to echo {}", echoPossibilityParameters)
+            loginModelAndView
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
             continuation.suspend(httpServletResponse)
 
-            val futureEchoPossibility = echoService.getEchoPossibility(echoPossibilityId)
-            val futureEchoedUser = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).map { echoedUserService =>
+                echoedUserService.getEchoedUser.map { echoedUser =>
+                    val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
+                    echoService.recordEchoPossibility(echoPossibility)
 
-            Future {
-                try {
                     val modelAndView = new ModelAndView(confirmView)
-                    val echoedUser = futureEchoedUser.get.echoedUser.get
                     modelAndView.addObject("echoedUser", echoedUser)
+                    modelAndView.addObject("echoPossibility", echoPossibility)
 
-                    val confirmEchoPossibility = try { futureEchoPossibility.get } catch { case e => echoPossibility }
-                    modelAndView.addObject("echoPossibility", confirmEchoPossibility)
                     continuation.setAttribute("modelAndView", modelAndView)
-
-                    confirmEchoPossibility.step = "confirm"
-                    confirmEchoPossibility.echoedUserId = echoedUser.id
-                    recordEchoPossibility(confirmEchoPossibility, httpServletResponse)
-                } catch {
-                    case e =>
-                        logger.debug(
-                            "Failed echo confirmation for {} with {} due to {}",
-                            Array(echoedUserId, echoPossibility, e))
-
-                        recordEchoPossibility(echoPossibility, httpServletResponse)
-
-                        val modelAndView = new ModelAndView(loginView)
-                        modelAndView.addObject("echoPossibility", echoPossibility)
-
-                        continuation.setAttribute("modelAndView", modelAndView)
-                } finally {
-                    continuation.resume()
+                    continuation.resume
                 }
             }
 
@@ -106,19 +101,14 @@ class EchoController {
     }
 
 
-
-
     @RequestMapping(value = Array("/it"), method = Array(RequestMethod.GET))
     def it(
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
             echoItParameters: EchoItParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
         if (echoedUserId != null) echoItParameters.echoedUserId = echoedUserId
-        if (echoPossibilityId != null) echoItParameters.echoPossibility = echoPossibilityId
-
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
@@ -173,39 +163,6 @@ class EchoController {
 
     }
 
-
-    def recordEchoPossibility(echoPossibility: EchoPossibility, httpServletResponse: HttpServletResponse) {
-        echoService.recordEchoPossibility(echoPossibility)
-                .onComplete(_.value.get.fold(e => logger.error("Failed to record {} due to {}", echoPossibility, e),
-                                             p => logger.debug("Recorded {}", p)))
-                .onTimeout(_ => logger.error("Timeout recording {}", echoPossibility))
-
-        httpServletResponse.addCookie(cookieManager.createCookie("echoPossibility", echoPossibility.id))
-    }
-
 }
 
-case class EchoItParameters(
-            @BeanProperty var facebookMessage: String = null,
-            @BeanProperty var postToFacebook: Boolean = false,
-            @BeanProperty var twitterMessage: String = null,
-            @BeanProperty var postToTwitter: Boolean = false,
-            @BeanProperty var echoedUserId: String = null,
-            @BeanProperty var echoPossibility: String = null) {
 
-        def this() = this(
-            null,
-            false,
-            null,
-            false,
-            null,
-            null)
-
-        def createEchoRequestMessage = new EchoRequestMessage(
-                echoedUserId,
-                echoPossibility,
-                Option(facebookMessage),
-                postToFacebook,
-                Option(twitterMessage),
-                postToTwitter)
-}

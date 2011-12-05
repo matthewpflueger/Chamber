@@ -4,6 +4,8 @@
     <resultMap id="facebookPostResult" type="com.echoed.chamber.domain.FacebookPost">
         <constructor>
             <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
             <arg column="message" javaType="String" />
             <arg column="picture" javaType="String" />
             <arg column="link" javaType="String" />
@@ -11,8 +13,7 @@
             <arg column="echoedUserId" javaType="String" />
             <arg column="echoId" javaType="String" />
             <arg column="postedOn" javaType="Date" />
-            <arg column="createdOn" javaType="Date" />
-            <arg column="objectId" javaType="String" />
+            <arg column="facebookId" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -21,14 +22,14 @@
     	select * from FacebookPost where echoId = #{echoId}
     </select>
 
-    <insert id="insert" parameterType="com.echoed.chamber.domain.FacebookPost">
-        <!-- setting the uuid in code as we need it to form a proper post url - see FacebookServiceActor -->
-        <!--<selectKey keyProperty="id" resultType="string" order="BEFORE">-->
-            <!--select uuid()-->
-        <!--</selectKey>-->
+    <select id="findByEchoedUserId" resultMap="facebookPostResult">
+    	select * from FacebookPost where echoedUserId = #{echoedUserId}
+    </select>
 
+    <insert id="insert" parameterType="com.echoed.chamber.domain.FacebookPost">
     	insert into FacebookPost(
                 id,
+                createdOn,
                 message,
                 picture,
                 link,
@@ -36,10 +37,10 @@
                 echoedUserId,
                 echoId,
                 postedOn,
-                createdOn,
-                objectId)
+                facebookId)
         values (
                 #{id},
+                #{createdOn},
                 #{message},
                 #{picture},
                 #{link},
@@ -47,14 +48,18 @@
                 #{echoedUserId},
                 #{echoId},
                 #{postedOn},
-                #{createdOn},
-                #{objectId})
+                #{facebookId})
     </insert>
 
     <update id="updatePostedOn" parameterType="com.echoed.chamber.domain.FacebookPost">
         update FacebookPost set
-            postedOn=#{postedOn},
-            objectId=#{objectId}
+                postedOn=#{postedOn},
+                facebookId=#{facebookId}
+            where id=#{id}
     </update>
+
+    <delete id="deleteByEchoedUserId">
+        delete from FacebookPost where echoedUserId=#{echoedUserId}
+    </delete>
 
 </mapper>

@@ -22,7 +22,7 @@ trait EchoedUserService {
     def assignFacebookService(facebookService:FacebookService): Future[FacebookService]
 
     // TWITTER RELATED FUNCTIONS
-    def updateTwitterStatus(status:String): Future[TwitterStatus]
+    //def updateTwitterStatus(status:String): Future[TwitterStatus]
     def getTwitterFollowers(): Future[Array[TwitterFollower]]
 
     def echoToFacebook(echo: Echo, message: String): Future[FacebookPost]

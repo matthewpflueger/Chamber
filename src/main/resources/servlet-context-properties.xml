@@ -18,6 +18,7 @@
 	    default-destroy-method="destroy">
 
 
+    <!--suppress SpringModelInspection -->
     <context:property-placeholder
                 location="classpath:servlet-context.properties"
                 ignore-resource-not-found="true"

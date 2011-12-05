@@ -63,7 +63,7 @@
         <property name="echoService" ref="echoService" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="buttonView" value="redirect:${buttonViewUrl}" />
-        <property name="loginView" value="redirect:${loginViewUrl}" />
+        <property name="loginView" value="login" />
         <property name="confirmView" value="confirm" />
         <property name="echoItView" value="echoIt" />
         <property name="errorView" value="redirect:${errorViewUrl}" />

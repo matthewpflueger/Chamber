@@ -4,6 +4,9 @@
     <resultMap id="retailerResult" type="com.echoed.chamber.domain.Retailer">
         <constructor>
             <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="name" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -11,12 +14,23 @@
         select * from Retailer where id = #{id}
     </select>
 
-    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.Retailer">
+    <insert id="insert" parameterType="com.echoed.chamber.domain.Retailer">
         insert into Retailer(
-    			id)
-    		values (
-    			#{id})
-            on duplicate key update
-                id=#{id}
+    			id,
+    			createdOn,
+                name)
+    	values (
+    			#{id},
+    			#{createdOn},
+                #{name})
     </insert>
+
+    <delete id="deleteById">
+        delete from Retailer where id=#{id}
+    </delete>
+
+    <delete id="deleteByName">
+        delete from Retailer where name=#{name}
+    </delete>
+
 </mapper>

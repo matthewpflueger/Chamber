@@ -1,20 +1,59 @@
 package com.echoed.chamber.domain
 
-import reflect.BeanProperty
-import com.codahale.jerkson.JsonSnakeCase
 
-@JsonSnakeCase
+import java.util.{Date, UUID}
+
+
 case class TwitterUser (
         id: String,
-        username: String,
+        createdOn: Date,
+        updatedOn: Date,
+        echoedUserId: String,
+        twitterId: String,
+        screenName: String,
         name: String,
+        profileImageUrl: String,
         location: String,
-        timezone: String
-        ){
+        timezone: String,
+        accessToken: String,
+        accessTokenSecret: String) {
 
-  @BeanProperty var accessToken: String = _
-  @BeanProperty var accessTokenSecret: String = _
-  @BeanProperty var echoedUserId: String = _
+
+    def this(
+            echoedUserId: String,
+            twitterId: String,
+            screenName: String,
+            name: String,
+            profileImageUrl: String,
+            location: String,
+            timezone: String,
+            accessToken: String,
+            accessTokenSecret: String) = this(
+        UUID.randomUUID.toString,
+        new Date,
+        new Date,
+        echoedUserId,
+        twitterId,
+        screenName,
+        name,
+        profileImageUrl,
+        location,
+        timezone,
+        accessToken,
+        accessTokenSecret
+    )
+
+//    def this(user: User, accessToken: String, accessTokenSecret: String) = this(
+//        null,
+//        user.getId.toString,
+//        user.getScreenName,
+//        user.getName,
+//        user.getProfileImageURL.toExternalForm,
+//        user.getLocation,
+//        user.getTimeZone,
+//        accessToken,
+//        accessTokenSecret)
 
 }
+
 

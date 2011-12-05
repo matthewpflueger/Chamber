@@ -25,7 +25,6 @@ class ClosetController {
     @RequestMapping(method = Array(RequestMethod.GET))
     def closet(
             @CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
-            echoPossibility: EchoPossibility,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 

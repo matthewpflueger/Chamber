@@ -12,18 +12,19 @@ import org.springframework.test.context.{TestContextManager, ContextConfiguratio
 import tags.IntegrationTest
 import java.util.Properties
 import org.openqa.selenium.{By, WebDriver}
+import com.echoed.util.DataCreator
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
 class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
-    @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = null
-    @Autowired @BeanProperty var twitterUserDao: TwitterUserDao = null
-    @Autowired @BeanProperty var echoHelper: EchoHelper = null
-    @Autowired @BeanProperty var webDriver: WebDriver = null
-
-    @Autowired @BeanProperty var urls: Properties = null
+    @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
+    @Autowired @BeanProperty var twitterUserDao: TwitterUserDao = _
+    @Autowired @BeanProperty var echoHelper: EchoHelper = _
+    @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var dataCreator: DataCreator = _
+    @Autowired @BeanProperty var urls: Properties = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
@@ -55,25 +56,26 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
 
         scenario("unknown user clicks on Twitter login button with a valid echoPossibility and is redirected to confirm page post login", IntegrationTest) {
             val testUserTwitterId ="47851866"
-            val testUserEmail = "MisterJWU"
+            val testUserScreenName = "MisterJWU"
             val testUserPass = "gateway2"
 
-            echoedUserDao.deleteByEmail(testUserEmail)
-            //twitterUserDao.deleteByEmail(testUserEmail)
+            val twitterUser = dataCreator.twitterUser
+            echoedUserDao.deleteByScreenName(twitterUser.screenName)
+            twitterUserDao.deleteByScreenName(twitterUser.screenName)
 
             given("a request to login and echo using Twitter credentials")
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")
 
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
+            val (e, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
             webDriver.manage().deleteCookieNamed("echoedUserId")
-            webDriver.navigate.to(echoUrl + echoPossibility.generateUrlParameters)
-            webDriver.getCurrentUrl should equal (loginViewUrl)
+            webDriver.navigate.to(echoUrl + e.generateUrlParameters)
+            webDriver.getCurrentUrl should startWith (echoUrl)
 
             //NOTE: we are assuming the user already has a valid Facebook session and has already approved Echoed...
             webDriver.findElement(By.id("twitterLogin")).click()
-            webDriver.findElement(By.id("username_or_email")).sendKeys(testUserEmail)
+            webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
             val pass = webDriver.findElement(By.id("password"))
-            pass.sendKeys(testUserPass)
+            pass.sendKeys(dataCreator.twitterPassword)
             pass.submit()
 
 
@@ -83,16 +85,14 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             //webDriver.findElement(By.id("echoit")).click()
 
             and("create an EchoedUser account using the Facebook info")
-            val echoedUser = echoedUserDao.findByTwitterUserId(testUserTwitterId)
-            echoedUser.username should be (testUserEmail)
-            echoPossibility.echoedUserId = echoedUser.id
+            val dbtwitterUser = twitterUserDao.findByScreenName(testUserScreenName)
+            dbtwitterUser should not be (null)
 
-            val twitterUser = twitterUserDao.selectTwitterUserWithId(echoedUser.twitterUserId)
-            //facebookUser.email should be (testUserEmail)
-            twitterUser.echoedUserId should equal (echoedUser.id)
+            val echoedUser = echoedUserDao.findByTwitterUserId(dbtwitterUser.id)
+            echoedUser should not be (null)
+            val echoPossibility = e.copy(echoedUserId = echoedUser.id, step = "confirm")
 
             and("record the EchoPossibility in the database")
-            echoPossibility.step = "confirm"
             echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 

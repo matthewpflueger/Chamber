@@ -14,7 +14,7 @@ import twitter4j.auth.AccessToken
 
 trait TwitterServiceLocator {
 
-    def getTwitterService(): Future[TwitterService]
+    def getTwitterService(callbackUrl: String): Future[TwitterService]
 
     def getTwitterServiceWithToken(oAuthToken: String): Future[TwitterService]
 

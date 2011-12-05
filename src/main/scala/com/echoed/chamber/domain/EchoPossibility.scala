@@ -1,37 +1,44 @@
 package com.echoed.chamber.domain
 
-import reflect.BeanProperty
 import java.util.Date
-import org.apache.commons.codec.binary.Base64
-import collection.mutable.ArrayBuilder
 import java.net.URLEncoder
+import scala.collection.mutable.ArrayBuilder
+import org.apache.commons.codec.binary.Base64
+import scala.Option
+import scala.collection.{JavaConversions, JavaConverters}
 
 case class EchoPossibility(
-                      var _id: String,
-        @BeanProperty var retailerId: String = null,
-        @BeanProperty var customerId: String = null,
-        @BeanProperty var productId: String = null,
-        @BeanProperty var boughtOn: Date = null,
-        @BeanProperty var step: String = null,
-        @BeanProperty var orderId: String = null,
-        @BeanProperty var price: String = null,
-        @BeanProperty var imageUrl: String = null,
-        @BeanProperty var echoedUserId: String = null,
-        @BeanProperty var echoId: String = null,
-        @BeanProperty var landingPageUrl: String = null) {
+        id: String,
+        createdOn: Date,
+        updatedOn: Date,
+        retailerId: String,
+        customerId: String,
+        productId: String,
+        boughtOn: Date,
+        step: String,
+        orderId: String,
+        price: Float,
+        imageUrl: String,
+        echoedUserId: String,
+        echoId: String,
+        landingPageUrl: String) {
 
-    def this() = {
-        this(null)
-    }
-
-    private val encoding: String = "UTF-8"
-
-    def getId = id
-
-    def id = {
+    def this(
+            retailerId: String,
+            customerId: String,
+            productId: String,
+            boughtOn: Date,
+            step: String,
+            orderId: String,
+            price: Float,
+            imageUrl: String,
+            echoedUserId: String,
+            echoId: String,
+            landingPageUrl: String) = this(
         //NOTE: do not include any changing attributes in the hash calc.  For example, step should never
         //be included as it changes with every step the user takes to echo a purchase (button, login, etc)
-        val optionalId: Option[String] = for {
+        (for {
+            e <- Option("UTF-8")
             r <- Option(retailerId)
             c <- Option(customerId)
             p <- Option(productId)
@@ -39,18 +46,42 @@ case class EchoPossibility(
             o <- Option(orderId)
         } yield {
             val arrayBuilder = ArrayBuilder.make[Byte]
-            arrayBuilder ++= r.getBytes(encoding)
-            arrayBuilder ++= c.getBytes(encoding)
-            arrayBuilder ++= p.getBytes(encoding)
-            arrayBuilder ++= b.toString.getBytes(encoding)
-            arrayBuilder ++= o.getBytes(encoding)
+            arrayBuilder ++= r.getBytes(e)
+            arrayBuilder ++= c.getBytes(e)
+            arrayBuilder ++= p.getBytes(e)
+            arrayBuilder ++= b.toString.getBytes(e)
+            arrayBuilder ++= o.getBytes(e)
             Base64.encodeBase64URLSafeString(arrayBuilder.result())
+        }).orNull,
+        new Date,
+        new Date,
+        retailerId,
+        customerId,
+        productId,
+        boughtOn,
+        step,
+        orderId,
+        price,
+        imageUrl,
+        echoedUserId,
+        echoId,
+        landingPageUrl)
+
+
+    def asUrlParams(prefix: String = "", encode: Boolean = false) = {
+        val params = (List[String]() /: asMap) {(list, keyValue) =>
+            val (key, value) = keyValue
+            (Option(value), encode) match {
+                case (Some(v), false) => (key + "=" + v.toString) :: list
+                case (Some(v), true) => (key + "=" + URLEncoder.encode(v.toString, "UTF-8")) :: list
+                case _ => list
+            }
         }
-        optionalId.orNull
+        prefix + params.mkString("&")
     }
 
-    def generateUrlParameters: String = {
-        val params: Option[String] = for {
+    def generateUrlParameters = {
+        (for {
             r <- Option(retailerId)
             c <- Option(customerId)
             p <- Option(productId)
@@ -77,7 +108,17 @@ case class EchoPossibility(
                     .append("&landingPageUrl=")
                     .append(URLEncoder.encode(l, "UTF-8"))
                     .toString
+        }).getOrElse("")
+    }
+
+    def asMap = {
+        (Map[String, String]() /: this.getClass.getDeclaredFields) {(a, f) =>
+            f.setAccessible(true)
+            Option(f.get(this)) match {
+                case Some(v) => a + (f.getName -> v.toString)
+                case _ => a
+            }
         }
-        params.getOrElse("")
     }
 }
+

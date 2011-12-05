@@ -5,7 +5,7 @@ import akka.dispatch.Future
 
 trait FacebookServiceCreator {
 
-    def createFacebookServiceUsingCode(code: String): Future[FacebookService]
+    def createFacebookServiceUsingCode(code: String, queryString: String): Future[FacebookService]
 
     def createFacebookServiceUsingFacebookUserId(facebookUserId: String): Future[FacebookService]
 

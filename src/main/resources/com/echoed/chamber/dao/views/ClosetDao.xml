@@ -12,9 +12,8 @@
     <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
         <constructor>
             <idArg column="echoedUserId" javaType="String" />
+            <arg column="echoedUserName" javaType="String" />
 			<arg column="echoedUserEmail" javaType="String" />
-            <arg column="echoedUserFirstName" javaType="String" />
-			<arg column="echoedUserLastName" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -22,7 +21,7 @@
         <constructor>
             <idArg column="echoId" javaType="String" />
             <arg column="echoBoughtOn" javaType="Date" />
-            <arg column="echoPrice" javaType="String" />
+            <arg column="echoPrice" javaType="_float" />
             <arg column="echoImageUrl" javaType="String" />
             <arg column="landingPageUrl" javaType="String" />
         </constructor>
@@ -32,8 +31,7 @@
     	select
                 EU.id as echoedUserId,
                 EU.email as echoedUserEmail,
-                EU.firstName as echoedUserFirstName,
-                EU.lastName as echoedUserLastName,
+                EU.name as echoedUserName,
                 E.id as echoId,
                 E.boughtOn as echoBoughtOn,
                 E.imageUrl as echoImageUrl,

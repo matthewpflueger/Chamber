@@ -63,18 +63,19 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
         scenario("a known user navigates to echoed.com/closet and is shown their closet", IntegrationTest) {
 
-            val echoedUser = new EchoedUser(null, "matthew.pflueger", "matthew.pflueger@gmail.com", "Matthew", "Pflueger", null, null)
+//            val echoedUser = new EchoedUser(null, "matthew.pflueger", "matthew.pflueger@gmail.com", "Matthew", "Pflueger", null, null)
+            val echoedUser = new EchoedUser("Matthew Pflueger", "matthew.pflueger@gmail.com", null, null, null)
             echoedUserDao.deleteByEmail("matthew.pflueger@gmail.com")
             echoedUserDao.insert(echoedUser)
 
             val (echoPossibility1, _) = echoHelper.setupEchoPossibility(step = "echoed", echoedUserId = echoedUser.id)
-            val echo1 = new Echo(echoPossibility1)
+            val echo1 = new Echo(echoPossibility1, "retailerSettingsId", 0, 0)
             echoDao.deleteByEchoPossibilityId(echoPossibility1.id)
             echoDao.insert(echo1)
 
             val (echoPossibility2, _) = echoHelper.setupEchoPossibility(
                 step = "echoed", echoedUserId = echoedUser.id, retailerId = "testRetailerId2")
-            val echo2 = new Echo(echoPossibility2)
+            val echo2 = new Echo(echoPossibility2, "retailerSettingsId", 0, 0)
             echoDao.deleteByEchoPossibilityId(echoPossibility2.id)
             echoDao.insert(echo2)
 
@@ -103,9 +104,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
             val pageSource = webDriver.getPageSource
             pageSource should include("Matthew Pflueger")
-            pageSource should include(echo1.price)
             pageSource should include(echo1.imageUrl)
-            pageSource should include(echo2.price)
             pageSource should include(echo2.imageUrl)
 
             //TODO and("log the activity")

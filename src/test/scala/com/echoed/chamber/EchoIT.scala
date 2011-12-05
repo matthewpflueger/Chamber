@@ -1,6 +1,5 @@
 package com.echoed.chamber
 
-import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
@@ -14,11 +13,13 @@ import scala.collection.JavaConversions
 import org.openqa.selenium.{By, Cookie, WebDriver}
 import com.echoed.chamber.domain.{Echo, FacebookUser, FacebookPost, EchoedUser}
 import com.echoed.chamber.dao._
+import com.echoed.util.DataCreator
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
-class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
+class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     @Autowired @BeanProperty var echoDao: EchoDao = _
     @Autowired @BeanProperty var echoClickDao: EchoClickDao = _
@@ -27,6 +28,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var dataCreator: DataCreator = _
 
     @Autowired @BeanProperty var urls: Properties = _
 
@@ -46,22 +48,28 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         echoUrl != null && echoItUrl != null && loginViewUrl != null && confirmViewUrl != null
     } ensuring (_ == true, "Missing parameters")
 
-    /*
-        curl -v 'https://graph.facebook.com/177687295582534/accounts/test-users?access_token=177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA&name=TestUser&permissions=email,publish_stream,offline_access&method=post&installed=true'
-
-        //OLD {"id":"100003128184602","access_token":"AAAChmwwiYUYBAJG7MomgcAy1ZCg0fEuXBSjM45n80FV0CHofT1VLZCeGp805f5qt6odHkKBMUwB9n75GJZCrzmbc3nZCDUZBpuxT4WyXliQZDZD","login_url":"https:\/\/www.facebook.com\/platform\/test_account_login.php?user_id=100003128184602&n=R0ZipMc3NCuutvb","email":"testuser_jasdmrk_testuser\u0040tfbnw.net","password":"970285973"}
-        {"id":"100003177284815","access_token":"AAAChmwwiYUYBAKI2bxTrAgnIgLMok1r8Xel3lgBqu0uqR8RtFaxdzXVEzek7MYNlkIxZB4TXcZCZCZBnzM8auZAWZAZCJLNotEhu1tL24ImxAZDZD","login_url":"https:\/\/www.facebook.com\/platform\/test_account_login.php?user_id=100003177284815&n=8L2tMNJBPGMWlAE","email":"testuser_jpmknrv_testuser\u0040tfbnw.net","password":"273385869"}
-    */
-    val testUserFacebookId = "100003177284815"
-    val testUserEmail = "testuser_jpmknrv_testuser@tfbnw.net"
-    val testUserPassword = "273385869"
-    val testUserAccessToken = "AAAChmwwiYUYBAKI2bxTrAgnIgLMok1r8Xel3lgBqu0uqR8RtFaxdzXVEzek7MYNlkIxZB4TXcZCZCZBnzM8auZAWZAZCJLNotEhu1tL24ImxAZDZD"
-    val testUserLoginPageUrl = "https://www.facebook.com/platform/test_account_login.php?user_id=100003177284815&n=8L2tMNJBPGMWlAE"
 
     //Set in "a known user clicks to confirm their echo and is directed to thanks for echoing page"
     //Used in the following tests for clicking on the post and tracking the click...
     var echo: Echo = null
     var facebookPost: FacebookPost = null
+
+    var echoedUser = dataCreator.echoedUser
+    var facebookUser = dataCreator.facebookUser
+
+    def cleanUp {
+        echoedUserDao.deleteByEmail(echoedUser.email)
+        echoedUserDao.deleteByScreenName(echoedUser.screenName)
+        facebookUserDao.deleteByEmail(facebookUser.email)
+    }
+    override def beforeAll() {
+        assert(echoedUser.facebookUserId == facebookUser.id)
+        cleanUp
+        echoedUserDao.insert(echoedUser)
+        facebookUserDao.insertOrUpdate(facebookUser)
+    }
+
+    override def afterAll = cleanUp
 
 
     feature("A user can share their purchase by clicking on the Echo button on a retailer's purchase confirmation page") {
@@ -85,17 +93,14 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.manage().deleteCookieNamed("echoedUserId")
             webDriver.navigate.to(echoUrl + echoPossibility.generateUrlParameters)
 
-            then("redirect to the login page")
-            webDriver.getCurrentUrl should equal (loginViewUrl)
+            then("show the login page")
+            webDriver.getTitle should equal ("Login")
 
             and("record the EchoPossibility in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 
         scenario("a known user clicks on echo button with valid parameters and is redirected to confirmation page", IntegrationTest) {
-            val echoedUser = new EchoedUser(null, "matthew.pflueger", "matthew.pflueger@gmail.com", "Matthew", "Pflueger", null, null)
-            echoedUserDao.deleteByEmail("matthew.pflueger@gmail.com")
-            echoedUserDao.insert(echoedUser)
             val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "confirm", echoedUserId = echoedUser.id)
 
             given("a request to echo a purchase")
@@ -109,7 +114,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             val echoUrlWithParams = echoUrl + echoPossibility.generateUrlParameters
             webDriver.navigate().to(echoUrlWithParams)
 
-            then("redirect to the echo confirmation page")
+            then("show the echo confirmation page")
             webDriver.getCurrentUrl should equal (echoUrlWithParams) //we did not redirect...
             webDriver.getTitle should equal ("Popup")
 
@@ -120,15 +125,13 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
         scenario("a known user clicks to confirm their echo and is directed to thanks for echoing page", IntegrationTest) {
 
-            val echoedUser = new EchoedUser(null, null, testUserEmail, "TestUser", "TestUser", testUserFacebookId, null)
-            echoedUserDao.deleteByEmail(testUserEmail)
-            echoedUserDao.insert(echoedUser)
-            val facebookUser = new FacebookUser(testUserFacebookId, "TestUser", "TestUser", "", "male", testUserEmail, "", "")
-            facebookUser.accessToken = testUserAccessToken
-            facebookUser.echoedUserId = echoedUser.id
-            facebookUserDao.insertOrUpdate(facebookUser)
+            val e = dataCreator.echoPossibilities(0).copy(step = "confirm", echoedUserId = echoedUser.id)
+            val r = dataCreator.retailer
+            val s = dataCreator.retailerSettings(0)
 
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "confirm", echoedUserId = echoedUser.id)
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility(e, r, s)
+
+//            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "confirm", echoedUserId = echoedUser.id)
             echoHelper.echoPossibilityDao.insertOrUpdate(echoPossibility)
             echoDao.deleteByEchoPossibilityId(echoPossibility.id)
 
@@ -140,18 +143,12 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
                     .path("/")
                     .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
                     .build()
-            val echoPossibilityCookie = new Cookie.Builder("echoPossibility", echoPossibility.id)
-                    .domain(".echoed.com")
-                    .path("/")
-                    .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
-                    .build()
             webDriver.navigate.to("http://www.echoed.com")
             webDriver.manage().addCookie(echoedUserIdCookie)
-            webDriver.manage().addCookie(echoPossibilityCookie)
 
             val postToFacebook = true
             val facebookMessage = "This is my echoed purchase!"
-            webDriver.navigate().to("%s?postToFacebook=%s&facebookMessage=%s" format(echoItUrl, postToFacebook, facebookMessage))
+            webDriver.navigate().to("%s?postToFacebook=%s&facebookMessage=%s&echoPossibility=%s" format(echoItUrl, postToFacebook, facebookMessage, echoPossibility.id))
 
             then("show the thank you page")
             webDriver.getTitle should equal ("Thank you")
@@ -164,12 +161,10 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             facebookPost = facebookPostDao.findByEchoId(echo.id)
             facebookPost should not be (null)
             facebookPost.postedOn should not be (null)
-            facebookPost.objectId should not be (null)
+            facebookPost.facebookId should not be (null)
 
             and("update the EchoPossibility with the Echo information")
-            echoPossibility.echoId = echo.id
-            echoPossibility.step = "echoed"
-            echoHelper.validateEchoPossibility(echoPossibility, count)
+            echoHelper.validateEchoPossibility(echoPossibility.copy(echoId = echo.id, step = "echoed"), count)
         }
 
     }
@@ -184,20 +179,21 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             echo should not be (null)
             facebookPost should not be (null)
 
+
             //satisfies the when("the user is unknown (no echoedUserId") below...
             webDriver.navigate().to("http://www.echoed.com")
             webDriver.manage().deleteAllCookies()
 
             given("a click on an Echoed Facebook post")
-            webDriver.navigate.to(testUserLoginPageUrl)
+            webDriver.navigate.to(dataCreator.facebookUserLoginPageUrl)
             webDriver.manage().deleteAllCookies()
-            webDriver.navigate.to(testUserLoginPageUrl)
-            webDriver.findElement(By.id("email")).sendKeys(testUserEmail)
+            webDriver.navigate.to(dataCreator.facebookUserLoginPageUrl)
+            webDriver.findElement(By.id("email")).sendKeys(dataCreator.facebookUser.email)
             val pass = webDriver.findElement(By.id("pass"))
-            pass.sendKeys(testUserPassword)
+            pass.sendKeys(dataCreator.facebookUserPassword)
             pass.submit()
 
-            webDriver.navigate.to("http://www.facebook.com/profile.php?id=100003177284815&sk=wall")
+            webDriver.navigate.to("http://www.facebook.com/profile.php?id=%s&sk=wall" format dataCreator.facebookUser.facebookId)
             val allAnchors = JavaConversions.collectionAsScalaIterable(webDriver.findElements(By.tagName("a")))
             val url = "http://v1-api.echoed.com/echo/%s/%s" format(echo.id, facebookPost.id)
             val firstEcho = allAnchors.find(webElement => {
@@ -217,9 +213,9 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             and("record the EchoClick in the database")
             val echoClick = echoClickDao.findByEchoId(echo.id)
             echoClick should not be (null)
-            echoClick.echoedUserId should be (null)
-            echoClick.facebookPostId should equal (facebookPost.id)
-            echoClick.twitterStatusId should be (null)
+            echoClick.get(0).echoedUserId should be (null)
+            echoClick.get(0).facebookPostId should equal (facebookPost.id)
+            echoClick.get(0).twitterStatusId should be (null)
 
         }
 

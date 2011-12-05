@@ -29,14 +29,14 @@ class TwitterAccessActor extends Actor {
         {
             consumerKey = properties.getProperty("consumerKey")
             consumerSecret = properties.getProperty("consumerSecret")
-            callbackUrl = properties.getProperty("callbackUrl")
-            consumerKey != null && consumerSecret != null && callbackUrl != null
+            //callbackUrl = properties.getProperty("callbackUrl")
+            consumerKey != null && consumerSecret != null //&& callbackUrl != null
         } ensuring(_ == true, "Missing parameters")
     }
 
     def receive = {
 
-        case ("requestToken") => {
+        case ("requestToken", callbackUrl: String) => {
             val twitterHandler = getTwitterHandler(null)
             var requestToken: RequestToken = twitterHandler.getOAuthRequestToken(callbackUrl)
             val key: String = "requestToken:" + requestToken.getToken
@@ -60,44 +60,55 @@ class TwitterAccessActor extends Actor {
         case ("getUser", accessToken: String, accessTokenSecret: String, userId: Long) => {
             val twitterHandler = getTwitterHandler("accessToken:" + accessToken, accessToken, accessTokenSecret)
             val user: User = twitterHandler.showUser(userId)
-            val twitterUser: TwitterUser = new TwitterUser(user.getId.toString, user.getScreenName, user.getName, user.getLocation, user.getTimeZone)
+            val twitterUser: TwitterUser = new TwitterUser(
+                    null,
+                    user.getId.toString,
+                    user.getScreenName,
+                    user.getName,
+                    user.getProfileImageURL.toExternalForm,
+                    user.getLocation,
+                    user.getTimeZone,
+                    accessToken,
+                    accessTokenSecret)
+
             self.channel ! twitterUser
         }
 
         case ("getFollowers", accessToken: String, accessTokenSecret: String, userId: Long) => {
             logger.debug("Attempting to receive TwitterFollowers for UserId {} ", userId)
-            val twitterHandler = getTwitterHandler("accessToken:" + accessToken, accessToken, accessTokenSecret)
+            val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
             val idList: Array[Long] = twitterHandler.getFollowersIDs(userId, -1).getIDs
             var twitterFollowers: Array[TwitterFollower] = new Array[TwitterFollower](0);
             logger.debug("Size of twitter follower list: {}", idList.length)
             for (id <- idList) {
-                val twitterFollower: TwitterFollower = new TwitterFollower(userId.toString, id.toString, "None")
-                logger.debug("TwitterFollower with Id: {}", twitterFollower.twitterFollowerId)
+                //TODO the user id here is Twitter's user id, we need ours!
+                val twitterFollower: TwitterFollower = new TwitterFollower(userId.toString, id.toString, null)
+                logger.debug("Got {}", twitterFollower)
                 twitterFollowers :+= twitterFollower
             }
             logger.debug("TwitterFollowersArray Size: {}", twitterFollowers.length)
             self.channel ! twitterFollowers
         }
 
-        case ("updateStatus", accessToken: String, accessTokenSecret: String, statusString: String) => {
-            val key = "accessToken:" + accessToken
-            val twitterHandler = getTwitterHandler(key, accessToken, accessTokenSecret)
-            val status: Status = twitterHandler.updateStatus(statusString)
-            val twitterStatus: TwitterStatus = new TwitterStatus(status.getId.toString, status.getUser.getId.toString, status.getText, status.getCreatedAt, status.getSource, null, null)
-            self.channel ! twitterStatus
+        case ("updateStatus", accessToken: String, accessTokenSecret: String, twitterStatus: TwitterStatus) => {
+            val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
+            val status: Status = twitterHandler.updateStatus(twitterStatus.message)
+            self.channel ! twitterStatus.copy(
+                    twitterId = status.getId.toString,
+                    createdAt = status.getCreatedAt,
+                    text = status.getText,
+                    source = status.getSource)
         }
 
-        case ("getStatus", accessToken: String, accessTokenSecret: String, statusId: String) => {
-            val key = "accessToken:" + accessToken
-            val twitterHandler = getTwitterHandler(key, accessToken, accessTokenSecret)
-            val status: Status = twitterHandler.showStatus(statusId.toLong)
-            val twitterStatus: TwitterStatus = new TwitterStatus(status.getId.toString, status.getUser.getId.toString, status.getText, status.getCreatedAt, status.getSource, null, null)
-            self.channel ! twitterStatus
-        }
+//        case ("getStatus", accessToken: String, accessTokenSecret: String, statusId: String) => {
+//            val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
+//            val status: Status = twitterHandler.showStatus(statusId.toLong)
+//            val twitterStatus: TwitterStatus = new TwitterStatus(status) //status.getId.toString, status.getUser.getId.toString, status.getText, status.getCreatedAt, status.getSource, null, null)
+//            self.channel ! twitterStatus
+//        }
 
         case ("getRetweets", accessToken: String, accessTokenSecret: String, tweetId: String) => {
-            val key = "accessToken:" + accessToken
-            val twitterHandler = getTwitterHandler(key, accessToken, accessTokenSecret)
+            val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
             //val responseList = twitterHandler.getRetweets(tweetId.toLong)
             self.channel ! null
         }
@@ -106,6 +117,9 @@ class TwitterAccessActor extends Actor {
     private def getTwitterHandler(key: String): Twitter = {
         getTwitterHandler(key, null, null)
     }
+
+    private def getTwitterHandler(accessToken: String, accessTokenSecret: String): Twitter =
+        getTwitterHandler("accessToken:%s" format accessToken, accessToken, accessTokenSecret)
 
     private def getTwitterHandler(key: String, accessToken: String, accessTokenSecret: String) = {
 

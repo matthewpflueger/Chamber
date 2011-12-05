@@ -14,7 +14,7 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
 
         it("should return null for the id if missing properties") {
             given("a newly instantiated EchoPossibility")
-            val echoPossibility = new EchoPossibility
+            val echoPossibility = new EchoPossibility(null, null, null, null, null, null, 0, null, null, null, null)
 
             when("no properties have been set")
             then("the id should be null")
@@ -23,45 +23,66 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
 
         it("should return a url safe base 64 string when all necessary properties are set") {
             given("an EchoPossibility with all necessary properties set")
-            val (echoPossibility, expectedBase64Value) = EchoPossibilityHelper.getValidEchoPossibilityAndHash()
+            val echoPossibility = new EchoPossibility(
+                "retailerId",
+                "customerId",
+                "productId",
+                new Date,
+                null,
+                "orderId",
+                100,
+                "imageUrl",
+                null,
+                null,
+                "landingPageUrl")
 
             when("all necessary properties have been set")
             then("the id should return a valid base64 string")
-            echoPossibility.id should equal (expectedBase64Value)
+            echoPossibility.id should not be (null)
         }
-    }
-}
 
-object EchoPossibilityHelper {
-    def getValidEchoPossibilityAndHash(
-            //a normal base64 will have one or more '=' characters for padding - they are ripped off for url safe base64 strings...
-            expectedEchoPossibilityId: String = "dGVzdFJldGFpbGVySWR0ZXN0UmV0YWlsZXJDdXN0b21lcklkdGVzdFByb2R1Y3RJZFdlZCBOb3YgMDkgMTU6MzY6NTYgRVNUIDIwMTF0ZXN0T3JkZXJJZA",
-            retailerId: String = "testRetailerId",
-            customerId: String = "testRetailerCustomerId",
-            productId: String = "testProductId",
-            boughtOn: Date = new Date(1320871016126L), //Wed Nov 09 15:36:56 EST 2011,
-            step: String = "button",
-            orderId: String = "testOrderId",
-            price: String = "100", //one dollar
-            imageUrl: String = "http://v1-cdn.echoed.com/echo_demo_store-tie_thumb.jpeg",
-            echoedUserId: String = null,
-            echoId: String = null,
-            landingPageUrl: String = "http://echoed.com") = {
+        it("should return a map of its properties") {
+            given("an EchoPossibility")
+            val echoPossibility = new EchoPossibility(
+                "retailerId",
+                "customerId",
+                "productId",
+                new Date,
+                null,
+                "orderId",
+                100,
+                "imageUrl",
+                null,
+                null,
+                "landingPageUrl")
 
-        (new EchoPossibility(
-                expectedEchoPossibilityId,
-                retailerId,
-                customerId,
-                productId,
-                boughtOn,
-                step,
-                orderId,
-                price,
-                imageUrl,
-                echoedUserId,
-                echoId,
-                landingPageUrl),
+            when("asMap is called")
+            val map = echoPossibility.asMap
 
-        expectedEchoPossibilityId)
+            then("a map of all its properties should be returned")
+            map.get("retailerId").get should equal ("retailerId")
+        }
+
+        it("should return a url string of its properties") {
+            given("an EchoPossibility")
+            val echoPossibility = new EchoPossibility(
+                "retailerId",
+                "customerId",
+                "productId",
+                new Date,
+                null,
+                "orderId",
+                100,
+                "imageUrl",
+                null,
+                null,
+                "landingPageUrl")
+
+            when("asUrlParams is called")
+            val urlParams = echoPossibility.asUrlParams()
+
+            then("a string of all its properties should be returned in the form of url parameters")
+            urlParams should not be (null)
+        }
     }
 }

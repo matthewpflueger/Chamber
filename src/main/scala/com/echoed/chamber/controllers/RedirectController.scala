@@ -39,7 +39,7 @@ class RedirectController {
                     .onResult({
                 case echoPossibility: EchoPossibility =>
 
-                    val redirectUrl: String = echoPossibility.getImageUrl() //TODO REPLACE IMAGE URL WITH ACTUAL REDIRECT URL
+                    val redirectUrl: String = echoPossibility.imageUrl //TODO REPLACE IMAGE URL WITH ACTUAL REDIRECT URL
                     //TODO RECORD CLICK
 
                     logger.debug("Sending User to Url: {}", redirectUrl)

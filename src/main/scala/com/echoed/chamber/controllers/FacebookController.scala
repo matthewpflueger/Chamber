@@ -11,6 +11,7 @@ import com.echoed.util.CookieManager
 import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
 import com.echoed.chamber.services.echo.EchoService
 import org.springframework.web.servlet.ModelAndView
+import scala.collection.JavaConversions
 
 
 @Controller
@@ -33,23 +34,28 @@ class FacebookController {
     @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
     def login(
             @RequestParam("code") code: String,
-            @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
+            echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
+
+
+        val echoPossibility = echoPossibilityParameters.createFacebookEchoPossibility
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (Option(code) == None || continuation.isExpired) {
             logger.error("Request expired to login via Facebook with code {}", code)
+            echoService.recordEchoPossibility(echoPossibility)
             new ModelAndView(facebookLoginErrorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
             continuation.suspend(httpServletResponse)
 
-            logger.debug("Requesting EchoPossibility with id {}", echoPossibilityId)
-            val futureEchoPossibility = echoService.getEchoPossibility(echoPossibilityId)
-
             logger.debug("Requesting FacebookService with code {}", code)
-            val futureFacebookService = facebookServiceLocator.getFacebookServiceWithCode(code)
+            val queryString = {
+                val index = httpServletRequest.getQueryString.indexOf("&code=")
+                "?" + httpServletRequest.getQueryString.substring(0, index)
+            }
+            val futureFacebookService = facebookServiceLocator.getFacebookServiceWithCode(code, queryString)
 
             futureFacebookService
                     .onResult {
@@ -65,17 +71,16 @@ class FacebookController {
                                                 try {
                                                     val echoedUser = s.echoedUser.get
                                                     cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
-                                                    val echoPossibility = futureEchoPossibility.get
-
                                                     val modelAndView = new ModelAndView(echoView)
-                                                    modelAndView.addObject("echoPossibility", futureEchoPossibility.get)
-                                                    modelAndView.addObject("echoedUser", echoedUser)
+                                                    modelAndView.addAllObjects(JavaConversions.mapAsJavaMap[String, String](
+                                                            echoPossibility.asMap))
+                                                    modelAndView.addObject("echoedUserId", echoedUser.id)
                                                 } catch {
                                                     case n: NoSuchElementException =>
                                                         logger.error("Error getting EchoedUser {}", n)
                                                         new ModelAndView(facebookLoginErrorView)
                                                     case e =>
-                                                        logger.debug("No EchoPossibility with id {}", echoPossibilityId)
+//                                                        logger.debug("No EchoPossibility with id {}", echoPossibilityId)
                                                         new ModelAndView(dashboardView)
                                                 })
                                             continuation.resume

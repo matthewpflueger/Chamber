@@ -9,8 +9,8 @@ class TwitterServiceCreatorActorClient extends TwitterServiceCreator {
 
     @BeanProperty var twitterServiceCreatorActor: ActorRef = _
 
-    def createTwitterService() =
-            (twitterServiceCreatorActor ? ("code")).mapTo[TwitterService]
+    def createTwitterService(callbackUrl: String) =
+            (twitterServiceCreatorActor ? ("code", callbackUrl)).mapTo[TwitterService]
 
     def createTwitterServiceWithAccessToken(accessToken:AccessToken) =
             (twitterServiceCreatorActor ? ("accessToken",accessToken)).mapTo[TwitterService]

@@ -68,36 +68,35 @@ class FacebookLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             given("a request to login and echo using Facebook credentials")
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")
 
-
-
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
+            val (ep, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
+            webDriver.navigate.to("http://www.echoed.com")
             webDriver.manage().deleteCookieNamed("echoedUserId")
-            webDriver.navigate.to(echoUrl + echoPossibility.generateUrlParameters)
-            webDriver.getCurrentUrl should equal (loginViewUrl)
+            webDriver.navigate.to(echoUrl + ep.generateUrlParameters)
 
-            //NOTE: we are assuming the user already has a valid Facebook session and has already approved Echoed...
+
+            //NOTE: we are assuming the user has already approved Echoed...
             webDriver.findElement(By.id("facebookLogin")).click()
             webDriver.findElement(By.id("email")).sendKeys(testUserEmail)
             val pass = webDriver.findElement(By.id("pass"))
             pass.sendKeys(testUserPass)
             pass.submit()
 
-
             then("redirect to the echo confirm page")
-            webDriver.getCurrentUrl.startsWith(echoUrl) should be (true)
+            webDriver.getCurrentUrl should startWith (echoUrl)
 
             and("create an EchoedUser account using the Facebook info")
-            val echoedUser = echoedUserDao.findByFacebookUserId(testUserFacebookId)
-            echoedUser.email should be (testUserEmail)
-            echoPossibility.echoedUserId = echoedUser.id
-
-            val facebookUser = facebookUserDao.findById(echoedUser.facebookUserId)
+            val facebookUser = facebookUserDao.findByEmail(testUserEmail)
+            facebookUser should not be (null)
             facebookUser.email should be (testUserEmail)
-            facebookUser.echoedUserId should equal (echoedUser.id)
+            facebookUser.echoedUserId should not be (null)
+
+            val echoedUser = echoedUserDao.findById(facebookUser.echoedUserId)
+            echoedUser should not be (null)
+            echoedUser.email should be (testUserEmail)
+            echoedUser.facebookUserId should equal (facebookUser.id)
 
             and("record the EchoPossibility in the database")
-            echoPossibility.step = "confirm"
-            echoHelper.validateEchoPossibility(echoPossibility, count)
+            echoHelper.validateEchoPossibility(ep.copy(echoedUserId = echoedUser.id, step = "confirm"), count)
         }
 
     }

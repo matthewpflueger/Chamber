@@ -8,8 +8,8 @@ class TwitterServiceLocatorActorClient extends TwitterServiceLocator {
 
     @BeanProperty var twitterServiceLocatorActor: ActorRef = _
 
-    def getTwitterService() =
-            (twitterServiceLocatorActor ? ("none")).mapTo[TwitterService]
+    def getTwitterService(callbackUrl: String) =
+            (twitterServiceLocatorActor ? ("none", callbackUrl)).mapTo[TwitterService]
 
     def getTwitterServiceWithToken(oAuthToken:String) =
             (twitterServiceLocatorActor ? ("requestToken", oAuthToken)).mapTo[TwitterService]

@@ -18,18 +18,24 @@ class FacebookServiceLocatorActor extends Actor {
     private val cacheByFacebookUserId = WeakHashMap[String, FacebookService]()
 
     def receive = {
-        case ("code", code: String) => {
+        case ("code", code: String, queryString: String) => {
             logger.debug("Locating FacebookService with code {}", code)
-            self.channel ! cache.getOrElse(code, {
-                logger.debug("Cache miss for FacebookService key {}", code)
-                val f = facebookServiceCreator.createFacebookServiceUsingCode(code).await(Duration(10, TimeUnit.SECONDS)).get
-                cache += (code -> f)
-                f.getFacebookUser.map { facebookUser =>
-                    cacheByFacebookUserId += (facebookUser.id -> f)
-                }
-                logger.debug("Seeded cache with FacebookService key {}", code)
-                f
-            })
+            val channel = self.channel
+            cache.get(code) match {
+                case Some(facebookService) =>
+                    logger.debug("Cache hit for code {}", code)
+                    channel ! facebookService
+                case None =>
+                    logger.debug("Cache miss for FacebookService key {}", code)
+                    facebookServiceCreator.createFacebookServiceUsingCode(code, queryString).map { facebookService =>
+                        cache += (code -> facebookService)
+                        facebookService.getFacebookUser.map { facebookUser =>
+                            cacheByFacebookUserId += (facebookUser.id -> facebookService)
+                        }
+                        logger.debug("Seeded cache with FacebookService key {}", code)
+                        channel ! facebookService
+                    }
+            }
         }
         case ("facebookUserId", facebookUserId: String) =>
             cacheByFacebookUserId.get(facebookUserId) match {

@@ -1,31 +1,36 @@
 package com.echoed.chamber.domain
 
-import com.codahale.jerkson.JsonSnakeCase
-import java.util.Date
-import twitter4j.Status
+import java.util.{UUID, Date}
 
-@JsonSnakeCase
+
 case class TwitterStatus(
         id: String,
+        updatedOn: Date,
+        createdOn: Date,
+        echoId: String,
+        echoedUserId: String,
+        message: String,
         twitterId: String,
-        twitterUserId: String,
-        text: String,
         createdAt: Date,
+        text: String,
         source: String,
-        var echoId: String,
-        var echoedUserId: String
-        ) {
+        postedOn: Date) {
 
-    def this(twitterId: String, twitterUserId: String, text: String, createdAt: Date, source: String,echoId: String,  echoedUserId: String) = this (null, twitterId, twitterUserId, text, createdAt, source,echoId,echoedUserId)
-
-    def this(status: Status) = this(
+    def this(
+            echoId: String,
+            echoedUserId: String,
+            message: String) = this(
+        UUID.randomUUID.toString,
+        new Date,
+        new Date,
+        echoId,
+        echoedUserId,
+        message,
         null,
-        status.getId.toString,
-        status.getUser.getId.toString,
-        status.getText,
-        status.getCreatedAt,
-        status.getSource,
+        null,
+        null,
         null,
         null)
+
 
 }

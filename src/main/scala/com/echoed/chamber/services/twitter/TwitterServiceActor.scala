@@ -3,8 +3,9 @@ package com.echoed.chamber.services.twitter
 import akka.actor.Actor
 import twitter4j.auth.RequestToken
 import com.echoed.chamber.dao.{TwitterStatusDao, TwitterUserDao}
-import com.echoed.chamber.domain.{TwitterUser, TwitterFollower,Echo}
 import org.slf4j.LoggerFactory
+import java.util.Date
+import com.echoed.chamber.domain._
 
 
 class TwitterServiceActor(twitterAccess: TwitterAccess,
@@ -33,7 +34,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
         }
 
         case ("getUser") => {
-            self.channel ! twitterAccess.getUser(twitterUser.accessToken, twitterUser.accessTokenSecret, twitterUser.id.toLong).mapTo[TwitterUser]
+            self.channel ! twitterAccess.getUser(twitterUser.accessToken, twitterUser.accessTokenSecret, twitterUser.twitterId.toLong).mapTo[TwitterUser]
         }
 
         case ("getTwitterUser") => {
@@ -41,42 +42,51 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
         }
 
         case ("getFollowers") => {
-            self.channel ! twitterAccess.getFollowers(twitterUser.accessToken, twitterUser.accessTokenSecret, twitterUser.id.toLong).mapTo[Array[TwitterFollower]]
+            self.channel ! twitterAccess.getFollowers(twitterUser.accessToken, twitterUser.accessTokenSecret, twitterUser.twitterId.toLong).mapTo[Array[TwitterFollower]]
         }
 
         case ("assignEchoedUserId", echoedUserId: String) => {
-            twitterUser.echoedUserId = echoedUserId
-            twitterUserDao.insertOrUpdateTwitterUser(twitterUser)
-            self.channel ! twitterUser
+            val tu = twitterUser.copy(echoedUserId = echoedUserId)
+            twitterUserDao.updateEchoedUser(tu)
+            self.channel ! tu
         }
-        case ("updateStatus", status: String) => {
-            val channel = self.channel
-            twitterAccess.updateStatus(twitterUser.getAccessToken(), twitterUser.getAccessTokenSecret(), status).map{
-                twitterStatus =>
-                    logger.debug("Insert/Updating twitterStatus {}", status)
-                    twitterStatusDao.insertOrUpdate(_)
-                    channel ! twitterStatus
-            }
-        }
+//        case ("updateStatus", status: String) => {
+//            val channel = self.channel
+//            twitterAccess.updateStatus(twitterUser.accessToken, twitterUser.accessTokenSecret, status).map{
+//                twitterStatus =>
+//                    logger.debug("Insert/Updating twitterStatus {}", status)
+//                    twitterStatusDao.insertOrUpdate(_)
+//                    channel ! twitterStatus
+//            }
+//        }
 
         case ("getStatus", statusId: String) => {
             val channel = self.channel
-            twitterAccess.getStatus(twitterUser.getAccessToken(), twitterUser.getAccessTokenSecret(), statusId).map{
+            twitterAccess.getStatus(twitterUser.accessToken, twitterUser.accessTokenSecret, statusId).map{
                 twitterStatus =>
                     logger.debug("Insert/Updating TwitterStatus with statusId {}", statusId)
-                    twitterStatusDao.insertOrUpdate(twitterStatus)
+                    //twitterStatusDao.insertOrUpdate(twitterStatus)
                     channel ! twitterStatus
             }
         }
 
         case ("echo", echo:Echo, message:String ) => {
-            val channel = self.channel
+            logger.debug("Creating new TwitterStatus with message {} for {}", echo, message)
             val status = message + " " + echo.imageUrl
-            twitterAccess.updateStatus(twitterUser.getAccessToken(),twitterUser.getAccessTokenSecret(),status).map{
-                twitterStatus =>
-                    twitterStatus.echoId = echo.id
-                    twitterStatus.echoedUserId = echo.echoedUserId
-                    channel ! twitterStatus
+            val twitterStatus = new TwitterStatus(
+                echo.id,
+                echo.echoedUserId,
+                message)
+
+            twitterStatusDao.insert(twitterStatus)
+
+            val channel = self.channel
+            twitterAccess.updateStatus(twitterUser.accessToken,twitterUser.accessTokenSecret,status).map{ twitterStatus =>
+                logger.debug("Received from TwitterAccessActor {}", twitterStatus)
+                val tw = twitterStatus.copy(postedOn = new Date)
+                twitterStatusDao.updatePostedOn(tw)
+                channel ! tw
+                logger.debug("Successfully posted {}", tw)
             }
         }
 

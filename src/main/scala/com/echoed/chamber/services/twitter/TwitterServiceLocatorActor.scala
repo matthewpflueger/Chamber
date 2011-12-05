@@ -19,9 +19,9 @@ class TwitterServiceLocatorActor extends Actor {
     private val idCache = WeakHashMap[String, TwitterService]() //hashmap of TwitterUserId : TwitterService
 
     def receive = {
-        case ("none") => {
-            logger.debug("Creating New Twitter Service with No Token")
-            val t = twitterServiceCreator.createTwitterService().await(Duration(10, TimeUnit.SECONDS)).get
+        case ("none", callbackUrl: String) => {
+            logger.debug("Creating New Twitter Service with callbackUrl {}", callbackUrl)
+            val t = twitterServiceCreator.createTwitterService(callbackUrl).await(Duration(10, TimeUnit.SECONDS)).get
             val requestToken: RequestToken = t.getRequestToken().get
             logger.debug("Caching Twitter Service {} with Token {}", t, requestToken.getToken)
             cache += ("requestToken:" + requestToken.getToken -> t)

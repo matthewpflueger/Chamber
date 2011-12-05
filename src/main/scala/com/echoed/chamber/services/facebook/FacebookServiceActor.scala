@@ -8,7 +8,7 @@ import java.util.{UUID, Date}
 
 
 class FacebookServiceActor(
-        facebookUser: FacebookUser,
+        var facebookUser: FacebookUser,
         facebookAccess: FacebookAccess,
         facebookUserDao: FacebookUserDao,
         facebookPostDao: FacebookPostDao) extends Actor {
@@ -20,35 +20,33 @@ class FacebookServiceActor(
 
         case ("assignEchoedUser", echoedUser: EchoedUser) =>
                 logger.debug("Assigning {} to {}", echoedUser, facebookUser)
-                facebookUser.echoedUserId = echoedUser.id
-                facebookUserDao.insertOrUpdate(facebookUser)
+                facebookUser = facebookUser.copy(echoedUserId = echoedUser.id)
+                facebookUserDao.updateEchoedUser(facebookUser)
                 self.channel ! facebookUser
 
         case ("echo", echo: Echo, message: String) =>
                 logger.debug("Creating new FacebookPost with message {} for {}", echo, message)
-                val uuid = UUID.randomUUID().toString
-                val facebookPost = new FacebookPost(
-                    uuid,
+                val fp = new FacebookPost(
                     message,
                     echo.imageUrl,
-                    //TODO externalize this!
-                    "http://v1-api.echoed.com/echo/%s/%s" format(echo.id, uuid),
+                    null,
                     facebookUser.id,
                     echo.echoedUserId,
                     echo.id)
+                //TODO externalize the facebookPost url!
+                val facebookPost = fp.copy(link = "http://v1-api.echoed.com/echo/%s/%s" format(echo.id, fp.id))
                 facebookPostDao.insert(facebookPost)
 
                 val channel = self.channel
                 logger.debug("Sending request to post to FacebookAccessActor {}", facebookPost)
-                facebookAccess.post(facebookUser.accessToken, facebookUser.id, facebookPost).map[FacebookPost] { fp: FacebookPost =>
+                facebookAccess.post(facebookUser.accessToken, facebookUser.facebookId, facebookPost).map[FacebookPost] { fp: FacebookPost =>
                     logger.debug("Received post from FacebookAccessActor {}", fp)
-                    fp.postedOn = new Date
-                    facebookPostDao.updatePostedOn(fp)
-                    channel ! fp
-                    logger.debug("Successfully posted {}", fp)
-                    fp
+                    val fpp = fp.copy(postedOn = new Date)
+                    facebookPostDao.updatePostedOn(fpp)
+                    channel ! fpp
+                    logger.debug("Successfully posted {}", fpp)
+                    fpp
                 }
-
 
     }
 }

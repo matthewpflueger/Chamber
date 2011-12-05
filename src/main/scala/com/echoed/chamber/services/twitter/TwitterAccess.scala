@@ -6,7 +6,7 @@ import twitter4j.auth.{RequestToken, AccessToken}
 
 trait TwitterAccess {
 
-    def getRequestToken(): Future[RequestToken]
+    def getRequestToken(callbackUrl: String): Future[RequestToken]
 
     def getAccessToken(requestToken: RequestToken, oAuthVerifier: String): Future[AccessToken]
 

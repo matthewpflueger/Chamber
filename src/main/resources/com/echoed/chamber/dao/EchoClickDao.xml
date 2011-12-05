@@ -4,6 +4,8 @@
     <resultMap id="echoClickResult" type="com.echoed.chamber.domain.EchoClick">
         <constructor>
             <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
             <arg column="echoId" javaType="String" />
             <arg column="facebookPostId" javaType="String" />
             <arg column="twitterStatusId" javaType="String" />
@@ -19,12 +21,10 @@
     </select>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.EchoClick">
-        <selectKey keyProperty="id" resultType="string" order="BEFORE">
-            select uuid()
-        </selectKey>
 
     	insert into EchoClick(
     			id,
+    			createdOn,
                 echoId,
                 facebookPostId,
                 twitterStatusId,
@@ -34,6 +34,7 @@
                 clickedOn)
         values (
                 #{id},
+                #{createdOn},
                 #{echoId},
                 #{facebookPostId},
                 #{twitterStatusId},
@@ -43,4 +44,7 @@
                 #{clickedOn})
     </insert>
 
+    <delete id="deleteByEchoId">
+        delete from EchoClick where echoId = #{echoId}
+    </delete>
 </mapper>

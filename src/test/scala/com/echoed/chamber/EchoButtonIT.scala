@@ -1,6 +1,5 @@
 package com.echoed.chamber
 
-import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
@@ -11,15 +10,18 @@ import org.openqa.selenium.WebDriver
 import java.util.Properties
 import tags.IntegrationTest
 import org.slf4j.LoggerFactory
-import com.echoed.util.CookieValidator
+import com.echoed.util.{DataCreator, CookieValidator}
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
+import com.echoed.chamber.domain.EchoPossibility
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
-class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
+class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoButtonIT])
 
+    @Autowired @BeanProperty var dataCreator: DataCreator = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = null
     @Autowired @BeanProperty var webDriver: WebDriver = null
 
@@ -36,8 +38,6 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         buttonViewUrl = urls.getProperty("buttonViewUrl")
         buttonUrl != null && buttonViewUrl != null
     } ensuring (_ == true, "Missing parameters")
-
-
 
 
     feature("An Echo button is shown on a retailer's purchase confirmation page") {
@@ -65,8 +65,19 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         }
 
         scenario("button is requested with invalid retailer id", IntegrationTest) {
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility()
-            echoPossibility.retailerId = "foo"
+            val (e, count) = echoHelper.setupEchoPossibility()
+            val echoPossibility = new EchoPossibility(
+                    "foo",
+                    e.customerId,
+                    e.productId,
+                    e.boughtOn,
+                    e.step,
+                    e.orderId,
+                    e.price,
+                    e.imageUrl,
+                    e.echoedUserId,
+                    e.echoId,
+                    e.landingPageUrl)
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl + echoPossibility.generateUrlParameters)
@@ -75,19 +86,11 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             then("redirect to the button")
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
-            and("there should an echoPossibility cookie that points to no EchoPossibility")
-            CookieValidator.validate(webDriver, "echoPossibility", echoPossibility.id)
+//            and("there should an echoPossibility cookie that points to no EchoPossibility")
+//            CookieValidator.validate(webDriver, "echoPossibility", echoPossibility.id)
 
             and("no info should be recorded in the database")
             echoHelper.validateCountIs(count)
-        }
-
-        scenario("button is requested from an unknown site", IntegrationTest) {
-            given("a request for the button")
-            when("the referrer is an unknown site")
-            then("redirect to the button")
-            and("no info should be recorded in the database")
-            pending
         }
 
         scenario("button is requested with valid parameters", IntegrationTest) {
@@ -100,8 +103,8 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             then("redirect to the button")
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
-            and("there should not be an echoPossibility cookie")
-            CookieValidator.validate(webDriver, "echoPossibility", echoPossibility.id)
+//            and("there should not be an echoPossibility cookie")
+//            CookieValidator.validate(webDriver, "echoPossibility", echoPossibility.id)
 
             and("record the EchoPossibility in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)

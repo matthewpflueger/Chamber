@@ -1,36 +1,55 @@
 package com.echoed.chamber.domain
 
+import java.util.{UUID, Date}
+
 
 case class EchoedUser(
-        id: String, // = UUID.randomUUID().toString,
-        username: String,
+        id: String,
+        createdOn: Date,
+        name: String,
         email: String,
-        firstName: String,
-        lastName: String,
+        screenName: String,
         facebookUserId: String,
         twitterUserId: String) {
 
     def this(
-            id: String,
+            name: String,
             email: String,
-            firstName: String,
-            lastName: String) = this(id, null, email, firstName, lastName, null, null)
+            screenName: String,
+            facebookUserId: String,
+            twitterUserId: String) = this(
+        UUID.randomUUID.toString,
+        new Date,
+        name,
+        email,
+        null,
+        facebookUserId,
+        twitterUserId)
+
+    def this(id: String, name: String, email: String) = this(
+        id,
+        null,
+        name,
+        email,
+        null,
+        null,
+        null)
 
     def this(facebookUser: FacebookUser) = this(
-            null,
-            facebookUser.username,
-            facebookUser.email,
-            facebookUser.firstName,
-            facebookUser.lastName,
-            facebookUser.id,
-            null)
+        UUID.randomUUID.toString,
+        new Date,
+        facebookUser.name,
+        facebookUser.email,
+        null,
+        facebookUser.id,
+        null)
 
     def this(twitterUser: TwitterUser) = this(
-            null,
-            twitterUser.username,
-            "JonLWu@gmail.com",
-            twitterUser.name,
-            twitterUser.name,
-            null,
-            twitterUser.id)
+        UUID.randomUUID.toString,
+        new Date,
+        twitterUser.name,
+        null,
+        twitterUser.screenName,
+        null,
+        twitterUser.id)
 }

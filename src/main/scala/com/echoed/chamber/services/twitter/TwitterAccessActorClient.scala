@@ -9,8 +9,8 @@ class TwitterAccessActorClient extends TwitterAccess {
 
   @BeanProperty var twitterAccessActor: ActorRef = _
 
-  def getRequestToken() =
-          (twitterAccessActor ? ("requestToken")).mapTo[RequestToken]
+  def getRequestToken(callbackUrl: String) =
+          (twitterAccessActor ? ("requestToken", callbackUrl)).mapTo[RequestToken]
 
   def getAccessToken(requestToken: RequestToken, oAuthVerifier:String) =
           (twitterAccessActor ? ("accessToken",requestToken,oAuthVerifier)).mapTo[AccessToken]

@@ -4,10 +4,10 @@
     <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
         <constructor>
             <idArg column="id" javaType="String" />
-            <arg column="username" javaType="String" />
+			<arg column="createdOn" javaType="Date" />
+            <arg column="name" javaType="String" />
 			<arg column="email" javaType="String" />
-            <arg column="firstName" javaType="String" />
-			<arg column="lastName" javaType="String" />
+            <arg column="screenName" javaType="String" />
             <arg column="facebookUserId" javaType="String" />
 			<arg column="twitterUserId" javaType="String" />
         </constructor>
@@ -28,23 +28,20 @@
 
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.EchoedUser">
-        <selectKey keyProperty="id" resultType="string" order="BEFORE">
-            select uuid()
-        </selectKey>
     	insert into EchoedUser(
-    			id,
-    			username,
+    	        id,
+                createdOn,
+    			name,
                 email,
-    			firstName,
-    			lastName,
+                screenName,
                 facebookUserId,
                 twitterUserId)
     		values (
-    			#{id},
-    			#{username},
+                #{id},
+                #{createdOn},
+    			#{name},
     			#{email},
-    			#{firstName},
-    			#{lastName},
+    			#{screenName},
                 #{facebookUserId},
     			#{twitterUserId})
     </insert>
@@ -52,4 +49,9 @@
     <delete id="deleteByEmail">
         delete from EchoedUser where email = #{email}
     </delete>
+
+    <delete id="deleteByScreenName">
+        delete from EchoedUser where screenName = #{screenName}
+    </delete>
+
 </mapper>

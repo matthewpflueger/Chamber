@@ -7,6 +7,9 @@ trait RetailerDao {
 
     def findById(id: String): Retailer
 
-    def insertOrUpdate(retailer: Retailer): Int
+    def insert(retailer: Retailer): Int
 
+    def deleteById(id: String): Int
+
+    def deleteByName(name: String): Int
 }

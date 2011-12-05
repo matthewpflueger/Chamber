@@ -17,6 +17,8 @@ import com.echoed.chamber.services.echoeduser.EchoedUserService
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.util.CookieManager
 import org.springframework.web.servlet.ModelAndView
+import java.net.URLEncoder
+import scala.collection.JavaConversions
 
 @Controller
 @RequestMapping(Array("/twitter"))
@@ -39,8 +41,10 @@ class TwitterController {
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def twitter(@CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-                @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
-                httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse) = {
+                //@CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
+                echoPossibilityParameters: EchoPossibilityParameters,
+                httpServletRequest: HttpServletRequest,
+                httpServletResponse: HttpServletResponse) = {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if(continuation.isExpired){
@@ -49,10 +53,14 @@ class TwitterController {
 
             continuation.suspend(httpServletResponse)
 
-            val futureTwitterService = twitterServiceLocator.getTwitterService()
+            val echoPossibility = echoPossibilityParameters.createTwitterEchoPossibility
+            val callbackUrl = echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter/login?", true)
+//                URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter/login?"), "UTF-8")
+            val futureTwitterService = twitterServiceLocator.getTwitterService(callbackUrl)
             futureTwitterService.onResult({
                 case twitterService: TwitterService =>
                     logger.debug("Step 1")
+
                     val futureRequestToken = twitterService.getRequestToken()
                     futureRequestToken.onResult({
                         case rt:RequestToken =>
@@ -70,8 +78,9 @@ class TwitterController {
     @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
     def login(@RequestParam("oauth_token") oAuthToken: String,
               @RequestParam("oauth_verifier") oAuthVerifier: String,
-              @CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
-              httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse) = {
+              echoPossibilityParameters: EchoPossibilityParameters,
+              httpServletRequest: HttpServletRequest,
+              httpServletResponse: HttpServletResponse) = {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
@@ -84,10 +93,10 @@ class TwitterController {
 
             continuation.suspend(httpServletResponse)
 
-            logger.debug("Requesting EchoPossibility with id {}", echoPossibilityId)
+//            logger.debug("Requesting EchoPossibility with id {}", echoPossibilityId)
             val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
 
-            val futureEchoPossibility = echoService.getEchoPossibility(echoPossibilityId)
+//            val futureEchoPossibility = echoService.getEchoPossibility(echoPossibilityId)
 
 
 
@@ -117,8 +126,11 @@ class TwitterController {
                                                     logger.debug("Setting Model and View to {}", echoView)
 
                                                     val modelAndView = new ModelAndView(echoView)
-                                                    modelAndView.addObject("echoedUser", echoedUser)
-                                                    modelAndView.addObject("echoPossibility", futureEchoPossibility.get)
+                                                    modelAndView.addObject("echoedUserId", echoedUser.id)
+                                                    val echoPossibility = echoPossibilityParameters.createTwitterEchoPossibility
+                                                    modelAndView.addAllObjects(JavaConversions.mapAsJavaMap[String, String](
+                                                            echoPossibility.asMap))
+                                                    modelAndView.addObject("echoedUserId", echoedUser.id)
                                                     modelAndView
                                                 }
                                                 catch {

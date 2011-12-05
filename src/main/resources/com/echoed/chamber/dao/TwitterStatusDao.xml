@@ -4,39 +4,63 @@
     <resultMap id="twitterStatusResult" type="com.echoed.chamber.domain.TwitterStatus">
         <constructor>
             <idArg column="id" javaType="String" />
+			<arg column="updatedOn" javaType="Date" />
+			<arg column="createdOn" javaType="Date" />
+            <arg column="echoId" javaType="String" />
+            <arg column="echoedUserId" javaType="String" />
+            <arg column="message" javaType="String" />
             <arg column="twitterId" javaType="String" />
-            <arg column="twitterUserId" javaType="String"/>
+            <arg column="createdAt" javaType="Date" />
             <arg column="text" javaType="String" />
-            <arg column="source" javaType="String"/>
-			<arg column="createdAt" javaType="Date" />
+            <arg column="source" javaType="String" />
+            <arg column="postedOn" javaType="Date" />
         </constructor>
     </resultMap>
 
-    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.TwitterStatus">
-        <selectKey keyProperty="id" resultType="string" order="BEFORE">
-            select uuid()
-        </selectKey>
+    <select id="findById" resultMap="twitterStatusResult">
+        select * from TwitterStatus where id = #{id}
+    </select>
 
+    <select id="findByEchoedUserId" resultMap="twitterStatusResult">
+        select * from TwitterStatus where echoedUserId = #{echoedUserId}
+    </select>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.TwitterStatus">
     	insert into TwitterStatus(
     			id,
+    			createdOn,
+    			echoId,
+    			echoedUserId,
+    			message,
     			twitterId,
-                twitterUserId,
+    			createdAt,
                 text,
     			source,
-    			createdAt)
+                postedOn)
     		values (
     			#{id},
+    			#{createdOn},
+                #{echoId},
+                #{echoedUserId},
+                #{message},
                 #{twitterId},
-                #{twitterUserId},
+                #{createdAt},
                 #{text},
                 #{source},
-                #{createdAt})
-            on duplicate key update
-	    		twitterId=#{twitterId},
-	    		twitterUserId=#{twitterUserId},
-	    		text=#{text},
-	    		source=#{source},
-                createdAt=#{createdAt}
+                #{postedOn})
     </insert>
 
+    <update id="updatePostedOn" parameterType="com.echoed.chamber.domain.TwitterStatus">
+        update TwitterStatus set
+                twitterId=#{twitterId},
+                createdAt=#{createdAt},
+                text=#{text},
+                source=#{source},
+                postedOn=#{postedOn}
+            where id=#{id}
+    </update>
+
+    <delete id="deleteByEchoedUserId">
+        delete from TwitterStatus where echoedUserId = #{echoedUserId}
+    </delete>
 </mapper>

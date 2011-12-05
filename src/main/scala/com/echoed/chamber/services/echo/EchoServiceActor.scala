@@ -8,10 +8,11 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.dao.{EchoClickDao, EchoDao, RetailerDao, EchoPossibilityDao}
 import com.echoed.chamber.domain.views.EchoFull
 import scala.Option
 import com.echoed.chamber.services.ErrorMessage
+import com.echoed.chamber.dao._
+import java.util.Date
 
 
 class EchoServiceActor extends Actor {
@@ -21,6 +22,7 @@ class EchoServiceActor extends Actor {
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @BeanProperty var retailerDao: RetailerDao = _
+    @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoClickDao: EchoClickDao = _
 
@@ -56,13 +58,16 @@ class EchoServiceActor extends Actor {
                 echoPossibility <- futureEchoPossibility
             } yield {
 //                echoedUserServiceResponseMessage.resultOrException.getEchoedUser.resultOrException
-                val echo = new Echo(echoPossibility)
+                val retailerSettings = Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date)).get
+                val credit = echoPossibility.price * retailerSettings.closetPercentage
+                val fee = credit * retailerSettings.echoedMatchPercentage
+                var echo = new Echo(echoPossibility, retailerSettings.id, credit, fee)
                 echoDao.insert(echo)
 
                 val futureFacebookPost: Future[Option[FacebookPost]] =
                     if (echoRequestMessage.postToFacebook) {
                         echoedUserService.echoToFacebook(echo, echoRequestMessage.facebookMessage.getOrElse("")).map[Option[FacebookPost]] { facebookPost =>
-                            echo.facebookPostId = facebookPost.id
+                            echo = echo.copy(facebookPostId = facebookPost.id)
                             echoDao.updateFacebookPostId(echo)
                             logger.debug("Successfully echoed {} to Facebook {}", echo, facebookPost)
                             Option(facebookPost)
@@ -74,7 +79,7 @@ class EchoServiceActor extends Actor {
                 val futureTwitterPost =
                     if (echoRequestMessage.postToTwitter) {
                         echoedUserService.echoToTwitter(echo, echoRequestMessage.twitterMessage.getOrElse("")).map[Option[TwitterStatus]] { twitterStatus =>
-                            echo.twitterStatusId = twitterStatus.id
+                            echo = echo.copy(twitterStatusId = twitterStatus.id)
                             echoDao.updateTwitterStatusId(echo)
                             logger.debug("Successfully echoed {} to Twitter {}", echo, twitterStatus)
                             Option(twitterStatus)
@@ -83,11 +88,7 @@ class EchoServiceActor extends Actor {
                         Future { None }
                     }
 
-                Future {
-                    echoPossibility.echoId = echo.id
-                    echoPossibility.step = "echoed"
-                    echoPossibilityDao.insertOrUpdate(echoPossibility)
-                }
+                Future { echoPossibilityDao.insertOrUpdate(echoPossibility.copy(echoId = echo.id, step = "echoed")) }
 
                 for {
                     facebookPost <- futureFacebookPost

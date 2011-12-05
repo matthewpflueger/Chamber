@@ -11,7 +11,7 @@ case class EchoFull(
         productId: String,
         boughtOn: Date,
         orderId: String,
-        price: String,
+        price: Float,
         imageUrl: String,
         echoedUser: EchoedUser,
         facebookPost: FacebookPost,

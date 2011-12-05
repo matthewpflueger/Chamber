@@ -25,11 +25,11 @@ class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterSe
     def assignEchoedUserId(id: String) =
             (twitterServiceActor ? ("assignEchoedUserId",id)).mapTo[TwitterUser]
 
-    def updateStatus(status:String) =
-            (twitterServiceActor ? ("updateStatus",status)).mapTo[TwitterStatus]
+//    def updateStatus(status:String) =
+//            (twitterServiceActor ? ("updateStatus",status)).mapTo[TwitterStatus]
 
-    def getStatus(statusId:String) =
-            (twitterServiceActor ? ("getStatus",statusId)).mapTo[TwitterStatus]
+//    def getStatus(statusId:String) =
+//            (twitterServiceActor ? ("getStatus",statusId)).mapTo[TwitterStatus]
 
     def getRetweetIds(tweetId:String) =
             (twitterServiceActor ? ("getRetweetIds",tweetId)).mapTo[Array[Long]]

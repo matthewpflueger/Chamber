@@ -18,9 +18,9 @@ class TwitterServiceCreatorActor extends Actor {
 
 
     def receive = {
-        case ("code") => {
+        case ("code", callbackUrl: String) => {
             logger.debug("Creating New Twitter Service")
-            val requestToken: RequestToken = twitterAccess.getRequestToken().get.asInstanceOf[RequestToken]
+            val requestToken: RequestToken = twitterAccess.getRequestToken(callbackUrl).get.asInstanceOf[RequestToken]
             self.channel ! new TwitterServiceActorClient(Actor.actorOf(
                 new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, requestToken)).start)
         }
@@ -29,9 +29,7 @@ class TwitterServiceCreatorActor extends Actor {
             logger.debug("Creating New Twitter Service With Access Token {} for User Id", accessToken.getToken, accessToken.getUserId)
             twitterAccess.getUser(accessToken.getToken, accessToken.getTokenSecret, accessToken.getUserId).map{
                 twitterUser =>
-                    twitterUser.accessToken = accessToken.getToken
-                    twitterUser.accessTokenSecret = accessToken.getTokenSecret
-                    twitterUserDao.insertOrUpdateTwitterUser(twitterUser)
+                    twitterUserDao.insert(twitterUser)
                     logger.debug("Received User twitterUser {}", twitterUser)
                     channel ! new TwitterServiceActorClient(Actor.actorOf(
                         new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, twitterUser)).start)
@@ -40,7 +38,7 @@ class TwitterServiceCreatorActor extends Actor {
 
         case ("id", id: String) => {
             logger.debug("Creating New Twitter Service With Id {}", id)
-            val twitterUser: TwitterUser = twitterUserDao.selectTwitterUserWithId(id)
+            val twitterUser: TwitterUser = twitterUserDao.findById(id)
             self.channel ! new TwitterServiceActorClient(Actor.actorOf(
                 new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, twitterUser)).start)
         }

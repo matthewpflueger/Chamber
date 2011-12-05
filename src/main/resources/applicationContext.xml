@@ -145,6 +145,8 @@
         <!--suppress SpringModelInspection -->
         <property name="retailerDao" ref="retailerDao" />
         <!--suppress SpringModelInspection -->
+        <property name="retailerSettingsDao" ref="retailerSettingsDao" />
+        <!--suppress SpringModelInspection -->
         <property name="echoClickDao" ref="echoClickDao" />
     </akka:untyped-actor>
 
@@ -188,8 +190,6 @@
         <property name="echoedUserDao" ref="echoedUserDao" />
         <!--suppress SpringModelInspection -->
         <property name="closetDao" ref="closetDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="facebookServiceLocator" ref="facebookServiceLocator" />
     </akka:untyped-actor>
 
 

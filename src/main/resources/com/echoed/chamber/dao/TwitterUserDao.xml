@@ -5,76 +5,69 @@
     <resultMap id="twitterUserResult" type="com.echoed.chamber.domain.TwitterUser">
         <constructor>
             <idArg column="id" javaType="String"/>
-            <arg column="username" javaType="String"/>
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="echoedUserId" javaType="String"/>
+            <arg column="twitterId" javaType="String"/>
+            <arg column="screenName" javaType="String"/>
             <arg column="name" javaType="String"/>
+            <arg column="profileImageUrl" javaType="String"/>
             <arg column="location" javaType="String"/>
             <arg column="timezone" javaType="String"/>
+            <arg column="accessToken" javaType="String"/>
+            <arg column="accessTokenSecret" javaType="String"/>
         </constructor>
     </resultMap>
 
-    <resultMap id="twitterFollowerResult" type="com.echoed.chamber.domain.TwitterFollower">
-        <constructor>
-            <idArg column="id" javaType="String"/>
-            <arg column="twitterUserId" javaType="String"/>
-            <arg column="twitterFollowerId" javaType="String"/>
-        </constructor>
-    </resultMap>
 
-    <insert id="insertTwitterFollower" parameterType="com.echoed.chamber.domain.TwitterFollower">
-        insert into TwitterFollower(
-          id,
-          twitterUserId,
-          twitterFollowerId
-        )
-        values(
-          #{twitterUserId},
-          #{twitterFollowerId}
-        )
-    </insert>
-
-    <select id="selectTwitterFollowers" parameterType="java.lang.String" resultType="com.echoed.chamber.domain.TwitterFollower">
-        select
-            twitterUserId,
-            twitterFollowerId,
-            twitterUserName
-        from
-            TwitterFollower
-        where
-            twitterUserId = #{id}
-    </select>
-
-    <insert id="insertOrUpdateTwitterUser" parameterType="com.echoed.chamber.domain.TwitterUser">
+    <insert id="insert" parameterType="com.echoed.chamber.domain.TwitterUser">
         insert into TwitterUser(
             id,
+            createdOn,
             echoedUserId,
-            username,
+            twitterId,
+            screenName,
             name,
+            profileImageUrl,
             location,
             timezone,
             accessToken,
             accessTokenSecret)
         values(
             #{id},
+            #{createdOn},
             #{echoedUserId},
-            #{username},
+            #{twitterId},
+            #{screenName},
             #{name},
+            #{profileImageUrl},
             #{location},
             #{timezone},
             #{accessToken},
             #{accessTokenSecret})
-        on duplicate key update
-            echoedUserId = #{echoedUserId},
-            name = #{name},
-            username = #{username},
-            location = #{location},
-            timezone = #{timezone},
-            accessToken = #{accessToken},
-            accessTokenSecret= #{accessTokenSecret}
    </insert>
 
-    <select id="selectTwitterUserWithId" resultMap="twitterUserResult">
-    	select * from TwitterUser where id = #{value}
+    <select id="findById" resultMap="twitterUserResult">
+    	select * from TwitterUser where id = #{id}
     </select>
 
+    <select id="findByScreenName" resultMap="twitterUserResult">
+    	select * from TwitterUser where screenName = #{screenName}
+    </select>
+
+    <update id="updateEchoedUser" parameterType="com.echoed.chamber.domain.TwitterUser">
+        update TwitterUser set
+            echoedUserId=#{echoedUserId}
+        where
+            id=#{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from TwitterUser where id = #{id}
+    </delete>
+
+    <delete id="deleteByScreenName">
+        delete from TwitterUser where screenName = #{screenName}
+    </delete>
 
 </mapper>

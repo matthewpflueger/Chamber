@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.TwitterFollowerDao">
+
+    <resultMap id="twitterFollowerResult" type="com.echoed.chamber.domain.TwitterFollower">
+        <constructor>
+            <idArg column="id" javaType="String"/>
+            <arg column="updatedOn" javaType="Date"/>
+            <arg column="createdOn" javaType="Date"/>
+            <arg column="twitterUserId" javaType="String"/>
+            <arg column="twitterId" javaType="String"/>
+            <arg column="name" javaType="String"/>
+        </constructor>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.TwitterFollower">
+        insert into TwitterFollower(
+            id,
+            createdOn,
+            twitterUserId,
+            twitterId,
+            name
+        )
+        values(
+            #{id},
+            #{createdOn},
+            #{twitterUserId},
+            #{twitterId},
+            #{name})
+    </insert>
+
+    <select id="findByTwitterUserId" parameterType="java.lang.String" resultMap="twitterFollowerResult">
+        select * from TwitterFollower where twitterUserId = #{twitterUserId}
+    </select>
+
+    <delete id="deleteByTwitterUserId">
+        delete from TwitterFollower where twitterUserId = #{twitterUserId}
+    </delete>
+
+</mapper>

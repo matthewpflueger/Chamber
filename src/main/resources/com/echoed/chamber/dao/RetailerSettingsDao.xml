@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.RetailerSettingsDao">
+    <resultMap id="retailerSettingsResult" type="com.echoed.chamber.domain.RetailerSettings">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="closetPercentage" javaType="_float" />
+            <arg column="minClicks" javaType="_int" />
+            <arg column="minPercentage" javaType="_float" />
+            <arg column="maxClicks" javaType="_int" />
+            <arg column="maxPercentage" javaType="_float" />
+            <arg column="echoedMatchPercentage" javaType="_float" />
+            <arg column="echoedMaxPercentage" javaType="_float" />
+            <arg column="activeOn" javaType="Date" />
+        </constructor>
+    </resultMap>
+
+    <select id="findByRetailerId" resultMap="retailerSettingsResult">
+        select * from RetailerSettings where retailerId=#{retailerId}
+    </select>
+
+    <select id="findByActiveOn" resultMap="retailerSettingsResult" >
+        select *
+        from RetailerSettings
+        where retailerId = #{retailerId}
+        and activeOn &lt;= #{activeOn}
+        order by activeOn desc
+        limit 1
+    </select>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.RetailerSettings">
+        insert into RetailerSettings(
+    			id,
+    			createdOn,
+    			retailerId,
+                closetPercentage,
+                minClicks,
+                minPercentage,
+                maxClicks,
+                maxPercentage,
+                echoedMatchPercentage,
+                echoedMaxPercentage,
+                activeOn)
+    	values (
+    			#{id},
+    			#{createdOn},
+    			#{retailerId},
+                #{closetPercentage},
+                #{minClicks},
+                #{minPercentage},
+                #{maxClicks},
+                #{maxPercentage},
+                #{echoedMatchPercentage},
+                #{echoedMaxPercentage},
+                #{activeOn})
+    </insert>
+
+    <delete id="deleteByRetailerId">
+        delete from RetailerSettings where retailerId=#{retailerId}
+    </delete>
+</mapper>

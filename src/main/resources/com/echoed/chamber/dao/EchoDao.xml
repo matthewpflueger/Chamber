@@ -4,18 +4,24 @@
     <resultMap id="echoResult" type="com.echoed.chamber.domain.Echo">
         <constructor>
             <idArg column="id" javaType="String" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="updatedOn" javaType="Date" />
             <arg column="retailerId" javaType="String" />
             <arg column="customerId" javaType="String" />
             <arg column="productId" javaType="String" />
             <arg column="boughtOn" javaType="Date" />
             <arg column="orderId" javaType="String" />
-            <arg column="price" javaType="String" />
+            <arg column="price" javaType="_float" />
             <arg column="imageUrl" javaType="String" />
             <arg column="echoedUserId" javaType="String" />
             <arg column="facebookPostId" javaType="String" />
             <arg column="twitterStatusId" javaType="String"/>
             <arg column="echoPossibilityId" javaType="String" />
             <arg column="landingPageUrl" javaType="String" />
+            <arg column="retailerSettingsId" javaType="String" />
+            <arg column="totalClicks" javaType="_int" />
+            <arg column="credit" javaType="_float" />
+            <arg column="fee" javaType="_float" />
         </constructor>
     </resultMap>
 
@@ -27,13 +33,15 @@
     	select * from Echo where echoPossibilityId = #{echoPossibilityId}
     </select>
 
+    <select id="findByRetailerId" resultMap="echoResult">
+    	select * from Echo where retailerId = #{retailerId}
+    </select>
+
     <insert id="insert" parameterType="com.echoed.chamber.domain.Echo">
-        <selectKey keyProperty="id" resultType="string" order="BEFORE">
-            select uuid()
-        </selectKey>
 
     	insert into Echo(
     			id,
+    			createdOn,
                 retailerId,
                 customerId,
                 productId,
@@ -44,9 +52,14 @@
                 echoedUserId,
                 facebookPostId,
                 echoPossibilityId,
-                landingPageUrl)
+                landingPageUrl,
+                retailerSettingsId,
+                totalClicks,
+                credit,
+                fee)
         values (
                 #{id},
+                #{createdOn},
                 #{retailerId},
                 #{customerId},
                 #{productId},
@@ -57,7 +70,11 @@
                 #{echoedUserId},
                 #{facebookPostId},
                 #{echoPossibilityId},
-                #{landingPageUrl})
+                #{landingPageUrl},
+                #{retailerSettingsId},
+                #{totalClicks},
+                #{credit},
+                #{fee})
     </insert>
 
     <update id="updateFacebookPostId" parameterType="com.echoed.chamber.domain.Echo">
@@ -74,7 +91,21 @@
             id=#{id}
     </update>
 
+    <update id="updateForClick" parameterType="com.echoed.chamber.domain.Echo">
+        update Echo set
+            totalClicks=#{totalClicks},
+            credit=#{credit},
+            fee=#{fee}
+        where
+            id=#{id}
+    </update>
+
     <delete id="deleteByEchoPossibilityId">
         delete from Echo where echoPossibilityId=#{echoPossibilityId}
     </delete>
+
+    <delete id="deleteByRetailerId">
+        delete from Echo where retailerId=#{retailerId}
+    </delete>
+
 </mapper>

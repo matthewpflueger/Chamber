@@ -17,10 +17,10 @@ class FacebookServiceCreatorActor extends Actor {
     @BeanProperty var facebookPostDao: FacebookPostDao = _
 
     def receive = {
-        case ("code", code: String) => {
+        case ("code", code: String, queryString: String) => {
             logger.debug("Creating FacebookService using code {}", code)
             val facebookUser = for {
-                accessToken: String <- facebookAccess.getAccessToken(code)
+                accessToken: String <- facebookAccess.getAccessToken(code, queryString)
                 me: FacebookUser <- facebookAccess.getMe(accessToken)
                 inserted: Int <- Future[Int] { facebookUserDao.insertOrUpdate(me) }
             } yield me

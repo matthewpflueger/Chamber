@@ -21,8 +21,8 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def assignTwitterService(twitterService:TwitterService) =
             (echoedUserServiceActor ? ("assignTwitterService", twitterService)).mapTo[TwitterService]
 
-    def updateTwitterStatus(status:String) =
-            (echoedUserServiceActor ? ("updateTwitterStatus", status)).mapTo[TwitterStatus]
+//    def updateTwitterStatus(status:String) =
+//            (echoedUserServiceActor ? ("updateTwitterStatus", status)).mapTo[TwitterStatus]
 
     def getTwitterFollowers() =
             (echoedUserServiceActor ? ("getTwitterFollowers")).mapTo[Array[TwitterFollower]]
