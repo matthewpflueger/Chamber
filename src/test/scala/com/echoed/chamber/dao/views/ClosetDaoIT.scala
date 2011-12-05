@@ -51,7 +51,7 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
             closet.echoes should not be(null)
             closet.echoedUser.id should equal(echoedUser.id)
 
-            val echoList = asScalaBuffer(closet.echoes) //echoDao.findByRetailerId(echoes(0).retailerId))
+            val echoList = asScalaBuffer(closet.echoes)
             echoList should not be (null)
             echoList.length should equal (echoes.length)
 

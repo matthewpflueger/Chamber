@@ -8,6 +8,9 @@ import com.echoed.chamber.dao.DatabaseSuite
 @RunWith(classOf[JUnitRunner])
 class EchoedSiteSuite extends Suites(
     new DatabaseSuite,
+
+    new ClosetExhibitIT,
+    
     new EchoButtonIT,
     new FacebookLoginIT,
     new EchoIT,
