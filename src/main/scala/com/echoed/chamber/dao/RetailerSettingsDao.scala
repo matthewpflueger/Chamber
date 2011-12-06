@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Param
 
 trait RetailerSettingsDao {
 
+    def findById(id: String): RetailerSettings
+
     def findByRetailerId(retailerId: String): JList[RetailerSettings]
 
     def findByActiveOn(

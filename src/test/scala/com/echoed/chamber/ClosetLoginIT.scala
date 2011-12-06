@@ -2,7 +2,6 @@ package com.echoed.chamber
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.scalatest.matchers.ShouldMatchers
 import com.echoed.chamber.tags.IntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,22 +12,24 @@ import org.springframework.test.context.{TestContextManager, ContextConfiguratio
 import com.echoed.chamber.dao.views.ClosetDao
 import org.openqa.selenium.{Cookie, WebDriver}
 import java.util.{Date, Properties}
+import com.echoed.util.DataCreator
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:itest.xml"))
-class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
+class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     @Autowired @BeanProperty var closetDao: ClosetDao = _
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var dataCreator: DataCreator = _
 
     @Autowired @BeanProperty var urls: Properties = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
-
 
     var closetUrl: String = _
 
@@ -37,6 +38,25 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         closetUrl != null
     } ensuring (_ == true, "Missing parameters")
 
+
+    val echoedUser = dataCreator.echoedUser
+    val echoes = dataCreator.echoes
+
+
+    def cleanup() {
+        echoedUserDao.deleteByEmail(echoedUser.email)
+        echoedUserDao.deleteByScreenName(echoedUser.screenName)
+        echoDao.deleteByRetailerId(echoes(0).retailerId)
+        echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
+    }
+
+    override def beforeAll = {
+        cleanup
+        echoedUserDao.insert(echoedUser)
+        echoes.foreach(echoDao.insert(_))
+    }
+
+    override def afterAll = cleanup
 
 
     feature("A user can view their past echoes by logging into echoed.com via a social platform") {
@@ -63,29 +83,13 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
         scenario("a known user navigates to echoed.com/closet and is shown their closet", IntegrationTest) {
 
-//            val echoedUser = new EchoedUser(null, "matthew.pflueger", "matthew.pflueger@gmail.com", "Matthew", "Pflueger", null, null)
-            val echoedUser = new EchoedUser("Matthew Pflueger", "matthew.pflueger@gmail.com", null, null, null)
-            echoedUserDao.deleteByEmail("matthew.pflueger@gmail.com")
-            echoedUserDao.insert(echoedUser)
-
-            val (echoPossibility1, _) = echoHelper.setupEchoPossibility(step = "echoed", echoedUserId = echoedUser.id)
-            val echo1 = new Echo(echoPossibility1, "retailerSettingsId", 0, 0)
-            echoDao.deleteByEchoPossibilityId(echoPossibility1.id)
-            echoDao.insert(echo1)
-
-            val (echoPossibility2, _) = echoHelper.setupEchoPossibility(
-                step = "echoed", echoedUserId = echoedUser.id, retailerId = "testRetailerId2")
-            val echo2 = new Echo(echoPossibility2, "retailerSettingsId", 0, 0)
-            echoDao.deleteByEchoPossibilityId(echoPossibility2.id)
-            echoDao.insert(echo2)
-
             val closet = closetDao.findByEchoedUserId(echoedUser.id)
             closet should not be null
             closet.echoedUser should not be null
             closet.echoedUser.id should equal (echoedUser.id)
 
             closet.echoes should not be null
-            closet.echoes.size() should equal (2)
+            closet.echoes.size() should equal (echoes.length)
 
             given("a request to echoed.com/closet")
             when("there is a known user")
@@ -103,9 +107,8 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
             webDriver.getTitle should be ("Closet")
 
             val pageSource = webDriver.getPageSource
-            pageSource should include("Matthew Pflueger")
-            pageSource should include(echo1.imageUrl)
-            pageSource should include(echo2.imageUrl)
+            pageSource should include(echoedUser.name)
+            echoes.foreach(echo => pageSource should include(echo.imageUrl))
 
             //TODO and("log the activity")
         }

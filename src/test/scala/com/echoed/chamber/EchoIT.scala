@@ -157,6 +157,9 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             echo = echoDao.findByEchoPossibilityId(echoPossibility.id)
             echo should not be (null)
             echo.echoedUserId should equal (echoedUser.id)
+            echo.totalClicks should be (0)
+            echo.credit should be > (0f) //not be(null)
+            echo.fee should be > (0f)
 
             facebookPost = facebookPostDao.findByEchoId(echo.id)
             facebookPost should not be (null)

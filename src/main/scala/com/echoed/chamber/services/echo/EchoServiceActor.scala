@@ -59,9 +59,7 @@ class EchoServiceActor extends Actor {
             } yield {
 //                echoedUserServiceResponseMessage.resultOrException.getEchoedUser.resultOrException
                 val retailerSettings = Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date)).get
-                val credit = echoPossibility.price * retailerSettings.closetPercentage
-                val fee = credit * retailerSettings.echoedMatchPercentage
-                var echo = new Echo(echoPossibility, retailerSettings.id, credit, fee)
+                var echo = new Echo(echoPossibility, retailerSettings).echoed(retailerSettings)
                 echoDao.insert(echo)
 
                 val futureFacebookPost: Future[Option[FacebookPost]] =
@@ -114,11 +112,16 @@ class EchoServiceActor extends Actor {
             }.map { Option(_) match {
                     case None => logger.error("Did not find echo to record click {}", echoClick)
                     case Some(echo) =>
-                        logger.debug("Recording click {} for {}", echoClick, echo)
+                        logger.debug("Recording {} for {}", echoClick, echo)
                         val ec = determinePostId(echo, echoClick, postId)
-                        channel ! (ec, echo.landingPageUrl)
                         echoClickDao.insert(ec)
-                        logger.debug("Successfully recorded click {}", echoClick)
+                        channel ! (ec, echo.landingPageUrl)
+                        logger.debug("Successfully recorded {}", echoClick)
+
+                        val retailerSettings = Option(retailerSettingsDao.findById(echo.retailerSettingsId)).get
+                        val clickedEcho = echo.clicked(retailerSettings)
+                        echoDao.updateForClick(clickedEcho)
+                        logger.debug("Successfully updated for click {}", clickedEcho)
                 }
             }
     }

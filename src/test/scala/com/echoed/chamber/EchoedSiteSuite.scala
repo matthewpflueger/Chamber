@@ -10,7 +10,7 @@ class EchoedSiteSuite extends Suites(
     new DatabaseSuite,
 
     new ClosetExhibitIT,
-    
+
     new EchoButtonIT,
     new FacebookLoginIT,
     new EchoIT,

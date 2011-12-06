@@ -4,8 +4,8 @@
     <resultMap id="echoResult" type="com.echoed.chamber.domain.Echo">
         <constructor>
             <idArg column="id" javaType="String" />
-            <arg column="createdOn" javaType="Date" />
             <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
             <arg column="retailerId" javaType="String" />
             <arg column="customerId" javaType="String" />
             <arg column="productId" javaType="String" />

@@ -18,6 +18,10 @@
         </constructor>
     </resultMap>
 
+    <select id="findById" resultMap="retailerSettingsResult">
+        select * from RetailerSettings where id=#{id}
+    </select>
+
     <select id="findByRetailerId" resultMap="retailerSettingsResult">
         select * from RetailerSettings where retailerId=#{retailerId}
     </select>

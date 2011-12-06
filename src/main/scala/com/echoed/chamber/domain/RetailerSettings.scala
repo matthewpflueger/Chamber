@@ -17,15 +17,25 @@ case class RetailerSettings(
         echoedMaxPercentage: Float,
         activeOn: Date) {
 
+    require(closetPercentage >= 0)
+    require(echoedMaxPercentage >= 0)
+    require(echoedMatchPercentage >= 0)
+    require(minClicks >= 0)
+
+    require(minClicks <= maxClicks)
+    require(minPercentage >= closetPercentage)
+    require(maxPercentage >= minPercentage)
+
+
     def this(
             retailerId: String,
-            closetPercentage: Int,
+            closetPercentage: Float,
             minClicks: Int,
-            minPercentage: Int,
+            minPercentage: Float,
             maxClicks: Int,
-            maxPercentage: Int,
-            echoedMatchPercentage: Int,
-            echoedMaxPercentage: Int,
+            maxPercentage: Float,
+            echoedMatchPercentage: Float,
+            echoedMaxPercentage: Float,
             activeOn: Date) = this(
         UUID.randomUUID.toString,
         new Date,
