@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title></title>
+<title>Closet</title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="jquery.isotope.min.js"></script>
 <script type="text/javascript" src="jquery.imagesloaded.js"></script>
@@ -89,8 +89,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
         exhibit.append('<div style="width:1px;"></div>');
         exhibit.isotope({filter: filter});
-        //var jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
-        var jsonUrl = "exhibit.json";
+        var jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
+        //var jsonUrl = "exhibit.json";
         this.EvAg.trigger("category/add","","All");
         $.ajax({
             url: jsonUrl,
@@ -99,8 +99,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 $.each(data, function(index,product){
                     var productModel = new Echoed.Models.Product(product);
                     ex.addProduct(productModel,ex.filter);
-                    //ex.EvAg.trigger('category/add',product.retailerName,product.retailerName);
-                    ex.EvAg.trigger('category/add',product.category,product.category);
+                    ex.EvAg.trigger('category/add','test','test');
+                    //ex.EvAg.trigger('category/add',product.category,product.category);
                 });
             },
             error:function (xhr, ajaxOptions, thrownError){
@@ -219,10 +219,10 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 <script type="text/template" id="templates-components-product">
     <div class="item_hover" style="display:none;">
         <div class="item_hover_wrap">
-            <%= text %>
+            TEST
         </div>
     </div>
-    <img class="exhibit_image" src="<%= imageUrl %>"/>
+    <img class="exhibit_image" src="<%= echoImageUrl %>"/>
 </script>
 
 <script type="text/templates" id="templates-pages-exhibit">
@@ -243,7 +243,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
                 Echoed
             </div>
             <div id="user">
-            	{#EchoedUser}{firstName}{lastName}{/EchoedUser}<br />
+            	{{#echoedUser}}{{name}}{{/echoedUser}}<br />
                 Rewards: {}
             </div>
             <div id="header-nav">

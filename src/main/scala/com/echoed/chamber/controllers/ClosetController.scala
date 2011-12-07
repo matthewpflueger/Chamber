@@ -52,9 +52,19 @@ class ClosetController {
     @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
     def exhibit(
-            @CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
+            @CookieValue(value = "echoedUserId", required = false) echoedUserIdCookie: String,
+            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
+
+
+        var echoedUserId:String = null;
+        if(echoedUserIdCookie != null){
+            echoedUserId = echoedUserIdCookie;
+        }
+        else{
+            echoedUserId = echoedUserIdParam;
+        }
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired) {
