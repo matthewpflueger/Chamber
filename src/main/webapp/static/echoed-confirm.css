@@ -1,0 +1,135 @@
+@font-face {
+  font-family: 'BebasNeue';
+  src: url("BebasNeue-webfont.eot");
+  src: url("BebasNeue-webfont.eot?#iefix") format("embedded-opentype"), url("BebasNeue-webfont.woff") format("woff"), url("BebasNeue-webfont.ttf") format("truetype"), url("BebasNeue-webfont.svg#BebasNeueRegular") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
+html, body, div, h1, h2, h3, h4, h5, h6, ul, ol, dl, li, dt, dd, p, blockquote,
+pre, form, fieldset, table, th, td {
+  margin: 0;
+  padding: 0;
+  font-family: HelveticaNeue-Medium, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #222; }
+
+html {
+  height: 100%; }
+
+body {
+  min-height: 100%; }
+
+a {
+  text-decoration: none;
+  color: inherit; }
+
+h2 {
+  font-family: BebasNeue, Arial, sans-serif;
+  color: #666666; }
+
+textarea {
+  padding: 2px;
+  font-size: 16px;
+  border: 1px #CCC solid;
+  font-family: HelveticaNeue-Medium, Helvetica, sans-serif; }
+
+#container {
+  min-width: 960px;
+  height: 100%;
+  min-height: 100%; }
+
+#header {
+  height: 50px;
+  border-bottom: 5px solid #ff7733;
+  background-color: white;
+  line-height: 50px;
+  font-size: 50px;
+  font-family: BebasNeue;
+  padding-left: 10px; }
+
+#thankyou {
+  padding: 10px;
+  font-family: BebasNeue;
+  font-size: 36px; }
+
+#lower {
+  height: 360px; }
+
+#left {
+  width: 500px;
+  float: left;
+  margin-left: 10px;
+  background-color: #FFF; }
+
+#left_content {
+  width: 100%;
+  border: 1px solid #AAA; }
+
+#rewards {
+  width: 200px;
+  float: left; }
+
+.reward_box {
+  width: 185px;
+  padding: 5px;
+  padding-top: 25px;
+  margin-bottom: 10px; }
+
+#product {
+  margin: 10px; }
+
+#product_upper {
+  padding-bottom: 5px; }
+
+#product_picture_container {
+  text-align: center;
+  width: 230px;
+  height: 150px; }
+
+#product_picture {
+  max-height: 150px;
+  max-width: 240px; }
+
+#product_text {
+  margin-top: 10px; }
+
+#product_text table {
+  border-collapse: collapse; }
+
+#product_text table tr {
+  border: 1px solid #CCC; }
+
+#product_text table td {
+  padding: 15px 2px;
+  font-size: 14px;
+  font-family: HelveticaNeue-Medium; }
+
+#product_text table tr.odd {
+  background-color: #EBEBEB; }
+
+#right {
+  width: 420px;
+  margin-left: 10px;
+  background-color: #FFF;
+  float: left; }
+
+#echoes {
+  border-collapse: collapse; }
+
+#echoes td {
+  text-align: center;
+  padding: 0px 5px 20px 5px; }
+
+#echoit {
+  height: 50px;
+  border: 0px;
+  font-size: 16px;
+  line-height: 24px;
+  color: #FFF; }
+
+.clear {
+  clear: both; }
+
+.echoed-text {
+  color: #ff7733;
+  font-weight: bold; }

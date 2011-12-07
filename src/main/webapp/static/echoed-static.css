@@ -1,0 +1,97 @@
+@font-face {
+  font-family: 'BebasNeue';
+  src: url("BebasNeue-webfont.eot");
+  src: url("BebasNeue-webfont.eot?#iefix") format("embedded-opentype"), url("BebasNeue-webfont.woff") format("woff"), url("BebasNeue-webfont.ttf") format("truetype"), url("BebasNeue-webfont.svg#BebasNeueRegular") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
+html, body, div, h1, h2, h3, h4, h5, h6, ul, ol, dl, li, dt, dd, p, blockquote,
+pre, form, fieldset, table, th, td {
+  margin: 0;
+  padding: 0;
+  font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif; }
+
+table {
+  border-collapse: collapse; }
+
+html {
+  height: 100%; }
+
+body {
+  min-height: 100%; }
+
+th {
+  font-weight: normal; }
+
+a {
+  text-decoration: none;
+  color: inherit; }
+
+h2 {
+  font-family: BebasNeue, Arial, sans-serif;
+  color: #666666; }
+
+.echoed-text {
+  color: #ff7733; }
+
+#container {
+  min-width: 1000px;
+  height: 100%; }
+
+#header {
+  min-width: 1100px;
+  height: 50px;
+  border-bottom: 5px solid #ff7733;
+  background-color: white; }
+
+#logo {
+  font-size: 48px;
+  line-height: 50px;
+  height: 50px;
+  float: left;
+  font-family: BebasNeue, Arial, sans-serif; }
+
+#nav {
+  float: right; }
+
+#learnmore {
+  padding: 40px 0px; }
+
+#lm-left {
+  float: left;
+  width: 360px; }
+
+#lm-left-label {
+  font-family: BebasNeue, Arial, sans-serif;
+  font-size: 48px; }
+
+#lm-right {
+  width: 620;
+  float: right; }
+
+.center {
+  width: 960px;
+  margin: auto; }
+
+#secondary {
+  height: 200px; }
+
+#footer {
+  position: absolute;
+  bottom: 0px;
+  background-color: #666;
+  height: 50px;
+  width: 100%; }
+
+.clear {
+  clear: both; }
+
+.clearfix {
+  zoom: 1; }
+
+.clearfix:before, .clearfix:after {
+  content: "";
+  display: table; }
+
+.clearfix:after {
+  clear: both; }

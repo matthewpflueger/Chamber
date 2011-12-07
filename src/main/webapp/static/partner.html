@@ -4,14 +4,14 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <title></title>
-<script type='text/javascript' src="http://v1-cdn.echoed.com/jquery-1.6.2.min.js"></script>
-<script type='text/javascript' src="http://v1-cdn.echoed.com/jquery-ui-1.8.16.custom.min.js"></script>
-<script type='text/javascript' src="http://v1-cdn.echoed.com/json2.js"></script>
-<script type='text/javascript' src="http://v1-cdn.echoed.com/underscore-min.js"></script>
-<script type='text/javascript' src="http://v1-cdn.echoed.com/backbone.js"></script>
-<script type='text/javascript' src='http://v1-cdn.echoed.com/highcharts.js'></script>
-<script>
-
+<script type='text/javascript' src="jquery-1.6.2.min.js"></script>
+<script type='text/javascript' src="jquery-ui-1.8.16.custom.min.js"></script>
+<script type='text/javascript' src="json2.js"></script>
+<script type='text/javascript' src="underscore-min.js"></script>
+<script type='text/javascript' src="backbone.js"></script>
+<script type='text/javascript' src='highcharts.js'></script>
+<script type="text/javascript" src="highcharts.theme.js"></script>
+<script type="text/javascript">
 
 if (!('Echoed' in this)) this.Echoed = {};
 
@@ -20,7 +20,6 @@ $(document).ready(function() {
 });
 
 var EventAggregator = _.extend({}, Backbone.Events);
-//Event Aggregator
 
 Echoed = {
     Views: {
@@ -33,7 +32,7 @@ Echoed = {
         var router = new Echoed.Router({EvAg: EventAggregator});
         var subNav = new Echoed.Views.Components.SubNav({EvAg: EventAggregator});
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
-        var title = new Echoed.Views.Components.Title({EvAg: EventAggregator, page: pageModel});
+        var title = new Echoed.Views.Components.Title({EvAg: EventAggregator});
         router.bind('all', function(route) {
         });
 
@@ -53,6 +52,8 @@ Echoed.Models.Page = Backbone.Model.extend({
 Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
         _.bindAll(this, 'summary', 'rewards', 'settings', 'reports');
+        this.page = null;
+        this.subNav = null;
         this.EvAg = options.EvAg;
     },
     routes:{
@@ -66,17 +67,73 @@ Echoed.Router = Backbone.Router.extend({
     },
     summary: function() {
         var pageView = new Echoed.Views.Pages.Summary({EvAg: this.EvAg});
+        if(this.page != "summary"){
+            this.EvAg.trigger('page/change', {page: 'summary'});
+            this.EvAg.trigger('title/change',{title: 'Summary'});
+            this.page ="summary";
+        }
+        this.subNav = "";
     },
     rewards: function() {
         var pageView = new Echoed.Views.Pages.Rewards({EvAg: this.EvAg});
+        if(this.page != "rewards"){
+            options = {
+                page: 'rewards',
+                subNav: [
+                    {
+                        href:'#rewards/open',
+                        id: 'open',
+                        text: 'Open Echoes'
+                    },
+                    {
+                        href:'#rewards/closed',
+                        id: 'closed',
+                        text: 'Processed Echoes'
+                    }
+                ]
+
+            };
+            this.EvAg.trigger('page/change',options);
+            this.page = "rewards";
+        }
+        this.EvAg.trigger('title/change',{title: 'Rewards'});
     },
     settings: function() {
         var pageView = new Echoed.Views.Pages.Settings({EvAg: this.EvAg});
+        if(this.page != "settings"){
+            this.EvAg.trigger('page/change',{page: 'settings'});
+            this.page = "settings";
+        }
+        this.EvAg.trigger('title/change',{title: 'Settings'});
     },
     reports: function(report, id) {
-        var pageView = new Echoed.Views.Pages.Reports({EvAg: this.EvAg,report: report});
+        var pageView = new Echoed.Views.Pages.Reports({EvAg: this.EvAg,report: report,reportId: id});
+        if(this.page != "reports"){
+            this.EvAg.trigger('page/change',
+                    {
+                        page: 'reports',
+                        subNav: [
+                            {
+                                href: '#reports/customers',
+                                id:   'customers',
+                                text: 'Customers'
+                            },
+                            {
+                                href: '#reports/products',
+                                id:   'products',
+                                text: 'Products'
+                            }
+                        ]
+                    }
+            );
+            this.page="reports";
+        }
+        if(this.subNav != report ){
+                this.EvAg.trigger('subnav/change',{subnav: report});
+                this.subNav = report;
+        }
+        this.EvAg.trigger('title/change',{title: 'Reports'});
     }
-
 });
 
 Echoed.Views.Pages.Reports = Backbone.View.extend({
@@ -85,42 +142,46 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
         _.bindAll(this, 'render');
         this.EvAg = options.EvAg;
         this.report = options.report;
-
+        this.reportId = options.reportId;
         this.render();
     },
     render: function() {
         switch (this.report) {
             case "customers":
-                var template = _.template($('#template-view-reports-customers').html());
-                $(this.el).hide().html(template).fadeIn();
-                $('.select-report').combobox();
-                this.EvAg.trigger('subnav/select', {subnav: 'Customers'});
+                if(this.reportId){
+                    var template = _.template($('#template-view-reports-customers').html());
+                    $(this.el).hide().html(template).fadeIn();
+                }
+                else{
+                    var holder = $(this.el);
+                    var template = _.template($('#template-views-reports-table').html());
+
+                    $(this.el).hide().html(template).fadeIn(function(){
+                        var customerTable = new Echoed.Views.Components.Table({EvAg: this.EvAg, el: "#table-container", report: "customers"});
+                    });
+                }
                 break;
             case "products":
-                var template = _.template($('#template-view-reports-products').html());
-                $(this.el).hide().html(template).fadeIn();
-                var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart'});
-                this.EvAg.trigger('subnav/select', {subnav: 'Products'});
+
+                if(this.reportId){
+                    var template = _.template($('#template-view-reports-products').html());
+                    $(this.el).hide().html(template).fadeIn(function(){
+                        var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart'});
+                    });
+                }
+                else{
+                    var holder = $(this.el);
+                    var template = _.template($('#template-views-reports-table').html());
+                    $(this.el).hide().html(template).fadeIn(function(){
+                        holder.find(".full").attr("id","product-table-container")
+                        var reportTable = new Echoed.Views.Components.Table({EvAg: this.EvAg, el: '#table-container', report: "products"});
+                    });
+                }
                 break;
             default:
                 $(this.el).html('');
                 break;
         }
-        this.EvAg.trigger('page/change',
-                {
-                    page: 'reports',
-                    subNav: [
-                        {
-                            href: '#reports/customers',
-                            text: 'Customers'
-                        },
-                        {
-                            href: '#reports/products',
-                            text: 'Products'
-                        }
-                    ]
-                }
-        );
         return this;
     }
 
@@ -138,36 +199,21 @@ Echoed.Views.Pages.Settings = Backbone.View.extend({
     render: function() {
         var template = _.template($('#template-view-settings').html());
         $(this.el).hide().html(template).fadeIn();
-
-        this.EvAg.trigger('page/change',
-                {
-                    page: 'settings'
-                }
-        );
-
         return this;
     }
 });
 
 Echoed.Views.Pages.Rewards = Backbone.View.extend({
-    el: '#content',
+    //el: '#content',
     initialize: function(options) {
         _.bindAll(this);
-
+        this.el = $('#content');
         this.EvAg = options.EvAg;
-
         this.render();
     },
     render: function() {
         var template = _.template($('#template-view-rewards').html());
-        $(this.el).hide().html(template).fadeIn();
-
-        this.EvAg.trigger('page/change',
-                {
-                    page: 'rewards'
-                }
-        );
-
+        this.el.hide().html(template).fadeIn();
         return this;
     }
 });
@@ -175,15 +221,13 @@ Echoed.Views.Pages.Rewards = Backbone.View.extend({
 Echoed.Views.Pages.Summary = Backbone.View.extend({
     el: '#content',
     initialize: function(options) {
-
         _.bindAll(this);
-
         this.EvAg = options.EvAg;
-
         this.render();
     },
     render: function() {
         var template = _.template($('#template-view-summary').html());
+        var elementHolder= this;
         $(this.el).hide().html(template).fadeIn(function() {
             $('#ss-likes').hide().html(20).fadeIn();
             $('#ss-views').hide().html(20).fadeIn();
@@ -191,12 +235,9 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
             $('#ss-new-echoes').hide().html(20).fadeIn();
             $('#ss-open-echoes').hide().html(20).fadeIn();
             $('#ss-comments').hide().html(20).fadeIn();
-            chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart'});
+            var chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart'});
+            var topProductsTable = new Echoed.Views.Components.TopProductsTable({EvAg: this.EvAg, el:'#top-products-table'});
         });
-
-
-        this.EvAg.trigger('page/change', {page: 'summary'});
-
         return this;
     }
 });
@@ -204,15 +245,52 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
 Echoed.Views.Components.Title = Backbone.View.extend({
     el: 'title',
     initialize: function(options){
-        _.bindAll(this);
+        _.bindAll(this,'changeTitle');
         this.EvAg = options.EvAg;
-        this.render(options.page);
+        this.EvAg.bind('title/change',this.changeTitle);
     },
-    render: function(page){
-        $(this.el).html(page.get("title"));
+    render: function(){
+    },
+    changeTitle: function(options){
+        $(this.el).html(options.title);
     }
 });
 
+Echoed.Views.Components.Table = Backbone.View.extend({
+    initialize: function(options){
+        this.el = options.el;
+        this.render(options.report);
+    },
+    events:{
+        "click td": "triggerClick",
+        "mouseenter tr": "highlight",
+        "mouseleave tr": "removeHighlight"
+    },
+    render: function(report){
+        switch(report){
+            case 'customers':
+                var template = _.template($('#template-components-table-customers').html());
+                $(this.el).hide().html(template).fadeIn();
+                break;
+            case 'products':
+                var template = _.template($('#template-components-table-products').html());
+                $(this.el).hide().html(template).fadeIn();
+                    break;
+        }
+        return this;
+    },
+    addRow: function(data){
+    },
+    triggerClick: function(e){
+        document.location.href = $(e.target).parent().attr("href");
+    },
+    highlight: function(e){
+        $(e.target).parent().css("border-color","#FF7733");
+    },
+    removeHighlight: function(e){
+        $(e.target).parent().css("border-color","");
+    }
+});
 
 Echoed.Views.Components.ProductSelector = Backbone.View.extend({
     initialize: function() {
@@ -228,7 +306,6 @@ Echoed.Views.Components.ProductSummary = Backbone.View.extend({
     render: function() {
         var template = _.template($('#template-view-component-productsummary').html());
         $(this.el).hide().html(template).fadeIn(function() {
-            alert($('#select-report').html());
         });
     }
 });
@@ -239,7 +316,6 @@ Echoed.Views.Components.ProductCharting = Backbone.View.extend({
         this.EvAg = options.EvAg;
         this.render();
     }
-
 });
 
 Echoed.Views.Components.RewardTable = Backbone.View.extend({
@@ -284,21 +360,23 @@ Echoed.Views.Components.SubNav = Backbone.View.extend({
 
         this.EvAg = options.EvAg;
         this.EvAg.bind('page/change', this.pageChange);
-        this.EvAg.bind('subnav/select', this.select);
+        this.EvAg.bind('subnav/change', this.select);
         this.render();
     },
     render: function() {
         return this;
     },
     select: function(options) {
-        $("subnav-" + options.subnav).addClass("current");
+        $(this.el).find(".current").removeClass("current");
+        $("#subnav-" + options.subnav).addClass("current");
+
     },
     pageChange: function(options) {
         var element = $(this.el);
         element.html('');
         if (options.subNav) {
             $(options.subNav).each(function(index, item) {
-                $('<a></a>').hide().attr("id", "subnav-" + item.text).attr('href', item.href).html(item.text).appendTo(element).fadeIn();
+                $('<a></a>').attr("id", "subnav-" + item.id).attr('href', item.href).html(item.text).appendTo(element);
             });
             this.slideDown();
         }
@@ -347,7 +425,15 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
             colors: ['#3B5998','#09F'],
             title: { text: ''},
             yAxis:{
-                title:{ text: 'Page Views'}
+                title:{
+                    text: 'Page Views',
+                    style: {
+                        fontFamily: 'HelveticaNeue-Medium',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        color: '#222222'
+                    }
+                }
             },
             xAxis: {
                 categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
@@ -373,14 +459,158 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
         this.chart = new Highcharts.Chart(chartOptions);
     }
 });
+
+Echoed.Views.Components.Tooltip = Backbone.View.extend({
+    initialize: function(){
+    },
+    render: function(){
+    }
+});
+
+Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'addRow');
+        this.el = options.el;
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    events:{
+        "mouseenter tr": "mouseEnter",
+        "mouseleave tr": "mouseLeave",
+        "click tr": "click"
+    },
+    render: function(){
+        var template = _.template($('#template-views-table-topproducts').html());
+        $(this.el).html(template);
+        this.addRow('');
+    },
+    addRow:function(data){
+        var tr = $('<tr></tr>').appendTo($(this.el));
+        $('<td></td>').html('Shirt').appendTo(tr);
+        $('<td></td>').html('123').appendTo(tr);
+        $('<td></td>').html('46').addClass("number").appendTo(tr);
+        $('<td></td>').html('144').addClass("number").appendTo(tr);
+        $('<td></td>').html('55').addClass("number").appendTo(tr);
+        tr.appendTo($(this.el).find('tbody'));
+    },
+    mouseEnter: function(e){
+        $(e.target).parent().css("background-color","#DEDEDE");
+    },
+    mouseLeave: function(e){
+        $(e.target).parent().css("background-color","");
+    },
+    click: function(e){
+        document.location.href = $(e.target).parent().attr("href");
+    }
+
+})
+</script>
+<script type="text/template" id="template-views-table-topproducts">
+    <table class="top-products-table">
+        <thead>
+            <tr >
+                <th>Product Name</th>
+                <th>SKU</th>
+                <th>Total Sales</th>
+                <th>Echoes</th>
+                <th>Social Activity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr href="#reports/products/3">
+                <td>Shirt</td>
+                <td>Z3029</td>
+                <td class="number">300</td>
+                <td class="number">50</td>
+                <td class="number">20</td>
+            </tr>
+            <tr href="#reports/products/3">
+                <td>Shirt</td>
+                <td>Z3029</td>
+                <td class="number">300</td>
+                <td class="number">50</td>
+                <td class="number">20</td>
+            </tr>
+            <tr href="#reports/products/3">
+                <td>Shirt</td>
+                <td>Z3029</td>
+                <td class="number">300</td>
+                <td class="number">50</td>
+                <td class="number">20</td>
+            </tr>
+        </tbody>
+    </table>
+</script>
+
+<script type="text/template" id="template-views-reports-table">
+    <div class="row">
+        <div class="full">
+            <div id="table-container">
+
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="template-components-table-customers">
+<table id="customer-table" class="report-table" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Customer</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+</table>
+</script>
+
+<script type="text/template" id="template-components-table-products">
+    <table id="product-table" class="report-table"  cellspacing="0">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Type</th>
+                <th>Echoes</th>
+                <th>Purchases</th>
+                <th>Total Views</th>
+                <th>Avg Views</th>
+                <th>Likes</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr href="#reports/products/3">
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+            </tr>
+       </tbody>
+    </table>
 </script>
 
 <script type="text/template" id="template-view-summary">
     <div class="row">
         <div id="summary-stats" class="full">
-            <div id="summary-stats-column1"></div>
-            <div id="summary-stats-column2">
-                <div id="ss-upper_row" class="ss-row">
+            <div class="full-column-left">
+                <div class="label">Social Activity</div>
+                 <div id="chart" class="half-chart">
+                 </div>
+            </div>
+            <div class="full-column-right">
+                <div class="ss-row">
                     <div class="ss-box">
                         <div class="ss-box-label">
                             Open Echoes
@@ -403,7 +633,7 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                         </div>
                     </div>
                 </div>
-                <div id="ss-lower_row" class="ss-row">
+                <div  class="ss-row">
                     <div class="ss-box">
                         <div class="ss-box-label">
                             Comments
@@ -431,12 +661,15 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
     </div>
     <div class="row">
         <div id="chart-container" class="half">
-            <div class="label">Social Activity</div>
-            <div id="chart" class="half-chart">
-            </div>
+            <div class="label">
+                    Top Products
+                </div>
+                <div id="top-products-table">
+                </div>
         </div>
         <div id="map" class="half">
         </div>
+        <div class="clear"></div>
     </div>
     <div class="row">
         <div id="chart-container2" class="third"></div>
@@ -461,10 +694,6 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
     <div id="header">
         <div id="logo">
             Echoed
-        </div>
-        <div id="user">
-            {#EchoedUser}{firstName}{lastName}{/EchoedUser}<br/>
-            Rewards: {}
         </div>
         <div id="header-nav">
             <ul>
@@ -496,6 +725,10 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 <div class="clear"></div>
             </ul>
         </div>
+        <div id="user">
+            {#EchoedUser}{firstName}{lastName}{/EchoedUser}<br/>
+            Rewards: {}
+        </div>
     </div>
     <div id="sub-nav" style="display:none"></div>
     <div id="content">
@@ -514,21 +747,22 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
 <script type="text/template" id="template-view-reports-products">
     <div class="row">
         <div class="full">
-            <div id="product-selector" class="report-selector">
-                <select id="select-report" class="select-report">
-                    <option value="Shirt">Shirt</option>
-                </select>
-            </div>
+
             <div id="report-summary">
-                <div id="summary-stats-column1">
+                <div class="full-column-left">
+                    <div id="product-selector" class="report-selector">
+                        <div id="select-report" class="label">
+                            Product Name
+                        </div>
+                    </div>
                     <div>
                         <div class="product-detail-image-container">
-                            <img src="pic5.jpg" class="product-detail-image"/>
+                            <img src="Pic1.jpg" class="product-detail-image"/>
                         </div>
                         <div class="product-detail-table-container">
                             <table class="product-detail-table" cellspacing="0">
                                 <tr>
-                                    <td width="100px">ID Number</td>
+                                    <td width="100px">SKU</td>
                                     <td>246301</td>
                                 </tr>
                                 <tr>
@@ -536,14 +770,14 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                                     <td>Redhawk Brigade</td>
                                 </tr>
                                 <tr>
-                                    <td>Type</td>
+                                    <td>Category</td>
                                     <td>Shirt</td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                 </div>
-                <div>
+                <div class="full-column-right">
                     <div class="ss-row">
                         <div class="ss-box">
                             <div class="ss-box-label">
@@ -571,6 +805,30 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                         </div>
                     </div>
                     <div class="ss-row">
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Views
+                            </div>
+                            <div class="ss-box-number echoed-text">
+                                20
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Likes
+                            </div>
+                            <div class="ss-box-number fb-text">
+                                30
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Retweets
+                            </div>
+                            <div class="ss-box-number twitter-text">
+                                10
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -594,9 +852,9 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
     <div class="row">
         <div class="full">
             <div id="customer-selector" class="report-selector">
-                <select class="select-report">
-                    <option value="">Evan W.</option>
-                </select>
+                <div class="select-report">
+                    Evan W
+                </div>
             </div>
             <div id="report-summary-customer">
                 <div id="summary-stats-column1">
@@ -646,76 +904,5 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
 </script>
 
 <script type="text/template" id="template-view-reports-customers-summary">
-</script>
-
-<script type="text/javascript">
-    Highcharts.theme = {
-        yAxis: {
-            min: 0,
-            title: {
-                style:{
-                    color: '#000000'
-                }
-            },
-            labels:{
-                enabled: false
-            },
-            stackLabels: {
-                enabled: true,
-                style: {
-                    fontWeight: 'bold',
-                    fontFamily:'BebasNeue',
-                    fontSize: 24,
-                    color: '#FF7733'
-                }
-            },
-            gridLineWidth:0,
-            lineWidth: 1,
-            lineColor: '#000'
-
-        },
-        xAxis: {
-            lineColor: '#000',
-                labels:{
-                    style:{
-                        color: '#000000'
-                    }
-                }
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-                dataLabels: {
-                    enabled: false,
-                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'black',
-                    style:{
-                        fontFamily: 'Arial',
-                        fontWeight: 'bold',
-                        fontSize: 14
-                    }
-                }
-            },
-            series:{
-                pointWidth: 70,
-                pointPadding: 0,
-                groupPadding:0,
-                borderWidth: 1,
-                borderColor: "#666",
-                shadow: false
-            }
-        },
-        legend: {
-            align: 'center',
-            verticalAlign: 'bottom',
-            y: 15,
-            backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
-            borderColor: '#CCC',
-            borderWidth: 0,
-            shadow: false
-        }
-    };
-
-    var highchartsOptions  = Highcharts.setOptions(Highcharts.theme);
-
 </script>
 

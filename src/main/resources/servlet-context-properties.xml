@@ -40,7 +40,7 @@
         <prop key="buttonViewUrl">${cdnUrl}/button_echoed.png</prop>
         <prop key="loginViewUrl">${cdnUrl}/login.html</prop>
         <prop key="errorViewUrl">${cdnUrl}/error.html</prop>
-        <prop key="closetViewUrl">${cdnUrl}/closet.html</prop>
+        <prop key="closetViewUrl">${cdnUrl}/user.html</prop>
 
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
 

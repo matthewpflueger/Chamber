@@ -106,7 +106,7 @@
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="closetController" class="com.echoed.chamber.controllers.ClosetController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
-        <property name="closetView" value="closet" />
+        <property name="closetView" value="user" />
     </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->

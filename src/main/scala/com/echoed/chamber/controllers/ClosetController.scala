@@ -52,7 +52,7 @@ class ClosetController {
     @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
     def exhibit(
-            @RequestParam(value = "echoedUserId", required = true) echoedUserId: String,
+            @CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 

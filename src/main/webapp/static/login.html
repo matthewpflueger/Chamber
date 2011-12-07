@@ -1,51 +1,96 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Login</title>
-<link id="stylecss" rel="stylesheet" href="style.css" />
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-<script type="text/javascript" src="http://v1-cdn.echoed.com/redirect.js"></script>
-<script type="text/javascript" src="http://v1-cdn.echoed.com/redirect.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link id="stylecss" rel="stylesheet" href="http://v1-cdn.echoed.com/echoed-confirm.css" />
+<title>Popup</title>
 </head>
-<body class="share">
+<body>
 	<div id="container">
-    	<div id="header">
-        	<img src="echoed_new.png" />
+        <div id="header">
+            Powered By Echoed
         </div>
-        <div class="share-content">
-                <div class="share_image">
-                    some product image goes here...
-                	<img src="" />
+        <div id="content">
+            <div id="thankyou">
+                Thank you for your purchase
+            </div>
+            <div id="lower">
+                <div id="left">
+                    <div id="left_content">
+                        <div id="product">
+                            <div id="product_upper">
+                                <div id="product_picture_container" style="float:left">
+                                    <img id="product_picture" src="Pic1.jpg"/>
+                                </div>
+                                <div style="margin-left:5px; float:left; font-size:14px;">
+                                        Rescue<br />
+                                        by Redhawk Brigade<br />
+                                        @ RedhawkBrigade.com<br />
+                                        $29.99
+                                </div>
+                                <div style="clear:both">
+                                </div>
+                            </div>
+                            <div id="product_text" style="margin-top:10px">
+                                <div>Rewards (7 Days to register activity)</div>
+                                <table width="100%" cellspacing="0" cellpadding="0">
+                                    <tbody>
+                                        <tr class="odd">
+                                            <td>
+                                            <span class="echoed-text">Echo</span> to your exhibit
+                                            </td>
+                                            <td align="right" width="80px" valign="top">
+                                            Receive <span class="echoed-text">1%</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                            Get <span class="echoed-text">20 clicks</span> on your social network
+                                            </td>
+                                            <td align="right">
+                                            Receive <span class="echoed-text">5%</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="odd">
+                                            <td>
+                                            Encourage <span class="echoed-text">social activity</span>. More activity more reward.
+                                            </td>
+                                            <td align="right" valign="top">
+                                            up to <span class="echoed-text">15%</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="share_text">
-                    <strong>some product</strong><br />
-                    by Awesome Company<br />
-                    @ Shopify.com<br />
-                    $19.99<br /><br />
-			</div>
+    	        <div id="right" >
+                    <div id="right_content" class="border-grey bg-color-white rounded-corners">
+                        <div style="font-family:HelveticaNeue-Medium;font-size:20px">
+                            Get Rewarded for Sharing
+                        </div>
+                        <div style="font-family:HelveticaNeue-Light;font-size:18px">
+                            Showcase this item in your Echoed Exhibit and Redhawk Brigade will credit you with 1% off this purchase.
+                            <br><br>
+                            Share this item with your social network(s) and your credit from Redhawk Brigade will grow as your friends check out what you’ve bought.
+                            <br><br>
+                        </div>
+                        <div style="font-family:HelveticaNeue-Medium;font-size:20px">
+                            Sign Up or Login:
+                        </div>
+                        <div>
+                            <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri={{redirectUrl}}&scope=email,publish_stream,offline_access" >
+                                <img width="200" src='fb-login.png'/>
+                            </a>
+                            <a id="twitterLogin" href="{{twitterUrl}}">
+                                <img width="200" src='twitter-login.png'/>
+                            </a>
+                        </div>
+                    </div>
+	            </div>
+            </div>
         </div>
-        <div style="clear:both"></div>
-        <form id="share_form" action="" method="post">
-        <div class="share-content">
-            <p>Login or create an Echoed account using any of the following social networks:<br/><br/></p>
-            <table cellspacing="0" cellpadding="5" border="0" width="500px" id="social_share">
-                <tr class="even" valign="top">
-                    <td>&nbsp;&nbsp;&nbsp;</td>
-                    <td>
-                        <a id="twitterLogin" href="{{twitterUrl}}">
-                            <img class='icon' src='button_login_twitter.png'/>
-                        </a>
-                    </td>
-                    <td>
-                        <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri={{redirectUrl}}&scope=email,publish_stream,offline_access" >
-                            <img class='icon' src='button_login_facebook.png'/>
-                        </a>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        </form>
-	</div>
+    </div>
 </body>
 </html>

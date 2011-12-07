@@ -1,0 +1,149 @@
+@font-face {
+    font-family: 'BebasNeue';
+    src: url('BebasNeue-webfont.eot');
+    src: url('BebasNeue-webfont.eot?#iefix') format('embedded-opentype'),
+         url('BebasNeue-webfont.woff') format('woff'),
+         url('BebasNeue-webfont.ttf') format('truetype'),
+         url('BebasNeue-webfont.svg#BebasNeueRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+$mainColor: #FF7733;
+$fbColor: #3B5998;
+$twitterColor: #4099FF;
+
+$labelColor: #666;
+$navColor: #666;
+
+
+$containerColor: #FFF;
+$backgroundColor: #CCC;
+
+$headerHeight: 50px;
+
+$navFontFamily: BebasNeue, Arial, sans-serif;
+$textFontFamily: HelveticaNeue-Light,Arial, Helvetica, sans-serif;
+
+//RESET
+html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
+pre, form, fieldset, table, th, td{
+	margin:0;
+	padding: 0;
+	font-family: $textFontFamily;
+}
+
+table{
+    border-collapse: collapse;
+}
+
+//STANDARD HTML ELEMENTS DEFINITION
+html{
+    height: 100%;
+}
+
+body{
+    min-height:100%;
+}
+
+th{
+    font-weight: normal;
+}
+
+a{
+	text-decoration:none;
+	color:inherit;
+}
+
+h2{
+    font-family: $navFontFamily;
+    color: $labelColor;
+}
+
+.echoed-text{
+    color: $mainColor;
+}
+
+#container{
+    min-width: 1000px;
+    height: 100%;
+}
+
+	#header{
+	    min-width: 1100px;
+		height:50px;
+		border-bottom: 5px solid $mainColor;
+		background-color: $containerColor;
+	}
+
+		#logo{
+			font-size:48px;
+			line-height: $headerHeight;
+			height: $headerHeight;
+			float:left;
+			font-family: $navFontFamily;
+        }
+
+        #nav{
+            float:right;
+        }
+
+    #primary{
+
+    }
+
+        #learnmore{
+            padding:40px 0px;
+        }
+
+            #lm-left{
+                float:left;
+                width: 360px;
+            }
+                #lm-left-label{
+                    font-family: $navFontFamily;
+                    font-size: 48px;
+                }
+
+            #lm-right{
+                width: 620;
+                float:right;
+            }
+    .center{
+        width:960px;
+        margin:auto;
+    }
+
+    #secondary{
+        height:200px;
+
+    }
+
+    #footer{
+        position:absolute;
+        bottom: 0px;
+        background-color: #666;
+        height: 50px;
+        width: 100%;
+    }
+
+.clear{
+	clear:both;
+}
+
+.clearfix{
+    zoom:1;
+}
+
+.clearfix:before,.clearfix:after{
+    content:"";
+    display:table;
+}
+
+.clearfix:after{
+    clear:both;
+}
+

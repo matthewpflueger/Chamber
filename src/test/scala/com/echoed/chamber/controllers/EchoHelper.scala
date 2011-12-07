@@ -41,7 +41,7 @@ class EchoHelper extends ShouldMatchers {
             step: String = "button",
             orderId: String = "testOrderId",
             price: Int = 100, //one dollar
-            imageUrl: String = "http://v1-cdn.echoed.com/echo_demo_store-tie_thumb.jpeg",
+            imageUrl: String = "http://v1-cdn.echoed.com/Pic1.jpg",
             echoedUserId: String = null,
             echoId: String = null,
             landingPageUrl: String = "http://echoed.com") = {
