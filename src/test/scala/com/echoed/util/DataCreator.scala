@@ -38,30 +38,30 @@ class DataCreator {
 
     val retailerSettings = List(
         RetailerSettings(
-            UUID.randomUUID.toString,
-            on,
-            on,
-            retailerId,
+            id = UUID.randomUUID.toString,
+            updatedOn = on,
+            createdOn = on,
+            retailerId = retailerId,
             closetPercentage = 0.01f,
-            minClicks = 5,
-            minPercentage = 0.01f,
-            maxClicks = 20,
-            maxPercentage = 0.20f,
-            echoedMatchPercentage = 1,
-            echoedMaxPercentage = 0.10f,
+            minClicks = 1,
+            minPercentage = 0.1f,
+            maxClicks = 10,
+            maxPercentage = 0.2f,
+            echoedMatchPercentage = 1f,
+            echoedMaxPercentage = 0.2f,
             activeOn = past.getTime),
         RetailerSettings(
-            UUID.randomUUID.toString,
-            on,
-            on,
-            retailerId,
+            id = UUID.randomUUID.toString,
+            updatedOn = on,
+            createdOn = on,
+            retailerId = retailerId,
             closetPercentage = 0.01f,
-            minClicks = 5,
-            minPercentage = 0.01f,
-            maxClicks = 20,
-            maxPercentage = 0.20f,
-            echoedMatchPercentage = 1,
-            echoedMaxPercentage = 0.10f,
+            minClicks = 1,
+            minPercentage = 0.1f,
+            maxClicks = 10,
+            maxPercentage = 0.2f,
+            echoedMatchPercentage = 1f,
+            echoedMaxPercentage = 0.2f,
             activeOn = future.getTime)
     )
 
@@ -323,8 +323,8 @@ class DataCreator {
             landingPageUrl,
             retailerSettings(0).id,
             0,
-            retailerSettings(0).closetPercentage*price_1,
-            retailerSettings(0).closetPercentage*price_1*retailerSettings(0).echoedMatchPercentage),
+            0,
+            0),
         Echo(
             echoId_2,
             on,
@@ -343,7 +343,7 @@ class DataCreator {
             landingPageUrl,
             retailerSettings(1).id,
             0,
-            retailerSettings(1).closetPercentage*price_2,
-            retailerSettings(1).closetPercentage*price_2*retailerSettings(1).echoedMatchPercentage)
+            0,
+            0)
     )
 }

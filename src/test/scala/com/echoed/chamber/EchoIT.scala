@@ -220,6 +220,10 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             echoClick.get(0).facebookPostId should equal (facebookPost.id)
             echoClick.get(0).twitterStatusId should be (null)
 
+            val e = echoDao.findById(echoClick.get(0).echoId)
+            e.totalClicks should not be (0)
+            e.credit should be > 0f
+            e.fee should be > 0f
         }
 
         scenario("a known person clicks on their friend's Facebook post and is redirected to the retailer's product/landing page", IntegrationTest) {
