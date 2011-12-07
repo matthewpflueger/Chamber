@@ -1,4 +1,4 @@
-package com.echoed.chamber
+package com.echoed.chamber.controllers
 
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,15 +8,14 @@ import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import org.openqa.selenium.WebDriver
 import java.util.Properties
-import tags.IntegrationTest
 import org.slf4j.LoggerFactory
-import com.echoed.util.{DataCreator, CookieValidator}
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.chamber.domain.EchoPossibility
+import com.echoed.util.{IntegrationTest, DataCreator, CookieValidator}
 
 
 @RunWith(classOf[JUnitRunner])
-@ContextConfiguration(locations = Array("classpath:itest.xml"))
+@ContextConfiguration(locations = Array("classpath:webIT.xml"))
 class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoButtonIT])

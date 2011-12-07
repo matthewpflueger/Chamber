@@ -1,4 +1,4 @@
-package com.echoed.chamber.tags
+package com.echoed.util
 
 import org.scalatest.Tag
 

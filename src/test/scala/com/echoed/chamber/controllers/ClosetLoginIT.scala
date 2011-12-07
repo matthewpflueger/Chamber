@@ -1,9 +1,9 @@
-package com.echoed.chamber
+package com.echoed.chamber.controllers
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.echoed.chamber.tags.IntegrationTest
+import com.echoed.util.IntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
 import scala.reflect.BeanProperty
 import com.echoed.chamber.dao.{EchoDao, EchoedUserDao}
@@ -17,7 +17,7 @@ import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 
 
 @RunWith(classOf[JUnitRunner])
-@ContextConfiguration(locations = Array("classpath:itest.xml"))
+@ContextConfiguration(locations = Array("classpath:webIT.xml"))
 class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     @Autowired @BeanProperty var closetDao: ClosetDao = _

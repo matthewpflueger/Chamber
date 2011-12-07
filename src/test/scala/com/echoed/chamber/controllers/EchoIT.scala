@@ -1,4 +1,4 @@
-package com.echoed.chamber
+package com.echoed.chamber.controllers
 
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import java.util.Properties
 import java.util.Date
-import tags.IntegrationTest
+import com.echoed.util.IntegrationTest
 import scala.collection.JavaConversions
 import org.openqa.selenium.{By, Cookie, WebDriver}
 import com.echoed.chamber.domain.{Echo, FacebookUser, FacebookPost, EchoedUser}
@@ -18,7 +18,7 @@ import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 
 
 @RunWith(classOf[JUnitRunner])
-@ContextConfiguration(locations = Array("classpath:itest.xml"))
+@ContextConfiguration(locations = Array("classpath:webIT.xml"))
 class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     @Autowired @BeanProperty var echoDao: EchoDao = _

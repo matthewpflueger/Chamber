@@ -1,18 +1,15 @@
-package com.echoed.chamber
+package com.echoed.chamber.controllers
 
-import domain.views.EchoView
+import com.echoed.chamber.domain.views.EchoView
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.echoed.chamber.tags.IntegrationTest
+import com.echoed.util.IntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
 import scala.reflect.BeanProperty
 import com.echoed.chamber.dao.{EchoDao, EchoedUserDao}
-import com.echoed.chamber.domain.Echo
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import com.echoed.chamber.dao.views.ClosetDao
-import org.openqa.selenium.{Cookie, WebDriver}
-import java.util.{Date, Properties}
+import java.util.Properties
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.net.URL
 import com.echoed.util.{ScalaObjectMapper, DataCreator}

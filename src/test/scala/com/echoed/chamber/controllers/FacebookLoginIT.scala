@@ -1,6 +1,6 @@
-package com.echoed.chamber
+package com.echoed.chamber.controllers
 
-import dao.{FacebookUserDao, EchoedUserDao}
+import com.echoed.chamber.dao.{FacebookUserDao, EchoedUserDao}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{GivenWhenThen, FeatureSpec}
@@ -8,13 +8,13 @@ import org.scalatest.matchers.ShouldMatchers
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import tags.IntegrationTest
+import com.echoed.util.IntegrationTest
 import java.util.Properties
 import org.openqa.selenium.{By, WebDriver}
 
 
 @RunWith(classOf[JUnitRunner])
-@ContextConfiguration(locations = Array("classpath:itest.xml"))
+@ContextConfiguration(locations = Array("classpath:webIT.xml"))
 class FacebookLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = null

@@ -7,7 +7,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 
-import com.echoed.chamber.tags.IntegrationTest
+import com.echoed.util.IntegrationTest
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.util.DataCreator
 

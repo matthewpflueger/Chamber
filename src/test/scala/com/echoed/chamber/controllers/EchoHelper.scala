@@ -1,4 +1,4 @@
-package com.echoed.chamber
+package com.echoed.chamber.controllers
 
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty

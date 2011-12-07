@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 import com.echoed.chamber.dao.views.ClosetDaoIT
 
 @RunWith(classOf[JUnitRunner])
-class DatabaseSuite extends Suites(
+class DaoITSuite extends Suites(
     new EchoClickDaoIT,
     new EchoDaoIT,
     new EchoedUserDaoIT,
