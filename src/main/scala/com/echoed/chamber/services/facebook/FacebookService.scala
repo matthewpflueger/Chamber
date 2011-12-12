@@ -2,7 +2,7 @@ package com.echoed.chamber.services.facebook
 
 import akka.dispatch.Future
 import com.echoed.util.FutureHelper
-import com.echoed.chamber.domain.{FacebookPost, Echo, EchoedUser, FacebookUser}
+import com.echoed.chamber.domain._
 
 
 trait FacebookService {
@@ -14,4 +14,8 @@ trait FacebookService {
     def assignEchoedUser(echoedUser: EchoedUser): Future[FacebookUser]
 
     def echo(echo: Echo, message: String): Future[FacebookPost]
+
+    def getFacebookFriends(): Future[List[FacebookFriend]]
+
+    private[services] def fetchFacebookFriends(): Future[List[FacebookFriend]]
 }

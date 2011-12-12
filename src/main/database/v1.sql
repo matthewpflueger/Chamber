@@ -126,7 +126,6 @@ create table EchoPossibility (
     index(retailerId)
 );
 
-
 drop table if exists EchoedUser;
 create table EchoedUser (
 	id varchar(36) not null primary key,
@@ -137,6 +136,22 @@ create table EchoedUser (
 	screenName varchar(255) unique key,
 	facebookUserId varchar(36) unique key,
 	twitterUserId varchar(36) unique key
+);
+
+drop table if exists EchoedFriend;
+create table EchoedFriend (
+	id varchar(36) not null primary key,
+	updatedOn timestamp not null,
+	createdOn timestamp not null,
+	fromEchoedUserId varchar(36) not null,
+	toEchoedUserId varchar(36) not null,
+	name varchar(255),
+	screenName varchar(255),
+	facebookUserId varchar(36),
+	twitterUserId varchar(36),
+	unique key(fromEchoedUserId, toEchoedUserId),
+	index(fromEchoedUserId),
+	index(toEchoedUserId)
 );
 
 drop table if exists TwitterUser;
@@ -183,6 +198,24 @@ create table FacebookUser (
 	accessToken varchar(255) not null unique key
 );
 
+drop table if exists FacebookTestUser;
+create table FacebookTestUser (
+	id varchar(36) not null primary key,
+	updatedOn timestamp not null,
+	createdOn timestamp not null,
+	echoedUserId varchar(36),
+	facebookUserId varchar(36),
+	facebookId varchar(255) not null unique key,
+	name varchar(255),
+	email varchar(255),
+	password varchar(255),
+	loginUrl varchar(255),
+	accessToken varchar(255),
+	index(echoedUserId),
+	index(facebookUserId),
+	index(email)
+);
+
 drop table if exists FacebookFriend;
 create table FacebookFriend (
     id varchar(36) not null primary key,
@@ -191,6 +224,7 @@ create table FacebookFriend (
     facebookUserId varchar(36) not null,
     facebookId varchar(255) not null,
     name varchar(255) not null,
+    unique key(facebookUserId, facebookId),
     index (facebookUserId),
     index (facebookId)
 );

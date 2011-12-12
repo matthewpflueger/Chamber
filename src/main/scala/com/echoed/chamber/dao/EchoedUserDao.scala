@@ -9,9 +9,15 @@ trait EchoedUserDao {
 
     def insert(echoedUser: EchoedUser): Int
 
-    def findByFacebookUserId(facebookId: String): EchoedUser
+    def findByFacebookUserId(facebookUserId: String): EchoedUser
 
-    def findByTwitterUserId(twitterId: String): EchoedUser
+    def findByFacebookId(facebookId: String): EchoedUser
+
+    def findByTwitterId(twitterId: String): EchoedUser
+
+    def findByTwitterUserId(twitterUserId: String): EchoedUser
+
+    def findByEmail(email: String): EchoedUser
 
     def deleteByEmail(email: String): Int
 

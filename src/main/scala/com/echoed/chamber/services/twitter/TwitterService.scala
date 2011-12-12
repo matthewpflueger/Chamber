@@ -20,7 +20,7 @@ trait TwitterService {
 
     def getTwitterUser(): Future[TwitterUser]
 
-    def getFollowers(): Future[Array[TwitterFollower]]
+    def getFollowers(): Future[List[TwitterFollower]]
 
     def assignEchoedUserId(id: String): Future[TwitterUser]
 

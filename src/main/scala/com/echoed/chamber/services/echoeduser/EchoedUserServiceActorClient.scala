@@ -33,7 +33,7 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def echoToTwitter(echo:Echo, message:String) =
         (echoedUserServiceActor ? ("echoToTwitter",echo,message)).mapTo[TwitterStatus]
 
-    def getCloset =
-            (echoedUserServiceActor ? "closet").mapTo[Closet]
+    def getCloset = (echoedUserServiceActor ? "closet").mapTo[Closet]
 
+    def friends = (echoedUserServiceActor ? 'friends).mapTo[List[EchoedFriend]]
 }

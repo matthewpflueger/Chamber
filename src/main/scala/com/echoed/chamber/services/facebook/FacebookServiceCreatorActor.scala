@@ -5,7 +5,7 @@ import com.echoed.chamber.domain.FacebookUser
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import akka.dispatch.Future
-import com.echoed.chamber.dao.{FacebookPostDao, FacebookUserDao}
+import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao}
 
 
 class FacebookServiceCreatorActor extends Actor {
@@ -15,6 +15,7 @@ class FacebookServiceCreatorActor extends Actor {
     @BeanProperty var facebookAccess: FacebookAccess = _
     @BeanProperty var facebookUserDao: FacebookUserDao = _
     @BeanProperty var facebookPostDao: FacebookPostDao = _
+    @BeanProperty var facebookFriendDao: FacebookFriendDao = _
 
     def receive = {
         case ("code", code: String, queryString: String) => {
@@ -44,7 +45,8 @@ class FacebookServiceCreatorActor extends Actor {
                         facebookUser,
                         facebookAccess,
                         facebookUserDao,
-                        facebookPostDao)).start)
+                        facebookPostDao,
+                        facebookFriendDao)).start)
             }
 
             logger.debug("Created FacebookService with user {}", facebookUser)
@@ -57,7 +59,8 @@ class FacebookServiceCreatorActor extends Actor {
                         facebookUser.get,
                         facebookAccess,
                         facebookUserDao,
-                        facebookPostDao)).start)
+                        facebookPostDao,
+                        facebookFriendDao)).start)
 
         }
     }

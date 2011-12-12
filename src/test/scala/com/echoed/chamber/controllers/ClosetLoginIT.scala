@@ -12,7 +12,7 @@ import org.springframework.test.context.{TestContextManager, ContextConfiguratio
 import com.echoed.chamber.dao.views.ClosetDao
 import org.openqa.selenium.{Cookie, WebDriver}
 import java.util.{Date, Properties}
-import com.echoed.util.DataCreator
+import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 
 

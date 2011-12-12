@@ -18,5 +18,5 @@ class Initializer extends ServletContextListener {
    lazy val loader = new AkkaLoader
    def contextDestroyed(e: ServletContextEvent): Unit = loader.shutdown
    def contextInitialized(e: ServletContextEvent): Unit =
-     loader.boot(true, new DefaultBootableActorLoaderService) // with BootableRemoteActorService)
+     loader.boot(false, new DefaultBootableActorLoaderService) // with BootableRemoteActorService)
 }

@@ -17,7 +17,7 @@
     	select * from FacebookFriend where facebookUserId = #{facebookUserId}
     </select>
 
-    <insert id="insert" parameterType="com.echoed.chamber.domain.FacebookFriend">
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.FacebookFriend">
     	insert into FacebookFriend(
     			id,
     			createdOn,
@@ -30,6 +30,8 @@
     			#{facebookUserId},
     			#{facebookId},
     			#{name})
+    	    on duplicate key update
+    	        name = #{name}
     </insert>
 
     <delete id="deleteByFacebookUserId">

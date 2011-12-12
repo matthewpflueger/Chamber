@@ -2,7 +2,6 @@ package com.echoed.chamber.services.twitter
 
 import akka.actor.Actor
 import com.echoed.chamber.domain.{TwitterFollower, TwitterUser, TwitterStatus}
-import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import java.util.Properties
 import org.slf4j.LoggerFactory
@@ -10,6 +9,7 @@ import twitter4j.auth.{RequestToken,AccessToken}
 import twitter4j.{TwitterFactory, Twitter}
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.{Status,User}
+import scala.collection.mutable.{ListBuffer, WeakHashMap}
 
 class TwitterAccessActor extends Actor {
 
@@ -74,19 +74,15 @@ class TwitterAccessActor extends Actor {
             self.channel ! twitterUser
         }
 
-        case ("getFollowers", accessToken: String, accessTokenSecret: String, userId: Long) => {
-            logger.debug("Attempting to receive TwitterFollowers for UserId {} ", userId)
-            val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
-            val idList: Array[Long] = twitterHandler.getFollowersIDs(userId, -1).getIDs
-            var twitterFollowers: Array[TwitterFollower] = new Array[TwitterFollower](0);
-            logger.debug("Size of twitter follower list: {}", idList.length)
-            for (id <- idList) {
-                //TODO the user id here is Twitter's user id, we need ours!
-                val twitterFollower: TwitterFollower = new TwitterFollower(userId.toString, id.toString, null)
-                logger.debug("Got {}", twitterFollower)
-                twitterFollowers :+= twitterFollower
-            }
-            logger.debug("TwitterFollowersArray Size: {}", twitterFollowers.length)
+        case ("getFollowers", accessToken: String, accessTokenSecret: String, twitterUserId: String, twitterId: Long) => {
+            logger.debug("Attempting to receive TwitterFollowers for UserId {} ", twitterId)
+
+            val ids = getTwitterHandler(accessToken, accessTokenSecret).getFollowersIDs(twitterId, -1).getIDs
+
+            logger.debug("TwitterUser {} with has {} followers", twitterUserId, ids.length)
+            val twitterFollowers = ids.map( id => new TwitterFollower(twitterUserId, id.toString, null)).toList
+            logger.debug("Got {} ", twitterFollowers)
+
             self.channel ! twitterFollowers
         }
 

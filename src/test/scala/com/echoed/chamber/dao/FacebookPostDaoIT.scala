@@ -9,7 +9,7 @@ import org.springframework.test.context.{TestContextManager, ContextConfiguratio
 
 import com.echoed.util.IntegrationTest
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
-import com.echoed.util.DataCreator
+import com.echoed.chamber.util.DataCreator
 import scala.collection.JavaConversions._
 
 

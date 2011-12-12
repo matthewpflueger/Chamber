@@ -65,6 +65,11 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
+    <bean id="facebookTestUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookTestUserDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
     <bean id="retailerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
@@ -77,6 +82,11 @@
 
     <bean id="echoedUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.EchoedUserDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
+    <bean id="echoedFriendDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.EchoedFriendDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 

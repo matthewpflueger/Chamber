@@ -12,7 +12,7 @@ import org.springframework.test.context.{TestContextManager, ContextConfiguratio
 import com.echoed.util.IntegrationTest
 import java.util.Properties
 import org.openqa.selenium.{By, WebDriver}
-import com.echoed.util.DataCreator
+import com.echoed.chamber.util.DataCreator
 
 
 @RunWith(classOf[JUnitRunner])

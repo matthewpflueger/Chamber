@@ -4,6 +4,7 @@
     <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
         <constructor>
             <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
 			<arg column="createdOn" javaType="Date" />
             <arg column="name" javaType="String" />
 			<arg column="email" javaType="String" />
@@ -26,6 +27,23 @@
         select * from EchoedUser where twitterUserId = #{twitterUserId}
     </select>
 
+    <select id="findByFacebookId" resultMap="echoedUserResult">
+        select EU.*
+        from EchoedUser EU
+        join FacebookUser FU on EU.facebookUserId = FU.id
+        where FU.facebookId = #{facebookId}
+    </select>
+
+    <select id="findByTwitterId" resultMap="echoedUserResult">
+        select EU.*
+        from EchoedUser EU
+        join TwitterUser TU on EU.twitterUserId = TU.id
+        where TU.twitterId = #{twitterId}
+    </select>
+
+    <select id="findByEmail" resultMap="echoedUserResult">
+        select * from EchoedUser where email = #{email}
+    </select>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.EchoedUser">
     	insert into EchoedUser(

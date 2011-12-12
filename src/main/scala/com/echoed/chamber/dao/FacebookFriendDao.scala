@@ -9,7 +9,7 @@ trait FacebookFriendDao {
 
     def findByFacebookUserId(facebookUserId: String): JList[FacebookFriend]
 
-    def insert(facebookFriend: FacebookFriend): Int
+    def insertOrUpdate(facebookFriend: FacebookFriend): Int
 
     def deleteByFacebookUserId(facebookUserId: String): Int
 

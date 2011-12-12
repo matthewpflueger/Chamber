@@ -5,6 +5,7 @@ import java.util.{UUID, Date}
 
 case class EchoedUser(
         id: String,
+        updatedOn: Date,
         createdOn: Date,
         name: String,
         email: String,
@@ -20,6 +21,7 @@ case class EchoedUser(
             twitterUserId: String) = this(
         UUID.randomUUID.toString,
         new Date,
+        new Date,
         name,
         email,
         null,
@@ -28,6 +30,7 @@ case class EchoedUser(
 
     def this(id: String, name: String, email: String) = this(
         id,
+        null,
         null,
         name,
         email,
@@ -38,6 +41,7 @@ case class EchoedUser(
     def this(facebookUser: FacebookUser) = this(
         UUID.randomUUID.toString,
         new Date,
+        new Date,
         facebookUser.name,
         facebookUser.email,
         null,
@@ -46,6 +50,7 @@ case class EchoedUser(
 
     def this(twitterUser: TwitterUser) = this(
         UUID.randomUUID.toString,
+        new Date,
         new Date,
         twitterUser.name,
         null,

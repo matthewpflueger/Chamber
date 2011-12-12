@@ -111,4 +111,32 @@ class ClosetController {
             continuation.undispatch()
         })
     }
+
+    @RequestMapping(value = Array("/friends"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def friends(
+            @CookieValue(value = "echoedUserId", required = false) echoedUserIdCookie: String,
+            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val echoedUserId = if (echoedUserIdCookie != null) echoedUserIdCookie else echoedUserIdParam
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (continuation.isExpired) {
+            logger.error("Request expired to view friends for user {}", echoedUserId)
+            new ModelAndView(errorView)
+        } else Option(continuation.getAttribute("friends")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
+                echoedUserService.friends.map { friends =>
+                    continuation.setAttribute("friends", friends)
+                    continuation.resume()
+                }
+            }
+
+            continuation.undispatch()
+        })
+    }
 }

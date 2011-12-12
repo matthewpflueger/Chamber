@@ -12,7 +12,8 @@ import org.springframework.test.context.{TestContextManager, ContextConfiguratio
 import java.util.Properties
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.net.URL
-import com.echoed.util.{ScalaObjectMapper, DataCreator}
+import com.echoed.util.ScalaObjectMapper
+import com.echoed.chamber.util.DataCreator
 import org.codehaus.jackson.`type`.TypeReference
 import java.util.{List => JList}
 import scala.collection.JavaConversions._

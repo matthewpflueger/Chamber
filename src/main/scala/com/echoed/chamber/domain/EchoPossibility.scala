@@ -9,8 +9,8 @@ import scala.collection.{JavaConversions, JavaConverters}
 
 case class EchoPossibility(
         id: String,
-        createdOn: Date,
         updatedOn: Date,
+        createdOn: Date,
         retailerId: String,
         customerId: String,
         productId: String,

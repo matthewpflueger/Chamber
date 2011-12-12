@@ -9,7 +9,7 @@ import org.springframework.test.context.{TestContextManager, ContextConfiguratio
 
 import com.echoed.util.IntegrationTest
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
-import com.echoed.util.DataCreator
+import com.echoed.chamber.util.DataCreator
 import scala.collection.JavaConversions._
 
 
@@ -35,7 +35,7 @@ class FacebookFriendDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatc
     feature("A developer can manipulate FacebookFriend data") {
 
         scenario("new FacebookFriends are inserted", IntegrationTest) {
-            facebookFriends.foreach(facebookFriendDao.insert(_))
+            facebookFriends.foreach(facebookFriendDao.insertOrUpdate(_))
             val facebookFriendList = asScalaBuffer(facebookFriendDao.findByFacebookUserId(facebookFriends(0).facebookUserId))
             facebookFriendList should not be (null)
             facebookFriendList.length should equal (facebookFriends.length)

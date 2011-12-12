@@ -42,7 +42,11 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
         }
 
         case ("getFollowers") => {
-            self.channel ! twitterAccess.getFollowers(twitterUser.accessToken, twitterUser.accessTokenSecret, twitterUser.twitterId.toLong).mapTo[Array[TwitterFollower]]
+            self.channel ! twitterAccess.getFollowers(
+                    twitterUser.accessToken,
+                    twitterUser.accessTokenSecret,
+                    twitterUser.id,
+                    twitterUser.twitterId.toLong).mapTo[List[TwitterFollower]]
         }
 
         case ("assignEchoedUserId", echoedUserId: String) => {

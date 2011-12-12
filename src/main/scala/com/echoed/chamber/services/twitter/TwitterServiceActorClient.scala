@@ -20,7 +20,7 @@ class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterSe
             (twitterServiceActor ? ("getTwitterUser")).mapTo[TwitterUser]
 
     def getFollowers =
-            (twitterServiceActor ? ("getFollowers")).mapTo[Array[TwitterFollower]]
+            (twitterServiceActor ? ("getFollowers")).mapTo[List[TwitterFollower]]
 
     def assignEchoedUserId(id: String) =
             (twitterServiceActor ? ("assignEchoedUserId",id)).mapTo[TwitterUser]

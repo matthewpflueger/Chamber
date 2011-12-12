@@ -11,7 +11,8 @@ import java.util.Properties
 import org.slf4j.LoggerFactory
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.chamber.domain.EchoPossibility
-import com.echoed.util.{IntegrationTest, DataCreator, CookieValidator}
+import com.echoed.util.{IntegrationTest, CookieValidator}
+import com.echoed.chamber.util.DataCreator
 
 
 @RunWith(classOf[JUnitRunner])

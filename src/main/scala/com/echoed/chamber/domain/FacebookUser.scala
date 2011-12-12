@@ -40,5 +40,11 @@ case class FacebookUser(
         locale,
         accessToken)
 
+    def createEchoedUser = new EchoedUser(
+            name = this.name,
+            email = this.email,
+            screenName = null,
+            facebookUserId = this.id,
+            twitterUserId = null)
 }
 

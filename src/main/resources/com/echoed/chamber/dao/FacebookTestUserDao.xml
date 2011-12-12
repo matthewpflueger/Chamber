@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.FacebookTestUserDao">
+    <resultMap id="facebookTestUserResult" type="com.echoed.chamber.domain.FacebookTestUser">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+			<arg column="createdOn" javaType="Date" />
+            <arg column="echoedUserId" javaType="String" />
+            <arg column="facebookUserId" javaType="String" />
+            <arg column="facebookId" javaType="String" />
+            <arg column="name" javaType="String" />
+            <arg column="email" javaType="String" />
+            <arg column="password" javaType="String" />
+			<arg column="loginUrl" javaType="String" />
+			<arg column="accessToken" javaType="String" />
+        </constructor>
+    </resultMap>
+
+
+    <select id="findById" resultMap="facebookTestUserResult">
+        select * from FacebookTestUser where id=#{id}
+    </select>
+
+    <select id="findByEmail" resultMap="facebookTestUserResult">
+        select * from FacebookTestUser where email=#{email}
+    </select>
+
+    <select id="selectAll" resultMap="facebookTestUserResult">
+        select * from FacebookTestUser
+    </select>
+
+    <select id="selectFirst" resultMap="facebookTestUserResult">
+        select * from FacebookTestUser order by facebookId asc limit #{number}
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.FacebookTestUser">
+    	insert into FacebookTestUser(
+    			id,
+    			createdOn,
+    			echoedUserId,
+    			facebookUserId,
+    			facebookId,
+    			name,
+    			email,
+    			password,
+    			loginUrl,
+    			accessToken)
+    		values (
+    			#{id},
+    			#{createdOn},
+    			#{echoedUserId},
+    			#{facebookUserId},
+    			#{facebookId},
+    			#{name},
+    			#{email},
+    			#{password},
+    			#{loginUrl},
+    			#{accessToken})
+    		on duplicate key update
+    		    echoedUserId=#{echoedUserId},
+    		    facebookUserId=#{facebookUserId},
+    		    name=#{name},
+                email=#{email},
+                password=#{password},
+                loginUrl=#{loginUrl},
+    		    accessToken = #{accessToken}
+    </insert>
+
+    <delete id="deleteByEmail">
+        delete from FacebookTestUser where email=#{email}
+    </delete>
+
+</mapper>

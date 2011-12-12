@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.facebook
 
 import akka.actor.ActorRef
-import com.echoed.chamber.domain.{FacebookPost, Echo, FacebookUser, EchoedUser}
+import com.echoed.chamber.domain._
 
 
 class FacebookServiceActorClient(facebookServiceActor: ActorRef) extends FacebookService {
@@ -15,4 +15,9 @@ class FacebookServiceActorClient(facebookServiceActor: ActorRef) extends Faceboo
     def echo(echo: Echo, message: String) =
             (facebookServiceActor ? ("echo", echo, message)).mapTo[FacebookPost]
 
+    def getFacebookFriends() =
+            (facebookServiceActor ? 'getFacebookFriends).mapTo[List[FacebookFriend]]
+
+    private[services] def fetchFacebookFriends() =
+            (facebookServiceActor ? '_fetchFacebookFriends).mapTo[List[FacebookFriend]]
 }

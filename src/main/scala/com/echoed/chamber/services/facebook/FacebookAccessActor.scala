@@ -10,6 +10,7 @@ import com.codahale.jerkson.ScalaModule
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
 import com.googlecode.batchfb.{Param, FacebookBatcher}
+import scala.collection.JavaConversions._
 
 
 class FacebookAccessActor extends Actor {
@@ -50,13 +51,15 @@ class FacebookAccessActor extends Actor {
             self.channel ! facebookUser
             logger.debug("Got me {}", facebookUser)
         }
-        case ("friends", accessToken: String, facebookId: String) => {
+        case ("friends", accessToken: String, facebookId: String, facebookUserId: String) => {
             logger.debug("Requesting friends for {} with access token {}", facebookId, accessToken)
-            val pagedFriends: Paged[FacebookFriend] = getFacebookBatcher(accessToken).graph(
+            val pagedFriends = getFacebookBatcher(accessToken).graph(
                     ("%s/friends" format facebookId),
-                    new TypeReference[Paged[FacebookFriend]] {}).get
-            self.channel ! pagedFriends.getData
-            logger.debug("Got friends for {}", facebookId)
+                    new TypeReference[Paged[Friend]] {}).get.getData
+            logger.debug("Found {} friends for FacebookUser {}", pagedFriends.size(), facebookUserId)
+            val facebookFriends = asScalaBuffer(pagedFriends).map(_.createFacebookFriend(facebookUserId)).toList
+            self.channel ! facebookFriends
+            logger.debug("Sent {} friends for FacebookUser {}", facebookFriends.length, facebookUserId)
         }
         case ("post", accessToken: String, facebookId: String, facebookPost: FacebookPost) => {
             logger.debug("Creating new post for {} with access token {}", facebookId, accessToken)

@@ -13,7 +13,7 @@ import scala.collection.JavaConversions
 import org.openqa.selenium.{By, Cookie, WebDriver}
 import com.echoed.chamber.domain.{Echo, FacebookUser, FacebookPost, EchoedUser}
 import com.echoed.chamber.dao._
-import com.echoed.util.DataCreator
+import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 
 
