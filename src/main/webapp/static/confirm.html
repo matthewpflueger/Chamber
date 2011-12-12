@@ -8,7 +8,10 @@
 <body>
 	<div id="container">
         <div id="header">
+            <div>
             Powered By Echoed
+            Sharing. <span>Valued</span>
+            </div>
         </div>
         <div id="content">
             <div id="thankyou">
@@ -20,7 +23,9 @@
                         <div id="product">
                             <div id="product_upper">
                                 <div id="product_picture_container" style="float:left">
-                                    <img id="product_picture" src="Pic1.jpg"/>
+                                    {{#echoPossibility}}
+                                    <img id="product_picture" src="{{imageUrl}}"/>
+                                    {{/echoPossibility}}
                                 </div>
                                 <div style="margin-left:5px; float:left; font-size:14px;">
                                         Rescue<br />
@@ -68,6 +73,9 @@
     	        <div id="right" >
                     <div id="right_content" class="border-grey bg-color-white rounded-corners">
                         <form name="message" id="echo" action="http://v1-api.echoed.com/echo/it" method="get">
+                            {{#echoPossibility}}
+                            <input type="hidden" name="echoPossibilityId" value="{{id}}">
+                            {{/echoPossibility}}
                     	    <table id="echoes" width="100%" cellspacing="5px">
                                 <tbody>
                                     <tr>
@@ -76,12 +84,14 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <textarea name="facebookMessage" style="width:280px; height:65px;" class="rounded-corners" >Items will appear in your echoed closet</textarea>
+                                            <textarea name="closetmessage" disabled="disabled" style="width:280px; height:65px;" class="rounded-corners" >Items will appear in your echoed closet</textarea>
                                         </td>
                                         <td width="50">
                                             <input type="checkbox" name="postToEchoedCloset" checked="true" disabled="true"/>
                                         </td>
                                     </tr>
+                                    {{#echoedUser}}
+                                    {{#facebookUserId}}
                                     <tr>
                                         <td>
                                         	<img src="facebook logo.png" height="65"/>
@@ -93,17 +103,23 @@
                                             <input type="checkbox" name="postToFacebook" checked="true"/>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>
-                                        	<img src="twitter logo.png" height="65"/>
-                                        </td>
-                                        <td>
-                                            <textarea name="twitterMessage" style="width:280px; height:65px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" name="postToTwitter" checked="true"/>
-                                        </td>
-                                    </tr>
+                                    {{/facebookUserId}}
+                                    {{#twitterUserId}}
+                                        <tr>
+                                            <td>
+                                            	<img src="twitter logo.png" height="65"/>
+                                            </td>
+                                            <td>
+                                                <textarea name="twitterMessage" style="width:280px; height:65px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" name="postToTwitter" checked="true"/>
+                                            </td>
+                                        </tr>
+                                    {{/twitterUserId}}
+                                    {{^twitterUserId}}
+                                    {{/twitterUserId}}
+                                    {{/echoedUser}}
                                     <tr>
                                         <td>
                                         </td>

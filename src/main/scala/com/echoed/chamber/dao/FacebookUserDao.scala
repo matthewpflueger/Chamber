@@ -7,6 +7,8 @@ trait FacebookUserDao {
 
     def findById(id: String): FacebookUser
 
+    def findByFacebookId(facebookId: String): FacebookUser
+
     def findByEmail(email: String): FacebookUser
 
     def insertOrUpdate(facebookUser: FacebookUser): Int

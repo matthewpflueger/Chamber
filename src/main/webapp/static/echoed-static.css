@@ -9,7 +9,7 @@ html, body, div, h1, h2, h3, h4, h5, h6, ul, ol, dl, li, dt, dd, p, blockquote,
 pre, form, fieldset, table, th, td {
   margin: 0;
   padding: 0;
-  font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif; }
+  font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif; }
 
 table {
   border-collapse: collapse; }
@@ -32,7 +32,7 @@ h2 {
   color: #666666; }
 
 .echoed-text {
-  color: #ff7733; }
+  color: #e31b23; }
 
 #container {
   min-width: 1000px;
@@ -41,8 +41,7 @@ h2 {
 #header {
   min-width: 1100px;
   height: 50px;
-  border-bottom: 5px solid #ff7733;
-  background-color: white; }
+  border-bottom: 5px solid #e31b23; }
 
 #logo {
   font-size: 48px;
@@ -52,7 +51,20 @@ h2 {
   font-family: BebasNeue, Arial, sans-serif; }
 
 #nav {
-  float: right; }
+  float: right;
+  font-family: BebasNeue, Arial, sans-serif;
+  line-height: 50px;
+  font-size: 20px; }
+
+#nav a {
+  margin-left: 10px; }
+
+#nav a:hover {
+  color: #e31b23; }
+
+#primary {
+  padding-top: 20px;
+  background-color: #f9f9f9; }
 
 #learnmore {
   padding: 40px 0px; }
@@ -74,14 +86,59 @@ h2 {
   margin: auto; }
 
 #secondary {
-  height: 200px; }
+  height: 150px;
+  padding: 20px 0px;
+  background-color: #f9f9f9; }
 
 #footer {
-  position: absolute;
-  bottom: 0px;
-  background-color: #666;
-  height: 50px;
-  width: 100%; }
+  height: 100px;
+  width: 100%;
+  background-color: #444; }
+
+.center-outline {
+  width: 920px;
+  margin: auto;
+  padding: 0px 20px;
+  border: 1px solid #CCC;
+  border-radius: 5px; }
+
+.hiw-title {
+  font-family: BebasNeue, Arial, sans-serif;
+  font-size: 64px;
+  margin-bottom: 20px;
+  margin-top: 20px; }
+
+.indent {
+  padding-left: 50px; }
+
+.section {
+  margin-bottom: 20px; }
+
+.hiw-label {
+  font-family: HelveticaNeue-Medium,Tahoma;
+  font-size: 28px;
+  margin-bottom: 15px; }
+
+.hiw-text {
+  font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif;
+  font-size: 16px; }
+
+.flush-right {
+  float: right;
+  margin-right: -20px; }
+
+.flush-left {
+  float: left;
+  margin-left: -20px; }
+
+.right {
+  float: right; }
+
+.left {
+  float: left; }
+
+.column {
+  width: 460px; }
 
 .clear {
   clear: both; }

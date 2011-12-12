@@ -34,17 +34,19 @@ class FacebookController {
     @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
     def login(
             @RequestParam("code") code: String,
+            @RequestParam(value = "redirect", required = false) redirect: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        logger.debug("Redirect Parameter: {}" ,redirect);
 
         val echoPossibility = echoPossibilityParameters.createFacebookEchoPossibility
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (Option(code) == None || continuation.isExpired) {
             logger.error("Request expired to login via Facebook with code {}", code)
-            echoService.recordEchoPossibility(echoPossibility)
+            //echoService.recordEchoPossibility(echoPossibility)
             new ModelAndView(facebookLoginErrorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
@@ -67,20 +69,26 @@ class FacebookController {
                                     .onResult {
                                         case s: EchoedUserService =>
                                             logger.debug("Received EchoedUserService using FacebookService with code {}", code)
+
                                             continuation.setAttribute("modelAndView",
                                                 try {
                                                     val echoedUser = s.echoedUser.get
                                                     cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
-                                                    val modelAndView = new ModelAndView(echoView)
+                                                    val redirectView = "redirect:http://v1-api.echoed.com/" + redirect;
+                                                    logger.debug("Redirecting to View: {} ", redirectView);
+                                                    val modelAndView = new ModelAndView(redirectView);
+
+
+                                                    //val modelAndView = new ModelAndView(echoView)
                                                     modelAndView.addAllObjects(JavaConversions.mapAsJavaMap[String, String](
                                                             echoPossibility.asMap))
-                                                    modelAndView.addObject("echoedUserId", echoedUser.id)
+                                                    //modelAndView.addObject("echoedUserId", echoedUser.id)
                                                 } catch {
                                                     case n: NoSuchElementException =>
                                                         logger.error("Error getting EchoedUser {}", n)
                                                         new ModelAndView(facebookLoginErrorView)
                                                     case e =>
-//                                                        logger.debug("No EchoPossibility with id {}", echoPossibilityId)
+                                                        //logger.debug("No EchoPossibility with id {}", echoPossibilityId)
                                                         new ModelAndView(dashboardView)
                                                 })
                                             continuation.resume

@@ -1,9 +1,83 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Thank you</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link id="stylecss" rel="stylesheet" href="http://v1-cdn.echoed.com/echoed-confirm.css" />
+    <title>Popup</title>
 </head>
 <body>
-<p>Thank you for echoing your purchase!</p>
+<div id="container">
+    <div id="header">
+        <div>
+            Powered By Echoed
+            Sharing. <span>Valued</span>
+        </div>
+    </div>
+    <div id="content">
+        <div id="thankyou">
+            Thank you for your purchase
+        </div>
+        <div id="lower">
+            <div id="left">
+                <div id="left_content">
+                    <div id="product">
+                        <div id="product_upper">
+                            <div id="product_picture_container" style="float:left">
+                                {{#echoPossibility}}
+                                <img id="product_picture" src="{{imageUrl}}"/>
+                                {{/echoPossibility}}
+                            </div>
+                            <div style="margin-left:5px; float:left; font-size:14px;">
+                                Rescue<br />
+                                by Redhawk Brigade<br />
+                                @ RedhawkBrigade.com<br />
+                                $29.99
+                            </div>
+                            <div style="clear:both">
+                            </div>
+                        </div>
+                        <div id="product_text" style="margin-top:10px">
+                            <div>Rewards (7 Days to register activity)</div>
+                            <table width="100%" cellspacing="0" cellpadding="0">
+                                <tbody>
+                                <tr class="odd">
+                                    <td>
+                                        <span class="echoed-text">Echo</span> to your closet
+                                    </td>
+                                    <td align="right" width="80px" valign="top">
+                                        <span class="echoed-text">1%</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Get <span class="echoed-text">20 clicks</span> on your social network
+                                    </td>
+                                    <td align="right">
+                                        <span class="echoed-text">5%</span>
+                                    </td>
+                                </tr>
+                                <tr class="odd">
+                                    <td>
+                                        Encourage <span class="echoed-text">social activity</span>. More activity more reward.
+                                    </td>
+                                    <td align="right" valign="top">
+                                        up to <span class="echoed-text">15%</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="right" >
+                <div id="right_content" class="border-grey bg-color-white rounded-corners">
+                    <form name="message" id="echo" action="http://v1-api.echoed.com/echo/it" method="get">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -2,6 +2,7 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<link rel="shortcut icon" href="favicon.png" type="image/png">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <title></title>
 <script type='text/javascript' src="jquery-1.6.2.min.js"></script>
@@ -404,6 +405,39 @@ Echoed.Views.Components.Map = Backbone.View.extend({
     }
 });
 
+Echoed.Views.Components.DonutChart = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.chart = null;
+        this.el = options.el;
+        this.render();
+    },
+    render: function(){
+        chart = new Highcharts.Chart(
+                {
+                    chart: {
+                        renderTo: ''
+                    },
+                    title: {
+                        text: 'test'
+                    },
+                    plotOptions:{
+                        pie: {
+                            shadow: false
+                        }
+                    },
+                    tooltip:{
+                        formatter: function(){
+                            return '<b>' + this.point.name + '</b>:' + this.y + ' %';
+                        }
+                    },
+                    series: [{
+                    }]
+                });
+    }
+});
+
 Echoed.Views.Components.Chart = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this);
@@ -436,7 +470,7 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 }
             },
             xAxis: {
-                categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
             },
             tooltip: {
                 formatter: function() {
@@ -448,7 +482,7 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
             series: [
                 {
                     name: 'Facebook',
-                    data: [5, 3, 4, 7, 2],
+                    data: [5, 3, 4, 7, 2]
                 },
                 {
                     name: 'Twitter',
@@ -693,7 +727,7 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
 <div id="container">
     <div id="header">
         <div id="logo">
-            Echoed
+            <img height="50px" src="http://v1-cdn.echoed.com/logo.png">
         </div>
         <div id="header-nav">
             <ul>

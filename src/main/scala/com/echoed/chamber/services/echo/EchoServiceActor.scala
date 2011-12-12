@@ -50,20 +50,24 @@ class EchoServiceActor extends Actor {
             val channel = self.channel
 
             val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoRequestMessage.echoedUserId)
+            logger.debug("Looking for EchoPossilbilty: {}", echoRequestMessage.echoPossibilityId);
             val futureEchoPossibility = Future { Option(echoPossibilityDao.findById(echoRequestMessage.echoPossibilityId)).get }
-
+            logger.debug("Received Future Echo Possibility: {}", futureEchoPossibility);
             val futureEchoResponse /*: Future[EchoResponseMessage]*/ = (for {
                 echoedUserService <- futureEchoedUserService
                 echoedUser <- echoedUserService.getEchoedUser
                 echoPossibility <- futureEchoPossibility
             } yield {
 //                echoedUserServiceResponseMessage.resultOrException.getEchoedUser.resultOrException
+                logger.debug("retailerId: {}", echoPossibility.retailerId)
                 val retailerSettings = Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date)).get
+                logger.debug("retailerSettings Received: {}", retailerSettings)
+
                 var echo = new Echo(echoPossibility, retailerSettings).echoed(retailerSettings)
                 echoDao.insert(echo)
 
                 val futureFacebookPost: Future[Option[FacebookPost]] =
-                    if (echoRequestMessage.postToFacebook) {
+                    if (echoRequestMessage.postToFacebook && echoedUser.facebookUserId != null) {
                         echoedUserService.echoToFacebook(echo, echoRequestMessage.facebookMessage.getOrElse("")).map[Option[FacebookPost]] { facebookPost =>
                             echo = echo.copy(facebookPostId = facebookPost.id)
                             echoDao.updateFacebookPostId(echo)
@@ -75,7 +79,7 @@ class EchoServiceActor extends Actor {
                     }
 
                 val futureTwitterPost =
-                    if (echoRequestMessage.postToTwitter) {
+                    if (echoRequestMessage.postToTwitter && echoedUser.twitterUserId != null) {
                         echoedUserService.echoToTwitter(echo, echoRequestMessage.twitterMessage.getOrElse("")).map[Option[TwitterStatus]] { twitterStatus =>
                             echo = echo.copy(twitterStatusId = twitterStatus.id)
                             echoDao.updateTwitterStatusId(echo)

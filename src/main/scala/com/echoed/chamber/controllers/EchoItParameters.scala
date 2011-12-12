@@ -20,7 +20,7 @@ case class EchoItParameters(
             @BeanProperty var twitterMessage: String = null,
             @BeanProperty var postToTwitter: Boolean = false,
             @BeanProperty var echoedUserId: String = null,
-            @BeanProperty var echoPossibility: String = null) {
+            @BeanProperty var echoPossibilityId: String = null) {
 
         def this() = this(
             null,
@@ -32,7 +32,7 @@ case class EchoItParameters(
 
         def createEchoRequestMessage = new EchoRequestMessage(
                 echoedUserId,
-                echoPossibility,
+                echoPossibilityId,
                 Option(facebookMessage),
                 postToFacebook,
                 Option(twitterMessage),

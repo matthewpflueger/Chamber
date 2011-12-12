@@ -28,7 +28,7 @@ Highcharts.theme = {
                 labels:{
                     style:{
                         color: '#000000',
-                        fontFamily:'HelveticaNeue-Medium',
+                        fontFamily:'HelveticaNeue-Medium,Tahoma,Arial',
                         fontSize: '14px'
                     }
                 }

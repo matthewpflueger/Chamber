@@ -64,7 +64,8 @@ class EchoController {
                 echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter?", true))
 //                "http://v1-api.echoed.com/twitter?%s" format URLEncoder.encode(echoPossibility.asUrlParams(), "UTF-8"))
             modelAndView.addObject("redirectUrl",
-                URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login?"), "UTF-8"))
+                URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login?redirect=echo&"), "UTF-8"))
+            //modelAndView.addObject("echoPossibility",echoPossibility);
 
 //            modelAndView.addObject("redirectUrl", URLEncoder.encode(
 //                "http://v1-api.echoed.com/facebook/login?%s" format echoPossibility.generateUrlParameters,
@@ -88,7 +89,7 @@ class EchoController {
                     echoService.recordEchoPossibility(echoPossibility)
 
                     val modelAndView = new ModelAndView(confirmView)
-                    modelAndView.addObject("echoedUser", echoedUser)
+                    modelAndViehahw.addObject("echoedUser", echoedUser)
                     modelAndView.addObject("echoPossibility", echoPossibility)
 
                     continuation.setAttribute("modelAndView", modelAndView)
@@ -128,7 +129,6 @@ class EchoController {
                     continuation.setAttribute("modelAndView", modelAndView)
                     continuation.resume
             }
-
             continuation.undispatch()
         })
 
@@ -157,7 +157,6 @@ class EchoController {
                 continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format tuple._2))
                 continuation.resume
             }
-
             continuation.undispatch()
         })
 

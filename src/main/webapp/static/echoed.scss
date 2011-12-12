@@ -10,9 +10,9 @@
 
 }
 
-
-
-$mainColor: #FF7733;
+//$mainColor: #FF7733;
+$mainColor: #E31B23;
+$highlightColor : #FF7733;
 $fbColor: #3B5998;
 $twitterColor: #4099FF;
 
@@ -26,7 +26,7 @@ $backgroundColor: #CCC;
 $headerHeight: 50px;
 
 $navFontFamily: BebasNeue, Arial, sans-serif;
-$textFontFamily: HelveticaNeue-Light,Arial, Helvetica, sans-serif;
+$textFontFamily: HelveticaNeue-Light,Tahoma,Arial, Helvetica, sans-serif;
 
 //RESET
 html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
@@ -49,10 +49,6 @@ body{
     min-height:100%;
 }
 
-.retailer{
-    background-color: $backgroundColor;
-}
-
 th{
     font-weight: normal;
 }
@@ -62,6 +58,11 @@ a{
 	color:inherit;
 }
 
+a:visited{
+    text-decoration:none;
+    color:inherit;
+}
+
 h2{
     font-family: $navFontFamily;
     color: $labelColor;
@@ -69,7 +70,7 @@ h2{
 
 /*Echoed Colors*/
 .echoed-text{
-    color:$mainColor;
+    color:$highlightColor;
 }
 
 /*Facebook Colors*/
@@ -101,7 +102,7 @@ h2{
 	}
 	
 		#logo{	
-            margin-left:15px;
+            margin-left:10px;
 			font-size:48px;
 			line-height: $headerHeight;
 			height: $headerHeight;
@@ -136,7 +137,7 @@ h2{
 			}
 			
 			#header-nav li:hover, #header-nav .current{
-				color: $mainColor;
+				color: $highlightColor;
 				background-image:url(arrow.png);
 				background-position:bottom;
 				background-repeat:no-repeat;
@@ -200,6 +201,7 @@ h2{
             #exhibit div{
             }
 
+
 			.exhibit_image{
 				width: 230px;
  				border:3px solid #CCC;
@@ -221,7 +223,7 @@ h2{
 			
 			.item_wrap{
 				float:left;
-				//margin:2px;
+				margin:2px;
 				position:relative;
 			}
 			
@@ -422,7 +424,7 @@ td.number{
     width: 920px;
     //min-height: 300px;
     background-color: $containerColor;
-    border: 1px $mainColor solid;
+    border: 1px $highlightColor solid;
 }
 .full:after{
     content: ".";
@@ -438,7 +440,7 @@ td.number{
     margin-right: 20px;
     height: 300px;
     background-color: $containerColor;
-    border: 1px $mainColor solid;
+    border: 1px $highlightColor solid;
     float:left;
 }
 
@@ -460,7 +462,7 @@ td.number{
     min-height: 300px;
     float:left;
     background-color: $containerColor;
-    border: 1px $mainColor solid;
+    border: 1px $highlightColor solid;
 }
 	
 .clear{

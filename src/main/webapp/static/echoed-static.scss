@@ -10,23 +10,24 @@
 
 }
 
-
-
-$mainColor: #FF7733;
+//$mainColor: #FF7733;
+$mainColor: #E31B23;
 $fbColor: #3B5998;
 $twitterColor: #4099FF;
+
 
 $labelColor: #666;
 $navColor: #666;
 
 
-$containerColor: #FFF;
+$containerColor: #F9F9F9;
 $backgroundColor: #CCC;
+$subtleColor: #EAEBED;
 
 $headerHeight: 50px;
 
 $navFontFamily: BebasNeue, Arial, sans-serif;
-$textFontFamily: HelveticaNeue-Light,Arial, Helvetica, sans-serif;
+$textFontFamily: HelveticaNeue-Light,Tahoma,Arial, Helvetica, sans-serif;
 
 //RESET
 html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
@@ -76,7 +77,7 @@ h2{
 	    min-width: 1100px;
 		height:50px;
 		border-bottom: 5px solid $mainColor;
-		background-color: $containerColor;
+		//background-color: $containerColor;
 	}
 
 		#logo{
@@ -89,10 +90,22 @@ h2{
 
         #nav{
             float:right;
+            font-family: $navFontFamily;
+            line-height:50px;
+            font-size: 20px;
+        }
+
+        #nav a{
+            margin-left:10px;
+        }
+
+        #nav a:hover{
+            color: $mainColor;
         }
 
     #primary{
-
+        padding-top:20px;
+        background-color: $containerColor;
     }
 
         #learnmore{
@@ -118,17 +131,73 @@ h2{
     }
 
     #secondary{
-        height:200px;
-
+        height:150px;
+        padding: 20px 0px;
+        background-color: $containerColor;
     }
 
     #footer{
-        position:absolute;
-        bottom: 0px;
-        background-color: #666;
-        height: 50px;
+        height: 100px;
         width: 100%;
+        background-color: #444;
+
     }
+
+    .center-outline{
+        width: 920px;
+        margin: auto;
+        padding: 0px 20px;
+        border: 1px solid #CCC;
+        border-radius:5px;
+    }
+
+    .hiw-title{
+        font-family: $navFontFamily;
+        font-size: 64px;
+        margin-bottom: 20px;
+        margin-top: 20px;
+    }                    
+    
+    .indent{
+        padding-left:50px;
+    }
+
+    .section{
+        margin-bottom:20px;
+    }
+                        
+    .hiw-label{
+        font-family: HelveticaNeue-Medium,Tahoma;
+        font-size: 28px;
+        margin-bottom: 15px;
+    }
+
+    .hiw-text{
+        font-family: $textFontFamily;
+        font-size: 16px;
+    }
+
+.flush-right{
+    float:right;
+    margin-right:-20px;
+}
+.flush-left{
+    float:left;
+    margin-left:-20px;
+}
+
+
+.right{
+    float:right;
+}
+
+.left{
+    float:left;
+}
+
+.column{
+    width: 460px;
+}
 
 .clear{
 	clear:both;

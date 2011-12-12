@@ -19,6 +19,10 @@
     </resultMap>
 
 
+    <select id="findByFacebookId" resultMap = "facebookUserResult">
+        select * from FacebookUser where facebookId = #{facebookId}
+    </select>
+
     <select id="findById" resultMap="facebookUserResult">
     	select * from FacebookUser where id = #{id}
     </select>

@@ -6,9 +6,9 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import org.eclipse.jetty.continuation.ContinuationSupport
-import org.springframework.web.servlet.ModelAndView
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
+import org.springframework.web.servlet.ModelAndView
 
 
 @Controller
@@ -47,6 +47,34 @@ class ClosetController {
 
             continuation.undispatch()
         })
+    }
+
+    @RequestMapping(value = Array("/feed"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def feed(
+            @CookieValue(value = "echoedUserId", required= false) echoedUserIdCookie:String,
+            @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        var echoedUserId: String = null;
+        if(echoedUserIdCookie != null){
+            echoedUserId = echoedUserIdCookie;
+        }
+        else{
+            echoedUserId = echoedUserIdParam;
+        }
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (continuation.isExpired){
+            logger.error("Request expired to view exhibit for user{}", echoedUserId)
+            new ModelAndView(errorView)
+        } else Option(continuation.getAttribute("feed")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            continuation.undispatch()
+        })
+
     }
 
     @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))

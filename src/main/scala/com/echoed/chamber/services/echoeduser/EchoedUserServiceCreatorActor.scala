@@ -61,6 +61,7 @@ class EchoedUserServiceCreatorActor extends Actor {
         case ("facebookService", facebookService: FacebookService) => {
             logger.debug("Creating EchoedUserService with {}", facebookService)
             val facebookUser = facebookService.facebookUser.get
+            logger.debug("Searching for Facebook User {}",facebookUser.id);
             Option(echoedUserDao.findByFacebookUserId(facebookUser.id)) match {
                 case Some(echoedUser) =>
                     logger.debug("Found {} with {}", echoedUser, facebookUser)
