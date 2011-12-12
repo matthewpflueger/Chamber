@@ -89,7 +89,7 @@ class EchoController {
                     echoService.recordEchoPossibility(echoPossibility)
 
                     val modelAndView = new ModelAndView(confirmView)
-                    modelAndViehahw.addObject("echoedUser", echoedUser)
+                    modelAndView.addObject("echoedUser", echoedUser)
                     modelAndView.addObject("echoPossibility", echoPossibility)
 
                     continuation.setAttribute("modelAndView", modelAndView)
