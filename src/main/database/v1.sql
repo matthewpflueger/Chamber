@@ -68,6 +68,9 @@ create table Echo (
     totalClicks integer not null,
     credit float not null,
     fee float not null,
+    productName varchar(255),
+    category varchar(255),
+    brand varchar(255),
     index (retailerId),
     index (echoedUserId)
 );
@@ -123,6 +126,9 @@ create table EchoPossibility (
     echoedUserId varchar(36),
     echoId varchar(36) unique key,
     landingPageUrl varchar(1024),
+    productName varchar(255),
+    category varchar(255) ,
+    brand varchar (255) ,
     index(retailerId)
 );
 

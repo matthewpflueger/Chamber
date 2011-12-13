@@ -7,10 +7,12 @@
 </head>
 <body>
 	<div id="container">
-        <div id="header">
-            <div>
+        <div id="header" class="clearfix">
+            <div class="poweredby">
             Powered By Echoed
-            Sharing. <span>Valued</span>
+            </div>
+            <div class="sharingvalued">
+                Sharing. <span class="red">Valued</span>
             </div>
         </div>
         <div id="content">
@@ -74,7 +76,7 @@
                     <div id="right_content" class="border-grey bg-color-white rounded-corners">
                         <form name="message" id="echo" action="http://v1-api.echoed.com/echo/it" method="get">
                             {{#echoPossibility}}
-                            <input type="hidden" name="echoPossibilityId" value="{{id}}">
+                            <input type="text" name="echoPossibilityId" value="{{id}}">
                             {{/echoPossibility}}
                     	    <table id="echoes" width="100%" cellspacing="5px">
                                 <tbody>
@@ -124,7 +126,7 @@
                                         <td>
                                         </td>
                                         <td align="center">
-    										<input id="echoit" type="image" style="cursor:pointer" class="bg-color-orange rounded-corners" src="echoIt.png" />
+    										<input id="echoit" type="image" style="cursor:pointer" class="bg-color-orange rounded-corners" src="echoit.png" />
                                         </td>
                                         <td>
                                         </td>

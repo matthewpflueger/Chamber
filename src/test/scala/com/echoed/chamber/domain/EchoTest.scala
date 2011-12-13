@@ -34,6 +34,9 @@ class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
             twitterStatusId = "twitterStatusId",
             echoPossibilityId = "echoPossibilityId",
             landingPageUrl = "landingPageUrl",
+            productName= "My Awesome Boots",
+            category= "Footwear",
+            brand = "Nike",
             retailerSettingsId = retailerSettings.id)
 
     describe("An Echo") {

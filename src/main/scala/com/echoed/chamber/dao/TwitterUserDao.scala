@@ -6,6 +6,8 @@ trait TwitterUserDao {
 
     def findById(id: String): TwitterUser
 
+    def findByTwitterId(twitterId: String): TwitterUser
+
     def findByScreenName(screenName: String): TwitterUser
 
     def insert(twitterUser: TwitterUser): Int

@@ -148,7 +148,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             val postToFacebook = true
             val facebookMessage = "This is my echoed purchase!"
-            webDriver.navigate().to("%s?postToFacebook=%s&facebookMessage=%s&echoPossibility=%s" format(echoItUrl, postToFacebook, facebookMessage, echoPossibility.id))
+            webDriver.navigate().to("%s?postToFacebook=%s&facebookMessage=%s&echoPossibilityId=%s" format(echoItUrl, postToFacebook, facebookMessage, echoPossibility.id))
 
             then("show the thank you page")
             webDriver.getTitle should equal ("Thank you")

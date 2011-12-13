@@ -164,7 +164,8 @@ a.current {
   padding: 10px 10px 0px 10px;
   text-align: left;
   color: #FFF;
-  overflow: hidden; }
+  overflow: hidden;
+  font-family: 'HelveticaNeue'; }
 
 .full-column-left {
   width: 450px;

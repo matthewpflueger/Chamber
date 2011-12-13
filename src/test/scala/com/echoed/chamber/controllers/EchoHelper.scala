@@ -44,7 +44,10 @@ class EchoHelper extends ShouldMatchers {
             imageUrl: String = "http://v1-cdn.echoed.com/Pic1.jpg",
             echoedUserId: String = null,
             echoId: String = null,
-            landingPageUrl: String = "http://echoed.com") = {
+            landingPageUrl: String = "http://echoed.com",
+            productName: String = "My Awesome Boots",
+            category: String = "Footwear",
+            brand: String = "Nike") = {
 
         retailerDao.deleteById(retailerId)
         retailerDao.insert(Retailer(
@@ -66,7 +69,10 @@ class EchoHelper extends ShouldMatchers {
                 imageUrl,
                 echoedUserId,
                 echoId,
-                landingPageUrl);
+                landingPageUrl,
+                productName,
+                category,
+                brand);
 
         val count = echoPossibilityDao.selectCount
         (echoPossibility, count)

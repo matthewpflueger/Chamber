@@ -22,6 +22,9 @@
             <arg column="totalClicks" javaType="_int" />
             <arg column="credit" javaType="_float" />
             <arg column="fee" javaType="_float" />
+            <arg column="productName" javaType="String"/>
+            <arg column="category" javaType="String"/>
+            <arg column="brand" javaType="String"/>
         </constructor>
     </resultMap>
 
@@ -56,7 +59,10 @@
                 retailerSettingsId,
                 totalClicks,
                 credit,
-                fee)
+                fee,
+                productName,
+                category,
+                brand)
         values (
                 #{id},
                 #{createdOn},
@@ -74,7 +80,10 @@
                 #{retailerSettingsId},
                 #{totalClicks},
                 #{credit},
-                #{fee})
+                #{fee},
+                #{productName},
+                #{category},
+                #{brand})
     </insert>
 
     <update id="updateFacebookPostId" parameterType="com.echoed.chamber.domain.Echo">

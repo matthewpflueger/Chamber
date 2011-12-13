@@ -42,7 +42,8 @@ class TwitterController {
     @RequestMapping(method = Array(RequestMethod.GET))
     def twitter(@CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
                 //@CookieValue(value = "echoPossibility", required = false) echoPossibilityId: String,
-                echoPossibilityParameters: EchoPossibilityParameters,
+                @RequestParam(value = "redirect", required = false) redirect: String,
+                //echoPossibilityParameters: EchoPossibilityParameters,
                 httpServletRequest: HttpServletRequest,
                 httpServletResponse: HttpServletResponse) = {
 
@@ -53,20 +54,23 @@ class TwitterController {
 
             continuation.suspend(httpServletResponse)
 
-            val echoPossibility = echoPossibilityParameters.createTwitterEchoPossibility
-            val callbackUrl = echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter/login?", true)
+            //val echoPossibility = echoPossibilityParameters.createTwitterEchoPossibility
+            //val callbackUrl = echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter/login?redirect=" + redirect +"&", true)
+            val callbackUrl = "http://v1-api.echoed.com/twitter/login?redirect=" + URLEncoder.encode(redirect,"UTF-8")
+            logger.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl),"UTF-8");
 //                URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter/login?"), "UTF-8")
             val futureTwitterService = twitterServiceLocator.getTwitterService(callbackUrl)
             futureTwitterService.onResult({
                 case twitterService: TwitterService =>
-                    logger.debug("Step 1")
+                    logger.debug("Step 1 {}" , callbackUrl)
 
                     val futureRequestToken = twitterService.getRequestToken()
                     futureRequestToken.onResult({
                         case rt:RequestToken =>
                             continuation.setAttribute("modelAndView",{
                                 val modelAndView: ModelAndView = new ModelAndView("redirect:" + rt.getAuthenticationURL)
-                                modelAndView})
+                                modelAndView
+                            })
                             continuation.resume()
                     })
             })
@@ -78,6 +82,7 @@ class TwitterController {
     @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
     def login(@RequestParam("oauth_token") oAuthToken: String,
               @RequestParam("oauth_verifier") oAuthVerifier: String,
+              @RequestParam(value = "redirect", required = false) redirect: String,
               echoPossibilityParameters: EchoPossibilityParameters,
               httpServletRequest: HttpServletRequest,
               httpServletResponse: HttpServletResponse) = {
@@ -125,12 +130,15 @@ class TwitterController {
                                                     cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
                                                     logger.debug("Setting Model and View to {}", echoView)
 
-                                                    val modelAndView = new ModelAndView(echoView)
-                                                    modelAndView.addObject("echoedUserId", echoedUser.id)
-                                                    val echoPossibility = echoPossibilityParameters.createTwitterEchoPossibility
-                                                    modelAndView.addAllObjects(JavaConversions.mapAsJavaMap[String, String](
-                                                            echoPossibility.asMap))
-                                                    modelAndView.addObject("echoedUserId", echoedUser.id)
+                                                    val redirectView = "redirect:http://v1-api.echoed.com/" + redirect;
+                                                    logger.debug("Redirecting to View: {} ", redirectView);
+                                                    val modelAndView = new ModelAndView(redirectView);
+                                                    //modelAndView.addObject("echoedUserId", echoedUser.id)
+
+                                                    //val echoPossibility = echoPossibilityParameters.createTwitterEchoPossibility
+
+                                                    //modelAndView.addAllObjects(JavaConversions.mapAsJavaMap[String, String](
+                                                    //        echoPossibility.asMap))
                                                     modelAndView
                                                 }
                                                 catch {
@@ -147,7 +155,6 @@ class TwitterController {
                             })
                             .onException({
                                 case e =>
-                                    logger.debug("Exception UGH")
                                     continuation.setAttribute("modelAndView", new ModelAndView(twitterLoginErrorView))
                                     continuation.resume
                             })
@@ -155,7 +162,6 @@ class TwitterController {
             })
                     .onException({
                 case e =>
-                    logger.debug("Exception THROWN: {}", e)
                     continuation.setAttribute("modelAndView", new ModelAndView(twitterLoginErrorView))
                     continuation.resume
             })

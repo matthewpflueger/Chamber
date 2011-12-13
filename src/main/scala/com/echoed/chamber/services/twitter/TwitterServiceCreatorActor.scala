@@ -28,11 +28,22 @@ class TwitterServiceCreatorActor extends Actor {
             val channel = self.channel
             logger.debug("Creating New Twitter Service With Access Token {} for User Id", accessToken.getToken, accessToken.getUserId)
             twitterAccess.getUser(accessToken.getToken, accessToken.getTokenSecret, accessToken.getUserId).map{
-                twitterUser =>
-                    twitterUserDao.insert(twitterUser)
-                    logger.debug("Received User twitterUser {}", twitterUser)
+                twitterUser => 
+                    logger.debug("Looking up twitter user with TwitterId {}", accessToken.getUserId)
+                    val twUser: TwitterUser = twitterUserDao.findByTwitterId(accessToken.getUserId.toString)
+                    var twUserFinal: TwitterUser = null
+                    if (twUser != null){
+                        logger.debug("Found TwitterUser {} with TwitterId ", twitterUser, accessToken.getUserId)
+                        twUserFinal = twUser
+                    }
+                    else{
+                        logger.debug("New Twitter User {}", twitterUser);
+                        twitterUserDao.insert(twitterUser)
+                        twUserFinal = twitterUser
+                    }
+
                     channel ! new TwitterServiceActorClient(Actor.actorOf(
-                        new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, twitterUser)).start)
+                        new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, twUserFinal)).start)
             }
         }
 

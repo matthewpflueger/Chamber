@@ -105,11 +105,11 @@ h2{
 
     #primary{
         padding-top:20px;
-        background-color: $containerColor;
+        //background-color: $containerColor;
     }
 
         #learnmore{
-            padding:40px 0px;
+            padding:20px 0px;
         }
 
             #lm-left{
@@ -119,6 +119,11 @@ h2{
                 #lm-left-label{
                     font-family: $navFontFamily;
                     font-size: 48px;
+                }
+
+                #index-subtitle{
+                    font-size:18px;
+                    font-weight:bold;
                 }
 
             #lm-right{
@@ -131,9 +136,24 @@ h2{
     }
 
     #secondary{
-        height:150px;
         padding: 20px 0px;
         background-color: $containerColor;
+    }
+
+    .third-box{
+        width: 300px;
+        padding: 20px 10px;
+        float:left;
+    }
+
+    .tb-text{
+        font-size: 18px;
+        margin: 2px;
+        font-family: 'HelveticaNeue-Light',Tahoma;
+    }
+
+    .login-button{
+        margin: 5px;
     }
 
     #footer{
@@ -176,6 +196,13 @@ h2{
         font-family: $textFontFamily;
         font-size: 16px;
     }
+
+.label{
+    font-family: $navFontFamily;
+    font-size: 28px;
+    text-align:center;
+    color: $labelColor;
+}
 
 .flush-right{
     float:right;

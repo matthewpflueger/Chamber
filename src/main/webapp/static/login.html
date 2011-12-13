@@ -3,12 +3,18 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link id="stylecss" rel="stylesheet" href="http://v1-cdn.echoed.com/echoed-confirm.css" />
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
 <title>Login</title>
 </head>
 <body>
 	<div id="container">
-        <div id="header">
-            Powered By Echoed
+        <div id="header" class="clearfix">
+            <div class="poweredby">
+                Powered By Echoed
+            </div>
+            <div class="sharingvalued">
+                Sharing. <span class="red">Valued</span>
+            </div>
         </div>
         <div id="content">
             <div id="thankyou">
@@ -83,7 +89,7 @@
                             <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri={{redirectUrl}}&scope=email,publish_stream,offline_access" >
                                 <img width="200" src='fb-login.png'/>
                             </a>
-                            <a id="twitterLogin" href="{{twitterUrl}}">
+                            <a id="twitterLogin" href="http://v1-api.echoed.com/twitter?redirect={{twitterUrl}}">
                                 <img width="200" src='twitter-login.png'/>
                             </a>
                         </div>

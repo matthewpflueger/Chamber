@@ -2,7 +2,7 @@ package com.echoed.util
 
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie}
+import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 
 
 class CookieManagerSimple extends CookieManager {
@@ -25,6 +25,14 @@ class CookieManagerSimple extends CookieManager {
     def addCookie(httpServletResponse: HttpServletResponse, name: String, value: String) {
         val cookie = createCookie(name, value)
         logger.debug("Adding cookie {}", cookie)
+        httpServletResponse.addCookie(cookie)
+    }
+
+    def deleteCookie(httpServletResponse: HttpServletResponse, name:String) {
+        val cookie = new Cookie(name,"")
+        cookie.setDomain(domain)
+        cookie.setMaxAge(0)
+        cookie.setPath( "/" );
         httpServletResponse.addCookie(cookie)
     }
 

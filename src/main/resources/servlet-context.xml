@@ -97,6 +97,10 @@
         <property name="twitterLoginErrorView" value="redirect:${twitterLoginErrorViewUrl}"/>
         <property name="echoView" value="redirect:${echoUrl}" />
     </bean>
+    
+    <bean id="logoutController" class="com.echoed.chamber.controllers.LogoutController">
+        <property name="cookieManager" ref="cookieManager" />
+    </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="redirectController" class="com.echoed.chamber.controllers.RedirectController">

@@ -17,6 +17,9 @@
 			<arg column="echoedUserId" javaType="String" />
             <arg column="echoId" javaType="String" />
             <arg column="landingPageUrl" javaType="String" />
+            <arg column="productName" javaType="String"/>
+            <arg column="category" javaType="String"/>
+            <arg column="brand" javaType="String"/>
         </constructor>
     </resultMap>
 
@@ -46,7 +49,10 @@
                 imageUrl,
                 echoedUserId,
                 echoId,
-                landingPageUrl)
+                landingPageUrl,
+                productName,
+                category,
+                brand)
     	values (
     			#{id},
     			#{createdOn},
@@ -60,7 +66,10 @@
                 #{imageUrl},
                 #{echoedUserId},
                 #{echoId},
-                #{landingPageUrl})
+                #{landingPageUrl},
+                #{productName},
+                #{category},
+                #{brand})
         on duplicate key update
                 step=#{step},
 	    		echoedUserId=#{echoedUserId},

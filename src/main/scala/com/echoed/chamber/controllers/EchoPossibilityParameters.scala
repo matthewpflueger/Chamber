@@ -18,7 +18,10 @@ case class EchoPossibilityParameters(
         @BeanProperty var echoedUserId: String = null,
         @BeanProperty var echoId: String = null,
         @BeanProperty var landingPageUrl: String = null,
-        @BeanProperty var echoPossibilityId: String = null) {
+        @BeanProperty var echoPossibilityId: String = null,
+        @BeanProperty var productName: String = null,
+        @BeanProperty var category: String = null,
+        @BeanProperty var brand: String = null) {
 
 
     def this() = {
@@ -44,6 +47,9 @@ case class EchoPossibilityParameters(
             imageUrl,
             echoedUserId,
             echoId,
-            landingPageUrl)
+            landingPageUrl,
+            productName,
+            category,
+            brand)
 
 }

@@ -77,7 +77,10 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
                     e.imageUrl,
                     e.echoedUserId,
                     e.echoId,
-                    e.landingPageUrl)
+                    e.landingPageUrl,
+                    e.productName,
+                    e.category,
+                    e.brand)
 
             given("a request for the button")
             webDriver.navigate.to(buttonUrl + echoPossibility.generateUrlParameters)

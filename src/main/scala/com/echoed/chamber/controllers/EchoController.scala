@@ -61,8 +61,9 @@ class EchoController {
 //            modelAndView.addObject("redirectUrl", URLEncoder.encode("http://v1-api.echoed.com/facebook/login", "UTF-8"))
             modelAndView.addObject(
                 "twitterUrl",
-                echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter?", true))
-//                "http://v1-api.echoed.com/twitter?%s" format URLEncoder.encode(echoPossibility.asUrlParams(), "UTF-8"))
+                //URLEncoder.encode(echoPossibility.asUrlParams("echo&"), "UTF-8"))
+                URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
+                //"http://v1-api.echoed.com/twitter?redirect=echo&%s" format URLEncoder.encode(echoPossibility.asUrlParams(), "UTF-8"))
             modelAndView.addObject("redirectUrl",
                 URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login?redirect=echo&"), "UTF-8"))
             //modelAndView.addObject("echoPossibility",echoPossibility);
@@ -112,6 +113,7 @@ class EchoController {
         if (echoedUserId != null) echoItParameters.echoedUserId = echoedUserId
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        logger.debug("Echo It Paramters: {}", echoItParameters)
 
         if (continuation.isExpired) {
             logger.error("Request expired to echo ", echoItParameters)
@@ -119,7 +121,7 @@ class EchoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
             logger.debug("Echoing {}", echoItParameters)
-
+            logger.debug("EchoPossibility Id {} , ", echoItParameters.echoPossibilityId)
             echoService.echo(echoItParameters.createEchoRequestMessage).map { echoResponseMessage =>
                     logger.debug("Received {}", echoResponseMessage)
                     val modelAndView = echoResponseMessage.fold(

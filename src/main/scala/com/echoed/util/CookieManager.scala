@@ -12,4 +12,6 @@ trait CookieManager {
     def getCookie(httpServletRequest: HttpServletRequest, name: String): Option[Cookie]
 
     def getCookieValue(httpServletRequest: HttpServletRequest, name: String, default: String = "")
+
+    def deleteCookie(httpServletResponse: HttpServletResponse, name:String)
 }

@@ -47,6 +47,19 @@ textarea {
   font-family: BebasNeue;
   padding-left: 10px; }
 
+.poweredby {
+  font-family: BebasNeue, Arial, sans-serif;
+  font-size: 18px;
+  float: left; }
+
+.sharingvalued {
+  font-family: BebasNeue, Arial, sans-serif;
+  font-size: 50px;
+  float: right; }
+
+.red {
+  color: #e31b23; }
+
 #thankyou {
   padding: 10px;
   font-family: BebasNeue;

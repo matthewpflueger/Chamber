@@ -82,6 +82,23 @@ textarea{
         padding-left: 10px;
     }
 
+        .poweredby{
+            font-family: $navFontFamily;
+            font-size: 18px;
+            float:left;
+        }
+
+        .sharingvalued{
+            font-family: $navFontFamily;
+            font-size: 50px;
+            float:right;
+        }
+
+        .red{
+            //font-family: $navFontFamily;
+            color: $mainColor;
+        }
+
     #thankyou{
         padding:10px;
         font-family: BebasNeue;

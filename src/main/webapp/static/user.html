@@ -1,15 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Closet</title>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script type="text/javascript" src="jquery.isotope.min.js"></script>
-<script type="text/javascript" src="jquery.imagesloaded.js"></script>
-<script type='text/javascript' src="json2.js"></script>
-<script type='text/javascript' src="underscore-min.js"></script>
-<script type='text/javascript' src="backbone.js"></script>
-<script type='text/javascript'>
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Closet</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.isotope.min.js"></script>
+    <script type="text/javascript" src="jquery.imagesloaded.js"></script>
+    <script type='text/javascript' src="json2.js"></script>
+    <script type='text/javascript' src="underscore-min.js"></script>
+    <script type='text/javascript' src="backbone.js"></script>
+    <script type='text/javascript'>
 
 var EventAggregator = _.extend({}, Backbone.Events);
 
@@ -99,8 +100,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 $.each(data, function(index,product){
                     var productModel = new Echoed.Models.Product(product);
                     ex.addProduct(productModel,ex.filter);
-                    ex.EvAg.trigger('category/add','test','test');
-                    //ex.EvAg.trigger('category/add',product.category,product.category);
+                    //ex.EvAg.trigger('category/add','test','test');
+                    ex.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                 });
             },
             error:function (xhr, ajaxOptions, thrownError){
@@ -204,7 +205,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     render: function(){
         var template = _.template($('#templates-components-product').html());
-        this.el.addClass("item_wrap").addClass(this.model.get("category")).html(template(this.model.toJSON()));
+        this.el.addClass("item_wrap").addClass(this.model.get("echoCategory")).html(template(this.model.toJSON()));
         return this;
     },
     showOverlay: function(){
@@ -219,7 +220,8 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 <script type="text/template" id="templates-components-product">
     <div class="item_hover" style="display:none;">
         <div class="item_hover_wrap">
-            TEST
+            <%= echoProductName %><br/>
+            <%= echoBrand %>
         </div>
     </div>
     <img class="exhibit_image" src="<%= echoImageUrl %>"/>

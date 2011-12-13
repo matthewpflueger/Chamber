@@ -14,7 +14,7 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
 
         it("should return null for the id if missing properties") {
             given("a newly instantiated EchoPossibility")
-            val echoPossibility = new EchoPossibility(null, null, null, null, null, null, 0, null, null, null, null)
+            val echoPossibility = new EchoPossibility(null, null, null, null, null, null, 0, null, null, null, null,null,null,null)
 
             when("no properties have been set")
             then("the id should be null")
@@ -34,7 +34,10 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
                 "imageUrl",
                 null,
                 null,
-                "landingPageUrl")
+                "landingPageUrl",
+                "productName",
+                "category",
+                "brand")
 
             when("all necessary properties have been set")
             then("the id should return a valid base64 string")
@@ -54,7 +57,10 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
                 "imageUrl",
                 null,
                 null,
-                "landingPageUrl")
+                "landingPageUrl",
+                "productName",
+                "category",
+                "brand")
 
             when("asMap is called")
             val map = echoPossibility.asMap
@@ -76,7 +82,10 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
                 "imageUrl",
                 null,
                 null,
-                "landingPageUrl")
+                "landingPageUrl",
+                "productName",
+                "category",
+                "brand")
 
             when("asUrlParams is called")
             val urlParams = echoPossibility.asUrlParams()

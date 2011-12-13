@@ -67,7 +67,8 @@ class FacebookAccessActor extends Actor {
                 ("%s/feed" format facebookId),
                 new Param("message", facebookPost.message),
                 new Param("picture", facebookPost.picture),
-                new Param("link", facebookPost.link)).get()
+                new Param("link", facebookPost.link),
+                new Param("caption", facebookPost.message)).get()
             val fp = facebookPost.copy(facebookId = result)
             self.channel ! fp
             logger.debug("Successfully posted {}", fp)

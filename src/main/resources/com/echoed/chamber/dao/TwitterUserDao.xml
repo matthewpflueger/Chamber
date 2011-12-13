@@ -46,6 +46,10 @@
             #{accessToken},
             #{accessTokenSecret})
    </insert>
+    
+    <select id="findByTwitterId" resultMap="twitterUserResult">
+        select * from TwitterUser where twitterId = #{twitterId}
+    </select>
 
     <select id="findById" resultMap="twitterUserResult">
     	select * from TwitterUser where id = #{id}

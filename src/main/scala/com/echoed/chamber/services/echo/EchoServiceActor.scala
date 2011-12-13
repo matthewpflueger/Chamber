@@ -30,6 +30,7 @@ class EchoServiceActor extends Actor {
     def receive = {
         case ("recordEchoPossibility", echoPossibility: EchoPossibility) => {
             val retailer = Future[Option[Retailer]] { Option(retailerDao.findById(echoPossibility.retailerId)) }
+            logger.debug("Recording Echo Possibility {} ",echoPossibility.retailerId)
             (Option(echoPossibility.id), retailer.get) match {
                 case (_, None) => throw new RuntimeException("Invalid retailerId in EchoPossibility %s " format echoPossibility)
                 case (None, _) => throw new RuntimeException("Not enough information to record EchoPossibility %s" format echoPossibility)
