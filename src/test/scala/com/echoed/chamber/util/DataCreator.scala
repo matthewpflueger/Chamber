@@ -217,6 +217,9 @@ class DataCreator {
                     null,
                     "echoPossibilityId%s-%s-%s" format(index, num, picNum),
                     "https://www.echoed.com",
+                    "productName",
+                    "category",
+                    "brand",
                     rs.id)
                 e = e.echoed(rs)
 
@@ -459,11 +462,17 @@ class DataCreator {
     val productId_1 = "productId_1"
     val customerId_1 = "customerId_1"
     val price_1 = 10.00f
+    val productName_1 = "My Awesome Boots"
+    val category_1 = "Footwear"
+    val brand_1 = "Nike"
 
     val orderId_2 = "orderId_2"
     val productId_2 = "productId_2"
     val customerId_2 = "customerId_2"
     val price_2 = 20.00f
+    val productName_2 = "My Awesome Gloves"
+    val category_2 = "Accessories"
+    val brand_2 = "Reebok"
 
     val echoPossibilities = List(
         EchoPossibilityParameters(
@@ -477,6 +486,9 @@ class DataCreator {
             echoedUserId,
             echoId_1,
             landingPageUrl,
+            productName_1,
+            category_1,
+            brand_1,
             null).createButtonEchoPossibility,
         EchoPossibilityParameters(
             retailerId,
@@ -489,6 +501,9 @@ class DataCreator {
             echoedUserId,
             echoId_2,
             landingPageUrl,
+            productName_2,
+            category_2,
+            brand_2,
             null).createButtonEchoPossibility
     )
 
@@ -618,7 +633,10 @@ class DataCreator {
             retailerSettings(0).id,
             0,
             0,
-            0),
+            0,
+            productName_1,
+            category_1,
+            brand_1),
         Echo(
             echoId_2,
             on,
@@ -638,6 +656,9 @@ class DataCreator {
             retailerSettings(1).id,
             0,
             0,
-            0)
+            0,
+            productName_2,
+            category_2,
+            brand_2)
     )
 }
