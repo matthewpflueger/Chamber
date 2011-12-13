@@ -82,29 +82,40 @@ class EchoedUserServiceActor(
         case '_fetchEchoedFriends =>
             val futureFacebookEchoedUsers: Future[List[EchoedUser]] = Option(facebookService).cata(
                     fs => fs.fetchFacebookFriends().map { ffs: List[FacebookFriend] =>
-                        logger.debug("Fetched {} FacebookFriends", ffs.length)
-                        ffs
+                        logger.debug("Fetched {} FacebookFriends for EchoedUser {}", ffs.length, echoedUser.id)
+                        val eus = ffs
                             .map(ff => Option(echoedUserDao.findByFacebookId(ff.facebookId)))
                             .filter(_.isDefined)
                             .map(_.get)
+                        logger.debug("Found {} friends via Facebook for EchoedUser {}", eus.length, echoedUser.id)
+                        eus
                     },
-                    Future { List[EchoedUser]() })
+                    Future {
+                        logger.debug("No FacebookService for EchoedUser {}", echoedUser.id)
+                        List[EchoedUser]()
+                    })
 
             val futureTwitterEchoedUsers: Future[List[EchoedUser]] = Option(twitterService).cata(
                     ts => ts.getFollowers().map { tfs: List[TwitterFollower] =>
-                        logger.debug("Fetched {} TwitterFollowers", tfs.length)
-                        tfs
+                        logger.debug("Fetched {} TwitterFollowers for EchoedUser {}", tfs.length, echoedUser.id)
+                        val eus = tfs
                             .map(tf => Option(echoedUserDao.findByTwitterId(tf.twitterId)))
                             .filter(_.isDefined)
                             .map(_.get)
+                        logger.debug("Found {} friends via Twitter for EchoedUser {}", eus.length, echoedUser.id)
+                        eus
                     },
-                    Future { List[EchoedUser]() })
+                    Future {
+                        logger.debug("No TwitterService for EchoedUser {}", echoedUser.id)
+                        List[EchoedUser]()
+                    })
 
             val channel = self.channel
             for {
                 facebookEchoedUsers <- futureFacebookEchoedUsers
                 twitterEchoedUsers <- futureTwitterEchoedUsers
             } yield {
+                logger.debug("Creating EchoedFriends for EchoedUser {}", echoedUser.id)
                 val map = MMap.empty[String, (EchoedFriend, EchoedFriend)]
 
 

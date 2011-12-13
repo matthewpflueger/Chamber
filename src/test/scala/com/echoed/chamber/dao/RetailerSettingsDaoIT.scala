@@ -24,7 +24,8 @@ class RetailerSettingsDaoIT extends FeatureSpec with GivenWhenThen with ShouldMa
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
-    val retailerSettings = dataCreator.retailerSettings
+    val retailerId = dataCreator.retailerSettings(0).retailerId
+    val retailerSettings = dataCreator.retailerSettings.filter(_.retailerId == retailerId)
 
     def cleanup() {
         retailerSettingsDao.deleteByRetailerId(retailerSettings(0).retailerId)
@@ -46,19 +47,19 @@ class RetailerSettingsDaoIT extends FeatureSpec with GivenWhenThen with ShouldMa
         }
 
         scenario("only one active RetailerSettings for a given date", IntegrationTest) {
-            val currentSettings = retailerSettingsDao.findByActiveOn(retailerSettings(0).retailerId, new Date)
+            val currentSettings = retailerSettingsDao.findByActiveOn(retailerId, new Date)
             currentSettings should not be (null)
-            currentSettings.id should equal (retailerSettings(0).id)
+            currentSettings.id should equal (retailerSettings(1).id)
 
             val future = dataCreator.future
             future.set(Calendar.YEAR, dataCreator.future.get(Calendar.YEAR) + 1)
-            val futureSettings = retailerSettingsDao.findByActiveOn(retailerSettings(1).retailerId, future.getTime)
+            val futureSettings = retailerSettingsDao.findByActiveOn(retailerId, future.getTime)
             futureSettings should not be (null)
-            futureSettings.id should equal (retailerSettings(1).id)
+            futureSettings.id should equal (retailerSettings(0).id)
 
             val past = dataCreator.past
             past.set(Calendar.YEAR, dataCreator.past.get(Calendar.YEAR) - 1)
-            val noSettings = retailerSettingsDao.findByActiveOn(retailerSettings(0).retailerId, past.getTime)
+            val noSettings = retailerSettingsDao.findByActiveOn(retailerId, past.getTime)
             noSettings should be (null)
         }
 

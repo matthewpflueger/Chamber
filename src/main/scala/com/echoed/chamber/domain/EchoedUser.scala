@@ -11,22 +11,28 @@ case class EchoedUser(
         email: String,
         screenName: String,
         facebookUserId: String,
-        twitterUserId: String) {
+        facebookId: String,
+        twitterUserId: String,
+        twitterId: String) {
 
     def this(
             name: String,
             email: String,
             screenName: String,
             facebookUserId: String,
-            twitterUserId: String) = this(
+            facebookId: String,
+            twitterUserId: String,
+            twitterId: String) = this(
         UUID.randomUUID.toString,
         new Date,
         new Date,
         name,
         email,
-        null,
+        screenName,
         facebookUserId,
-        twitterUserId)
+        facebookId,
+        twitterUserId,
+        twitterId)
 
     def this(id: String, name: String, email: String) = this(
         id,
@@ -34,6 +40,8 @@ case class EchoedUser(
         null,
         name,
         email,
+        null,
+        null,
         null,
         null,
         null)
@@ -46,6 +54,8 @@ case class EchoedUser(
         facebookUser.email,
         null,
         facebookUser.id,
+        facebookUser.facebookId,
+        null,
         null)
 
     def this(twitterUser: TwitterUser) = this(
@@ -56,5 +66,7 @@ case class EchoedUser(
         null,
         twitterUser.screenName,
         null,
-        twitterUser.id)
+        null,
+        twitterUser.id,
+        twitterUser.twitterId)
 }

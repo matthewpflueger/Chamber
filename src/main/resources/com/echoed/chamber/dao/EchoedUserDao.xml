@@ -10,7 +10,9 @@
 			<arg column="email" javaType="String" />
             <arg column="screenName" javaType="String" />
             <arg column="facebookUserId" javaType="String" />
+            <arg column="facebookId" javaType="String" />
 			<arg column="twitterUserId" javaType="String" />
+			<arg column="twitterId" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -28,17 +30,11 @@
     </select>
 
     <select id="findByFacebookId" resultMap="echoedUserResult">
-        select EU.*
-        from EchoedUser EU
-        join FacebookUser FU on EU.facebookUserId = FU.id
-        where FU.facebookId = #{facebookId}
+        select * from EchoedUser where facebookId = #{facebookId}
     </select>
 
     <select id="findByTwitterId" resultMap="echoedUserResult">
-        select EU.*
-        from EchoedUser EU
-        join TwitterUser TU on EU.twitterUserId = TU.id
-        where TU.twitterId = #{twitterId}
+        select * from EchoedUser where twitterId = #{twitterId}
     </select>
 
     <select id="findByEmail" resultMap="echoedUserResult">
@@ -53,7 +49,9 @@
                 email,
                 screenName,
                 facebookUserId,
-                twitterUserId)
+                facebookId,
+                twitterUserId,
+                twitterId)
     		values (
                 #{id},
                 #{createdOn},
@@ -61,7 +59,9 @@
     			#{email},
     			#{screenName},
                 #{facebookUserId},
-    			#{twitterUserId})
+                #{facebookId},
+    			#{twitterUserId},
+    			#{twitterId})
     </insert>
 
     <delete id="deleteByEmail">

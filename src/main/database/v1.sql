@@ -141,7 +141,9 @@ create table EchoedUser (
 	email varchar(255) unique key,
 	screenName varchar(255) unique key,
 	facebookUserId varchar(36) unique key,
-	twitterUserId varchar(36) unique key
+	facebookId varchar(36) unique key,
+	twitterUserId varchar(36) unique key,
+	twitterId varchar(36) unique key
 );
 
 drop table if exists EchoedFriend;
@@ -154,7 +156,9 @@ create table EchoedFriend (
 	name varchar(255),
 	screenName varchar(255),
 	facebookUserId varchar(36),
+	facebookId varchar(36),
 	twitterUserId varchar(36),
+	twitterId varchar(36),
 	unique key(fromEchoedUserId, toEchoedUserId),
 	index(fromEchoedUserId),
 	index(toEchoedUserId)

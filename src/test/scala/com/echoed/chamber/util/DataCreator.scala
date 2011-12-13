@@ -369,12 +369,12 @@ class DataCreator {
     val facebookFriends = List(
         new FacebookFriend(
             facebookUserId,
-            facebookId,
+            facebookId + "1",
             "Test FacebookFriend 1"
         ),
         new FacebookFriend(
             facebookUserId,
-            facebookId,
+            facebookId + "2",
             "Test FacebookFriend 2"
         )
     )
@@ -409,7 +409,9 @@ class DataCreator {
         echoedUserEmail,
         twitterUser.screenName,
         facebookUser.id,
-        twitterUser.id)
+        facebookUser.facebookId,
+        twitterUser.id,
+        twitterUser.twitterId)
 
     val fromEchoedUser = echoedUser
 
@@ -421,7 +423,9 @@ class DataCreator {
         echoedUserEmail,
         twitterUser.screenName,
         facebookUser.id,
-        twitterUser.id)
+        facebookUser.facebookId,
+        twitterUser.id,
+        twitterUser.twitterId)
 
     val echoedFriends = List(
         new EchoedFriend(
@@ -430,14 +434,18 @@ class DataCreator {
             "Test EchoedFriend",
             "TestEchoedFriend",
             facebookUser.id,
-            twitterUser.id),
+            facebookUser.facebookId,
+            twitterUser.id,
+            twitterUser.twitterId),
         new EchoedFriend(
             toEchoedUser.id,
             echoedUser.id,
             "Test EchoedFriend",
             "TestEchoedFriend",
             facebookUser.id,
-            twitterUser.id)
+            facebookUser.facebookId,
+            twitterUser.id,
+            twitterUser.twitterId)
     )
 
     val facebookPostId_1 = UUID.randomUUID.toString

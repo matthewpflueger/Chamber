@@ -11,7 +11,9 @@
             <arg column="name" javaType="String" />
             <arg column="screenName" javaType="String" />
             <arg column="facebookUserId" javaType="String" />
+            <arg column="facebookId" javaType="String" />
 			<arg column="twitterUserId" javaType="String" />
+			<arg column="twitterId" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -28,7 +30,9 @@
     			name,
                 screenName,
                 facebookUserId,
-                twitterUserId)
+                facebookId,
+                twitterUserId,
+                twitterId)
     		values (
                 #{id},
                 #{createdOn},
@@ -37,12 +41,16 @@
     			#{name},
     			#{screenName},
                 #{facebookUserId},
-    			#{twitterUserId})
+                #{facebookId},
+    			#{twitterUserId},
+    			#{twitterId})
     	    on duplicate key update
     	        name = #{name},
     	        screenName = #{screenName},
     	        facebookUserId = #{facebookUserId},
-    	        twitterUserId = #{twitterUserId}
+    	        facebookId = #{facebookId},
+    	        twitterUserId = #{twitterUserId},
+    	        twitterId = #{twitterId}
     </insert>
 
     <delete id="deleteByEchoedUserId">

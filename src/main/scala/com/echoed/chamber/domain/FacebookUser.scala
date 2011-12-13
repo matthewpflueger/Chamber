@@ -45,6 +45,8 @@ case class FacebookUser(
             email = this.email,
             screenName = null,
             facebookUserId = this.id,
-            twitterUserId = null)
+            facebookId = this.facebookId,
+            twitterUserId = null,
+            twitterId = null)
 }
 
