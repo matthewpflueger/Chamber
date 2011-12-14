@@ -205,22 +205,22 @@ class DataCreator {
 
                 val picNum = random.nextInt(15) + 1
                 var e = new Echo(
-                    r.id,
-                    "customerId",
-                    "productId",
-                    new Date,
-                    "orderId",
-                    random.nextInt(100).toFloat+5,
-                    "https://v1-cdn.echoed.com/Pic%s.jpg" format picNum,
-                    eu.id,
-                    null,
-                    null,
-                    "echoPossibilityId%s-%s-%s" format(index, num, picNum),
-                    "https://www.echoed.com",
-                    "productName",
-                    "category",
-                    "brand",
-                    rs.id)
+                    retailerId = r.id,
+                    customerId = "customerId",
+                    productId = "productId",
+                    boughtOn = new Date,
+                    orderId = "orderId",
+                    price = random.nextInt(100).toFloat+5,
+                    imageUrl = "https://v1-cdn.echoed.com/Pic%s.jpg" format picNum,
+                    echoedUserId = eu.id,
+                    facebookPostId = null,
+                    twitterStatusId = null,
+                    echoPossibilityId = "echoPossibilityId%s-%s-%s" format(index, num, picNum),
+                    landingPageUrl = "https://www.echoed.com",
+                    retailerSettingsId = rs.id,
+                    productName = "productName",
+                    category = "category",
+                    brand = "brand")
                 e = e.echoed(rs)
 
                 val clicks = random.nextInt(rs.maxClicks)

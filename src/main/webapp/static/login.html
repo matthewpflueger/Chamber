@@ -6,7 +6,7 @@
     <title>Login</title>
 </head>
 <body>
-    <p>{{#error}}Error {{/error}}</p>
+    <p>{{#error}}Error {{message}} {{/error}}</p>
     <form action="http://v1-api.echoed.com/partner/login">
         <input id="email" name="email" type="text" />
         <input id="password" name="password" type="password" />
