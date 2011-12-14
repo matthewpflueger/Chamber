@@ -10,7 +10,7 @@ import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.views.EchoFull
 import scala.Option
-import com.echoed.chamber.services.ErrorMessage
+import com.echoed.chamber.services.EchoedException
 import com.echoed.chamber.dao._
 import java.util.Date
 
@@ -45,7 +45,7 @@ class EchoServiceActor extends Actor {
         }
         //case ("echo", echoedUserId: String, echoPossibilityId: String, message: String) => {
         case echoRequestMessage: EchoRequestMessage => {
-            echoRequestMessage.messageReceivedOn = Option(System.currentTimeMillis())
+            echoRequestMessage.receivedOn = Option(System.currentTimeMillis())
             logger.debug("Received {}", echoRequestMessage)
 
             val channel = self.channel
@@ -104,8 +104,8 @@ class EchoServiceActor extends Actor {
 
 
             }).onException {
-                case e: ErrorMessage => channel ! EchoResponseMessage(echoRequestMessage, Left(e))
-                case t => channel ! EchoResponseMessage(echoRequestMessage, Left(new ErrorMessage(t)))
+                case e: EchoedException => channel ! EchoResponseMessage(echoRequestMessage, Left(e))
+                case t => channel ! EchoResponseMessage(echoRequestMessage, Left(EchoedException(cse = t)))
             }
 
         }

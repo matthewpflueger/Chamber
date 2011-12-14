@@ -97,7 +97,8 @@
         <property name="twitterLoginErrorView" value="redirect:${twitterLoginErrorViewUrl}"/>
         <property name="echoView" value="redirect:${echoUrl}" />
     </bean>
-    
+
+    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="logoutController" class="com.echoed.chamber.controllers.LogoutController">
         <property name="cookieManager" ref="cookieManager" />
     </bean>
@@ -111,6 +112,16 @@
     <bean id="closetController" class="com.echoed.chamber.controllers.ClosetController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="closetView" value="user" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="partnerController" class="com.echoed.chamber.controllers.PartnerController">
+        <property name="cookieManager" ref="cookieManager" />
+        <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
+        <property name="partnerDashboardView" value="partner" />
+        <property name="partnerDashboardErrorView" value="login" />
+        <property name="partnerLoginErrorView" value="login" />
+        <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
     </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->

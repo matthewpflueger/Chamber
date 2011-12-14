@@ -4,7 +4,7 @@
 <head>
 <link rel="shortcut icon" href="favicon.png" type="image/png">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<title></title>
+<title>Dashboard {{#partnerUser}}- {{name}} {{/partnerUser}}</title>
 <script type='text/javascript' src="jquery-1.6.2.min.js"></script>
 <script type='text/javascript' src="jquery-ui-1.8.16.custom.min.js"></script>
 <script type='text/javascript' src="json2.js"></script>
@@ -752,7 +752,7 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
                     </a>
                 </li>
                 <li id="logout_nav">
-                    <a href="logout">
+                    <a id="logout" href="/logout">
                         Logout
                     </a>
                 </li>

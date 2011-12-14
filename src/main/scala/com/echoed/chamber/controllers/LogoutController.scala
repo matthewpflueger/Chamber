@@ -19,14 +19,12 @@ class LogoutController {
     @BeanProperty var cookieManager: CookieManager = _
 
     @RequestMapping(method = Array(RequestMethod.GET))
-    def logout(@CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
-               httpServletRequest: HttpServletRequest,
-               httpServletResponse: HttpServletResponse) = {
-        
-        logger.debug("Removing Cookie: echoedUserId");
-        cookieManager.deleteCookie(httpServletResponse,"echoedUserId");
+    def logout(httpServletResponse: HttpServletResponse) = {
+        logger.debug("Removing cookies: echoedUserId & partnerUser");
+        cookieManager.deleteCookie(httpServletResponse, "echoedUserId");
+        cookieManager.deleteCookie(httpServletResponse, "partnerUser");
         new ModelAndView("redirect:http://v1-api.echoed.com/")
-        
+
     }
 
 }

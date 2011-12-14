@@ -49,6 +49,7 @@
 
         <prop key="exhibitUrl">${apiUrl}/closet/exhibit</prop>
         <prop key="friendsUrl">${apiUrl}/closet/friends</prop>
+        <prop key="dashboardUrl">${apiUrl}/partner/dashboard</prop>
     </util:properties>
 
 </beans>

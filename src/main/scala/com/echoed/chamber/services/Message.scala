@@ -3,15 +3,14 @@ package com.echoed.chamber.services
 import java.util.UUID
 
 
-trait Message {
+trait Message extends Serializable {
 
-    def messageId = UUID.randomUUID.toString
-    def messageVersion = 1
-    def messageRoutingKey: Option[String] = None
-    def messageCorrelation: Option[Message] = None
+    val id = UUID.randomUUID.toString
+    val version = 1
+    val correlation: Option[Message] = None
 
-    var messageSentOn = System.currentTimeMillis()
-    var messageReceivedOn: Option[Long] = None
+    var sentOn = System.currentTimeMillis()
+    var receivedOn: Option[Long] = None
 
 }
 

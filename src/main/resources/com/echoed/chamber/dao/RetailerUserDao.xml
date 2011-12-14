@@ -44,4 +44,9 @@
     <delete id="deleteById">
         delete from RetailerUser where id=#{id}
     </delete>
+
+    <delete id="deleteByEmail">
+        delete from RetailerUser where email=#{email}
+    </delete>
+
 </mapper>

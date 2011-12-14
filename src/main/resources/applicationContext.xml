@@ -87,6 +87,14 @@
         <property name="echoedUserServiceLocatorActor" ref="echoedUserServiceLocatorActor" />
     </bean>
 
+    <bean id="partnerUserServiceCreator" class="com.echoed.chamber.services.partneruser.PartnerUserServiceCreatorActorClient">
+        <property name="partnerUserServiceCreatorActor" ref="partnerUserServiceCreatorActor" />
+    </bean>
+
+    <bean id="partnerUserServiceLocator" class="com.echoed.chamber.services.partneruser.PartnerUserServiceLocatorActorClient">
+        <property name="partnerUserServiceLocatorActor" ref="partnerUserServiceLocatorActor" />
+    </bean>
+
     <!-- NOTE: defining a separate properties object is an ugly hack to fix a bug in Akka's Spring integration where placeholder's
                 were not getting resolved - see ActorFactoryBean#setProperties -->
     <!--suppress SpringModelInspection -->
@@ -205,4 +213,21 @@
         <property name="echoedUserServiceCreator" ref="echoedUserServiceCreator" />
     </akka:untyped-actor>
 
+
+    <akka:untyped-actor
+            id="partnerUserServiceCreatorActor"
+            implementation="com.echoed.chamber.services.partneruser.PartnerUserServiceCreatorActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="partnerUserDao" ref="partnerUserDao" />
+    </akka:untyped-actor>
+
+
+    <akka:untyped-actor
+            id="partnerUserServiceLocatorActor"
+            implementation="com.echoed.chamber.services.partneruser.PartnerUserServiceLocatorActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="partnerUserServiceCreator" ref="partnerUserServiceCreator" />
+    </akka:untyped-actor>
 </beans>

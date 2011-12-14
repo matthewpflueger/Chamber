@@ -1,14 +1,15 @@
 package com.echoed.chamber.services
 
 
-abstract case class ResponseMessage[R, M <: Message, E <: ErrorMessage](
-        requestMessage: M,
-        value: Either[E, R]) extends Message {
 
+trait ResponseMessage[R, M <: Message, E <: EchoedException] { this: Message =>
 
-    override def messageVersion = requestMessage.messageVersion
-    override def messageId = requestMessage.messageId
-    override def messageCorrelation = Option(requestMessage)
+    val message: M
+    val value: Either[E, R]
+
+    override val version = message.version
+    override val id = message.id
+    override val correlation = Option(message)
 
     def resultOrException = value match {
         case Left(e)  ⇒ throw e

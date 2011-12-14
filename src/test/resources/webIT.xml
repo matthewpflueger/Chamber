@@ -27,6 +27,7 @@
         <prop key="loginViewUrl">${loginViewUrl}</prop>
         <prop key="confirmViewUrl">${confirmViewUrl}</prop>
         <prop key="closetUrl">${closetUrl}</prop>
+        <prop key="dashboardUrl">${dashboardUrl}</prop>
     </util:properties>
 
 

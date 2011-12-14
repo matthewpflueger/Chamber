@@ -1,12 +1,13 @@
 package com.echoed.chamber.services.echo
 
 import com.echoed.chamber.domain.views.EchoFull
-import com.echoed.chamber.services.{ResponseMessage, ErrorMessage}
+import com.echoed.chamber.services.{Message, ResponseMessage, EchoedException}
 
 
 case class EchoResponseMessage(
-        echoRequestMessage: EchoRequestMessage,
-        echoValue: Either[ErrorMessage, EchoFull]) extends ResponseMessage(
-            requestMessage = echoRequestMessage,
-            value = echoValue)
+        message: EchoRequestMessage,
+        value: Either[EchoedException, EchoFull])
+        extends Message
+        with ResponseMessage[EchoFull, EchoRequestMessage, EchoedException]
+
 

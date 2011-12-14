@@ -13,4 +13,6 @@ trait RetailerUserDao {
 
     def findByEmail(email: String): RetailerUser
 
+    def deleteByEmail(email: String): Int
+
 }
