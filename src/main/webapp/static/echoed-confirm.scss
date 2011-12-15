@@ -11,7 +11,9 @@
 }
 
 //$mainColor: #FF7733;
-$mainColor: #E31B23;
+$mainColor: #F20006; //RED
+$secondaryColor: #ff6f00; //ORANGE
+$greyColor: #444444;
 $highlightColor : #FF7733;
 $fbColor: #3B5998;
 $twitterColor: #4099FF;
@@ -74,7 +76,7 @@ textarea{
 
     #header{
         height:50px;
-        border-bottom: 5px solid $mainColor;
+        border-bottom: 5px solid $greyColor;
         background-color: $containerColor;
         line-height:50px;
         font-size: 50px;
@@ -92,6 +94,7 @@ textarea{
             font-family: $navFontFamily;
             font-size: 50px;
             float:right;
+            margin-right: 5px;
         }
 
         .red{
@@ -208,6 +211,6 @@ textarea{
 }
 
 .echoed-text{
-    color: $mainColor;
+    color: $secondaryColor;
     font-weight:bold;
 }

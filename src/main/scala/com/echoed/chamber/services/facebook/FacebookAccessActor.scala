@@ -39,6 +39,7 @@ class FacebookAccessActor extends Actor {
     def receive = {
         case ("accessToken", code: String, queryString: String) => {
             logger.debug("Requesting access token for code {}", code)
+            logger.debug("Redirect Url: {}",redirectUrl + queryString)
             self.channel ! FacebookBatcher.getAccessToken(clientId, clientSecret, code, redirectUrl + queryString)
             logger.debug("Got access token for code {}", code)
         }
@@ -65,6 +66,7 @@ class FacebookAccessActor extends Actor {
             logger.debug("Creating new post for {} with access token {}", facebookId, accessToken)
             val result = getFacebookBatcher(accessToken).post(
                 ("%s/feed" format facebookId),
+                new Param("name", facebookPost.message),
                 new Param("message", facebookPost.message),
                 new Param("picture", facebookPost.picture),
                 new Param("link", facebookPost.link),

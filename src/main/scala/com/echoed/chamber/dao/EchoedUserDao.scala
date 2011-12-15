@@ -23,4 +23,6 @@ trait EchoedUserDao {
 
     def deleteByScreenName(screenName: String): Int
 
+    def update(echoedUser: EchoedUser): Int
+
 }

@@ -76,7 +76,7 @@ class ClosetController {
         })
 
     }
-
+    
     @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
     def exhibit(
@@ -135,8 +135,38 @@ class ClosetController {
                     continuation.resume()
                 }
             }
-
             continuation.undispatch()
         })
+    }
+    
+    @RequestMapping(value= Array("/exhibit/{id}"), method=Array(RequestMethod.GET))
+    @ResponseBody
+    def friendExhibit(
+            @PathVariable(value="id") echoedFriendId: String,
+            @CookieValue(value = "echoedUserId", required= false ) echoedUserId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        logger.debug("echoedFriendId: {}", echoedFriendId)
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if(continuation.isExpired) {
+            
+        } else Option(continuation.getAttribute("closet")).getOrElse({
+            continuation.suspend(httpServletResponse)
+            
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map {
+                echoedUserService =>
+                    echoedUserService.getFriendCloset(echoedFriendId).map{
+                        closet =>
+                            continuation.setAttribute("closet",closet.echoes)
+                            continuation.resume
+                    }
+            }
+            
+            continuation.undispatch()
+        })
+        
+        
+
     }
 }

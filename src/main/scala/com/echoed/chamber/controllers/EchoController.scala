@@ -8,11 +8,12 @@ import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.util.CookieManager
 import akka.dispatch.Future
-import org.springframework.web.servlet.ModelAndView
+import com.echoed.chamber.domain.Echo
 import org.springframework.web.bind.annotation._
 import com.echoed.chamber.domain.{EchoClick, EchoPossibility}
 import com.echoed.chamber.services.echo.{EchoResponseMessage, EchoRequestMessage, EchoService}
 import java.net.URLEncoder
+import org.springframework.web.servlet.ModelAndView
 
 
 @Controller
@@ -56,6 +57,7 @@ class EchoController {
 
         def loginModelAndView = {
             val echoPossibility = echoPossibilityParameters.createLoginEchoPossibility
+            
             echoService.recordEchoPossibility(echoPossibility)
             val modelAndView = new ModelAndView(loginView)
 //            modelAndView.addObject("redirectUrl", URLEncoder.encode("http://v1-api.echoed.com/facebook/login", "UTF-8"))
@@ -64,8 +66,11 @@ class EchoController {
                 //URLEncoder.encode(echoPossibility.asUrlParams("echo&"), "UTF-8"))
                 URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
                 //"http://v1-api.echoed.com/twitter?redirect=echo&%s" format URLEncoder.encode(echoPossibility.asUrlParams(), "UTF-8"))
+            
+
             modelAndView.addObject("redirectUrl",
-                URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login?redirect=echo&"), "UTF-8"))
+                URLEncoder.encode("http://v1-api.echoed.com/facebook/login?redirect="
+                    + URLEncoder.encode(echoPossibility.asUrlParams("echo?"),"UTF-8")))
             //modelAndView.addObject("echoPossibility",echoPossibility);
 
 //            modelAndView.addObject("redirectUrl", URLEncoder.encode(
@@ -81,21 +86,37 @@ class EchoController {
             logger.error("Request expired to echo {}", echoPossibilityParameters)
             loginModelAndView
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-
             continuation.suspend(httpServletResponse)
+            val echoPoss = echoPossibilityParameters.createLoginEchoPossibility
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).map { echoedUserService =>
-                echoedUserService.getEchoedUser.map { echoedUser =>
-                    val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
-                    echoService.recordEchoPossibility(echoPossibility)
+            echoService.getEcho(echoPoss.id).map{
+                tuple =>
+                    if(tuple._2 == "Exists"){
+                        logger.debug("Existing Echo {} ", tuple._1)
+                        val modelAndView = new ModelAndView(errorView)
+                        modelAndView.addObject("error_message", "This Item has already been shared")
+                        continuation.setAttribute("modelAndView", modelAndView)
+                        continuation.resume
+                    }
+                    else{
+                        echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).map { echoedUserService =>
+                            echoedUserService.getEchoedUser.map { echoedUser =>
+                                val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
+                                echoService.recordEchoPossibility(echoPossibility)
 
-                    val modelAndView = new ModelAndView(confirmView)
-                    modelAndView.addObject("echoedUser", echoedUser)
-                    modelAndView.addObject("echoPossibility", echoPossibility)
+                                val modelAndView = new ModelAndView(confirmView)
+                                modelAndView.addObject("echoedUser", echoedUser)
+                                modelAndView.addObject("echoPossibility", echoPossibility)
+                                modelAndView.addObject("facebookAddUrl",
+                                    URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login/add?redirect=echo?"), "UTF-8"))
+                                modelAndView.addObject("twitterAddUrl",
+                                    URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
+                                continuation.setAttribute("modelAndView", modelAndView)
+                                continuation.resume
+                            }
+                        }
+                    }
 
-                    continuation.setAttribute("modelAndView", modelAndView)
-                    continuation.resume
-                }
             }
 
             continuation.undispatch
@@ -113,7 +134,7 @@ class EchoController {
         if (echoedUserId != null) echoItParameters.echoedUserId = echoedUserId
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        logger.debug("Echo It Paramters: {}", echoItParameters)
+        logger.debug("Echo It Parameters: {}", echoItParameters)
 
         if (continuation.isExpired) {
             logger.error("Request expired to echo ", echoItParameters)

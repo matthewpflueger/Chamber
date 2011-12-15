@@ -40,7 +40,7 @@ textarea {
 
 #header {
   height: 50px;
-  border-bottom: 5px solid #e31b23;
+  border-bottom: 5px solid #444444;
   background-color: white;
   line-height: 50px;
   font-size: 50px;
@@ -55,10 +55,11 @@ textarea {
 .sharingvalued {
   font-family: BebasNeue, Arial, sans-serif;
   font-size: 50px;
-  float: right; }
+  float: right;
+  margin-right: 5px; }
 
 .red {
-  color: #e31b23; }
+  color: #f20006; }
 
 #thankyou {
   padding: 10px;
@@ -144,5 +145,5 @@ textarea {
   clear: both; }
 
 .echoed-text {
-  color: #e31b23;
+  color: #ff6f00;
   font-weight: bold; }

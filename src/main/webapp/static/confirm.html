@@ -76,7 +76,7 @@
                     <div id="right_content" class="border-grey bg-color-white rounded-corners">
                         <form name="message" id="echo" action="http://v1-api.echoed.com/echo/it" method="get">
                             {{#echoPossibility}}
-                            <input type="text" name="echoPossibilityId" value="{{id}}">
+                            <input type="hidden" name="echoPossibilityId" value="{{id}}">
                             {{/echoPossibility}}
                     	    <table id="echoes" width="100%" cellspacing="5px">
                                 <tbody>
@@ -106,6 +106,15 @@
                                         </td>
                                     </tr>
                                     {{/facebookUserId}}
+                                    {{^facebookUserId}}
+                                    <tr>
+                                        <td colspan="3">
+                                            <a href="https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri={{facebookAddUrl}}&scope=email,publish_stream,offline_access">
+                                                <img class="login-button" width="250px" src="fb-login.png">
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {{/facebookUserId}}
                                     {{#twitterUserId}}
                                         <tr>
                                             <td>
@@ -120,6 +129,13 @@
                                         </tr>
                                     {{/twitterUserId}}
                                     {{^twitterUserId}}
+                                        <tr>
+                                            <td colspan="3">
+                                                <a id="twitterLogin" href="http://v1-api.echoed.com/twitter?redirect={{twitterAddUrl}}">
+                                                    <img width="200" src='twitter-login.png'/>
+                                                </a>
+                                            </td>
+                                        </tr>
                                     {{/twitterUserId}}
                                     {{/echoedUser}}
                                     <tr>

@@ -9,6 +9,8 @@ trait EchoService {
     def recordEchoPossibility(echoPossibility: EchoPossibility): Future[EchoPossibility]
 
     def getEchoPossibility(echoPossibilityId: String): Future[EchoPossibility]
+    
+    def getEcho(echoPossibilityId:String): Future[(Echo,String)]
 
     def echo(echoRequestMessage: EchoRequestMessage): Future[EchoResponseMessage]
 

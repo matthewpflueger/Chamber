@@ -127,7 +127,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             val e = dataCreator.echoPossibilities(0).copy(step = "confirm", echoedUserId = echoedUser.id)
             val r = dataCreator.retailer
-            val s = dataCreator.retailerSettings(0)
+            val s = dataCreator.retailerSettings(1)
 
             val (echoPossibility, count) = echoHelper.setupEchoPossibility(e, r, s)
 

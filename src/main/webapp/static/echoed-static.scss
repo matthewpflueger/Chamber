@@ -11,7 +11,9 @@
 }
 
 //$mainColor: #FF7733;
-$mainColor: #E31B23;
+$mainColor: #F20006; //RED
+$secondaryColor: #ff6f00; //ORANGE
+$greyColor : #444444;
 $fbColor: #3B5998;
 $twitterColor: #4099FF;
 
@@ -35,6 +37,12 @@ pre, form, fieldset, table, th, td{
 	margin:0;
 	padding: 0;
 	font-family: $textFontFamily;
+}
+
+img{
+    float:left;
+    margin:0;
+    padding:0;
 }
 
 table{
@@ -65,18 +73,20 @@ h2{
 }
 
 .echoed-text{
-    color: $mainColor;
+    color: $secondaryColor;
 }
 
 #container{
     min-width: 1000px;
     height: 100%;
+    background-color: #F3F3F3;
 }
 
 	#header{
 	    min-width: 1100px;
 		height:50px;
-		border-bottom: 5px solid $mainColor;
+		border-bottom: 10px solid $greyColor;
+		background-color: #FFF;
 		//background-color: $containerColor;
 	}
 
@@ -98,9 +108,13 @@ h2{
         #nav a{
             margin-left:10px;
         }
+        
+        #nav a.highlight{
+            color: $secondaryColor;
+        }
 
         #nav a:hover{
-            color: $mainColor;
+            color: $secondaryColor;
         }
 
     #primary{
@@ -111,6 +125,15 @@ h2{
         #learnmore{
             padding:20px 0px;
         }
+            .learnmore-button{
+                margin-top:50px;
+                padding:5px 10px;
+                background-color: $secondaryColor;
+                text-align: center;
+                font-family: BebasNeue;
+                color: #FFF;
+                font-size:24px
+            }
 
             #lm-left{
                 float:left;
@@ -118,7 +141,8 @@ h2{
             }
                 #lm-left-label{
                     font-family: $navFontFamily;
-                    font-size: 48px;
+                    font-size: 64px;
+                    margin-bottom: 24px;
                 }
 
                 #index-subtitle{
@@ -127,7 +151,7 @@ h2{
                 }
 
             #lm-right{
-                width: 620;
+                width: 480;
                 float:right;
             }
     .center{
@@ -137,7 +161,6 @@ h2{
 
     #secondary{
         padding: 20px 0px;
-        background-color: $containerColor;
     }
 
     .third-box{
@@ -149,11 +172,11 @@ h2{
     .tb-text{
         font-size: 18px;
         margin: 2px;
-        font-family: 'HelveticaNeue-Light',Tahoma;
+        font-family: 'HelveticaNeue-Medium',Tahoma;
+        color: $secondaryColor;
     }
 
     .login-button{
-        margin: 5px;
     }
 
     #footer{
@@ -167,8 +190,10 @@ h2{
         width: 920px;
         margin: auto;
         padding: 0px 20px;
-        border: 1px solid #CCC;
+        border: 1px solid $greyColor;
         border-radius:5px;
+        background-color: #FFF;
+        margin-bottom: 10px;
     }
 
     .hiw-title{
@@ -201,7 +226,7 @@ h2{
     font-family: $navFontFamily;
     font-size: 28px;
     text-align:center;
-    color: $labelColor;
+    color: $greyColor;
 }
 
 .flush-right{

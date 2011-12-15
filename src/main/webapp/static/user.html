@@ -41,10 +41,16 @@ Echoed.Router = Backbone.Router.extend({
 
     },
     routes:{
+        "_=_" : "fix",
         "": "exhibit",
         "exhibit": "exhibit",
         "exhibit/:id": "exhibit",
-        "friends": "friends"
+        "friends": "friends",
+        "friends/exhibit/:id": "friendsExhibit",
+        "friends/exhibit/:id/:filter": "friendsExhibit"
+    },
+    fix: function(){
+        window.location.href = "#";
     },
     exhibit: function(id) {
         if(!id) selector = "*";
@@ -61,7 +67,12 @@ Echoed.Router = Backbone.Router.extend({
     friends: function() {
         pageView = new Echoed.Views.Pages.Friends({EvAg: this.EvAg});
         this.page = "Friends";
+    },
+    friendsExhibit: function(id,filter){
+        pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: filter, Id: id})
+        this.page = "FriendsExhibit"
     }
+
 });
 
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
@@ -71,7 +82,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
-
+        if(options.Id)
+            this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit/" + options.Id;
+        else
+            this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
         this.element = $(this.el);
 
         this.render(options.Filter);
@@ -90,7 +104,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
         exhibit.append('<div style="width:1px;"></div>');
         exhibit.isotope({filter: filter});
-        var jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
+        var jsonUrl = this.jsonUrl
         //var jsonUrl = "exhibit.json";
         this.EvAg.trigger("category/add","","All");
         $.ajax({
@@ -100,7 +114,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 $.each(data, function(index,product){
                     var productModel = new Echoed.Models.Product(product);
                     ex.addProduct(productModel,ex.filter);
-                    //ex.EvAg.trigger('category/add','test','test');
                     ex.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                 });
             },
@@ -136,6 +149,20 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
     },
     render: function(){
         this.element.html('');
+        var ex = this.element
+        jsonUrl = "http://v1-api.echoed.com/closet/friends";
+        $.ajax({
+            url: jsonUrl,
+            dataType: 'json',
+            success: function(data){
+                $.each(data, function(index,friend){
+                    var  a = $('<a></a>').html(friend.name).attr("href","#friends/exhibit/" + friend.toEchoedUserId)
+                    $('<div></div>').append(a).appendTo(ex)
+                });
+            },
+            error:function (xhr, ajaxOptions, thrownError){
+            }
+        });
     }
 });
 

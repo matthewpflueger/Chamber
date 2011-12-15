@@ -66,7 +66,7 @@
         <property name="loginView" value="login" />
         <property name="confirmView" value="confirm" />
         <property name="echoItView" value="echoIt" />
-        <property name="errorView" value="redirect:${errorViewUrl}" />
+        <property name="errorView" value="error" />
         <property name="cookieManager" ref="cookieManager" />
     </bean>
 

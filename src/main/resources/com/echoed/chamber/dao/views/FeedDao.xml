@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper>
+    <resultMap id="feedResult" type="com.echoed.chamber.domain.views.Feed">
+        <constructor>
+            <idArg column="echoedUserId" javaType="String"/> 
+            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult"/>
+            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult"/>
+        </constructor>
+        <collection property="echoes" ofType="com.echoed.chamber.domain.views.EchoView" javaType="ArrayList" resultMap="echoViewResult" />
+    </resultMap>
+
+
+    <select id="feedViewResult" type="com.echoed.chamber.domain.views.FeedView">
+        select
+            EU.id as echoedUserId,
+            EU.email as echoedUserEmail,
+            EU.name as echoedUserName,
+            EU2.id as echoedFriendId,
+            EU2.name as echoedFriendName,
+            E.id as echoId,
+            E.productName as echoProductName,
+            E.category as echoCategory,
+            E.brand as echoBrand,
+            E.imageUrl as echoImageUrl,
+            R.name as retailerName
+        from
+            EchoedUser EU
+            left outer join EchoedFriend EF on EU.id = EF.fromEchoedUserId
+            left outer join EchoedUser EU2 on EF.toEchoedUserId = EU2.id
+            left outer join Echo E on EF.toEchoedUserId = E.echoedUserId
+            left outer join Retailer R on E.retailerId = R.id
+        where
+            EU.id = {#id}
+    </select>
+</mapper>

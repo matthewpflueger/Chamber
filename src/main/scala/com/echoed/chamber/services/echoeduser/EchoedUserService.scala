@@ -29,6 +29,8 @@ trait EchoedUserService {
     def echoToTwitter(echo:Echo,  message:String): Future[TwitterStatus]
 
     def getCloset(): Future[Closet]
+    
+    def getFriendCloset(echoedFriendId: String): Future[Closet]
 
     def friends: Future[List[EchoedFriend]]
 }

@@ -72,4 +72,17 @@
         delete from EchoedUser where screenName = #{screenName}
     </delete>
 
+    <insert id="update" parameterType="com.echoed.chamber.domain.EchoedUser">
+        update EchoedUser
+        set name=#{name},
+            email=#{email},
+            screenName=#{screenName},
+            facebookUserId=#{facebookUserId},
+            facebookId=#{facebookId},
+            twitterUserId=#{twitterUserId},
+            twitterId=#{twitterId}
+        where
+            id=#{id}
+    </insert>
+
 </mapper>

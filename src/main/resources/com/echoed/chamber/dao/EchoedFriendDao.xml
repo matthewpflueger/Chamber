@@ -17,6 +17,14 @@
         </constructor>
     </resultMap>
 
+    <select id="findFriendByEchoedUserId" resultMap="echoedFriendResult">
+        select * from EchoedFriend
+        where
+            fromEchoedUserId = #{echoedUserId}
+            AND
+            toEchoedUserId = #{echoedFriendId}
+    </select>
+
     <select id="findByEchoedUserId" resultMap="echoedFriendResult">
         select * from EchoedFriend where fromEchoedUserId = #{echoedUserId}
     </select>

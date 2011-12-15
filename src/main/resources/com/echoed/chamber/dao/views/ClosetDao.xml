@@ -41,7 +41,7 @@
             <arg column="twitterStatusTwitterId" javaType="String" />
         </constructor>
     </resultMap>
-
+    
     <select id="findByEchoedUserId" resultMap="closetResult">
         select
             EU.id as echoedUserId,

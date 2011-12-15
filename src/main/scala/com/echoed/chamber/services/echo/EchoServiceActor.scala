@@ -4,7 +4,7 @@ import akka.actor.Actor
 import reflect.BeanProperty
 import akka.dispatch.Future
 import com.echoed.chamber.domain._
-
+import com.echoed.chamber.domain.Echo
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 
 import org.slf4j.LoggerFactory
@@ -12,7 +12,7 @@ import com.echoed.chamber.domain.views.EchoFull
 import scala.Option
 import com.echoed.chamber.services.EchoedException
 import com.echoed.chamber.dao._
-import java.util.Date
+import java.util.{Calendar, Date}
 
 
 class EchoServiceActor extends Actor {
@@ -40,6 +40,14 @@ class EchoServiceActor extends Actor {
                 }
             }
         }
+        case ("getEcho", echoPossibilityId:String) =>{
+            val echo = Option(echoDao.findByEchoPossibilityId(echoPossibilityId)).getOrElse(None)
+            if (echo==None)
+                self.channel ! (echo,"New")
+            else
+            self.channel ! (echo, "Exists")
+        }
+
         case ("echoPossibility", echoPossibilityId: String) => {
             self.channel ! Option(echoPossibilityDao.findById(echoPossibilityId)).getOrElse(None)
         }
@@ -61,6 +69,7 @@ class EchoServiceActor extends Actor {
             } yield {
 //                echoedUserServiceResponseMessage.resultOrException.getEchoedUser.resultOrException
                 logger.debug("retailerId: {}", echoPossibility.retailerId)
+                
                 val retailerSettings = Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date)).get
                 logger.debug("retailerSettings Received: {}", retailerSettings)
 

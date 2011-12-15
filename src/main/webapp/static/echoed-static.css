@@ -11,6 +11,11 @@ pre, form, fieldset, table, th, td {
   padding: 0;
   font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif; }
 
+img {
+  float: left;
+  margin: 0;
+  padding: 0; }
+
 table {
   border-collapse: collapse; }
 
@@ -32,16 +37,18 @@ h2 {
   color: #666666; }
 
 .echoed-text {
-  color: #e31b23; }
+  color: #ff6f00; }
 
 #container {
   min-width: 1000px;
-  height: 100%; }
+  height: 100%;
+  background-color: #F3F3F3; }
 
 #header {
   min-width: 1100px;
   height: 50px;
-  border-bottom: 5px solid #e31b23; }
+  border-bottom: 10px solid #444444;
+  background-color: #FFF; }
 
 #logo {
   font-size: 48px;
@@ -59,8 +66,11 @@ h2 {
 #nav a {
   margin-left: 10px; }
 
+#nav a.highlight {
+  color: #ff6f00; }
+
 #nav a:hover {
-  color: #e31b23; }
+  color: #ff6f00; }
 
 #primary {
   padding-top: 20px; }
@@ -68,20 +78,30 @@ h2 {
 #learnmore {
   padding: 20px 0px; }
 
+.learnmore-button {
+  margin-top: 50px;
+  padding: 5px 10px;
+  background-color: #ff6f00;
+  text-align: center;
+  font-family: BebasNeue;
+  color: #FFF;
+  font-size: 24px; }
+
 #lm-left {
   float: left;
   width: 360px; }
 
 #lm-left-label {
   font-family: BebasNeue, Arial, sans-serif;
-  font-size: 48px; }
+  font-size: 64px;
+  margin-bottom: 24px; }
 
 #index-subtitle {
   font-size: 18px;
   font-weight: bold; }
 
 #lm-right {
-  width: 620;
+  width: 480;
   float: right; }
 
 .center {
@@ -89,8 +109,7 @@ h2 {
   margin: auto; }
 
 #secondary {
-  padding: 20px 0px;
-  background-color: #f9f9f9; }
+  padding: 20px 0px; }
 
 .third-box {
   width: 300px;
@@ -100,10 +119,8 @@ h2 {
 .tb-text {
   font-size: 18px;
   margin: 2px;
-  font-family: 'HelveticaNeue-Light',Tahoma; }
-
-.login-button {
-  margin: 5px; }
+  font-family: 'HelveticaNeue-Medium',Tahoma;
+  color: #ff6f00; }
 
 #footer {
   height: 100px;
@@ -114,8 +131,10 @@ h2 {
   width: 920px;
   margin: auto;
   padding: 0px 20px;
-  border: 1px solid #CCC;
-  border-radius: 5px; }
+  border: 1px solid #444444;
+  border-radius: 5px;
+  background-color: #FFF;
+  margin-bottom: 10px; }
 
 .hiw-title {
   font-family: BebasNeue, Arial, sans-serif;
@@ -142,7 +161,7 @@ h2 {
   font-family: BebasNeue, Arial, sans-serif;
   font-size: 28px;
   text-align: center;
-  color: #666666; }
+  color: #444444; }
 
 .flush-right {
   float: right;

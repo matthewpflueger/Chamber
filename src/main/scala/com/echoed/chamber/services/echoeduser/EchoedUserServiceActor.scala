@@ -16,7 +16,7 @@ import scala.collection.mutable.{Map => MMap, ListBuffer => MList}
 
 
 class EchoedUserServiceActor(
-        echoedUser: EchoedUser,
+        var echoedUser: EchoedUser,
         echoedUserDao: EchoedUserDao,
         closetDao: ClosetDao,
         echoedFriendDao: EchoedFriendDao,
@@ -45,10 +45,17 @@ class EchoedUserServiceActor(
 
         case ("assignTwitterService",twitterService:TwitterService) => {
             this.twitterService = twitterService
+            val twitterUser  = twitterService.twitterUser.get
+            echoedUser = this.echoedUser.assignTwitterUser(twitterUser.id, twitterUser.twitterId)
+            echoedUserDao.update(echoedUser)
             self.channel ! this.twitterService
         }
         case ("assignFacebookService",facebookService:FacebookService) =>{
             this.facebookService = facebookService
+            val facebookUser = facebookService.facebookUser.get
+            logger.debug("Assigning Facebook Id {} to EchoedUser {}",facebookUser.id, echoedUser)
+            echoedUser = this.echoedUser.assignFacebookUser(facebookUser.id,facebookUser.facebookId)
+            echoedUserDao.update(echoedUser)
             self.channel ! this.facebookService
         }
 
@@ -65,6 +72,20 @@ class EchoedUserServiceActor(
             facebookService.echo(echo, message).map[FacebookPost] { fp: FacebookPost =>
                 channel ! fp
                 fp
+            }
+
+        case ("getFriendCloset", echoedFriendId : String) =>
+            val echoedUserId = echoedUser.id
+
+            logger.debug("EchoedUserId: {} EchoedFriendId: {}", echoedUserId,echoedFriendId)
+            val echoedFriend = Option(echoedFriendDao.findFriendByEchoedUserId(echoedUserId,echoedFriendId)).getOrElse(null)
+            if(echoedFriend != null){
+                logger.debug("Found")
+                self.channel ! closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)
+            }
+            else{
+                logger.debug("Not Found")
+                self.channel ! None
             }
 
         case "closet" =>
