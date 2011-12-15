@@ -26,7 +26,7 @@
     </select>
 
     <select id="findByEchoedUserId" resultMap="echoedFriendResult">
-        select * from EchoedFriend where fromEchoedUserId = #{echoedUserId}
+        select * from EchoedFriend where fromEchoedUserId = #{echoedUserId} order by name
     </select>
 
     <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.EchoedFriend">

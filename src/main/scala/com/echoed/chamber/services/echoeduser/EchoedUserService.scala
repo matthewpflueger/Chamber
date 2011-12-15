@@ -7,6 +7,7 @@ import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.views.Closet
+import com.echoed.chamber.domain.views.Feed
 
 
 trait EchoedUserService {
@@ -29,6 +30,8 @@ trait EchoedUserService {
     def echoToTwitter(echo:Echo,  message:String): Future[TwitterStatus]
 
     def getCloset(): Future[Closet]
+
+    def getFeed(): Future[Feed]
     
     def getFriendCloset(echoedFriendId: String): Future[Closet]
 

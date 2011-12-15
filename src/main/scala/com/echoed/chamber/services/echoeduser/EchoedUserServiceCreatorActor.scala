@@ -9,7 +9,7 @@ import com.echoed.chamber.services.twitter.TwitterServiceLocator
 
 import com.echoed.chamber.services.facebook.{FacebookServiceLocator, FacebookService}
 import akka.dispatch.Future
-import com.echoed.chamber.dao.views.ClosetDao
+import com.echoed.chamber.dao.views.{ClosetDao, FeedDao}
 import com.echoed.chamber.dao.{EchoedFriendDao, EchoedUserDao}
 
 
@@ -20,6 +20,7 @@ class EchoedUserServiceCreatorActor extends Actor {
 
     @BeanProperty var echoedUserDao: EchoedUserDao = _
     @BeanProperty var closetDao: ClosetDao = _
+    @BeanProperty var feedDao: FeedDao = _
     @BeanProperty var facebookServiceLocator: FacebookServiceLocator = _
     @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
     @BeanProperty var echoedFriendDao: EchoedFriendDao = _
@@ -54,6 +55,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                                 echoedUserDao,
                                 closetDao,
                                 echoedFriendDao,
+                                feedDao,
                                 facebookService,
                                 twitterService)).start)
                         logger.debug("Created EchoedUserService with id {}", id)
@@ -76,6 +78,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                             echoedUserDao,
                             closetDao,
                             echoedFriendDao,
+                            feedDao,
                             facebookService)).start)
                 case None =>
                     logger.debug("Creating EchoedUser with {}", facebookUser)
@@ -87,6 +90,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                             echoedUserDao,
                             closetDao,
                             echoedFriendDao,
+                            feedDao,
                             facebookService)).start)
 
             }
@@ -103,6 +107,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                             echoedUserDao,
                             closetDao,
                             echoedFriendDao,
+                            feedDao,
                             twitterService)).start)
                 case None =>
                     logger.debug("Creating EchoedUser with {}", twitterUser)
@@ -114,6 +119,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                             echoedUserDao,
                             closetDao,
                             echoedFriendDao,
+                            feedDao,
                             twitterService)).start)
             }
         }

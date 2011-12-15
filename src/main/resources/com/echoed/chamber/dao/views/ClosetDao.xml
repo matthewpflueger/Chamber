@@ -14,6 +14,11 @@
             <idArg column="echoedUserId" javaType="String" />
             <arg column="echoedUserName" javaType="String" />
 			<arg column="echoedUserEmail" javaType="String" />
+            <arg column="echoedUserScreenName" javaType="String" />
+            <arg column="echoedUserFacebookUserId" javaType="String" />
+            <arg column="echoedUserFacebookId" javaType="String" />
+            <arg column="echoedUserTwitterUserId" javaType="String" />
+            <arg column="echoedUserTwitterId" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -47,6 +52,11 @@
             EU.id as echoedUserId,
             EU.email as echoedUserEmail,
             EU.name as echoedUserName,
+            EU.screenName as echoedUserScreenName,
+            EU.facebookUserId as echoedUserFacebookUserId,
+            EU.facebookId as echoedUserFacebookId,
+            EU.twitterUserId as echoedUserTwitterUserId,
+            EU.twitterId as echoedUserTwitterId,
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
             E.imageUrl as echoImageUrl,

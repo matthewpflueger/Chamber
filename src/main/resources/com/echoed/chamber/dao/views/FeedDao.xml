@@ -1,36 +1,116 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper>
+<mapper namespace="com.echoed.chamber.dao.views.FeedDao">
     <resultMap id="feedResult" type="com.echoed.chamber.domain.views.Feed">
         <constructor>
             <idArg column="echoedUserId" javaType="String"/> 
             <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult"/>
-            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult"/>
+            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedFriendUserResult"/>
         </constructor>
         <collection property="echoes" ofType="com.echoed.chamber.domain.views.EchoView" javaType="ArrayList" resultMap="echoViewResult" />
     </resultMap>
 
+    <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
+        <constructor>
+            <idArg column="echoedUserId" javaType="String" />
+            <arg column="echoedUserName" javaType="String" />
+            <arg column="echoedUserEmail" javaType="String" />
+            <arg column="echoedUserScreenName" javaType="String" />
+            <arg column="echoedUserFacebookUserId" javaType="String" />
+            <arg column="echoedUserFacebookId" javaType="String" />
+            <arg column="echoedUserTwitterUserId" javaType="String" />
+            <arg column="echoedUserTwitterId" javaType="String" />
+        </constructor>
+    </resultMap>
+    
+    <resultMap id="echoedFriendUserResult" type="com.echoed.chamber.domain.EchoedUser">
+        <constructor>
+            <idArg column="echoedFriendId" javaType="String" />
+            <arg column="echoedFriendName" javaType="String" />
+            <arg column="echoedFriendEmail" javaType="String" />
+            <arg column="echoedFriendScreenName" javaType="String" />
+            <arg column="echoedFriendFacebookUserId" javaType="String" />
+            <arg column="echoedFriendFacebookId" javaType="String" />
+            <arg column="echoedFriendTwitterUserId" javaType="String" />
+            <arg column="echoedFriendTwitterId" javaType="String" />
+        </constructor>
+    </resultMap>
 
-    <select id="feedViewResult" type="com.echoed.chamber.domain.views.FeedView">
+    <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoView">
+        <constructor>
+            <idArg column="echoId" javaType="String" />
+            <arg column="echoBoughtOn" javaType="Date" />
+            <arg column="echoImageUrl" javaType="String" />
+            <arg column="echoProductName" javaType="String"/>
+            <arg column="echoCategory" javaType="String"/>
+            <arg column="echoBrand" javaType="String"/>
+            <arg column="echoPrice" javaType="_float" />
+            <arg column="echoLandingPageUrl" javaType="String" />
+            <arg column="echoTotalClicks" javaType="_int" />
+            <arg column="echoCredit" javaType="_float" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="retailerName" javaType="String" />
+            <arg column="retailerSettingsId" javaType="String" />
+            <arg column="retailerSettingsMinClicks" javaType="_int" />
+            <arg column="retailerSettingsMinPercentage" javaType="_float" />
+            <arg column="retailerSettingsMaxPercentage" javaType="_float" />
+            <arg column="facebookPostId" javaType="String" />
+            <arg column="facebookPostFacebookId" javaType="String" />
+            <arg column="twitterStatusId" javaType="String" />
+            <arg column="twitterStatusTwitterId" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <select id="findByEchoedUserId" resultMap="feedResult">
         select
             EU.id as echoedUserId,
             EU.email as echoedUserEmail,
             EU.name as echoedUserName,
+            EU.screenName as echoedUserScreenName,
+            EU.facebookUserId as echoedUserFacebookUserId,
+            EU.facebookId as echoedUserFacebookId,
+            EU.twitterUserId as echoedUserTwitterUserId,
+            EU.twitterId as echoedUserTwitterId,
             EU2.id as echoedFriendId,
+            EU2.email as echoedFriendEmail,
             EU2.name as echoedFriendName,
+            EU2.screenName as echoedFriendScreenName,
+            EU2.facebookUserId as echoedFriendFacebookUserId,
+            EU2.facebookId as echoedFriendFacebookId,
+            EU2.twitterUserId as echoedFriendTwitterUserId,
+            EU2.twitterId as echoedFriendTwitterId,
             E.id as echoId,
+            E.boughtOn as echoBoughtOn,
+            E.imageUrl as echoImageUrl,
             E.productName as echoProductName,
             E.category as echoCategory,
             E.brand as echoBrand,
-            E.imageUrl as echoImageUrl,
-            R.name as retailerName
+            coalesce(E.price, 0)  as echoPrice,
+            E.landingPageUrl as echoLandingPageUrl,
+            coalesce(E.totalClicks, 0) as echoTotalClicks,
+            coalesce(E.credit, 0) as echoCredit,
+            R.id as retailerId,
+            R.name as retailerName,
+            RS.id as retailerSettingsId,
+            coalesce(RS.minClicks, 0) as retailerSettingsMinClicks,
+            coalesce(RS.minPercentage, 0) as retailerSettingsMinPercentage,
+            coalesce(RS.maxPercentage, 0) as retailerSettingsMaxPercentage,
+            FP.id as facebookPostId,
+            FP.facebookId as facebookPostFacebookId,
+            TS.id as twitterStatusId,
+            TS.twitterId as twitterStatusTwitterId
         from
             EchoedUser EU
             left outer join EchoedFriend EF on EU.id = EF.fromEchoedUserId
             left outer join EchoedUser EU2 on EF.toEchoedUserId = EU2.id
             left outer join Echo E on EF.toEchoedUserId = E.echoedUserId
             left outer join Retailer R on E.retailerId = R.id
+            left outer join RetailerSettings RS on E.retailerSettingsId = RS.id
+            left outer join FacebookPost FP on E.facebookPostId = FP.id
+            left outer join TwitterStatus TS on E.twitterStatusId = TS.id
         where
-            EU.id = {#id}
+            EU.id = #{id}
+        order by
+            E.boughtOn desc
     </select>
 </mapper>

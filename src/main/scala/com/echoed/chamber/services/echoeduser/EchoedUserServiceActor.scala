@@ -3,7 +3,7 @@ package com.echoed.chamber.services.echoeduser
 import akka.actor.Actor
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
-import com.echoed.chamber.dao.views.ClosetDao
+import com.echoed.chamber.dao.views.{ClosetDao,FeedDao}
 import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
@@ -20,17 +20,18 @@ class EchoedUserServiceActor(
         echoedUserDao: EchoedUserDao,
         closetDao: ClosetDao,
         echoedFriendDao: EchoedFriendDao,
+        feedDao: FeedDao,
         var facebookService: FacebookService,
         var twitterService: TwitterService) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceActor])
 
-    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao, echoedFriendDao: EchoedFriendDao) =
-            this(echoedUser, echoedUserDao, closetDao, echoedFriendDao, null, null)
-    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao, echoedFriendDao: EchoedFriendDao, facebookService:FacebookService) =
-            this(echoedUser,echoedUserDao, closetDao, echoedFriendDao, facebookService, null)
-    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao, echoedFriendDao: EchoedFriendDao, twitterService:TwitterService) =
-            this(echoedUser,echoedUserDao, closetDao, echoedFriendDao, null, twitterService)
+    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao, echoedFriendDao: EchoedFriendDao,feedDao: FeedDao) =
+            this(echoedUser, echoedUserDao, closetDao, echoedFriendDao, feedDao, null, null)
+    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao, echoedFriendDao: EchoedFriendDao,feedDao: FeedDao, facebookService:FacebookService) =
+            this(echoedUser,echoedUserDao, closetDao, echoedFriendDao,feedDao, facebookService, null)
+    def this(echoedUser: EchoedUser, echoedUserDao: EchoedUserDao, closetDao: ClosetDao, echoedFriendDao: EchoedFriendDao,feedDao: FeedDao, twitterService:TwitterService) =
+            this(echoedUser,echoedUserDao, closetDao, echoedFriendDao,feedDao, null, twitterService)
 
 
     override def preStart() {
@@ -87,6 +88,10 @@ class EchoedUserServiceActor(
                 logger.debug("Not Found")
                 self.channel ! None
             }
+
+        case "feed" =>
+            logger.debug("Attempting to retrieve Feed for EchoedUserId {}", echoedUser.id)
+            self.channel ! feedDao.findByEchoedUserId(echoedUser.id)
 
         case "closet" =>
             val channel = self.channel

@@ -76,6 +76,9 @@ h2 {
   height: 50px;
   text-align: right; }
 
+#networks {
+  float: right; }
+
 #header-nav {
   margin-left: 25px;
   float: left; }
@@ -115,9 +118,11 @@ h2 {
   color: #e31b23; }
 
 #content-selector-container {
+  position: relative;
   border-bottom: 1px solid #CCC;
   padding: 10px;
-  margin-bottom: 10px; }
+  margin-bottom: 10px;
+  text-align: center; }
 
 #content-selector {
   font-family: BebasNeue, Arial, sans-serif;
@@ -132,6 +137,10 @@ h2 {
 a.current {
   color: #e31b23; }
 
+#exhibit {
+  width: 80%;
+  margin: auto; }
+
 .exhibit_image {
   width: 230px;
   border: 3px solid #CCC; }
@@ -139,6 +148,14 @@ a.current {
 #friends {
   width: 80%;
   margin: auto; }
+
+#friend-name {
+  position: absolute;
+  margin: 10px;
+  top: 0px;
+  left: 0px;
+  width: 100px;
+  float: left; }
 
 .friend {
   width: 150px;
@@ -148,7 +165,8 @@ a.current {
 .item_wrap {
   float: left;
   margin: 2px;
-  position: relative; }
+  position: relative;
+  cursor: pointer; }
 
 .item_hover {
   position: absolute;

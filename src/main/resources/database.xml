@@ -103,6 +103,7 @@
         <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookPostDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
+    
 
     <bean id="echoClickDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
        <property name="mapperInterface" value="com.echoed.chamber.dao.EchoClickDao" />
@@ -136,5 +137,9 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
+    <bean id="feedDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.views.FeedDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
 
 </beans>

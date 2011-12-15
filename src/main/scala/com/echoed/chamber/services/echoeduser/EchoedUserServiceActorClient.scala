@@ -5,7 +5,7 @@ import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.views.Closet
+import com.echoed.chamber.domain.views.{Closet,Feed}
 
 
 class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends EchoedUserService {
@@ -34,6 +34,8 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
         (echoedUserServiceActor ? ("echoToTwitter",echo,message)).mapTo[TwitterStatus]
 
     def getCloset = (echoedUserServiceActor ? "closet").mapTo[Closet]
+    
+    def getFeed = (echoedUserServiceActor ? "feed").mapTo[Feed]
     
     def getFriendCloset(echoedFriendId: String) = (echoedUserServiceActor ? ("getFriendCloset",echoedFriendId)).mapTo[Closet]
 

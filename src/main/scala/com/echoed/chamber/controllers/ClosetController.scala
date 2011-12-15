@@ -73,6 +73,13 @@ class ClosetController {
         } else Option(continuation.getAttribute("feed")).getOrElse({
             continuation.suspend(httpServletResponse)
 
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
+                echoedUserService.getFeed.map { feed =>
+                    continuation.setAttribute("feed", feed.echoes)
+                    continuation.resume()
+                }
+            }
             continuation.undispatch()
         })
 

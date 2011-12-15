@@ -23,7 +23,7 @@ html {
   height: 100%; }
 
 body {
-  min-height: 100%; }
+  height: 100%; }
 
 th {
   font-weight: normal; }
@@ -36,19 +36,25 @@ h2 {
   font-family: BebasNeue, Arial, sans-serif;
   color: #666666; }
 
+.primary-text {
+  color: #f20006; }
+
+.secondary-text {
+  color: #ff6f00; }
+
 .echoed-text {
   color: #ff6f00; }
 
 #container {
   min-width: 1000px;
-  height: 100%;
-  background-color: #F3F3F3; }
+  min-height: 100%;
+  background-color: #444; }
 
 #header {
   min-width: 1100px;
   height: 50px;
-  border-bottom: 10px solid #444444;
-  background-color: #FFF; }
+  background-color: #FFF;
+  border-bottom: 1px #000 dotted; }
 
 #logo {
   font-size: 48px;
@@ -73,10 +79,8 @@ h2 {
   color: #ff6f00; }
 
 #primary {
-  padding-top: 20px; }
-
-#learnmore {
-  padding: 20px 0px; }
+  min-height: 500px;
+  background-color: white; }
 
 .learnmore-button {
   margin-top: 50px;
@@ -85,11 +89,11 @@ h2 {
   text-align: center;
   font-family: BebasNeue;
   color: #FFF;
-  font-size: 24px; }
+  font-size: 18px; }
 
 #lm-left {
   float: left;
-  width: 360px; }
+  width: 480px; }
 
 #lm-left-label {
   font-family: BebasNeue, Arial, sans-serif;
@@ -101,7 +105,7 @@ h2 {
   font-weight: bold; }
 
 #lm-right {
-  width: 480;
+  width: 360px;
   float: right; }
 
 .center {
@@ -112,20 +116,21 @@ h2 {
   padding: 20px 0px; }
 
 .third-box {
-  width: 300px;
-  padding: 20px 10px;
+  background-color: #666;
+  width: 250px;
+  padding: 5px 25px;
+  margin: 5px;
   float: left; }
 
 .tb-text {
-  font-size: 18px;
+  font-size: 12px;
   margin: 2px;
   font-family: 'HelveticaNeue-Medium',Tahoma;
-  color: #ff6f00; }
+  color: #FFFFFF; }
 
 #footer {
   height: 100px;
-  width: 100%;
-  background-color: #444; }
+  width: 100%; }
 
 .center-outline {
   width: 920px;
@@ -159,9 +164,9 @@ h2 {
 
 .label {
   font-family: BebasNeue, Arial, sans-serif;
-  font-size: 28px;
+  font-size: 18px;
   text-align: center;
-  color: #444444; }
+  color: #FFFFFF; }
 
 .flush-right {
   float: right;

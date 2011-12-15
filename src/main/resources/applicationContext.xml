@@ -202,6 +202,8 @@
         <property name="closetDao" ref="closetDao" />
         <!--suppress SpringModelInspection -->
         <property name="echoedFriendDao" ref="echoedFriendDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="feedDao" ref="feedDao"/>
     </akka:untyped-actor>
 
 

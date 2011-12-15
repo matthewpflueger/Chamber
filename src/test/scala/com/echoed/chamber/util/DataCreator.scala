@@ -202,7 +202,8 @@ class DataCreator {
                 val r = retailers(num)
                 val rs = retailerSettings.find(_.retailerId == r.id).get
 
-
+                val categories = List("Shoes","Clothes","Random","Other","Accessories")
+                val category = categories(random.nextInt(5))
                 val picNum = random.nextInt(15) + 1
                 var e = new Echo(
                     retailerId = r.id,
@@ -211,15 +212,15 @@ class DataCreator {
                     boughtOn = new Date,
                     orderId = "orderId",
                     price = random.nextInt(100).toFloat+5,
-                    imageUrl = "https://v1-cdn.echoed.com/Pic%s.jpg" format picNum,
+                    imageUrl = "http://v1-cdn.echoed.com/Pic%s.jpg" format picNum,
                     echoedUserId = eu.id,
                     facebookPostId = null,
                     twitterStatusId = null,
                     echoPossibilityId = "echoPossibilityId%s-%s-%s" format(index, num, picNum),
-                    landingPageUrl = "https://www.echoed.com",
+                    landingPageUrl = "http://www.echoed.com",
                     retailerSettingsId = rs.id,
                     productName = "productName",
-                    category = "category",
+                    category = category,
                     brand = "brand")
                 e = e.echoed(rs)
 
