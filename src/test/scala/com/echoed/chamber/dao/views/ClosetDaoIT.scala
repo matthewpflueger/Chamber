@@ -55,9 +55,16 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
             echoList should not be (null)
             echoList.length should equal (echoes.length)
 
+
             for (echo <- echoes) echoList.find(_.echoId == echo.id) should not be (None)
         }
 
+        scenario("Sum of echo credit is queried", IntegrationTest) {
+            val totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
+            totalCredit should not be(0f)
+
+            echoes.map(_.credit).sum should be(totalCredit)
+        }
 
     }
 

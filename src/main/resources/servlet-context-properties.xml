@@ -45,7 +45,7 @@
 
         <prop key="twitterLoginErrorViewUrl">${cdnUrl}/twitter_login_error.html</prop>
         <prop key="facebookLoginErrorViewUrl">${cdnUrl}/facebook_login_error.html</prop>
-        <prop key="dashboardViewUrl">${cdnUrl}/dashboard.html</prop>
+        <prop key="dashboardViewUrl">${cdnUrl}/partner.html</prop>
 
         <prop key="exhibitUrl">${apiUrl}/closet/exhibit</prop>
         <prop key="friendsUrl">${apiUrl}/closet/friends</prop>

@@ -6,7 +6,6 @@ import org.scalatest.matchers.ShouldMatchers
 import com.echoed.util.IntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
 import scala.reflect.BeanProperty
-import com.echoed.chamber.dao.{EchoDao, EchoedUserDao}
 import com.echoed.chamber.domain.{Echo, EchoedUser}
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import com.echoed.chamber.dao.views.ClosetDao
@@ -14,6 +13,7 @@ import org.openqa.selenium.{Cookie, WebDriver}
 import java.util.{Date, Properties}
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
+import com.echoed.chamber.dao.{FacebookUserDao, EchoDao, EchoedUserDao}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -22,6 +22,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
     @Autowired @BeanProperty var closetDao: ClosetDao = _
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
+    @Autowired @BeanProperty var facebookUserDao: FacebookUserDao = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
@@ -40,19 +41,23 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
 
     val echoedUser = dataCreator.echoedUser
+    val facebookUser = dataCreator.facebookUser
     val echoes = dataCreator.echoes
 
 
     def cleanup() {
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
+        facebookUserDao.deleteByEmail(facebookUser.email)
         echoDao.deleteByRetailerId(echoes(0).retailerId)
         echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
     }
 
     override def beforeAll = {
+        facebookUser.echoedUserId should equal(echoedUser.id)
         cleanup
         echoedUserDao.insert(echoedUser)
+        facebookUserDao.insertOrUpdate(facebookUser)
         echoes.foreach(echoDao.insert(_))
     }
 
@@ -108,9 +113,8 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
             val pageSource = webDriver.getPageSource
             pageSource should include(echoedUser.name)
-            echoes.foreach(echo => pageSource should include(echo.imageUrl))
-
-            //TODO and("log the activity")
+            pageSource should include(echoes.map(_.credit).sum.round.toString)
+            //TODO potential for pre-caching but until then...  echoes.foreach(echo => pageSource should include(echo.imageUrl))
         }
 
     }

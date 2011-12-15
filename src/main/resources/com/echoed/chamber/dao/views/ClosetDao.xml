@@ -77,4 +77,7 @@
     </select>
 
 
+    <select id="totalCreditByEchoedUserId" resultType="_float">
+        select sum(credit) as totalCredit from Echo where echoedUserId = #{echoedUserId}
+    </select>
 </mapper>

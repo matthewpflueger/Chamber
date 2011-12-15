@@ -89,7 +89,11 @@ class EchoedUserServiceActor(
             }
 
         case "closet" =>
-            self.channel ! closetDao.findByEchoedUserId(echoedUser.id)
+            val channel = self.channel
+            Future {
+                val closet = closetDao.findByEchoedUserId(echoedUser.id)
+                channel ! closet.copy(totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id))
+            }
 
         case 'friends =>
             val channel = self.channel

@@ -40,6 +40,7 @@ class ClosetController {
                         val modelAndView = new ModelAndView(closetView)
                         modelAndView.addObject("echoedUser", closet.echoedUser)
                         modelAndView.addObject("echoes", closet.echoes)
+                        modelAndView.addObject("totalCredit", closet.totalCredit.round)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                 }

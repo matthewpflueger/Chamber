@@ -7,4 +7,6 @@ trait ClosetDao {
 
     def findByEchoedUserId(echoedUserId: String): Closet
 
+    def totalCreditByEchoedUserId(echoedUserId: String): Float
+
 }
