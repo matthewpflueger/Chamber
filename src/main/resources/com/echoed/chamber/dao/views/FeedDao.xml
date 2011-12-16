@@ -5,9 +5,8 @@
         <constructor>
             <idArg column="echoedUserId" javaType="String"/> 
             <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult"/>
-            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedFriendUserResult"/>
         </constructor>
-        <collection property="echoes" ofType="com.echoed.chamber.domain.views.EchoView" javaType="ArrayList" resultMap="echoViewResult" />
+        <collection property="echoes" ofType="com.echoed.chamber.domain.views.EchoViewDetail" javaType="ArrayList" resultMap="echoViewResult" />
     </resultMap>
 
     <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
@@ -23,20 +22,7 @@
         </constructor>
     </resultMap>
     
-    <resultMap id="echoedFriendUserResult" type="com.echoed.chamber.domain.EchoedUser">
-        <constructor>
-            <idArg column="echoedFriendId" javaType="String" />
-            <arg column="echoedFriendName" javaType="String" />
-            <arg column="echoedFriendEmail" javaType="String" />
-            <arg column="echoedFriendScreenName" javaType="String" />
-            <arg column="echoedFriendFacebookUserId" javaType="String" />
-            <arg column="echoedFriendFacebookId" javaType="String" />
-            <arg column="echoedFriendTwitterUserId" javaType="String" />
-            <arg column="echoedFriendTwitterId" javaType="String" />
-        </constructor>
-    </resultMap>
-
-    <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoView">
+    <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoViewDetail">
         <constructor>
             <idArg column="echoId" javaType="String" />
             <arg column="echoBoughtOn" javaType="Date" />
@@ -48,6 +34,8 @@
             <arg column="echoLandingPageUrl" javaType="String" />
             <arg column="echoTotalClicks" javaType="_int" />
             <arg column="echoCredit" javaType="_float" />
+            <arg column="echoedFriendId" javaType="String"/>
+            <arg column="echoedFriendName" javaType="String"/>
             <arg column="retailerId" javaType="String" />
             <arg column="retailerName" javaType="String" />
             <arg column="retailerSettingsId" javaType="String" />
@@ -72,13 +60,8 @@
             EU.twitterUserId as echoedUserTwitterUserId,
             EU.twitterId as echoedUserTwitterId,
             EU2.id as echoedFriendId,
-            EU2.email as echoedFriendEmail,
             EU2.name as echoedFriendName,
             EU2.screenName as echoedFriendScreenName,
-            EU2.facebookUserId as echoedFriendFacebookUserId,
-            EU2.facebookId as echoedFriendFacebookId,
-            EU2.twitterUserId as echoedFriendTwitterUserId,
-            EU2.twitterId as echoedFriendTwitterId,
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
             E.imageUrl as echoImageUrl,

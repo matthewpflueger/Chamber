@@ -14,10 +14,9 @@ import com.echoed.chamber.domain.EchoedUser
 case class Feed(
         id: String, 
         echoedUser: EchoedUser,
-        echoedFriend: EchoedUser,
-        echoes: JList[EchoView]){
+        echoes: JList[EchoViewDetail]){
     
-    def this(id:String, echoedUser: EchoedUser, echoedFriend: EchoedUser) = this(id, echoedUser, echoedFriend, new ArrayList[EchoView])
+    def this(id:String, echoedUser: EchoedUser) = this(id, echoedUser, new ArrayList[EchoViewDetail])
             
 }
 

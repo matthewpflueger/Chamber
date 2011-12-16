@@ -42,8 +42,9 @@ Echoed.Router = Backbone.Router.extend({
     },
     routes:{
         "_=_" : "fix",
+        "": "feed",
         "feed": "feed",
-        "feed/:id": "feed",
+        "feed/:filter": "feed",
         "exhibit": "exhibit",
         "exhibit/:filter": "exhibit",
         "friends": "friends",
@@ -53,44 +54,40 @@ Echoed.Router = Backbone.Router.extend({
     fix: function(){
         window.location.href = "#";
     },
-    feed: function(id){
-        if(!id) selector = "*";
-        else selector = "." + id;
-        if(this.page != "Feed") {
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Feed: true})
-            this.EvAg.trigger('filter/change',selector);
-        }
-        else
-            this.EvAg.trigger('filter/change',selector);
+    feed: function(filter){
+        if(!filter) selector = "*";
+        else selector = "." + filter;
+        if(this.page != "Feed")
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "feed"});
+        this.EvAg.trigger('filter/change',selector);
+        this.EvAg.trigger("page/change","feed");
         this.page= "Feed";
     },
-    exhibit: function(id) {
-        if(!id) selector = "*";
-        else selector = "." + id;
+    exhibit: function(filter) {
+        if(!filter) selector = "*";
+        else selector = "." + filter;
 
-        if(this.page != "Exhibit") {
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector});
-            this.EvAg.trigger('filter/change',selector);
-        }
-        else
-            this.EvAg.trigger('filter/change',selector);
+        if(this.page != "Exhibit")
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector, Type: "exhibit"});
+
+        this.EvAg.trigger('filter/change',selector);
+        this.EvAg.trigger("page/change","exhibit");
         this.page = "Exhibit";
     },
     friends: function() {
         pageView = new Echoed.Views.Pages.Friends({EvAg: this.EvAg});
+        this.EvAg.trigger("page/change","friends");
         this.page = "Friends";
     },
-    friendsExhibit: function(id,selector){
-        var filter = null;
-        if(!selector) filter = "*";
-        else filter = "." + selector;
+    friendsExhibit: function(id, filter){
+        if(!filter) selector = "*";
+        else selector = "." + filter;
         var newPage = "Friends/Exhibit/" + id
-        if(this.page != newPage){
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: filter, Id: id});
-            this.EvAg.trigger("filter/change",filter);
-        }
-        else
-            this.EvAg.trigger("filter/change",filter);
+        if(this.page != newPage)
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector, Type: "friend", Id: id});
+
+        this.EvAg.trigger("filter/change",selector);
+        this.EvAg.trigger("page/change","friends");
         this.page = newPage
     }
 
@@ -99,32 +96,34 @@ Echoed.Router = Backbone.Router.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
+
         _.bindAll(this,'render','addProduct','filterProducts');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
-        if(options.Id){
-            this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit/" + options.Id;
-            this.baseUrl = "#friends/exhibit/" + options.Id + "/";
-            this.id = options.Id;
-        }
-        else if(options.Feed){
-            this.jsonUrl = "http://v1-api.echoed.com/closet/feed";
-            this.baseUrl = "#feed/";
-            this.id= "feed";
-        }
-        else{
-            this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
-            this.baseUrl = "#exhibit/";
-            this.id = null;
-        }
         this.element = $(this.el);
 
+        switch(options.Type){
+            case "friend":
+                this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit/" + options.Id;
+                this.baseUrl = "#friends/exhibit/" + options.Id + "/";
+                this.id = options.Id;
+                break;
+            case "feed":
+                this.jsonUrl = "http://v1-api.echoed.com/closet/feed";
+                this.baseUrl = "#feed/";
+                this.id= "feed";
+                break;
+            case "exhibit":
+                this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
+                this.baseUrl = "#exhibit/";
+                this.id = null;
+                break;
+        }
         this.render(options.Filter);
     },
     render: function(filter){
         var template = _.template($('#templates-pages-exhibit').html());
-
         this.element.html(template);
 
         var ex = this;
@@ -218,14 +217,14 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
             sortedKeys.push(i)
         }
         sortedKeys.sort();
-        for(var i in sortedKeys){
-            sortedObj[sortedKeys[i]] = this.categories[sortedKeys[i]];
+        for(var j in sortedKeys){
+            sortedObj[sortedKeys[j]] = this.categories[sortedKeys[j]];
         }
         this.categories = sortedObj;
 
         this.element.html('')
         for(var id in this.categories){
-            var anc = $('<a></a>').hide().attr("id",id).attr("href", this.baseUrl + this.categories[id]).html(id).appendTo(this.element).fadeIn();
+            var anc = $('<a></a>').hide().attr("id",id).attr("href", this.baseUrl + this.categories[id]).html(id).appendTo(this.element).show();
             if(id == this.selected){
                 anc.addClass("current");
             }
@@ -250,20 +249,16 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
         _.bindAll(this);
         this.element = $(this.el);
         this.EvAg = options.EvAg;
+        this.EvAg.bind("page/change",this.highlight);
         this.render();
     },
     render: function(){
 
     },
-    events:{
-      "click a": "triggerClick"
-    },
-    triggerClick: function(e){
+    highlight: function(page){
         this.element.find(".current").removeClass("current");
-        $(e.target).parent().addClass("current");
+        $("#" + page + "_nav").addClass("current");
     }
-
-
 });
 
 Echoed.Views.Components.Product = Backbone.View.extend({
@@ -279,7 +274,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     render: function(){
         var template = _.template($('#templates-components-product').html());
-        this.el.addClass("item_wrap").addClass(this.model.get("echoCategory")).html(template(this.model.toJSON())).attr("href",this.model.get("echoLandingPageUrl"));
+        this.el.addClass("item_wrap").addClass(this.model.get("echoCategory")).html(template({data:this.model.toJSON()})).attr("href",this.model.get("echoLandingPageUrl"));
         return this;
     },
     showOverlay: function(){
@@ -297,11 +292,12 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 <script type="text/template" id="templates-components-product">
     <div class="item_hover" style="display:none;">
         <div class="item_hover_wrap">
-            <%= echoProductName %><br/>
-            <%= echoBrand %>
+            <%= data.echoProductName %><br/>
+            <%= data.echoBrand %><br/>
+            <%= data.echoedUserName %><br/>
         </div>
     </div>
-    <img class="exhibit_image" src="<%= echoImageUrl %>"/>
+    <img class="exhibit_image" src="<%= data.echoImageUrl %>"/>
 </script>
 
 <script type="text/templates" id="templates-pages-exhibit">
@@ -343,7 +339,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             </div>
             <div id="header-nav">
                 <ul>
-                    <li ud="feed_nav">
+                    <li id="feed_nav">
                         <a href="#feed">
                             Feed
                         </a>

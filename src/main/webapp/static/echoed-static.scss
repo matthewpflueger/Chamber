@@ -58,6 +58,10 @@ body{
     height: 100%;
 }
 
+body.nooverflow{
+    overflow:hidden;
+}
+
 th{
     font-weight: normal;
 }
@@ -84,17 +88,23 @@ h2{
     color: $secondaryColor;
 }
 
+#mainImage{
+    z-index:0;
+}
+
 #container{
     min-width: 1000px;
     min-height: 100%;
-    background-color: #444;
+    width: 100%;
+    position:absolute;
+    z-index:10;
 }
 
 	#header{
 	    min-width: 1100px;
 		height:50px;
-		background-color: #FFF;
         border-bottom: 1px #000 dotted;
+        background-image: url("http://v1-cdn.echoed.com/whitepx.png");
 	}
 
 		#logo{
@@ -125,8 +135,8 @@ h2{
         }
 
     #primary{
+        padding-top:40px;
         min-height: 500px;
-        background-color: $containerColor;
     }
 
         #learnmore{
@@ -158,8 +168,10 @@ h2{
                 }
 
             #lm-right{
-                width: 360px;
+                padding: 20px;
+                width: 450px;
                 float:right;
+                background-image: url("http://v1-cdn.echoed.com/whitepx.png");
             }
     .center{
         width:960px;
@@ -189,8 +201,11 @@ h2{
     }
 
     #footer{
+        position: absolute;
+        bottom:0px;
         height: 100px;
         width: 100%;
+        background-image: url("http://v1-cdn.echoed.com/whitepx.png");
     }
 
     .center-outline{
