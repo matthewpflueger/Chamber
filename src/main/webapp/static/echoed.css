@@ -125,7 +125,7 @@ h2 {
   text-align: center; }
 
 #content-selector {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-size: 14px;
   margin: 0px auto 0px; }
 
 #content-selector a {
@@ -138,7 +138,6 @@ a.current {
   color: #e31b23; }
 
 #exhibit {
-  width: 80%;
   margin: auto; }
 
 .exhibit_image {

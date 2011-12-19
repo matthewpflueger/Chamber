@@ -29,14 +29,22 @@ $subtleColor: #EAEBED;
 $headerHeight: 50px;
 
 $navFontFamily: BebasNeue, Arial, sans-serif;
-$textFontFamily: HelveticaNeue-Light,Tahoma,Arial, Helvetica, sans-serif;
+
+$labelFontFamily: BebasNeue, Arial, sans-serif;
+
+$readingTextFontFamily: HelveticaNeue-Light,Tahoma,Arial, Helvetica, sans-serif;
+$readingTextColor: #444444;
+$readingTextSize: 14px;
+$readingTextLineHeight: 1.5em;
 
 //RESET
 html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
 pre, form, fieldset, table, th, td{
 	margin:0;
 	padding: 0;
-	font-family: $textFontFamily;
+	font-family: $readingTextFontFamily;
+    color: $readingTextColor;
+    font-size: $readingTextSize;
 }
 
 img{
@@ -50,11 +58,7 @@ table{
 }
 
 //STANDARD HTML ELEMENTS DEFINITION
-html{
-    height: 100%;
-}
-
-body{
+html,body{
     height: 100%;
 }
 
@@ -71,6 +75,12 @@ a{
 	color:inherit;
 }
 
+h1{
+    font-family: $labelFontFamily;
+    font-size: 64px;
+    color: #000;
+}
+
 h2{
     font-family: $navFontFamily;
     color: $labelColor;
@@ -80,12 +90,41 @@ h2{
     color: $mainColor;
 }
 
-.secondary-text{
-    color: $secondaryColor;
+
+.text-blue1{
+    color: RGB(2,116,184);
+}
+
+.text-blue2{
+    color: RGB(73,117,147);
+}
+
+.text-green1{
+    color: RGB(125,186,39);
+}
+
+.text-green2{
+    color: RGB(106,151,31);
+}
+
+.text-magenta{
+    color: RGB(198,1,74);
+}
+
+.text-yellow{
+    color: RGB(240,181,0);
 }
 
 .echoed-text{
     color: $secondaryColor;
+}
+
+.bg-grey{
+    background-color: $greyColor;
+}
+
+.bg-highlight{
+    background-color:$mainColor;
 }
 
 #mainImage{
@@ -118,12 +157,13 @@ h2{
         #nav{
             float:right;
             font-family: $navFontFamily;
-            line-height:50px;
+            line-height: $headerHeight;
             font-size: 20px;
         }
 
         #nav a{
             margin-left:10px;
+            color: #000000;
         }
         
         #nav a.highlight{
@@ -135,12 +175,10 @@ h2{
         }
 
     #primary{
-        padding-top:40px;
         min-height: 500px;
     }
 
         #learnmore{
-            //padding:20px 0px;
         }
             .learnmore-button{
                 margin-top:50px;
@@ -164,10 +202,10 @@ h2{
 
                 #index-subtitle{
                     font-size:18px;
-                    font-weight:bold;
                 }
 
             #lm-right{
+                margin-top: 50px;
                 padding: 20px;
                 width: 450px;
                 float:right;
@@ -182,8 +220,24 @@ h2{
         padding: 20px 0px;
     }
 
+    .quarter{
+        width: 220px;
+        padding:5px 20px 0px 0px;
+        float:left;
+    }
+
+        .secondary-title{
+            font-family: $navFontFamily;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .secondary-text{
+            line-height: 1.5em;
+        }
+
+
     .third-box{
-        background-color: #666;
         width: 250px;
         padding: 5px 25px;
         margin: 5px;
@@ -201,30 +255,80 @@ h2{
     }
 
     #footer{
+        height: 60px;
+    }
+
+    #footer.relative{
+        height: 50px;
+        border-top: 1px dotted #000;
+        padding-top: 10px;
+    }
+
+    #footer.float{
         position: absolute;
         bottom:0px;
-        height: 100px;
         width: 100%;
         background-image: url("http://v1-cdn.echoed.com/whitepx.png");
     }
 
+        #sv{
+            font-size: 64px;
+            font-family: $navFontFamily;
+            color: #000;
+            text-align:right;
+        }
+
+        #masthead{
+            height:300px;
+        }
+
+            #masthead.hiw{
+                background-image: url("http://v1-cdn.echoed.com/howitworks.jpg");
+            }
+
+            #masthead.biz{
+                background-image: url("http://v1-cdn.echoed.com/businesspage.png");
+            }
+
+            .masthead-content{
+                float:right;
+                width: 510px;
+                padding: 0px 10px;
+                height:100%;
+                background-image: url("http://v1-cdn.echoed.com/whitepx80.png")
+            }
+
+                .masthead-title{
+                    font-size: 64px;
+                    font-family: $navFontFamily;
+                    color: #000;
+                }
+
+                .masthead-text{
+                    font-family: $readingTextFontFamily;
+                    line-height: 1.5em;
+                    font-size: 18px;
+                }
+
+        #footer-nav{
+            line-height:45px;
+            font-size: 14px;
+            font-family: $navFontFamily;
+        }
+
+        #footer-nav a{
+            margin-right:10px;
+            color: #000;
+        }
+
     .center-outline{
         width: 920px;
         margin: auto;
-        padding: 0px 20px;
+        padding: 20px 20px;
         border: 1px solid $greyColor;
-        border-radius:5px;
-        background-color: #FFF;
         margin-bottom: 10px;
     }
 
-    .hiw-title{
-        font-family: $navFontFamily;
-        font-size: 64px;
-        margin-bottom: 20px;
-        margin-top: 20px;
-    }                    
-    
     .indent{
         padding-left:50px;
     }
@@ -233,48 +337,14 @@ h2{
         margin-bottom:20px;
     }
                         
-    .hiw-label{
-        font-family: HelveticaNeue-Medium,Tahoma;
-        font-size: 28px;
-        margin-bottom: 15px;
-    }
-
-    .hiw-text{
-        font-family: $textFontFamily;
-        font-size: 16px;
-    }
-
 .label{
     font-family: $navFontFamily;
     font-size: 18px;
     text-align:center;
     color: #FFFFFF;
 }
-
-.flush-right{
-    float:right;
-    margin-right:-20px;
-}
-.flush-left{
-    float:left;
-    margin-left:-20px;
-}
-
-
-.right{
-    float:right;
-}
-
-.left{
-    float:left;
-}
-
 .column{
     width: 460px;
-}
-
-.clear{
-	clear:both;
 }
 
 .clearfix{

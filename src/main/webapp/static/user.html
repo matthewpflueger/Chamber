@@ -102,7 +102,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
         this.element = $(this.el);
-
+        this.filter = options.Filter;
         switch(options.Type){
             case "friend":
                 this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit/" + options.Id;
@@ -120,31 +120,28 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.id = null;
                 break;
         }
-        this.render(options.Filter);
+        this.render();
     },
     render: function(filter){
         var template = _.template($('#templates-pages-exhibit').html());
         this.element.html(template);
 
-        var ex = this;
-        ex.filter = filter;
+        var self = this;
         var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl});
 
         var exhibit = $('#exhibit');
 
-        exhibit.append('<div style="width:1px;"></div>');
-        exhibit.isotope({filter: filter});
-        var jsonUrl = this.jsonUrl
-        //var jsonUrl = "exhibit.json";
+        exhibit.isotope({filter: self.filter});
+
         this.EvAg.trigger("category/add","","All");
         $.ajax({
-            url: jsonUrl,
+            url: self.jsonUrl,
             dataType: 'json',
             success: function(data){
                 $.each(data, function(index,product){
                     var productModel = new Echoed.Models.Product(product);
-                    ex.addProduct(productModel,ex.filter);
-                    ex.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
+                    self.addProduct(productModel,self.filter);
+                    self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                 });
             },
             error:function (xhr, ajaxOptions, thrownError){
@@ -258,6 +255,23 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
     highlight: function(page){
         this.element.find(".current").removeClass("current");
         $("#" + page + "_nav").addClass("current");
+    }
+});
+
+Echoed.Views.Components.Tooltip = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.el = options.el;
+        this.element = $(this.el);
+        this.posX = this.element.offset.left;
+        this.posY = this.element.offset.bottom;
+        this.render();
+    },
+    events:{
+
+    },
+    render: function(){
+
     }
 });
 

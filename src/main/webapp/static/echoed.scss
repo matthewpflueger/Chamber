@@ -182,7 +182,8 @@ h2{
 
 
 		#content-selector{
-			font-family: $navFontFamily;
+			//font-family: $navFontFamily;
+            font-size: 14px;
 			margin: 0px auto 0px;
 		}
 		
@@ -202,7 +203,6 @@ h2{
 			
 	
 		#exhibit{
-		    width: 80%;
 	        margin:auto;
 		}
 
