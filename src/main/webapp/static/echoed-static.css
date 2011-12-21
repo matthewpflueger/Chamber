@@ -24,6 +24,9 @@ table {
 html, body {
   height: 100%; }
 
+html.nooverflow {
+  overflow: hidden; }
+
 body.nooverflow {
   overflow: hidden; }
 
@@ -73,9 +76,6 @@ h2 {
 .bg-highlight {
   background-color: #f20006; }
 
-#mainImage {
-  z-index: 0; }
-
 #container {
   min-width: 1000px;
   min-height: 100%;
@@ -86,8 +86,7 @@ h2 {
 #header {
   min-width: 1100px;
   height: 50px;
-  border-bottom: 1px #000 dotted;
-  background-image: url("http://v1-cdn.echoed.com/whitepx.png"); }
+  background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png"); }
 
 #logo {
   font-size: 48px;
@@ -111,9 +110,6 @@ h2 {
 
 #nav a:hover {
   color: #ff6f00; }
-
-#primary {
-  min-height: 500px; }
 
 .learnmore-button {
   margin-top: 50px;
@@ -141,7 +137,7 @@ h2 {
   padding: 20px;
   width: 450px;
   float: right;
-  background-image: url("http://v1-cdn.echoed.com/whitepx.png"); }
+  background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png"); }
 
 .center {
   width: 960px;
@@ -157,7 +153,7 @@ h2 {
 
 .secondary-title {
   font-family: BebasNeue, Arial, sans-serif;
-  font-size: 32px;
+  font-size: 28px;
   margin-bottom: 20px; }
 
 .secondary-text {
@@ -175,6 +171,9 @@ h2 {
   font-family: 'HelveticaNeue-Medium',Tahoma;
   color: #FFFFFF; }
 
+.login-button {
+  width: 200px; }
+
 #footer {
   height: 60px; }
 
@@ -187,29 +186,40 @@ h2 {
   position: absolute;
   bottom: 0px;
   width: 100%;
-  background-image: url("http://v1-cdn.echoed.com/whitepx.png"); }
+  background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png"); }
 
 #sv {
-  font-size: 64px;
+  font-size: 40px;
   font-family: BebasNeue, Arial, sans-serif;
   color: #000;
   text-align: right; }
 
 #masthead {
-  height: 300px; }
+  height: 350px; }
 
 #masthead.hiw {
-  background-image: url("http://v1-cdn.echoed.com/howitworks.jpg"); }
+  background-image: url("http://v1-cdn.echoed.com/mh-hiw.jpg"); }
 
 #masthead.biz {
-  background-image: url("http://v1-cdn.echoed.com/businesspage.png"); }
+  background-image: url("http://v1-cdn.echoed.com/mh-biz.jpg"); }
 
 .masthead-content {
   float: right;
   width: 510px;
   padding: 0px 10px;
   height: 100%;
-  background-image: url("http://v1-cdn.echoed.com/whitepx80.png"); }
+  background-image: url("http://v1-cdn.echoed.com/bg-whitepx80.png"); }
+
+.masthead-content-black {
+  float: right;
+  width: 510px;
+  padding: 0px 10px;
+  height: 100%;
+  background-image: url("http://v1-cdn.echoed.com/bg-blackpx90.png"); }
+
+.masthead-content-black .masthead-title,
+.masthead-content-black .masthead-text {
+  color: #FFF; }
 
 .masthead-title {
   font-size: 64px;
@@ -220,6 +230,25 @@ h2 {
   font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif;
   line-height: 1.5em;
   font-size: 18px; }
+
+#cu-form input[type=text], #cu-form label, #cu-form textarea {
+  display: block; }
+
+#cu-form label {
+  font-size: 18px;
+  margin: 10px 0px 5px 0px; }
+
+#cu-form textarea {
+  width: 800px;
+  height: 400px;
+  font-size: 18px;
+  border: 1px solid #CCC; }
+
+#cu-form input[type=text] {
+  width: 400px;
+  font-size: 18px;
+  line-height: 1em;
+  border: 1px solid #CCC; }
 
 #footer-nav {
   line-height: 45px;

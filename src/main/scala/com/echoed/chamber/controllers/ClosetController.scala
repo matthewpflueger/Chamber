@@ -36,8 +36,19 @@ class ClosetController {
             continuation.suspend(httpServletResponse)
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
-                echoedUserService.getCloset.map { closet =>
+                logger.debug("Found EchoedUserService {} ", echoedUserService);
+
+                /*echoedUserService.getEchoedUser().map {
+                    echoedUser =>
                         val modelAndView = new ModelAndView(closetView)
+                        modelAndView.addObject("echoedUser",echoedUser)
+                        modelAndView.addObject("totalCredit","0");
+                        continuation.setAttribute("modelAndView",modelAndView)
+                        continuation.resume()
+                }  */
+
+                echoedUserService.getCloset.map { closet =>
+                       val modelAndView = new ModelAndView(closetView)
                         modelAndView.addObject("echoedUser", closet.echoedUser)
                         modelAndView.addObject("echoes", closet.echoes)
                         modelAndView.addObject("totalCredit", closet.totalCredit.round)

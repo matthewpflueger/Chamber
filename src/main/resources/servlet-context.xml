@@ -63,10 +63,10 @@
         <property name="echoService" ref="echoService" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="buttonView" value="redirect:${buttonViewUrl}" />
-        <property name="loginView" value="login" />
-        <property name="confirmView" value="confirm" />
-        <property name="echoItView" value="echoIt" />
-        <property name="errorView" value="error" />
+        <property name="loginView" value="view.popuplogin" />
+        <property name="confirmView" value="view.confirm" />
+        <property name="echoItView" value="view.echoIt" />
+        <property name="errorView" value="view.error" />
         <property name="cookieManager" ref="cookieManager" />
     </bean>
 
@@ -111,16 +111,16 @@
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="closetController" class="com.echoed.chamber.controllers.ClosetController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
-        <property name="closetView" value="user" />
+        <property name="closetView" value="view.user" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="partnerController" class="com.echoed.chamber.controllers.PartnerController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
-        <property name="partnerDashboardView" value="partner" />
-        <property name="partnerDashboardErrorView" value="login" />
-        <property name="partnerLoginErrorView" value="login" />
+        <property name="partnerDashboardView" value="view.partner" />
+        <property name="partnerDashboardErrorView" value="view.login" />
+        <property name="partnerLoginErrorView" value="view.login" />
         <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
     </bean>
 

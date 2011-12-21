@@ -1,0 +1,942 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="shortcut icon" href="favicon.png" type="image/png">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>Dashboard {{#partnerUser}}- {{name}} {{/partnerUser}}</title>
+<script type='text/javascript' src="jquery-1.6.2.min.js"></script>
+<script type='text/javascript' src="jquery-ui-1.8.16.custom.min.js"></script>
+<script type='text/javascript' src="json2.js"></script>
+<script type='text/javascript' src="underscore-min.js"></script>
+<script type='text/javascript' src="backbone.js"></script>
+<script type='text/javascript' src='highcharts.js'></script>
+<script type="text/javascript" src="highcharts.theme.js"></script>
+<script type="text/javascript">
+
+if (!('Echoed' in this)) this.Echoed = {};
+
+$(document).ready(function() {
+    Echoed.init();
+});
+
+var EventAggregator = _.extend({}, Backbone.Events);
+
+Echoed = {
+    Views: {
+        Pages:{},
+        Components:{}
+    },
+    Models:{},
+    init: function() {
+        var pageModel = new Echoed.Models.Page();
+        var router = new Echoed.Router({EvAg: EventAggregator});
+        var subNav = new Echoed.Views.Components.SubNav({EvAg: EventAggregator});
+        var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
+        var title = new Echoed.Views.Components.Title({EvAg: EventAggregator});
+        router.bind('all', function(route) {
+        });
+
+        Backbone.history.start();
+    }
+};
+
+Echoed.Models.Page = Backbone.Model.extend({
+    defaults:{
+        title: 'Summary',
+        currentNav: 'summary_nav'
+    },
+    initialize: function(){
+    }
+});
+
+Echoed.Router = Backbone.Router.extend({
+    initialize: function(options) {
+        _.bindAll(this, 'summary', 'rewards', 'settings', 'reports');
+        this.page = null;
+        this.subNav = null;
+        this.EvAg = options.EvAg;
+    },
+    routes:{
+        "summary": "summary",
+        "": "summary",
+        "rewards": "rewards",
+        "settings": "settings",
+        "reports": "reports",
+        "reports/:report" : "reports",
+        "reports/:report/:id" : "reports"
+    },
+    summary: function() {
+        var pageView = new Echoed.Views.Pages.Summary({EvAg: this.EvAg});
+        if(this.page != "summary"){
+            this.EvAg.trigger('page/change', {page: 'summary'});
+            this.EvAg.trigger('title/change',{title: 'Summary'});
+            this.page ="summary";
+        }
+        this.subNav = "";
+    },
+    rewards: function() {
+        var pageView = new Echoed.Views.Pages.Rewards({EvAg: this.EvAg});
+        if(this.page != "rewards"){
+            options = {
+                page: 'rewards',
+                subNav: [
+                    {
+                        href:'#rewards/open',
+                        id: 'open',
+                        text: 'Open Echoes'
+                    },
+                    {
+                        href:'#rewards/closed',
+                        id: 'closed',
+                        text: 'Processed Echoes'
+                    }
+                ]
+
+            };
+            this.EvAg.trigger('page/change',options);
+            this.page = "rewards";
+        }
+        this.EvAg.trigger('title/change',{title: 'Rewards'});
+    },
+    settings: function() {
+        var pageView = new Echoed.Views.Pages.Settings({EvAg: this.EvAg});
+        if(this.page != "settings"){
+            this.EvAg.trigger('page/change',{page: 'settings'});
+            this.page = "settings";
+        }
+        this.EvAg.trigger('title/change',{title: 'Settings'});
+    },
+    reports: function(report, id) {
+        var pageView = new Echoed.Views.Pages.Reports({EvAg: this.EvAg,report: report,reportId: id});
+        if(this.page != "reports"){
+            this.EvAg.trigger('page/change',
+                    {
+                        page: 'reports',
+                        subNav: [
+                            {
+                                href: '#reports/customers',
+                                id:   'customers',
+                                text: 'Customers'
+                            },
+                            {
+                                href: '#reports/products',
+                                id:   'products',
+                                text: 'Products'
+                            }
+                        ]
+                    }
+            );
+            this.page="reports";
+        }
+        if(this.subNav != report ){
+                this.EvAg.trigger('subnav/change',{subnav: report});
+                this.subNav = report;
+        }
+        this.EvAg.trigger('title/change',{title: 'Reports'});
+    }
+});
+
+Echoed.Views.Pages.Reports = Backbone.View.extend({
+    el: '#content',
+    initialize: function(options) {
+        _.bindAll(this, 'render');
+        this.EvAg = options.EvAg;
+        this.report = options.report;
+        this.reportId = options.reportId;
+        this.render();
+    },
+    render: function() {
+        switch (this.report) {
+            case "customers":
+                if(this.reportId){
+                    var template = _.template($('#template-view-reports-customers').html());
+                    $(this.el).hide().html(template).fadeIn();
+                }
+                else{
+                    var holder = $(this.el);
+                    var template = _.template($('#template-views-reports-table').html());
+
+                    $(this.el).hide().html(template).fadeIn(function(){
+                        var customerTable = new Echoed.Views.Components.Table({EvAg: this.EvAg, el: "#table-container", report: "customers"});
+                    });
+                }
+                break;
+            case "products":
+
+                if(this.reportId){
+                    var template = _.template($('#template-view-reports-products').html());
+                    $(this.el).hide().html(template).fadeIn(function(){
+                        var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart'});
+                    });
+                }
+                else{
+                    var holder = $(this.el);
+                    var template = _.template($('#template-views-reports-table').html());
+                    $(this.el).hide().html(template).fadeIn(function(){
+                        holder.find(".full").attr("id","product-table-container")
+                        var reportTable = new Echoed.Views.Components.Table({EvAg: this.EvAg, el: '#table-container', report: "products"});
+                    });
+                }
+                break;
+            default:
+                $(this.el).html('');
+                break;
+        }
+        return this;
+    }
+
+});
+
+Echoed.Views.Pages.Settings = Backbone.View.extend({
+    el: '#content',
+    initialize: function(options) {
+        _.bindAll(this);
+
+        this.EvAg = options.EvAg;
+
+        this.render();
+    },
+    render: function() {
+        var template = _.template($('#template-view-settings').html());
+        $(this.el).hide().html(template).fadeIn();
+        return this;
+    }
+});
+
+Echoed.Views.Pages.Rewards = Backbone.View.extend({
+    //el: '#content',
+    initialize: function(options) {
+        _.bindAll(this);
+        this.el = $('#content');
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    render: function() {
+        var template = _.template($('#template-view-rewards').html());
+        this.el.hide().html(template).fadeIn();
+        return this;
+    }
+});
+
+Echoed.Views.Pages.Summary = Backbone.View.extend({
+    el: '#content',
+    initialize: function(options) {
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    render: function() {
+        var template = _.template($('#template-view-summary').html());
+        var elementHolder= this;
+        $(this.el).hide().html(template).fadeIn(function() {
+            $('#ss-likes').hide().html(20).fadeIn();
+            $('#ss-views').hide().html(20).fadeIn();
+            $('#ss-retweets').hide().html(20).fadeIn();
+            $('#ss-new-echoes').hide().html(20).fadeIn();
+            $('#ss-open-echoes').hide().html(20).fadeIn();
+            $('#ss-comments').hide().html(20).fadeIn();
+            var chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart'});
+            var topProductsTable = new Echoed.Views.Components.TopProductsTable({EvAg: this.EvAg, el:'#top-products-table'});
+        });
+        return this;
+    }
+});
+
+Echoed.Views.Components.Title = Backbone.View.extend({
+    el: 'title',
+    initialize: function(options){
+        _.bindAll(this,'changeTitle');
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('title/change',this.changeTitle);
+    },
+    render: function(){
+    },
+    changeTitle: function(options){
+        $(this.el).html(options.title);
+    }
+});
+
+Echoed.Views.Components.Table = Backbone.View.extend({
+    initialize: function(options){
+        this.el = options.el;
+        this.render(options.report);
+    },
+    events:{
+        "click td": "triggerClick",
+        "mouseenter tr": "highlight",
+        "mouseleave tr": "removeHighlight"
+    },
+    render: function(report){
+        switch(report){
+            case 'customers':
+                var template = _.template($('#template-components-table-customers').html());
+                $(this.el).hide().html(template).fadeIn();
+                break;
+            case 'products':
+                var template = _.template($('#template-components-table-products').html());
+                $(this.el).hide().html(template).fadeIn();
+                    break;
+        }
+        return this;
+    },
+    addRow: function(data){
+    },
+    triggerClick: function(e){
+        document.location.href = $(e.target).parent().attr("href");
+    },
+    highlight: function(e){
+        $(e.target).parent().css("border-color","#FF7733");
+    },
+    removeHighlight: function(e){
+        $(e.target).parent().css("border-color","");
+    }
+});
+
+Echoed.Views.Components.ProductSelector = Backbone.View.extend({
+    initialize: function() {
+    }
+});
+
+Echoed.Views.Components.ProductSummary = Backbone.View.extend({
+    initialize: function(options) {
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    render: function() {
+        var template = _.template($('#template-view-component-productsummary').html());
+        $(this.el).hide().html(template).fadeIn(function() {
+        });
+    }
+});
+
+Echoed.Views.Components.ProductCharting = Backbone.View.extend({
+    initialize: function(options) {
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.render();
+    }
+});
+
+Echoed.Views.Components.RewardTable = Backbone.View.extend({
+    initialize: function(options) {
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    render: function() {
+        var template = _.template($("#template-view-component-rewardtable").html());
+        $(this.el).html(template);
+        return this;
+    }
+});
+
+Echoed.Views.Components.Nav = Backbone.View.extend({
+    el: '#header-nav',
+    initialize: function(options) {
+        _.bindAll(this, 'pageChange');
+
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('page/change', this.pageChange);
+        this.currentPage = null;
+    },
+    render: function() {
+    },
+    pageChange: function(options) {
+        if (this.currentPage != options.page) {
+            if (this.currentPage)
+                $('#' + this.currentPage + "_nav").removeClass("current");
+            $('#' + options.page + "_nav").addClass("current");
+            this.currentPage = options.page;
+        }
+    }
+});
+
+Echoed.Views.Components.SubNav = Backbone.View.extend({
+    el: '#sub-nav',
+    initialize: function(options) {
+
+        _.bindAll(this, 'pageChange', 'slideDown', 'slideUp', 'select');
+
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('page/change', this.pageChange);
+        this.EvAg.bind('subnav/change', this.select);
+        this.render();
+    },
+    render: function() {
+        return this;
+    },
+    select: function(options) {
+        $(this.el).find(".current").removeClass("current");
+        $("#subnav-" + options.subnav).addClass("current");
+
+    },
+    pageChange: function(options) {
+        var element = $(this.el);
+        element.html('');
+        if (options.subNav) {
+            $(options.subNav).each(function(index, item) {
+                $('<a></a>').attr("id", "subnav-" + item.id).attr('href', item.href).html(item.text).appendTo(element);
+            });
+            this.slideDown();
+        }
+        else {
+            this.slideUp();
+        }
+    },
+    slideDown: function() {
+        $(this.el).slideDown('fast');
+    },
+    slideUp: function() {
+        $(this.el).slideUp('fast');
+    }
+});
+
+Echoed.Views.Components.Map = Backbone.View.extend({
+    el: '#map',
+    initialize: function(options) {
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.chart = null;
+        var container = $(this.el);
+    },
+    render: function() {
+    }
+});
+
+Echoed.Views.Components.DonutChart = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.chart = null;
+        this.el = options.el;
+        this.render();
+    },
+    render: function(){
+        chart = new Highcharts.Chart(
+                {
+                    chart: {
+                        renderTo: ''
+                    },
+                    title: {
+                        text: 'test'
+                    },
+                    plotOptions:{
+                        pie: {
+                            shadow: false
+                        }
+                    },
+                    tooltip:{
+                        formatter: function(){
+                            return '<b>' + this.point.name + '</b>:' + this.y + ' %';
+                        }
+                    },
+                    series: [{
+                    }]
+                });
+    }
+});
+
+Echoed.Views.Components.Chart = Backbone.View.extend({
+    initialize: function(options) {
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.chart = null;
+        this.el = options.el;
+        this.render();
+    },
+    render: function() {
+        var chartOptions = {
+            chart: {
+                renderTo: this.el.substr(1),
+                defaultSeriesType: 'column'
+            },
+            credits: {
+                text: '',
+                href: ''
+            },
+            colors: ['#3B5998','#09F'],
+            title: { text: ''},
+            yAxis:{
+                title:{
+                    text: 'Page Views',
+                    style: {
+                        fontFamily: 'HelveticaNeue-Medium',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        color: '#222222'
+                    }
+                }
+            },
+            xAxis: {
+                categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
+            },
+            tooltip: {
+                formatter: function() {
+                    return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '<br/>' +
+                            'Total: ' + this.point.stackTotal;
+                }
+            },
+            series: [
+                {
+                    name: 'Facebook',
+                    data: [5, 3, 4, 7, 2]
+                },
+                {
+                    name: 'Twitter',
+                    data: [2, 2, 3, 2, 1]
+                }
+            ]
+        };
+        this.chart = new Highcharts.Chart(chartOptions);
+    }
+});
+
+Echoed.Views.Components.Tooltip = Backbone.View.extend({
+    initialize: function(){
+    },
+    render: function(){
+    }
+});
+
+Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'addRow');
+        this.el = options.el;
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    events:{
+        "mouseenter tr": "mouseEnter",
+        "mouseleave tr": "mouseLeave",
+        "click tr": "click"
+    },
+    render: function(){
+        var template = _.template($('#template-views-table-topproducts').html());
+        $(this.el).html(template);
+        this.addRow('');
+    },
+    addRow:function(data){
+        var tr = $('<tr></tr>').appendTo($(this.el));
+        $('<td></td>').html('Shirt').appendTo(tr);
+        $('<td></td>').html('123').appendTo(tr);
+        $('<td></td>').html('46').addClass("number").appendTo(tr);
+        $('<td></td>').html('144').addClass("number").appendTo(tr);
+        $('<td></td>').html('55').addClass("number").appendTo(tr);
+        tr.appendTo($(this.el).find('tbody'));
+    },
+    mouseEnter: function(e){
+        $(e.target).parent().css("background-color","#DEDEDE");
+    },
+    mouseLeave: function(e){
+        $(e.target).parent().css("background-color","");
+    },
+    click: function(e){
+        document.location.href = $(e.target).parent().attr("href");
+    }
+
+})
+</script>
+<script type="text/template" id="template-views-table-topproducts">
+    <table class="top-products-table">
+        <thead>
+            <tr >
+                <th>Product Name</th>
+                <th>SKU</th>
+                <th>Total Sales</th>
+                <th>Echoes</th>
+                <th>Social Activity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr href="#reports/products/3">
+                <td>Shirt</td>
+                <td>Z3029</td>
+                <td class="number">300</td>
+                <td class="number">50</td>
+                <td class="number">20</td>
+            </tr>
+            <tr href="#reports/products/3">
+                <td>Shirt</td>
+                <td>Z3029</td>
+                <td class="number">300</td>
+                <td class="number">50</td>
+                <td class="number">20</td>
+            </tr>
+            <tr href="#reports/products/3">
+                <td>Shirt</td>
+                <td>Z3029</td>
+                <td class="number">300</td>
+                <td class="number">50</td>
+                <td class="number">20</td>
+            </tr>
+        </tbody>
+    </table>
+</script>
+
+<script type="text/template" id="template-views-reports-table">
+    <div class="row">
+        <div class="full">
+            <div id="table-container">
+
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="template-components-table-customers">
+<table id="customer-table" class="report-table" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Customer</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+</table>
+</script>
+
+<script type="text/template" id="template-components-table-products">
+    <table id="product-table" class="report-table"  cellspacing="0">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Type</th>
+                <th>Echoes</th>
+                <th>Purchases</th>
+                <th>Total Views</th>
+                <th>Avg Views</th>
+                <th>Likes</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr href="#reports/products/3">
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+                <td>Test</td>
+            </tr>
+       </tbody>
+    </table>
+</script>
+
+<script type="text/template" id="template-view-summary">
+    <div class="row">
+        <div id="summary-stats" class="full">
+            <div class="full-column-left">
+                <div class="label">Social Activity</div>
+                 <div id="chart" class="half-chart">
+                 </div>
+            </div>
+            <div class="full-column-right">
+                <div class="ss-row">
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Open Echoes
+                        </div>
+                        <div id="ss-open-echoes" class="ss-box-number echoed-text">
+                        </div>
+                    </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            New Echoes
+                        </div>
+                        <div id="ss-new-echoes" class="ss-box-number echoed-text">
+                        </div>
+                    </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Page Views
+                        </div>
+                        <div id="ss-views" class="ss-box-number echoed-text">
+                        </div>
+                    </div>
+                </div>
+                <div  class="ss-row">
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Comments
+                        </div>
+                        <div id="ss-comments" class="ss-box-number fb-text">
+                        </div>
+                    </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Likes
+                        </div>
+                        <div id="ss-likes" class="ss-box-number fb-text">
+                        </div>
+                    </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Retweets
+                        </div>
+                        <div id="ss-retweets" class="ss-box-number twitter-text">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="chart-container" class="half">
+            <div class="label">
+                    Top Products
+                </div>
+                <div id="top-products-table">
+                </div>
+        </div>
+        <div id="map" class="half">
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="row">
+        <div id="chart-container2" class="third"></div>
+        <div id="chart-container3" class="third"></div>
+        <div id="chart-container4" class="third"></div>
+    </div>
+</script>
+
+
+<script type="text/template" id="template-view-settings">
+    <div class="row">
+        <div id="settings-container" class="full">
+
+        </div>
+    </div>
+</script>
+
+<link rel="stylesheet" type="text/css" href="echoed.css"/>
+</head>
+<body class="retailer">
+<div id="container">
+    <div id="header">
+        <div id="logo">
+            <img height="50px" src="http://v1-cdn.echoed.com/logo.png">
+        </div>
+        <div id="header-nav">
+            <ul>
+                <li id="summary_nav">
+                    <a href="#summary">
+                        Summary
+                    </a>
+                </li>
+                <li id="rewards_nav">
+                    <a href="#rewards">
+                        Reward Manager
+                    </a>
+                </li>
+                <li id="reports_nav">
+                    <a href="#reports">
+                        Reports
+                    </a>
+                </li>
+                <li id="settings_nav">
+                    <a href="#settings">
+                        Settings
+                    </a>
+                </li>
+                <li id="logout_nav">
+                    <a id="logout" href="/logout">
+                        Logout
+                    </a>
+                </li>
+                <div class="clear"></div>
+            </ul>
+        </div>
+        <div id="user">
+            {#EchoedUser}{firstName}{lastName}{/EchoedUser}<br/>
+            Rewards: {}
+        </div>
+    </div>
+    <div id="sub-nav" style="display:none"></div>
+    <div id="content">
+    </div>
+</div>
+</body>
+</html>
+
+<script type="text/template" id="template-view-rewards">
+    <div class="row">
+        <div id="reward-table-container" class="full">
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="template-view-reports-products">
+    <div class="row">
+        <div class="full">
+
+            <div id="report-summary">
+                <div class="full-column-left">
+                    <div id="product-selector" class="report-selector">
+                        <div id="select-report" class="label">
+                            Product Name
+                        </div>
+                    </div>
+                    <div>
+                        <div class="product-detail-image-container">
+                            <img src="Pic1.jpg" class="product-detail-image"/>
+                        </div>
+                        <div class="product-detail-table-container">
+                            <table class="product-detail-table" cellspacing="0">
+                                <tr>
+                                    <td width="100px">SKU</td>
+                                    <td>246301</td>
+                                </tr>
+                                <tr>
+                                    <td>Brand</td>
+                                    <td>Redhawk Brigade</td>
+                                </tr>
+                                <tr>
+                                    <td>Category</td>
+                                    <td>Shirt</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="full-column-right">
+                    <div class="ss-row">
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Views
+                            </div>
+                            <div class="ss-box-number echoed-text">
+                                20
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Likes
+                            </div>
+                            <div class="ss-box-number fb-text">
+                                30
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Retweets
+                            </div>
+                            <div class="ss-box-number twitter-text">
+                                10
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ss-row">
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Views
+                            </div>
+                            <div class="ss-box-number echoed-text">
+                                20
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Likes
+                            </div>
+                            <div class="ss-box-number fb-text">
+                                30
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Retweets
+                            </div>
+                            <div class="ss-box-number twitter-text">
+                                10
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="full">
+            <div class="report-nav">
+                <div class="label">DYNAMIC REPORTING</div>
+                <div class="report-options">
+                </div>
+            </div>
+            <div id="product-report-chart" class="report-chart">
+            </div>
+        </div>
+    </div>
+</script>
+
+
+<script type="text/template" id="template-view-reports-customers">
+    <div class="row">
+        <div class="full">
+            <div id="customer-selector" class="report-selector">
+                <div class="select-report">
+                    Evan W
+                </div>
+            </div>
+            <div id="report-summary-customer">
+                <div id="summary-stats-column1">
+                </div>
+                <div id="summary-stats-column2">
+                    <div id="ss-upper_row" class="ss-row">
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Views
+                            </div>
+                            <div id="ss-views" class="ss-box-number echoed-text">
+
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Likes
+                            </div>
+                            <div id="ss-likes" class="ss-box-number fb-text">
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Retweets
+                            </div>
+                            <div id="ss-retweets" class="ss-box-number twitter-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ss-lower_row" class="ss-row">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="full">
+            <div class="report-nav">
+                <div class="label">DYNAMIC REPORTING</div>
+                <div class="report-options">
+                </div>
+            </div>
+            <div class="report-chart">
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="template-view-reports-customers-summary">
+</script>
+

@@ -24,7 +24,7 @@
         <prop key="apiUrl">http://v1-api.echoed.com</prop>
         <prop key="cdnUrl">http://v1-cdn.echoed.com</prop>
 
-        <prop key="mustache.cache">true</prop>
+        <prop key="mustache.cache">false</prop>
         <prop key="mustache.prefix">${cdnUrl}/</prop>
         <prop key="mustache.suffix">.html</prop>
 
@@ -34,18 +34,18 @@
         <prop key="closetUrl">${apiUrl}/closet</prop>
 
         <prop key="buttonViewUrl">${cdnUrl}/button_echoed.png</prop>
-        <prop key="loginViewUrl">${cdnUrl}/login.html</prop>
-        <prop key="errorViewUrl">${cdnUrl}/error.html</prop>
-        <prop key="closetViewUrl">${cdnUrl}/user.html</prop>
+        <prop key="loginViewUrl">${cdnUrl}/view.popuplogin.html</prop>
+        <prop key="errorViewUrl">${cdnUrl}/view.error.html</prop>
+        <prop key="closetViewUrl">${cdnUrl}/view.user.html</prop>
 
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
 
-        <prop key="confirmViewUrl">${cdnUrl}/confirm.html</prop>
+        <prop key="confirmViewUrl">${cdnUrl}/view/view.confirm.html</prop>
 
 
         <prop key="twitterLoginErrorViewUrl">${cdnUrl}/twitter_login_error.html</prop>
         <prop key="facebookLoginErrorViewUrl">${cdnUrl}/facebook_login_error.html</prop>
-        <prop key="dashboardViewUrl">${cdnUrl}/partner.html</prop>
+        <prop key="dashboardViewUrl">${cdnUrl}/view.partner.html</prop>
 
         <prop key="exhibitUrl">${apiUrl}/closet/exhibit</prop>
         <prop key="friendsUrl">${apiUrl}/closet/friends</prop>

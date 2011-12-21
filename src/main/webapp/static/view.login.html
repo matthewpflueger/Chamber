@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
+    <title>Login</title>
+</head>
+<body>
+    <p>{{#error}}Error {{message}} {{/error}}</p>
+    <form action="http://v1-api.echoed.com/partner/login">
+        <input id="email" name="email" type="text" />
+        <input id="password" name="password" type="password" />
+        <input id="login" name="login" type="submit">
+    </form>
+</body>
+</html>

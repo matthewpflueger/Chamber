@@ -1,0 +1,415 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Closet</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.isotope.min.js"></script>
+    <script type="text/javascript" src="jquery.imagesloaded.js"></script>
+    <script type='text/javascript' src="json2.js"></script>
+    <script type='text/javascript' src="underscore-min.js"></script>
+    <script type='text/javascript' src="backbone.js"></script>
+    <script type='text/javascript'>
+
+var EventAggregator = _.extend({}, Backbone.Events);
+
+Echoed = {
+    Views: {
+        Pages:{},
+        Components:{}
+    },
+    Models:{},
+    Collections:{},
+    init: function() {
+        var router = new Echoed.Router({EvAg: EventAggregator});
+        var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
+        Backbone.history.start();
+    }
+};
+
+Echoed.Models.Product = Backbone.Model.extend({
+    initialize: function(){
+    }
+});
+
+Echoed.Router = Backbone.Router.extend({
+    initialize: function(options) {
+        _.bindAll(this,'exhibit','friends');
+        this.EvAg = options.EvAg;
+        this.page = null;
+
+    },
+    routes:{
+        "_=_" : "fix",
+        "": "feed",
+        "feed": "feed",
+        "feed/:filter": "feed",
+        "exhibit": "exhibit",
+        "exhibit/:filter": "exhibit",
+        "friends": "friends",
+        "friends/exhibit/:id": "friendsExhibit",
+        "friends/exhibit/:id/:filter": "friendsExhibit"
+    },
+    fix: function(){
+        window.location.href = "#";
+    },
+    feed: function(filter){
+        if(!filter) selector = "*";
+        else selector = "." + filter;
+        if(this.page != "Feed")
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "feed"});
+        this.EvAg.trigger('filter/change',selector);
+        this.EvAg.trigger("page/change","feed");
+        this.page= "Feed";
+    },
+    exhibit: function(filter) {
+        if(!filter) selector = "*";
+        else selector = "." + filter;
+
+        if(this.page != "Exhibit")
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector, Type: "exhibit"});
+
+        this.EvAg.trigger('filter/change',selector);
+        this.EvAg.trigger("page/change","exhibit");
+        this.page = "Exhibit";
+    },
+    friends: function() {
+        pageView = new Echoed.Views.Pages.Friends({EvAg: this.EvAg});
+        this.EvAg.trigger("page/change","friends");
+        this.page = "Friends";
+    },
+    friendsExhibit: function(id, filter){
+        if(!filter) selector = "*";
+        else selector = "." + filter;
+        var newPage = "Friends/Exhibit/" + id
+        if(this.page != newPage)
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector, Type: "friend", Id: id});
+
+        this.EvAg.trigger("filter/change",selector);
+        this.EvAg.trigger("page/change","friends");
+        this.page = newPage
+    }
+
+});
+
+Echoed.Views.Pages.Exhibit = Backbone.View.extend({
+    el: '#content',
+    initialize: function(options){
+
+        _.bindAll(this,'render','addProduct','filterProducts');
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('products/add', this.addProduct);
+        this.EvAg.bind('filter/change', this.filterProducts);
+        this.element = $(this.el);
+        this.filter = options.Filter;
+        switch(options.Type){
+            case "friend":
+                this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit/" + options.Id;
+                this.baseUrl = "#friends/exhibit/" + options.Id + "/";
+                this.id = options.Id;
+                break;
+            case "feed":
+                this.jsonUrl = "http://v1-api.echoed.com/closet/feed";
+                this.baseUrl = "#feed/";
+                this.id= "feed";
+                break;
+            case "exhibit":
+                this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
+                this.baseUrl = "#exhibit/";
+                this.id = null;
+                break;
+        }
+        this.render();
+    },
+    render: function(filter){
+        var template = _.template($('#templates-pages-exhibit').html());
+        this.element.html(template);
+
+        var self = this;
+        var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl});
+
+        var exhibit = $('#exhibit');
+
+        exhibit.isotope({filter: self.filter});
+
+        this.EvAg.trigger("category/add","","All");
+        $.ajax({
+            url: self.jsonUrl,
+            dataType: 'json',
+            success: function(data){
+                $.each(data, function(index,product){
+                    var productModel = new Echoed.Models.Product(product);
+                    self.addProduct(productModel,self.filter);
+                    self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
+                });
+            },
+            error:function (xhr, ajaxOptions, thrownError){
+            }
+        });
+    },
+    filterProducts: function(selector){
+        $('#exhibit').isotope({filter: '#exhibit .item_wrap' + selector});
+    },
+    addProduct: function(productModel,filter){
+
+        var exhibit = $('#exhibit');
+        var productDiv = $('<div></div>');
+        var productComponent = new Echoed.Views.Components.Product({el: productDiv, model:productModel});
+        productDiv.hide().appendTo(exhibit);
+
+        exhibit.imagesLoaded(function(){
+            exhibit.isotope('insert',productDiv);
+            productDiv.show();
+        });
+
+    }
+});
+
+Echoed.Views.Pages.Friends = Backbone.View.extend({
+    el: '#content',
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.element = $(this.el);
+        this.render();
+    },
+    render: function(){
+        var template = _.template($('#templates-pages-friends').html());
+        this.element.html(template);
+        var ex = $('#friends');
+        jsonUrl = "http://v1-api.echoed.com/closet/friends";
+        $.ajax({
+            url: jsonUrl,
+            dataType: 'json',
+            success: function(data){
+                $.each(data, function(index,friend){
+                    var  a = $('<a></a>').html(friend.name).attr("href","#friends/exhibit/" + friend.toEchoedUserId)
+                    $('<div></div>').addClass("friend").append(a).appendTo(ex)
+                });
+            },
+            error:function (xhr, ajaxOptions, thrownError){
+            }
+        });
+    }
+});
+
+Echoed.Views.Components.ProductSelector = Backbone.View.extend({
+    el: '#content-selector',
+    initialize: function(options){
+        _.bindAll(this,'addSelector','triggerClick');
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('category/add',this.addSelector);
+        this.EvAg.bind('filter/change',this.triggerClick);
+        this.categories = new Array();
+        this.element = $(this.el);
+        this.baseUrl = options.BaseUrl;
+        this.render();
+    },
+    render: function(){
+        //this.categories.sort();
+        var sortedKeys = new Array();
+        var sortedObj = {};
+        for(var i in this.categories){
+            sortedKeys.push(i)
+        }
+        sortedKeys.sort();
+        for(var j in sortedKeys){
+            sortedObj[sortedKeys[j]] = this.categories[sortedKeys[j]];
+        }
+        this.categories = sortedObj;
+
+        this.element.html('')
+        for(var id in this.categories){
+            var anc = $('<a></a>').hide().attr("id",id).attr("href", this.baseUrl + this.categories[id]).html(id).appendTo(this.element).show();
+            if(id == this.selected){
+                anc.addClass("current");
+            }
+        }
+    },
+    addSelector: function(selector,text){
+        if(!this.categories[text]){
+            this.categories[text] =  selector;
+            this.render();
+        }
+    },
+    triggerClick: function(e){
+        this.element.find(".current").removeClass("current");
+        $("#" + e.substr(1)).addClass("current");
+        this.selected = e.substr(1);
+    }
+});
+
+Echoed.Views.Components.Nav = Backbone.View.extend({
+    el: "#header-nav",
+    initialize: function(options){
+        _.bindAll(this);
+        this.element = $(this.el);
+        this.EvAg = options.EvAg;
+        this.EvAg.bind("page/change",this.highlight);
+        this.render();
+    },
+    render: function(){
+
+    },
+    highlight: function(page){
+        this.element.find(".current").removeClass("current");
+        $("#" + page + "_nav").addClass("current");
+    }
+});
+
+Echoed.Views.Components.Tooltip = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.el = options.el;
+        this.element = $(this.el);
+        this.posX = this.element.offset.left;
+        this.posY = this.element.offset.bottom;
+        this.render();
+    },
+    events:{
+
+    },
+    render: function(){
+
+    }
+});
+
+Echoed.Views.Components.Product = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'showOverlay','hideOverlay');
+        this.el = options.el;
+        this.render();
+    },
+    events:{
+        "mouseenter": "showOverlay",
+        "mouseleave": "hideOverlay",
+        "click": "click"
+    },
+    render: function(){
+        var template = _.template($('#templates-components-product').html());
+        this.el.addClass("item_wrap").addClass(this.model.get("echoCategory")).html(template({data:this.model.toJSON()})).attr("href",this.model.get("echoLandingPageUrl"));
+        return this;
+    },
+    showOverlay: function(){
+        this.el.find('.item_hover').fadeIn('fast');
+    },
+    hideOverlay: function(){
+        this.el.find('.item_hover').fadeOut('fast');
+    },
+    click: function(){
+        var url = this.el.attr("href");
+        window.open(url);
+    }
+});
+</script>
+<script type="text/template" id="templates-components-product">
+    <div class="item_hover" style="display:none;">
+        <div class="item_hover_wrap">
+            <%= data.echoProductName %><br/>
+            <%= data.echoBrand %><br/>
+            <%= data.echoedUserName %><br/>
+            Credit: $<%= data.echoCredit %><br/>
+        </div>
+    </div>
+    <img class="exhibit_image" src="<%= data.echoImageUrl %>"/>
+</script>
+
+<script type="text/templates" id="templates-pages-exhibit">
+    <div id="content-selector-container">
+        <div id="friend-name">
+            My Friend
+        </div>
+        <div id="content-selector"></div>
+    </div>
+    <div id="exhibit">
+
+    </div>
+</script>
+
+<script type="text/templates" id="templates-pages-friends">
+    <div id="content-selector-container">
+        <div id="content-selector">
+
+        </div>
+    </div>
+    <div id="friends">
+    </div>
+</script>
+
+
+
+<link rel="stylesheet" type="text/css" href="echoed.css"/>
+</head>
+<body>
+    <div id="container">
+        <div id="header">
+            <div id="logo">
+                <img height="50px" src="http://v1-cdn.echoed.com/logo.png">
+            </div>
+
+            <div id="user">
+            	{{#echoedUser}}{{name}}{{/echoedUser}}<br />
+                Rewards: {{totalCredit}}
+            </div>
+            <div id="header-nav">
+                <ul>
+                    <li id="feed_nav">
+                        <a href="#feed">
+                            Feed
+                        </a>
+                    </li>
+                    <li id="exhibit_nav">
+                        <a href="#exhibit">
+                            Exhibit
+                        </a>
+                    </li>
+                    <li id="friends_nav">
+                        <a href="#friends">
+                            Friends
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#settings">
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="logout">
+                            Logout
+                        </a>
+                    </li>
+                    <div class="clear"></div>
+                </ul>
+            </div>
+            <div id="networks">
+                {{#echoedUser}}
+                    {{#facebookUserId}}
+                    <img src="http://v1-cdn.echoed.com/btn_sq_clr_fb.png" alt="facebook"/>
+                    {{/facebookUserId}}
+                    {{^facebookUserId}}
+                    <a href="https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri=http://v1-api.echoed.com/facebook/login?redirect=closet&scope=email,publish_stream,offline_access">
+                        <img src="http://v1-cdn.echoed.com/btn_sq_grey_fb.png" alt="facebook"/>
+                    </a>
+                    {{/facebookUserId}}
+                    {{#twitterUserId}}
+                    <img src="http://v1-cdn.echoed.com/btn_sq_clr_tw.png" alt="twitter"/>
+                    {{/twitterUserId}}
+                    {{^twitterUserId}}
+                        <a href="http://v1-api.echoed.com/twitter?redirect=closet"/>
+                            <img src="http://v1-cdn.echoed.com/btn_sq_grey_tw.png" alt="twitter"/>
+                        </a>
+                    {{/twitterUserId}}
+                {{/echoedUser}}
+            </div>
+        </div>
+        <div id="content">
+         </div>
+    </div>
+</body>
+</html>
+<script type=text/javascript>
+    $(document).ready(function() {
+        Echoed.init();
+    });
+</script>
