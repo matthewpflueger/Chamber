@@ -105,6 +105,16 @@
     </bean>
     
 
+    <bean id="facebookLikeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookLikeDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
+    <bean id="facebookCommentDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookCommentDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
     <bean id="echoClickDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
        <property name="mapperInterface" value="com.echoed.chamber.dao.EchoClickDao" />
        <property name="sqlSessionTemplate" ref="sqlSession" />

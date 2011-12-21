@@ -3,7 +3,7 @@
 <mapper namespace="com.echoed.chamber.dao.views.FeedDao">
     <resultMap id="feedResult" type="com.echoed.chamber.domain.views.Feed">
         <constructor>
-            <idArg column="echoedUserId" javaType="String"/> 
+            <idArg column="echoedUserId" javaType="String"/>
             <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult"/>
         </constructor>
         <collection property="echoes" ofType="com.echoed.chamber.domain.views.EchoViewDetail" javaType="ArrayList" resultMap="echoViewResult" />

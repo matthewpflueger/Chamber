@@ -104,10 +104,47 @@ create table FacebookPost (
     facebookUserId varchar(36) not null,
     echoedUserId varchar(36) not null,
     echoId varchar(36) not null unique key,
-    postedOn timestamp,
+    postedOn timestamp null,
     facebookId varchar(255) unique key,
+    crawledStatus varchar(255),
+    crawledOn timestamp null,
+    index (postedOn),
+    index (facebookId),
     index (facebookUserId),
-    index (echoedUserId)
+    index (echoedUserId),
+    index (crawledOn)
+);
+
+drop table if exists FacebookLike;
+create table FacebookLike(
+    id varchar(36) not null primary key,
+    updatedOn timestamp not null,
+    createdOn timestamp not null,
+    facebookPostId varchar(36) not null,
+    facebookUserId varchar(36) not null,
+    echoedUserId varchar(36) not null,
+    facebookId varchar(255) not null,
+    name varchar(255) not null,
+    unique key(facebookPostId, facebookId),
+    index(facebookPostId),
+    index(facebookUserId)
+);
+
+drop table if exists FacebookComment;
+create table FacebookComment(
+    id varchar(36) not null primary key,
+    updatedOn timestamp not null,
+    createdOn timestamp not null,
+    facebookPostId varchar(36) not null,
+    facebookUserId varchar(36) not null,
+    echoedUserId varchar(36) not null,
+    facebookId varchar(255) not null unique key,
+    byFacebookId varchar(255) not null,
+    name varchar(255) not null,
+    message varchar(255) not null,
+    createdAt timestamp not null,
+    index(facebookPostId),
+    index(facebookUserId)
 );
 
 drop table if exists EchoPossibility;
@@ -248,10 +285,10 @@ create table TwitterStatus(
     echoedUserId varchar(36) not null,
     message varchar(255) not null,
     twitterId varchar(255),
-    createdAt timestamp,
+    createdAt timestamp null,
     text varchar(255),
     source varchar(255),
-    postedOn timestamp,
+    postedOn timestamp null,
     index (echoId),
     index (echoedUserId)
 );

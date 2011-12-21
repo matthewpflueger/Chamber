@@ -1,6 +1,5 @@
 package com.echoed.chamber.util
 
-import com.echoed.chamber.domain._
 import com.echoed.chamber.controllers.EchoPossibilityParameters
 import scala.reflect.BeanProperty
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,6 +15,7 @@ import scala.collection.mutable.{ListBuffer, Buffer}
 import com.echoed.chamber.dao._
 import java.util.{Random, List => JList, Calendar, Date, UUID}
 import com.echoed.util.ScalaObjectMapper
+import com.echoed.chamber.domain._
 
 
 class DataCreator {
@@ -540,30 +540,89 @@ class DataCreator {
 
     val facebookPosts = List(
         FacebookPost(
-            facebookPostId_1,
-            on,
-            on,
-            "message",
-            "picture",
-            "link",
-            facebookUserId,
-            echoedUserId,
-            echoId_1,
-            on,
-            "facebookId_1"),
+            id = facebookPostId_1,
+            updatedOn = on,
+            createdOn = on,
+            message = "message",
+            picture = "picture",
+            link = "link",
+            facebookUserId = facebookUserId,
+            echoedUserId = echoedUserId,
+            echoId = echoId_1,
+            postedOn = on,
+            facebookId = "100003177284815_125947867521122",
+            crawledStatus = null,
+            crawledOn = null),
         FacebookPost(
-            facebookPostId_2,
-            on,
-            on,
-            "message",
-            "picture",
-            "link",
-            facebookUserId,
-            echoedUserId,
-            echoId_2,
-            on,
-            "facebookId_2")
+            id = facebookPostId_2,
+            updatedOn = on,
+            createdOn = on,
+            message = "message",
+            picture = "picture",
+            link = "link",
+            facebookUserId = facebookUserId,
+            echoedUserId = echoedUserId,
+            echoId = echoId_2,
+            postedOn = on,
+            facebookId = "100003177284815_125947200854522",
+            crawledStatus = null,
+            crawledOn = null)
     )
+
+    /* Other FacebookPost ids we could use...
+        "100003177284815_125946577521251"
+        "100003177284815_125945957521313"
+        "100003177284815_125945630854679"
+        "100003177284815_124951754287400"
+        "100003177284815_124951254287450"
+        "100003177284815_124950930954149"
+    */
+
+    val facebookLikes = List(
+        FacebookLike(
+            id = UUID.randomUUID().toString,
+            updatedOn = on,
+            createdOn = on,
+            facebookPostId = facebookPostId_1,
+            facebookUserId = facebookUserId,
+            echoedUserId = echoedUserId,
+            facebookId = facebookId,
+            name = facebookUser.name),
+        FacebookLike(
+            id = UUID.randomUUID().toString,
+            updatedOn = on,
+            createdOn = on,
+            facebookPostId = facebookPostId_1,
+            facebookUserId = facebookUserId,
+            echoedUserId = echoedUserId,
+            facebookId = facebookId + "2",
+            name = "Test Name"))
+
+    val facebookComments = List(
+        FacebookComment(
+            id = UUID.randomUUID().toString,
+            updatedOn = on,
+            createdOn = on,
+            facebookPostId = facebookPostId_1,
+            facebookUserId = facebookUserId,
+            echoedUserId = echoedUserId,
+            facebookId = facebookId,
+            byFacebookId = "byFacebookId",
+            name = "name",
+            message = "message",
+            createdAt = on),
+        FacebookComment(
+            id = UUID.randomUUID().toString,
+            updatedOn = on,
+            createdOn = on,
+            facebookPostId = facebookPostId_1,
+            facebookUserId = facebookUserId,
+            echoedUserId = echoedUserId,
+            facebookId = facebookId + "2",
+            byFacebookId = "byFacebookId",
+            name = "name",
+            message = "message",
+            createdAt = on))
 
     val echoClicks_1 = List(
         EchoClick(

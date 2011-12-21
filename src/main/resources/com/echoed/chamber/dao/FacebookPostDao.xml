@@ -14,6 +14,33 @@
             <arg column="echoId" javaType="String" />
             <arg column="postedOn" javaType="Date" />
             <arg column="facebookId" javaType="String" />
+            <arg column="crawledStatus" javaType="String" />
+            <arg column="crawledOn" javaType="Date" />
+        </constructor>
+    </resultMap>
+
+    <resultMap id="facebookUserResult" type="com.echoed.chamber.domain.FacebookUser">
+        <constructor>
+            <idArg column="facebookUserId" javaType="String" />
+            <arg column="facebookUserUpdatedOn" javaType="Date" />
+			<arg column="facebookUserCreatedOn" javaType="Date" />
+            <arg column="facebookUserEchoedUserId" javaType="String" />
+            <arg column="facebookUserFacebookId" javaType="String" />
+            <arg column="facebookUserName" javaType="String" />
+            <arg column="facebookUserEmail" javaType="String" />
+			<arg column="facebookUserLink" javaType="String" />
+			<arg column="facebookUserGender" javaType="String" />
+			<arg column="facebookUserTimezone" javaType="String" />
+			<arg column="facebookUserLocale" javaType="String" />
+			<arg column="facebookUserAccessToken" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <resultMap id="facebookPostDataResult" type="com.echoed.chamber.domain.views.FacebookPostData">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg javaType="com.echoed.chamber.domain.FacebookPost" resultMap="facebookPostResult" />
+            <arg javaType="com.echoed.chamber.domain.FacebookUser" resultMap="facebookUserResult" />
         </constructor>
     </resultMap>
 
@@ -24,6 +51,50 @@
 
     <select id="findByEchoedUserId" resultMap="facebookPostResult">
     	select * from FacebookPost where echoedUserId = #{echoedUserId}
+    </select>
+
+    <sql id="postToCrawlColumns">
+        FP.*,
+        FU.id as facebookUserId,
+        FU.updatedOn as facebookUserUpdatedOn,
+        FU.createdOn as facebookUserCreatedOn,
+        FU.echoedUserId as facebookUserEchoedUserId,
+        FU.facebookId as facebookUserFacebookId,
+        FU.name as facebookUserName,
+        FU.email as facebookUserEmail,
+        FU.link as facebookUserLink,
+        FU.gender as facebookUserGender,
+        FU.timezone as facebookUserTimezone,
+        FU.locale as facebookUserLocale,
+        FU.accessToken as facebookUserAccessToken
+    </sql>
+
+    <select id="findPostToCrawl" resultMap="facebookPostDataResult">
+        select <include refid="postToCrawlColumns" />
+        from FacebookPost FP
+        inner join FacebookUser FU on FP.facebookUserId = FU.id
+        where FP.facebookId is not null
+        <if test="echoedUserId != null">
+            and FP.echoedUserId = #{echoedUserId}
+        </if>
+        and FP.postedOn between #{postedOnStartDate} and #{postedOnEndDate}
+        and (FP.crawledOn is null or FP.crawledOn &lt; #{crawledOnEndDate})
+        order by FP.crawledOn asc
+        limit 1;
+    </select>
+
+    <select id="findOldPostToCrawl" resultMap="facebookPostDataResult">
+        select <include refid="postToCrawlColumns" />
+        from FacebookPost FP
+        inner join FacebookUser FU on FP.facebookUserId = FU.id
+        where FP.facebookId is not null
+        <if test="echoedUserId != null">
+            and FP.echoedUserId = #{echoedUserId}
+        </if>
+        and FP.crawledOn &lt; #{crawledOnEndDate}
+        and FP.postedOn &lt; #{postedOnBeforeDate}
+        order by FP.postedOn desc
+        limit 1;
     </select>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.FacebookPost">
@@ -37,7 +108,9 @@
                 echoedUserId,
                 echoId,
                 postedOn,
-                facebookId)
+                facebookId,
+                crawledStatus,
+                crawledOn)
         values (
                 #{id},
                 #{createdOn},
@@ -48,13 +121,22 @@
                 #{echoedUserId},
                 #{echoId},
                 #{postedOn},
-                #{facebookId})
+                #{facebookId},
+                #{crawledStatus},
+                #{crawledOn})
     </insert>
 
     <update id="updatePostedOn" parameterType="com.echoed.chamber.domain.FacebookPost">
         update FacebookPost set
                 postedOn=#{postedOn},
                 facebookId=#{facebookId}
+            where id=#{id}
+    </update>
+
+    <update id="updatePostForCrawl" parameterType="com.echoed.chamber.domain.FacebookPost">
+        update FacebookPost set
+                crawledOn=#{crawledOn},
+                crawledStatus=#{crawledStatus}
             where id=#{id}
     </update>
 

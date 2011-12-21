@@ -14,7 +14,9 @@ case class FacebookPost(
         echoedUserId: String,
         echoId: String,
         postedOn: Date,
-        facebookId: String) {
+        facebookId: String,
+        crawledStatus: String,
+        crawledOn: Date) {
 
     def this(
             message: String,
@@ -35,7 +37,9 @@ case class FacebookPost(
         echoedUserId,
         echoId,
         postedOn,
-        facebookId)
+        facebookId,
+        null,
+        null)
 
 }
 

@@ -8,6 +8,7 @@
         </encoder>
     </appender>
 
+    <logger name="org.springframework" level="error"/>
     <logger name="com.echoed" level="debug"/>
 
     <root level="error">

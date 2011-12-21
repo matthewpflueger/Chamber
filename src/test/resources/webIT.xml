@@ -12,8 +12,6 @@
 
 
     <import resource="classpath:apiIT.xml" />
-    <!--<import resource="classpath:databaseIT.xml" />-->
-    <!--<import resource="classpath:servlet-context-properties.xml" />-->
 
 
     <!-- This is a hack to get url properties injected into our tests.  The actual values are defined in servlet-context-properties.xml but

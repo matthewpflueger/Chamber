@@ -1,16 +1,21 @@
 package com.echoed.chamber.services.facebook
 
 import akka.actor.Actor
-import collection.mutable.WeakHashMap
 import org.codehaus.jackson.`type`.TypeReference
 import com.googlecode.batchfb.`type`.Paged
 import reflect.BeanProperty
-import java.util.Properties
 import com.codahale.jerkson.ScalaModule
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
 import com.googlecode.batchfb.{Param, FacebookBatcher}
+import com.googlecode.batchfb.err.{FacebookException => BFE}
 import scala.collection.JavaConversions._
+import com.echoed.chamber.domain._
+import scalaz._
+import Scalaz._
+import java.net.URL
+import scala.collection.mutable.WeakHashMap
+import com.echoed.util.ScalaObjectMapper
+import java.util.{Date, Properties}
 
 
 class FacebookAccessActor extends Actor {
@@ -29,9 +34,9 @@ class FacebookAccessActor extends Actor {
         //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
         //where placeholder values were not being resolved
         {
-            clientId = properties.getProperty("clientId")
-            clientSecret = properties.getProperty("clientSecret")
-            redirectUrl = properties.getProperty("redirectUrl")
+            if (clientId == null) clientId = properties.getProperty("clientId")
+            if (clientSecret == null) clientSecret = properties.getProperty("clientSecret")
+            if (redirectUrl == null) redirectUrl = properties.getProperty("redirectUrl")
             clientId != null && clientSecret != null && redirectUrl != null
         } ensuring (_ == true, "Missing parameters")
     }
@@ -75,6 +80,65 @@ class FacebookAccessActor extends Actor {
             self.channel ! fp
             logger.debug("Successfully posted {}", fp)
         }
+        case msg @ GetPostData(facebookPostData) =>
+            try {
+                val facebookId = facebookPostData.facebookPost.facebookId
+                val accessToken = facebookPostData.facebookUser.accessToken
+
+                logger.debug("Retrieving data for FacebookPost {}", facebookId)
+                val url = new URL("http://graph.facebook.com/%s?accessToken=%s" format(facebookId, accessToken))
+                val connection = url.openConnection()
+                connection.setConnectTimeout(5000)
+                connection.setReadTimeout(10000)
+                val resultOption = Option(new ScalaObjectMapper().readValue(connection.getInputStream, classOf[PostData]))
+//                val resultOption = Option(new ScalaObjectMapper().readValue(url, classOf[PostData]))
+
+                //TODO this does not work and I have no idea why - always throws an exception
+//                val resultOption = Option(getFacebookBatcher(accessToken)
+//                        .graph("%s" format facebookId, classOf[PostData])
+//                        .get)
+
+
+                resultOption.cata({ result =>
+                    val likes = result.likes.data
+                    val comments = result.comments.data
+                    logger.debug("Received {} likes for {}", likes.length, result.id)
+                    logger.debug("Received {} comments for {}", comments.length, result.id)
+
+                    facebookPostData.likes = likes.map { from =>
+                        new FacebookLike(
+                            facebookPostId = facebookPostData.id,
+                            facebookUserId = facebookPostData.facebookUser.id,
+                            echoedUserId = facebookPostData.facebookUser.echoedUserId,
+                            facebookId = from.id,
+                            name = from.name)
+                    }
+                    facebookPostData.comments = comments.map { comment =>
+                        new FacebookComment(
+                                facebookPostId = facebookPostData.id,
+                                facebookUserId = facebookPostData.facebookUser.id,
+                                echoedUserId = facebookPostData.facebookUser.echoedUserId,
+                                facebookId = comment.id,
+                                byFacebookId = comment.from.id,
+                                name = comment.from.name,
+                                message = comment.message,
+                                createdAt = comment.created_time)
+                    }
+
+                    self.channel ! GetPostDataResponse(msg, Right(facebookPostData))
+                },
+                {
+                    logger.debug("No Facebook post data for {}", facebookPostData.facebookPost.facebookId)
+                    self.channel ! GetPostDataResponse(
+                            msg,
+                            Left(FacebookException("Null response for %s" format facebookPostData.facebookPost.facebookId)))
+                })
+            } catch {
+//                case e: BFE =>
+                case e =>
+                    logger.debug("Exception when retrieving data for FacebookPost {}: {}", facebookPostData.facebookPost.facebookId, e.getMessage)
+                    self.channel ! GetPostDataResponse(msg, Left(FacebookException("%s: %s" format(e.getClass.getName, e.getMessage), e)))
+            }
     }
 
     private def getFacebookBatcher(accessToken: String) = {
@@ -87,3 +151,48 @@ class FacebookAccessActor extends Actor {
         })
     }
 }
+
+
+class From {
+    @BeanProperty var id: String = _
+    @BeanProperty var name: String = _
+}
+
+class Application() {
+    @BeanProperty var id: String = _
+    @BeanProperty var name: String = _
+    @BeanProperty var canvas_name: String = _
+    @BeanProperty var namespace: String = _
+}
+
+class ListContainer[T] {
+    @BeanProperty var count: Int = _
+    @BeanProperty var data: List[T] = _
+}
+
+class Comment {
+    @BeanProperty var id: String =_
+    @BeanProperty var from: From = _
+    @BeanProperty var message: String = _
+    @BeanProperty var created_time: Date = _
+}
+
+class PostData() {
+    @BeanProperty var id: String = _
+    @BeanProperty var from: From = _
+    @BeanProperty var message: String = _
+    @BeanProperty var picture: String = _
+    @BeanProperty var link: String = _
+    @BeanProperty var name: String = _
+    @BeanProperty var caption: String = _
+    @BeanProperty var icon: String = _
+    @BeanProperty var `type`: String = _
+    @BeanProperty var application: Application = _
+    @BeanProperty var created_time: String = _
+    @BeanProperty var updated_time: String = _
+    @BeanProperty var likes: ListContainer[From] = _
+    @BeanProperty var comments: ListContainer[Comment] = _
+}
+
+
+

@@ -25,5 +25,6 @@ class FacebookAccessActorTest extends Spec with GivenWhenThen with ShouldMatcher
             } should produce [AssertionError]
             actorRef.isUnstarted should be (true)
         }
+
     }
 }
