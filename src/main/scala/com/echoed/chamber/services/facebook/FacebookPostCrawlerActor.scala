@@ -9,6 +9,7 @@ import java.util.{Calendar, Date}
 import com.echoed.chamber.dao.{FacebookCommentDao, FacebookLikeDao, FacebookPostDao}
 import akka.actor.{Scheduler, Actor}
 import java.util.concurrent.{Future, TimeUnit}
+import akka.dispatch.CompletableFuture
 
 
 case object Crawl
@@ -23,10 +24,16 @@ class FacebookPostCrawlerActor extends Actor {
     @BeanProperty var facebookCommentDao: FacebookCommentDao = _
     @BeanProperty var facebookAccess: ActorClient = _
     @BeanProperty var interval: Long = 60000
+    @BeanProperty var future: Option[CompletableFuture[GetPostDataResponse]] = None
 
     private var scheduledMessage: Option[Future[AnyRef]] = None
 
     override def preStart() {
+        next
+    }
+
+    def next(response: GetPostDataResponse) {
+        future.foreach(_.completeWithResult(response))
         next
     }
 
@@ -70,7 +77,7 @@ class FacebookPostCrawlerActor extends Actor {
                 if (interval > 0) scheduledMessage = Option(Scheduler.scheduleOnce(self, 'next, interval, TimeUnit.MILLISECONDS))
             }
 
-        case GetPostDataResponse(GetPostData(facebookPostToCrawl), Right(facebookPostData)) =>
+        case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Right(facebookPostData)) =>
             try {
                 scheduledMessage.foreach(_.cancel(false))
                 logger.debug("Received good response crawling FacebookPost {}", facebookPostToCrawl.id)
@@ -79,17 +86,17 @@ class FacebookPostCrawlerActor extends Actor {
                 facebookPostData.likes.foreach { facebookLikeDao.insertOrUpdate(_) }
                 facebookPostData.comments.foreach { facebookCommentDao.insertOrUpdate(_) }
             } finally {
-                next
+                next(msg)
             }
 
-        case GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e)) =>
+        case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e)) =>
             try {
                 scheduledMessage.foreach(_.cancel(false))
                 logger.debug("Received bad response crawling FacebookPost {}: {}", facebookPostToCrawl.id, e.message)
                 facebookPostDao.updatePostForCrawl(facebookPostToCrawl.facebookPost.copy(
                     crawledStatus = e.message, crawledOn = new Date))
             } finally {
-                next
+                next(msg)
             }
     }
 }

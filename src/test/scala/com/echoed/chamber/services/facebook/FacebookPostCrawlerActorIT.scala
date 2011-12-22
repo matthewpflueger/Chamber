@@ -6,8 +6,6 @@ import reflect.BeanProperty
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import java.util.Properties
-import java.util.Date
 import com.echoed.util.IntegrationTest
 import scala.collection.JavaConversions
 import org.openqa.selenium.{By, Cookie, WebDriver}
@@ -19,6 +17,9 @@ import com.echoed.chamber.controllers.EchoHelper
 import akka.testkit.TestActorRef.apply
 import akka.testkit.TestActorRef
 import com.echoed.chamber.services.ActorClient
+import java.util.{Calendar, Properties, Date}
+import akka.dispatch.DefaultCompletableFuture
+import scala.Either
 
 
 @RunWith(classOf[JUnitRunner])
@@ -39,24 +40,41 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
 
-    val facebookPosts = dataCreator.facebookPosts
+    var facebookPosts = dataCreator.facebookPosts
     val facebookUser = dataCreator.facebookUser
 
     def cleanup() {
         facebookPostDao.deleteByEchoedUserId(facebookPosts(0).echoedUserId)
         facebookPostDao.findByEchoedUserId(facebookPosts(0).echoedUserId).size should equal (0)
         facebookUserDao.deleteByEmail(facebookUser.email)
+        facebookPosts.foreach { fp =>
+            facebookLikeDao.deleteByFacebookPostId(fp.id)
+            facebookCommentDao.deleteByFacebookPostId(fp.id)
+        }
     }
 
     override def beforeAll = {
         facebookAccessActorProperties should not be(null)
         facebookUser.id should equal(facebookPosts(0).facebookUserId)
         cleanup
-        facebookUserDao.insertOrUpdate(facebookUser.copy(id = "facebookUserId")) //TODO do not set the facebookUserId
-        //insert a bunch of facebook posts
+
+        facebookUserDao.insertOrUpdate(facebookUser)
+
+        facebookPosts = facebookPosts.zipWithIndex.map { tuple =>
+            val (fp, index) = tuple
+            val po = {
+                val cal = Calendar.getInstance()
+                cal.add(Calendar.DAY_OF_MONTH, ((index + 1) * -1) + -1) //convert index to negative and add it minimum age for crawling
+                cal.getTime
+            }
+
+            val facebookPost = fp.copy(postedOn = po, crawledOn = null)
+            facebookPostDao.insert(facebookPost)
+            facebookPost
+        }
     }
 
-    //override def afterAll = cleanup
+    override def afterAll = cleanup
 
 
     feature("Likes and comments of a post will be tracked") {
@@ -82,12 +100,29 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
             facebookPostCrawlerActor.underlyingActor.facebookPostDao = facebookPostDao
             facebookPostCrawlerActor.underlyingActor.interval = -1
 
-
             facebookAccessActor.start
             facebookPostCrawlerActor.start
 
-            facebookPostCrawlerActor ! 'next
-            Thread.sleep(600000)
+            facebookAccessActor.isRunning should be(true)
+            facebookPostCrawlerActor.isRunning should be(true)
+
+            facebookPosts.foreach { fp =>
+                val future = new DefaultCompletableFuture[GetPostDataResponse]()
+                facebookPostCrawlerActor.underlyingActor.future = Some(future)
+                facebookPostCrawlerActor ! 'next
+
+                val response = future.get.resultOrException
+                val likes = facebookLikeDao.findByFacebookPostId(response.facebookPost.id)
+                val comments = facebookCommentDao.findByFacebookPostId(response.facebookPost.id)
+
+                likes should not be(null)
+                likes should have length(response.likes.length)
+
+                comments should not be(null)
+                comments should have length(response.comments.length)
+            }
+
+
         }
     }
 }

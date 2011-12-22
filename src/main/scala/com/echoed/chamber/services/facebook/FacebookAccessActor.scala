@@ -89,9 +89,8 @@ class FacebookAccessActor extends Actor {
                 val url = new URL("http://graph.facebook.com/%s?accessToken=%s" format(facebookId, accessToken))
                 val connection = url.openConnection()
                 connection.setConnectTimeout(5000)
-                connection.setReadTimeout(10000)
+                connection.setReadTimeout(5000)
                 val resultOption = Option(new ScalaObjectMapper().readValue(connection.getInputStream, classOf[PostData]))
-//                val resultOption = Option(new ScalaObjectMapper().readValue(url, classOf[PostData]))
 
                 //TODO this does not work and I have no idea why - always throws an exception
 //                val resultOption = Option(getFacebookBatcher(accessToken)
