@@ -196,4 +196,18 @@
         <!--suppress SpringModelInspection -->
         <property name="partnerUserServiceCreator" ref="partnerUserServiceCreator" />
     </akka:untyped-actor>
+
+    <akka:untyped-actor
+            id="facebookPostCrawlerActor"
+            implementation="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="facebookPostDao" ref="facebookPostDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="facebookLikeDao" ref="facebookLikeDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="facebookCommentDao" ref="facebookCommentDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="facebookAccess" ref="facebookAccess" />
+    </akka:untyped-actor>
 </beans>
