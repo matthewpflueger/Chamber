@@ -19,5 +19,5 @@ class FacebookServiceActorClient(facebookServiceActor: ActorRef) extends Faceboo
             (facebookServiceActor ? 'getFacebookFriends).mapTo[List[FacebookFriend]]
 
     private[services] def fetchFacebookFriends() =
-            (facebookServiceActor ? '_fetchFacebookFriends).mapTo[List[FacebookFriend]]
+            (facebookServiceActor ? '_fetchFacebookFriends).mapTo[GetFriendsResponse]
 }

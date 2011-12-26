@@ -18,7 +18,7 @@ class FacebookAccessActorClient extends FacebookAccess with ActorClient {
             (actorRef ? ("me", accessToken)).mapTo[FacebookUser]
 
     def getFriends(accessToken: String, facebookId: String, facebookUserId: String) =
-            (actorRef ? ("friends", accessToken, facebookId, facebookUserId)).mapTo[List[FacebookFriend]]
+            (actorRef ? GetFriends(accessToken, facebookId, facebookUserId)).mapTo[GetFriendsResponse]
 
     def post(accessToken: String, facebookId: String, facebookPost: FacebookPost) =
             (actorRef.?("post", accessToken, facebookId, facebookPost)(timeout = Actor.Timeout(600000L))).mapTo[FacebookPost]

@@ -17,5 +17,5 @@ trait FacebookService {
 
     def getFacebookFriends(): Future[List[FacebookFriend]]
 
-    private[services] def fetchFacebookFriends(): Future[List[FacebookFriend]]
+    private[services] def fetchFacebookFriends(): Future[GetFriendsResponse]
 }

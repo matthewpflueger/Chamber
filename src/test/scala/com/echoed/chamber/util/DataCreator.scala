@@ -155,6 +155,46 @@ class DataCreator {
         }
     }
 
+    def cleanupEchoedUsers(list: Buffer[(FacebookUser, EchoedUser)]) {
+        list.foreach { tuple =>
+            val (fu, eu) = tuple
+            facebookUserDao.deleteByEmail(fu.email)
+            echoedUserDao.deleteByEmail(eu.email)
+        }
+    }
+
+    def generateEchoedUsers = {
+        val facebookTestUsers = facebookTestUserDao.selectFirst(20).dropWhile(_.email == null).zipWithIndex
+        logger.debug("Generating data for {} Facebook test users", facebookTestUsers.length)
+
+        val list = Buffer.empty[(FacebookUser, EchoedUser)]
+
+        facebookTestUsers.foreach { tuple =>
+            val (ftu, index) = tuple
+            logger.debug("Working on {}: {}", index, ftu)
+
+            var fu = ftu.createFacebookUser
+            val eu = fu.createEchoedUser
+            fu = fu.copy(echoedUserId = eu.id)
+
+            list += ((fu, eu))
+        }
+
+        cleanupEchoedUsers(list)
+
+        list.foreach { tuple =>
+            val (fu, eu) = tuple
+
+            facebookUserDao.insertOrUpdate(fu)
+            logger.debug("Created {}", fu)
+
+            echoedUserDao.insert(eu)
+            logger.debug("Created {}", eu)
+        }
+
+        list
+    }
+
     def generateDataSet() {
         logger.debug("Generating data set")
 
@@ -172,28 +212,12 @@ class DataCreator {
             logger.debug("Created {}", rs)
         }
 
-        val today = new Date
+
         val random = new Random
-        val facebookTestUsers = facebookTestUserDao.selectFirst(20).dropWhile(_.email == null)
-        var index = 0
+        val users = generateEchoedUsers.map(_._2).zipWithIndex
 
-        logger.debug("Generating data for {} Facebook test users", facebookTestUsers.length)
-
-        facebookTestUsers.foreach { ftu =>
-            index = index + 1
-            logger.debug("Working on {}: {}", index, ftu)
-
-            var fu = ftu.createFacebookUser
-            val eu = fu.createEchoedUser
-            fu = fu.copy(echoedUserId = eu.id)
-
-            facebookUserDao.deleteByEmail(fu.email)
-            facebookUserDao.insertOrUpdate(fu)
-            logger.debug("Created {}", fu)
-
-            echoedUserDao.deleteByEmail(eu.email)
-            echoedUserDao.insert(eu)
-            logger.debug("Created {}", eu)
+        users.foreach { tuple =>
+            val (eu, index) = tuple
 
             val ran = random.nextInt(retailers.length)
             logger.debug("Generating {} echoes", ran)
@@ -233,6 +257,7 @@ class DataCreator {
             }
         }
     }
+
 
     val on = new Date
     val today = Calendar.getInstance()

@@ -8,7 +8,7 @@ trait FacebookAccess {
 
     def getAccessToken(code: String, queryString: String): Future[String]
     def getMe(accessToken: String): Future[FacebookUser]
-    def getFriends(accessToken: String, facebookId: String, facebookUserId: String): Future[List[FacebookFriend]]
+    def getFriends(accessToken: String, facebookId: String, facebookUserId: String): Future[GetFriendsResponse]
     def post(accessToken: String, facebookId: String, facebookPost: FacebookPost): Future[FacebookPost]
 
 }

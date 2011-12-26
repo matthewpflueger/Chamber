@@ -17,9 +17,9 @@ import org.codehaus.jackson.`type`.TypeReference
 import java.util.{List => JList}
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
-import com.echoed.chamber.domain.{EchoedUser, EchoedFriend}
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.dao.{FacebookUserDao, EchoedFriendDao, EchoDao, EchoedUserDao}
+import com.echoed.chamber.domain.{FacebookUser, EchoedUser, EchoedFriend}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -48,18 +48,21 @@ class ClosetFriendsIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
 
     val echoedUser = dataCreator.echoedUser.copy(twitterUserId = null)
     val facebookUser = dataCreator.facebookUser
+    var echoedUsers = Buffer.empty[(FacebookUser, EchoedUser)]
 
     def cleanup() {
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
         echoedFriendDao.deleteByEchoedUserId(echoedUser.id)
         facebookUserDao.deleteByEmail(facebookUser.email)
+        dataCreator.cleanupEchoedUsers(echoedUsers)
     }
 
     override protected def beforeAll() {
         cleanup()
         echoedUserDao.insert(echoedUser)
         facebookUserDao.insertOrUpdate(facebookUser)
+        echoedUsers = dataCreator.generateEchoedUsers
     }
 
     override protected def afterAll() = cleanup()

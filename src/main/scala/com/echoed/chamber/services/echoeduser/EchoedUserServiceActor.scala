@@ -1,18 +1,18 @@
 package com.echoed.chamber.services.echoeduser
 
 import akka.actor.Actor
-import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
 import com.echoed.chamber.dao.views.{ClosetDao,FeedDao}
 import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.domain._
-import akka.dispatch.Future
 import com.echoed.chamber.domain.EchoedFriend
 import com.echoed.chamber.dao.{EchoedFriendDao, EchoedUserDao}
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{Map => MMap, ListBuffer => MList}
+import com.echoed.chamber.services.facebook.{GetFriendsResponse, FacebookService}
+import akka.dispatch.{AlreadyCompletedFuture, Future}
 
 
 class EchoedUserServiceActor(
@@ -111,19 +111,21 @@ class EchoedUserServiceActor(
 
         case '_fetchEchoedFriends =>
             val futureFacebookEchoedUsers: Future[List[EchoedUser]] = Option(facebookService).cata(
-                    fs => fs.fetchFacebookFriends().map { ffs: List[FacebookFriend] =>
-                        logger.debug("Fetched {} FacebookFriends for EchoedUser {}", ffs.length, echoedUser.id)
-                        val eus = ffs
-                            .map(ff => Option(echoedUserDao.findByFacebookId(ff.facebookId)))
-                            .filter(_.isDefined)
-                            .map(_.get)
-                        logger.debug("Found {} friends via Facebook for EchoedUser {}", eus.length, echoedUser.id)
-                        eus
-                    },
-                    Future {
-                        logger.debug("No FacebookService for EchoedUser {}", echoedUser.id)
-                        List[EchoedUser]()
-                    })
+                    fs => fs.fetchFacebookFriends().map { _ match {
+                        case GetFriendsResponse(_, Right(ffs)) =>
+                            logger.debug("Fetched {} FacebookFriends for EchoedUser {}", ffs.length, echoedUser.id)
+                            val eus = ffs
+                                .map(ff => Option(echoedUserDao.findByFacebookId(ff.facebookId)))
+                                .filter(_.isDefined)
+                                .map(_.get)
+                            logger.debug("Found {} friends via Facebook for EchoedUser {}", eus.length, echoedUser.id)
+                            eus
+                        case GetFriendsResponse(_, Left(e)) =>
+                            logger.error("Error fetching FacebookFriends for EchoedUser {}", echoedUser.id, e)
+                            List[EchoedUser]()
+                    }},
+                    new AlreadyCompletedFuture[List[EchoedUser]](Right(List[EchoedUser]())))
+
 
             val futureTwitterEchoedUsers: Future[List[EchoedUser]] = Option(twitterService).cata(
                     ts => ts.getFollowers().map { tfs: List[TwitterFollower] =>
@@ -135,10 +137,8 @@ class EchoedUserServiceActor(
                         logger.debug("Found {} friends via Twitter for EchoedUser {}", eus.length, echoedUser.id)
                         eus
                     },
-                    Future {
-                        logger.debug("No TwitterService for EchoedUser {}", echoedUser.id)
-                        List[EchoedUser]()
-                    })
+                    new AlreadyCompletedFuture[List[EchoedUser]](Right(List[EchoedUser]())))
+
 
             val channel = self.channel
             for {

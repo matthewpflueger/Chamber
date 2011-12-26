@@ -57,16 +57,26 @@ class FacebookAccessActor extends Actor {
             self.channel ! facebookUser
             logger.debug("Got me {}", facebookUser)
         }
-        case ("friends", accessToken: String, facebookId: String, facebookUserId: String) => {
-            logger.debug("Requesting friends for {} with access token {}", facebookId, accessToken)
-            val pagedFriends = getFacebookBatcher(accessToken).graph(
-                    ("%s/friends" format facebookId),
-                    new TypeReference[Paged[Friend]] {}).get.getData
-            logger.debug("Found {} friends for FacebookUser {}", pagedFriends.size(), facebookUserId)
-            val facebookFriends = asScalaBuffer(pagedFriends).map(_.createFacebookFriend(facebookUserId)).toList
-            self.channel ! facebookFriends
-            logger.debug("Sent {} friends for FacebookUser {}", facebookFriends.length, facebookUserId)
-        }
+        case msg @ GetFriends(accessToken, facebookId, facebookUserId) =>
+            try {
+                logger.debug("Requesting friends for {} with access token {}", facebookId, accessToken)
+                val pagedFriends = getFacebookBatcher(accessToken).graph(
+                        ("%s/friends" format facebookId),
+                        new TypeReference[Paged[Friend]] {}).get.getData
+                logger.debug("Found {} friends for FacebookUser {}", pagedFriends.size(), facebookUserId)
+                val facebookFriends = asScalaBuffer(pagedFriends).map(_.createFacebookFriend(facebookUserId)).toList
+                self.channel ! GetFriendsResponse(
+                        msg,
+                        Right(facebookFriends))
+                logger.debug("Sent {} friends for FacebookUser {}", facebookFriends.length, facebookUserId)
+            } catch {
+                case e: BFE =>
+                    logger.error("Error fetching friends for {}", facebookUserId, e)
+                    self.channel ! GetFriendsResponse(
+                        msg,
+                        Left(FacebookException("Error fetching friends for %s" format facebookUserId, e)))
+            }
+
         case ("post", accessToken: String, facebookId: String, facebookPost: FacebookPost) => {
             logger.debug("Creating new post for {} with access token {}", facebookId, accessToken)
             val result = getFacebookBatcher(accessToken).post(
@@ -192,6 +202,17 @@ class PostData() {
     @BeanProperty var likes: ListContainer[From] = _
     @BeanProperty var comments: ListContainer[Comment] = _
 }
+
+case class Friend(
+        id: String,
+        name: String) {
+
+    def createFacebookFriend(facebookUserId: String) = new FacebookFriend(
+        facebookUserId,
+        id,
+        name)
+}
+
 
 
 

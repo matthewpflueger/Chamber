@@ -60,17 +60,22 @@ class FacebookServiceActor(
 
         case '_fetchFacebookFriends =>
             val channel = self.channel
-            facebookAccess.getFriends(facebookUser.accessToken, facebookUser.facebookId, facebookUser.id).map[List[FacebookFriend]] {
-                facebookFriends: List[FacebookFriend] =>
-                    logger.debug("Received from FacebookAccessActor {} FacebookFriends for FacebookUser", facebookFriends.length, facebookUser.id)
-                    channel ! facebookFriends
-                    facebookFriends.foreach { ff =>
-                        facebookFriendDao.insertOrUpdate(ff)
-                    }
-                    logger.debug("Successfully saved list of {} FacebookFriends", facebookFriends.length)
-                    facebookFriends
-            }
+            logger.debug("Fetching friends for FacebookUser {}", facebookUser.id)
+            facebookAccess.getFriends(facebookUser.accessToken, facebookUser.facebookId, facebookUser.id)
+                .onComplete(_.value.get.fold(channel ! _, _ match {
+                    case msg @ GetFriendsResponse(_, Right(facebookFriends)) =>
+                        logger.debug("Received from FacebookAccessActor {} FacebookFriends for FacebookUser {}",
+                                facebookFriends.length,
+                                facebookUser.id)
+                        channel ! msg
+                        facebookFriends.foreach(facebookFriendDao.insertOrUpdate(_))
+                        logger.debug("Successfully saved list of {} FacebookFriends", facebookFriends.length)
+                        facebookFriends
 
+                    case msg @ GetFriendsResponse(_, Left(e)) =>
+                        logger.debug("Received error response for fetching friends for FacebookUser {}", facebookUser.id)
+                        channel ! msg
+                }))
     }
 
 

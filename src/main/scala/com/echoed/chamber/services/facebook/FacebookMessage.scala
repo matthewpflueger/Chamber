@@ -1,8 +1,8 @@
 package com.echoed.chamber.services.facebook
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.{FacebookLike, FacebookComment, FacebookPost, RetailerUser}
 import com.echoed.chamber.domain.views.FacebookPostData
+import com.echoed.chamber.domain._
 
 
 sealed trait FacebookMessage extends Message
@@ -18,5 +18,10 @@ case class GetPostDataResponse(message: GetPostData, value: Either[FE, FacebookP
         extends FM
         with RM[FacebookPostData, GetPostData, FE]
 
+
+case class GetFriends(accessToken: String, facebookId: String, facebookUserId: String) extends FM
+case class GetFriendsResponse(message: GetFriends, value: Either[FE, List[FacebookFriend]])
+        extends FM
+        with RM[List[FacebookFriend], GetFriends, FE]
 
 
