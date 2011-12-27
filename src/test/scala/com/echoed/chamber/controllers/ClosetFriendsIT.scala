@@ -46,23 +46,20 @@ class ClosetFriendsIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
     } ensuring (_ == true, "Missing parameters")
 
 
-    val echoedUser = dataCreator.echoedUser.copy(twitterUserId = null)
-    val facebookUser = dataCreator.facebookUser
+    var echoedUser = dataCreator.echoedUser
     var echoedUsers = Buffer.empty[(FacebookUser, EchoedUser)]
 
     def cleanup() {
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
         echoedFriendDao.deleteByEchoedUserId(echoedUser.id)
-        facebookUserDao.deleteByEmail(facebookUser.email)
         dataCreator.cleanupEchoedUsers(echoedUsers)
     }
 
     override protected def beforeAll() {
         cleanup()
-        echoedUserDao.insert(echoedUser)
-        facebookUserDao.insertOrUpdate(facebookUser)
         echoedUsers = dataCreator.generateEchoedUsers
+        echoedUser = echoedUserDao.findByEmail(dataCreator.echoedUser.email)
     }
 
     override protected def afterAll() = cleanup()
