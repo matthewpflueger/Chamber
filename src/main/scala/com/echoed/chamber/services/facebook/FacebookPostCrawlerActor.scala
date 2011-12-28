@@ -12,8 +12,6 @@ import java.util.concurrent.{Future, TimeUnit}
 import akka.dispatch.CompletableFuture
 
 
-case object Crawl
-
 class FacebookPostCrawlerActor extends Actor {
 
 
