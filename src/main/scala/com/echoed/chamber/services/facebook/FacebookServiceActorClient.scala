@@ -2,9 +2,12 @@ package com.echoed.chamber.services.facebook
 
 import akka.actor.ActorRef
 import com.echoed.chamber.domain._
+import com.echoed.chamber.services.ActorClient
 
 
-class FacebookServiceActorClient(facebookServiceActor: ActorRef) extends FacebookService {
+class FacebookServiceActorClient(facebookServiceActor: ActorRef) extends FacebookService with ActorClient {
+
+    def actorRef = facebookServiceActor
 
     def getFacebookUser =
             (facebookServiceActor ? "facebookUser").mapTo[FacebookUser]
