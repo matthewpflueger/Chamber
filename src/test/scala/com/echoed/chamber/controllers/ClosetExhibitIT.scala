@@ -9,15 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import scala.reflect.BeanProperty
 import com.echoed.chamber.dao.{EchoDao, EchoedUserDao}
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import java.util.Properties
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.net.URL
 import com.echoed.util.ScalaObjectMapper
 import com.echoed.chamber.util.DataCreator
 import org.codehaus.jackson.`type`.TypeReference
-import java.util.{List => JList}
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
+import java.util.{UUID, Properties, List => JList}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -41,8 +40,8 @@ class ClosetExhibitIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
     } ensuring (_ == true, "Missing parameters")
 
 
-    var echoedUser = dataCreator.echoedUser.copy(facebookUserId = null, twitterUserId = null)
-    var echoes = dataCreator.echoes
+    var echoedUser = dataCreator.echoedUser.copy(id = UUID.randomUUID.toString, facebookUserId = null, twitterUserId = null)
+    var echoes = dataCreator.echoes.map(_.copy(echoedUserId = echoedUser.id))
 
     def cleanup() {
         echoDao.deleteByRetailerId(echoes(0).retailerId)
@@ -53,7 +52,7 @@ class ClosetExhibitIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
     override protected def beforeAll() {
         cleanup
         echoedUserDao.insert(echoedUser)
-        dataCreator.echoes.foreach(echoDao.insert(_))
+        echoes.foreach(echoDao.insert(_))
     }
 
     override protected def afterAll() = cleanup()
