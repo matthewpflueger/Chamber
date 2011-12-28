@@ -89,11 +89,11 @@
                                 </bean>
                             </property>
 
-                            <property name="eventListeners">
-                                <util:list>
-                                    <bean class="com.echoed.chamber.Initializer" />
-                                </util:list>
-                            </property>
+                            <!--<property name="eventListeners">-->
+                                <!--<util:list>-->
+                                    <!--<bean class="com.echoed.chamber.Initializer" />-->
+                                <!--</util:list>-->
+                            <!--</property>-->
 
                             <property name="servletHandler">
                                 <bean class="org.eclipse.jetty.servlet.ServletHandler">

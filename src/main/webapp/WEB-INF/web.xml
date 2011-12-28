@@ -6,9 +6,9 @@
 
 	<description>Echoed</description>
 
-    <listener>
-        <listener-class>com.echoed.chamber.Initializer</listener-class>
-    </listener>
+    <!--<listener>-->
+        <!--<listener-class>com.echoed.chamber.Initializer</listener-class>-->
+    <!--</listener>-->
 
     <servlet>
         <servlet-name>dispatcher</servlet-name>
@@ -23,5 +23,5 @@
         <servlet-name>dispatcher</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
-    
+
 </web-app>
