@@ -54,7 +54,7 @@ Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
         _.bindAll(this, 'summary', 'rewards', 'settings', 'reports');
         this.page = null;
-        this.subNav = null;
+        //this.subNav = null;
         this.EvAg = options.EvAg;
     },
     routes:{
@@ -67,73 +67,27 @@ Echoed.Router = Backbone.Router.extend({
         "reports/:report/:id" : "reports"
     },
     summary: function() {
-        var pageView = new Echoed.Views.Pages.Summary({EvAg: this.EvAg});
-        if(this.page != "summary"){
-            this.EvAg.trigger('page/change', {page: 'summary'});
-            this.EvAg.trigger('title/change',{title: 'Summary'});
-            this.page ="summary";
-        }
-        this.subNav = "";
+        if(this.page != "summary")
+            var pageView = new Echoed.Views.Pages.Summary({EvAg: this.EvAg});
+
+        this.page ="summary";
     },
     rewards: function() {
-        var pageView = new Echoed.Views.Pages.Rewards({EvAg: this.EvAg});
-        if(this.page != "rewards"){
-            options = {
-                page: 'rewards',
-                subNav: [
-                    {
-                        href:'#rewards/open',
-                        id: 'open',
-                        text: 'Open Echoes'
-                    },
-                    {
-                        href:'#rewards/closed',
-                        id: 'closed',
-                        text: 'Processed Echoes'
-                    }
-                ]
-
-            };
-            this.EvAg.trigger('page/change',options);
-            this.page = "rewards";
-        }
-        this.EvAg.trigger('title/change',{title: 'Rewards'});
+        if(this.page != "rewards")
+            var pageView = new Echoed.Views.Pages.Rewards({EvAg: this.EvAg});
+        this.page = "rewards";
     },
     settings: function() {
-        var pageView = new Echoed.Views.Pages.Settings({EvAg: this.EvAg});
-        if(this.page != "settings"){
-            this.EvAg.trigger('page/change',{page: 'settings'});
-            this.page = "settings";
-        }
-        this.EvAg.trigger('title/change',{title: 'Settings'});
+        if(this.page != "settings")
+            var pageView = new Echoed.Views.Pages.Settings({EvAg: this.EvAg});
+        this.page = "settings";
     },
     reports: function(report, id) {
-        var pageView = new Echoed.Views.Pages.Reports({EvAg: this.EvAg,report: report,reportId: id});
-        if(this.page != "reports"){
-            this.EvAg.trigger('page/change',
-                    {
-                        page: 'reports',
-                        subNav: [
-                            {
-                                href: '#reports/customers',
-                                id:   'customers',
-                                text: 'Customers'
-                            },
-                            {
-                                href: '#reports/products',
-                                id:   'products',
-                                text: 'Products'
-                            }
-                        ]
-                    }
-            );
-            this.page="reports";
-        }
-        if(this.subNav != report ){
-                this.EvAg.trigger('subnav/change',{subnav: report});
-                this.subNav = report;
-        }
-        this.EvAg.trigger('title/change',{title: 'Reports'});
+        var newPage = "reports/" + report + "/" + id;
+        if(this.page != newPage)
+            var pageView = new Echoed.Views.Pages.Reports({EvAg: this.EvAg,report: report,reportId: id});
+        this.EvAg.trigger('subnav/change',{subnav: report});
+        this.page= newPage;
     }
 });
 
@@ -141,46 +95,65 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
     el: '#content',
     initialize: function(options) {
         _.bindAll(this, 'render');
+        this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.report = options.report;
         this.reportId = options.reportId;
+        this.EvAg.trigger('title/change',{title: 'Reports'});
+        this.EvAg.trigger('page/change',
+                {
+                    page: 'reports',
+                    subNav: [
+                        {
+                            href: '#reports/customers',
+                            id:   'customers',
+                            text: 'Customers'
+                        },
+                        {
+                            href: '#reports/products',
+                            id:   'products',
+                            text: 'Products'
+                        }
+                    ]
+                }
+        );
         this.render();
     },
     render: function() {
+        var self = this;
+        var template = null;
         switch (this.report) {
             case "customers":
-                if(this.reportId){
-                    var template = _.template($('#template-view-reports-customers').html());
-                    $(this.el).hide().html(template).fadeIn();
-                }
-                else{
-                    var holder = $(this.el);
-                    var template = _.template($('#template-views-reports-table').html());
 
-                    $(this.el).hide().html(template).fadeIn(function(){
+                if(self.reportId)
+                    template = _.template($('#template-view-reports-customers').html());
+                else
+                    template = _.template($('#template-views-reports-table').html());
+
+                self.element.hide().html(template).fadeIn(function(){
+                    if(!self.reportId){
                         var customerTable = new Echoed.Views.Components.Table({EvAg: this.EvAg, el: "#table-container", report: "customers"});
-                    });
-                }
+                    }
+                });
                 break;
             case "products":
+                if(this.reportId)
+                    template = _.template($('#template-view-reports-products').html());
+                else
+                    template = _.template($('#template-views-reports-table').html());
 
-                if(this.reportId){
-                    var template = _.template($('#template-view-reports-products').html());
-                    $(this.el).hide().html(template).fadeIn(function(){
+                self.element.hide().html(template).fadeIn(function(){
+                    if(self.reportId){
                         var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart'});
-                    });
-                }
-                else{
-                    var holder = $(this.el);
-                    var template = _.template($('#template-views-reports-table').html());
-                    $(this.el).hide().html(template).fadeIn(function(){
-                        holder.find(".full").attr("id","product-table-container")
+                    }
+                    else{
+                        self.element.find(".full").attr("id","product-table-container");
                         var reportTable = new Echoed.Views.Components.Table({EvAg: this.EvAg, el: '#table-container', report: "products"});
-                    });
-                }
+                    }
+                });
                 break;
             default:
-                $(this.el).html('');
+                self.element.html('');
                 break;
         }
         return this;
@@ -192,9 +165,9 @@ Echoed.Views.Pages.Settings = Backbone.View.extend({
     el: '#content',
     initialize: function(options) {
         _.bindAll(this);
-
         this.EvAg = options.EvAg;
-
+        this.EvAg.trigger('title/change',{title: 'Settings'});
+        this.EvAg.trigger('page/change',{page: 'settings'});
         this.render();
     },
     render: function() {
@@ -205,11 +178,28 @@ Echoed.Views.Pages.Settings = Backbone.View.extend({
 });
 
 Echoed.Views.Pages.Rewards = Backbone.View.extend({
-    //el: '#content',
     initialize: function(options) {
         _.bindAll(this);
         this.el = $('#content');
         this.EvAg = options.EvAg;
+        options = {
+            page: 'rewards',
+            subNav: [
+                {
+                    href:'#rewards/open',
+                    id: 'open',
+                    text: 'Open Echoes'
+                },
+                {
+                    href:'#rewards/closed',
+                    id: 'closed',
+                    text: 'Processed Echoes'
+                }
+            ]
+
+        };
+        this.EvAg.trigger('title/change',{title: 'Rewards'});
+        this.EvAg.trigger('page/change',options);
         this.render();
     },
     render: function() {
@@ -224,11 +214,14 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this);
         this.EvAg = options.EvAg;
+        this.EvAg.trigger('title/change',{title: 'Summary'});
+
+
+        this.EvAg.trigger('page/change', {page: 'summary'});
         this.render();
     },
     render: function() {
         var template = _.template($('#template-view-summary').html());
-        var elementHolder= this;
         $(this.el).hide().html(template).fadeIn(function() {
             $('#ss-likes').hide().html(20).fadeIn();
             $('#ss-views').hide().html(20).fadeIn();
@@ -249,17 +242,17 @@ Echoed.Views.Components.Title = Backbone.View.extend({
         _.bindAll(this,'changeTitle');
         this.EvAg = options.EvAg;
         this.EvAg.bind('title/change',this.changeTitle);
-    },
-    render: function(){
+        this.element = $(this.el);
     },
     changeTitle: function(options){
-        $(this.el).html(options.title);
+        this.element.html(options.title);
     }
 });
 
 Echoed.Views.Components.Table = Backbone.View.extend({
     initialize: function(options){
         this.el = options.el;
+        this.element  = $(this.el);
         this.render(options.report);
     },
     events:{
@@ -268,14 +261,15 @@ Echoed.Views.Components.Table = Backbone.View.extend({
         "mouseleave tr": "removeHighlight"
     },
     render: function(report){
+        var self = this;
         switch(report){
             case 'customers':
                 var template = _.template($('#template-components-table-customers').html());
-                $(this.el).hide().html(template).fadeIn();
+                self.element.hide().html(template).fadeIn();
                 break;
             case 'products':
                 var template = _.template($('#template-components-table-products').html());
-                $(this.el).hide().html(template).fadeIn();
+                self.element.hide().html(template).fadeIn();
                     break;
         }
         return this;
@@ -301,12 +295,14 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
 Echoed.Views.Components.ProductSummary = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this);
+        this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.render();
     },
     render: function() {
+        var self = this;
         var template = _.template($('#template-view-component-productsummary').html());
-        $(this.el).hide().html(template).fadeIn(function() {
+        self.element.hide().html(template).fadeIn(function() {
         });
     }
 });
@@ -323,11 +319,13 @@ Echoed.Views.Components.RewardTable = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this);
         this.EvAg = options.EvAg;
+        this.element = $(this.el);
         this.render();
     },
     render: function() {
+        var self = this;
         var template = _.template($("#template-view-component-rewardtable").html());
-        $(this.el).html(template);
+        self.element.html(template);
         return this;
     }
 });
@@ -336,17 +334,14 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
     el: '#header-nav',
     initialize: function(options) {
         _.bindAll(this, 'pageChange');
-
+        this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind('page/change', this.pageChange);
         this.currentPage = null;
     },
-    render: function() {
-    },
     pageChange: function(options) {
         if (this.currentPage != options.page) {
-            if (this.currentPage)
-                $('#' + this.currentPage + "_nav").removeClass("current");
+            this.element.find(".current").removeClass("current");
             $('#' + options.page + "_nav").addClass("current");
             this.currentPage = options.page;
         }
@@ -356,9 +351,8 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 Echoed.Views.Components.SubNav = Backbone.View.extend({
     el: '#sub-nav',
     initialize: function(options) {
-
         _.bindAll(this, 'pageChange', 'slideDown', 'slideUp', 'select');
-
+        this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind('page/change', this.pageChange);
         this.EvAg.bind('subnav/change', this.select);
@@ -368,28 +362,27 @@ Echoed.Views.Components.SubNav = Backbone.View.extend({
         return this;
     },
     select: function(options) {
-        $(this.el).find(".current").removeClass("current");
+        this.element.find(".current").removeClass("current");
         $("#subnav-" + options.subnav).addClass("current");
-
     },
     pageChange: function(options) {
-        var element = $(this.el);
-        element.html('');
+        var self = this;
+        this.element.html('');
         if (options.subNav) {
             $(options.subNav).each(function(index, item) {
-                $('<a></a>').attr("id", "subnav-" + item.id).attr('href', item.href).html(item.text).appendTo(element);
+                $('<a></a>').attr("id", "subnav-" + item.id).attr('href', item.href).html(item.text).appendTo(self.element);
             });
-            this.slideDown();
+            self.slideDown();
         }
         else {
-            this.slideUp();
+            self.slideUp();
         }
     },
     slideDown: function() {
-        $(this.el).slideDown('fast');
+        this.element.slideDown('fast');
     },
     slideUp: function() {
-        $(this.el).slideUp('fast');
+        this.element.slideUp('fast');
     }
 });
 
@@ -494,13 +487,6 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
     }
 });
 
-Echoed.Views.Components.Tooltip = Backbone.View.extend({
-    initialize: function(){
-    },
-    render: function(){
-    }
-});
-
 Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this,'addRow');
@@ -518,7 +504,7 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
         $(this.el).html(template);
         this.addRow('');
     },
-    addRow:function(data){
+    addRow: function(data){
         var tr = $('<tr></tr>').appendTo($(this.el));
         $('<td></td>').html('Shirt').appendTo(tr);
         $('<td></td>').html('123').appendTo(tr);
@@ -536,8 +522,8 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
     click: function(e){
         document.location.href = $(e.target).parent().attr("href");
     }
+});
 
-})
 </script>
 <script type="text/template" id="template-views-table-topproducts">
     <table class="top-products-table">

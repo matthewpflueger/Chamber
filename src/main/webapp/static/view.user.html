@@ -131,7 +131,12 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
         var exhibit = $('#exhibit');
 
-        exhibit.isotope({filter: self.filter});
+        exhibit.isotope({
+            masonry: {
+                columnWidth: 240
+            },
+            filter: self.filter
+        });
 
         this.EvAg.trigger("category/add","","All");
         $.ajax({
@@ -157,12 +162,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var productDiv = $('<div></div>');
         var productComponent = new Echoed.Views.Components.Product({el: productDiv, model:productModel});
         productDiv.hide().appendTo(exhibit);
-
         exhibit.imagesLoaded(function(){
             exhibit.isotope('insert',productDiv);
             productDiv.show();
         });
-
+        return productDiv;
     }
 });
 

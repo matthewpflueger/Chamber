@@ -16,7 +16,7 @@ trait EchoedUserService {
 
     def echoedUser: Option[EchoedUser] = FutureHelper.get(getEchoedUser _)
 
-    def getEchoedUser(): Future[EchoedUser]
+    def getEchoedUser: Future[EchoedUser]
 
 
     def assignTwitterService(twitterService:TwitterService): Future[TwitterService]
@@ -24,14 +24,14 @@ trait EchoedUserService {
 
     // TWITTER RELATED FUNCTIONS
     //def updateTwitterStatus(status:String): Future[TwitterStatus]
-    def getTwitterFollowers(): Future[Array[TwitterFollower]]
+    def getTwitterFollowers: Future[Array[TwitterFollower]]
 
     def echoToFacebook(echo: Echo, message: String): Future[FacebookPost]
     def echoToTwitter(echo:Echo,  message:String): Future[TwitterStatus]
 
-    def getCloset(): Future[Closet]
+    def getCloset: Future[GetExhibitResponse]
 
-    def getFeed(): Future[Feed]
+    def getFeed: Future[GetFeedResponse]
     
     def getFriendCloset(echoedFriendId: String): Future[Closet]
 

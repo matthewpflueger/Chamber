@@ -89,15 +89,15 @@ class EchoedUserServiceActor(
                 self.channel ! None
             }
 
-        case "feed" =>
+        case msg: GetFeed =>
             logger.debug("Attempting to retrieve Feed for EchoedUserId {}", echoedUser.id)
-            self.channel ! feedDao.findByEchoedUserId(echoedUser.id)
+            self.channel ! GetFeedResponse(msg, Right(feedDao.findByEchoedUserId(echoedUser.id)))
 
-        case "closet" =>
+        case msg: GetExhibit =>
             val channel = self.channel
             Future {
                 val closet = closetDao.findByEchoedUserId(echoedUser.id)
-                channel ! closet.copy(totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id))
+                channel ! GetExhibitResponse(msg,Right(closet.copy(totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id))))
             }
 
         case 'friends =>
