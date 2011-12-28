@@ -24,7 +24,7 @@ class CookieManagerSimple extends CookieManager {
 
     def addCookie(httpServletResponse: HttpServletResponse, name: String, value: String) {
         val cookie = createCookie(name, value)
-        logger.debug("Adding cookie {}", cookie)
+        logger.debug("Adding cookie {} = {}", cookie.getName, cookie.getValue)
         httpServletResponse.addCookie(cookie)
     }
 
