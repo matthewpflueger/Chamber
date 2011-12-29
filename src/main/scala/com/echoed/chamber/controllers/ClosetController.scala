@@ -158,9 +158,16 @@ class ClosetController {
             continuation.suspend(httpServletResponse)
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
-                echoedUserService.friends.map { friends =>
-                    continuation.setAttribute("friends", friends)
-                    continuation.resume()
+//                echoedUserService.friends.map { friends =>
+//                    continuation.setAttribute("friends", friends)
+//                    continuation.resume()
+//                }
+                echoedUserService.getFriends.onResult{
+                    case GetEchoedFriendsResponse(_,Left(error)) =>
+                    case GetEchoedFriendsResponse(_,Right(friends)) =>
+                        continuation.setAttribute("friends", friends)
+                        continuation.resume()
+                    case unknown =>    throw new RuntimeException("Unknown Response %s" format unknown)
                 }
             }
             continuation.undispatch()
@@ -184,10 +191,11 @@ class ClosetController {
             
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map {
                 echoedUserService =>
-                    echoedUserService.getFriendCloset(echoedFriendId).map{
-                        closet =>
+                    echoedUserService.getFriendCloset(echoedFriendId).onResult{
+                        case GetFriendExhibitResponse(_,Left(error)) =>
+                        case GetFriendExhibitResponse(_,Right(closet)) =>
                             continuation.setAttribute("closet",closet.echoes)
-                            continuation.resume
+                            continuation.resume()
                     }
             }
             

@@ -101,6 +101,12 @@ class EchoedUserServiceActor(
                 self.channel ! None
             }
 
+        case msg: GetFriendExhibit =>
+            val echoedFriendUserId = msg.echoedFriendUserId
+            val echoedUserId = echoedUser.id
+            val echoedFriend = Option(echoedFriendDao.findFriendByEchoedUserId(echoedUserId,echoedFriendUserId)).getOrElse(null)
+            self.channel ! GetFriendExhibitResponse(msg,Right(closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)))
+            
         case msg: GetFeed =>
             logger.debug("Attempting to retrieve Feed for EchoedUserId {}", echoedUser.id)
             self.channel ! GetFeedResponse(msg, Right(feedDao.findByEchoedUserId(echoedUser.id)))
@@ -110,6 +116,13 @@ class EchoedUserServiceActor(
             Future {
                 val closet = closetDao.findByEchoedUserId(echoedUser.id)
                 channel ! GetExhibitResponse(msg,Right(closet.copy(totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id))))
+            }
+
+        case msg: GetEchoedFriends =>
+            val channel = self.channel
+            Future{
+                val echoedFriends = asScalaBuffer(echoedFriendDao.findByEchoedUserId(echoedUser.id)).toList
+                channel ! GetEchoedFriendsResponse(msg,Right(echoedFriends))
             }
 
         case 'friends =>

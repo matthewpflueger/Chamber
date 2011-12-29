@@ -39,7 +39,11 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     
     def getFeed = (echoedUserServiceActor ? GetFeed()).mapTo[GetFeedResponse]
     
-    def getFriendCloset(echoedFriendId: String) = (echoedUserServiceActor ? ("getFriendCloset",echoedFriendId)).mapTo[Closet]
+    //def getFriendCloset(echoedFriendId: String) = (echoedUserServiceActor ? ("getFriendCloset",echoedFriendId)).mapTo[Closet]
+
+    def getFriendCloset(echoedFriendId: String) = (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId)).mapTo[GetFriendExhibitResponse]
+    
+    def getFriends = (echoedUserServiceActor ? GetEchoedFriends()).mapTo[GetEchoedFriendsResponse]
 
     def friends = (echoedUserServiceActor ? 'friends).mapTo[List[EchoedFriend]]
 }
