@@ -58,11 +58,31 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
         cleanup
         echoedUserDao.insert(echoedUser)
         facebookUserDao.insertOrUpdate(facebookUser)
-        echoes.foreach(echoDao.insert(_))
+
     }
 
     override def afterAll = cleanup
 
+
+    def navigateToCloset() = {
+        val cookie = new Cookie.Builder("echoedUserId", echoedUser.id)
+                .domain(".echoed.com")
+                .path("/")
+                .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
+                .build()
+
+        webDriver.navigate().to("http://www.echoed.com")
+        webDriver.manage().deleteAllCookies()
+        webDriver.manage().addCookie(cookie)
+        webDriver.navigate().to(closetUrl)
+
+
+        webDriver.getTitle should be ("Closet")
+
+        val pageSource = webDriver.getPageSource
+        pageSource should include(echoedUser.name)
+        pageSource
+    }
 
     feature("A user can view their past echoes by logging into echoed.com via a social platform") {
 
@@ -86,7 +106,17 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             pending
         }
 
+        scenario("a known user with no echoes navigates to echoed.com/closet and is shown their empty closet", IntegrationTest) {
+            given("a request to see their closet")
+            when("there is a known user with no echoes")
+            then("then show the user their closet")
+            and("and indicate they have no echoes")
+            val pageSource = navigateToCloset()
+            pageSource should include("Rewards: 0")
+        }
+
         scenario("a known user navigates to echoed.com/closet and is shown their closet", IntegrationTest) {
+            echoes.foreach(echoDao.insert(_))
 
             val closet = closetDao.findByEchoedUserId(echoedUser.id)
             closet should not be null
@@ -98,21 +128,8 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
             given("a request to echoed.com/closet")
             when("there is a known user")
-            val cookie = new Cookie.Builder("echoedUserId", echoedUser.id)
-                    .domain(".echoed.com")
-                    .path("/")
-                    .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
-                    .build()
-
-            webDriver.navigate().to("http://www.echoed.com")
-            webDriver.manage().addCookie(cookie)
-            webDriver.navigate().to(closetUrl)
-
             then("show the user their closet")
-            webDriver.getTitle should be ("Closet")
-
-            val pageSource = webDriver.getPageSource
-            pageSource should include(echoedUser.name)
+            val pageSource = navigateToCloset()
             pageSource should include(echoes.map(_.credit).sum.round.toString)
             //TODO potential for pre-caching but until then...  echoes.foreach(echo => pageSource should include(echo.imageUrl))
         }

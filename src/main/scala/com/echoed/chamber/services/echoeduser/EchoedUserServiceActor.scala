@@ -114,15 +114,18 @@ class EchoedUserServiceActor(
         case msg: GetExhibit =>
             val channel = self.channel
             Future {
+                logger.debug("Fetching exhibit for EchoedUser {}", echoedUser.id)
                 val closet = closetDao.findByEchoedUserId(echoedUser.id)
-                channel ! GetExhibitResponse(msg,Right(closet.copy(totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id))))
+                val credit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
+                channel ! GetExhibitResponse(msg, Right(closet.copy(totalCredit = credit)))
+                logger.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
             }
 
         case msg: GetEchoedFriends =>
             val channel = self.channel
-            Future{
+            Future {
                 val echoedFriends = asScalaBuffer(echoedFriendDao.findByEchoedUserId(echoedUser.id)).toList
-                channel ! GetEchoedFriendsResponse(msg,Right(echoedFriends))
+                channel ! GetEchoedFriendsResponse(msg, Right(echoedFriends))
             }
 
         case 'friends =>
