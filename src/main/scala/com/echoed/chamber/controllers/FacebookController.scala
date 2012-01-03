@@ -6,7 +6,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.facebook.{FacebookService, FacebookServiceLocator}
-import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator,LocateWithFacebookServiceResponse,LocateWithIdResponse}
+import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator,LocateWithFacebookServiceResponse,LocateWithIdResponse,GetEchoedUserResponse}
 import com.echoed.util.CookieManager
 import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
 import com.echoed.chamber.services.echo.EchoService
@@ -62,32 +62,44 @@ class FacebookController {
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
                     .onResult {
                         case LocateWithIdResponse(_,Left(error)) =>
+                            logger.error("Error getting EchoedUserService {}", error)
                         case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                            val echoedUser = echoedUserService.echoedUser.get
-                            if(echoedUser.facebookUserId == null){
-                                //Check to make sure there is no facebook user attached
-                                logger.debug("No Existing Facebook User Id ")
-                                val futureFacebookService = facebookServiceLocator.getFacebookServiceWithCode(code,queryString)
-                                
-                                futureFacebookService
-                                    .onResult{
-                                        case facebookService:FacebookService =>
-                                            logger.debug("Attaching Facebook Service {} to EchoedUserService {} ", facebookService,echoedUserService)
-                                            val futureFs = echoedUserService.assignFacebookService(facebookService)
-                                            futureFs.onResult({
-                                                case fs:FacebookService =>
-                                                    val modelAndView = new ModelAndView(redirectView);
-                                                    continuation.setAttribute("modelAndView", modelAndView)
-                                                    continuation.resume
-                                            })
+                            //val echoedUser = echoedUserService.echoedUser.get
+                            echoedUserService.getEchoedUser.onResult{
+                                case GetEchoedUserResponse(_,Left(error)) =>
+                                    logger.error("Error Getting EchoedUser: {}", error)
+                                    // NEED TO ATTACH ERROR MODEL AND VIEW
+                                case GetEchoedUserResponse(_,Right(echoedUser)) =>
+                                    if(echoedUser.facebookUserId == null){
+                                        //Check to make sure there is no facebook user attached
+                                        logger.debug("No Existing Facebook User Id ")
+                                        val futureFacebookService = facebookServiceLocator.getFacebookServiceWithCode(code,queryString)
 
-                                }
+                                        futureFacebookService
+                                            .onResult{
+                                                case facebookService:FacebookService =>
+                                                    logger.debug("Attaching Facebook Service {} to EchoedUserService {} ", facebookService,echoedUserService)
+                                                    val futureFs = echoedUserService.assignFacebookService(facebookService)
+                                                    futureFs.onResult({
+                                                        case fs:FacebookService =>
+                                                            val modelAndView = new ModelAndView(redirectView);
+                                                            continuation.setAttribute("modelAndView", modelAndView)
+                                                            continuation.resume
+                                                    })
+
+                                        }
+                                    }
+                                    else{
+                                        logger.debug("Facebook User Id already attached {}", echoedUser.facebookUserId)
+                                        val modelAndView = new ModelAndView(redirectView);
+                                        continuation.setAttribute("modelAndView",modelAndView)
+                                        continuation.resume
+                                    }
                             }
-                            else{
-                                logger.debug("Facebook User Id already attached {}", echoedUser.facebookUserId)
-                                val modelAndView = new ModelAndView(redirectView);
-                                continuation.setAttribute("modelAndView",modelAndView)
-                                continuation.resume
+                            .onException{
+                                case e=>
+                                    logger.error("Exception thrown Getting EchoedUser: {}",e )
+                                    // NEED TO ATTACH ERROR MODEL AND VIEW
                             }
             }
             continuation.undispatch()
@@ -128,38 +140,34 @@ class FacebookController {
                         case facebookService: FacebookService =>
                             logger.debug("Received FacebookService with code {}", code)
                             logger.debug("Requesting EchoedUserService with FacebookService with code {}", code)
-                            //val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithFacebookService(facebookService)
-                            //futureEchoedUserService
                             echoedUserServiceLocator.getEchoedUserServiceWithFacebookService(facebookService)
                                     .onResult {
-                                        //case s: EchoedUserService =>
-                                        case LocateWithFacebookServiceResponse(_,Right(s))=>
-                                            logger.debug("Received EchoedUserService using FacebookService with code {}", code)
-                                            continuation.setAttribute("modelAndView",
-                                                try {
-                                                    val echoedUser = s.echoedUser.get
-                                                    cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
-                                                    val redirectView = "redirect:http://v1-api.echoed.com/" + redirect;
-                                                    logger.debug("Redirecting to View: {} ", redirectView);
-                                                    val modelAndView = new ModelAndView(redirectView);
-                                                    modelAndView
-
-                                                    //modelAndView.addAllObjects(JavaConversions.mapAsJavaMap[String, String](
-                                                    //        echoPossibility.asMap))
-                                                    //modelAndView.addObject("echoedUserId", echoedUser.id)
-                                                } catch {
-                                                    case n: NoSuchElementException =>
-                                                        logger.error("Error getting EchoedUser {}", n)
-                                                        new ModelAndView(facebookLoginErrorView)
-                                                    case e =>
-                                                        //logger.debug("No EchoPossibility with id {}", echoPossibilityId)
-                                                        new ModelAndView(dashboardView)
-                                                })
-                                            continuation.resume
                                         case LocateWithFacebookServiceResponse(_,Left(e)) =>
                                             logger.error("Unexpected result {}", e)
                                             continuation.setAttribute("modelAndView", new ModelAndView(facebookLoginErrorView))
                                             continuation.resume
+                                        case LocateWithFacebookServiceResponse(_,Right(s))=>
+                                            logger.debug("Received EchoedUserService using FacebookService with code {}", code)
+                                            var redirectView: String = null
+                                            s.getEchoedUser.onResult{
+                                                case GetEchoedUserResponse(_,Left(error)) =>
+                                                    logger.error("Error retrieving EchoedUser: {}", error)
+                                                    continuation.setAttribute("modelAndView", new ModelAndView(facebookLoginErrorView))
+                                                    continuation.resume()
+                                                case GetEchoedUserResponse(_,Right(echoedUser))=>
+                                                    cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
+                                                    redirectView = "redirect:http://v1-api.echoed.com/" + redirect;
+                                                    logger.debug("Redirecting to View: {} ", redirectView);
+                                                    val modelAndView = new ModelAndView(redirectView);
+                                                    continuation.setAttribute("modelAndView", modelAndView)
+                                                    continuation.resume()
+                                            }
+                                            .onException{
+                                                case e =>
+                                                    logger.error("Exception thrown getting EchoedUser: {]", e)
+                                                    continuation.setAttribute("modelAndView", new ModelAndView(facebookLoginErrorView))
+                                                    continuation.resume
+                                            }
                                     }
                                     .onException {
                                         case e =>

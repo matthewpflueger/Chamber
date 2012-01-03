@@ -7,7 +7,7 @@ import com.echoed.chamber.services.facebook.{FacebookService}
 import com.echoed.chamber.services.twitter.{TwitterService}
 
 sealed trait EchoedUserMessage extends Message
-sealed case class EchoedUserException(message: String, cause: Throwable = null) extends EchoedException(message,cause)
+sealed case class EchoedUserException(message: String = "", cause: Throwable = null) extends EchoedException(message,cause)
 
 import com.echoed.chamber.services.echoeduser.{EchoedUserMessage => EUM}
 import com.echoed.chamber.services.echoeduser.{EchoedUserException => EUE}
@@ -15,6 +15,10 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserException => EUE}
 case class GetFriendExhibit(echoedFriendUserId: String) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EchoedUserException, Closet])
     extends EUM with RM[Closet, GetFriendExhibit, EUE]
+
+case class GetEchoedUser() extends EUM
+case class GetEchoedUserResponse(message: GetEchoedUser, value: Either[EchoedUserException, EchoedUser])
+    extends EUM with RM[EchoedUser, GetEchoedUser,  EUE]
 
 case class GetExhibit() extends EUM
 case class GetExhibitResponse(message: GetExhibit, value: Either[EchoedUserException, Closet])

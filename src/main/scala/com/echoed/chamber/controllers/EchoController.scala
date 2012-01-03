@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.chamber.services.echoeduser.{EchoedUserServiceLocator,LocateWithIdResponse}
+import com.echoed.chamber.services.echoeduser.{EchoedUserServiceLocator,LocateWithIdResponse,GetEchoedUserResponse}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.util.CookieManager
 import akka.dispatch.Future
@@ -101,21 +101,29 @@ class EchoController {
                     else{
                         echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).onResult{
                             case LocateWithIdResponse(_,Left(error)) =>
+                                logger.error("Error locating EchoedUserService with error: {}", error)
                             case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                                echoedUserService.getEchoedUser.map { echoedUser =>
-                                    val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
-                                    echoService.recordEchoPossibility(echoPossibility)
-    
-                                    val modelAndView = new ModelAndView(confirmView)
-                                    modelAndView.addObject("echoedUser", echoedUser)
-                                    modelAndView.addObject("echoPossibility", echoPossibility)
-                                    modelAndView.addObject("facebookAddUrl",
-                                        URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login/add?redirect=echo?"), "UTF-8"))
-                                    modelAndView.addObject("twitterAddUrl",
-                                        URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
+                                echoedUserService.getEchoedUser.onResult{
+                                    case GetEchoedUserResponse(_,Left(error)) =>
+                                        logger.error("Error Getting EchoedUser {}",error)
+                                    case GetEchoedUserResponse(_,Right(echoedUser)) =>
+                                        val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
+                                        echoService.recordEchoPossibility(echoPossibility)
+
+                                        val modelAndView = new ModelAndView(confirmView)
+                                        modelAndView.addObject("echoedUser", echoedUser)
+                                        modelAndView.addObject("echoPossibility", echoPossibility)
+                                        modelAndView.addObject("facebookAddUrl",
+                                            URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login/add?redirect=echo?"), "UTF-8"))
+                                        modelAndView.addObject("twitterAddUrl",
+                                            URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
+                                        continuation.setAttribute("modelAndView", modelAndView)
+                                        continuation.resume()
                             }
+                        }
+                        .onException{
+                            case e =>
+                                logger.error("Exception thrown Locating EchoedUserService: {}", e)
                         }
                     }
 
@@ -184,9 +192,7 @@ class EchoController {
             }
             continuation.undispatch()
         })
-
     }
-
 }
 
 

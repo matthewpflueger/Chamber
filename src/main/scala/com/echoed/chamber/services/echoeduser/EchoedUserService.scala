@@ -12,11 +12,12 @@ import com.echoed.chamber.domain.views.Feed
 
 trait EchoedUserService {
 
-    def echoedUserFun: () => Option[EchoedUser] = () => FutureHelper.get(getEchoedUser _)
+    //def echoedUserFun: () => Option[GetEchoedUserResponse] = () => FutureHelper.get(getEchoedUser _)
 
-    def echoedUser: Option[EchoedUser] = FutureHelper.get(getEchoedUser _)
+    //def echoedUser: Option[GetEchoedUserResponse] = FutureHelper.get(getEchoedUser _)
 
-    def getEchoedUser: Future[EchoedUser]
+    //def getEchoedUser: Future[EchoedUser]
+    def getEchoedUser: Future[GetEchoedUserResponse]
 
 
     def assignTwitterService(twitterService:TwitterService): Future[TwitterService]

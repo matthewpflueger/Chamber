@@ -13,7 +13,7 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     private final val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceActorClient])
 
     def getEchoedUser() =
-            (echoedUserServiceActor ? "echoedUser").mapTo[EchoedUser]
+            (echoedUserServiceActor ? GetEchoedUser()).mapTo[GetEchoedUserResponse]
 
     def assignFacebookService(facebookService:FacebookService) =
             (echoedUserServiceActor ? ("assignFacebookService",facebookService)).mapTo[FacebookService]

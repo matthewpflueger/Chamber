@@ -38,7 +38,9 @@ class ClosetController {
             continuation.suspend(httpServletResponse)
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
-                case LocateWithIdResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                case LocateWithIdResponse(_,Left(error)) =>
+                    logger.error("Error Locating EchoedUserService: {}" , error)
+                    throw new RuntimeException("Unknown Response %s" format error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
                     logger.debug("Found EchoedUserService {} ", echoedUserService);
 
@@ -51,7 +53,9 @@ class ClosetController {
                             continuation.resume()
                     }  */
                     echoedUserService.getCloset.onResult{
-                        case GetExhibitResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                        case GetExhibitResponse(_,Left(error)) =>
+                            logger.error("Error Getting Exhibit: {}" , error)
+                            throw new RuntimeException("Unknown Response %s" format error)
                         case GetExhibitResponse(_,Right(closet)) =>
                             val modelAndView = new ModelAndView(closetView)
                             modelAndView.addObject("echoedUser", closet.echoedUser)
@@ -60,9 +64,16 @@ class ClosetController {
                             continuation.setAttribute("modelAndView", modelAndView)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
-                }
+                    }
+                    .onException{
+                        case e=>
+                            logger.error("Exception thrown on Getting Exhibit: {}", e)
+                    }
             }
-
+            .onException{
+                case e =>
+                    logger.error("Exception thrown Locating EchoedUserService: {}" , e)
+            }
             continuation.undispatch()
         })
     }
@@ -92,6 +103,7 @@ class ClosetController {
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error))=>
+                    logger.error("Error locating EchoedUserService: {}", error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
                     echoedUserService.getFeed.onResult{
                         case GetFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
@@ -100,6 +112,10 @@ class ClosetController {
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                 }
+            }
+            .onException{
+                case e =>
+                    logger.error("Exception thrown Locating EchoedUserService: {} ", e)
             }
             continuation.undispatch()
         })
@@ -132,14 +148,25 @@ class ClosetController {
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
+                    logger.error("Error Locating EchoedUserService With Id {} with Error: {}",echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
                     echoedUserService.getCloset.onResult {
-                        case GetExhibitResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                        case GetExhibitResponse(_,Left(error)) =>
+                            logger.error("Error Getting Closet: {}", error)
+                            throw new RuntimeException("Unknown Response %s" format error)
                         case GetExhibitResponse(_,Right(closet)) =>
                             continuation.setAttribute("exhibit", closet.echoes)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
-                }
+                    }
+                    .onException{
+                        case e =>
+                            logger.error("Exception thrown Getting Exhibit: {}", e)
+                    }
+            }
+            .onException{
+                case e=>
+                    logger.error("Exception thrown when Locating EchoedUserService: {}", e)
             }
             continuation.undispatch()
         })
@@ -164,14 +191,24 @@ class ClosetController {
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_, Left(error)) =>
+                    logger.error("Error Locating EchoedUserService with error {}", error)
                 case LocateWithIdResponse(_, Right(echoedUserService)) =>
                     echoedUserService.getFriends.onResult{
                         case GetEchoedFriendsResponse(_,Left(error)) =>
+                            logger.error("Error Getting Friends: {}", error)
                         case GetEchoedFriendsResponse(_,Right(friends)) =>
                             continuation.setAttribute("friends", friends)
                             continuation.resume()
                         case unknown =>    throw new RuntimeException("Unknown Response %s" format unknown)
-                }
+                    }
+                    .onException{
+                        case e=>
+                            logger.error("Exception Thrown Getting Friends: {}" , e)
+                    }
+            }
+            .onException{
+                case e =>
+                    logger.error("Exception thrown Locating EchoedUserService with Exception {}", e)
             }
             continuation.undispatch()
         })
@@ -194,13 +231,23 @@ class ClosetController {
             
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
+                    logger.error("Error Locating EchoedUserService with error {}", error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
                     echoedUserService.getFriendCloset(echoedFriendId).onResult{
                         case GetFriendExhibitResponse(_,Left(error)) =>
+                            logger.error("Error Getting Friend's Closet: {}", error)
                         case GetFriendExhibitResponse(_,Right(closet)) =>
                             continuation.setAttribute("closet",closet.echoes)
                             continuation.resume()
                     }
+                    .onException{
+                        case e=>
+                            logger.error("Exception thrown Getting Friend's Closet {}", e)
+                    }
+            }
+            .onException{
+                case e =>
+                    logger.error("Exception thrown when Locating EchoedUserService: {}", e)
             }
             
             continuation.undispatch()

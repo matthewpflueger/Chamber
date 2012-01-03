@@ -6,9 +6,9 @@ import com.echoed.chamber.services.twitter.TwitterService
 
 trait EchoedUserServiceCreator {
 
-    def createEchoedUserServiceUsingId(id: String): Future[EchoedUserService]
+    def createEchoedUserServiceUsingId(id: String): Future[CreateEchoedUserServiceWithIdResponse]
 
-    def createEchoedUserServiceUsingFacebookService(facebookService: FacebookService): Future[EchoedUserService]
+    def createEchoedUserServiceUsingFacebookService(facebookService: FacebookService): Future[CreateEchoedUserServiceWithFacebookServiceResponse]
 
-    def createEchoedUserServiceUsingTwitterService(twitterService: TwitterService): Future[EchoedUserService]
+    def createEchoedUserServiceUsingTwitterService(twitterService: TwitterService): Future[CreateEchoedUserServiceWithTwitterServiceResponse]
 }

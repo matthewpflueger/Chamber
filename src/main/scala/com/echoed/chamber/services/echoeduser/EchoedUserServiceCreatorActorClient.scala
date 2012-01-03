@@ -10,12 +10,12 @@ class EchoedUserServiceCreatorActorClient extends EchoedUserServiceCreator {
     @BeanProperty var echoedUserServiceCreatorActor: ActorRef = _
 
     def createEchoedUserServiceUsingId(id: String) =
-            (echoedUserServiceCreatorActor ? ("id", id)).mapTo[EchoedUserService]
+            (echoedUserServiceCreatorActor ? (CreateEchoedUserServiceWithId(id))).mapTo[CreateEchoedUserServiceWithIdResponse]
 
     def createEchoedUserServiceUsingFacebookService(facebookService: FacebookService) =
-            (echoedUserServiceCreatorActor ? ("facebookService", facebookService)).mapTo[EchoedUserService]
+            (echoedUserServiceCreatorActor ? (CreateEchoedUserServiceWithFacebookService(facebookService))).mapTo[CreateEchoedUserServiceWithFacebookServiceResponse]
 
     def createEchoedUserServiceUsingTwitterService(twitterService: TwitterService) =
-            (echoedUserServiceCreatorActor ? ("twitterService",twitterService)).mapTo[EchoedUserService]
+            (echoedUserServiceCreatorActor ? (CreateEchoedUserServiceWithTwitterService(twitterService))).mapTo[CreateEchoedUserServiceWithTwitterServiceResponse]
 
 }

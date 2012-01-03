@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import com.echoed.chamber.dao.TwitterUserDao
 import com.echoed.chamber.services.echo.EchoService
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
-import com.echoed.chamber.services.echoeduser.{EchoedUserService,LocateWithIdResponse,LocateWithTwitterServiceResponse}
+import com.echoed.chamber.services.echoeduser.{EchoedUserService,LocateWithIdResponse,LocateWithTwitterServiceResponse,GetEchoedUserResponse}
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.util.CookieManager
 import java.net.URLEncoder
@@ -122,29 +122,44 @@ class TwitterController {
             //futureEchoedUserService.onResult({
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult{
                 case LocateWithIdResponse(_,Left(error)) =>
+                    logger.error("Error getting EchoedUserService: {}", error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    val echoedUser = echoedUserService.echoedUser.get
-                    if(echoedUser.twitterUserId != null){
-                        //Twitter Account Already Exists
-                    }
-                    else{
-                        val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
-                        futureTwitterService.onResult({
-                            case twitterService: TwitterService=>
-                                val accessToken = twitterService.getAccessToken(oAuthVerifier)
-                                accessToken.onResult({
-                                    case aToken: AccessToken =>
-                                        val twitterServiceWithAccessToken = twitterServiceLocator.getTwitterServiceWithAccessToken(aToken)
-                                        twitterServiceWithAccessToken.onResult({
-                                            case ts: TwitterService=>
-                                                echoedUserService.assignTwitterService(ts)
-                                                val modelAndView = new ModelAndView(redirectView)
-                                                continuation.setAttribute("modelAndView", modelAndView)
-                                                continuation.resume
+                    //val echoedUser = echoedUserService.echoedUser.get
+                    echoedUserService.getEchoedUser.onResult{
+                        case GetEchoedUserResponse(_,Left(error)) =>
+                            logger.error("Error getting EchoedUser: {}", error)
+                            //NEED TO ATTACH ERROR MODEL
+                        case GetEchoedUserResponse(_,Right(echoedUser)) =>
+                            if(echoedUser.twitterUserId != null){
+                                //Twitter Account Already Exists
+                            }
+                            else{
+                                val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
+                                futureTwitterService.onResult({
+                                    case twitterService: TwitterService=>
+                                        val accessToken = twitterService.getAccessToken(oAuthVerifier)
+                                        accessToken.onResult({
+                                            case aToken: AccessToken =>
+                                                val twitterServiceWithAccessToken = twitterServiceLocator.getTwitterServiceWithAccessToken(aToken)
+                                                twitterServiceWithAccessToken.onResult({
+                                                    case ts: TwitterService=>
+                                                        echoedUserService.assignTwitterService(ts)
+                                                        val modelAndView = new ModelAndView(redirectView)
+                                                        continuation.setAttribute("modelAndView", modelAndView)
+                                                        continuation.resume
+                                                })
                                         })
                                 })
-                        })
+                            }
                     }
+                    .onException{
+                        case e=>
+                            logger.error("Exception thrown Getting EchoedUser: {}" , e)
+                    }
+            }
+            .onException{
+                case e=>
+                    logger.error("Exception thrown Getting EchoedUserService: {}" , e)
             }
             continuation.undispatch()
         })
@@ -198,41 +213,34 @@ class TwitterController {
                                     logger.debug("Requesting EchoedUserService with TwitterService {}", ts)
                                     val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts)
                                     logger.debug("Received EchoedUserService {} with TwitterService {}", futureEchoedUserService, ts)
-                                    //futureEchoedUserService.onResult({
                                     echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts).onResult({
                                         case LocateWithTwitterServiceResponse(_,Left(error)) =>
+                                            logger.error("Error Locating EchoedUserServiceWithTwitterService: {} ", error)
                                         case LocateWithTwitterServiceResponse(_,Right(es)) =>
-                                        //case es: EchoedUserService =>
-                                            continuation.setAttribute("modelAndView", {
-                                                logger.debug("Successfully recieved EchoedUserService {} with TwitterService {}", es, ts)
-                                                try {
-                                                    val echoedUser = es.echoedUser.get
+                                            logger.debug("Successfully recieved EchoedUserService {} with TwitterService {}", es, ts)
+                                            es.getEchoedUser.onResult{
+                                                case GetEchoedUserResponse(_,Left(error)) =>
+                                                    logger.error("Error getting EchoedUser: {}", error)
+                                                    val modelAndView = new ModelAndView(echoView)
+                                                    continuation.setAttribute("modelAndView", modelAndView)
+                                                    continuation.resume()
+                                                case GetEchoedUserResponse(_,Right(echoedUser))=>
                                                     ts.assignEchoedUserId(echoedUser.id)
                                                     logger.debug("Added Cookie EchoedUserId: {}", echoedUser)
                                                     cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
-                                                    //logger.debug("Setting Model and View to {}", echoView)
-
                                                     val redirectView = "redirect:http://v1-api.echoed.com/" + redirect
-                                                    logger.debug("Redirecting to View: {} ", redirectView);
-                                                    val modelAndView = new ModelAndView(redirectView);
-                                                    //modelAndView.addObject("echoedUserId", echoedUser.id)
-
-                                                    //val echoPossibility = echoPossibilityParameters.createTwitterEchoPossibility
-
-                                                    //modelAndView.addAllObjects(JavaConversions.mapAsJavaMap[String, String](
-                                                    //        echoPossibility.asMap))
-                                                    modelAndView
-                                                }
-                                                catch {
-                                                    case n: NoSuchElementException =>
-                                                        logger.debug("No Such Element Exception {}", n)
-                                                        new ModelAndView(echoView)
-                                                    case e =>
-                                                        logger.debug("Echoed User Service throws exception {}", e)
-                                                        new ModelAndView(echoView)
-                                                }
-                                            })
-                                            continuation.resume
+                                                    logger.debug("Redirecting to View: {} ", redirectView)
+                                                    val modelAndView = new ModelAndView(redirectView)
+                                                    continuation.setAttribute("modelAndView", modelAndView)
+                                                    continuation.resume()
+                                            }
+                                            .onException{
+                                                case e =>
+                                                    logger.error("Exception getting EchoedUser: {}", e)
+                                                    val modelAndView = new ModelAndView(echoView)
+                                                    continuation.setAttribute("modelAndView", modelAndView)
+                                                    continuation.resume()
+                                            }
                                     })
                             })
                             .onException({

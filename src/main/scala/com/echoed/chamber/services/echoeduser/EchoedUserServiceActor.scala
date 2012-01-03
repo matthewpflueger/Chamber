@@ -54,6 +54,8 @@ class EchoedUserServiceActor(
     def receive = {
         case "echoedUser" => self.channel ! echoedUser
 
+        case msg:GetEchoedUser => self.channel ! GetEchoedUserResponse(msg,Right(echoedUser))
+
         case ("assignTwitterService", twitterService: TwitterService) =>
             this.twitterService = twitterService
             val twitterUser  = twitterService.twitterUser.get
