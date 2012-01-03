@@ -6,7 +6,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.facebook.{FacebookService, FacebookServiceLocator}
-import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
+import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator,LocateWithFacebookServiceResponse,LocateWithIdResponse}
 import com.echoed.util.CookieManager
 import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
 import com.echoed.chamber.services.echo.EchoService
@@ -59,10 +59,10 @@ class FacebookController {
             logger.debug("Redirect View {}" , redirectView)
 
 
-            val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
-            futureEchoedUserService
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
                     .onResult {
-                        case echoedUserService: EchoedUserService =>
+                        case LocateWithIdResponse(_,Left(error)) =>
+                        case LocateWithIdResponse(_,Right(echoedUserService)) =>
                             val echoedUser = echoedUserService.echoedUser.get
                             if(echoedUser.facebookUserId == null){
                                 //Check to make sure there is no facebook user attached
@@ -128,10 +128,12 @@ class FacebookController {
                         case facebookService: FacebookService =>
                             logger.debug("Received FacebookService with code {}", code)
                             logger.debug("Requesting EchoedUserService with FacebookService with code {}", code)
-                            val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithFacebookService(facebookService)
-                            futureEchoedUserService
+                            //val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithFacebookService(facebookService)
+                            //futureEchoedUserService
+                            echoedUserServiceLocator.getEchoedUserServiceWithFacebookService(facebookService)
                                     .onResult {
-                                        case s: EchoedUserService =>
+                                        //case s: EchoedUserService =>
+                                        case LocateWithFacebookServiceResponse(_,Right(s))=>
                                             logger.debug("Received EchoedUserService using FacebookService with code {}", code)
                                             continuation.setAttribute("modelAndView",
                                                 try {
@@ -154,7 +156,7 @@ class FacebookController {
                                                         new ModelAndView(dashboardView)
                                                 })
                                             continuation.resume
-                                        case e =>
+                                        case LocateWithFacebookServiceResponse(_,Left(e)) =>
                                             logger.error("Unexpected result {}", e)
                                             continuation.setAttribute("modelAndView", new ModelAndView(facebookLoginErrorView))
                                             continuation.resume

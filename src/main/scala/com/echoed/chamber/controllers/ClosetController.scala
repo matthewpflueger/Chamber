@@ -37,28 +37,29 @@ class ClosetController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
-                logger.debug("Found EchoedUserService {} ", echoedUserService);
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+                case LocateWithIdResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                case LocateWithIdResponse(_,Right(echoedUserService)) =>
+                    logger.debug("Found EchoedUserService {} ", echoedUserService);
 
-                /*echoedUserService.getEchoedUser().map {
-                    echoedUser =>
-                        val modelAndView = new ModelAndView(closetView)
-                        modelAndView.addObject("echoedUser",echoedUser)
-                        modelAndView.addObject("totalCredit","0");
-                        continuation.setAttribute("modelAndView",modelAndView)
-                        continuation.resume()
-                }  */
-
-                echoedUserService.getCloset.onResult{
-                    case GetExhibitResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
-                    case GetExhibitResponse(_,Right(closet)) =>
-                        val modelAndView = new ModelAndView(closetView)
-                        modelAndView.addObject("echoedUser", closet.echoedUser)
-                        modelAndView.addObject("echoes", closet.echoes)
-                        modelAndView.addObject("totalCredit", closet.totalCredit.round)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-                    case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
+                    /*echoedUserService.getEchoedUser().map {
+                        echoedUser =>
+                            val modelAndView = new ModelAndView(closetView)
+                            modelAndView.addObject("echoedUser",echoedUser)
+                            modelAndView.addObject("totalCredit","0");
+                            continuation.setAttribute("modelAndView",modelAndView)
+                            continuation.resume()
+                    }  */
+                    echoedUserService.getCloset.onResult{
+                        case GetExhibitResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                        case GetExhibitResponse(_,Right(closet)) =>
+                            val modelAndView = new ModelAndView(closetView)
+                            modelAndView.addObject("echoedUser", closet.echoedUser)
+                            modelAndView.addObject("echoes", closet.echoes)
+                            modelAndView.addObject("totalCredit", closet.totalCredit.round)
+                            continuation.setAttribute("modelAndView", modelAndView)
+                            continuation.resume()
+                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                 }
             }
 
@@ -89,13 +90,15 @@ class ClosetController {
         } else Option(continuation.getAttribute("feed")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
-                echoedUserService.getFeed.onResult{
-                    case GetFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
-                    case GetFeedResponse(_,Right(feed)) =>
-                        continuation.setAttribute("feed", feed.echoes)
-                        continuation.resume()
-                    case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+                case LocateWithIdResponse(_,Left(error))=>
+                case LocateWithIdResponse(_,Right(echoedUserService)) =>
+                    echoedUserService.getFeed.onResult{
+                        case GetFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                        case GetFeedResponse(_,Right(feed)) =>
+                            continuation.setAttribute("feed", feed.echoes)
+                            continuation.resume()
+                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                 }
             }
             continuation.undispatch()
@@ -127,13 +130,15 @@ class ClosetController {
         } else Option(continuation.getAttribute("exhibit")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
-                echoedUserService.getCloset.onResult {
-                    case GetExhibitResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
-                    case GetExhibitResponse(_,Right(closet)) =>
-                        continuation.setAttribute("exhibit", closet.echoes)
-                        continuation.resume()
-                    case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+                case LocateWithIdResponse(_,Left(error)) =>
+                case LocateWithIdResponse(_,Right(echoedUserService)) =>
+                    echoedUserService.getCloset.onResult {
+                        case GetExhibitResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                        case GetExhibitResponse(_,Right(closet)) =>
+                            continuation.setAttribute("exhibit", closet.echoes)
+                            continuation.resume()
+                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                 }
             }
             continuation.undispatch()
@@ -157,17 +162,15 @@ class ClosetController {
         } else Option(continuation.getAttribute("friends")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map { echoedUserService =>
-//                echoedUserService.friends.map { friends =>
-//                    continuation.setAttribute("friends", friends)
-//                    continuation.resume()
-//                }
-                echoedUserService.getFriends.onResult{
-                    case GetEchoedFriendsResponse(_,Left(error)) =>
-                    case GetEchoedFriendsResponse(_,Right(friends)) =>
-                        continuation.setAttribute("friends", friends)
-                        continuation.resume()
-                    case unknown =>    throw new RuntimeException("Unknown Response %s" format unknown)
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+                case LocateWithIdResponse(_, Left(error)) =>
+                case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                    echoedUserService.getFriends.onResult{
+                        case GetEchoedFriendsResponse(_,Left(error)) =>
+                        case GetEchoedFriendsResponse(_,Right(friends)) =>
+                            continuation.setAttribute("friends", friends)
+                            continuation.resume()
+                        case unknown =>    throw new RuntimeException("Unknown Response %s" format unknown)
                 }
             }
             continuation.undispatch()
@@ -189,8 +192,9 @@ class ClosetController {
         } else Option(continuation.getAttribute("closet")).getOrElse({
             continuation.suspend(httpServletResponse)
             
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).map {
-                echoedUserService =>
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+                case LocateWithIdResponse(_,Left(error)) =>
+                case LocateWithIdResponse(_,Right(echoedUserService)) =>
                     echoedUserService.getFriendCloset(echoedFriendId).onResult{
                         case GetFriendExhibitResponse(_,Left(error)) =>
                         case GetFriendExhibitResponse(_,Right(closet)) =>

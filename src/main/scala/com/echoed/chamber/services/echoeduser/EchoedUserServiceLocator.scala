@@ -5,9 +5,9 @@ import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
 
 trait EchoedUserServiceLocator {
-    def getEchoedUserServiceWithId(id: String): Future[EchoedUserService]
+    def getEchoedUserServiceWithId(id: String): Future[LocateWithIdResponse]
 
-    def getEchoedUserServiceWithFacebookService(facebookService: FacebookService): Future[EchoedUserService]
+    def getEchoedUserServiceWithFacebookService(facebookService: FacebookService): Future[LocateWithFacebookServiceResponse]
 
-    def getEchoedUserServiceWithTwitterService(twitterService: TwitterService): Future[EchoedUserService]
+    def getEchoedUserServiceWithTwitterService(twitterService: TwitterService): Future[LocateWithTwitterServiceResponse]
 }

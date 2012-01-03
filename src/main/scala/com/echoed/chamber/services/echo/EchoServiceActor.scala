@@ -6,6 +6,7 @@ import akka.dispatch.Future
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.Echo
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
+import com.echoed.chamber.services.echoeduser.LocateWithIdResponse
 
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.views.EchoFull
@@ -62,61 +63,64 @@ class EchoServiceActor extends Actor {
             logger.debug("Looking for EchoPossilbilty: {}", echoRequestMessage.echoPossibilityId);
             val futureEchoPossibility = Future { Option(echoPossibilityDao.findById(echoRequestMessage.echoPossibilityId)).get }
             logger.debug("Received Future Echo Possibility: {}", futureEchoPossibility);
-            val futureEchoResponse /*: Future[EchoResponseMessage]*/ = (for {
-                echoedUserService <- futureEchoedUserService
-                echoedUser <- echoedUserService.getEchoedUser
-                echoPossibility <- futureEchoPossibility
-            } yield {
-//                echoedUserServiceResponseMessage.resultOrException.getEchoedUser.resultOrException
-                logger.debug("retailerId: {}", echoPossibility.retailerId)
-                
-                val retailerSettings = Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date)).get
-                logger.debug("retailerSettings Received: {}", retailerSettings)
-
-                var echo = new Echo(echoPossibility, retailerSettings).echoed(retailerSettings)
-                echoDao.insert(echo)
-
-                val futureFacebookPost: Future[Option[FacebookPost]] =
-                    if (echoRequestMessage.postToFacebook && echoedUser.facebookUserId != null) {
-                        echoedUserService.echoToFacebook(echo, echoRequestMessage.facebookMessage.getOrElse("")).map[Option[FacebookPost]] { facebookPost =>
-                            echo = echo.copy(facebookPostId = facebookPost.id)
-                            echoDao.updateFacebookPostId(echo)
-                            logger.debug("Successfully echoed {} to Facebook {}", echo, facebookPost)
-                            Option(facebookPost)
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoRequestMessage.echoedUserId).onResult{
+                case LocateWithIdResponse(_,Left(error)) =>
+                case LocateWithIdResponse(_,Right(echoedUserService)) =>
+                    val futureEchoResponse /*: Future[EchoResponseMessage]*/ = (for {
+                        //echoedUserService <- futureEchoedUserService
+                        echoedUser <- echoedUserService.getEchoedUser
+                        echoPossibility <- futureEchoPossibility
+                    } yield {
+        //              echoedUserServiceResponseMessage.resultOrException.getEchoedUser.resultOrException
+                        logger.debug("retailerId: {}", echoPossibility.retailerId)
+                        
+                        val retailerSettings = Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date)).get
+                        logger.debug("retailerSettings Received: {}", retailerSettings)
+        
+                        var echo = new Echo(echoPossibility, retailerSettings).echoed(retailerSettings)
+                        echoDao.insert(echo)
+        
+                        val futureFacebookPost: Future[Option[FacebookPost]] =
+                            if (echoRequestMessage.postToFacebook && echoedUser.facebookUserId != null) {
+                                echoedUserService.echoToFacebook(echo, echoRequestMessage.facebookMessage.getOrElse("")).map[Option[FacebookPost]] { facebookPost =>
+                                    echo = echo.copy(facebookPostId = facebookPost.id)
+                                    echoDao.updateFacebookPostId(echo)
+                                    logger.debug("Successfully echoed {} to Facebook {}", echo, facebookPost)
+                                    Option(facebookPost)
+                                }
+                            } else {
+                                Future { None }
+                            }
+        
+                        val futureTwitterPost =
+                            if (echoRequestMessage.postToTwitter && echoedUser.twitterUserId != null) {
+                                echoedUserService.echoToTwitter(echo, echoRequestMessage.twitterMessage.getOrElse("")).map[Option[TwitterStatus]] { twitterStatus =>
+                                    echo = echo.copy(twitterStatusId = twitterStatus.id)
+                                    echoDao.updateTwitterStatusId(echo)
+                                    logger.debug("Successfully echoed {} to Twitter {}", echo, twitterStatus)
+                                    Option(twitterStatus)
+                                }
+                            } else {
+                                Future { None }
+                            }
+        
+                        Future { echoPossibilityDao.insertOrUpdate(echoPossibility.copy(echoId = echo.id, step = "echoed")) }
+        
+                        for {
+                            facebookPost <- futureFacebookPost
+                            twitterPost <- futureTwitterPost
+                        } yield {
+                            channel ! EchoResponseMessage(
+                                echoRequestMessage,
+                                Right(new EchoFull(echo, null, echoedUser, facebookPost.orNull, twitterPost.orNull)))
                         }
-                    } else {
-                        Future { None }
+        
+        
+                    }).onException {
+                        case e: EchoedException => channel ! EchoResponseMessage(echoRequestMessage, Left(e))
+                        case t => channel ! EchoResponseMessage(echoRequestMessage, Left(EchoedException(cse = t)))
                     }
-
-                val futureTwitterPost =
-                    if (echoRequestMessage.postToTwitter && echoedUser.twitterUserId != null) {
-                        echoedUserService.echoToTwitter(echo, echoRequestMessage.twitterMessage.getOrElse("")).map[Option[TwitterStatus]] { twitterStatus =>
-                            echo = echo.copy(twitterStatusId = twitterStatus.id)
-                            echoDao.updateTwitterStatusId(echo)
-                            logger.debug("Successfully echoed {} to Twitter {}", echo, twitterStatus)
-                            Option(twitterStatus)
-                        }
-                    } else {
-                        Future { None }
-                    }
-
-                Future { echoPossibilityDao.insertOrUpdate(echoPossibility.copy(echoId = echo.id, step = "echoed")) }
-
-                for {
-                    facebookPost <- futureFacebookPost
-                    twitterPost <- futureTwitterPost
-                } yield {
-                    channel ! EchoResponseMessage(
-                        echoRequestMessage,
-                        Right(new EchoFull(echo, null, echoedUser, facebookPost.orNull, twitterPost.orNull)))
-                }
-
-
-            }).onException {
-                case e: EchoedException => channel ! EchoResponseMessage(echoRequestMessage, Left(e))
-                case t => channel ! EchoResponseMessage(echoRequestMessage, Left(EchoedException(cse = t)))
             }
-
         }
 
         case ("recordEchoClick", echoClick: EchoClick, postId: String) =>

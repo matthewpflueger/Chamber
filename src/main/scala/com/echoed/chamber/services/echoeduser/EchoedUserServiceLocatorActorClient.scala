@@ -10,12 +10,12 @@ class EchoedUserServiceLocatorActorClient extends EchoedUserServiceLocator {
     @BeanProperty var echoedUserServiceLocatorActor: ActorRef = _
 
     def getEchoedUserServiceWithId(id: String) =
-            (echoedUserServiceLocatorActor ? ("id", id)).mapTo[EchoedUserService]
+            (echoedUserServiceLocatorActor ? (LocateWithId(id))).mapTo[LocateWithIdResponse]
 
     def getEchoedUserServiceWithFacebookService(facebookService: FacebookService) =
-            (echoedUserServiceLocatorActor ? ("facebookService", facebookService)).mapTo[EchoedUserService]
+            (echoedUserServiceLocatorActor ? (LocateWithFacebookService(facebookService))).mapTo[LocateWithFacebookServiceResponse]
 
     def getEchoedUserServiceWithTwitterService(twitterService:TwitterService) =
-            (echoedUserServiceLocatorActor ? ("twitterService", twitterService)).mapTo[EchoedUserService]
+            (echoedUserServiceLocatorActor ? (LocateWithTwitterService(twitterService))).mapTo[LocateWithTwitterServiceResponse]
 
 }

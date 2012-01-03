@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import com.echoed.chamber.dao.TwitterUserDao
 import com.echoed.chamber.services.echo.EchoService
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
-import com.echoed.chamber.services.echoeduser.EchoedUserService
+import com.echoed.chamber.services.echoeduser.{EchoedUserService,LocateWithIdResponse,LocateWithTwitterServiceResponse}
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.util.CookieManager
 import java.net.URLEncoder
@@ -117,10 +117,12 @@ class TwitterController {
             new ModelAndView("test")
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
-            val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
+            //val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
             
-            futureEchoedUserService.onResult({
-                case echoedUserService:EchoedUserService =>
+            //futureEchoedUserService.onResult({
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult{
+                case LocateWithIdResponse(_,Left(error)) =>
+                case LocateWithIdResponse(_,Right(echoedUserService)) =>
                     val echoedUser = echoedUserService.echoedUser.get
                     if(echoedUser.twitterUserId != null){
                         //Twitter Account Already Exists
@@ -143,9 +145,7 @@ class TwitterController {
                                 })
                         })
                     }
-            })
-            
-
+            }
             continuation.undispatch()
         })
     }
@@ -198,8 +198,11 @@ class TwitterController {
                                     logger.debug("Requesting EchoedUserService with TwitterService {}", ts)
                                     val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts)
                                     logger.debug("Received EchoedUserService {} with TwitterService {}", futureEchoedUserService, ts)
-                                    futureEchoedUserService.onResult({
-                                        case es: EchoedUserService =>
+                                    //futureEchoedUserService.onResult({
+                                    echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts).onResult({
+                                        case LocateWithTwitterServiceResponse(_,Left(error)) =>
+                                        case LocateWithTwitterServiceResponse(_,Right(es)) =>
+                                        //case es: EchoedUserService =>
                                             continuation.setAttribute("modelAndView", {
                                                 logger.debug("Successfully recieved EchoedUserService {} with TwitterService {}", es, ts)
                                                 try {
