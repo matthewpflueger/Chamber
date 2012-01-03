@@ -211,7 +211,14 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             for (windowHandle: String <- JavaConversions.asScalaSet(webDriver.getWindowHandles()))
                 if (windowHandle != currentWindowHandle) webDriver.switchTo().window(windowHandle)
 
-            webDriver.getCurrentUrl should startWith(echo.landingPageUrl)
+            try {
+                webDriver.getCurrentUrl should startWith(echo.landingPageUrl)
+            } finally {
+                if (currentWindowHandle != webDriver.getWindowHandle) {
+                    webDriver.close
+                    webDriver.switchTo.window(currentWindowHandle)
+                }
+            }
 
             and("record the EchoClick in the database")
             val echoClick = echoClickDao.findByEchoId(echo.id)
