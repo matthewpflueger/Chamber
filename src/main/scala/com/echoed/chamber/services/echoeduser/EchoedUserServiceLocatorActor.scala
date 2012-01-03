@@ -20,10 +20,10 @@ class EchoedUserServiceLocatorActor extends Actor {
 
     def receive = {
 
-        case msg:LocateWithId =>{
+        case msg: LocateWithId =>
             logger.debug("Locating EchoedUserService With id {}" , msg.echoedUserId)
             val channel = self.channel
-            cache.get(msg.echoedUserId) match{
+            cache.get(msg.echoedUserId) match {
                 case Some(echoedUserService) =>
                     channel ! LocateWithIdResponse(msg,Right(echoedUserService))
                     logger.debug("Cache hit for EchoedUserService key {}" ,msg.echoedUserId)
@@ -35,7 +35,7 @@ class EchoedUserServiceLocatorActor extends Actor {
                             channel ! LocateWithIdResponse(msg,Left(error))
                         case CreateEchoedUserServiceWithIdResponse(_,Right(echoedUserService)) =>
                             channel ! LocateWithIdResponse(msg,Right(echoedUserService))
-                            cache += (msg.id -> echoedUserService)
+                            cache += (msg.echoedUserId -> echoedUserService)
                             logger.debug("Seeded cache with EchoedUserService key {}", msg.echoedUserId)
                     }
                     .onException{
@@ -44,11 +44,11 @@ class EchoedUserServiceLocatorActor extends Actor {
                             channel ! LocateWithIdResponse(msg,Left(EchoedUserException(cause = e)))
                     }
             }
-        }
 
-        case msg:LocateWithFacebookService =>{
+
+        case msg: LocateWithFacebookService =>
             val channel = self.channel
-            cacheFacebookService.get(msg.facebookService) match{
+            cacheFacebookService.get(msg.facebookService) match {
                 case Some(echoedUserService) =>
                     channel ! LocateWithFacebookServiceResponse(msg,Right(echoedUserService))
                     logger.debug("Cache hit for EchoedUserService with {}", msg.facebookService)
@@ -69,9 +69,9 @@ class EchoedUserServiceLocatorActor extends Actor {
                             channel ! LocateWithFacebookServiceResponse(msg,Left(EchoedUserException(cause = e)))
                     }
             }
-        }
 
-        case msg:LocateWithTwitterService => {
+
+        case msg: LocateWithTwitterService =>
             val channel = self.channel
             cacheTwitterService.get(msg.twitterService) match{
                 case Some(echoedUserService) =>
@@ -94,57 +94,7 @@ class EchoedUserServiceLocatorActor extends Actor {
                             channel ! LocateWithTwitterServiceResponse(msg,Left(EchoedUserException(cause = e)))
                     }
             }
-        }
-        
-        /*case ("id", id: String) => {
-            logger.debug("Locating EchoedUserService with id {}", id)
-            val channel = self.channel
-            cache.get(id) match {
-                case Some(echoedUserService) =>
-                    channel ! echoedUserService
-                    logger.debug("Cache hit for EchoedUserService key {}", id)
-                case _ =>
-                    logger.debug("Cache miss for EchoedUserService key {}", id)
-                    echoedUserServiceCreator.createEchoedUserServiceUsingId(id).map { echoedUserService =>
-                        channel ! echoedUserService
-                        cache += (id -> echoedUserService)
-                        logger.debug("Seeded cache with EchoedUserService key {}", id)
-                    }
-            }
-        }
 
-        case ("facebookService", facebookService: FacebookService) => {
-            logger.debug("Locating EchoedUserService with {}", facebookService)
-            val channel = self.channel
-            cacheFacebookService.get(facebookService) match {
-                case Some(echoedUserService) =>
-                    channel ! echoedUserService
-                    logger.debug("Cache hit for EchoedUserService with {}", facebookService)
-                case _ =>
-                    logger.debug("Cache miss for EchoedUserService with {}", facebookService)
-                    echoedUserServiceCreator.createEchoedUserServiceUsingFacebookService(facebookService).map { echoedUserService =>
-                        channel ! echoedUserService
-                        cacheFacebookService += (facebookService -> echoedUserService)
-                        logger.debug("Seeded cacheFacebookService with EchoedUserService key {}", facebookService)
-                    }
-            }
-        }
-
-        case ("twitterService", twitterService: TwitterService) => {
-            logger.debug("Locating EchoedUserService with TwitterService: {}", twitterService)
-            val channel = self.channel
-            cacheTwitterService.get(twitterService) match {
-                case Some(echoedUserService) =>
-                    channel ! echoedUserService
-                    logger.debug("Cache hit for EchoedUserService with {}", twitterService)
-                case _ =>
-                    echoedUserServiceCreator.createEchoedUserServiceUsingTwitterService(twitterService).map { echoedUserService =>
-                        channel ! echoedUserService
-                        cacheTwitterService += (twitterService -> echoedUserService)
-                        logger.debug("Seeded cacheTwitterService with EchoedUserService key {}", twitterService)
-                    }
-            }
-        }*/
     }
 
 
