@@ -41,13 +41,16 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
             self.channel ! twitterUser
         }
 
-        case ("getFollowers") => {
-            self.channel ! twitterAccess.getFollowers(
+        case ("getFollowers") =>
+            val channel = self.channel
+            twitterAccess.getFollowers(
                     twitterUser.accessToken,
                     twitterUser.accessTokenSecret,
                     twitterUser.id,
-                    twitterUser.twitterId.toLong).mapTo[List[TwitterFollower]]
-        }
+                    twitterUser.twitterId.toLong).onComplete(_.value.get.fold(
+                        e => channel ! e,
+                        followers => channel ! followers
+                    ))
 
         case ("assignEchoedUserId", echoedUserId: String) => {
             val tu = twitterUser.copy(echoedUserId = echoedUserId)
