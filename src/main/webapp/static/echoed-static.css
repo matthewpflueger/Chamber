@@ -126,8 +126,7 @@ h2 {
 
 #lm-left-label {
   font-family: BebasNeue, Arial, sans-serif;
-  font-size: 64px;
-  margin-bottom: 24px; }
+  font-size: 64px; }
 
 #index-subtitle {
   font-size: 18px; }
@@ -229,7 +228,7 @@ h2 {
 .masthead-text {
   font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif;
   line-height: 1.5em;
-  font-size: 18px; }
+  font-size: 24px; }
 
 #cu-form input[type=text], #cu-form label, #cu-form textarea {
   display: block; }
@@ -252,8 +251,7 @@ h2 {
 
 #footer-nav {
   line-height: 45px;
-  font-size: 14px;
-  font-family: BebasNeue, Arial, sans-serif; }
+  font-size: 14px; }
 
 #footer-nav a {
   margin-right: 10px;

@@ -200,7 +200,7 @@ h2{
                 #lm-left-label{
                     font-family: $navFontFamily;
                     font-size: 64px;
-                    margin-bottom: 24px;
+                    //margin-bottom: 24px;
                 }
 
                 #index-subtitle{
@@ -325,7 +325,7 @@ h2{
                 .masthead-text{
                     font-family: $readingTextFontFamily;
                     line-height: 1.5em;
-                    font-size: 18px;
+                    font-size: 24px;
                 }
 
             #cu-form input[type=text],#cu-form label,#cu-form textarea{
@@ -354,7 +354,7 @@ h2{
         #footer-nav{
             line-height:45px;
             font-size: 14px;
-            font-family: $navFontFamily;
+            //font-family: $navFontFamily;
         }
 
         #footer-nav a{
