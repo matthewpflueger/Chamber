@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import com.echoed.chamber.dao.TwitterUserDao
 import com.echoed.chamber.services.echo.EchoService
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
-import com.echoed.chamber.services.echoeduser.{EchoedUserService,LocateWithIdResponse,LocateWithTwitterServiceResponse,GetEchoedUserResponse}
+import com.echoed.chamber.services.echoeduser.{EchoedUserService,LocateWithIdResponse,LocateWithTwitterServiceResponse,GetEchoedUserResponse,AssignTwitterServiceResponse}
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.util.CookieManager
 import java.net.URLEncoder
@@ -143,10 +143,19 @@ class TwitterController {
                                                 val twitterServiceWithAccessToken = twitterServiceLocator.getTwitterServiceWithAccessToken(aToken)
                                                 twitterServiceWithAccessToken.onResult({
                                                     case ts: TwitterService=>
-                                                        echoedUserService.assignTwitterService(ts)
-                                                        val modelAndView = new ModelAndView(redirectView)
-                                                        continuation.setAttribute("modelAndView", modelAndView)
-                                                        continuation.resume
+                                                        echoedUserService.assignTwitterService(ts).onResult({
+                                                            case AssignTwitterServiceResponse(_, Left(error)) =>
+                                                                logger.error("Error Assigning TwitterService: {}", error)
+                                                            case AssignTwitterServiceResponse(_, Right(ts2)) =>
+                                                                val modelAndView = new ModelAndView(redirectView)
+                                                                continuation.setAttribute("modelAndView", modelAndView)
+                                                                continuation.resume
+                                                        })
+                                                        .onException({
+                                                            case e =>
+                                                                logger.error("Exception thrown Assinging TwitterService: {}", e)
+                                                        })
+                                                        
                                                 })
                                         })
                                 })

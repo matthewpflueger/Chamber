@@ -2,15 +2,32 @@ package com.echoed.chamber.services.echoeduser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.views.{Feed,Closet}
-import com.echoed.chamber.domain.{EchoedUser,EchoedFriend}
+import com.echoed.chamber.domain.{EchoedUser,EchoedFriend,Echo,TwitterStatus,FacebookPost}
 import com.echoed.chamber.services.facebook.{FacebookService}
 import com.echoed.chamber.services.twitter.{TwitterService}
+
 
 sealed trait EchoedUserMessage extends Message
 sealed case class EchoedUserException(message: String = "", cause: Throwable = null) extends EchoedException(message,cause)
 
 import com.echoed.chamber.services.echoeduser.{EchoedUserMessage => EUM}
 import com.echoed.chamber.services.echoeduser.{EchoedUserException => EUE}
+
+case class AssignFacebookService(facebookService: FacebookService) extends EUM
+case class AssignFacebookServiceResponse(message: AssignFacebookService, value: Either[EchoedUserException, FacebookService])
+    extends EUM with RM[FacebookService, AssignFacebookService, EUE]
+
+case class AssignTwitterService(twitterService: TwitterService) extends EUM
+case class AssignTwitterServiceResponse(message: AssignTwitterService, value: Either[EchoedUserException,TwitterService])
+    extends EUM with RM[TwitterService,  AssignTwitterService, EUE]
+
+case class EchoToFacebook(echo:Echo, echoMessage: String) extends EUM
+case class EchoToFacebookResponse(message: EchoToFacebook, value: Either[EchoedUserException, FacebookPost])
+    extends EUM with RM[FacebookPost, EchoToFacebook, EUE]
+
+case class EchoToTwitter(echo:Echo, echoMessage: String) extends EUM
+case class EchoToTwitterResponse(message:EchoToTwitter,  value: Either[EchoedUserException, TwitterStatus])
+    extends EUM with RM[TwitterStatus, EchoToTwitter,  EUE]
 
 case class GetFriendExhibit(echoedFriendUserId: String) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EchoedUserException, Closet])

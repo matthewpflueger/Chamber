@@ -6,7 +6,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.facebook.{FacebookService, FacebookServiceLocator}
-import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator,LocateWithFacebookServiceResponse,LocateWithIdResponse,GetEchoedUserResponse}
+import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator,LocateWithFacebookServiceResponse,LocateWithIdResponse,GetEchoedUserResponse,AssignFacebookServiceResponse}
 import com.echoed.util.CookieManager
 import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
 import com.echoed.chamber.services.echo.EchoService
@@ -79,12 +79,17 @@ class FacebookController {
                                             .onResult{
                                                 case facebookService:FacebookService =>
                                                     logger.debug("Attaching Facebook Service {} to EchoedUserService {} ", facebookService,echoedUserService)
-                                                    val futureFs = echoedUserService.assignFacebookService(facebookService)
-                                                    futureFs.onResult({
-                                                        case fs:FacebookService =>
+                                                    echoedUserService.assignFacebookService(facebookService).onResult({
+                                                        case AssignFacebookServiceResponse(_, Left(error)) =>
+                                                            logger.error("Error Assigning Facebook Service: {}", error)
+                                                        case AssignFacebookServiceResponse(_, Right(fs)) =>
                                                             val modelAndView = new ModelAndView(redirectView);
                                                             continuation.setAttribute("modelAndView", modelAndView)
                                                             continuation.resume
+                                                    })
+                                                    .onException({
+                                                        case e=>
+                                                            logger.error("Exception thrown Assigning Facebook Service: {}", e)
                                                     })
 
                                         }

@@ -56,51 +56,41 @@ class EchoedUserServiceActor(
 
         case msg:GetEchoedUser => self.channel ! GetEchoedUserResponse(msg,Right(echoedUser))
 
-        case ("assignTwitterService", twitterService: TwitterService) =>
-            this.twitterService = twitterService
+        case msg:AssignTwitterService =>
+            this.twitterService = msg.twitterService
             val twitterUser  = twitterService.twitterUser.get
             echoedUser = this.echoedUser.assignTwitterUser(twitterUser.id, twitterUser.twitterId)
             echoedUserDao.update(echoedUser)
-            self.channel ! this.twitterService
+            self.channel ! AssignTwitterServiceResponse(msg,Right(this.twitterService))
             self ! '_fetchTwitterFollowers
 
-        case ("assignFacebookService", facebookService: FacebookService) =>
-            this.facebookService = facebookService
+        case msg: AssignFacebookService =>
+            this.facebookService = msg.facebookService
             val facebookUser = facebookService.facebookUser.get
             logger.debug("Assigning Facebook Id {} to EchoedUser {}",facebookUser.id, echoedUser)
             echoedUser = this.echoedUser.assignFacebookUser(facebookUser.id,facebookUser.facebookId)
             echoedUserDao.update(echoedUser)
-            self.channel ! this.facebookService
+            self.channel ! AssignFacebookServiceResponse(msg,Right(this.facebookService))
             self ! '_fetchFacebookFriends
 
 
         case("getTwitterFollowers") =>
             self.channel ! twitterService.getFollowers().get.asInstanceOf[Array[TwitterFollower]]
 
-
-        case ("echoToTwitter", echo:Echo,  message:String) =>
+        case msg: EchoToFacebook =>
             val channel = self.channel
-            twitterService.echo(echo,message).map { channel ! _ }
-
-        case ("echoToFacebook", echo: Echo, message: String) =>
-            val channel = self.channel
-            facebookService.echo(echo, message).map[FacebookPost] { fp: FacebookPost =>
-                channel ! fp
-                fp
+            facebookService.echo(msg.echo,msg.echoMessage).map[FacebookPost] {
+                fp: FacebookPost =>
+                    channel ! EchoToFacebookResponse(msg,Right(fp))
+                    fp
             }
 
-        case ("getFriendCloset", echoedFriendId : String) =>
-            val echoedUserId = echoedUser.id
-
-            logger.debug("EchoedUserId: {} EchoedFriendId: {}", echoedUserId,echoedFriendId)
-            val echoedFriend = Option(echoedFriendDao.findFriendByEchoedUserId(echoedUserId,echoedFriendId)).getOrElse(null)
-            if(echoedFriend != null){
-                logger.debug("Found")
-                self.channel ! closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)
-            }
-            else{
-                logger.debug("Not Found")
-                self.channel ! None
+        case msg: EchoToTwitter =>
+            val channel = self.channel
+            twitterService.echo(msg.echo, msg.echoMessage).map[TwitterStatus] {
+                tw: TwitterStatus =>
+                    channel ! EchoToTwitterResponse(msg, Right(tw))
+                    tw
             }
 
         case msg: GetFriendExhibit =>
@@ -126,16 +116,9 @@ class EchoedUserServiceActor(
         case msg: GetEchoedFriends =>
             val channel = self.channel
             Future {
-                val echoedFriends = asScalaBuffer(echoedFriendDao.findByEchoedUserId(echoedUser.id)).toList
-                channel ! GetEchoedFriendsResponse(msg, Right(echoedFriends))
-            }
-
-        case 'friends =>
-            val channel = self.channel
-            Future {
                 logger.debug("Loading EchoedFriends from database for EchoedUser {}", echoedUser.id)
                 val echoedFriends = asScalaBuffer(echoedFriendDao.findByEchoedUserId(echoedUser.id)).toList
-                channel ! echoedFriends
+                channel ! GetEchoedFriendsResponse(msg, Right(echoedFriends))
                 logger.debug("Found {} EchoedFriends in database for EchoedUser", echoedFriends.length, echoedUser.id)
             }
 

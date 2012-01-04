@@ -6,7 +6,7 @@ import akka.dispatch.Future
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.Echo
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
-import com.echoed.chamber.services.echoeduser.{LocateWithIdResponse,GetEchoedUserResponse}
+import com.echoed.chamber.services.echoeduser.{LocateWithIdResponse,GetEchoedUserResponse,EchoToFacebookResponse,EchoToTwitterResponse}
 
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.views.EchoFull
@@ -87,11 +87,18 @@ class EchoServiceActor extends Actor {
 
                                 val futureFacebookPost: Future[Option[FacebookPost]] =
                                     if (echoRequestMessage.postToFacebook && echoedUser.facebookUserId != null) {
-                                        echoedUserService.echoToFacebook(echo, echoRequestMessage.facebookMessage.getOrElse("")).map[Option[FacebookPost]] { facebookPost =>
-                                            echo = echo.copy(facebookPostId = facebookPost.id)
-                                            echoDao.updateFacebookPostId(echo)
-                                            logger.debug("Successfully echoed {} to Facebook {}", echo, facebookPost)
-                                            Option(facebookPost)
+                                        echoedUserService.echoToFacebook(echo, echoRequestMessage.facebookMessage.getOrElse("")).map[Option[FacebookPost]] {
+                                            echoToFacebookResponse =>
+                                            echoToFacebookResponse match {
+                                                case EchoToFacebookResponse(_, Left(error)) =>
+                                                    logger.error("Error getting facebook Response: {}", error)
+                                                    None
+                                                case EchoToFacebookResponse(_, Right(facebookPost)) =>
+                                                    echo = echo.copy(facebookPostId = facebookPost.id)
+                                                    echoDao.updateFacebookPostId(echo)
+                                                    logger.debug("Successfully echoed {} to Facebook {}", echo, facebookPost)
+                                                    Option(facebookPost)
+                                            } 
                                         }
                                     } else {
                                         Future { None }
@@ -99,11 +106,18 @@ class EchoServiceActor extends Actor {
 
                                 val futureTwitterPost =
                                     if (echoRequestMessage.postToTwitter && echoedUser.twitterUserId != null) {
-                                        echoedUserService.echoToTwitter(echo, echoRequestMessage.twitterMessage.getOrElse("")).map[Option[TwitterStatus]] { twitterStatus =>
-                                            echo = echo.copy(twitterStatusId = twitterStatus.id)
-                                            echoDao.updateTwitterStatusId(echo)
-                                            logger.debug("Successfully echoed {} to Twitter {}", echo, twitterStatus)
-                                            Option(twitterStatus)
+                                        echoedUserService.echoToTwitter(echo, echoRequestMessage.twitterMessage.getOrElse("")).map[Option[TwitterStatus]] { 
+                                            echoToTwitterResponse =>
+                                            echoToTwitterResponse match{
+                                                case EchoToTwitterResponse(_,Left(error)) =>
+                                                    logger.error("Error Getting Twitter Response: {}", error)
+                                                    None
+                                                case EchoToTwitterResponse(_,Right(twitterStatus)) =>
+                                                    echo = echo.copy(twitterStatusId = twitterStatus.id)
+                                                    echoDao.updateTwitterStatusId(echo)
+                                                    logger.debug("Successfully echoed {} to Twitter {}", echo, twitterStatus)
+                                                    Option(twitterStatus)
+                                            }
                                         }
                                     } else {
                                         Future { None }
@@ -119,7 +133,6 @@ class EchoServiceActor extends Actor {
                                         echoRequestMessage,
                                         Right(new EchoFull(echo, null, echoedUser, facebookPost.orNull, twitterPost.orNull)))
                                 }
-
 
                             }).onException {
                                 case e: EchoedException => channel ! EchoResponseMessage(echoRequestMessage, Left(e))

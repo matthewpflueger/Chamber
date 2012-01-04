@@ -20,15 +20,15 @@ trait EchoedUserService {
     def getEchoedUser: Future[GetEchoedUserResponse]
 
 
-    def assignTwitterService(twitterService:TwitterService): Future[TwitterService]
-    def assignFacebookService(facebookService:FacebookService): Future[FacebookService]
+    def assignTwitterService(twitterService:TwitterService): Future[AssignTwitterServiceResponse]
+    def assignFacebookService(facebookService:FacebookService): Future[AssignFacebookServiceResponse]
 
     // TWITTER RELATED FUNCTIONS
     //def updateTwitterStatus(status:String): Future[TwitterStatus]
     def getTwitterFollowers: Future[Array[TwitterFollower]]
 
-    def echoToFacebook(echo: Echo, message: String): Future[FacebookPost]
-    def echoToTwitter(echo:Echo,  message:String): Future[TwitterStatus]
+    def echoToFacebook(echo: Echo, message: String): Future[EchoToFacebookResponse]
+    def echoToTwitter(echo:Echo,  message:String): Future[EchoToTwitterResponse]
 
     def getCloset: Future[GetExhibitResponse]
 

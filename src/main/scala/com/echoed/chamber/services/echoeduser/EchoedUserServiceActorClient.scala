@@ -16,10 +16,10 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
             (echoedUserServiceActor ? GetEchoedUser()).mapTo[GetEchoedUserResponse]
 
     def assignFacebookService(facebookService:FacebookService) =
-            (echoedUserServiceActor ? ("assignFacebookService",facebookService)).mapTo[FacebookService]
+            (echoedUserServiceActor ? (AssignFacebookService(facebookService))).mapTo[AssignFacebookServiceResponse]
 
     def assignTwitterService(twitterService:TwitterService) =
-            (echoedUserServiceActor ? ("assignTwitterService", twitterService)).mapTo[TwitterService]
+            (echoedUserServiceActor ? (AssignTwitterService(twitterService))).mapTo[AssignTwitterServiceResponse]
 
 //    def updateTwitterStatus(status:String) =
 //            (echoedUserServiceActor ? ("updateTwitterStatus", status)).mapTo[TwitterStatus]
@@ -27,11 +27,17 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def getTwitterFollowers() =
             (echoedUserServiceActor ? ("getTwitterFollowers")).mapTo[Array[TwitterFollower]]
 
-    def echoToFacebook(echo: Echo, message: String) =
-            (echoedUserServiceActor ? ("echoToFacebook", echo, message)).mapTo[FacebookPost]
+    //def echoToFacebook(echo: Echo, message: String) =
+    //      (echoedUserServiceActor ? ("echoToFacebook", echo, message)).mapTo[FacebookPost]
 
-    def echoToTwitter(echo:Echo, message:String) =
-        (echoedUserServiceActor ? ("echoToTwitter",echo,message)).mapTo[TwitterStatus]
+    def echoToFacebook(echo:Echo, message:String) =
+        (echoedUserServiceActor ? (EchoToFacebook(echo,message))).mapTo[EchoToFacebookResponse]
+
+    //def echoToTwitter(echo:Echo, message:String) =
+    //    (echoedUserServiceActor ? ("echoToTwitter",echo,message)).mapTo[TwitterStatus]
+
+    def echoToTwitter(echo:Echo,  message:String) =
+        (echoedUserServiceActor ? (EchoToTwitter(echo,message))).mapTo[EchoToTwitterResponse]
 
     //def getCloset = (echoedUserServiceActor ? "closet").mapTo[Closet]
     
