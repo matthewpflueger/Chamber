@@ -9,11 +9,10 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.EchoedFriend
 import com.echoed.chamber.dao.{EchoedFriendDao, EchoedUserDao}
 import scala.collection.JavaConversions._
-import scala.collection.mutable.{Map => MMap, ListBuffer => MList}
 import com.echoed.chamber.services.facebook.{GetFriendsResponse, FacebookService}
-import akka.dispatch.{AlreadyCompletedFuture, Future}
+import akka.dispatch.Future
 import com.echoed.chamber.services.ActorClient
-import akka.actor.{ActorRef, Actor}
+import akka.actor.Actor
 
 
 class EchoedUserServiceActor(
@@ -57,12 +56,40 @@ class EchoedUserServiceActor(
         case msg:GetEchoedUser => self.channel ! GetEchoedUserResponse(msg,Right(echoedUser))
 
         case msg:AssignTwitterService =>
-            this.twitterService = msg.twitterService
-            val twitterUser  = twitterService.twitterUser.get
-            echoedUser = this.echoedUser.assignTwitterUser(twitterUser.id, twitterUser.twitterId)
-            echoedUserDao.update(echoedUser)
-            self.channel ! AssignTwitterServiceResponse(msg,Right(this.twitterService))
-            self ! '_fetchTwitterFollowers
+            val me = self
+            val channel = self.channel
+
+            def error(e: Throwable) {
+                channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Cannot assign Twitter account", e)))
+                logger.error("Unexpected error assigning TwitterService to EchoedUser {}", echoedUser.id)
+            }
+
+            logger.debug("Assigning TwitterService to EchoedUser {}", echoedUser.id)
+            msg.twitterService.getTwitterUser.onComplete(_.value.get.fold(
+                e => error(e),
+                twitterUser => Option(twitterUser.echoedUserId).cata(
+                    echoedUserId => {
+                        channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Twitter account already in use")))
+                        logger.error(
+                                "Cannot assign Twitter account to EchoedUser {} because it is already in use by EchoedUser {}",
+                                echoedUser.id,
+                                echoedUserId)
+                    },
+                    {
+                        //FIXME really should be using Transactors for coordinated transactions (see API-22)...
+                        msg.twitterService.assignEchoedUserId(echoedUser.id).onComplete(_.value.get.fold(
+                            e => error(e),
+                            tu => {
+                                this.twitterService = msg.twitterService
+                                echoedUser = this.echoedUser.assignTwitterUser(twitterUser.id, twitterUser.twitterId)
+                                channel ! AssignTwitterServiceResponse(msg, Right(this.twitterService))
+                                echoedUserDao.update(echoedUser)
+                                me ! '_fetchTwitterFollowers
+                                logger.debug("Assigned TwitterUser {} to EchoedUser {}", twitterUser.twitterId, echoedUser.id)
+                            }
+                        ))
+                    })))
+
 
         case msg: AssignFacebookService =>
             this.facebookService = msg.facebookService

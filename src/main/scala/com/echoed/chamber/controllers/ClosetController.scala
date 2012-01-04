@@ -1,6 +1,8 @@
 package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
+import java.util.ArrayList
+
 //import com.echoed.chamber.domain.EchoPossibility
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
@@ -10,6 +12,8 @@ import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
+import scalaz._
+import Scalaz._
 
 
 
@@ -61,6 +65,11 @@ class ClosetController {
                             modelAndView.addObject("echoedUser", closet.echoedUser)
                             modelAndView.addObject("echoes", closet.echoes)
                             modelAndView.addObject("totalCredit", closet.totalCredit.round)
+                            val error = Option(httpServletRequest.getParameter("error"))
+                            logger.debug("Found error: {}", error)
+                            modelAndView.addObject("errors", error.cata(
+                                e => Array[String](e),
+                                Array[String]()))
                             continuation.setAttribute("modelAndView", modelAndView)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)

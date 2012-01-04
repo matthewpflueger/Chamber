@@ -12,7 +12,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
                           twitterUserDao: TwitterUserDao,
                           twitterStatusDao: TwitterStatusDao,
                           requestToken: RequestToken,
-                          twitterUser: TwitterUser) extends Actor {
+                          var twitterUser: TwitterUser) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[TwitterServiceActor])
 
@@ -53,19 +53,10 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
                     ))
 
         case ("assignEchoedUserId", echoedUserId: String) => {
-            val tu = twitterUser.copy(echoedUserId = echoedUserId)
-            twitterUserDao.updateEchoedUser(tu)
-            self.channel ! tu
+            twitterUser = twitterUser.copy(echoedUserId = echoedUserId)
+            twitterUserDao.updateEchoedUser(twitterUser)
+            self.channel ! twitterUser
         }
-//        case ("updateStatus", status: String) => {
-//            val channel = self.channel
-//            twitterAccess.updateStatus(twitterUser.accessToken, twitterUser.accessTokenSecret, status).map{
-//                twitterStatus =>
-//                    logger.debug("Insert/Updating twitterStatus {}", status)
-//                    twitterStatusDao.insertOrUpdate(_)
-//                    channel ! twitterStatus
-//            }
-//        }
 
         case ("getStatus", statusId: String) => {
             val channel = self.channel

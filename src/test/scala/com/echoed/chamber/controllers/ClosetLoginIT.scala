@@ -3,7 +3,6 @@ package com.echoed.chamber.controllers
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.echoed.util.IntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
 import scala.reflect.BeanProperty
 import com.echoed.chamber.domain.{Echo, EchoedUser}
@@ -14,6 +13,8 @@ import java.util.{Date, Properties}
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.chamber.dao.{FacebookUserDao, EchoDao, EchoedUserDao}
+import com.echoed.util.IntegrationTest
+import com.echoed.util.WebDriverUtils._
 
 
 @RunWith(classOf[JUnitRunner])
@@ -64,26 +65,6 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     override def afterAll = cleanup
 
 
-    def navigateToCloset() = {
-        val cookie = new Cookie.Builder("echoedUserId", echoedUser.id)
-                .domain(".echoed.com")
-                .path("/")
-                .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
-                .build()
-
-        webDriver.navigate().to("http://www.echoed.com")
-        webDriver.manage().deleteAllCookies()
-        webDriver.manage().addCookie(cookie)
-        webDriver.navigate().to(closetUrl)
-
-
-        webDriver.getTitle should be ("Closet")
-
-        val pageSource = webDriver.getPageSource
-        pageSource should include(echoedUser.name)
-        pageSource
-    }
-
     feature("A user can view their past echoes by logging into echoed.com via a social platform") {
 
         info("As a recent purchaser")
@@ -111,7 +92,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             when("there is a known user with no echoes")
             then("then show the user their closet")
             and("and indicate they have no echoes")
-            val pageSource = navigateToCloset()
+            val pageSource = navigateToCloset(webDriver, echoedUser)
             pageSource should include("Rewards: 0")
         }
 
@@ -129,7 +110,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             given("a request to echoed.com/closet")
             when("there is a known user")
             then("show the user their closet")
-            val pageSource = navigateToCloset()
+            val pageSource = navigateToCloset(webDriver, echoedUser)
             pageSource should include(echoes.map(_.credit).sum.round.toString)
             //TODO potential for pre-caching but until then...  echoes.foreach(echo => pageSource should include(echo.imageUrl))
         }

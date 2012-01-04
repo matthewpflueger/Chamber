@@ -1,0 +1,45 @@
+package com.echoed.util
+
+import java.util.Date
+import org.openqa.selenium.{WebDriver, Cookie}
+import com.echoed.chamber.domain.EchoedUser
+import org.scalatest.matchers.ShouldMatchers
+import java.util.concurrent.TimeUnit
+
+object WebDriverUtils extends ShouldMatchers {
+
+    val echoedUrl = "http://www.echoed.com"
+    val closetUrl = "http://v1-api.echoed.com/closet"
+    val twitterUrl = "http://www.twitter.com"
+
+    def navigateToCloset(webDriver: WebDriver, echoedUser: EchoedUser) = {
+        val cookie = new Cookie.Builder("echoedUserId", echoedUser.id)
+                .domain(".echoed.com")
+                .path("/")
+                .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
+                .build()
+
+        webDriver.navigate().to(echoedUrl)
+        webDriver.manage().deleteAllCookies()
+        webDriver.manage().addCookie(cookie)
+        webDriver.navigate().to(closetUrl)
+
+        webDriver.getTitle should be ("Closet")
+
+        val pageSource = webDriver.getPageSource
+        pageSource should include(echoedUser.name)
+        pageSource
+    }
+
+    def clearEchoedCookies(webDriver: WebDriver) {
+        webDriver.navigate.to(echoedUrl)
+        webDriver.manage.deleteAllCookies()
+    }
+
+    //NOTE: this does not work in WebDriver for some reason on Twitter (probably due to some Javascript)...
+//    def clearTwitterCookies(webDriver: WebDriver) {
+//        webDriver.navigate.to(twitterUrl)
+//        webDriver.manage.deleteAllCookies()
+//    }
+
+}

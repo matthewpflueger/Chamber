@@ -28,7 +28,6 @@ class TwitterController {
 
 
     @BeanProperty var twitterUserDao: TwitterUserDao = null
-    @Autowired
     @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var echoService: EchoService = _
@@ -145,7 +144,11 @@ class TwitterController {
                                                     case ts: TwitterService=>
                                                         echoedUserService.assignTwitterService(ts).onResult({
                                                             case AssignTwitterServiceResponse(_, Left(error)) =>
-                                                                logger.error("Error Assigning TwitterService: {}", error)
+                                                                logger.info("Error Assigning TwitterService: {}", error.getMessage)
+                                                                val modelAndView = new ModelAndView(redirectView)
+                                                                modelAndView.addObject("error", error.getMessage)
+                                                                continuation.setAttribute("modelAndView", modelAndView)
+                                                                continuation.resume
                                                             case AssignTwitterServiceResponse(_, Right(ts2)) =>
                                                                 val modelAndView = new ModelAndView(redirectView)
                                                                 continuation.setAttribute("modelAndView", modelAndView)

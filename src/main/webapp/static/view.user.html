@@ -342,6 +342,13 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 </script>
 
 
+<script type="text/javascript">
+    var error = new Array();//{{#errors}}
+    errors.push("{{this}}")
+    /*{{/errors}} // */
+</script>
+
+<script></script>
 
 <link rel="stylesheet" type="text/css" href="echoed.css"/>
 </head>
@@ -389,18 +396,18 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             <div id="networks">
                 {{#echoedUser}}
                     {{#facebookUserId}}
-                    <img src="http://v1-cdn.echoed.com/btn_sq_clr_fb.png" alt="facebook"/>
+                    <img id="facebookAccount" src="http://v1-cdn.echoed.com/btn_sq_clr_fb.png" alt="facebook"/>
                     {{/facebookUserId}}
                     {{^facebookUserId}}
-                    <a href="https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri=http://v1-api.echoed.com/facebook/login?redirect=closet&scope=email,publish_stream,offline_access">
+                    <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri=http://v1-api.echoed.com/facebook/login?redirect=closet&scope=email,publish_stream,offline_access">
                         <img src="http://v1-cdn.echoed.com/btn_sq_grey_fb.png" alt="facebook"/>
                     </a>
                     {{/facebookUserId}}
                     {{#twitterUserId}}
-                    <img src="http://v1-cdn.echoed.com/btn_sq_clr_tw.png" alt="twitter"/>
+                    <img id="twitterAccount" src="http://v1-cdn.echoed.com/btn_sq_clr_tw.png" alt="twitter"/>
                     {{/twitterUserId}}
                     {{^twitterUserId}}
-                        <a href="http://v1-api.echoed.com/twitter?redirect=closet"/>
+                        <a id="addTwitterLink" href="http://v1-api.echoed.com/twitter?redirect=closet"/>
                             <img src="http://v1-cdn.echoed.com/btn_sq_grey_tw.png" alt="twitter"/>
                         </a>
                     {{/twitterUserId}}
@@ -412,7 +419,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     </div>
 </body>
 </html>
-<script type=text/javascript>
+<script type="text/javascript">
     $(document).ready(function() {
         Echoed.init();
     });

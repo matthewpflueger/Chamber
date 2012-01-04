@@ -41,13 +41,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
     } ensuring (_ == true, "Missing parameters")
 
 
-    /* NOTE: This test requires a test user - you can create one as described here: http://developers.facebook.com/docs/test_users/
 
-       Example:
-       curl -v 'https://graph.facebook.com/177687295582534/accounts/test-users?access_token=177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA&name=TestUser&permissions=email,publish_stream,offline_access&method=post'
-
-       {"id":"100003182349503","access_token":"AAAChmwwiYUYBAFhYSKMYav4FCmBqrE6JyECfScZBZAILmpeHELmIzw5gnMtWDM6WwXJHx7EjKZCP3QdfksZBNqT5LaZAWvo5XVytSKZAZCL5AZDZD","login_url":"https:\/\/www.facebook.com\/platform\/test_account_login.php?user_id=100003182349503&n=QCf99XkcR0vFSGk","email":"testuser_eqhrpby_testuser\u0040tfbnw.net","password":"668228301"}
-    */
     feature("A user can echo and create their Echoed account by login via Twitter") {
 
         info("As a recent purchaser")
@@ -55,9 +49,6 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
         info("So that I can echo and create my Echoed account using my Twitter credentials")
 
         scenario("unknown user clicks on Twitter login button with a valid echoPossibility and is redirected to confirm page post login", IntegrationTest) {
-            val testUserTwitterId ="47851866"
-            val testUserScreenName = "MisterJWU"
-            val testUserPass = "gateway2"
 
             val twitterUser = dataCreator.twitterUser
             echoedUserDao.deleteByScreenName(twitterUser.screenName)
@@ -85,7 +76,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             //webDriver.findElement(By.id("echoit")).click()
 
             and("create an EchoedUser account using the Facebook info")
-            val dbtwitterUser = twitterUserDao.findByScreenName(testUserScreenName)
+            val dbtwitterUser = twitterUserDao.findByScreenName(twitterUser.screenName)
             dbtwitterUser should not be (null)
 
             val echoedUser = echoedUserDao.findByTwitterUserId(dbtwitterUser.id)
