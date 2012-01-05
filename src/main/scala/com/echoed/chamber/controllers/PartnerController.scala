@@ -53,7 +53,7 @@ class PartnerController {
                 continuation.setAttribute(
                     "modelAndView",
                     new ModelAndView(partnerLoginErrorView, "error", error))
-                continuation.resume
+                continuation.resume()
             }
 
             logger.debug("Received login request for {}", email)
@@ -66,13 +66,13 @@ class PartnerController {
                         logger.debug("Successful login for {}", email)
                         cookieManager.addCookie(httpServletResponse, "partnerUser", pu.id)
                         continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
-                        continuation.resume
+                        continuation.resume()
                     case unknown => throw new RuntimeException("Unknown response %s" format unknown)
                 }
                 case unknown => throw new RuntimeException("Unknown response %s" format unknown)
             }
 
-            continuation.undispatch
+            continuation.undispatch()
         })
 
     }
@@ -95,7 +95,7 @@ class PartnerController {
                 continuation.setAttribute(
                     "modelAndView",
                     new ModelAndView(partnerDashboardErrorView, "error", error))
-                continuation.resume
+                continuation.resume()
             }
 
             logger.debug("Showing dashboard for PartnerUser {}", partnerUserId)
@@ -108,16 +108,45 @@ class PartnerController {
                         continuation.setAttribute(
                             "modelAndView",
                             new ModelAndView(partnerDashboardView, "partnerUser", pu))
-                        continuation.resume
+                        continuation.resume()
                     case unknown => throw new RuntimeException("Unknown response %s" format unknown)
                 }
                 case unknown => throw new RuntimeException("Unknown response %s" format unknown)
             }
 
-            continuation.undispatch
+            continuation.undispatch()
         })
 
     }
 
-}
+    @RequestMapping(value = Array("/summary"), method = Array(RequestMethod.GET))
+    def summary(
+            @CookieValue(value="partnerUser", required = false) partnerUserId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (continuation.isExpired) {
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
+            def onError(error: PartnerUserException) {
+                logger.debug("Got error showing dashboard for {}: {}", partnerUserId, error.message)
+                continuation.setAttribute(
+                    "modelAndView",
+                    new ModelAndView(partnerDashboardErrorView, "error", error))
+                continuation.resume()
+            }
+            continuation.suspend(httpServletResponse)
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) => onError(error)
+                case LocateResponse(_, Right(pus)) =>
+                    pus.getRetailerSocialSummary.onResult({
+                        case GetRetailerSocialSummaryResponse(_, Left(error)) => onError(error)
+                        case GetRetailerSocialSummaryResponse(_, Right(retailerSocialSummary)) =>
+                            continuation.setAttribute("modelAndView", retailerSocialSummary)
+                            continuation.resume()
+                    })
+            })
+        })
+        continuation.undispatch()
+    }
+}

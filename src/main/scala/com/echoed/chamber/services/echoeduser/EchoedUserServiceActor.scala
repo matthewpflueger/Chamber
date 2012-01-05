@@ -1,5 +1,7 @@
 package com.echoed.chamber.services.echoeduser
 
+import com.echoed.chamber.domain.views.{EchoViewDetail,EchoView}
+import java.util.{ArrayList, List => JList}
 import com.echoed.chamber.services.twitter.TwitterService
 import com.echoed.chamber.dao.views.{ClosetDao,FeedDao}
 import org.slf4j.LoggerFactory
@@ -128,14 +130,24 @@ class EchoedUserServiceActor(
             
         case msg: GetFeed =>
             logger.debug("Attempting to retrieve Feed for EchoedUserId {}", echoedUser.id)
-            self.channel ! GetFeedResponse(msg, Right(feedDao.findByEchoedUserId(echoedUser.id)))
+            var resultSet = feedDao.findByEchoedUserId(echoedUser.id)
+            if(resultSet.echoes.size == 1){
+                if(resultSet.echoes.head.echoId == null){
+                    resultSet = resultSet.copy(echoes= new ArrayList[EchoViewDetail])
+                }
+            }
+            self.channel ! GetFeedResponse(msg, Right(resultSet))
 
         case msg: GetExhibit =>
             val channel = self.channel
             Future {
                 logger.debug("Fetching exhibit for EchoedUser {}", echoedUser.id)
-                val closet = closetDao.findByEchoedUserId(echoedUser.id)
+                var closet = closetDao.findByEchoedUserId(echoedUser.id)
                 val credit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
+                if(closet.echoes.size == 1)
+                    if(closet.echoes.head.echoId == null)
+                        closet = closet.copy(echoes = new ArrayList[EchoView])
+                
                 channel ! GetExhibitResponse(msg, Right(closet.copy(totalCredit = credit)))
                 logger.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
             }
@@ -164,7 +176,7 @@ class EchoedUserServiceActor(
         case '_fetchFacebookFriends =>
             Option(facebookService).collect{ case ac: ActorClient => ac.actorRef }.cata(
                 _ ! '_fetchFacebookFriends,
-                logger.debug("No FacebookService for EchoedUser {}", echoedUser.id)
+                logger.debug("No FacebosokService for EchoedUser {}", echoedUser.id)
             )
 
         case twitterFollowers: List[TwitterFollower] =>

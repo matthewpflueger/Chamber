@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.echoed.chamber.dao.views.FeedDao">
-    <resultMap id="retailerSummaryResult" type="com.echoed.chamber.domain.views.RetailerSummary">
+    <resultMap id="retailerSocialSummaryResult" type="com.echoed.chamber.domain.views.RetailerSocialSummary">
         <constructor>
             <idArg column="retailerId" javaType="String"/>
             <arg column="retailerName" javaType="String" />
@@ -11,9 +11,36 @@
         </constructor>
     </resultMap>
 
-    <select id="getSocialActivityByRetailerId" resultMap="retailerSummaryResult">
+    <select id="getSocialActivityByProduct" resultMap="">
         SELECT
-            R.id as retailerId
+            R.id as retailerId,
+            R.name as retailerName,
+            R.productId as productId,
+            R.productName as productName,
+            count(E.id) as totalEchoes,
+            count(FBL.id) as totalFacebookLikes,
+            count(FBC.id) as totalFacebookComments
+        FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E ON R.id = E.retailerId
+            LEFT OUTER JOIN
+            FacebookPost FBP ON E.id=FBP.echoId
+            LEFT OUTER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FBP.id
+        WHERE
+            R.id = #{retailerId}
+            AND
+            R.productId = #{productId}
+        GROUP BY
+            R.id, R.name, R.productId, R.productName
+    </select>
+
+    <select id="getSocialActivityByRetailerId" resultMap="retailerSocialSummaryResult">
+        SELECT
+            R.id as retailerId,
             R.name as retailerName,
             count(E.id) as totalEchoes,
             count(FBL.id) as totalFacebookLikes,

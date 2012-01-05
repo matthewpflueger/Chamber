@@ -1,7 +1,11 @@
 package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
+<<<<<<< Updated upstream
 import java.util.ArrayList
+=======
+import org.springframework.web.servlet.ModelAndView
+>>>>>>> Stashed changes
 
 //import com.echoed.chamber.domain.EchoPossibility
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
@@ -11,10 +15,13 @@ import com.echoed.chamber.services.echoeduser._
 import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
+<<<<<<< Updated upstream
 import org.springframework.web.servlet.ModelAndView
 import scalaz._
 import Scalaz._
 
+=======
+>>>>>>> Stashed changes
 
 
 @Controller
@@ -48,14 +55,6 @@ class ClosetController {
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
                     logger.debug("Found EchoedUserService {} ", echoedUserService);
 
-                    /*echoedUserService.getEchoedUser().map {
-                        echoedUser =>
-                            val modelAndView = new ModelAndView(closetView)
-                            modelAndView.addObject("echoedUser",echoedUser)
-                            modelAndView.addObject("totalCredit","0");
-                            continuation.setAttribute("modelAndView",modelAndView)
-                            continuation.resume()
-                    }  */
                     echoedUserService.getCloset.onResult{
                         case GetExhibitResponse(_,Left(error)) =>
                             logger.error("Error Getting Exhibit: {}" , error)
@@ -63,7 +62,7 @@ class ClosetController {
                         case GetExhibitResponse(_,Right(closet)) =>
                             val modelAndView = new ModelAndView(closetView)
                             modelAndView.addObject("echoedUser", closet.echoedUser)
-                            modelAndView.addObject("echoes", closet.echoes)
+                            //modelAndView.addObject("echoes", closet.echoes)
                             modelAndView.addObject("totalCredit", closet.totalCredit.round)
                             val error = Option(httpServletRequest.getParameter("error"))
                             logger.debug("Found error: {}", error)
@@ -77,11 +76,17 @@ class ClosetController {
                     .onException{
                         case e=>
                             logger.error("Exception thrown on Getting Exhibit: {}", e)
+                            val modelAndView  = new ModelAndView(errorView)
+                            continuation.setAttribute("modelAndView",modelAndView)
+                            continuation.resume()
                     }
             }
             .onException{
                 case e =>
                     logger.error("Exception thrown Locating EchoedUserService: {}" , e)
+                    val modelAndView = new ModelAndView(errorView)
+                    continuation.setAttribute("modelAndView", modelAndView)
+                    continuation.resume()
             }
             continuation.undispatch()
         })

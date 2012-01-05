@@ -12,5 +12,8 @@ import com.echoed.chamber.domain.views.Closet
 trait PartnerUserService {
 
     def getPartnerUser: Future[GetPartnerUserResponse]
+    
+    def getRetailerSocialSummary: Future[GetRetailerSocialSummaryResponse]
+    
 }
 

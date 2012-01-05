@@ -72,7 +72,7 @@ class TwitterController {
             }
             
             logger.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl,"UTF-8"));
-//                URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/twitter/login?"), "UTF-8")
+
             val futureTwitterService = twitterServiceLocator.getTwitterService(callbackUrl)
             futureTwitterService.onResult({
                 case twitterService: TwitterService =>
@@ -204,12 +204,7 @@ class TwitterController {
 
             continuation.suspend(httpServletResponse)
 
-//            logger.debug("Requesting EchoPossibility with id {}", echoPossibilityId)
             val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
-
-//            val futureEchoPossibility = echoService.getEchoPossibility(echoPossibilityId)
-
-
 
             futureTwitterService
                     .onResult({
@@ -258,14 +253,14 @@ class TwitterController {
                             .onException({
                                 case e =>
                                     continuation.setAttribute("modelAndView", new ModelAndView(twitterLoginErrorView))
-                                    continuation.resume
+                                    continuation.resume()
                             })
                     })
             })
-                    .onException({
+            .onException({
                 case e =>
                     continuation.setAttribute("modelAndView", new ModelAndView(twitterLoginErrorView))
-                    continuation.resume
+                    continuation.resume()
             })
             continuation.undispatch()
         })

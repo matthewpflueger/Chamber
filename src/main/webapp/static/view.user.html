@@ -292,7 +292,19 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     render: function(){
         var template = _.template($('#templates-components-product').html());
-        this.el.addClass("item_wrap").addClass(this.model.get("echoCategory")).html(template({data:this.model.toJSON()})).attr("href",this.model.get("echoLandingPageUrl"));
+
+        this.el.addClass("item_wrap").addClass(this.model.get("echoCategory")).html(template).attr("href",this.model.get("echoLandingPageUrl"));
+        var hover = this.el.find(".item_hover_wrap");
+        var img = this.el.find("img");
+        if(this.model.get("echoProductName"))
+            hover.append(this.model.get("echoProductName") +'<br/>');
+        if(this.model.get("echoBrand"))
+            hover.append(this.model.get("echoBrand") + '<br/>');
+        if(this.model.get("echoProductName"))
+            hover.append(this.model.get("echoedUserName") + '<br/>');
+        if(this.model.get("echoProductName"))
+            hover.append(this.model.get("echoCredit") +'<br/>');
+        img.attr('src',this.model.get("echoImageUrl"));
         return this;
     },
     showOverlay: function(){
@@ -310,13 +322,9 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 <script type="text/template" id="templates-components-product">
     <div class="item_hover" style="display:none;">
         <div class="item_hover_wrap">
-            <%= data.echoProductName %><br/>
-            <%= data.echoBrand %><br/>
-            <%= data.echoedUserName %><br/>
-            Credit: $<%= data.echoCredit %><br/>
         </div>
     </div>
-    <img class="exhibit_image" src="<%= data.echoImageUrl %>"/>
+    <img class="exhibit_image" src=""/>
 </script>
 
 <script type="text/templates" id="templates-pages-exhibit">

@@ -13,5 +13,7 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
     private final val logger = LoggerFactory.getLogger(classOf[PartnerUserServiceActorClient])
 
     def getPartnerUser = (partnerUserServiceActor ? GetPartnerUser()).mapTo[GetPartnerUserResponse]
+    
+    def getRetailerSocialSummary = (partnerUserServiceActor ? GetRetailerSocialSummary()).mapTo[GetRetailerSocialSummaryResponse]
 
 }

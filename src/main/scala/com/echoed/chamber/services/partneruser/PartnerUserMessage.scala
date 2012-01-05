@@ -2,6 +2,7 @@ package com.echoed.chamber.services.partneruser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.RetailerUser
+import com.echoed.chamber.domain.views.RetailerSocialSummary
 
 
 sealed trait PartnerUserMessage extends Message
@@ -20,6 +21,10 @@ case class GetPartnerUser() extends PUM
 case class GetPartnerUserResponse(message: GetPartnerUser, value: Either[PartnerUserException, RetailerUser])
         extends PUM with RM[RetailerUser, GetPartnerUser, PUE]
 
+case class GetRetailerSocialSummary() extends PUM
+case class GetRetailerSocialSummaryResponse(message: GetRetailerSocialSummary, value: Either[PartnerUserException, RetailerSocialSummary])
+        extends PUM with RM[RetailerSocialSummary, GetRetailerSocialSummary, PUE]
+                                     
 case class CreatePartnerUserService(email: String) extends PUM
 case class CreatePartnerUserServiceResponse(
         message: CreatePartnerUserService,
@@ -31,5 +36,6 @@ case class LocateResponse(
         message: Locate,
         value: Either[PUE, PartnerUserService])
         extends PUM with RM[PartnerUserService, Locate, PUE]
+
 
 

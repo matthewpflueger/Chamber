@@ -8,7 +8,7 @@ package com.echoed.chamber.domain.views
  * To change this template use File | Settings | File Templates.
  */
 
-case class RetailerSummary(
+case class RetailerSocialSummary(
     retailerId:String,
     retailerName: String,
     totalEchoes: Int,

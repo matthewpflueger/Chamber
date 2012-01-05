@@ -151,5 +151,10 @@
         <property name="mapperInterface" value="com.echoed.chamber.dao.views.FeedDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
+    
+    <bean id="retailerViewDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.views.RetailerViewDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
 
 </beans>

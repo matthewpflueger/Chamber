@@ -309,12 +309,14 @@ h2{
                 height:100%;
                 background-image: url("http://v1-cdn.echoed.com/bg-blackpx90.png")
             }
+                .masthead-content .masthead-text{
+                    color: #000;
+                }
 
                 .masthead-content-black .masthead-title,
                 .masthead-content-black .masthead-text{
                     color : #FFF;
                 }
-
 
                 .masthead-title{
                     font-size: 64px;
