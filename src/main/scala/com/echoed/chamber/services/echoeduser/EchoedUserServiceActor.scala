@@ -66,42 +66,73 @@ class EchoedUserServiceActor(
                 logger.error("Unexpected error assigning TwitterService to EchoedUser {}", echoedUser.id)
             }
 
-            logger.debug("Assigning TwitterService to EchoedUser {}", echoedUser.id)
-            msg.twitterService.getTwitterUser.onComplete(_.value.get.fold(
-                e => error(e),
-                twitterUser => Option(twitterUser.echoedUserId).cata(
-                    echoedUserId => {
-                        channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Twitter account already in use")))
-                        logger.error(
-                                "Cannot assign Twitter account to EchoedUser {} because it is already in use by EchoedUser {}",
-                                echoedUser.id,
-                                echoedUserId)
-                    },
-                    {
-                        //FIXME really should be using Transactors for coordinated transactions (see API-22)...
-                        msg.twitterService.assignEchoedUserId(echoedUser.id).onComplete(_.value.get.fold(
-                            e => error(e),
-                            tu => {
-                                this.twitterService = msg.twitterService
-                                echoedUser = this.echoedUser.assignTwitterUser(twitterUser.id, twitterUser.twitterId)
-                                channel ! AssignTwitterServiceResponse(msg, Right(this.twitterService))
-                                echoedUserDao.update(echoedUser)
-                                me ! '_fetchTwitterFollowers
-                                logger.debug("Assigned TwitterUser {} to EchoedUser {}", twitterUser.twitterId, echoedUser.id)
-                            }
-                        ))
-                    })))
+            try {
+                logger.debug("Assigning TwitterService to EchoedUser {}", echoedUser.id)
+                msg.twitterService.getTwitterUser.onComplete(_.value.get.fold(
+                    e => error(e),
+                    twitterUser => Option(twitterUser.echoedUserId).cata(
+                        echoedUserId => {
+                            channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Twitter account already in use")))
+                            logger.error(
+                                    "Cannot assign Twitter account to EchoedUser {} because it is already in use by EchoedUser {}",
+                                    echoedUser.id,
+                                    echoedUserId)
+                        },
+                        {
+                            //FIXME really should be using Transactors for coordinated transactions (see API-22)...
+                            msg.twitterService.assignEchoedUserId(echoedUser.id).onComplete(_.value.get.fold(
+                                e => error(e),
+                                tu => {
+                                    this.twitterService = msg.twitterService
+                                    echoedUser = this.echoedUser.assignTwitterUser(tu.id, tu.twitterId)
+                                    channel ! AssignTwitterServiceResponse(msg, Right(this.twitterService))
+                                    echoedUserDao.update(echoedUser)
+                                    me ! '_fetchTwitterFollowers
+                                    logger.debug("Assigned TwitterUser {} to EchoedUser {}", tu.twitterId, echoedUser.id)
+                                }
+                            ))
+                        })))
+            } catch {
+                case e => error(e)
+            }
 
 
         case msg: AssignFacebookService =>
-            this.facebookService = msg.facebookService
-            val facebookUser = facebookService.facebookUser.get
-            logger.debug("Assigning Facebook Id {} to EchoedUser {}",facebookUser.id, echoedUser)
-            echoedUser = this.echoedUser.assignFacebookUser(facebookUser.id,facebookUser.facebookId)
-            echoedUserDao.update(echoedUser)
-            self.channel ! AssignFacebookServiceResponse(msg,Right(this.facebookService))
-            self ! '_fetchFacebookFriends
+            val me = self
+            val channel = self.channel
 
+            def error(e: Throwable) {
+                channel ! AssignFacebookServiceResponse(msg, Left(new EchoedUserException("Cannot assign Facebook account", e)))
+                logger.error("Unexpected error assigning FacebookService to EchoedUser {}", echoedUser.id)
+            }
+
+            try {
+                logger.debug("Assigning FacebookService to EchoedUser {}", echoedUser.id)
+                msg.facebookService.getFacebookUser().onComplete(_.value.get.fold(
+                    e => error(e),
+                    facebookUser => Option(facebookUser.echoedUserId).cata(
+                        echoedUserId => {
+                            channel ! AssignFacebookServiceResponse(msg, Left(new EchoedUserException("Facebook account already in use")))
+                            logger.debug(
+                                "Cannot assign Facebook account to EchoedUser {} because it is already in use by EchoedUser {}",
+                                echoedUser.id,
+                                echoedUserId)
+                        },
+                        {
+                            msg.facebookService.assignEchoedUser(echoedUser).onComplete(_.value.get.fold(
+                                e => error(e),
+                                fu => {
+                                    this.facebookService = msg.facebookService
+                                    this.echoedUser = this.echoedUser.assignFacebookUser(fu.id, fu.facebookId)
+                                    channel ! AssignFacebookServiceResponse(msg, Right(this.facebookService))
+                                    echoedUserDao.update(echoedUser)
+                                    me ! '_fetchFacebookFriends
+                                    logger.debug("Assigned FacebookUser {} to EchoedUser {}", fu.facebookId, echoedUser.id)
+                                }))
+                        })))
+            } catch {
+                case e => error(e)
+            }
 
         case("getTwitterFollowers") =>
             self.channel ! twitterService.getFollowers().get.asInstanceOf[Array[TwitterFollower]]
@@ -127,7 +158,7 @@ class EchoedUserServiceActor(
             val echoedUserId = echoedUser.id
             val echoedFriend = Option(echoedFriendDao.findFriendByEchoedUserId(echoedUserId,echoedFriendUserId)).getOrElse(null)
             self.channel ! GetFriendExhibitResponse(msg,Right(closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)))
-            
+
         case msg: GetFeed =>
             logger.debug("Attempting to retrieve Feed for EchoedUserId {}", echoedUser.id)
             var resultSet = feedDao.findByEchoedUserId(echoedUser.id)
@@ -147,7 +178,7 @@ class EchoedUserServiceActor(
                 if(closet.echoes.size == 1)
                     if(closet.echoes.head.echoId == null)
                         closet = closet.copy(echoes = new ArrayList[EchoView])
-                
+
                 channel ! GetExhibitResponse(msg, Right(closet.copy(totalCredit = credit)))
                 logger.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
             }
@@ -176,7 +207,7 @@ class EchoedUserServiceActor(
         case '_fetchFacebookFriends =>
             Option(facebookService).collect{ case ac: ActorClient => ac.actorRef }.cata(
                 _ ! '_fetchFacebookFriends,
-                logger.debug("No FacebosokService for EchoedUser {}", echoedUser.id)
+                logger.debug("No FacebookService for EchoedUser {}", echoedUser.id)
             )
 
         case twitterFollowers: List[TwitterFollower] =>

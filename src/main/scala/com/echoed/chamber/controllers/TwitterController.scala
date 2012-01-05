@@ -70,7 +70,7 @@ class TwitterController {
             else{
                 callbackUrl = "http://v1-api.echoed.com/twitter/login?redirect=" + URLEncoder.encode(redirect,"UTF-8")
             }
-            
+
             logger.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl,"UTF-8"));
 
             val futureTwitterService = twitterServiceLocator.getTwitterService(callbackUrl)
@@ -91,8 +91,8 @@ class TwitterController {
             continuation.undispatch()
         })
     }
-    
-    
+
+
     @RequestMapping(value = Array("/add"), method= Array(RequestMethod.GET))
     def add(
         @RequestParam("oauth_token") oAuthToken: String,
@@ -104,20 +104,16 @@ class TwitterController {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
-        val queryString = {
-            //val index = httpServletRequest.getQueryString.indexOf("&code=")
-            httpServletRequest.getQueryString.substring(0)
-        }
-
-        logger.debug("Add/QueryString: {} ", redirect)
-        val redirectView = "redirect:http://v1-api.echoed.com/" + redirect
 
         if(continuation.isExpired){
             new ModelAndView("test")
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
             //val futureEchoedUserService = echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId)
-            
+
+            logger.debug("Add/QueryString: {} ", redirect)
+            val redirectView = "redirect:http://v1-api.echoed.com/" + redirect
+
             //futureEchoedUserService.onResult({
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult{
                 case LocateWithIdResponse(_,Left(error)) =>
@@ -158,7 +154,7 @@ class TwitterController {
                                                             case e =>
                                                                 logger.error("Exception thrown Assinging TwitterService: {}", e)
                                                         })
-                                                        
+
                                                 })
                                         })
                                 })
@@ -176,7 +172,7 @@ class TwitterController {
             continuation.undispatch()
         })
     }
-        
+
 
 
     @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
@@ -189,23 +185,19 @@ class TwitterController {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
-        val queryString = {
-            httpServletRequest.getQueryString.substring(0)
-        }
-        logger.debug("Twitter/Login/QueryString : {}", queryString)
-        logger.debug("Twitter/Login/Redirect: {}", redirect)
 
-        logger.debug("Continuation attribute Model and View = {}", continuation.getAttribute("modelAndView"))
         if (Option(oAuthToken) == None || oAuthVerifier == None || continuation.isExpired) {
             logger.error("Request expired to login via Twitter with code {}")
-            new ModelAndView("test")
-
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
             continuation.suspend(httpServletResponse)
 
-            val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
+            val queryString = httpServletRequest.getQueryString
 
+            logger.debug("Twitter/Login/QueryString : {}", queryString)
+            logger.debug("Twitter/Login/Redirect: {}", redirect)
+
+            val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
             futureTwitterService
                     .onResult({
                 case twitterService: TwitterService =>

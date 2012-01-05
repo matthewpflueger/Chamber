@@ -1,27 +1,17 @@
 package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
-<<<<<<< Updated upstream
-import java.util.ArrayList
-=======
-import org.springframework.web.servlet.ModelAndView
->>>>>>> Stashed changes
-
-//import com.echoed.chamber.domain.EchoPossibility
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
-//import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import com.echoed.chamber.services.echoeduser._
 import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
-<<<<<<< Updated upstream
 import org.springframework.web.servlet.ModelAndView
 import scalaz._
 import Scalaz._
 
-=======
->>>>>>> Stashed changes
+
 
 
 @Controller
@@ -135,7 +125,7 @@ class ClosetController {
         })
 
     }
-    
+
     @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
     def exhibit(
@@ -227,7 +217,7 @@ class ClosetController {
             continuation.undispatch()
         })
     }
-    
+
     @RequestMapping(value= Array("/exhibit/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
@@ -239,10 +229,10 @@ class ClosetController {
         logger.debug("echoedFriendId: {}", echoedFriendId)
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if(continuation.isExpired) {
-            
+
         } else Option(continuation.getAttribute("closet")).getOrElse({
             continuation.suspend(httpServletResponse)
-            
+
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
                     logger.error("Error Locating EchoedUserService with error {}", error)
@@ -263,11 +253,11 @@ class ClosetController {
                 case e =>
                     logger.error("Exception thrown when Locating EchoedUserService: {}", e)
             }
-            
+
             continuation.undispatch()
         })
-        
-        
+
+
 
     }
 }
