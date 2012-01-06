@@ -4,7 +4,6 @@ import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.dao.TwitterUserDao
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{GivenWhenThen, FeatureSpec}
 import org.scalatest.matchers.ShouldMatchers
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
@@ -13,11 +12,12 @@ import com.echoed.util.IntegrationTest
 import java.util.Properties
 import org.openqa.selenium.{By, WebDriver}
 import com.echoed.chamber.util.DataCreator
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:webIT.xml"))
-class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers {
+class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var twitterUserDao: TwitterUserDao = _
@@ -41,6 +41,17 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
     } ensuring (_ == true, "Missing parameters")
 
 
+    val twitterUser = dataCreator.twitterUser
+
+    def cleanup() {
+        twitterUserDao.deleteByScreenName(twitterUser.screenName)
+        echoedUserDao.deleteByScreenName(twitterUser.screenName)
+    }
+
+    override protected def beforeAll() = cleanup()
+
+    override protected def afterAll() = cleanup()
+
 
     feature("A user can echo and create their Echoed account by login via Twitter") {
 
@@ -50,9 +61,40 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
 
         scenario("unknown user clicks on Twitter login button with a valid echoPossibility and is redirected to confirm page post login", IntegrationTest) {
 
-            val twitterUser = dataCreator.twitterUser
-            echoedUserDao.deleteByScreenName(twitterUser.screenName)
-            twitterUserDao.deleteByScreenName(twitterUser.screenName)
+            given("a request to login and echo using Twitter credentials")
+            when("the user is unrecognized (no cookie) and with a valid echoPossibility")
+
+            val (e, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
+            webDriver.manage().deleteCookieNamed("echoedUserId")
+            webDriver.navigate.to(echoUrl + e.generateUrlParameters)
+            webDriver.getCurrentUrl should startWith (echoUrl)
+
+            //NOTE: we are assuming the user already has a valid Facebook session and has already approved Echoed...
+            webDriver.findElement(By.id("twitterLogin")).click()
+            webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
+            val pass = webDriver.findElement(By.id("password"))
+            pass.sendKeys(dataCreator.twitterPassword)
+            pass.submit()
+
+
+            then("redirect to the echo confirm page")
+            webDriver.getCurrentUrl.startsWith(echoUrl) should be (true)
+
+            //webDriver.findElement(By.id("echoit")).click()
+
+            and("create an EchoedUser account using the Facebook info")
+            val dbtwitterUser = twitterUserDao.findByScreenName(twitterUser.screenName)
+            dbtwitterUser should not be (null)
+
+            val echoedUser = echoedUserDao.findByTwitterUserId(dbtwitterUser.id)
+            echoedUser should not be (null)
+            val echoPossibility = e.copy(echoedUserId = echoedUser.id, step = "confirm")
+
+            and("record the EchoPossibility in the database")
+            echoHelper.validateEchoPossibility(echoPossibility, count)
+        }
+
+        scenario("known user clicks on Twitter login button with a valid echoPossibility and is redirected to confirm page post login", IntegrationTest) {
 
             given("a request to login and echo using Twitter credentials")
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")

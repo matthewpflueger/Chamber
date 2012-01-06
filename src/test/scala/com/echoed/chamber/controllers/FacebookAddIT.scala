@@ -31,10 +31,12 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
 
     var closetUrl: String = null
+    var apiUrl: String = null
 
     {
         closetUrl = urls.getProperty("closetUrl")
-        closetUrl != null
+        apiUrl = urls.getProperty("apiUrl")
+        closetUrl != null && apiUrl != null
     } ensuring (_ == true, "Missing parameters")
 
 
@@ -50,16 +52,19 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
     def cleanup() {
         facebookUserDao.deleteByEmail(facebookUser.email)
+        echoedUserDao.deleteByEmail(dataCreator.echoedUser.email)
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
     }
 
     override protected def beforeAll() {
-        cleanup
+        cleanup()
         echoedUserDao.insert(echoedUser)
     }
 
-    override protected def afterAll() = cleanup()
+    override protected def afterAll() {
+        cleanup()
+    }
 
     var firstScenarioPassed = false
 
@@ -72,6 +77,7 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
         scenario("user clicks on add Facebook account button and successfully adds their Facebook account to their Echoed account", IntegrationTest) {
 
             given("a request to add their Facebook account to their Echoed account")
+            clearFacebookCookies(webDriver)
             navigateToCloset(webDriver, echoedUser)
 
             when("the user has no associated Facebook account and their Facebook credentials matches no existing Twitter account")
@@ -129,6 +135,34 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             } finally {
                 echoedUserDao.deleteByEmail(echoedUser2.email)
             }
+        }
+
+        scenario("user tries to add their own, already existing Facebook account to Echoed user account", IntegrationTest) {
+            firstScenarioPassed should be (true)
+
+            clearFacebookCookies(webDriver)
+
+            given("a request to add their own, already existing Facebook account to their Echoed account")
+            webDriver.get("https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri=http://v1-api.echoed.com/facebook/add?redirect=closet&scope=email,publish_stream,offline_access")
+
+//            webDriver.get(apiUrl)
+//            webDriver.getTitle should startWith("Echoed")
+
+            when("the user has an associated Facebook account")
+            then("send them to Facebook to login")
+//            webDriver.findElement(By.id("facebookLogin")).click
+            webDriver.findElement(By.id("email")).sendKeys(facebookUser.email)
+            val pass = webDriver.findElement(By.id("pass"))
+            pass.sendKeys(dataCreator.facebookUserPassword)
+            pass.submit()
+
+
+            and("re-assign their Facebook account to their Echoed user account")
+            webDriver.getTitle() should be ("Closet")
+            webDriver.findElement(By.id("facebookAccount")) should not be (null)
+            val eu = echoedUserDao.findByFacebookId(facebookUser.facebookId)
+            eu should not be (null)
+
         }
     }
 }

@@ -31,10 +31,12 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
 
     var closetUrl: String = null
+    var apiUrl: String = null
 
     {
         closetUrl = urls.getProperty("closetUrl")
-        closetUrl != null
+        apiUrl = urls.getProperty("apiUrl")
+        closetUrl != null && apiUrl != null
     } ensuring (_ == true, "Missing parameters")
 
 
@@ -107,6 +109,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
                 given("a request to add their Twitter account to their Echoed account")
 
+                clearTwitterCookies(webDriver)
                 clearEchoedCookies(webDriver)
 
                 navigateToCloset(webDriver, echoedUser2)
@@ -115,11 +118,11 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
                 then("send them to Twitter to login")
                 webDriver.findElement(By.id("addTwitterLink")).click
                 //NOTE: this does not work because we can't seem to get the Twitter cookies to clear
-//                webDriver.getTitle should include("Twitter")
-//                webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
-//                val pass = webDriver.findElement(By.id("password"))
-//                pass.sendKeys(dataCreator.twitterPassword)
-//                pass.submit()
+                webDriver.getTitle should include("Twitter")
+                webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
+                val pass = webDriver.findElement(By.id("password"))
+                pass.sendKeys(dataCreator.twitterPassword)
+                pass.submit()
 
 
                 and("do not add the Twitter account")
@@ -132,6 +135,32 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
             } finally {
                 echoedUserDao.deleteByEmail(echoedUser2.email)
             }
+        }
+
+        scenario("user tries to add their own, already existing Twitter account to Echoed user account", IntegrationTest) {
+            firstScenarioPassed should be (true)
+
+            clearTwitterCookies(webDriver)
+
+            given("a request to add their own, already existing Twitter account to their Echoed account")
+            webDriver.get(apiUrl)
+            webDriver.getTitle should startWith("Echoed")
+
+            when("the user has an associated Twitter account")
+            then("send them to Twitter to login")
+            webDriver.findElement(By.id("twitterLogin")).click
+            webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
+            val pass = webDriver.findElement(By.id("password"))
+            pass.sendKeys(dataCreator.twitterPassword)
+            pass.submit()
+
+
+            and("re-assign their Twitter account to their Echoed user account")
+            webDriver.getTitle() should be ("Closet")
+            webDriver.findElement(By.id("twitterAccount")) should not be (null)
+            val eu = echoedUserDao.findByTwitterId(twitterUser.twitterId)
+            eu should not be (null)
+
         }
     }
 }

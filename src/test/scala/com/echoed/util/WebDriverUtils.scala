@@ -11,6 +11,7 @@ object WebDriverUtils extends ShouldMatchers {
     val echoedUrl = "http://www.echoed.com"
     val closetUrl = "http://v1-api.echoed.com/closet"
     val twitterUrl = "http://www.twitter.com"
+    val facebookUrl = "http://www.facebook.com"
 
     def navigateToCloset(webDriver: WebDriver, echoedUser: EchoedUser) = {
         val cookie = new Cookie.Builder("echoedUserId", echoedUser.id)
@@ -19,10 +20,10 @@ object WebDriverUtils extends ShouldMatchers {
                 .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
                 .build()
 
-        webDriver.navigate().to(echoedUrl)
+        webDriver.get(echoedUrl)
         webDriver.manage().deleteAllCookies()
         webDriver.manage().addCookie(cookie)
-        webDriver.navigate().to(closetUrl)
+        webDriver.get(closetUrl)
 
         webDriver.getTitle should be ("Closet")
 
@@ -32,14 +33,18 @@ object WebDriverUtils extends ShouldMatchers {
     }
 
     def clearEchoedCookies(webDriver: WebDriver) {
-        webDriver.navigate.to(echoedUrl)
+        webDriver.get(echoedUrl)
         webDriver.manage.deleteAllCookies()
     }
 
-    //NOTE: this does not work in WebDriver for some reason on Twitter (probably due to some Javascript)...
-//    def clearTwitterCookies(webDriver: WebDriver) {
-//        webDriver.navigate.to(twitterUrl)
-//        webDriver.manage.deleteAllCookies()
-//    }
+    def clearTwitterCookies(webDriver: WebDriver) {
+        webDriver.get(twitterUrl)
+        webDriver.manage.deleteAllCookies()
+    }
+
+    def clearFacebookCookies(webDriver: WebDriver) {
+        webDriver.get(facebookUrl)
+        webDriver.manage.deleteAllCookies()
+    }
 
 }

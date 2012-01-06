@@ -89,23 +89,10 @@ case class EchoedUser(
         null,
         twitterUser.id,
         twitterUser.twitterId)
-    
-    def assignFacebookUser(facebookUserId:String,facebookId: String) = {
-        if(this.facebookId == null && this.facebookUserId == null){
-            this.copy(facebookId = facebookId, facebookUserId = facebookUserId)
-        }
-        else{
-            this
-        }
 
-    }
-    
-    def assignTwitterUser( twitterUserId:String, twitterId: String ) = {
-        if(this.twitterId == null && this.twitterUserId == null){
-            this.copy(twitterId = twitterId, twitterUserId = twitterUserId)
-        }
-        else{
-            this
-        }
-    }
+    def assignFacebookUser(fu: FacebookUser) =
+        this.copy(facebookId = fu.facebookId, facebookUserId = fu.id, email = Option(email).getOrElse(fu.email))
+
+    def assignTwitterUser(tu: TwitterUser) =
+        this.copy(twitterId = tu.twitterId, twitterUserId = tu.id, screenName = tu.screenName)
 }
