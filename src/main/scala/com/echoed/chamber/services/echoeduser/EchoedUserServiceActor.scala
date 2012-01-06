@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.echoeduser
 
-import com.echoed.chamber.domain.views.{EchoViewDetail,EchoView}
 import java.util.{ArrayList, List => JList}
 import com.echoed.chamber.services.twitter.TwitterService
 import com.echoed.chamber.dao.views.{ClosetDao,FeedDao}
@@ -15,6 +14,7 @@ import com.echoed.chamber.services.facebook.{GetFriendsResponse, FacebookService
 import akka.dispatch.Future
 import com.echoed.chamber.services.ActorClient
 import akka.actor.Actor
+import com.echoed.chamber.domain.views.{Feed, EchoViewDetail, EchoView}
 
 
 class EchoedUserServiceActor(
@@ -66,31 +66,37 @@ class EchoedUserServiceActor(
                 logger.error("Unexpected error assigning TwitterService to EchoedUser {}", echoedUser.id)
             }
 
+            def assign() {
+                logger.debug("Assigning TwitterService to EchoedUser {}", this.echoedUser.id)
+                msg.twitterService.assignEchoedUserId(echoedUser.id).onComplete(_.value.get.fold(
+                    e => error(e),
+                    tu => {
+                        this.twitterService = msg.twitterService
+                        this.echoedUser = this.echoedUser.assignTwitterUser(tu)
+                        channel ! AssignTwitterServiceResponse(msg, Right(this.twitterService))
+                        echoedUserDao.update(this.echoedUser)
+                        me ! '_fetchTwitterFollowers
+                        logger.debug("Assigned TwitterUser {} to EchoedUser {}", tu.twitterId, this.echoedUser.id)
+                    }))
+            }
+
             try {
-                logger.debug("Assigning TwitterService to EchoedUser {}", echoedUser.id)
+                logger.debug("Attempting to TwitterService to EchoedUser {}", this.echoedUser.id)
                 msg.twitterService.getTwitterUser.onComplete(_.value.get.fold(
                     e => error(e),
                     twitterUser => Option(twitterUser.echoedUserId).cata(
-                        echoedUserId => {
-                            channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Twitter account already in use")))
-                            logger.error(
+                        echoedUserId =>
+                            if (echoedUserId != this.echoedUser.id) {
+                                channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Twitter account already in use")))
+                                logger.error(
                                     "Cannot assign Twitter account to EchoedUser {} because it is already in use by EchoedUser {}",
                                     echoedUser.id,
                                     echoedUserId)
-                        },
+                            } else {
+                                assign()
+                            },
                         {
-                            //FIXME really should be using Transactors for coordinated transactions (see API-22)...
-                            msg.twitterService.assignEchoedUserId(echoedUser.id).onComplete(_.value.get.fold(
-                                e => error(e),
-                                tu => {
-                                    this.twitterService = msg.twitterService
-                                    this.echoedUser = this.echoedUser.assignTwitterUser(tu)
-                                    channel ! AssignTwitterServiceResponse(msg, Right(this.twitterService))
-                                    echoedUserDao.update(this.echoedUser)
-                                    me ! '_fetchTwitterFollowers
-                                    logger.debug("Assigned TwitterUser {} to EchoedUser {}", tu.twitterId, this.echoedUser.id)
-                                }
-                            ))
+                            assign()
                         })))
             } catch {
                 case e => error(e)
@@ -106,29 +112,37 @@ class EchoedUserServiceActor(
                 logger.error("Unexpected error assigning FacebookService to EchoedUser {}", echoedUser.id)
             }
 
+            def assign() {
+                msg.facebookService.assignEchoedUser(this.echoedUser).onComplete(_.value.get.fold(
+                    e => error(e),
+                    fu => {
+                        logger.debug("Assigning FacebookService to EchoedUser {}", this.echoedUser.id)
+                        this.facebookService = msg.facebookService
+                        this.echoedUser = this.echoedUser.assignFacebookUser(fu)
+                        channel ! AssignFacebookServiceResponse(msg, Right(this.facebookService))
+                        echoedUserDao.update(this.echoedUser)
+                        me ! '_fetchFacebookFriends
+                        logger.debug("Assigned FacebookUser {} to EchoedUser {}", fu.facebookId, this.echoedUser.id)
+                    }))
+            }
+
             try {
-                logger.debug("Assigning FacebookService to EchoedUser {}", echoedUser.id)
+                logger.debug("Attempting to assign FacebookService to EchoedUser {}", echoedUser.id)
                 msg.facebookService.getFacebookUser().onComplete(_.value.get.fold(
                     e => error(e),
                     facebookUser => Option(facebookUser.echoedUserId).cata(
-                        echoedUserId => {
+                        echoedUserId =>
+                            if (echoedUserId != this.echoedUser.id) {
                             channel ! AssignFacebookServiceResponse(msg, Left(new EchoedUserException("Facebook account already in use")))
                             logger.debug(
                                 "Cannot assign Facebook account to EchoedUser {} because it is already in use by EchoedUser {}",
                                 echoedUser.id,
                                 echoedUserId)
-                        },
+                            } else {
+                                assign()
+                            },
                         {
-                            msg.facebookService.assignEchoedUser(echoedUser).onComplete(_.value.get.fold(
-                                e => error(e),
-                                fu => {
-                                    this.facebookService = msg.facebookService
-                                    this.echoedUser = this.echoedUser.assignFacebookUser(fu)
-                                    channel ! AssignFacebookServiceResponse(msg, Right(this.facebookService))
-                                    echoedUserDao.update(echoedUser)
-                                    me ! '_fetchFacebookFriends
-                                    logger.debug("Assigned FacebookUser {} to EchoedUser {}", fu.facebookId, echoedUser.id)
-                                }))
+                            assign()
                         })))
             } catch {
                 case e => error(e)
@@ -160,27 +174,44 @@ class EchoedUserServiceActor(
             self.channel ! GetFriendExhibitResponse(msg,Right(closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)))
 
         case msg: GetFeed =>
-            logger.debug("Attempting to retrieve Feed for EchoedUserId {}", echoedUser.id)
-            var resultSet = feedDao.findByEchoedUserId(echoedUser.id)
-            if(resultSet.echoes.size == 1){
-                if(resultSet.echoes.head.echoId == null){
-                    resultSet = resultSet.copy(echoes= new ArrayList[EchoViewDetail])
+            val channel = self.channel
+
+            Future {
+                try {
+                    logger.debug("Attempting to retrieve Feed for EchoedUserId {}", echoedUser.id)
+                    val feed = feedDao.findByEchoedUserId(echoedUser.id)
+                    if (feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
+                        channel ! GetFeedResponse(msg, Right(feed.copy(echoes = new ArrayList[EchoViewDetail])))
+                    } else {
+                        channel ! GetFeedResponse(msg, Right(feed))
+                    }
+                } catch {
+                    case e =>
+                        channel ! GetFeedResponse(msg, Left(new EchoedUserException("Cannot get feed", e)))
+                        logger.error("Unexpected error when fetching feed for EchoedUserId %s" format echoedUser.id, e)
                 }
             }
-            self.channel ! GetFeedResponse(msg, Right(resultSet))
 
         case msg: GetExhibit =>
             val channel = self.channel
-            Future {
-                logger.debug("Fetching exhibit for EchoedUser {}", echoedUser.id)
-                var closet = closetDao.findByEchoedUserId(echoedUser.id)
-                val credit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
-                if(closet.echoes.size == 1)
-                    if(closet.echoes.head.echoId == null)
-                        closet = closet.copy(echoes = new ArrayList[EchoView])
 
-                channel ! GetExhibitResponse(msg, Right(closet.copy(totalCredit = credit)))
-                logger.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
+            Future {
+                try {
+                    logger.debug("Fetching exhibit for EchoedUser {}", echoedUser.id)
+                    val credit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
+                    val closet = closetDao.findByEchoedUserId(echoedUser.id)
+                    if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
+                        channel ! GetExhibitResponse(msg, Right(closet.copy(
+                                totalCredit = credit, echoes = new ArrayList[EchoView])))
+                    } else {
+                        channel ! GetExhibitResponse(msg, Right(closet.copy(totalCredit = credit)))
+                    }
+                    logger.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
+                } catch {
+                    case e =>
+                        channel ! GetExhibitResponse(msg, Left(new EchoedUserException("Cannot get exhibit", e)))
+                        logger.error("Unexpected error when fetching exhibit for EchoedUserId %s" format echoedUser.id, e)
+                }
             }
 
         case msg: GetEchoedFriends =>

@@ -141,6 +141,8 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
             firstScenarioPassed should be (true)
 
             clearTwitterCookies(webDriver)
+            clearEchoedCookies(webDriver)
+            navigateToCloset(webDriver, echoedUser)
 
             given("a request to add their own, already existing Twitter account to their Echoed account")
             webDriver.get(apiUrl)

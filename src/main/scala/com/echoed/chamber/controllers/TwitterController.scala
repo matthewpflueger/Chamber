@@ -125,40 +125,35 @@ class TwitterController {
                             logger.error("Error getting EchoedUser: {}", error)
                             //NEED TO ATTACH ERROR MODEL
                         case GetEchoedUserResponse(_,Right(echoedUser)) =>
-                            if(echoedUser.twitterUserId != null){
-                                //Twitter Account Already Exists
-                            }
-                            else{
-                                val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
-                                futureTwitterService.onResult({
-                                    case twitterService: TwitterService=>
-                                        val accessToken = twitterService.getAccessToken(oAuthVerifier)
-                                        accessToken.onResult({
-                                            case aToken: AccessToken =>
-                                                val twitterServiceWithAccessToken = twitterServiceLocator.getTwitterServiceWithAccessToken(aToken)
-                                                twitterServiceWithAccessToken.onResult({
-                                                    case ts: TwitterService=>
-                                                        echoedUserService.assignTwitterService(ts).onResult({
-                                                            case AssignTwitterServiceResponse(_, Left(error)) =>
-                                                                logger.info("Error Assigning TwitterService: {}", error.getMessage)
-                                                                val modelAndView = new ModelAndView(redirectView)
-                                                                modelAndView.addObject("error", error.getMessage)
-                                                                continuation.setAttribute("modelAndView", modelAndView)
-                                                                continuation.resume
-                                                            case AssignTwitterServiceResponse(_, Right(ts2)) =>
-                                                                val modelAndView = new ModelAndView(redirectView)
-                                                                continuation.setAttribute("modelAndView", modelAndView)
-                                                                continuation.resume
-                                                        })
-                                                        .onException({
-                                                            case e =>
-                                                                logger.error("Exception thrown Assinging TwitterService: {}", e)
-                                                        })
+                            val futureTwitterService = twitterServiceLocator.getTwitterServiceWithToken(oAuthToken)
+                            futureTwitterService.onResult({
+                                case twitterService: TwitterService=>
+                                    val accessToken = twitterService.getAccessToken(oAuthVerifier)
+                                    accessToken.onResult({
+                                        case aToken: AccessToken =>
+                                            val twitterServiceWithAccessToken = twitterServiceLocator.getTwitterServiceWithAccessToken(aToken)
+                                            twitterServiceWithAccessToken.onResult({
+                                                case ts: TwitterService=>
+                                                    echoedUserService.assignTwitterService(ts).onResult({
+                                                        case AssignTwitterServiceResponse(_, Left(error)) =>
+                                                            logger.info("Error Assigning TwitterService: {}", error.getMessage)
+                                                            val modelAndView = new ModelAndView(redirectView)
+                                                            modelAndView.addObject("error", error.getMessage)
+                                                            continuation.setAttribute("modelAndView", modelAndView)
+                                                            continuation.resume
+                                                        case AssignTwitterServiceResponse(_, Right(ts2)) =>
+                                                            val modelAndView = new ModelAndView(redirectView)
+                                                            continuation.setAttribute("modelAndView", modelAndView)
+                                                            continuation.resume
+                                                    })
+                                                    .onException({
+                                                        case e =>
+                                                            logger.error("Exception thrown Assinging TwitterService: {}", e)
+                                                    })
 
-                                                })
-                                        })
-                                })
-                            }
+                                            })
+                                    })
+                            })
                     }
                     .onException{
                         case e=>
