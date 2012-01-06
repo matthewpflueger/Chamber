@@ -2,16 +2,16 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<link rel="shortcut icon" href="favicon.png" type="image/png">
+<link rel="shortcut icon" href="http://v1-cdn.echoed.com/favicon.png" type="image/png">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <title>Dashboard {{#partnerUser}}- {{name}} {{/partnerUser}}</title>
-<script type='text/javascript' src="jquery-1.6.2.min.js"></script>
-<script type='text/javascript' src="jquery-ui-1.8.16.custom.min.js"></script>
-<script type='text/javascript' src="json2.js"></script>
-<script type='text/javascript' src="underscore-min.js"></script>
-<script type='text/javascript' src="backbone.js"></script>
-<script type='text/javascript' src='highcharts.js'></script>
-<script type="text/javascript" src="highcharts.theme.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/jquery-1.6.2.min.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/jquery-ui-1.8.16.custom.min.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/json2.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/underscore-min.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/backbone.js"></script>
+<script type='text/javascript' src='http://v1-cdn.echoed.com/highcharts.js'></script>
+<script type="text/javascript" src="http://v1-cdn.echoed.com/highcharts.theme.js"></script>
 <script type="text/javascript">
 
 if (!('Echoed' in this)) this.Echoed = {};
@@ -145,6 +145,21 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                 self.element.hide().html(template).fadeIn(function(){
                     if(self.reportId){
                         var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart'});
+                        $.ajax({
+                            url: "http://v1-api.echoed.com/partner/product/" + self.reportId,
+                            dataType: 'json',
+                            success: function(data){
+                                $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
+                                $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
+                                $('#ss-retweets').hide().html(20).fadeIn();
+                                $('#ss-new-echoes').hide().html(data.totalEchoes).fadeIn();
+                                $('#ss-open-echoes').hide().html(20).fadeIn();
+                                $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
+                                $('#product-image').attr("src",data.productImageUrl);
+                            },
+                            error:function (xhr, ajaxOptions, thrownError){
+                            }
+                        })
                     }
                     else{
                         self.element.find(".full").attr("id","product-table-container");
@@ -223,15 +238,23 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
     render: function() {
         var template = _.template($('#template-view-summary').html());
         $(this.el).hide().html(template).fadeIn(function() {
-            $('#ss-likes').hide().html(20).fadeIn();
-            $('#ss-views').hide().html(20).fadeIn();
-            $('#ss-retweets').hide().html(20).fadeIn();
-            $('#ss-new-echoes').hide().html(20).fadeIn();
-            $('#ss-open-echoes').hide().html(20).fadeIn();
-            $('#ss-comments').hide().html(20).fadeIn();
-            var chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart'});
-            var topProductsTable = new Echoed.Views.Components.TopProductsTable({EvAg: this.EvAg, el:'#top-products-table'});
+            $.ajax({
+                url: "http://v1-api.echoed.com/partner/summary",
+                dataType: 'json',
+                success: function(data){
+                    $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
+                    $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
+                    $('#ss-retweets').hide().html(20).fadeIn();
+                    $('#ss-new-echoes').hide().html(data.totalEchoes).fadeIn();
+                    $('#ss-open-echoes').hide().html(20).fadeIn();
+                    $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                }
+            });
         });
+        var chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart'});
+        var topProductsTable = new Echoed.Views.Components.TopProductsTable({EvAg: this.EvAg, el:'#top-products-table'});
         return this;
     }
 });
@@ -489,8 +512,9 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
 
 Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'addRow');
+        _.bindAll(this);
         this.el = options.el;
+        this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.render();
     },
@@ -501,17 +525,25 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
     },
     render: function(){
         var template = _.template($('#template-views-table-topproducts').html());
-        $(this.el).html(template);
-        this.addRow('');
-    },
-    addRow: function(data){
-        var tr = $('<tr></tr>').appendTo($(this.el));
-        $('<td></td>').html('Shirt').appendTo(tr);
-        $('<td></td>').html('123').appendTo(tr);
-        $('<td></td>').html('46').addClass("number").appendTo(tr);
-        $('<td></td>').html('144').addClass("number").appendTo(tr);
-        $('<td></td>').html('55').addClass("number").appendTo(tr);
-        tr.appendTo($(this.el).find('tbody'));
+        this.element.html(template);
+        this.tbody = this.element.find("tbody");
+        var self = this;
+        $.ajax({
+            url: "http://v1-api.echoed.com/partner/topproducts",
+            dataType: 'json',
+            success: function(data){
+                $.each(data.products, function(index,product){
+                    var tr = $('<tr></tr>');
+                    tr.attr("href","#reports/products/" + product.productId);
+                    $('<td></td>').html(product.productName).appendTo(tr);
+                    $('<td></td>').html(product.productId).appendTo(tr);
+                    $('<td></td>').html(product.totalEchoes).addClass("number").appendTo(tr);
+                    $('<td></td>').html(product.totalEchoes).addClass("number").appendTo(tr);
+                    $('<td></td>').html(product.totalFacebookComments).addClass("number").appendTo(tr);
+                    tr.appendTo(self.tbody);
+                });
+            }
+        });
     },
     mouseEnter: function(e){
         $(e.target).parent().css("background-color","#DEDEDE");
@@ -537,27 +569,6 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
             </tr>
         </thead>
         <tbody>
-            <tr href="#reports/products/3">
-                <td>Shirt</td>
-                <td>Z3029</td>
-                <td class="number">300</td>
-                <td class="number">50</td>
-                <td class="number">20</td>
-            </tr>
-            <tr href="#reports/products/3">
-                <td>Shirt</td>
-                <td>Z3029</td>
-                <td class="number">300</td>
-                <td class="number">50</td>
-                <td class="number">20</td>
-            </tr>
-            <tr href="#reports/products/3">
-                <td>Shirt</td>
-                <td>Z3029</td>
-                <td class="number">300</td>
-                <td class="number">50</td>
-                <td class="number">20</td>
-            </tr>
         </tbody>
     </table>
 </script>
@@ -707,7 +718,7 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
     </div>
 </script>
 
-<link rel="stylesheet" type="text/css" href="echoed.css"/>
+<link rel="stylesheet" type="text/css" href="http://v1-cdn.echoed.com/echoed.css"/>
 </head>
 <body class="retailer">
 <div id="container">
@@ -746,8 +757,7 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
             </ul>
         </div>
         <div id="user">
-            {#EchoedUser}{firstName}{lastName}{/EchoedUser}<br/>
-            Rewards: {}
+            {{#partnerUser}}{{name}}{{/partnerUser}}<br/>
         </div>
     </div>
     <div id="sub-nav" style="display:none"></div>
@@ -777,7 +787,7 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
                     </div>
                     <div>
                         <div class="product-detail-image-container">
-                            <img src="Pic1.jpg" class="product-detail-image"/>
+                            <img id="product-image" class="product-detail-image"/>
                         </div>
                         <div class="product-detail-table-container">
                             <table class="product-detail-table" cellspacing="0">
@@ -801,52 +811,46 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
                     <div class="ss-row">
                         <div class="ss-box">
                             <div class="ss-box-label">
-                                Views
+                                Open Echoes
                             </div>
-                            <div class="ss-box-number echoed-text">
-                                20
-                            </div>
-                        </div>
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Likes
-                            </div>
-                            <div class="ss-box-number fb-text">
-                                30
+                            <div id="ss-open-echoes" class="ss-box-number echoed-text">
                             </div>
                         </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
-                                Retweets
+                                New Echoes
                             </div>
-                            <div class="ss-box-number twitter-text">
-                                10
+                            <div id="ss-new-echoes" class="ss-box-number echoed-text">
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Page Views
+                            </div>
+                            <div id="ss-views" class="ss-box-number echoed-text">
                             </div>
                         </div>
                     </div>
-                    <div class="ss-row">
+                    <div  class="ss-row">
                         <div class="ss-box">
                             <div class="ss-box-label">
-                                Views
+                                Comments
                             </div>
-                            <div class="ss-box-number echoed-text">
-                                20
+                            <div id="ss-comments" class="ss-box-number fb-text">
                             </div>
                         </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
                                 Likes
                             </div>
-                            <div class="ss-box-number fb-text">
-                                30
+                            <div id="ss-likes" class="ss-box-number fb-text">
                             </div>
                         </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
                                 Retweets
                             </div>
-                            <div class="ss-box-number twitter-text">
-                                10
+                            <div id="ss-retweets" class="ss-box-number twitter-text">
                             </div>
                         </div>
                     </div>

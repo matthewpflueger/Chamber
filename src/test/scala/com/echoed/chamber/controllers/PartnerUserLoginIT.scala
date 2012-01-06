@@ -104,13 +104,13 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
             then("then redirect to the dashboard page")
             and("set an access cookie")
-            webDriver.getTitle should startWith ("Dashboard")
+            webDriver.getTitle should startWith ("Summary")
             webDriver.getPageSource should include(partnerUser.name)
             webDriver.manage().getCookieNamed("partnerUser") should not be(null)
         }
 
         scenario("a partner user logs out and is redirected out of their dashboard", IntegrationTest) {
-            webDriver.getTitle should startWith ("Dashboard")
+            webDriver.getTitle should startWith ("Summary")
 
             given("a request to logout")
             when("the user is logged in")
@@ -118,7 +118,7 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
             then("then redirect away from the dashboard")
             and("remove the access cookie")
-            webDriver.getTitle should not be ("Dashboard")
+            webDriver.getTitle should not be ("Summary")
             webDriver.getPageSource should not include(partnerUser.name)
             webDriver.manage().getCookieNamed("partnerUser") should be(null)
         }

@@ -26,6 +26,7 @@ class DataCreator {
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
+    @Autowired @BeanProperty var retailerUserDao : RetailerUserDao = _
 
 
     private val logger = LoggerFactory.getLogger(classOf[DataCreator])
@@ -212,6 +213,7 @@ class DataCreator {
             logger.debug("Created {}", rs)
         }
 
+        retailerUserDao.insert(retailerUser)
 
         val random = new Random
         val users = generateEchoedUsers.map(_._2).zipWithIndex

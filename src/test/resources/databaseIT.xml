@@ -17,6 +17,7 @@
         <property name="retailerDao" ref="retailerDao" />
         <property name="retailerSettingsDao" ref="retailerSettingsDao" />
         <property name="echoDao" ref="echoDao" />
+        <property name="retailerUserDao" ref="retailerUserDao"/>
     </bean>
 
 </beans>

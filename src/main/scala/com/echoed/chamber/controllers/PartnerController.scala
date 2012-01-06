@@ -12,7 +12,7 @@ import com.echoed.chamber.services.echo.EchoService
 import org.springframework.web.servlet.ModelAndView
 import scala.collection.JavaConversions
 import com.echoed.chamber.services.partneruser._
-import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
+import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod,ResponseBody,PathVariable}
 
 
 @Controller
@@ -120,33 +120,117 @@ class PartnerController {
     }
 
     @RequestMapping(value = Array("/summary"), method = Array(RequestMethod.GET))
+    @ResponseBody
     def summary(
             @CookieValue(value="partnerUser", required = false) partnerUserId: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired) {
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
-            def onError(error: PartnerUserException) {
-                logger.debug("Got error showing dashboard for {}: {}", partnerUserId, error.message)
-                continuation.setAttribute(
-                    "modelAndView",
-                    new ModelAndView(partnerDashboardErrorView, "error", error))
-                continuation.resume()
-            }
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            logger.error("Request expired to view dashboard for {}", partnerUserId)
+            //new ModelAndView(partnerDashboardErrorView)
+        } else Option(continuation.getAttribute("summary")).getOrElse({
+
             continuation.suspend(httpServletResponse)
+
             partnerUserServiceLocator.locate(partnerUserId).onResult({
-                case LocateResponse(_, Left(error)) => onError(error)
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
                 case LocateResponse(_, Right(pus)) =>
                     pus.getRetailerSocialSummary.onResult({
-                        case GetRetailerSocialSummaryResponse(_, Left(error)) => onError(error)
+                        case GetRetailerSocialSummaryResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Social Summary")
                         case GetRetailerSocialSummaryResponse(_, Right(retailerSocialSummary)) =>
-                            continuation.setAttribute("modelAndView", retailerSocialSummary)
+                            //continuation.setAttribute("summary", retailerSocialSummary)
+                            logger.error("Retailer Social Summary: {}", retailerSocialSummary)
+                            if(retailerSocialSummary != null)
+                                continuation.setAttribute("summary",retailerSocialSummary)
+                            else
+                                continuation.setAttribute("summary","fail")
                             continuation.resume()
                     })
             })
+
+
+            continuation.undispatch()
         })
-        continuation.undispatch()
+
+    }
+
+    @RequestMapping(value = Array("/topproducts"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def topProducts(
+                   @CookieValue(value="partnerUser", required = false) partnerUserId: String,
+                   httpServletRequest: HttpServletRequest,
+                   httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            logger.error("Request expired to view dashboard for {}", partnerUserId)
+            new ModelAndView(partnerDashboardErrorView)
+        } else Option(continuation.getAttribute("topproducts")).getOrElse({
+
+            continuation.suspend(httpServletResponse)
+
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    pus.getTopProducts.onResult({
+                        case GetTopProductsResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Products {}", error)
+                        case GetTopProductsResponse(_, Right(retailerTopProductsView)) =>
+                            if(retailerTopProductsView == null)
+                                continuation.setAttribute("topproducts", "fail")
+                            else
+                                continuation.setAttribute("topproducts",retailerTopProductsView)
+                            continuation.resume()
+                    })
+            })
+
+
+            continuation.undispatch()
+        })
+
+    }
+    
+    @RequestMapping(value = Array("/product/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getProductSummary(
+            @PathVariable(value="id") productId: String,
+            @CookieValue(value="partnerUser", required = false) partnerUserId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation((httpServletRequest))
+        
+        if(continuation.isExpired){
+            logger.error("Request expired getting product social summary json")
+        } else Option(continuation.getAttribute("productSummary")).getOrElse({
+            continuation.suspend(httpServletResponse)
+            
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    logger.debug("Getting Product Summary for productId: {}", productId)
+                    pus.getProductSocialSummary(productId).onResult({
+                        case GetProductSocialSummaryResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Products {}", error)
+                        case GetProductSocialSummaryResponse(_, Right(productSocialSummary)) =>
+                            logger.debug("Product Social Summary: {}", productSocialSummary)
+                            if(productSocialSummary == null)
+                                continuation.setAttribute("productSummary", "fail")
+                            else
+                                continuation.setAttribute("productSummary",productSocialSummary)
+                            continuation.resume()
+                    })
+            })
+
+            continuation.undispatch()
+        })
     }
 }

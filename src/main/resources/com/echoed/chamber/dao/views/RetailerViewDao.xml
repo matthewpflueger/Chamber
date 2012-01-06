@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.views.RetailerViewDao">
+    <resultMap id="retailerSocialSummaryResult" type="com.echoed.chamber.domain.views.RetailerSocialSummary">
+        <constructor>
+            <idArg column="retailerId" javaType="String"/>
+            <arg column="retailerName" javaType="String" />
+            <arg column="totalEchoes" javaType="_int" />
+            <arg column="totalFacebookLikes" javaType="_int" />
+            <arg column="totalFacebookComments" javaType="_int" />
+            <arg column="totalEchoClicks" javaType="_int"/>
+        </constructor>
+    </resultMap>
+    
+    <resultMap id="retailerProductsListView" type="com.echoed.chamber.domain.views.RetailerProductsListView">
+        <constructor>
+            <idArg column="retailerId" javaType="String"/>
+            <arg column="retailerName" javaType="String"/>
+        </constructor>
+        <collection property="products" ofType="com.echoed.chamber.domain.views.ProductSocialSummary" javaType="ArrayList" resultMap="productSocialSummaryResult"/>
+    </resultMap>
+
+    <resultMap id="productSocialSummaryResult" type="com.echoed.chamber.domain.views.ProductSocialSummary">
+        <constructor>
+            <idArg column="productId" javaType="String" />
+            <arg column="productName" javaType="String" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="retailerName" javaType="String" />
+            <arg column="productImageUrl" javaType="String" />
+            <arg column="totalEchoes" javaType="_int" />
+            <arg column="totalFacebookLikes" javaType="_int" />
+            <arg column="totalFacebookComments" javaType="_int" />
+            <arg column="totalEchoClicks" javaType="_int"/>
+        </constructor>
+    </resultMap>
+    
+    <resultMap id="retailerCustomerListView" type="com.echoed.chamber.domain.views.RetailerCustomerListView">
+        <constructor>
+            <idArg column="retailerId" javaType="String"/>
+            <arg column="retailerName" javaType="String"/>
+        </constructor>
+        <collection property="customers" ofType="com.echoed.chamber.domain.views.CustomerSocialSummary" javaType="ArrayList" resultMap="customerSocialSummaryResult"/>
+    </resultMap>
+    
+    <resultMap id="customerSocialSummaryResult" type="com.echoed.chamber.domain.views.CustomerSocialSummary">
+        <constructor>
+            <idArg column="echoedUserId" javaType="String" />
+            <arg column="echoedUserName" javaType="String"/>
+            <arg column="totalEchoes" javaType="_int" />
+            <arg column="totalFacebookLikes" javaType="_int" />
+            <arg column="totalFacebookComments" javaType="_int" />
+            <arg column="totalEchoClicks" javaType="_int"/>
+            <arg column="totalFacebookFriends" javaType="_int"/>
+        </constructor>
+    </resultMap>
+
+    <select id="getTopProductsWithRetailerId" resultMap="retailerProductsListView">
+        SELECT
+            E.productId as productId,
+            E.productName as productName,
+            R.id as retailerId,
+            R.name as retailerName,
+            coalesce (E.imageUrl) as productImageUrl,
+            count(E.id) as totalEchoes,
+            count(FBL.id) as totalFacebookLikes,
+            count(FBC.id) as totalFacebookComments,
+            count(EC.id) as totalEchoClicks
+        FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E ON R.id = E.retailerId
+            LEFT OUTER JOIN
+            FacebookPost FBP ON E.id=FBP.echoId
+            LEFT OUTER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            EchoClick EC ON E.id=EC.echoId
+        WHERE
+            R.id = #{retailerId}
+        GROUP BY
+            R.id, R.name, E.productId, E.productName
+        ORDER BY
+            totalEchoes DESC
+        LIMIT
+            0, 5
+    </select>
+
+    <select id="getSocialActivityByProductIdAndRetailerId" resultMap="productSocialSummaryResult">
+        SELECT
+            E.productId as productId,
+            E.productName as productName,
+            R.id as retailerId,
+            R.name as retailerName,
+            coalesce(E.imageUrl) as productImageUrl,
+            count(E.id) as totalEchoes,
+            count(FBL.id) as totalFacebookLikes,
+            count(FBC.id) as totalFacebookComments,
+            count(EC.id) as totalEchoClicks
+        FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E ON R.id = E.retailerId
+            LEFT OUTER JOIN
+            FacebookPost FBP ON E.id=FBP.echoId
+            LEFT OUTER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            EchoClick EC ON E.id = EC.echoId
+        WHERE
+            R.id = #{retailerId}
+            AND
+            E.productId = #{productId}
+        GROUP BY
+            R.id, R.name, E.productId, E.productName
+    </select>
+
+    <select id="getCustomersByRetailerId" resultMap="customerSocialSummaryResult" >
+        SELECT
+            R.id as retailerId,
+            R.name as retailerName,
+            EU.id as echoedUserId,
+            EU.name as echoedUserName,
+            count(E.id) as totalEchoes,
+            sum(FBL.facebookLikes) as totalFacebookLikes,
+            sum(FBC.facebookComments) as totalFacebookComments,
+            sum(EC.echoClicks) as totalEchoClicks,
+            coalesce(FF.facebookFriends) as totalFacebookFriends
+         FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E ON R.id = E.retailerId
+            LEFT OUTER JOIN
+            EchoedUser EU ON  E.echoedUserId = EU.id
+            LEFT OUTER JOIN
+            FacebookPost FBP ON E.id = FBP.echoId
+            LEFT OUTER JOIN
+            ( SELECT
+                facebookPostId,
+                count(id) as facebookLikes
+              FROM
+                FacebookLike
+              GROUP BY
+                facebookPostId)
+            FBL ON FBL.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            (SELECT
+                facebookPostId,
+                count(id) as facebookComments
+              FROM
+                FacebookComment
+              GROUP BY
+                facebookPostId)
+            FBC ON FBC.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            ( SELECT
+                echoId,
+                count(id) as echoClicks
+              FROM
+                EchoClick
+              GROUP BY
+                echoId)
+            EC ON E.id = EC.echoId
+            LEFT OUTER JOIN
+            ( SELECT
+                FacebookUser.echoedUserId,
+                count(FacebookFriend.id) as facebookFriends
+              FROM
+                FacebookUser
+                LEFT OUTER JOIN
+                FacebookFriend ON FacebookUser.id = FacebookFriend.facebookUserId
+              GROUP BY
+                FacebookUser.echoedUserId)
+            FF ON FF.echoedUserId=EU.id
+        WHERE
+            R.id = #{retailerId}
+        GROUP BY
+            R.id, R.name, EU.id, EU.name;
+    </select>
+
+    <select id="getSocialActivityByRetailerId" resultMap="retailerSocialSummaryResult">
+        SELECT
+            R.id as retailerId,
+            R.name as retailerName,
+            count(E.id) as totalEchoes,
+            count(FBL.id) as totalFacebookLikes,
+            count(FBC.id) as totalFacebookComments,
+            count(EC.id) as totalEchoClicks
+        FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E ON R.id = E.retailerId
+            LEFT OUTER JOIN
+            FacebookPost FBP ON E.id=FBP.echoId
+            LEFT OUTER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FBP.id
+            LEFT OUTER JOIN
+            EchoClick EC ON E.id = EC.echoId
+        WHERE
+            R.id = #{retailerId}
+        GROUP BY
+            R.id, R.name
+    </select>
+
+</mapper>

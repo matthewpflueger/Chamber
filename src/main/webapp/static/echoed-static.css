@@ -5,6 +5,13 @@
   font-weight: normal;
   font-style: normal; }
 
+@font-face {
+  font-family: 'TradeGothicBD20Cond';
+  src: url("tradegothicbd20cd-webfont.eot");
+  src: url("tradegothicbd20cd-webfont.eot?#iefix") format("embedded-opentype"), url("tradegothicbd20cd-webfont.woff") format("woff"), url("tradegothicbd20cd-webfont.ttf") format("truetype"), url("tradegothicbd20cd-webfont.svg#TradeGothicLTStdBdCnNo.20") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
 html, body, div, h1, h2, h3, h4, h5, h6, ul, ol, dl, li, dt, dd, p, blockquote,
 pre, form, fieldset, table, th, td {
   margin: 0;
@@ -43,11 +50,11 @@ h1 {
   color: #000; }
 
 h2 {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   color: #666666; }
 
 .primary-text {
-  color: #f20006; }
+  color: #dc0814; }
 
 .text-blue1 {
   color: RGB(2, 116, 184); }
@@ -74,7 +81,7 @@ h2 {
   background-color: #444444; }
 
 .bg-highlight {
-  background-color: #f20006; }
+  background-color: #dc0814; }
 
 #container {
   min-width: 1000px;
@@ -93,13 +100,13 @@ h2 {
   line-height: 50px;
   height: 50px;
   float: left;
-  font-family: BebasNeue, Arial, sans-serif; }
+  font-family: TradeGothicBD20Cond, Arial, sans-serif; }
 
 #nav {
   float: right;
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   line-height: 50px;
-  font-size: 20px; }
+  font-size: 18px; }
 
 #nav a {
   margin-left: 10px;
@@ -110,6 +117,11 @@ h2 {
 
 #nav a:hover {
   color: #ff6f00; }
+
+.learnmore-link {
+  color: #ff6f00;
+  font-size: 18px;
+  font-weight: bold; }
 
 .learnmore-button {
   margin-top: 50px;
@@ -151,7 +163,7 @@ h2 {
   float: left; }
 
 .secondary-title {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   font-size: 28px;
   margin-bottom: 20px; }
 
@@ -159,7 +171,7 @@ h2 {
   line-height: 1.5em; }
 
 .third-box {
-  width: 250px;
+  width: 260px;
   padding: 5px 25px;
   margin: 5px;
   float: left; }
@@ -274,7 +286,7 @@ h2 {
   margin-bottom: 20px; }
 
 .label {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   font-size: 18px;
   text-align: center;
   color: #FFFFFF; }

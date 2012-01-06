@@ -15,5 +15,9 @@ trait PartnerUserService {
     
     def getRetailerSocialSummary: Future[GetRetailerSocialSummaryResponse]
     
+    def getProductSocialSummary(productId: String): Future[GetProductSocialSummaryResponse]
+    
+    def getTopProducts: Future[GetTopProductsResponse]
+
 }
 

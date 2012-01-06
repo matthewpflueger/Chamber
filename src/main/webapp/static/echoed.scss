@@ -7,7 +7,17 @@
          url('BebasNeue-webfont.svg#BebasNeueRegular') format('svg');
     font-weight: normal;
     font-style: normal;
+}
 
+@font-face{
+    font-family: 'TradeGothicBD20Cond';
+    src: url('tradegothicbd20cd-webfont.eot');
+    src: url('tradegothicbd20cd-webfont.eot?#iefix') format('embedded-opentype'),
+         url('tradegothicbd20cd-webfont.woff') format('woff'),
+         url('tradegothicbd20cd-webfont.ttf') format('truetype'),
+         url('tradegothicbd20cd-webfont.svg#TradeGothicLTStdBdCnNo.20') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
 
 //$mainColor: #FF7733;
@@ -25,7 +35,7 @@ $backgroundColor: #CCC;
 
 $headerHeight: 50px;
 
-$navFontFamily: BebasNeue, Arial, sans-serif;
+$navFontFamily: TradeGothicBD20Cond, Arial, sans-serif;
 $textFontFamily: HelveticaNeue-Light,Tahoma,Arial, Helvetica, sans-serif;
 
 //RESET
@@ -259,6 +269,8 @@ h2{
 				text-align:left;
 				color: #FFF;
 				overflow:hidden;
+	            text-wrap: none;
+	            white-space: nowrap;
 	            font-family: 'HelveticaNeue'
 			}
 
@@ -497,6 +509,15 @@ td.number{
 
 .clearfix:after{
     clear:both;
+}
+
+.center{
+    width:960px;
+    margin:auto;
+}
+
+.orange{
+    color: $highlightColor;
 }
 
 /* Start: Recommended Isotope styles */

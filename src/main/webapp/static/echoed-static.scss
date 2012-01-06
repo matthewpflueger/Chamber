@@ -7,11 +7,20 @@
          url('BebasNeue-webfont.svg#BebasNeueRegular') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
 
+@font-face{
+    font-family: 'TradeGothicBD20Cond';
+    src: url('tradegothicbd20cd-webfont.eot');
+    src: url('tradegothicbd20cd-webfont.eot?#iefix') format('embedded-opentype'),
+         url('tradegothicbd20cd-webfont.woff') format('woff'),
+         url('tradegothicbd20cd-webfont.ttf') format('truetype'),
+         url('tradegothicbd20cd-webfont.svg#TradeGothicLTStdBdCnNo.20') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
 //$mainColor: #FF7733;
-$mainColor: #F20006; //RED
+$mainColor: #DC0814; //RED
 $secondaryColor: #ff6f00; //ORANGE
 $greyColor : #444444;
 $fbColor: #3B5998;
@@ -28,8 +37,7 @@ $subtleColor: #EAEBED;
 
 $headerHeight: 50px;
 
-$navFontFamily: BebasNeue, Arial, sans-serif;
-
+$navFontFamily: TradeGothicBD20Cond, Arial, sans-serif;
 $labelFontFamily: BebasNeue, Arial, sans-serif;
 
 $readingTextFontFamily: HelveticaNeue-Light,Tahoma,Arial, Helvetica, sans-serif;
@@ -161,7 +169,7 @@ h2{
             float:right;
             font-family: $navFontFamily;
             line-height: $headerHeight;
-            font-size: 20px;
+            font-size: 18px;
         }
 
         #nav a{
@@ -182,7 +190,13 @@ h2{
     }
 
         #learnmore{
-        }
+       }
+            .learnmore-link{
+                color: $secondaryColor;
+                font-size:18px;
+                font-weight:bold;
+            }
+
             .learnmore-button{
                 margin-top:50px;
                 padding:5px 10px;
@@ -198,7 +212,7 @@ h2{
                 width: 480px;
             }
                 #lm-left-label{
-                    font-family: $navFontFamily;
+                    font-family: $labelFontFamily;
                     font-size: 64px;
                     //margin-bottom: 24px;
                 }
@@ -241,7 +255,7 @@ h2{
 
 
     .third-box{
-        width: 250px;
+        width: 260px;
         padding: 5px 25px;
         margin: 5px;
         float:left;
@@ -277,7 +291,7 @@ h2{
 
         #sv{
             font-size: 40px;
-            font-family: $navFontFamily;
+            font-family: $labelFontFamily;
             color: #000;
             text-align:right;
         }
@@ -320,7 +334,7 @@ h2{
 
                 .masthead-title{
                     font-size: 64px;
-                    font-family: $navFontFamily;
+                    font-family: $labelFontFamily;
                     color: #000;
                 }
 

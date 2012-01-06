@@ -5,6 +5,13 @@
   font-weight: normal;
   font-style: normal; }
 
+@font-face {
+  font-family: 'TradeGothicBD20Cond';
+  src: url("tradegothicbd20cd-webfont.eot");
+  src: url("tradegothicbd20cd-webfont.eot?#iefix") format("embedded-opentype"), url("tradegothicbd20cd-webfont.woff") format("woff"), url("tradegothicbd20cd-webfont.ttf") format("truetype"), url("tradegothicbd20cd-webfont.svg#TradeGothicLTStdBdCnNo.20") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
 html, body, div, h1, h2, h3, h4, h5, h6, ul, ol, dl, li, dt, dd, p, blockquote,
 pre, form, fieldset, table, th, td {
   margin: 0;
@@ -32,7 +39,7 @@ a:visited {
   color: inherit; }
 
 h2 {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   color: #666666; }
 
 /*Echoed Colors*/
@@ -67,7 +74,7 @@ h2 {
   line-height: 50px;
   height: 50px;
   float: left;
-  font-family: BebasNeue, Arial, sans-serif; }
+  font-family: TradeGothicBD20Cond, Arial, sans-serif; }
 
 #user {
   padding: 10px;
@@ -89,7 +96,7 @@ h2 {
   line-height: 50px;
   list-style: none;
   font-size: 24px;
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   color: #666666;
   float: left; }
 
@@ -104,7 +111,7 @@ h2 {
   background-color: white;
   text-align: center;
   line-height: 25px;
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   border-bottom: 1px solid #999; }
 
 #sub-nav a {
@@ -182,6 +189,8 @@ a.current {
   text-align: left;
   color: #FFF;
   overflow: hidden;
+  text-wrap: none;
+  white-space: nowrap;
   font-family: 'HelveticaNeue'; }
 
 .full-column-left {
@@ -206,7 +215,7 @@ a.current {
   width: 100%;
   margin-bottom: 5px;
   text-align: center;
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   font-size: 1.5em;
   color: #666666; }
 
@@ -215,7 +224,7 @@ a.current {
   text-align: right;
   font-size: 48px;
   font-weight: bold;
-  font-family: BebasNeue, Arial, sans-serif; }
+  font-family: TradeGothicBD20Cond, Arial, sans-serif; }
 
 .report-selector {
   text-align: left; }
@@ -226,7 +235,7 @@ a.current {
   padding: 0px 10px;
   background-color: white;
   font-size: 1.5em;
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   -webkit-appearance: none; }
 
 .product-detail-image-container {
@@ -347,7 +356,7 @@ td.number {
   height: 270px; }
 
 .label {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   color: #666666;
   font-size: 1.5em;
   text-align: left; }
@@ -373,6 +382,13 @@ td.number {
 
 .clearfix:after {
   clear: both; }
+
+.center {
+  width: 960px;
+  margin: auto; }
+
+.orange {
+  color: #ff7733; }
 
 /* Start: Recommended Isotope styles */
 /**** Isotope Filtering ****/
@@ -434,6 +450,6 @@ td.number {
 
 .ui-autocomplete-input {
   -webkit-appearance: none;
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
   font-size: 24px;
   border: 0px; }

@@ -21,7 +21,16 @@ class PartnerUserServiceActor(
             self.channel ! GetPartnerUserResponse(msg, Right(partnerUser))
 
         case msg: GetRetailerSocialSummary =>
-            self.channel ! GetRetailerSocialSummaryResponse(msg,Right(retailerViewDao.getSocialActivityByRetailerId(partnerUser.id)))
+            self.channel ! GetRetailerSocialSummaryResponse(msg, Right(retailerViewDao.getSocialActivityByRetailerId(partnerUser.retailerId)))
+
+        case msg: GetProductSocialSummary =>
+            logger.debug("Getting Product Social Summary {} {}", msg.productId,partnerUser.retailerId)
+            val resultSet = retailerViewDao.getSocialActivityByProductIdAndRetailerId(msg.productId, partnerUser.retailerId)
+            logger.debug("Result Set: {}",resultSet)
+            self.channel ! GetProductSocialSummaryResponse(msg, Right(resultSet))
+
+        case msg: GetTopProducts =>
+            self.channel ! GetTopProductsResponse(msg, Right(retailerViewDao.getTopProductsWithRetailerId(partnerUser.retailerId)))
     }
     
 }
