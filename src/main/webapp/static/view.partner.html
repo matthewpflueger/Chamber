@@ -151,9 +151,9 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                             success: function(data){
                                 $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
                                 $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
-                                $('#ss-retweets').hide().html(20).fadeIn();
+                                $('#ss-retweets').hide().html(0).fadeIn();
                                 $('#ss-new-echoes').hide().html(data.totalEchoes).fadeIn();
-                                $('#ss-open-echoes').hide().html(20).fadeIn();
+                                $('#ss-open-echoes').hide().html(0).fadeIn();
                                 $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
                                 $('#product-image').attr("src",data.productImageUrl);
                             },
@@ -244,9 +244,9 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
                 success: function(data){
                     $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
                     $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
-                    $('#ss-retweets').hide().html(20).fadeIn();
+                    $('#ss-retweets').hide().html(0).fadeIn();
                     $('#ss-new-echoes').hide().html(data.totalEchoes).fadeIn();
-                    $('#ss-open-echoes').hide().html(20).fadeIn();
+                    $('#ss-open-echoes').hide().html(0).fadeIn();
                     $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
                 },
                 error:function (xhr, ajaxOptions, thrownError){

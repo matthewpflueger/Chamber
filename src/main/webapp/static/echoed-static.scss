@@ -223,11 +223,44 @@ h2{
 
             #lm-right{
                 margin-top: 50px;
-                padding: 20px;
                 width: 450px;
                 float:right;
-                background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png");
             }
+
+                #lm-right-top{
+                    background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png");
+                    padding: 20px;
+                }
+
+                #lm-right-bottom{
+                    background-image: url("http://v1-cdn.echoed.com/bg-blackpx90.png");
+                    padding:10px 20px;
+                }
+                    #l-r-b-l{
+                        font-family: $navFontFamily;
+                        font-size: 18px;
+                        color:#FFF;
+                        width:100px;
+                        float:left;
+                    }
+
+                    #l-r-b-r{
+                        margin-left: 10px;
+                        color:#FFF;
+                        width:300px;
+                        float:left;
+                        font-size: 15px;
+                    }
+
+                        #l-r-b-r a{
+                            color: $secondaryColor;
+                            font-weight: bold;
+                        }
+
+                        #l-r-b-r a:hover{
+                            color: #FFF;
+                        }
+
     .center{
         width:960px;
         margin:auto;
@@ -290,6 +323,8 @@ h2{
     }
 
         #sv{
+            width:350px;
+            float:right;
             font-size: 40px;
             font-family: $labelFontFamily;
             color: #000;

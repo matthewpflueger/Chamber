@@ -26,7 +26,7 @@ class RedirectController {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         //Retrieve the Echo
-        logger.debug("Retrieve Ech  o Possibility with Id {}", echoId)
+        logger.debug("Retrieve Echo Possibility with Id {}", echoId)
         if (echoId == None || echoId == "") {
             new ModelAndView("redirect:http://www.echoed.com")
         }
@@ -39,7 +39,7 @@ class RedirectController {
                     .onResult({
                 case echoPossibility: EchoPossibility =>
 
-                    val redirectUrl: String = echoPossibility.imageUrl //TODO REPLACE IMAGE URL WITH ACTUAL REDIRECT URL
+                    val redirectUrl: String = echoPossibility.landingPageUrl //TODO REPLACE IMAGE URL WITH ACTUAL REDIRECT URL
                     //TODO RECORD CLICK
 
                     logger.debug("Sending User to Url: {}", redirectUrl)

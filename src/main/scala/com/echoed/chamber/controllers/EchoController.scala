@@ -183,7 +183,7 @@ class EchoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
             continuation.suspend(httpServletResponse)
-
+            logger.debug("Hello?");
             val echoClick = new EchoClick(echoId, echoedUserId, referrerUrl, httpServletRequest.getRemoteAddr)
             echoService.recordEchoClick(echoClick, postId).map { tuple =>
                 cookieManager.addCookie(httpServletResponse, "echoClick", tuple._1.id)

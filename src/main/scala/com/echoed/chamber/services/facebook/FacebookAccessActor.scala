@@ -109,8 +109,18 @@ class FacebookAccessActor extends Actor {
 
 
                 resultOption.cata({ result =>
-                    val likes = result.likes.data
-                    val comments = result.comments.data
+                    val likes:List[From] = Option(result.likes).cata(
+                        cs => Option(cs.data).cata(
+                            data => data,
+                            List[From]()),
+                        List[From]())
+
+                    val comments:List[Comment] = Option(result.comments).cata(
+                        cs => Option(cs.data).cata(
+                            data => data,
+                            List[Comment]()),
+                        List[Comment]())
+
                     logger.debug("Received {} likes for {}", likes.length, result.id)
                     logger.debug("Received {} comments for {}", comments.length, result.id)
 
