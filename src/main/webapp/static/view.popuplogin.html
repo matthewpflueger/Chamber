@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link id="stylecss" rel="stylesheet" href="http://v1-cdn.echoed.com/echoed-confirm.css" />
-    <link rel="shortcut icon" href="favicon.png" type="image/png">
+    <link rel="shortcut icon" href="http://v1-cdn.echoed.com/favicon.png" type="image/png">
 <title>Login</title>
 </head>
 <body>
@@ -26,7 +26,9 @@
                         <div id="product">
                             <div id="product_upper">
                                 <div id="product_picture_container" style="float:left">
-                                    <img id="product_picture" src="Pic1.jpg"/>
+                                    {{#echoPossibility}}
+                                    <img id="product_picture" src="{{imageUrl}}"/>
+                                    {{/echoPossibility}}
                                 </div>
                                 <div style="margin-left:5px; float:left; font-size:14px;">
                                         Rescue<br />
@@ -87,10 +89,10 @@
                         </div>
                         <div>
                             <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri={{redirectUrl}}&scope=email,publish_stream,offline_access" >
-                                <img width="200" src='btn_login_fb_50.png'/>
+                                <img width="200" src='http://v1-cdn.echoed.com/btn_login_fb_50.png'/>
                             </a>
                             <a id="twitterLogin" href="http://v1-api.echoed.com/twitter?redirect={{twitterUrl}}">
-                                <img width="200" src='btn_login_tw_50.png'/>
+                                <img width="200" src='http://v1-cdn.echoed.com/btn_login_tw_50.png'/>
                             </a>
                         </div>
                     </div>
