@@ -70,16 +70,17 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
         case ("echo", echo:Echo, message:String ) => {
             logger.debug("Creating new TwitterStatus with message {} for {}", echo, message)
-            val status = message + " " + echo.imageUrl
-            val twitterStatus = new TwitterStatus(
+            var status = message + " http://v1-api.echoed.com/echo/" + echo.id + "/"
+            var twitterStatus = new TwitterStatus(
                 echo.id,
                 echo.echoedUserId,
-                message)
-
+                status)
+            status = status + twitterStatus.id
+            twitterStatus = twitterStatus.copy(message = status)
             twitterStatusDao.insert(twitterStatus)
 
             val channel = self.channel
-            twitterAccess.updateStatus(twitterUser.accessToken,twitterUser.accessTokenSecret,status).map{ twitterStatus =>
+            twitterAccess.updateStatus(twitterUser.accessToken,twitterUser.accessTokenSecret,twitterStatus).map{ twitterStatus =>
                 logger.debug("Received from TwitterAccessActor {}", twitterStatus)
                 val tw = twitterStatus.copy(postedOn = new Date)
                 twitterStatusDao.updatePostedOn(tw)

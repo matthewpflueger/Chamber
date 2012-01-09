@@ -24,7 +24,7 @@ class TwitterAccessActorClient extends TwitterAccess {
   def getFollowers(accessToken:String,  accessTokenSecret:String, twitterUserId: String, twitterId: Long) =
           (twitterAccessActor ? ("getFollowers", accessToken, accessTokenSecret, twitterUserId, twitterId)).mapTo[List[TwitterFollower]]
 
-  def updateStatus(accessToken:String, accessTokenSecret: String, status:String) =
+  def updateStatus(accessToken:String, accessTokenSecret: String, status:TwitterStatus) =
           (twitterAccessActor ? ("updateStatus",accessToken,accessTokenSecret,status)).mapTo[TwitterStatus]
 
   def getStatus(accessToken:String, accessTokenSecret:String, statusId:String) =
