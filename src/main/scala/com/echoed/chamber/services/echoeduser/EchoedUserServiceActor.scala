@@ -70,7 +70,7 @@ class EchoedUserServiceActor(
                         this.echoedUser = this.echoedUser.assignTwitterUser(tu)
                         channel ! AssignTwitterServiceResponse(msg, Right(this.twitterService.get))
                         echoedUserDao.update(this.echoedUser)
-                        me ! '_fetchTwitterFollowers
+                        me ! FetchTwitterFollowers()
                         logger.debug("Assigned TwitterUser {} to EchoedUser {}", tu.twitterId, this.echoedUser.id)
                     }))
             }
@@ -116,7 +116,7 @@ class EchoedUserServiceActor(
                         this.echoedUser = this.echoedUser.assignFacebookUser(fu)
                         channel ! AssignFacebookServiceResponse(msg, Right(this.facebookService.get))
                         echoedUserDao.update(this.echoedUser)
-                        me ! '_fetchFacebookFriends
+                        me ! FetchFacebookFriends()
                         logger.debug("Assigned FacebookUser {} to EchoedUser {}", fu.facebookId, this.echoedUser.id)
                     }))
             }
