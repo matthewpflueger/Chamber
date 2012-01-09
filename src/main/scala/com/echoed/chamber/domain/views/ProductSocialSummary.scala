@@ -11,6 +11,8 @@ package com.echoed.chamber.domain.views
 case class ProductSocialSummary(
     productId: String, 
     productName: String,
+    productBrand: String,
+    productCategory: String,
     retailerId: String,
     retailerName: String,
     productImageUrl: String,

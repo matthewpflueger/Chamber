@@ -24,6 +24,8 @@
         <constructor>
             <idArg column="productId" javaType="String" />
             <arg column="productName" javaType="String" />
+            <arg column="productBrand" javaType="String" />
+            <arg column="productCategory" javaType="String" />
             <arg column="retailerId" javaType="String" />
             <arg column="retailerName" javaType="String" />
             <arg column="productImageUrl" javaType="String" />
@@ -58,29 +60,52 @@
         SELECT
             E.productId as productId,
             E.productName as productName,
+            E.brand as productBrand,
+            E.category as productCategory,
             R.id as retailerId,
             R.name as retailerName,
             coalesce (E.imageUrl) as productImageUrl,
             count(E.id) as totalEchoes,
-            count(FBL.id) as totalFacebookLikes,
-            count(FBC.id) as totalFacebookComments,
-            count(EC.id) as totalEchoClicks
+            coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
+            coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
+            coalesce(sum(EC.echoClicks),0) as totalEchoClicks
         FROM
             Retailer R
             LEFT OUTER JOIN
             Echo E ON R.id = E.retailerId
             LEFT OUTER JOIN
             FacebookPost FBP ON E.id=FBP.echoId
+           LEFT OUTER JOIN
+            ( SELECT
+                facebookPostId,
+                count(id) as facebookLikes
+              FROM
+                FacebookLike
+              GROUP BY
+                facebookPostId)
+            FBL ON FBL.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+            (SELECT
+                facebookPostId,
+                count(id) as facebookComments
+              FROM
+                FacebookComment
+              GROUP BY
+                facebookPostId)
+            FBC ON FBC.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            FacebookComment FBC ON FBC.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            EchoClick EC ON E.id=EC.echoId
+            ( SELECT
+                echoId,
+                count(id) as echoClicks
+              FROM
+                EchoClick
+              GROUP BY
+                echoId)
+            EC ON E.id = EC.echoId
         WHERE
             R.id = #{retailerId}
         GROUP BY
-            R.id, R.name, E.productId, E.productName
+            R.id, R.name, E.productId, E.productName, E.brand, E.category
         ORDER BY
             totalEchoes DESC
         LIMIT
@@ -91,13 +116,15 @@
         SELECT
             E.productId as productId,
             E.productName as productName,
+            coalesce(E.brand) as productBrand,
+            coalesce(E.category) as productCategory,
             R.id as retailerId,
             R.name as retailerName,
             coalesce(E.imageUrl) as productImageUrl,
             count(E.id) as totalEchoes,
-            count(FBL.id) as totalFacebookLikes,
-            count(FBC.id) as totalFacebookComments,
-            count(EC.id) as totalEchoClicks
+            coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
+            coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
+            coalesce(sum(EC.echoClicks),0) as totalEchoClicks
         FROM
             Retailer R
             LEFT OUTER JOIN
@@ -105,17 +132,40 @@
             LEFT OUTER JOIN
             FacebookPost FBP ON E.id=FBP.echoId
             LEFT OUTER JOIN
-            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+            (
+            SELECT
+                facebookPostId,
+                count(id) as facebookLikes
+            FROM
+                FacebookLike
+            GROUP BY (facebookPostId))
+            FBL ON FBL.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            FacebookComment FBC ON FBC.facebookPostId = FBP.id
+            (
+            SELECT
+                facebookPostId,
+                count(id) as facebookComments
+            FROM
+                FacebookComment
+            GROUP BY(facebookPostId))
+            FBC ON FBC.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            EchoClick EC ON E.id = EC.echoId
+            (
+            SELECT
+                echoId,
+                count(id) as echoClicks
+            FROM
+                EchoClick
+            GROUP BY
+                echoId
+            )
+            EC ON E.id=EC.echoId
         WHERE
             R.id = #{retailerId}
             AND
             E.productId = #{productId}
         GROUP BY
-            R.id, R.name, E.productId, E.productName
+            R.id, R.name, E.productId, E.productName, E.brand, E.category
     </select>
 
     <select id="getCustomersByRetailerId" resultMap="customerSocialSummaryResult" >
@@ -160,7 +210,7 @@
                 echoId,
                 count(id) as echoClicks
               FROM
-                EchoClick
+                v1-EchoClick
               GROUP BY
                 echoId)
             EC ON E.id = EC.echoId
@@ -182,13 +232,13 @@
     </select>
 
     <select id="getSocialActivityByRetailerId" resultMap="retailerSocialSummaryResult">
-        SELECT
+       SELECT
             R.id as retailerId,
             R.name as retailerName,
             count(E.id) as totalEchoes,
-            count(FBL.id) as totalFacebookLikes,
-            count(FBC.id) as totalFacebookComments,
-            count(EC.id) as totalEchoClicks
+            coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
+            coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
+            sum(EC.echoClicks) as totalEchoClicks
         FROM
             Retailer R
             LEFT OUTER JOIN
@@ -196,11 +246,34 @@
             LEFT OUTER JOIN
             FacebookPost FBP ON E.id=FBP.echoId
             LEFT OUTER JOIN
-            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+            (
+            SELECT
+                facebookPostId,
+                count(id) as facebookLikes
+            FROM
+                FacebookLike
+            GROUP BY (facebookPostId))
+            FBL ON FBL.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            FacebookComment FBC ON FBC.facebookPostId = FBP.id
+            (
+            SELECT
+                facebookPostId,
+                count(id) as facebookComments
+            FROM
+                FacebookComment
+            GROUP BY(facebookPostId))
+            FBC ON FBC.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            EchoClick EC ON E.id = EC.echoId
+            (
+            SELECT
+                echoId,
+                count(id) as echoClicks
+            FROM
+                EchoClick
+            GROUP BY
+                echoId
+            )
+            EC ON E.id=EC.echoId
         WHERE
             R.id = #{retailerId}
         GROUP BY

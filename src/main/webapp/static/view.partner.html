@@ -156,6 +156,9 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                                 $('#ss-open-echoes').hide().html(0).fadeIn();
                                 $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
                                 $('#product-image').attr("src",data.productImageUrl);
+                                $('#product-sku').html(data.productId);
+                                $('#product-category').html(data.productCategory);
+                                $('#product-brand').html(data.productBrand);
                             },
                             error:function (xhr, ajaxOptions, thrownError){
                             }
@@ -793,15 +796,15 @@ Echoed.Views.Components.TopProductsTable = Backbone.View.extend({
                             <table class="product-detail-table" cellspacing="0">
                                 <tr>
                                     <td width="100px">SKU</td>
-                                    <td>246301</td>
+                                    <td id="product-sku">246301</td>
                                 </tr>
                                 <tr>
                                     <td>Brand</td>
-                                    <td>Redhawk Brigade</td>
+                                    <td id="product-brand">Redhawk Brigade</td>
                                 </tr>
                                 <tr>
                                     <td>Category</td>
-                                    <td>Shirt</td>
+                                    <td id="product-category">Shirt</td>
                                 </tr>
                             </table>
                         </div>
