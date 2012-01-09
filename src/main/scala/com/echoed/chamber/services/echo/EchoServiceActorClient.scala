@@ -11,15 +11,12 @@ class EchoServiceActorClient extends EchoService {
 
     def recordEchoPossibility(echoPossibility: EchoPossibility) =
             (echoServiceActor ? ("recordEchoPossibility", echoPossibility)).mapTo[EchoPossibility]
-    
+
     def getEchoPossibility(echoPossibilityId: String) =
             (echoServiceActor ? ("echoPossibility", echoPossibilityId)).mapTo[EchoPossibility]
-    
-    def getEcho(echoPossibilityId: String) = 
-            (echoServiceActor ? ("getEcho",echoPossibilityId)).mapTo[(Echo,String)]
 
-    def echo(echoRequestMessage: EchoRequestMessage) =
-            (echoServiceActor ? echoRequestMessage).mapTo[EchoResponseMessage]
+    def getEcho(echoPossibilityId: String) =
+            (echoServiceActor ? ("getEcho",echoPossibilityId)).mapTo[(Echo,String)]
 
     def recordEchoClick(echoClick: EchoClick, postId: String) =
             (echoServiceActor ? ("recordEchoClick", echoClick, postId)).mapTo[(EchoClick, String)]

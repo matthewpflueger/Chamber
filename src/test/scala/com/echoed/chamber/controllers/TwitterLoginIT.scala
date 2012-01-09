@@ -8,11 +8,11 @@ import org.scalatest.matchers.ShouldMatchers
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import com.echoed.util.IntegrationTest
 import java.util.Properties
 import org.openqa.selenium.{By, WebDriver}
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
+import com.echoed.util.{WebDriverUtils, IntegrationTest}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -61,11 +61,12 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
 
         scenario("unknown user clicks on Twitter login button with a valid echoPossibility and is redirected to confirm page post login", IntegrationTest) {
 
+            WebDriverUtils.clearEchoedCookies(webDriver)
+
             given("a request to login and echo using Twitter credentials")
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")
 
             val (e, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
-            webDriver.manage().deleteCookieNamed("echoedUserId")
             webDriver.navigate.to(echoUrl + e.generateUrlParameters)
             webDriver.getCurrentUrl should startWith (echoUrl)
 
@@ -96,11 +97,13 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
 
         scenario("known user clicks on Twitter login button with a valid echoPossibility and is redirected to confirm page post login", IntegrationTest) {
 
+            WebDriverUtils.clearTwitterCookies(webDriver)
+            WebDriverUtils.clearEchoedCookies(webDriver)
+
             given("a request to login and echo using Twitter credentials")
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")
 
             val (e, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
-            webDriver.manage().deleteCookieNamed("echoedUserId")
             webDriver.navigate.to(echoUrl + e.generateUrlParameters)
             webDriver.getCurrentUrl should startWith (echoUrl)
 

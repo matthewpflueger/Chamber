@@ -39,5 +39,7 @@ case class EchoFull(
         echo.echoPossibilityId,
         echo.landingPageUrl)
 
+    def this(echo: Echo, echoedUser: EchoedUser) = this(echo, null, echoedUser, null, null)
+
 }
 

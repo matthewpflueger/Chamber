@@ -4,16 +4,16 @@ import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.chamber.services.echoeduser.{EchoedUserServiceLocator,LocateWithIdResponse,GetEchoedUserResponse}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.util.CookieManager
 import akka.dispatch.Future
 import com.echoed.chamber.domain.Echo
 import org.springframework.web.bind.annotation._
 import com.echoed.chamber.domain.{EchoClick, EchoPossibility}
-import com.echoed.chamber.services.echo.{EchoResponseMessage, EchoRequestMessage, EchoService}
+import com.echoed.chamber.services.echo.{EchoService}
 import java.net.URLEncoder
 import org.springframework.web.servlet.ModelAndView
+import com.echoed.chamber.services.echoeduser.{EchoToResponse, EchoedUserServiceLocator, LocateWithIdResponse, GetEchoedUserResponse}
 
 
 @Controller
@@ -57,25 +57,16 @@ class EchoController {
 
         def loginModelAndView = {
             val echoPossibility = echoPossibilityParameters.createLoginEchoPossibility
-            
+
             echoService.recordEchoPossibility(echoPossibility)
             val modelAndView = new ModelAndView(loginView)
-//            modelAndView.addObject("redirectUrl", URLEncoder.encode("http://v1-api.echoed.com/facebook/login", "UTF-8"))
             modelAndView.addObject(
                 "twitterUrl",
-                //URLEncoder.encode(echoPossibility.asUrlParams("echo&"), "UTF-8"))
                 URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
-                //"http://v1-api.echoed.com/twitter?redirect=echo&%s" format URLEncoder.encode(echoPossibility.asUrlParams(), "UTF-8"))
-            
 
             modelAndView.addObject("redirectUrl",
                 URLEncoder.encode("http://v1-api.echoed.com/facebook/login?redirect="
-                    + URLEncoder.encode(echoPossibility.asUrlParams("echo?"),"UTF-8")))
-            //modelAndView.addObject("echoPossibility",echoPossibility);
-
-//            modelAndView.addObject("redirectUrl", URLEncoder.encode(
-//                "http://v1-api.echoed.com/facebook/login?%s" format echoPossibility.generateUrlParameters,
-//                "UTF-8"))
+                    + URLEncoder.encode(echoPossibility.asUrlParams("echo?"),"UTF-8"), "UTF-8"))
         }
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
@@ -146,6 +137,12 @@ class EchoController {
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         logger.debug("Echo It Parameters: {}", echoItParameters)
 
+        def error(e: Throwable) {
+            logger.error("Unexpected error echoing {}", echoItParameters, e)
+            continuation.setAttribute("modelAndView", new ModelAndView(errorView, "errorMessage", e))
+            continuation.resume
+        }
+
         if (continuation.isExpired) {
             logger.error("Request expired to echo ", echoItParameters)
             new ModelAndView(errorView)
@@ -153,15 +150,26 @@ class EchoController {
             continuation.suspend(httpServletResponse)
             logger.debug("Echoing {}", echoItParameters)
             logger.debug("EchoPossibility Id {} , ", echoItParameters.echoPossibilityId)
-            echoService.echo(echoItParameters.createEchoRequestMessage).map { echoResponseMessage =>
-                    logger.debug("Received {}", echoResponseMessage)
-                    val modelAndView = echoResponseMessage.fold(
-                        errorMessage => new ModelAndView(errorView, "errorMessage", errorMessage),
-                        echoFull => new ModelAndView(echoItView, "echoFull", echoFull)
-                    )
-                    continuation.setAttribute("modelAndView", modelAndView)
-                    continuation.resume
-            }
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoItParameters.echoedUserId).onComplete(_.value.get.fold(
+                e => error(e),
+                locateWithIdResponse => locateWithIdResponse match {
+                    case LocateWithIdResponse(_, Left(e)) => error(e)
+                    case LocateWithIdResponse(_, Right(echoedUserService)) => {
+                        echoedUserService.echoTo(echoItParameters.createEchoTo).onComplete(_.value.get.fold(
+                            e => error(e),
+                            echoToResponse => echoToResponse match {
+                                case EchoToResponse(_, Left(e)) => error(e)
+                                case EchoToResponse(_, Right(echoFull)) => {
+                                    continuation.setAttribute("modelAndView", new ModelAndView(echoItView, "echoFull", echoFull))
+                                    continuation.resume
+                                }
+                            }
+                        ))
+                    }
+
+                }
+            ))
+
             continuation.undispatch()
         })
 

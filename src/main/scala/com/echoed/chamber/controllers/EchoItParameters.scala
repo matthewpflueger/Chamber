@@ -4,14 +4,14 @@ import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.util.CookieManager
 import akka.dispatch.Future
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.bind.annotation._
 import com.echoed.chamber.domain.{EchoClick, EchoPossibility}
-import com.echoed.chamber.services.echo.{EchoResponseMessage, EchoRequestMessage, EchoService}
+import com.echoed.chamber.services.echo.{EchoService}
+import com.echoed.chamber.services.echoeduser.{EchoTo, EchoedUserServiceLocator}
 
 
 case class EchoItParameters(
@@ -22,21 +22,21 @@ case class EchoItParameters(
             @BeanProperty var echoedUserId: String = null,
             @BeanProperty var echoPossibilityId: String = null) {
 
-        def this() = this(
-            null,
-            false,
-            null,
-            false,
-            null,
-            null)
+    def this() = this(
+        null,
+        false,
+        null,
+        false,
+        null,
+        null)
 
-        def createEchoRequestMessage = new EchoRequestMessage(
-                echoedUserId,
-                echoPossibilityId,
-                Option(facebookMessage),
-                postToFacebook,
-                Option(twitterMessage),
-                postToTwitter)
+    def createEchoTo = new EchoTo(
+            echoedUserId,
+            echoPossibilityId,
+            Option(facebookMessage),
+            postToFacebook,
+            Option(twitterMessage),
+            postToTwitter)
 }
 
 

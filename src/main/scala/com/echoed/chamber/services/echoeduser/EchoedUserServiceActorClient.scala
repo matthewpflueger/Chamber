@@ -6,11 +6,10 @@ import com.echoed.chamber.services.twitter.TwitterService
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.views.{Closet,Feed}
+import com.echoed.chamber.services.ActorClient
 
 
-class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends EchoedUserService {
-
-    private final val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceActorClient])
+class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends EchoedUserService with ActorClient {
 
     def getEchoedUser() =
             (echoedUserServiceActor ? GetEchoedUser()).mapTo[GetEchoedUserResponse]
@@ -21,35 +20,26 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def assignTwitterService(twitterService:TwitterService) =
             (echoedUserServiceActor ? (AssignTwitterService(twitterService))).mapTo[AssignTwitterServiceResponse]
 
-//    def updateTwitterStatus(status:String) =
-//            (echoedUserServiceActor ? ("updateTwitterStatus", status)).mapTo[TwitterStatus]
-
     def getTwitterFollowers() =
             (echoedUserServiceActor ? ("getTwitterFollowers")).mapTo[Array[TwitterFollower]]
 
-    //def echoToFacebook(echo: Echo, message: String) =
-    //      (echoedUserServiceActor ? ("echoToFacebook", echo, message)).mapTo[FacebookPost]
+    def echoTo(echoTo: EchoTo) = (echoedUserServiceActor ? echoTo).mapTo[EchoToResponse]
 
-    def echoToFacebook(echo:Echo, message:String) =
-        (echoedUserServiceActor ? (EchoToFacebook(echo,message))).mapTo[EchoToFacebookResponse]
+    def echoToFacebook(echo:Echo, message: Option[String]) =
+        (echoedUserServiceActor ? (EchoToFacebook(echo, message))).mapTo[EchoToFacebookResponse]
 
-    //def echoToTwitter(echo:Echo, message:String) =
-    //    (echoedUserServiceActor ? ("echoToTwitter",echo,message)).mapTo[TwitterStatus]
-
-    def echoToTwitter(echo:Echo,  message:String) =
+    def echoToTwitter(echo:Echo,  message: Option[String]) =
         (echoedUserServiceActor ? (EchoToTwitter(echo,message))).mapTo[EchoToTwitterResponse]
 
-    //def getCloset = (echoedUserServiceActor ? "closet").mapTo[Closet]
-    
     def getCloset = (echoedUserServiceActor ? GetExhibit()).mapTo[GetExhibitResponse]
-    
+
     def getFeed = (echoedUserServiceActor ? GetFeed()).mapTo[GetFeedResponse]
-    
-    //def getFriendCloset(echoedFriendId: String) = (echoedUserServiceActor ? ("getFriendCloset",echoedFriendId)).mapTo[Closet]
 
     def getFriendCloset(echoedFriendId: String) = (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId)).mapTo[GetFriendExhibitResponse]
-    
+
     def getFriends = (echoedUserServiceActor ? GetEchoedFriends()).mapTo[GetEchoedFriendsResponse]
 
     def friends = (echoedUserServiceActor ? 'friends).mapTo[List[EchoedFriend]]
+
+    def actorRef = echoedUserServiceActor
 }

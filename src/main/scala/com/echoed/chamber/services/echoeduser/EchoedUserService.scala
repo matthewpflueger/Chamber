@@ -12,30 +12,26 @@ import com.echoed.chamber.domain.views.Feed
 
 trait EchoedUserService {
 
-    //def echoedUserFun: () => Option[GetEchoedUserResponse] = () => FutureHelper.get(getEchoedUser _)
-
-    //def echoedUser: Option[GetEchoedUserResponse] = FutureHelper.get(getEchoedUser _)
-
-    //def getEchoedUser: Future[EchoedUser]
     def getEchoedUser: Future[GetEchoedUserResponse]
 
-
     def assignTwitterService(twitterService:TwitterService): Future[AssignTwitterServiceResponse]
+
     def assignFacebookService(facebookService:FacebookService): Future[AssignFacebookServiceResponse]
 
-    // TWITTER RELATED FUNCTIONS
-    //def updateTwitterStatus(status:String): Future[TwitterStatus]
     def getTwitterFollowers: Future[Array[TwitterFollower]]
 
-    def echoToFacebook(echo: Echo, message: String): Future[EchoToFacebookResponse]
-    def echoToTwitter(echo:Echo,  message:String): Future[EchoToTwitterResponse]
+    def echoTo(echoTo: EchoTo): Future[EchoToResponse]
+
+    def echoToFacebook(echo: Echo, message: Option[String]): Future[EchoToFacebookResponse]
+
+    def echoToTwitter(echo:Echo,  message: Option[String]): Future[EchoToTwitterResponse]
 
     def getCloset: Future[GetExhibitResponse]
 
     def getFeed: Future[GetFeedResponse]
-    
+
     def getFriendCloset(echoedFriendId: String): Future[GetFriendExhibitResponse]
-    
+
     def getFriends: Future[GetEchoedFriendsResponse]
 
     def friends: Future[List[EchoedFriend]]

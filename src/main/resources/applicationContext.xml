@@ -164,6 +164,12 @@
         <property name="echoedFriendDao" ref="echoedFriendDao" />
         <!--suppress SpringModelInspection -->
         <property name="feedDao" ref="feedDao"/>
+        <!--suppress SpringModelInspection -->
+        <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoPossibilityDao" ref="echoPossibilityDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="retailerSettingsDao" ref="retailerSettingsDao" />
     </akka:untyped-actor>
 
 
