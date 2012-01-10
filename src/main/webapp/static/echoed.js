@@ -72,7 +72,6 @@ Echoed.Router = Backbone.Router.extend({
         var newPage = "Friends/Exhibit/" + id
         if(this.page != newPage)
             pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector, Type: "friend", Id: id});
-
         this.EvAg.trigger("filter/change",selector);
         this.EvAg.trigger("page/change","friends");
         this.page = newPage
@@ -214,7 +213,7 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
         this.element.html('')
         $('<a></a>').hide().attr("id","All").attr("href", this.baseUrl).html("All").appendTo(this.element).show();
         for(var id in this.categories){
-            var anc = $('<a></a>').hide().attr("id",id).attr("href", this.baseUrl + this.categories[id]).html(id).appendTo(this.element).show();
+            var anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(this.element);
             if(id == this.selected){
                 anc.addClass("current");
             }
@@ -282,17 +281,19 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     render: function(){
         var template = _.template($('#templates-components-product').html());
 
-        this.el.addClass("item_wrap").addClass(this.model.get("echoCategory")).html(template).attr("href","http://v1-api.echoed.com/echo/" + this.model.get("echoId") + "/1");
+        this.el.addClass("item_wrap").addClass(this.model.get("echoCategory").replace(" ","-")).html(template).attr("href","http://v1-api.echoed.com/echo/" + this.model.get("echoId") + "/1");
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         if(this.model.get("echoProductName"))
-            hover.append(this.model.get("echoProductName") +'<br/>');
+            hover.append('<strong>' + this.model.get("echoProductName") +'</strong><br/><br/>');
         if(this.model.get("echoBrand"))
-            hover.append(this.model.get("echoBrand") + '<br/>');
+            hover.append('<strong>by ' + this.model.get("echoBrand") + '</strong><br/><br/>');
+        if(this.model.get("retailerName"))
+            hover.append('@ ' + this.model.get("retailerName") + '<br/><br/>');
         if(this.model.get("echoedUserName"))
-            hover.append(this.model.get("echoedUserName") + '<br/>');
+            hover.append(this.model.get("echoedUserName") + '<br/><br/>');
         if(this.model.get("echoCredit"))
-            hover.append("My Reward: $" + this.model.get("echoCredit").toFixed(2) +'<br/>');
+            hover.append("My Reward: $" + this.model.get("echoCredit").toFixed(2) +'<br/><br/>');
         img.attr('src',this.model.get("echoImageUrl"));
         return this;
     },

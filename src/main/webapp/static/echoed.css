@@ -189,8 +189,8 @@ a.current {
   text-align: left;
   color: #FFF;
   overflow: hidden;
-  text-wrap: none;
-  white-space: nowrap;
+  line-height: 12px;
+  font-size: 14px;
   font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif; }
 
 .full-column-left {

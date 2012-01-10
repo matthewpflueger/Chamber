@@ -16,7 +16,7 @@ html, body, div, h1, h2, h3, h4, h5, h6, ul, ol, dl, li, dt, dd, p, blockquote,
 pre, form, fieldset, table, th, td {
   margin: 0;
   padding: 0;
-  font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif;
+  font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
   color: #444444;
   font-size: 14px; }
 
@@ -278,7 +278,7 @@ h2 {
   color: #000; }
 
 .masthead-text {
-  font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif;
+  font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
   line-height: 1.5em;
   font-size: 24px; }
 
