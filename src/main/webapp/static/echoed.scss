@@ -172,11 +172,11 @@ h2{
         }
 
         #sub-nav a:hover{
-            color : $mainColor;
+            color : $highlightColor;
         }
 
         #sub-nav a.current{
-            color : $mainColor;
+            color : $highlightColor;
         }
 
 	#content{
@@ -202,11 +202,11 @@ h2{
 			}
 			
 			#content-selector a:hover, {
-				color: $mainColor;
+				color: $highlightColor;
 			}
 
             a.current{
-                color: $mainColor;
+                color: $highlightColor;
             }
 
 

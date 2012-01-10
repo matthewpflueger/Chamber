@@ -119,10 +119,10 @@ h2 {
   color: #666666; }
 
 #sub-nav a:hover {
-  color: #e31b23; }
+  color: #ff7733; }
 
 #sub-nav a.current {
-  color: #e31b23; }
+  color: #ff7733; }
 
 #content-selector-container {
   position: relative;
@@ -139,10 +139,10 @@ h2 {
   margin: 0px 10px; }
 
 #content-selector a:hover {
-  color: #e31b23; }
+  color: #ff7733; }
 
 a.current {
-  color: #e31b23; }
+  color: #ff7733; }
 
 #exhibit {
   margin: auto; }

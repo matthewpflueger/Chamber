@@ -96,4 +96,8 @@
         order by
             E.boughtOn desc
     </select>
+
+    <select>
+
+    </select>
 </mapper>

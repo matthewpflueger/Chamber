@@ -13,5 +13,5 @@ import com.echoed.chamber.domain.views.Feed
 trait FeedDao {
 
     def findByEchoedUserId(echoedUserId: String): Feed
-
+    def getPublicFeed: Feed
 }
