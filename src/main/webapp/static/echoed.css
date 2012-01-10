@@ -25,7 +25,8 @@ html {
   height: 100%; }
 
 body {
-  min-height: 100%; }
+  min-height: 100%;
+  background-image: url("http://v1-cdn.echoed.com/texture.jpg"); }
 
 th {
   font-weight: normal; }
@@ -129,7 +130,8 @@ h2 {
   border-bottom: 1px solid #CCC;
   padding: 10px;
   margin-bottom: 10px;
-  text-align: center; }
+  text-align: center;
+  background-color: #FFF; }
 
 #content-selector {
   font-size: 14px;

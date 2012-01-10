@@ -190,7 +190,7 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
                     if(friend.facebookId != null)
                         img = $('<img />').attr("src","http://graph.facebook.com/" + friend.facebookId + "/picture");
                     else
-                        img = $('<img />').attr("src", "http://api.twitteri.com/1/users/profile_image/" + friend.twitterId);
+                        img = $('<img />').attr("src", "http://api.twitter.com/1/users/profile_image/" + friend.twitterId);
                     friendImage.append(img);
                     var friendDiv = $('<div></div>').addClass("friend").append(friendImage).append(friendText).appendTo(a);
                     a.appendTo(ex);
