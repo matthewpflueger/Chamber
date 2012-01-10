@@ -84,6 +84,8 @@
             left outer join FacebookPost FP on E.facebookPostId = FP.id
             left outer join TwitterStatus TS on E.twitterStatusId = TS.id
         where EU.id = #{id}
+        ORDER BY
+            E.boughtOn DESC
     </select>
 
 

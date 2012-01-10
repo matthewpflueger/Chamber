@@ -175,8 +175,18 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
             dataType: 'json',
             success: function(data){
                 $.each(data, function(index,friend){
-                    var  a = $('<a></a>').html(friend.name).attr("href","#friends/exhibit/" + friend.toEchoedUserId)
-                    $('<div></div>').addClass("friend").append(a).appendTo(ex)
+                    var img = "";
+                    var friendImage = $('<div class="friend-img"></div>');
+                    var friendText = $('<div class="friend-text"></div>').html(friend.name);
+                    var  a = $('<a></a>').attr("href","#friends/exhibit/" + friend.toEchoedUserId);
+                    if(friend.facebookId != null)
+                        img = $('<img />').attr("src","http://graph.facebook.com/" + friend.facebookId + "/picture");
+                    else
+                        img = $('<img />').attr("src", "http://api.twitteri.com/1/users/profile_image/" + friend.twitterId);
+                    friendImage.append(img);
+                    var friendDiv = $('<div></div>').addClass("friend").append(friendImage).append(friendText).appendTo(a);
+                    a.appendTo(ex);
+
                 });
             },
             error:function (xhr, ajaxOptions, thrownError){
