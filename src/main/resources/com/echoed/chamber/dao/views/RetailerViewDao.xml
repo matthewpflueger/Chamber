@@ -11,7 +11,7 @@
             <arg column="totalEchoClicks" javaType="_int"/>
         </constructor>
     </resultMap>
-    
+
     <resultMap id="retailerProductsListView" type="com.echoed.chamber.domain.views.RetailerProductsListView">
         <constructor>
             <idArg column="retailerId" javaType="String"/>
@@ -35,7 +35,7 @@
             <arg column="totalEchoClicks" javaType="_int"/>
         </constructor>
     </resultMap>
-    
+
     <resultMap id="retailerCustomerListView" type="com.echoed.chamber.domain.views.RetailerCustomerListView">
         <constructor>
             <idArg column="retailerId" javaType="String"/>
@@ -43,7 +43,7 @@
         </constructor>
         <collection property="customers" ofType="com.echoed.chamber.domain.views.CustomerSocialSummary" javaType="ArrayList" resultMap="customerSocialSummaryResult"/>
     </resultMap>
-    
+
     <resultMap id="customerSocialSummaryResult" type="com.echoed.chamber.domain.views.CustomerSocialSummary">
         <constructor>
             <idArg column="echoedUserId" javaType="String" />
@@ -56,19 +56,21 @@
         </constructor>
     </resultMap>
 
+    <sql id="productColumns">
+        E.productId as productId,
+        E.productName as productName,
+        E.brand as productBrand,
+        E.category as productCategory,
+        R.id as retailerId,
+        R.name as retailerName,
+        coalesce (E.imageUrl) as productImageUrl,
+        count(E.id) as totalEchoes,
+        coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
+        coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
+        coalesce(sum(EC.echoClicks),0) as totalEchoClicks
+    </sql>
     <select id="getTopProductsWithRetailerId" resultMap="retailerProductsListView">
-        SELECT
-            E.productId as productId,
-            E.productName as productName,
-            E.brand as productBrand,
-            E.category as productCategory,
-            R.id as retailerId,
-            R.name as retailerName,
-            coalesce (E.imageUrl) as productImageUrl,
-            count(E.id) as totalEchoes,
-            coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
-            coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
-            coalesce(sum(EC.echoClicks),0) as totalEchoClicks
+        SELECT <include refid="productColumns" />
         FROM
             Retailer R
             LEFT OUTER JOIN
@@ -113,18 +115,7 @@
     </select>
 
     <select id="getSocialActivityByProductIdAndRetailerId" resultMap="productSocialSummaryResult">
-        SELECT
-            E.productId as productId,
-            E.productName as productName,
-            coalesce(E.brand) as productBrand,
-            coalesce(E.category) as productCategory,
-            R.id as retailerId,
-            R.name as retailerName,
-            coalesce(E.imageUrl) as productImageUrl,
-            count(E.id) as totalEchoes,
-            coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
-            coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
-            coalesce(sum(EC.echoClicks),0) as totalEchoClicks
+        SELECT <include refid="productColumns" />
         FROM
             Retailer R
             LEFT OUTER JOIN
