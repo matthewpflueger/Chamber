@@ -3,17 +3,18 @@ package com.echoed.chamber.services.echo
 import akka.actor.Actor
 import reflect.BeanProperty
 import akka.dispatch.Future
-import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.Echo
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
-import com.echoed.chamber.services.echoeduser.{LocateWithIdResponse,GetEchoedUserResponse,EchoToFacebookResponse,EchoToTwitterResponse}
 
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.views.EchoFull
 import scala.Option
-import com.echoed.chamber.services.EchoedException
+import com.echoed.chamber.dao.views.RetailerViewDao
 import com.echoed.chamber.dao._
-import java.util.{Calendar, Date}
+import com.echoed.chamber.domain.views.EchoPossibilityView
+import com.echoed.chamber.domain.{EchoPossibility, EchoClick, Echo}
+import java.util.Date
+
+import scalaz._
+import Scalaz._
 
 
 class EchoServiceActor extends Actor {
@@ -22,6 +23,7 @@ class EchoServiceActor extends Actor {
 
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
+    @BeanProperty var retailerViewDao: RetailerViewDao = _
     @BeanProperty var retailerDao: RetailerDao = _
     @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
@@ -29,18 +31,51 @@ class EchoServiceActor extends Actor {
 
 
     def receive = {
-        case ("recordEchoPossibility", echoPossibility: EchoPossibility) => {
-            val retailer = Future[Option[Retailer]] { Option(retailerDao.findById(echoPossibility.retailerId)) }
-            logger.debug("Recording Echo Possibility {} ",echoPossibility.retailerId)
-            (Option(echoPossibility.id), retailer.get) match {
-                case (_, None) => throw new RuntimeException("Invalid retailerId in EchoPossibility %s " format echoPossibility)
-                case (None, _) => throw new RuntimeException("Not enough information to record EchoPossibility %s" format echoPossibility)
-                case _ => {
-                    echoPossibilityDao.insertOrUpdate(echoPossibility)
-                    self.channel ! echoPossibility
-                }
+        case msg @ RecordEchoPossibility(echoPossibility: EchoPossibility) =>
+            import com.echoed.chamber.services.echo.{RecordEchoPossibilityResponse => REPR}
+
+            val channel = self.channel
+
+            logger.debug("Processing {}", msg)
+
+            val retailerFuture = Future {
+                Option(retailerDao.findById(echoPossibility.retailerId))
             }
-        }
+            val retailerSettingsFuture = Future {
+                Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date))
+            }
+            val echoFuture = Future {
+                Option(echoDao.findByEchoPossibilityId(echoPossibility.id))
+            }
+
+            (for {
+                retailer <- retailerFuture
+                retailerSettings <- retailerSettingsFuture
+                echo <- echoFuture
+            } yield {
+                logger.debug("Recording {}", echoPossibility)
+
+                //this checks to see if we have the minimum info for recording an echo possibility...
+                Option(echoPossibility.id).get
+                val epv = new EchoPossibilityView(echoPossibility, retailer.get, retailerSettings.get)
+
+                echo.cata(
+                    ec => channel ! REPR(msg, Left(EchoExistsException(epv.copy(echo = ec), "Item already echoed"))),
+                    {
+                        channel ! REPR(msg, Right(epv))
+                        echoPossibilityDao.insertOrUpdate(echoPossibility)
+                        logger.debug("Recorded {}", echoPossibility)
+                    })
+            }).onException {
+                case e: NoSuchElementException =>
+                    channel ! REPR(msg, Left(EchoException("Invalid echo possibility", e)))
+                    logger.warn("Invalid echo possibility: %s" format echoPossibility)
+                case e =>
+                    channel ! REPR(msg, Left(EchoException("Unexpected error", e)))
+                    logger.error("Unexpected error recording echo possibility %s" format echoPossibility, e)
+            }
+
+
         case ("getEcho", echoPossibilityId:String) =>{
             val echo = Option(echoDao.findByEchoPossibilityId(echoPossibilityId)).getOrElse(None)
             if (echo==None)

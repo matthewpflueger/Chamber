@@ -10,7 +10,7 @@ class EchoServiceActorClient extends EchoService {
     @BeanProperty var echoServiceActor: ActorRef = _
 
     def recordEchoPossibility(echoPossibility: EchoPossibility) =
-            (echoServiceActor ? ("recordEchoPossibility", echoPossibility)).mapTo[EchoPossibility]
+            (echoServiceActor ? RecordEchoPossibility(echoPossibility)).mapTo[RecordEchoPossibilityResponse]
 
     def getEchoPossibility(echoPossibilityId: String) =
             (echoServiceActor ? ("echoPossibility", echoPossibilityId)).mapTo[EchoPossibility]

@@ -6,14 +6,15 @@ import org.slf4j.LoggerFactory
 import org.eclipse.jetty.continuation.ContinuationSupport
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.util.CookieManager
-import akka.dispatch.Future
-import com.echoed.chamber.domain.Echo
 import org.springframework.web.bind.annotation._
-import com.echoed.chamber.domain.{EchoClick, EchoPossibility}
-import com.echoed.chamber.services.echo.{EchoService}
+import com.echoed.chamber.domain.EchoClick
 import java.net.URLEncoder
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.echoeduser.{EchoToResponse, EchoedUserServiceLocator, LocateWithIdResponse, GetEchoedUserResponse}
+import scalaz._
+import Scalaz._
+import com.echoed.chamber.domain.views.EchoPossibilityView
+import com.echoed.chamber.services.echo.{EchoExistsException, RecordEchoPossibilityResponse, EchoService}
 
 
 @Controller
@@ -53,72 +54,86 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
         if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
 
-        def loginModelAndView = {
-            val echoPossibility = echoPossibilityParameters.createLoginEchoPossibility
-
-            echoService.recordEchoPossibility(echoPossibility)
-            val modelAndView = new ModelAndView(loginView)
-            modelAndView.addObject(
-                "twitterUrl",
-                URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
-
-            modelAndView.addObject("redirectUrl",
-                URLEncoder.encode("http://v1-api.echoed.com/facebook/login?redirect="
-                    + URLEncoder.encode(echoPossibility.asUrlParams("echo?"),"UTF-8"), "UTF-8"))
+        def error(e: Throwable) {
+            continuation.setAttribute("modelAndView", new ModelAndView(errorView, "errorMessage", e.getMessage))
+            continuation.resume
+            logger.error("Unexpected error encountered echoing %s" format echoPossibilityParameters, e)
         }
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (Option(echoPossibilityParameters.echoedUserId) == None) {
-            logger.debug("Unknown user trying to echo {}", echoPossibilityParameters)
-            loginModelAndView
-        } else if (continuation.isExpired) {
-            logger.error("Request expired to echo {}", echoPossibilityParameters)
-            loginModelAndView
+        def confirmEchoPossibility {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).onResult {
+                case LocateWithIdResponse(_, Left(e)) =>
+                    logger.debug("Error {} finding EchoedUserService for {}", e.getMessage, echoPossibilityParameters)
+                    loginToEcho
+                case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                    echoedUserService.getEchoedUser.onResult {
+                        case GetEchoedUserResponse(_, Left(e)) => error(e)
+                        case GetEchoedUserResponse(_, Right(echoedUser)) =>
+                            val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
+
+                            echoService.recordEchoPossibility(echoPossibility).onResult {
+                                case RecordEchoPossibilityResponse(_, Left(EchoExistsException(epv, message, _))) =>
+                                    logger.debug("Echo possibility already echoed {}", epv.echo)
+                                    val modelAndView = new ModelAndView(errorView)
+                                    modelAndView.addObject("errorMessage", "This item has already been shared")
+                                    modelAndView.addObject("echoPossibilityView", epv)
+                                    continuation.setAttribute("modelAndView", modelAndView)
+                                    continuation.resume
+                                case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
+                                case RecordEchoPossibilityResponse(_, Right(epv)) =>
+                                    val modelAndView = new ModelAndView(confirmView)
+                                    modelAndView.addObject("echoedUser", echoedUser)
+                                    modelAndView.addObject("echoPossibility", echoPossibility)
+                                    modelAndView.addObject("retailer", epv.retailer)
+                                    modelAndView.addObject("retailerSettings", epv.retailerSettings)
+                                    modelAndView.addObject(
+                                            "facebookAddUrl",
+                                            URLEncoder.encode(
+                                                    echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login/add?redirect=echo?"),
+                                                    "UTF-8"))
+                                    modelAndView.addObject(
+                                            "twitterAddUrl",
+                                            URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
+                                    continuation.setAttribute("modelAndView", modelAndView)
+                                    continuation.resume
+                            }.onException { case e => error(e) }
+                    }.onException { case e => error(e) }
+            }.onException { case e => error(e) }
+        }
+
+        def loginToEcho {
+            echoService.recordEchoPossibility(echoPossibilityParameters.createLoginEchoPossibility).onResult {
+                case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
+                case RecordEchoPossibilityResponse(_, Right(epv)) =>
+                    val modelAndView = new ModelAndView(loginView)
+                    modelAndView.addObject(
+                        "twitterUrl",
+                        URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"))
+
+                    modelAndView.addObject("redirectUrl",
+                        URLEncoder.encode("http://v1-api.echoed.com/facebook/login?redirect="
+                            + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"),"UTF-8"), "UTF-8"))
+
+                    modelAndView.addObject("echoPossibilityView", epv)
+
+                    continuation.setAttribute("modelAndView", modelAndView)
+                    continuation.resume
+            }.onException { case e => error(e) }
+        }
+
+
+        if (continuation.isExpired) {
+            error(RequestExpiredException("We encountered an error echoing your purchase"))
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
-            val echoPoss = echoPossibilityParameters.createLoginEchoPossibility
 
-            echoService.getEcho(echoPoss.id).map{
-                tuple =>
-                    if(tuple._2 == "Exists"){
-                        logger.debug("Existing Echo {} ", tuple._1)
-                        val modelAndView = new ModelAndView(errorView)
-                        modelAndView.addObject("error_message", "This Item has already been shared")
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume
-                    }
-                    else{
-                        echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).onResult{
-                            case LocateWithIdResponse(_,Left(error)) =>
-                                logger.error("Error locating EchoedUserService with error: {}", error)
-                            case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                                echoedUserService.getEchoedUser.onResult{
-                                    case GetEchoedUserResponse(_,Left(error)) =>
-                                        logger.error("Error Getting EchoedUser {}",error)
-                                    case GetEchoedUserResponse(_,Right(echoedUser)) =>
-                                        val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
-                                        echoService.recordEchoPossibility(echoPossibility)
-
-                                        val modelAndView = new ModelAndView(confirmView)
-                                        modelAndView.addObject("echoedUser", echoedUser)
-                                        modelAndView.addObject("echoPossibility", echoPossibility)
-                                        modelAndView.addObject("facebookAddUrl",
-                                            URLEncoder.encode(echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login/add?redirect=echo?"), "UTF-8"))
-                                        modelAndView.addObject("twitterAddUrl",
-                                            URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
-                                        continuation.setAttribute("modelAndView", modelAndView)
-                                        continuation.resume()
-                            }
-                        }
-                        .onException{
-                            case e =>
-                                logger.error("Exception thrown Locating EchoedUserService: {}", e)
-                        }
-                    }
-
-            }
+            Option(echoPossibilityParameters.echoedUserId).cata(
+                _ => confirmEchoPossibility,
+                loginToEcho)
 
             continuation.undispatch
         })

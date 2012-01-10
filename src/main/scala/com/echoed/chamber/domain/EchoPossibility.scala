@@ -5,7 +5,6 @@ import java.net.URLEncoder
 import scala.collection.mutable.ArrayBuilder
 import org.apache.commons.codec.binary.Base64
 import scala.Option
-import scala.collection.{JavaConversions, JavaConverters}
 
 case class EchoPossibility(
         id: String,
@@ -22,9 +21,9 @@ case class EchoPossibility(
         echoedUserId: String,
         echoId: String,
         landingPageUrl: String,
-        productName: String, 
+        productName: String,
         category: String,
-        brand:String) {
+        brand: String) {
 
     def this(
             retailerId: String,
@@ -39,7 +38,7 @@ case class EchoPossibility(
             echoId: String,
             landingPageUrl: String,
             productName: String,
-            category: String, 
+            category: String,
             brand: String) = this(
         //NOTE: do not include any changing attributes in the hash calc.  For example, step should never
         //be included as it changes with every step the user takes to echo a purchase (button, login, etc)

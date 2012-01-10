@@ -41,7 +41,6 @@ class DataCreator {
 
 
     def open(url: URL)(op: BufferedReader => Unit) = {
-        retailerSettings(0)
         val reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()))
         try {
             op(reader)
@@ -208,7 +207,7 @@ class DataCreator {
             logger.debug("Created {}", r)
         }
 
-        retailerSettings.foreach { rs =>
+        retailerSettingsList.foreach { rs =>
             retailerSettingsDao.insert(rs)
             logger.debug("Created {}", rs)
         }
@@ -226,7 +225,7 @@ class DataCreator {
 
             for (num <- 0 to ran) {
                 val r = retailers(num)
-                val rs = retailerSettings.find(_.retailerId == r.id).get
+                val rs = retailerSettingsList.find(_.retailerId == r.id).get
 
                 val categories = List("Shoes","Clothes","Random","Other","Accessories")
                 val category = categories(random.nextInt(5))
@@ -263,6 +262,11 @@ class DataCreator {
 
     val on = new Date
     val today = Calendar.getInstance()
+    val yesterday = {
+        val c = Calendar.getInstance()
+        c.set(Calendar.DATE, today.get(Calendar.DATE)-1)
+        c
+    }
     val past = {
         val c = Calendar.getInstance()
         c.set(Calendar.YEAR, today.get(Calendar.YEAR)-1)
@@ -310,9 +314,7 @@ class DataCreator {
 
     //val retailers = retailerDao.selectAll
     val retailer = retailers(0)
-
-    val retailerSettings = List(
-        RetailerSettings(
+    val retailerSettingsFuture = RetailerSettings(
             id = UUID.randomUUID.toString,
             updatedOn = on,
             createdOn = on,
@@ -324,8 +326,8 @@ class DataCreator {
             maxPercentage = 0.2f,
             echoedMatchPercentage = 1f,
             echoedMaxPercentage = 0.2f,
-            activeOn = future.getTime)) ++
-        retailers.map { r =>
+            activeOn = future.getTime)
+    val retailerSettingsList = retailerSettingsFuture :: retailers.map { r =>
             new RetailerSettings(
                 retailerId = r.id,
                 closetPercentage = 0.01f,
@@ -335,8 +337,10 @@ class DataCreator {
                 maxPercentage = 0.2f,
                 echoedMatchPercentage = 1f,
                 echoedMaxPercentage = 0.2f,
-                activeOn = new Date)
-        }
+                activeOn = past.getTime)
+        }.toList
+    val retailerSettings = retailerSettingsList(1)
+
 
 
     val twitterId ="47851866"
@@ -718,7 +722,7 @@ class DataCreator {
             twitterStatusId = twitterStatusId_1,
             echoPossibilityId = echoPossibilities(0).id,
             landingPageUrl = landingPageUrl,
-            retailerSettingsId = retailerSettings(0).id,
+            retailerSettingsId = retailerSettingsFuture.id,
             totalClicks = 5,
             credit = 1f,
             fee = 1f,
@@ -741,7 +745,7 @@ class DataCreator {
             twitterStatusId = twitterStatusId_2,
             echoPossibilityId = echoPossibilities(1).id,
             landingPageUrl = landingPageUrl,
-            retailerSettingsId = retailerSettings(1).id,
+            retailerSettingsId = retailerSettings.id,
             totalClicks = 5,
             credit = 1f,
             fee = 1f,

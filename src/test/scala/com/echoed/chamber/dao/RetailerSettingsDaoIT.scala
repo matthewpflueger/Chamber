@@ -24,12 +24,15 @@ class RetailerSettingsDaoIT extends FeatureSpec with GivenWhenThen with ShouldMa
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
-    val retailerId = dataCreator.retailerSettings(0).retailerId
-    val retailerSettings = dataCreator.retailerSettings.filter(_.retailerId == retailerId)
+    val retailerSettings = dataCreator.retailerSettings
+    val retailerSettingsFuture = dataCreator.retailerSettingsFuture
+    val retailerSettingsList = dataCreator.retailerSettingsList
+    val retailerId = retailerSettings.retailerId
+
 
     def cleanup() {
-        retailerSettingsDao.deleteByRetailerId(retailerSettings(0).retailerId)
-        retailerSettingsDao.findByRetailerId(retailerSettings(0).retailerId).size should equal (0)
+        retailerSettingsList.foreach(rs => retailerSettingsDao.deleteByRetailerId(rs.retailerId))
+        retailerSettingsDao.findByRetailerId(retailerSettings.retailerId).size should equal (0)
     }
 
     override def beforeAll = cleanup
@@ -38,24 +41,24 @@ class RetailerSettingsDaoIT extends FeatureSpec with GivenWhenThen with ShouldMa
     feature("A developer can manipulate RetailerSettings data") {
 
         scenario("new RetailerSettings are inserted", IntegrationTest) {
-            retailerSettings.foreach(retailerSettingsDao.insert(_))
-            val retailerSettingsList = asScalaBuffer(retailerSettingsDao.findByRetailerId(retailerSettings(0).retailerId))
-            retailerSettingsList should not be (null)
-            retailerSettingsList.length should equal (retailerSettings.length)
+            retailerSettingsList.foreach(retailerSettingsDao.insert(_))
+            val rsList = asScalaBuffer(retailerSettingsDao.findByRetailerId(retailerSettings.retailerId))
+            rsList should not be (null)
+            rsList.length should equal (2)
 
-            for (retailerSetting <- retailerSettings) retailerSettingsList.find(_.id == retailerSetting.id) should not be (None)
+            for (retailerSetting <- rsList) rsList.find(_.id == retailerSetting.id) should not be (None)
         }
 
         scenario("only one active RetailerSettings for a given date", IntegrationTest) {
             val currentSettings = retailerSettingsDao.findByActiveOn(retailerId, new Date)
             currentSettings should not be (null)
-            currentSettings.id should equal (retailerSettings(1).id)
+            currentSettings.id should equal (retailerSettings.id)
 
             val future = dataCreator.future
             future.set(Calendar.YEAR, dataCreator.future.get(Calendar.YEAR) + 1)
             val futureSettings = retailerSettingsDao.findByActiveOn(retailerId, future.getTime)
             futureSettings should not be (null)
-            futureSettings.id should equal (retailerSettings(0).id)
+            futureSettings.id should equal (retailerSettingsFuture.id)
 
             val past = dataCreator.past
             past.set(Calendar.YEAR, dataCreator.past.get(Calendar.YEAR) - 1)

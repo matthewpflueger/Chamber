@@ -6,7 +6,7 @@ import com.echoed.chamber.domain._
 
 trait EchoService {
 
-    def recordEchoPossibility(echoPossibility: EchoPossibility): Future[EchoPossibility]
+    def recordEchoPossibility(echoPossibility: EchoPossibility): Future[RecordEchoPossibilityResponse]
 
     def getEchoPossibility(echoPossibilityId: String): Future[EchoPossibility]
 
