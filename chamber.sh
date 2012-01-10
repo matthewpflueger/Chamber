@@ -88,6 +88,21 @@ case "$1" in
         rlwrap mvn scala:console
         ;;
 
+    targz)
+        rm chamber.tar.gz
+        rm target/chamber-0.1-SNAPSHOT-allinone.jar
+        mvn -DskipTests -Pallinone clean package
+        tar -cvzf chamber.tar.gz --exclude chamber.pid --exclude chamber.iml --exclude std.out --exclude out --exclude-vcs --exclude-backups *
+        ;;
+
+    install)
+        sudo apt-get install mysql-server
+        #Install partner repo for distribution in /etc/apt/sources.list
+        #deb http://archive.canonical.com/ubuntu natty partner
+        #deb-src http://archive.canonical.com/ubuntu natty partner
+        sudo apt-get install sun-java6-jdk
+        ;;
+        
     *)
         echo "Usage: $NAME {start|stop|status|verify|scalatest|console}" >&2
         exit 1
