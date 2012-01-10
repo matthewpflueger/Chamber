@@ -191,7 +191,7 @@ a.current {
   overflow: hidden;
   text-wrap: none;
   white-space: nowrap;
-  font-family: 'HelveticaNeue'; }
+  font-family: HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif; }
 
 .full-column-left {
   width: 450px;

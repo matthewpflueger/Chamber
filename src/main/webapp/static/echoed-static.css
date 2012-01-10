@@ -23,7 +23,8 @@ pre, form, fieldset, table, th, td {
 img {
   float: left;
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  border: 0; }
 
 table {
   border-collapse: collapse; }
@@ -122,6 +123,9 @@ h2 {
   color: #ff6f00;
   font-size: 18px;
   font-weight: bold; }
+
+.learnmore-link:hover {
+  color: #000; }
 
 .learnmore-button {
   margin-top: 50px;
@@ -234,6 +238,10 @@ h2 {
   color: #000;
   text-align: right; }
 
+.copyright {
+  text-align: right;
+  font-size: 14px; }
+
 #masthead {
   height: 350px; }
 
@@ -294,10 +302,10 @@ h2 {
   border: 1px solid #CCC; }
 
 #footer-nav {
-  line-height: 45px;
   font-size: 14px; }
 
 #footer-nav a {
+  line-height: 45px;
   margin-right: 10px;
   color: #000; }
 
@@ -319,6 +327,12 @@ h2 {
   font-size: 18px;
   text-align: center;
   color: #FFFFFF; }
+
+.highlight {
+  color: #ff6f00; }
+
+.bold {
+  font-weight: bold; }
 
 .column {
   width: 460px; }

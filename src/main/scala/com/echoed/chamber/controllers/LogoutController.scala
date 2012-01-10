@@ -23,7 +23,7 @@ class LogoutController {
         logger.debug("Removing cookies: echoedUserId & partnerUser");
         cookieManager.deleteCookie(httpServletResponse, "echoedUserId");
         cookieManager.deleteCookie(httpServletResponse, "partnerUser");
-        new ModelAndView("redirect:http://v1-api.echoed.com/")
+        new ModelAndView("redirect:http://www.echoed.com/")
 
     }
 

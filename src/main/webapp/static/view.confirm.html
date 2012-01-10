@@ -17,7 +17,7 @@
         </div>
         <div id="content">
             <div id="thankyou">
-                Thank you for your purchase
+                Thank you for your purchase. Echo this product as {{#echoedUser}}{{name}}{{/echoedUser}}
             </div>
             <div id="lower">
                 <div id="left">
@@ -30,10 +30,11 @@
                                     {{/echoPossibility}}
                                 </div>
                                 <div style="margin-left:5px; float:left; font-size:14px;">
-                                        Rescue<br />
-                                        by Redhawk Brigade<br />
-                                        @ RedhawkBrigade.com<br />
-                                        $29.99
+                                    {{#echoPossibility}}
+                                    {{productName}}<br />
+                                    by {{brand}}<br />
+                                    ${{price}}
+                                    {{/echoPossibility}}
                                 </div>
                                 <div style="clear:both">
                                 </div>

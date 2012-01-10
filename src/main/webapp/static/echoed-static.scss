@@ -59,6 +59,7 @@ img{
     float:left;
     margin:0;
     padding:0;
+    border: 0;
 }
 
 table{
@@ -197,6 +198,10 @@ h2{
                 font-weight:bold;
             }
 
+            .learnmore-link:hover{
+                color: #000;
+            }
+
             .learnmore-button{
                 margin-top:50px;
                 padding:5px 10px;
@@ -331,6 +336,11 @@ h2{
             text-align:right;
         }
 
+        .copyright{
+            text-align:right;
+            font-size: 14px;
+        }
+
         #masthead{
             height:350px;
         }
@@ -403,12 +413,12 @@ h2{
             }
 
         #footer-nav{
-            line-height:45px;
             font-size: 14px;
             //font-family: $navFontFamily;
         }
 
         #footer-nav a{
+            line-height:45px;
             margin-right:10px;
             color: #000;
         }
@@ -435,6 +445,15 @@ h2{
     text-align:center;
     color: #FFFFFF;
 }
+
+.highlight{
+    color: $secondaryColor;
+}
+
+.bold{
+    font-weight:bold;
+}
+
 .column{
     width: 460px;
 }
