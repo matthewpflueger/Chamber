@@ -6,17 +6,22 @@ import org.scalatest.matchers.ShouldMatchers
 import java.util.Date
 import com.echoed.chamber.domain.{RetailerSettings, Retailer, EchoPossibility}
 import com.echoed.chamber.dao.{RetailerSettingsDao, RetailerDao, EchoPossibilityDao}
+import com.echoed.chamber.util.DataCreator
 
 
 class EchoHelper extends ShouldMatchers {
 
+    @Autowired @BeanProperty var dataCreator: DataCreator = _
     @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
 
 
+    val retailer = dataCreator.retailer
+    val retailerSettings = dataCreator.retailerSettings
+
     def setupEchoPossibility(
-            retailerId: String, //: String = "testRetailerId",
+            retailerId: String = retailer.id,
             customerId: String = "testRetailerCustomerId",
             productId: String = "testProductId",
             boughtOn: Date = new Date(1320871016126L), //Wed Nov 09 15:36:56 EST 2011,
@@ -30,6 +35,11 @@ class EchoHelper extends ShouldMatchers {
             productName: String = "My Awesome Boots",
             category: String = "Footwear",
             brand: String = "Nike") = {
+
+        retailerDao.deleteById(retailerId)
+        retailerSettingsDao.deleteByRetailerId(retailerId)
+        retailerDao.insert(retailer)
+        retailerSettingsDao.insert(retailerSettings)
 
         echoPossibilityDao.deleteByRetailerId(retailerId)
         val echoPossibility = new EchoPossibility(
