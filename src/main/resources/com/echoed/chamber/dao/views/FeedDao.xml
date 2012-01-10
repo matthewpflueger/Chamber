@@ -94,8 +94,7 @@
         where
             EU.id = #{id}
         order by
-            E.boughtOn desc
+            E.boughtOn desc, E.id DESC
+
     </select>
-
-
 </mapper>

@@ -130,12 +130,21 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             url: self.jsonUrl,
             dataType: 'json',
             success: function(data){
+                var products = $('');
                 $.each(data, function(index,product){
                     var productModel = new Echoed.Models.Product(product);
+                    var productDiv = $('<div></div>');
+                    var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
+                    products.after(productDiv);
+
                     self.addProduct(productModel,self.filter);
                     self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                 });
-            },
+                products.appendTo(exhibit);
+                exhibit.imagesLoaded(function(){
+                    exhibit.isotope('insert',products);
+                });
+           },
             error:function (xhr, ajaxOptions, thrownError){
             }
         });
@@ -144,7 +153,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         $('#exhibit').isotope({filter: '#exhibit .item_wrap' + selector});
     },
     addProduct: function(productModel,filter){
-
         var exhibit = $('#exhibit');
         var productDiv = $('<div></div>');
         var productComponent = new Echoed.Views.Components.Product({el: productDiv, model:productModel});
