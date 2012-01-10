@@ -64,7 +64,7 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
             val (fp, index) = tuple
             val po = {
                 val cal = Calendar.getInstance()
-                cal.add(Calendar.DAY_OF_MONTH, ((index + 1) * -1) + -1) //convert index to negative and add it minimum age for crawling
+                cal.add(Calendar.HOUR, ((index + 1) * -1) + -1) //convert index to negative and add it minimum age for crawling
                 cal.getTime
             }
 

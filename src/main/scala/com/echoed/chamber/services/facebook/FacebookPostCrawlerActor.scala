@@ -49,7 +49,7 @@ class FacebookPostCrawlerActor extends Actor {
 
         val postedOnEndDate = {
             val cal = Calendar.getInstance()
-            cal.add(Calendar.DAY_OF_MONTH, -1)
+            cal.add(Calendar.HOUR, -1)
             cal.getTime
         }
 
