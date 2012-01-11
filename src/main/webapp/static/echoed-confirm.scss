@@ -22,9 +22,11 @@
 $mainColor: #E31B23;
 $highlightColor : #FF7733;
 $secondaryColor: #FF7733; //ORANGE
+
 $fbColor: #3B5998;
 $twitterColor: #4099FF;
 $greyColor: #444444;
+$whiteColor : #FFFFFF;
 
 $labelColor: #666;
 $navColor: #666;
@@ -35,7 +37,8 @@ $backgroundColor: #CCC;
 
 $headerHeight: 50px;
 
-$navFontFamily: BebasNeue, Arial, sans-serif;
+
+$labelFontFamily: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
 $textFontFamily: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
 
 //RESET
@@ -53,17 +56,13 @@ html{
     height: 100%;
 }
 
-body{
-    min-height:100%;
-}
-
 a{
 	text-decoration:none;
 	color:inherit;
 }
 
 h2{
-    font-family: $navFontFamily;
+    font-family: $labelFontFamily;
     color: $labelColor;
 }
 
@@ -72,7 +71,6 @@ textarea{
     font-size: 16px;
     border: 1px #CCC solid;
     font-family: $textFontFamily;
-
 }
 
 .confirm-label{
@@ -89,34 +87,28 @@ textarea{
 #container{
 	min-width: 960px;
     height: 100%;
-    min-height: 100%;
 }
 
     #header{
         height:50px;
         border-bottom: 5px solid $greyColor;
-        background-color: $containerColor;
-        line-height:50px;
-        font-size: 50px;
-        font-family: BebasNeue;
         padding-left: 10px;
     }
 
         .poweredby{
-            font-family: $navFontFamily;
+            font-family: $labelFontFamily;
             font-size: 18px;
             float:left;
         }
 
         .sharingvalued{
-            font-family: $navFontFamily;
+            font-family: $labelFontFamily;
             font-size: 50px;
             float:right;
             margin-right: 5px;
         }
 
         .red{
-            //font-family: $navFontFamily;
             color: $mainColor;
         }
 
@@ -155,11 +147,11 @@ textarea{
     #right-ei{
         width: 250px;
         float:left;
-    }
 
-    #right-ei img{
-        max-height: 200px;
-        max-width: 200px;
+        img{
+            max-height: 200px;
+            max-width: 200px;
+        }
     }
 
     #left{
@@ -198,7 +190,7 @@ textarea{
             #product_picture_container{
                 text-align:center;
                 float:left;
-                width: 230px;
+                width: 240px;
                 height: 150px;
             }
 
@@ -215,25 +207,22 @@ textarea{
                 font-family: $textFontFamily;
             }
 
-            #product_text{
+            #product_text {
                 margin-top:10px;
-            }
-
-            #product_text table{
-                border-collapse: collapse;
-            }
-
-            #product_text table tr{
-                border: 1px solid #CCC;
-            }
-
-            #product_text table td{
-                padding:15px 2px;
-                font-size: 14px;
-                font-family: HelveticaNeue-Medium;
-            }
-            #product_text table tr.odd{
-                background-color: #EBEBEB;
+                table {
+                    border-collapse: collapse;
+                    tr {
+                        border: 1px solid #CCC;
+                    }
+                    tr.odd{
+                        background-color: #EBEBEB;
+                    }
+                    td {
+                        padding:15px 2px;
+                        font-size: 14px;
+                        font-family: HelveticaNeue-Medium;
+                    }
+                }
             }
 
     #right{
@@ -254,7 +243,6 @@ textarea{
         #echoes td{
             text-align:center;
             padding: 0px 5px 20px 5px;
-
         }
 
         #echoit{

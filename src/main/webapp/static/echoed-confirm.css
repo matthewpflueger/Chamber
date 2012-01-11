@@ -23,15 +23,12 @@ pre, form, fieldset, table, th, td {
 html {
   height: 100%; }
 
-body {
-  min-height: 100%; }
-
 a {
   text-decoration: none;
   color: inherit; }
 
 h2 {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
   color: #666666; }
 
 textarea {
@@ -51,25 +48,20 @@ textarea {
 
 #container {
   min-width: 960px;
-  height: 100%;
-  min-height: 100%; }
+  height: 100%; }
 
 #header {
   height: 50px;
   border-bottom: 5px solid #444444;
-  background-color: white;
-  line-height: 50px;
-  font-size: 50px;
-  font-family: BebasNeue;
   padding-left: 10px; }
 
 .poweredby {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
   font-size: 18px;
   float: left; }
 
 .sharingvalued {
-  font-family: BebasNeue, Arial, sans-serif;
+  font-family: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
   font-size: 50px;
   float: right;
   margin-right: 5px; }
@@ -105,10 +97,9 @@ textarea {
 #right-ei {
   width: 250px;
   float: left; }
-
-#right-ei img {
-  max-height: 200px;
-  max-width: 200px; }
+  #right-ei img {
+    max-height: 200px;
+    max-width: 200px; }
 
 #left {
   width: 500px;
@@ -139,7 +130,7 @@ textarea {
 #product_picture_container {
   text-align: center;
   float: left;
-  width: 230px;
+  width: 240px;
   height: 150px; }
 
 #product_picture {
@@ -155,20 +146,16 @@ textarea {
 
 #product_text {
   margin-top: 10px; }
-
-#product_text table {
-  border-collapse: collapse; }
-
-#product_text table tr {
-  border: 1px solid #CCC; }
-
-#product_text table td {
-  padding: 15px 2px;
-  font-size: 14px;
-  font-family: HelveticaNeue-Medium; }
-
-#product_text table tr.odd {
-  background-color: #EBEBEB; }
+  #product_text table {
+    border-collapse: collapse; }
+    #product_text table tr {
+      border: 1px solid #CCC; }
+    #product_text table tr.odd {
+      background-color: #EBEBEB; }
+    #product_text table td {
+      padding: 15px 2px;
+      font-size: 14px;
+      font-family: HelveticaNeue-Medium; }
 
 #right {
   width: 420px;

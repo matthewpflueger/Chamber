@@ -229,7 +229,7 @@
             count(E.id) as totalEchoes,
             coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
             coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
-            sum(EC.echoClicks) as totalEchoClicks
+            coalesce(sum(EC.echoClicks),0) as totalEchoClicks
         FROM
             Retailer R
             LEFT OUTER JOIN
