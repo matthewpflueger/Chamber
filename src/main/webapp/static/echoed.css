@@ -55,6 +55,9 @@ h2 {
 .third, .half, .table_container {
   background-color: white; }
 
+.highlight {
+  color: #ff7733; }
+
 #container {
   min-width: 1000px;
   height: 100%; }
@@ -168,7 +171,12 @@ a.current {
   width: 250px;
   height: 50px;
   float: left;
-  margin: 10px; }
+  margin: 10px;
+  background-color: #FFF;
+  border: 2px solid #CCC; }
+
+.friend:hover {
+  border-color: #ff7733; }
 
 .friend-img {
   width: 50px;

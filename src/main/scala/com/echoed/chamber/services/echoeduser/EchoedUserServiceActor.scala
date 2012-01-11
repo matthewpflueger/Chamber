@@ -12,7 +12,7 @@ import com.echoed.chamber.services.facebook.{GetFriendsResponse, FacebookService
 import akka.dispatch.Future
 import java.util.{Date, ArrayList}
 import com.echoed.chamber.dao._
-import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView}
+import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,EchoViewPublic}
 import scala.collection.mutable.{Map => MMap, ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
@@ -284,6 +284,17 @@ class EchoedUserServiceActor(
                     logger.error("Unexpected error when fetching friend exhibit for EchoedUser %s" format echoedUser.id, e)
             }
 
+        case msg: GetPublicFeed =>
+            try {
+                logger.debug("Attempting to retrieve Public Feed for EchoedUser {}", echoedUser.id)
+                val feed = asScalaBuffer(feedDao.getPublicFeed).toList
+                self.channel ! GetPublicFeedResponse(msg, Right(feed))
+
+            } catch {
+                case e=>
+                    self.channel ! GetPublicFeedResponse(msg, Left(new EchoedUserException("Cannot get public feed", e)))
+                    logger.error("Unexpected error when fetching feed for EchoedUser %s" format echoedUser.id , e)
+            }
 
         case msg: GetFeed =>
             try {

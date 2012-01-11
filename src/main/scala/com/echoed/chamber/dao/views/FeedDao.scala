@@ -1,6 +1,7 @@
 package com.echoed.chamber.dao.views
 
-import com.echoed.chamber.domain.views.Feed
+import com.echoed.chamber.domain.views.{Feed,EchoViewPublic}
+import java.util.{List => JList}
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,5 +14,5 @@ import com.echoed.chamber.domain.views.Feed
 trait FeedDao {
 
     def findByEchoedUserId(echoedUserId: String): Feed
-    //def getPublicFeed: Feed
+    def getPublicFeed: JList[EchoViewPublic]
 }

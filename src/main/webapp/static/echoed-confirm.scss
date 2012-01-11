@@ -7,15 +7,24 @@
          url('BebasNeue-webfont.svg#BebasNeueRegular') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
 
-$mainColor: #F20006; //RED
-$secondaryColor: #ff6f00; //ORANGE
-$greyColor: #444444;
+@font-face{
+    font-family: 'TradeGothicBD20Cond';
+    src: url('tradegothicbd20cd-webfont.eot');
+    src: url('tradegothicbd20cd-webfont.eot?#iefix') format('embedded-opentype'),
+         url('tradegothicbd20cd-webfont.woff') format('woff'),
+         url('tradegothicbd20cd-webfont.ttf') format('truetype'),
+         url('tradegothicbd20cd-webfont.svg#TradeGothicLTStdBdCnNo.20') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+$mainColor: #E31B23;
 $highlightColor : #FF7733;
+$secondaryColor: #FF7733; //ORANGE
 $fbColor: #3B5998;
 $twitterColor: #4099FF;
+$greyColor: #444444;
 
 $labelColor: #666;
 $navColor: #666;
@@ -27,7 +36,7 @@ $backgroundColor: #CCC;
 $headerHeight: 50px;
 
 $navFontFamily: BebasNeue, Arial, sans-serif;
-$textFontFamily: HelveticaNeue-Medium, Helvetica, sans-serif;
+$textFontFamily: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
 
 //RESET
 html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
@@ -66,6 +75,16 @@ textarea{
 
 }
 
+.confirm-label{
+    margin-top:5px;
+    font-weight:bold;
+    font-size: 20px;
+}
+
+.confirm-text{
+    font-size: 16px;
+    line-height: 1.5em;
+}
 
 #container{
 	min-width: 960px;
@@ -102,12 +121,45 @@ textarea{
         }
 
     #thankyou{
-        padding:10px;
-        font-family: BebasNeue;
-        font-size: 36px;
+        padding:5px;
+
     }
+
+    .ty-text{
+        font-family: TradeGothicBD20Cond;
+        font-size: 36px;
+        letter-spacing: -3px;
+    }
+
+    .highlight{
+        color: $secondaryColor;
+        text-decoration: underline;
+    }
+
+    .not-name{
+        font-size: 12px;
+        font-family: $textFontFamily;
+    }
+
     #lower{
         height: 360px;
+    }
+
+    #left-ei{
+        width: 600px;
+        float:left;
+        margin-right:25px;
+        margin-left:10px;
+    }
+
+    #right-ei{
+        width: 250px;
+        float:left;
+    }
+
+    #right-ei img{
+        max-height: 200px;
+        max-width: 200px;
     }
 
     #left{
@@ -145,6 +197,7 @@ textarea{
 
             #product_picture_container{
                 text-align:center;
+                float:left;
                 width: 230px;
                 height: 150px;
             }
@@ -152,6 +205,14 @@ textarea{
             #product_picture{
                 max-height: 150px;
                 max-width: 240px;
+            }
+
+            #product-description{
+                float:left;
+                margin-left: 5px;
+                font-size: 16px;
+                line-height: 14px;
+                font-family: $textFontFamily;
             }
 
             #product_text{
@@ -213,3 +274,17 @@ textarea{
     color: $secondaryColor;
     font-weight:bold;
 }
+
+.clearfix{
+    zoom:1;
+}
+
+.clearfix:before,.clearfix:after{
+    content:"";
+    display:table;
+}
+
+.clearfix:after{
+    clear:both;
+}
+

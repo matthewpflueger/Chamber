@@ -49,6 +49,38 @@
         </constructor>
     </resultMap>
 
+    <resultMap id="echoViewPublicResult" type="com.echoed.chamber.domain.views.EchoViewPublic">
+        <constructor>
+            <idArg column="echoId" javaType="String"/>
+            <arg column="echoBoughtOn" javaType="Date"/>
+            <arg column="echoImageUrl" javaType="String"/>
+            <arg column="echoProductName" javaType="String"/>
+            <arg column="echoCategory" javaType="String"/>
+            <arg column="echoBrand" javaType="String"/>
+            <arg column="echoLandingPageUrl" javaType="String"/>
+            <arg column="retailerName" javaType="String"/>
+        </constructor>
+    </resultMap>
+
+    <select id="getPublicFeed" resultMap="echoViewPublicResult">
+        select
+            E.id as echoId,
+            E.boughtOn as echoBoughtOn,
+            E.imageUrl as echoImageUrl,
+            E.productName as echoProductName,
+            E.category as echoCategory,
+            E.brand as echoBrand,
+            E.landingPageUrl as echoLandingPageUrl,
+            R.name as retailerName
+        from
+            Echo E
+            left outer join Retailer R on E.retailerId = R.id
+        order by
+            E.boughtOn desc, E.id DESC
+        Limit
+            0,50
+    </select>
+
     <select id="findByEchoedUserId" resultMap="feedResult">
         select
             EU.id as echoedUserId,
@@ -95,6 +127,7 @@
             EU.id = #{id}
         order by
             E.boughtOn desc, E.id DESC
-
+        Limit
+            0,50
     </select>
 </mapper>

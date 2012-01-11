@@ -9,75 +9,48 @@
 <div id="container">
     <div id="header" class="clearfix">
         <div class="poweredby">
-            Powered By Echoed
+            <img src="http://v1-cdn.echoed.com/img_pbe.png"/>
         </div>
         <div class="sharingvalued">
-            Sharing. <span class="red">Valued</span>
+            <img src="http://v1-cdn.echoed.com/img_sv.png"/>
         </div>
     </div>
     <div id="content">
         <div id="thankyou">
-            Thank you for your purchase
+            <span class="ty-text">You&#39;ve Shared This Product to Your Echoed Exhibit and these Social Networks:</span>
         </div>
-        <div id="lower">
-            <div id="left">
-                <div id="left_content">
-                    <div id="product">
-                        <div id="product_upper">
-                            <div id="product_picture_container" style="float:left">
-                                {{#echoPossibility}}
-                                <img id="product_picture" src="{{imageUrl}}"/>
-                                {{/echoPossibility}}
-                            </div>
-                            <div style="margin-left:5px; float:left; font-size:14px;">
-                                Rescue<br />
-                                by Redhawk Brigade<br />
-                                @ RedhawkBrigade.com<br />
-                                $29.99
-                            </div>
-                            <div style="clear:both">
-                            </div>
-                        </div>
-                        <div id="product_text" style="margin-top:10px">
-                            <div>Rewards (7 Days to register activity)</div>
-                            <table width="100%" cellspacing="0" cellpadding="0">
-                                <tbody>
-                                <tr class="odd">
-                                    <td>
-                                        <span class="echoed-text">Echo</span> to your closet
-                                    </td>
-                                    <td align="right" width="80px" valign="top">
-                                        <span class="echoed-text">1%</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        Get <span class="echoed-text">20 clicks</span> on your social network
-                                    </td>
-                                    <td align="right">
-                                        <span class="echoed-text">5%</span>
-                                    </td>
-                                </tr>
-                                <tr class="odd">
-                                    <td>
-                                        Encourage <span class="echoed-text">social activity</span>. More activity more reward.
-                                    </td>
-                                    <td align="right" valign="top">
-                                        up to <span class="echoed-text">15%</span>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <div id="networks">
+            {{#echoFull}}
+            {{#facebookPost}}
+            <img id="facebookAccount" src="http://v1-cdn.echoed.com/btn_sq_clr_fb.png" alt="facebook"/>
+            {{/facebookPost}}
+            {{#twitterStatus}}
+            <img id="twitterAccount" src="http://v1-cdn.echoed.com/btn_sq_clr_tw.png" alt="twitter"/>
+            {{/twitterStatus}}
+            {{/echoFull}}
+        </div>
+        <div class="clearfix">
+            <div id="left-ei">
+                <div class="confirm-label">
+                    What Do You Get?
+                </div>
+                <div class="confirm-text">
+                    You&#39;ll receive at least 1% off from {{#echoFull}}{{#retailer}}{{name}}{{/retailer}}{{/echoFull}} on this item. You can view and track all your shared purchases from within your <strong>Echoed Exhibit</strong>
+                </div>
+                <div class="confirm-label">
+                    What&#39;s Next?
+                </div>
+                <div class="confirm-text">
+                    You&#39;ve also shared this item with your social networks. Get at least NUMBER unique people to check out the product and you will receive NUMBER. The more friends that check out what you&#39;ve bought
+                    the larger the credit will be. Encourage your friends to click on your shared purchases and to browse your <strong>Echoed Exhibit</strong>.
                 </div>
             </div>
-            <div id="right" >
-                <div id="right_content" class="border-grey bg-color-white rounded-corners">
-                    <form name="message" id="echo" action="http://v1-api.echoed.com/echo/it" method="get">
-                    </form>
-                </div>
+            <div id="right-ei">
+                <img src="{{#echoFull}}{{imageUrl}}{{/echoFull}}"/>
             </div>
+        </div>
+        <div style="margin-left:10px;margin-top:10px;font-size:20px;">
+            The countdown stats now! You've got 7 Days to receive up to 20% off your purchase.
         </div>
     </div>
 </div>

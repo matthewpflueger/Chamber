@@ -34,6 +34,8 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def getCloset = (echoedUserServiceActor ? GetExhibit()).mapTo[GetExhibitResponse]
 
     def getFeed = (echoedUserServiceActor ? GetFeed()).mapTo[GetFeedResponse]
+    
+    def getPublicFeed = (echoedUserServiceActor ? GetPublicFeed()).mapTo[GetPublicFeedResponse]
 
     def getFriendCloset(echoedFriendId: String) = (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId)).mapTo[GetFriendExhibitResponse]
 

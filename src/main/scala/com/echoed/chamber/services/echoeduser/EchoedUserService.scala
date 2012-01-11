@@ -29,6 +29,8 @@ trait EchoedUserService {
     def getCloset: Future[GetExhibitResponse]
 
     def getFeed: Future[GetFeedResponse]
+    
+    def getPublicFeed: Future[GetPublicFeedResponse]
 
     def getFriendCloset(echoedFriendId: String): Future[GetFriendExhibitResponse]
 

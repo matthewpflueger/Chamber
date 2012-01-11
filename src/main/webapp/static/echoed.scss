@@ -67,12 +67,12 @@ th{
 
 a{
 	text-decoration:none;
-	color:inherit;
+    color: inherit;
 }
 
 a:visited{
     text-decoration:none;
-    color:inherit;
+    color: inherit;
 }
 
 h2{
@@ -98,6 +98,10 @@ h2{
 /*White Areas*/
 .third,.half,.table_container{
     background-color: $containerColor;
+}
+
+.highlight{
+    color: $highlightColor;
 }
 
 
@@ -252,8 +256,14 @@ h2{
 				width: 250px;
 				height: 50px;
 				float:left;
-	            margin: 10px;
+	            margin: 10px;            
+	            background-color: #FFF;
+	            border: 2px solid #CCC;
 			}
+
+            .friend:hover{
+                border-color: $highlightColor;
+            }
 
                 .friend-img{
                     width:50px;

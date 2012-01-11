@@ -54,7 +54,7 @@ class ClosetController {
                             val modelAndView = new ModelAndView(closetView)
                             modelAndView.addObject("echoedUser", closet.echoedUser)
                             //modelAndView.addObject("echoes", closet.echoes)
-                            modelAndView.addObject("totalCredit", closet.totalCredit.round)
+                            modelAndView.addObject("totalCredit", "%.2f\n".format(closet.totalCredit))
                             val error = Option(httpServletRequest.getParameter("error"))
                             logger.debug("Found error: {}", error)
                             modelAndView.addObject("errors", error.cata(
@@ -81,6 +81,49 @@ class ClosetController {
             }
             continuation.undispatch()
         })
+    }
+    @RequestMapping(value = Array("/feed/public"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def publicFeed(
+                @CookieValue(value = "echoedUserId", required= false) echoedUserIdCookie:String,
+                @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
+                httpServletRequest: HttpServletRequest,
+                httpServletResponse: HttpServletResponse) = {
+
+        var echoedUserId: String = null;
+        if(echoedUserIdCookie != null){
+            echoedUserId = echoedUserIdCookie;
+        }
+        else{
+            echoedUserId = echoedUserIdParam;
+        }
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (continuation.isExpired){
+            logger.error("Request expired to view exhibit for user{}", echoedUserId)
+            new ModelAndView(errorView)
+        } else Option(continuation.getAttribute("feed")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+                case LocateWithIdResponse(_,Left(error))=>
+                    logger.error("Error locating EchoedUserService: {}", error)
+                case LocateWithIdResponse(_,Right(echoedUserService)) =>
+                    echoedUserService.getPublicFeed.onResult{
+                        case GetPublicFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                        case GetPublicFeedResponse(_,Right(feed)) =>
+                            continuation.setAttribute("feed", feed)
+                            continuation.resume()
+                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
+                    }
+            }
+                .onException{
+                case e =>
+                    logger.error("Exception thrown Locating EchoedUserService: {} ", e)
+            }
+            continuation.undispatch()
+        })
+
     }
 
     @RequestMapping(value = Array("/feed"), method = Array(RequestMethod.GET))

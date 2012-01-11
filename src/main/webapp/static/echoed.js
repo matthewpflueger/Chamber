@@ -96,7 +96,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.id = options.Id;
                 break;
             case "feed":
-                this.jsonUrl = "http://v1-api.echoed.com/closet/feed";
+                this.jsonUrl = "http://v1-api.echoed.com/closet/feed/public";
                 this.baseUrl = "#feed/";
                 this.contentTitle = "My Feed";
                 this.id= "feed";
@@ -185,7 +185,7 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
                     var friendText = $('<div class="friend-text"></div>').html(friend.name);
                     var  a = $('<a></a>').attr("href","#friends/exhibit/" + friend.toEchoedUserId);
                     if(friend.facebookId != null)
-                        img = $('<img />').attr("src","http://graph.facebook.com/" + friend.facebookId + "/picture");
+                        img = $('<img />').attr("height","50px").attr("src","http://graph.facebook.com/" + friend.facebookId + "/picture");
                     else
                         img = $('<img />').attr("src", "http://api.twitter.com/1/users/profile_image/" + friend.twitterId);
                     friendImage.append(img);
@@ -226,9 +226,11 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
         this.categories = sortedObj;
 
         this.element.html('')
-        $('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(this.element);
+        var anc =$('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(this.element);
+        if(this.selected = "All")
+            anc.addClass("current");
         for(var id in this.categories){
-            var anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(this.element);
+            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(this.element);
             if(id == this.selected){
                 anc.addClass("current");
             }
@@ -241,6 +243,8 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
         }
     },
     triggerClick: function(e){
+        if(e == "*")
+            e = ".All";
         this.element.find(".current").removeClass("current");
         $("#" + e.substr(1)).addClass("current");
         this.selected = e.substr(1);
