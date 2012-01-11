@@ -244,19 +244,28 @@ class ClosetController {
                     echoedUserService.getFriends.onResult{
                         case GetEchoedFriendsResponse(_,Left(error)) =>
                             logger.error("Error Getting Friends: {}", error)
+                            continuation.setAttribute("friends", error);
+                            continuation.resume()
                         case GetEchoedFriendsResponse(_,Right(friends)) =>
                             continuation.setAttribute("friends", friends)
                             continuation.resume()
-                        case unknown =>    throw new RuntimeException("Unknown Response %s" format unknown)
+                        case unknown =>
+                            throw new RuntimeException("Unknown Response %s" format unknown)
+                            continuation.setAttribute("friends", unknown)
+                            continuation.resume()
                     }
                     .onException{
                         case e=>
                             logger.error("Exception Thrown Getting Friends: {}" , e)
+                            continuation.setAttribute("friends", e)
+                            continuation.resume()
                     }
             }
             .onException{
                 case e =>
                     logger.error("Exception thrown Locating EchoedUserService with Exception {}", e)
+                    continuation.setAttribute("friends",e)
+                    continuation.resume()
             }
             continuation.undispatch()
         })
@@ -291,11 +300,15 @@ class ClosetController {
                     .onException{
                         case e=>
                             logger.error("Exception thrown Getting Friend's Closet {}", e)
+                            continuation.setAttribute("closet", e)
+                            continuation.resume()
                     }
             }
             .onException{
                 case e =>
                     logger.error("Exception thrown when Locating EchoedUserService: {}", e)
+                    continuation.setAttribute("closet", e)
+                    continuation.resume();
             }
             
             continuation.undispatch()

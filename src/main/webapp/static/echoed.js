@@ -22,10 +22,9 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
-        _.bindAll(this,'exhibit','friends');
+        _.bindAll(this,'exhibit','friends','feed');
         this.EvAg = options.EvAg;
-        this.page = null;
-
+        this.page=null;
     },
     routes:{
         "_=_" : "fix",
@@ -44,22 +43,28 @@ Echoed.Router = Backbone.Router.extend({
     feed: function(filter){
         if(!filter) selector = "*";
         else selector = "." + filter;
-        if(this.page != "Feed")
+        if(this.page != "Feed"){
+            this.page = "Feed";
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "feed"});
-        this.EvAg.trigger('filter/change',selector);
+        }
+        else{
+            this.EvAg.trigger('filter/change',selector);
+        }
         this.EvAg.trigger("page/change","feed");
-        this.page= "Feed";
+
     },
     exhibit: function(filter) {
         if(!filter) selector = "*";
         else selector = "." + filter;
 
-        if(this.page != "Exhibit")
+        if(this.page != "Exhibit"){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector, Type: "exhibit"});
-
-        this.EvAg.trigger('filter/change',selector);
+            this.page = "Exhibit";
+        } else{
+            this.EvAg.trigger('filter/change',selector);
+        }
         this.EvAg.trigger("page/change","exhibit");
-        this.page = "Exhibit";
+
     },
     friends: function() {
         pageView = new Echoed.Views.Pages.Friends({EvAg: this.EvAg});
@@ -82,7 +87,6 @@ Echoed.Router = Backbone.Router.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-
         _.bindAll(this,'render','addProduct','filterProducts');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
@@ -113,10 +117,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     render: function(){
         var template = _.template($('#templates-pages-exhibit').html());
         this.element.html(template);
+        this.exhibit=$('#exhibit');
         $('#content-title').html(this.contentTitle);
         var self = this;
-        var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl});
 
+        var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl});
         var exhibit = $('#exhibit');
 
         exhibit.isotope({
@@ -133,7 +138,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     var productDiv = $('<div></div>');
                     var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
                     products.after(productDiv);
-
                     self.addProduct(productModel,self.filter);
                     self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                 });
@@ -147,7 +151,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         });
     },
     filterProducts: function(selector){
-        $('#exhibit').isotope({filter: '#exhibit .item_wrap' + selector});
+        var self = this;
+        self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
     },
     addProduct: function(productModel,filter){
         var exhibit = $('#exhibit');

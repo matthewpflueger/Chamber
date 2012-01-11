@@ -139,6 +139,7 @@ h2{
 .bg-highlight{
     background-color:$mainColor;
 }
+
 #container{
     min-width: 1000px;
     min-height: 100%;
@@ -322,27 +323,28 @@ h2{
             }
 
         }
-            #cu-form{
-                input[type=text],label,textarea{
-                    display:block;
-                }
-                label{
-                    font-size: 18px;
-                    margin: 10px 0px 5px 0px;
-                }
-                textarea{
-                    width:800px;
-                    height: 400px;
-                    font-size: 18px;
-                    border: 1px solid #CCC;
-                }
-                input[type=text]{
-                    width: 400px;
-                    font-size: 18px;
-                    line-height: 1em;
-                    border: 1px solid #CCC;
-                }
+
+        #cu-form{
+            input[type=text],label,textarea{
+                display:block;
             }
+            label{
+                font-size: 18px;
+                margin: 10px 0px 5px 0px;
+            }
+            textarea{
+                width:800px;
+                height: 400px;
+                font-size: 18px;
+                border: 1px solid #CCC;
+            }
+            input[type=text]{
+                width: 400px;
+                font-size: 18px;
+                line-height: 1em;
+                border: 1px solid #CCC;
+            }
+        }
 
         #footer-nav{
             font-size: 14px;
