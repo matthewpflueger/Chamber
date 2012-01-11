@@ -120,9 +120,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var exhibit = $('#exhibit');
 
         exhibit.isotope({
-            masonry: {
-                columnWidth: 240
-            },
             filter: self.filter
         });
 
@@ -229,7 +226,7 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
         this.categories = sortedObj;
 
         this.element.html('')
-        $('<a></a>').hide().attr("id","All").attr("href", this.baseUrl).html("All").appendTo(this.element).show();
+        $('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(this.element);
         for(var id in this.categories){
             var anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(this.element);
             if(id == this.selected){
