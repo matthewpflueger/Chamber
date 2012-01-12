@@ -146,7 +146,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 else
                     echoes = data.echoes;
                 if(self.id == "friends"){
-                    $('#content-title').html(data.echoedUserName + "'s Closet");
+                    $('#content-title').html(data.echoedUserName + "'s Exhibit");
                 }
                 else
                     $('#content-title').html(self.contentTitle);
