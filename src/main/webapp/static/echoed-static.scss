@@ -280,8 +280,6 @@ h2{
     }
 
         #sv{
-            width:350px;
-            float:right;
             font-size: 40px;
             font-family: $labelFontFamily;
             color: #000;
@@ -289,8 +287,12 @@ h2{
         }
 
         .copyright{
+            height: 50px;
+            line-height:50px;
+            float: right;
             text-align:right;
             font-size: 14px;
+            margin-right: 10px;
         }
 
         #masthead{

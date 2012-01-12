@@ -198,16 +198,18 @@ h2 {
     background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png"); }
 
 #sv {
-  width: 350px;
-  float: right;
   font-size: 40px;
   font-family: BebasNeue, Arial, sans-serif;
   color: #000;
   text-align: right; }
 
 .copyright {
+  height: 50px;
+  line-height: 50px;
+  float: right;
   text-align: right;
-  font-size: 14px; }
+  font-size: 14px;
+  margin-right: 10px; }
 
 #masthead {
   height: 350px; }
