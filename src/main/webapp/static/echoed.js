@@ -133,7 +133,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             },
             filter: self.filter
         });
-        $('body').css("overflow","hidden");
 
         $.ajax({
             url: self.jsonUrl,
@@ -142,19 +141,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 var products = $('<div></div>');
                 $.each(data, function(index,product){
                     var productModel = new Echoed.Models.Product(product);
-                    var productDiv = $('<div></div>');
-                    var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
-                    products.append(productDiv);
-                    //self.addProduct(productModel,self.filter);
+                    self.addProduct(productModel,self.filter);
                     self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                 });
-                var productsEl = $(products.html());
-                productsEl.imagesLoaded(function(){
-                    exhibit.isotope('insert',productsEl,function(){
-                        $('body').css("overflow","visible");
-                    });
-                    //exhibit.isotope('insert',productsEl);
-                })
            },
             error:function (xhr, ajaxOptions, thrownError){
             }
@@ -163,12 +152,17 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     filterProducts: function(selector){
         var self = this;
         console.log("Filtering: " + selector);
-        $('body').css("overflow","hidden");
-        self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector}, function(){
-            $('body').css("overflow","visible");
-        });
+        self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
     },
     addProduct: function(productModel,filter){
+        var self = this;
+        var productDiv = $('<div></div>');
+        var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
+        productDiv.hide().appendTo(self.exhibit);
+        self.exhibit.imagesLoaded(function(){
+            self.exhibit.isotope('insert',productDiv);
+            productDiv.show();
+        });
     }
 });
 
