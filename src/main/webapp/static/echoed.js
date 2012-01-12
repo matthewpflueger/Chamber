@@ -133,6 +133,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             },
             filter: self.filter
         });
+        $('body').css("overflow","hidden");
 
         $.ajax({
             url: self.jsonUrl,
@@ -149,7 +150,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 });
                 var productsEl = $(products.html());
                 productsEl.imagesLoaded(function(){
-                    exhibit.append(productsEl).isotope('insert',productsEl);
+                    exhibit.isotope('insert',productsEl,function(){
+                        $('body').css("overflow","visible");
+                    });
                     //exhibit.isotope('insert',productsEl);
                 })
            },
@@ -160,7 +163,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     filterProducts: function(selector){
         var self = this;
         console.log("Filtering: " + selector);
-        self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
+        $('body').css("overflow","hidden");
+        self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector}, function(){
+            $('body').css("overflow","visible");
+        });
     },
     addProduct: function(productModel,filter){
     }
