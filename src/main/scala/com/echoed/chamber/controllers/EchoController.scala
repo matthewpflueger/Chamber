@@ -82,8 +82,10 @@ class EchoController {
                                     val modelAndView = new ModelAndView(errorView)
                                     modelAndView.addObject("errorMessage", "This item has already been shared")
                                     modelAndView.addObject("echoPossibilityView", epv)
+                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
+                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                                     continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume
+                                    continuation.resume()
                                 case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
                                 case RecordEchoPossibilityResponse(_, Right(epv)) =>
                                     val modelAndView = new ModelAndView(confirmView)
@@ -91,6 +93,9 @@ class EchoController {
                                     modelAndView.addObject("echoPossibility", echoPossibility)
                                     modelAndView.addObject("retailer", epv.retailer)
                                     modelAndView.addObject("retailerSettings", epv.retailerSettings)
+                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
+                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
+                                    modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                                     modelAndView.addObject(
                                             "facebookAddUrl",
                                             URLEncoder.encode(
@@ -120,6 +125,9 @@ class EchoController {
                             + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
 
                     modelAndView.addObject("echoPossibilityView", epv)
+                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
+                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
+                    modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
 
                     continuation.setAttribute("modelAndView", modelAndView)
                     continuation.resume
@@ -179,7 +187,7 @@ class EchoController {
                                 case EchoToResponse(_, Left(e)) => error(e)
                                 case EchoToResponse(_, Right(echoFull)) => {
                                     continuation.setAttribute("modelAndView", new ModelAndView(echoItView, "echoFull", echoFull))
-                                    continuation.resume
+                                    continuation.resume()
                                 }
                             }
                         ))

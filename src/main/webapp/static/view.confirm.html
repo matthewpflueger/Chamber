@@ -33,20 +33,19 @@
                                     {{#echoPossibility}}
                                     {{productName}}<br /><br/>
                                     by {{brand}}<br /><br/>
-                                    ${{price}}
                                     {{/echoPossibility}}
+                                    ${{productPriceFormatted}}
                                 </div>
                             </div>
                             <div id="product_text" style="margin-top:10px">
                                 <div style="margin-bottom: 3px;"><span style="font-size:18px;font-weight:bold;">Rewards</span> (7 Days to register activity)</div>
                                 <table width="100%" cellspacing="0" cellpadding="0">
                                     <tbody>
-                                    {{#retailerSettings}}
                                     <tr class="odd">
                                         <td>
                                             Echo to your exhibit
                                         </td>
-                                        <td align="right" width="80px" valign="top">
+                                        <td align="right" width="100px" valign="top">
                                             Receive <span class="echoed-text">1%</span>
                                         </td>
                                     </tr>
@@ -63,10 +62,9 @@
                                             Encourage social activity. More activity more reward.
                                         </td>
                                         <td align="right" valign="top">
-                                            up to <span class="echoed-text">{{echoedMaxPercentage}}%</span>
+                                            up to <span class="echoed-text">{{maxPercentage}}%</span>
                                         </td>
                                     </tr>
-                                    {{/retailerSettings}}
                                     </tbody>
                                 </table>
                             </div>
@@ -87,7 +85,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <textarea name="closetmessage" disabled="disabled" style="width:280px; height:65px;" class="rounded-corners" >Items will appear in your echoed closet</textarea>
+                                            <textarea name="closetmessage" disabled="disabled" style="width:280px; height:65px;" class="rounded-corners" >Items will appear in your Echoed Exhibit</textarea>
                                         </td>
                                         <td width="50">
                                             <input type="checkbox" name="postToEchoedCloset" checked="true" disabled="true"/>
@@ -100,7 +98,7 @@
                                         	<img src="http://v1-cdn.echoed.com/icon_facebook.png" height="65"/>
                                         </td>
                                         <td>
-                                            <textarea name="facebookMessage" style="width:280px; height:65px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
+                                            <textarea name="facebookMessage" style="width:280px; height:65px;" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
                                         </td>
                                         <td>
                                             <input type="checkbox" name="postToFacebook" checked="true"/>
@@ -122,7 +120,7 @@
                                             	<img src="http://v1-cdn.echoed.com/icon_twitter.png" height="65"/>
                                             </td>
                                             <td>
-                                                <textarea name="twitterMessage" style="width:280px; height:65px;" class="rounded-corners" >Check out the new t-shirt I just bought from RedHawk Brigade</textarea>
+                                                <textarea name="twitterMessage" style="width:280px; height:65px;" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
                                             </td>
                                             <td>
                                                 <input type="checkbox" name="postToTwitter" checked="true"/>
@@ -140,12 +138,8 @@
                                     {{/twitterUserId}}
                                     {{/echoedUser}}
                                     <tr>
-                                        <td>
-                                        </td>
-                                        <td align="center">
+                                        <td align="center" colspan="3">
     										<input id="echoit" type="image" style="cursor:pointer" class="bg-color-orange rounded-corners" src="http://v1-cdn.echoed.com/btn_echoit.png" />
-                                        </td>
-                                        <td>
                                         </td>
                                     </tr>
                                 </tbody>

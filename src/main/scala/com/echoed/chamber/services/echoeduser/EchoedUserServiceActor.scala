@@ -11,7 +11,7 @@ import com.echoed.chamber.services.facebook.{GetFriendsResponse, FacebookService
 import akka.dispatch.Future
 import java.util.{Date, ArrayList}
 import com.echoed.chamber.dao._
-import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,EchoViewPublic}
+import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,EchoViewPublic,FriendCloset, Closet}
 import scala.collection.mutable.{Map => MMap, ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
@@ -277,7 +277,8 @@ class EchoedUserServiceActor(
         case msg @ GetFriendExhibit(echoedFriendUserId) =>
             try {
                 val echoedFriend = Option(echoedFriendDao.findFriendByEchoedUserId(echoedUser.id, echoedFriendUserId)).orNull
-                self.channel ! GetFriendExhibitResponse(msg, Right(closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)))
+                val closet: Closet = closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)
+                self.channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet)))
             } catch {
                 case e =>
                     self.channel ! GetFriendExhibitResponse(msg, Left(EchoedUserException("Cannot get friend exhibit", e)))

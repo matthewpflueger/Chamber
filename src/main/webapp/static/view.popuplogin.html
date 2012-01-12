@@ -35,20 +35,19 @@
                                     {{#echoPossibility}}
                                     {{productName}}<br /><br/>
                                     by {{brand}}<br /><br/>
-                                    ${{price}}
                                     {{/echoPossibility}}
+                                    ${{productPriceFormatted}}
                                 </div>
                             </div>
                             <div id="product_text" style="margin-top:10px">
                                 <div style="margin-bottom: 3px;"><span style="font-size:18px;font-weight:bold;">Rewards</span> (7 Days to register activity)</div>
                                 <table width="100%" cellspacing="0" cellpadding="0">
                                     <tbody>
-                                        {{#retailerSettings}}
                                         <tr class="odd">
                                             <td>
                                             Echo to your exhibit
                                             </td>
-                                            <td align="right" width="80px" valign="top">
+                                            <td align="right" width="100px" valign="top">
                                             Receive <span class="echoed-text">1%</span>
                                             </td>
                                         </tr>
@@ -65,10 +64,9 @@
                                             Encourage social activity. More activity more reward.
                                             </td>
                                             <td align="right" valign="top">
-                                            up to <span class="echoed-text">{{echoedMaxPercentage}}%</span>
+                                            up to <span class="echoed-text">{{maxPercentage}}%</span>
                                             </td>
                                         </tr>
-                                        {{/retailerSettings}}
                                     </tbody>
                                 </table>
                             </div>

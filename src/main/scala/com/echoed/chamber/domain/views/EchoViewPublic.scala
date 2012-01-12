@@ -19,5 +19,16 @@ case class EchoViewPublic(
                          echoBrand: String,
                          echoLandingPageUrl: String,
                          retailerName: String
-)
+){
+    
+    def this(echoView: EchoView) = this(
+                                    echoView.echoId,
+                                    echoView.echoBoughtOn,
+                                    echoView.echoImageUrl,
+                                    echoView.echoProductName,
+                                    echoView.echoCategory,
+                                    echoView.echoBrand,
+                                    echoView.echoLandingPageUrl,
+                                    echoView.retailerName)
+}
 
