@@ -99,7 +99,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "friend":
                 this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit/" + options.Id;
                 this.baseUrl = "#friends/exhibit/" + options.Id + "/";
-                this.id = options.Id;
+                this.contentTitle = "Friends Exhibit";
+                this.id = "friends";
                 break;
             case "feed":
                 this.jsonUrl = "http://v1-api.echoed.com/closet/feed/public";
@@ -120,7 +121,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var template = _.template($('#templates-pages-exhibit').html());
         this.element.html(template);
         this.exhibit=$('#exhibit');
-        $('#content-title').html(this.contentTitle);
+
         var self = this;
         console.log("Rendering Page");
         var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl, Filter: this.filter});
@@ -139,7 +140,18 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             dataType: 'json',
             success: function(data){
                 var products = $('<div></div>');
-                $.each(data, function(index,product){
+                var echoes;
+                if(self.id == "feed")
+                    echoes = data;
+                else
+                    echoes = data.echoes;
+                if(self.id == "friends"){
+                    $('#content-title').html(data.echoedUserName + "'s Closet");
+                }
+                else
+                    $('#content-title').html(self.contentTitle);
+
+                $.each(echoes, function(index,product){
                     var productModel = new Echoed.Models.Product(product);
                     self.addProduct(productModel,self.filter);
                     self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);

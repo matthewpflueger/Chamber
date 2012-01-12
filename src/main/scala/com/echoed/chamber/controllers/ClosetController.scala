@@ -156,7 +156,7 @@ class ClosetController {
                     echoedUserService.getFeed.onResult{
                         case GetFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
                         case GetFeedResponse(_,Right(feed)) =>
-                            continuation.setAttribute("feed", feed.echoes)
+                            continuation.setAttribute("feed", feed)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                 }
@@ -203,7 +203,7 @@ class ClosetController {
                             logger.error("Error Getting Closet: {}", error)
                             throw new RuntimeException("Unknown Response %s" format error)
                         case GetExhibitResponse(_,Right(closet)) =>
-                            continuation.setAttribute("exhibit", closet.echoes)
+                            continuation.setAttribute("exhibit", closet)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                     }
@@ -294,7 +294,7 @@ class ClosetController {
                         case GetFriendExhibitResponse(_,Left(error)) =>
                             logger.error("Error Getting Friend's Closet: {}", error)
                         case GetFriendExhibitResponse(_,Right(closet)) =>
-                            continuation.setAttribute("closet",closet.echoes)
+                            continuation.setAttribute("closet",closet)
                             continuation.resume()
                     }
                     .onException{
