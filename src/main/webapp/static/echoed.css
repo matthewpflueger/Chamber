@@ -24,6 +24,9 @@ table {
 html {
   height: 100%; }
 
+body {
+  background-image: url("http://v1-cdn.echoed.com/bk_fancydeboss.png"); }
+
 th {
   font-weight: normal; }
 
