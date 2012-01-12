@@ -265,6 +265,13 @@ textarea{
 
 .clearfix{
     zoom:1;
+    &:before,&:after{
+        content: "";
+        display: table;
+    }
+    &:after{
+
+    }
 }
 
 .clearfix:before,.clearfix:after{
