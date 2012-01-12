@@ -11,7 +11,7 @@ import com.echoed.chamber.dao._
 import akka.actor.{Channel, Actor}
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.services.twitter.{GetUserResponse, TwitterService, TwitterServiceLocator}
+import com.echoed.chamber.services.twitter.{GetTwitterServiceWithIdResponse, GetUserResponse, TwitterService, TwitterServiceLocator}
 
 
 class EchoedUserServiceCreatorActor extends Actor {
@@ -54,14 +54,20 @@ class EchoedUserServiceCreatorActor extends Actor {
                             facebookServiceLocator.getFacebookServiceWithFacebookUserId(_).onResult {
                                 case facebookService: FacebookService =>
                                     echoedUserService.assignFacebookService(facebookService)
-                            }
+                                    logger.debug("Assigning Facebook service to Echoed user {}", echoedUser)
+                                case u => throw new MatchError(u)
+                            }.onException { case e => logger.error("Error processing %s" format msg, e) }
                         }
 
                         Option(echoedUser.twitterUserId).map {
                             twitterServiceLocator.getTwitterServiceWithId(_).onResult {
-                                case twitterService: TwitterService =>
+                                case GetTwitterServiceWithIdResponse(_, Left(e)) =>
+                                    logger.error("Error processing %s" format msg, e)
+                                case GetTwitterServiceWithIdResponse(_, Right(twitterService)) =>
                                     echoedUserService.assignTwitterService(twitterService)
-                            }
+                                    logger.debug("Assigning Twitter service to Echoed user {}", echoedUser)
+                                case u => throw new MatchError(u)
+                            }.onException { case e => logger.error("Error processing %s" format msg, e) }
                         }
                     },
                     {
