@@ -41,9 +41,11 @@ Echoed.Router = Backbone.Router.extend({
         window.location.href = "#";
     },
     feed: function(filter){
+        console.log("Router: Feed");
         if(!filter) selector = "*";
         else selector = "." + filter;
         if(this.page != "Feed"){
+            console.log("New Page");
             this.page = "Feed";
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "feed"});
         }
@@ -120,11 +122,15 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.exhibit=$('#exhibit');
         $('#content-title').html(this.contentTitle);
         var self = this;
-
-        var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl});
+        console.log("Rendering Page");
+        var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl, Filter: this.filter});
         var exhibit = $('#exhibit');
-
         exhibit.isotope({
+            animationOptions: {
+                duration: 500,
+                easing: 'linear',
+                queue: false
+            },
             filter: self.filter
         });
 
@@ -132,19 +138,20 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             url: self.jsonUrl,
             dataType: 'json',
             success: function(data){
-                var products = $('');
+                var products = $('<div></div>');
                 $.each(data, function(index,product){
                     var productModel = new Echoed.Models.Product(product);
                     var productDiv = $('<div></div>');
                     var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
-                    products.after(productDiv);
-                    self.addProduct(productModel,self.filter);
+                    products.append(productDiv);
+                    //self.addProduct(productModel,self.filter);
                     self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                 });
-                products.appendTo(exhibit);
-                exhibit.imagesLoaded(function(){
-                    exhibit.isotope('insert',products);
-                });
+                var productsEl = $(products.html());
+                productsEl.imagesLoaded(function(){
+                    exhibit.append(productsEl).isotope('insert',productsEl);
+                    //exhibit.isotope('insert',productsEl);
+                })
            },
             error:function (xhr, ajaxOptions, thrownError){
             }
@@ -152,18 +159,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     filterProducts: function(selector){
         var self = this;
+        console.log("Filtering: " + selector);
         self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
     },
     addProduct: function(productModel,filter){
-        var exhibit = $('#exhibit');
-        var productDiv = $('<div></div>');
-        var productComponent = new Echoed.Views.Components.Product({el: productDiv, model:productModel});
-        productDiv.hide().appendTo(exhibit);
-        exhibit.imagesLoaded(function(){
-            exhibit.isotope('insert',productDiv);
-            productDiv.show();
-        });
-        return productDiv;
     }
 });
 
@@ -208,17 +207,19 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
 Echoed.Views.Components.ProductSelector = Backbone.View.extend({
     el: '#content-selector',
     initialize: function(options){
-        _.bindAll(this,'addSelector','triggerClick');
+        _.bindAll(this,'addSelector','triggerClick','render');
         this.EvAg = options.EvAg;
         this.EvAg.bind('category/add',this.addSelector);
         this.EvAg.bind('filter/change',this.triggerClick);
         this.categories = new Array();
         this.element = $(this.el);
+        this.selected = options.Filter.substr(1);
         this.baseUrl = options.BaseUrl;
         this.render();
     },
     render: function(){
         //this.categories.sort();
+        console.log(this.selected);
         var sortedKeys = new Array();
         var sortedObj = {};
         for(var i in this.categories){
@@ -232,7 +233,7 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
 
         this.element.html('')
         var anc =$('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(this.element);
-        if(this.selected = "All")
+        if(this.selected == "")
             anc.addClass("current");
         for(var id in this.categories){
             anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(this.element);
@@ -242,12 +243,14 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
         }
     },
     addSelector: function(selector,text){
+        console.log("Add Selector");
         if(!this.categories[text]){
             this.categories[text] =  selector;
             this.render();
         }
     },
     triggerClick: function(e){
+        console.log("Trigger Click");
         if(e == "*")
             e = ".All";
         this.element.find(".current").removeClass("current");
