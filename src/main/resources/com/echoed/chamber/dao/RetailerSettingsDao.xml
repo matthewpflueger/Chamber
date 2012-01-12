@@ -66,4 +66,8 @@
         delete from RetailerSettings where retailerId=#{retailerId}
     </delete>
 
+    <delete id="deleteById">
+        delete from RetailerSettings where id=#{id}
+    </delete>
+
 </mapper>

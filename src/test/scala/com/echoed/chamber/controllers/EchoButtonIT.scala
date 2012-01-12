@@ -67,7 +67,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
             val count = echoHelper.getEchoPossibilityCount
 
             given("a request for the button")
-            webDriver.navigate.to(buttonUrl)
+            webDriver.get(buttonUrl)
 
             when("there is no other information")
             then("redirect to the button")
@@ -81,24 +81,40 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
         }
 
         scenario("button is requested with invalid retailer id", IntegrationTest) {
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility("foo")
+            val fooRetailer = retailer.copy(id = "foo")
+            val fooRetailerSettings = retailerSettings.copy(retailerId = fooRetailer.id)
 
-            given("a request for the button")
-            webDriver.navigate.to(buttonUrl + echoPossibility.generateUrlParameters)
+            def deleteRetailer {
+                retailerDao.deleteById(fooRetailer.id)
+                retailerSettingsDao.deleteByRetailerId(fooRetailer.id)
+            }
 
-            when("there is an invalid retailer id")
-            then("redirect to the button")
-            webDriver.getCurrentUrl should equal (buttonViewUrl)
+            try {
+                val (echoPossibility, count) = echoHelper.setupEchoPossibility(
+                        retailer = fooRetailer,
+                        retailerSettings = fooRetailerSettings)
 
-            and("no info should be recorded in the database")
-            echoHelper.validateCountIs(count)
+                deleteRetailer
+
+                given("a request for the button")
+                webDriver.get(echoPossibility.asUrlParams(prefix = buttonUrl + "?", encode = true))
+
+                when("there is an invalid retailer id")
+                then("redirect to the button")
+                webDriver.getCurrentUrl should equal (buttonViewUrl)
+
+                and("no info should be recorded in the database")
+                echoHelper.validateCountIs(count)
+            } finally {
+                deleteRetailer
+            }
         }
 
         scenario("button is requested with valid parameters", IntegrationTest) {
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(retailer.id)
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility(retailer)
 
             given("a request for the button")
-            webDriver.navigate.to(buttonUrl + echoPossibility.generateUrlParameters)
+            webDriver.get(echoPossibility.asUrlParams(prefix = buttonUrl + "?", encode = true))
 
             when("there are valid parameters")
             then("redirect to the button")

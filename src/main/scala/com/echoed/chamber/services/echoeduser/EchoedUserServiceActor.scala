@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.echoeduser
 
-import com.echoed.chamber.services.twitter.TwitterService
 import com.echoed.chamber.dao.views.{ClosetDao,FeedDao}
 import org.slf4j.LoggerFactory
 import scalaz._
@@ -16,6 +15,7 @@ import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,EchoV
 import scala.collection.mutable.{Map => MMap, ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
+import com.echoed.chamber.services.twitter._
 
 
 class EchoedUserServiceActor(
@@ -62,27 +62,28 @@ class EchoedUserServiceActor(
             }
 
             def assign() {
-                logger.debug("Assigning TwitterService to EchoedUser {}", this.echoedUser.id)
-                msg.twitterService.assignEchoedUserId(echoedUser.id).onComplete(_.value.get.fold(
-                    e => error(e),
-                    tu => {
-                        this.twitterService = Some(msg.twitterService)
-                        this.echoedUser = this.echoedUser.assignTwitterUser(tu)
-                        channel ! AssignTwitterServiceResponse(msg, Right(this.twitterService.get))
-                        echoedUserDao.update(this.echoedUser)
+                logger.debug("Assigning TwitterService to {}", echoedUser)
+                msg.twitterService.assignEchoedUser(echoedUser.id).onResult {
+                    case AssignEchoedUserResponse(_, Left(e)) => error(e)
+                    case AssignEchoedUserResponse(_, Right(twitterUser)) =>
+                        twitterService = Some(msg.twitterService)
+                        echoedUser = echoedUser.assignTwitterUser(twitterUser)
+                        channel ! AssignTwitterServiceResponse(msg, Right(msg.twitterService))
+                        echoedUserDao.update(echoedUser)
                         me ! FetchTwitterFollowers()
-                        logger.debug("Assigned TwitterUser {} to EchoedUser {}", tu.twitterId, this.echoedUser.id)
-                    }))
+                        logger.debug("Assigned {} to {}", twitterUser, echoedUser)
+                }.onException { case e => error(e) }
             }
 
             try {
                 logger.debug("Attempting to TwitterService to EchoedUser {}", this.echoedUser.id)
-                msg.twitterService.getTwitterUser.onComplete(_.value.get.fold(
-                    e => error(e),
-                    twitterUser => Option(twitterUser.echoedUserId).cata(
+                msg.twitterService.getUser.onResult {
+                    case GetUserResponse(_, Left(e)) => error(e)
+                    case GetUserResponse(_, Right(twitterUser)) => Option(twitterUser.echoedUserId).cata(
                         echoedUserId =>
-                            if (echoedUserId != this.echoedUser.id) {
-                                channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Twitter account already in use")))
+                            if (echoedUserId != echoedUser.id) {
+                                channel ! AssignTwitterServiceResponse(
+                                    msg, Left(new EchoedUserException("Twitter account already in use")))
                                 logger.error(
                                     "Cannot assign Twitter account to EchoedUser {} because it is already in use by EchoedUser {}",
                                     echoedUser.id,
@@ -92,10 +93,9 @@ class EchoedUserServiceActor(
                             },
                         {
                             assign()
-                        })))
-            } catch {
-                case e => error(e)
-            }
+                        })
+                }.onException { case e => error(e) }
+            } catch { case e => error(e) }
 
 
         case msg: AssignFacebookService =>
@@ -104,20 +104,20 @@ class EchoedUserServiceActor(
 
             def error(e: Throwable) {
                 channel ! AssignFacebookServiceResponse(msg, Left(new EchoedUserException("Cannot assign Facebook account", e)))
-                logger.error("Unexpected error assigning FacebookService to EchoedUser {}", echoedUser.id)
+                logger.error("Unexpected error processing %s" format msg, e)
             }
 
             def assign() {
                 msg.facebookService.assignEchoedUser(this.echoedUser).onComplete(_.value.get.fold(
                     e => error(e),
                     fu => {
-                        logger.debug("Assigning FacebookService to EchoedUser {}", this.echoedUser.id)
-                        this.facebookService = Some(msg.facebookService)
-                        this.echoedUser = this.echoedUser.assignFacebookUser(fu)
-                        channel ! AssignFacebookServiceResponse(msg, Right(this.facebookService.get))
-                        echoedUserDao.update(this.echoedUser)
+                        logger.debug("Assigning FacebookService to EchoedUser {}", echoedUser.id)
+                        facebookService = Some(msg.facebookService)
+                        echoedUser = echoedUser.assignFacebookUser(fu)
+                        channel ! AssignFacebookServiceResponse(msg, Right(msg.facebookService))
+                        echoedUserDao.update(echoedUser)
                         me ! FetchFacebookFriends()
-                        logger.debug("Assigned FacebookUser {} to EchoedUser {}", fu.facebookId, this.echoedUser.id)
+                        logger.debug("Assigned FacebookUser {} to EchoedUser {}", fu.facebookId, echoedUser.id)
                     }))
             }
 
@@ -127,11 +127,11 @@ class EchoedUserServiceActor(
                     e => error(e),
                     facebookUser => Option(facebookUser.echoedUserId).cata(
                         echoedUserId =>
-                            if (echoedUserId != this.echoedUser.id) {
+                            if (echoedUserId != echoedUser.id) {
                                 channel ! AssignFacebookServiceResponse(
                                         msg,
                                         Left(new EchoedUserException("Facebook account already in use")))
-                                logger.debug(
+                                logger.error(
                                         "Cannot assign Facebook account to EchoedUser {} because it is already in use by EchoedUser {}",
                                         echoedUser.id,
                                         echoedUserId)
@@ -175,12 +175,12 @@ class EchoedUserServiceActor(
                     },
                     {
                         channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))
-                        logger.warn("Did not find EchoPossibility {}", msg.echoPossibilityId)
+                        logger.debug("Did not find EchoPossibility {}", msg.echoPossibilityId)
                     })
             } catch {
                 case e =>
                     channel ! EchoToResponse(msg, Left(EchoedUserException("Unexpected error processing %s" format msg, e)))
-                    logger.error("Error processing {}", msg, e)
+                    logger.error("Error processing %s" format msg, e)
             }
 
 
@@ -204,16 +204,16 @@ class EchoedUserServiceActor(
 
                 either.fold(
                     error => {
-                        logger.error("Received error response: %s" format error, error)
                         sendResponse(error.responses)
+                        logger.error("Received error response: %s" format error, error)
                     },
                     responses => sendResponse(responses))
             } catch {
                 case e => {
-                    logger.error("Unexpected error in processing %s" format msg, e)
                     channel ! EchoToResponse(
                             echoTo,
-                            Left(EchoedUserException("Could not echo %s" format echoTo, e)))
+                            Left(EchoedUserException("Could not echo", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
                 }
             }
 
@@ -222,8 +222,8 @@ class EchoedUserServiceActor(
             val channel = self.channel
 
             def error(e: Throwable) {
-                channel ! EchoToFacebookResponse(msg, Left(EchoedUserException("Error echoing to Facebook", e)))
-                logger.error("Unexpected error echoing %s" format echo, e)
+                channel ! EchoToFacebookResponse(msg, Left(EchoedUserException("Error posting to Facebook", e)))
+                logger.error("Unexpected error processing %s" format msg, e)
             }
 
             try {
@@ -250,24 +250,24 @@ class EchoedUserServiceActor(
             val channel = self.channel
 
             def error(e: Throwable) {
-                channel ! EchoToTwitterResponse(msg, Left(EchoedUserException("Error echoing to Twitter", e)))
-                logger.error("Unexpected error echoing %s" format echo, e)
+                channel ! EchoToTwitterResponse(msg, Left(EchoedUserException("Error tweeting", e)))
+                logger.error("Unexpected error processing %s" format msg, e)
             }
 
             try {
                 val em = echoMessage.getOrElse("Checkout my recent purchase of %s" format echo.productName)
                 twitterService.cata(
-                    ts => ts.echo(echo, em).onComplete(_.value.get.fold(
-                        e => error(e),
-                        ts => {
-                            val ec = echo.copy(twitterStatusId = ts.id)
+                    ts => ts.tweet(echo, em).onResult {
+                        case TweetResponse(_, Left(e)) => error(e)
+                        case TweetResponse(_, Right(twitterStatus)) =>
+                            val ec = echo.copy(twitterStatusId = twitterStatus.id)
                             echoDao.updateTwitterStatusId(ec)
-                            channel ! EchoToTwitterResponse(msg.copy(echo = ec), Right(ts))
-                            logger.debug("Successfully echoed {} to {}", ec, ts)
-                        })),
+                            channel ! EchoToTwitterResponse(msg.copy(echo = ec), Right(twitterStatus))
+                            logger.debug("Successfully tweeted {} to {}", ec, ts)
+                    }.onException { case e => error(e) },
                     {
                         channel ! EchoToTwitterResponse(msg, Left(EchoedUserException("Not associated to Twitter")))
-                        logger.debug("Could not echo {} because user {} does not have a TwitterService", echo, echoedUser)
+                        logger.debug("User {} not associated to Twitter to echo {}", echoedUser, echo)
                     })
             } catch {
                 case e => error(e)
@@ -365,7 +365,11 @@ class EchoedUserServiceActor(
             )
 
 
-        case twitterFollowers: List[TwitterFollower] =>
+        case GetFollowersResponse(_, Left(e)) =>
+            logger.error("Received error fetching followers for EchoedUser %s" format echoedUser.id, e)
+
+
+        case GetFollowersResponse(_, Right(twitterFollowers)) =>
             logger.debug("Fetched {} TwitterFollowers for EchoedUser {}", twitterFollowers.length, echoedUser.id)
             val twitterEchoedUsers = twitterFollowers
                 .map(tf => Option(echoedUserDao.findByTwitterId(tf.twitterId)))
@@ -377,7 +381,7 @@ class EchoedUserServiceActor(
 
         case msg: FetchTwitterFollowers =>
             twitterService.collect { case ac: ActorClient => ac.actorRef }.cata(
-                _ ! "getFollowers",
+                _ ! GetFollowers(),
                 logger.debug("No TwitterService for EchoedUser {}", echoedUser.id)
             )
     }

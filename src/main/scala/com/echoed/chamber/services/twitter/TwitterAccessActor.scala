@@ -35,79 +35,97 @@ class TwitterAccessActor extends Actor {
     }
 
     def receive = {
+        case msg @ FetchRequestToken(callbackUrl) =>
+            try {
+                val twitterHandler = getTwitterHandler(null)
+                val requestToken = twitterHandler.getOAuthRequestToken(callbackUrl)
+                val key = "requestToken:" + requestToken.getToken
+                cache += (key -> twitterHandler)
+                self.channel ! FetchRequestTokenResponse(msg, Right(requestToken))
+            } catch {
+                case e =>
+                    self.channel ! FetchRequestTokenResponse(msg, Left(TwitterException("Cannot get request token", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
 
-        case ("requestToken", callbackUrl: String) => {
-            val twitterHandler = getTwitterHandler(null)
-            var requestToken: RequestToken = twitterHandler.getOAuthRequestToken(callbackUrl)
-            val key: String = "requestToken:" + requestToken.getToken
-            cache += (key -> twitterHandler)
-            self.channel ! requestToken
-        }
 
-        case ("accessToken", requestToken: RequestToken, oAuthVerifier: String) => {
-            var key = "requestToken:" + requestToken.getToken
-            val twitterHandler = getTwitterHandler(key)
-            var accessToken: AccessToken = twitterHandler.getOAuthAccessToken(requestToken, oAuthVerifier)
-            self.channel ! accessToken
-        }
+        case msg @ GetAccessTokenForRequestToken(requestToken, oAuthVerifier) =>
+            try {
+                val twitterHandler = getTwitterHandler("requestToken:%s" format requestToken.getToken)
+                val accessToken = twitterHandler.getOAuthAccessToken(requestToken, oAuthVerifier)
+                self.channel ! GetAccessTokenForRequestTokenResponse(msg, Right(accessToken))
+            } catch {
+                case e =>
+                    self.channel ! GetAccessTokenForRequestTokenResponse(
+                            msg,
+                            Left(TwitterException("Cannot get access token", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
 
-        case ("accessToken", accessToken: String, accessTokenSecret: String) => {
-            var key = "accessToken:" + accessToken
-            val twitterHandler = getTwitterHandler(key, accessToken, accessTokenSecret)
-            self.channel ! twitterHandler.getOAuthAccessToken()
-        }
 
-        case ("getUser", accessToken: String, accessTokenSecret: String, userId: Long) => {
-            val twitterHandler = getTwitterHandler("accessToken:" + accessToken, accessToken, accessTokenSecret)
-            val user: User = twitterHandler.showUser(userId)
-            val twitterUser: TwitterUser = new TwitterUser(
-                    null,
-                    user.getId.toString,
-                    user.getScreenName,
-                    user.getName,
-                    user.getProfileImageURL.toExternalForm,
-                    user.getLocation,
-                    user.getTimeZone,
-                    accessToken,
-                    accessTokenSecret)
+        case msg @ FetchAccessToken(accessToken, accessTokenSecret) =>
+            try {
+                val key = "accessToken:" + accessToken
+                val twitterHandler = getTwitterHandler(key, accessToken, accessTokenSecret)
+                self.channel ! FetchAccessTokenResponse(msg, Right(twitterHandler.getOAuthAccessToken()))
+            } catch {
+                case e =>
+                    self.channel ! FetchAccessTokenResponse(msg, Left(TwitterException("Cannot get access token", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
 
-            self.channel ! twitterUser
-        }
 
-        case ("getFollowers", accessToken: String, accessTokenSecret: String, twitterUserId: String, twitterId: Long) => {
-            logger.debug("Attempting to receive TwitterFollowers for UserId {} ", twitterId)
+        case msg @ FetchUser(accessToken, accessTokenSecret, userId) =>
+            try {
+                val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
+                val user: User = twitterHandler.showUser(userId)
+                val twitterUser: TwitterUser = new TwitterUser(
+                        twitterId = user.getId.toString,
+                        screenName = user.getScreenName,
+                        name = user.getName,
+                        profileImageUrl = user.getProfileImageURL.toExternalForm,
+                        location = user.getLocation,
+                        timezone = user.getTimeZone,
+                        accessToken = accessToken,
+                        accessTokenSecret = accessTokenSecret)
+                self.channel ! FetchUserResponse(msg, Right(twitterUser))
+            } catch {
+                case e =>
+                    self.channel ! FetchUserResponse(msg, Left(TwitterException("Cannot get user", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
 
-            val ids = getTwitterHandler(accessToken, accessTokenSecret).getFollowersIDs(twitterId, -1).getIDs
 
-            logger.debug("TwitterUser {} with has {} followers", twitterUserId, ids.length)
-            val twitterFollowers = ids.map( id => new TwitterFollower(twitterUserId, id.toString, null)).toList
-            logger.debug("Got {} ", twitterFollowers)
+        case msg @ FetchFollowers(accessToken, accessTokenSecret, twitterUserId, twitterId) =>
+            try {
+                logger.debug("Attempting to get Twitter followers for {}", twitterId)
+                val ids = getTwitterHandler(accessToken, accessTokenSecret).getFollowersIDs(twitterId, -1).getIDs
+                logger.debug("Twitter user {} has {} followers", twitterUserId, ids.length)
+                val twitterFollowers = ids.map( id => new TwitterFollower(twitterUserId, id.toString, null)).toList
+                logger.debug("Successfully created {} TwitterFollwers", twitterFollowers.size)
+                self.channel ! FetchFollowersResponse(msg, Right(twitterFollowers))
+            } catch {
+                case e =>
+                    self.channel ! FetchFollowersResponse(msg, Left(TwitterException("Cannot get Twitter followers", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
 
-            self.channel ! twitterFollowers
-        }
 
-        case ("updateStatus", accessToken: String, accessTokenSecret: String, twitterStatus: TwitterStatus) => {
-            val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
-            val status: Status = twitterHandler.updateStatus(twitterStatus.message)
-            self.channel ! twitterStatus.copy(
-                    twitterId = status.getId.toString,
-                    createdAt = status.getCreatedAt,
-                    text = status.getText,
-                    source = status.getSource)
-        }
+        case msg @ UpdateStatus(accessToken, accessTokenSecret, twitterStatus) =>
+            try {
+                val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
+                val status = twitterHandler.updateStatus(twitterStatus.message)
+                self.channel ! UpdateStatusResponse(msg, Right(twitterStatus.copy(
+                        twitterId = status.getId.toString,
+                        createdAt = status.getCreatedAt,
+                        text = status.getText,
+                        source = status.getSource)))
+            } catch {
+                case e =>
+                    self.channel ! UpdateStatusResponse(msg, Left(TwitterException("Cannot update Twitter status", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
 
-//        case ("getStatus", accessToken: String, accessTokenSecret: String, statusId: String) => {
-//            val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
-//            val status: Status = twitterHandler.showStatus(statusId.toLong)
-//            val twitterStatus: TwitterStatus = new TwitterStatus(status) //status.getId.toString, status.getUser.getId.toString, status.getText, status.getCreatedAt, status.getSource, null, null)
-//            self.channel ! twitterStatus
-//        }
-
-        case ("getRetweets", accessToken: String, accessTokenSecret: String, tweetId: String) => {
-            val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
-            //val responseList = twitterHandler.getRetweets(tweetId.toLong)
-            self.channel ! null
-        }
     }
 
     private def getTwitterHandler(key: String): Twitter = {
@@ -127,8 +145,7 @@ class TwitterAccessActor extends Actor {
                     .setOAuthAccessToken(accessToken)
                     .setOAuthAccessTokenSecret(accessTokenSecret)
 
-            val twitterHandler: Twitter = new TwitterFactory(configurationBuilder.build()).getInstance()
-            twitterHandler
+            new TwitterFactory(configurationBuilder.build()).getInstance()
         })
     }
 }

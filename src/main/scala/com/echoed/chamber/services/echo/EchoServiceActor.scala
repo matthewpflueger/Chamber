@@ -55,21 +55,24 @@ class EchoServiceActor extends Actor {
             } yield {
                 logger.debug("Recording {}", echoPossibility)
 
-                //this checks to see if we have the minimum info for recording an echo possibility...
-                Option(echoPossibility.id).get
-                val epv = new EchoPossibilityView(echoPossibility, retailer.get, retailerSettings.get)
+                try {
+                    //this checks to see if we have the minimum info for recording an echo possibility...
+                    Option(echoPossibility.id).get
+                    val epv = new EchoPossibilityView(echoPossibility, retailer.get, retailerSettings.get)
 
-                echo.cata(
-                    ec => channel ! REPR(msg, Left(EchoExistsException(epv.copy(echo = ec), "Item already echoed"))),
-                    {
-                        channel ! REPR(msg, Right(epv))
-                        echoPossibilityDao.insertOrUpdate(echoPossibility)
-                        logger.debug("Recorded {}", echoPossibility)
-                    })
+                    echo.cata(
+                        ec => channel ! REPR(msg, Left(EchoExistsException(epv.copy(echo = ec), "Item already echoed"))),
+                        {
+                            channel ! REPR(msg, Right(epv))
+                            echoPossibilityDao.insertOrUpdate(echoPossibility)
+                            logger.debug("Recorded {}", echoPossibility)
+                        })
+                } catch {
+                    case e: NoSuchElementException =>
+                        channel ! REPR(msg, Left(EchoException("Invalid echo possibility", e)))
+                        logger.debug("Invalid echo possibility: %s" format echoPossibility)
+                }
             }).onException {
-                case e: NoSuchElementException =>
-                    channel ! REPR(msg, Left(EchoException("Invalid echo possibility", e)))
-                    logger.warn("Invalid echo possibility: %s" format echoPossibility)
                 case e =>
                     channel ! REPR(msg, Left(EchoException("Unexpected error", e)))
                     logger.error("Unexpected error recording echo possibility %s" format echoPossibility, e)

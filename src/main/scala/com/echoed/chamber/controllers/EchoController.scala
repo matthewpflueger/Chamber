@@ -37,7 +37,6 @@ class EchoController {
 
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
     def button(
-            //TODO cookies should be encrypted
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletResponse: HttpServletResponse) = {
@@ -59,9 +58,11 @@ class EchoController {
         if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
 
         def error(e: Throwable) {
-            continuation.setAttribute("modelAndView", new ModelAndView(errorView, "errorMessage", e.getMessage))
-            continuation.resume
             logger.error("Unexpected error encountered echoing %s" format echoPossibilityParameters, e)
+            val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
+            continuation.setAttribute("modelAndView", modelAndView)
+            continuation.resume
+            modelAndView
         }
 
         def confirmEchoPossibility {
@@ -116,7 +117,7 @@ class EchoController {
 
                     modelAndView.addObject("redirectUrl",
                         URLEncoder.encode("http://v1-api.echoed.com/facebook/login?redirect="
-                            + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"),"UTF-8"), "UTF-8"))
+                            + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
 
                     modelAndView.addObject("echoPossibilityView", epv)
 
@@ -150,21 +151,23 @@ class EchoController {
         if (echoedUserId != null) echoItParameters.echoedUserId = echoedUserId
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        logger.debug("Echo It Parameters: {}", echoItParameters)
 
-        def error(e: Throwable) {
+
+        def error(e: Throwable) = {
             logger.error("Unexpected error echoing {}", echoItParameters, e)
-            continuation.setAttribute("modelAndView", new ModelAndView(errorView, "errorMessage", e))
+            val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
+            continuation.setAttribute("modelAndView", modelAndView)
             continuation.resume
+            modelAndView
         }
 
         if (continuation.isExpired) {
-            logger.error("Request expired to echo ", echoItParameters)
-            new ModelAndView(errorView)
+            error(RequestExpiredException("We encounted an error echoing your purchase"))
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
+
             logger.debug("Echoing {}", echoItParameters)
-            logger.debug("EchoPossibility Id {} , ", echoItParameters.echoPossibilityId)
+            logger.debug("echoPossibilityId {}", echoItParameters.echoPossibilityId)
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoItParameters.echoedUserId).onComplete(_.value.get.fold(
                 e => error(e),
                 locateWithIdResponse => locateWithIdResponse match {

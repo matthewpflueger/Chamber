@@ -45,8 +45,8 @@
             #{timezone},
             #{accessToken},
             #{accessTokenSecret})
-   </insert>
-    
+    </insert>
+
     <select id="findByTwitterId" resultMap="twitterUserResult">
         select * from TwitterUser where twitterId = #{twitterId}
     </select>
@@ -62,6 +62,18 @@
     <update id="updateEchoedUser" parameterType="com.echoed.chamber.domain.TwitterUser">
         update TwitterUser set
             echoedUserId=#{echoedUserId}
+        where
+            id=#{id}
+    </update>
+
+    <update id="update" parameterType="com.echoed.chamber.domain.TwitterUser">
+        update TwitterUser set
+            name=#{name},
+            profileImageUrl=#{profileImageUrl},
+            location=#{location},
+            timezone=#{timezone},
+            accessToken=#{accessToken},
+            accessTokenSecret=#{accessTokenSecret}
         where
             id=#{id}
     </update>

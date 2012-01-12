@@ -14,6 +14,8 @@ trait TwitterUserDao {
 
     def updateEchoedUser(twitterUser: TwitterUser): Int
 
+    def update(twitterUser: TwitterUser): Int
+
     def deleteById(id: String): Int
 
     def deleteByScreenName(screenName: String): Int

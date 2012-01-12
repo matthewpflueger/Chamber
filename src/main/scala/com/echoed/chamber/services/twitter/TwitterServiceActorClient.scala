@@ -1,44 +1,31 @@
 package com.echoed.chamber.services.twitter
 
 import akka.actor.ActorRef
-import twitter4j.auth.{RequestToken, AccessToken}
-import com.echoed.chamber.domain.{TwitterUser, TwitterStatus, TwitterFollower,Echo}
+import twitter4j.auth.AccessToken
+import com.echoed.chamber.domain.Echo
 import com.echoed.chamber.services.ActorClient
 
 
 class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterService with ActorClient {
 
 
-    def getRequestToken() =
-            (twitterServiceActor ? ("getRequestToken")).mapTo[RequestToken]
+    def getRequestToken =
+            (twitterServiceActor ? GetRequestToken()).mapTo[GetRequestTokenResponse]
 
-    def getAccessToken(oAuthVerifier:String) =
-            (twitterServiceActor ? ("getAccessToken",oAuthVerifier)).mapTo[AccessToken]
+    def getAccessToken(oAuthVerifier: String) =
+            (twitterServiceActor ? GetAccessToken(oAuthVerifier)).mapTo[GetAccessTokenResponse]
 
-    def getUser() =
-            (twitterServiceActor? ("getUser")).mapTo[TwitterUser]
-
-    def getTwitterUser =
-            (twitterServiceActor ? ("getTwitterUser")).mapTo[TwitterUser]
+    def getUser =
+            (twitterServiceActor ? GetUser()).mapTo[GetUserResponse]
 
     def getFollowers =
-            (twitterServiceActor ? ("getFollowers")).mapTo[List[TwitterFollower]]
+            (twitterServiceActor ? GetFollowers()).mapTo[GetFollowersResponse]
 
-    def assignEchoedUserId(id: String) =
-            (twitterServiceActor ? ("assignEchoedUserId",id)).mapTo[TwitterUser]
+    def assignEchoedUser(echoedUserId: String) =
+            (twitterServiceActor ? AssignEchoedUser(echoedUserId)).mapTo[AssignEchoedUserResponse]
 
-//    def updateStatus(status:String) =
-//            (twitterServiceActor ? ("updateStatus",status)).mapTo[TwitterStatus]
-
-//    def getStatus(statusId:String) =
-//            (twitterServiceActor ? ("getStatus",statusId)).mapTo[TwitterStatus]
-
-    def getRetweetIds(tweetId:String) =
-            (twitterServiceActor ? ("getRetweetIds",tweetId)).mapTo[Array[Long]]
-
-    def echo(echo:Echo,  message:String) = {
-            (twitterServiceActor ? ("echo",echo,message)).mapTo[TwitterStatus]
-    }
+    def tweet(echo:Echo,  message:String) =
+            (twitterServiceActor ? Tweet(echo, message)).mapTo[TweetResponse]
 
     def actorRef = twitterServiceActor
 }

@@ -14,11 +14,14 @@ import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.util.{UUID, Properties, Date}
 import com.echoed.util.{WebDriverUtils, IntegrationTest}
+import org.slf4j.LoggerFactory
 
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:webIT.xml"))
 class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
+
+    private val logger = LoggerFactory.getLogger(classOf[EchoIT])
 
     @Autowired @BeanProperty var echoDao: EchoDao = _
     @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
@@ -67,10 +70,13 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
         facebookUserDao.deleteByEmail(facebookUser.email)
         retailerDao.deleteByName(retailer.name)
         retailerSettingsDao.deleteByRetailerId(retailer.id)
+        echoPossibilityDao.deleteByRetailerId(retailer.id)
+        echoDao.deleteByRetailerId(retailer.id)
     }
 
     override def beforeAll() {
         assert(echoedUser.facebookUserId == facebookUser.id)
+        assert(retailerSettings.retailerId == retailer.id)
         cleanUp
         echoedUserDao.insert(echoedUser)
         facebookUserDao.insertOrUpdate(facebookUser)
@@ -101,10 +107,8 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             WebDriverUtils.clearEchoedCookies(webDriver)
 
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(
-                    retailerId = retailer.id,
-                    step = "login")
-            webDriver.get(echoUrl + echoPossibility.generateUrlParameters)
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "login")
+            webDriver.get(echoPossibility.asUrlParams(prefix = echoUrl + "?", encode = true))
 
             then("show the login page")
             webDriver.getTitle should equal ("Login")
@@ -115,7 +119,6 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
         scenario("a known user clicks on echo button with valid parameters and is redirected to confirmation page", IntegrationTest) {
             val (echoPossibility, count) = echoHelper.setupEchoPossibility(
-                    retailerId = retailer.id,
                     step = "confirm",
                     echoedUserId = echoedUser.id)
 
@@ -126,8 +129,9 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
                     .path("/")
                     .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
                     .build()
+            webDriver.get("http://www.echoed.com")
             webDriver.manage().addCookie(cookie)
-            val echoUrlWithParams = echoUrl + echoPossibility.generateUrlParameters
+            val echoUrlWithParams = echoPossibility.asUrlParams(prefix = echoUrl + "?", encode = true)
             webDriver.get(echoUrlWithParams)
 
             then("show the echo confirmation page")
@@ -142,7 +146,6 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
         scenario("a known user clicks to confirm their echo and is directed to thanks for echoing page", IntegrationTest) {
 
             val (echoPossibility, count) = echoHelper.setupEchoPossibility(
-                    retailerId = retailer.id,
                     step = "confirm",
                     echoedUserId = echoedUser.id)
 
@@ -224,9 +227,13 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             try {
                 webDriver.getCurrentUrl should startWith(echo.landingPageUrl)
             } finally {
-                if (currentWindowHandle != webDriver.getWindowHandle) {
-                    webDriver.close
-                    webDriver.switchTo.window(currentWindowHandle)
+                try {
+                    if (currentWindowHandle != webDriver.getWindowHandle) {
+                        webDriver.close
+                        webDriver.switchTo.window(currentWindowHandle)
+                    }
+                } catch {
+                    case e => logger.debug("Webdriver may have died", e)
                 }
             }
 

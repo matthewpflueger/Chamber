@@ -164,7 +164,10 @@ class DataCreator {
     }
 
     def generateEchoedUsers = {
-        val facebookTestUsers = facebookTestUserDao.selectFirst(20).dropWhile(_.email == null).zipWithIndex
+        val facebookTestUsers = facebookTestUserDao.selectFirst(20).dropWhile { u =>
+            u.email == null || u.email == facebookUser.email
+        }.zipWithIndex
+
         logger.debug("Generating data for {} Facebook test users", facebookTestUsers.length)
 
         val list = Buffer.empty[(FacebookUser, EchoedUser)]
@@ -174,7 +177,7 @@ class DataCreator {
             logger.debug("Working on {}: {}", index, ftu)
 
             var fu = ftu.createFacebookUser
-            val eu = fu.createEchoedUser
+            val eu = new EchoedUser(fu)
             fu = fu.copy(echoedUserId = eu.id)
 
             list += ((fu, eu))

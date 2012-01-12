@@ -63,11 +63,11 @@
         E.category as productCategory,
         R.id as retailerId,
         R.name as retailerName,
-        coalesce (E.imageUrl) as productImageUrl,
+        coalesce(E.imageUrl) as productImageUrl,
         count(E.id) as totalEchoes,
-        coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
-        coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
-        coalesce(sum(EC.echoClicks),0) as totalEchoClicks
+        coalesce(sum(FBL.facebookLikes), 0) as totalFacebookLikes,
+        coalesce(sum(FBC.facebookComments), 0) as totalFacebookComments,
+        coalesce(sum(EC.echoClicks), 0) as totalEchoClicks
     </sql>
     <select id="getTopProductsWithRetailerId" resultMap="retailerProductsListView">
         SELECT <include refid="productColumns" />
@@ -166,10 +166,10 @@
             EU.id as echoedUserId,
             EU.name as echoedUserName,
             count(E.id) as totalEchoes,
-            sum(FBL.facebookLikes) as totalFacebookLikes,
-            sum(FBC.facebookComments) as totalFacebookComments,
-            sum(EC.echoClicks) as totalEchoClicks,
-            coalesce(FF.facebookFriends) as totalFacebookFriends
+            coalesce(sum(FBL.facebookLikes), 0) as totalFacebookLikes,
+            coalesce(sum(FBC.facebookComments), 0) as totalFacebookComments,
+            coalesce(sum(EC.echoClicks), 0) as totalEchoClicks,
+            coalesce(FF.facebookFriends, 0) as totalFacebookFriends
          FROM
             Retailer R
             LEFT OUTER JOIN
@@ -227,9 +227,9 @@
             R.id as retailerId,
             R.name as retailerName,
             count(E.id) as totalEchoes,
-            coalesce(sum(FBL.facebookLikes),0) as totalFacebookLikes,
-            coalesce(sum(FBC.facebookComments),0) as totalFacebookComments,
-            coalesce(sum(EC.echoClicks),0) as totalEchoClicks
+            coalesce(sum(FBL.facebookLikes), 0) as totalFacebookLikes,
+            coalesce(sum(FBC.facebookComments), 0) as totalFacebookComments,
+            coalesce(sum(EC.echoClicks), 0) as totalEchoClicks
         FROM
             Retailer R
             LEFT OUTER JOIN

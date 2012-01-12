@@ -16,12 +16,9 @@ class EchoHelper extends ShouldMatchers {
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
 
-
-    val retailer = dataCreator.retailer
-    val retailerSettings = dataCreator.retailerSettings
-
     def setupEchoPossibility(
-            retailerId: String = retailer.id,
+            retailer: Retailer = dataCreator.retailer,
+            retailerSettings: RetailerSettings = dataCreator.retailerSettings,
             customerId: String = "testRetailerCustomerId",
             productId: String = "testProductId",
             boughtOn: Date = new Date(1320871016126L), //Wed Nov 09 15:36:56 EST 2011,
@@ -36,14 +33,17 @@ class EchoHelper extends ShouldMatchers {
             category: String = "Footwear",
             brand: String = "Nike") = {
 
-        retailerDao.deleteById(retailerId)
-        retailerSettingsDao.deleteByRetailerId(retailerId)
+        assert(retailerSettings.retailerId == retailer.id)
+
+        retailerDao.deleteByName(retailer.name)
+        retailerSettingsDao.deleteByRetailerId(retailerSettings.retailerId)
+        retailerSettingsDao.deleteById(retailerSettings.id)
         retailerDao.insert(retailer)
         retailerSettingsDao.insert(retailerSettings)
 
-        echoPossibilityDao.deleteByRetailerId(retailerId)
+        echoPossibilityDao.deleteByRetailerId(retailer.id)
         val echoPossibility = new EchoPossibility(
-                retailerId,
+                retailer.id,
                 customerId,
                 productId,
                 boughtOn,

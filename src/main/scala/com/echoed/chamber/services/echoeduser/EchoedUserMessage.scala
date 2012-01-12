@@ -80,6 +80,8 @@ case class CreateEchoedUserServiceWithId(echoedUserId: String) extends EUM
 case class CreateEchoedUserServiceWithIdResponse(message: CreateEchoedUserServiceWithId, value: Either[EUE,EchoedUserService])
     extends EUM with RM[EchoedUserService, CreateEchoedUserServiceWithId,EUE]
 
+case class EchoedUserNotFound(id: String, m: String = "Echoed user not found") extends EUE(m)
+
 case class CreateEchoedUserServiceWithFacebookService(facebookService: FacebookService) extends EUM
 case class CreateEchoedUserServiceWithFacebookServiceResponse(message: CreateEchoedUserServiceWithFacebookService, value: Either[EUE,EchoedUserService])
     extends EUM with RM[EchoedUserService, CreateEchoedUserServiceWithFacebookService,EUE]

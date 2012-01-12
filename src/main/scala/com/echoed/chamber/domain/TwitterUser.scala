@@ -20,7 +20,6 @@ case class TwitterUser (
 
 
     def this(
-            echoedUserId: String,
             twitterId: String,
             screenName: String,
             name: String,
@@ -32,7 +31,7 @@ case class TwitterUser (
         UUID.randomUUID.toString,
         new Date,
         new Date,
-        echoedUserId,
+        null,
         twitterId,
         screenName,
         name,

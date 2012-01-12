@@ -19,6 +19,7 @@ trait RetailerSettingsDao {
 
     def deleteByRetailerId(retailerId: String): Int
 
+    def deleteById(id: String): Int
 }
 
 

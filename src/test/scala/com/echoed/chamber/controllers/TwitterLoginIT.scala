@@ -67,10 +67,10 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")
 
             val (e, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
-            webDriver.navigate.to(echoUrl + e.generateUrlParameters)
+            val url = e.asUrlParams(prefix = echoUrl + "?", encode = true)
+            webDriver.get(url)
             webDriver.getCurrentUrl should startWith (echoUrl)
 
-            //NOTE: we are assuming the user already has a valid Facebook session and has already approved Echoed...
             webDriver.findElement(By.id("twitterLogin")).click()
             webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
             val pass = webDriver.findElement(By.id("password"))
@@ -80,8 +80,6 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
 
             then("redirect to the echo confirm page")
             webDriver.getCurrentUrl.startsWith(echoUrl) should be (true)
-
-            //webDriver.findElement(By.id("echoit")).click()
 
             and("create an EchoedUser account using the Facebook info")
             val dbtwitterUser = twitterUserDao.findByScreenName(twitterUser.screenName)
@@ -104,21 +102,19 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")
 
             val (e, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
-            webDriver.navigate.to(echoUrl + e.generateUrlParameters)
+            val url = e.asUrlParams(prefix = echoUrl + "?", encode = true)
+            webDriver.get(url)
             webDriver.getCurrentUrl should startWith (echoUrl)
 
-            //NOTE: we are assuming the user already has a valid Facebook session and has already approved Echoed...
             webDriver.findElement(By.id("twitterLogin")).click()
             webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
             val pass = webDriver.findElement(By.id("password"))
             pass.sendKeys(dataCreator.twitterPassword)
             pass.submit()
 
-
             then("redirect to the echo confirm page")
             webDriver.getCurrentUrl.startsWith(echoUrl) should be (true)
 
-            //webDriver.findElement(By.id("echoit")).click()
 
             and("create an EchoedUser account using the Facebook info")
             val dbtwitterUser = twitterUserDao.findByScreenName(twitterUser.screenName)

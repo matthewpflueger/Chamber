@@ -96,6 +96,7 @@
 
         <property name="twitterLoginErrorView" value="redirect:${twitterLoginErrorViewUrl}"/>
         <property name="echoView" value="redirect:${echoUrl}" />
+        <property name="errorView" value="view.error" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

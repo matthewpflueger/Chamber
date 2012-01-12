@@ -1,11 +1,11 @@
 package com.echoed.chamber.services.twitter
 
-import akka.actor.Actor
 import twitter4j.auth.RequestToken
 import com.echoed.chamber.dao.{TwitterStatusDao, TwitterUserDao}
 import org.slf4j.LoggerFactory
 import java.util.Date
 import com.echoed.chamber.domain._
+import akka.actor.{Channel, Actor}
 
 
 class TwitterServiceActor(twitterAccess: TwitterAccess,
@@ -21,82 +21,89 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
     def this(twitterAccess: TwitterAccess, twitterUserDao: TwitterUserDao, twitterStatusDao: TwitterStatusDao, twitterUser: TwitterUser) = this (twitterAccess, twitterUserDao, twitterStatusDao, null, twitterUser)
 
     def receive = {
-        case ("getRequestToken") => {
-            self.channel ! this.requestToken
-        }
+        case msg: GetRequestToken =>
+            self.channel ! GetRequestTokenResponse(msg, Right(requestToken))
 
-        case ("getAccessToken", oAuthVerifier: String) => {
-            val channel = self.channel
-            twitterAccess.getAccessToken(requestToken, oAuthVerifier).map {
-                accessToken =>
-                    channel ! accessToken
+
+        case msg @ GetAccessToken(oAuthVerifier: String) =>
+            val channel: Channel[GetAccessTokenResponse] = self.channel
+
+            def error(e: Throwable) {
+                channel ! GetAccessTokenResponse(msg, Left(TwitterException("Could not get access token", e)))
+                logger.error("Unexpected error processing %s" format msg, e)
             }
-        }
 
-        case ("getUser") => {
-            self.channel ! twitterAccess.getUser(twitterUser.accessToken, twitterUser.accessTokenSecret, twitterUser.twitterId.toLong).mapTo[TwitterUser]
-        }
+            try {
+                twitterAccess.getAccessToken(requestToken, oAuthVerifier).onResult {
+                    case GetAccessTokenForRequestTokenResponse(_, Left(e)) => error(e)
+                    case GetAccessTokenForRequestTokenResponse(_, Right(accessToken)) =>
+                        channel ! GetAccessTokenResponse(msg, Right(accessToken))
+                }.onException { case e => error(e) }
+            } catch { case e => error(e) }
 
-        case ("getTwitterUser") => {
-            self.channel ! twitterUser
-        }
 
-        case ("getFollowers") =>
-            val channel = self.channel
-            twitterAccess.getFollowers(
-                    twitterUser.accessToken,
-                    twitterUser.accessTokenSecret,
-                    twitterUser.id,
-                    twitterUser.twitterId.toLong).onComplete(_.value.get.fold(
-                        e => channel ! e,
-                        followers => channel ! followers
-                    ))
+        case msg: GetUser =>
+            self.channel ! GetUserResponse(msg, Right(twitterUser))
 
-        case ("assignEchoedUserId", echoedUserId: String) => {
+
+        case msg: GetFollowers =>
+            val channel: Channel[GetFollowersResponse] = self.channel
+
+            def error(e: Throwable) {
+                channel ! GetFollowersResponse(msg, Left(TwitterException("Could not get Twitter followers", e)))
+                logger.error("Unexpected error processing %s" format msg, e)
+            }
+
+            try {
+                twitterAccess.getFollowers(
+                        twitterUser.accessToken,
+                        twitterUser.accessTokenSecret,
+                        twitterUser.id,
+                        twitterUser.twitterId.toLong).onResult {
+                    case FetchFollowersResponse(_, Left(e)) => error(e)
+                    case FetchFollowersResponse(_, Right(twitterFollowers)) =>
+                        channel ! GetFollowersResponse(msg, Right(twitterFollowers))
+                }.onException { case e => error(e) }
+            } catch { case e => error(e) }
+
+
+        case msg @ AssignEchoedUser(echoedUserId) =>
             twitterUser = twitterUser.copy(echoedUserId = echoedUserId)
+            self.channel ! AssignEchoedUserResponse(msg, Right(twitterUser))
             twitterUserDao.updateEchoedUser(twitterUser)
-            self.channel ! twitterUser
-        }
 
-        case ("getStatus", statusId: String) => {
+
+        case msg @ Tweet(echo, message) =>
             val channel = self.channel
-            twitterAccess.getStatus(twitterUser.accessToken, twitterUser.accessTokenSecret, statusId).map{
-                twitterStatus =>
-                    logger.debug("Insert/Updating TwitterStatus with statusId {}", statusId)
-                    //twitterStatusDao.insertOrUpdate(twitterStatus)
-                    channel ! twitterStatus
-            }
-        }
 
-        case ("echo", echo:Echo, message:String ) => {
-            logger.debug("Creating new TwitterStatus with message {} for {}", echo, message)
-            var status = message + " http://v1-api.echoed.com/echo/" + echo.id + "/"
-            var twitterStatus = new TwitterStatus(
-                echo.id,
-                echo.echoedUserId,
-                status)
-            status = status + twitterStatus.id
-            twitterStatus = twitterStatus.copy(message = status)
-            twitterStatusDao.insert(twitterStatus)
-
-            val channel = self.channel
-            twitterAccess.updateStatus(twitterUser.accessToken,twitterUser.accessTokenSecret,twitterStatus).map{ twitterStatus =>
-                logger.debug("Received from TwitterAccessActor {}", twitterStatus)
-                val tw = twitterStatus.copy(postedOn = new Date)
-                twitterStatusDao.updatePostedOn(tw)
-                channel ! tw
-                logger.debug("Successfully posted {}", tw)
+            def error(e: Throwable) {
+                channel ! TweetResponse(msg, Left(TwitterException("Could not tweet", e)))
+                logger.error("Unexpected error processing %s" format msg, e)
             }
-        }
 
-        case ("getRetweetIds", tweetId: String) => {
-            val channel = self.channel
-            twitterAccess.getRetweetIds(twitterUser.accessToken, twitterUser.accessTokenSecret, tweetId).map{
-                retweetList =>
-                    logger.debug("Received Retweets for tweetId {}", tweetId)
-                    channel ! retweetList
-            }
-        }
+            try {
+                logger.debug("Creating new TwitterStatus with message {} for {}", echo, message)
+                var status = message + " http://v1-api.echoed.com/echo/" + echo.id + "/"
+                var twitterStatus = new TwitterStatus(
+                    echo.id,
+                    echo.echoedUserId,
+                    status)
+                status = status + twitterStatus.id
+                twitterStatus = twitterStatus.copy(message = status)
+                twitterStatusDao.insert(twitterStatus)
+
+                twitterAccess.updateStatus(
+                        twitterUser.accessToken,
+                        twitterUser.accessTokenSecret,
+                        twitterStatus).onResult {
+                    case UpdateStatusResponse(_, Left(e)) => error(e)
+                    case UpdateStatusResponse(_, Right(twitterStatus)) =>
+                        val tw = twitterStatus.copy(postedOn = new Date)
+                        twitterStatusDao.updatePostedOn(tw)
+                        channel ! TweetResponse(msg, Right(tw))
+                        logger.debug("Successfully tweeted {}", twitterStatus)
+                }.onException { case e => error(e) }
+            } catch { case e => error(e) }
 
     }
 }

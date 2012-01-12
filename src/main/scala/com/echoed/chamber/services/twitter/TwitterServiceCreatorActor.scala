@@ -7,6 +7,8 @@ import reflect.BeanProperty
 import com.echoed.chamber.dao.{TwitterUserDao, TwitterStatusDao}
 import org.slf4j.LoggerFactory
 import twitter4j.auth.{AccessToken,RequestToken}
+import scalaz._
+import Scalaz._
 
 class TwitterServiceCreatorActor extends Actor {
 
@@ -18,41 +20,97 @@ class TwitterServiceCreatorActor extends Actor {
 
 
     def receive = {
-        case ("code", callbackUrl: String) => {
-            logger.debug("Creating New Twitter Service")
-            val requestToken: RequestToken = twitterAccess.getRequestToken(callbackUrl).get.asInstanceOf[RequestToken]
-            self.channel ! new TwitterServiceActorClient(Actor.actorOf(
-                new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, requestToken)).start)
-        }
-        case ("accessToken", accessToken: AccessToken) => {
+
+        case msg @ CreateTwitterService(callbackUrl) =>
             val channel = self.channel
-            logger.debug("Creating New Twitter Service With Access Token {} for User Id", accessToken.getToken, accessToken.getUserId)
-            twitterAccess.getUser(accessToken.getToken, accessToken.getTokenSecret, accessToken.getUserId).map{
-                twitterUser => 
-                    logger.debug("Looking up twitter user with TwitterId {}", accessToken.getUserId)
-                    val twUser: TwitterUser = twitterUserDao.findByTwitterId(accessToken.getUserId.toString)
-                    var twUserFinal: TwitterUser = null
-                    if (twUser != null){
-                        logger.debug("Found TwitterUser {} with TwitterId ", twitterUser, accessToken.getUserId)
-                        twUserFinal = twUser
-                    }
-                    else{
-                        logger.debug("New Twitter User {}", twitterUser);
-                        twitterUserDao.insert(twitterUser)
-                        twUserFinal = twitterUser
-                    }
 
-                    channel ! new TwitterServiceActorClient(Actor.actorOf(
-                        new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, twUserFinal)).start)
+            def error(e: Throwable) {
+                channel ! CreateTwitterServiceResponse(msg, Left(TwitterException("Unexpected error creating Twitter service", e)))
+                logger.error("Error creating Twitter service %s" format msg, e)
             }
-        }
 
-        case ("id", id: String) => {
-            logger.debug("Creating New Twitter Service With Id {}", id)
-            val twitterUser: TwitterUser = twitterUserDao.findById(id)
-            self.channel ! new TwitterServiceActorClient(Actor.actorOf(
-                new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, twitterUser)).start)
-        }
+            try {
+                logger.debug("Creating new TwitterService")
+                twitterAccess.getRequestToken(callbackUrl).onResult {
+                    case FetchRequestTokenResponse(_, Right(requestToken)) =>
+                        channel ! CreateTwitterServiceResponse(msg, Right(new TwitterServiceActorClient(Actor.actorOf(
+                            new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, requestToken)).start)))
+                    case FetchRequestTokenResponse(_, Left(e)) => error(e)
+                }.onException { case e => error(e) }
+            } catch {
+                case e => error(e)
+            }
+
+
+        case msg @ CreateTwitterServiceWithAccessToken(accessToken) =>
+            val channel = self.channel
+
+            def error(e: Throwable) {
+                channel ! CreateTwitterServiceWithAccessTokenResponse(msg, Left(TwitterException("Unexpected error creating Twitter service", e)))
+                logger.error("Error creating Twitter service %s" format msg, e)
+            }
+
+            try {
+                logger.debug("Creating new Twitter service With access token {} for user {}", accessToken.getToken, accessToken.getUserId)
+                twitterAccess.getUser(accessToken.getToken, accessToken.getTokenSecret, accessToken.getUserId).onResult {
+                    case FetchUserResponse(_, Left(e)) => error(e)
+                    case FetchUserResponse(_, Right(tu)) =>
+                        logger.debug("Looking up twitter user with twitterId {}", accessToken.getUserId)
+                        val twitterUser = Option(twitterUserDao.findByTwitterId(accessToken.getUserId.toString)).cata(
+                            u => {
+                                logger.debug("Found TwitterUser {} with Twitter id {}", u, accessToken.getUserId)
+                                val t = u.copy(
+                                    name = tu.name,
+                                    profileImageUrl = tu.profileImageUrl,
+                                    location = tu.location,
+                                    timezone = tu.timezone,
+                                    accessToken = accessToken.getToken,
+                                    accessTokenSecret = accessToken.getTokenSecret)
+                                twitterUserDao.update(t)
+                                logger.debug("Successfully updated {}", t)
+                                t
+                            },
+                            {
+                                twitterUserDao.insert(tu)
+                                logger.debug("Successfully inserted {}", tu)
+                                tu
+                            })
+
+                        channel ! CreateTwitterServiceWithAccessTokenResponse(
+                                msg,
+                                Right(new TwitterServiceActorClient(Actor.actorOf(new TwitterServiceActor(
+                                        twitterAccess,
+                                        twitterUserDao,
+                                        twitterStatusDao,
+                                        twitterUser)).start)))
+                }.onException { case e => error(e) }
+            } catch { case e => error(e) }
+
+
+        case msg @ CreateTwitterServiceWithId(id) =>
+            val channel = self.channel
+
+            def error(e: Throwable) {
+                channel ! CreateTwitterServiceWithIdResponse(msg, Left(TwitterException("Unexpected error creating Twitter service", e)))
+                logger.error("Error creating Twitter service %s" format msg, e)
+            }
+
+            try {
+                logger.debug("Creating new TwitterService With id {}", id)
+                Option(twitterUserDao.findById(id)).cata(
+                    twitterUser => {
+                        channel ! CreateTwitterServiceWithIdResponse(msg, Right(
+                            new TwitterServiceActorClient(Actor.actorOf(
+                                new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, twitterUser)).start)))
+                        logger.debug("Created TwitterService with id {}", id)
+                    },
+                    {
+                        channel ! CreateTwitterServiceWithIdResponse(
+                                msg,
+                                Left(TwitterUserNotFound(id)))
+                        logger.debug("Twitter user with id {} not found", id)
+                    })
+            } catch { case e => error(e) }
     }
 
 }

@@ -33,14 +33,14 @@ case class EchoedUser(
         facebookId,
         twitterUserId,
         twitterId)
-    
+
     def this(
-            id:String, 
-            name:String, 
+            id:String,
+            name:String,
             email:String,
-            screenName: String, 
+            screenName: String,
             facebookUserId: String,
-            facebookId:String, 
+            facebookId:String,
             twitterUserId: String,
             twitterId: String) = this(
         id,

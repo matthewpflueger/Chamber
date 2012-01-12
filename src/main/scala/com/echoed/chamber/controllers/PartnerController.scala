@@ -141,10 +141,9 @@ class PartnerController {
                 case LocateResponse(_, Right(pus)) =>
                     pus.getRetailerSocialSummary.onResult({
                         case GetRetailerSocialSummaryResponse(_, Left(error)) =>
-                            logger.error("Error getting Retailer Social Summary")
+                            logger.error("Error getting Retailer Social Summary", error)
                         case GetRetailerSocialSummaryResponse(_, Right(retailerSocialSummary)) =>
-                            //continuation.setAttribute("summary", retailerSocialSummary)
-                            logger.error("Retailer Social Summary: {}", retailerSocialSummary)
+                            logger.debug("Retailer Social Summary: {}", retailerSocialSummary)
                             if(retailerSocialSummary != null)
                                 continuation.setAttribute("summary",retailerSocialSummary)
                             else
@@ -196,7 +195,7 @@ class PartnerController {
         })
 
     }
-    
+
     @RequestMapping(value = Array("/product/{id}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getProductSummary(
@@ -206,12 +205,12 @@ class PartnerController {
             httpServletResponse: HttpServletResponse) = {
 
         val continuation = ContinuationSupport.getContinuation((httpServletRequest))
-        
+
         if(continuation.isExpired){
             logger.error("Request expired getting product social summary json")
         } else Option(continuation.getAttribute("productSummary")).getOrElse({
             continuation.suspend(httpServletResponse)
-            
+
             partnerUserServiceLocator.locate(partnerUserId).onResult({
                 case LocateResponse(_, Left(error)) =>
                     logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)

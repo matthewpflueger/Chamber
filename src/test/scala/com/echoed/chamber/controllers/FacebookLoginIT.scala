@@ -8,9 +8,9 @@ import org.scalatest.matchers.ShouldMatchers
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import com.echoed.util.IntegrationTest
 import java.util.Properties
 import org.openqa.selenium.{By, WebDriver}
+import com.echoed.util.{WebDriverUtils, IntegrationTest}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -62,6 +62,8 @@ class FacebookLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             val testUserEmail = "tech@echoed.com"
             val testUserPass = "etech25"
 
+            WebDriverUtils.clearEchoedCookies(webDriver)
+
             echoedUserDao.deleteByEmail(testUserEmail)
             facebookUserDao.deleteByEmail(testUserEmail)
 
@@ -69,9 +71,7 @@ class FacebookLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")
 
             val (ep, count) = echoHelper.setupEchoPossibility(step = "login") //this must match proper step...
-            webDriver.navigate.to("http://www.echoed.com")
-            webDriver.manage().deleteCookieNamed("echoedUserId")
-            webDriver.navigate.to(echoUrl + ep.generateUrlParameters)
+            webDriver.get(ep.asUrlParams(prefix = echoUrl + "?", encode = true))
 
 
             //NOTE: we are assuming the user has already approved Echoed...

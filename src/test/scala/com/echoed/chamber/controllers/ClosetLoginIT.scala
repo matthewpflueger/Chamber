@@ -93,7 +93,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             then("then show the user their closet")
             and("and indicate they have no echoes")
             val pageSource = navigateToCloset(webDriver, echoedUser)
-            pageSource should include("Rewards: 0")
+            pageSource should include("Total Savings: $0.00")
         }
 
         scenario("a known user navigates to echoed.com/closet and is shown their closet", IntegrationTest) {

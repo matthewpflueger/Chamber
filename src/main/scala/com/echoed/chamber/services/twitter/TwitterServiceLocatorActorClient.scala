@@ -3,21 +3,23 @@ package com.echoed.chamber.services.twitter
 import reflect.BeanProperty
 import akka.actor.ActorRef
 import twitter4j.auth.AccessToken
+import com.echoed.chamber.services.ActorClient
 
-class TwitterServiceLocatorActorClient extends TwitterServiceLocator {
+class TwitterServiceLocatorActorClient extends TwitterServiceLocator with ActorClient {
 
     @BeanProperty var twitterServiceLocatorActor: ActorRef = _
 
     def getTwitterService(callbackUrl: String) =
-            (twitterServiceLocatorActor ? ("none", callbackUrl)).mapTo[TwitterService]
+            (twitterServiceLocatorActor ? GetTwitterService(callbackUrl)).mapTo[GetTwitterServiceResponse]
 
-    def getTwitterServiceWithToken(oAuthToken:String) =
-            (twitterServiceLocatorActor ? ("requestToken", oAuthToken)).mapTo[TwitterService]
+    def getTwitterServiceWithToken(oAuthToken: String) =
+            (twitterServiceLocatorActor ? GetTwitterServiceWithToken(oAuthToken)).mapTo[GetTwitterServiceWithTokenResponse]
 
-    def getTwitterServiceWithAccessToken(accessToken:AccessToken) =
-            (twitterServiceLocatorActor ? ("accessToken", accessToken)).mapTo[TwitterService]
+    def getTwitterServiceWithAccessToken(accessToken: AccessToken) =
+            (twitterServiceLocatorActor ? GetTwitterServiceWithAccessToken(accessToken)).mapTo[GetTwitterServiceWithAccessTokenResponse]
 
-    def getTwitterServiceWithId(twitterUserId: String) =
-            (twitterServiceLocatorActor ? ("id", twitterUserId)).mapTo[TwitterService]
+    def getTwitterServiceWithId(id: String) =
+            (twitterServiceLocatorActor ? GetTwitterServiceWithId(id)).mapTo[GetTwitterServiceWithIdResponse]
 
+    def actorRef = twitterServiceLocatorActor
 }

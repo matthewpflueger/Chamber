@@ -88,37 +88,6 @@ case class EchoPossibility(
         prefix + params.mkString("&")
     }
 
-    def generateUrlParameters = {
-        (for {
-            r <- Option(retailerId)
-            c <- Option(customerId)
-            p <- Option(productId)
-            b <- Option(boughtOn)
-            o <- Option(orderId)
-            e <- Option(price)
-            i <- Option(imageUrl)
-            l <- Option(landingPageUrl)
-        } yield {
-            new StringBuilder("?retailerId=")
-                    .append(r)
-                    .append("&customerId=")
-                    .append(c)
-                    .append("&productId=")
-                    .append(p)
-                    .append("&boughtOn=")
-                    .append(URLEncoder.encode(b.toString, "UTF-8"))
-                    .append("&orderId=")
-                    .append(o)
-                    .append("&price=")
-                    .append(e)
-                    .append("&imageUrl=")
-                    .append(URLEncoder.encode(i, "UTF-8"))
-                    .append("&landingPageUrl=")
-                    .append(URLEncoder.encode(l, "UTF-8"))
-                    .toString
-        }).getOrElse("")
-    }
-
     def asMap = {
         (Map[String, String]() /: this.getClass.getDeclaredFields) {(a, f) =>
             f.setAccessible(true)

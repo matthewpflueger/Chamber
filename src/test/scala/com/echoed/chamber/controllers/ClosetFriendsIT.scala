@@ -46,7 +46,7 @@ class ClosetFriendsIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
 
 
     var facebookUser = dataCreator.facebookUser
-    var echoedUser = dataCreator.echoedUser.copy(id = UUID.randomUUID.toString, twitterUserId = null)
+    var echoedUser = dataCreator.echoedUser.copy(twitterUserId = null)
     var echoedUsers = Buffer.empty[(FacebookUser, EchoedUser)]
 
     def cleanup() {
