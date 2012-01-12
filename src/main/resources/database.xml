@@ -27,15 +27,51 @@
         <prop key="jdbc.url">jdbc:mysql://localhost:3306/Echoed</prop>
         <prop key="jdbc.username">root</prop>
         <prop key="jdbc.password">password</prop>
+
+        <prop key="pool.initialSize">5</prop>
+        <prop key="pool.minIdle">5</prop>
+        <prop key="pool.maxIdle">10</prop>
+        <prop key="pool.maxActive">50</prop>
+        <prop key="pool.maxWait">3000</prop>
+
+        <prop key="pool.numTestsPerEvictionRun">50</prop>
+        <prop key="pool.timeBetweenEvictionRunsMillis">60000</prop>
+        <prop key="pool.testWhileIdle">true</prop>
+        <prop key="pool.testOnBorrow">true</prop>
+        <prop key="pool.validationQuery">select 1</prop>
+        <prop key="pool.validationQueryTimeout">500</prop>
+
+        <prop key="pool.removeAbandoned">true</prop>
+        <prop key="pool.removeAbandonedTimeout">60000</prop>
+        <prop key="pool.logAbandoned">true</prop>
+
         <prop key="mybatis.config">classpath:mybatis.xml</prop>
         <prop key="mybatis.executorType">BATCH</prop>
     </util:properties>
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-       <property name="driverClassName" value="${jdbc.driverClassName}" />
-       <property name="url" value="${jdbc.url}" />
-       <property name="username" value="${jdbc.username}" />
-       <property name="password" value="${jdbc.password}" />
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+
+
+        <property name="initialSize" value="${pool.initialSize}" />
+        <property name="minIdle" value="${pool.minIdle}" />
+        <property name="maxIdle" value="${pool.maxIdle}" />
+        <property name="maxActive" value="${pool.maxActive}" />
+        <property name="maxWait" value="${pool.maxWait}" />
+
+        <property name="numTestsPerEvictionRun" value="${pool.numTestsPerEvictionRun}" />
+        <property name="timeBetweenEvictionRunsMillis" value="${pool.timeBetweenEvictionRunsMillis}" />
+        <property name="testOnBorrow" value="${pool.testOnBorrow}" />
+        <property name="testWhileIdle" value="${pool.testWhileIdle}" />
+        <property name="validationQuery" value="${pool.validationQuery}" />
+        <property name="validationQueryTimeout" value="${pool.validationQueryTimeout}" />
+
+        <property name="removeAbandoned" value="${pool.removeAbandoned}" />
+        <property name="removeAbandonedTimeout" value="${pool.removeAbandonedTimeout}" />
+        <property name="logAbandoned" value="${pool.logAbandoned}" />
     </bean>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -103,7 +139,7 @@
         <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookPostDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
-    
+
 
     <bean id="facebookLikeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.FacebookLikeDao" />
@@ -151,7 +187,7 @@
         <property name="mapperInterface" value="com.echoed.chamber.dao.views.FeedDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
-    
+
     <bean id="retailerViewDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.views.RetailerViewDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
