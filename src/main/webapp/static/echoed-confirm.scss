@@ -76,7 +76,7 @@ textarea{
 .confirm-label{
     margin-top:5px;
     font-weight:bold;
-    font-size: 20px;
+    font-size: 16px;
 }
 
 .confirm-text{
@@ -91,7 +91,7 @@ textarea{
 
     #header{
         height:50px;
-        border-bottom: 5px solid $greyColor;
+        border-bottom: 3px solid $greyColor;
         padding-left: 10px;
     }
 
@@ -120,12 +120,12 @@ textarea{
     .ty-text{
         font-family: TradeGothicBD20Cond;
         font-size: 36px;
-        letter-spacing: -3px;
+        letter-spacing: -2px;
     }
 
     .highlight{
         color: $secondaryColor;
-        text-decoration: underline;
+        //text-decoration: underline;
     }
 
     .not-name{
@@ -147,6 +147,7 @@ textarea{
     #right-ei{
         width: 250px;
         float:left;
+        text-align: center;
 
         img{
             max-height: 200px;
@@ -232,6 +233,16 @@ textarea{
         float:left;
     }
 
+    #ct-1{
+        margin-bottom:20px;
+    }
+
+    #countdown{
+        font-size: 20px;
+        font-weight:bold;
+        padding-left: 10px;
+        margin-top: 20px;
+    }
 
     #right_content{
     }
@@ -270,16 +281,6 @@ textarea{
         display: table;
     }
     &:after{
-
+        clear:both;
     }
 }
-
-.clearfix:before,.clearfix:after{
-    content:"";
-    display:table;
-}
-
-.clearfix:after{
-    clear:both;
-}
-

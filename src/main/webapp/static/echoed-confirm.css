@@ -40,7 +40,7 @@ textarea {
 .confirm-label {
   margin-top: 5px;
   font-weight: bold;
-  font-size: 20px; }
+  font-size: 16px; }
 
 .confirm-text {
   font-size: 16px;
@@ -52,7 +52,7 @@ textarea {
 
 #header {
   height: 50px;
-  border-bottom: 5px solid #444444;
+  border-bottom: 3px solid #444444;
   padding-left: 10px; }
 
 .poweredby {
@@ -75,11 +75,10 @@ textarea {
 .ty-text {
   font-family: TradeGothicBD20Cond;
   font-size: 36px;
-  letter-spacing: -3px; }
+  letter-spacing: -2px; }
 
 .highlight {
-  color: #ff7733;
-  text-decoration: underline; }
+  color: #ff7733; }
 
 .not-name {
   font-size: 12px;
@@ -96,7 +95,8 @@ textarea {
 
 #right-ei {
   width: 250px;
-  float: left; }
+  float: left;
+  text-align: center; }
   #right-ei img {
     max-height: 200px;
     max-width: 200px; }
@@ -163,6 +163,15 @@ textarea {
   background-color: #FFF;
   float: left; }
 
+#ct-1 {
+  margin-bottom: 20px; }
+
+#countdown {
+  font-size: 20px;
+  font-weight: bold;
+  padding-left: 10px;
+  margin-top: 20px; }
+
 #echoes {
   border-collapse: collapse; }
 
@@ -189,10 +198,5 @@ textarea {
   .clearfix:before, .clearfix:after {
     content: "";
     display: table; }
-
-.clearfix:before, .clearfix:after {
-  content: "";
-  display: table; }
-
-.clearfix:after {
-  clear: both; }
+  .clearfix:after {
+    clear: both; }
