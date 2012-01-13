@@ -38,6 +38,7 @@ class EchoController {
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
     def button(
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
+            @CookieValue(value = "echoClick", required = false) echoClick: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletResponse: HttpServletResponse) = {
         if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
@@ -88,11 +89,13 @@ class EchoController {
                                     continuation.resume()
                                 case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
                                 case RecordEchoPossibilityResponse(_, Right(epv)) =>
+                                    val logoutUrl = "http://v1-api.echoed.com/logout?redirect=" + URLEncoder.encode("echo?" + httpServletRequest.getQueryString.substring(0),"UTF-8");
                                     val modelAndView = new ModelAndView(confirmView)
                                     modelAndView.addObject("echoedUser", echoedUser)
                                     modelAndView.addObject("echoPossibility", echoPossibility)
                                     modelAndView.addObject("retailer", epv.retailer)
                                     modelAndView.addObject("retailerSettings", epv.retailerSettings)
+                                    modelAndView.addObject("logoutUrl", logoutUrl)
                                     modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                                     modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                                     modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
@@ -206,6 +209,7 @@ class EchoController {
             @PathVariable(value = "echoId") echoId: String,
             @PathVariable(value = "postId") postId: String,
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
+            @CookieValue(value = "echoClick", required = false) echoClickId: String,
             @RequestHeader(value = "Referer", required = true) referrerUrl: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -220,7 +224,8 @@ class EchoController {
             logger.debug("Hello?");
             val echoClick = new EchoClick(echoId, echoedUserId, referrerUrl, httpServletRequest.getRemoteAddr)
             echoService.recordEchoClick(echoClick, postId).map { tuple =>
-                cookieManager.addCookie(httpServletResponse, "echoClick", tuple._1.id)
+                if(echoClickId == null)
+                    cookieManager.addCookie(httpServletResponse, "echoClick", tuple._1.id)
                 continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format tuple._2))
                 continuation.resume
             }

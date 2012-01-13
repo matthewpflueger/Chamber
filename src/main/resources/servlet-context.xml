@@ -105,11 +105,6 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
-    <bean id="redirectController" class="com.echoed.chamber.controllers.RedirectController">
-        <property name="echoService" ref="echoService"/>
-    </bean>
-
-    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="closetController" class="com.echoed.chamber.controllers.ClosetController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="closetView" value="view.user" />
