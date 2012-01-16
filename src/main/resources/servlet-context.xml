@@ -102,6 +102,8 @@
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="logoutController" class="com.echoed.chamber.controllers.LogoutController">
         <property name="cookieManager" ref="cookieManager" />
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

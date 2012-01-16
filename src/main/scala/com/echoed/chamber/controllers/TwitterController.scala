@@ -6,18 +6,15 @@ import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.slf4j.LoggerFactory
-import twitter4j.auth.{RequestToken, AccessToken}
-import org.springframework.beans.factory.annotation.Autowired
-import com.echoed.chamber.dao.TwitterUserDao
 import com.echoed.chamber.services.echo.EchoService
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
-import com.echoed.chamber.services.echoeduser.{EchoedUserService,LocateWithIdResponse,LocateWithTwitterServiceResponse,GetEchoedUserResponse,AssignTwitterServiceResponse}
+import com.echoed.chamber.services.echoeduser.{LocateWithIdResponse,LocateWithTwitterServiceResponse,GetEchoedUserResponse,AssignTwitterServiceResponse}
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.util.CookieManager
 import java.net.URLEncoder
-import scala.collection.JavaConversions
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.twitter._
+
 
 @Controller
 @RequestMapping(Array("/twitter"))

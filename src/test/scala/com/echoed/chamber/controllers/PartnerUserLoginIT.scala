@@ -3,7 +3,6 @@ package com.echoed.chamber.controllers
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.echoed.util.IntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
 import scala.reflect.BeanProperty
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
@@ -13,6 +12,7 @@ import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.chamber.dao.{RetailerUserDao, EchoDao, EchoedUserDao}
 import org.openqa.selenium.{By, Cookie, WebDriver}
+import com.echoed.util.{WebDriverUtils, IntegrationTest}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -39,6 +39,7 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
 
     def cleanup() {
+        WebDriverUtils.clearEchoedCookies(webDriver)
         partnerUserDao.deleteByEmail(partnerUser.email)
     }
 

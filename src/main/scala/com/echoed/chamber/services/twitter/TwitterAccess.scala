@@ -18,4 +18,6 @@ trait TwitterAccess {
 
     def updateStatus(accessToken: String, accessTokenSecret: String, status: TwitterStatus): Future[UpdateStatusResponse]
 
+    def logout(accessToken: String): Future[LogoutResponse]
+
 }

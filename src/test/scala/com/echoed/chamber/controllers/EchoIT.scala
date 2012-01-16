@@ -229,6 +229,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             } finally {
                 try {
                     if (currentWindowHandle != webDriver.getWindowHandle) {
+                        Thread.sleep(1000)
                         webDriver.close
                         webDriver.switchTo.window(currentWindowHandle)
                     }

@@ -144,7 +144,7 @@ class ClosetController {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired){
-            logger.error("Request expired to view exhibit for user{}", echoedUserId)
+            logger.error("Request expired to view exhibit for user %s" format echoedUserId)
             new ModelAndView(errorView)
         } else Option(continuation.getAttribute("feed")).getOrElse({
             continuation.suspend(httpServletResponse)
@@ -163,13 +163,13 @@ class ClosetController {
             }
             .onException{
                 case e =>
-                    logger.error("Exception thrown Locating EchoedUserService: {} ", e)
+                    logger.error("Exception thrown Locating EchoedUserService for %s" format echoedUserIdCookie, e)
             }
             continuation.undispatch()
         })
 
     }
-    
+
     @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
     def exhibit(
@@ -189,32 +189,33 @@ class ClosetController {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired) {
-            logger.error("Request expired to view exhibit for user {}", echoedUserId)
+            logger.error("Request expired to view exhibit for user %s" format echoedUserId)
             new ModelAndView(errorView)
         } else Option(continuation.getAttribute("exhibit")).getOrElse({
             continuation.suspend(httpServletResponse)
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
-                    logger.error("Error Locating EchoedUserService With Id {} with Error: {}",echoedUserId, error)
+                    logger.error("Error Locating EchoedUserService With Id %s" format echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
                     echoedUserService.getCloset.onResult {
                         case GetExhibitResponse(_,Left(error)) =>
-                            logger.error("Error Getting Closet: {}", error)
+                            logger.error("Error Getting Closet for %s" format echoedUserId, error)
                             throw new RuntimeException("Unknown Response %s" format error)
                         case GetExhibitResponse(_,Right(closet)) =>
+                            logger.debug("Received for {} exhibit {}", echoedUserId, closet)
                             continuation.setAttribute("exhibit", closet)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                     }
                     .onException{
                         case e =>
-                            logger.error("Exception thrown Getting Exhibit: {}", e)
+                            logger.error("Exception thrown Getting Exhibit %s" format echoedUserId, e)
                     }
             }
             .onException{
                 case e=>
-                    logger.error("Exception thrown when Locating EchoedUserService: {}", e)
+                    logger.error("Exception thrown when Locating EchoedUserService %s" format echoedUserId, e)
             }
             continuation.undispatch()
         })
@@ -270,7 +271,7 @@ class ClosetController {
             continuation.undispatch()
         })
     }
-    
+
     @RequestMapping(value= Array("/exhibit/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
@@ -282,10 +283,10 @@ class ClosetController {
         logger.debug("echoedFriendId: {}", echoedFriendId)
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if(continuation.isExpired) {
-            
+
         } else Option(continuation.getAttribute("closet")).getOrElse({
             continuation.suspend(httpServletResponse)
-            
+
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
                     logger.error("Error Locating EchoedUserService with error {}", error)
@@ -310,11 +311,11 @@ class ClosetController {
                     continuation.setAttribute("closet", e)
                     continuation.resume();
             }
-            
+
             continuation.undispatch()
         })
-        
-        
+
+
 
     }
 }

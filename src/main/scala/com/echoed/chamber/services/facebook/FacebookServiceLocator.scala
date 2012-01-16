@@ -9,4 +9,5 @@ trait FacebookServiceLocator {
 
     def getFacebookServiceWithFacebookUserId(facebookUserId: String): Future[FacebookService]
 
+    def logout(facebookUserId: String): Future[LogoutResponse]
 }

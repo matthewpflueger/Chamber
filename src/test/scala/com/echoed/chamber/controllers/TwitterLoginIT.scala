@@ -44,6 +44,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
     val twitterUser = dataCreator.twitterUser
 
     def cleanup() {
+        WebDriverUtils.clearEchoedCookies(webDriver)
         twitterUserDao.deleteByScreenName(twitterUser.screenName)
         echoedUserDao.deleteByScreenName(twitterUser.screenName)
     }
@@ -60,8 +61,6 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
         info("So that I can echo and create my Echoed account using my Twitter credentials")
 
         scenario("unknown user clicks on Twitter login button with a valid echoPossibility and is redirected to confirm page post login", IntegrationTest) {
-
-            WebDriverUtils.clearEchoedCookies(webDriver)
 
             given("a request to login and echo using Twitter credentials")
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")
@@ -81,7 +80,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             then("redirect to the echo confirm page")
             webDriver.getCurrentUrl.startsWith(echoUrl) should be (true)
 
-            and("create an EchoedUser account using the Facebook info")
+            and("create an EchoedUser account using the Twitter info")
             val dbtwitterUser = twitterUserDao.findByScreenName(twitterUser.screenName)
             dbtwitterUser should not be (null)
 
@@ -116,7 +115,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             webDriver.getCurrentUrl.startsWith(echoUrl) should be (true)
 
 
-            and("create an EchoedUser account using the Facebook info")
+            and("create an EchoedUser account using the Twitter info")
             val dbtwitterUser = twitterUserDao.findByScreenName(twitterUser.screenName)
             dbtwitterUser should not be (null)
 

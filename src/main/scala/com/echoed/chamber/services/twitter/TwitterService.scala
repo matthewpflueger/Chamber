@@ -9,6 +9,8 @@ import com.echoed.chamber.domain.{TwitterUser, TwitterStatus, TwitterFollower,Ec
 
 trait TwitterService {
 
+    val id: String
+
     def getRequestToken: Future[GetRequestTokenResponse]
 
     def getAccessToken(oAuthVerifier: String): Future[GetAccessTokenResponse]
@@ -20,5 +22,7 @@ trait TwitterService {
     def assignEchoedUser(echoedUserId: String): Future[AssignEchoedUserResponse]
 
     def tweet(echo:Echo, message:String): Future[TweetResponse]
+
+    def logout(twitterUserId: String): Future[LogoutResponse]
 
 }

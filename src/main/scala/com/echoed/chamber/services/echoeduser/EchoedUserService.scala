@@ -12,13 +12,15 @@ import com.echoed.chamber.domain.views.Feed
 
 trait EchoedUserService {
 
+    val id: String
+
     def getEchoedUser: Future[GetEchoedUserResponse]
 
     def assignTwitterService(twitterService:TwitterService): Future[AssignTwitterServiceResponse]
 
     def assignFacebookService(facebookService:FacebookService): Future[AssignFacebookServiceResponse]
 
-    def getTwitterFollowers: Future[Array[TwitterFollower]]
+//    def getTwitterFollowers: Future[Array[TwitterFollower]]
 
     def echoTo(echoTo: EchoTo): Future[EchoToResponse]
 
@@ -29,13 +31,13 @@ trait EchoedUserService {
     def getCloset: Future[GetExhibitResponse]
 
     def getFeed: Future[GetFeedResponse]
-    
+
     def getPublicFeed: Future[GetPublicFeedResponse]
 
     def getFriendCloset(echoedFriendId: String): Future[GetFriendExhibitResponse]
 
     def getFriends: Future[GetEchoedFriendsResponse]
 
-    def friends: Future[List[EchoedFriend]]
+    def logout(echoedUserId: String): Future[LogoutResponse]
 }
 

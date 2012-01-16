@@ -2,7 +2,6 @@ package com.echoed.chamber.services.echoeduser
 
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.EchoedUser
 
 import com.echoed.chamber.services.facebook.{FacebookServiceLocator, FacebookService}
 import akka.dispatch.Future
@@ -12,6 +11,7 @@ import akka.actor.{Channel, Actor}
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.services.twitter.{GetTwitterServiceWithIdResponse, GetUserResponse, TwitterService, TwitterServiceLocator}
+import com.echoed.chamber.domain.{FacebookUser, EchoedUser}
 
 
 class EchoedUserServiceCreatorActor extends Actor {
@@ -45,30 +45,12 @@ class EchoedUserServiceCreatorActor extends Actor {
                 logger.debug("Creating EchoedUserService with id {}", echoedUserId)
                 Option(echoedUserDao.findById(msg.echoedUserId)).cata(
                     echoedUser => {
-                        val echoedUserService = createEchoedUserService(echoedUser)
+                        val echoedUserService = createEchoedUserService(
+                                echoedUser,
+                                facebookServiceLocator,
+                                twitterServiceLocator)
                         channel ! CreateEchoedUserServiceWithIdResponse(msg, Right(echoedUserService))
-
                         logger.debug("Created EchoedUserService with id {}", echoedUserId)
-
-                        Option(echoedUser.facebookUserId).map {
-                            facebookServiceLocator.getFacebookServiceWithFacebookUserId(_).onResult {
-                                case facebookService: FacebookService =>
-                                    echoedUserService.assignFacebookService(facebookService)
-                                    logger.debug("Assigning Facebook service to Echoed user {}", echoedUser)
-                                case u => throw new MatchError(u)
-                            }.onException { case e => logger.error("Error processing %s" format msg, e) }
-                        }
-
-                        Option(echoedUser.twitterUserId).map {
-                            twitterServiceLocator.getTwitterServiceWithId(_).onResult {
-                                case GetTwitterServiceWithIdResponse(_, Left(e)) =>
-                                    logger.error("Error processing %s" format msg, e)
-                                case GetTwitterServiceWithIdResponse(_, Right(twitterService)) =>
-                                    echoedUserService.assignTwitterService(twitterService)
-                                    logger.debug("Assigning Twitter service to Echoed user {}", echoedUser)
-                                case u => throw new MatchError(u)
-                            }.onException { case e => logger.error("Error processing %s" format msg, e) }
-                        }
                     },
                     {
                         channel ! CreateEchoedUserServiceWithIdResponse(msg, Left(EchoedUserNotFound(echoedUserId)))
@@ -78,26 +60,48 @@ class EchoedUserServiceCreatorActor extends Actor {
 
 
         case msg @ CreateEchoedUserServiceWithFacebookService(facebookService) =>
-            logger.debug("Creating EchoedUserService with {}", facebookService)
-            val facebookUser = msg.facebookService.facebookUser.get
-            logger.debug("Searching for Facebook User {}",facebookUser.id);
-            Option(echoedUserDao.findByFacebookUserId(facebookUser.id)) match {
-                case Some(echoedUser) =>
-                    logger.debug("Found {} with {}", echoedUser, facebookUser)
-                    val echoedUserServiceActor = createEchoedUserService(echoedUser, facebookService = Some(facebookService))
-                    self.channel ! CreateEchoedUserServiceWithFacebookServiceResponse(msg, Right(echoedUserServiceActor))
-                case None =>
-                    logger.debug("Creating EchoedUser with {}", facebookUser)
-                    val echoedUser = new EchoedUser(facebookUser)
-                    echoedUserDao.insert(echoedUser)
-                    facebookService.assignEchoedUser(echoedUser)
-                    val echoedUserServiceActor =  createEchoedUserService(echoedUser, facebookService = Some(facebookService))
-                    self.channel ! CreateEchoedUserServiceWithFacebookServiceResponse(msg, Right(echoedUserServiceActor))
+            val channel: Channel[CreateEchoedUserServiceWithFacebookServiceResponse] = self.channel
+
+            def error(e: Throwable) {
+                channel ! CreateEchoedUserServiceWithFacebookServiceResponse(
+                        msg,
+                        Left(new EchoedUserException("Cannot get Echoed user service", e)))
+                logger.error("Unexpected error processing %s" format msg, e)
             }
+
+            try {
+                logger.debug("Creating EchoedUserService with {}", facebookService)
+                msg.facebookService.getFacebookUser().onComplete(_.value.get.fold(
+                    e => error(e),
+                    _ match {
+                        case facebookUser: FacebookUser =>
+                            logger.debug("Searching for Facebook User {}",facebookUser.id);
+                            Option(echoedUserDao.findByFacebookUserId(facebookUser.id)) match {
+                                case Some(echoedUser) =>
+                                    logger.debug("Found {} with {}", echoedUser, facebookUser)
+                                    val echoedUserServiceActor = createEchoedUserService(
+                                            echoedUser,
+                                            facebookServiceLocator,
+                                            twitterServiceLocator)
+                                    channel ! CreateEchoedUserServiceWithFacebookServiceResponse(msg, Right(echoedUserServiceActor))
+                                case None =>
+                                    logger.debug("Creating EchoedUser with {}", facebookUser)
+                                    val echoedUser = new EchoedUser(facebookUser)
+                                    echoedUserDao.insert(echoedUser)
+                                    facebookService.assignEchoedUser(echoedUser)
+                                    val echoedUserServiceActor = createEchoedUserService(
+                                            echoedUser,
+                                            facebookServiceLocator,
+                                            twitterServiceLocator)
+                                    channel ! CreateEchoedUserServiceWithFacebookServiceResponse(msg, Right(echoedUserServiceActor))
+                            }
+                    }
+                ))
+            } catch { case e => error(e) }
 
 
         case msg @ CreateEchoedUserServiceWithTwitterService(twitterService) =>
-            val channel = self.channel
+            val channel: Channel[CreateEchoedUserServiceWithTwitterServiceResponse] = self.channel
 
             def error(e: Throwable) {
                 channel ! CreateEchoedUserServiceWithTwitterServiceResponse(
@@ -108,32 +112,35 @@ class EchoedUserServiceCreatorActor extends Actor {
 
             try {
                 logger.debug("Creating EchoedUserService with {}", twitterService)
-                twitterService.getUser.onResult {
-                    case GetUserResponse(_, Left(e)) => error(e)
-                    case GetUserResponse(_, Right(twitterUser)) => Option(echoedUserDao.findByTwitterUserId(twitterUser.id)).cata(
-                        echoedUser => {
-                            logger.debug("Found EchoedUser {} with TwitterUser {}", echoedUser, twitterUser)
-                            channel ! CreateEchoedUserServiceWithTwitterServiceResponse(
-                                    msg, Right(createEchoedUserService(echoedUser, twitterService = Some(twitterService))))
-                        },
-                        {
-                            logger.debug("Creating EchoedUser with {}", twitterUser)
-                            val echoedUser = new EchoedUser(twitterUser)
-                            echoedUserDao.insert(echoedUser)
-                            twitterService.assignEchoedUser(echoedUser.id)
-                            channel ! CreateEchoedUserServiceWithTwitterServiceResponse(
-                                    msg, Right(createEchoedUserService(echoedUser, twitterService = Some(twitterService))))
-                        })
-                }
+                twitterService.getUser.onComplete(_.value.get.fold(
+                    e => error(e),
+                    _ match {
+                        case GetUserResponse(_, Left(e)) => error(e)
+                        case GetUserResponse(_, Right(twitterUser)) => Option(echoedUserDao.findByTwitterUserId(twitterUser.id)).cata(
+                            echoedUser => {
+                                logger.debug("Found EchoedUser {} with TwitterUser {}", echoedUser, twitterUser)
+                                channel ! CreateEchoedUserServiceWithTwitterServiceResponse(
+                                        msg, Right(createEchoedUserService(echoedUser, facebookServiceLocator, twitterServiceLocator)))
+                            },
+                            {
+                                logger.debug("Creating EchoedUser with {}", twitterUser)
+                                val echoedUser = new EchoedUser(twitterUser)
+                                echoedUserDao.insert(echoedUser)
+                                twitterService.assignEchoedUser(echoedUser.id)
+                                channel ! CreateEchoedUserServiceWithTwitterServiceResponse(
+                                        msg,
+                                        Right(createEchoedUserService(echoedUser, facebookServiceLocator, twitterServiceLocator)))
+                            })
+                    }
+                ))
             } catch { case e => error(e) }
-
     }
 
 
     private def createEchoedUserService(
             echoedUser: EchoedUser,
-            facebookService: Option[FacebookService] = None,
-            twitterService: Option[TwitterService] = None) =
+            facebookServiceLocator: FacebookServiceLocator,
+            twitterServiceLocator: TwitterServiceLocator) =
         new EchoedUserServiceActorClient(Actor.actorOf(new EchoedUserServiceActor(
                             echoedUser = echoedUser,
                             echoedUserDao = echoedUserDao,
@@ -143,7 +150,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                             echoPossibilityDao = echoPossibilityDao,
                             retailerSettingsDao = retailerSettingsDao,
                             echoDao = echoDao,
-                            facebookService = facebookService,
-                            twitterService = twitterService)).start)
+                            facebookServiceLocator = facebookServiceLocator,
+                            twitterServiceLocator = twitterServiceLocator)).start)
 
 }

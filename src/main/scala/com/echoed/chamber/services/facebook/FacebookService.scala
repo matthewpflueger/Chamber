@@ -7,7 +7,7 @@ import com.echoed.chamber.domain._
 
 trait FacebookService {
 
-    def facebookUser: Option[FacebookUser] = FutureHelper.get[FacebookUser](getFacebookUser _)
+    val id: String
 
     def getFacebookUser(): Future[FacebookUser]
 
@@ -18,4 +18,7 @@ trait FacebookService {
     def getFacebookFriends(): Future[List[FacebookFriend]]
 
     private[services] def fetchFacebookFriends(): Future[GetFriendsResponse]
+
+    def logout(facebookUserId: String): Future[LogoutResponse]
+
 }

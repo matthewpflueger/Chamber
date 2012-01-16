@@ -20,8 +20,8 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def assignTwitterService(twitterService:TwitterService) =
             (echoedUserServiceActor ? (AssignTwitterService(twitterService))).mapTo[AssignTwitterServiceResponse]
 
-    def getTwitterFollowers() =
-            (echoedUserServiceActor ? ("getTwitterFollowers")).mapTo[Array[TwitterFollower]]
+//    def getTwitterFollowers() =
+//            (echoedUserServiceActor ? ("getTwitterFollowers")).mapTo[Array[TwitterFollower]]
 
     def echoTo(echoTo: EchoTo) = (echoedUserServiceActor ? echoTo).mapTo[EchoToResponse]
 
@@ -34,14 +34,19 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def getCloset = (echoedUserServiceActor ? GetExhibit()).mapTo[GetExhibitResponse]
 
     def getFeed = (echoedUserServiceActor ? GetFeed()).mapTo[GetFeedResponse]
-    
+
     def getPublicFeed = (echoedUserServiceActor ? GetPublicFeed()).mapTo[GetPublicFeedResponse]
 
-    def getFriendCloset(echoedFriendId: String) = (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId)).mapTo[GetFriendExhibitResponse]
+    def getFriendCloset(echoedFriendId: String) =
+            (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId)).mapTo[GetFriendExhibitResponse]
 
     def getFriends = (echoedUserServiceActor ? GetEchoedFriends()).mapTo[GetEchoedFriendsResponse]
 
-    def friends = (echoedUserServiceActor ? 'friends).mapTo[List[EchoedFriend]]
-
     def actorRef = echoedUserServiceActor
+
+    val id = echoedUserServiceActor.id
+
+    def logout(echoedUserId: String) = (echoedUserServiceActor ? Logout(echoedUserId)).mapTo[LogoutResponse]
+
+    override def toString = id
 }

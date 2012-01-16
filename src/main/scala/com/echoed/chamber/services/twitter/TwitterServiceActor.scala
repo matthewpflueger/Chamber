@@ -20,6 +20,9 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
     def this(twitterAccess: TwitterAccess, twitterUserDao: TwitterUserDao, twitterStatusDao: TwitterStatusDao, twitterUser: TwitterUser) = this (twitterAccess, twitterUserDao, twitterStatusDao, null, twitterUser)
 
+    //FIXME should not ever be null
+    self.id = "TwitterService:%s" format Option(twitterUser).map(_.id).getOrElse("NONE")
+
     def receive = {
         case msg: GetRequestToken =>
             self.channel ! GetRequestTokenResponse(msg, Right(requestToken))
@@ -105,5 +108,20 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
                 }.onException { case e => error(e) }
             } catch { case e => error(e) }
 
+
+        case msg @ Logout(twitterUserId) =>
+            val channel: Channel[LogoutResponse] = self.channel
+
+            try {
+                assert(twitterUser.id == twitterUserId)
+                channel ! LogoutResponse(msg, Right(true))
+                twitterAccess.logout(twitterUser.accessToken)
+                self.stop
+                logger.debug("Logged out Twitter user {}", twitterUserId)
+            } catch {
+                case e =>
+                    channel ! LogoutResponse(msg, Left(TwitterException("Could not logout of Twitter", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
     }
 }

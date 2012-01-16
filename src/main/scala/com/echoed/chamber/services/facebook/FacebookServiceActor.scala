@@ -1,12 +1,12 @@
 package com.echoed.chamber.services.facebook
 
-import akka.actor.Actor
 import org.slf4j.LoggerFactory
 import java.util.{UUID, Date}
 import com.echoed.chamber.domain._
 import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao}
 import scala.collection.JavaConversions.asScalaBuffer
 import akka.dispatch.Future
+import akka.actor.{Channel, Actor}
 
 
 class FacebookServiceActor(
@@ -18,6 +18,7 @@ class FacebookServiceActor(
 
     private final val logger = LoggerFactory.getLogger(classOf[FacebookServiceActor])
 
+    self.id = "FacebookService:%s" format facebookUser.id
 
     def receive = {
         case "facebookUser" => self.channel ! facebookUser
@@ -76,6 +77,21 @@ class FacebookServiceActor(
                         logger.debug("Received error response for fetching friends for FacebookUser {}", facebookUser.id)
                         channel ! msg
                 }))
+
+        case msg @ Logout(facebookUserId) =>
+            val channel: Channel[LogoutResponse] = self.channel
+
+            try {
+                assert(facebookUser.id == facebookUserId)
+                facebookAccess.logout(facebookUser.accessToken)
+                channel ! LogoutResponse(msg, Right(true))
+                self.stop
+                logger.debug("Logged out {}", facebookUser)
+            } catch {
+                case e =>
+                    channel ! LogoutResponse(msg, Left(FacebookException("Could not logout of Facebook", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
     }
 
 

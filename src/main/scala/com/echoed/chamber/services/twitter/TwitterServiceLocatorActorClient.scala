@@ -22,4 +22,8 @@ class TwitterServiceLocatorActorClient extends TwitterServiceLocator with ActorC
             (twitterServiceLocatorActor ? GetTwitterServiceWithId(id)).mapTo[GetTwitterServiceWithIdResponse]
 
     def actorRef = twitterServiceLocatorActor
+
+    def logout(twitterUserId: String) =
+            (twitterServiceLocatorActor ? Logout(twitterUserId)).mapTo[LogoutResponse]
+
 }

@@ -216,12 +216,11 @@ class EchoController {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired) {
-            logger.error("Request expired to record echo click for echo {}", echoId)
+            logger.error("Request expired to record echo click for echo %s" format echoId)
             new ModelAndView(errorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
             continuation.suspend(httpServletResponse)
-            logger.debug("Hello?");
             val echoClick = new EchoClick(echoId, echoedUserId, referrerUrl, httpServletRequest.getRemoteAddr)
             echoService.recordEchoClick(echoClick, postId).map { tuple =>
                 if(echoClickId == null)

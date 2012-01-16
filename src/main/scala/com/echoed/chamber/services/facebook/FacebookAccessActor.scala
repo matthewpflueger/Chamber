@@ -12,10 +12,10 @@ import scala.collection.JavaConversions._
 import com.echoed.chamber.domain._
 import scalaz._
 import Scalaz._
-import java.net.URL
 import scala.collection.mutable.WeakHashMap
 import com.echoed.util.ScalaObjectMapper
 import java.util.{Date, Properties}
+import java.net.{HttpURLConnection, URL}
 
 
 class FacebookAccessActor extends Actor {
@@ -158,7 +158,36 @@ class FacebookAccessActor extends Actor {
                     logger.debug("Exception when retrieving data for FacebookPost {}: {}", facebookPostData.facebookPost.facebookId, e.getMessage)
                     self.channel ! GetPostDataResponse(msg, Left(FacebookException("%s: %s" format(e.getClass.getName, e.getMessage), e)))
             }
+
+        case msg @ Logout(accessToken) =>
+            try {
+                removeFacebookBatcher(accessToken).cata(
+                    facebookBatcher => {
+                        logger.debug("Removed FacebookBatcher from cache for accessToken {}", accessToken)
+
+                        val url = new URL("https://www.facebook.com/logout.php?next=%s&access_token=%s" format(redirectUrl, accessToken))
+                        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+                        connection.setConnectTimeout(5000)
+                        connection.setReadTimeout(5000)
+
+                        val logoutResponse = "%s:%s" format(connection.getResponseCode, connection.getResponseMessage)
+                        logger.debug("Logout of {} returned {}", accessToken, logoutResponse)
+                    },
+                    {
+                        self.channel ! LogoutResponse(msg, Right(false))
+                        logger.debug("Did not find FacebookBatcher for {}", accessToken)
+                    }
+                )
+            } catch {
+                case e =>
+                    self.channel ! LogoutResponse(msg, Left(FacebookException("Could not logout from Facebook")))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
     }
+
+
+    private def removeFacebookBatcher(accessToken: String) = cache.remove(accessToken)
+
 
     private def getFacebookBatcher(accessToken: String) = {
         cache.getOrElse(accessToken, {

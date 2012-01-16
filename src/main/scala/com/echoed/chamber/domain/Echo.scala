@@ -24,8 +24,8 @@ case class Echo(
         totalClicks: Int,
         credit: Float,
         fee: Float,
-        productName: String, 
-        category: String, 
+        productName: String,
+        category: String,
         brand: String) {
 
     def this(
@@ -42,7 +42,7 @@ case class Echo(
             echoPossibilityId: String,
             landingPageUrl: String,
             retailerSettingsId: String,
-            productName: String, 
+            productName: String,
             category: String,
             brand: String) = this(
         UUID.randomUUID.toString,

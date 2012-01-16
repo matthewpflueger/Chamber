@@ -6,10 +6,9 @@ import akka.actor.{Actor, ActorRef}
 import com.echoed.chamber.services.ActorClient
 
 
-class FacebookAccessActorClient extends FacebookAccess with ActorClient {
+class FacebookAccessActorClient extends FacebookAccess with ActorClient with Serializable {
 
     @BeanProperty var actorRef: ActorRef = _
-
 
     def getAccessToken(code: String, queryString: String) =
             (actorRef ? ("accessToken", code, queryString)).mapTo[String]
@@ -22,6 +21,9 @@ class FacebookAccessActorClient extends FacebookAccess with ActorClient {
 
     def post(accessToken: String, facebookId: String, facebookPost: FacebookPost) =
             (actorRef.?("post", accessToken, facebookId, facebookPost)(timeout = Actor.Timeout(600000L))).mapTo[FacebookPost]
+
+    def logout(accessToken: String) =
+            (actorRef ? Logout(accessToken)).mapTo[LogoutResponse]
 
 }
 

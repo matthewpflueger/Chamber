@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 object WebDriverUtils extends ShouldMatchers {
 
     val echoedUrl = "http://www.echoed.com"
+    val logoutUrl = "http://v1-api.echoed.com/logout"
     val closetUrl = "http://v1-api.echoed.com/closet"
     val twitterUrl = "http://www.twitter.com"
     val facebookUrl = "http://www.facebook.com"
@@ -33,7 +34,8 @@ object WebDriverUtils extends ShouldMatchers {
     }
 
     def clearEchoedCookies(webDriver: WebDriver) {
-        webDriver.get(echoedUrl)
+        webDriver.get(logoutUrl)
+        webDriver.getCurrentUrl should startWith (echoedUrl)
         webDriver.manage.deleteAllCookies()
     }
 

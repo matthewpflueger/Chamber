@@ -1,6 +1,5 @@
 package com.echoed.chamber.controllers
 
-import com.echoed.chamber.domain.views.EchoView
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -17,6 +16,7 @@ import org.codehaus.jackson.`type`.TypeReference
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
 import java.util.{UUID, Properties, List => JList}
+import com.echoed.chamber.domain.views.{Closet, EchoView}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -78,8 +78,8 @@ class ClosetExhibitIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             then("grant the request")
             and("the returned data can be parsed into a domain object")
             val url = new URL(exhibitUrl + "?echoedUserId=" + echoedUser.id)
-            val echoList: Buffer[EchoView] = asScalaBuffer(
-                    new ScalaObjectMapper().readValue(url, new TypeReference[JList[EchoView]]() {}))
+            val closet: Closet = new ScalaObjectMapper().readValue(url, new TypeReference[Closet]() {})
+            val echoList = asScalaBuffer(closet.echoes)
 
             for (echo <- echoes) echoList.find(_.echoId == echo.id) should not be (None)
         }

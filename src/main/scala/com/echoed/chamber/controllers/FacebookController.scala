@@ -14,6 +14,7 @@ import java.util.{HashMap => JMap}
 import org.springframework.web.servlet.ModelAndView
 import scalaz._
 import Scalaz._
+import akka.actor.Actor
 
 
 @Controller
@@ -142,7 +143,6 @@ class FacebookController {
             //echoService.recordEchoPossibility(echoPossibility)
             new ModelAndView(facebookLoginErrorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-
             continuation.suspend(httpServletResponse)
 
             logger.debug("Requesting FacebookService with code {}", code)

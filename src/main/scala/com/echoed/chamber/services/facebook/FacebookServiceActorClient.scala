@@ -5,7 +5,12 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.services.ActorClient
 
 
-class FacebookServiceActorClient(facebookServiceActor: ActorRef) extends FacebookService with ActorClient {
+class FacebookServiceActorClient(facebookServiceActor: ActorRef)
+        extends FacebookService
+        with ActorClient
+        with Serializable {
+
+    val id = facebookServiceActor.id
 
     def actorRef = facebookServiceActor
 
@@ -23,4 +28,9 @@ class FacebookServiceActorClient(facebookServiceActor: ActorRef) extends Faceboo
 
     private[services] def fetchFacebookFriends() =
             (facebookServiceActor ? '_fetchFacebookFriends).mapTo[GetFriendsResponse]
+
+    def logout(facebookUserId: String) =
+            (facebookServiceActor ? Logout(facebookUserId)).mapTo[LogoutResponse]
+
+    override def toString = id
 }

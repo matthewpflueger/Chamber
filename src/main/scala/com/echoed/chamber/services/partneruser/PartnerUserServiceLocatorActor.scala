@@ -7,6 +7,7 @@ import com.echoed.chamber.domain.RetailerUser
 import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}
+import com.echoed.chamber.services.ActorClient
 
 
 class PartnerUserServiceLocatorActor extends Actor {
@@ -57,8 +58,33 @@ class PartnerUserServiceLocatorActor extends Actor {
 
     def receive = {
         case msg: Login => login(msg, self.channel)
+        case msg @ Logout(partnerUserId) =>
+            val channel = self.channel
+
+            try {
+                logger.debug("Processing {}", msg)
+                cacheById.remove(partnerUserId).cata(
+                    pus => {
+                        channel ! LogoutResponse(msg, Right(true))
+                        for((e, s) <- cache.view if (s.id == pus.id)) {
+                            cache -= e
+                            logger.debug("Removed PartnerUserService {} from cache", pus.id)
+                        }
+                        logger.debug("Successfully logged out {}", partnerUserId)
+                    },
+                    {
+                        channel ! LogoutResponse(msg, Right(false))
+                        logger.debug("Did not find PartnerUser {} to logout", partnerUserId)
+                    })
+            } catch {
+                case e =>
+                    channel ! LogoutResponse(msg, Left(PartnerUserException("Could not logout partner", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
+
         case msg @ Locate(partnerUserId) =>
             self.channel ! LocateResponse(msg, cacheById.get(partnerUserId).toRight(LoginError("No partner user")))
+
     }
 
 

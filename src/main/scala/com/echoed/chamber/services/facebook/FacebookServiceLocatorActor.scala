@@ -1,11 +1,11 @@
 package com.echoed.chamber.services.facebook
 
-import akka.actor.Actor
 import collection.mutable.WeakHashMap
 import reflect.BeanProperty
-import akka.util.Duration
-import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
+import scalaz._
+import Scalaz._
+import akka.actor.{Channel, Actor}
 
 
 class FacebookServiceLocatorActor extends Actor {
@@ -15,30 +15,23 @@ class FacebookServiceLocatorActor extends Actor {
     @BeanProperty var facebookServiceCreator: FacebookServiceCreator = _
 
     private val cache = WeakHashMap[String, FacebookService]()
-    private val cacheByFacebookUserId = WeakHashMap[String, FacebookService]()
 
     def receive = {
         case ("code", code: String, queryString: String) => {
-            logger.debug("Locating FacebookService with code {}", code)
             val channel = self.channel
-            cache.get(code) match {
-                case Some(facebookService) =>
-                    logger.debug("Cache hit for code {}", code)
-                    channel ! facebookService
-                case None =>
-                    logger.debug("Cache miss for FacebookService key {}", code)
-                    facebookServiceCreator.createFacebookServiceUsingCode(code, queryString).map { facebookService =>
-                        cache += (code -> facebookService)
-                        facebookService.getFacebookUser.map { facebookUser =>
-                            cacheByFacebookUserId += (facebookUser.id -> facebookService)
-                        }
-                        logger.debug("Seeded cache with FacebookService key {}", code)
-                        channel ! facebookService
-                    }
+
+            logger.debug("Locating FacebookService with code {}", code)
+            facebookServiceCreator.createFacebookServiceUsingCode(code, queryString).map { facebookService =>
+                channel ! facebookService
+                facebookService.getFacebookUser.map { facebookUser =>
+                    cache(facebookUser.id) = facebookService
+                    logger.debug("Seeded cache with FacebookService key {}", code)
+                }
             }
         }
+
         case ("facebookUserId", facebookUserId: String) =>
-            cacheByFacebookUserId.get(facebookUserId) match {
+            cache.get(facebookUserId) match {
                 case Some(facebookService) =>
                     logger.debug("Cache hit for FacebookService with facebookUserId {}", facebookUserId)
                     self.channel ! facebookService
@@ -46,9 +39,30 @@ class FacebookServiceLocatorActor extends Actor {
                     logger.debug("Cache miss for FacebookService with facebookUserId {}", facebookUserId)
                     val channel = self.channel
                     facebookServiceCreator.createFacebookServiceUsingFacebookUserId(facebookUserId).map { facebookService =>
-                        cacheByFacebookUserId += (facebookUserId -> facebookService)
+                        cache(facebookUserId) = facebookService
                         channel ! facebookService
                     }
+            }
+
+        case msg @ Logout(facebookUserId) =>
+            val channel: Channel[LogoutResponse] = self.channel
+
+            try {
+                logger.debug("Processing {}", msg)
+                cache.remove(facebookUserId).cata(
+                    fs => {
+                        fs.logout(facebookUserId)
+                        channel ! LogoutResponse(msg, Right(true))
+                        logger.debug("Logged out FacebookUser {} ", facebookUserId)
+                    },
+                    {
+                        channel ! LogoutResponse(msg, Right(false))
+                        logger.debug("Did not find FacebookUser to {}", msg)
+                    })
+            } catch {
+                case e =>
+                    channel ! LogoutResponse(msg, Left(FacebookException("Could not logout Facebook user", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
             }
     }
 

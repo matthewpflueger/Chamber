@@ -3,10 +3,7 @@ package com.echoed.chamber.services.twitter
 
 import collection.mutable.WeakHashMap
 import reflect.BeanProperty
-import akka.util.Duration
-import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
-import twitter4j.auth.{RequestToken, AccessToken}
 import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}
@@ -19,7 +16,8 @@ class TwitterServiceLocatorActor extends Actor {
     @BeanProperty var twitterServiceCreator: TwitterServiceCreator = _
 
     private val cache = WeakHashMap[String, TwitterService]()
-    private val idCache = WeakHashMap[String, TwitterService]() //twitterId -> TwitterService
+    private val idCache = WeakHashMap[String, TwitterService]() //twitterUser.id -> TwitterService
+
 
     def receive = {
 
@@ -135,6 +133,33 @@ class TwitterServiceLocatorActor extends Actor {
                         }.onException { case e => error(e) }
                     })
             } catch { case e => error(e) }
+
+
+        case msg @ Logout(twitterUserId) =>
+            val channel: Channel[LogoutResponse] = self.channel
+
+            try {
+                logger.debug("Processing {}", msg)
+                idCache.remove(twitterUserId).cata(
+                    ts => {
+                        ts.logout(twitterUserId)
+                        for ((key, s) <- cache if (s.id == ts.id)) {
+                            cache -= key
+                            logger.debug("Removed TwitterService {} from cache", s.id)
+                        }
+
+                        channel ! LogoutResponse(msg, Right(true))
+                        logger.debug("Logged out TwitterUser {} ", twitterUserId)
+                    },
+                    {
+                        channel ! LogoutResponse(msg, Right(false))
+                        logger.debug("Did not find TwitterUser to {}", msg)
+                    })
+            } catch {
+                case e =>
+                    channel ! LogoutResponse(msg, Left(TwitterException("Could not logout Twitter user", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
     }
 }
 

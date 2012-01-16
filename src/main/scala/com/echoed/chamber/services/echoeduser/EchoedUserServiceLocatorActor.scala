@@ -1,100 +1,164 @@
 package com.echoed.chamber.services.echoeduser
 
-import akka.actor.Actor
 import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.facebook.FacebookService
-import com.echoed.chamber.services.twitter.TwitterService
-import com.echoed.chamber.services.EchoedException
+import com.echoed.chamber.services.ActorClient
+import scalaz._
+import Scalaz._
+import akka.actor._
+import com.echoed.chamber.domain.FacebookUser
+import com.echoed.chamber.services.twitter.{GetUserResponse, GetUser, TwitterService}
+import scala.collection.JavaConversions.JConcurrentMapWrapper
+import java.util.concurrent.ConcurrentHashMap
 
 class EchoedUserServiceLocatorActor extends Actor {
 
     private val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceLocatorActor])
 
-    @BeanProperty var echoedUserServiceCreator: EchoedUserServiceCreator = null
+    @BeanProperty var echoedUserServiceCreator: EchoedUserServiceCreator = _
 
+
+//    private val cache = JConcurrentMapWrapper[String, EchoedUserService](new ConcurrentHashMap[String, EchoedUserService]())
     private val cache = WeakHashMap[String, EchoedUserService]()
-    private val cacheFacebookService = WeakHashMap[FacebookService, EchoedUserService]()
-    private val cacheTwitterService = WeakHashMap[TwitterService,EchoedUserService]()
+
+
+    def cacheEchoedUserService(msg: EchoedUserMessage, echoedUserService: EchoedUserService) {
+        def error(e: Throwable) {
+            logger.error("Failed to cache EchoedUserService for %s" format msg, e)
+        }
+
+        echoedUserService.getEchoedUser.onComplete(_.value.get.fold(
+            e => error(e),
+            _ match {
+                case GetEchoedUserResponse(_, Left(e)) => error(e)
+                case GetEchoedUserResponse(_, Right(echoedUser)) =>
+                    cache(echoedUser.id) = echoedUserService
+                    logger.debug("Seeded cache with EchoedUserService {} for {}", echoedUser.id, msg)
+            }))
+    }
 
     def receive = {
 
-        case msg: LocateWithId =>
-            logger.debug("Locating EchoedUserService With id {}" , msg.echoedUserId)
-            val channel = self.channel
-            cache.get(msg.echoedUserId) match {
-                case Some(echoedUserService) =>
-                    channel ! LocateWithIdResponse(msg,Right(echoedUserService))
-                    logger.debug("Cache hit for EchoedUserService key {}" ,msg.echoedUserId)
-                case _ =>
-                    logger.debug("Cache miss for EchoedUserService key {}", msg.echoedUserId)
-                    echoedUserServiceCreator.createEchoedUserServiceUsingId(msg.echoedUserId).onResult{
-                        case CreateEchoedUserServiceWithIdResponse(_,Left(error)) =>
-                            logger.error("Error Creating EchoedUserService: {}", error)
-                            channel ! LocateWithIdResponse(msg,Left(error))
-                        case CreateEchoedUserServiceWithIdResponse(_,Right(echoedUserService)) =>
-                            channel ! LocateWithIdResponse(msg,Right(echoedUserService))
-                            cache += (msg.echoedUserId -> echoedUserService)
-                            logger.debug("Seeded cache with EchoedUserService key {}", msg.echoedUserId)
-                    }
-                    .onException{
-                        case e=>
-                            logger.error("Exception thrown Creating EchoedUserService: {}", e)
-                            channel ! LocateWithIdResponse(msg,Left(EchoedUserException(cause = e)))
-                    }
+        case msg @ LocateWithId(echoedUserId) =>
+            val channel: Channel[LocateWithIdResponse] = self.channel
+
+            def error(e: Throwable) {
+                channel ! LocateWithIdResponse(msg, Left(EchoedUserException("Could not locate Echoed user service", e)))
+                logger.error("Error processing %s" format msg, e)
             }
 
+            try {
+                logger.debug("Locating EchoedUserService With id {}" , msg.echoedUserId)
+                cache.get(echoedUserId) match {
+                    case Some(echoedUserService) =>
+                        channel ! LocateWithIdResponse(msg, Right(echoedUserService))
+                        logger.debug("Cache hit for EchoedUserService key {}", echoedUserId)
+                    case _ =>
+                        logger.debug("Cache miss for EchoedUserService key {}", echoedUserId)
+                        echoedUserServiceCreator.createEchoedUserServiceUsingId(echoedUserId).onComplete(_.value.get.fold(
+                            e => error(e),
+                            _ match {
+                                case CreateEchoedUserServiceWithIdResponse(_, Left(e)) => error(e)
+                                case CreateEchoedUserServiceWithIdResponse(_, Right(echoedUserService)) =>
+                                    channel ! LocateWithIdResponse(msg, Right(echoedUserService))
+                                    cache(echoedUserId) = echoedUserService
+                                    logger.debug("Seeded cache with EchoedUserService key {}", echoedUserId)
+                            }
+                        ))
+                }
+            } catch { case e => error(e) }
 
-        case msg: LocateWithFacebookService =>
-            val channel = self.channel
-            cacheFacebookService.get(msg.facebookService) match {
-                case Some(echoedUserService) =>
-                    channel ! LocateWithFacebookServiceResponse(msg,Right(echoedUserService))
-                    logger.debug("Cache hit for EchoedUserService with {}", msg.facebookService)
-                case _=>
-                    logger.debug("Cache miss for EchoedUserService with {}", msg.facebookService)
-                    echoedUserServiceCreator.createEchoedUserServiceUsingFacebookService( msg.facebookService).onResult {
-                        case CreateEchoedUserServiceWithFacebookServiceResponse(_,Left(error)) =>
-                            logger.error("Error Creating EchoedUserService with FacebookService: {}", error)
-                            LocateWithFacebookServiceResponse(msg,Left(error))
-                        case CreateEchoedUserServiceWithFacebookServiceResponse(_,Right(echoedUserService))=>
-                            channel ! LocateWithFacebookServiceResponse(msg,Right(echoedUserService))
-                            cacheFacebookService += (msg.facebookService -> echoedUserService)
-                            logger.debug("Seeded cacheFacebookService with EchoedUserService key {}", msg.facebookService)
-                    }
-                    .onException{
-                        case e =>
-                            logger.error("Exception thrown Creating EchoedUserService: {}", e)
-                            channel ! LocateWithFacebookServiceResponse(msg,Left(EchoedUserException(cause = e)))
-                    }
+
+        case msg @ LocateWithFacebookService(facebookService) =>
+            val channel: Channel[LocateWithFacebookServiceResponse] = self.channel
+
+            def error(e: Throwable) {
+                LocateWithFacebookServiceResponse(msg, Left(EchoedUserException("Could not locate Echoed user service", e)))
+                logger.error("Error processing %s" format msg, e)
             }
 
+            try {
+                facebookService.getFacebookUser.onComplete(_.value.get.fold(
+                    e => error(e),
+                    _ match {
+                        case fu: FacebookUser => Option(fu.echoedUserId).flatMap(cache.get(_)).cata(
+                            echoedUserService => {
+                                channel ! LocateWithFacebookServiceResponse(msg, Right(echoedUserService))
+                                logger.debug("Cache hit for EchoedUserService for {}", facebookService)
+                            },
+                            {
+                                logger.debug("Cache miss for EchoedUserService for {}", facebookService)
+                                echoedUserServiceCreator.createEchoedUserServiceUsingFacebookService(facebookService).onComplete(_.value.get.fold(
+                                    e => error(e),
+                                    _ match {
+                                        case CreateEchoedUserServiceWithFacebookServiceResponse(_, Left(e)) => error(e)
+                                        case CreateEchoedUserServiceWithFacebookServiceResponse(_, Right(echoedUserService))=>
+                                            channel ! LocateWithFacebookServiceResponse(msg, Right(echoedUserService))
+                                            cacheEchoedUserService(msg, echoedUserService)
+                                    }
+                                ))
+                            })
+                    }))
+            } catch { case e => error(e) }
 
-        case msg: LocateWithTwitterService =>
-            val channel = self.channel
-            cacheTwitterService.get(msg.twitterService) match{
-                case Some(echoedUserService) =>
-                    channel ! LocateWithTwitterServiceResponse(msg,Right(echoedUserService))
-                    logger.debug("Cache hit for EchoedUserService with {} ", msg.twitterService)
-                case _=>
-                    logger.debug("Cache miss for EchoedUserService with {}", msg.twitterService)
-                    echoedUserServiceCreator.createEchoedUserServiceUsingTwitterService(msg.twitterService).onResult{
-                        case CreateEchoedUserServiceWithTwitterServiceResponse(_,Left(error)) =>
-                            logger.error("Error creating EchoedUserService: {}", error)
-                            channel ! LocateWithTwitterServiceResponse(msg,Left(error))
-                        case CreateEchoedUserServiceWithTwitterServiceResponse(_,Right(echoedUserService)) =>
-                            channel ! LocateWithTwitterServiceResponse(msg,Right(echoedUserService))
-                            cacheTwitterService +=(msg.twitterService -> echoedUserService)
-                            logger.debug("Seeded cacheTwitterService with EchoedUserService key{}", msg.twitterService)
-                    }
-                    .onException{
-                        case e=>
-                            logger.error("Exception thrown Locating EchoedUserService: {} ", e)
-                            channel ! LocateWithTwitterServiceResponse(msg,Left(EchoedUserException(cause = e)))
-                    }
+
+        case msg @ LocateWithTwitterService(twitterService) =>
+            val channel: Channel[LocateWithTwitterServiceResponse] = self.channel
+
+            def error(e: Throwable) {
+                channel ! LocateWithTwitterServiceResponse(msg, Left(EchoedUserException("Could not locate Echoed user service", e)))
+                logger.error("Error processing %s", msg, e)
             }
 
+            try {
+                twitterService.getUser.onComplete(_.value.get.fold(
+                    e => error(e),
+                    _ match {
+                        case GetUserResponse(_, Left(e)) => error(e)
+                        case GetUserResponse(_, Right(tu)) => Option(tu.echoedUserId).flatMap(cache.get(_)).cata(
+                            echoedUserService => {
+                                channel ! LocateWithTwitterServiceResponse(msg, Right(echoedUserService))
+                                logger.debug("Cache hit for EchoedUserService {} for {} ", tu.echoedUserId, twitterService)
+                            },
+                            {
+                                logger.debug("Cache miss for EchoedUserService for {}", twitterService)
+                                echoedUserServiceCreator.createEchoedUserServiceUsingTwitterService(twitterService).onComplete(_.value.get.fold(
+                                    e => error(e),
+                                    _ match {
+                                        case CreateEchoedUserServiceWithTwitterServiceResponse(_, Left(e)) => error(e)
+                                        case CreateEchoedUserServiceWithTwitterServiceResponse(_, Right(echoedUserService)) =>
+                                            channel ! LocateWithTwitterServiceResponse(msg, Right(echoedUserService))
+                                            cacheEchoedUserService(msg, echoedUserService)
+                                    }))
+
+                            })
+                    }))
+            } catch { case e => error(e) }
+
+
+        case msg @ Logout(echoedUserId) =>
+            val channel: Channel[LogoutResponse] = self.channel
+
+            try {
+                logger.debug("Processing logout for {}", echoedUserId)
+                cache.remove(echoedUserId).cata(
+                    eus => {
+                        assert(cache.get(echoedUserId) == None)
+                        eus.logout(echoedUserId)
+                        channel ! LogoutResponse(msg, Right(true))
+                        logger.debug("Logged out Echoed user {} ", echoedUserId)
+                    },
+                    {
+                        channel ! LogoutResponse(msg, Right(false))
+                        logger.debug("Did not find EchoedUser to {}", msg)
+                    })
+            } catch {
+                case e =>
+                    channel ! LogoutResponse(msg, Left(EchoedUserException("Could not logout Echoed user", e)))
+                    logger.error("Unexpected error processing %s" format msg, e)
+            }
     }
 
 

@@ -15,6 +15,7 @@ class PartnerUserServiceActor(
 
     private final val logger = LoggerFactory.getLogger(classOf[PartnerUserServiceActor])
 
+    self.id = "PartnerUser:%s" format partnerUser.id
 
     def receive = {
         case msg: GetPartnerUser =>
@@ -32,5 +33,5 @@ class PartnerUserServiceActor(
         case msg: GetTopProducts =>
             self.channel ! GetTopProductsResponse(msg, Right(retailerViewDao.getTopProductsWithRetailerId(partnerUser.retailerId)))
     }
-    
+
 }

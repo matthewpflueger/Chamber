@@ -111,3 +111,7 @@ case class Tweet(echo: Echo, message: String) extends TM
 case class TweetResponse(message: Tweet, value: Either[TE, TwitterStatus])
         extends TM
         with RM[TwitterStatus, Tweet, TE]
+
+case class Logout(twitterUserId: String) extends TM
+case class LogoutResponse(message: Logout, value: Either[TE, Boolean])
+    extends TM with RM[Boolean, Logout, TE]

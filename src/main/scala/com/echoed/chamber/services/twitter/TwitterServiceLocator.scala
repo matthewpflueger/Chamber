@@ -15,4 +15,5 @@ trait TwitterServiceLocator {
 
     def getTwitterServiceWithId(id: String): Future[GetTwitterServiceWithIdResponse]
 
+    def logout(twitterUserId: String): Future[LogoutResponse]
 }

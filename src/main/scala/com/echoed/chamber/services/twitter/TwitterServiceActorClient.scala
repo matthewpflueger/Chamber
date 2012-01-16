@@ -6,8 +6,10 @@ import com.echoed.chamber.domain.Echo
 import com.echoed.chamber.services.ActorClient
 
 
-class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterService with ActorClient {
-
+class TwitterServiceActorClient(twitterServiceActor: ActorRef)
+        extends TwitterService
+        with ActorClient
+        with Serializable {
 
     def getRequestToken =
             (twitterServiceActor ? GetRequestToken()).mapTo[GetRequestTokenResponse]
@@ -28,4 +30,11 @@ class TwitterServiceActorClient(twitterServiceActor: ActorRef) extends TwitterSe
             (twitterServiceActor ? Tweet(echo, message)).mapTo[TweetResponse]
 
     def actorRef = twitterServiceActor
+
+    val id = twitterServiceActor.id
+
+    def logout(twitterUserId: String) =
+            (twitterServiceActor ? Logout(twitterUserId)).mapTo[LogoutResponse]
+
+    override def toString = id
 }

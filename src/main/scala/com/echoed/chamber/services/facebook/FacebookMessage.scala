@@ -25,3 +25,9 @@ case class GetFriendsResponse(message: GetFriends, value: Either[FE, List[Facebo
         with RM[List[FacebookFriend], GetFriends, FE]
 
 
+case class Logout(facebookUserId: String) extends FM
+case class LogoutResponse(message: Logout, value: Either[FE, Boolean])
+    extends FM with RM[Boolean, Logout, FE]
+
+
+

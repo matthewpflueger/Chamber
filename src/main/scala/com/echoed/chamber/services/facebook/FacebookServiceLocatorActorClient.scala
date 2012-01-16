@@ -2,9 +2,10 @@ package com.echoed.chamber.services.facebook
 
 import reflect.BeanProperty
 import akka.actor.ActorRef
+import com.echoed.chamber.services.ActorClient
 
 
-class FacebookServiceLocatorActorClient extends FacebookServiceLocator {
+class FacebookServiceLocatorActorClient extends FacebookServiceLocator with ActorClient {
 
     @BeanProperty var facebookServiceLocatorActor: ActorRef = _
 
@@ -14,4 +15,10 @@ class FacebookServiceLocatorActorClient extends FacebookServiceLocator {
 
     def getFacebookServiceWithFacebookUserId(facebookUserId: String) =
             (facebookServiceLocatorActor ? ("facebookUserId", facebookUserId)).mapTo[FacebookService]
+
+    def actorRef = facebookServiceLocatorActor
+
+    def logout(facebookUserId: String) =
+            (facebookServiceLocatorActor ? Logout(facebookUserId)).mapTo[LogoutResponse]
+
 }

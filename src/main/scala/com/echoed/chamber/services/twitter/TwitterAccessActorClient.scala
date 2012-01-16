@@ -6,7 +6,7 @@ import akka.actor.ActorRef
 import twitter4j.auth.RequestToken
 import com.echoed.chamber.services.ActorClient
 
-class TwitterAccessActorClient extends TwitterAccess with ActorClient {
+class TwitterAccessActorClient extends TwitterAccess with ActorClient with Serializable {
 
     @BeanProperty var twitterAccessActor: ActorRef = _
 
@@ -29,4 +29,7 @@ class TwitterAccessActorClient extends TwitterAccess with ActorClient {
             (twitterAccessActor ? UpdateStatus(accessToken, accessTokenSecret, status)).mapTo[UpdateStatusResponse] //("updateStatus", accessToken, accessTokenSecret, status)).mapTo[TwitterStatus]
 
     def actorRef = twitterAccessActor
+
+    def logout(accessToken: String) =
+            (twitterAccessActor ? Logout(accessToken)).mapTo[LogoutResponse]
 }

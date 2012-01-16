@@ -17,6 +17,10 @@ case class LoginError(m: String = "", c: Throwable = null) extends PUE(m, c)
 case class LoginResponse(message: Login, value: Either[LoginError, PartnerUserService])
         extends PUM with RM[PartnerUserService, Login, LoginError]
 
+case class Logout(partnerUserId: String) extends PUM
+case class LogoutResponse(message: Logout, value: Either[PUE, Boolean])
+    extends PUM with RM[Boolean, Logout, PUE]
+
 case class GetPartnerUser() extends PUM
 case class GetPartnerUserResponse(message: GetPartnerUser, value: Either[PartnerUserException, RetailerUser])
         extends PUM with RM[RetailerUser, GetPartnerUser, PUE]
@@ -32,7 +36,7 @@ case class GetProductSocialSummaryResponse(message: GetProductSocialSummary, val
 case class GetTopProducts() extends PUM
 case class GetTopProductsResponse(message: GetTopProducts, value: Either[PartnerUserException, RetailerProductsListView])
     extends PUM with RM[RetailerProductsListView, GetTopProducts, PUE]
-                                     
+
 case class CreatePartnerUserService(email: String) extends PUM
 case class CreatePartnerUserServiceResponse(
         message: CreatePartnerUserService,
