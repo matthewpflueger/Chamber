@@ -3,7 +3,32 @@
 NAME=Chamber
 DESC=Chamber
 
-case "$1" in
+
+function service_cmd() {
+
+local service_args=($*)
+
+case $service_args in
+    clean)
+        CLEAN="mvn -DskipTests clean"
+        echo "Running ${CLEAN}"
+        $CLEAN
+        result=$?
+        if [[ $result > 0 ]]; then
+            exit 1;
+        fi
+        ;;
+
+    package)
+        PACKAGE="mvn -DskipTests -Pallinone package"
+        echo "Running ${PACKAGE}"
+        $PACKAGE
+        result=$?
+        if [[ $result > 0 ]]; then
+            exit 1;
+        fi
+        ;;
+        
     start)
         echo "Starting $DESC"
         shift
@@ -12,7 +37,7 @@ case "$1" in
         TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
         MAIN=com.echoed.chamber.Main
 
-        PACKAGE="mvn -DskipTests -Pallinone package"
+#        PACKAGE="mvn -DskipTests -Pallinone package"
         CLASSPATH=".:${TARGET}"
         OVERRIDES="src/overrides/resources"
         ARGS_INTERESTING="-XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled"
@@ -30,12 +55,8 @@ case "$1" in
         fi
 
         if [ ! -e ${TARGET} ]; then
-            echo "Missing ${TARGET}, running ${PACKAGE}"
-            $PACKAGE
-            result=$?
-            if [[ $result > 0 ]]; then
-                exit 1;
-            fi
+            echo "Missing ${TARGET}"
+            service_cmd "package"
         fi
 
         if [ ! ${1} ]; then
@@ -43,7 +64,7 @@ case "$1" in
         else
             CONTEXT=${1}
         fi
- 
+        
         # We do this to capture the pid of the process
         sh -c "java ${ARGS} -cp ${CLASSPATH} ${MAIN} ${CONTEXT} >./std.out 2>&1 & APID=\"\$!\"; echo \$APID > chamber.pid"
 
@@ -56,8 +77,15 @@ case "$1" in
         kill $1 `cat chamber.pid`
         ;;
 
-    status)
-        ps aux | grep `cat chamber.pid`
+    restart)
+        service_cmd "stop"
+        service_cmd "start"
+        ;;
+    
+    reload)
+        service_cmd "clean"
+        service_cmd "package"
+        service_cmd "restart"
         ;;
 
     verify)
@@ -102,14 +130,19 @@ case "$1" in
         #deb-src http://archive.canonical.com/ubuntu natty partner
         sudo apt-get install sun-java6-jdk
         ;;
-        
+    
     *)
         echo "Usage: $NAME {start|stop|status|verify|scalatest|console}" >&2
         exit 1
         ;;
 esac
+}
 
-exit 0
+CMD=$*
+service_cmd ${CMD[*]}
+
+exit $?
+
 
 
 
