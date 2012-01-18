@@ -131,8 +131,12 @@ case $service_args in
         sudo apt-get install sun-java6-jdk
         ;;
     
+    status)
+        ps uh -p `cat chamber.pid`
+        ;;
+
     *)
-        echo "Usage: $NAME {start|stop|status|verify|scalatest|console}" >&2
+        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean}" >&2
         exit 1
         ;;
 esac
