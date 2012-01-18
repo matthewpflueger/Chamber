@@ -1,12 +1,14 @@
 package com.echoed.chamber.services.twitter
 
 
-import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
-import akka.actor.{Channel, Actor}
+import com.echoed.chamber.services.facebook.FacebookService
+import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
+import akka.actor._
+import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
 
 
 class TwitterServiceLocatorActor extends Actor {
@@ -14,12 +16,25 @@ class TwitterServiceLocatorActor extends Actor {
     private val logger = LoggerFactory.getLogger(classOf[TwitterServiceLocatorActor])
 
     @BeanProperty var twitterServiceCreator: TwitterServiceCreator = _
+    @BeanProperty var cacheManager: CacheManager = _
 
     private val cache = WeakHashMap[String, TwitterService]()
-    private val idCache = WeakHashMap[String, TwitterService]() //twitterUser.id -> TwitterService
+    private var idCache: ConcurrentMap[String, TwitterService] = null
 
+
+    override def preStart() {
+        idCache = cacheManager.getCache[TwitterService]("TwitterServices", Some(new CacheListenerActorClient(self)))
+    }
 
     def receive = {
+        case msg @ CacheEntryRemoved(twitterUserId: String, twitterService: TwitterService, cause: String) =>
+            logger.debug("Received {}", msg)
+            twitterService.logout(twitterUserId)
+            for ((key, ts) <- cache if (ts.id == twitterService.id)) {
+                cache -= key
+                logger.debug("Removed TwitterService {} from cache", ts.id)
+            }
+            logger.debug("Sent logout for {}", twitterService)
 
         case msg @ GetTwitterService(callbackUrl) =>
             val channel: Channel[GetTwitterServiceResponse] = self.channel
@@ -142,12 +157,6 @@ class TwitterServiceLocatorActor extends Actor {
                 logger.debug("Processing {}", msg)
                 idCache.remove(twitterUserId).cata(
                     ts => {
-                        ts.logout(twitterUserId)
-                        for ((key, s) <- cache if (s.id == ts.id)) {
-                            cache -= key
-                            logger.debug("Removed TwitterService {} from cache", s.id)
-                        }
-
                         channel ! LogoutResponse(msg, Right(true))
                         logger.debug("Logged out TwitterUser {} ", twitterUserId)
                     },

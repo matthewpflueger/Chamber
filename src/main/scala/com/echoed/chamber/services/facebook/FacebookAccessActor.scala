@@ -65,9 +65,7 @@ class FacebookAccessActor extends Actor {
                         new TypeReference[Paged[Friend]] {}).get.getData
                 logger.debug("Found {} friends for FacebookUser {}", pagedFriends.size(), facebookUserId)
                 val facebookFriends = asScalaBuffer(pagedFriends).map(_.createFacebookFriend(facebookUserId)).toList
-                self.channel ! GetFriendsResponse(
-                        msg,
-                        Right(facebookFriends))
+                self.channel ! GetFriendsResponse(msg, Right(facebookFriends))
                 logger.debug("Sent {} friends for FacebookUser {}", facebookFriends.length, facebookUserId)
             } catch {
                 case e: BFE =>

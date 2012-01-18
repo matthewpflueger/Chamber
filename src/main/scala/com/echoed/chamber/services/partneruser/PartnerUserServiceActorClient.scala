@@ -18,7 +18,13 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
     def getTopProducts =
         (partnerUserServiceActor ? GetTopProducts()).mapTo[GetTopProductsResponse]
 
+
+    def logout(partnerUserId: String) =
+        (partnerUserServiceActor ? Logout(partnerUserId)).mapTo[LogoutResponse]
+
     def actorRef = partnerUserServiceActor
 
     val id = actorRef.id
+
+    override def toString = id
 }

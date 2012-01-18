@@ -34,6 +34,8 @@
         <prop key="twitter.consumerKey">Gb6kawhjcWu3wLc9aWJqQ</prop>
         <prop key="twitter.consumerSecret">cpJ8p207SeDSiCvMVMeuBROS0j3KG421C2BrdePweS4</prop>
         <prop key="twitter.callbackUrl">http://v1-api.echoed.com/twitter/login</prop>
+
+        <prop key="cache.expireInMinutes">30</prop>
     </util:properties>
 
     <!-- NOTE: defining a separate properties object is an ugly hack to fix a bug in Akka's Spring integration where placeholder's

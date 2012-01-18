@@ -1,13 +1,12 @@
 package com.echoed.chamber.services.partneruser
 
-import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.RetailerUser
 import scalaz._
 import Scalaz._
-import akka.actor.{Channel, Actor}
-import com.echoed.chamber.services.ActorClient
+import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
+import akka.actor._
+import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
 
 
 class PartnerUserServiceLocatorActor extends Actor {
@@ -15,9 +14,17 @@ class PartnerUserServiceLocatorActor extends Actor {
     private val logger = LoggerFactory.getLogger(classOf[PartnerUserServiceLocatorActor])
 
     @BeanProperty var partnerUserServiceCreator: PartnerUserServiceCreator = _
+    @BeanProperty var cacheManager: CacheManager = _
 
     private val cache = WeakHashMap[String, PartnerUserService]()
-    private val cacheById = WeakHashMap[String, PartnerUserService]()
+    private var cacheById: ConcurrentMap[String, PartnerUserService] = null
+
+
+    override def preStart() {
+        cacheById = cacheManager.getCache[PartnerUserService](
+                "PartnerUserServices",
+                Some(new CacheListenerActorClient(self)))
+    }
 
     def login(msg: Login, channel: Channel[LoginResponse]) {
         val email = msg.email
@@ -30,7 +37,7 @@ class PartnerUserServiceLocatorActor extends Actor {
                 partnerUserService.getPartnerUser.onResult {
                     case GetPartnerUserResponse(_, Right(pu)) =>
                         if (pu.isPassword(password)) {
-                            cacheById(pu.id) = partnerUserService
+                            cacheById.put(pu.id, partnerUserService)
                             channel ! LoginResponse(msg, Right(partnerUserService))
                             logger.debug("Valid login for {}", email)
                         } else {
@@ -56,7 +63,17 @@ class PartnerUserServiceLocatorActor extends Actor {
         }
     }
 
+
     def receive = {
+        case msg @ CacheEntryRemoved(partnerUserId: String, pus: PartnerUserService, cause: String) =>
+            logger.debug("Received {}", msg)
+            pus.logout(partnerUserId)
+            for((e, s) <- cache.view if (s.id == pus.id)) {
+                cache -= e
+                logger.debug("Removed {} from cache", pus.id)
+            }
+            logger.debug("Sent logout for {}", pus)
+
         case msg: Login => login(msg, self.channel)
         case msg @ Logout(partnerUserId) =>
             val channel = self.channel
@@ -66,10 +83,6 @@ class PartnerUserServiceLocatorActor extends Actor {
                 cacheById.remove(partnerUserId).cata(
                     pus => {
                         channel ! LogoutResponse(msg, Right(true))
-                        for((e, s) <- cache.view if (s.id == pus.id)) {
-                            cache -= e
-                            logger.debug("Removed PartnerUserService {} from cache", pus.id)
-                        }
                         logger.debug("Successfully logged out {}", partnerUserId)
                     },
                     {

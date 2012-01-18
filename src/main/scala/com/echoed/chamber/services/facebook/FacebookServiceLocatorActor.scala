@@ -1,11 +1,12 @@
 package com.echoed.chamber.services.facebook
 
-import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}
+import com.echoed.cache.{CacheEntryRemoved, CacheManager, CacheListenerActorClient}
+import scala.collection.mutable.ConcurrentMap
 
 
 class FacebookServiceLocatorActor extends Actor {
@@ -13,10 +14,22 @@ class FacebookServiceLocatorActor extends Actor {
     private val logger = LoggerFactory.getLogger(classOf[FacebookServiceLocatorActor])
 
     @BeanProperty var facebookServiceCreator: FacebookServiceCreator = _
+    @BeanProperty var cacheManager: CacheManager = _
 
-    private val cache = WeakHashMap[String, FacebookService]()
+
+    private var cache: ConcurrentMap[String, FacebookService] = null
+
+
+    override def preStart() {
+        cache = cacheManager.getCache[FacebookService]("FacebookServices", Some(new CacheListenerActorClient(self)))
+    }
 
     def receive = {
+        case msg @ CacheEntryRemoved(facebookUserId: String, facebookService: FacebookService, cause: String) =>
+            logger.debug("Received {}", msg)
+            facebookService.logout(facebookUserId)
+            logger.debug("Sent logout for {}", facebookService)
+
         case ("code", code: String, queryString: String) => {
             val channel = self.channel
 
@@ -24,7 +37,7 @@ class FacebookServiceLocatorActor extends Actor {
             facebookServiceCreator.createFacebookServiceUsingCode(code, queryString).map { facebookService =>
                 channel ! facebookService
                 facebookService.getFacebookUser.map { facebookUser =>
-                    cache(facebookUser.id) = facebookService
+                    cache.put(facebookUser.id, facebookService)
                     logger.debug("Seeded cache with FacebookService key {}", code)
                 }
             }
@@ -39,7 +52,7 @@ class FacebookServiceLocatorActor extends Actor {
                     logger.debug("Cache miss for FacebookService with facebookUserId {}", facebookUserId)
                     val channel = self.channel
                     facebookServiceCreator.createFacebookServiceUsingFacebookUserId(facebookUserId).map { facebookService =>
-                        cache(facebookUserId) = facebookService
+                        cache.put(facebookUserId, facebookService)
                         channel ! facebookService
                     }
             }
@@ -51,7 +64,7 @@ class FacebookServiceLocatorActor extends Actor {
                 logger.debug("Processing {}", msg)
                 cache.remove(facebookUserId).cata(
                     fs => {
-                        fs.logout(facebookUserId)
+//                        fs.logout(facebookUserId)
                         channel ! LogoutResponse(msg, Right(true))
                         logger.debug("Logged out FacebookUser {} ", facebookUserId)
                     },

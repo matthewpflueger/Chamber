@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.echoeduser
 
-import collection.mutable.WeakHashMap
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.facebook.FacebookService
@@ -12,17 +11,23 @@ import com.echoed.chamber.domain.FacebookUser
 import com.echoed.chamber.services.twitter.{GetUserResponse, GetUser, TwitterService}
 import scala.collection.JavaConversions.JConcurrentMapWrapper
 import java.util.concurrent.ConcurrentHashMap
+import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
+import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
 
 class EchoedUserServiceLocatorActor extends Actor {
 
     private val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceLocatorActor])
 
     @BeanProperty var echoedUserServiceCreator: EchoedUserServiceCreator = _
+    @BeanProperty var cacheManager: CacheManager = _
 
 
-//    private val cache = JConcurrentMapWrapper[String, EchoedUserService](new ConcurrentHashMap[String, EchoedUserService]())
-    private val cache = WeakHashMap[String, EchoedUserService]()
+    private var cache: ConcurrentMap[String, EchoedUserService] = null
 
+
+    override def preStart() {
+        cache = cacheManager.getCache[EchoedUserService]("EchoedUserServices", Some(new CacheListenerActorClient(self)))
+    }
 
     def cacheEchoedUserService(msg: EchoedUserMessage, echoedUserService: EchoedUserService) {
         def error(e: Throwable) {
@@ -34,12 +39,17 @@ class EchoedUserServiceLocatorActor extends Actor {
             _ match {
                 case GetEchoedUserResponse(_, Left(e)) => error(e)
                 case GetEchoedUserResponse(_, Right(echoedUser)) =>
-                    cache(echoedUser.id) = echoedUserService
+                    cache.put(echoedUser.id, echoedUserService)
                     logger.debug("Seeded cache with EchoedUserService {} for {}", echoedUser.id, msg)
             }))
     }
 
     def receive = {
+
+        case msg @ CacheEntryRemoved(echoedUserId: String, echoedUserService: EchoedUserService, cause: String) =>
+            logger.debug("Received {}", msg)
+            echoedUserService.logout(echoedUserId)
+            logger.debug("Sent logout for {}", echoedUserService)
 
         case msg @ LocateWithId(echoedUserId) =>
             val channel: Channel[LocateWithIdResponse] = self.channel
@@ -63,7 +73,7 @@ class EchoedUserServiceLocatorActor extends Actor {
                                 case CreateEchoedUserServiceWithIdResponse(_, Left(e)) => error(e)
                                 case CreateEchoedUserServiceWithIdResponse(_, Right(echoedUserService)) =>
                                     channel ! LocateWithIdResponse(msg, Right(echoedUserService))
-                                    cache(echoedUserId) = echoedUserService
+                                    cache.put(echoedUserId, echoedUserService)
                                     logger.debug("Seeded cache with EchoedUserService key {}", echoedUserId)
                             }
                         ))
@@ -145,8 +155,7 @@ class EchoedUserServiceLocatorActor extends Actor {
                 logger.debug("Processing logout for {}", echoedUserId)
                 cache.remove(echoedUserId).cata(
                     eus => {
-                        assert(cache.get(echoedUserId) == None)
-                        eus.logout(echoedUserId)
+                        //eus.logout(echoedUserId)
                         channel ! LogoutResponse(msg, Right(true))
                         logger.debug("Logged out Echoed user {} ", echoedUserId)
                     },

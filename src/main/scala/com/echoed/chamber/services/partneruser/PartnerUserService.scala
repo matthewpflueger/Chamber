@@ -15,5 +15,6 @@ trait PartnerUserService {
 
     def getTopProducts: Future[GetTopProductsResponse]
 
+    def logout(partnerUserId: String): Future[LogoutResponse]
 }
 

@@ -21,7 +21,6 @@ class EchoServiceActor extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoServiceActor])
 
-    @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @BeanProperty var retailerViewDao: RetailerViewDao = _
     @BeanProperty var retailerDao: RetailerDao = _
