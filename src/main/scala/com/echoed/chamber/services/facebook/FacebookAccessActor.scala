@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.facebook
 
-import akka.actor.Actor
 import org.codehaus.jackson.`type`.TypeReference
 import com.googlecode.batchfb.`type`.Paged
 import reflect.BeanProperty
@@ -16,6 +15,8 @@ import scala.collection.mutable.WeakHashMap
 import com.echoed.util.ScalaObjectMapper
 import java.util.{Date, Properties}
 import java.net.{HttpURLConnection, URL}
+import com.google.common.io.ByteStreams
+import akka.actor.{Channel, Actor}
 
 
 class FacebookAccessActor extends Actor {
@@ -88,23 +89,17 @@ class FacebookAccessActor extends Actor {
             self.channel ! fp
             logger.debug("Successfully posted {}", fp)
         }
-        case msg @ GetPostData(facebookPostData) =>
-            try {
-                val facebookId = facebookPostData.facebookPost.facebookId
-                val accessToken = facebookPostData.facebookUser.accessToken
 
-                logger.debug("Retrieving data for FacebookPost {}", facebookId)
-                val url = new URL("http://graph.facebook.com/%s?accessToken=%s" format(facebookId, accessToken))
-                val connection = url.openConnection()
-                connection.setConnectTimeout(5000)
-                connection.setReadTimeout(5000)
-                val resultOption = Option(new ScalaObjectMapper().readValue(connection.getInputStream, classOf[PostData]))
+        case msg @ GetPostData(facebookPostData) =>
+            val channel: Channel[GetPostDataResponse] = self.channel
+
+            def deserializeFacebookPost(bytes: Array[Byte]) {
+                val resultOption = Option(new ScalaObjectMapper().readValue(bytes, classOf[PostData]))
 
                 //TODO this does not work and I have no idea why - always throws an exception
 //                val resultOption = Option(getFacebookBatcher(accessToken)
 //                        .graph("%s" format facebookId, classOf[PostData])
 //                        .get)
-
 
                 resultOption.cata({ result =>
                     val likes:List[From] = Option(result.likes).cata(
@@ -142,18 +137,43 @@ class FacebookAccessActor extends Actor {
                                 createdAt = comment.created_time)
                     }
 
-                    self.channel ! GetPostDataResponse(msg, Right(facebookPostData))
+                    channel ! GetPostDataResponse(msg, Right(facebookPostData))
                 },
                 {
                     logger.debug("No Facebook post data for {}", facebookPostData.facebookPost.facebookId)
-                    self.channel ! GetPostDataResponse(
+                    channel ! GetPostDataResponse(
                             msg,
                             Left(FacebookException("Null response for %s" format facebookPostData.facebookPost.facebookId)))
                 })
+            }
+
+
+            try {
+                val facebookId = facebookPostData.facebookPost.facebookId
+                val accessToken = facebookPostData.facebookUser.accessToken
+
+                logger.debug("Retrieving data for FacebookPost {}", facebookId)
+                val url = new URL("http://graph.facebook.com/%s?accessToken=%s" format(facebookId, accessToken))
+                val connection = url.openConnection()
+                connection.setConnectTimeout(5000)
+                connection.setReadTimeout(5000)
+                val inputStream = connection.getInputStream
+
+                try {
+                    val bytes: Array[Byte] = ByteStreams.toByteArray(connection.getInputStream)
+                    if (new String(bytes, "UTF-8") == "false") {
+                        logger.debug("Fetch of Facebook post {} returned false", facebookPostData.facebookPost.facebookId)
+                        channel ! GetPostDataResponse(msg, Left(GetPostDataFalse(facebookPost = facebookPostData.facebookPost)))
+                    } else {
+                        deserializeFacebookPost(bytes)
+                    }
+                } finally {
+                    inputStream.close()
+                }
             } catch {
 //                case e: BFE =>
                 case e =>
-                    logger.debug("Exception when retrieving data for FacebookPost {}: {}", facebookPostData.facebookPost.facebookId, e.getMessage)
+                    logger.error("Exception when retrieving data for FacebookPost {}: {}", facebookPostData.facebookPost.facebookId, e.getMessage)
                     self.channel ! GetPostDataResponse(msg, Left(FacebookException("%s: %s" format(e.getClass.getName, e.getMessage), e)))
             }
 

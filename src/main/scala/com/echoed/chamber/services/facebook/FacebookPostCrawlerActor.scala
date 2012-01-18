@@ -87,6 +87,15 @@ class FacebookPostCrawlerActor extends Actor {
                 next(msg)
             }
 
+        case msg @ GetPostDataResponse(_, Left(GetPostDataFalse(_, facebookPost))) =>
+            try {
+                scheduledMessage.foreach(_.cancel(false))
+                logger.debug("Received false response crawling FacebookPost {}", facebookPost.id)
+                facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = "false", crawledOn = new Date))
+            } finally {
+                next(msg)
+            }
+
         case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e)) =>
             try {
                 scheduledMessage.foreach(_.cancel(false))

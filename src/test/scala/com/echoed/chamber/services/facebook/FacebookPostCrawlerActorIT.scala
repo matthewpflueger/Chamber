@@ -17,9 +17,10 @@ import com.echoed.chamber.controllers.EchoHelper
 import akka.testkit.TestActorRef.apply
 import akka.testkit.TestActorRef
 import com.echoed.chamber.services.ActorClient
-import java.util.{Calendar, Properties, Date}
 import akka.dispatch.DefaultCompletableFuture
 import scala.Either
+import java.util.{UUID, Calendar, Properties, Date}
+import akka.util.Duration
 
 
 @RunWith(classOf[JUnitRunner])
@@ -42,6 +43,11 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
 
     var facebookPosts = dataCreator.facebookPosts
     val facebookUser = dataCreator.facebookUser
+
+    var falseFacebookPost: FacebookPost = null
+
+    val facebookAccessActor = TestActorRef[FacebookAccessActor]
+    val facebookPostCrawlerActor = TestActorRef[FacebookPostCrawlerActor]
 
     def cleanup() {
         facebookPostDao.deleteByEchoedUserId(facebookPosts(0).echoedUserId)
@@ -72,6 +78,26 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
             facebookPostDao.insert(facebookPost)
             facebookPost
         }
+
+        falseFacebookPost = facebookPosts(0).copy(
+            id = UUID.randomUUID.toString,
+            facebookId = "100003326847181_117086678412226",
+            echoId = UUID.randomUUID.toString)
+
+        facebookAccessActor.underlyingActor.properties = facebookAccessActorProperties
+        facebookPostCrawlerActor.underlyingActor.facebookAccess = new ActorClient {
+            var actorRef = facebookAccessActor
+        }
+        facebookPostCrawlerActor.underlyingActor.facebookCommentDao = facebookCommentDao
+        facebookPostCrawlerActor.underlyingActor.facebookLikeDao = facebookLikeDao
+        facebookPostCrawlerActor.underlyingActor.facebookPostDao = facebookPostDao
+        facebookPostCrawlerActor.underlyingActor.interval = -1
+
+        facebookAccessActor.start
+        facebookPostCrawlerActor.start
+
+        facebookAccessActor.isRunning should be(true)
+        facebookPostCrawlerActor.isRunning should be(true)
     }
 
     override def afterAll = cleanup
@@ -89,29 +115,12 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
             then("crawl the post")
             and("save the likes and comments in the database")
 
-            val facebookAccessActor = TestActorRef[FacebookAccessActor]
-            facebookAccessActor.underlyingActor.properties = facebookAccessActorProperties
-            val facebookPostCrawlerActor = TestActorRef[FacebookPostCrawlerActor]
-            facebookPostCrawlerActor.underlyingActor.facebookAccess = new ActorClient {
-                var actorRef = facebookAccessActor
-            }
-            facebookPostCrawlerActor.underlyingActor.facebookCommentDao = facebookCommentDao
-            facebookPostCrawlerActor.underlyingActor.facebookLikeDao = facebookLikeDao
-            facebookPostCrawlerActor.underlyingActor.facebookPostDao = facebookPostDao
-            facebookPostCrawlerActor.underlyingActor.interval = -1
-
-            facebookAccessActor.start
-            facebookPostCrawlerActor.start
-
-            facebookAccessActor.isRunning should be(true)
-            facebookPostCrawlerActor.isRunning should be(true)
-
             facebookPosts.foreach { fp =>
                 val future = new DefaultCompletableFuture[GetPostDataResponse]()
                 facebookPostCrawlerActor.underlyingActor.future = Some(future)
                 facebookPostCrawlerActor ! 'next
 
-                val response = future.get.resultOrException
+                val response = future.await(Duration(10, "seconds")).get.resultOrException
                 val likes = facebookLikeDao.findByFacebookPostId(response.facebookPost.id)
                 val comments = facebookCommentDao.findByFacebookPostId(response.facebookPost.id)
 
@@ -121,8 +130,34 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
                 comments should not be(null)
                 comments should have length(response.comments.length)
             }
-
-
         }
+
+        scenario("a echoed purchase that has been posted to Facebook cannot be crawled for likes and comments", IntegrationTest) {
+            given("a echoed purchase")
+            when("it has been posted to Facebook and not crawled but will return false upon crawl")
+            then("crawl the post")
+            and("record the status as false in the database")
+
+            facebookPostDao.insert(falseFacebookPost)
+            val future = new DefaultCompletableFuture[GetPostDataResponse]()
+            facebookPostCrawlerActor.underlyingActor.future = Some(future)
+            facebookPostCrawlerActor ! 'next
+
+            evaluating { future.await(Duration(10, "seconds")).get.resultOrException } should produce [GetPostDataFalse]
+
+            val likes = facebookLikeDao.findByFacebookPostId(falseFacebookPost.id)
+            val comments = facebookCommentDao.findByFacebookPostId(falseFacebookPost.id)
+
+            likes should not be(null)
+            likes should have length(0)
+
+            comments should not be(null)
+            comments should have length(0)
+
+            val fp = facebookPostDao.findByEchoId(falseFacebookPost.echoId)
+            fp should not be(null)
+            fp.crawledStatus should be("false")
+        }
+
     }
 }
