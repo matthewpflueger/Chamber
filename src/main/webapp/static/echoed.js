@@ -11,6 +11,7 @@ Echoed = {
     init: function() {
         var router = new Echoed.Router({EvAg: EventAggregator});
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
+        var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
         Backbone.history.start();
     }
 };
@@ -22,15 +23,15 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
-        _.bindAll(this,'exhibit','friends','feed');
+        _.bindAll(this,'exhibit','friends','explore');
         this.EvAg = options.EvAg;
         this.page=null;
     },
     routes:{
         "_=_" : "fix",
-        "": "feed",
-        "feed": "feed",
-        "feed/:filter": "feed",
+        "": "explore",
+        "explore": "explore",
+        "explore/:filter": "explore",
         "exhibit": "exhibit",
         "exhibit/:filter": "exhibit",
         "friends": "friends",
@@ -40,19 +41,19 @@ Echoed.Router = Backbone.Router.extend({
     fix: function(){
         window.location.href = "#";
     },
-    feed: function(filter){
-        console.log("Router: Feed");
+    explore: function(filter){
+        console.log("Router: Explore");
         if(!filter) selector = "*";
         else selector = "." + filter;
-        if(this.page != "Feed"){
+        if(this.page != "Explore"){
             console.log("New Page");
-            this.page = "Feed";
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "feed"});
+            this.page = "Explore";
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "explore"});
         }
         else{
             this.EvAg.trigger('filter/change',selector);
         }
-        this.EvAg.trigger("page/change","feed");
+        this.EvAg.trigger("page/change","explore");
 
     },
     exhibit: function(filter) {
@@ -102,11 +103,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.contentTitle = "Friends Exhibit";
                 this.id = "friends";
                 break;
-            case "feed":
+            case "explore":
                 this.jsonUrl = "http://v1-api.echoed.com/closet/feed/public";
-                this.baseUrl = "#feed/";
-                this.contentTitle = "My Feed";
-                this.id= "feed";
+                this.baseUrl = "#explore/";
+                this.contentTitle = "Explore";
+                this.id= "explore";
                 break;
             case "exhibit":
                 this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
@@ -124,7 +125,12 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
         var self = this;
         console.log("Rendering Page");
-        var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl, Filter: this.filter});
+        //var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl, Filter: this.filter});
+        var contentSelector = $('#content-selector');
+        var ul = $('<ul></ul>').addClass('dropdown-container').appendTo(contentSelector);
+        var dropDownEl = $('<li class="dropdown"></li>');
+        dropDownEl.appendTo(ul);
+        var dropDown = new Echoed.Views.Components.Dropdown({el: dropDownEl, EvAg: this.EvAg, Id: this.id, BaseUrl: this.baseUrl, Filter: this.filter});
         var exhibit = $('#exhibit');
         exhibit.isotope({
             animationOptions: {
@@ -141,7 +147,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             success: function(data){
                 var products = $('<div></div>');
                 var echoes;
-                if(self.id == "feed")
+                if(self.id == "explore")
                     echoes = data;
                 else
                     echoes = data.echoes;
@@ -216,26 +222,47 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
     }
 });
 
-Echoed.Views.Components.ProductSelector = Backbone.View.extend({
-    el: '#content-selector',
+Echoed.Views.Components.Logout = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'addSelector','triggerClick','render');
+        _.bindAll(this,'triggerClick');
         this.EvAg = options.EvAg;
-        this.EvAg.bind('category/add',this.addSelector);
-        this.EvAg.bind('filter/change',this.triggerClick);
+        this.el = options.el;
+        this.element = $(this.el);
+        //this.render();
+    },
+    events:{
+        "click": "triggerClick"
+    },
+    triggerClick: function(){
+    }
+});
+
+Echoed.Views.Components.Dropdown = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'addSelector','triggerClick');
+        this.EvAg = options.EvAg;
         this.categories = new Array();
+        this.EvAg.bind('category/add', this.addSelector);
+        this.EvAg.bind('filter/change',this.triggerClick);
+        this.baseUrl = options.BaseUrl;
+        this.el = options.el;
         this.element = $(this.el);
         this.selected = options.Filter.substr(1);
-        this.baseUrl = options.BaseUrl;
+        if(this.selected == "")
+            this.selected = "All";
+        console.log("Dropdown Added");
         this.render();
     },
+    events: {
+        "mouseenter": "showList",
+        "mouseleave": "hideList"
+    },
     render: function(){
-        //this.categories.sort();
-        console.log(this.selected);
+        this.element.html('<strong>Category : </strong>' + this.selected + "<span class='arrow'></span>");
         var sortedKeys = new Array();
         var sortedObj = {};
         for(var i in this.categories){
-            sortedKeys.push(i)
+            sortedKeys.push(i);
         }
         sortedKeys.sort();
         for(var j in sortedKeys){
@@ -243,12 +270,15 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
         }
         this.categories = sortedObj;
 
-        this.element.html('')
-        var anc =$('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(this.element);
-        if(this.selected == "")
+        var ul = $('<ul></ul>');
+        ul.appendTo(this.element);
+        this.dropDown = ul;
+
+        var anc =$('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(ul);
+        if(this.selected == "All")
             anc.addClass("current");
         for(var id in this.categories){
-            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(this.element);
+            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(ul);
             if(id == this.selected){
                 anc.addClass("current");
             }
@@ -261,14 +291,20 @@ Echoed.Views.Components.ProductSelector = Backbone.View.extend({
             this.render();
         }
     },
+    showList: function(){
+        this.dropDown.show();
+    },
+    hideList: function(){
+        this.dropDown.hide();
+    },
     triggerClick: function(e){
-        console.log("Trigger Click");
         if(e == "*")
             e = ".All";
-        this.element.find(".current").removeClass("current");
-        $("#" + e.substr(1)).addClass("current");
         this.selected = e.substr(1);
+        console.log("CLICK TRIGGERED");
+        this.render();
     }
+
 });
 
 Echoed.Views.Components.Nav = Backbone.View.extend({
@@ -289,6 +325,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
     }
 });
 
+
 Echoed.Views.Components.Tooltip = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this);
@@ -299,9 +336,16 @@ Echoed.Views.Components.Tooltip = Backbone.View.extend({
         this.render();
     },
     events:{
-
+        "mouseenter": "showList",
+        "mouseleave": "hideList"
     },
     render: function(){
+
+    },
+    showList: function(){
+
+    },
+    hideList: function(){
 
     }
 });

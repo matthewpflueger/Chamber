@@ -86,11 +86,19 @@ h2 {
   font-family: TradeGothicBD20Cond, Arial, sans-serif; }
 
 #user {
-  padding: 10px;
-  font-size: 14px;
   float: right;
   height: 50px;
-  text-align: right; }
+  margin-left: 20px;
+  padding: 10px; }
+  #user #user-text {
+    font-size: 14px;
+    float: left;
+    text-align: left; }
+  #user #user-image {
+    float: left;
+    margin: 0px 5px; }
+    #user #user-image #u-i-i {
+      border: 2px #CCC solid; }
 
 #networks {
   float: right; }
@@ -111,7 +119,7 @@ h2 {
 
 #header-nav li:hover, #header-nav .current {
   color: #ff7733;
-  background-image: url(arrow.png);
+  background-image: url(http://v1-cdn.echoed.com/arrow.png);
   background-position: bottom;
   background-repeat: no-repeat; }
 
@@ -138,21 +146,54 @@ h2 {
   padding: 10px;
   margin-bottom: 10px;
   text-align: center;
-  background-image: url("http://v1-cdn.echoed.com/bg-whitepx80.png");
+  background-color: #FFF;
   box-shadow: inset 0 1px white, 0 1px 3px rgba(34, 25, 25, 0.4); }
 
 #content-selector {
+  position: relative;
   font-size: 14px;
   margin: 0px auto 0px; }
+  #content-selector a {
+    margin: 0px 10px; }
+    #content-selector a:hover {
+      color: #ff7733; }
+    #content-selector a.current {
+      color: #ff7733; }
 
-#content-selector a {
-  margin: 0px 10px; }
+.dropdown-container {
+  margin: 0 auto; }
+  .dropdown-container li {
+    position: relative;
+    display: inline; }
+    .dropdown-container li .arrow {
+      background-color: #000;
+      width: 10px;
+      height: 3px;
+      right: 0px;
+      top: 20px; }
 
-#content-selector a:hover {
-  color: #ff7733; }
-
-a.current {
-  color: #ff7733; }
+.dropdown {
+  position: relative;
+  padding: 10px;
+  cursor: pointer; }
+  .dropdown ul {
+    background-color: #FFF;
+    position: absolute;
+    display: none;
+    top: 37px;
+    border: 1px solid #CCC;
+    left: -8px;
+    z-index: 10;
+    box-shadow: inset 0 1px white, 0 1px 3px rgba(34, 25, 25, 0.4); }
+    .dropdown ul li {
+      width: 150px;
+      float: left;
+      display: inline; }
+    .dropdown ul a {
+      display: block;
+      padding: 5px;
+      height: 20px;
+      text-align: left; }
 
 #exhibit {
   margin: auto; }

@@ -29,6 +29,9 @@ pre, form, fieldset, table, th, td {
 html {
   height: 100%; }
 
+body {
+  background-image: url("http://v1-cdn.echoed.com/bk_fancydeboss.png"); }
+
 a {
   text-decoration: none;
   color: inherit; }
@@ -59,7 +62,8 @@ textarea {
 #header {
   height: 50px;
   border-bottom: 3px solid #444444;
-  padding-left: 10px; }
+  padding-left: 10px;
+  background-color: #FFF; }
 
 .poweredby {
   font-family: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
@@ -145,6 +149,7 @@ textarea {
 
 #product-description {
   float: left;
+  width: 240px;
   margin-left: 5px;
   font-size: 16px;
   line-height: 14px;
@@ -166,7 +171,6 @@ textarea {
 #right {
   width: 420px;
   margin-left: 10px;
-  background-color: #FFF;
   float: left; }
 
 #ct-1 {

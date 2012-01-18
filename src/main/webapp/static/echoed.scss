@@ -137,11 +137,23 @@ h2{
 		
 		#user{
 			//position:absolute;
-			padding:10px;
-			font-size: 14px;
 			float:right;
 			height: $headerHeight;
-			text-align:right;
+            margin-left: 20px;
+            padding:10px;
+            #user-text{
+                font-size: 14px;
+                float:left;
+                text-align:left;
+            }
+
+            #user-image{
+                float:left;
+                margin: 0px 5px;
+                #u-i-i{
+                    border: 2px #CCC solid;
+                }
+            }
 		}
 
         #networks{
@@ -166,7 +178,7 @@ h2{
 			
 			#header-nav li:hover, #header-nav .current{
 				color: $highlightColor;
-				background-image:url(arrow.png);
+				background-image:url(http://v1-cdn.echoed.com/arrow.png);
 				background-position:bottom;
 				background-repeat:no-repeat;
 			}
@@ -202,33 +214,73 @@ h2{
 		padding:10px;
 		margin-bottom:10px;
         text-align:center;
-        //background-color: #FFF;
-        background-image: url("http://v1-cdn.echoed.com/bg-whitepx80.png");
+        background-color: #FFF;
+        //background-image: url("http://v1-cdn.echoed.com/bg-whitepx80.png");
         box-shadow: inset 0 1px #fff, 0 1px 3px rgba(34,25,25,0.4);
 	}
 
 
 		#content-selector{
 			//font-family: $navFontFamily;
+            position:relative;
             font-size: 14px;
 			margin: 0px auto 0px;
-		}
-		
-			#content-selector a{
-				margin:0px 10px;
-			}
-			
-			#content-selector a:hover, {
-				color: $highlightColor;
-			}
-
-            a.current{
-                color: $highlightColor;
+            a{
+                margin: 0px 10px;
+                &:hover{
+                    color:$highlightColor;
+                }
+                &.current{
+                    color: $highlightColor;
+                }
             }
+		}
 
+        .dropdown-container{
+            margin: 0 auto;
+            li{
+                position:relative;
+                display:inline;
+                .arrow{
+                    background-color: #000;
+                    width: 10px;
+                    height: 3px;
+                    right: 0px;
+                    top: 20px;
+                }
+            }
+        }
 
-			
-	
+        .dropdown{
+                position:relative;
+                padding: 10px;
+                cursor: pointer;
+
+                ul{
+                    background-color: #FFF;
+                    position:absolute;
+                    display:none;
+                    top:37px;
+                    border: 1px solid #CCC;
+                    left: -8px;
+                    z-index: 10;
+                    box-shadow: inset 0 1px #fff, 0 1px 3px rgba(34,25,25,0.4);
+
+                    li{
+                        width: 150px;
+                        float: left;
+                        display: inline;
+                    }
+                    a{
+                        display:block;
+                        padding: 5px;
+                        height: 20px;
+                        text-align:left;
+                    }
+                }
+            }
+		
+
 		#exhibit{
 	        margin:auto;
 		}

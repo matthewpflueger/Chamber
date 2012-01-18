@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <link rel="shortcut icon" href="favicon.png" type="image/png">
+    <link rel="shortcut icon" href="http://v1-cdn.echoed.com/favicon.png" type="image/png">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>My Exhibit</title>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
@@ -56,38 +56,36 @@
                 <img height="50px" src="http://v1-cdn.echoed.com/logo.png">
             </div>
 
-            <div id="user">
-            	{{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><a href="logout">Logout</a></span> )<br />
-                Total Savings: ${{totalCredit}}
+            <div id="user" class="clearfix">
+                <div id="user-text">
+            	    {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
+                    Total Savings: ${{totalCredit}}
+                </div>
+                <div id="user-image">
+                    {{#echoedUser}}
+                        {{#facebookId}}
+                        <img id="u-i-i" height="34px" width="34px" src="http://graph.facebook.com/{{#echoedUser}}{{facebookId}}{{/echoedUser}}/picture" />
+                        {{/facebookId}}
+                    {{/echoedUser}}
+                </div>
             </div>
-            <div id="header-nav">
+            <div id="header-nav" class="clearfix">
                 <ul>
-                    <li id="feed_nav">
-                        <a href="#feed">
-                            Feed
+                    <li id="explore_nav">
+                        <a href="#explore">
+                            Explore
                         </a>
                     </li>
                     <li id="exhibit_nav">
                         <a href="#exhibit">
-                            Exhibit
+                            My Exhibit
                         </a>
                     </li>
                     <li id="friends_nav">
                         <a href="#friends">
-                            Friends
+                            My Friends
                         </a>
                     </li>
-                    <!--<li>
-                        <a href="#settings">
-                            Settings
-                        </a>
-                    </li>-->
-                    <li>
-                        <a href="logout">
-                            Logout
-                        </a>
-                    </li>
-                    <div class="clear"></div>
                 </ul>
             </div>
             <div id="networks">
