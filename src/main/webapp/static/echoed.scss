@@ -241,12 +241,14 @@ h2{
             li{
                 position:relative;
                 display:inline;
-                .arrow{
-                    background-color: #000;
+                div{
+                    background-image: url("http://v1-cdn.echoed.com/bk_downarrow.png");
+                    background-repeat: no-repeat;
+                    margin-left: 3px;
                     width: 10px;
-                    height: 3px;
-                    right: 0px;
-                    top: 20px;
+                    height: 7px;
+                    top:-5px;
+                    display:inline-block;
                 }
             }
         }
@@ -262,7 +264,6 @@ h2{
                     display:none;
                     top:37px;
                     border: 1px solid #CCC;
-                    left: -8px;
                     z-index: 10;
                     box-shadow: inset 0 1px #fff, 0 1px 3px rgba(34,25,25,0.4);
 
@@ -283,13 +284,15 @@ h2{
 
 		#exhibit{
 	        margin:auto;
+	        .no-echoes{
+	            font-size: 20px;
+	            font-weight: bold;
+	            margin-top: 50px;
+	            text-align: center;
+	        }
 		}
 
-            #exhibit div{
-            }
-
-
-			.exhibit_image{
+            .exhibit_image{
 				width: 230px;
  				border: 3px solid #CCC;
 			}
@@ -298,6 +301,12 @@ h2{
 		#friends{
 			width:80%;
 			margin:auto;
+	        .no-echoes{
+   	            font-size: 20px;
+   	            font-weight: bold;
+   	            margin-top: 50px;
+   	            text-align: center;
+   	        }
 		}
 		    #content-title{
 		        position:absolute;

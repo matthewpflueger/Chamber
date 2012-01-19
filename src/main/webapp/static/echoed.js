@@ -32,6 +32,8 @@ Echoed.Router = Backbone.Router.extend({
         "": "explore",
         "explore": "explore",
         "explore/:filter": "explore",
+        "exploref" : "exploreFriends",
+        "exploref/:filter": "exploreFriends",
         "exhibit": "exhibit",
         "exhibit/:filter": "exhibit",
         "friends": "friends",
@@ -54,7 +56,16 @@ Echoed.Router = Backbone.Router.extend({
             this.EvAg.trigger('filter/change',selector);
         }
         this.EvAg.trigger("page/change","explore");
-
+    },
+    exploreFriends: function(filter){
+        console.log("Router: Explore Friends");
+        if(!filter) selector = "*";
+        else selector = "." + filter;
+        if(this.page != "Explore/Friends"){
+            this.page = "Explore/Friends";
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "explore/friends"});
+        }
+        this.EvAg.trigger("page/change","explore");
     },
     exhibit: function(filter) {
         if(!filter) selector = "*";
@@ -107,7 +118,15 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.jsonUrl = "http://v1-api.echoed.com/closet/feed/public";
                 this.baseUrl = "#explore/";
                 this.contentTitle = "Explore";
+                this.feedSelector = "Everyone";
                 this.id= "explore";
+                break;
+            case "explore/friends":
+                this.jsonUrl = "http://v1-api.echoed.com/closet/feed/friends";
+                this.baseUrl = "#exploref/";
+                this.contentTitle = "Explore";
+                this.feedSelector = "Friends";
+                this.id = "explore/friends";
                 break;
             case "exhibit":
                 this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
@@ -124,22 +143,17 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.exhibit=$('#exhibit');
 
         var self = this;
-        console.log("Rendering Page");
-        //var productSelector = new Echoed.Views.Components.ProductSelector({EvAg: this.EvAg, Id:this.id,BaseUrl: this.baseUrl, Filter: this.filter});
         var contentSelector = $('#content-selector');
         var ul = $('<ul></ul>').addClass('dropdown-container').appendTo(contentSelector);
+        if(this.id == "explore" || this.id=="explore/friends"){
+            var viewDropDownEl = $('<li class="dropdown"></li>');
+            viewDropDownEl.appendTo(ul);
+            var viewDropDown = new Echoed.Views.Components.FeedDropdown({ el: viewDropDownEl, EvAg: this.EvAg, Id: this.id, BaseUrl: this.baseUrl, Selected: this.feedSelector});
+        }
         var dropDownEl = $('<li class="dropdown"></li>');
         dropDownEl.appendTo(ul);
         var dropDown = new Echoed.Views.Components.Dropdown({el: dropDownEl, EvAg: this.EvAg, Id: this.id, BaseUrl: this.baseUrl, Filter: this.filter});
         var exhibit = $('#exhibit');
-        exhibit.isotope({
-            animationOptions: {
-                duration: 500,
-                easing: 'linear',
-                queue: false
-            },
-            filter: self.filter
-        });
 
         $.ajax({
             url: self.jsonUrl,
@@ -151,17 +165,29 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     echoes = data;
                 else
                     echoes = data.echoes;
-                if(self.id == "friends"){
+                if(self.id == "friends")
                     $('#content-title').html(data.echoedUserName + "'s Exhibit");
-                }
                 else
                     $('#content-title').html(self.contentTitle);
-
-                $.each(echoes, function(index,product){
-                    var productModel = new Echoed.Models.Product(product);
-                    self.addProduct(productModel,self.filter);
-                    self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
-                });
+                if(echoes.length > 0){
+                    exhibit.isotope({
+                        animationOptions: {
+                            duration: 500,
+                            easing: 'linear',
+                            queue: false
+                        },
+                        filter: self.filter
+                    });
+                    $.each(echoes, function(index,product){
+                        var productModel = new Echoed.Models.Product(product);
+                        self.addProduct(productModel,self.filter);
+                        self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
+                    });
+                }
+                else{
+                    var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no echoes.");
+                    noEchoDiv.appendTo(exhibit);
+                }
            },
             error:function (xhr, ajaxOptions, thrownError){
             }
@@ -201,20 +227,25 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
             url: jsonUrl,
             dataType: 'json',
             success: function(data){
-                $.each(data, function(index,friend){
-                    var img = "";
-                    var friendImage = $('<div class="friend-img"></div>');
-                    var friendText = $('<div class="friend-text"></div>').html(friend.name);
-                    var  a = $('<a></a>').attr("href","#friends/exhibit/" + friend.toEchoedUserId);
-                    if(friend.facebookId != null)
-                        img = $('<img />').attr("height","50px").attr("src","http://graph.facebook.com/" + friend.facebookId + "/picture");
-                    else
-                        img = $('<img />').attr("src", "http://api.twitter.com/1/users/profile_image/" + friend.twitterId);
-                    friendImage.append(img);
-                    var friendDiv = $('<div></div>').addClass("friend").append(friendImage).append(friendText).appendTo(a);
-                    a.appendTo(ex);
-
-                });
+                if(data.length > 0 ){
+                    $.each(data, function(index,friend){
+                        var img = "";
+                        var friendImage = $('<div class="friend-img"></div>');
+                        var friendText = $('<div class="friend-text"></div>').html(friend.name);
+                        var  a = $('<a></a>').attr("href","#friends/exhibit/" + friend.toEchoedUserId);
+                        if(friend.facebookId != null)
+                            img = $('<img />').attr("height","50px").attr("src","http://graph.facebook.com/" + friend.facebookId + "/picture");
+                        else
+                            img = $('<img />').attr("src", "http://api.twitter.com/1/users/profile_image/" + friend.twitterId);
+                        friendImage.append(img);
+                        var friendDiv = $('<div></div>').addClass("friend").append(friendImage).append(friendText).appendTo(a);
+                        a.appendTo(ex);
+                    });
+                }
+                else{
+                    var noEchoDiv = $('<div></div>').addClass("no-echoes").html("You have no friends on Echoed. Get your friends to join!");
+                    noEchoDiv.appendTo(ex);
+                }
             },
             error:function (xhr, ajaxOptions, thrownError){
             }
@@ -234,6 +265,46 @@ Echoed.Views.Components.Logout = Backbone.View.extend({
         "click": "triggerClick"
     },
     triggerClick: function(){
+    }
+});
+
+Echoed.Views.Components.FeedDropdown = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.baseUrl = options.BaseUrl;
+        this.el = options.el
+        this.element = $(this.el);
+        if(options.Selected == "")
+            options.Selected = "Everyone";
+        this.selected = options.Selected;
+        this.render();
+    },
+    events: {
+        "mouseenter": "showList",
+        "mouseleave": "hideList"
+    },
+    render: function(){
+        this.element.html("<strong>View </strong>: " + this.selected + '<div></div>');
+        var ul = $('<ul></ul>');
+        ul.appendTo(this.element);
+        this.dropDown = ul;
+        var li = $('<li></li>').appendTo(ul);
+        var anc =$('<a></a>').attr("href", "#explore").html("Everyone").appendTo(li);
+        if(this.selected == "Everyone")
+            anc.addClass("current");
+        anc =$('<a></a>').attr("href", "#exploref").html("Friends").appendTo(li);
+        if(this.selected == "Friends")
+            anc.addClass("current");
+    },
+    showList: function(){
+        this.dropDown.show();
+    },
+    hideList: function(){
+        this.dropDown.hide();
+    },
+    triggerClick: function(e){
+        this.render();
     }
 });
 
@@ -258,7 +329,7 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         "mouseleave": "hideList"
     },
     render: function(){
-        this.element.html('<strong>Category : </strong>' + this.selected + "<span class='arrow'></span>");
+        this.element.html('<strong>Category : </strong>' + this.selected + "<div></div>");
         var sortedKeys = new Array();
         var sortedObj = {};
         for(var i in this.categories){
@@ -273,12 +344,12 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         var ul = $('<ul></ul>');
         ul.appendTo(this.element);
         this.dropDown = ul;
-
-        var anc =$('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(ul);
+        var li = $('<li></li>').appendTo(ul);
+        var anc =$('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(li);
         if(this.selected == "All")
             anc.addClass("current");
         for(var id in this.categories){
-            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(ul);
+            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(li);
             if(id == this.selected){
                 anc.addClass("current");
             }
@@ -304,7 +375,6 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         console.log("CLICK TRIGGERED");
         this.render();
     }
-
 });
 
 Echoed.Views.Components.Nav = Backbone.View.extend({

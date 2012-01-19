@@ -126,7 +126,7 @@ class ClosetController {
 
     }
 
-    @RequestMapping(value = Array("/feed"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/feed/friends"), method = Array(RequestMethod.GET))
     @ResponseBody
     def feed(
             @CookieValue(value = "echoedUserId", required= false) echoedUserIdCookie:String,

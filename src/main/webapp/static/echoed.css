@@ -165,12 +165,14 @@ h2 {
   .dropdown-container li {
     position: relative;
     display: inline; }
-    .dropdown-container li .arrow {
-      background-color: #000;
+    .dropdown-container li div {
+      background-image: url("http://v1-cdn.echoed.com/bk_downarrow.png");
+      background-repeat: no-repeat;
+      margin-left: 3px;
       width: 10px;
-      height: 3px;
-      right: 0px;
-      top: 20px; }
+      height: 7px;
+      top: -5px;
+      display: inline-block; }
 
 .dropdown {
   position: relative;
@@ -182,7 +184,6 @@ h2 {
     display: none;
     top: 37px;
     border: 1px solid #CCC;
-    left: -8px;
     z-index: 10;
     box-shadow: inset 0 1px white, 0 1px 3px rgba(34, 25, 25, 0.4); }
     .dropdown ul li {
@@ -197,6 +198,11 @@ h2 {
 
 #exhibit {
   margin: auto; }
+  #exhibit .no-echoes {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 50px;
+    text-align: center; }
 
 .exhibit_image {
   width: 230px;
@@ -205,6 +211,11 @@ h2 {
 #friends {
   width: 80%;
   margin: auto; }
+  #friends .no-echoes {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 50px;
+    text-align: center; }
 
 #content-title {
   position: absolute;
