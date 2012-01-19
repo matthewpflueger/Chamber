@@ -2,7 +2,7 @@ package com.echoed.cache
 
 import scala.collection.JavaConversions._
 import com.google.common.collect.MapMaker
-import java.util.concurrent.{ConcurrentMap => JConcurrentMap, TimeUnit}
+import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
 import scala.collection.mutable.ConcurrentMap
 import scala.reflect.BeanProperty
@@ -14,20 +14,19 @@ class LocalCacheManager extends CacheManager {
 
     @BeanProperty var expireInMinutes = 30
 
-    private val caches /*: ConcurrentMap[String, ConcurrentMap[String, _ <: AnyRef]]*/ =
-            asScalaConcurrentMap[String, ConcurrentMap[String, _ <: AnyRef]](
-                new MapMaker().concurrencyLevel(4).makeMap[String, ConcurrentMap[String, _ <: AnyRef]]())
+    private val caches: ConcurrentMap[String, ConcurrentMap[String, AnyRef]] =
+                new MapMaker().concurrencyLevel(4).makeMap[String, ConcurrentMap[String, AnyRef]]()
 
     def getCache[V <: AnyRef](cacheName: String, cacheListener: Option[CacheListener] = None) = {
-//        caches.getOrElseUpdate(cacheName, {
-            val cache = CacheBuilder.newBuilder()
+        caches.getOrElseUpdate(cacheName, {
+            CacheBuilder.newBuilder()
                         .concurrencyLevel(4)
-                        .softValues()
+                        .softValues
                         .expireAfterAccess(expireInMinutes, TimeUnit.MINUTES)
                         .removalListener(new RemovalListenerProxy(cacheListener.getOrElse(NoOpCacheListener)))
-                        .build[String, V]()
-            asScalaConcurrentMap[String, V](cache.asMap())
-//        })
+                        .build[String, AnyRef]
+                        .asMap
+        }).asInstanceOf[ConcurrentMap[String, V]]
     }
 }
 
