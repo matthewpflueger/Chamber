@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.echoed.chamber.dao.views.RetailerViewDao">
+
+    <cache-ref namespace="com.echoed.chamber.dao.cache.Flushing30" />
+
     <resultMap id="retailerSocialSummaryResult" type="com.echoed.chamber.domain.views.RetailerSocialSummary">
         <constructor>
             <idArg column="retailerId" javaType="String"/>
@@ -69,6 +72,7 @@
         coalesce(sum(FBC.facebookComments), 0) as totalFacebookComments,
         coalesce(sum(EC.echoClicks), 0) as totalEchoClicks
     </sql>
+
     <select id="getTopProductsWithRetailerId" resultMap="retailerProductsListView">
         SELECT <include refid="productColumns" />
         FROM

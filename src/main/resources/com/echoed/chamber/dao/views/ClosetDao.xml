@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.echoed.chamber.dao.views.ClosetDao">
+
+    <cache-ref namespace="com.echoed.chamber.dao.cache.Flushing30" />
+
     <resultMap id="closetResult" type="com.echoed.chamber.domain.views.Closet">
         <constructor>
             <idArg column="echoedUserId" javaType="String" />
@@ -46,8 +49,8 @@
             <arg column="twitterStatusTwitterId" javaType="String" />
         </constructor>
     </resultMap>
-    
-    <select id="findByEchoedUserId" resultMap="closetResult">
+
+    <select id="findByEchoedUserId" resultMap="closetResult" useCache="false" >
         select
             EU.id as echoedUserId,
             EU.email as echoedUserEmail,
@@ -89,7 +92,7 @@
     </select>
 
 
-    <select id="totalCreditByEchoedUserId" resultType="_float">
+    <select id="totalCreditByEchoedUserId" resultType="_float" useCache="false" >
         select coalesce(sum(credit), 0) as totalCredit from Echo where echoedUserId = #{echoedUserId}
     </select>
 </mapper>

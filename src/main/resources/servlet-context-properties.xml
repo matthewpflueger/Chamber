@@ -24,7 +24,7 @@
         <prop key="apiUrl">http://v1-api.echoed.com</prop>
         <prop key="cdnUrl">http://v1-cdn.echoed.com</prop>
 
-        <prop key="mustache.cache">false</prop>
+        <prop key="mustache.cache">true</prop>
         <prop key="mustache.prefix">${cdnUrl}/</prop>
         <prop key="mustache.suffix">.html</prop>
 

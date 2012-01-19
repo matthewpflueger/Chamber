@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.echoed.chamber.dao.views.FeedDao">
+
+    <cache-ref namespace="com.echoed.chamber.dao.cache.Flushing30" />
+
     <resultMap id="feedResult" type="com.echoed.chamber.domain.views.Feed">
         <constructor>
             <idArg column="echoedUserId" javaType="String"/>
@@ -21,7 +24,7 @@
             <arg column="echoedUserTwitterId" javaType="String" />
         </constructor>
     </resultMap>
-    
+
     <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoViewDetail">
         <constructor>
             <idArg column="echoId" javaType="String" />

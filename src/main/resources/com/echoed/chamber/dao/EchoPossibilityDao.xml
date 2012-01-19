@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.echoed.chamber.dao.EchoPossibilityDao">
+
+    <cache-ref namespace="com.echoed.chamber.dao.cache.Default" />
+
     <resultMap id="echoPossibilityResult" type="com.echoed.chamber.domain.EchoPossibility">
         <constructor>
             <idArg column="id" javaType="String" />
@@ -31,7 +34,7 @@
     	select * from EchoPossibility where retailerId = #{retailerId}
     </select>
 
-    <select id="selectCount" resultType="long">
+    <select id="selectCount" resultType="long" useCache="false" >
         select count(*) from EchoPossibility
     </select>
 

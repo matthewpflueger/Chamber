@@ -11,7 +11,7 @@
     <logger name="org.springframework" level="error"/>
     <logger name="com.echoed" level="debug"/>
 
-    <root level="error">
+    <root level="warn">
         <appender-ref ref="stdout"/>
     </root>
 </configuration>

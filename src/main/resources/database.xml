@@ -46,6 +46,7 @@
         <prop key="pool.logAbandoned">true</prop>
 
         <prop key="mybatis.config">classpath:mybatis.xml</prop>
+        <prop key="mybatis.mappers">classpath*:com/echoed/chamber/dao/**/*.xml</prop>
         <prop key="mybatis.executorType">BATCH</prop>
     </util:properties>
 
@@ -81,6 +82,7 @@
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource" />
         <property name="configLocation" value="${mybatis.config}" />
+        <property name="mapperLocations" value="${mybatis.mappers}" />
     </bean>
 
     <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
