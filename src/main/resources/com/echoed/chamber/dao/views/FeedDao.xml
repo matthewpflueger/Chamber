@@ -25,27 +25,15 @@
     <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoViewDetail">
         <constructor>
             <idArg column="echoId" javaType="String" />
-            <arg column="echoBoughtOn" javaType="Date" />
             <arg column="echoImageUrl" javaType="String" />
             <arg column="echoProductName" javaType="String"/>
             <arg column="echoCategory" javaType="String"/>
             <arg column="echoBrand" javaType="String"/>
-            <arg column="echoPrice" javaType="_float" />
             <arg column="echoLandingPageUrl" javaType="String" />
-            <arg column="echoTotalClicks" javaType="_int" />
-            <arg column="echoCredit" javaType="_float" />
             <arg column="echoedFriendId" javaType="String"/>
             <arg column="echoedFriendName" javaType="String"/>
             <arg column="retailerId" javaType="String" />
             <arg column="retailerName" javaType="String" />
-            <arg column="retailerSettingsId" javaType="String" />
-            <arg column="retailerSettingsMinClicks" javaType="_int" />
-            <arg column="retailerSettingsMinPercentage" javaType="_float" />
-            <arg column="retailerSettingsMaxPercentage" javaType="_float" />
-            <arg column="facebookPostId" javaType="String" />
-            <arg column="facebookPostFacebookId" javaType="String" />
-            <arg column="twitterStatusId" javaType="String" />
-            <arg column="twitterStatusTwitterId" javaType="String" />
         </constructor>
     </resultMap>
 

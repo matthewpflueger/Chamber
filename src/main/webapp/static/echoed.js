@@ -65,6 +65,8 @@ Echoed.Router = Backbone.Router.extend({
             this.page = "Explore/Friends";
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "explore/friends"});
         }
+        else
+            this.EvAg.trigger('filter/change',selector);
         this.EvAg.trigger("page/change","explore");
     },
     exhibit: function(filter) {
@@ -444,7 +446,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         if(this.model.get("retailerName"))
             hover.append('@ ' + this.model.get("retailerName") + '<br/><br/>');
         if(this.model.get("echoedUserName"))
-            hover.append(this.model.get("echoedUserName") + '<br/><br/>');
+            hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/><br/>');
         if(this.model.get("echoCredit"))
             hover.append("My Reward: $" + this.model.get("echoCredit").toFixed(2) +'<br/><br/>');
         img.attr('src',this.model.get("echoImageUrl"));
