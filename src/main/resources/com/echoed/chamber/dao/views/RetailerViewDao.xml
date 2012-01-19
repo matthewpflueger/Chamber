@@ -61,9 +61,9 @@
 
     <sql id="productColumns">
         E.productId as productId,
-        E.productName as productName,
-        E.brand as productBrand,
-        E.category as productCategory,
+        coalesce (E.productName) as productName,
+        coalesce (E.brand) as productBrand,
+        coalesce (E.category) as productCategory,
         R.id as retailerId,
         R.name as retailerName,
         coalesce(E.imageUrl) as productImageUrl,
@@ -71,6 +71,34 @@
         coalesce(sum(FBL.facebookLikes), 0) as totalFacebookLikes,
         coalesce(sum(FBC.facebookComments), 0) as totalFacebookComments,
         coalesce(sum(EC.echoClicks), 0) as totalEchoClicks
+    </sql>
+    
+    <sql id="fbLikesTempTable">
+        (SELECT
+            facebookPostId,
+            count(id) as facebookLikes
+         FROM
+            FacebookLike
+         GROUP BY
+          facebookPostId)
+    </sql>
+    <sql id="fbCommentsTempTable">
+        (SELECT
+            facebookPostId,
+            count(id) as facebookComments
+          FROM
+            FacebookComment
+          GROUP BY
+            facebookPostId)
+    </sql>
+    <sql id="echoClicksTempTable">
+        ( SELECT
+            echoId,
+            count(id) as echoClicks
+          FROM
+            EchoClick
+          GROUP BY
+            echoId)
     </sql>
 
     <select id="getTopProductsWithRetailerId" resultMap="retailerProductsListView">
@@ -81,32 +109,14 @@
             Echo E ON R.id = E.retailerId
             LEFT OUTER JOIN
             FacebookPost FBP ON E.id=FBP.echoId
-           LEFT OUTER JOIN
-            ( SELECT
-                facebookPostId,
-                count(id) as facebookLikes
-              FROM
-                FacebookLike
-              GROUP BY
-                facebookPostId)
+            LEFT OUTER JOIN
+            <include refid="fbLikesTempTable"/>
             FBL ON FBL.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            (SELECT
-                facebookPostId,
-                count(id) as facebookComments
-              FROM
-                FacebookComment
-              GROUP BY
-                facebookPostId)
+            <include refid="fbCommentsTempTable"/>
             FBC ON FBC.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            ( SELECT
-                echoId,
-                count(id) as echoClicks
-              FROM
-                EchoClick
-              GROUP BY
-                echoId)
+            <include refid="echoClicksTempTable"/>
             EC ON E.id = EC.echoId
         WHERE
             R.id = #{retailerId}
@@ -127,33 +137,13 @@
             LEFT OUTER JOIN
             FacebookPost FBP ON E.id=FBP.echoId
             LEFT OUTER JOIN
-            (
-            SELECT
-                facebookPostId,
-                count(id) as facebookLikes
-            FROM
-                FacebookLike
-            GROUP BY (facebookPostId))
+            <include refid="fbLikesTempTable"/>
             FBL ON FBL.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            (
-            SELECT
-                facebookPostId,
-                count(id) as facebookComments
-            FROM
-                FacebookComment
-            GROUP BY(facebookPostId))
+            <include refid="fbCommentsTempTable"/>
             FBC ON FBC.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            (
-            SELECT
-                echoId,
-                count(id) as echoClicks
-            FROM
-                EchoClick
-            GROUP BY
-                echoId
-            )
+            <include refid="echoClicksTempTable"/>
             EC ON E.id=EC.echoId
         WHERE
             R.id = #{retailerId}
@@ -183,31 +173,13 @@
             LEFT OUTER JOIN
             FacebookPost FBP ON E.id = FBP.echoId
             LEFT OUTER JOIN
-            ( SELECT
-                facebookPostId,
-                count(id) as facebookLikes
-              FROM
-                FacebookLike
-              GROUP BY
-                facebookPostId)
+            <include refid="fbLikesTempTable"/>
             FBL ON FBL.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            (SELECT
-                facebookPostId,
-                count(id) as facebookComments
-              FROM
-                FacebookComment
-              GROUP BY
-                facebookPostId)
+            <include refid="fbCommentsTempTable"/>
             FBC ON FBC.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            ( SELECT
-                echoId,
-                count(id) as echoClicks
-              FROM
-                v1-EchoClick
-              GROUP BY
-                echoId)
+            <include refid="echoClicksTempTable"/>
             EC ON E.id = EC.echoId
             LEFT OUTER JOIN
             ( SELECT
@@ -241,33 +213,13 @@
             LEFT OUTER JOIN
             FacebookPost FBP ON E.id=FBP.echoId
             LEFT OUTER JOIN
-            (
-            SELECT
-                facebookPostId,
-                count(id) as facebookLikes
-            FROM
-                FacebookLike
-            GROUP BY (facebookPostId))
+            <include refid="fbLikesTempTable"/>
             FBL ON FBL.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            (
-            SELECT
-                facebookPostId,
-                count(id) as facebookComments
-            FROM
-                FacebookComment
-            GROUP BY(facebookPostId))
+            <include refid="fbCommentsTempTable"/>
             FBC ON FBC.facebookPostId = FBP.id
             LEFT OUTER JOIN
-            (
-            SELECT
-                echoId,
-                count(id) as echoClicks
-            FROM
-                EchoClick
-            GROUP BY
-                echoId
-            )
+            <include refid="echoClicksTempTable"/>
             EC ON E.id=EC.echoId
         WHERE
             R.id = #{retailerId}

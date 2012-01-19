@@ -435,7 +435,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     render: function(){
         var template = _.template($('#templates-components-product').html());
-
+        var self = this;
         this.el.addClass("item_wrap").addClass(this.model.get("echoCategory").replace(" ","-")).html(template).attr("href","http://v1-api.echoed.com/echo/" + this.model.get("echoId") + "/1");
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
@@ -447,9 +447,13 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             hover.append('@ ' + this.model.get("retailerName") + '<br/><br/>');
         if(this.model.get("echoedUserName"))
             hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/><br/>');
-        if(this.model.get("echoCredit"))
-            hover.append("My Reward: $" + this.model.get("echoCredit").toFixed(2) +'<br/><br/>');
+        if(this.model.get("echoCredit")){
+            hover.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/><br/>');
+            self.showOverlay();
+            var t = setTimeout(self.hideOverlay, 3000);
+        }
         img.attr('src',this.model.get("echoImageUrl"));
+
         return this;
     },
     showOverlay: function(){
