@@ -313,7 +313,12 @@ class EchoedUserServiceActor(
             try {
                 val echoedFriend = Option(echoedFriendDao.findFriendByEchoedUserId(echoedUser.id, echoedFriendUserId)).orNull
                 val closet: Closet = closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)
-                channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet)))
+                if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
+                    channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet.copy(echoes = new ArrayList[EchoView]))))
+                }
+                else{
+                    channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet)))
+                }
             } catch {
                 case e =>
                     channel ! GetFriendExhibitResponse(msg, Left(EchoedUserException("Cannot get friend exhibit", e)))

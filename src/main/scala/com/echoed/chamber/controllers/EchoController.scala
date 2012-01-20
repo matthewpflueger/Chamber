@@ -168,7 +168,7 @@ class EchoController {
             logger.error("Unexpected error echoing {}", echoItParameters, e)
             val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
             continuation.setAttribute("modelAndView", modelAndView)
-            continuation.resume
+            continuation.resume()
             modelAndView
         }
 
@@ -210,7 +210,7 @@ class EchoController {
             @PathVariable(value = "postId") postId: String,
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
             @CookieValue(value = "echoClick", required = false) echoClickId: String,
-            @RequestHeader(value = "Referer", required = true) referrerUrl: String,
+            @RequestHeader(value = "Referer", required = false) referrerUrl: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -226,7 +226,7 @@ class EchoController {
                 if(echoClickId == null)
                     cookieManager.addCookie(httpServletResponse, "echoClick", tuple._1.id)
                 continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format tuple._2))
-                continuation.resume
+                continuation.resume()
             }
             continuation.undispatch()
         })

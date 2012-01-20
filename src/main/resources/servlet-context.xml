@@ -113,6 +113,11 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="userController" class="com.echoed.chamber.controllers.UserController">
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="partnerController" class="com.echoed.chamber.controllers.PartnerController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />

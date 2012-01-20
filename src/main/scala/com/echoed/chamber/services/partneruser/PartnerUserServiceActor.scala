@@ -47,6 +47,9 @@ class PartnerUserServiceActor(
 
         case msg: GetTopProducts =>
             self.channel ! GetTopProductsResponse(msg, Right(retailerViewDao.getTopProductsWithRetailerId(partnerUser.retailerId)))
+
+        case msg: GetTopCustomers =>
+            self.channel ! GetTopCustomersResponse(msg, Right(retailerViewDao.getTopCustomersWithRetailerId(partnerUser.retailerId)))
     }
 
 }

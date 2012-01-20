@@ -64,42 +64,90 @@
         coalesce (E.productName) as productName,
         coalesce (E.brand) as productBrand,
         coalesce (E.category) as productCategory,
-        R.id as retailerId,
-        R.name as retailerName,
+        coalesce (R.id) as retailerId,
+        coalesce (R.name) as retailerName,
         coalesce(E.imageUrl) as productImageUrl,
         count(E.id) as totalEchoes,
-        coalesce(sum(FBL.facebookLikes), 0) as totalFacebookLikes,
-        coalesce(sum(FBC.facebookComments), 0) as totalFacebookComments,
-        coalesce(sum(EC.echoClicks), 0) as totalEchoClicks
+        coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
+        coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
+        coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks
     </sql>
-    
-    <sql id="fbLikesTempTable">
-        (SELECT
-            facebookPostId,
-            count(id) as facebookLikes
-         FROM
-            FacebookLike
-         GROUP BY
-          facebookPostId)
+
+    <sql id="aggregateSalesByRetailerIdAndProductId">
+        (
+            SELECT
+                EP.productId as productId
+                EP.retailerId as retailerId
+                sum(EP.price) as totalSales
+            GROUP BY
+                EP.productId,
+                EP.retailerId
+        )
     </sql>
-    <sql id="fbCommentsTempTable">
-        (SELECT
-            facebookPostId,
-            count(id) as facebookComments
-          FROM
-            FacebookComment
-          GROUP BY
-            facebookPostId)
+
+    <sql id="aggregateStatsByEcho">
+        (
+            SELECT
+                E.id as echoId,
+                count(FBL.likes) as facebookLikes,
+                count(FBC.comments) as facebookComments,
+                count(EC.echoClicks) as echoClicks
+            FROM
+                Echo E
+                LEFT OUTER JOIN
+                FacebookPost FBP ON FBP.echoId = E.id
+                LEFT OUTER JOIN
+                (
+                    SELECT
+                        facebookPostId,
+                        count(id) as likes
+                    FROM
+                        FacebookLike
+                    GROUP BY
+                        facebookPostId
+                )
+                FBL ON FBL.facebookPostId = FBP.id
+                LEFT OUTER JOIN
+                (
+                    SELECT
+                        facebookPostId,
+                        count(id) as comments
+                    FROM
+                        FacebookComment
+                    GROUP BY
+                        facebookPostId
+                )
+                FBC ON FBC.facebookPostId = FBP.id
+                LEFT OUTER JOIN
+                (
+                    SELECT
+                        echoId,
+                        count(id) as echoClicks
+                    FROM
+                        EchoClick
+                    GROUP BY
+                        echoId
+                )
+                EC ON E.id = EC.echoId
+            GROUP BY
+                E.id
+        )
     </sql>
-    <sql id="echoClicksTempTable">
-        ( SELECT
-            echoId,
-            count(id) as echoClicks
-          FROM
-            EchoClick
-          GROUP BY
-            echoId)
+
+    <sql id="friendsAggregate">
+        (
+            SELECT
+                FacebookUser.echoedUserId,
+                count(FacebookFriend.id) as facebookFriends
+            FROM
+                FacebookUser
+                LEFT OUTER JOIN
+                FacebookFriend ON FacebookUser.id = FacebookFriend.facebookUserId
+            GROUP BY
+                FacebookUser.echoedUserId
+        )
     </sql>
+
 
     <select id="getTopProductsWithRetailerId" resultMap="retailerProductsListView">
         SELECT <include refid="productColumns" />
@@ -108,16 +156,8 @@
             LEFT OUTER JOIN
             Echo E ON R.id = E.retailerId
             LEFT OUTER JOIN
-            FacebookPost FBP ON E.id=FBP.echoId
-            LEFT OUTER JOIN
-            <include refid="fbLikesTempTable"/>
-            FBL ON FBL.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            <include refid="fbCommentsTempTable"/>
-            FBC ON FBC.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            <include refid="echoClicksTempTable"/>
-            EC ON E.id = EC.echoId
+            <include refid="aggregateStatsByEcho" />
+            ESA ON E.id=ESA.echoId
         WHERE
             R.id = #{retailerId}
         GROUP BY
@@ -128,6 +168,24 @@
             0, 5
     </select>
 
+    <select id="getProductsWithRetailerId" resultMap="retailerProductsListView">
+        SELECT
+            <include refid="productColumns"/>
+        FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E On R.id = E.retailerId
+            LEFT OUTER JOIN
+            <include refid = "aggregateStatsByEcho" />
+        ESA ON E.id=ESA.echoId
+        WHERE
+            R.id = #{retailerId}
+        GROUP BY
+            R.id, R.name, E.productId, E.productName, E.brand, E.category
+        ORDER BY
+            totalEchoes DESC
+    </select>
+
     <select id="getSocialActivityByProductIdAndRetailerId" resultMap="productSocialSummaryResult">
         SELECT <include refid="productColumns" />
         FROM
@@ -135,34 +193,26 @@
             LEFT OUTER JOIN
             Echo E ON R.id = E.retailerId
             LEFT OUTER JOIN
-            FacebookPost FBP ON E.id=FBP.echoId
-            LEFT OUTER JOIN
-            <include refid="fbLikesTempTable"/>
-            FBL ON FBL.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            <include refid="fbCommentsTempTable"/>
-            FBC ON FBC.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            <include refid="echoClicksTempTable"/>
-            EC ON E.id=EC.echoId
+            <include refid="aggregateStatsByEcho" />
+            ESA on E.id=ESA.echoId
         WHERE
             R.id = #{retailerId}
             AND
             E.productId = #{productId}
         GROUP BY
-            R.id, R.name, E.productId, E.productName, E.brand, E.category
+            R.id, R.name, E.productId, E.productName
     </select>
 
-    <select id="getCustomersByRetailerId" resultMap="customerSocialSummaryResult" >
+    <select id="getTopCustomersWithRetailerId" resultMap="retailerCustomerListView" >
         SELECT
             R.id as retailerId,
             R.name as retailerName,
             EU.id as echoedUserId,
             EU.name as echoedUserName,
             count(E.id) as totalEchoes,
-            coalesce(sum(FBL.facebookLikes), 0) as totalFacebookLikes,
-            coalesce(sum(FBC.facebookComments), 0) as totalFacebookComments,
-            coalesce(sum(EC.echoClicks), 0) as totalEchoClicks,
+            coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
+            coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
+            coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
             coalesce(FF.facebookFriends, 0) as totalFacebookFriends
          FROM
             Retailer R
@@ -171,31 +221,17 @@
             LEFT OUTER JOIN
             EchoedUser EU ON  E.echoedUserId = EU.id
             LEFT OUTER JOIN
-            FacebookPost FBP ON E.id = FBP.echoId
+            <include refid="aggregateStatsByEcho" />
+            ESA ON E.id = ESA.echoId
             LEFT OUTER JOIN
-            <include refid="fbLikesTempTable"/>
-            FBL ON FBL.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            <include refid="fbCommentsTempTable"/>
-            FBC ON FBC.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            <include refid="echoClicksTempTable"/>
-            EC ON E.id = EC.echoId
-            LEFT OUTER JOIN
-            ( SELECT
-                FacebookUser.echoedUserId,
-                count(FacebookFriend.id) as facebookFriends
-              FROM
-                FacebookUser
-                LEFT OUTER JOIN
-                FacebookFriend ON FacebookUser.id = FacebookFriend.facebookUserId
-              GROUP BY
-                FacebookUser.echoedUserId)
+            <include refid="friendsAggregate" />
             FF ON FF.echoedUserId=EU.id
         WHERE
             R.id = #{retailerId}
         GROUP BY
-            R.id, R.name, EU.id, EU.name;
+            R.id, R.name, EU.id, EU.name
+        LIMIT
+            0,5
     </select>
 
     <select id="getSocialActivityByRetailerId" resultMap="retailerSocialSummaryResult">
@@ -203,24 +239,16 @@
             R.id as retailerId,
             R.name as retailerName,
             count(E.id) as totalEchoes,
-            coalesce(sum(FBL.facebookLikes), 0) as totalFacebookLikes,
-            coalesce(sum(FBC.facebookComments), 0) as totalFacebookComments,
-            coalesce(sum(EC.echoClicks), 0) as totalEchoClicks
+            coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
+            coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
+            coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks
         FROM
             Retailer R
             LEFT OUTER JOIN
             Echo E ON R.id = E.retailerId
             LEFT OUTER JOIN
-            FacebookPost FBP ON E.id=FBP.echoId
-            LEFT OUTER JOIN
-            <include refid="fbLikesTempTable"/>
-            FBL ON FBL.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            <include refid="fbCommentsTempTable"/>
-            FBC ON FBC.facebookPostId = FBP.id
-            LEFT OUTER JOIN
-            <include refid="echoClicksTempTable"/>
-            EC ON E.id=EC.echoId
+            <include refid="aggregateStatsByEcho"/>
+            ESA ON E.id = ESA.echoId
         WHERE
             R.id = #{retailerId}
         GROUP BY

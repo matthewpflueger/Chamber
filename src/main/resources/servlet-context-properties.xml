@@ -47,8 +47,8 @@
         <prop key="facebookLoginErrorViewUrl">${cdnUrl}/facebook_login_error.html</prop>
         <prop key="dashboardViewUrl">${cdnUrl}/view.partner.html</prop>
 
-        <prop key="exhibitUrl">${apiUrl}/closet/exhibit</prop>
-        <prop key="friendsUrl">${apiUrl}/closet/friends</prop>
+        <prop key="exhibitUrl">${apiUrl}/user/exhibit</prop>
+        <prop key="friendsUrl">${apiUrl}/user/friends</prop>
         <prop key="dashboardUrl">${apiUrl}/partner/dashboard</prop>
     </util:properties>
 

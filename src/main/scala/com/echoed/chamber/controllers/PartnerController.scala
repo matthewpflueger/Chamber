@@ -32,7 +32,6 @@ class PartnerController {
     @BeanProperty var partnerDashboardView: String = _
 
 
-
     @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
     def login(
             @RequestParam("email") email: String,
@@ -156,6 +155,41 @@ class PartnerController {
             continuation.undispatch()
         })
 
+    }
+    
+    @RequestMapping(value = Array("/topcustomers"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def topCustomers(
+                    @CookieValue(value="partnerUser", required = false) partnerUserId: String,
+                    httpServletRequest: HttpServletRequest,
+                    httpServletResponse: HttpServletResponse
+                        ) = {
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            logger.error("Request expired to view dashboard for {}", partnerUserId)
+            new ModelAndView(partnerDashboardErrorView)
+        } else Option(continuation.getAttribute("customers")).getOrElse({
+
+            continuation.suspend(httpServletResponse)
+
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    pus.getTopCustomers.onResult({
+                        case GetTopCustomersResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Products {}", error)
+                        case GetTopCustomersResponse(_, Right(retailerTopCustomersView)) =>
+                            if(retailerTopCustomersView == null)
+                                continuation.setAttribute("customers", "fail")
+                            else
+                                continuation.setAttribute("customers",retailerTopCustomersView)
+                            continuation.resume()
+                    })
+            })
+            continuation.undispatch()
+        })
     }
 
     @RequestMapping(value = Array("/topproducts"), method = Array(RequestMethod.GET))

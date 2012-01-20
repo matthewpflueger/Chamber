@@ -64,9 +64,11 @@ html{
 }
 
 body{
-    //height:100%;
     background-image: url("http://v1-cdn.echoed.com/bk_fancydeboss.png");
-    //background-color: #666;
+}
+
+img{
+    border: none;
 }
 
 th{
@@ -76,11 +78,10 @@ th{
 a{
 	text-decoration:none;
     color: inherit;
-}
-
-a:visited{
-    text-decoration:none;
-    color: inherit;
+    &:visited{
+        text-decoration: none;
+        color: inherit;
+    }
 }
 
 h2{
@@ -136,7 +137,6 @@ h2{
 		
 		
 		#user{
-			//position:absolute;
 			float:right;
 			height: $headerHeight;
             margin-left: 20px;
@@ -163,26 +163,24 @@ h2{
 		#header-nav{
 			margin-left:25px;
 			float:left;
+            li{
+                padding:5px 20px;
+                height: 40px;
+                line-height: $headerHeight;
+                list-style:none;
+                font-size:24px;
+                font-family: $navFontFamily;
+                color: $navColor;
+                float:left;
+            }
+            li:hover, .current{
+            	color: $highlightColor;
+                background-image:url(http://v1-cdn.echoed.com/arrow.png);
+                background-position:bottom;
+                background-repeat:no-repeat;
+            }
 		}
 		
-			#header-nav li{
-				padding:5px 20px;
-				height: 40px;
-				line-height: $headerHeight;			
-				list-style:none;
-                font-size:24px;
-				font-family: $navFontFamily;
-                color: $navColor;
-				float:left;
-			}
-			
-			#header-nav li:hover, #header-nav .current{
-				color: $highlightColor;
-				background-image:url(http://v1-cdn.echoed.com/arrow.png);
-				background-position:bottom;
-				background-repeat:no-repeat;
-			}
-
         #sub-nav{
             height: 25px;
             background-color: $containerColor;
@@ -190,33 +188,24 @@ h2{
             line-height: 25px;
             font-family: $navFontFamily;
             border-bottom: 1px solid #999;
+            a{
+                margin: 0px 10px;
+                color: $navColor;
+                &:hover,&.current{
+                    color: $highlightColor;
+                }
+            }
         }
-
-        #sub-nav a{
-            margin: 0px 10px;
-            color: $navColor;
-        }
-
-        #sub-nav a:hover{
-            color : $highlightColor;
-        }
-
-        #sub-nav a.current{
-            color : $highlightColor;
-        }
-
-	#content{
-	}
 
 	#content-selector-container{
 	    position:relative;
-		//border-bottom: 1px solid #999;
 		padding:10px;
 		margin-bottom:10px;
         text-align:center;
         background-color: #FFF;
-        //background-image: url("http://v1-cdn.echoed.com/bg-whitepx80.png");
         box-shadow: inset 0 1px #fff, 0 1px 3px rgba(34,25,25,0.4);
+        -moz-box-shadow: inset 0 1px #FFF, 0px 1px 3px rgba(34,25,25,0.4);
+        -webkit-box-shadow: inset 0 1px #FFF, 0px 1px 3px rgba(34,25,25,0.4);
 	}
 
 
@@ -262,10 +251,13 @@ h2{
                     background-color: #FFF;
                     position:absolute;
                     display:none;
-                    top:37px;
+                    top:38px;
+                    left: 0px;
                     border: 1px solid #CCC;
                     z-index: 10;
                     box-shadow: inset 0 1px #fff, 0 1px 3px rgba(34,25,25,0.4);
+                    -moz-box-shadow: inset 0 1px #FFF, 0px 1px 3px rgba(34,25,25,0.4);
+                    -webkit-box-shadow: inset 0 1px #FFF, 0px 1px 3px rgba(34,25,25,0.4);
 
                     li{
                         width: 150px;
@@ -299,16 +291,6 @@ h2{
 	        }
 		}
 
-		#friends{
-			width:80%;
-			margin:auto;
-	        .no-echoes{
-   	            font-size: 20px;
-   	            font-weight: bold;
-   	            margin-top: 50px;
-   	            text-align: center;
-   	        }
-		}
 		    #content-title{
 		        position:absolute;
 		        margin:10px;
@@ -329,26 +311,21 @@ h2{
 	            margin: 10px;            
 	            background-color: #FFF;
 	            border: 2px solid #CCC;
-			}
-
-            .friend:hover{
-                border-color: $highlightColor;
-            }
-
-                .friend-img{
-                    width:50px;
-                    height:50px;
+	            &:hover{
+	                border-color: $highlightColor;
+	            }
+	            img{
+                    width: 50px;
+                    height: 50px;
                     float:left;
-                }
-
-                .friend-text{
+	            }
+	            .friend-text{
                     float:left;
                     padding: 5px;
                     width: 190px;
                 }
+			}
 
-		
-			
 			.item_wrap{
 				float:left;
 				margin:3px;
@@ -436,6 +413,7 @@ h2{
 
         .product-detail-image-container{
             float:left;
+            padding: 10px;
             width: 150px;
             height: 200px;
             text-align:left;
@@ -453,37 +431,17 @@ h2{
         .product-detail-table{
             font-size:14px;
             font-family: $textFontFamily;
-        }
-
-            .product-detail-table tr td{
-                padding: 10px 20px 5px 0px;
-                border-bottom: 1px solid #CCC;
+            tr{
+                td{
+                    padding: 10px 20px 5px 0px;
+                    border-bottom: 1px solid #CCC;
+                }
             }
-
-            .product-detail-table td{
+            td{
                 text-align:left;
             }
-
-        .report-table{
-            border-collapse: collapse;
-            width: 100%;
         }
 
-        .report-table th,.report-table td{
-            padding: 20px;
-            font-family: $textFontFamily;
-            font-size: 12px;
-            border: 1px solid #CCC;
-        }
-
-        .report-table td{
-            cursor: pointer;
-        }
-
-        .report-table th{
-            background-color: #DEDEDE;
-            font-weight: bold;
-        }
 
 
         .report-nav{
@@ -504,38 +462,54 @@ h2{
             float:left;
         }
 
-        #top-product-table{
+        #top-product-table, #top-customers-table{
             height:250px;
         }
 
-        .top-products-table{
+        .top-table{
+            border-collapse: collapse;
             width: 100%;
             font-size: 12px;
-        }
-            .top-products-table img{
-                height: 150px;
-                border:2px solid #CCC;
-            }
-
-            .top-products-table tr{
+            tr{
                 border: 1px solid #CCC;
+                cursor:pointer;
             }
-
-            .top-products-table th{
+            th{
                 font-weight:bold;
                 background-color: #EBEBEB;
                 padding:10px;
             }
-
-            .top-products-table td{
+            td{
                 text-align:left;
                 padding: 5px;
+                &.number{
+                    text-align:right;
+                }
             }
+        }
 
-
-td.number{
-    text-align:right;
-}
+        .report-table{
+            border-collapse: collapse;
+            width: 100%;
+            tr{
+                cursor:pointer;
+            }
+            th,td{
+                padding: 20px;
+                font-family: $textFontFamily;
+                font-size: 12px;
+                border: 1px solid #CCC;
+            }
+            td{
+                &.number{
+                    text-align:right;
+                }
+            }
+            th{
+                background-color: #DEDEDE;
+                font-weight: bold;
+            }
+        }
 
 //CLEARFIX
 
@@ -603,15 +577,13 @@ td.number{
 
 .clearfix{
     zoom:1;
-}
-
-.clearfix:before,.clearfix:after{
-    content:"";
-    display:table;
-}
-
-.clearfix:after{
-    clear:both;
+    &:before,&:after{
+        content:"";
+        display:table;
+    }
+    &:after{
+        clear:both;
+    }
 }
 
 .center{

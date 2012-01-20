@@ -1,4 +1,3 @@
-
 var EventAggregator = _.extend({}, Backbone.Events);
 
 Echoed = {
@@ -44,11 +43,9 @@ Echoed.Router = Backbone.Router.extend({
         window.location.href = "#";
     },
     explore: function(filter){
-        console.log("Router: Explore");
         if(!filter) selector = "*";
         else selector = "." + filter;
         if(this.page != "Explore"){
-            console.log("New Page");
             this.page = "Explore";
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: selector, Type: "explore"});
         }
@@ -58,7 +55,6 @@ Echoed.Router = Backbone.Router.extend({
         this.EvAg.trigger("page/change","explore");
     },
     exploreFriends: function(filter){
-        console.log("Router: Explore Friends");
         if(!filter) selector = "*";
         else selector = "." + filter;
         if(this.page != "Explore/Friends"){
@@ -72,7 +68,6 @@ Echoed.Router = Backbone.Router.extend({
     exhibit: function(filter) {
         if(!filter) selector = "*";
         else selector = "." + filter;
-
         if(this.page != "Exhibit"){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector, Type: "exhibit"});
             this.page = "Exhibit";
@@ -111,27 +106,27 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.filter = options.Filter;
         switch(options.Type){
             case "friend":
-                this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit/" + options.Id;
+                this.jsonUrl = "http://v1-api.echoed.com/user/exhibit/" + options.Id;
                 this.baseUrl = "#friends/exhibit/" + options.Id + "/";
                 this.contentTitle = "Friends Exhibit";
                 this.id = "friends";
                 break;
             case "explore":
-                this.jsonUrl = "http://v1-api.echoed.com/closet/feed/public";
+                this.jsonUrl = "http://v1-api.echoed.com/user/feed/public";
                 this.baseUrl = "#explore/";
                 this.contentTitle = "Explore";
                 this.feedSelector = "Everyone";
                 this.id= "explore";
                 break;
             case "explore/friends":
-                this.jsonUrl = "http://v1-api.echoed.com/closet/feed/friends";
+                this.jsonUrl = "http://v1-api.echoed.com/user/feed/friends";
                 this.baseUrl = "#exploref/";
                 this.contentTitle = "Explore";
                 this.feedSelector = "Friends";
                 this.id = "explore/friends";
                 break;
             case "exhibit":
-                this.jsonUrl = "http://v1-api.echoed.com/closet/exhibit";
+                this.jsonUrl = "http://v1-api.echoed.com/user/exhibit";
                 this.baseUrl = "#exhibit/";
                 this.contentTitle = "My Exhibit";
                 this.id = null;
@@ -140,27 +135,32 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.render();
     },
     render: function(){
-        var template = _.template($('#templates-pages-exhibit').html());
-        this.element.html(template);
-        this.exhibit=$('#exhibit');
 
         var self = this;
-        var contentSelector = $('#content-selector');
-        var ul = $('<ul></ul>').addClass('dropdown-container').appendTo(contentSelector);
-        if(this.id == "explore" || this.id=="explore/friends"){
-            var viewDropDownEl = $('<li class="dropdown"></li>');
-            viewDropDownEl.appendTo(ul);
-            var viewDropDown = new Echoed.Views.Components.FeedDropdown({ el: viewDropDownEl, EvAg: this.EvAg, Id: this.id, BaseUrl: this.baseUrl, Selected: this.feedSelector});
-        }
-        var dropDownEl = $('<li class="dropdown"></li>');
-        dropDownEl.appendTo(ul);
-        var dropDown = new Echoed.Views.Components.Dropdown({el: dropDownEl, EvAg: this.EvAg, Id: this.id, BaseUrl: this.baseUrl, Filter: this.filter});
-        var exhibit = $('#exhibit');
 
         $.ajax({
             url: self.jsonUrl,
             dataType: 'json',
             success: function(data){
+
+                var template = _.template($('#templates-pages-exhibit').html());
+                self.element.html(template);
+                self.exhibit=$('#exhibit');
+
+
+                var contentSelector = $('#content-selector');
+                var ul = $('<ul></ul>').addClass('dropdown-container').appendTo(contentSelector);
+                if(self.id == "explore" || self.id=="explore/friends"){
+                    var viewDropDownEl = $('<li class="dropdown"></li>');
+                    viewDropDownEl.appendTo(ul);
+                    var viewDropDown = new Echoed.Views.Components.FeedDropdown({ el: viewDropDownEl, EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Selected: self.feedSelector});
+                }
+                var dropDownEl = $('<li class="dropdown"></li>');
+                dropDownEl.appendTo(ul);
+                var dropDown = new Echoed.Views.Components.Dropdown({el: dropDownEl, EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Filter: self.filter});
+                var exhibit = $('#exhibit');
+
+
                 var products = $('<div></div>');
                 var echoes;
                 if(self.id == "explore")
@@ -190,14 +190,13 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no echoes.");
                     noEchoDiv.appendTo(exhibit);
                 }
-           },
+            },
             error:function (xhr, ajaxOptions, thrownError){
             }
         });
     },
     filterProducts: function(selector){
         var self = this;
-        console.log("Filtering: " + selector);
         self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
     },
     addProduct: function(productModel,filter){
@@ -221,10 +220,10 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
         this.render();
     },
     render: function(){
-        var template = _.template($('#templates-pages-friends').html());
+        var template = _.template($('#templates-pages-exhibit').html());
         this.element.html(template);
-        var ex = $('#friends');
-        jsonUrl = "http://v1-api.echoed.com/closet/friends";
+        var ex = $('#exhibit');
+        jsonUrl = "http://v1-api.echoed.com/user/friends";
         $.ajax({
             url: jsonUrl,
             dataType: 'json',
@@ -323,7 +322,6 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         this.selected = options.Filter.substr(1);
         if(this.selected == "")
             this.selected = "All";
-        console.log("Dropdown Added");
         this.render();
     },
     events: {
@@ -358,7 +356,6 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         }
     },
     addSelector: function(selector,text){
-        console.log("Add Selector");
         if(!this.categories[text]){
             this.categories[text] =  selector;
             this.render();
@@ -374,7 +371,6 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         if(e == "*")
             e = ".All";
         this.selected = e.substr(1);
-        console.log("CLICK TRIGGERED");
         this.render();
     }
 });

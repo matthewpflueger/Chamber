@@ -1,6 +1,6 @@
 package com.echoed.chamber.dao.views
 
-import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView}
+import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView}
 import org.apache.ibatis.annotations.Param
 
 /**
@@ -20,5 +20,7 @@ trait RetailerViewDao {
          @Param("retailerId") retailerId: String): ProductSocialSummary
 
     def getTopProductsWithRetailerId(retailerId: String): RetailerProductsListView
+
+    def getTopCustomersWithRetailerId(retailerId: String): RetailerCustomerListView
 
 }
