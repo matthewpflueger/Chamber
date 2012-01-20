@@ -21,19 +21,30 @@ class FacebookServiceCreatorActor extends Actor {
         case ("code", code: String, queryString: String) => {
             logger.debug("Creating FacebookService using code {}", code)
             val facebookUser = for {
-                accessToken: String <- facebookAccess.getAccessToken(code, queryString)
-                me: FacebookUser <- facebookAccess.getMe(accessToken)
-                fbUser: FacebookUser <- Future[FacebookUser] { 
-                  Option(facebookUserDao.findByFacebookId(me.facebookId)) match {
-                    case Some(fbUser2) =>
-                      logger.debug("Found Facebook User {}", me.facebookId)
-                      fbUser2
-                    case None =>
-                      logger.debug("No Facebook User {}", me.facebookId)
-                      me
-                  } 
+                theAccessToken: String <- facebookAccess.getAccessToken(code, queryString)
+                me: FacebookUser <- facebookAccess.getMe(theAccessToken)
+                fbUser: FacebookUser <- Future[FacebookUser] {
+                    Option(facebookUserDao.findByFacebookId(me.facebookId)) match {
+                        case Some(fbUser2) =>
+                            logger.debug("Found Facebook User {}", me.facebookId)
+                            fbUser2.copy(
+                                accessToken = theAccessToken,
+                                name = me.name,
+                                email = me.email,
+                                facebookId = me.facebookId,
+                                link = me.link,
+                                gender = me.gender,
+                                timezone = me.timezone,
+                                locale = me.locale)
+                        case None =>
+                            logger.debug("No Facebook User {}", me.facebookId)
+                            me
+                    }
                 }
-                inserted: Int <- Future[Int] { facebookUserDao.insertOrUpdate(fbUser) }
+                inserted: Int <- Future[Int] {
+                    logger.debug("Updating FacebookUser {} accessToken {}", fbUser.id, fbUser.accessToken)
+                    facebookUserDao.insertOrUpdate(fbUser)
+                }
             } yield fbUser
 
             logger.debug("Creating FacebookService with user {}", facebookUser)
