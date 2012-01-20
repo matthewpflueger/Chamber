@@ -24,6 +24,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
     private val logger = LoggerFactory.getLogger(classOf[EchoIT])
 
     @Autowired @BeanProperty var echoDao: EchoDao = _
+    @Autowired @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
@@ -72,6 +73,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
         retailerSettingsDao.deleteByRetailerId(retailer.id)
         echoPossibilityDao.deleteByRetailerId(retailer.id)
         echoDao.deleteByRetailerId(retailer.id)
+        echoMetricsDao.deleteByRetailerId(retailer.id)
     }
 
     override def beforeAll() {
@@ -174,9 +176,14 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             echo = echoDao.findByEchoPossibilityId(echoPossibility.id)
             echo should not be (null)
             echo.echoedUserId should equal (echoedUser.id)
-            echo.totalClicks should be (0)
-            echo.credit should be > (0f) //not be(null)
-            echo.fee should be > (0f)
+            echo.echoMetricsId should not be (null)
+
+            val echoMetrics = echoMetricsDao.findByEchoId(echo.id)
+            echoMetrics should not be (null)
+
+            echoMetrics.totalClicks should be (0)
+            echoMetrics.credit should be > (0f) //not be(null)
+            echoMetrics.fee should be > (0f)
 
             facebookPost = facebookPostDao.findByEchoId(echo.id)
             facebookPost should not be (null)
@@ -245,10 +252,10 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             echoClick.get(0).facebookPostId should equal (facebookPost.id)
             echoClick.get(0).twitterStatusId should be (null)
 
-            val e = echoDao.findById(echoClick.get(0).echoId)
-            e.totalClicks should not be (0)
-            e.credit should be > 0f
-            e.fee should be > 0f
+            val em = echoMetricsDao.findByEchoId(echoClick.get(0).echoId)
+            em.totalClicks should not be (0)
+            em.credit should be > 0f
+            em.fee should be > 0f
         }
 
     }

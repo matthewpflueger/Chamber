@@ -12,9 +12,9 @@ import org.openqa.selenium.{Cookie, WebDriver}
 import java.util.{Date, Properties}
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
-import com.echoed.chamber.dao.{FacebookUserDao, EchoDao, EchoedUserDao}
 import com.echoed.util.IntegrationTest
 import com.echoed.util.WebDriverUtils._
+import com.echoed.chamber.dao.{EchoMetricsDao, FacebookUserDao, EchoDao, EchoedUserDao}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -25,6 +25,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var facebookUserDao: FacebookUserDao = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
+    @Autowired @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
@@ -44,6 +45,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     val echoedUser = dataCreator.echoedUser
     val facebookUser = dataCreator.facebookUser
     val echoes = dataCreator.echoes
+    val echoMetrics = dataCreator.echoMetrics
 
 
     def cleanup() {
@@ -52,6 +54,8 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
         facebookUserDao.deleteByEmail(facebookUser.email)
         echoDao.deleteByRetailerId(echoes(0).retailerId)
         echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
+        echoMetricsDao.deleteByRetailerId(echoes(0).retailerId)
+        echoMetricsDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
     }
 
     override def beforeAll = {
@@ -111,7 +115,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             when("there is a known user")
             then("show the user their closet")
             val pageSource = navigateToCloset(webDriver, echoedUser)
-            pageSource should include(echoes.map(_.credit).sum.round.toString)
+            pageSource should include(echoMetrics.map(_.credit).sum.round.toString)
             //TODO potential for pre-caching but until then...  echoes.foreach(echo => pageSource should include(echo.imageUrl))
         }
 

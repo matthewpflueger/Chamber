@@ -28,6 +28,7 @@ class EchoedUserServiceActor(
         echoPossibilityDao: EchoPossibilityDao,
         retailerSettingsDao: RetailerSettingsDao,
         echoDao: EchoDao,
+        echoMetricsDao: EchoMetricsDao,
         facebookServiceLocator: FacebookServiceLocator,
         twitterServiceLocator: TwitterServiceLocator) extends Actor {
 
@@ -174,8 +175,11 @@ class EchoedUserServiceActor(
                     ep => {
                         Option(retailerSettingsDao.findByActiveOn(ep.retailerId, new Date)).cata(
                             retailerSettings => {
-                                val echo = new Echo(ep, retailerSettings).echoed(retailerSettings)
+                                var echo = new Echo(ep, retailerSettings)
+                                val echoMetrics = new EchoMetrics(echo, retailerSettings).echoed(retailerSettings)
+                                echo = echo.copy(echoMetricsId = echoMetrics.id)
                                 echoDao.insert(echo)
+                                echoMetricsDao.insert(echoMetrics)
 
                                 Future { echoPossibilityDao.insertOrUpdate(ep.copy(echoId = echo.id, step = "echoed")) }
 

@@ -17,6 +17,7 @@
             <arg column="maxPercentage" javaType="_float" />
             <arg column="echoedMatchPercentage" javaType="_float" />
             <arg column="echoedMaxPercentage" javaType="_float" />
+            <arg column="creditWindow" javaType="_int" />
             <arg column="activeOn" javaType="Date" />
         </constructor>
     </resultMap>
@@ -50,6 +51,7 @@
                 maxPercentage,
                 echoedMatchPercentage,
                 echoedMaxPercentage,
+                creditWindow,
                 activeOn)
     	values (
     			#{id},
@@ -62,6 +64,7 @@
                 #{maxPercentage},
                 #{echoedMatchPercentage},
                 #{echoedMaxPercentage},
+                #{creditWindow},
                 #{activeOn})
     </insert>
 

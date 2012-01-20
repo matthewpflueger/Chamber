@@ -26,6 +26,7 @@ class EchoServiceActor extends Actor {
     @BeanProperty var retailerDao: RetailerDao = _
     @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
+    @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @BeanProperty var echoClickDao: EchoClickDao = _
 
 
@@ -101,11 +102,13 @@ class EchoServiceActor extends Actor {
                         val ec = determinePostId(echo, echoClick, postId)
                         echoClickDao.insert(ec)
                         channel ! (ec, echo.landingPageUrl)
+
                         logger.debug("Successfully recorded {}", echoClick)
 
+                        val echoMetrics = Option(echoMetricsDao.findById(echo.echoMetricsId)).get
                         val retailerSettings = Option(retailerSettingsDao.findById(echo.retailerSettingsId)).get
-                        val clickedEcho = echo.clicked(retailerSettings)
-                        echoDao.updateForClick(clickedEcho)
+                        val clickedEcho = echoMetrics.clicked(retailerSettings)
+                        echoMetricsDao.updateForClick(clickedEcho)
                         logger.debug("Successfully updated for click {}", clickedEcho)
                 }
             }

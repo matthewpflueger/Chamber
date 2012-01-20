@@ -1,6 +1,6 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.{Calendar, UUID, Date}
 
 
 case class RetailerSettings(
@@ -15,12 +15,14 @@ case class RetailerSettings(
         maxPercentage: Float,
         echoedMatchPercentage: Float,
         echoedMaxPercentage: Float,
+        creditWindow: Int,
         activeOn: Date) {
 
     require(closetPercentage >= 0)
     require(echoedMaxPercentage >= 0)
     require(echoedMatchPercentage >= 0)
     require(minClicks >= 0)
+    require(creditWindow >= 0)
 
     require(minClicks <= maxClicks)
     require(minPercentage >= closetPercentage)
@@ -36,6 +38,7 @@ case class RetailerSettings(
             maxPercentage: Float,
             echoedMatchPercentage: Float,
             echoedMaxPercentage: Float,
+            creditWindow: Int,
             activeOn: Date) = this(
         UUID.randomUUID.toString,
         new Date,
@@ -48,8 +51,15 @@ case class RetailerSettings(
         maxPercentage,
         echoedMatchPercentage,
         echoedMaxPercentage,
+        creditWindow,
         activeOn)
 
+
+    def creditWindowEndsAt = {
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.HOUR, creditWindow)
+        cal.getTime
+    }
 }
 
 

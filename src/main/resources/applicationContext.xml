@@ -114,6 +114,8 @@
         <!--suppress SpringModelInspection -->
         <property name="echoDao" ref="echoDao" />
         <!--suppress SpringModelInspection -->
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
+        <!--suppress SpringModelInspection -->
         <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->
         <property name="retailerDao" ref="retailerDao" />
@@ -171,6 +173,8 @@
         <property name="feedDao" ref="feedDao"/>
         <!--suppress SpringModelInspection -->
         <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
         <!--suppress SpringModelInspection -->
         <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->

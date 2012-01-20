@@ -12,6 +12,7 @@ import scalaz._
 import Scalaz._
 import com.echoed.chamber.services.twitter.{GetTwitterServiceWithIdResponse, GetUserResponse, TwitterService, TwitterServiceLocator}
 import com.echoed.chamber.domain.{FacebookUser, EchoedUser}
+import org.springframework.beans.factory.annotation.Required
 
 
 class EchoedUserServiceCreatorActor extends Actor {
@@ -26,6 +27,7 @@ class EchoedUserServiceCreatorActor extends Actor {
     @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoedFriendDao: EchoedFriendDao = _
+    @BeanProperty var echoMetricsDao: EchoMetricsDao = _
 
     @BeanProperty var facebookServiceLocator: FacebookServiceLocator = _
     @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
@@ -150,6 +152,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                             echoPossibilityDao = echoPossibilityDao,
                             retailerSettingsDao = retailerSettingsDao,
                             echoDao = echoDao,
+                            echoMetricsDao = echoMetricsDao,
                             facebookServiceLocator = facebookServiceLocator,
                             twitterServiceLocator = twitterServiceLocator)).start)
 

@@ -26,7 +26,24 @@ class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 maxPercentage = -1f,
                 echoedMaxPercentage = -1f,
                 echoedMatchPercentage = -1f,
-                activeOn = new Date)
+                activeOn = new Date,
+                creditWindow = -1)
+            } should produce [IllegalArgumentException]
+
+            given("a RetailerSettings")
+            when("creditWindow is less than 0")
+            then("throw IllegalArgumentException")
+            evaluating { new RetailerSettings(
+                retailerId = "retailerId",
+                closetPercentage = 0,
+                minClicks = 0,
+                minPercentage = 0,
+                maxClicks = 0,
+                maxPercentage = 0,
+                echoedMaxPercentage = 0,
+                echoedMatchPercentage = 0,
+                activeOn = new Date,
+                creditWindow = -1)
             } should produce [IllegalArgumentException]
 
             given("a RetailerSettings")
@@ -41,7 +58,8 @@ class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 maxPercentage = 0,
                 echoedMaxPercentage = 0,
                 echoedMatchPercentage = 0,
-                activeOn = new Date)
+                activeOn = new Date,
+                creditWindow = 1)
             } should produce [IllegalArgumentException]
 
 
@@ -57,7 +75,8 @@ class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 maxPercentage = 0,
                 echoedMaxPercentage = 0,
                 echoedMatchPercentage = 0,
-                activeOn = new Date)
+                activeOn = new Date,
+                creditWindow = 1)
             } should produce [IllegalArgumentException]
 
 
@@ -73,7 +92,8 @@ class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 maxPercentage = 0.01f,
                 echoedMaxPercentage = 0,
                 echoedMatchPercentage = 0,
-                activeOn = new Date)
+                activeOn = new Date,
+                creditWindow = 1)
             } should produce [IllegalArgumentException]
 
         }

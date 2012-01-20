@@ -11,7 +11,7 @@ import com.echoed.util.IntegrationTest
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.chamber.util.DataCreator
 import scala.collection.JavaConversions._
-import com.echoed.chamber.dao.{EchoDao, EchoedUserDao}
+import com.echoed.chamber.dao.{EchoMetricsDao, EchoDao, EchoedUserDao}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -21,24 +21,30 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
     @Autowired @BeanProperty var closetDao: ClosetDao = _
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
+    @Autowired @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
     val echoedUser = dataCreator.echoedUser
     val echoes = dataCreator.echoes
+    val echoMetrics = dataCreator.echoMetrics
+    val retailerSettings = dataCreator.retailerSettings
 
     def cleanup() {
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
         echoDao.deleteByRetailerId(echoes(0).retailerId)
         echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
+        echoMetricsDao.deleteByRetailerId(echoes(0).retailerId)
+        echoMetricsDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
     }
 
     override def beforeAll = {
         cleanup
         echoedUserDao.insert(echoedUser)
         echoes.foreach(echoDao.insert(_))
+        echoMetrics.map(_.echoed(retailerSettings).clicked(retailerSettings).clicked(retailerSettings)).foreach(echoMetricsDao.insert(_))
     }
     override def afterAll = cleanup
 
@@ -63,7 +69,7 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
             val totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
             totalCredit should not be(0f)
 
-            echoes.map(_.credit).sum should be(totalCredit)
+            echoMetricsDao.findByRetailerId(echoes(0).retailerId).map(_.credit).sum should be(totalCredit)
         }
 
     }

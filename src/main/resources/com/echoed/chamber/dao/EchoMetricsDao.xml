@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.EchoMetricsDao">
+
+    <cache-ref namespace="com.echoed.chamber.dao.cache.Default" />
+
+    <resultMap id="echoMetricsResult" type="com.echoed.chamber.domain.EchoMetrics">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="echoId" javaType="String" />
+            <arg column="echoedUserId" javaType="String" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="retailerSettingsId" javaType="String" />
+            <arg column="price" javaType="_float" />
+            <arg column="creditWindowEndsAt" javaType="Date" />
+            <arg column="totalClicks" javaType="_int" />
+            <arg column="clicks" javaType="_int" />
+            <arg column="credit" javaType="_float" />
+            <arg column="fee" javaType="_float" />
+            <arg column="residualClicks" javaType="_int" />
+            <arg column="residualCredit" javaType="_float" />
+            <arg column="residualFee" javaType="_float" />
+        </constructor>
+    </resultMap>
+
+    <select id="findById" resultMap="echoMetricsResult">
+        select * from EchoMetrics where id = #{id}
+    </select>
+
+    <select id="findByEchoId" resultMap="echoMetricsResult">
+    	select * from EchoMetrics where echoId = #{echoId}
+    </select>
+
+    <select id="findByEchoedUserId" resultMap="echoMetricsResult">
+    	select * from EchoMetrics where echoedUserId = #{echoedUserId}
+    </select>
+
+    <select id="findByRetailerId" resultMap="echoMetricsResult">
+    	select * from EchoMetrics where retailerId = #{retailerId}
+    </select>
+
+    <select id="findByRetailerSettingsId" resultMap="echoMetricsResult">
+    	select * from EchoMetrics where retailerSettingsId = #{retailerSettingsId}
+    </select>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.EchoMetrics">
+    	insert into EchoMetrics(
+    			id,
+    			createdOn,
+                echoId,
+                echoedUserId,
+                retailerId,
+                retailerSettingsId,
+                price,
+                creditWindowEndsAt,
+                totalClicks,
+                clicks,
+                credit,
+                fee,
+                residualClicks,
+                residualCredit,
+                residualFee)
+        values (
+                #{id},
+                #{createdOn},
+                #{echoId},
+                #{echoedUserId},
+                #{retailerId},
+                #{retailerSettingsId},
+                #{price},
+                #{creditWindowEndsAt},
+                #{totalClicks},
+                #{clicks},
+                #{credit},
+                #{fee},
+                #{residualClicks},
+                #{residualCredit},
+                #{residualFee})
+    </insert>
+
+    <update id="updateForClick" parameterType="com.echoed.chamber.domain.EchoMetrics">
+        update EchoMetrics set
+            totalClicks=#{totalClicks},
+            clicks=#{clicks},
+            credit=#{credit},
+            fee=#{fee},
+            residualClicks=#{residualClicks},
+            residualCredit=#{residualCredit},
+            residualFee=#{residualFee}
+        where
+            id=#{id}
+    </update>
+
+    <delete id="deleteByEchoId">
+        delete from EchoMetrics where echoId=#{echoId}
+    </delete>
+
+    <delete id="deleteByEchoedUserId">
+        delete from EchoMetrics where echoedUserId=#{echoedUserId}
+    </delete>
+
+    <delete id="deleteByRetailerId">
+        delete from EchoMetrics where retailerId=#{retailerId}
+    </delete>
+
+    <delete id="deleteByRetailerSettingsId">
+        delete from EchoMetrics where retailerSettingsId=#{retailerSettingsId}
+    </delete>
+
+</mapper>

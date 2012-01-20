@@ -13,8 +13,6 @@ trait EchoDao {
 
     def updateTwitterStatusId(echo: Echo): Int
 
-    def updateForClick(echo: Echo): Int
-
     def findByEchoPossibilityId(echoPossibilityId: String): Echo
 
     def deleteByEchoPossibilityId(echoPossibilityId: String): Int

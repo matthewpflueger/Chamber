@@ -22,12 +22,10 @@
             <arg column="echoPossibilityId" javaType="String" />
             <arg column="landingPageUrl" javaType="String" />
             <arg column="retailerSettingsId" javaType="String" />
-            <arg column="totalClicks" javaType="_int" />
-            <arg column="credit" javaType="_float" />
-            <arg column="fee" javaType="_float" />
             <arg column="productName" javaType="String"/>
             <arg column="category" javaType="String"/>
             <arg column="brand" javaType="String"/>
+            <arg column="echoMetricsId" javaType="String"/>
         </constructor>
     </resultMap>
 
@@ -60,12 +58,10 @@
                 echoPossibilityId,
                 landingPageUrl,
                 retailerSettingsId,
-                totalClicks,
-                credit,
-                fee,
                 productName,
                 category,
-                brand)
+                brand,
+                echoMetricsId)
         values (
                 #{id},
                 #{createdOn},
@@ -81,12 +77,10 @@
                 #{echoPossibilityId},
                 #{landingPageUrl},
                 #{retailerSettingsId},
-                #{totalClicks},
-                #{credit},
-                #{fee},
                 #{productName},
                 #{category},
-                #{brand})
+                #{brand},
+                #{echoMetricsId})
     </insert>
 
     <update id="updateFacebookPostId" parameterType="com.echoed.chamber.domain.Echo">
@@ -99,15 +93,6 @@
     <update id="updateTwitterStatusId" parameterType="com.echoed.chamber.domain.Echo">
         update Echo set
             twitterStatusId=#{twitterStatusId}
-        where
-            id=#{id}
-    </update>
-
-    <update id="updateForClick" parameterType="com.echoed.chamber.domain.Echo">
-        update Echo set
-            totalClicks=#{totalClicks},
-            credit=#{credit},
-            fee=#{fee}
         where
             id=#{id}
     </update>

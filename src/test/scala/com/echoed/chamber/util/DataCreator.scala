@@ -26,6 +26,7 @@ class DataCreator {
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
+    @Autowired @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @Autowired @BeanProperty var retailerUserDao : RetailerUserDao = _
 
 
@@ -249,14 +250,18 @@ class DataCreator {
                     retailerSettingsId = rs.id,
                     productName = "productName",
                     category = category,
-                    brand = "brand")
-                e = e.echoed(rs)
+                    brand = "brand",
+                    echoMetricsId = null)
+                var em = new EchoMetrics(e, rs)
+                e = e.copy(echoMetricsId = em.id)
+                em = em.echoed(rs)
 
                 val clicks = random.nextInt(rs.maxClicks)
                 logger.debug("Clicking {} times on {}", clicks, e)
-                for (clicked <- 0 to random.nextInt(rs.maxClicks)) e = e.clicked(rs)
+                for (clicked <- 0 to random.nextInt(rs.maxClicks)) em = em.clicked(rs)
 
                 echoDao.insert(e)
+                echoMetricsDao.insert(em)
                 logger.debug("Created {}", e)
             }
         }
@@ -317,6 +322,7 @@ class DataCreator {
 
     //val retailers = retailerDao.selectAll
     val retailer = retailers(0)
+    val creditWindow = 168
     val retailerSettingsFuture = RetailerSettings(
             id = UUID.randomUUID.toString,
             updatedOn = on,
@@ -329,7 +335,8 @@ class DataCreator {
             maxPercentage = 0.2f,
             echoedMatchPercentage = 1f,
             echoedMaxPercentage = 0.2f,
-            activeOn = future.getTime)
+            activeOn = future.getTime,
+            creditWindow = creditWindow)
     val retailerSettingsList = retailerSettingsFuture :: retailers.map { r =>
             new RetailerSettings(
                 retailerId = r.id,
@@ -340,7 +347,8 @@ class DataCreator {
                 maxPercentage = 0.2f,
                 echoedMatchPercentage = 1f,
                 echoedMaxPercentage = 0.2f,
-                activeOn = past.getTime)
+                activeOn = past.getTime,
+                creditWindow = creditWindow)
         }.toList
     val retailerSettings = retailerSettingsList(1)
 
@@ -714,8 +722,7 @@ class DataCreator {
             on)
     )
 
-    val echoes = List(
-        Echo(
+    val echoFuture =  Echo(
             id = echoId_1,
             updatedOn = on,
             createdOn = on,
@@ -732,12 +739,33 @@ class DataCreator {
             echoPossibilityId = echoPossibilities(0).id,
             landingPageUrl = landingPageUrl,
             retailerSettingsId = retailerSettingsFuture.id,
-            totalClicks = 5,
-            credit = 1f,
-            fee = 1f,
             productName = productName_1,
             category = category_1,
-            brand = brand_1),
+            brand = brand_1,
+            echoMetricsId = null)
+
+    private val _echoes = List(
+        Echo(
+            id = echoId_1,
+            updatedOn = on,
+            createdOn = on,
+            retailerId = retailerId,
+            customerId = customerId_1,
+            productId = productId_1,
+            boughtOn = on,
+            orderId = orderId_1,
+            price = price_1,
+            imageUrl = echoImageUrl_1,
+            echoedUserId = echoedUserId,
+            facebookPostId = facebookPostId_1,
+            twitterStatusId = twitterStatusId_1,
+            echoPossibilityId = echoPossibilities(0).id,
+            landingPageUrl = landingPageUrl,
+            retailerSettingsId = retailerSettings.id,
+            productName = productName_1,
+            category = category_1,
+            brand = brand_1,
+            echoMetricsId = null),
         Echo(
             id = echoId_2,
             updatedOn = on,
@@ -755,11 +783,15 @@ class DataCreator {
             echoPossibilityId = echoPossibilities(1).id,
             landingPageUrl = landingPageUrl,
             retailerSettingsId = retailerSettings.id,
-            totalClicks = 5,
-            credit = 1f,
-            fee = 1f,
             productName = productName_2,
             category = category_2,
-            brand = brand_2)
+            brand = brand_2,
+            echoMetricsId = null)
     )
+
+    val echoMetrics = _echoes.map(new EchoMetrics(_, retailerSettings))
+    val echoes = echoMetrics.zip(_echoes).map { tuple =>
+        val (em, e) = tuple
+        e.copy(echoMetricsId = em.id)
+    }
 }
