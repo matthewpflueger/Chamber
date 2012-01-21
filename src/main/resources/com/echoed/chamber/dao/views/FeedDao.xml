@@ -93,8 +93,8 @@
             E.brand as echoBrand,
             coalesce(E.price, 0)  as echoPrice,
             E.landingPageUrl as echoLandingPageUrl,
-            coalesce(E.totalClicks, 0) as echoTotalClicks,
-            ROUND(coalesce(E.credit, 0),2) as echoCredit,
+            coalesce(EM.totalClicks, 0) as echoTotalClicks,
+            ROUND(coalesce(EM.credit, 0),2) as echoCredit,
             R.id as retailerId,
             R.name as retailerName,
             RS.id as retailerSettingsId,
@@ -110,6 +110,7 @@
             left outer join EchoedFriend EF on EU.id = EF.fromEchoedUserId
             left outer join EchoedUser EU2 on EF.toEchoedUserId = EU2.id
             left outer join Echo E on EF.toEchoedUserId = E.echoedUserId
+            left outer join EchoMetrics EM on E.id = EM.echoId
             left outer join Retailer R on E.retailerId = R.id
             left outer join RetailerSettings RS on E.retailerSettingsId = RS.id
             left outer join FacebookPost FP on E.facebookPostId = FP.id
