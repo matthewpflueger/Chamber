@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans  xmlns="http://www.springframework.org/schema/beans" 
+<beans  xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:p="http://www.springframework.org/schema/p" 
+        xmlns:p="http://www.springframework.org/schema/p"
         xmlns:context="http://www.springframework.org/schema/context"
         xmlns:util="http://www.springframework.org/schema/util"
         xsi:schemaLocation="
-            http://www.springframework.org/schema/beans 
+            http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-            http://www.springframework.org/schema/context 
+            http://www.springframework.org/schema/context
             http://www.springframework.org/schema/context/spring-context-3.0.xsd
-            http://www.springframework.org/schema/util 
+            http://www.springframework.org/schema/util
             http://www.springframework.org/schema/util/spring-util-3.0.xsd">
     <!-- NOTE: the default-init-method and default-destroy-method is not defined here as it does something weird to Jetty -->
 
-                           
+
     <!-- This is the Jetty configuration - only the configuration necessary to start-up Jetty
          should be located in here and should match the setup in web.xml.  This configuration
          is used when the application is deployed as a service, the web.xml is used when/if
          the application is deployed as a webapp (in Tomcat). -->
-         
+
     <context:property-placeholder
-                location="classpath:jetty.properties" 
+                location="classpath:jetty.properties"
                 ignore-resource-not-found="true"
                 properties-ref="jettyProperties"/>
     <!--suppress SpringModelInspection -->
@@ -31,14 +31,14 @@
 
         <prop key="springframework.applicationContext">classpath:applicationContext.xml</prop>
         <prop key="springframework.servletContext">classpath:servlet-context.xml</prop>
-        
+
         <prop key="executor.minThreads">16</prop>
         <prop key="executor.maxThreads">256</prop>
         <prop key="executor.keepAlive">60000</prop>
     </util:properties>
 
-        
-    
+
+
     <bean id="webApplicationContext" class="org.springframework.web.context.support.XmlWebApplicationContext">
         <property name="configLocations">
             <list>
@@ -46,13 +46,13 @@
             </list>
         </property>
     </bean>
-    
+
     <bean id="server"
-          class="org.eclipse.jetty.server.Server" 
-          init-method="start" 
+          class="org.eclipse.jetty.server.Server"
+          init-method="start"
           destroy-method="stop">
-          
-        <!-- Thread pool that uses the set defaults 
+
+        <!-- Thread pool that uses the set defaults
                          http://download.eclipse.org/jetty/stable-8/apidocs/org/eclipse/jetty/util/thread/ExecutorThreadPool.html  -->
         <property name="threadPool" >
             <bean class="org.eclipse.jetty.util.thread.ExecutorThreadPool" >
@@ -61,7 +61,7 @@
                 <constructor-arg value="${executor.keepAlive}" />
             </bean>
         </property>
-        
+
         <property name="connectors">
             <list>
                 <bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
@@ -74,7 +74,7 @@
             <bean id="handlers"
                   class="org.eclipse.jetty.server.handler.HandlerCollection">
                 <property name="handlers">
-                    <list>   
+                    <list>
                         <bean class="org.eclipse.jetty.servlet.ServletContextHandler"
                               p:contextPath="/${context}">
                             <property name="attributes">
@@ -106,7 +106,7 @@
                                                 </property>
                                                 <property name="initParameters">
                                                     <map>
-                                                        <entry key="contextConfigLocation" 
+                                                        <entry key="contextConfigLocation"
                                                                value="${springframework.servletContext}" />
                                                     </map>
                                                 </property>
@@ -120,6 +120,7 @@
                                                     <map>
                                                         <entry key="resourceBase"
                                                                value="${resourceBase}" />
+                                                        <entry key="dirAllowed" value="false" />
                                                     </map>
                                                 </property>
                                             </bean>
@@ -129,7 +130,7 @@
                                         <list>
                                             <bean class="org.eclipse.jetty.servlet.ServletMapping"
                                                   p:servletName="dispatcher"
-                                                  p:pathSpec="/" /> 
+                                                  p:pathSpec="/" />
                                         </list>
                                     </property>
                                 </bean>
@@ -140,5 +141,5 @@
             </bean>
         </property>
     </bean>
-    
+
 </beans>
