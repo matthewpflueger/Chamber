@@ -203,10 +203,10 @@ h2 {
     font-weight: bold;
     margin-top: 50px;
     text-align: center; }
-  #exhibit img {
+  #exhibit .item_wrap img {
     width: 230px;
     border: 3px solid #CCC; }
-    #exhibit img.open-echo {
+    #exhibit .item_wrap img.open-echo {
       border-color: #ff7733; }
 
 #content-title {

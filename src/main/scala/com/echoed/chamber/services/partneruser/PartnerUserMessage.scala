@@ -2,7 +2,7 @@ package com.echoed.chamber.services.partneruser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.RetailerUser
-import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView}
+import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate}
 
 
 sealed trait PartnerUserMessage extends Message
@@ -32,6 +32,10 @@ case class GetRetailerSocialSummaryResponse(message: GetRetailerSocialSummary, v
 case class GetProductSocialSummary(productId: String) extends PUM
 case class GetProductSocialSummaryResponse(message: GetProductSocialSummary, value: Either[PartnerUserException, ProductSocialSummary])
         extends PUM with RM[ProductSocialSummary, GetProductSocialSummary, PUE]
+
+case class GetProductSocialActivityByDate(productId: String) extends PUM
+case class GetProductSocialActivityByDateResponse(message: GetProductSocialActivityByDate, value: Either[PartnerUserException, RetailerProductSocialActivityByDate])
+        extends PUM with RM[RetailerProductSocialActivityByDate, GetProductSocialActivityByDate, PUE]
 
 case class GetTopProducts() extends PUM
 case class GetTopProductsResponse(message: GetTopProducts, value: Either[PartnerUserException, RetailerProductsListView])

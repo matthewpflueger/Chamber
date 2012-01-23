@@ -1,6 +1,6 @@
 package com.echoed.chamber.dao.views
 
-import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView}
+import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate}
 import org.apache.ibatis.annotations.Param
 
 /**
@@ -22,5 +22,11 @@ trait RetailerViewDao {
     def getTopProductsWithRetailerId(retailerId: String): RetailerProductsListView
 
     def getTopCustomersWithRetailerId(retailerId: String): RetailerCustomerListView
+    
+    //def getFacebookLikesByRetailerIdProductIdDate(retailerId: String, productId: String): RetailerProductSocialActivityByDate
+    
+    //def getFacebookCommentsByRetailerIdProductIdDate(retailerId: String,  productId: String): RetailerProductSocialActivityByDate
+    
+    def getEchoClicksByRetailerIdProductIdDate(retailerId: String,  productId:String): RetailerProductSocialActivityByDate
 
 }

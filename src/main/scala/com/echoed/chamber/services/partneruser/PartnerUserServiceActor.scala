@@ -45,6 +45,10 @@ class PartnerUserServiceActor(
             logger.debug("Result Set: {}", resultSet)
             self.channel ! GetProductSocialSummaryResponse(msg, Right(resultSet))
 
+        case msg: GetProductSocialActivityByDate =>
+            logger.debug("Getting Product Social Actvity By Date {}", msg productId)
+            //var resultSet = retailerViewDao.getFacebookCommentsByRetailerIdProductIdDate()
+
         case msg: GetTopProducts =>
             self.channel ! GetTopProductsResponse(msg, Right(retailerViewDao.getTopProductsWithRetailerId(partnerUser.retailerId)))
 

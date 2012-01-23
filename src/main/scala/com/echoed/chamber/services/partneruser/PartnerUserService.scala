@@ -13,6 +13,8 @@ trait PartnerUserService {
 
     def getProductSocialSummary(productId: String): Future[GetProductSocialSummaryResponse]
 
+    def getProductSocialActivityByDate(productId: String): Future[GetProductSocialActivityByDateResponse]
+
     def getTopProducts: Future[GetTopProductsResponse]
 
     def getTopCustomers: Future[GetTopCustomersResponse]

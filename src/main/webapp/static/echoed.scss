@@ -282,12 +282,14 @@ h2{
 	            margin-top: 50px;
 	            text-align: center;
 	        }
-	        img{
-	            width: 230px;
-	            border: 3px solid #CCC;
-	            &.open-echo{
-	                border-color: $highlightColor;
-	            }
+	        .item_wrap{
+	            img{
+	                width: 230px;
+	                border: 3px solid #CCC;
+	                &.open-echo{
+    	                border-color: $highlightColor;
+    	            }
+    	        }
 	        }
 		}
 

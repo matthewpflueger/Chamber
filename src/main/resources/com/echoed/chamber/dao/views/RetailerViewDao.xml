@@ -22,6 +22,22 @@
         </constructor>
         <collection property="products" ofType="com.echoed.chamber.domain.views.ProductSocialSummary" javaType="ArrayList" resultMap="productSocialSummaryResult"/>
     </resultMap>
+    
+    <resultMap id="retailerProductSocialActivityByDate" type="com.echoed.chamber.domain.views.RetailerProductSocialActivityByDate">
+        <constructor>
+            <idArg column="retailerId" javaType="String"/>
+            <arg column="retailerName" javaType="String"/>
+            <arg column="activityType"  javaType="String"/>
+        </constructor>
+        <collection property="activityType" ofType="com.echoed.chamber.domain.views.SocialActivityTotalByDate" javaType="ArrayList" resultMap="socialActivityTotalByDate"/>
+    </resultMap>
+
+    <resultMap id="socialActivityTotalByDate" type="com.echoed.chamber.domain.views.SocialActivityTotalByDate">
+        <constructor>
+            <idArg column="date" javaType="Date"/>
+            <arg column="total" javaType="_int"/>
+        </constructor>
+    </resultMap>
 
     <resultMap id="productSocialSummaryResult" type="com.echoed.chamber.domain.views.ProductSocialSummary">
         <constructor>
@@ -254,5 +270,74 @@
         GROUP BY
             R.id, R.name
     </select>
+    
+    
+    <select id="getEchoClicksByRetailerIdProductIdDate" resultMap="retailerProductSocialActivityByDate">
+        SELECT
+            R.id as retailerId
+            R.name as retailerName,
+            E.productId as productId,
+            Date(EC.createdOn) as date
+            count(EC.id) as echoClicks
+        FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E ON R.id = E.retailerId
+            LEFT OUTER JOIN
+            EchoClick E on E.id = EC.echoId
+        GROUP BY
+            R.id, R.name, E.productId, Date(EC.createdOn)
+    </select>
+
+    <select id="getFacebookCommentsByRetailerIdProductIdDate" resultMap="retailerProductSocialActivityByDate">
+        SELECT
+            R.id as retailerId,
+            R.name as retailerName,
+            E.productId as productId,
+            'facebookComments',
+            Date(FBC.createdOn) as date,
+            count(FBC.id) as facebookComments
+        FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E ON R.id = E.retailerId
+            LEFT OUTER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            LEFT OUTER JOIN
+            FacebookComment FBC ON FBC.facebookPostID = FBC.id
+        WHERE
+            R.id= #{retailerId}
+            AND
+            E.productId = #{productId}
+        GROUP BY
+            R.id, R.name, E.productId, Date(FBC.createdOn)
+
+    </select>
+
+    <select id="getFacebookLikesByRetailerIdProductIdDate" resultMap="retailerProductSocialActivityByDate">
+        SELECT
+            R.id as retailerId,
+            R.name as retailerName,
+            E.productId as productId,
+            'facebookLikes',
+            Date(FBL.createdOn) as date,
+            count(FBL.id) as facebookLikes
+        FROM
+            Retailer R
+            LEFT OUTER JOIN
+            Echo E ON R.id = E.retailerId
+            LEFT OUTER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            LEFT OUTER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+        WHERE
+            R.id= #{retailerId}
+            AND
+            E.productId = #{productId}
+        GROUP BY
+            R.id, R.name, E.productId,Date(FBL.createdOn)
+    </select>
 
 </mapper>
+
+
