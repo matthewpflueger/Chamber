@@ -272,31 +272,28 @@
     </select>
     
     
-    <select id="getEchoClicksByRetailerIdProductIdDate" resultMap="retailerProductSocialActivityByDate">
+    <select id="getEchoClicksByRetailerIdProductIdDate" resultMap="socialActivityTotalByDate">
         SELECT
-            R.id as retailerId
-            R.name as retailerName,
-            E.productId as productId,
-            Date(EC.createdOn) as date
-            count(EC.id) as echoClicks
+            Date(EC.createdOn) as date,
+            count(EC.id) as total
         FROM
             Retailer R
             LEFT OUTER JOIN
             Echo E ON R.id = E.retailerId
             LEFT OUTER JOIN
-            EchoClick E on E.id = EC.echoId
+            EchoClick EC on E.id = EC.echoId
+        WHERE
+            R.id= #{retailerId}
+            AND
+            E.productId = #{productId}
         GROUP BY
-            R.id, R.name, E.productId, Date(EC.createdOn)
+            Date(EC.createdOn)
     </select>
 
-    <select id="getFacebookCommentsByRetailerIdProductIdDate" resultMap="retailerProductSocialActivityByDate">
+    <select id="getFacebookCommentsByRetailerIdProductIdDate" resultMap="socialActivityTotalByDate">
         SELECT
-            R.id as retailerId,
-            R.name as retailerName,
-            E.productId as productId,
-            'facebookComments',
             Date(FBC.createdOn) as date,
-            count(FBC.id) as facebookComments
+            count(FBC.id) as total
         FROM
             Retailer R
             LEFT OUTER JOIN
@@ -310,18 +307,13 @@
             AND
             E.productId = #{productId}
         GROUP BY
-            R.id, R.name, E.productId, Date(FBC.createdOn)
-
+            Date(FBC.createdOn)
     </select>
 
-    <select id="getFacebookLikesByRetailerIdProductIdDate" resultMap="retailerProductSocialActivityByDate">
+    <select id="getFacebookLikesByRetailerIdProductIdDate" resultMap="socialActivityTotalByDate">
         SELECT
-            R.id as retailerId,
-            R.name as retailerName,
-            E.productId as productId,
-            'facebookLikes',
             Date(FBL.createdOn) as date,
-            count(FBL.id) as facebookLikes
+            count(FBL.id) as total
         FROM
             Retailer R
             LEFT OUTER JOIN
@@ -335,7 +327,7 @@
             AND
             E.productId = #{productId}
         GROUP BY
-            R.id, R.name, E.productId,Date(FBL.createdOn)
+            Date(FBL.createdOn)
     </select>
 
 </mapper>

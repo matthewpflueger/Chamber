@@ -9,10 +9,10 @@ import java.util.{ArrayList, List => JList}
  * To change this template use File | Settings | File Templates.
  */
 
-class RetailerProductSocialActivityByDate(
+case class RetailerProductSocialActivityByDate(
     retailerId: String,
-    retailerName: String,
-    activityType: String,
     productId: String,
-    products: JList[SocialActivityTotalByDate]){
+    likes: JList[SocialActivityTotalByDate],
+    comments: JList[SocialActivityTotalByDate],
+    echoClicks: JList[SocialActivityTotalByDate]){
 }

@@ -3,8 +3,9 @@ package com.echoed.chamber.services.partneruser
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
 import com.echoed.chamber.dao.RetailerUserDao
-import com.echoed.chamber.dao.views.RetailerViewDao
+import com.echoed.chamber.dao.views.{RetailerViewDao}
 import akka.actor.{Channel, Actor}
+import views.RetailerProductSocialActivityByDate
 
 
 class PartnerUserServiceActor(
@@ -47,7 +48,15 @@ class PartnerUserServiceActor(
 
         case msg: GetProductSocialActivityByDate =>
             logger.debug("Getting Product Social Actvity By Date {}", msg productId)
-            //var resultSet = retailerViewDao.getFacebookCommentsByRetailerIdProductIdDate()
+            val comments = retailerViewDao.getFacebookCommentsByRetailerIdProductIdDate(msg.productId,partnerUser.retailerId)
+            logger.debug("Comments: {}", comments)
+            val likes = retailerViewDao.getFacebookLikesByRetailerIdProductIdDate(msg.productId, partnerUser.retailerId)
+            logger.debug("Likes: {}", likes)
+            val echoClicks = retailerViewDao.getEchoClicksByRetailerIdProductIdDate(msg.productId, partnerUser.retailerId)
+            logger.debug("Echo Clicks: {}", echoClicks)
+            self.channel ! GetProductSocialActivityByDateResponse(msg, Right(new RetailerProductSocialActivityByDate(partnerUser.retailerId,msg.productId,likes,comments,echoClicks)))
+
+
 
         case msg: GetTopProducts =>
             self.channel ! GetTopProductsResponse(msg, Right(retailerViewDao.getTopProductsWithRetailerId(partnerUser.retailerId)))

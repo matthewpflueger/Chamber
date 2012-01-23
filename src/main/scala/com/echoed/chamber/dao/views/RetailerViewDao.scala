@@ -1,7 +1,8 @@
 package com.echoed.chamber.dao.views
 
-import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate}
+import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, SocialActivityTotalByDate}
 import org.apache.ibatis.annotations.Param
+import java.util.{List => JList}
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,10 +24,16 @@ trait RetailerViewDao {
 
     def getTopCustomersWithRetailerId(retailerId: String): RetailerCustomerListView
     
-    //def getFacebookLikesByRetailerIdProductIdDate(retailerId: String, productId: String): RetailerProductSocialActivityByDate
+    def getFacebookLikesByRetailerIdProductIdDate(
+            @Param("productId") productId: String,
+            @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
     
-    //def getFacebookCommentsByRetailerIdProductIdDate(retailerId: String,  productId: String): RetailerProductSocialActivityByDate
-    
-    def getEchoClicksByRetailerIdProductIdDate(retailerId: String,  productId:String): RetailerProductSocialActivityByDate
+    def getFacebookCommentsByRetailerIdProductIdDate(
+            @Param("productId") productId: String,
+            @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
+
+    def getEchoClicksByRetailerIdProductIdDate(
+            @Param("productId") productId: String,
+            @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
 
 }

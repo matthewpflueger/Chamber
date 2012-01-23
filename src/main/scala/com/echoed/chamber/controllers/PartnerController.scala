@@ -229,6 +229,39 @@ class PartnerController {
         })
 
     }
+    
+    @RequestMapping(value = Array("/producthistory/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getProductActivityHistory(
+            @PathVariable(value="id") productId: String,
+            @CookieValue(value="partnerUser", required=false) partnerUserId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation((httpServletRequest))
+
+        if(continuation.isExpired){
+            logger.error("Request expired getting product social summary json")
+        } else Option(continuation.getAttribute("productSummary")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    logger.debug("Getting Product Summary for productId: {}", productId)
+                    pus.getProductSocialActivityByDate(productId).onResult({
+                        case GetProductSocialActivityByDateResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Products {}", error)
+                        case GetProductSocialActivityByDateResponse(_, Right(productSocialSummary)) =>
+                            logger.debug("Product Social Activity History: {}", productSocialSummary)
+                            continuation.setAttribute("productSummary",productSocialSummary)
+                            continuation.resume()
+                    })
+            })
+            continuation.undispatch()
+        })
+    }
 
     @RequestMapping(value = Array("/product/{id}"), method = Array(RequestMethod.GET))
     @ResponseBody

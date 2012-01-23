@@ -12,6 +12,32 @@
 <script type='text/javascript' src='http://v1-cdn.echoed.com/highcharts.js'></script>
 <script type="text/javascript" src="http://v1-cdn.echoed.com/highcharts.theme.js"></script>
 <script type="text/javascript">
+    function dump(arr,level) {
+        var dumped_text = "";
+        if(!level) level = 0;
+
+        //The padding given at the beginning of the line.
+        var level_padding = "";
+        for(var j=0;j<level+1;j++) level_padding += "    ";
+
+        if(typeof(arr) == 'object') { //Array/Hashes/Objects
+            for(var item in arr) {
+                var value = arr[item];
+
+                if(typeof(value) == 'object') { //If it is an array,
+                    dumped_text += level_padding + "'" + item + "' ...\n";
+                    dumped_text += dump(value,level+1);
+                } else {
+                    dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+                }
+            }
+        } else { //Stings/Chars/Numbers etc.
+            dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+        }
+        return dumped_text;
+    }
+</script>
+<script type="text/javascript">
 
 if (!('Echoed' in this)) this.Echoed = {};
 
@@ -129,7 +155,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                     template = _.template($('#template-view-reports-products').html());
                     $.getJSON("http://v1-api.echoed.com/partner/product/" + self.reportId,function(data){
                             self.element.hide().html(template).fadeIn(function(){
-                                var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart'});
+                                var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart', productId: self.reportId});
                                 $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
                                 $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
                                 $('#ss-retweets').hide().html(0).fadeIn();
@@ -494,9 +520,49 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
         this.EvAg = options.EvAg;
         this.chart = null;
         this.el = options.el;
-        this.render();
+        var self = this;
+        var likes = {name: 'likes',data:[]};
+        var comments = {name: 'comments',data:[]};
+        var clicks = {name: 'clicks',data:[]};
+        self.series = [];
+        $.ajax({
+            url: 'http://v1-api.echoed.com/partner/producthistory/' + options.productId,
+            dataType: 'json',
+            success: function(data){
+                $.each(data.echoClicks, function(index,echoClick){
+                    if(echoClick.count){
+                        var a = [];
+                        a.push(echoClick.date);
+                        a.push(echoClick.count);
+                        clicks.data.push(a);
+                    }
+                });
+                $.each(data.comments, function(index, comment){
+                    if(comment.count){
+                        var a = [];
+                        a.push(comment.date);
+                        a.push(comment.count);
+                        comments.data.push(a);
+                    }
+                });
+                $.each(data.likes, function(index,like){
+                    if(like.count){
+                        var a = [];
+                        a.push(like.date);
+                        a.push(like.count);
+                        likes.data.push(a);
+                    }
+                });
+                self.series.push(likes);
+                self.series.push(comments);
+                self.series.push(clicks);
+                self.render();
+            }
+        });
+
     },
     render: function() {
+        var self = this;
         var chartOptions = {
             chart: {
                 renderTo: this.el.substr(1),
@@ -520,25 +586,19 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 }
             },
             xAxis: {
-                categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
+                type: 'datetime',
+                dateTimeLabelFormats: { // don't display the dummy year
+                    month: '%e. %b',
+                    year: '%b'
+                }
             },
             tooltip: {
                 formatter: function() {
-                    return '<b>' + this.x + '</b><br/>' +
-                            this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                    return '<b>'+ this.series.name +'</b><br/>'+
+                            Highcharts.dateFormat('%e. %b', this.x) +': '+ this.y +' m';
                 }
             },
-            series: [
-                {
-                    name: 'Facebook',
-                    data: [5, 3, 4, 7, 2]
-                },
-                {
-                    name: 'Twitter',
-                    data: [2, 2, 3, 2, 1]
-                }
-            ]
+            series: self.series
         };
         this.chart = new Highcharts.Chart(chartOptions);
     }
