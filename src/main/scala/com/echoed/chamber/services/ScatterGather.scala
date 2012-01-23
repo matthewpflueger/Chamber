@@ -82,7 +82,9 @@ class ScatterGather extends Actor with FSM[ScatterGatherState, ScatterGatherData
         case Event(StateTimeout, Gather(scatter, channel, timeout)) =>
             channel ! ScatterResponse(
                 scatter,
-                Left(Timeout(responseList.toList, "Did not receive any response within timeout %s" format timeout)))
+                Left(Timeout(
+                    responseList.toList,
+                    "Did not receive any response within timeout %s" format timeout)))
             stop()
 
         case Event(response: Message, data @ Gather(scatter, channel, timeout)) =>

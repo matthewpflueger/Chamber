@@ -3,7 +3,6 @@ package com.echoed.chamber.services.echoeduser
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 
-import com.echoed.chamber.services.facebook.{FacebookServiceLocator, FacebookService}
 import akka.dispatch.Future
 import com.echoed.chamber.dao.views.{ClosetDao, FeedDao}
 import com.echoed.chamber.dao._
@@ -13,6 +12,7 @@ import Scalaz._
 import com.echoed.chamber.services.twitter.{GetTwitterServiceWithIdResponse, GetUserResponse, TwitterService, TwitterServiceLocator}
 import com.echoed.chamber.domain.{FacebookUser, EchoedUser}
 import org.springframework.beans.factory.annotation.Required
+import com.echoed.chamber.services.facebook.{GetFacebookUserResponse, FacebookServiceLocator, FacebookService}
 
 
 class EchoedUserServiceCreatorActor extends Actor {
@@ -74,9 +74,10 @@ class EchoedUserServiceCreatorActor extends Actor {
             try {
                 logger.debug("Creating EchoedUserService with {}", facebookService)
                 msg.facebookService.getFacebookUser().onComplete(_.value.get.fold(
-                    e => error(e),
+                    error(_),
                     _ match {
-                        case facebookUser: FacebookUser =>
+                        case GetFacebookUserResponse(_, Left(e)) => error(e)
+                        case GetFacebookUserResponse(_, Right(facebookUser)) =>
                             logger.debug("Searching for Facebook User {}",facebookUser.id);
                             Option(echoedUserDao.findByFacebookUserId(facebookUser.id)) match {
                                 case Some(echoedUser) =>
@@ -97,8 +98,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                                             twitterServiceLocator)
                                     channel ! CreateEchoedUserServiceWithFacebookServiceResponse(msg, Right(echoedUserServiceActor))
                             }
-                    }
-                ))
+                    }))
             } catch { case e => error(e) }
 
 
@@ -115,7 +115,7 @@ class EchoedUserServiceCreatorActor extends Actor {
             try {
                 logger.debug("Creating EchoedUserService with {}", twitterService)
                 twitterService.getUser.onComplete(_.value.get.fold(
-                    e => error(e),
+                    error(_),
                     _ match {
                         case GetUserResponse(_, Left(e)) => error(e)
                         case GetUserResponse(_, Right(twitterUser)) => Option(echoedUserDao.findByTwitterUserId(twitterUser.id)).cata(

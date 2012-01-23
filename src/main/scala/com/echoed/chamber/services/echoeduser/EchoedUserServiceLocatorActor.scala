@@ -2,7 +2,6 @@ package com.echoed.chamber.services.echoeduser
 
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.ActorClient
 import scalaz._
 import Scalaz._
@@ -13,6 +12,7 @@ import scala.collection.JavaConversions.JConcurrentMapWrapper
 import java.util.concurrent.ConcurrentHashMap
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
+import com.echoed.chamber.services.facebook.{GetFacebookUserResponse, FacebookService}
 
 class EchoedUserServiceLocatorActor extends Actor {
 
@@ -91,9 +91,10 @@ class EchoedUserServiceLocatorActor extends Actor {
 
             try {
                 facebookService.getFacebookUser.onComplete(_.value.get.fold(
-                    e => error(e),
+                    error(_),
                     _ match {
-                        case fu: FacebookUser => Option(fu.echoedUserId).flatMap(cache.get(_)).cata(
+                        case GetFacebookUserResponse(_, Left(e)) => error(e)
+                        case GetFacebookUserResponse(_, Right(fu)) => Option(fu.echoedUserId).flatMap(cache.get(_)).cata(
                             echoedUserService => {
                                 channel ! LocateWithFacebookServiceResponse(msg, Right(echoedUserService))
                                 logger.debug("Cache hit for EchoedUserService for {}", facebookService)
@@ -107,8 +108,7 @@ class EchoedUserServiceLocatorActor extends Actor {
                                         case CreateEchoedUserServiceWithFacebookServiceResponse(_, Right(echoedUserService))=>
                                             channel ! LocateWithFacebookServiceResponse(msg, Right(echoedUserService))
                                             cacheEchoedUserService(msg, echoedUserService)
-                                    }
-                                ))
+                                    }))
                             })
                     }))
             } catch { case e => error(e) }

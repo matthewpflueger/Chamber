@@ -7,15 +7,13 @@ import com.echoed.chamber.domain._
 
 trait FacebookService {
 
-    val id: String
+    def getFacebookUser(): Future[GetFacebookUserResponse]
 
-    def getFacebookUser(): Future[FacebookUser]
+    def assignEchoedUser(echoedUser: EchoedUser): Future[AssignEchoedUserResponse]
 
-    def assignEchoedUser(echoedUser: EchoedUser): Future[FacebookUser]
+    def echo(echo: Echo, message: String): Future[EchoToFacebookResponse]
 
-    def echo(echo: Echo, message: String): Future[FacebookPost]
-
-    def getFacebookFriends(): Future[List[FacebookFriend]]
+    def getFacebookFriends(): Future[GetFriendsResponse]
 
     private[services] def fetchFacebookFriends(): Future[GetFriendsResponse]
 

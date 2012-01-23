@@ -5,9 +5,9 @@ import akka.dispatch.Future
 
 trait FacebookServiceLocator {
 
-    def getFacebookServiceWithCode(code: String, queryString: String): Future[FacebookService]
+    def locateByCode(code: String, queryString: String): Future[LocateByCodeResponse]
 
-    def getFacebookServiceWithFacebookUserId(facebookUserId: String): Future[FacebookService]
+    def locateById(facebookUserId: String): Future[LocateByIdResponse]
 
     def logout(facebookUserId: String): Future[LogoutResponse]
 }

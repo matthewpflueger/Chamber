@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.views.{Closet,Feed}
 import com.echoed.chamber.services.ActorClient
+import akka.util.Duration
 
 
 class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends EchoedUserService with ActorClient {
@@ -23,7 +24,11 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
 //    def getTwitterFollowers() =
 //            (echoedUserServiceActor ? ("getTwitterFollowers")).mapTo[Array[TwitterFollower]]
 
-    def echoTo(echoTo: EchoTo) = (echoedUserServiceActor ? echoTo).mapTo[EchoToResponse]
+    def echoTo(echoTo: EchoTo) =
+        (echoedUserServiceActor ? echoTo).mapTo[EchoToResponse]
+        //NOTE: echo'ing may take a while so a long timeout should be specified but as the default timeout is
+        //set very high we will leave this unset for now...
+//        (echoedUserServiceActor.?(echoTo)(timeout = Duration(30, "seconds"))).mapTo[EchoToResponse]
 
     def echoToFacebook(echo:Echo, message: Option[String]) =
         (echoedUserServiceActor ? (EchoToFacebook(echo, message))).mapTo[EchoToFacebookResponse]

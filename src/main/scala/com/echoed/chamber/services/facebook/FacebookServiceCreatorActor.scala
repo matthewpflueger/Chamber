@@ -1,11 +1,11 @@
 package com.echoed.chamber.services.facebook
 
-import akka.actor.Actor
 import com.echoed.chamber.domain.FacebookUser
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import akka.dispatch.Future
 import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao}
+import akka.actor.{Channel, Actor}
 
 
 class FacebookServiceCreatorActor extends Actor {
@@ -18,61 +18,75 @@ class FacebookServiceCreatorActor extends Actor {
     @BeanProperty var facebookFriendDao: FacebookFriendDao = _
 
     def receive = {
-        case ("code", code: String, queryString: String) => {
-            logger.debug("Creating FacebookService using code {}", code)
-            val facebookUser = for {
-                theAccessToken: String <- facebookAccess.getAccessToken(code, queryString)
-                me: FacebookUser <- facebookAccess.getMe(theAccessToken)
-                fbUser: FacebookUser <- Future[FacebookUser] {
-                    Option(facebookUserDao.findByFacebookId(me.facebookId)) match {
-                        case Some(fbUser2) =>
-                            logger.debug("Found Facebook User {}", me.facebookId)
-                            fbUser2.copy(
-                                accessToken = theAccessToken,
-                                name = me.name,
-                                email = me.email,
-                                facebookId = me.facebookId,
-                                link = me.link,
-                                gender = me.gender,
-                                timezone = me.timezone,
-                                locale = me.locale)
-                        case None =>
-                            logger.debug("No Facebook User {}", me.facebookId)
-                            me
-                    }
-                }
-                inserted: Int <- Future[Int] {
-                    logger.debug("Updating FacebookUser {} accessToken {}", fbUser.id, fbUser.accessToken)
-                    facebookUserDao.insertOrUpdate(fbUser)
-                }
-            } yield fbUser
+        case msg @ CreateFromCode(code, queryString) =>
+            val channel: Channel[CreateFromCodeResponse] = self.channel
 
-            logger.debug("Creating FacebookService with user {}", facebookUser)
-
-            val channel = self.channel
-            facebookUser.map { facebookUser =>
-                channel ! new FacebookServiceActorClient(Actor.actorOf(
-                    new FacebookServiceActor(
-                        facebookUser,
-                        facebookAccess,
-                        facebookUserDao,
-                        facebookPostDao,
-                        facebookFriendDao)).start)
+            def error(e: Throwable) {
+                channel ! CreateFromCodeResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
+                logger.error("Error processing %s" format msg, e)
             }
 
-            logger.debug("Created FacebookService with user {}", facebookUser)
-        }
-        case ("facebookUserId", facebookUserId: String) => {
-            logger.debug("Creating FacebookService using facebookUserId {}", facebookUserId)
-            val facebookUser = Option(facebookUserDao.findById(facebookUserId))
-            self.channel ! new FacebookServiceActorClient(Actor.actorOf(
-                new FacebookServiceActor(
-                        facebookUser.get,
-                        facebookAccess,
-                        facebookUserDao,
-                        facebookPostDao,
-                        facebookFriendDao)).start)
+            try {
+                logger.debug("Creating FacebookService using code {}", code)
+                facebookAccess.getMe(code, queryString).onComplete(_.value.get.fold(
+                    error(_),
+                    _ match {
+                        case GetMeResponse(_, Left(e)) => error(e)
+                        case GetMeResponse(_, Right(me)) =>
+                            val facebookUser = Option(facebookUserDao.findByFacebookId(me.facebookId)) match {
+                                case Some(fu) =>
+                                    logger.debug("Found Facebook User {}", me.facebookId)
+                                    fu.copy(accessToken = me.accessToken,
+                                            name = me.name,
+                                            email = me.email,
+                                            facebookId = me.facebookId,
+                                            link = me.link,
+                                            gender = me.gender,
+                                            timezone = me.timezone,
+                                            locale = me.locale)
+                                case None =>
+                                    logger.debug("No Facebook User {}", me.facebookId)
+                                    me
+                            }
 
-        }
+                            logger.debug("Updating FacebookUser {} accessToken {}", facebookUser.id, facebookUser.accessToken)
+                            facebookUserDao.insertOrUpdate(facebookUser)
+
+                            channel ! CreateFromCodeResponse(msg, Right(new FacebookServiceActorClient(Actor.actorOf(
+                                new FacebookServiceActor(
+                                facebookUser,
+                                facebookAccess,
+                                facebookUserDao,
+                                facebookPostDao,
+                                facebookFriendDao)).start)))
+                            logger.debug("Created FacebookService with user {}", facebookUser)
+                    }))
+            } catch { case e => error(e) }
+
+
+        case msg @ CreateFromId(facebookUserId) =>
+            val channel: Channel[CreateFromIdResponse] = self.channel
+
+            try {
+                logger.debug("Creating FacebookService using facebookUserId {}", facebookUserId)
+                Option(facebookUserDao.findById(facebookUserId)) match {
+                    case Some(facebookUser) =>
+                        channel ! CreateFromIdResponse(msg, Right(
+                            new FacebookServiceActorClient(Actor.actorOf(new FacebookServiceActor(
+                                facebookUser,
+                                facebookAccess,
+                                facebookUserDao,
+                                facebookPostDao,
+                                facebookFriendDao)).start)))
+                        logger.debug("Created Facebook service {}", facebookUserId)
+                    case None =>
+                        channel ! CreateFromIdResponse(msg, Left(FacebookUserNotFound(facebookUserId)))
+                        logger.debug("Did not find FacebookUser with id {}", facebookUserId)
+                }
+            } catch {
+                case e =>
+                    channel ! CreateFromIdResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
+                    logger.error("Error processing %s" format msg, e)
+            }
     }
 }

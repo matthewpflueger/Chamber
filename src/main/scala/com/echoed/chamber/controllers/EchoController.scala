@@ -15,6 +15,7 @@ import scalaz._
 import Scalaz._
 import com.echoed.chamber.domain.views.EchoPossibilityView
 import com.echoed.chamber.services.echo.{EchoExistsException, RecordEchoPossibilityResponse, EchoService}
+import akka.util.Duration
 
 
 @Controller
@@ -178,30 +179,26 @@ class EchoController {
             continuation.suspend(httpServletResponse)
 
             logger.debug("Echoing {}", echoItParameters)
-            logger.debug("echoPossibilityId {}", echoItParameters.echoPossibilityId)
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoItParameters.echoedUserId).onComplete(_.value.get.fold(
-                e => error(e),
-                locateWithIdResponse => locateWithIdResponse match {
+                error(_),
+                _ match {
                     case LocateWithIdResponse(_, Left(e)) => error(e)
-                    case LocateWithIdResponse(_, Right(echoedUserService)) => {
+                    case LocateWithIdResponse(_, Right(echoedUserService)) =>
                         echoedUserService.echoTo(echoItParameters.createEchoTo).onComplete(_.value.get.fold(
-                            e => error(e),
-                            echoToResponse => echoToResponse match {
-                                case EchoToResponse(_, Left(e)) => error(e)
-                                case EchoToResponse(_, Right(echoFull)) => {
+                            error(_),
+                            _ match {
+                                case EchoToResponse(_, Left(e)) =>
+                                    logger.debug("Received error response to echo", e)
+                                    error(e)
+                                case EchoToResponse(_, Right(echoFull)) =>
                                     continuation.setAttribute("modelAndView", new ModelAndView(echoItView, "echoFull", echoFull))
                                     continuation.resume()
-                                }
-                            }
-                        ))
-                    }
-
-                }
-            ))
+                                    logger.debug("Successfully echoed {}", echoFull)
+                            }))
+                }))
 
             continuation.undispatch()
         })
-
     }
 
     @RequestMapping(value = Array("/{echoId}/{postId}"), method = Array(RequestMethod.GET))

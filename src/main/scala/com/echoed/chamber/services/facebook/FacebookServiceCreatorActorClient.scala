@@ -5,15 +5,18 @@ import reflect.BeanProperty
 import com.echoed.chamber.services.ActorClient
 
 
-class FacebookServiceCreatorActorClient extends FacebookServiceCreator with ActorClient {
+class FacebookServiceCreatorActorClient
+        extends FacebookServiceCreator
+        with ActorClient
+        with Serializable {
 
     @BeanProperty var facebookServiceCreatorActor: ActorRef = _
 
-    def createFacebookServiceUsingCode(code: String, queryString: String) =
-            (facebookServiceCreatorActor ? ("code", code, queryString)).mapTo[FacebookService]
+    def createFromCode(code: String, queryString: String) =
+            (facebookServiceCreatorActor ? CreateFromCode(code, queryString)).mapTo[CreateFromCodeResponse]
 
-    def createFacebookServiceUsingFacebookUserId(facebookUserId: String) =
-            (facebookServiceCreatorActor ? ("facebookUserId", facebookUserId)).mapTo[FacebookService]
+    def createFromId(facebookUserId: String) =
+            (facebookServiceCreatorActor ? CreateFromId(facebookUserId)).mapTo[CreateFromIdResponse]
 
     def actorRef = facebookServiceCreatorActor
 }

@@ -5,16 +5,18 @@ import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
 
 
-class FacebookServiceLocatorActorClient extends FacebookServiceLocator with ActorClient {
+class FacebookServiceLocatorActorClient
+        extends FacebookServiceLocator
+        with ActorClient
+        with Serializable {
 
     @BeanProperty var facebookServiceLocatorActor: ActorRef = _
 
-    def getFacebookServiceWithCode(code: String, queryString: String) =
-            (facebookServiceLocatorActor ? ("code", code, queryString)).mapTo[FacebookService]
+    def locateByCode(code: String, queryString: String) =
+            (facebookServiceLocatorActor ? LocateByCode(code, queryString)).mapTo[LocateByCodeResponse]
 
-
-    def getFacebookServiceWithFacebookUserId(facebookUserId: String) =
-            (facebookServiceLocatorActor ? ("facebookUserId", facebookUserId)).mapTo[FacebookService]
+    def locateById(facebookUserId: String) =
+            (facebookServiceLocatorActor ? LocateById(facebookUserId)).mapTo[LocateByIdResponse]
 
     def actorRef = facebookServiceLocatorActor
 
