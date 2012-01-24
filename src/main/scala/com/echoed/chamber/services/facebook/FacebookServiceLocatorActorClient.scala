@@ -23,4 +23,6 @@ class FacebookServiceLocatorActorClient
     def logout(facebookUserId: String) =
             (facebookServiceLocatorActor ? Logout(facebookUserId)).mapTo[LogoutResponse]
 
+    def locateByFacebookId(facebookId: String, accessToken: String) =
+            (facebookServiceLocatorActor ? LocateByFacebookId(facebookId, accessToken)).mapTo[LocateByFacebookIdResponse]
 }

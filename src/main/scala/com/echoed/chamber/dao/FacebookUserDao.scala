@@ -15,5 +15,7 @@ trait FacebookUserDao {
 
     def updateEchoedUser(facebookUser: FacebookUser): Int
 
+    def updateAccessToken(facebookUser: FacebookUser): Int
+
     def deleteByEmail(email: String): Int
 }

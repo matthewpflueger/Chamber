@@ -25,5 +25,7 @@ class FacebookAccessActorClient
     def logout(accessToken: String) =
             (actorRef ? Logout(accessToken)).mapTo[LogoutResponse]
 
+    def fetchMe(accessToken: String) =
+            (actorRef ? FetchMe(accessToken)).mapTo[FetchMeResponse]
 }
 

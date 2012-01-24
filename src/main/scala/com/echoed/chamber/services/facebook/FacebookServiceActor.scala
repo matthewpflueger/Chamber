@@ -96,7 +96,7 @@ class FacebookServiceActor(
                 channel ! GetFriendsResponse(
                         GetFriends(facebookUser.accessToken, facebookUser.facebookId, facebookUser.id),
                         Left(FacebookException("Could not fetch friends", e)))
-                logger.error("Unexpected error fetching Facebook friends for %s" format facebookUser.id, e)
+                logger.error("Error fetching Facebook friends for %s" format facebookUser.id, e)
             }
 
             try {
@@ -133,7 +133,20 @@ class FacebookServiceActor(
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(FacebookException("Could not logout of Facebook", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Error processing %s" format msg, e)
+            }
+
+        case msg @ UpdateAccessToken(accessToken) =>
+            val channel: Channel[UpdateAccessTokenResponse] = self.channel
+
+            try {
+                facebookUser = facebookUser.copy(accessToken = accessToken)
+                facebookUserDao.updateAccessToken(facebookUser)
+                channel ! UpdateAccessTokenResponse(msg, Right(facebookUser))
+            } catch {
+                case e =>
+                    channel ! UpdateAccessTokenResponse(msg, Left(FacebookException("Could not update access token", e)))
+                    logger.error("Error processing %s" format msg, e)
             }
     }
 

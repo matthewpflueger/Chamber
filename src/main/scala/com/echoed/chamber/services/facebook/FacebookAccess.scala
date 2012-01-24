@@ -6,6 +6,8 @@ import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
 
 trait FacebookAccess {
 
+    def fetchMe(accessToken: String): Future[FetchMeResponse]
+
     def getMe(code: String, queryString: String): Future[GetMeResponse]
 
     def getFriends(accessToken: String, facebookId: String, facebookUserId: String): Future[GetFriendsResponse]

@@ -19,6 +19,11 @@ case class AssignEchoedUserResponse(message: AssignEchoedUser, value: Either[FE,
         extends FM
         with RM[FacebookUser, AssignEchoedUser, FE]
 
+case class UpdateAccessToken(accessToken: String) extends FM
+case class UpdateAccessTokenResponse(message: UpdateAccessToken, value: Either[FE, FacebookUser])
+        extends FM
+        with RM[FacebookUser, UpdateAccessToken, FE]
+
 case class EchoToFacebook(echo: Echo, message: String) extends FM
 case class EchoToFacebookResponse(message: EchoToFacebook, value: Either[FE, FacebookPost])
         extends FM
@@ -40,6 +45,11 @@ case class GetFriends(accessToken: String, facebookId: String, facebookUserId: S
 case class GetFriendsResponse(message: GetFriends, value: Either[FE, List[FacebookFriend]])
         extends FM
         with RM[List[FacebookFriend], GetFriends, FE]
+
+case class FetchMe(accessToken: String) extends FM
+case class FetchMeResponse(message: FetchMe, value: Either[FE, FacebookUser])
+        extends FM
+        with RM[FacebookUser, FetchMe, FE]
 
 case class GetMe(code: String, queryString: String) extends FM
 case class GetMeResponse(message: GetMe, value: Either[FE, FacebookUser])
@@ -63,6 +73,10 @@ case class LocateById(facebookUserId: String) extends FM
 case class LocateByIdResponse(message: LocateById, value: Either[FE, FacebookService])
     extends FM with RM[FacebookService, LocateById, FE]
 
+case class LocateByFacebookId(facebookId: String, accessToken: String) extends FM
+case class LocateByFacebookIdResponse(message: LocateByFacebookId, value: Either[FE, FacebookService])
+    extends FM with RM[FacebookService, LocateByFacebookId, FE]
+
 case class CreateFromCode(code: String, queryString: String) extends FM
 case class CreateFromCodeResponse(message: CreateFromCode, value: Either[FE, FacebookService])
     extends FM with RM[FacebookService, CreateFromCode, FE]
@@ -70,6 +84,10 @@ case class CreateFromCodeResponse(message: CreateFromCode, value: Either[FE, Fac
 case class CreateFromId(facebookUserId: String) extends FM
 case class CreateFromIdResponse(message: CreateFromId, value: Either[FE, FacebookService])
     extends FM with RM[FacebookService, CreateFromId, FE]
+
+case class CreateFromFacebookId(facebookId: String, accessToken: String) extends FM
+case class CreateFromFacebookIdResponse(message: CreateFromFacebookId, value: Either[FE, FacebookService])
+    extends FM with RM[FacebookService, CreateFromFacebookId, FE]
 
 case class FacebookUserNotFound(id: String, m: String = "Facebook user not found") extends FE(m)
 

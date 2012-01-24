@@ -9,4 +9,6 @@ trait FacebookServiceCreator {
 
     def createFromId(facebookUserId: String): Future[CreateFromIdResponse]
 
+    def createFromFacebookId(facebookId: String, accessToken: String): Future[CreateFromFacebookIdResponse]
+
 }

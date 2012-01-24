@@ -33,4 +33,7 @@ class FacebookServiceActorClient(facebookServiceActor: ActorRef)
             (facebookServiceActor ? Logout(facebookUserId)).mapTo[LogoutResponse]
 
     override def toString = id
+
+    def updateAccessToken(accessToken: String) =
+            (facebookServiceActor ? UpdateAccessToken(accessToken)).mapTo[UpdateAccessTokenResponse]
 }

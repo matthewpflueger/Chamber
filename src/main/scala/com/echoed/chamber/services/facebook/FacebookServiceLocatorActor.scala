@@ -6,7 +6,7 @@ import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}
 import com.echoed.cache.{CacheEntryRemoved, CacheManager, CacheListenerActorClient}
-import scala.collection.mutable.ConcurrentMap
+import scala.collection.mutable.{WeakHashMap, ConcurrentMap}
 
 
 class FacebookServiceLocatorActor extends Actor {
@@ -18,6 +18,7 @@ class FacebookServiceLocatorActor extends Actor {
 
 
     private var cache: ConcurrentMap[String, FacebookService] = null
+    private val cacheByFacebookId = WeakHashMap[String, FacebookService]()
 
 
     override def preStart() {
@@ -28,7 +29,12 @@ class FacebookServiceLocatorActor extends Actor {
         case msg @ CacheEntryRemoved(facebookUserId: String, facebookService: FacebookService, cause: String) =>
             logger.debug("Received {}", msg)
             facebookService.logout(facebookUserId)
+            for ((key, fs) <- cacheByFacebookId if (fs.id == facebookService.id)) {
+                cacheByFacebookId -= key
+                logger.debug("Removed {} from cache by Facebook id", fs.id)
+            }
             logger.debug("Sent logout for {}", facebookService)
+
 
         case msg @ LocateByCode(code, queryString) =>
             val channel: Channel[LocateByCodeResponse] = self.channel
@@ -56,6 +62,48 @@ class FacebookServiceLocatorActor extends Actor {
                                         logger.debug("Seeded cache with FacebookService key {}", code)
                                 }))
                     }))
+            } catch { case e => error(e) }
+
+
+        case msg @ LocateByFacebookId(facebookId, accessToken) =>
+            val channel: Channel[LocateByFacebookIdResponse] = self.channel
+
+            def error(e: Throwable) {
+                channel ! LocateByFacebookIdResponse(msg, Left(FacebookException("Could not locate Facebook service", e)))
+                logger.error("Error processing %s" format msg, e)
+            }
+
+            def updateCache(facebookService: FacebookService) {
+                facebookService.getFacebookUser.onComplete(_.value.get.fold(
+                    logger.error("Unable to update FacebookService cache by id", _),
+                    _ match {
+                        case GetFacebookUserResponse(_, Left(e)) =>
+                            logger.error("Unable to update FacebookService cache by id", e)
+                        case GetFacebookUserResponse(_, Right(facebookUser)) =>
+                            cache.put(facebookUser.id, facebookService)
+                            logger.debug("Updated FacebookService cache by id for {}", facebookUser.id)
+                    }))
+            }
+
+            try {
+                cacheByFacebookId.get(facebookId) match {
+                    case Some(facebookService) =>
+                        logger.debug("Cache hit for FacebookService with facebookId {}", facebookId)
+                        channel ! LocateByFacebookIdResponse(msg, Right(facebookService))
+                        facebookService.updateAccessToken(accessToken)
+                        updateCache(facebookService)
+                    case None =>
+                        logger.debug("Cache miss for FacebookService with facebookId {}", facebookId)
+                        facebookServiceCreator.createFromFacebookId(facebookId, accessToken).onComplete(_.value.get.fold(
+                            error(_),
+                            _ match {
+                                case CreateFromFacebookIdResponse(_, Left(e)) => error(e)
+                                case CreateFromFacebookIdResponse(_, Right(facebookService)) =>
+                                    channel ! LocateByFacebookIdResponse(msg, Right(facebookService))
+                                    cacheByFacebookId.put(facebookId, facebookService)
+                                    updateCache(facebookService)
+                            }))
+                }
             } catch { case e => error(e) }
 
 
@@ -88,6 +136,7 @@ class FacebookServiceLocatorActor extends Actor {
                             }))
                 }
             } catch { case e => error(e) }
+
 
         case msg @ Logout(facebookUserId) =>
             val channel: Channel[LogoutResponse] = self.channel

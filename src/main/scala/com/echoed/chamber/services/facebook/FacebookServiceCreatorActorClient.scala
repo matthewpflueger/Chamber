@@ -19,4 +19,7 @@ class FacebookServiceCreatorActorClient
             (facebookServiceCreatorActor ? CreateFromId(facebookUserId)).mapTo[CreateFromIdResponse]
 
     def actorRef = facebookServiceCreatorActor
+
+    def createFromFacebookId(facebookId: String, accessToken: String) =
+            (facebookServiceCreatorActor ? CreateFromFacebookId(facebookId, accessToken)).mapTo[CreateFromFacebookIdResponse]
 }

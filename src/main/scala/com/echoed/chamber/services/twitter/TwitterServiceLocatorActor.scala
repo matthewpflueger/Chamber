@@ -32,7 +32,7 @@ class TwitterServiceLocatorActor extends Actor {
             twitterService.logout(twitterUserId)
             for ((key, ts) <- cache if (ts.id == twitterService.id)) {
                 cache -= key
-                logger.debug("Removed TwitterService {} from cache", ts.id)
+                logger.debug("Removed {} from cache", ts.id)
             }
             logger.debug("Sent logout for {}", twitterService)
 

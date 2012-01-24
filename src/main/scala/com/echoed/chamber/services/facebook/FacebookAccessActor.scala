@@ -42,7 +42,28 @@ class FacebookAccessActor extends Actor {
         } ensuring (_ == true, "Missing parameters")
     }
 
+
+    def fetchMe(accessToken: String) = {
+        getFacebookBatcher(accessToken)
+                .graph("me", new TypeReference[Me] {})
+                .get
+                .createFacebookUser(accessToken)
+    }
+
     def receive = {
+        case msg @ FetchMe(accessToken) =>
+            val channel: Channel[FetchMeResponse] = self.channel
+
+            try {
+                val facebookUser = fetchMe(accessToken)
+                channel ! FetchMeResponse(msg, Right(facebookUser))
+            } catch {
+                case e =>
+                    channel ! FetchMeResponse(msg, Left(FacebookException("Could not get Facebook user", e)))
+                    logger.error("Error processing %s" format msg, e)
+            }
+
+
         case msg @ GetMe(code, queryString) =>
             val channel: Channel[GetMeResponse] = self.channel
 
@@ -51,10 +72,7 @@ class FacebookAccessActor extends Actor {
                 logger.debug("Requesting access token for code {}, redirect url {}", code, redirect)
                 val accessToken = FacebookBatcher.getAccessToken(clientId, clientSecret, code, redirect)
                 logger.debug("Requesting me with access token {}", accessToken)
-                val facebookUser = getFacebookBatcher(accessToken)
-                        .graph("me", new TypeReference[Me] {})
-                        .get
-                        .createFacebookUser(accessToken)
+                val facebookUser = fetchMe(accessToken)
                 channel ! GetMeResponse(msg, Right(facebookUser))
                 logger.debug("Got me {}", facebookUser)
             } catch {
@@ -62,6 +80,7 @@ class FacebookAccessActor extends Actor {
                     channel ! GetMeResponse(msg, Left(FacebookException("Could not get Facebook user", e)))
                     logger.error("Error processing %s" format msg, e)
             }
+
 
         case msg @ GetFriends(accessToken, facebookId, facebookUserId) =>
             val channel: Channel[GetFriendsResponse] = self.channel
@@ -82,6 +101,7 @@ class FacebookAccessActor extends Actor {
                         Left(FacebookException("Error fetching Facebook friends", e)))
                     logger.error("Error processing %s" format msg, e)
             }
+
 
         case msg @ Post(accessToken, facebookId, facebookPost) =>
             val channel: Channel[PostResponse] = self.channel
@@ -194,6 +214,7 @@ class FacebookAccessActor extends Actor {
                     logger.error("Exception when retrieving data for FacebookPost {}: {}", facebookPostData.facebookPost.facebookId, e.getMessage)
                     self.channel ! GetPostDataResponse(msg, Left(FacebookException("%s: %s" format(e.getClass.getName, e.getMessage), e)))
             }
+
 
         case msg @ Logout(accessToken) =>
             try {
