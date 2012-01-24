@@ -11,7 +11,6 @@ function echoed_share(store_id, order_id, item_id,item_name,item_type,item_brand
                 + "&productName=" + encodeURIComponent(item_name)
                 + "&category=" + encodeURIComponent(item_type)
                 + "&brand=" + encodeURIComponent(item_brand);
-    alert(url);
 	window.open(url,'Echoed','width=960,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
 	return false;
 }
