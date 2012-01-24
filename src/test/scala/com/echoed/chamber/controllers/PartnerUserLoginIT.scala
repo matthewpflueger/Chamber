@@ -66,11 +66,11 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
             then("redirect to Echoed's partner login page")
             and("prompt the user to login")
-            webDriver.getTitle should be ("Login")
+            webDriver.getTitle should be ("Echoed | Partner Login")
         }
 
         scenario("a partner user logs in using bad credentials and is shown the login page", IntegrationTest) {
-            webDriver.getTitle should be ("Login")
+            webDriver.getTitle should be ("Echoed | Partner Login")
 
             given("a request to login")
             when("there are bad credentials")
@@ -80,7 +80,7 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
             then("redirect back to the login page")
             and("prompt the user to try again")
-            webDriver.getTitle should be ("Login")
+            webDriver.getTitle should be ("Echoed | Partner Login")
             webDriver.getPageSource should include("Error")
             webDriver.manage().getCookieNamed("partnerUser") should be(null)
 
@@ -89,13 +89,13 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
             webDriver.findElement(By.id("password")).sendKeys("badpassword")
             webDriver.findElement(By.id("login")).click()
 
-            webDriver.getTitle should be ("Login")
+            webDriver.getTitle should be ("Echoed | Partner Login")
             webDriver.getPageSource should include("Error")
             webDriver.manage().getCookieNamed("partnerUser") should be(null)
         }
 
         scenario("a partner user logs in using good credentials and is shown the dashboard page", IntegrationTest) {
-            webDriver.getTitle should be ("Login")
+            webDriver.getTitle should be ("Echoed | Partner Login")
 
             given("a request to login")
             when("there are good credentials")
