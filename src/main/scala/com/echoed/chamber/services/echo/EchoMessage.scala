@@ -1,8 +1,8 @@
 package com.echoed.chamber.services.echo
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.EchoPossibility
 import com.echoed.chamber.domain.views.EchoPossibilityView
+import com.echoed.chamber.domain.{EchoMetrics, EchoClick, Echo, EchoPossibility}
 
 
 sealed trait EchoMessage extends Message
@@ -18,7 +18,24 @@ case class RecordEchoPossibilityResponse(
         message: RecordEchoPossibility,
         value: Either[EE, EchoPossibilityView]) extends EM with RM[EchoPossibilityView, RecordEchoPossibility, EE]
 
-case class EchoExistsException(
+case class EchoExists(
         echoPossibilityView: EchoPossibilityView,
         m: String = "",
         c: Throwable = null) extends EE(m, c)
+
+case class GetEcho(echoPossibilityId: String) extends EM
+case class GetEchoResponse(message: GetEcho, value: Either[EE, Echo])
+        extends EM with RM[Echo, GetEcho, EE]
+
+case class EchoNotFound(id: String, m: String = "Echo not found") extends EE(m)
+
+case class EchoPossibilityNotFound(id: String, m: String = "Echo possibility not found") extends EE(m)
+
+
+case class GetEchoPossibility(echoPossibilityId: String) extends EM
+case class GetEchoPossibilityResponse(message: GetEchoPossibility, value: Either[EE, EchoPossibility])
+        extends EM with RM[EchoPossibility, GetEchoPossibility, EE]
+
+case class RecordEchoClick(echoClick: EchoClick, postId: String) extends EM
+case class RecordEchoClickResponse(message: RecordEchoClick, value: Either[EE, Echo])
+        extends EM with RM[Echo, RecordEchoClick, EE]

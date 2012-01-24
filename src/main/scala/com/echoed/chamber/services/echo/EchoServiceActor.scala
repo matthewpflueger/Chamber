@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.echo
 
-import akka.actor.Actor
 import reflect.BeanProperty
 import akka.dispatch.Future
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
@@ -15,6 +14,7 @@ import java.util.Date
 
 import scalaz._
 import Scalaz._
+import akka.actor.{Channel, Actor}
 
 
 class EchoServiceActor extends Actor {
@@ -34,7 +34,7 @@ class EchoServiceActor extends Actor {
         case msg @ RecordEchoPossibility(echoPossibility: EchoPossibility) =>
             import com.echoed.chamber.services.echo.{RecordEchoPossibilityResponse => REPR}
 
-            val channel = self.channel
+            val channel: Channel[REPR] = self.channel
 
             logger.debug("Processing {}", msg)
 
@@ -61,7 +61,7 @@ class EchoServiceActor extends Actor {
                     val epv = new EchoPossibilityView(echoPossibility, retailer.get, retailerSettings.get)
 
                     echo.cata(
-                        ec => channel ! REPR(msg, Left(EchoExistsException(epv.copy(echo = ec), "Item already echoed"))),
+                        ec => channel ! REPR(msg, Left(EchoExists(epv.copy(echo = ec), "Item already echoed"))),
                         {
                             channel ! REPR(msg, Right(epv))
                             echoPossibilityDao.insertOrUpdate(echoPossibility)
@@ -75,43 +75,72 @@ class EchoServiceActor extends Actor {
             }).onException {
                 case e =>
                     channel ! REPR(msg, Left(EchoException("Unexpected error", e)))
-                    logger.error("Unexpected error recording echo possibility %s" format echoPossibility, e)
+                    logger.error("Error processing %s" format msg, e)
             }
 
 
-        case ("getEcho", echoPossibilityId:String) =>{
-            val echo = Option(echoDao.findByEchoPossibilityId(echoPossibilityId)).getOrElse(None)
-            if (echo==None)
-                self.channel ! (echo,"New")
-            else
-            self.channel ! (echo, "Exists")
-        }
+        case msg @ GetEcho(echoPossibilityId) =>
+            val channel: Channel[GetEchoResponse] = self.channel
 
-        case ("echoPossibility", echoPossibilityId: String) => {
-            self.channel ! Option(echoPossibilityDao.findById(echoPossibilityId)).getOrElse(None)
-        }
-
-        case ("recordEchoClick", echoClick: EchoClick, postId: String) =>
-            val channel = self.channel
-            Future[Echo] {
-                echoDao.findById(echoClick.echoId)
-            }.map { Option(_) match {
-                    case None => logger.error("Did not find echo to record click {}", echoClick)
-                    case Some(echo) =>
-                        logger.debug("Recording {} for {}", echoClick, echo)
-                        val ec = determinePostId(echo, echoClick, postId)
-                        echoClickDao.insert(ec)
-                        channel ! (ec, echo.landingPageUrl)
-
-                        logger.debug("Successfully recorded {}", echoClick)
-
-                        val echoMetrics = Option(echoMetricsDao.findById(echo.echoMetricsId)).get
-                        val retailerSettings = Option(retailerSettingsDao.findById(echo.retailerSettingsId)).get
-                        val clickedEcho = echoMetrics.clicked(retailerSettings)
-                        echoMetricsDao.updateForClick(clickedEcho)
-                        logger.debug("Successfully updated for click {}", clickedEcho)
-                }
+            Future {
+                Option(echoDao.findByEchoPossibilityId(echoPossibilityId)).cata(
+                    echo => channel ! GetEchoResponse(msg, Right(echo)),
+                    channel ! GetEchoResponse(msg, Left(EchoNotFound(echoPossibilityId)))
+                )
+            }.onException {
+                case e =>
+                    channel ! GetEchoResponse(msg, Left(EchoException("Could not get echo", e)))
+                    logger.error("Error processing %s" format msg, e)
             }
+
+
+        case msg @ GetEchoPossibility(echoPossibilityId) =>
+            val channel: Channel[GetEchoPossibilityResponse] = self.channel
+
+            Future {
+                Option(echoPossibilityDao.findById(echoPossibilityId)).cata(
+                    ep => channel ! GetEchoPossibilityResponse(msg, Right(ep)),
+                    channel ! GetEchoPossibilityResponse(msg, Left(EchoPossibilityNotFound(echoPossibilityId)))
+                )
+            }.onException {
+                case e =>
+                    channel ! GetEchoPossibilityResponse(msg, Left(EchoException("Could not get echo possibility", e)))
+                    logger.error("Error processing %s" format msg, e)
+            }
+
+
+
+        case msg @ RecordEchoClick(echoClick, postId) =>
+            val channel: Channel[RecordEchoClickResponse] = self.channel
+
+            def error(e: Throwable) {
+                channel ! RecordEchoClickResponse(msg, Left(EchoException("Could not record echo click", e)))
+                logger.error("Error processing %s" format msg, e)
+            }
+
+            Future {
+                Option(echoDao.findById(echoClick.echoId)).cata(
+                    echo => {
+                        val emf = Future { Option(echoMetricsDao.findById(echo.echoMetricsId)).get }
+                        val rsf = Future { Option(retailerSettingsDao.findById(echo.retailerSettingsId)).get }
+
+                        (for {
+                            echoMetrics <- emf
+                            retailerSettings <- rsf
+                        } yield {
+                            val ec = determinePostId(echo, echoClick, postId)
+                            echoClickDao.insert(ec)
+                            val clickedEcho = echoMetrics.clicked(retailerSettings)
+                            echoMetricsDao.updateForClick(clickedEcho)
+                            channel ! RecordEchoClickResponse(msg, Right(echo))
+                            logger.debug("Successfully updated for click {}", echo)
+                        }).onException { case e => error(e) }
+                    },
+                    {
+                        channel ! RecordEchoClickResponse(msg, Left(EchoNotFound(echoClick.echoId)))
+                        logger.error("Did not find echo to record click, postId {}, {}", postId, echoClick)
+                    })
+            }.onException { case e => error(e) }
     }
 
     def determinePostId(echo: Echo, echoClick: EchoClick, postId: String) =

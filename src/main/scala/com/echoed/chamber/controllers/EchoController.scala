@@ -14,8 +14,8 @@ import com.echoed.chamber.services.echoeduser.{EchoToResponse, EchoedUserService
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.domain.views.EchoPossibilityView
-import com.echoed.chamber.services.echo.{EchoExistsException, RecordEchoPossibilityResponse, EchoService}
 import akka.util.Duration
+import com.echoed.chamber.services.echo.{RecordEchoClickResponse, EchoExists, RecordEchoPossibilityResponse, EchoService}
 
 
 @Controller
@@ -79,7 +79,7 @@ class EchoController {
                             val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
 
                             echoService.recordEchoPossibility(echoPossibility).onResult {
-                                case RecordEchoPossibilityResponse(_, Left(EchoExistsException(epv, message, _))) =>
+                                case RecordEchoPossibilityResponse(_, Left(EchoExists(epv, message, _))) =>
                                     logger.debug("Echo possibility already echoed {}", epv.echo)
                                     val modelAndView = new ModelAndView(errorView)
                                     modelAndView.addObject("errorMessage", "This item has already been shared")
@@ -116,26 +116,28 @@ class EchoController {
         }
 
         def loginToEcho {
-            echoService.recordEchoPossibility(echoPossibilityParameters.createLoginEchoPossibility).onResult {
-                case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
-                case RecordEchoPossibilityResponse(_, Right(epv)) =>
-                    val modelAndView = new ModelAndView(loginView)
-                    modelAndView.addObject(
-                        "twitterUrl",
-                        URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"))
+            echoService.recordEchoPossibility(echoPossibilityParameters.createLoginEchoPossibility).onComplete(_.value.get.fold(
+                error(_),
+                _ match {
+                    case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
+                    case RecordEchoPossibilityResponse(_, Right(epv)) =>
+                        val modelAndView = new ModelAndView(loginView)
+                        modelAndView.addObject(
+                            "twitterUrl",
+                            URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"))
 
-                    modelAndView.addObject("redirectUrl",
-                        URLEncoder.encode("http://v1-api.echoed.com/facebook/login?redirect="
-                            + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
+                        modelAndView.addObject("redirectUrl",
+                            URLEncoder.encode("http://v1-api.echoed.com/facebook/login?redirect="
+                                + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
 
-                    modelAndView.addObject("echoPossibilityView", epv)
-                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
-                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
-                    modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
+                        modelAndView.addObject("echoPossibilityView", epv)
+                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
+                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
+                        modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
 
-                    continuation.setAttribute("modelAndView", modelAndView)
-                    continuation.resume
-            }.onException { case e => error(e) }
+                        continuation.setAttribute("modelAndView", modelAndView)
+                        continuation.resume
+                }))
         }
 
 
@@ -212,19 +214,30 @@ class EchoController {
             httpServletResponse: HttpServletResponse) = {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired) {
-            logger.error("Request expired to record echo click for echo %s" format echoId)
-            new ModelAndView(errorView)
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
 
+        def error(e: Throwable) {
+            logger.error("Error recording echo click for echo %s" format echoId, e)
+            val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
+            continuation.setAttribute("modelAndView", modelAndView)
+            continuation.resume()
+            modelAndView
+        }
+
+        if (continuation.isExpired) {
+            error(RequestExpiredException())
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
+
             val echoClick = new EchoClick(echoId, echoedUserId, referrerUrl, httpServletRequest.getRemoteAddr)
-            echoService.recordEchoClick(echoClick, postId).map { tuple =>
-                if(echoClickId == null)
-                    cookieManager.addCookie(httpServletResponse, "echoClick", tuple._1.id)
-                continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format tuple._2))
-                continuation.resume()
-            }
+            echoService.recordEchoClick(echoClick, postId).onComplete(_.value.get.fold(
+                error(_),
+                _ match {
+                    case RecordEchoClickResponse(msg, Left(e)) => error(e)
+                    case RecordEchoClickResponse(msg, Right(echo)) =>
+                        cookieManager.addCookie(httpServletResponse, "echoClick", echoClick.id)
+                        continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
+                        continuation.resume()
+                }))
             continuation.undispatch()
         })
     }

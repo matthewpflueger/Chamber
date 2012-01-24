@@ -8,10 +8,10 @@ trait EchoService {
 
     def recordEchoPossibility(echoPossibility: EchoPossibility): Future[RecordEchoPossibilityResponse]
 
-    def getEchoPossibility(echoPossibilityId: String): Future[EchoPossibility]
+    def getEchoPossibility(echoPossibilityId: String): Future[GetEchoPossibilityResponse]
 
-    def getEcho(echoPossibilityId:String): Future[(Echo,String)]
+    def getEcho(echoPossibilityId:String): Future[GetEchoResponse]
 
-    def recordEchoClick(echoClick: EchoClick, postId: String): Future[(EchoClick, String)]
+    def recordEchoClick(echoClick: EchoClick, postId: String): Future[RecordEchoClickResponse]
 
 }
