@@ -11,6 +11,9 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
 
     def getRetailerSocialSummary =
         (partnerUserServiceActor ? GetRetailerSocialSummary()).mapTo[GetRetailerSocialSummaryResponse]
+    
+    def getRetailerSocialActivityByDate =
+        (partnerUserServiceActor ? GetRetailerSocialActivityByDate()).mapTo[GetRetailerSocialActivityByDateResponse]
 
     def getProductSocialSummary(productId: String) =
         (partnerUserServiceActor ? GetProductSocialSummary(productId)).mapTo[GetProductSocialSummaryResponse]
@@ -18,8 +21,14 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
     def getProductSocialActivityByDate(productId:String) =
         (partnerUserServiceActor ? GetProductSocialActivityByDate(productId)).mapTo[GetProductSocialActivityByDateResponse]
 
+    def getProducts = 
+        (partnerUserServiceActor ? GetProducts()).mapTo[GetProductsResponse]
+    
     def getTopProducts =
         (partnerUserServiceActor ? GetTopProducts()).mapTo[GetTopProductsResponse]
+    
+    def getCustomers = 
+        (partnerUserServiceActor ? GetCustomers()).mapTo[GetCustomersResponse]
 
     def getTopCustomers = 
         (partnerUserServiceActor ? GetTopCustomers()).mapTo[GetTopCustomersResponse]

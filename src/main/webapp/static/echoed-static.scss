@@ -30,6 +30,7 @@
 
 //$mainColor: #FF7733;
 $mainColor: #DC0814; //RED
+$redColor: #DC0814; //RED
 $secondaryColor: #ff6f00; //ORANGE
 $greyColor : #444444;
 $fbColor: #3B5998;
@@ -201,6 +202,24 @@ h2{
                 #lm-top{
                     background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png");
                     padding: 20px;
+                    #lm-partner-form{
+                        margin-top:20px;
+                        #lm-error{
+                            color: $redColor;
+                        }
+                        label{
+                            font-size: 16px;
+                            margin: 10px 0px 5px 0px;
+                            display:block;
+                        }
+                        input[type=text],input[type=password]{
+                            display:block;
+                            width: 400px;
+                            font-size: 16px;
+                            line-height: 1em;
+                            border: 1px solid #CCC;
+                        }
+                    }
                 }
                 .lm-link{
                     color: $secondaryColor;

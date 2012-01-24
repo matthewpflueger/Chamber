@@ -7,7 +7,12 @@ Highcharts.theme = {
                 }
             },
             labels:{
-                enabled: false
+                enabled: true,
+                style:{
+                    color: '#000000',
+                    fontFamily:'Tahoma,Arial',
+                    fontSize: '14px'
+                }
             },
             stackLabels: {
                 enabled: true,
@@ -18,7 +23,7 @@ Highcharts.theme = {
                     color: '#FF7733'
                 }
             },
-            gridLineWidth:0,
+            gridLineWidth:1,
             lineWidth: 1,
             lineColor: '#000'
 
@@ -28,7 +33,7 @@ Highcharts.theme = {
                 labels:{
                     style:{
                         color: '#000000',
-                        fontFamily:'HelveticaNeue-Medium,Tahoma,Arial',
+                        fontFamily:'Tahoma,Arial',
                         fontSize: '14px'
                     }
                 }
@@ -45,6 +50,9 @@ Highcharts.theme = {
                         fontSize: '24px'
                     }
                 }
+            },
+            area:{
+                stacking: 'normal'
             },
             series:{
                 pointWidth: 70,

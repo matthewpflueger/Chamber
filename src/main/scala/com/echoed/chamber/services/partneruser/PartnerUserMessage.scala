@@ -2,7 +2,7 @@ package com.echoed.chamber.services.partneruser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.RetailerUser
-import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate}
+import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate, RetailerSocialActivityByDate}
 
 
 sealed trait PartnerUserMessage extends Message
@@ -29,6 +29,10 @@ case class GetRetailerSocialSummary() extends PUM
 case class GetRetailerSocialSummaryResponse(message: GetRetailerSocialSummary, value: Either[PartnerUserException, RetailerSocialSummary])
         extends PUM with RM[RetailerSocialSummary, GetRetailerSocialSummary, PUE]
 
+case class GetRetailerSocialActivityByDate() extends PUM
+case class GetRetailerSocialActivityByDateResponse(message: GetRetailerSocialActivityByDate, value: Either[PartnerUserException, RetailerSocialActivityByDate])
+        extends PUM with RM[RetailerSocialActivityByDate, GetRetailerSocialActivityByDate, PUE]
+
 case class GetProductSocialSummary(productId: String) extends PUM
 case class GetProductSocialSummaryResponse(message: GetProductSocialSummary, value: Either[PartnerUserException, ProductSocialSummary])
         extends PUM with RM[ProductSocialSummary, GetProductSocialSummary, PUE]
@@ -37,9 +41,17 @@ case class GetProductSocialActivityByDate(productId: String) extends PUM
 case class GetProductSocialActivityByDateResponse(message: GetProductSocialActivityByDate, value: Either[PartnerUserException, RetailerProductSocialActivityByDate])
         extends PUM with RM[RetailerProductSocialActivityByDate, GetProductSocialActivityByDate, PUE]
 
+case class GetProducts() extends PUM
+case class GetProductsResponse(message: GetProducts, value: Either[PartnerUserException, RetailerProductsListView])
+    extends PUM with RM[RetailerProductsListView, GetProducts, PUE]
+
 case class GetTopProducts() extends PUM
 case class GetTopProductsResponse(message: GetTopProducts, value: Either[PartnerUserException, RetailerProductsListView])
     extends PUM with RM[RetailerProductsListView, GetTopProducts, PUE]
+
+case class GetCustomers() extends PUM
+case class GetCustomersResponse(message: GetCustomers, value: Either[PartnerUserException,RetailerCustomerListView])
+    extends PUM with RM[RetailerCustomerListView, GetCustomers, PUE]
 
 case class GetTopCustomers() extends PUM
 case class GetTopCustomersResponse(message: GetTopCustomers, value: Either[PartnerUserException,RetailerCustomerListView])

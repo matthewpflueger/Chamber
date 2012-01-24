@@ -32,10 +32,10 @@ class PartnerController {
     @BeanProperty var partnerDashboardView: String = _
 
 
-    @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/login"))
     def login(
-            @RequestParam("email") email: String,
-            @RequestParam("password") password: String,
+            @RequestParam(value="email", required=false) email: String,
+            @RequestParam(value="password", required= false) password: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -46,31 +46,36 @@ class PartnerController {
             new ModelAndView(partnerLoginErrorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
-
-            def onError(error: PartnerUserException) {
-                logger.debug("Got error during login for {}: {}", email, error.message)
-                continuation.setAttribute(
-                    "modelAndView",
-                    new ModelAndView(partnerLoginErrorView, "error", error))
-                continuation.resume()
-            }
-
-            logger.debug("Received login request for {}", email)
-
-            partnerUserServiceLocator.login(email, password).onResult {
-                case LoginResponse(_, Left(error)) => onError(error)
-                case LoginResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
-                    case GetPartnerUserResponse(_, Left(error)) => onError(error)
-                    case GetPartnerUserResponse(_, Right(pu)) =>
-                        logger.debug("Successful login for {}", email)
-                        cookieManager.addCookie(httpServletResponse, "partnerUser", pu.id)
-                        continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
-                        continuation.resume()
+            
+            if(email != null && password != null) {
+                def onError(error: PartnerUserException) {
+                    logger.debug("Got error during login for {}: {}", email, error.message)
+                    continuation.setAttribute(
+                        "modelAndView",
+                        new ModelAndView(partnerLoginErrorView, "error", error))
+                    continuation.resume()
+                }
+    
+                logger.debug("Received login request for {}", email)
+    
+                partnerUserServiceLocator.login(email, password).onResult {
+                    case LoginResponse(_, Left(error)) => onError(error)
+                    case LoginResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
+                        case GetPartnerUserResponse(_, Left(error)) => onError(error)
+                        case GetPartnerUserResponse(_, Right(pu)) =>
+                            logger.debug("Successful login for {}", email)
+                            cookieManager.addCookie(httpServletResponse, "partnerUser", pu.id)
+                            continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
+                            continuation.resume()
+                        case unknown => throw new RuntimeException("Unknown response %s" format unknown)
+                    }
                     case unknown => throw new RuntimeException("Unknown response %s" format unknown)
                 }
-                case unknown => throw new RuntimeException("Unknown response %s" format unknown)
             }
-
+            else{
+                continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginErrorView))
+                continuation.resume()
+            }
             continuation.undispatch()
         })
 
@@ -156,8 +161,76 @@ class PartnerController {
         })
 
     }
+
+
+    @RequestMapping(value = Array("/history"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getRetailerActivityHistory(
+                                     @CookieValue(value="partnerUser", required=false) partnerUserId: String,
+                                     httpServletRequest: HttpServletRequest,
+                                     httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation((httpServletRequest))
+
+        if(continuation.isExpired){
+            logger.error("Request expired getting product social summary json")
+        } else Option(continuation.getAttribute("productSummary")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    //logger.debug("Getting Social Activity For Retailer: {}" ,partnerUserId)
+                    pus.getRetailerSocialActivityByDate.onResult({
+                        case GetRetailerSocialActivityByDateResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Products {}", error)
+                        case GetRetailerSocialActivityByDateResponse(_, Right(retailerSocialActivity)) =>
+                            logger.debug("Product Social Activity History: {}", retailerSocialActivity)
+                            continuation.setAttribute("productSummary",retailerSocialActivity)
+                            continuation.resume()
+                    })
+            })
+            continuation.undispatch()
+        })
+    }
+
+    @RequestMapping(value = Array("/customers"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def customers(
+                        @CookieValue(value="partnerUser", required = false) partnerUserId: String,
+                        httpServletRequest: HttpServletRequest,
+                        httpServletResponse: HttpServletResponse
+                        ) = {
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            logger.error("Request expired to view dashboard for {}", partnerUserId)
+            new ModelAndView(partnerDashboardErrorView)
+        } else Option(continuation.getAttribute("customers")).getOrElse({
+
+            continuation.suspend(httpServletResponse)
+
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    pus.getCustomers.onResult({
+                        case GetCustomersResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Customers {}", error)
+                        case GetCustomersResponse(_, Right(retailerCustomersView)) =>
+                            if(retailerCustomersView == null)
+                                continuation.setAttribute("customers", "fail")
+                            else
+                                continuation.setAttribute("customers",retailerCustomersView)
+                            continuation.resume()
+                    })
+            })
+            continuation.undispatch()
+        })
+    }
     
-    @RequestMapping(value = Array("/topcustomers"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/customers/top"), method = Array(RequestMethod.GET))
     @ResponseBody
     def topCustomers(
                     @CookieValue(value="partnerUser", required = false) partnerUserId: String,
@@ -192,7 +265,47 @@ class PartnerController {
         })
     }
 
-    @RequestMapping(value = Array("/topproducts"), method = Array(RequestMethod.GET))
+
+
+    @RequestMapping(value = Array("/products"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def products(
+                       @CookieValue(value="partnerUser", required = false) partnerUserId: String,
+                       httpServletRequest: HttpServletRequest,
+                       httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            logger.error("Request expired to view dashboard for {}", partnerUserId)
+            new ModelAndView(partnerDashboardErrorView)
+        } else Option(continuation.getAttribute("topproducts")).getOrElse({
+
+            continuation.suspend(httpServletResponse)
+
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    pus.getProducts.onResult({
+                        case GetProductsResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Products {}", error)
+                        case GetProductsResponse(_, Right(retailerProductsView)) =>
+                            if(retailerProductsView == null)
+                                continuation.setAttribute("topproducts", "fail")
+                            else
+                                continuation.setAttribute("topproducts",retailerProductsView)
+                            continuation.resume()
+                    })
+            })
+
+
+            continuation.undispatch()
+        })
+
+    }
+
+    @RequestMapping(value = Array("/products/top"), method = Array(RequestMethod.GET))
     @ResponseBody
     def topProducts(
                    @CookieValue(value="partnerUser", required = false) partnerUserId: String,
@@ -230,7 +343,7 @@ class PartnerController {
 
     }
     
-    @RequestMapping(value = Array("/producthistory/{id}"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/product/history/{id}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getProductActivityHistory(
             @PathVariable(value="id") productId: String,

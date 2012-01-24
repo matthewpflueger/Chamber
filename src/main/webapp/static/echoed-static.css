@@ -134,6 +134,20 @@ h2 {
   #lm #lm-top {
     background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png");
     padding: 20px; }
+    #lm #lm-top #lm-partner-form {
+      margin-top: 20px; }
+      #lm #lm-top #lm-partner-form #lm-error {
+        color: #dc0814; }
+      #lm #lm-top #lm-partner-form label {
+        font-size: 16px;
+        margin: 10px 0px 5px 0px;
+        display: block; }
+      #lm #lm-top #lm-partner-form input[type=text], #lm #lm-top #lm-partner-form input[type=password] {
+        display: block;
+        width: 400px;
+        font-size: 16px;
+        line-height: 1em;
+        border: 1px solid #CCC; }
   #lm .lm-link {
     color: #ff6f00;
     font-size: 18px;
