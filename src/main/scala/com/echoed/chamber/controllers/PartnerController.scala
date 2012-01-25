@@ -229,7 +229,7 @@ class PartnerController {
             continuation.undispatch()
         })
     }
-    
+
     @RequestMapping(value = Array("/customers/top"), method = Array(RequestMethod.GET))
     @ResponseBody
     def topCustomers(
@@ -264,6 +264,82 @@ class PartnerController {
             continuation.undispatch()
         })
     }
+
+    @RequestMapping(value = Array("/customer/history/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getCustomerHistory(
+                              @PathVariable(value="id") customerId: String,
+                              @CookieValue(value="partnerUser", required = false) partnerUserId: String,
+                              httpServletRequest: HttpServletRequest,
+                              httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation((httpServletRequest))
+
+        if(continuation.isExpired){
+            logger.error("Request expired getting product social summary json")
+        } else Option(continuation.getAttribute("customerSummary")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    logger.debug("Getting Product Summary for customerId: {}", customerId)
+                    pus.getCustomerSocialActivityByDate(customerId).onResult({
+                        case GetCustomerSocialActivityByDateResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Products {}", error)
+                        case GetCustomerSocialActivityByDateResponse(_, Right(customerSocialActivity)) =>
+                            logger.debug("Customer Social Summary: {}", customerSocialActivity)
+                            if(customerSocialActivity == null)
+                                continuation.setAttribute("customerSummary", "fail")
+                            else
+                                continuation.setAttribute("customerSummary",customerSocialActivity)
+                            continuation.resume()
+                    })
+            })
+
+            continuation.undispatch()
+        })
+    }
+
+
+    @RequestMapping(value = Array("/customer/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getCustomerSummary(
+                             @PathVariable(value="id") customerId: String,
+                             @CookieValue(value="partnerUser", required = false) partnerUserId: String,
+                             httpServletRequest: HttpServletRequest,
+                             httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation((httpServletRequest))
+
+        if(continuation.isExpired){
+            logger.error("Request expired getting product social summary json")
+        } else Option(continuation.getAttribute("customerSummary")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            partnerUserServiceLocator.locate(partnerUserId).onResult({
+                case LocateResponse(_, Left(error)) =>
+                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
+                case LocateResponse(_, Right(pus)) =>
+                    logger.debug("Getting Product Summary for customerId: {}", customerId)
+                    pus.getCustomerSocialSummary(customerId).onResult({
+                        case GetCustomerSocialSummaryResponse(_, Left(error)) =>
+                            logger.error("Error getting Retailer Top Products {}", error)
+                        case GetCustomerSocialSummaryResponse(_, Right(customerSocialSummary)) =>
+                            logger.debug("Customer Social Summary: {}", customerSocialSummary)
+                            if(customerSocialSummary == null)
+                                continuation.setAttribute("customerSummary", "fail")
+                            else
+                                continuation.setAttribute("customerSummary",customerSocialSummary)
+                            continuation.resume()
+                    })
+            })
+
+            continuation.undispatch()
+        })
+    }
+
 
 
 

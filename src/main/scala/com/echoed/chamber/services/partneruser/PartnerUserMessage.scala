@@ -2,7 +2,7 @@ package com.echoed.chamber.services.partneruser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.RetailerUser
-import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate, RetailerSocialActivityByDate}
+import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate, RetailerSocialActivityByDate,CustomerSocialSummary,RetailerCustomerSocialActivityByDate}
 
 
 sealed trait PartnerUserMessage extends Message
@@ -24,6 +24,14 @@ case class LogoutResponse(message: Logout, value: Either[PUE, Boolean])
 case class GetPartnerUser() extends PUM
 case class GetPartnerUserResponse(message: GetPartnerUser, value: Either[PartnerUserException, RetailerUser])
         extends PUM with RM[RetailerUser, GetPartnerUser, PUE]
+
+case class GetCustomerSocialSummary(echoedUserId: String) extends PUM
+case class GetCustomerSocialSummaryResponse(message: GetCustomerSocialSummary, value: Either[PartnerUserException, CustomerSocialSummary])
+        extends PUM with RM[CustomerSocialSummary, GetCustomerSocialSummary, PUE]
+
+case class GetCustomerSocialActivityByDate(echoedUserId: String) extends PUM
+case class GetCustomerSocialActivityByDateResponse(message: GetCustomerSocialActivityByDate, value: Either[PartnerUserException, RetailerCustomerSocialActivityByDate])
+        extends PUM with RM[RetailerCustomerSocialActivityByDate, GetCustomerSocialActivityByDate, PUE]
 
 case class GetRetailerSocialSummary() extends PUM
 case class GetRetailerSocialSummaryResponse(message: GetRetailerSocialSummary, value: Either[PartnerUserException, RetailerSocialSummary])

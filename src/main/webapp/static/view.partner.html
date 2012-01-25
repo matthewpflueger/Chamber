@@ -149,7 +149,18 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
             switch(self.report){
                 case "customers":
                     template = _.template($('#template-view-reports-customers').html());
-                    self.element.hide().html(template).fadeIn();
+                    $.getJSON("http://v1-api.echoed.com/partner/customer/" + self.reportId, function(data){
+                        self.element.hide().html(template).fadeIn(function(){
+                            var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#customer-report-chart', customerId: self.reportId, type: "customer"});
+                            $('#select-report').html(data.echoedUserName);
+                            $('#cs-likes').hide().html(data.totalFacebookLikes).fadeIn();
+                            $('#cs-views').hide().html(data.totalEchoClicks).fadeIn();
+                            $('#cs-retweets').hide().html(0).fadeIn();
+                            $('#cs-echoes').hide().html(data.totalEchoes).fadeIn();
+                            //$('#cs-open-echoes').hide().html(0).fadeIn();
+                            $('#cs-comments').hide().html(data.totalFacebookComments).fadeIn();
+                        });
+                    });
                     break;
                 case "products":
                     template = _.template($('#template-view-reports-products').html());
@@ -528,6 +539,9 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
             case 'product':
                 self.url = "http://v1-api.echoed.com/partner/product/history/" + options.productId;
                 break;
+            case 'customer':
+                self.url = "http://v1-api.echoed.com/partner/customer/history/" + options.customerId;
+                break;
         }
         var likes = {name: 'likes',data:[]};
         var comments = {name: 'comments',data:[]};
@@ -582,13 +596,13 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 text: '',
                 href: ''
             },
-            colors: ['#3B5998', '#09F','#EE7402','#497593','#6A971F','#C6014A','#0274B8','#F0B500','#92ACBE','#80BA27','#F1919F','#63C7F0'],
+            colors: ['#3B5998', '#09F','#EE7402','#497593','#6A971F','#C6014A','#0274B8','#F0B500','#92ACBE'],
             title: { text: ''},
             yAxis:{
                 title:{
                     text: 'Page Views',
                     style: {
-                        fontFamily: 'Tahoma,Arial',
+                        fontFamily: 'Arial',
                         fontWeight: 'normal',
                         fontSize: '14px',
                         color: '#222222'
@@ -598,6 +612,7 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
             xAxis: {
                 type: 'datetime',
                 dateTimeLabelFormats: { // don't display the dummy year
+                    hour: '%e. %b',
                     month: '%e. %b',
                     year: '%b'
                 }
@@ -771,7 +786,6 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 <div class="full-column-left">
                     <div id="product-selector" class="report-selector">
                         <div id="select-report" class="label">
-                            Product Name
                         </div>
                     </div>
                     <div>
@@ -865,39 +879,58 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
     <div class="row">
         <div class="full">
             <div id="customer-selector" class="report-selector">
-                <div class="select-report">
-                    Evan W
+                <div id="select-report" class="label">
                 </div>
             </div>
             <div id="report-summary-customer">
                 <div id="summary-stats-column1">
                 </div>
-                <div id="summary-stats-column2">
+                <div id="summary-stats-column2" class="full-column-right">
                     <div id="ss-upper_row" class="ss-row">
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Views
-                            </div>
-                            <div id="ss-views" class="ss-box-number echoed-text">
-
-                            </div>
-                        </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
                                 Likes
                             </div>
-                            <div id="ss-likes" class="ss-box-number fb-text">
+                            <div id="cs-likes" class="ss-box-number fb-text">
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Comments
+                            </div>
+                            <div id="cs-comments" class="ss-box-number fb-text">
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Echoes
+                            </div>
+                            <div id="cs-echoes" class="ss-box-number echoed-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ss-lower_row" class="ss-row">
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Purchases
+                            </div>
+                            <div id="cs-purchases" class="ss-box-number fb-text">
                             </div>
                         </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
                                 Retweets
                             </div>
-                            <div id="ss-retweets" class="ss-box-number twitter-text">
+                            <div id="cs-retweets" class="ss-box-number twitter-text">
                             </div>
                         </div>
-                    </div>
-                    <div id="ss-lower_row" class="ss-row">
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Views
+                            </div>
+                            <div id="cs-views" class="ss-box-number echoed-text">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -910,7 +943,7 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 <div class="report-options">
                 </div>
             </div>
-            <div class="report-chart">
+            <div id="customer-report-chart" class="report-chart">
             </div>
         </div>
     </div>

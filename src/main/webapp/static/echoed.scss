@@ -117,6 +117,9 @@ h2{
 #container{
     min-width: 1000px;
     height: 100%;
+    &.facebook{
+        min-width: 760px;
+    }
 }
 
 	#header{
@@ -124,6 +127,9 @@ h2{
 		height:50px;
 		border-bottom: 1px solid #999;
 		background-color: $containerColor;
+        &.facebook{
+            min-width: 760px;
+        }
 	}
 	
 		#logo{	

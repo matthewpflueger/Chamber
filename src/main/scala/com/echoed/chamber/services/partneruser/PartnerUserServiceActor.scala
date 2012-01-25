@@ -2,13 +2,13 @@ package com.echoed.chamber.services.partneruser
 
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.views.{SocialActivityTotalByDate}
+import com.echoed.chamber.domain.views.{SocialActivityTotalByDate,CustomerSocialSummary}
 import com.echoed.chamber.dao.RetailerUserDao
 import com.echoed.chamber.dao.views.{RetailerViewDao}
 import akka.actor.{Channel, Actor}
 import java.util.ArrayList
-import views.RetailerProductSocialActivityByDate
-import views.RetailerSocialActivityByDate
+import views.{RetailerProductSocialActivityByDate,RetailerSocialActivityByDate,RetailerCustomerSocialActivityByDate}
+
 
 
 class PartnerUserServiceActor(
@@ -37,6 +37,31 @@ class PartnerUserServiceActor(
 
         case msg: GetPartnerUser =>
             self.channel ! GetPartnerUserResponse(msg, Right(partnerUser))
+
+        case msg: GetCustomerSocialSummary =>
+            val echoedUser = retailerViewDao.getEchoedUserByRetailerUser(msg.echoedUserId,partnerUser.retailerId)
+            if(echoedUser.id== null)
+                self.channel ! GetCustomerSocialSummaryResponse(msg, Left(PartnerUserException("Error Retrieving Echoed User ")))
+            else {
+                val likes = retailerViewDao.getTotalLikesByEchoedUserRetailerId(msg.echoedUserId,partnerUser.retailerId)
+                val comments  = retailerViewDao.getTotalCommentsByEchoedUserRetailerId(msg.echoedUserId,partnerUser.retailerId)
+                val clicks = retailerViewDao.getTotalEchoClicksByEchoedUserRetailerId(msg.echoedUserId,partnerUser.retailerId)
+                val echoes = retailerViewDao.getTotalEchoesByEchoedUserRetailerId(msg.echoedUserId,partnerUser.retailerId)
+                var friends = retailerViewDao.getTotalFacebookFriendsByEchoedUser(msg.echoedUserId)
+                self.channel ! GetCustomerSocialSummaryResponse(msg, Right(new CustomerSocialSummary(echoedUser.id,echoedUser.name,echoes,likes,comments,clicks,friends)))
+            }
+
+        case msg: GetCustomerSocialActivityByDate =>
+            var likes = retailerViewDao.getFacebookLikesByRetailerIdCustomerIdDate(msg.echoedUserId,partnerUser.retailerId)
+            if(likes.size == 1 && likes.get(0).count == 0)
+                likes = new ArrayList[SocialActivityTotalByDate]
+            var comments = retailerViewDao.getFacebookCommentsByRetailerIdCustomerIdDate(msg.echoedUserId,partnerUser.retailerId)
+            if(comments.size == 1 && comments.get(0).count == 0)
+                comments = new ArrayList[SocialActivityTotalByDate]
+            var views = retailerViewDao.getEchoClicksByRetailerIdCustomerIdDate(msg.echoedUserId,partnerUser.retailerId)
+            if(views.size == 1 && views.get(0).count == 0)
+                views = new ArrayList[SocialActivityTotalByDate]
+            self.channel ! GetCustomerSocialActivityByDateResponse(msg, Right(new RetailerCustomerSocialActivityByDate(partnerUser.retailerId,msg.echoedUserId,likes,comments,views)))
 
         case msg: GetRetailerSocialSummary =>
             self.channel ! GetRetailerSocialSummaryResponse(

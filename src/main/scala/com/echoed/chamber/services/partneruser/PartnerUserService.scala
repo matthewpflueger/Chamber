@@ -8,6 +8,10 @@ trait PartnerUserService {
     val id: String
 
     def getPartnerUser: Future[GetPartnerUserResponse]
+    
+    def getCustomerSocialSummary(echoedUserId: String): Future[GetCustomerSocialSummaryResponse]
+
+    def getCustomerSocialActivityByDate(echoedUserId: String): Future[GetCustomerSocialActivityByDateResponse]
 
     def getRetailerSocialSummary: Future[GetRetailerSocialSummaryResponse]
     

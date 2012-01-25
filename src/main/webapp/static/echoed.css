@@ -72,12 +72,16 @@ h2 {
 #container {
   min-width: 1000px;
   height: 100%; }
+  #container.facebook {
+    min-width: 760px; }
 
 #header {
   min-width: 1100px;
   height: 50px;
   border-bottom: 1px solid #999;
   background-color: white; }
+  #header.facebook {
+    min-width: 760px; }
 
 #logo {
   margin-left: 10px;
