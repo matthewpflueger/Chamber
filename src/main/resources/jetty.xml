@@ -27,7 +27,7 @@
     <util:properties id="jettyProperties">
         <prop key="port">8080</prop>
         <prop key="context"></prop>
-        <prop key="resourceBase">/var/www</prop>
+        <prop key="resourceBase">/var/www/current</prop>
 
         <prop key="springframework.applicationContext">classpath:applicationContext.xml</prop>
         <prop key="springframework.servletContext">classpath:servlet-context.xml</prop>
