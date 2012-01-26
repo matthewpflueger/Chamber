@@ -33,8 +33,9 @@ object WebDriverUtils extends ShouldMatchers {
         pageSource
     }
 
-    def clearEchoedCookies(webDriver: WebDriver) {
-        webDriver.get(logoutUrl)
+    def clearEchoedCookies(webDriver: WebDriver, flushCaches: Boolean = false) {
+        val logout = if (flushCaches) logoutUrl + "?flush=2390uvqq03rJN_asdfoasdifu190" else logoutUrl
+        webDriver.get(logout)
         webDriver.getCurrentUrl should startWith (echoedUrl)
         webDriver.manage.deleteAllCookies()
     }

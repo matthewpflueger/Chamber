@@ -99,6 +99,7 @@
         <property name="cookieManager" ref="cookieManager" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

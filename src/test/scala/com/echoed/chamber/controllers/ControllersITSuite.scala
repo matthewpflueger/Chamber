@@ -11,8 +11,11 @@ class ControllersITSuite extends Suites(
     new ClosetFriendsIT,
     new EchoButtonIT,
     new FacebookLoginIT,
+    new FacebookAppIT,
+    new FacebookAddIT,
     new EchoIT,
     new TwitterLoginIT,
+    new TwitterAddIT,
     new ClosetLoginIT,
     new PartnerUserLoginIT)
 

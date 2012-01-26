@@ -25,4 +25,5 @@ trait EchoedUserDao {
 
     def update(echoedUser: EchoedUser): Int
 
+    def unlinkTwitter(echoedUser: EchoedUser): Int
 }
