@@ -387,7 +387,7 @@ class EchoedUserServiceActor(
             try {
                 logger.debug("Fetching exhibit for EchoedUser {}", echoedUser.id)
                 val credit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
-                val closet = closetDao.findByEchoedUserId(echoedUser.id)
+                val closet = Option(closetDao.findByEchoedUserId(echoedUser.id)).getOrElse(new Closet(echoedUser.id, echoedUser))
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     logger.debug("Echoed user {} has zero echoes", echoedUser.id)
                     channel ! GetExhibitResponse(msg, Right(closet.copy(
