@@ -10,8 +10,6 @@
 	        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 	        http://www.springframework.org/schema/context
 	        http://www.springframework.org/schema/context/spring-context-3.0.xsd
-	        http://www.springframework.org/schema/util
-	        http://www.springframework.org/schema/util/spring-util-3.0.xsd
             http://www.springframework.org/schema/mvc
             http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd"
 	    default-init-method="init"
@@ -42,14 +40,11 @@
         </property>
     </bean>
 
-    <bean id="mustacheViewResolver" class="org.springframework.web.servlet.view.mustache.MustacheViewResolver">
+    <bean id="mustacheViewResolver" class="com.echoed.util.mustache.MustacheViewResolver">
         <property name="cache" value="${mustache.cache}" />
         <property name="prefix" value="${mustache.prefix}" />
 
         <property name="suffix" value="${mustache.suffix}" />
-        <property name="templateLoader">
-            <bean class="org.springframework.web.servlet.view.mustache.MustacheTemplateLoader" />
-        </property>
     </bean>
 
 
