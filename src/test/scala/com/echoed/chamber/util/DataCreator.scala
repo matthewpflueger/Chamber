@@ -683,7 +683,8 @@ class DataCreator {
             echoedUserId,
             "http://facebook.com",
             "127.0.0.1",
-            on),
+            on,
+            "127.0.0.1"),
         EchoClick(
             UUID.randomUUID.toString,
             on,
@@ -694,7 +695,8 @@ class DataCreator {
             echoedUserId,
             "http://twitter.com",
             "127.0.0.1",
-            on)
+            on,
+            "127.0.0.1")
     )
 
     val echoClicks_2 = List(
@@ -708,7 +710,8 @@ class DataCreator {
             echoedUserId,
             "http://facebook.com",
             "127.0.0.1",
-            on),
+            on,
+            "127.0.0.1"),
         EchoClick(
             UUID.randomUUID.toString,
             on,
@@ -719,7 +722,8 @@ class DataCreator {
             echoedUserId,
             "http://twitter.com",
             "127.0.0.1",
-            on)
+            on,
+            "127.0.0.1")
     )
 
     val echoFuture =  Echo(

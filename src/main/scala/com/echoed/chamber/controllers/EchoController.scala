@@ -210,6 +210,8 @@ class EchoController {
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
             @CookieValue(value = "echoClick", required = false) echoClickId: String,
             @RequestHeader(value = "Referer", required = false) referrerUrl: String,
+            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
+            @RequestHeader(value = "X-Forwarded-For", required = false) forwardedFor: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -228,7 +230,13 @@ class EchoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            val echoClick = new EchoClick(echoId, echoedUserId, referrerUrl, httpServletRequest.getRemoteAddr)
+            val echoClick = new EchoClick(
+                    echoId,
+                    echoedUserId,
+                    referrerUrl,
+                    Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
+                    forwardedFor)
+
             echoService.recordEchoClick(echoClick, postId).onComplete(_.value.get.fold(
                 error(_),
                 _ match {

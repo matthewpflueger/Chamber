@@ -16,6 +16,7 @@
             <arg column="referrerUrl" javaType="String" />
             <arg column="ipAddress" javaType="String" />
             <arg column="clickedOn" javaType="Date" />
+            <arg column="forwardedFor" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -34,7 +35,8 @@
                 echoedUserId,
                 referrerUrl,
                 ipAddress,
-                clickedOn)
+                clickedOn,
+                forwardedFor)
         values (
                 #{id},
                 #{createdOn},
@@ -44,7 +46,8 @@
                 #{echoedUserId},
                 #{referrerUrl},
                 #{ipAddress},
-                #{clickedOn})
+                #{clickedOn},
+                #{forwardedFor})
     </insert>
 
     <delete id="deleteByEchoId">

@@ -13,14 +13,16 @@ case class EchoClick(
         echoedUserId: String,
         referrerUrl: String,
         ipAddress: String,
-        clickedOn: Date) {
+        clickedOn: Date,
+        forwardedFor: String) {
 
 
     def this(
             echoId: String,
             echoedUserId: String,
             referrerUrl: String,
-            ipAddress: String) = this(
+            ipAddress: String,
+            forwardedFor: String) = this(
         UUID.randomUUID.toString,
         new Date,
         new Date,
@@ -30,6 +32,7 @@ case class EchoClick(
         echoedUserId,
         referrerUrl,
         ipAddress,
-        new Date)
+        new Date,
+        forwardedFor)
 
 }
