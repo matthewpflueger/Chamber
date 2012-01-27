@@ -26,7 +26,7 @@ object WebDriverUtils extends ShouldMatchers {
         webDriver.manage().addCookie(cookie)
         webDriver.get(closetUrl)
 
-        webDriver.getTitle should be ("My Exhibit")
+        webDriver.getTitle should startWith ("Echoed")
 
         val pageSource = webDriver.getPageSource
         pageSource should include(echoedUser.name)

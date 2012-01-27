@@ -88,7 +88,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
             and("add their Twitter account to their Echoed user account")
             Thread.sleep(100)
-            webDriver.getTitle() should be ("My Exhibit")
+            webDriver.getTitle() should startWith ("Echoed")
             webDriver.findElement(By.id("twitterAccount")) should not be (null)
             val eu = echoedUserDao.findByTwitterId(twitterUser.twitterId)
             eu should not be (null)
@@ -131,7 +131,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
 
                 and("do not add the Twitter account")
-                Thread.sleep(100)
+                Thread.sleep(200)
                 webDriver.getTitle should be ("Error")
 //                evaluating { webDriver.findElement(By.id("twitterAccount")) } should produce [org.openqa.selenium.NoSuchElementException]
 //                webDriver.findElement(By.id("addTwitterLink")) should not be(null)
@@ -155,11 +155,12 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
             navigateToCloset(webDriver, echoedUser)
 
             given("a request to add their own, already existing Twitter account to their Echoed account")
-            webDriver.getTitle should startWith("My Exhibit")
+            webDriver.getTitle should startWith("Echoed")
 
             when("the user has an associated Twitter account")
             then("send them to Twitter to login")
             webDriver.findElement(By.id("addTwitterLink")).click
+            Thread.sleep(500)
             webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
             val pass = webDriver.findElement(By.id("password"))
             pass.sendKeys(dataCreator.twitterPassword)
@@ -167,8 +168,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
 
             and("re-assign their Twitter account to their Echoed user account")
-            Thread.sleep(100)
-            webDriver.getTitle() should be ("My Exhibit")
+            webDriver.getTitle() should startWith ("Echoed")
             webDriver.findElement(By.id("twitterAccount")) should not be (null)
             val eu = echoedUserDao.findByTwitterId(twitterUser.twitterId)
             eu should not be (null)

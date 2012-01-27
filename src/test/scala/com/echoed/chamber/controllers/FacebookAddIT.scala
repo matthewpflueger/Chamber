@@ -90,7 +90,7 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
 
             and("add their Facebook account to their Echoed user account")
-            webDriver.getTitle() should be ("My Exhibit")
+            webDriver.getTitle() should be ("Echoed")
             webDriver.findElement(By.id("facebookAccount")) should not be (null)
             val eu = echoedUserDao.findByFacebookId(facebookUser.facebookId)
             eu should not be (null)
@@ -126,7 +126,7 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
 
                 and("do not add the Facebook account")
-                webDriver.getTitle should be ("My Exhibit")
+                webDriver.getTitle should startWith ("Echoed")
                 evaluating { webDriver.findElement(By.id("facebookAccount")) } should produce [org.openqa.selenium.NoSuchElementException]
                 webDriver.findElement(By.id("addFacebookLink")) should not be(null)
 
@@ -160,7 +160,7 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
 
             and("re-assign their Facebook account to their Echoed user account")
-            webDriver.getTitle() should be ("My Exhibit")
+            webDriver.getTitle() should startWith ("Echoed")
             webDriver.findElement(By.id("facebookAccount")) should not be (null)
             val eu = echoedUserDao.findByFacebookId(facebookUser.facebookId)
             eu should not be (null)
