@@ -6,6 +6,7 @@ import com.echoed.chamber.domain.views.{SocialActivityTotalByDate,CustomerSocial
 import com.echoed.chamber.dao.RetailerUserDao
 import com.echoed.chamber.dao.views.{RetailerViewDao}
 import akka.actor.{Channel, Actor}
+import scala.collection.JavaConversions._
 import java.util.ArrayList
 import views.{RetailerProductSocialActivityByDate,RetailerSocialActivityByDate,RetailerCustomerSocialActivityByDate}
 
@@ -47,7 +48,7 @@ class PartnerUserServiceActor(
                 val comments  = retailerViewDao.getTotalCommentsByEchoedUserRetailerId(msg.echoedUserId,partnerUser.retailerId)
                 val clicks = retailerViewDao.getTotalEchoClicksByEchoedUserRetailerId(msg.echoedUserId,partnerUser.retailerId)
                 val echoes = retailerViewDao.getTotalEchoesByEchoedUserRetailerId(msg.echoedUserId,partnerUser.retailerId)
-                var friends = retailerViewDao.getTotalFacebookFriendsByEchoedUser(msg.echoedUserId)
+                val friends = retailerViewDao.getTotalFacebookFriendsByEchoedUser(msg.echoedUserId)
                 self.channel ! GetCustomerSocialSummaryResponse(msg, Right(new CustomerSocialSummary(echoedUser.id,echoedUser.name,echoes,likes,comments,clicks,friends)))
             }
 
@@ -82,10 +83,6 @@ class PartnerUserServiceActor(
 
         case msg: GetProductSocialSummary =>
             logger.debug("Getting Product Social Summary {} {}", msg.productId, partnerUser.retailerId)
-            val comments = retailerViewDao.getTotalFacebookCommentsByRetailerIdProductId(msg.productId, partnerUser.retailerId)
-            val likes = retailerViewDao.getTotalFacebookLikesByRetailerIdProductId(msg.productId, partnerUser.retailerId)
-            val views = retailerViewDao.getTotalEchoClicksByRetailerIdProductId(msg.productId, partnerUser.retailerId)
-            logger.debug("Comments {}",comments)
             val resultSet = retailerViewDao.getSocialActivityByProductIdAndRetailerId(msg.productId, partnerUser.retailerId)
             logger.debug("Result Set: {}", resultSet)
             self.channel ! GetProductSocialSummaryResponse(msg, Right(resultSet))
@@ -113,9 +110,16 @@ class PartnerUserServiceActor(
         case msg: GetCustomers =>
             self.channel ! GetCustomersResponse(msg, Right(retailerViewDao.getCustomersWithRetailerId(partnerUser.retailerId,0,25)))
 
-
         case msg: GetTopCustomers =>
             self.channel ! GetTopCustomersResponse(msg, Right(retailerViewDao.getTopCustomersWithRetailerId(partnerUser.retailerId)))
+
+        case msg: GetComments =>
+            val comments = asScalaBuffer(retailerViewDao.getCommentsByRetailerId(partnerUser.retailerId)).toList
+            self.channel ! GetCommentsResponse(msg, Right(comments))
+
+        case msg: GetCommentsByProductId =>
+            val comments = asScalaBuffer(retailerViewDao.getCommentsByRetailerIdProductId(partnerUser.retailerId, msg.productId)).toList
+            self.channel ! GetCommentsByProductIdResponse(msg, Right(comments))
     }
 
 }

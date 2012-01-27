@@ -73,31 +73,30 @@ h2 {
   min-width: 1000px;
   height: 100%; }
   #container.facebook {
-    min-width: 760px; }
+    min-width: 740px; }
 
 #header {
   min-width: 1100px;
-  height: 50px;
+  height: 40px;
   border-bottom: 1px solid #999;
   background-color: white; }
   #header.facebook {
-    min-width: 760px; }
+    min-width: 740px; }
 
 #logo {
   margin-left: 10px;
-  font-size: 48px;
-  line-height: 50px;
-  height: 50px;
+  line-height: 40px;
   float: left;
   font-family: TradeGothicBD20Cond, Arial, sans-serif; }
 
 #user {
   float: right;
-  height: 50px;
+  height: 40px;
   margin-left: 20px;
-  padding: 10px; }
+  font-size: 12px;
+  padding: 10px 5px; }
   #user #user-text {
-    font-size: 14px;
+    font-size: 12px;
     float: left;
     text-align: left; }
   #user #user-image {
@@ -113,19 +112,16 @@ h2 {
   margin-left: 25px;
   float: left; }
   #header-nav li {
-    padding: 5px 20px;
-    height: 40px;
-    line-height: 50px;
+    padding: 5px 10px;
+    height: 30px;
+    line-height: 40px;
     list-style: none;
-    font-size: 24px;
+    font-size: 20px;
     font-family: TradeGothicBD20Cond, Arial, sans-serif;
     color: #666666;
     float: left; }
   #header-nav li:hover, #header-nav .current {
-    color: #ff7733;
-    background-image: url(http://v1-cdn.echoed.com/arrow.png);
-    background-position: bottom;
-    background-repeat: no-repeat; }
+    color: #ff7733; }
 
 #sub-nav {
   height: 25px;
@@ -224,7 +220,7 @@ h2 {
   font-family: TradeGothicBD20Cond, Arial, sans-serif; }
 
 .friend {
-  width: 250px;
+  width: 230px;
   height: 50px;
   float: left;
   margin: 10px;
@@ -239,7 +235,7 @@ h2 {
   .friend .friend-text {
     float: left;
     padding: 5px;
-    width: 190px; }
+    width: 170px; }
 
 .item_wrap {
   float: left;

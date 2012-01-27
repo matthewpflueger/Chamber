@@ -38,6 +38,12 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
 
     def getTopCustomers = 
         (partnerUserServiceActor ? GetTopCustomers()).mapTo[GetTopCustomersResponse]
+    
+    def getComments = 
+        (partnerUserServiceActor ? GetComments()).mapTo[GetCommentsResponse]
+
+    def getCommentsByProductId(productId: String) =
+        (partnerUserServiceActor ? GetCommentsByProductId(productId: String)).mapTo[GetCommentsByProductIdResponse]
 
     def logout(partnerUserId: String) =
         (partnerUserServiceActor ? Logout(partnerUserId)).mapTo[LogoutResponse]

@@ -149,7 +149,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
             switch(self.report){
                 case "customers":
                     template = _.template($('#template-view-reports-customers').html());
-                    $.getJSON("http://v1-api.echoed.com/partner/customer/" + self.reportId, function(data){
+                    $.getJSON("http://v1-api.echoed.com/partner/customers/" + self.reportId + "/summary", function(data){
                         self.element.hide().html(template).fadeIn(function(){
                             var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#customer-report-chart', customerId: self.reportId, type: "customer"});
                             $('#select-report').html(data.echoedUserName);
@@ -164,7 +164,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                     break;
                 case "products":
                     template = _.template($('#template-view-reports-products').html());
-                    $.getJSON("http://v1-api.echoed.com/partner/product/" + self.reportId,function(data){
+                    $.getJSON("http://v1-api.echoed.com/partner/products/" + self.reportId + "/summary",function(data){
                             self.element.hide().html(template).fadeIn(function(){
                                 var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart', productId: self.reportId, type: "product"});
                                 $('#select-report').html(data.productName);
@@ -187,7 +187,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
             template = _.template($('#template-views-reports-table').html());
             switch(self.report){
                 case "customers":
-                    $.getJSON("http://v1-api.echoed.com/partner/customers", function(data){
+                    $.getJSON("http://v1-api.echoed.com/partner/retailer/customers", function(data){
                             self.element.hide().html(template);
                             var table = {"style":"report-table","header": [{"text":"Customer"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                             $.each(data.customers, function(index,customer){
@@ -205,7 +205,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                     break;
                 case "products":
                     $.ajax({
-                        url: "http://v1-api.echoed.com/partner/products",
+                        url: "http://v1-api.echoed.com/partner/retailer/products",
                         dataType: 'json',
                         success: function(data){
                             self.element.hide().html(template);
@@ -298,7 +298,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         var template = _.template($('#template-view-summary').html());
         $(this.el).hide().html(template).fadeIn(function() {
             $.ajax({
-                url: "http://v1-api.echoed.com/partner/summary",
+                url: "http://v1-api.echoed.com/partner/retailer/summary",
                 dataType: 'json',
                 success: function(data){
                     $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
@@ -314,7 +314,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         });
         var chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart', type: "retailer"});
         $.ajax({
-            url: "http://v1-api.echoed.com/partner/products/top",
+            url: "http://v1-api.echoed.com/partner/retailer/topproducts",
             dataType: 'json',
             success: function(data){
                 var table = {"style":"top-table","header": [{"text":"Product Name"},{"text":"SKU"},{"text":"Echoes"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
@@ -331,7 +331,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
             }
         });
         $.ajax({
-            url: "http://v1-api.echoed.com/partner/customers/top",
+            url: "http://v1-api.echoed.com/partner/retailer/topcustomers",
             dataType: 'json',
             success: function(data){
                 var table = {"style":"top-table","header": [{"text":"Customer"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
@@ -534,13 +534,13 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
         var self = this;
         switch(options.type){
             case 'retailer':
-                self.url = "http://v1-api.echoed.com/partner/history";
+                self.url = "http://v1-api.echoed.com/partner/retailer/history";
                 break;
             case 'product':
-                self.url = "http://v1-api.echoed.com/partner/product/history/" + options.productId;
+                self.url = "http://v1-api.echoed.com/partner/products/" + options.productId +"/history";
                 break;
             case 'customer':
-                self.url = "http://v1-api.echoed.com/partner/customer/history/" + options.customerId;
+                self.url = "http://v1-api.echoed.com/partner/customers/" + options.customerId +  "/history";
                 break;
         }
         var likes = {name: 'likes',data:[]};
@@ -733,7 +733,7 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
 <div id="container">
     <div id="header">
         <div id="logo">
-            <img height="50px" src="http://v1-cdn.echoed.com/logo.png">
+            <img src="http://v1-cdn.echoed.com/logo.png">
         </div>
         <div id="header-nav">
             <ul>

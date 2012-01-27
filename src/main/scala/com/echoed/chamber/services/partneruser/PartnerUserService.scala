@@ -28,6 +28,10 @@ trait PartnerUserService {
     def getCustomers: Future[GetCustomersResponse]
 
     def getTopCustomers: Future[GetTopCustomersResponse]
+    
+    def getComments: Future[GetCommentsResponse]
+    
+    def getCommentsByProductId(productId:String): Future[GetCommentsByProductIdResponse]
 
     def logout(partnerUserId: String): Future[LogoutResponse]
 }

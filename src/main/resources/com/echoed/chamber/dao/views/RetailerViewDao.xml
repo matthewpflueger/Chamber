@@ -98,6 +98,22 @@
             <arg column="totalFacebookFriends" javaType="_int"/>
         </constructor>
     </resultMap>
+    
+    <resultMap id="comments" type="com.echoed.chamber.domain.FacebookComment">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="facebookPostId" javaType="String" />
+            <arg column="facebookUserId" javaType="String" />
+            <arg column="echoedUserId" javaType="String" />
+            <arg column="facebookId" javaType="String" />
+            <arg column="byFacebookId" javaType="String" />
+            <arg column="name" javaType="String" />
+            <arg column="message" javaType="String" />
+            <arg column="createdAt" javaType="Date" />
+        </constructor>
+    </resultMap>
 
     <sql id="productColumns">
         E.productId as productId,
@@ -639,6 +655,59 @@
             FacebookFriend FF ON FU.id = FF.facebookUserId
         WHERE
             EU.id =  #{echoedUserId}
+    </select>
+
+    <select id="getCommentsByRetailerId" resultMap="comments">
+        SELECT
+            FBC.id,
+            FBC.updatedOn,
+            FBC.createdOn,
+            FBC.facebookPostId,
+            FBC.facebookUserId,
+            FBC.echoedUserId,
+            FBC.facebookId,
+            FBC.byFacebookId,
+            FBC.name,
+            FBC.message,
+            FBC.createdAt
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FP ON FP.echoId = E.id
+            INNER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FP.id
+        WHERE
+            E.retailerId = #{retailerId}
+        ORDER BY
+            FBC.createdOn DESC
+    </select>
+
+    
+    <select id="getCommentsByRetailerIdProductId" resultMap="comments">
+        SELECT
+            FBC.id,
+            FBC.updatedOn,
+            FBC.createdOn,
+            FBC.facebookPostId,
+            FBC.facebookUserId,
+            FBC.echoedUserId,
+            FBC.facebookId,
+            FBC.byFacebookId,
+            FBC.name,
+            FBC.message,
+            FBC.createdAt
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FP ON FP.echoId = E.id
+            INNER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FP.id
+        WHERE
+            E.productId = #{productId}
+            AND
+            E.retailerId = #{retailerId}
+        ORDER BY
+            FBC.createdOn DESC
     </select>
 </mapper>
 

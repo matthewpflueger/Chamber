@@ -106,6 +106,7 @@
     <bean id="closetController" class="com.echoed.chamber.controllers.ClosetController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="closetView" value="view.user" />
+        <property name="closetViewFacebook"  value="view.user.fb"/>
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

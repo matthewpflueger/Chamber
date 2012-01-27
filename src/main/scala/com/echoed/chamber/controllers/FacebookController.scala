@@ -254,7 +254,7 @@ class FacebookController {
                             case LocateByFacebookIdResponse(_, Right(facebookService)) => finishLogin(
                                     httpServletResponse,
                                     error _,
-                                    "closet",
+                                    "closet?app=facebook",
                                     continuation,
                                     facebookService)
                         }))

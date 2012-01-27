@@ -3,6 +3,7 @@ package com.echoed.chamber.services.partneruser
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.RetailerUser
 import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate, RetailerSocialActivityByDate,CustomerSocialSummary,RetailerCustomerSocialActivityByDate}
+import com.echoed.chamber.domain.{FacebookComment}
 
 
 sealed trait PartnerUserMessage extends Message
@@ -64,6 +65,15 @@ case class GetCustomersResponse(message: GetCustomers, value: Either[PartnerUser
 case class GetTopCustomers() extends PUM
 case class GetTopCustomersResponse(message: GetTopCustomers, value: Either[PartnerUserException,RetailerCustomerListView])
     extends PUM with RM[RetailerCustomerListView, GetTopCustomers, PUE]
+
+
+case class GetComments() extends PUM
+case class GetCommentsResponse(message: GetComments, value: Either[PartnerUserException,List[FacebookComment]] )
+    extends PUM with RM[List[FacebookComment], GetComments, PUE]
+
+case class GetCommentsByProductId(productId: String) extends PUM
+case class GetCommentsByProductIdResponse(message: GetCommentsByProductId, value: Either[PartnerUserException,List[FacebookComment]])
+    extends PUM with RM[List[FacebookComment], GetCommentsByProductId, PUE]
 
 case class CreatePartnerUserService(email: String) extends PUM
 case class CreatePartnerUserServiceResponse(

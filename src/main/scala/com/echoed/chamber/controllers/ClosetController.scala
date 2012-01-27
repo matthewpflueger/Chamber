@@ -23,12 +23,14 @@ class ClosetController {
 
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
 
+    @BeanProperty var closetViewFacebook: String = _
     @BeanProperty var closetView: String = _
     @BeanProperty var errorView: String = _
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def closet(
             @CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
+            @RequestParam(value="app", required = false) appType: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -38,6 +40,17 @@ class ClosetController {
             new ModelAndView(errorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
+            var view = "";
+            logger.debug("App Type: {} ", appType)
+
+            if(appType != null){
+                if(appType.equals("facebook")){
+                    view = closetViewFacebook
+                }
+            }
+            else{
+                view = closetView
+            }
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
@@ -51,7 +64,7 @@ class ClosetController {
                             logger.error("Error Getting Exhibit: {}" , error)
                             throw new RuntimeException("Unknown Response %s" format error)
                         case GetExhibitResponse(_,Right(closet)) =>
-                            val modelAndView = new ModelAndView(closetView)
+                            val modelAndView = new ModelAndView(view)
                             modelAndView.addObject("echoedUser", closet.echoedUser)
                             modelAndView.addObject("totalCredit", "%.2f\n".format(closet.totalCredit))
                             val error = Option(httpServletRequest.getParameter("error"))
