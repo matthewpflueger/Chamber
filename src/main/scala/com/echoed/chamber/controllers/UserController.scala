@@ -55,6 +55,7 @@ class UserController {
                     echoedUserService.getPublicFeed.onResult{
                         case GetPublicFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
                         case GetPublicFeedResponse(_,Right(feed)) =>
+                            logger.debug("Found feed of size {}", feed.size)
                             continuation.setAttribute("feed", feed)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)

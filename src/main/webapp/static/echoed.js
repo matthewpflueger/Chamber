@@ -140,6 +140,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
         $.ajax({
             url: self.jsonUrl,
+            xhrFields: {
+                withCredentials: true
+            },
             dataType: 'json',
             success: function(data){
 
@@ -192,6 +195,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 }
             },
             error:function (xhr, ajaxOptions, thrownError){
+                //
             }
         });
     },
@@ -226,6 +230,9 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
         jsonUrl = "http://v1-api.echoed.com/user/friends";
         $.ajax({
             url: jsonUrl,
+            xhrFields: {
+                withCredentials: true
+            },
             dataType: 'json',
             success: function(data){
                 if(data.length > 0 ){

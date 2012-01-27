@@ -14,10 +14,18 @@ class CookieManagerSimple extends CookieManager {
     @BeanProperty var expiresIn: Int = -1
 
 
-    def createCookie(name: String, value: String) = {
+    def createCookie(name: String, value: String): Cookie = {
+        createCookie(name, value, domain)
+    }
+
+    def createCookie(name: String, value: String, domain: String): Cookie = {
+        createCookie(name, value, domain, path)
+    }
+
+    def createCookie(name: String, value: String, domain: String, path: String): Cookie = {
         val cookie = new Cookie(name, value)
         cookie.setDomain(domain)
-        cookie.setPath("/")
+        cookie.setPath(path)
         cookie.setMaxAge(if (Option(value) == None) 0 else expiresIn)
         cookie
     }

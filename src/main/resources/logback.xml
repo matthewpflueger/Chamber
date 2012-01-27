@@ -12,7 +12,7 @@
     <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="debug" />
     <logger name="com.echoed" level="debug" />
 
-    <root level="error">
+    <root level="warn">
         <appender-ref ref="stdout" />
     </root>
 </configuration>
