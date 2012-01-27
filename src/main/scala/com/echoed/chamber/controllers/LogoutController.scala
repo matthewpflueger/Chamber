@@ -46,6 +46,8 @@ class LogoutController {
             logger.error("Manually flushing caches - you should never, ever see this in production!!!!!!!")
             val caches = sqlSessionFactory.getConfiguration.getCaches
             caches.foreach { cache =>
+                logger.error("Flushing cache %s" format cache.getId)
+                cache.getReadWriteLock.readLock()
                 val lock = cache.getReadWriteLock().writeLock()
                 lock.lock()
                 try {
