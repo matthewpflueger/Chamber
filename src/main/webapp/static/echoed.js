@@ -108,27 +108,27 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "friend":
                 this.jsonUrl = "http://v1-api.echoed.com/user/exhibit/" + options.Id;
                 this.baseUrl = "#friends/exhibit/" + options.Id + "/";
-                this.contentTitle = "Friends Exhibit";
+                this.contentTitle = "Echoed | Friends Exhibit";
                 this.id = "friends";
                 break;
             case "explore":
                 this.jsonUrl = "http://v1-api.echoed.com/user/feed/public";
                 this.baseUrl = "#explore/";
-                this.contentTitle = "Explore";
+                this.contentTitle = "Echoed | Explore";
                 this.feedSelector = "Everyone";
                 this.id= "explore";
                 break;
             case "explore/friends":
                 this.jsonUrl = "http://v1-api.echoed.com/user/feed/friends";
                 this.baseUrl = "#exploref/";
-                this.contentTitle = "Explore";
+                this.contentTitle = "Echoed | Explore";
                 this.feedSelector = "Friends";
                 this.id = "explore/friends";
                 break;
             case "exhibit":
                 this.jsonUrl = "http://v1-api.echoed.com/user/exhibit";
                 this.baseUrl = "#exhibit/";
-                this.contentTitle = "My Exhibit";
+                this.contentTitle = "Echoed | My Exhibit";
                 this.id = null;
                 break;
         }
