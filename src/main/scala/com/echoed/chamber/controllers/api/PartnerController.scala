@@ -1,4 +1,4 @@
-package com.echoed.chamber.controllers
+package com.echoed.chamber.controllers.api
 
 import org.springframework.stereotype.Controller
 import org.slf4j.LoggerFactory
@@ -32,98 +32,98 @@ class PartnerController {
     @BeanProperty var partnerDashboardView: String = _
 
 
-    @RequestMapping(value = Array("/login"))
-    def login(
-            @RequestParam(value="email", required=false) email: String,
-            @RequestParam(value="password", required= false) password: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+//    @RequestMapping(value = Array("/login"))
+//    def login(
+//            @RequestParam(value="email", required=false) email: String,
+//            @RequestParam(value="password", required= false) password: String,
+//            httpServletRequest: HttpServletRequest,
+//            httpServletResponse: HttpServletResponse) = {
+//
+//
+//        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+//        if (continuation.isExpired) {
+//            logger.error("Request expired to login {}", email)
+//            new ModelAndView(partnerLoginErrorView)
+//        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
+//            continuation.suspend(httpServletResponse)
+//
+//            if(email != null && password != null) {
+//                def onError(error: PartnerUserException) {
+//                    logger.debug("Got error during login for {}: {}", email, error.message)
+//                    continuation.setAttribute(
+//                        "modelAndView",
+//                        new ModelAndView(partnerLoginErrorView, "error", error))
+//                    continuation.resume()
+//                }
+//
+//                logger.debug("Received login request for {}", email)
+//
+//                partnerUserServiceLocator.login(email, password).onResult {
+//                    case LoginResponse(_, Left(error)) => onError(error)
+//                    case LoginResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
+//                        case GetPartnerUserResponse(_, Left(error)) => onError(error)
+//                        case GetPartnerUserResponse(_, Right(pu)) =>
+//                            logger.debug("Successful login for {}", email)
+//                            cookieManager.addCookie(httpServletResponse, "partnerUser", pu.id)
+//                            continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
+//                            continuation.resume()
+//                        case unknown => throw new RuntimeException("Unknown response %s" format unknown)
+//                    }
+//                    case unknown => throw new RuntimeException("Unknown response %s" format unknown)
+//                }
+//            }
+//            else{
+//                continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginErrorView))
+//                continuation.resume()
+//            }
+//            continuation.undispatch()
+//        })
+//
+//    }
 
+//    @RequestMapping(value = Array("/dashboard"), method = Array(RequestMethod.GET))
+//    def dashboard(
+//            @CookieValue(value = "partnerUser", required = false) partnerUserId: String,
+//            httpServletRequest: HttpServletRequest,
+//            httpServletResponse: HttpServletResponse) = {
+//
+//        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+//        if (continuation.isExpired) {
+//            logger.error("Request expired to view dashboard for {}", partnerUserId)
+//            new ModelAndView(partnerDashboardErrorView)
+//        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
+//            continuation.suspend(httpServletResponse)
+//
+//            def onError(error: PartnerUserException) {
+//                logger.debug("Got error showing dashboard for {}: {}", partnerUserId, error.message)
+//                continuation.setAttribute(
+//                    "modelAndView",
+//                    new ModelAndView(partnerDashboardErrorView, "error", error))
+//                continuation.resume()
+//            }
+//
+//            logger.debug("Showing dashboard for PartnerUser {}", partnerUserId)
+//            partnerUserServiceLocator.locate(partnerUserId).onResult {
+//                case LocateResponse(_, Left(error)) => onError(error)
+//                case LocateResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
+//                    case GetPartnerUserResponse(_, Left(error)) => onError(error)
+//                    case GetPartnerUserResponse(_, Right(pu)) =>
+//                        logger.debug("Got {}", pu)
+//                        continuation.setAttribute(
+//                            "modelAndView",
+//                            new ModelAndView(partnerDashboardView, "partnerUser", pu))
+//                        continuation.resume()
+//                    case unknown => throw new RuntimeException("Unknown response %s" format unknown)
+//                }
+//                case unknown => throw new RuntimeException("Unknown response %s" format unknown)
+//            }
+//
+//            continuation.undispatch()
+//        })
+//
+//    }
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired) {
-            logger.error("Request expired to login {}", email)
-            new ModelAndView(partnerLoginErrorView)
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
-            
-            if(email != null && password != null) {
-                def onError(error: PartnerUserException) {
-                    logger.debug("Got error during login for {}: {}", email, error.message)
-                    continuation.setAttribute(
-                        "modelAndView",
-                        new ModelAndView(partnerLoginErrorView, "error", error))
-                    continuation.resume()
-                }
-    
-                logger.debug("Received login request for {}", email)
-    
-                partnerUserServiceLocator.login(email, password).onResult {
-                    case LoginResponse(_, Left(error)) => onError(error)
-                    case LoginResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
-                        case GetPartnerUserResponse(_, Left(error)) => onError(error)
-                        case GetPartnerUserResponse(_, Right(pu)) =>
-                            logger.debug("Successful login for {}", email)
-                            cookieManager.addCookie(httpServletResponse, "partnerUser", pu.id)
-                            continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
-                            continuation.resume()
-                        case unknown => throw new RuntimeException("Unknown response %s" format unknown)
-                    }
-                    case unknown => throw new RuntimeException("Unknown response %s" format unknown)
-                }
-            }
-            else{
-                continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginErrorView))
-                continuation.resume()
-            }
-            continuation.undispatch()
-        })
-
-    }
-
-    @RequestMapping(value = Array("/dashboard"), method = Array(RequestMethod.GET))
-    def dashboard(
-            @CookieValue(value = "partnerUser", required = false) partnerUserId: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
-
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired) {
-            logger.error("Request expired to view dashboard for {}", partnerUserId)
-            new ModelAndView(partnerDashboardErrorView)
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
-
-            def onError(error: PartnerUserException) {
-                logger.debug("Got error showing dashboard for {}: {}", partnerUserId, error.message)
-                continuation.setAttribute(
-                    "modelAndView",
-                    new ModelAndView(partnerDashboardErrorView, "error", error))
-                continuation.resume()
-            }
-
-            logger.debug("Showing dashboard for PartnerUser {}", partnerUserId)
-            partnerUserServiceLocator.locate(partnerUserId).onResult {
-                case LocateResponse(_, Left(error)) => onError(error)
-                case LocateResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
-                    case GetPartnerUserResponse(_, Left(error)) => onError(error)
-                    case GetPartnerUserResponse(_, Right(pu)) =>
-                        logger.debug("Got {}", pu)
-                        continuation.setAttribute(
-                            "modelAndView",
-                            new ModelAndView(partnerDashboardView, "partnerUser", pu))
-                        continuation.resume()
-                    case unknown => throw new RuntimeException("Unknown response %s" format unknown)
-                }
-                case unknown => throw new RuntimeException("Unknown response %s" format unknown)
-            }
-
-            continuation.undispatch()
-        })
-
-    }
-
-    @RequestMapping(value = Array("products/{id}/{query}"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/products/{id}/{query}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getJSON(
             @CookieValue(value = "partnerUser", required = false) partnerUserId: String,
@@ -131,19 +131,19 @@ class PartnerController {
             @PathVariable(value = "query") query: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
-        
+
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         def error(e: Throwable) {
             continuation.setAttribute("jsonResponse", e)
             continuation.resume()
         }
-        
+
         if(continuation.isExpired){
             logger.error("Request expired getting Product Report: {} for Product Id: {}", query, productId)
         } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
             continuation.suspend(httpServletResponse)
-            
+
             partnerUserServiceLocator.locate(partnerUserId).onResult({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner USer SErvice With PartnerUserId: {}", partnerUserId)
@@ -182,9 +182,9 @@ class PartnerController {
                     }
             })
             continuation.undispatch();
-            
+
         })
-        
+
     }
 
     @RequestMapping(value = Array("/customers/{id}/{query}"), method = Array(RequestMethod.GET))
@@ -201,7 +201,7 @@ class PartnerController {
         def error(e: Throwable) {
             continuation.setAttribute("jsonResponse", e)
             continuation.resume()
-        }        
+        }
 
         if(continuation.isExpired){
             logger.error("Request expired getting product social summary json")

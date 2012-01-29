@@ -115,12 +115,32 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
-    <bean id="userController" class="com.echoed.chamber.controllers.UserController">
+    <bean id="userController" class="com.echoed.chamber.controllers.api.UserController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
-    <bean id="partnerController" class="com.echoed.chamber.controllers.PartnerController">
+    <bean id="partnerController" class="com.echoed.chamber.controllers.api.PartnerController">
+        <property name="cookieManager" ref="cookieManager" />
+        <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
+        <property name="partnerDashboardView" value="view.partner" />
+        <property name="partnerDashboardErrorView" value="view.login" />
+        <property name="partnerLoginErrorView" value="view.login" />
+        <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="partnerLoginController" class="com.echoed.chamber.controllers.PartnerLoginController">
+        <property name="cookieManager" ref="cookieManager" />
+        <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
+        <property name="partnerDashboardView" value="view.partner" />
+        <property name="partnerDashboardErrorView" value="view.login" />
+        <property name="partnerLoginErrorView" value="view.login" />
+        <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="partnerDashboardController" class="com.echoed.chamber.controllers.PartnerDashboardController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="partnerDashboardView" value="view.partner" />

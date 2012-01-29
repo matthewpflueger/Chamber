@@ -1,4 +1,4 @@
-package com.echoed.chamber.controllers
+package com.echoed.chamber.controllers.api
 
 import org.springframework.stereotype.Controller
 import java.util.ArrayList
