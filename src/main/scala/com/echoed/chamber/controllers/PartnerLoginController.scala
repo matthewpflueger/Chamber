@@ -23,8 +23,6 @@ class PartnerLoginController {
     @BeanProperty var partnerLoginErrorView: String = _
     @BeanProperty var partnerLoginView: String = _
 
-    @BeanProperty var partnerDashboardErrorView: String = _
-    @BeanProperty var partnerDashboardView: String = _
 
     @RequestMapping(value = Array("/partner/login"))
     def login(

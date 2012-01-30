@@ -18,11 +18,6 @@ class PartnerDashboardController {
 
     @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
 
-    @BeanProperty var cookieManager: CookieManager = _
-
-    @BeanProperty var partnerLoginErrorView: String = _
-    @BeanProperty var partnerLoginView: String = _
-
     @BeanProperty var partnerDashboardErrorView: String = _
     @BeanProperty var partnerDashboardView: String = _
 

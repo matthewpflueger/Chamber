@@ -60,9 +60,9 @@ class TwitterController {
             logger.debug("EchoedUserId: {}", echoedUserId)
 
             val callbackUrl = if (echoedUserId != null) {
-                "http://v1-api.echoed.com/twitter/add?redirect=" +  URLEncoder.encode(redirect,"UTF-8")
+                "http://www.echoed.com/twitter/add?redirect=" +  URLEncoder.encode(redirect,"UTF-8")
             } else {
-                "http://v1-api.echoed.com/twitter/login?redirect=" + URLEncoder.encode(redirect,"UTF-8")
+                "http://www.echoed.com/twitter/login?redirect=" + URLEncoder.encode(redirect,"UTF-8")
             }
 
             logger.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl,"UTF-8"));
@@ -108,7 +108,7 @@ class TwitterController {
 
 
             logger.debug("Add/QueryString: {} ", redirect)
-            val redirectView = "redirect:http://v1-api.echoed.com/" + redirect
+            val redirectView = "redirect:http://www.echoed.com/" + redirect
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_, Left(e)) => error(e)
@@ -180,7 +180,7 @@ class TwitterController {
                                 case GetEchoedUserResponse(_, Right(echoedUser)) =>
                                     ts.assignEchoedUser(echoedUser.id)
                                     cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
-                                    val redirectView = "redirect:http://v1-api.echoed.com/" + redirect
+                                    val redirectView = "redirect:http://www.echoed.com/" + redirect
                                     logger.debug("Redirecting to View: {} ", redirectView)
                                     continuation.setAttribute("modelAndView", new ModelAndView(redirectView))
                                     continuation.resume

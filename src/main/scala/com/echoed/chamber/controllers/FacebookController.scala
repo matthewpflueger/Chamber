@@ -12,11 +12,8 @@ import org.springframework.web.servlet.ModelAndView
 import scalaz._
 import Scalaz._
 import java.net.URLEncoder
-import scala.collection.JavaConversions._
 import org.apache.commons.codec.binary.Base64
 import com.echoed.util.{ScalaObjectMapper, CookieManager}
-import org.codehaus.jackson.JsonNode
-import java.security.MessageDigest
 import org.eclipse.jetty.continuation.{Continuation, ContinuationSupport}
 import com.echoed.chamber.services.facebook.{LocateByFacebookIdResponse, FacebookService, LocateByCodeResponse, FacebookServiceLocator}
 import javax.crypto.Mac
@@ -31,13 +28,11 @@ class FacebookController {
 
     @BeanProperty var facebookServiceLocator: FacebookServiceLocator = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
-    @BeanProperty var echoService: EchoService = _
+
 
     @BeanProperty var cookieManager: CookieManager = _
 
     @BeanProperty var facebookLoginErrorView: String = _
-    @BeanProperty var echoView: String = _
-    @BeanProperty var dashboardView: String = _
 
     @RequestMapping(value = Array("/add"), method = Array(RequestMethod.GET))
     def add(
@@ -58,7 +53,7 @@ class FacebookController {
             modelAndView
         }
 
-        if(Option(code) == None || continuation.isExpired){
+        if (Option(code) == None || continuation.isExpired) {
             error(RequestExpiredException("We encountered an error talking to Facebook"))
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
 
@@ -68,7 +63,7 @@ class FacebookController {
             parameters.putAll(httpServletRequest.getParameterMap)
             parameters.remove("code")
 
-            val redirectView = "redirect:http://v1-api.echoed.com/" + redirect
+            val redirectView = "redirect:http://www.echoed.com/" + Option(redirect).getOrElse("")
 
             logger.debug("Redirect View {}" , redirectView)
 
@@ -90,12 +85,12 @@ class FacebookController {
                                 {
                                     logger.debug("No Existing Facebook User Id ")
 
-                                    val queryString = "/facebook/add?" + {
+                                    val queryString = "/facebook/add" + {
                                         val index = httpServletRequest.getQueryString.indexOf("&code=")
                                         if (index > -1) {
-                                            httpServletRequest.getQueryString.substring(0, index)
+                                            "?" + httpServletRequest.getQueryString.substring(0, index)
                                         } else {
-                                            httpServletRequest.getQueryString
+                                            "" //httpServletRequest.getQueryString
                                         }
                                     }
 
@@ -156,10 +151,14 @@ class FacebookController {
 
             logger.debug("Requesting FacebookService with code {}", code)
 
-            val queryString = {
-                val index = httpServletRequest.getQueryString.indexOf("&code=")
-                "/facebook/login?" + httpServletRequest.getQueryString.substring(0, index)
-            }
+            val index = httpServletRequest.getQueryString.indexOf("&code=")
+            val queryString = "/facebook/login" +
+                (if (index > -1) "?" + httpServletRequest.getQueryString.substring(0, index)
+                else "")
+//            httpServletRequest.getQueryString.indexOf("&code=")
+//                val index = httpServletRequest.getQueryString.indexOf("&code=")
+//                "/facebook/login?" + httpServletRequest.getQueryString.substring(0, index)
+//            }
 
             facebookServiceLocator.locateByCode(code, queryString).onComplete(_.value.get.fold(
                 error(_),
@@ -194,7 +193,7 @@ class FacebookController {
                         case GetEchoedUserResponse(_, Left(e)) => error(e)
                         case GetEchoedUserResponse(_, Right(echoedUser))=>
                             cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
-                            val redirectView = "redirect:http://v1-api.echoed.com/" + redirect;
+                            val redirectView = "redirect:http://www.echoed.com/" + Option(redirect).getOrElse("");
                             logger.debug("Redirecting to View: {} ", redirectView);
                             val modelAndView = new ModelAndView(redirectView);
                             continuation.setAttribute("modelAndView", modelAndView)
@@ -254,7 +253,7 @@ class FacebookController {
                             case LocateByFacebookIdResponse(_, Right(facebookService)) => finishLogin(
                                     httpServletResponse,
                                     error _,
-                                    "closet?app=facebook",
+                                    "?app=facebook",
                                     continuation,
                                     facebookService)
                         }))

@@ -71,6 +71,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             webDriver.getCurrentUrl should startWith (echoUrl)
 
             webDriver.findElement(By.id("twitterLogin")).click()
+            Thread.sleep(500)
             webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
             val pass = webDriver.findElement(By.id("password"))
             pass.sendKeys(dataCreator.twitterPassword)

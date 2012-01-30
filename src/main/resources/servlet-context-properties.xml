@@ -21,6 +21,7 @@
                 properties-ref="servletContextProperties"/>
     <!--suppress SpringModelInspection -->
     <util:properties id="servletContextProperties">
+        <prop key="wwwUrl">http://www.echoed.com</prop>
         <prop key="apiUrl">http://v1-api.echoed.com</prop>
         <prop key="cdnUrl">http://v1-cdn.echoed.com</prop>
 
@@ -28,10 +29,10 @@
         <prop key="mustache.prefix">${cdnUrl}/</prop>
         <prop key="mustache.suffix">.html</prop>
 
-        <prop key="echoUrl">${apiUrl}/echo</prop>
-        <prop key="echoItUrl">${apiUrl}/echo/it</prop>
-        <prop key="buttonUrl">${apiUrl}/echo/button</prop>
-        <prop key="closetUrl">${apiUrl}/closet</prop>
+        <prop key="echoUrl">${wwwUrl}/echo</prop>
+        <prop key="echoItUrl">${wwwUrl}/echo/it</prop>
+        <prop key="buttonUrl">${wwwUrl}/echo/button</prop>
+        <prop key="closetUrl">${wwwUrl}</prop>
 
         <prop key="buttonViewUrl">${cdnUrl}/button_echoed.png</prop>
         <prop key="loginViewUrl">${cdnUrl}/view.popuplogin.html</prop>
@@ -49,7 +50,7 @@
 
         <prop key="exhibitUrl">${apiUrl}/user/exhibit</prop>
         <prop key="friendsUrl">${apiUrl}/user/friends</prop>
-        <prop key="dashboardUrl">${apiUrl}/partner/dashboard</prop>
+        <prop key="dashboardUrl">${wwwUrl}/partner/dashboard</prop>
     </util:properties>
 
 </beans>
