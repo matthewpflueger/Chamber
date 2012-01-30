@@ -11,6 +11,7 @@ Echoed = {
         var router = new Echoed.Router({EvAg: EventAggregator});
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
         var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
+        var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({EvAg : EventAggregator});
         Backbone.history.start();
     }
 };
@@ -97,13 +98,29 @@ Echoed.Router = Backbone.Router.extend({
 
 });
 
+Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        var self = this;
+
+        $(window).scroll(function(){
+           if($(window).scrollTop() + 300 >= $(document).height() - $(window).height()){
+               self.EvAg.trigger("infiniteScroll");
+           }
+        });
+
+    }
+});
+
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','addProduct','filterProducts');
+        _.bindAll(this,'render','addProduct','filterProducts','next');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
+        this.EvAg.bind('infiniteScroll', this.next);
         this.element = $(this.el);
         this.filter = options.Filter;
         switch(options.Type){
@@ -164,19 +181,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 dropDownEl.appendTo(ul);
                 var dropDown = new Echoed.Views.Components.Dropdown({el: dropDownEl, EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Filter: self.filter});
                 var exhibit = $('#exhibit');
-
-
-                var products = $('<div></div>');
-                var echoes;
-                if(self.id == "explore")
-                    echoes = data;
-                else
-                    echoes = data.echoes;
                 if(self.id == "friends")
                     $('#content-title').html(data.echoedUserName + "'s Exhibit");
                 else
                     $('#content-title').html(self.contentTitle);
-                if(echoes.length > 0){
+                if(data.echoes.length > 0){
                     exhibit.isotope({
                         animationOptions: {
                             duration: 500,
@@ -185,32 +194,51 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                         },
                         filter: self.filter
                     });
-                    $.each(echoes, function(index,product){
+                    $.each(data.echoes, function(index,product){
                         var productModel = new Echoed.Models.Product(product);
                         self.addProduct(productModel,self.filter);
                         self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                     });
                 }
                 else{
-                    var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no echoes.");
+                    var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
                     noEchoDiv.appendTo(exhibit);
                 }
             },
             error:function (xhr, ajaxOptions, thrownError){
-                //
+
             }
         });
+
     },
     filterProducts: function(selector){
         var self = this;
         self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
+    },
+    next: function(){
+        var self = this;
+        $.ajax({
+            url: self.jsonUrl,
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            success: function(data){
+                $.each(data.echoes, function(index,product){
+                    var productModel = new Echoed.Models.Product(product);
+                    self.addProduct(productModel,self.filter);
+                    self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
+                });
+            }
+        });
+
     },
     addProduct: function(productModel,filter){
         var self = this;
         var productDiv = $('<div></div>');
         var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
         productDiv.hide().appendTo(self.exhibit);
-        self.exhibit.imagesLoaded(function(){
+        productDiv.imagesLoaded(function(){
             self.exhibit.isotope('insert',productDiv);
             productDiv.show();
         });

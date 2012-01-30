@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
 import akka.dispatch.Future
 import java.util.{Date, ArrayList}
 import com.echoed.chamber.dao._
-import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,FriendCloset, Closet}
+import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,FriendCloset, Closet,PublicFeed, EchoViewPublic}
 import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
@@ -18,6 +18,7 @@ import com.echoed.chamber.services.twitter._
 import com.echoed.chamber.services.echoeduser.{Logout => L, LogoutResponse => LR, EchoToFacebookResponse => ETFR, EchoToFacebook => ETF}
 import com.echoed.chamber.services.facebook._
 import akka.util.Duration
+import scala.collection.JavaConversions
 
 
 class EchoedUserServiceActor(
@@ -355,7 +356,9 @@ class EchoedUserServiceActor(
 
             try {
                 logger.debug("Attempting to retrieve Public Feed for EchoedUser {}", echoedUser.id)
-                val feed = asScalaBuffer(feedDao.getPublicFeed).toList
+                //val echoes = JavaConversions.asJavaCollection(JavaConversions.asScalaBuffer(feedDao.getPublicFeed).map { new EchoViewPublic(_) })
+                val echoes = asScalaBuffer(feedDao.getPublicFeed).toList
+                val feed = new PublicFeed(echoes)
                 channel ! GetPublicFeedResponse(msg, Right(feed))
             } catch {
                 case e=>

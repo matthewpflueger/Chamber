@@ -149,36 +149,50 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
             switch(self.report){
                 case "customers":
                     template = _.template($('#template-view-reports-customers').html());
-                    $.getJSON("http://v1-api.echoed.com/partner/customers/" + self.reportId + "/summary", function(data){
-                        self.element.hide().html(template).fadeIn(function(){
-                            var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#customer-report-chart', customerId: self.reportId, type: "customer"});
-                            $('#select-report').html(data.echoedUserName);
-                            $('#cs-likes').hide().html(data.totalFacebookLikes).fadeIn();
-                            $('#cs-views').hide().html(data.totalEchoClicks).fadeIn();
-                            $('#cs-retweets').hide().html(0).fadeIn();
-                            $('#cs-echoes').hide().html(data.totalEchoes).fadeIn();
-                            //$('#cs-open-echoes').hide().html(0).fadeIn();
-                            $('#cs-comments').hide().html(data.totalFacebookComments).fadeIn();
-                        });
+                    $.ajax({
+                        url: "http://v1-api.echoed.com/partner/customers/" + self.reportId + "/summary",
+                        dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        success: function(data){
+                            self.element.hide().html(template).fadeIn(function(){
+                                var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#customer-report-chart', customerId: self.reportId, type: "customer"});
+                                $('#select-report').html(data.echoedUserName);
+                                $('#cs-likes').hide().html(data.totalFacebookLikes).fadeIn();
+                                $('#cs-views').hide().html(data.totalEchoClicks).fadeIn();
+                                $('#cs-retweets').hide().html(0).fadeIn();
+                                $('#cs-echoes').hide().html(data.totalEchoes).fadeIn();
+                                //$('#cs-open-echoes').hide().html(0).fadeIn();
+                                $('#cs-comments').hide().html(data.totalFacebookComments).fadeIn();
+                            });
+                        }
                     });
                     break;
                 case "products":
                     template = _.template($('#template-view-reports-products').html());
-                    $.getJSON("http://v1-api.echoed.com/partner/products/" + self.reportId + "/summary",function(data){
-                            self.element.hide().html(template).fadeIn(function(){
-                                var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart', productId: self.reportId, type: "product"});
-                                $('#select-report').html(data.productName);
-                                $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
-                                $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
-                                $('#ss-retweets').hide().html(0).fadeIn();
-                                $('#ss-new-echoes').hide().html(data.totalEchoes).fadeIn();
-                                $('#ss-open-echoes').hide().html(0).fadeIn();
-                                $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
-                                $('#product-image').attr("src",data.productImageUrl);
-                                $('#product-sku').html(data.productId);
-                                $('#product-category').html(data.productCategory);
-                                $('#product-brand').html(data.productBrand);
-                            });
+                    $.ajax({
+                        url: "http://v1-api.echoed.com/partner/products/" + self.reportId + "/summary",
+                        dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        success: function(data){
+                                    self.element.hide().html(template).fadeIn(function(){
+                                    var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart', productId: self.reportId, type: "product"});
+                                    $('#select-report').html(data.productName);
+                                    $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
+                                    $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
+                                    $('#ss-retweets').hide().html(0).fadeIn();
+                                    $('#ss-new-echoes').hide().html(data.totalEchoes).fadeIn();
+                                    $('#ss-open-echoes').hide().html(0).fadeIn();
+                                    $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
+                                    $('#product-image').attr("src",data.productImageUrl);
+                                    $('#product-sku').html(data.productId);
+                                    $('#product-category').html(data.productCategory);
+                                    $('#product-brand').html(data.productBrand);
+                                });
+                            }
                         });
                     break;
             }
@@ -187,26 +201,37 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
             template = _.template($('#template-views-reports-table').html());
             switch(self.report){
                 case "customers":
-                    $.getJSON("http://v1-api.echoed.com/partner/retailer/customers", function(data){
-                            self.element.hide().html(template);
-                            var table = {"style":"report-table","header": [{"text":"Customer"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
-                            $.each(data.customers, function(index,customer){
-                                var row = {"href":"#reports/customers/" + customer.echoedUserId , cells:[]};
-                                row.cells.push({"text":customer.echoedUserName, "style" : ""});
-                                row.cells.push({"text":customer.totalEchoes, "style" : "number"});
-                                row.cells.push({"text":customer.totalEchoClicks, "style" : "number"});
-                                row.cells.push({"text":customer.totalFacebookLikes, "style" : "number"});
-                                row.cells.push({"text":customer.totalFacebookComments, "style" : "number"});
-                                table.rows.push(row);
-                            });
-                            var customerTable = new Echoed.Views.Components.TableTemplate({EvAg: self.EvAg, el: "#table-container",table:table});
-                            self.element.fadeIn();
+                    $.ajax({
+                            url: "http://v1-api.echoed.com/partner/retailer/customers",
+                            dataType: 'json',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            success: function(data){
+                                self.element.hide().html(template);
+                                var table = {"style":"report-table","header": [{"text":"Customer"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
+                                $.each(data.customers, function(index,customer){
+                                    var row = {"href":"#reports/customers/" + customer.echoedUserId , cells:[]};
+                                    row.cells.push({"text":customer.echoedUserName, "style" : ""});
+                                    row.cells.push({"text":customer.totalEchoes, "style" : "number"});
+                                    row.cells.push({"text":customer.totalEchoClicks, "style" : "number"});
+                                    row.cells.push({"text":customer.totalFacebookLikes, "style" : "number"});
+                                    row.cells.push({"text":customer.totalFacebookComments, "style" : "number"});
+                                    table.rows.push(row);
+                                });
+                                var customerTable = new Echoed.Views.Components.TableTemplate({EvAg: self.EvAg, el: "#table-container",table:table});
+                                self.element.fadeIn();
+                            }
                     });
+
                     break;
                 case "products":
                     $.ajax({
                         url: "http://v1-api.echoed.com/partner/retailer/products",
                         dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
                         success: function(data){
                             self.element.hide().html(template);
                             var table = {"style":"report-table","header": [{"text":"Product Name"},{"text":"SKU"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
@@ -300,6 +325,9 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
             $.ajax({
                 url: "http://v1-api.echoed.com/partner/retailer/summary",
                 dataType: 'json',
+                xhrFields: {
+                    withCredentials: true
+                },
                 success: function(data){
                     $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
                     $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
@@ -316,6 +344,9 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         $.ajax({
             url: "http://v1-api.echoed.com/partner/retailer/topproducts",
             dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data){
                 var table = {"style":"top-table","header": [{"text":"Product Name"},{"text":"SKU"},{"text":"Echoes"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                 $.each(data.products, function(index,product){
@@ -333,6 +364,9 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         $.ajax({
             url: "http://v1-api.echoed.com/partner/retailer/topcustomers",
             dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data){
                 var table = {"style":"top-table","header": [{"text":"Customer"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                 $.each(data.customers, function(index,customer){
@@ -550,6 +584,9 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
         $.ajax({
             url: self.url,
             dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(data){
                 $.each(data.echoClicks, function(index,echoClick){
                     if(echoClick.count){
