@@ -86,11 +86,13 @@ Echoed.Router = Backbone.Router.extend({
         if(!filter) selector = "*";
         else selector = "." + filter;
         var newPage = "Friends/Exhibit/" + id
-        if(this.page != newPage)
+        if(this.page != newPage){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: selector, Type: "friend", Id: id});
-        this.EvAg.trigger("filter/change",selector);
+            this.page = newPage
+        } else {
+            this.EvAg.trigger("filter/change",selector);
+        }
         this.EvAg.trigger("page/change","friends");
-        this.page = newPage
     }
 
 });

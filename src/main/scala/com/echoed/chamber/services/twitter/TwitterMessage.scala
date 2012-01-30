@@ -2,6 +2,7 @@ package com.echoed.chamber.services.twitter
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain._
+import com.echoed.chamber.domain.views._
 import twitter4j.auth.{AccessToken, RequestToken}
 
 
@@ -101,6 +102,11 @@ case class GetTwitterServiceWithId(twitterUserId: String) extends TM
 case class GetTwitterServiceWithIdResponse(message: GetTwitterServiceWithId, value: Either[TE, TwitterService])
         extends TM
         with RM[TwitterService, GetTwitterServiceWithId, TE]
+
+case class GetStatusData(twitterStatusData: TwitterStatusData) extends TM
+case class GetStatusDataResponse(message: GetStatusData, value: Either[TE,  TwitterStatusData])
+    extends TM 
+    with RM[TwitterStatusData, GetStatusData, TE]
 
 case class AssignEchoedUser(echoedUserId: String) extends TM
 case class AssignEchoedUserResponse(message: AssignEchoedUser, value: Either[TE, TwitterUser])
