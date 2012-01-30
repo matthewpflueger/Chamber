@@ -153,8 +153,7 @@ class FacebookController {
 
             val index = httpServletRequest.getQueryString.indexOf("&code=")
             val queryString = "/facebook/login" +
-                (if (index > -1) "?" + httpServletRequest.getQueryString.substring(0, index)
-                else "")
+                (if (index > -1) "?" + httpServletRequest.getQueryString.substring(0, index) else "")
 //            httpServletRequest.getQueryString.indexOf("&code=")
 //                val index = httpServletRequest.getQueryString.indexOf("&code=")
 //                "/facebook/login?" + httpServletRequest.getQueryString.substring(0, index)

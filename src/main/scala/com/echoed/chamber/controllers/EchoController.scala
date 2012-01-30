@@ -90,7 +90,7 @@ class EchoController {
                                     continuation.resume()
                                 case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
                                 case RecordEchoPossibilityResponse(_, Right(epv)) =>
-                                    val logoutUrl = "http://v1-api.echoed.com/logout?redirect=" + URLEncoder.encode("echo?" + httpServletRequest.getQueryString.substring(0),"UTF-8");
+                                    val logoutUrl = "http://www.echoed.com/logout?redirect=" + URLEncoder.encode("echo?" + httpServletRequest.getQueryString.substring(0),"UTF-8");
                                     val modelAndView = new ModelAndView(confirmView)
                                     modelAndView.addObject("echoedUser", echoedUser)
                                     modelAndView.addObject("echoPossibility", echoPossibility)
@@ -103,7 +103,7 @@ class EchoController {
                                     modelAndView.addObject(
                                             "facebookAddUrl",
                                             URLEncoder.encode(
-                                                    echoPossibility.asUrlParams("http://v1-api.echoed.com/facebook/login/add?redirect=echo?"),
+                                                    echoPossibility.asUrlParams("http://www.echoed.com/facebook/login/add?redirect=echo?"),
                                                     "UTF-8"))
                                     modelAndView.addObject(
                                             "twitterAddUrl",
@@ -127,7 +127,7 @@ class EchoController {
                             URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"))
 
                         modelAndView.addObject("redirectUrl",
-                            URLEncoder.encode("http://v1-api.echoed.com/facebook/login?redirect="
+                            URLEncoder.encode("http://www.echoed.com/facebook/login?redirect="
                                 + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
 
                         modelAndView.addObject("echoPossibilityView", epv)

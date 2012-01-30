@@ -145,7 +145,7 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             navigateToCloset(webDriver, echoedUser)
 
             given("a request to add their own, already existing Facebook account to their Echoed account")
-            webDriver.get("https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri=http://v1-api.echoed.com/facebook/add&scope=email,publish_stream,offline_access")
+            webDriver.get("https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri=http://www.echoed.com/facebook/add&scope=email,publish_stream,offline_access")
 
 //            webDriver.get(apiUrl)
 //            webDriver.getTitle should startWith("Echoed")
