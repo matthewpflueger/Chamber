@@ -452,8 +452,8 @@ class DataCreator {
     val retailerUserPassword = "testpassword"
     val retailerUser = new RetailerUser(
         retailerId,
-        "Test RetailerUser",
-        "TestRetailerUser@echoed.com"
+        "Echoed",
+        "tech@echoed.com"
     ).createPassword(retailerUserPassword)
 
     val echoedUser = EchoedUser(
