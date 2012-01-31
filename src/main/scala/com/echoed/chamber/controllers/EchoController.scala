@@ -39,10 +39,11 @@ class EchoController {
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
     def button(
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "echoClick", required = false) echoClick: String,
+            @CookieValue(value = "echoClickId", required = false) echoClickId: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletResponse: HttpServletResponse) = {
         if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
+        if(echoClickId != null) echoPossibilityParameters.echoClickId = echoClickId
         echoService.recordEchoPossibility(echoPossibilityParameters.createButtonEchoPossibility)
         new ModelAndView(buttonView)
     }
@@ -51,7 +52,7 @@ class EchoController {
     @RequestMapping(method = Array(RequestMethod.GET))
     def echo(
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "echoClick", required = false) echoClickId: String,
+            @CookieValue(value = "echoClickId", required = false) echoClickId: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -60,6 +61,7 @@ class EchoController {
 
         if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
         if (echoClickId != null) echoPossibilityParameters.echoClickId = echoClickId
+        logger.debug("Echo Click Id Set: {}", echoClickId)
         def error(e: Throwable) {
             logger.error("Unexpected error encountered echoing %s" format echoPossibilityParameters, e)
             val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
@@ -247,8 +249,8 @@ class EchoController {
                     case RecordEchoClickResponse(msg, Left(e)) => error(e)
                     case RecordEchoClickResponse(msg, Right(echo)) =>
 
-                        if(echoClickId != null) cookieManager.addCookie(httpServletResponse, "echoClick", echoClick.id) //Add the echoClick tracking cookie if it's not available
-
+                        if(echoClickId == null) cookieManager.addCookie(httpServletResponse, "echoClickId", echoClick.id) //Add the echoClick tracking cookie if it's not available
+                        logger.debug("Echo Click Id Set: {}" , echoClickId)
                         continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
                         continuation.resume()
                 }))
