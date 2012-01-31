@@ -375,7 +375,7 @@ class EchoedUserServiceActor(
                 try {
                     page = Integer.parseInt(msg.page)
                 } catch {
-                    case NumberFormatException => logger.error("Error parsing page in %s" format msg)
+                    case nfe: NumberFormatException => logger.error("Error parsing page in %s" format msg, nfe)
                 }
                 val feed = feedDao.findByEchoedUserId(echoedUser.id, page)
                 if (feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
