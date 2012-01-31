@@ -37,6 +37,8 @@ case $service_args in
         TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
         MAIN=com.echoed.chamber.Main
 
+        NEWRELIC=src/main/ops/newrelic/newrelic.jar
+
 #        PACKAGE="mvn -DskipTests -Pallinone package"
         CLASSPATH=".:${TARGET}"
         OVERRIDES="src/overrides/resources"
@@ -54,6 +56,10 @@ case $service_args in
             shift
         fi
 
+        if [ -e ${NEWRELIC} ]; then
+            ARGS="-javaagent:${NEWRELIC} $ARGS"
+        fi
+
         if [ ! -e ${TARGET} ]; then
             echo "Missing ${TARGET}"
             service_cmd "package"
@@ -65,6 +71,8 @@ case $service_args in
             CONTEXT=${1}
         fi
         
+        echo "java ${ARGS} -cp ${CLASSPATH} ${MAIN} ${CONTEXT}"
+
         # We do this to capture the pid of the process
         sh -c "java ${ARGS} -cp ${CLASSPATH} ${MAIN} ${CONTEXT} >./std.out 2>&1 & APID=\"\$!\"; echo \$APID > chamber.pid"
 

@@ -23,3 +23,5 @@ chamber.pid
 .DS_Store
 out
 .sass-cache
+src/main/ops/newrelic/newrelic.jar
+src/main/ops/newrelic/logs
