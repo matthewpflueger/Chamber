@@ -7,7 +7,9 @@ case class FacebookPost(
         id: String,
         updatedOn: Date,
         createdOn: Date,
+        name: String,
         message: String,
+        caption: String,
         picture: String,
         link: String,
         facebookUserId: String,
@@ -19,7 +21,9 @@ case class FacebookPost(
         crawledOn: Date) {
 
     def this(
+            name: String, 
             message: String,
+            caption: String,
             picture: String,
             link: String,
             facebookUserId: String,
@@ -30,7 +34,9 @@ case class FacebookPost(
         UUID.randomUUID.toString,
         new Date,
         new Date,
+        name,
         message,
+        caption,
         picture,
         link,
         facebookUserId,

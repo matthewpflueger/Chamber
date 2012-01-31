@@ -54,7 +54,7 @@ case class GetPublicFeed() extends EUM
 case class GetPublicFeedResponse(message: GetPublicFeed, value: Either[EUE, PublicFeed])
     extends EUM with RM[PublicFeed, GetPublicFeed, EUE]
 
-case class GetFeed() extends EUM
+case class GetFeed(page: String) extends EUM
 case class GetFeedResponse(message: GetFeed, value: Either[EUE, Feed])
     extends EUM with RM[Feed, GetFeed, EUE]
 

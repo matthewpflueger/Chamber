@@ -121,6 +121,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
         this.EvAg.bind('infiniteScroll', this.next);
+        this.updateDate = new Date();
         this.element = $(this.el);
         this.filter = options.Filter;
         switch(options.Type){
@@ -237,10 +238,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         var productDiv = $('<div></div>');
         var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
-        productDiv.hide().appendTo(self.exhibit);
         productDiv.imagesLoaded(function(){
             self.exhibit.isotope('insert',productDiv);
-            productDiv.show();
         });
     }
 });

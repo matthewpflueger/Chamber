@@ -30,6 +30,7 @@ class UserController {
     def publicFeed(
                       @CookieValue(value = "echoedUserId", required= false) echoedUserIdCookie:String,
                       @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
+                      @RequestParam(value="page", required = false) page: String,
                       httpServletRequest: HttpServletRequest,
                       httpServletResponse: HttpServletResponse) = {
 
@@ -75,6 +76,7 @@ class UserController {
     def feed(
                 @CookieValue(value = "echoedUserId", required= false) echoedUserIdCookie:String,
                 @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
+                @RequestParam(value="page", required = false) page: String,
                 httpServletRequest: HttpServletRequest,
                 httpServletResponse: HttpServletResponse) = {
 
@@ -97,7 +99,7 @@ class UserController {
                 case LocateWithIdResponse(_,Left(error))=>
                     logger.error("Error locating EchoedUserService: {}", error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getFeed.onResult{
+                    echoedUserService.getFeed(page).onResult{
                         case GetFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
                         case GetFeedResponse(_,Right(feed)) =>
                             continuation.setAttribute("feed", feed)
@@ -119,6 +121,7 @@ class UserController {
     def exhibit(
                    @CookieValue(value = "echoedUserId", required = false) echoedUserIdCookie: String,
                    @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
+                   @RequestParam(value = "page", required = false) page: String,
                    httpServletRequest: HttpServletRequest,
                    httpServletResponse: HttpServletResponse) = {
 
@@ -216,11 +219,12 @@ class UserController {
         })
     }
 
-    @RequestMapping(value= Array("/exhibit/{id}"), method=Array(RequestMethod.GET))
+    @RequestMapping(value= Array("/exhibit/{id}/"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
                          @PathVariable(value="id") echoedFriendId: String,
                          @CookieValue(value = "echoedUserId", required= false ) echoedUserId: String,
+                         @RequestParam(value= "page", required= false) page: String,
                          httpServletRequest: HttpServletRequest,
                          httpServletResponse: HttpServletResponse) = {
 

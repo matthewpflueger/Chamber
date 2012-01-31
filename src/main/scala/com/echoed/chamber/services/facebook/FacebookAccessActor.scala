@@ -110,11 +110,11 @@ class FacebookAccessActor extends Actor {
                 logger.debug("Creating new post for {} with access token {}", facebookId, accessToken)
                 val result = getFacebookBatcher(accessToken).post(
                         ("%s/feed" format facebookId),
-                        new Param("name", facebookPost.message),
+                        new Param("name", facebookPost.name),
                         new Param("message", facebookPost.message),
                         new Param("picture", facebookPost.picture),
                         new Param("link", facebookPost.link),
-                        new Param("caption", facebookPost.message),
+                        new Param("caption", facebookPost.caption),
                         new Param("actions", Array[Action] {
                             new Action("View Echoed Exhibit", "http://apps.facebook.com/echoedapp/")
                         })).get()

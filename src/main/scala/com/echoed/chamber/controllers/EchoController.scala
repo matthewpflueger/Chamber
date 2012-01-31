@@ -51,6 +51,7 @@ class EchoController {
     @RequestMapping(method = Array(RequestMethod.GET))
     def echo(
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
+            @CookieValue(value = "echoClick", required = false) echoClickId: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -58,7 +59,7 @@ class EchoController {
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
-
+        if (echoClickId != null) echoPossibilityParameters.echoClickId = echoClickId
         def error(e: Throwable) {
             logger.error("Unexpected error encountered echoing %s" format echoPossibilityParameters, e)
             val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
@@ -158,6 +159,7 @@ class EchoController {
     @RequestMapping(value = Array("/it"), method = Array(RequestMethod.GET))
     def it(
             @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
+            @CookieValue(value = "echoClick", required = false) echoClickId: String,
             echoItParameters: EchoItParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -230,6 +232,8 @@ class EchoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
+            
+            
             val echoClick = new EchoClick(
                     echoId,
                     echoedUserId,
@@ -242,7 +246,9 @@ class EchoController {
                 _ match {
                     case RecordEchoClickResponse(msg, Left(e)) => error(e)
                     case RecordEchoClickResponse(msg, Right(echo)) =>
-                        cookieManager.addCookie(httpServletResponse, "echoClick", echoClick.id)
+
+                        if(echoClickId != null) cookieManager.addCookie(httpServletResponse, "echoClick", echoClick.id) //Add the echoClick tracking cookie if it's not available
+
                         continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
                         continuation.resume()
                 }))

@@ -49,8 +49,14 @@ class FacebookServiceActor(
 
             try {
                 logger.debug("Creating new FacebookPost with message {} for {}", echo, message)
+                val name = echo.productName + " by " + echo.brand
+                var caption: String = null;
+                if(echo.description != null) caption = echo.description
+                else caption = echo.productName + " by " + echo.brand
                 val fp = new FacebookPost(
+                        name,
                         message,
+                        caption,
                         echo.imageUrl,
                         null,
                         facebookUser.id,

@@ -38,8 +38,10 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             productName= "My Awesome Boots",
             category= "Footwear",
             brand = "Nike",
+            description = "These are amazing boots",
             retailerSettingsId = retailerSettings.id,
-            echoMetricsId = null)
+            echoMetricsId = null,
+            echoClickId = null)
 
     var echoMetrics = new EchoMetrics(echo, retailerSettings)
 

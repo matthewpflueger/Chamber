@@ -38,7 +38,9 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
 
     def getCloset = (echoedUserServiceActor ? GetExhibit()).mapTo[GetExhibitResponse]
 
-    def getFeed = (echoedUserServiceActor ? GetFeed()).mapTo[GetFeedResponse]
+    def getFeed = (echoedUserServiceActor ? GetFeed("0")).mapTo[GetFeedResponse]
+    
+    def getFeed(page: String) = (echoedUserServiceActor ? GetFeed(page)).mapTo[GetFeedResponse]
 
     def getPublicFeed = (echoedUserServiceActor ? GetPublicFeed()).mapTo[GetPublicFeedResponse]
 

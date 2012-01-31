@@ -31,7 +31,9 @@ class EchoHelper extends ShouldMatchers {
             landingPageUrl: String = "http://echoed.com",
             productName: String = "My Awesome Boots",
             category: String = "Footwear",
-            brand: String = "Nike") = {
+            brand: String = "Nike",
+            description: String = "These are amazing boots",
+            echoClickId: String = null) = {
 
         assert(retailerSettings.retailerId == retailer.id)
 
@@ -56,7 +58,9 @@ class EchoHelper extends ShouldMatchers {
                 landingPageUrl,
                 productName,
                 category,
-                brand);
+                brand,
+                description,
+                echoClickId);
 
         val count = echoPossibilityDao.selectCount
         (echoPossibility, count)

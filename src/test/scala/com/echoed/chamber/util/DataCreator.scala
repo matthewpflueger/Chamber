@@ -250,8 +250,10 @@ class DataCreator {
                     retailerSettingsId = rs.id,
                     productName = "productName",
                     category = category,
-                    brand = "brand",
-                    echoMetricsId = null)
+                    brand = "brand", 
+                    description = "These are amazing",
+                    echoMetricsId = null,
+                    echoClickId = null)
                 var em = new EchoMetrics(e, rs)
                 e = e.copy(echoMetricsId = em.id)
                 em = em.echoed(rs)
@@ -515,6 +517,7 @@ class DataCreator {
     val productName_1 = "My Awesome Boots"
     val category_1 = "Footwear"
     val brand_1 = "Nike"
+    val description_1 = "These are amazing boots"
 
     val orderId_2 = "orderId_2"
     val productId_2 = "productId_2"
@@ -523,6 +526,7 @@ class DataCreator {
     val productName_2 = "My Awesome Gloves"
     val category_2 = "Accessories"
     val brand_2 = "Reebok"
+    val description_2= "These are amazing gloves"
 
     val echoPossibilities = List(
         EchoPossibilityParameters(
@@ -539,6 +543,7 @@ class DataCreator {
             productName_1,
             category_1,
             brand_1,
+            description_1,
             null).createButtonEchoPossibility,
         EchoPossibilityParameters(
             retailerId,
@@ -554,6 +559,7 @@ class DataCreator {
             productName_2,
             category_2,
             brand_2,
+            description_2,
             null).createButtonEchoPossibility
     )
 
@@ -591,7 +597,9 @@ class DataCreator {
             id = facebookPostId_1,
             updatedOn = on,
             createdOn = on,
+            name = "name",
             message = "message",
+            caption = "caption",
             picture = "picture",
             link = "link",
             facebookUserId = facebookUserId,
@@ -605,7 +613,9 @@ class DataCreator {
             id = facebookPostId_2,
             updatedOn = on,
             createdOn = on,
+            name="name",
             message = "message",
+            caption = "caption",
             picture = "picture",
             link = "link",
             facebookUserId = facebookUserId,
@@ -746,7 +756,9 @@ class DataCreator {
             productName = productName_1,
             category = category_1,
             brand = brand_1,
-            echoMetricsId = null)
+            description = description_1,
+            echoMetricsId = null,
+            echoClickId = null)
 
     private val _echoes = List(
         Echo(
@@ -769,7 +781,9 @@ class DataCreator {
             productName = productName_1,
             category = category_1,
             brand = brand_1,
-            echoMetricsId = null),
+            description = description_1,
+            echoMetricsId = null,
+            echoClickId = null),
         Echo(
             id = echoId_2,
             updatedOn = on,
@@ -790,7 +804,9 @@ class DataCreator {
             productName = productName_2,
             category = category_2,
             brand = brand_2,
-            echoMetricsId = null)
+            description = description_2,
+            echoMetricsId = null,
+            echoClickId = null)
     )
 
     val echoMetrics = _echoes.map(new EchoMetrics(_, retailerSettings))

@@ -2,6 +2,7 @@ package com.echoed.chamber.dao.views
 
 import com.echoed.chamber.domain.views.{Feed,EchoViewPublic}
 import java.util.{List => JList}
+import org.apache.ibatis.annotations.Param
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,6 +14,9 @@ import java.util.{List => JList}
 
 trait FeedDao {
 
-    def findByEchoedUserId(echoedUserId: String): Feed
+    def findByEchoedUserId(
+                            @Param("id") echoedUserId: String,
+                            @Param("page") page: Int): Feed
+
     def getPublicFeed: JList[EchoViewPublic]
 }

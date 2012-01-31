@@ -371,7 +371,7 @@ class EchoedUserServiceActor(
 
             try {
                 logger.debug("Attempting to retrieve Feed for EchoedUser {}", echoedUser.id)
-                val feed = feedDao.findByEchoedUserId(echoedUser.id)
+                val feed = feedDao.findByEchoedUserId(echoedUser.id,Integer.parseInt(msg.page))
                 if (feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
                     channel ! GetFeedResponse(msg, Right(feed.copy(echoes = new ArrayList[EchoViewDetail])))
                 } else {

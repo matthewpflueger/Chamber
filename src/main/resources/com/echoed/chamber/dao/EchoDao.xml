@@ -25,7 +25,9 @@
             <arg column="productName" javaType="String"/>
             <arg column="category" javaType="String"/>
             <arg column="brand" javaType="String"/>
+            <arg column="description" javaType="String"/>
             <arg column="echoMetricsId" javaType="String"/>
+            <arg column="echoClickId" javaType="String"/>
         </constructor>
     </resultMap>
 
@@ -61,7 +63,9 @@
                 productName,
                 category,
                 brand,
-                echoMetricsId)
+                description,
+                echoMetricsId,
+                echoClickId)
         values (
                 #{id},
                 #{createdOn},
@@ -80,7 +84,9 @@
                 #{productName},
                 #{category},
                 #{brand},
-                #{echoMetricsId})
+                #{description},
+                #{echoMetricsId},
+                #{echoClickId})
     </insert>
 
     <update id="updateFacebookPostId" parameterType="com.echoed.chamber.domain.Echo">

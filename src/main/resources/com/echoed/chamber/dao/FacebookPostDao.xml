@@ -9,7 +9,9 @@
             <idArg column="id" javaType="String" />
             <arg column="updatedOn" javaType="Date" />
             <arg column="createdOn" javaType="Date" />
+            <arg column="name" javaType="String"/>
             <arg column="message" javaType="String" />
+            <arg column="caption" javaType="String"/>
             <arg column="picture" javaType="String" />
             <arg column="link" javaType="String" />
             <arg column="facebookUserId" javaType="String" />
@@ -104,7 +106,9 @@
     	insert into FacebookPost(
                 id,
                 createdOn,
+                name,
                 message,
+                caption,
                 picture,
                 link,
                 facebookUserId,
@@ -117,7 +121,9 @@
         values (
                 #{id},
                 #{createdOn},
+                #{name},
                 #{message},
+                #{caption},
                 #{picture},
                 #{link},
                 #{facebookUserId},

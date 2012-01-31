@@ -23,7 +23,9 @@ case class EchoPossibility(
         landingPageUrl: String,
         productName: String,
         category: String,
-        brand: String) {
+        brand: String,
+        description: String,
+        echoClickId: String) {
 
     def this(
             retailerId: String,
@@ -39,7 +41,9 @@ case class EchoPossibility(
             landingPageUrl: String,
             productName: String,
             category: String,
-            brand: String) = this(
+            brand: String,
+            description: String,
+            echoClickId: String) = this(
         //NOTE: do not include any changing attributes in the hash calc.  For example, step should never
         //be included as it changes with every step the user takes to echo a purchase (button, login, etc)
         (for {
@@ -73,7 +77,9 @@ case class EchoPossibility(
         landingPageUrl,
         productName,
         category,
-        brand)
+        brand,
+        description,
+        echoClickId)
 
 
     def asUrlParams(prefix: String = "", encode: Boolean = false) = {

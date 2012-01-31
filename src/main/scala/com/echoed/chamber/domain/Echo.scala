@@ -24,7 +24,9 @@ case class Echo(
         productName: String,
         category: String,
         brand: String,
-        echoMetricsId: String) {
+        description: String,
+        echoMetricsId: String,
+        echoClickId: String) {
 
     def this(
             retailerId: String,
@@ -43,7 +45,9 @@ case class Echo(
             productName: String,
             category: String,
             brand: String,
-            echoMetricsId: String) = this(
+            description: String,
+            echoMetricsId: String,
+            echoClickId:String) = this(
         UUID.randomUUID.toString,
         new Date,
         new Date,
@@ -63,7 +67,9 @@ case class Echo(
         productName,
         category,
         brand,
-        echoMetricsId)
+        description,
+        echoMetricsId,
+        echoClickId)
 
 
     def this(id: String, boughtOn: Date, price: Int, imageUrl: String, landingPageUrl: String) = this(
@@ -82,6 +88,8 @@ case class Echo(
         null,
         null,
         landingPageUrl,
+        null,
+        null,
         null,
         null,
         null,
@@ -108,7 +116,9 @@ case class Echo(
         echoPossibility.productName,
         echoPossibility.category,
         echoPossibility.brand,
-        null)
+        echoPossibility.description,
+        null,
+        echoPossibility.echoClickId)
 
     def this(
             id: String,
@@ -131,6 +141,8 @@ case class Echo(
         null,
         null,
         landingPageUrl,
+        null,
+        null,
         null,
         null,
         null,

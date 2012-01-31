@@ -120,6 +120,6 @@
         order by
             E.boughtOn desc, E.id DESC
         Limit
-            0,50
+            #{page},50
     </select>
 </mapper>

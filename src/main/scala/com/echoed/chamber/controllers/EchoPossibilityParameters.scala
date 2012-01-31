@@ -21,7 +21,9 @@ case class EchoPossibilityParameters(
         @BeanProperty var echoPossibilityId: String = null,
         @BeanProperty var productName: String = null,
         @BeanProperty var category: String = null,
-        @BeanProperty var brand: String = null) {
+        @BeanProperty var brand: String = null,
+        @BeanProperty var description: String = null,
+        @BeanProperty var echoClickId: String = null) {
 
 
     def this() = {
@@ -50,6 +52,8 @@ case class EchoPossibilityParameters(
             landingPageUrl,
             productName,
             category,
-            brand)
+            brand,
+            description,
+            echoClickId)
 
 }
