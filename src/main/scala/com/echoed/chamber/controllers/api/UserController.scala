@@ -220,7 +220,7 @@ class UserController {
         })
     }
 
-    @RequestMapping(value= Array("/exhibit/{id}/"), method=Array(RequestMethod.GET))
+    @RequestMapping(value= Array("/exhibit/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
                          @PathVariable(value="id") echoedFriendId: String,
