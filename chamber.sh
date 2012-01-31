@@ -37,7 +37,7 @@ case $service_args in
         TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
         MAIN=com.echoed.chamber.Main
 
-        NEWRELIC=src/main/ops/newrelic/newrelic.jar
+        NEWRELIC=/opt/newrelic/newrelic.jar
 
 #        PACKAGE="mvn -DskipTests -Pallinone package"
         CLASSPATH=".:${TARGET}"
