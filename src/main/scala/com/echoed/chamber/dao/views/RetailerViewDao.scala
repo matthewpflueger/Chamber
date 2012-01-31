@@ -34,7 +34,7 @@ trait RetailerViewDao {
                                        @Param("retailerId") retailerId: String): Int
     
     def getTotalFacebookFriendsByEchoedUser(@Param("echoedUserId") echoedUserId: String): Int
-
+    
     def getTotalFacebookLikesByRetailerIdProductId(
             @Param("productId") productId: String,
             @Param("retailerId") retailerId: String): ProductSocialActivityTotal
@@ -103,5 +103,12 @@ trait RetailerViewDao {
     
     def getCommentsByRetailerId(
             @Param("retailerId") retailerId: String): JList[FacebookComment]
+    
+    def getTotalSalesByRetailerId(
+            @Param("retailerId") retailerId: String): Int
+
+    def getTotalSalesByRetailerIdProductId(
+            @Param("retailerId") retailerId: String,
+            @Param("productId") productId: String): Int
 
 }

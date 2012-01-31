@@ -236,7 +236,8 @@ textarea{
                     td {
                         padding:15px 2px;
                         font-size: 14px;
-                        font-family: HelveticaNeue-Medium;
+                        font-family: $textFontFamily;
+                        font-weight:bold;
                     }
                 }
             }

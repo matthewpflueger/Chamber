@@ -166,7 +166,8 @@ textarea {
     #product_text table td {
       padding: 15px 2px;
       font-size: 14px;
-      font-family: HelveticaNeue-Medium; }
+      font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
+      font-weight: bold; }
 
 #right {
   width: 420px;

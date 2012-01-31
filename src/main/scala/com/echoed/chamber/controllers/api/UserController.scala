@@ -3,6 +3,7 @@ package com.echoed.chamber.controllers.api
 import org.springframework.stereotype.Controller
 import java.util.ArrayList
 //import com.echoed.chamber.domain.EchoPossibility
+import com.echoed.chamber.domain.views.ErrorView
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 //import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator

@@ -709,6 +709,27 @@
         ORDER BY
             FBC.createdOn DESC
     </select>
+    
+
+    <select id="getTotalSalesByRetailerId" resultType="_int">
+        select
+            sum(EP.price)
+        from
+            EchoPossibility EP
+        where
+            EP.retailerId = #{retailerId}
+    </select>
+
+    <select id="getTotalSalesByRetailerIdProductId" resultType="_int">
+        select
+            sum(EP.price)
+        from
+            EchoPossibility EP
+        where
+            EP.retailerId= #{retailerId}
+            and
+            EP.echoedUserId = #{productId}
+    </select>
 </mapper>
 
 

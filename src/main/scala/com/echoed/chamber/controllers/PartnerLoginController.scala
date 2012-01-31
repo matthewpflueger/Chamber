@@ -41,7 +41,7 @@ class PartnerLoginController {
 
             if(email != null && password != null) {
                 def onError(error: PartnerUserException) {
-                    logger.debug("Got error during login for {}: {}", email, error.message)
+                    logger.debug("Got error during login for {}: {}", email, password)
                     continuation.setAttribute(
                         "modelAndView",
                         new ModelAndView(partnerLoginErrorView, "error", error))

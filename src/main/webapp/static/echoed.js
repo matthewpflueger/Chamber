@@ -106,7 +106,7 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 
         $(window).scroll(function(){
            if($(window).scrollTop() + 300 >= $(document).height() - $(window).height()){
-               self.EvAg.trigger("infiniteScroll");
+               //self.EvAg.trigger("infiniteScroll");
            }
         });
 
