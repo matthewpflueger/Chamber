@@ -75,14 +75,17 @@ case $service_args in
 
         # We do this to capture the pid of the process
         sh -c "java ${ARGS} -cp ${CLASSPATH} ${MAIN} ${CONTEXT} >./std.out 2>&1 & APID=\"\$!\"; echo \$APID > chamber.pid"
-
+        ;;
+    
+    startt)
+        service_cmd "start"
         tail -f std.out
         ;;
 
     stop)
         shift
         echo "Stopping $DESC"
-        kill $1 `cat chamber.pid`
+        kill -9 `cat chamber.pid`
         ;;
 
     restart)
