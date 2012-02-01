@@ -1,0 +1,53 @@
+
+Install nginx:
+
+- sudo apt-get install nginx
+- sudo rm /etc/nginx/sites-enabled/default
+- sudo rm /etc/nginx/nginx.conf
+- sudo cp src/main/ops/etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/default
+- sudo cp src/main/ops/etc/ngins/nginx.conf /etc/nginx/nginx.conf
+- sudo service nginx restart
+
+
+Install mysql:
+
+- sudo apt-get install mysql-server
+- sudo rm /etc/mysql/my.conf
+- sudo cp src/main/ops/etc/mysql/my.conf /etc/mysql/my.conf
+- sudo service mysql restart
+
+
+Install python-pip and pagerduty:
+
+- sudo apt-get install python-pip
+- sudo pip install pagerduty
+- sudo cp src/main/ops/usr/local/bin/pagerduty* /usr/local/bin/.
+
+
+Install monit (http://www.thegeekstuff.com/2010/11/monit-install-config/):
+
+- sudo apt-get install monit
+- sudo rm /etc/default/monit
+- sudo rm /etc/monit/monitrc
+- sudo cp src/main/ops/etc/default/monit /etc/default/monit
+- sudo cp src/main/ops/etc/monit/monitrc /etc/monit/monitrc
+- sudo cp src/main/ops/etc/monit/conf.d/* /etc/monit/conf.d/.
+- sudo service monit restart
+
+
+Install Cloudkick (https://support.cloudkick.com/Installing_Cloudkick_on_Debian_and_Ubuntu):
+
+- sudo cp src/main/ops/etc/cloudkick.conf /etc/cloudkick.conf
+- sudo echo 'deb http://packages.cloudkick.com/ubuntu lucid main' > /etc/apt/sources.list.d/cloudkick.list
+- curl http://packages.cloudkick.com/cloudkick.packages.key >> cloudkick.packages.key
+- sudo apt-key add cloudkick.packages.key
+- sudo apt-get update
+- sudo apt-get install cloudkick-agent
+
+
+Install NewRelic (https://newrelic.com/docs/java/new-relic-for-java):
+
+- sudo mkdir -p /opt/newrelic/logs
+- sudo chmod -R ugo+rwx /opt/newrelic
+- sudo cp src/main/ops/opt/newrelic/newrelic* /opt/newrelic/.
+
