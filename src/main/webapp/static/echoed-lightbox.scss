@@ -1,7 +1,7 @@
 @charset "utf-8";
 /* CSS Document */
 
-#fade { /*--Transparent background layer--*/
+#echoed-fade { /*--Transparent background layer--*/
 	display: none; /*--hidden by default--*/
 	background: #000;
 	position: fixed; left: 0; top: 0;
@@ -10,7 +10,7 @@
 	z-index: 9999;
     cursor:pointer;
 }
-#popup{
+#echoed-popup{
 	display: none; /*--hidden by default--*/
 	background: #fff;
 	padding-top: 20px;
@@ -18,8 +18,9 @@
 	border: 20px solid #FFF;
 	float: left;
 	font-size: 1.2em;
-	position: fixed;
+	position: absolute;
     margin:auto;
+    left: 50%;
 	z-index: 99999;
     cursor:pointer;
 	/*--CSS3 Box Shadows--*/

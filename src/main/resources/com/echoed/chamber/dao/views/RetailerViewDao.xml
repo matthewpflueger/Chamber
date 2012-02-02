@@ -728,7 +728,49 @@
         where
             EP.retailerId= #{retailerId}
             and
-            EP.echoedUserId = #{productId}
+            EP.productId = #{productId}
+    </select>
+
+    <select id="getTotalSalesByRetailerIdCustomerId" resultType="_float">
+        select
+            sum(EP.price)
+        from
+            EchoPossibility EP
+        where
+            EP.retailerId = #{retailerId}
+            and
+            EP.echoedUserId = #{echoedUserId}
+    </select>
+
+    <select id="getTotalSalesVolumeByRetailerId" resultType="_int">
+        select
+            count(id)
+        from
+            EchoPossibility EP
+        where
+            EP.retailerId= #{retailerId}
+    </select>
+
+    <select id="getTotalSalesVolumeByRetailerIdProductId" resultType="_int">
+        select
+            count(id)
+        from
+            EchoPossibility EP
+        where
+            EP.retailerId = #{retailerId}
+            and
+            EP.productId = #{productId}
+    </select>
+
+    <select id="getTotalSalesVolumeByRetailerIdCustomerId" resultType="_int">
+        select
+            count(id)
+        from
+            EchoPossibility EP
+        where
+            EP.retailerId = #{retailerId}
+            and
+            EP.echoedUserId = #{echoedUserId}
     </select>
 </mapper>
 
