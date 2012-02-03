@@ -400,7 +400,7 @@ h2{
                 .ss-box-number{
                     width:100%;
                     text-align:right;
-                    font-size: 48px;
+                    font-size: 36px;
                     font-weight: bold;
                     font-family: $navFontFamily;
                 }
@@ -537,7 +537,7 @@ h2{
     width: 920px;
     //min-height: 300px;
     background-color: $containerColor;
-    border: 1px $highlightColor solid;
+    border: 1px #666 solid;
 }
 .full:after{
     content: ".";
@@ -553,7 +553,7 @@ h2{
     margin-right: 20px;
     height: 300px;
     background-color: $containerColor;
-    border: 1px $highlightColor solid;
+    border: 1px #666 solid;
     float:left;
 }
 
@@ -575,7 +575,7 @@ h2{
     min-height: 300px;
     float:left;
     background-color: $containerColor;
-    border: 1px $highlightColor solid;
+    border: 1px #666 solid;
 }
 	
 .clear{

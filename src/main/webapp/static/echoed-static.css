@@ -99,7 +99,10 @@ h2 {
 #header {
   min-width: 1100px;
   height: 40px;
-  background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png"); }
+  background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png");
+  box-shadow: 0 3px 5px rgba(34, 25, 25, 0.4);
+  -moz-box-shadow: 0px 3px 5px rgba(34, 25, 25, 0.4);
+  -webkit-box-shadow: 0px 3px 5px rgba(34, 25, 25, 0.4); }
 
 #logo {
   padding-left: 5px;
@@ -195,6 +198,20 @@ h2 {
 .paper {
   background-image: url("http://v1-cdn.echoed.com/bk_paper.png"); }
 
+.biz .title {
+  text-align: center;
+  font-size: 48px;
+  font-family: TradeGothicBD20Cond, Arial, sans-serif;
+  margin-bottom: 20px; }
+.biz .biz-i {
+  width: 600px;
+  float: left; }
+.biz .biz-t {
+  width: 300px;
+  padding: 100px 20px;
+  line-height: 1.5em;
+  float: left; }
+
 .hiw {
   padding: 20px;
   position: relative; }
@@ -202,7 +219,8 @@ h2 {
     text-align: center;
     font-family: TradeGothicBD20Cond, Arial, sans-serif;
     font-size: 48px;
-    color: #000; }
+    color: #000;
+    margin-bottom: 20px; }
     .hiw .title.bt {
       border-top: 2px groove #FFF;
       padding-top: 20px; }
@@ -260,9 +278,10 @@ h2 {
     width: 100%;
     background-image: url("http://v1-cdn.echoed.com/bg-whitepx90.png"); }
 
-#sv {
+.sv {
   font-size: 40px;
   font-family: BebasNeue, Arial, sans-serif;
+  line-height: 40px;
   color: #000;
   text-align: right; }
 
