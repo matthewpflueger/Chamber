@@ -24,3 +24,4 @@ chamber.pid
 out
 .sass-cache
 src/main/ops/opt/newrelic/logs
+cloudkick.packages.key

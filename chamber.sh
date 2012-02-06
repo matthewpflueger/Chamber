@@ -37,7 +37,7 @@ case $service_args in
         TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
         MAIN=com.echoed.chamber.Main
 
-        NEWRELIC=/opt/newrelic/newrelic.jar
+        NEWRELIC=/usr/local/lib/newrelic/newrelic.jar
 
 #        PACKAGE="mvn -DskipTests -Pallinone package"
         CLASSPATH=".:${TARGET}"
@@ -135,11 +135,48 @@ case $service_args in
         ;;
 
     install)
+	cd /usr/local/lib/chamber
+
+	sudo apt-get install libssl0.9.8 
+	sudo apt-get install lynx
+	sudo apt-get install curl
+	sudo apt-get install git
+
+        sudo apt-get install nginx
+        sudo rm -f /etc/nginx/sites-enabled/default
+        sudo rm -f /etc/nginx/nginx.conf
+        sudo cp src/main/ops/etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/default
+        sudo cp src/main/ops/etc/nginx/nginx.conf /etc/nginx/nginx.conf
+        sudo service nginx restart
+
         sudo apt-get install mysql-server
-        #Install partner repo for distribution in /etc/apt/sources.list
-        #deb http://archive.canonical.com/ubuntu natty partner
-        #deb-src http://archive.canonical.com/ubuntu natty partner
-        sudo apt-get install sun-java6-jdk
+        sudo rm -f /etc/mysql/my.cnf
+        sudo cp src/main/ops/etc/mysql/my.cnf /etc/mysql/my.cnf
+        sudo service mysql restart
+
+        sudo apt-get install python-pip
+        sudo pip install pagerduty
+        #sudo cp src/main/ops/usr/local/bin/pagerduty* /usr/local/bin/.
+
+        sudo apt-get install monit
+        sudo rm -f /etc/default/monit
+        sudo rm -f /etc/monit/monitrc
+        sudo cp src/main/ops/etc/default/monit /etc/default/monit
+        sudo cp src/main/ops/etc/monit/monitrc /etc/monit/monitrc
+        sudo cp src/main/ops/etc/monit/conf.d/* /etc/monit/conf.d/.
+        sudo service monit restart
+
+        sudo cp src/main/ops/etc/cloudkick.conf /etc/cloudkick.conf
+	sudo rm -f /etc/apt/sources.list.d/cloudkick.list
+	sudo cp src/main/ops/etc/apt/sources.list.d/cloudkick.list /etc/apt/sources.list.d/cloudkick.list
+        sudo curl http://packages.cloudkick.com/cloudkick.packages.key >> cloudkick.packages.key
+        sudo apt-key add cloudkick.packages.key
+        sudo apt-get update
+        sudo apt-get install cloudkick-agent
+        
+        sudo mkdir -p /usr/local/lib/newrelic/logs
+        sudo chmod -R ugo+rwx /usr/local/lib/newrelic
+        #sudo cp src/main/ops/opt/newrelic/newrelic* /opt/newrelic/.
         ;;
     
     status)
