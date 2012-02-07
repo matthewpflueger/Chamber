@@ -5,10 +5,9 @@ import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.util.CookieManager
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.partneruser._
-import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
+import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod}
 
 
 @Controller
@@ -20,17 +19,21 @@ class PartnerDashboardController {
 
     @BeanProperty var partnerDashboardErrorView: String = _
     @BeanProperty var partnerDashboardView: String = _
+    @BeanProperty var cookieManager: CookieManager = _
 
 
     @RequestMapping(value = Array("/partner/dashboard"), method = Array(RequestMethod.GET))
     def dashboard(
-            @CookieValue(value = "partnerUser", required = false) partnerUserId: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
+
+        val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired) {
             logger.error("Request expired to view dashboard for {}", partnerUserId)
+            new ModelAndView(partnerDashboardErrorView)
+        } else if (partnerUserId.isEmpty) {
             new ModelAndView(partnerDashboardErrorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
@@ -44,7 +47,7 @@ class PartnerDashboardController {
             }
 
             logger.debug("Showing dashboard for PartnerUser {}", partnerUserId)
-            partnerUserServiceLocator.locate(partnerUserId).onResult {
+            partnerUserServiceLocator.locate(partnerUserId.get).onResult {
                 case LocateResponse(_, Left(error)) => onError(error)
                 case LocateResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
                     case GetPartnerUserResponse(_, Left(error)) => onError(error)

@@ -1,0 +1,67 @@
+    {{> header }}
+    <title>Echoed</title>
+    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css?v={{version}}" />
+
+
+<body class="nooverflow">
+    <img id="mainImage" src="{{urls.images}}/bleed-couch.jpg" style="display:none;"/>
+    <div id="container">
+        {{> staticNavBar }}
+        <div id="primary">
+            <div class="center clearfix">
+                <div id="lm">
+                    <div id="lm-top" class="clearfix">
+                        <div id="lm-label">Sharing. <span class="primary-text">Valued.</span></div>
+                        <div style="font-size: 18px;">
+                            Earn rewards at participating retailers when you share purchases with your social networks.
+                        </div>
+                        <div>
+                            <a class="lm-link" href="{{urls.site}}/howitworks">Learn More</a>
+                        </div>
+                        <div style="margin-top: 50px;">
+                            <div class="label" style="text-align:left;color:#000;font-family:HelveticaNeue-Light, Tahoma, Arial, Helvetica, sans-serif;font-weight:bold;">Already a Member?</div>
+                            <div>
+                                <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{urls.site}}/facebook/login&scope=email,publish_stream,offline_access">
+                                    <img class="login-button" src="{{urls.images}}/btn_login_fb_50.png">
+                                </a>
+                                <a id="twitterLogin" href="{{urls.site}}/twitter?redirect=">
+                                    <img class="login-button" src="{{urls.images}}/btn_login_tw_50.png">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="lm-bottom" class="clearfix">
+                        <div id="l-r-b-l">
+                            Partnership Opportunities
+                        </div>
+                        <div id="l-r-b-r">
+                            Plug your business into the Echoed Platform.<br>
+                            <a href="{{urls.site}}/business.html">Discover how we can help</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="gap"></div>
+        <div id="footer" class="float">
+            <div class="center clearfix">
+                <div id="footer-nav">
+                    <a href="{{urls.site}}/howitworks">How It Works</a>
+                    <a href="{{urls.site}}/contactus">Contact Us</a>
+                    <div class="copyright" style="float:right;line-height:45px;">
+                        Copyright 2012 - Echoed Inc.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#mainImage').imagesLoaded(function(){
+            var fullBleed = new FullBleed();
+        });
+    });
+</script>
+{{> google}}

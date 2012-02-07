@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.util.CookieManager
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.partneruser._
 import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod,ResponseBody,PathVariable}
@@ -56,7 +55,10 @@ class PartnerLoginController {
                         case GetPartnerUserResponse(_, Left(error)) => onError(error)
                         case GetPartnerUserResponse(_, Right(pu)) =>
                             logger.debug("Successful login for {}", email)
-                            cookieManager.addCookie(httpServletResponse, "partnerUser", pu.id)
+                            cookieManager.addPartnerUserCookie(
+                                    httpServletResponse,
+                                    pu,
+                                    httpServletRequest)
                             continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown response %s" format unknown)

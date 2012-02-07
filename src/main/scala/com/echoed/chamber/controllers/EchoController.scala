@@ -4,8 +4,6 @@ import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import org.eclipse.jetty.continuation.ContinuationSupport
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import com.echoed.util.CookieManager
 import org.springframework.web.bind.annotation._
 import com.echoed.chamber.domain.EchoClick
 import java.net.URLEncoder
@@ -13,9 +11,8 @@ import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.echoeduser.{EchoToResponse, EchoedUserServiceLocator, LocateWithIdResponse, GetEchoedUserResponse}
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.domain.views.EchoPossibilityView
-import akka.util.Duration
 import com.echoed.chamber.services.echo.{RecordEchoClickResponse, EchoExists, RecordEchoPossibilityResponse, EchoService}
+import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse}
 
 
 @Controller
@@ -30,6 +27,9 @@ class EchoController {
     @BeanProperty var confirmView: String = _
     @BeanProperty var errorView: String = _
     @BeanProperty var echoConfirm: String = _
+    @BeanProperty var facebookAddRedirectUrl: String = _
+    @BeanProperty var facebookLoginRedirectUrl: String = _
+    @BeanProperty var logoutUrl: String = _
 
     @BeanProperty var echoService: EchoService = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
@@ -38,12 +38,11 @@ class EchoController {
 
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
     def button(
-            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "echoClickId", required = false) echoClickId: String,
             echoPossibilityParameters: EchoPossibilityParameters,
+            httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
-        if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
-        if(echoClickId != null) echoPossibilityParameters.echoClickId = echoClickId
+        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoPossibilityParameters.echoedUserId = _)
+        cookieManager.findEchoClickCookie(httpServletRequest).foreach(echoPossibilityParameters.echoClickId = _)
         echoService.recordEchoPossibility(echoPossibilityParameters.createButtonEchoPossibility)
         new ModelAndView(buttonView)
     }
@@ -51,17 +50,15 @@ class EchoController {
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def echo(
-            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "echoClickId", required = false) echoClickId: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
-        if (echoedUserId != null) echoPossibilityParameters.echoedUserId = echoedUserId
-        if (echoClickId != null) echoPossibilityParameters.echoClickId = echoClickId
-        logger.debug("Echo Click Id Set: {}", echoClickId)
+        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoPossibilityParameters.echoedUserId = _)
+        cookieManager.findEchoClickCookie(httpServletRequest).foreach(echoPossibilityParameters.echoClickId = _)
+
         def error(e: Throwable) {
             logger.error("Unexpected error encountered echoing %s" format echoPossibilityParameters, e)
             val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
@@ -93,20 +90,22 @@ class EchoController {
                                     continuation.resume()
                                 case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
                                 case RecordEchoPossibilityResponse(_, Right(epv)) =>
-                                    val logoutUrl = "http://www.echoed.com/logout?redirect=" + URLEncoder.encode("echo?" + httpServletRequest.getQueryString.substring(0),"UTF-8");
+                                    val lu = "%s?redirect=%s" format(
+                                            logoutUrl,
+                                            URLEncoder.encode("echo?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
                                     val modelAndView = new ModelAndView(confirmView)
                                     modelAndView.addObject("echoedUser", echoedUser)
                                     modelAndView.addObject("echoPossibility", echoPossibility)
                                     modelAndView.addObject("retailer", epv.retailer)
                                     modelAndView.addObject("retailerSettings", epv.retailerSettings)
-                                    modelAndView.addObject("logoutUrl", logoutUrl)
+                                    modelAndView.addObject("logoutUrl", lu)
                                     modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                                     modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                                     modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                                     modelAndView.addObject(
                                             "facebookAddUrl",
                                             URLEncoder.encode(
-                                                    echoPossibility.asUrlParams("http://www.echoed.com/facebook/login/add?redirect=echo?"),
+                                                    echoPossibility.asUrlParams("%s?redirect=echo?" format facebookAddRedirectUrl),
                                                     "UTF-8"))
                                     modelAndView.addObject(
                                             "twitterAddUrl",
@@ -130,7 +129,7 @@ class EchoController {
                             URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"))
 
                         modelAndView.addObject("redirectUrl",
-                            URLEncoder.encode("http://www.echoed.com/facebook/login?redirect="
+                            URLEncoder.encode(facebookLoginRedirectUrl + "?redirect="
                                 + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
 
                         modelAndView.addObject("echoPossibilityView", epv)
@@ -160,13 +159,12 @@ class EchoController {
 
     @RequestMapping(value = Array("/it"), method = Array(RequestMethod.GET))
     def it(
-            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "echoClick", required = false) echoClickId: String,
             echoItParameters: EchoItParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        if (echoedUserId != null) echoItParameters.echoedUserId = echoedUserId
+
+        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoItParameters.echoedUserId = _)
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
@@ -211,8 +209,6 @@ class EchoController {
     def echoes(
             @PathVariable(value = "echoId") echoId: String,
             @PathVariable(value = "postId") postId: String,
-            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "echoClick", required = false) echoClickId: String,
             @RequestHeader(value = "Referer", required = false) referrerUrl: String,
             @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
             @RequestHeader(value = "X-Forwarded-For", required = false) forwardedFor: String,
@@ -234,11 +230,10 @@ class EchoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            
-            
+
             val echoClick = new EchoClick(
                     echoId,
-                    echoedUserId,
+                    cookieManager.findEchoedUserCookie(httpServletRequest).orNull,
                     referrerUrl,
                     Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
                     forwardedFor)
@@ -248,9 +243,14 @@ class EchoController {
                 _ match {
                     case RecordEchoClickResponse(msg, Left(e)) => error(e)
                     case RecordEchoClickResponse(msg, Right(echo)) =>
+                        //Add the echoClick tracking cookie if it's not available
+                        cookieManager.findEchoClickCookie(httpServletRequest).getOrElse({
+                            cookieManager.addEchoClickCookie(
+                                    httpServletResponse,
+                                    echoClick,
+                                    httpServletRequest)
+                        })
 
-                        if(echoClickId == null) cookieManager.addCookie(httpServletResponse, "echoClickId", echoClick.id) //Add the echoClick tracking cookie if it's not available
-                        logger.debug("Echo Click Id Set: {}" , echoClickId)
                         continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
                         continuation.resume()
                 }))

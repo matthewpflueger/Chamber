@@ -7,15 +7,19 @@ import com.echoed.chamber.dao.DaoITSuite
 
 @RunWith(classOf[JUnitRunner])
 class ControllersITSuite extends Suites(
+    new TwitterLoginIT,
+    new FacebookLoginIT,
+    new ClosetLoginIT,
+
+    new FacebookAddIT,
+    new TwitterAddIT,
+
+    new EchoButtonIT,
+    new EchoIT,
     new ClosetExhibitIT,
     new ClosetFriendsIT,
-    new EchoButtonIT,
-    new FacebookLoginIT,
+
     new FacebookAppIT,
-    new FacebookAddIT,
-    new EchoIT,
-    new TwitterLoginIT,
-    new TwitterAddIT,
-    new ClosetLoginIT,
+
     new PartnerUserLoginIT)
 

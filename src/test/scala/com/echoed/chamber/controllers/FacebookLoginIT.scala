@@ -23,6 +23,7 @@ class FacebookLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
     @Autowired @BeanProperty var echoHelper: EchoHelper = null
     @Autowired @BeanProperty var dataCreator: DataCreator = _
     @Autowired @BeanProperty var webDriver: WebDriver = null
+    @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = null
 
     @Autowired @BeanProperty var urls: Properties = null
 
@@ -44,7 +45,7 @@ class FacebookLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
     val echoedUser = dataCreator.echoedUser
 
     def cleanup() {
-        WebDriverUtils.clearEchoedCookies(webDriver)
+        webDriverUtils.clearEchoedCookies()
         echoedUserDao.deleteByEmail(echoedUser.email)
         facebookUserDao.deleteByEmail(echoedUser.email)
     }

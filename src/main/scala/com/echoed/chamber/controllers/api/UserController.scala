@@ -1,19 +1,14 @@
 package com.echoed.chamber.controllers.api
 
 import org.springframework.stereotype.Controller
-import java.util.ArrayList
-//import com.echoed.chamber.domain.EchoPossibility
-import com.echoed.chamber.domain.views.ErrorView
+import com.echoed.chamber.controllers.CookieManager
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
-//import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import com.echoed.chamber.services.echoeduser._
 import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
-import scalaz._
-import Scalaz._
 
 @Controller
 @RequestMapping(Array("/user"))
@@ -23,25 +18,19 @@ class UserController {
 
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
 
+    @BeanProperty var cookieManager: CookieManager = _
     @BeanProperty var closetView: String = _
     @BeanProperty var errorView: String = _
 
     @RequestMapping(value = Array("/feed/public"), method = Array(RequestMethod.GET))
     @ResponseBody
     def publicFeed(
-                      @CookieValue(value = "echoedUserId", required= false) echoedUserIdCookie:String,
-                      @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
-                      @RequestParam(value="page", required = false) page: String,
-                      httpServletRequest: HttpServletRequest,
-                      httpServletResponse: HttpServletResponse) = {
+            @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
+            @RequestParam(value="page", required = false) page: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
-        var echoedUserId: String = null;
-        if(echoedUserIdCookie != null){
-            echoedUserId = echoedUserIdCookie;
-        }
-        else{
-            echoedUserId = echoedUserIdParam;
-        }
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired){
@@ -75,19 +64,12 @@ class UserController {
     @RequestMapping(value = Array("/feed/friends"), method = Array(RequestMethod.GET))
     @ResponseBody
     def feed(
-                @CookieValue(value = "echoedUserId", required= false) echoedUserIdCookie:String,
-                @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
-                @RequestParam(value="page", required = false) page: String,
-                httpServletRequest: HttpServletRequest,
-                httpServletResponse: HttpServletResponse) = {
+            @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
+            @RequestParam(value="page", required = false) page: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
-        var echoedUserId: String = null;
-        if(echoedUserIdCookie != null){
-            echoedUserId = echoedUserIdCookie;
-        }
-        else{
-            echoedUserId = echoedUserIdParam;
-        }
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired){
@@ -110,7 +92,7 @@ class UserController {
             }
                 .onException{
                 case e =>
-                    logger.error("Exception thrown Locating EchoedUserService for %s" format echoedUserIdCookie, e)
+                    logger.error("Exception thrown Locating EchoedUserService for %s" format echoedUserId, e)
             }
             continuation.undispatch()
         })
@@ -120,20 +102,12 @@ class UserController {
     @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
     def exhibit(
-                   @CookieValue(value = "echoedUserId", required = false) echoedUserIdCookie: String,
-                   @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
-                   @RequestParam(value = "page", required = false) page: String,
-                   httpServletRequest: HttpServletRequest,
-                   httpServletResponse: HttpServletResponse) = {
+            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
+            @RequestParam(value = "page", required = false) page: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
-
-        var echoedUserId:String = null;
-        if(echoedUserIdCookie != null){
-            echoedUserId = echoedUserIdCookie;
-        }
-        else{
-            echoedUserId = echoedUserIdParam;
-        }
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired) {
@@ -172,12 +146,11 @@ class UserController {
     @RequestMapping(value = Array("/friends"), method = Array(RequestMethod.GET))
     @ResponseBody
     def friends(
-                   @CookieValue(value = "echoedUserId", required = false) echoedUserIdCookie: String,
-                   @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
-                   httpServletRequest: HttpServletRequest,
-                   httpServletResponse: HttpServletResponse) = {
+            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
-        val echoedUserId = if (echoedUserIdCookie != null) echoedUserIdCookie else echoedUserIdParam
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if (continuation.isExpired) {
@@ -223,11 +196,12 @@ class UserController {
     @RequestMapping(value= Array("/exhibit/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
-                         @PathVariable(value="id") echoedFriendId: String,
-                         @CookieValue(value = "echoedUserId", required= false ) echoedUserId: String,
-                         @RequestParam(value= "page", required= false) page: String,
-                         httpServletRequest: HttpServletRequest,
-                         httpServletResponse: HttpServletResponse) = {
+            @PathVariable(value="id") echoedFriendId: String,
+            @RequestParam(value= "page", required= false) page: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+
 
         logger.debug("echoedFriendId: {}", echoedFriendId)
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
@@ -236,7 +210,9 @@ class UserController {
         } else Option(continuation.getAttribute("closet")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
                     logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>

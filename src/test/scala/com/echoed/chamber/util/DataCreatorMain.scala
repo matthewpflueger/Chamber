@@ -13,6 +13,8 @@ object DataCreatorMain {
         val dataCreator = ctx.getBean("dataCreator").asInstanceOf[DataCreator]
         //dataCreator.importFacebookTestUsers()
         //dataCreator.linkFacebookTestUsers()
+//        dataCreator.addFacebookTestUsersToApps()
         dataCreator.generateDataSet()
+
     }
 }

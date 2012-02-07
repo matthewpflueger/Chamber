@@ -13,33 +13,48 @@ import java.io.{InputStreamReader, BufferedReader}
 import org.codehaus.jackson.map.ObjectMapper
 import scala.collection.mutable.{ListBuffer, Buffer}
 import com.echoed.chamber.dao._
-import java.util.{Random, List => JList, Calendar, Date, UUID}
 import com.echoed.util.ScalaObjectMapper
 import com.echoed.chamber.domain._
+import java.util.{Properties, Random, List => JList, Calendar, Date, UUID}
 
 
 class DataCreator {
 
-    @Autowired @BeanProperty var facebookTestUserDao: FacebookTestUserDao = _
-    @Autowired @BeanProperty var facebookUserDao: FacebookUserDao = _
-    @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
-    @Autowired @BeanProperty var retailerDao: RetailerDao = _
-    @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
-    @Autowired @BeanProperty var echoDao: EchoDao = _
-    @Autowired @BeanProperty var echoMetricsDao: EchoMetricsDao = _
-    @Autowired @BeanProperty var retailerUserDao : RetailerUserDao = _
+    @BeanProperty var facebookTestUserDao: FacebookTestUserDao = _
+    @BeanProperty var facebookUserDao: FacebookUserDao = _
+    @BeanProperty var echoedUserDao: EchoedUserDao = _
+    @BeanProperty var retailerDao: RetailerDao = _
+    @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
+    @BeanProperty var echoDao: EchoDao = _
+    @BeanProperty var echoMetricsDao: EchoMetricsDao = _
+    @BeanProperty var retailerUserDao: RetailerUserDao = _
+
+    @BeanProperty var urlsProperties: Properties = _
+    @BeanProperty var facebookAccessProperties: Properties = _
+    @BeanProperty var twitterAccessProperties: Properties = _
+
+
 
 
     private val logger = LoggerFactory.getLogger(classOf[DataCreator])
 
-    val appId = "177687295582534"
-    val appAccessToken = "177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA"
+    var imagesUrl = "http://v1-cdn.echoed.com" //okay
+    var siteUrl = "http://www.echoed.com" //okay
+    var appId = "177687295582534" //okay
+    var appAccessToken = "177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA" //okay
     val createTestUserUrl = "https://graph.facebook.com/%s/accounts/test-users?access_token=%s&name=%s&permissions=%s&method=post&installed=%s"
     val allTestUsersUrl = "https://graph.facebook.com/%s/accounts/test-users?access_token=%s" format(appId, appAccessToken)
     val meUrl = "https://graph.facebook.com/me?access_token=%s"
     val changeUrl = "https://graph.facebook.com/%s?password=%s&method=post&access_token=%s"
     val linkUrl = "https://graph.facebook.com/%s/friends/%s?method=post&access_token=%s"
+    val addAppUrl = "https://graph.facebook.com/%s/accounts/test-users?installed=true&permissions=email,publish_stream,offline_access&uid=%s&owner_access_token=177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA&access_token=%s&method=post"
 
+    def init() {
+        appId = facebookAccessProperties.getProperty("clientId")
+        appAccessToken = facebookAccessProperties.getProperty("appAccessToken")
+        imagesUrl = urlsProperties.getProperty("http.urls.images")
+        siteUrl = urlsProperties.getProperty("http.urls.site")
+    }
 
     def open(url: URL)(op: BufferedReader => Unit) = {
         val reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()))
@@ -156,6 +171,27 @@ class DataCreator {
         }
     }
 
+    def addFacebookTestUsersToApps() {
+        val appAccessTokens =
+            "277490472318816|jzXtF0cEQ2zwpvPvC74EVvzKfxA" ::
+            "323745504330890|JiFUfho10x6LUQvT0FVL7ZX4Tm4" ::
+            "243792655699913|-5VLcQG_x9LZK1EU9MeN4totMq8" :: Nil
+
+        val facebookTestUsers = facebookTestUserDao.selectAll
+        facebookTestUsers.add(facebookTestUser)
+
+        appAccessTokens.foreach { token =>
+            val id = token.substring(0, 15)
+            logger.debug("Adding Facebook test users to application {}", id)
+
+            facebookTestUsers.foreach { user =>
+                open(new URL(addAppUrl format(id, user.facebookId, token)))({ _ =>
+                    logger.debug("Added Facebook user {} to app {}", user, id)})
+            }
+        }
+    }
+
+
     def cleanupEchoedUsers(list: Buffer[(FacebookUser, EchoedUser)]) {
         list.foreach { tuple =>
             val (fu, eu) = tuple
@@ -241,16 +277,16 @@ class DataCreator {
                     boughtOn = new Date,
                     orderId = "orderId",
                     price = random.nextInt(100).toFloat+5,
-                    imageUrl = "http://v1-cdn.echoed.com/Pic%s.jpg" format picNum,
+                    imageUrl = "%s/Pic%s.jpg" format(imagesUrl, picNum),
                     echoedUserId = eu.id,
                     facebookPostId = null,
                     twitterStatusId = null,
                     echoPossibilityId = "echoPossibilityId%s-%s-%s" format(index, num, picNum),
-                    landingPageUrl = "http://www.echoed.com",
+                    landingPageUrl = siteUrl,
                     retailerSettingsId = rs.id,
                     productName = "productName",
                     category = category,
-                    brand = "brand", 
+                    brand = "brand",
                     description = "These are amazing",
                     echoMetricsId = null,
                     echoClickId = null)
@@ -297,9 +333,9 @@ class DataCreator {
     val facebookTestUserId = UUID.randomUUID.toString
     val retailerId = UUID.randomUUID.toString
 
-    val landingPageUrl = "http://www.echoed.com/"
-    val echoImageUrl_1 = "http://v1-cdn.echoed.com/Pic1.jpg"
-    val echoImageUrl_2 = "http://v1-cdn.echoed.com/Pic2.jpg"
+    val landingPageUrl = siteUrl
+    val echoImageUrl_1 = "%s/Pic1.jpg" format imagesUrl
+    val echoImageUrl_2 = "%s/Pic2.jpg" format imagesUrl
 
 
     val retailers = List(
@@ -359,7 +395,7 @@ class DataCreator {
     val twitterId ="47851866"
     val twitterScreenName = "MisterJWU"
     val twitterPassword = "gateway2"
-    val twitterUserProfileImageUrl = "http://echoed.com/images/logo.png"
+    val twitterUserProfileImageUrl = "%s/logo.png" format imagesUrl
 
     val twitterUser = TwitterUser(
         twitterUserId,
@@ -452,7 +488,7 @@ class DataCreator {
     val retailerUserPassword = "testpassword"
     val retailerUser = new RetailerUser(
         retailerId,
-        "Echoed",
+        "Test PartnerUser",
         "tech@echoed.com"
     ).createPassword(retailerUserPassword)
 
@@ -460,7 +496,7 @@ class DataCreator {
         echoedUserId,
         on,
         on,
-        "Test EchoedUser",
+        "Test User",
         echoedUserEmail,
         twitterUser.screenName,
         facebookUser.id,
@@ -474,7 +510,7 @@ class DataCreator {
         toEchoedUserId,
         on,
         on,
-        "Test EchoedUser",
+        "Test User",
         echoedUserEmail,
         twitterUser.screenName,
         facebookUser.id,
@@ -486,8 +522,8 @@ class DataCreator {
         new EchoedFriend(
             echoedUser.id,
             toEchoedUser.id,
-            "Test EchoedFriend",
-            "TestEchoedFriend",
+            "Test Friend",
+            "TestFriend",
             facebookUser.id,
             facebookUser.facebookId,
             twitterUser.id,
@@ -495,8 +531,8 @@ class DataCreator {
         new EchoedFriend(
             toEchoedUser.id,
             echoedUser.id,
-            "Test EchoedFriend",
-            "TestEchoedFriend",
+            "Test Friend",
+            "TestFriend",
             facebookUser.id,
             facebookUser.facebookId,
             twitterUser.id,

@@ -70,6 +70,9 @@ class EchoedUserServiceLocatorActor extends Actor {
                         echoedUserServiceCreator.createEchoedUserServiceUsingId(echoedUserId).onComplete(_.value.get.fold(
                             e => error(e),
                             _ match {
+                                case CreateEchoedUserServiceWithIdResponse(_, Left(e @ EchoedUserNotFound(id, _))) =>
+                                    logger.debug("EchoedUser {} not found", id)
+                                    channel ! LocateWithIdResponse(msg, Left(e))
                                 case CreateEchoedUserServiceWithIdResponse(_, Left(e)) => error(e)
                                 case CreateEchoedUserServiceWithIdResponse(_, Right(echoedUserService)) =>
                                     channel ! LocateWithIdResponse(msg, Right(echoedUserService))

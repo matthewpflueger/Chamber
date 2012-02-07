@@ -36,7 +36,7 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
 
-    @Autowired @BeanProperty var facebookAccessActorProperties: Properties = _
+    @Autowired @BeanProperty var facebookAccessProperties: Properties = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
@@ -60,7 +60,7 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
     }
 
     override def beforeAll = {
-        facebookAccessActorProperties should not be(null)
+        facebookAccessProperties should not be(null)
         facebookUser.id should equal(facebookPosts(0).facebookUserId)
         cleanup
 
@@ -84,7 +84,7 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
             facebookId = "100003326847181_117086678412226",
             echoId = UUID.randomUUID.toString)
 
-        facebookAccessActor.underlyingActor.properties = facebookAccessActorProperties
+        facebookAccessActor.underlyingActor.properties = facebookAccessProperties
         facebookPostCrawlerActor.underlyingActor.facebookAccess = new ActorClient {
             var actorRef = facebookAccessActor
         }

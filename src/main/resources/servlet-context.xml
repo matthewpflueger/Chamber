@@ -18,14 +18,23 @@
 	    default-destroy-method="destroy">
 
 
-    <import resource="classpath:servlet-context-properties.xml" />
+    <import resource="classpath:chamber-properties.xml" />
+
+    <!--<import resource="classpath:servlet-context-properties.xml" />-->
 
 
     <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
         <property name="interceptors">
             <util:list>
                 <bean class="com.echoed.chamber.interceptors.ResponseTimeInterceptor" />
-                <bean class="com.echoed.chamber.interceptors.AccessControlInterceptor" />
+                <bean class="com.echoed.chamber.interceptors.AccessControlInterceptor">
+                    <property name="domain" value="${domain}" />
+                </bean>
+                <bean class="com.echoed.chamber.interceptors.GlobalsInterceptor">
+                    <property name="urlsProperties" ref="urlsProperties" />
+                    <property name="gitProperties" ref="gitProperties" />
+                    <property name="facebookClientId" value="${facebook.clientId}" />
+                </bean>
             </util:list>
         </property>
     </bean>
@@ -48,36 +57,43 @@
     <bean id="mustacheViewResolver" class="com.echoed.util.mustache.MustacheViewResolver">
         <property name="cache" value="${mustache.cache}" />
         <property name="prefix" value="${mustache.prefix}" />
-
         <property name="suffix" value="${mustache.suffix}" />
     </bean>
 
 
-    <bean id="cookieManager" class="com.echoed.util.CookieManagerSimple" />
+    <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager" />
 
     <!-- Search package for annotated classes -->
     <context:component-scan base-package="com.echoed.chamber"/>
+
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="echoController" class="com.echoed.chamber.controllers.EchoController">
         <property name="echoService" ref="echoService" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="buttonView" value="redirect:${buttonViewUrl}" />
-        <property name="loginView" value="view.popuplogin" />
-        <property name="confirmView" value="view.confirm" />
-        <property name="echoItView" value="view.echoIt" />
-        <property name="errorView" value="view.error" />
+        <property name="loginView" value="popuplogin" />
+        <property name="confirmView" value="confirm" />
+        <property name="echoItView" value="echoIt" />
+        <property name="errorView" value="error" />
         <property name="cookieManager" ref="cookieManager" />
+        <property name="facebookAddRedirectUrl" value="${http.urls.site}/facebook/login/add" />
+        <property name="facebookLoginRedirectUrl" value="${http.urls.site}/facebook/login" />
+        <property name="logoutUrl" value="${http.urls.site}/logout" />
+
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="facebookController" class="com.echoed.chamber.controllers.FacebookController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="facebookServiceLocator" ref="facebookServiceLocator" />
-
         <property name="cookieManager" ref="cookieManager" />
-
+        <property name="facebookCanvasApp" value="${facebook.canvasApp}" />
+        <property name="postLoginView" value="redirect:${http.urls.site}" />
+        <property name="postAddView" value="redirect:${http.urls.site}" />
         <property name="facebookLoginErrorView" value="redirect:${facebookLoginErrorViewUrl}" />
+        <property name="facebookClientId" value="${facebook.clientId}" />
+        <property name="facebookClientSecret" value="${facebook.clientSecret}" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
@@ -85,15 +101,11 @@
         <property name="echoService" ref="echoService" />
         <property name="twitterServiceLocator" ref="twitterServiceLocator" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
-
         <property name="cookieManager" ref="cookieManager" />
-
-        <property name="twitterRedirectUrl" value="${twitterController.loginRedirectUrl}"/>
-
-
-        <property name="twitterLoginErrorView" value="redirect:${twitterLoginErrorViewUrl}"/>
-        <property name="echoView" value="redirect:${echoUrl}" />
-        <property name="errorView" value="view.error" />
+        <property name="errorView" value="error" />
+        <property name="postAddView" value="redirect:${http.urls.site}/" />
+        <property name="postLoginView" value="redirect:${http.urls.site}/" />
+        <property name="siteUrl" value="${http.urls.site}" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
@@ -102,38 +114,44 @@
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        <property name="postLogoutView" value="redirect:${http.urls.site}" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="exhibitController" class="com.echoed.chamber.controllers.ExhibitController">
+        <property name="cookieManager" ref="cookieManager" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
-        <property name="closetView" value="view.user" />
-        <property name="closetViewFacebook"  value="view.user.fb"/>
+        <property name="closetView" value="user" />
+        <property name="closetViewFacebook"  value="user.fb" />
+        <property name="indexView" value="index" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="userController" class="com.echoed.chamber.controllers.api.UserController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="cookieManager" ref="cookieManager" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="partnerController" class="com.echoed.chamber.controllers.api.PartnerController">
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
+        <property name="cookieManager" ref="cookieManager" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="partnerLoginController" class="com.echoed.chamber.controllers.PartnerLoginController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
-        <property name="partnerLoginErrorView" value="view.login" />
+        <property name="partnerLoginErrorView" value="login" />
         <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="partnerDashboardController" class="com.echoed.chamber.controllers.PartnerDashboardController">
+        <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
-        <property name="partnerDashboardView" value="view.partner" />
-        <property name="partnerDashboardErrorView" value="view.login" />
+        <property name="partnerDashboardView" value="partner" />
+        <property name="partnerDashboardErrorView" value="login" />
     </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->

@@ -61,8 +61,8 @@ class ClosetExhibitIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
     feature("A developer can get closet data as json") {
 
         info("As a recent developer")
-        info("I want to be able to get closet data as json")
-        info("by going to echoed.com/closet/exhibit with a valid access token")
+        info("I want to be able to get exhibit data as json")
+        info("by going to exhibit url with a valid access token")
 
         scenario("a request for a user's closet without a valid access token is denied", IntegrationTest) {
             given("a request for a user's closet")

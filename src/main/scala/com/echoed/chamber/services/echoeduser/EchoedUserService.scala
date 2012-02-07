@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.echoeduser
 
 import akka.dispatch.Future
-import com.echoed.util.FutureHelper
 
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService

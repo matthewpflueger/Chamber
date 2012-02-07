@@ -19,24 +19,7 @@
          is used when the application is deployed as a service, the web.xml is used when/if
          the application is deployed as a webapp (in Tomcat). -->
 
-    <context:property-placeholder
-                location="classpath:jetty.properties"
-                ignore-resource-not-found="true"
-                properties-ref="jettyProperties"/>
-    <!--suppress SpringModelInspection -->
-    <util:properties id="jettyProperties">
-        <prop key="port">8080</prop>
-        <prop key="context"></prop>
-        <prop key="resourceBase">/var/www/current</prop>
-
-        <prop key="springframework.applicationContext">classpath:applicationContext.xml</prop>
-        <prop key="springframework.servletContext">classpath:servlet-context.xml</prop>
-
-        <prop key="executor.minThreads">16</prop>
-        <prop key="executor.maxThreads">256</prop>
-        <prop key="executor.keepAlive">60000</prop>
-    </util:properties>
-
+    <import resource="classpath:chamber-properties.xml" />
 
 
     <bean id="webApplicationContext" class="org.springframework.web.context.support.XmlWebApplicationContext">

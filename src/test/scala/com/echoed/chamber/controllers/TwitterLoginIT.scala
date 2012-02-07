@@ -23,6 +23,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
     @Autowired @BeanProperty var twitterUserDao: TwitterUserDao = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
     @Autowired @BeanProperty var urls: Properties = _
 
@@ -44,7 +45,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
     val twitterUser = dataCreator.twitterUser
 
     def cleanup() {
-        WebDriverUtils.clearEchoedCookies(webDriver)
+        webDriverUtils.clearEchoedCookies()
         twitterUserDao.deleteByScreenName(twitterUser.screenName)
         echoedUserDao.deleteByScreenName(twitterUser.screenName)
     }
@@ -95,8 +96,8 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
 
         scenario("known user clicks on Twitter login button with a valid echoPossibility and is redirected to confirm page post login", IntegrationTest) {
 
-            WebDriverUtils.clearTwitterCookies(webDriver)
-            WebDriverUtils.clearEchoedCookies(webDriver)
+            webDriverUtils.clearTwitterCookies()
+            webDriverUtils.clearEchoedCookies()
 
             given("a request to login and echo using Twitter credentials")
             when("the user is unrecognized (no cookie) and with a valid echoPossibility")

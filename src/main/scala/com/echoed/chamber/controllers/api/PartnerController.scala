@@ -5,14 +5,9 @@ import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.chamber.services.facebook.{FacebookService, FacebookServiceLocator}
-import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
-import com.echoed.util.CookieManager
-import com.echoed.chamber.services.echo.EchoService
-import org.springframework.web.servlet.ModelAndView
-import scala.collection.JavaConversions
 import com.echoed.chamber.services.partneruser._
-import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod,ResponseBody,PathVariable}
+import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod,ResponseBody,PathVariable}
+import com.echoed.chamber.controllers.CookieManager
 
 
 @Controller
@@ -22,12 +17,11 @@ class PartnerController {
     private val logger = LoggerFactory.getLogger(classOf[PartnerController])
 
     @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
-
+    @BeanProperty var cookieManager: CookieManager = _
 
     @RequestMapping(value = Array("/products/{id}/{query}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getJSON(
-            @CookieValue(value = "partnerUser", required = false) partnerUserId: String,
             @PathVariable(value = "id") productId: String,
             @PathVariable(value = "query") query: String,
             httpServletRequest: HttpServletRequest,
@@ -45,7 +39,9 @@ class PartnerController {
         } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            partnerUserServiceLocator.locate(partnerUserId).onResult({
+            val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
+
+            partnerUserServiceLocator.locate(partnerUserId.get).onResult({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner USer SErvice With PartnerUserId: {}", partnerUserId)
                     error(e)
@@ -93,7 +89,6 @@ class PartnerController {
     def getCustomerJSON(
                               @PathVariable(value="id") customerId: String,
                               @PathVariable(value="query") query: String,
-                              @CookieValue(value="partnerUser", required = false) partnerUserId: String,
                               httpServletRequest: HttpServletRequest,
                               httpServletResponse: HttpServletResponse) = {
 
@@ -110,7 +105,9 @@ class PartnerController {
         } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            partnerUserServiceLocator.locate(partnerUserId).onResult({
+            val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
+
+            partnerUserServiceLocator.locate(partnerUserId.get).onResult({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
                     error(e)
@@ -150,7 +147,6 @@ class PartnerController {
     @ResponseBody
     def getRetailerJSON(
                            @PathVariable(value="query") query: String,
-                           @CookieValue(value="partnerUser", required = false) partnerUserId: String,
                            httpServletRequest: HttpServletRequest,
                            httpServletResponse: HttpServletResponse) = {
 
@@ -168,8 +164,9 @@ class PartnerController {
         } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
             continuation.suspend(httpServletResponse)
 
+            val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-            partnerUserServiceLocator.locate(partnerUserId).onResult({
+            partnerUserServiceLocator.locate(partnerUserId.get).onResult({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
                     error(e)

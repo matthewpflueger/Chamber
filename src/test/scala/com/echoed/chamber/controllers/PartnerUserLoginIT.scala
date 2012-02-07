@@ -21,6 +21,7 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
     @Autowired @BeanProperty var partnerUserDao: RetailerUserDao = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
 
     @Autowired @BeanProperty var urls: Properties = _
@@ -39,7 +40,7 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
 
     def cleanup() {
-        WebDriverUtils.clearEchoedCookies(webDriver)
+        webDriverUtils.clearEchoedCookies()
         partnerUserDao.deleteByEmail(partnerUser.email)
     }
 
@@ -51,17 +52,16 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
     override def afterAll = cleanup
 
 
-    feature("A partner user can view their dashboard by logging into echoed.com") {
+    feature("A partner user can view their dashboard by logging into Echoed") {
 
         info("As a partner user")
         info("I want to be able to view my dashboard")
-        info("by going to echoed.com and logging in")
+        info("by going to Echoed and logging in")
 
         scenario("an unknown user navigates directly to their dashboard and is asked to login", IntegrationTest) {
             given("a request to view the partner dashboard")
             when("there is no user information")
-            webDriver.navigate().to("http://www.echoed.com")
-            webDriver.manage().deleteAllCookies()
+            webDriverUtils.clearEchoedCookies()
             webDriver.navigate().to(dashboardUrl)
 
             then("redirect to Echoed's partner login page")
@@ -105,13 +105,13 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
             then("then redirect to the dashboard page")
             and("set an access cookie")
-            webDriver.getTitle should startWith ("Summary")
+            webDriver.getTitle should startWith ("Echoed")
             webDriver.getPageSource should include(partnerUser.name)
-            webDriver.manage().getCookieNamed("partnerUser") should not be(null)
+            webDriverUtils.findPartnerUserCookie() should not be(null)
         }
 
         scenario("a partner user logs out and is redirected out of their dashboard", IntegrationTest) {
-            webDriver.getTitle should startWith ("Summary")
+            webDriver.getTitle should startWith ("Echoed")
 
             given("a request to logout")
             when("the user is logged in")
@@ -119,9 +119,8 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
             then("then redirect away from the dashboard")
             and("remove the access cookie")
-            webDriver.getTitle should not be ("Summary")
             webDriver.getPageSource should not include(partnerUser.name)
-            webDriver.manage().getCookieNamed("partnerUser") should be(null)
+            webDriverUtils.findPartnerUserCookie() should be(null)
         }
 
         //This test will succeed on the first, fresh run, but fail (and really should never pass once the partner

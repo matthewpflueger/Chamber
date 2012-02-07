@@ -9,6 +9,12 @@
 	<packaging>jar</packaging>
 	<name>Chamber</name>
 
+    <scm>
+        <developerConnection>scm:git:ssh://git@github.com:Echoed/Chamber.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com:Echoed/Chamber.git</connection>
+        <url>http://github.com/Echoed/Chamber</url>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -103,13 +109,13 @@
         </dependency>
 
         <!-- JBoss is nice enough to provide implmentations of javaee...  We
-                        define them here as a nicetie to child projects (easy testing).
-                        These api's are at provided scope as they should be provided by
-                        whatever container we run in like Tomcat.  However Tomcat doesn't
-                        provide jstl so you may need to explicitly require jstl at
-                        compile scope (or make sure Ops has jstl in the lib directory).
-                        See the commented out section below if you need to explicity
-                        require jstl in your project. -->
+             define them here as a nicetie to child projects (easy testing).
+             These api's are at provided scope as they should be provided by
+             whatever container we run in like Tomcat.  However Tomcat doesn't
+             provide jstl so you may need to explicitly require jstl at
+             compile scope (or make sure Ops has jstl in the lib directory).
+             See the commented out section below if you need to explicity
+             require jstl in your project. -->
         <dependency>
            <groupId>org.jboss.spec</groupId>
            <artifactId>jboss-javaee-6.0</artifactId>
@@ -213,23 +219,25 @@
 
         <!-- Jerkson for Scala JSON parsing repository -->
         <repository>
-          <id>repo.codahale.com</id>
-          <url>http://repo.codahale.com</url>
+            <id>repo.codahale.com</id>
+            <url>http://repo.codahale.com</url>
         </repository>
         <repository>
-          <id>twitter4j.org</id>
-          <name>twitter4j.org Repository</name>
-          <url>http://twitter4j.org/maven2</url>
-          <releases>
-            <enabled>true</enabled>
+            <id>twitter4j.org</id>
+            <name>twitter4j.org Repository</name>
+            <url>http://twitter4j.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>codehaus snapshots</id>
+            <url>http://snapshots.maven.codehaus.org/maven2</url>
+        </repository>
     </repositories>
-
-
 
 
     <pluginRepositories>
@@ -304,6 +312,26 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- https://github.com/ktoso/maven-git-commit-id-plugin -->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.0.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                         </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>true</verbose>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>src/main/resources/chamber-git.properties</generateGitPropertiesFilename>
+                </configuration>
             </plugin>
         </plugins>
     </build>

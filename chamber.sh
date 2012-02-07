@@ -28,7 +28,7 @@ case $service_args in
             exit 1;
         fi
         ;;
-        
+
     start)
         echo "Starting $DESC"
         shift
@@ -70,13 +70,14 @@ case $service_args in
         else
             CONTEXT=${1}
         fi
-        
+
         echo "java ${ARGS} -cp ${CLASSPATH} ${MAIN} ${CONTEXT}"
+
 
         # We do this to capture the pid of the process
         sh -c "java ${ARGS} -cp ${CLASSPATH} ${MAIN} ${CONTEXT} >./std.out 2>&1 & APID=\"\$!\"; echo \$APID > chamber.pid"
         ;;
-    
+
     startt)
         service_cmd "start"
         tail -f std.out
@@ -92,7 +93,7 @@ case $service_args in
         service_cmd "stop"
         service_cmd "start"
         ;;
-    
+
     reload)
         service_cmd "clean"
         service_cmd "package"
@@ -118,7 +119,7 @@ case $service_args in
             display="-eNDXEHLO"
         fi
 
-        #See http://www.scalatest.org/user_guide/using_the_runner for command line options 
+        #See http://www.scalatest.org/user_guide/using_the_runner for command line options
         #Add -DdisplayCmd=true to see command used...
         mvn scala:run -Dlauncher=scalatest -DaddArgs="$display"
         ;;
@@ -178,7 +179,7 @@ case $service_args in
         sudo chmod -R ugo+rwx /usr/local/lib/newrelic
         #sudo cp src/main/ops/opt/newrelic/newrelic* /opt/newrelic/.
         ;;
-    
+
     status)
         ps uh -p `cat chamber.pid`
         ;;

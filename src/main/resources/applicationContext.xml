@@ -1,30 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans  xmlns="http://www.springframework.org/schema/beans"
-	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:akka="http://akka.io/schema/akka"
-	    xmlns:context="http://www.springframework.org/schema/context"
-	    xsi:schemaLocation="
-	        http://www.springframework.org/schema/beans
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:akka="http://akka.io/schema/akka"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
 	        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-	        http://www.springframework.org/schema/context
-	        http://www.springframework.org/schema/context/spring-context-3.0.xsd
             http://akka.io/schema/akka
             http://akka.io/akka-1.3.xsd"
-	    default-init-method="init"
-	    default-destroy-method="destroy">
+       default-init-method="init"
+       default-destroy-method="destroy">
 
 
-    <!-- This is here for validation purposes - any unresolved placeholders will prevent the application from starting...
-         The order is set to explicitly communicate that this property placeholder configurer will be run last (the default) and all
-         other property placeholder configurers should set their order to less than this.  Also, all other configurers should
-         set ignore unresolvable to true in order to allow the context to fully startup...
 
-         See http://tarlogonjava.blogspot.com/2009/02/tips-regarding-springs.html for an explanation of what is going on here. -->
-    <context:property-placeholder order="2147483647"/>
+    <import resource="classpath:chamber-properties.xml" />
 
-
-    <import resource="classpath:applicationContext-properties.xml" />
     <import resource="classpath:database.xml" />
+
 
     <bean id="cacheManager" class="com.echoed.cache.LocalCacheManager">
         <property name="expireInMinutes" value="${cache.expireInMinutes}" />
@@ -80,7 +70,7 @@
             implementation="com.echoed.chamber.services.facebook.FacebookAccessActor"
             autostart="true">
         <!--suppress SpringModelInspection -->
-        <property name="properties" ref="facebookAccessActorProperties" />
+        <property name="properties" ref="facebookAccessProperties" />
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -95,6 +85,8 @@
         <property name="facebookPostDao" ref="facebookPostDao" />
         <!--suppress SpringModelInspection -->
         <property name="facebookFriendDao" ref="facebookFriendDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="urlsProperties" ref="urlsProperties" />
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -130,7 +122,7 @@
            implementation="com.echoed.chamber.services.twitter.TwitterAccessActor"
            autostart="true">
         <!--suppress SpringModelInspection -->
-        <property name="properties" ref="twitterAccessActorProperties"/>
+        <property name="properties" ref="twitterAccessProperties"/>
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -138,11 +130,13 @@
            implementation="com.echoed.chamber.services.twitter.TwitterServiceCreatorActor"
            autostart="true">
         <!--suppress SpringModelInspection -->
-        <property name="twitterAccess" ref="twitterAccess"/>
+        <property name="twitterAccess" ref="twitterAccess" />
         <!--suppress SpringModelInspection -->
-        <property name="twitterUserDao" ref="twitterUserDao"/>
+        <property name="twitterUserDao" ref="twitterUserDao" />
         <!--suppress SpringModelInspection -->
-        <property name="twitterStatusDao" ref="twitterStatusDao"/>
+        <property name="twitterStatusDao" ref="twitterStatusDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="urlsProperties" ref="urlsProperties" />
     </akka:untyped-actor>
 
     <akka:untyped-actor

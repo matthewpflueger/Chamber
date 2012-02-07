@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import akka.dispatch.Future
 import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao}
 import akka.actor.{Channel, Actor}
+import java.util.Properties
 
 
 class FacebookServiceCreatorActor extends Actor {
@@ -16,6 +17,14 @@ class FacebookServiceCreatorActor extends Actor {
     @BeanProperty var facebookUserDao: FacebookUserDao = _
     @BeanProperty var facebookPostDao: FacebookPostDao = _
     @BeanProperty var facebookFriendDao: FacebookFriendDao = _
+    @BeanProperty var urlsProperties: Properties = _
+
+    var echoClickUrl: String = _
+
+    override def preStart() {
+        echoClickUrl = urlsProperties.getProperty("echoClickUrl")
+        assert(echoClickUrl != null)
+    }
 
     def updateMe(me: FacebookUser) = {
         val facebookUser = Option(facebookUserDao.findByFacebookId(me.facebookId)) match {
@@ -63,7 +72,8 @@ class FacebookServiceCreatorActor extends Actor {
                                     facebookAccess,
                                     facebookUserDao,
                                     facebookPostDao,
-                                    facebookFriendDao)).start)))
+                                    facebookFriendDao,
+                                    echoClickUrl)).start)))
                             logger.debug("Created FacebookService with user {}", facebookUser)
                     }))
             } catch { case e => error(e) }
@@ -82,7 +92,8 @@ class FacebookServiceCreatorActor extends Actor {
                                 facebookAccess,
                                 facebookUserDao,
                                 facebookPostDao,
-                                facebookFriendDao)).start)))
+                                facebookFriendDao,
+                                echoClickUrl)).start)))
                         logger.debug("Created Facebook service {}", facebookUserId)
                     case None =>
                         channel ! CreateFromIdResponse(msg, Left(FacebookUserNotFound(facebookUserId)))
@@ -117,7 +128,8 @@ class FacebookServiceCreatorActor extends Actor {
                                         facebookAccess,
                                         facebookUserDao,
                                         facebookPostDao,
-                                        facebookFriendDao)).start)))
+                                        facebookFriendDao,
+                                        echoClickUrl)).start)))
                             logger.debug("Created FacebookService from Facebook id {}", facebookId)
                     }))
             } catch { case e => error(e) }

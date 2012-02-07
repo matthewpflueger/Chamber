@@ -23,11 +23,11 @@ class FacebookAccessActor extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[FacebookAccessActor])
 
-    @BeanProperty var clientId: String = null
-    @BeanProperty var clientSecret: String = null
-    @BeanProperty var redirectUrl: String = null
-
-    @BeanProperty var properties: Properties = null
+    @BeanProperty var clientId: String = _
+    @BeanProperty var clientSecret: String = _
+    @BeanProperty var redirectUrl: String = _
+    @BeanProperty var canvasApp: String = _
+    @BeanProperty var properties: Properties = _
 
     private val cache = WeakHashMap[String, FacebookBatcher]()
 
@@ -38,7 +38,8 @@ class FacebookAccessActor extends Actor {
             if (clientId == null) clientId = properties.getProperty("clientId")
             if (clientSecret == null) clientSecret = properties.getProperty("clientSecret")
             if (redirectUrl == null) redirectUrl = properties.getProperty("redirectUrl")
-            clientId != null && clientSecret != null && redirectUrl != null
+            if (canvasApp == null) canvasApp = properties.getProperty("canvasApp")
+            clientId != null && clientSecret != null && redirectUrl != null && canvasApp != null
         } ensuring (_ == true, "Missing parameters")
     }
 
@@ -116,7 +117,7 @@ class FacebookAccessActor extends Actor {
                         new Param("link", facebookPost.link),
                         new Param("caption", facebookPost.caption),
                         new Param("actions", Array[Action] {
-                            new Action("View Echoed Exhibit", "http://apps.facebook.com/echoedapp/")
+                            new Action("View Echoed Exhibit", canvasApp)
                         })).get()
                 val fp = facebookPost.copy(facebookId = result)
                 channel ! PostResponse(msg, Right(fp))

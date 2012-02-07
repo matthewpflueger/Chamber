@@ -10,7 +10,6 @@ import com.echoed.chamber.services.echo.EchoService
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import com.echoed.chamber.services.echoeduser.{LocateWithIdResponse,LocateWithTwitterServiceResponse,GetEchoedUserResponse,AssignTwitterServiceResponse}
 import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.util.CookieManager
 import java.net.URLEncoder
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.twitter._
@@ -26,16 +25,15 @@ class TwitterController {
     @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var echoService: EchoService = _
-    @BeanProperty var twitterRedirectUrl: String = null
     @BeanProperty var cookieManager: CookieManager = _
-    @BeanProperty var twitterLoginErrorView: String = _
-    @BeanProperty var echoView: String = _
     @BeanProperty var errorView: String = _
+    @BeanProperty var postAddView: String = _
+    @BeanProperty var postLoginView: String = _
+    @BeanProperty var siteUrl: String = _
 
 
     @RequestMapping(method = Array(RequestMethod.GET))
-    def twitter(@CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-                @RequestParam(value = "redirect", required = false) redirect: String,
+    def twitter(@RequestParam(value = "redirect", required = false) redirect: String,
                 httpServletRequest: HttpServletRequest,
                 httpServletResponse: HttpServletResponse) = {
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
@@ -55,15 +53,16 @@ class TwitterController {
 
             val queryString = "?" + httpServletRequest.getQueryString.substring(0)
 
+            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+
             logger.debug("QueryString : {}", queryString)
             logger.debug("Twitter / Redirect : {}", redirect)
             logger.debug("EchoedUserId: {}", echoedUserId)
 
-            val callbackUrl = if (echoedUserId != null) {
-                "http://www.echoed.com/twitter/add?redirect=" +  URLEncoder.encode(redirect,"UTF-8")
-            } else {
-                "http://www.echoed.com/twitter/login?redirect=" + URLEncoder.encode(redirect,"UTF-8")
-            }
+            val callbackUrl = "%s/twitter/%s?redirect=%s" format(
+                    siteUrl,
+                    echoedUserId.map(_ => "add").getOrElse("login"),
+                    URLEncoder.encode(redirect, "UTF-8"))
 
             logger.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl,"UTF-8"));
 
@@ -86,7 +85,6 @@ class TwitterController {
     @RequestMapping(value = Array("/add"), method= Array(RequestMethod.GET))
     def add(@RequestParam("oauth_token") oAuthToken: String,
             @RequestParam("oauth_verifier") oAuthVerifier: String,
-            @CookieValue(value = "echoedUserId", required = true) echoedUserId: String,
             @RequestParam(value = "redirect", required = false) redirect: String,
             httpServletRequest:HttpServletRequest,
             httpServletResponse:HttpServletResponse) = {
@@ -106,11 +104,12 @@ class TwitterController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
 
-
             logger.debug("Add/QueryString: {} ", redirect)
-            val redirectView = "redirect:http://www.echoed.com/" + redirect
+            val redirectView = postAddView + redirect //"redirect:http://www.echoed.com/" + redirect
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onResult {
                 case LocateWithIdResponse(_, Left(e)) => error(e)
                 case LocateWithIdResponse(_, Right(echoedUserService)) => echoedUserService.getEchoedUser.onResult {
                     case GetEchoedUserResponse(_, Left(e)) => error(e)
@@ -179,8 +178,11 @@ class TwitterController {
                                 case GetEchoedUserResponse(_, Left(e)) => error(e)
                                 case GetEchoedUserResponse(_, Right(echoedUser)) =>
                                     ts.assignEchoedUser(echoedUser.id)
-                                    cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
-                                    val redirectView = "redirect:http://www.echoed.com/" + redirect
+                                    cookieManager.addEchoedUserCookie(
+                                            httpServletResponse,
+                                            echoedUser,
+                                            httpServletRequest)
+                                    val redirectView = postLoginView + redirect //"redirect:http://www.echoed.com/" + redirect
                                     logger.debug("Redirecting to View: {} ", redirectView)
                                     continuation.setAttribute("modelAndView", new ModelAndView(redirectView))
                                     continuation.resume

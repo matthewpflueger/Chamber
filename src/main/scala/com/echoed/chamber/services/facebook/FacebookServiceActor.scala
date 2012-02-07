@@ -13,7 +13,8 @@ class FacebookServiceActor(
         facebookAccess: FacebookAccess,
         facebookUserDao: FacebookUserDao,
         facebookPostDao: FacebookPostDao,
-        facebookFriendDao: FacebookFriendDao) extends Actor {
+        facebookFriendDao: FacebookFriendDao,
+        echoClickUrl: String) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[FacebookServiceActor])
 
@@ -63,7 +64,7 @@ class FacebookServiceActor(
                         echo.echoedUserId,
                         echo.id)
                 //TODO externalize the facebookPost url!
-                val facebookPost = fp.copy(link = "http://v1-api.echoed.com/echo/%s/%s" format(echo.id, fp.id))
+                val facebookPost = fp.copy(link = "%s/%s/%s" format(echoClickUrl, echo.id, fp.id))
                 facebookPostDao.insert(facebookPost)
 
                 logger.debug("Sending request to post to FacebookAccessActor {}", facebookPost)

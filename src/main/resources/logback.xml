@@ -9,7 +9,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="debug" />
+    <!--<logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="debug" />-->
     <logger name="com.echoed" level="debug" />
 
     <root level="warn">

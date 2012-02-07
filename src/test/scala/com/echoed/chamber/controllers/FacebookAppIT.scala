@@ -19,11 +19,13 @@ import scala.collection.JavaConversions
 @ContextConfiguration(locations = Array("classpath:webIT.xml"))
 class FacebookAppIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
-    @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = null
-    @Autowired @BeanProperty var facebookUserDao: FacebookUserDao = null
-    @Autowired @BeanProperty var echoHelper: EchoHelper = null
+    @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
+    @Autowired @BeanProperty var facebookUserDao: FacebookUserDao = _
+    @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
-    @Autowired @BeanProperty var webDriver: WebDriver = null
+    @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = _
+    @Autowired @BeanProperty var facebookAccessProperties: Properties = _
 
     @Autowired @BeanProperty var urls: Properties = null
 
@@ -42,8 +44,8 @@ class FacebookAppIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     val facebookUser = dataCreator.facebookUser
 
     def cleanup() {
-        WebDriverUtils.clearFacebookCookies(webDriver)
-        WebDriverUtils.clearEchoedCookies(webDriver)
+        webDriverUtils.clearFacebookCookies()
+        webDriverUtils.clearEchoedCookies()
         echoedUserDao.deleteByEmail(echoedUser.email)
         facebookUserDao.deleteByEmail(echoedUser.email)
     }
@@ -77,7 +79,7 @@ class FacebookAppIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
             webDriver.get("http://www.facebook.com/profile.php?id=%s&sk=wall" format dataCreator.facebookUser.facebookId)
             val allAnchors = JavaConversions.collectionAsScalaIterable(webDriver.findElements(By.tagName("a")))
-            val url = "http://apps.facebook.com/echoedapp"
+            val url = facebookAccessProperties.getProperty("canvasApp")
             val firstEcho = allAnchors.find(webElement => {
                 Option(webElement.getAttribute("href")).map(_.startsWith(url)).getOrElse(false)
             }).get

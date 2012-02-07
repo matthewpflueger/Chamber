@@ -71,7 +71,7 @@ class ClosetFriendsIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
 
         info("As a recent developer")
         info("I want to be able to get friend data as json")
-        info("by going to echoed.com/closet/friends with a valid access token")
+        info("by going to friends url with a valid access token")
 
         scenario("a request for a user's friends without a valid access token is denied", IntegrationTest) {
             given("a request for a user's friends")

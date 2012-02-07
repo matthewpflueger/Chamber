@@ -19,7 +19,7 @@
 --
 
 -- CREATE DATABASE IF NOT EXISTS Echoed;
--- USE Echoed;
+USE Echoed;
 --
 -- --
 -- -- Definition of table `Echoed`.`FacebookTestUser`

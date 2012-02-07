@@ -8,11 +8,11 @@ import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import scala.collection.JavaConversions
 import org.openqa.selenium.{By, Cookie, WebDriver}
-import com.echoed.chamber.domain.{Echo, FacebookUser, FacebookPost, EchoedUser}
+import com.echoed.chamber.domain.{Echo, FacebookPost}
 import com.echoed.chamber.dao._
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
-import java.util.{UUID, Properties, Date}
+import java.util.{Properties, Date}
 import com.echoed.util.{WebDriverUtils, IntegrationTest}
 import org.slf4j.LoggerFactory
 
@@ -34,9 +34,11 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
 
     @Autowired @BeanProperty var urls: Properties = _
+    @Autowired @BeanProperty var urlsProperties: Properties = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
@@ -45,13 +47,15 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
     var echoItUrl: String = null
     var loginViewUrl: String = null
     var confirmViewUrl: String = null
+    var siteUrl: String = null
 
     {
         echoUrl = urls.getProperty("echoUrl")
         echoItUrl = urls.getProperty("echoItUrl")
         loginViewUrl = urls.getProperty("loginViewUrl")
         confirmViewUrl = urls.getProperty("confirmViewUrl")
-        echoUrl != null && echoItUrl != null && loginViewUrl != null && confirmViewUrl != null
+        siteUrl = urlsProperties.getProperty("http.urls.site")
+        echoUrl != null && echoItUrl != null && loginViewUrl != null && confirmViewUrl != null && siteUrl != null
     } ensuring (_ == true, "Missing parameters")
 
 
@@ -107,7 +111,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             given("a request to echo a purchase")
             when("the user is unrecognized (no cookie) and with valid parameters")
 
-            WebDriverUtils.clearEchoedCookies(webDriver)
+            webDriverUtils.clearEchoedCookies()
 
             val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "login")
             webDriver.get(echoPossibility.asUrlParams(prefix = echoUrl + "?", encode = true))
@@ -126,19 +130,13 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             given("a request to echo a purchase")
             when("the user is recognized (has a cookie) and with valid parameters")
-            val cookie = new Cookie.Builder("echoedUserId", echoedUser.id)
-                    .domain(".echoed.com")
-                    .path("/")
-                    .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
-                    .build()
-            webDriver.get("http://www.echoed.com")
-            webDriver.manage().addCookie(cookie)
+            webDriverUtils.addEchoedUserCookie(echoedUser)
             val echoUrlWithParams = echoPossibility.asUrlParams(prefix = echoUrl + "?", encode = true)
             webDriver.get(echoUrlWithParams)
 
             then("show the echo confirmation page")
             webDriver.getCurrentUrl should equal (echoUrlWithParams) //we did not redirect...
-            webDriver.getTitle should equal ("Popup")
+            webDriver.getTitle should equal ("Confirm")
 
             and("record the EchoPossibility in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)
@@ -157,13 +155,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             given("a request to confirm the echo")
             when("the user is known with a valid echo possibility")
-            val echoedUserIdCookie = new Cookie.Builder("echoedUserId", echoedUser.id)
-                    .domain(".echoed.com")
-                    .path("/")
-                    .expiresOn(new Date((new Date().getTime + (1000*60*60*24))))
-                    .build()
-            webDriver.navigate.to("http://www.echoed.com")
-            webDriver.manage().addCookie(echoedUserIdCookie)
+            webDriverUtils.addEchoedUserCookie(echoedUser)
 
             val postToFacebook = true
             val facebookMessage = "This is my echoed purchase!"
@@ -206,8 +198,8 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             echo should not be (null)
             facebookPost should not be (null)
 
-            WebDriverUtils.clearFacebookCookies(webDriver)
-            WebDriverUtils.clearEchoedCookies(webDriver)
+            webDriverUtils.clearFacebookCookies
+            webDriverUtils.clearEchoedCookies()
 
             given("a click on an Echoed Facebook post")
             webDriver.get(dataCreator.facebookUserLoginPageUrl)
@@ -218,7 +210,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             webDriver.get("http://www.facebook.com/profile.php?id=%s&sk=wall" format dataCreator.facebookUser.facebookId)
             val allAnchors = JavaConversions.collectionAsScalaIterable(webDriver.findElements(By.tagName("a")))
-            val url = "http://v1-api.echoed.com/echo/%s/%s" format(echo.id, facebookPost.id)
+            val url = "%s/echo/%s/%s" format(siteUrl, echo.id, facebookPost.id)
             val firstEcho = allAnchors.find(webElement => {
                 webElement.getAttribute("href") == url
             }).get

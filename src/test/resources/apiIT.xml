@@ -11,9 +11,8 @@
 	    default-destroy-method="destroy">
 
 
-    <import resource="classpath:applicationContext-properties.xml" />
+    <import resource="classpath:chamber-properties.xml" />
     <import resource="classpath:databaseIT.xml" />
-    <import resource="classpath:servlet-context-properties.xml" />
 
 
     <!-- This is a hack to get url properties injected into our tests.  The actual values are defined in servlet-context-properties.xml but

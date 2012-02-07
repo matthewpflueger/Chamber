@@ -1,16 +1,15 @@
 package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
-import javax.servlet.http.HttpServletResponse
 import org.springframework.web.bind.annotation._
 import reflect.BeanProperty
-import com.echoed.util.CookieManager
 import org.slf4j.LoggerFactory
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 import com.echoed.chamber.services.partneruser.PartnerUserServiceLocator
 import org.apache.ibatis.session.SqlSessionFactory
 import scala.collection.JavaConversions._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 
 @Controller
@@ -21,6 +20,7 @@ class LogoutController {
 
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
+    @BeanProperty var postLogoutView: String = _
 
     @BeanProperty var cookieManager: CookieManager = _
 
@@ -30,16 +30,13 @@ class LogoutController {
     def logout(
             @RequestParam(value = "redirect", required = false) redirect: String,
             @RequestParam(value = "flush", required = false) flush: String,
-            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
-            @CookieValue(value = "partnerUser", required = false) partnerUser: String,
+            httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-
-        logger.debug("Removing cookies: echoedUserId {} and partnerUser {}", echoedUserId, partnerUser);
-        cookieManager.deleteCookie(httpServletResponse, "echoedUserId");
-        cookieManager.deleteCookie(httpServletResponse, "partnerUser");
-        Option(echoedUserId).foreach(echoedUserServiceLocator.logout(_))
-        Option(partnerUser).foreach(partnerUserServiceLocator.logout(_))
+        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoedUserServiceLocator.logout(_))
+        cookieManager.findPartnerUserCookie(httpServletRequest).foreach(partnerUserServiceLocator.logout(_))
+        cookieManager.addEchoedUserCookie(httpServletResponse, request = httpServletRequest)
+        cookieManager.addPartnerUserCookie(httpServletResponse, request = httpServletRequest)
 
         //This is disgusting and will be removed asap!!!
         if (flush == "2390uvqq03rJN_asdfoasdifu190" && Option(sqlSessionFactory) != None) {
@@ -59,11 +56,7 @@ class LogoutController {
         }
 
 
-        if (redirect != null)
-            new ModelAndView("redirect:http://v1-api.echoed.com/" + redirect);
-        else
-            new ModelAndView("redirect:http://www.echoed.com/")
-
+        new ModelAndView("%s/%s" format (postLogoutView, Option(redirect).getOrElse("")))
     }
 
 }

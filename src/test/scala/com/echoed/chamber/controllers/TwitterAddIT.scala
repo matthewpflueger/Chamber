@@ -12,7 +12,7 @@ import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.util.{UUID, Properties}
 import com.echoed.chamber.dao.{FacebookUserDao, EchoedUserDao, TwitterUserDao}
 import com.echoed.util.IntegrationTest
-import com.echoed.util.WebDriverUtils._
+import com.echoed.util.WebDriverUtils
 
 
 @RunWith(classOf[JUnitRunner])
@@ -24,6 +24,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
     @Autowired @BeanProperty var twitterUserDao: TwitterUserDao = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
     @Autowired @BeanProperty var urls: Properties = _
 
@@ -53,8 +54,8 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
         twitterUserDao.deleteByScreenName(twitterUser.screenName)
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
-        clearTwitterCookies(webDriver)
-        clearEchoedCookies(webDriver, true)
+        webDriverUtils.clearTwitterCookies()
+        webDriverUtils.clearEchoedCookies(true)
     }
 
     override protected def beforeAll() {
@@ -75,7 +76,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
         scenario("user clicks on add Twitter account button and successfully adds their Twitter account to their Echoed account", IntegrationTest) {
 
             given("a request to add their Twitter account to their Echoed account")
-            navigateToCloset(webDriver, echoedUser)
+            webDriverUtils.navigateToCloset(echoedUser)
 
             when("the user has no associated Twitter account and their Twitter credentials matches no existing Twitter account")
             then("send them to Twitter to login")
@@ -87,7 +88,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
 
             and("add their Twitter account to their Echoed user account")
-            Thread.sleep(100)
+            Thread.sleep(1000)
             webDriver.getTitle() should startWith ("Echoed")
             webDriver.findElement(By.id("twitterAccount")) should not be (null)
             val eu = echoedUserDao.findByTwitterId(twitterUser.twitterId)
@@ -113,17 +114,17 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
                 given("a request to add their Twitter account to their Echoed account")
 
-                clearTwitterCookies(webDriver)
-                clearEchoedCookies(webDriver)
+                webDriverUtils.clearTwitterCookies()
+                webDriverUtils.clearEchoedCookies()
 
-                navigateToCloset(webDriver, echoedUser2)
+                webDriverUtils.navigateToCloset(echoedUser2)
 
                 when("the user has no associated Twitter account and their Twitter credentials matches an existing Twitter account")
                 then("send them to Twitter to login")
                 webDriver.findElement(By.id("addTwitterLink")).click
                 //NOTE: this does not work because we can't seem to get the Twitter cookies to clear
                 //webDriver.getTitle should include("Twitter")
-                Thread.sleep(500)
+                Thread.sleep(1000)
                 webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
                 val pass = webDriver.findElement(By.id("password"))
                 pass.sendKeys(dataCreator.twitterPassword)
@@ -131,7 +132,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
 
                 and("do not add the Twitter account")
-                Thread.sleep(200)
+                Thread.sleep(1000)
                 webDriver.getTitle should be ("Error")
 //                evaluating { webDriver.findElement(By.id("twitterAccount")) } should produce [org.openqa.selenium.NoSuchElementException]
 //                webDriver.findElement(By.id("addTwitterLink")) should not be(null)
@@ -147,20 +148,21 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
         scenario("user tries to add their own, already existing Twitter account to Echoed user account", IntegrationTest) {
             firstScenarioPassed should be (true)
 
-            clearTwitterCookies(webDriver)
-            clearEchoedCookies(webDriver, true)
+            webDriverUtils.clearTwitterCookies()
+            webDriverUtils.clearEchoedCookies(true)
 
             echoedUserDao.unlinkTwitter(echoedUser)
 
-            navigateToCloset(webDriver, echoedUser)
+            webDriverUtils.navigateToCloset(echoedUser)
 
             given("a request to add their own, already existing Twitter account to their Echoed account")
             webDriver.getTitle should startWith("Echoed")
 
             when("the user has an associated Twitter account")
             then("send them to Twitter to login")
+            Thread.sleep(1000)
             webDriver.findElement(By.id("addTwitterLink")).click
-            Thread.sleep(500)
+            Thread.sleep(1000)
             webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
             val pass = webDriver.findElement(By.id("password"))
             pass.sendKeys(dataCreator.twitterPassword)
@@ -168,6 +170,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
 
             and("re-assign their Twitter account to their Echoed user account")
+            Thread.sleep(1000)
             webDriver.getTitle() should startWith ("Echoed")
             webDriver.findElement(By.id("twitterAccount")) should not be (null)
             val eu = echoedUserDao.findByTwitterId(twitterUser.twitterId)

@@ -12,13 +12,36 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
                           twitterUserDao: TwitterUserDao,
                           twitterStatusDao: TwitterStatusDao,
                           requestToken: RequestToken,
+                          echoClickUrl: String,
                           var twitterUser: TwitterUser) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[TwitterServiceActor])
 
-    def this(twitterAccess: TwitterAccess, twitterUserDao: TwitterUserDao, twitterStatusDao: TwitterStatusDao, requestToken: RequestToken) = this (twitterAccess, twitterUserDao, twitterStatusDao, requestToken, null)
+    def this(
+            twitterAccess: TwitterAccess,
+            twitterUserDao: TwitterUserDao,
+            twitterStatusDao: TwitterStatusDao,
+            requestToken: RequestToken,
+            echoClickUrl: String) = this (
+        twitterAccess,
+        twitterUserDao,
+        twitterStatusDao,
+        requestToken,
+        echoClickUrl,
+        null)
 
-    def this(twitterAccess: TwitterAccess, twitterUserDao: TwitterUserDao, twitterStatusDao: TwitterStatusDao, twitterUser: TwitterUser) = this (twitterAccess, twitterUserDao, twitterStatusDao, null, twitterUser)
+    def this(
+            twitterAccess: TwitterAccess,
+            twitterUserDao: TwitterUserDao,
+            twitterStatusDao: TwitterStatusDao,
+            echoClickUrl: String,
+            twitterUser: TwitterUser) = this (
+        twitterAccess,
+        twitterUserDao,
+        twitterStatusDao,
+        null,
+        echoClickUrl,
+        twitterUser)
 
     //FIXME should not ever be null
     self.id = "TwitterService:%s" format Option(twitterUser).map(_.id).getOrElse("NONE")
@@ -86,7 +109,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
             try {
                 logger.debug("Creating new TwitterStatus with message {} for {}", echo, message)
-                var status = message + " http://v1-api.echoed.com/echo/" + echo.id + "/"
+                var status = "%s %s/%s/" format(message, echoClickUrl, echo.id) //message + " http://v1-api.echoed.com/echo/" + echo.id + "/"
                 var twitterStatus = new TwitterStatus(
                     echo.id,
                     echo.echoedUserId,

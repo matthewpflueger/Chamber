@@ -14,8 +14,8 @@
     <import resource="classpath:apiIT.xml" />
 
 
-    <!-- This is a hack to get url properties injected into our tests.  The actual values are defined in servlet-context-properties.xml but
-                 we reference them via the properties bean below because we could not get the test instances to wire correctly :( -->
+    <!-- This is a hack to get url properties injected into our tests.  The actual values are defined in chamber-properties.xml but
+         we reference them via the properties bean below because we could not get the test instances to wire correctly :( -->
     <!--suppress SpringModelInspection -->
     <util:properties id="urls">
         <prop key="apiUrl">${apiUrl}</prop>
@@ -29,8 +29,17 @@
         <prop key="dashboardUrl">${dashboardUrl}</prop>
     </util:properties>
 
-
     <bean id="webDriver" class="org.openqa.selenium.firefox.FirefoxDriver" />
+    <bean id="webDriverUtils" class="com.echoed.util.WebDriverUtils">
+        <property name="webDriver" ref="webDriver" />
+        <property name="domain" value="${domain}" />
+        <property name="closetUrl" value="${closetUrl}" />
+        <property name="echoedUrl" value="${http.urls.site}" />
+        <property name="logoutUrl" value="${http.urls.site}/logout" />
+        <property name="cookieManager">
+            <bean class="com.echoed.chamber.controllers.CookieManager" />
+        </property>
+    </bean>
 
     <bean id="echoHelper" class="com.echoed.chamber.controllers.EchoHelper" />
 

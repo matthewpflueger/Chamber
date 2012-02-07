@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xmlns:context="http://www.springframework.org/schema/context"
+	    xmlns:util="http://www.springframework.org/schema/util"
+	    xsi:schemaLocation="
+	        http://www.springframework.org/schema/beans
+	        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	        http://www.springframework.org/schema/context
+	        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	        http://www.springframework.org/schema/util
+	        http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+	    default-init-method="init"
+	    default-destroy-method="destroy">
+
+
+    <context:property-placeholder
+                location="classpath*:chamber*.properties,classpath:${ENV_TYPE}.properties,classpath:${user.name}.properties"
+                ignore-resource-not-found="true"
+                local-override="false"
+                properties-ref="defaultPropertyValues"/>
+
+    <!--suppress SpringModelInspection -->
+    <util:properties id="defaultPropertyValues">
+        <prop key="port">8080</prop>
+        <prop key="context"></prop>
+        <prop key="resourceBase">/var/www/current</prop>
+
+        <prop key="springframework.applicationContext">classpath:applicationContext.xml</prop>
+        <prop key="springframework.servletContext">classpath:servlet-context.xml</prop>
+
+        <prop key="executor.minThreads">16</prop>
+        <prop key="executor.maxThreads">256</prop>
+        <prop key="executor.keepAlive">60000</prop>
+
+
+        <prop key="domain">echoed.com</prop>
+        <prop key="http.urls.site">http://www.${domain}</prop>
+        <prop key="http.urls.api">http://v1-api.${domain}</prop>
+        <prop key="http.urls.cdn">http://v1-cdn.${domain}</prop>
+        <prop key="http.urls.js">http://js.${domain}</prop>
+        <prop key="http.urls.css">http://css.${domain}</prop>
+        <prop key="http.urls.images">http://images.${domain}</prop>
+        <prop key="http.urls.views">http://views.${domain}</prop>
+
+        <prop key="https.urls.site">https://www.${domain}</prop>
+        <prop key="https.urls.api">https://v1-api.${domain}</prop>
+        <prop key="https.urls.cdn">https://c779203.ssl.cf2.rackcdn.com</prop>
+        <prop key="https.urls.js">https://c779203.ssl.cf2.rackcdn.com</prop>
+        <prop key="https.urls.css">https://c779203.ssl.cf2.rackcdn.com</prop>
+        <prop key="https.urls.images">https://c779203.ssl.cf2.rackcdn.com</prop>
+        <prop key="https.urls.views">https://c779203.ssl.cf2.rackcdn.com</prop>
+
+
+
+
+        <prop key="facebook.clientId">177687295582534</prop>
+        <prop key="facebook.clientSecret">32dc29f669ce9f97bc9bade3bdf1ca79</prop>
+        <prop key="facebook.appAccessToken">177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA</prop>
+        <prop key="facebook.canvasApp">http://apps.facebook.com/echoedapp/</prop>
+
+        <prop key="facebook.accessToken">177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA</prop>
+        <prop key="facebook.accessTokenUrl">
+            https://graph.facebook.com/oauth/access_token?client_id=${facebook.clientId}&amp;client_secret=${facebook.clientSecret&amp;grant_type=client_credentials
+        </prop>
+        <prop key="facebook.redirectUrl">${http.urls.site}</prop>
+
+        <prop key="twitter.consumerKey">Gb6kawhjcWu3wLc9aWJqQ</prop>
+        <prop key="twitter.consumerSecret">cpJ8p207SeDSiCvMVMeuBROS0j3KG421C2BrdePweS4</prop>
+        <prop key="twitter.callbackUrl">${http.urls.site}/twitter/login</prop>
+
+        <prop key="cache.expireInMinutes">30</prop>
+
+
+
+        <prop key="git.branch"></prop>
+        <prop key="git.build.user.name"></prop>
+        <prop key="git.build.user.email"></prop>
+        <prop key="git.build.time"></prop>
+        <prop key="git.commit.id"></prop>
+        <prop key="git.commit.id.abbrev"></prop>
+        <prop key="git.commit.user.name"></prop>
+        <prop key="git.commit.user.email"></prop>
+        <prop key="git.commit.message.full"></prop>
+        <prop key="git.commit.message.short"></prop>
+        <prop key="git.commit.time"></prop>
+
+
+
+
+        <prop key="jdbc.driverClassName">com.mysql.jdbc.Driver</prop>
+        <prop key="jdbc.url">jdbc:mysql://localhost:3306/Echoed</prop>
+        <prop key="jdbc.username">root</prop>
+        <prop key="jdbc.password">password</prop>
+
+        <prop key="pool.initialSize">5</prop>
+        <prop key="pool.minIdle">5</prop>
+        <prop key="pool.maxIdle">10</prop>
+        <prop key="pool.maxActive">50</prop>
+        <prop key="pool.maxWait">3000</prop>
+
+        <prop key="pool.numTestsPerEvictionRun">50</prop>
+        <prop key="pool.timeBetweenEvictionRunsMillis">60000</prop>
+        <prop key="pool.testWhileIdle">true</prop>
+        <prop key="pool.testOnBorrow">true</prop>
+        <prop key="pool.validationQuery">select 1</prop>
+        <prop key="pool.validationQueryTimeout">500</prop>
+
+        <prop key="pool.removeAbandoned">true</prop>
+        <prop key="pool.removeAbandonedTimeout">60000</prop>
+        <prop key="pool.logAbandoned">true</prop>
+
+        <prop key="mybatis.config">classpath:mybatis.xml</prop>
+        <prop key="mybatis.mappers">classpath*:com/echoed/chamber/dao/**/*.xml</prop>
+        <prop key="mybatis.executorType">BATCH</prop>
+
+
+
+
+        <prop key="mustache.cache">true</prop>
+        <prop key="mustache.prefix">${http.urls.views}/</prop>
+        <prop key="mustache.suffix">.html</prop>
+
+        <prop key="apiUrl">${http.urls.api}</prop>
+        <prop key="echoUrl">${http.urls.site}/echo</prop>
+        <prop key="echoItUrl">${http.urls.site}/echo/it</prop>
+        <prop key="buttonUrl">${http.urls.site}/echo/button</prop>
+        <prop key="closetUrl">${http.urls.site}</prop>
+
+        <prop key="buttonViewUrl">${http.urls.images}/button_echoed.png</prop>
+        <prop key="loginViewUrl">${http.urls.views}/popuplogin.html</prop>
+        <prop key="errorViewUrl">${http.urls.views}/error.html</prop>
+        <prop key="closetViewUrl">${http.urls.views}/user.html</prop>
+
+        <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
+
+        <prop key="confirmViewUrl">${http.urls.views}/confirm.html</prop>
+
+
+        <prop key="twitterLoginErrorViewUrl">${http.urls.views}/twitter_login_error.html</prop>
+        <prop key="facebookLoginErrorViewUrl">${http.urls.views}/facebook_login_error.html</prop>
+        <prop key="dashboardViewUrl">${http.urls.views}/partner.html</prop>
+
+        <prop key="exhibitUrl">${http.urls.api}/user/exhibit</prop>
+        <prop key="friendsUrl">${http.urls.api}/user/friends</prop>
+        <prop key="dashboardUrl">${http.urls.site}/partner/dashboard</prop>
+    </util:properties>
+
+
+    <util:properties id="urlsProperties">
+        <prop key="http.urls.site">${http.urls.site}</prop>
+        <prop key="http.urls.api">${http.urls.api}</prop>
+        <prop key="http.urls.cdn">${http.urls.cdn}</prop>
+        <prop key="http.urls.js">${http.urls.js}</prop>
+        <prop key="http.urls.css">${http.urls.css}</prop>
+        <prop key="http.urls.images">${http.urls.images}</prop>
+        <prop key="http.urls.views">${http.urls.views}</prop>
+
+        <prop key="https.urls.site">${https.urls.site}</prop>
+        <prop key="https.urls.api">${https.urls.api}</prop>
+        <prop key="https.urls.cdn">${https.urls.cdn}</prop>
+        <prop key="https.urls.js">${https.urls.js}</prop>
+        <prop key="https.urls.css">${https.urls.css}</prop>
+        <prop key="https.urls.images">${https.urls.images}</prop>
+        <prop key="https.urls.views">${https.urls.views}</prop>
+
+        <prop key="echoClickUrl">${http.urls.site}/echo</prop>
+    </util:properties>
+
+
+    <!--suppress SpringModelInspection -->
+    <util:properties id="gitProperties">
+        <prop key="git.branch">${git.branch}</prop>
+        <prop key="git.build.user.name">${git.build.user.name}</prop>
+        <prop key="git.build.user.email">${git.build.user.email}</prop>
+        <prop key="git.build.time">${git.build.time}</prop>
+        <prop key="git.commit.id">${git.commit.id}</prop>
+        <prop key="git.commit.id.abbrev">${git.commit.id.abbrev}</prop>
+        <prop key="git.commit.user.name">${git.commit.user.name}</prop>
+        <prop key="git.commit.user.email">${git.commit.user.email}</prop>
+        <prop key="git.commit.message.full">${git.commit.message.full}</prop>
+        <prop key="git.commit.message.short">${git.commit.message.short}</prop>
+        <prop key="git.commit.time">${git.commit.time}</prop>
+    </util:properties>
+
+
+    <!-- NOTE: defining a separate properties object is an ugly hack to fix a bug in Akka's Spring integration where placeholder's
+               were not getting resolved - see ActorFactoryBean#setProperties -->
+    <!--suppress SpringModelInspection -->
+    <util:properties id="facebookAccessProperties">
+        <prop key="clientId">${facebook.clientId}</prop>
+        <prop key="clientSecret">${facebook.clientSecret}</prop>
+        <prop key="redirectUrl">${facebook.redirectUrl}</prop>
+        <prop key="appAccessToken">${facebook.appAccessToken}</prop>
+        <prop key="canvasApp">${facebook.canvasApp}</prop>
+    </util:properties>
+
+    <!--suppress SpringModelInspection -->
+    <util:properties id="twitterAccessProperties">
+        <prop key="consumerKey">${twitter.consumerKey}</prop>
+        <prop key="consumerSecret">${twitter.consumerSecret}</prop>
+        <prop key="callbackUrl">${twitter.callbackUrl}</prop>
+    </util:properties>
+
+
+</beans>
+

@@ -24,8 +24,8 @@ class RetailerUserDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatche
     val retailerUser = dataCreator.retailerUser
 
     def cleanup() {
-        retailerUserDao.deleteById(retailerUser.id)
-        retailerUserDao.findById(retailerUser.id) should be (null)
+        retailerUserDao.deleteByEmail(retailerUser.email)
+        retailerUserDao.findByEmail(retailerUser.email) should be (null)
     }
 
     override def beforeAll = cleanup

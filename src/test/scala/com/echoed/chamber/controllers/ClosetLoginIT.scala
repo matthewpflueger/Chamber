@@ -13,7 +13,7 @@ import java.util.{Date, Properties}
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.util.IntegrationTest
-import com.echoed.util.WebDriverUtils._
+import com.echoed.util.WebDriverUtils
 import com.echoed.chamber.dao.{EchoMetricsDao, FacebookUserDao, EchoDao, EchoedUserDao}
 
 
@@ -29,6 +29,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
+    @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = _
 
     @Autowired @BeanProperty var urls: Properties = _
 
@@ -69,38 +70,38 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     override def afterAll = cleanup
 
 
-    feature("A user can view their past echoes by logging into echoed.com via a social platform") {
+    feature("A user can view their past echoes by logging into Echoed via a social platform") {
 
         info("As a recent purchaser")
         info("I want to be able to view my past purchases")
-        info("by going to echoed.com and logging in")
+        info("by going to site url and logging in")
 
-        scenario("an unknown user navigates to echoed.com/closet and is asked to login", IntegrationTest) {
-            given("a request to echoed.com/closet")
+        scenario("an unknown user navigates to exhibit url and is asked to login", IntegrationTest) {
+            given("a request to view an exhibit")
             when("there is no user information")
             then("redirect to Echoed's login page")
             and("prompt the user to login using a social platform")
             pending
         }
 
-        scenario("a known user with no access token navigates to echoed.com/closet and is asked to login", IntegrationTest) {
-            given("a request to echoed.com/closet")
+        scenario("a known user with no access token navigates to exhibit url and is asked to login", IntegrationTest) {
+            given("a request to exhibit")
             when("there is a known user but no access token")
             then("redirect to Echoed's login page")
             and("prompt the user to login using a social platform")
             pending
         }
 
-        scenario("a known user with no echoes navigates to echoed.com/closet and is shown their empty closet", IntegrationTest) {
-            given("a request to see their closet")
+        scenario("a known user with no echoes navigates to exhibit url and is shown their empty closet", IntegrationTest) {
+            given("a request to see their exhibit")
             when("there is a known user with no echoes")
-            then("then show the user their closet")
+            then("then show the user their exhibit")
             and("and indicate they have no echoes")
-            val pageSource = navigateToCloset(webDriver, echoedUser)
+            val pageSource = webDriverUtils.navigateToCloset(echoedUser)
             pageSource should include("Total Savings: $0.00")
         }
 
-        scenario("a known user navigates to echoed.com/closet and is shown their closet", IntegrationTest) {
+        scenario("a known user navigates to exhibit and is shown their closet", IntegrationTest) {
             echoes.foreach(echoDao.insert(_))
 
             val closet = closetDao.findByEchoedUserId(echoedUser.id)
@@ -111,10 +112,10 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             closet.echoes should not be null
             closet.echoes.size() should equal (echoes.length)
 
-            given("a request to echoed.com/closet")
+            given("a request to the exhibit url")
             when("there is a known user")
-            then("show the user their closet")
-            val pageSource = navigateToCloset(webDriver, echoedUser)
+            then("show the user their exhibit")
+            val pageSource = webDriverUtils.navigateToCloset(echoedUser)
             pageSource should include(echoMetrics.map(_.credit).sum.round.toString)
             //TODO potential for pre-caching but until then...  echoes.foreach(echo => pageSource should include(echo.imageUrl))
         }

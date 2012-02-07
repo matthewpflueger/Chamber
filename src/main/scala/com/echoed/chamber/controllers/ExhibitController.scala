@@ -25,33 +25,44 @@ class ExhibitController {
 
     @BeanProperty var closetViewFacebook: String = _
     @BeanProperty var closetView: String = _
+    @BeanProperty var indexView: String = _
 
+    @BeanProperty var cookieManager: CookieManager = _
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def exhibit(
-            @CookieValue(value = "echoedUserId", required = false) echoedUserId: String,
             @RequestParam(value="app", required = false) appType: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        def error(e: Option[Throwable]) = {
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        def error(e: Option[Throwable] = None) = {
             e.foreach(logger.error("Error serving index page", _))
-            new ModelAndView("view.index")
+            val modelAndView = new ModelAndView(indexView)
+            if (continuation.isSuspended) {
+                continuation.setAttribute("modelAndView", modelAndView)
+                continuation.resume
+            }
+            modelAndView
         }
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+
+
         if (continuation.isExpired) {
             error(Some(RequestExpiredException("Request expired to view exhibit for user %s" format echoedUserId)))
-        } else if (echoedUserId == null) {
-            error(None)
+        } else if (echoedUserId.isEmpty) {
+            error()
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.value.get.fold(
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.value.get.fold(
                 e => error(Some(e)),
                 _ match {
-                    case LocateWithIdResponse(_, Left(e)) => error(Some(e))
+                    case LocateWithIdResponse(_, Left(EchoedUserNotFound(id, _))) =>
+                        logger.debug("Did not find an EchoedUser for {}", id)
+                        error()
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
                         logger.debug("Found EchoedUserService {} ", echoedUserService);
 
@@ -76,6 +87,7 @@ class ExhibitController {
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume()
                             }))
+                    case LocateWithIdResponse(_, Left(e)) => error(Some(e))
                 }))
 
             continuation.undispatch()

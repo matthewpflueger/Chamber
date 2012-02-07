@@ -9,6 +9,7 @@ import twitter4j.auth.{AccessToken,RequestToken}
 import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}
+import java.util.Properties
 
 class TwitterServiceCreatorActor extends Actor {
 
@@ -17,7 +18,14 @@ class TwitterServiceCreatorActor extends Actor {
     @BeanProperty var twitterAccess: TwitterAccess = _
     @BeanProperty var twitterUserDao: TwitterUserDao = _
     @BeanProperty var twitterStatusDao: TwitterStatusDao = _
+    @BeanProperty var urlsProperties: Properties = _
 
+    var echoClickUrl: String = _
+
+    override def preStart() {
+        echoClickUrl = urlsProperties.getProperty("echoClickUrl")
+        assert(echoClickUrl != null)
+    }
 
     def receive = {
 
@@ -36,7 +44,7 @@ class TwitterServiceCreatorActor extends Actor {
                     _ match {
                         case FetchRequestTokenResponse(_, Right(requestToken)) =>
                             channel ! CreateTwitterServiceResponse(msg, Right(new TwitterServiceActorClient(Actor.actorOf(
-                                new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, requestToken)).start)))
+                                new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, requestToken, echoClickUrl)).start)))
                         case FetchRequestTokenResponse(_, Left(e)) => error(e)
                     }))
             } catch { case e => error(e) }
@@ -84,6 +92,7 @@ class TwitterServiceCreatorActor extends Actor {
                                             twitterAccess,
                                             twitterUserDao,
                                             twitterStatusDao,
+                                            echoClickUrl,
                                             twitterUser)).start)))
                     }
                 ))
@@ -104,7 +113,7 @@ class TwitterServiceCreatorActor extends Actor {
                     twitterUser => {
                         channel ! CreateTwitterServiceWithIdResponse(msg, Right(
                             new TwitterServiceActorClient(Actor.actorOf(
-                                new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, twitterUser)).start)))
+                                new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, echoClickUrl, twitterUser)).start)))
                         logger.debug("Created TwitterService with id {}", id)
                     },
                     {

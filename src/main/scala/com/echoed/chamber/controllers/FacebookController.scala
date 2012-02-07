@@ -7,13 +7,13 @@ import reflect.BeanProperty
 import com.echoed.chamber.services.echoeduser.{EchoedUserServiceLocator,LocateWithFacebookServiceResponse,LocateWithIdResponse,GetEchoedUserResponse,AssignFacebookServiceResponse}
 import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod}
 import com.echoed.chamber.services.echo.EchoService
-import java.util.{HashMap => JMap}
+import java.util.{Map => JMap, HashMap => JHashMap}
 import org.springframework.web.servlet.ModelAndView
 import scalaz._
 import Scalaz._
 import java.net.URLEncoder
 import org.apache.commons.codec.binary.Base64
-import com.echoed.util.{ScalaObjectMapper, CookieManager}
+import com.echoed.util.ScalaObjectMapper
 import org.eclipse.jetty.continuation.{Continuation, ContinuationSupport}
 import com.echoed.chamber.services.facebook.{LocateByFacebookIdResponse, FacebookService, LocateByCodeResponse, FacebookServiceLocator}
 import javax.crypto.Mac
@@ -29,16 +29,26 @@ class FacebookController {
     @BeanProperty var facebookServiceLocator: FacebookServiceLocator = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
 
+    @BeanProperty var facebookClientId: String = _
+    @BeanProperty var facebookClientSecret: String = _
+    @BeanProperty var facebookCanvasApp: String = _
+
+    @BeanProperty var postAddView: String = _
+    @BeanProperty var postLoginView: String = _
+    @BeanProperty var facebookLoginErrorView: String = _
 
     @BeanProperty var cookieManager: CookieManager = _
 
-    @BeanProperty var facebookLoginErrorView: String = _
+
+    private var facebookClientSecretBytes: Array[Byte] = _
+    def init() {
+        facebookClientSecretBytes = facebookClientSecret.getBytes("UTF-8")
+    }
 
     @RequestMapping(value = Array("/add"), method = Array(RequestMethod.GET))
     def add(
             @RequestParam("code") code:String,
             @RequestParam(value="redirect", required = false) redirect: String,
-            @CookieValue(value="echoedUserId", required= true) echoedUserId: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -59,15 +69,17 @@ class FacebookController {
 
             continuation.suspend(httpServletResponse)
 
-            val parameters = new JMap[String, Array[String]]()
-            parameters.putAll(httpServletRequest.getParameterMap)
+            val parameters = new JHashMap[String, Array[String]]()
+            parameters.putAll(httpServletRequest.getParameterMap.asInstanceOf[JMap[String, Array[String]]])
             parameters.remove("code")
 
-            val redirectView = "redirect:http://www.echoed.com/" + Option(redirect).getOrElse("")
+            val redirectView = "%s/%s" format(postAddView, Option(redirect).getOrElse(""))
 
             logger.debug("Redirect View {}" , redirectView)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.value.get.fold(
+            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.value.get.fold(
                 error(_),
                 _ match {
                     case LocateWithIdResponse(_, Left(e)) => error(e)
@@ -79,7 +91,7 @@ class FacebookController {
                                 facebookUserId => {
                                     logger.error("Facebook account already attached {}", echoedUser.facebookUserId)
                                     val modelAndView = new ModelAndView(redirectView);
-                                    continuation.setAttribute("modelAndView",modelAndView)
+                                    continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume
                                 },
                                 {
@@ -154,10 +166,7 @@ class FacebookController {
             val index = httpServletRequest.getQueryString.indexOf("&code=")
             val queryString = "/facebook/login" +
                 (if (index > -1) "?" + httpServletRequest.getQueryString.substring(0, index) else "")
-//            httpServletRequest.getQueryString.indexOf("&code=")
-//                val index = httpServletRequest.getQueryString.indexOf("&code=")
-//                "/facebook/login?" + httpServletRequest.getQueryString.substring(0, index)
-//            }
+
 
             facebookServiceLocator.locateByCode(code, queryString).onComplete(_.value.get.fold(
                 error(_),
@@ -168,7 +177,8 @@ class FacebookController {
                             error _,
                             redirect,
                             continuation,
-                            facebookService)
+                            facebookService,
+                            httpServletRequest)
                 }))
 
             continuation.undispatch
@@ -181,7 +191,8 @@ class FacebookController {
             error: Throwable => ModelAndView,
             redirect: String,
             continuation: Continuation,
-            facebookService: FacebookService) = {
+            facebookService: FacebookService,
+            httpServletRequest: HttpServletRequest) = {
         echoedUserServiceLocator.getEchoedUserServiceWithFacebookService(facebookService).onComplete(_.value.get.fold(
             error(_),
             _ match {
@@ -191,8 +202,8 @@ class FacebookController {
                     _ match {
                         case GetEchoedUserResponse(_, Left(e)) => error(e)
                         case GetEchoedUserResponse(_, Right(echoedUser))=>
-                            cookieManager.addCookie(httpServletResponse, "echoedUserId", echoedUser.id)
-                            val redirectView = "redirect:http://www.echoed.com/" + Option(redirect).getOrElse("");
+                            cookieManager.addEchoedUserCookie(httpServletResponse, echoedUser, httpServletRequest)
+                            val redirectView = "%s/%s" format(postLoginView, Option(redirect).getOrElse(""))
                             logger.debug("Redirecting to View: {} ", redirectView);
                             val modelAndView = new ModelAndView(redirectView);
                             continuation.setAttribute("modelAndView", modelAndView)
@@ -231,8 +242,7 @@ class FacebookController {
 
             val algorithm = payload.get("algorithm").asText().replace("-", "")
             val mac = Mac.getInstance(algorithm)
-            //TODO externalize the app secret!
-            mac.init(new SecretKeySpec("32dc29f669ce9f97bc9bade3bdf1ca79".getBytes, algorithm))
+            mac.init(new SecretKeySpec(facebookClientSecretBytes, algorithm))
             val encodedExpectedSig = Base64.encodeBase64URLSafeString(mac.doFinal(encodedPayload.getBytes))
 
             logger.debug("sig {}", encodedSig)
@@ -254,14 +264,15 @@ class FacebookController {
                                     error _,
                                     "?app=facebook",
                                     continuation,
-                                    facebookService)
+                                    facebookService,
+                                    httpServletRequest)
                         }))
                 },
                 {
-                    val appId = "177687295582534" //TODO externalize this!
-                    val canvasPage = URLEncoder.encode("http://apps.facebook.com/echoedapp/", "UTF-8")
-                    val authUrl = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s" format(appId, canvasPage)
-                    continuation.setAttribute("modelAndView", new ModelAndView("view.authredirect", "authUrl", authUrl))
+
+                    val canvasPage = URLEncoder.encode(facebookCanvasApp, "UTF-8")
+                    val authUrl = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s" format(facebookClientId, canvasPage)
+                    continuation.setAttribute("modelAndView", new ModelAndView("authredirect", "authUrl", authUrl))
                     continuation.resume()
                 })
 

@@ -12,7 +12,7 @@ import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.util.{UUID, Properties}
 import com.echoed.chamber.dao.{FacebookUserDao, EchoedUserDao, TwitterUserDao}
 import com.echoed.util.IntegrationTest
-import com.echoed.util.WebDriverUtils._
+import com.echoed.util.WebDriverUtils
 
 
 @RunWith(classOf[JUnitRunner])
@@ -24,18 +24,25 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     @Autowired @BeanProperty var twitterUserDao: TwitterUserDao = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
+    @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
     @Autowired @BeanProperty var urls: Properties = _
+    @Autowired @BeanProperty var urlsProperties: Properties = _
+    @Autowired @BeanProperty var facebookAccessProperties: Properties = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
 
+    var siteUrl: String = null
+    var facebookClientId: String = null
     var closetUrl: String = null
     var apiUrl: String = null
 
     {
         closetUrl = urls.getProperty("closetUrl")
         apiUrl = urls.getProperty("apiUrl")
+        siteUrl = urlsProperties.getProperty("http.urls.site")
+        facebookClientId = facebookAccessProperties.getProperty("clientId")
         closetUrl != null && apiUrl != null
     } ensuring (_ == true, "Missing parameters")
 
@@ -77,8 +84,8 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
         scenario("user clicks on add Facebook account button and successfully adds their Facebook account to their Echoed account", IntegrationTest) {
 
             given("a request to add their Facebook account to their Echoed account")
-            clearFacebookCookies(webDriver)
-            navigateToCloset(webDriver, echoedUser)
+            webDriverUtils.clearFacebookCookies()
+            webDriverUtils.navigateToCloset(echoedUser)
 
             when("the user has no associated Facebook account and their Facebook credentials matches no existing Twitter account")
             then("send them to Facebook to login")
@@ -115,9 +122,9 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
                 given("a request to add their Facebook account to their Echoed account")
 
-                clearEchoedCookies(webDriver)
+                webDriverUtils.clearEchoedCookies()
 
-                navigateToCloset(webDriver, echoedUser2)
+                webDriverUtils.navigateToCloset(echoedUser2)
 
                 when("the user has no associated Facebook account and their Facebook credentials matches an existing Facebook account")
                 then("send them to Facebook to login")
@@ -140,12 +147,12 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
         scenario("user tries to add their own, already existing Facebook account to Echoed user account", IntegrationTest) {
             firstScenarioPassed should be (true)
 
-            clearFacebookCookies(webDriver)
-            clearEchoedCookies(webDriver)
-            navigateToCloset(webDriver, echoedUser)
+            webDriverUtils.clearFacebookCookies()
+            webDriverUtils.clearEchoedCookies()
+            webDriverUtils.navigateToCloset(echoedUser)
 
             given("a request to add their own, already existing Facebook account to their Echoed account")
-            webDriver.get("https://www.facebook.com/dialog/oauth?client_id=177687295582534&redirect_uri=http://www.echoed.com/facebook/add&scope=email,publish_stream,offline_access")
+            webDriver.get("https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s/facebook/add&scope=email,publish_stream,offline_access" format(facebookClientId, siteUrl))
 
 //            webDriver.get(apiUrl)
 //            webDriver.getTitle should startWith("Echoed")
