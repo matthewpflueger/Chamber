@@ -1,8 +1,13 @@
 #!/bin/bash
 
-NAME=Chamber
+NAME=chamber
 DESC=Chamber
 
+
+if [[ ! -e "$JAVA_HOME/bin/java" ]]; then
+    JAVA_HOME=/usr/local/lib/java
+    echo "Setting JAVA_HOME=${JAVA_HOME}"
+fi
 
 function service_cmd() {
 
@@ -33,13 +38,13 @@ case $service_args in
         echo "Starting $DESC"
         shift
 
+        ENV_TYPE=dev
         CONTEXT=src/main/resources/jetty.xml
         TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
         MAIN=com.echoed.chamber.Main
 
         NEWRELIC=/usr/local/lib/newrelic/newrelic.jar
 
-#        PACKAGE="mvn -DskipTests -Pallinone package"
         CLASSPATH=".:${TARGET}"
         OVERRIDES="src/overrides/resources"
         ARGS_INTERESTING="-XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled"
@@ -71,11 +76,17 @@ case $service_args in
             CONTEXT=${1}
         fi
 
-        echo "java ${ARGS} -cp ${CLASSPATH} ${MAIN} ${CONTEXT}"
+        [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+        #if [ -e /etc/default/$NAME ]; then 
+        #    source /etc/default/$NAME
+        #    echo "ENV_TYPE=${ENV_TYPE}"
+        #fi
+
+        echo "java ${ARGS} -DENV_TYPE=${ENV_TYPE} -cp ${CLASSPATH} ${MAIN} ${CONTEXT}"
 
 
         # We do this to capture the pid of the process
-        sh -c "java ${ARGS} -cp ${CLASSPATH} ${MAIN} ${CONTEXT} >./std.out 2>&1 & APID=\"\$!\"; echo \$APID > chamber.pid"
+        sh -c "java ${ARGS} -DENV_TYPE=${ENV_TYPE} -cp ${CLASSPATH} ${MAIN} ${CONTEXT} >./std.out 2>&1 & APID=\"\$!\"; echo \$APID > chamber.pid"
         ;;
 
     startt)
@@ -136,12 +147,13 @@ case $service_args in
         ;;
 
     install)
-	cd /usr/local/lib/chamber
+        sudo ln -s /usr/local/lib/chamber/src/main/webapp current
+	    cd /usr/local/lib/chamber
 
-	sudo apt-get install libssl0.9.8 
-	sudo apt-get install lynx
-	sudo apt-get install curl
-	sudo apt-get install git
+	    sudo apt-get install libssl0.9.8 
+	    sudo apt-get install lynx
+	    sudo apt-get install curl
+	    sudo apt-get install git
 
         sudo apt-get install nginx
         sudo rm -f /etc/nginx/sites-enabled/default
@@ -168,8 +180,8 @@ case $service_args in
         sudo service monit restart
 
         sudo cp src/main/ops/etc/cloudkick.conf /etc/cloudkick.conf
-	sudo rm -f /etc/apt/sources.list.d/cloudkick.list
-	sudo cp src/main/ops/etc/apt/sources.list.d/cloudkick.list /etc/apt/sources.list.d/cloudkick.list
+	    sudo rm -f /etc/apt/sources.list.d/cloudkick.list
+	    sudo cp src/main/ops/etc/apt/sources.list.d/cloudkick.list /etc/apt/sources.list.d/cloudkick.list
         sudo curl http://packages.cloudkick.com/cloudkick.packages.key >> cloudkick.packages.key
         sudo apt-key add cloudkick.packages.key
         sudo apt-get update
