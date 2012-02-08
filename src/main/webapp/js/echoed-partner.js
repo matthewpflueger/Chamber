@@ -162,7 +162,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
             switch(self.report){
                 case "customers":
                     $.ajax({
-                        url: Echoed.urls.api  + "partner/retailer/customers",
+                        url: Echoed.urls.api  + "/partner/retailer/customers",
                         dataType: 'json',
                         xhrFields: {
                             withCredentials: true
@@ -283,7 +283,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         var template = _.template($('#template-view-summary').html());
         $(this.el).hide().html(template).fadeIn(function() {
             $.ajax({
-                url: Echoed.urls.api  + "partner/retailer/summary",
+                url: Echoed.urls.api  + "/partner/retailer/summary",
                 dataType: 'json',
                 xhrFields: {
                     withCredentials: true
@@ -537,10 +537,6 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 self.url = Echoed.urls.api + "/partner/customers/" + options.customerId +  "/history";
                 break;
         }
-        var likes = {name: 'likes',data:[]};
-        var comments = {name: 'comments',data:[]};
-        var clicks = {name: 'clicks',data:[]};
-        var purchases = {name: 'purchases', data:[]};
         self.series = [];
         $.ajax({
             url: self.url,

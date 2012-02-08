@@ -1,4 +1,4 @@
-{{> header}}
+{{> partnerheader}}
 <title>Echoed | Partner</title>
 
 <script type="text/javascript">
@@ -27,7 +27,6 @@
         return dumped_text;
     }
 </script>
-<script type="text/javascript" src="{{urls.js}}/echoed-partner.js?v={{version}}"></script>
 <script type="text/template" id="template-views-reports-table">
     <div class="row">
         <div class="full">
@@ -43,8 +42,8 @@
         <div id="summary-stats" class="full">
             <div class="full-column-left">
                 <div class="label">Social Activity</div>
-                 <div id="chart" class="half-chart">
-                 </div>
+                <div id="chart" class="half-chart">
+                </div>
             </div>
             <div class="full-column-right">
                 <div class="ss-row">
@@ -99,10 +98,10 @@
     <div class="row">
         <div id="chart-container" class="half">
             <div class="label">
-                    Top Products
-                </div>
-                <div id="top-products-table">
-                </div>
+                Top Products
+            </div>
+            <div id="top-products-table">
+            </div>
         </div>
         <div id="chart-container" class="half">
             <div class="label">
@@ -123,6 +122,7 @@
         </div>
     </div>
 </script>
+
 </head>
 <body class="retailer">
 <div id="container">
@@ -156,7 +156,7 @@
             </ul>
         </div>
         <div id="user">
-            {{#partnerUser}}{{name}}{{/partnerUser}} ( <span class="highlight"><strong><a id="logout" href="{{urls.site}}/logout">Logout</a></strong></span> )<br/>
+            {{#partnerUser}}{{name}}{{/partnerUser}} ( <span class="highlight"><strong><a id="logout" href="http://v1-api.echoed.com/logout">Logout</a></strong></span> )<br/>
         </div>
     </div>
     <div id="sub-nav" style="display:none"></div>
@@ -309,14 +309,7 @@
                             <div class="ss-box-label">
                                 Purchases
                             </div>
-                            <div id="cs-purchases" class="ss-box-number fb-text">
-                            </div>
-                        </div>
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Retweets
-                            </div>
-                            <div id="cs-retweets" class="ss-box-number twitter-text">
+                            <div id="cs-purchases" class="ss-box-number echoed-text">
                             </div>
                         </div>
                         <div class="ss-box">
@@ -324,6 +317,13 @@
                                 Views
                             </div>
                             <div id="cs-views" class="ss-box-number echoed-text">
+                            </div>
+                        </div>
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Total Sales
+                            </div>
+                            <div id="cs-total" class="ss-box-number echoed-text">
                             </div>
                         </div>
                     </div>
