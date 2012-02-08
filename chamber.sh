@@ -184,8 +184,12 @@ case $service_args in
         ps uh -p `cat chamber.pid`
         ;;
 
+    compass)
+        compass watch -c compass.rb
+        ;;
+
     *)
-        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean}" >&2
+        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass}" >&2
         exit 1
         ;;
 esac
