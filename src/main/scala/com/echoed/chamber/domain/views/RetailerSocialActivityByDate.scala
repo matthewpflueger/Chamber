@@ -11,9 +11,7 @@ import java.util.{ArrayList, List => JList}
 
 case class RetailerSocialActivityByDate(
        retailerId: String,
-       likes: JList[SocialActivityTotalByDate],
-       comments: JList[SocialActivityTotalByDate],
-       echoClicks: JList[SocialActivityTotalByDate]){
+       series: JList[SocialActivityHistory]){
 
 
 }

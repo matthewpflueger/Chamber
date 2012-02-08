@@ -1,38 +1,107 @@
-    {{> header }}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
     <title>Echoed | How it Works</title>
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css?v={{version}}" />
-
 </head>
 <body>
-<div id="container">
+<div id="container" class="paper">
     {{> staticNavBar }}
     <div id="primary">
         <div class="center">
-            <section class="section clearfix">
-                <div id="masthead" class="hiw">
-                    <div class="masthead-content black">
-                        <div class="masthead-title">ECHOED <span class="primary-text">+</span> YOU</div>
-                        <div class="masthead-text">Earn rewards at participating retailers when you share purchases with your social networks.
+            <section class="section hiw clearfix">
+                <div class="title"><img src="{{urls.images}}/hiw-title1.png"/></div>
+                <div class="third">
+                    <div class="secondary-title text-blue1">Share Purchases</div>
+                    <div class="secondary-text">After checkout Click on the <strong>Share</strong> button to share the item you've just purchased. You can share it in your own personal product gallery or on your social networks.<br/><br/>
+                        Echoed will track how many of your friends check out your shared product. As more of your friends click through to the item you shared, the reward you will receive increases.</div>
+                </div>
+                <div class="third">
+                    <div class="secondary-title text-yellow">Save Money</div>
+                    <div class="secondary-text">After 7 days, you'll receive a credit from the retailer based on the level of social activity (Clicks accumulated, Comments, Likes, Tweets, Re-Tweets, purchases) for the item you bought and shared. Your reward will automatically be credited back to your original form of payment.</div>
+                </div>
+                <div class="third">
+                    <div class="secondary-title text-green1">Explore Products</div>
+                    <div class="secondary-text">The <strong>Echoed Exhibit</strong> makes it fun to discover what you and your friends have been buying/sharing. Think of your Exhibit as a beautiful gallery that represents your unique style.</div>
+                </div>
+            </section>
+            <section class="section hiw clearfix">
+                <div class="title bt"><img src="{{urls.images}}/hiw-title2.png"/></div>
+                <div class="hiw-s clearfix">
+                    <div class="hiw-subtitle"><img src="{{urls.images}}/hiw-share.png"/></div>
+                    <div class="hiw-d">
+                        <div class="hiw-d-r clearfix">
+                            <div class="hiw-d-r-i">
+                                <div class="hiw-d-r-i-i clearfix">
+                                    <img src="{{urls.images}}/hiw-1.png"/>
+                                </div>
+                            </div>
+                            <div class="hiw-d-r-i">
+                                <div class="hiw-d-r-i-i clearfix">
+                                    <img src="{{urls.images}}/hiw-2.png"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hiw-d-r">
+                            A helpful graphic explains how to share with an Echoed Retailer. Connecting with Echoed and sharing is a seamless process.
+                        </div>
+                        <div class="hiw-d-r clearfix">
+                            <div class="hiw-d-r-i">
+                                <div class="hiw-d-r-i-i ">
+                                    <img src="{{urls.images}}/hiw-3.png"/>
+                                </div>
+                            </div>
+                            <div class="hiw-d-r-i">
+                                <div class="hiw-d-r-i-i ">
+                                    <img src="{{urls.images}}/hiw-4.png"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hiw-d-r-i-t">
+                            Your customized message spreads across Facebook and Twitter, as friends click through, your savings on the item you Echoed grows!
                         </div>
                     </div>
                 </div>
-            </section>
-            <section class=" section clearfix">
-                <div class="quarter">
-                    <div class="secondary-title text-blue1">Share Purchases</div>
-                    <div class="secondary-text">Click on the <strong>Echo It</strong> button to share the item you&#39;ve just purchased. You can share it in your own personal product gallery or on your social networks.</div>
+                <div class="hiw-s clearfix">
+                    <div class="hiw-subtitle"><img src="{{urls.images}}/hiw-save.png"/></div>
+                    <div class="hiw-d">
+                        <div class="hiw-d-r clearfix" style="text-align:center;">
+                            <img src="{{urls.images}}/hiw-5.png"/>
+                        </div>
+                        <div class="hiw-d-r clearfix" style="text-align:center;">
+                            <div class="hiw-d-r-i-t">
+                                You&#39;ll be be able to track your savings and receive credit notifications from retailers from inside your Exhibit
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="quarter">
-                    <div class="secondary-title text-yellow">Spread Word</div>
-                    <div class="secondary-text">Echoed will track how many of your friends check out your shared product. As more of your friends click through to the item you shared, the reward you will receive increases.</div>
-                </div>
-                <div class="quarter">
-                    <div class="secondary-title text-green1">Receive Rewards</div>
-                    <div class="secondary-text">After 7 days, you&#39;ll receive a credit from the retailer based on the level of social activity (Clicks accumulated, Comments, Likes, Tweets, Re-Tweets, purchases) for the item you bought and shared. Your reward will automatically be credited back to your original form of payment.</div>
-                </div>
-                <div class="quarter">
-                    <div class="secondary-title text-magenta">Explore Products</div>
-                    <div class="secondary-text">The <strong>Echoed Exhibit</strong> makes it fun to discover what you and your friends have been buying/sharing. Think of your Exhibit as a beautiful gallery that represents your unique style.</div>
+                <div class="hiw-s clearfix">
+                    <div class="hiw-subtitle"><img src="{{urls.images}}/hiw-explore.png"/></div>
+                    <div class="hiw-d">
+                        <div class="hiw-d-r clearfix">
+                            <div class="hiw-d-r-i">
+                                <div class="hiw-d-r-i-i clearfix">
+                                    <img src="{{urls.images}}/hiw-6.png"/>
+                                </div>
+                                <div class="hiw-d-r-i-t">
+
+                                </div>
+                            </div>
+                            <div class="hiw-d-r-i">
+                                <div class="hiw-d-r-i-i clearfix">
+                                    <img src="{{urls.images}}/hiw-7.png"/>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="hiw-d-r clearfix">
+                            <div class="hiw-d-r-i-t">
+                                The Exhibit: Discover great new products and track your Echoes. The Exhibit also lives as a Facebook App for easy browsing
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
             <section class="section clearfix">

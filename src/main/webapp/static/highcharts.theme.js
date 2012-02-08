@@ -9,9 +9,9 @@ Highcharts.theme = {
             labels:{
                 enabled: true,
                 style:{
-                    color: '#000000',
-                    fontFamily:'Tahoma,Arial',
-                    fontSize: '14px'
+                    color: '#666666',
+                    fontFamily:'"Helvetica Neue",Helvetica,Arial',
+                    fontSize: '11px'
                 }
             },
             stackLabels: {
@@ -32,9 +32,9 @@ Highcharts.theme = {
             lineColor: '#000',
                 labels:{
                     style:{
-                        color: '#000000',
-                        fontFamily:'Tahoma,Arial',
-                        fontSize: '14px'
+                        color: '#666666',
+                        fontFamily:'"Helvetica Neue",Helvetica,Arial',
+                        fontSize: '11px'
                     }
                 }
         },

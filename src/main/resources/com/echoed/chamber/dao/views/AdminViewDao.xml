@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.views.AdminViewDao">
+
+    <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
+        <constructor>
+            <idArg column="id" javaType="String"/>
+            <arg column="updatedOn" javaType="Date"/>
+            <arg column="createdOn" javaType="Date"/>
+            <arg column="name" javaType="String" />
+            <arg column="email" javaType="String" />
+            <arg column="screenName" javaType="String" />
+            <arg column="facebookUserId" javaType="String" />
+            <arg column="facebookId" javaType="String" />
+            <arg column="twitterUserId" javaType="String" />
+            <arg column="twitterId" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <select id="getUsers" resultMap="echoedUserResult">
+        select
+            id,
+            updatedOn,
+            createdOn,
+            name,
+            email,
+            screenName,
+            facebookUserId,
+            facebookId,
+            twitterUserId,
+            twitterId
+        from
+            echoeduser
+        order by
+            createdOn desc
+    </select>
+
+</mapper>

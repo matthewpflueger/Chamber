@@ -3,7 +3,7 @@ package com.echoed.chamber.controllers
 import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.{RetailerUser, EchoClick, EchoedUser}
+import com.echoed.chamber.domain.{RetailerUser, EchoClick, EchoedUser,AdminUser}
 import com.echoed.util.CookieToString
 import scalaz._
 import Scalaz._
@@ -21,6 +21,7 @@ class CookieManager {
     @BeanProperty var echoedUserCookieName = "eu"
     @BeanProperty var echoClickCookieName = "ec"
     @BeanProperty var partnerUserCookieName = "pu"
+    @BeanProperty var adminUserCookieName = "au"
 
     private var baseDomain: String = "echoed.com"
 
@@ -54,6 +55,21 @@ class CookieManager {
         getCookie(request, echoClickCookieName).flatMap(c => Option(c.getValue))
     }
 
+    def addAdminUserCookie(
+        response: HttpServletResponse = null,
+        adminUser: AdminUser = null,
+        request: HttpServletRequest= null) = {
+        
+        val cookie = makeCookie(adminUserCookieName, Option(adminUser).map(_.id), Option(request))
+        Option(response).foreach(_.addCookie(cookie))
+        cookie
+        
+    }
+    
+    def findAdminUserCookie(request: HttpServletRequest) = {
+        getCookie(request, adminUserCookieName).flatMap(c => Option(c.getValue))
+    }
+    
     def addPartnerUserCookie(
             response: HttpServletResponse = null,
             partnerUser: RetailerUser = null,

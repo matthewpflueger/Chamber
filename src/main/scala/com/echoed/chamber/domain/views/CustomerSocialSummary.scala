@@ -15,5 +15,15 @@ case class CustomerSocialSummary(
     totalFacebookLikes: Int, 
     totalFacebookComments: Int, 
     totalEchoClicks: Int,
-    totalFacebookFriends: Int
-)
+    totalFacebookFriends: Int,
+    totalSales: Float,
+    totalSalesVolume: Int
+){
+    def this(echoedUserId: String,
+             echoedUserName:String,
+             totalEchoes: Int,
+             totalFacebookLikes: Int, 
+             totalFacebookComments: Int, 
+             totalEchoClicks: Int,
+             totalFacebookFriends: Int) = this(echoedUserId,echoedUserName,totalEchoes,totalFacebookLikes,totalFacebookComments,totalEchoClicks,totalFacebookFriends,0,0)
+}

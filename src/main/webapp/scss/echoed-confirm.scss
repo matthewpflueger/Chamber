@@ -57,7 +57,7 @@ pre, form, fieldset, table, th, td{
 	padding: 0;
 	font-family: $textFontFamily;
     font-size: 14px;
-    color: #222;
+    color: #FFF;
 }
 
 //STANDARD HTML ELEMENTS DEFINITION
@@ -66,7 +66,7 @@ html{
 }
 
 body{
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAANCAMAAACTkM4rAAAAM1BMVEXy8vLz8/P5+fn19fXt7e329vb4+Pj09PTv7+/u7u739/fw8PD7+/vx8fHr6+v6+vrs7Oz2LjW2AAAAkUlEQVR42g3KyXHAQAwDQYAQj12ItvOP1qqZZwMMPVnd06XToQvz4L2HDQ2iRgkvA7yPPB+JD+OUPnfzZ0JNZh6kkQus5NUmR7g4Jpxv5XN6nYWNmtlq9o3zuK6w3XRsE1pQIEGPIsdtTP3m2cYwlPv6MbL8/QASsKppZefyDmJPbxvxa/NrX1TJ1yp20fhj9D+SiAWWLU8myQAAAABJRU5ErkJggg%3D%3D);
+    background-image: inline-image('bk_darklinen.png');
 }
 
 a{
@@ -87,14 +87,15 @@ textarea{
 }
 
 .confirm-label{
-    margin-top:5px;
-    font-weight:bold;
-    font-size: 16px;
+    margin-bottom: 5px;
+    font-family: $labelFontFamily;
+    font-size: 30px;
 }
 
 .confirm-text{
     font-size: 16px;
     line-height: 1.5em;
+    margin-bottom: 10px;
 }
 
 #container{
@@ -104,9 +105,11 @@ textarea{
 
     #header{
         height:50px;
-        border-bottom: 3px solid $greyColor;
         padding-left: 10px;
         background-color: #FFF;
+        box-shadow: 0 3px 5px rgba(34,25,25,0.4);
+            -moz-box-shadow: 0px 3px 5px rgba(34,25,25,0.4);
+            -webkit-box-shadow: 0px 3px 5px rgba(34,25,25,0.4);
     }
 
         .poweredby{
@@ -127,7 +130,7 @@ textarea{
         }
 
     #thankyou{
-        padding:5px;
+        padding:10px;
 
     }
 
@@ -173,12 +176,10 @@ textarea{
         width: 500px;
         float:left;
         margin-left: 10px;
-        background-color: #FFF;
     }
 
     #left_content{
         width:100%;
-        border: 1px solid #AAA;
     }
 
         #rewards{
@@ -195,11 +196,12 @@ textarea{
 
 
         #product{
-            margin:10px;
+            //margin:10px;
         }
 
             #product_upper{
-                padding-bottom: 5px;
+                padding: 10px;
+                background-color: #FFF;
             }
 
             #product_picture_container{
@@ -221,30 +223,44 @@ textarea{
                 font-size: 16px;
                 line-height: 14px;
                 font-family: $textFontFamily;
+                color: #222;
             }
 
-            #product_text {
+            #product-text {
                 margin-top:10px;
-                table {
-                    border-collapse: collapse;
-                    tr {
-                        border: 1px solid #CCC;
-                    }
-                    tr.odd{
-                        background-color: #EBEBEB;
-                    }
-                    td {
-                        padding:15px 2px;
-                        font-size: 14px;
-                        font-family: $textFontFamily;
-                        font-weight:bold;
+
+                .pt-reward{
+                    .pt-title{
+                        font-family: $labelFontFamily;
+                        font-size: 30px;
                     }
                 }
+                .pt-third{
+                    padding:5px;
+                    width: 150px;
+                    float:left;
+                    .upto{
+                        font-weight:bold;
+                    }
+                    .pct{
+                        font-family: $labelFontFamily;
+                        font-size: 30px;
+                    }
+                    .off{
+                        font-size:14px;
+                        line-height:10px;
+                    }
+                    .when{
+                        margin-top: 10px;
+                    }
+                }
+
+
             }
 
     #right{
         width: 420px;
-        margin-left:10px;
+        margin-left:20px;
         float:left;
     }
 

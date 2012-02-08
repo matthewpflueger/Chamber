@@ -1,13 +1,23 @@
 package com.echoed.chamber.services.adminuser
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 2/2/12
- * Time: 9:09 PM
- * To change this template use File | Settings | File Templates.
- */
+import akka.actor.ActorRef
+import com.echoed.chamber.services.ActorClient
 
-class AdminUserServiceActorClient {
+class AdminUserServiceActorClient(adminUserServiceActor: ActorRef) extends AdminUserService with ActorClient {
+
+    def actorRef = adminUserServiceActor
+    
+    def getUsers =
+        (adminUserServiceActor ? GetUsers()).mapTo[GetUsersResponse]
+
+    def getAdminUser =
+        (adminUserServiceActor ? GetAdminUser()).mapTo[GetAdminUserResponse]
+    
+    def logout(adminUserId: String) =
+        (adminUserServiceActor ? Logout(adminUserId)).mapTo[LogoutResponse]
+
+    val id = actorRef.id
+
+    override def toString = id
 
 }

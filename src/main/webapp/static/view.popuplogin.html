@@ -39,36 +39,26 @@
                                     ${{productPriceFormatted}}
                                 </div>
                             </div>
-                            <div id="product_text" style="margin-top:10px">
-                                <div style="margin-bottom: 3px;"><span style="font-size:18px;font-weight:bold;">Rewards</span> (7 Days to register activity)</div>
-                                <table width="100%" cellspacing="0" cellpadding="0">
-                                    <tbody>
-                                        <tr class="odd">
-                                            <td>
-                                            Echo to your exhibit
-                                            </td>
-                                            <td align="right" width="100px" valign="top">
-                                            Receive <span class="echoed-text">1%</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                            Get 20 clicks on your social network
-                                            </td>
-                                            <td align="right">
-                                            Receive <span class="echoed-text">{{minPercentage}}%</span>
-                                            </td>
-                                        </tr>
-                                        <tr class="odd">
-                                            <td>
-                                            Encourage social activity. More activity more reward.
-                                            </td>
-                                            <td align="right" valign="top">
-                                            up to <span class="echoed-text">{{maxPercentage}}%</span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div id="product-text">
+                                <div class="pt-reward"><span class="pt-title">Rewards</span> (7 Days to register activity)</div>
+                                <div class="pt-third">
+                                    <div class="upto">&nbsp;</div>
+                                    <div class="pct">1% EASY</div>
+                                    <div class="off">off</div>
+                                    <div class="when">When you Echo to your Exhibit</div>
+                                </div>
+                                <div class="pt-third">
+                                    <div class="upto">&nbsp;</div>
+                                    <div class="pct">{{minPercentage}}% BETTER</div>
+                                    <div class="off">off</div>
+                                    <div class="when">When you get 20 clicks across your social networks</div>
+                                </div>
+                                <div class="pt-third">
+                                    <div class="upto">Up to</div>
+                                    <div class="pct">{{maxPercentage}}% BEST</div>
+                                    <div class="off">off</div>
+                                    <div class="when">When more friends buy or check out what you shared.</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -83,9 +73,6 @@
                             Showcase this item in your <strong>Echoed Exhibit</strong> and {{name}} will credit you with 1% off this purchase. Think of your Exhibit as a personal product gallery.
                             <br><br>
                             Share this item with your social network(s) and your credit from {{name}} will grow as your friends check out what you&#39;ve bought.
-                            <br>
-                            <a class="highlight" href="http://www.echoed.com/howitworks.html" target="_blank"><strong>Learn More</strong></a>
-                            
                         </div>
                         <div class="confirm-label">
                             Sign Up or Login:
@@ -99,6 +86,10 @@
                             </a>
                         </div>
                         {{/retailer}}
+
+                        <div>
+                            <a class="highlight" href="http://www.echoed.com/howitworks.html" target="_blank"><strong>Learn More</strong></a>
+                        </div>
                     </div>
 	            </div>
             </div>

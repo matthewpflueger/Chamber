@@ -1,19 +1,19 @@
-    {{> header}}
-    <title>Echoed | Partner Login</title>
-    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css?v={{version}}"/>
-</head>
+{{> header }}
+<title>Echoed | Admin Login</title>
+<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css?v={{version}}" />
+
 <body class="nooverflow">
 <img id="mainImage" src="{{urls.images}}/bleed-couch.jpg" style="display:none;"/>
 <div id="container">
-    {{> staticNavBar }}
+
     <div id="primary">
         <div class="center clearfix">
             <div id="lm">
                 <div id="lm-top" class="clearfix">
-                    <div id="lm-label">Partner Login</div>
+                    <div id="lm-label">Admin Login</div>
                     <div id="lm-partner-form">
                         {{#error}}<div id="lm-error">Error: {{message}}</div> {{/error}}
-                        <form action="{{urls.site}}/partner/login" method="POST">
+                        <form action="{{urls.site}}/admin/login" method="POST">
                             <label for="email">Email:</label>
                             <input id="email" name="email" type="text" />
                             <label for="password">Password:</label>
@@ -40,6 +40,12 @@
 </div>
 </body>
 </html>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/json2.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/underscore-min.js"></script>
+<script type='text/javascript' src="http://v1-cdn.echoed.com/backbone.js"></script>
+<script type="text/javascript" src="http://v1-cdn.echoed.com/jquery.imagesloaded.js"></script>
+<script type="text/javascript" src="http://v1-cdn.echoed.com/jquery.fullbleed.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         $('#mainImage').imagesLoaded(function(){
@@ -47,4 +53,15 @@
         });
     });
 </script>
-{{> google}}
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28093745-1']);
+    _gaq.push(['_setDomainName', 'echoed.com']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+</script>

@@ -1,4 +1,5 @@
 package com.echoed.chamber.services.adminuser
+import akka.dispatch.Future
 
 /**
  * Created by IntelliJ IDEA.
@@ -8,6 +9,10 @@ package com.echoed.chamber.services.adminuser
  * To change this template use File | Settings | File Templates.
  */
 
-class AdminUserServiceCreator {
+trait AdminUserServiceCreator {
+
+    def createAdminUserService(email: String): Future[CreateAdminUserServiceResponse]
+    
+    def createAdminUser(email:String,name:String, password:String): Future[CreateAdminUserResponse]
 
 }

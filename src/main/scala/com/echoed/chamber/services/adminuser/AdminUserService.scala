@@ -1,5 +1,7 @@
 package com.echoed.chamber.services.adminuser
 
+import com.echoed.chamber.domain.AdminUser
+import akka.dispatch.Future
 /**
  * Created by IntelliJ IDEA.
  * User: jonlwu
@@ -8,6 +10,14 @@ package com.echoed.chamber.services.adminuser
  * To change this template use File | Settings | File Templates.
  */
 
-class AdminUserService {
+trait AdminUserService {
+
+    val id: String
+
+    def getAdminUser: Future[GetAdminUserResponse]
+    
+    def getUsers: Future[GetUsersResponse]
+    
+    def logout(adminUserId: String): Future[LogoutResponse]
 
 }

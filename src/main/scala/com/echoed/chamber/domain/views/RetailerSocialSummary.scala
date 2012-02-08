@@ -14,5 +14,7 @@ case class RetailerSocialSummary(
     totalEchoes: Int,
     totalFacebookLikes: Int,
     totalFacebookComments: Int,
-    totalEchoClicks: Int
+    totalEchoClicks: Int,
+    totalSales: Float,
+    totalSalesVolume: Int
 )

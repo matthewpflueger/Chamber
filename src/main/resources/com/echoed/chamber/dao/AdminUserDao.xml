@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.AdminUserDao">
+    <resultMap id="adminUserResult" type="com.echoed.chamber.domain.AdminUser">
+        <constructor>
+            <idArg column="id" javaType="String"/>
+            <arg column="updatedOn" javaType="Date"/>
+            <arg column="createdOn" javaType="Date"/>
+            <arg column="name" javaType="String"/>
+            <arg column="email" javaType="String"/>
+            <arg column="salt" javaType="String"/>
+            <arg column="password" javaType="String" />
+        </constructor>
+    </resultMap>
+    <insert id="insert" parameterType="com.echoed.chamber.domain.AdminUser">
+        insert into AdminUser(
+            id,
+            createdOn,
+            updatedOn,
+            name,
+            email,
+            salt,
+            password)
+        values(
+            #{id},
+            #{createdOn},
+            #{updatedOn},
+            #{name},
+            #{email},
+            #{salt},
+            #{password})
+    </insert>
+
+    <select id="findByEmail" resultMap="adminUserResult">
+        select
+            id,
+            createdOn,
+            updatedOn,
+            name,
+            email,
+            salt,
+            password
+        from
+            adminuser
+        where
+            email = #{email}
+    </select>
+</mapper>

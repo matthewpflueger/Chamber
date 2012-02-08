@@ -147,12 +147,27 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="adminLoginController" class="com.echoed.chamber.controllers.AdminLoginController">
+        <property name="adminUserServiceLocator"  ref="adminUserServiceLocator"/>
+        <property name="adminLoginView" value="admin.login"/>
+        <property name="adminDashboardView"  value="admin.dashboard"/>
+        <property name="cookieManager" ref="cookieManager" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="partnerDashboardController" class="com.echoed.chamber.controllers.PartnerDashboardController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="partnerDashboardView" value="partner" />
         <property name="partnerDashboardErrorView" value="login" />
     </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="adminController" class="com.echoed.chamber.controllers.api.AdminController">
+        <property name="adminUserServiceLocator" ref="adminUserServiceLocator"/>
+        <property name="cookieManager" ref="cookieManager"/>
+    </bean>
+    
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>

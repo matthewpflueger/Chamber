@@ -159,5 +159,15 @@
         <property name="mapperInterface" value="com.echoed.chamber.dao.views.RetailerViewDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
+    
+    <bean id="adminUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.AdminUserDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+    
+    <bean id="adminViewDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.views.AdminViewDao"/>
+        <property name="sqlSessionTemplate" ref="sqlSession"/>
+    </bean>
 
 </beans>

@@ -20,21 +20,10 @@ trait RetailerViewDao {
             @Param("echoedUserId") echoedUserId: String,
             @Param("retailerId") retailerId: String): EchoedUser
 
-    def getTotalLikesByEchoedUserRetailerId(
-                                       @Param("echoedUserId") echoedUserId: String,
-                                       @Param("retailerId") retailerId: String): Int
-    def getTotalCommentsByEchoedUserRetailerId(
-                                       @Param("echoedUserId") echoedUserId: String,
-                                       @Param("retailerId") retailerId: String): Int
-    def getTotalEchoesByEchoedUserRetailerId(
-                                       @Param("echoedUserId") echoedUserId: String,
-                                       @Param("retailerId") retailerId: String): Int
-    def getTotalEchoClicksByEchoedUserRetailerId(
-                                       @Param("echoedUserId") echoedUserId: String,
-                                       @Param("retailerId") retailerId: String): Int
-    
+
+
     def getTotalFacebookFriendsByEchoedUser(@Param("echoedUserId") echoedUserId: String): Int
-    
+
     def getTotalFacebookLikesByRetailerIdProductId(
             @Param("productId") productId: String,
             @Param("retailerId") retailerId: String): ProductSocialActivityTotal
@@ -67,48 +56,65 @@ trait RetailerViewDao {
 
     def getTopCustomersWithRetailerId(retailerId: String): RetailerCustomerListView
 
-    def getFacebookLikesByRetailerIdCustomerIdDate(
-                                                     @Param("echoedUserId") echoedUserId: String,
-                                                     @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
+    def getFacebookLikesHistory(
+            @Param("retailerId") retailerId: String,
+            @Param("echoedUserId") echoedUserId: String,
+            @Param("productId") productId: String): JList[SocialActivityTotalByDate]
     
-    def getFacebookLikesByRetailerIdProductIdDate(
-            @Param("productId") productId: String,
-            @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
+    def getFacebookCommentsHistory(
+            @Param("retailerId") retailerId: String,
+            @Param("echoedUserId") echoedUserId: String,
+            @Param("productId") productId: String): JList[SocialActivityTotalByDate]
 
-    def getFacebookLikesByRetailerIdDate(@Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
+    def getEchoClicksHistory(
+            @Param("retailerId") retailerId: String,
+            @Param("echoedUserId") echoedUserId: String,
+            @Param("productId") productId: String): JList[SocialActivityTotalByDate]
 
-    def getFacebookCommentsByRetailerIdCustomerIdDate(
-                                                        @Param("echoedUserId") echoedUserId: String,
-                                                        @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
-    
-    def getFacebookCommentsByRetailerIdProductIdDate(
-            @Param("productId") productId: String,
-            @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
+    def getSalesAmountHistory(
+            @Param("retailerId") retailerId: String,
+            @Param("echoedUserId") echoedUserId: String,
+            @Param("productId") productId:String): JList[SocialActivityTotalByDate]
 
-    def getFacebookCommentsByRetailerIdDate(@Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
+    def getSalesVolumeHistory(
+            @Param("retailerId") retailerId: String, 
+            @Param("echoedUserId") echoedUserId: String, 
+            @Param("productId") productId:String): JList[SocialActivityTotalByDate]
 
-    def getEchoClicksByRetailerIdCustomerIdDate(
-                                                  @Param("echoedUserId") echoedUserId: String,
-                                                  @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
-
-    def getEchoClicksByRetailerIdProductIdDate(
-            @Param("productId") productId: String,
-            @Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
-    
-    def getEchoClicksByRetailerIdDate(@Param("retailerId") retailerId: String): JList[SocialActivityTotalByDate]
-    
     def getCommentsByRetailerIdProductId(
             @Param("retailerId") retailerId: String,
             @Param("productId") productId: String): JList[FacebookComment]
-    
+
     def getCommentsByRetailerId(
             @Param("retailerId") retailerId: String): JList[FacebookComment]
     
-    def getTotalSalesByRetailerId(
-            @Param("retailerId") retailerId: String): Int
-
-    def getTotalSalesByRetailerIdProductId(
+    def getTotalSalesAmount(
+            @Param("retailerId") retailerId: String, 
+            @Param("echoedUserId") echoedUserId: String, 
+            @Param("productId") productId: String) : Float
+    
+    def getTotalSalesVolume(
             @Param("retailerId") retailerId: String,
+            @Param("echoedUserId") echoedUserId: String,
             @Param("productId") productId: String): Int
-
+    
+    def getTotalFacebookComments(
+            @Param("retailerId") retailerId: String, 
+            @Param("echoedUserId") echoedUserId: String, 
+            @Param("productId") productId: String): Int
+    
+    def getTotalEchoClicks(
+            @Param("retailerId") retailerId: String, 
+            @Param("echoedUserId") echoedUserId: String, 
+            @Param("productId") productId: String) : Int
+    
+    def getTotalFacebookLikes(
+            @Param("retailerId") retailerId: String, 
+            @Param("echoedUserId") echoedUserId: String, 
+            @Param("productId") productId: String) : Int
+    
+    def getTotalEchoes(
+            @Param("retailerId") retailerId: String, 
+            @Param("echoedUserId") echoedUserId: String, 
+            @Param("productId") productId: String): Int
 }

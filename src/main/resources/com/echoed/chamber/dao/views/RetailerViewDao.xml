@@ -27,6 +27,8 @@
             <arg column="totalFacebookLikes" javaType="_int" />
             <arg column="totalFacebookComments" javaType="_int" />
             <arg column="totalEchoClicks" javaType="_int"/>
+            <arg column="totalSales" javaType="_float"/>
+            <arg column="totalSalesVolume" javaType="_int"/>
         </constructor>
     </resultMap>
 
@@ -76,6 +78,8 @@
             <arg column="totalFacebookLikes" javaType="_int" />
             <arg column="totalFacebookComments" javaType="_int" />
             <arg column="totalEchoClicks" javaType="_int"/>
+            <arg column="totalSales" javaType="_float" />
+            <arg column="totalSalesVolume" javaType="_int"/>
         </constructor>
     </resultMap>
 
@@ -126,7 +130,9 @@
         count(E.id) as totalEchoes,
         coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
         coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
-        coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks
+        coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
+        coalesce(sum(ESA.totalSales),0) as totalSales,
+        coalesce(sum(ESA.totalSalesVolume),0) as totalSalesVolume
     </sql>
 
     <sql id="aggregateSalesByRetailerIdAndProductId">
@@ -147,7 +153,10 @@
                 E.id as echoId,
                 sum(FBL.likes) as facebookLikes,
                 sum(FBC.comments) as facebookComments,
-                sum(EC.echoClicks) as echoClicks
+                sum(EC.echoClicks) as echoClicks,
+                sum(EP.sales) as totalSales,
+                sum(EP.volume) as totalSalesVolume
+
             FROM
                 Echo E
                 LEFT OUTER JOIN
@@ -185,6 +194,18 @@
                         echoId
                 )
                 EC ON E.id = EC.echoId
+                LEFT OUTER JOIN
+                (
+                    SELECT
+                        id,
+                        count(id) as volume,
+                        sum(price) as sales
+                    from
+                        EchoPossibility
+                    group by
+                        id
+                )
+                EP ON EP.id = E.echoPossibilityId
             GROUP BY
                 E.id
         )
@@ -395,7 +416,9 @@
             count(E.id) as totalEchoes,
             coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
             coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
-            coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks
+            coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
+            coalesce(sum(ESA.totalSales),0) as totalSales,
+            coalesce(sum(ESA.totalSalesVolume),0) as totalSalesVolume
         FROM
             Retailer R
             LEFT OUTER JOIN
@@ -409,160 +432,6 @@
             R.id, R.name
     </select>
     
-    
-    <select id="getEchoClicksByRetailerIdProductIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(EC.createdOn) as date,
-            count(EC.id) as total
-        FROM
-            Echo E
-            LEFT OUTER JOIN
-            EchoClick EC on E.id = EC.echoId
-        WHERE
-            E.retailerId= #{retailerId}
-            AND
-            E.productId = #{productId}
-        GROUP BY
-            Date(EC.createdOn)
-    </select>
-    
-    <select id="getEchoClicksByRetailerIdCustomerIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(EC.createdOn) as date,
-            count(EC.id) as total
-        FROM
-            Echo E
-            LEFT OUTER JOIN
-            EchoClick EC on E.id = EC.echoId
-        WHERE
-            E.retailerId= #{retailerId}
-            AND
-            E.echoedUserId = #{echoedUserId}
-        GROUP BY
-            Date(EC.createdOn)
-    </select>
-
-    <select id="getEchoClicksByRetailerIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(EC.createdOn) as date,
-            count(EC.id) as total
-        FROM
-            Retailer R
-            LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
-            LEFT OUTER JOIN
-            EchoClick EC on E.id = EC.echoId
-        WHERE
-            R.id= #{retailerId}
-        GROUP BY
-            Date(EC.createdOn)
-    </select>
-
-    <select id="getFacebookCommentsByRetailerIdCustomerIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(FBC.createdOn) as date,
-            count(FBC.id) as total
-        FROM
-            Echo E
-            INNER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            INNER JOIN
-            FacebookComment FBC ON FBC.facebookPostID = FBP.id
-        WHERE
-            E.retailerId= #{retailerId}
-            AND
-            E.echoedUserId = #{echoedUserId}
-        GROUP BY
-            Date(FBC.createdOn)
-    </select>
-
-    <select id="getFacebookCommentsByRetailerIdProductIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(FBC.createdOn) as date,
-            count(FBC.id) as total
-        FROM
-            Echo E
-            INNER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            INNER JOIN
-            FacebookComment FBC ON FBC.facebookPostID = FBP.id
-        WHERE
-            E.retailerId= #{retailerId}
-            AND
-            E.productId = #{productId}
-        GROUP BY
-            Date(FBC.createdOn)
-    </select>
-
-    <select id="getFacebookCommentsByRetailerIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(FBC.createdOn) as date,
-            count(FBC.id) as total
-        FROM
-            Echo E
-            INNER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            INNER JOIN
-            FacebookComment FBC ON FBC.facebookPostID = FBC.id
-        WHERE
-            E.retailerId= #{retailerId}
-        GROUP BY
-            Date(FBC.createdOn)
-    </select>
-    
-    <select id="getFacebookLikesByRetailerIdCustomerIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(FBL.createdOn) as date,
-            count(FBL.id) as total
-        FROM
-            Echo E
-            INNER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            INNER JOIN
-            FacebookLike FBL ON FBL.facebookPostId= FBP.id
-        WHERE
-            E.retailerId = #{retailerId}
-            AND
-            E.echoedUserId = #{echoedUserId}
-    </select>
-
-    <select id="getFacebookLikesByRetailerIdProductIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(FBL.createdOn) as date,
-            count(FBL.id) as total
-        FROM
-            Echo E
-            INNER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            INNER JOIN
-            FacebookLike FBL ON FBL.facebookPostId = FBP.id
-        WHERE
-            E.retailerId= #{retailerId}
-            AND
-            E.productId = #{productId}
-        GROUP BY
-            Date(FBL.createdOn)
-    </select>
-
-    <select id="getFacebookLikesByRetailerIdDate" resultMap="socialActivityTotalByDate">
-        SELECT
-            Date(FBL.createdOn) as date,
-            count(FBL.id) as total
-        FROM
-            Retailer R
-            LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
-            LEFT OUTER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            LEFT OUTER JOIN
-            FacebookLike FBL ON FBL.facebookPostId = FBP.id
-        WHERE
-            R.id= #{retailerId}
-        GROUP BY
-            Date(FBL.createdOn)
-    </select>
-    
-
     <select id="getEchoedUserByRetailerUser" resultMap="echoedUser">
         SELECT
             EU.id as id,
@@ -589,61 +458,6 @@
             EU.id, EU.name
     </select>
 
-
-    <select id="getTotalLikesByEchoedUserRetailerId" resultType="_int" useCache="false" >
-        SELECT
-            coalesce(count(FBL.id),0)
-        FROM
-            Echo E
-            INNER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            INNER JOIN
-            FacebookLike FBL ON FBL.facebookPostId = FBP.id
-        WHERE
-            E.echoedUserId = #{echoedUserId}
-            AND
-            E.retailerId = #{retailerId}
-    </select>
-
-    <select id="getTotalCommentsByEchoedUserRetailerId" resultType="_int" useCache="false" >
-        SELECT
-            coalesce(count(FBC.id),0)
-        FROM
-            Echo E
-            INNER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            INNER JOIN
-            FacebookComment FBC ON FBC.facebookPostId = FBP.id
-        WHERE
-            E.echoedUserId = #{echoedUserId}
-            AND
-            E.retailerId = #{retailerId}
-    </select>
-
-    <select id="getTotalEchoesByEchoedUserRetailerId" resultType="_int" useCache="false" >
-        SELECT
-            coalesce(count(E.id),0)
-        FROM
-            Echo E
-        WHERE
-            E.echoedUserId = #{echoedUserId}
-            AND
-            E.retailerId = #{retailerId}
-    </select>
-
-    <select id="getTotalEchoClicksByEchoedUserRetailerId" resultType="_int" useCache="false" >
-        SELECT
-            coalesce(count(EC.id),0)
-        FROM
-            Echo E
-            INNER JOIN
-            EchoClick EC ON EC.echoId = E.id
-        WHERE
-            E.echoedUserId = #{echoedUserId}
-            AND
-            E.retailerId = #{retailerId}
-    </select>
-    
     <select id="getTotalFacebookFriendsByEchoedUser" resultType="_int" useCache="false">
         SELECT
             coalesce(count(FF.id),0)
@@ -710,68 +524,209 @@
             FBC.createdOn DESC
     </select>
     
-
-    <select id="getTotalSalesByRetailerId" resultType="_int">
+    <select id="getTotalSalesAmount" resultType="_float">
         select
-            sum(EP.price)
+            coalesce(sum(EP.price),0)
         from
             EchoPossibility EP
         where
             EP.retailerId = #{retailerId}
+            <if test="echoedUserId != null">
+                and EP.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and EP.productId = #{productId}
+            </if>
     </select>
 
-    <select id="getTotalSalesByRetailerIdProductId" resultType="_int">
+
+    <select id="getTotalSalesVolume" resultType="_int">
         select
-            sum(EP.price)
+            count(id)
+        from
+            EchoPossibility EP
+        where
+            EP.retailerId = #{retailerId}
+            <if test="echoedUserId != null">
+                and EP.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and EP.productId = #{productId}
+            </if>
+    </select>
+
+    <select id="getTotalFacebookComments" resultType="_int" useCache="false" >
+        SELECT
+            coalesce(count(FBC.id),0)
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            INNER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FBP.id
+        WHERE
+            E.retailerId = #{retailerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+    </select>
+
+    <select id="getTotalEchoClicks" resultType="_int" useCache="false" >
+        SELECT
+            coalesce(count(EC.id),0)
+        FROM
+            Echo E
+            INNER JOIN
+            EchoClick EC ON EC.echoId = E.id
+        WHERE
+            E.retailerId = #{retailerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+    </select>
+
+    <select id="getTotalFacebookLikes" resultType="_int" useCache="false" >
+        SELECT
+            coalesce(count(FBL.id),0)
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            INNER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+        WHERE
+        E.retailerId = #{retailerId}
+        <if test="echoedUserId != null">
+            and E.echoedUserId = #{echoedUserId}
+        </if>
+        <if test="productId != null">
+            and E.productId = #{productId}
+        </if>
+    </select>
+
+    <select id="getTotalEchoes" resultType="_int" useCache="false" >
+        SELECT
+            coalesce(count(E.id),0)
+        FROM
+            Echo E
+        WHERE
+            E.retailerId = #{retailerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+    </select>
+
+    <select id="getFacebookLikesHistory" resultMap="socialActivityTotalByDate">
+        SELECT
+            Date(FBL.createdOn) as date,
+            count(FBL.id) as total
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            INNER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+        WHERE
+            E.retailerId= #{retailerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+        GROUP BY
+            Date(FBL.createdOn)
+    </select>
+
+
+    <select id="getFacebookCommentsHistory" resultMap="socialActivityTotalByDate">
+        SELECT
+            Date(FBC.createdOn) as date,
+            count(FBC.id) as total
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            INNER JOIN
+            FacebookComment FBC ON FBC.facebookPostID = FBC.id
+        WHERE
+            E.retailerId= #{retailerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+        GROUP BY
+            Date(FBC.createdOn)
+    </select>
+
+
+    <select id="getSalesVolumeHistory"  resultMap="socialActivityTotalByDate">
+        select
+            Date(EP.createdOn) as date,
+            count(EP.id) as total
         from
             EchoPossibility EP
         where
             EP.retailerId= #{retailerId}
-            and
-            EP.productId = #{productId}
-    </select>
+            <if test="echoedUserId != null">
+                and EP.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and EP.productId = #{productId}
+            </if>
+        group by
+            Date(EP.createdOn)
 
-    <select id="getTotalSalesByRetailerIdCustomerId" resultType="_float">
-        select
-            sum(EP.price)
-        from
-            EchoPossibility EP
-        where
-            EP.retailerId = #{retailerId}
-            and
-            EP.echoedUserId = #{echoedUserId}
     </select>
-
-    <select id="getTotalSalesVolumeByRetailerId" resultType="_int">
+    
+    <select id="getSalesAmountHistory" resultMap="socialActivityTotalByDate">
         select
-            count(id)
+            Date(EP.createdOn) as date,
+            sum(EP.price) as total
         from
             EchoPossibility EP
         where
             EP.retailerId= #{retailerId}
+            <if test="echoedUserId != null">
+                and EP.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and EP.productId = #{productId}
+            </if>
+            group by
+            Date(EP.createdOn)
     </select>
 
-    <select id="getTotalSalesVolumeByRetailerIdProductId" resultType="_int">
-        select
-            count(id)
-        from
-            EchoPossibility EP
-        where
-            EP.retailerId = #{retailerId}
-            and
-            EP.productId = #{productId}
+    <select id="getEchoClicksHistory" resultMap="socialActivityTotalByDate">
+        SELECT
+            Date(EC.createdOn) as date,
+            count(EC.id) as total
+        FROM
+            Echo E
+            inner join
+            EchoClick EC on E.id = EC.echoId
+        WHERE
+            E.retailerId= #{retailerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+        GROUP BY
+            Date(EC.createdOn)
     </select>
 
-    <select id="getTotalSalesVolumeByRetailerIdCustomerId" resultType="_int">
-        select
-            count(id)
-        from
-            EchoPossibility EP
-        where
-            EP.retailerId = #{retailerId}
-            and
-            EP.echoedUserId = #{echoedUserId}
-    </select>
+
 </mapper>
-
-

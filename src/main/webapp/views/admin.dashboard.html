@@ -1,0 +1,36 @@
+{{> header}}
+
+<div id="header">
+    <div id="logo">
+        <img height="40px" src="{{urls.images}}/logo.png">
+    </div>
+    <div id="user" class="clearfix">
+        <div id="user-text">
+            {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
+        </div>
+    </div>
+    <div id="header-nav" class="clearfix">
+        <ul>
+            <li id="explore_nav">
+                <a href="#explore">
+                    Explore
+                </a>
+            </li>
+            <li id="exhibit_nav">
+                <a href="#exhibit">
+                    My Exhibit
+                </a>
+            </li>
+            <li id="friends_nav">
+                <a href="#friends">
+                    My Friends
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div id="content">
+</div>
+</div>
+</body>
+</html>

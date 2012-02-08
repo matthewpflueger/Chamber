@@ -1,4 +1,5 @@
 package com.echoed.chamber.domain.views
+import java.util.{ArrayList, List => JList}
 
 /**
  * Created by IntelliJ IDEA.
@@ -8,6 +9,8 @@ package com.echoed.chamber.domain.views
  * To change this template use File | Settings | File Templates.
  */
 
-class SocialActivityHistory {
+case class SocialActivityHistory(
+    name: String,
+    data: JList[SocialActivityTotalByDate]
+)
 
-}

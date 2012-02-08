@@ -109,7 +109,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                 case "customers":
                     template = _.template($('#template-view-reports-customers').html());
                     $.ajax({
-                        url: "http://v1-api.echoed.com/partner/customers/" + self.reportId + "/summary",
+                        url: Echoed.urls.api + "/partner/customers/" + self.reportId + "/summary",
                         dataType: 'json',
                         xhrFields: {
                             withCredentials: true
@@ -122,7 +122,8 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                                 $('#cs-views').hide().html(data.totalEchoClicks).fadeIn();
                                 $('#cs-retweets').hide().html(0).fadeIn();
                                 $('#cs-echoes').hide().html(data.totalEchoes).fadeIn();
-                                //$('#cs-open-echoes').hide().html(0).fadeIn();
+                                $('#cs-total').hide().html("$" + data.totalSales).fadeIn();
+                                $('#cs-purchases').hide().html(data.totalSalesVolume).fadeIn();
                                 $('#cs-comments').hide().html(data.totalFacebookComments).fadeIn();
                             });
                         }
@@ -131,7 +132,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                 case "products":
                     template = _.template($('#template-view-reports-products').html());
                     $.ajax({
-                        url: "http://v1-api.echoed.com/partner/products/" + self.reportId + "/summary",
+                        url: Echoed.urls.api  +"/partner/products/" + self.reportId + "/summary",
                         dataType: 'json',
                         xhrFields: {
                             withCredentials: true
@@ -161,7 +162,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
             switch(self.report){
                 case "customers":
                     $.ajax({
-                        url: "http://v1-api.echoed.com/partner/retailer/customers",
+                        url: Echoed.urls.api  + "partner/retailer/customers",
                         dataType: 'json',
                         xhrFields: {
                             withCredentials: true
@@ -186,7 +187,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                     break;
                 case "products":
                     $.ajax({
-                        url: "http://v1-api.echoed.com/partner/retailer/products",
+                        url: Echoed.urls.api + "/partner/retailer/products",
                         dataType: 'json',
                         xhrFields: {
                             withCredentials: true
@@ -282,7 +283,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         var template = _.template($('#template-view-summary').html());
         $(this.el).hide().html(template).fadeIn(function() {
             $.ajax({
-                url: "http://v1-api.echoed.com/partner/retailer/summary",
+                url: Echoed.urls.api  + "partner/retailer/summary",
                 dataType: 'json',
                 xhrFields: {
                     withCredentials: true
@@ -301,7 +302,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         });
         var chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart', type: "retailer"});
         $.ajax({
-            url: "http://v1-api.echoed.com/partner/retailer/topproducts",
+            url: Echoed.urls.api + "/partner/retailer/topproducts",
             dataType: 'json',
             xhrFields: {
                 withCredentials: true
@@ -321,7 +322,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
             }
         });
         $.ajax({
-            url: "http://v1-api.echoed.com/partner/retailer/topcustomers",
+            url: Echoed.urls.api  + "/partner/retailer/topcustomers",
             dataType: 'json',
             xhrFields: {
                 withCredentials: true
@@ -527,18 +528,19 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
         var self = this;
         switch(options.type){
             case 'retailer':
-                self.url = "http://v1-api.echoed.com/partner/retailer/history";
+                self.url = Echoed.urls.api + "/partner/retailer/history";
                 break;
             case 'product':
-                self.url = "http://v1-api.echoed.com/partner/products/" + options.productId +"/history";
+                self.url = Echoed.urls.api + "/partner/products/" + options.productId +"/history";
                 break;
             case 'customer':
-                self.url = "http://v1-api.echoed.com/partner/customers/" + options.customerId +  "/history";
+                self.url = Echoed.urls.api + "/partner/customers/" + options.customerId +  "/history";
                 break;
         }
         var likes = {name: 'likes',data:[]};
         var comments = {name: 'comments',data:[]};
         var clicks = {name: 'clicks',data:[]};
+        var purchases = {name: 'purchases', data:[]};
         self.series = [];
         $.ajax({
             url: self.url,
@@ -547,33 +549,18 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                $.each(data.echoClicks, function(index,echoClick){
-                    if(echoClick.count){
-                        var a = [];
-                        a.push(echoClick.date);
-                        a.push(echoClick.count);
-                        clicks.data.push(a);
+                $.each(data.series, function(index,activity){
+                    var chartData = { name: activity.name, data: []};
+                    if(activity.data.length > 0){
+                        $.each(activity.data, function(index,history){
+                            var a = [];
+                            a.push(history.date);
+                            a.push(history.count);
+                            chartData.data.push(a);
+                        });
+                        self.series.push(chartData)
                     }
                 });
-                $.each(data.comments, function(index, comment){
-                    if(comment.count){
-                        var a = [];
-                        a.push(comment.date);
-                        a.push(comment.count);
-                        comments.data.push(a);
-                    }
-                });
-                $.each(data.likes, function(index,like){
-                    if(like.count){
-                        var a = [];
-                        a.push(like.date);
-                        a.push(like.count);
-                        likes.data.push(a);
-                    }
-                });
-                self.series.push(likes);
-                self.series.push(comments);
-                self.series.push(clicks);
                 self.render();
             }
         });
@@ -592,25 +579,25 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                 text: '',
                 href: ''
             },
-            colors: ['#3B5998', '#09F','#EE7402','#497593','#6A971F','#C6014A','#0274B8','#F0B500','#92ACBE'],
+            colors: ['#3B5998', '#09F','#497593','#EE7402','#6A971F','#C6014A','#0274B8','#F0B500','#92ACBE'],
             title: { text: ''},
             yAxis:{
                 title:{
-                    text: 'Page Views',
+                    text: 'Activity',
                     style: {
-                        fontFamily: 'Arial',
                         fontWeight: 'normal',
-                        fontSize: '14px',
-                        color: '#222222'
+                        color: '#666666',
+                        fontFamily:'"Helvetica Neue",Helvetica,Arial',
+                        fontSize: '11px'
                     }
                 }
             },
             xAxis: {
                 type: 'datetime',
-                dateTimeLabelFormats: { // don't display the dummy year
-                    hour: '%e. %b',
-                    month: '%e. %b',
-                    year: '%b'
+                dateTimeLabelFormats:{
+                    second: "%b %e - %H:%M",
+                    minute: "%b %e - %H:%M",
+                    hour: "%b %e - %H:%M"
                 }
             },
             tooltip: {

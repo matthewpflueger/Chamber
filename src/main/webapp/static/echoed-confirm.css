@@ -24,13 +24,13 @@ pre, form, fieldset, table, th, td {
   padding: 0;
   font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
   font-size: 14px;
-  color: #222; }
+  color: #FFF; }
 
 html {
   height: 100%; }
 
 body {
-  background-image: url("http://v1-cdn.echoed.com/bk_fancydeboss.png"); }
+  background-image: url("http://v1-cdn.echoed.com/bk_darklinen.png"); }
 
 a {
   text-decoration: none;
@@ -47,13 +47,14 @@ textarea {
   font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif; }
 
 .confirm-label {
-  margin-top: 5px;
-  font-weight: bold;
-  font-size: 16px; }
+  margin-bottom: 5px;
+  font-family: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
+  font-size: 30px; }
 
 .confirm-text {
   font-size: 16px;
-  line-height: 1.5em; }
+  line-height: 1.5em;
+  margin-bottom: 10px; }
 
 #container {
   min-width: 960px;
@@ -61,9 +62,11 @@ textarea {
 
 #header {
   height: 50px;
-  border-bottom: 3px solid #444444;
   padding-left: 10px;
-  background-color: #FFF; }
+  background-color: #FFF;
+  box-shadow: 0 3px 5px rgba(34, 25, 25, 0.4);
+  -moz-box-shadow: 0px 3px 5px rgba(34, 25, 25, 0.4);
+  -webkit-box-shadow: 0px 3px 5px rgba(34, 25, 25, 0.4); }
 
 .poweredby {
   font-family: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
@@ -80,7 +83,7 @@ textarea {
   color: #e31b23; }
 
 #thankyou {
-  padding: 5px; }
+  padding: 10px; }
 
 .ty-text {
   font-family: TradeGothicBD20Cond;
@@ -114,12 +117,10 @@ textarea {
 #left {
   width: 500px;
   float: left;
-  margin-left: 10px;
-  background-color: #FFF; }
+  margin-left: 10px; }
 
 #left_content {
-  width: 100%;
-  border: 1px solid #AAA; }
+  width: 100%; }
 
 #rewards {
   width: 200px;
@@ -131,11 +132,9 @@ textarea {
   padding-top: 25px;
   margin-bottom: 10px; }
 
-#product {
-  margin: 10px; }
-
 #product_upper {
-  padding-bottom: 5px; }
+  padding: 10px;
+  background-color: #FFF; }
 
 #product_picture_container {
   text-align: center;
@@ -153,25 +152,32 @@ textarea {
   margin-left: 5px;
   font-size: 16px;
   line-height: 14px;
-  font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif; }
+  font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
+  color: #222; }
 
-#product_text {
+#product-text {
   margin-top: 10px; }
-  #product_text table {
-    border-collapse: collapse; }
-    #product_text table tr {
-      border: 1px solid #CCC; }
-    #product_text table tr.odd {
-      background-color: #EBEBEB; }
-    #product_text table td {
-      padding: 15px 2px;
-      font-size: 14px;
-      font-family: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
+  #product-text .pt-reward .pt-title {
+    font-family: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
+    font-size: 30px; }
+  #product-text .pt-third {
+    padding: 5px;
+    width: 150px;
+    float: left; }
+    #product-text .pt-third .upto {
       font-weight: bold; }
+    #product-text .pt-third .pct {
+      font-family: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
+      font-size: 30px; }
+    #product-text .pt-third .off {
+      font-size: 14px;
+      line-height: 10px; }
+    #product-text .pt-third .when {
+      margin-top: 10px; }
 
 #right {
   width: 420px;
-  margin-left: 10px;
+  margin-left: 20px;
   float: left; }
 
 #ct-1 {

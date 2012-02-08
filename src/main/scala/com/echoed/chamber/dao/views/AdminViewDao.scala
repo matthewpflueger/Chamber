@@ -1,4 +1,7 @@
 package com.echoed.chamber.dao.views
+import com.echoed.chamber.domain.EchoedUser
+import java.util.{List => JList}
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -8,6 +11,8 @@ package com.echoed.chamber.dao.views
  * To change this template use File | Settings | File Templates.
  */
 
-class AdminViewDao {
+trait AdminViewDao {
+
+    def getUsers: JList[EchoedUser]
 
 }

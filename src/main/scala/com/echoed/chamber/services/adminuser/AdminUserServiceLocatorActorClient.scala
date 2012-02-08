@@ -1,13 +1,25 @@
 package com.echoed.chamber.services.adminuser
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 2/2/12
- * Time: 9:16 PM
- * To change this template use File | Settings | File Templates.
- */
+import reflect.BeanProperty
+import akka.actor.ActorRef
+import com.echoed.chamber.services.ActorClient
 
-class AdminUserServiceLocatorActorClient {
+class AdminUserServiceLocatorActorClient extends AdminUserServiceLocator with ActorClient {
+
+    @BeanProperty var adminUserServiceLocatorActor: ActorRef = _
+
+    def locateAdminUserService(email: String) =
+        (adminUserServiceLocatorActor ? LocateAdminUserService(email)).mapTo[LocateAdminUserServiceResponse]
+    
+    def login(email:String, password: String) = 
+        (adminUserServiceLocatorActor ? Login(email,password)).mapTo[LoginResponse]
+    
+    def logout(id:String) =
+        (adminUserServiceLocatorActor ? Logout(id)).mapTo[LogoutResponse]
+    
+    def create(email:String, name: String, password: String) = 
+        (adminUserServiceLocatorActor ? CreateAdminUser(email,name,password)).mapTo[CreateAdminUserResponse]
+
+    def actorRef = adminUserServiceLocatorActor
 
 }
