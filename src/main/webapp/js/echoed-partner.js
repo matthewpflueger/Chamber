@@ -225,7 +225,7 @@ Echoed.Views.Pages.Settings = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this);
         this.EvAg = options.EvAg;
-        this.EvAg.trigger('title/change',{title: 'Settings'});
+        this.EvAg.trigger('title/change',{title: 'Echoed | Settings'});
         this.EvAg.trigger('page/change',{page: 'settings'});
         this.render();
     },
@@ -257,7 +257,7 @@ Echoed.Views.Pages.Rewards = Backbone.View.extend({
             ]
 
         };
-        this.EvAg.trigger('title/change',{title: 'Rewards'});
+        this.EvAg.trigger('title/change',{title: 'Echoed | Rewards'});
         this.EvAg.trigger('page/change',options);
         this.render();
     },
@@ -273,7 +273,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this);
         this.EvAg = options.EvAg;
-        this.EvAg.trigger('title/change',{title: 'Summary'});
+        this.EvAg.trigger('title/change',{title: 'Echoed | Summary'});
 
 
         this.EvAg.trigger('page/change', {page: 'summary'});
