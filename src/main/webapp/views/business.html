@@ -7,65 +7,166 @@
     <link rel="shortcut icon" href="{{urls.images}}/favicon.png" type="image/png">
 </head>
 <body>
-<div id="container" class="paper">
-    {{> staticNavBar }}
-    <div id="primary">
-        <div class="center">
-            <div style="height:30px;"></div>
-            <section class="section clearfix biz">
-                <div class="title">
-                    <img src="{{urls.images}}/biz-title1.png"/>
-                </div>
-                <div class="biz-i">
-                    <img src="{{urls.images}}/biz-1.png"/>
-                </div>
-                <div class="biz-t">
-                    <p>We want Echoed to be a success story for your business. Our team will work tirelessly to craft a social solution that&#39;s best for you.</p><br/>
-                    <p>Request a demo for a live view of how we foster online word-of-mouth and turn your current customers into brand ambassadors.</p>
-                </div>
-            </section>
-            <section class="section clearfix">
-                <div class="quarter">
-                    <div class="secondary-title text-blue1">Word of Mouth</div>
-                    <div class="secondary-text">Consumers know the difference between real and forced messaging. Your shoppers believe in your brand and they are passionate about your products. We provide a service to give that extra push to share this passion with others.<br><br>
-                        Echoed amplifies the excitement and engagement of your existing customers across a broad network of their like-minded peers. The result is a recommendation from a friend that can be trusted...that&#39;s as real as it gets.</div>
-                </div>
-                <div class="quarter">
-                    <div class="secondary-title text-yellow">Social Networks</div>
-                    <div class="secondary-text">The reach and scale of social networks is undeniably powerful. We&#39;ve created the easiest pathway possible to turn online transactions into brand experiences worth sharing.<br><br>
-                        Echoed is designed to seamlessly integrate within naturally occurring conversations, connecting with any and all social networks.</div>
-                </div>
-                <div class="quarter">
-                    <div class="secondary-title text-green1">Brand Awareness</div>
-                    <div class="secondary-text">As products are shared, they receive ample time in the spotlight, inciting conversation and exploration across a consumers entire social network. While this short-term exposure is extremely valuable, we&#39;ve thought about long-term brand impact as well.
-                        <br/><br/>
-                        Every Echoed purchase also lives in the consumers exhibit - think of it as a product gallery, where your products are the star of the show. Unlike other social activity, the exhibit lives forever.
-                        Friends can browse each others exhibits and discover exciting products or their next favorite brand at any time.</div>
-                </div>
-                <div class="quarter">
-                    <div class="secondary-title text-magenta">Measurable Results</div>
-                    <div class="secondary-text">
-                        Your bottom line is a top priority. We continuously refine and optimize our offerings to drive conversion/
-                        sales for maximum ROI.<br/><br/>
-                        Echoed is an end-to-end platform with robust reporting. You'll be able to monitor real-time performance and witness growth of your brand's digital word of mouth as it's happening.<br/><br/>
-                        We provide a comprehensive overview of the social influence, product sales and brand growth that Echoed delivers. Additionally, our ability to capture data from eCommerce checkout to social activation, allows us craft meaningful consumer and product insights.  </div>
-                </div>
-            </section>
-            <section class="section clearfix">
-                <div id="footer-nav">
-                    <a href="{{urls.site}}/howitworks.html">How It Works</a>
-                    <a href="{{urls.site}}/contactus.html">Contact Us</a>
-                    <div class="sv" style="float:right">
-                        Sharing. <span class="primary-text">Valued.</span>
-                    </div>
-                    <div class="copyright">
-                        Copyright 2012 - Echoed Inc.
-                    </div>
-                </div>
-            </section>
-        </div>
+<div id="container" class="grey">
+    <div class="header-container">
+        {{> staticNavBar }}
+        <div style="height:40px;"></div>
     </div>
+    <section class="wie">
+        <div class="center">
+            <div class="title">
+                <img src="{{urls.images}}/hiw-title2.png"/>
+            </div>
+            <div class="wie-nav clearfix">
+                <div id="sh" class="nav-label current" ref="1">Share</div>
+                <div id="sa" class="nav-label" ref="4">Save</div>
+                <div id="ex" class="nav-label" ref="8">Explore</div>
+            </div>
+            <div class="box-container biz clearfix">
+                <div>
+                    <img id="biz-image" height="350px" src="{{urls.images}}/biz-1.png"/>
+                </div>
+                <div class="box-nav clearfix">
+                    <div class="larrow">
+                        <img id="leftarrow" height="30px" src="{{urls.images}}/btn_larrow.png"/>
+                    </div>
+                    <div class="dots">
+                        <div id="dot-1" class="dot current" ref="1"></div>
+                        <div id="dot-2" class="dot" ref="2"></div>
+                        <div id="dot-3" class="dot" ref="3"></div>
+                        <div id="dot-4" class="dot" ref="4"></div>
+                        <div id="dot-5" class="dot" ref="5"></div>
+                        <div id="dot-6" class="dot" ref="6"></div>
+                        <div id="dot-7" class="dot" ref="7"></div>
+                        <div id="dot-8" class="dot" ref="8"></div>
+                        <div id="dot-9" class="dot" ref="9"></div>
+                    </div>
+                    <div class="rarrow">
+                        <img id="rightarrow" height="30px" src="{{urls.images}}/btn_rarrow.png"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="hiw-reflect">
+    </section>
+    <section>
+        <div class="center bb"></div>
+    </section>
+    <section class="section clearfix biz" style="margin-top: 50px;">
+        <div class="center">
+            <div class="title">
+                <img src="{{urls.images}}/biz-title1.png"/>
+            </div>
+            <div class="biz-t">
+                <p>We want Echoed to be a success story for your business. Our team will work tirelessly to craft a social solution that&#39;s best for you.</p><br/>
+                <p>Request a demo for a live view of how we foster online word-of-mouth and turn your current customers into brand ambassadors.</p>
+            </div>
+            <div class="biz-i">
+                <img src="{{urls.images}}/biz-rd.png"/>
+            </div>
+        </div>
+    </section>
+
+    <section class="section clearfix">
+        <div class="center clearfix">
+            <div class="quarter">
+            <div class="secondary-title text-blue1">Word of Mouth</div>
+                <div class="secondary-text">Consumers know the difference between real and forced messaging. Your shoppers believe in your brand and they are passionate about your products. We provide a service to give that extra push to share this passion with others.<br><br>
+                    Echoed amplifies the excitement and engagement of your existing customers across a broad network of their like-minded peers. The result is a recommendation from a friend that can be trusted...that&#39;s as real as it gets.</div>
+            </div>
+            <div class="quarter">
+                <div class="secondary-title text-yellow">Social Networks</div>
+                <div class="secondary-text">The reach and scale of social networks is undeniably powerful. We&#39;ve created the easiest pathway possible to turn online transactions into brand experiences worth sharing.<br><br>
+                    Echoed is designed to seamlessly integrate within naturally occurring conversations, connecting with any and all social networks.</div>
+            </div>
+            <div class="quarter">
+                <div class="secondary-title text-green1">Brand Awareness</div>
+                <div class="secondary-text">As products are shared, they receive ample time in the spotlight, inciting conversation and exploration across a consumers entire social network. While this short-term exposure is extremely valuable, we&#39;ve thought about long-term brand impact as well.
+                    <br/><br/>
+                    Every Echoed purchase also lives in the consumer&#39;s <strong>Exhibit</strong> - think of it as a product gallery, where your products are the star of the show. Unlike other social activity, the exhibit lives forever.
+                    Friends can browse each others exhibits and discover exciting products or their next favorite brand at any time.</div>
+            </div>
+            <div class="quarter">
+                <div class="secondary-title text-magenta">Measurable Results</div>
+                <div class="secondary-text">
+                    Your bottom line is a top priority. We continuously refine and optimize our offerings to drive conversion/
+                    sales for maximum ROI.<br/><br/>
+                    Echoed is an end-to-end platform with robust reporting. You'll be able to monitor real-time performance and witness growth of your brand's digital word of mouth as it's happening.<br/><br/>
+                    We provide a comprehensive overview of the social influence, product sales and brand growth that Echoed delivers. Additionally, our ability to capture data from eCommerce checkout to social activation, allows us craft meaningful consumer and product insights.  </div>
+            </div>
+            <div class="emb_logo">
+                <img src="{{urls.images}}/bk_logopressd.png"/>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="center bb"></div>
+    </section>
+    <section class="section clearfix">
+        <div class="center">
+            <div id="footer-nav">
+                <a href="{{urls.site}}/howitworks.html">How It Works</a>
+                <a href="{{urls.site}}/contactus.html">Contact Us</a>
+                Copyright 2012 - Echoed Inc.
+                <div class="sv" style="float:right">
+                    Sharing. <span class="primary-text">Valued.</span>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 </body>
 </html>
+        <script type="text/javascript" src="{{urls.js}}/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript">
+            var imageUrl = "{{urls.images}}";
+            var currentPage = 1;
+            function updateDisplay(){
+                $('.nav-label').removeClass('current');
+                if(currentPage >= 1 && currentPage <= 3)
+                    $('#sh').addClass('current');
+                if(currentPage >= 4 && currentPage <= 7)
+                    $('#sa').addClass('current');
+                if(currentPage >= 8 && currentPage <= 9)
+                    $('#ex').addClass('current');
+                $('.dot').removeClass("current");
+                $('#dot-' + currentPage).addClass("current");
+                $('#biz-image').fadeOut(function(){
+                    $(this).attr("src",imageUrl +'/biz-' + currentPage + '.png');
+                    $(this).show();
+                });
+            }
+
+            $(document).ready(function(){
+                $('.nav-label').live('click', function(){
+                    var newPage = $(this).attr('ref');
+                    if(newPage != currentPage){
+                        currentPage = newPage;
+                        updateDisplay();
+                    }
+                });
+                $('.dot').live('click', function(){
+                    var newPage  = $(this).attr('ref');
+                    if(newPage != currentPage){
+                        currentPage = newPage;
+                        updateDisplay();
+                    }
+                });
+                $('.larrow').live('click', function(){
+                    if(currentPage == 1)
+                        currentPage = 9;
+                    else
+                        currentPage--;
+                    updateDisplay();
+                });
+                $('.rarrow').live('click', function(){
+                    if(currentPage == 9)
+                        currentPage = 1;
+                    else
+                        currentPage++;
+                    updateDisplay();
+                });
+            });
+        </script>
 {{> google}}

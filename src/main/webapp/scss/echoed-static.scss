@@ -155,6 +155,9 @@ h2{
     width: 100%;
     position:absolute;
     z-index:10;
+    &.grey{
+        background-color: #e7e7e7;
+    }
 }
 
 	#header{
@@ -262,6 +265,9 @@ h2{
     .center{
         width:960px;
         margin:auto;
+        &.bb{
+            border-bottom: 2px groove #FFF;
+        }
     }
 
     #secondary{
@@ -278,7 +284,7 @@ h2{
             line-height: 1.5em;
         }
 
-    .paper{
+    .header-container{
         background-image: inline-image("bk_paper.png");
     }
 
@@ -295,10 +301,11 @@ h2{
         }
         .biz-t{
             width: 300px;
-            padding: 100px 20px;
+            padding: 50px 20px;
             line-height: 1.5em;
             float:left;
         }
+        padding-bottom: 50px;
     }
 
     .hiw{
@@ -387,7 +394,7 @@ h2{
             width: 100%;
             background-image: inline-image("bg-whitepx90.png");
         }
-    }
+   }
 
         .sv{
             font-size: 40px;
@@ -488,4 +495,133 @@ h2{
 
 #mainImage{
     float:left;
+}
+
+section{
+    .emb_logo{
+        text-align:center;
+        padding-bottom: 25px;
+    }
+    &.wie{
+        height: 400px;
+        background-image: inline-image("bk_pgrd.jpg");
+        background-repeat: repeat-x;
+        border-bottom: 2px groove #CCC;
+        text-align:center;
+        position:relative;
+        .title{
+            text-align:center;
+        }
+        .wie-nav{
+            padding-top: 20px;
+            width: 280px;
+            margin:auto;
+            text-align:center;
+            .nav-label{
+                display:inline;
+                font-family: $labelFontFamily;
+                font-size: 36px;
+                padding: 10px;
+                float:left;
+                cursor: pointer;
+                &.current,&:hover{
+                    color: $mainColor;
+                }
+            }
+        }
+        .box-container{
+            width: 900px;
+            margin: auto;
+            position:relative;
+            top: 75px;
+            &.biz{
+                top: 25px;
+            }
+            .box{
+                height: 390px;
+                width: 330px;
+                padding: 20px;
+                float:left;
+
+                &.piggy{
+                    background-image: inline-image("bk_piggy.png");
+                }
+                &.clouds{
+                    background-image: inline-image("bk_clouds.png");
+                }
+                .box-title{
+                    font-family: $labelFontFamily;
+                    font-size: 40px;
+                    margin-bottom: 10px;
+                    .red{
+                        color: $mainColor;
+                    }
+                }
+                .box-text{
+                    font-family: HelveticaNeue,Arial, sans-serif;
+                    font-size: 14px;
+                    text-align:left;
+                    line-height: 1.5em;
+                }
+            }
+            .box-nav{
+                width: 270px;
+                margin: auto;
+                .larrow,.rarrow{
+                    padding:5px;
+                    width: 30px;
+                    height: 30px;
+                    float:left;
+                    cursor:pointer;
+                }
+                .dots{
+                    padding:5px;
+                    height: 30px;
+                    width: 180px;
+                    float:left;
+                    .dot{
+                        float:left;
+                        margin:5px;
+                        height: 10px;
+                        width: 10px;
+                        background-image: inline-image("btn_dot.png");
+                        cursor: pointer;
+                        &.current,&:hover{
+                            background-image: inline-image("btn_dot_red.png")
+                        }
+                    }
+                }
+            }
+            .gap{
+                padding-top: 200px;
+                height: 100px;
+                width: 160px;
+                float:left;
+            }
+        }
+    }
+    &.hiw-reflect{
+        height: 150px;
+        background-image: inline-image("bk_gwgrd.png");
+        &.short{
+            height: 100px;
+        }
+    }
+    &.grey{
+        background-color: #e7e7e7;
+    }
+    &.hiw-subtitle{
+        background-color: #e7e7e7;
+        .subtitle{
+            width: 600px;
+            margin: auto;
+            text-align:center;   
+            padding-bottom: 50px;
+            font-family: $readingTextFontFamily;
+            font-size: 24px;
+        }
+    }
+    &.bb{
+        border-bottom: 2px groove #FFF;
+    }
 }
