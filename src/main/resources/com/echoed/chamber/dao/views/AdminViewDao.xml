@@ -30,7 +30,7 @@
             twitterUserId,
             twitterId
         from
-            echoeduser
+            EchoedUser
         order by
             createdOn desc
     </select>
