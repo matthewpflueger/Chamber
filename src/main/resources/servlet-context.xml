@@ -155,6 +155,12 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="adminDashboardController" class="com.echoed.chamber.controllers.AdminDashboardController">
+        <property name="adminLoginView" value="redirect:${adminDashboardUrl}"/>
+        <property name="cookieManager" ref="cookieManager"/>
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="partnerDashboardController" class="com.echoed.chamber.controllers.PartnerDashboardController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />

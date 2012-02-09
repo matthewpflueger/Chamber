@@ -19,7 +19,7 @@
             </div>
             <div class="wie-nav clearfix">
                 <div id="sh" class="nav-label current" ref="1">Share</div>
-                <div id="sa" class="nav-label" ref="4">Save</div>
+                <div id="sa" class="nav-label" ref="7">Save</div>
                 <div id="ex" class="nav-label" ref="8">Explore</div>
             </div>
             <div class="box-container biz clearfix">
@@ -124,9 +124,9 @@
             var currentPage = 1;
             function updateDisplay(){
                 $('.nav-label').removeClass('current');
-                if(currentPage >= 1 && currentPage <= 3)
+                if(currentPage >= 1 && currentPage <= 6)
                     $('#sh').addClass('current');
-                if(currentPage >= 4 && currentPage <= 7)
+                if(currentPage == 7 )
                     $('#sa').addClass('current');
                 if(currentPage >= 8 && currentPage <= 9)
                     $('#ex').addClass('current');
