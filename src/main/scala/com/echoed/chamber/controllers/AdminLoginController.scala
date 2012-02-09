@@ -42,8 +42,6 @@ class AdminLoginController {
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
-
-
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if(continuation.isExpired){
             logger.debug("Continuation Debug")
@@ -85,7 +83,7 @@ class AdminLoginController {
 
                 def onError(error: AdminUserException) {
                     logger.debug("Got error during login for {}: {}", email, password)
-                    continuation.setAttribute("modelAndView","error")
+                    continuation.setAttribute("modelAndView", adminLoginView)
                     continuation.resume()
                 }
 

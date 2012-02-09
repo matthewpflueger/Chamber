@@ -41,7 +41,7 @@
             salt,
             password
         from
-            adminuser
+            AdminUser
         where
             email = #{email}
     </select>
