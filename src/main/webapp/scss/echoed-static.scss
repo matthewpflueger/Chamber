@@ -514,7 +514,7 @@ section{
         }
         .wie-nav{
             padding-top: 20px;
-            width: 280px;
+            width: 290px;
             margin:auto;
             text-align:center;
             .nav-label{
@@ -536,6 +536,14 @@ section{
             top: 75px;
             &.biz{
                 top: 25px;
+            }
+            .frame{
+                padding-top: 24px;
+                padding-left:1px;
+                height: 320px;
+                width: 642px;
+                margin:auto;
+                background-image: inline-image("bk_frame.png");
             }
             .box{
                 height: 390px;
@@ -565,7 +573,7 @@ section{
                 }
             }
             .box-nav{
-                width: 270px;
+                width: 275px;
                 margin: auto;
                 .larrow,.rarrow{
                     padding:5px;

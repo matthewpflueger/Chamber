@@ -23,8 +23,8 @@
                 <div id="ex" class="nav-label" ref="8">Explore</div>
             </div>
             <div class="box-container biz clearfix">
-                <div>
-                    <img id="biz-image" height="350px" src="{{urls.images}}/biz-1.png"/>
+                <div class="frame">
+                    <img id="biz-image" src="{{urls.images}}/biz-3.jpg"/>
                 </div>
                 <div class="box-nav clearfix">
                     <div class="larrow">
@@ -63,7 +63,7 @@
                 <p>Request a demo for a live view of how we foster online word-of-mouth and turn your current customers into brand ambassadors.</p>
             </div>
             <div class="biz-i">
-                <img src="{{urls.images}}/biz-rd.png"/>
+                <img src="{{urls.images}}/biz-rd.jpg"/>
             </div>
         </div>
     </section>
@@ -132,10 +132,7 @@
                     $('#ex').addClass('current');
                 $('.dot').removeClass("current");
                 $('#dot-' + currentPage).addClass("current");
-                $('#biz-image').fadeOut(function(){
-                    $(this).attr("src",imageUrl +'/biz-' + currentPage + '.png');
-                    $(this).show();
-                });
+                $('#biz-image').attr("src",imageUrl +'/biz-' + currentPage + '.jpg');
             }
 
             $(document).ready(function(){
