@@ -63,11 +63,11 @@
     <bean id="partnerUserServiceLocator" class="com.echoed.chamber.services.partneruser.PartnerUserServiceLocatorActorClient">
         <property name="partnerUserServiceLocatorActor" ref="partnerUserServiceLocatorActor" />
     </bean>
-    
+
     <bean id="adminUserServiceCreator" class="com.echoed.chamber.services.adminuser.AdminUserServiceCreatorActorClient">
         <property name="adminUserServiceCreatorActor" ref="adminUserServiceCreatorActor" />
     </bean>
-    
+
     <bean id="adminUserServiceLocator" class="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActorClient">
         <property name="adminUserServiceLocatorActor"  ref="adminUserServiceLocatorActor" />
     </bean>
@@ -225,7 +225,7 @@
             <!--suppress SpringModelInspection -->
             <property name="adminViewDao" ref="adminViewDao" />
     </akka:untyped-actor>
-    
+
     <akka:untyped-actor
             id="adminUserServiceLocatorActor"
             implementation="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActor"

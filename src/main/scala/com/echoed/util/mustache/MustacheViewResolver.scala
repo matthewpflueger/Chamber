@@ -17,6 +17,7 @@ class MustacheViewResolver
     @BeanProperty var templateLoader: MustacheTemplateLoader = null
     @BeanProperty var standardsMode: Boolean = false
     @BeanProperty var escapeHTML: Boolean = true
+    @BeanProperty var defaultValue: String = null
 
     private var compiler: Mustache.Compiler = null
     private var resourceLoader: ResourceLoader = null
@@ -40,6 +41,7 @@ class MustacheViewResolver
                 .escapeHTML(escapeHTML)
                 .standardsMode(standardsMode)
                 .withLoader(templateLoader)
+        compiler = if (defaultValue != null && defaultValue != "null") compiler.defaultValue(defaultValue) else compiler
     }
 
     def setResourceLoader(loader: ResourceLoader) {

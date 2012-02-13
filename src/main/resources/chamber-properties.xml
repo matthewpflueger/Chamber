@@ -120,6 +120,8 @@
         <prop key="mustache.cache">true</prop>
         <prop key="mustache.prefix">${http.urls.views}/</prop>
         <prop key="mustache.suffix">.html</prop>
+        <prop key="mustache.defaultValue"> </prop>
+
 
         <prop key="apiUrl">${http.urls.api}</prop>
         <prop key="echoUrl">${http.urls.site}/echo</prop>

@@ -58,6 +58,7 @@
         <property name="cache" value="${mustache.cache}" />
         <property name="prefix" value="${mustache.prefix}" />
         <property name="suffix" value="${mustache.suffix}" />
+        <property name="defaultValue" value="${mustache.defaultValue}" />
     </bean>
 
 
@@ -173,7 +174,7 @@
         <property name="adminUserServiceLocator" ref="adminUserServiceLocator"/>
         <property name="cookieManager" ref="cookieManager"/>
     </bean>
-    
+
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>
