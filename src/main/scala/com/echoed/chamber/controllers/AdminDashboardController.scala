@@ -40,23 +40,23 @@ class AdminDashboardController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            if(adminUserId != null){
-
-                def onError(error: AdminUserException) {
-                    continuation.setAttribute("modelAndView","error")
-                    continuation.resume()
-                }
-                
-                adminUserServiceLocator.locateAdminUserService(adminUserId).onResult({
-                    case LocateAdminUserServiceResponse(_, Left(error)) => onError(error)
-                    case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
-                            continuation.setAttribute("modelAndView",adminDashboardView)
-                            continuation.resume()
-                })
-            } else{
-                continuation.setAttribute("modelAndView","redirect: http://www.echoed.com/admin/login")
-                continuation.resume()
-            }
+//            if(adminUserId != null){
+//
+//                def onError(error: AdminUserException) {
+//                    continuation.setAttribute("modelAndView","error")
+//                    continuation.resume()
+//                }
+//                
+//                adminUserServiceLocator.locateAdminUserService(adminUserId).onResult({
+//                    case LocateAdminUserServiceResponse(_, Left(error)) => onError(error)
+//                    case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+//                            continuation.setAttribute("modelAndView",adminDashboardView)
+//                            continuation.resume()
+//                })
+//            } else{
+//                continuation.setAttribute("modelAndView","redirect: http://www.echoed.com/admin/login")
+//                continuation.resume()
+//            }
             continuation.undispatch()
         })
     }
