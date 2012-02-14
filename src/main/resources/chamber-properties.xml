@@ -150,8 +150,28 @@
         <prop key="dashboardUrl">${http.urls.site}/partner/dashboard</prop>
 
         <prop key="adminDashboardUrl">${http.urls.site}/admin/login</prop>
+
+        <prop key="mail.user">no-reply@echoed.com</prop>
+        <prop key="mail.password">Ech0edMa1l</prop>
+        <prop key="mail.imap.host">imap.gmail.com</prop>
+        <prop key="mail.smtp.host">smtp.gmail.com</prop>
+        <prop key="mail.smtp.port">465</prop>
+        <prop key="mail.smtp.auth">true</prop>
+        <prop key="mail.smtp.socketFactory.port">${mail.smtp.port}</prop>
+        <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
     </util:properties>
 
+
+    <util:properties id="mailProperties">
+        <prop key="mail.user">${mail.user}</prop>
+        <prop key="mail.password">${mail.password}</prop>
+        <prop key="mail.imap.host">${mail.imap.host}</prop>
+        <prop key="mail.smtp.host">${mail.smtp.host}</prop>
+        <prop key="mail.smtp.port">${mail.smtp.port}</prop>
+        <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+        <prop key="mail.smtp.socketFactory.port">${mail.smtp.socketFactory.port}</prop>
+        <prop key="mail.smtp.socketFactory.class">${mail.smtp.socketFactory.class}</prop>
+    </util:properties>
 
     <util:properties id="urlsProperties">
         <prop key="http.urls.site">${http.urls.site}</prop>

@@ -8,19 +8,9 @@ import scala.reflect.BeanProperty
 import org.springframework.context.ResourceLoaderAware
 import org.springframework.core.io.ResourceLoader
 
-class MustacheViewResolver
-        extends AbstractTemplateViewResolver
-        with ViewResolver
-        with InitializingBean
-        with ResourceLoaderAware {
+class MustacheViewResolver extends AbstractTemplateViewResolver with ViewResolver {
 
-    @BeanProperty var templateLoader: MustacheTemplateLoader = null
-    @BeanProperty var standardsMode: Boolean = false
-    @BeanProperty var escapeHTML: Boolean = true
-    @BeanProperty var defaultValue: String = null
-
-    private var compiler: Mustache.Compiler = null
-    private var resourceLoader: ResourceLoader = null
+    @BeanProperty var mustacheEngine: MustacheEngine = _
 
     setViewClass(classOf[MustacheView])
 
@@ -30,21 +20,9 @@ class MustacheViewResolver
 
     protected override def buildView(viewName: String): AbstractUrlBasedView = {
         val view = super.buildView(viewName).asInstanceOf[MustacheView]
-        val template = compiler.compile(templateLoader.getTemplate(view.getUrl))
+        val template = mustacheEngine.compile(view.getUrl)
         view.setTemplate(template)
         view
     }
 
-    def afterPropertiesSet() {
-        templateLoader = Option(templateLoader).getOrElse(new MustacheTemplateLoader(getPrefix(), getSuffix(), resourceLoader))
-        compiler = Mustache.compiler
-                .escapeHTML(escapeHTML)
-                .standardsMode(standardsMode)
-                .withLoader(templateLoader)
-        compiler = if (defaultValue != null && defaultValue != "null") compiler.defaultValue(defaultValue) else compiler
-    }
-
-    def setResourceLoader(loader: ResourceLoader) {
-        resourceLoader = loader
-    }
 }

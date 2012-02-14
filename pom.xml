@@ -113,6 +113,20 @@
             <version>1.0.0</version>
         </dependency>
 
+
+        <!-- Mail dependencies -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+
         <!-- JBoss is nice enough to provide implmentations of javaee...  We
              define them here as a nicetie to child projects (easy testing).
              These api's are at provided scope as they should be provided by

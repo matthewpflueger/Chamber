@@ -11,6 +11,8 @@ class MustacheView extends AbstractTemplateView {
     @BeanProperty var template: Template = null
 
 
+    def renderMergedTemplateToString(model: JMap[String, Object]) = template.execute(model)
+
     protected override def renderMergedTemplateModel(
             model: JMap[String, Object],
             request: HttpServletRequest,

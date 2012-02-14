@@ -20,8 +20,6 @@
 
     <import resource="classpath:chamber-properties.xml" />
 
-    <!--<import resource="classpath:servlet-context-properties.xml" />-->
-
 
     <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
         <property name="interceptors">
@@ -57,13 +55,13 @@
         </property>
     </bean>
 
+
     <bean id="mustacheViewResolver" class="com.echoed.util.mustache.MustacheViewResolver">
+        <property name="mustacheEngine" ref="mustacheEngine" />
         <property name="cache" value="${mustache.cache}" />
         <property name="prefix" value="${mustache.prefix}" />
         <property name="suffix" value="${mustache.suffix}" />
-        <property name="defaultValue" value="${mustache.defaultValue}" />
     </bean>
-
 
     <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager" />
 

@@ -12,6 +12,8 @@
 
     <import resource="classpath:chamber-properties.xml" />
 
+    <import resource="classpath:database.xml" />
+
 
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <property name="cacheSeconds" value="-1" /> <!-- cache forever -->
@@ -26,11 +28,30 @@
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
 
-    <import resource="classpath:database.xml" />
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" >
+        <property name="defaultEncoding" value="UTF-8" />
+        <property name="username" value="${mail.user}" />
+        <property name="password" value="${mail.password}" />
+        <property name="javaMailProperties" ref="mailProperties" />
+    </bean>
+
+
+    <!-- This is here because the mail service needs to resolve mustache templates -->
+    <bean id="mustacheEngine" class="com.echoed.util.mustache.MustacheEngine">
+        <property name="prefix" value="${mustache.prefix}" />
+        <property name="suffix" value="${mustache.suffix}" />
+        <property name="defaultValue" value="${mustache.defaultValue}" />
+    </bean>
 
 
     <bean id="cacheManager" class="com.echoed.cache.LocalCacheManager">
         <property name="expireInMinutes" value="${cache.expireInMinutes}" />
+    </bean>
+
+
+
+    <bean id="emailService" class="com.echoed.chamber.services.email.EmailServiceActorClient">
+        <property name="actorRef" ref="emailServiceActor" />
     </bean>
 
     <bean id="facebookAccess" class="com.echoed.chamber.services.facebook.FacebookAccessActorClient">
@@ -84,6 +105,19 @@
     <bean id="adminUserServiceLocator" class="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActorClient">
         <property name="adminUserServiceLocatorActor"  ref="adminUserServiceLocatorActor" />
     </bean>
+
+
+    <akka:untyped-actor
+            id="emailServiceActor"
+            implementation="com.echoed.chamber.services.email.EmailServiceActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="javaMailSender" ref="javaMailSender" />
+        <!--suppress SpringModelInspection -->
+        <property name="mustacheEngine" ref="mustacheEngine" />
+        <!--suppress SpringModelInspection -->
+        <property name="mailProperties" ref="mailProperties" />
+    </akka:untyped-actor>
 
 
     <akka:untyped-actor
