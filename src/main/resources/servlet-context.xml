@@ -35,6 +35,9 @@
                     <property name="gitProperties" ref="gitProperties" />
                     <property name="facebookClientId" value="${facebook.clientId}" />
                 </bean>
+                <bean class="com.echoed.chamber.interceptors.ErrorsInterceptor">
+                    <property name="messageSource" ref="messageSource" />
+                </bean>
             </util:list>
         </property>
     </bean>

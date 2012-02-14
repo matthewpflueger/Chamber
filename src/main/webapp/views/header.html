@@ -15,9 +15,17 @@
     <script type='text/javascript' src="{{urls.js}}/echoed.js?v={{version}}"></script>
 
     <script type="text/javascript">
-        Echoed.errors = new Array(); //{{#errors}}
-        Echoed.errors.push("{{this}}");
-        /*{{/errors}} // */
+        Echoed.errors = {};
+        Echoed.errors.global = new Array(); //{{#errors.global}}
+        Echoed.errors.global.push("{{this}}");
+        /*{{/errors.global}} // */
+        //{{#errors.fieldErrors}}
+        Echoed.errors["{{object}}"] = {}
+        //{{/errors.fieldErrors}}
+        //{{#errors.fieldErrors}}
+        Echoed.errors["{{object}}"]["{{field}}"] = "{{message}}"
+        //{{/errors.fieldErrors}}
+
 
         Echoed.urls = {}; //{{#urls}}
         Echoed.urls.api = "{{api}}";

@@ -42,6 +42,7 @@
         <prop key="http.urls.css">http://css.${domain}</prop>
         <prop key="http.urls.images">http://images.${domain}</prop>
         <prop key="http.urls.views">http://views.${domain}</prop>
+        <prop key="http.urls.messages">http://messages.${domain}</prop>
 
         <prop key="https.urls.site">https://www.${domain}</prop>
         <prop key="https.urls.api">https://v1-api.${domain}</prop>
@@ -50,6 +51,7 @@
         <prop key="https.urls.css">https://c779203.ssl.cf2.rackcdn.com</prop>
         <prop key="https.urls.images">https://c779203.ssl.cf2.rackcdn.com</prop>
         <prop key="https.urls.views">https://c779203.ssl.cf2.rackcdn.com</prop>
+        <prop key="https.urls.messages">https://c779203.ssl.cf2.rackcdn.com</prop>
 
 
 
