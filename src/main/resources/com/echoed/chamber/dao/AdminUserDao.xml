@@ -45,4 +45,10 @@
         where
             email = #{email}
     </select>
+
+
+    <delete id="deleteByEmail">
+        delete from AdminUser where email=#{email}
+    </delete>
+
 </mapper>

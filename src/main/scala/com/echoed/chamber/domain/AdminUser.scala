@@ -21,6 +21,16 @@ case class AdminUser(
                     salt: String,
                     password: String) {
     
+    def this(id:String, name: String,  email:String) = this(
+        id,
+        new Date,
+        new Date,
+        name,
+        email,
+        UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString,
+        null
+    )
+    
     def this(name:String,email:String) = this(
         UUID.randomUUID.toString,
         new Date,

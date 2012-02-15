@@ -17,5 +17,7 @@ trait AdminUserDao {
     def insert(adminUser: AdminUser): Int
 
     def findByEmail(email: String): AdminUser
+
+    def deleteByEmail(email: String): Int
     
 }

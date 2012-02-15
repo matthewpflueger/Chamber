@@ -30,6 +30,10 @@ class WebDriverUtils extends ShouldMatchers {
             domain = "." + domain
         }
     }
+    
+    def findAdminUserCookie() = {
+        webDriver.manage().getCookieNamed(cookieManager.adminUserCookieName)
+    }
 
     def findPartnerUserCookie() = {
         webDriver.manage().getCookieNamed(cookieManager.partnerUserCookieName)

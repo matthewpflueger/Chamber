@@ -332,6 +332,7 @@ class DataCreator {
     val facebookUserId = UUID.randomUUID.toString
     val facebookTestUserId = UUID.randomUUID.toString
     val retailerId = UUID.randomUUID.toString
+    val adminUserId = UUID.randomUUID.toString
 
     val landingPageUrl = siteUrl
     val echoImageUrl_1 = "%s/Pic1.jpg" format imagesUrl
@@ -484,6 +485,13 @@ class DataCreator {
             twitterFollowerName
         )
     )
+
+    val adminUserPassword = "testpassword"
+    val adminUser = new AdminUser(
+        adminUserId,
+        "Jonathan",
+        "tech@echoed.com"
+    ).createPassword(adminUserPassword)
 
     val retailerUserPassword = "testpassword"
     val retailerUser = new RetailerUser(
