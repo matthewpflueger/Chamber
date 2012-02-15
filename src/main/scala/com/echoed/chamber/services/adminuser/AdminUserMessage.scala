@@ -3,6 +3,7 @@ package com.echoed.chamber.services.adminuser
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.AdminUser
 import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.domain.EchoPossibility
 
 import java.util.{List => JList}
 
@@ -35,6 +36,12 @@ case class GetUsersResponse(
                 message: GetUsers, 
                 value: Either[AUE,JList[EchoedUser]])
                 extends AUM with RM[JList[EchoedUser], GetUsers, AUE]
+
+case class GetEchoPossibilities() extends AUM
+case class GetEchoPossibilitesResponse(
+                message: GetEchoPossibilities,
+                value: Either[AUE, JList[EchoPossibility]])
+                extends AUM with RM[JList[EchoPossibility], GetEchoPossibilities, AUE]
 
 case class LocateAdminUserService(email: String) extends AUM
 case class LocateAdminUserServiceResponse(

@@ -25,41 +25,53 @@ class AdminDashboardController {
 
     @BeanProperty var adminLoginView: String = _
     @BeanProperty var adminDashboardView: String = _
+    @BeanProperty var adminDashboardErrorView: String = _
 
     @BeanProperty var cookieManager: CookieManager = _
 
     private final val logger = LoggerFactory.getLogger(classOf[AdminLoginController])
 
     @RequestMapping(Array("/admin/dashboard"))
-    def login(
-                @CookieValue(value="adminUserId") adminUserId: String,
+    def dashboard(
                 httpServletRequest: HttpServletRequest,
                 httpServletResponse: HttpServletResponse) = {
 
+        val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+
+        logger.debug("Admin User: {}", adminUserId)
+        
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if(continuation.isExpired){
-
+            new ModelAndView(adminDashboardErrorView)
+        } else if (adminUserId.isEmpty) {
+            new ModelAndView(adminDashboardErrorView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-//            if(adminUserId != null){
-//
-//                def onError(error: AdminUserException) {
-//                    continuation.setAttribute("modelAndView","error")
-//                    continuation.resume()
-//                }
-//                
-//                adminUserServiceLocator.locateAdminUserService(adminUserId).onResult({
-//                    case LocateAdminUserServiceResponse(_, Left(error)) => onError(error)
-//                    case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
-//                            continuation.setAttribute("modelAndView",adminDashboardView)
-//                            continuation.resume()
-//                })
-//            } else{
-//                continuation.setAttribute("modelAndView","redirect: http://www.echoed.com/admin/login")
-//                continuation.resume()
-//            }
+            def onError(error: AdminUserException){
+                continuation.setAttribute(
+                    "modelAndView",
+                    new ModelAndView(adminDashboardErrorView))
+                continuation.resume()
+            }
+
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult {
+                    case LocateAdminUserServiceResponse(_, Left(error)) => onError(error)
+                    case LocateAdminUserServiceResponse(_, Right(adminUserService)) => adminUserService.getAdminUser.onResult {
+                        case GetAdminUserResponse(_, Left(error)) => onError(error)
+                        case GetAdminUserResponse(_, Right(au)) =>
+                            logger.debug("Got {}", au)
+                            continuation.setAttribute(
+                                "modelAndView",
+                                new ModelAndView(adminDashboardView, "adminUser", au))
+                            continuation.resume()
+                        case unknown => throw new RuntimeException("Unknown response %s" format unknown)
+                    }
+                    case unknown => throw new RuntimeException("Unknown response %s" format unknown)
+            }
+
             continuation.undispatch()
+
         })
     }
 }

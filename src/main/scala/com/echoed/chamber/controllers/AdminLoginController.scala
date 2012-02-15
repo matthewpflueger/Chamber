@@ -28,6 +28,7 @@ class AdminLoginController {
 
     @BeanProperty var adminLoginView: String = _
     @BeanProperty var adminDashboardView: String = _
+    @BeanProperty var adminDashboardErrorView: String = _
 
     @BeanProperty var cookieManager: CookieManager = _
 
@@ -90,7 +91,7 @@ class AdminLoginController {
                 adminUserServiceLocator.login(email,password).onResult({
                     case LoginResponse(_, Left(error)) => onError(error)
                     case LoginResponse(_, Right(adminUserService)) =>
-                        logger.debug("Redirecting to Admin Dashboard View")
+                        logger.debug("Redirecting to Admin Dashboard View {}", adminDashboardView)
                         adminUserService.getAdminUser.onResult({
                             case GetAdminUserResponse(_, Left(e)) =>
                             case GetAdminUserResponse(_, Right(adminUser)) =>
@@ -98,7 +99,7 @@ class AdminLoginController {
                                         httpServletResponse,
                                         adminUser,
                                         httpServletRequest)
-                                continuation.setAttribute("modelAndView",adminDashboardView)
+                                continuation.setAttribute("modelAndView", new ModelAndView(adminDashboardView))
                                 continuation.resume()
                         })
                 })

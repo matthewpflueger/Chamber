@@ -152,13 +152,17 @@
     <bean id="adminLoginController" class="com.echoed.chamber.controllers.AdminLoginController">
         <property name="adminUserServiceLocator"  ref="adminUserServiceLocator"/>
         <property name="adminLoginView" value="admin.login"/>
-        <property name="adminDashboardView"  value="admin.dashboard"/>
+        <property name="adminDashboardView"  value="redirect:${adminDashboardUrl}"/>
+        <property name="adminDashboardErrorView" value="admin.login"/>
         <property name="cookieManager" ref="cookieManager" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="adminDashboardController" class="com.echoed.chamber.controllers.AdminDashboardController">
-        <property name="adminLoginView" value="redirect:${adminDashboardUrl}"/>
+        <property name="adminUserServiceLocator"  ref="adminUserServiceLocator"/>
+
+        <property name="adminDashboardView" value="admin.dashboard" />
+        <property name="adminDashboardErrorView" value="admin.login"/>
         <property name="cookieManager" ref="cookieManager"/>
     </bean>
 

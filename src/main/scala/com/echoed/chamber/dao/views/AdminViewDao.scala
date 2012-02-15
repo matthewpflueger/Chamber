@@ -1,5 +1,5 @@
 package com.echoed.chamber.dao.views
-import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.domain.{EchoedUser,EchoPossibility}
 import java.util.{List => JList}
 
 
@@ -14,5 +14,7 @@ import java.util.{List => JList}
 trait AdminViewDao {
 
     def getUsers: JList[EchoedUser]
+
+    def getEchoPossibilities: JList[EchoPossibility]
 
 }

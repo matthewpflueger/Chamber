@@ -30,6 +30,9 @@ class AdminUserServiceActor(
         case msg: GetUsers =>
             logger.debug("Retrieving EchoedUsers")
             self.channel ! GetUsersResponse(msg,Right(asScalaBuffer(adminViewDao.getUsers).toList))
+        case msg: GetEchoPossibilities =>
+            logger.debug("Retrieving EchoPossibilities")
+            self.channel ! GetEchoPossibilitesResponse(msg, Right(asScalaBuffer(adminViewDao.getEchoPossibilities).toList))
         case msg: GetAdminUser =>
             logger.debug("Retreiving AdminUser: {}", adminUser)
             self.channel ! GetAdminUserResponse(msg, Right(adminUser))

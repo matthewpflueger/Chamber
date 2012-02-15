@@ -31,6 +31,45 @@ class AdminController {
 
     @BeanProperty var cookieManager: CookieManager = _
     
+    @RequestMapping(value = Array("/echoPossibility"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getEchoPossibilityJSON(
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+        
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if(continuation.isExpired){
+            logger.error("Request expired getting echoPossibilities via admin api")
+            continuation.setAttribute("jsonResponse", "error")
+            continuation.resume()
+        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+                case LocateAdminUserServiceResponse(_, Left(e)) =>
+                    continuation.setAttribute("jsonResponse","error")
+                    continuation.resume()
+                case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                    logger.debug("AdminUser Service Located")
+                    adminUserService.getEchoPossibilities.onResult({
+                        case GetEchoPossibilitesResponse(_, Left(e)) =>
+                            continuation.setAttribute("jsonResponse","error")
+                            continuation.resume()
+                        case GetEchoPossibilitesResponse(_, Right(echoPossibilities)) =>
+                            continuation.setAttribute("jsonResponse", echoPossibilities)
+                            continuation.resume()
+                    })
+            })
+
+            continuation.undispatch()
+            
+        })
+        
+        
+    }
+    
     @RequestMapping(value = Array("/users"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getUsersJSON(
@@ -53,7 +92,7 @@ class AdminController {
                     continuation.setAttribute("jsonResponse","error")
                     continuation.resume()
                 case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
-                    logger.debug("User Ser")
+                    logger.debug("AdminUser Service Located")
                     adminUserService.getUsers.onResult({
                         case GetUsersResponse(_, Left(e)) => 
                             continuation.setAttribute("jsonResponse", "error")

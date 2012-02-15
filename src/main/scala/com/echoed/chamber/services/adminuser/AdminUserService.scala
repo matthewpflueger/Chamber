@@ -18,6 +18,8 @@ trait AdminUserService {
     
     def getUsers: Future[GetUsersResponse]
     
+    def getEchoPossibilities: Future[GetEchoPossibilitesResponse]
+    
     def logout(adminUserId: String): Future[LogoutResponse]
 
 }

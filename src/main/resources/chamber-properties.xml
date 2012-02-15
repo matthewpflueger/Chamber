@@ -144,12 +144,12 @@
         <prop key="twitterLoginErrorViewUrl">${http.urls.views}/twitter_login_error.html</prop>
         <prop key="facebookLoginErrorViewUrl">${http.urls.views}/facebook_login_error.html</prop>
         <prop key="dashboardViewUrl">${http.urls.views}/partner.html</prop>
+        <prop key="adminDashboardViewUrl">${http.urls.views}/admin.dashboard.html</prop>
 
         <prop key="exhibitUrl">${http.urls.api}/user/exhibit</prop>
         <prop key="friendsUrl">${http.urls.api}/user/friends</prop>
         <prop key="dashboardUrl">${http.urls.site}/partner/dashboard</prop>
-
-        <prop key="adminDashboardUrl">${http.urls.site}/admin/login</prop>
+        <prop key="adminDashboardUrl">${http.urls.site}/admin/dashboard</prop>
 
         <prop key="mail.user">no-reply@echoed.com</prop>
         <prop key="mail.password">Ech0edMa1l</prop>

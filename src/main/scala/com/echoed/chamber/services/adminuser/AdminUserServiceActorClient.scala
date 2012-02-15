@@ -9,10 +9,13 @@ class AdminUserServiceActorClient(adminUserServiceActor: ActorRef) extends Admin
     
     def getUsers =
         (adminUserServiceActor ? GetUsers()).mapTo[GetUsersResponse]
+    
+    def getEchoPossibilities =
+        (adminUserServiceActor ? GetEchoPossibilities()).mapTo[GetEchoPossibilitesResponse]
 
     def getAdminUser =
         (adminUserServiceActor ? GetAdminUser()).mapTo[GetAdminUserResponse]
-    
+
     def logout(adminUserId: String) =
         (adminUserServiceActor ? Logout(adminUserId)).mapTo[LogoutResponse]
 

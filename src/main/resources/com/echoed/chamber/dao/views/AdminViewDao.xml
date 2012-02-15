@@ -17,6 +17,30 @@
         </constructor>
     </resultMap>
 
+    <resultMap id="echoPossibilityResult" type="com.echoed.chamber.domain.EchoPossibility">
+        <constructor>
+            <idArg column="id" javaType="String"/>
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="retailerId" javaType="String" />
+            <arg column="customerId" javaType="String" />
+            <arg column="productId" javaType="String" />
+            <arg column="boughtOn" javaType="Date" />
+            <arg column="step" javaType="String" />
+            <arg column="orderId" javaType="String" />
+            <arg column="price" javaType="_float" />
+            <arg column="imageUrl" javaType="String" />
+            <arg column="echoedUserId" javaType="String" />
+            <arg column="echoId" javaType="String" />
+            <arg column="landingPageUrl" javaType="String" />
+            <arg column="productName" javaType="String"/>
+            <arg column="category" javaType="String"/>
+            <arg column="brand" javaType="String"/>
+            <arg column="description" javaType="String" />
+            <arg column="echoClickId" javaType="String" />
+        </constructor>
+    </resultMap>
+    
     <select id="getUsers" resultMap="echoedUserResult">
         select
             id,
@@ -33,6 +57,36 @@
             EchoedUser
         order by
             createdOn desc
+        limit
+            0,20
     </select>
 
+    <select id="getEchoPossibilities" resultMap="echoPossibilityResult">
+        select
+            id,
+            updatedOn,
+            createdOn,
+            retailerId,
+            customerId,
+            productId,
+            boughtOn,
+            step,
+            orderId,
+            price,
+            imageUrl,
+            echoedUserId,
+            echoId,
+            landingPageUrl,
+            productName,
+            category,
+            brand,
+            description,
+            echoClickId
+        from
+            EchoPossibility
+        order by
+            boughtOn desc
+        limit
+            0,20
+    </select>
 </mapper>
