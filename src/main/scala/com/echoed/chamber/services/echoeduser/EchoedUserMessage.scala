@@ -4,7 +4,7 @@ import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Mess
 import com.echoed.chamber.domain.{EchoedUser,EchoedFriend,Echo,TwitterStatus,FacebookPost}
 import com.echoed.chamber.services.facebook.{FacebookService}
 import com.echoed.chamber.services.twitter.{TwitterService}
-import com.echoed.chamber.domain.views.{EchoFull, Feed, Closet, FriendCloset, PublicFeed}
+import com.echoed.chamber.domain.views.{EchoFull, Feed, Closet, ClosetPersonal, FriendCloset, PublicFeed}
 
 
 sealed trait EchoedUserMessage extends Message
@@ -47,8 +47,8 @@ case class GetEchoedUserResponse(message: GetEchoedUser, value: Either[EUE, Echo
     extends EUM with RM[EchoedUser, GetEchoedUser,  EUE]
 
 case class GetExhibit() extends EUM
-case class GetExhibitResponse(message: GetExhibit, value: Either[EUE, Closet])
-    extends EUM with RM[Closet, GetExhibit, EUE]
+case class GetExhibitResponse(message: GetExhibit, value: Either[EUE, ClosetPersonal])
+    extends EUM with RM[ClosetPersonal, GetExhibit, EUE]
 
 case class GetPublicFeed() extends EUM
 case class GetPublicFeedResponse(message: GetPublicFeed, value: Either[EUE, PublicFeed])

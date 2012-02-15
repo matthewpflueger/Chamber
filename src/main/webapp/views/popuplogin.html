@@ -19,13 +19,15 @@
         </div>
         <div id="content">
             <div id="thankyou">
-                <span class="ty-text">Echo Your Purchase And Save!</span>
+                {{#retailer}}
+                <span class="ty-text">Share Your Purchase and Save up to {{maxPercentage}}%!</span>
+                {{/retailer}}
             </div>
             <div id="lower">
                 <div id="left">
                     <div id="left_content">
                         <div id="product">
-                            <div id="product_upper" class="clearfix">
+                            <div id="product_upper" class="clearfix large">
                                 <div id="product_picture_container" >
                                     {{#echoPossibility}}
                                     <img id="product_picture" src="{{imageUrl}}"/>
@@ -33,31 +35,10 @@
                                 </div>
                                 <div id="product-description">
                                     {{#echoPossibility}}
-                                    {{productName}}<br /><br/>
+                                    <strong>{{productName}}</strong><br /><br/>
                                     by {{brand}}<br /><br/>
                                     {{/echoPossibility}}
                                     ${{productPriceFormatted}}
-                                </div>
-                            </div>
-                            <div id="product-text">
-                                <div class="pt-reward"><span class="pt-title">Rewards</span> (7 Days to register activity)</div>
-                                <div class="pt-third">
-                                    <div class="upto">&nbsp;</div>
-                                    <div class="pct">1% EASY</div>
-                                    <div class="off">off</div>
-                                    <div class="when">When you Echo to your Exhibit</div>
-                                </div>
-                                <div class="pt-third">
-                                    <div class="upto">&nbsp;</div>
-                                    <div class="pct">{{minPercentage}}% BETTER</div>
-                                    <div class="off">off</div>
-                                    <div class="when">When you get 20 clicks across your social networks</div>
-                                </div>
-                                <div class="pt-third">
-                                    <div class="upto">Up to</div>
-                                    <div class="pct">{{maxPercentage}}% BEST</div>
-                                    <div class="off">off</div>
-                                    <div class="when">When more friends buy or check out what you shared.</div>
                                 </div>
                             </div>
                         </div>
@@ -66,19 +47,13 @@
     	        <div id="right" >
                     <div id="right_content" class="border-grey bg-color-white rounded-corners">
                         {{#retailer}}
-                        <div class="confirm-label">
-                            Get Rewarded for Sharing
-                        </div>
                         <div class="confirm-text">
-                            Showcase this item in your <strong>Echoed Exhibit</strong> and {{name}} will credit you with 1% off this purchase. Think of your Exhibit as a personal product gallery.
-                            <br><br>
-                            Share this item with your social network(s) and your credit from {{name}} will grow as your friends check out what you&#39;ve bought.
-                            <br>
-                            <a class="highlight" href="{{urls.site}}/howitworks" target="_blank"><strong>Learn More</strong></a>
-
+                            Share this product with your social network(s). You will receive <span class="highlight-focus">{{minPercentage}}%</span> back when you get at least <span class="highlight-focus">{{minClicks}} people</span> to click through and check out this product.
+                            <br/><br/>After that, the more people that buy or check out the product the more you'll save. Up to <span class="highlight-focus">{{maxPercentage}}%</span>.
+                            <br/><br/>
                         </div>
                         <div class="confirm-label">
-                            Sign Up or Login:
+                            Sign Up or Login to Share:
                         </div>
                         <div>
                             <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{redirectUrl}}&scope=email,publish_stream,offline_access" >
@@ -89,6 +64,9 @@
                             </a>
                         </div>
                         {{/retailer}}
+                    </div>
+                    <div style="padding:10px;">
+                        <span class="highlight-focus" style="text-decoration: underline;font-size:24px;"><a href="{{urls.site}}/howitworks" target="_blank">Click Here To Learn More</a></span>
                     </div>
 	            </div>
             </div>

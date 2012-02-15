@@ -77,13 +77,6 @@ class ExhibitController {
                                     val modelAndView = new ModelAndView(view)
                                     modelAndView.addObject("echoedUser", closet.echoedUser)
                                     modelAndView.addObject("totalCredit", "%.2f\n".format(closet.totalCredit))
-
-                                    val error = Option(httpServletRequest.getParameter("error"))
-                                    logger.debug("Found error: {}", error)
-                                    modelAndView.addObject("errors", error.cata(
-                                        e => Array[String](e),
-                                        Array[String]()))
-
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume()
                             }))

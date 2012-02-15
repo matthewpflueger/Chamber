@@ -14,6 +14,7 @@ case class EchoView(
         echoLandingPageUrl: String,
         echoTotalClicks: Int,
         echoCredit: Float,
+        echoCreditWindowEndsAt: Date,
         retailerId: String,
         retailerName: String,
         retailerSettingsId: String,

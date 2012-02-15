@@ -17,13 +17,13 @@
         </div>
         <div id="content">
             <div id="thankyou">
-                <span class="ty-text">{{#echoedUser}}{{name}}{{/echoedUser}}, Echo This Purchase and Save!</span><span class="not-name">  ( <span class="highlight"><strong><a href="{{logoutUrl}}">Not {{#echoedUser}}{{name}}{{/echoedUser}}</a></strong></span>? )</span>
+                <span class="ty-text">{{#echoedUser}}{{name}}{{/echoedUser}}, Share This Purchase and Save!</span><span class="not-name">  ( <span class="highlight"><strong><a href="{{logoutUrl}}">Not {{#echoedUser}}{{name}}{{/echoedUser}}</a></strong></span>? )</span>
             </div>
             <div id="lower">
                 <div id="left">
                     <div id="left_content">
                         <div id="product">
-                            <div id="product_upper" class="clearfix">
+                            <div id="product_upper" class="clearfix small">
                                 <div id="product_picture_container" style="float:left">
                                 {{#echoPossibility}}
                                     <img id="product_picture" src="{{imageUrl}}"/>
@@ -39,22 +39,19 @@
                             </div>
                             <div id="product-text">
                                 <div class="pt-reward"><span class="pt-title">Rewards</span> (7 Days to register activity)</div>
-                                <div class="pt-third">
+                                <div class="pt-div third br">
                                     <div class="upto">&nbsp;</div>
-                                    <div class="pct">1% EASY</div>
-                                    <div class="off">off</div>
+                                    <div class="pct">1% Off</div>
                                     <div class="when">When you Echo to your Exhibit</div>
                                 </div>
-                                <div class="pt-third">
+                                <div class="pt-div third br">
                                     <div class="upto">&nbsp;</div>
-                                    <div class="pct">{{minPercentage}}% BETTER</div>
-                                    <div class="off">off</div>
-                                    <div class="when">When you get 20 clicks across your social networks</div>
+                                    <div class="pct">{{minPercentage}}% Off</div>
+                                    <div class="when">When you get {{minClicks}} clicks across your social networks</div>
                                 </div>
-                                <div class="pt-third">
+                                <div class="pt-div third">
                                     <div class="upto">Up to</div>
-                                    <div class="pct">{{maxPercentage}}% BEST</div>
-                                    <div class="off">off</div>
+                                    <div class="pct">{{maxPercentage}}% Off</div>
                                     <div class="when">When more friends buy or check out what you shared.</div>
                                 </div>
                             </div>

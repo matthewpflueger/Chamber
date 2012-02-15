@@ -37,6 +37,7 @@
             <arg column="echoLandingPageUrl" javaType="String" />
             <arg column="echoTotalClicks" javaType="_int" />
             <arg column="echoCredit" javaType="_float" />
+            <arg column="echoCreditWindowEndsAt" javaType="Date"/>
             <arg column="retailerId" javaType="String" />
             <arg column="retailerName" javaType="String" />
             <arg column="retailerSettingsId" javaType="String" />
@@ -70,6 +71,7 @@
             E.landingPageUrl as echoLandingPageUrl,
             coalesce(EM.totalClicks, 0) as echoTotalClicks,
             ROUND(coalesce(EM.credit, 0),2) as echoCredit,
+            EM.creditWindowEndsAt as echoCreditWindowEndsAt,
             R.id as retailerId,
             R.name as retailerName,
             RS.id as retailerSettingsId,

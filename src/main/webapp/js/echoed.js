@@ -31,13 +31,17 @@ Echoed.Router = Backbone.Router.extend({
         "_=_" : "fix",
         "": "explore",
         "explore": "explore",
+        "explore/": "explore",
         "explore/:filter": "explore",
+        "exploref/": "exploreFriends",
         "exploref" : "exploreFriends",
         "exploref/:filter": "exploreFriends",
+        "exhibit/": "exhibit",
         "exhibit": "exhibit",
         "exhibit/:filter": "exhibit",
         "friends": "friends",
         "friends/exhibit/:id": "friendsExhibit",
+        "friends/exhibit/:id/": "friendsExhibit",
         "friends/exhibit/:id/:filter": "friendsExhibit"
     },
     fix: function(){
@@ -481,11 +485,21 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/><br/>');
         if(this.model.get("echoCredit")){
             hover.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/><br/>');
-            self.showOverlay();
-            var t = setTimeout(self.hideOverlay, 3000);
         }
         img.attr('src',this.model.get("echoImageUrl"));
-
+        if(this.model.get("echoCreditWindowEndsAt")){
+            var then = this.model.get("echoCreditWindowEndsAt");
+            var a = new Date();
+            var now = a.getTime();
+            var diff = then - now;
+            var daysleft = parseInt(diff/(24*60*60*1000));
+            if(daysleft >= 0){
+                hover.append("<span class='highlight'><strong>Days Left: "+ daysleft + "</strong></span>");
+                self.showOverlay();
+                var t = setTimeout(self.hideOverlay, 3000);
+                img.addClass("open-echo");
+            }
+        }
         return this;
     },
     showOverlay: function(){

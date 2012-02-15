@@ -144,6 +144,12 @@ textarea{
         color: $secondaryColor;
         //text-decoration: underline;
     }
+    
+    .highlight-focus{
+        color: $secondaryColor;
+        font-weight: bold;
+        font-size: 1.2em;
+    }
 
     .not-name{
         font-size: 12px;
@@ -196,10 +202,25 @@ textarea{
 
 
         #product{
-            //margin:10px;
         }
 
             #product_upper{
+                &.large{
+                    #product_picture_container{
+                        height: 280px;
+                    }
+                    #product_picture{
+                        height: 280px;
+                    }
+                }
+                &.small{
+                    #product_picture_container{
+                        height: 150px;
+                    }
+                    #product_picture{
+                        height: 150px;
+                    }
+                }
                 padding: 10px;
                 background-color: #FFF;
             }
@@ -208,11 +229,9 @@ textarea{
                 text-align:center;
                 float:left;
                 width: 240px;
-                height: 150px;
             }
 
             #product_picture{
-                max-height: 150px;
                 max-width: 240px;
             }
 
@@ -228,30 +247,46 @@ textarea{
 
             #product-text {
                 margin-top:10px;
-
                 .pt-reward{
                     .pt-title{
                         font-family: $labelFontFamily;
                         font-size: 30px;
+                        color: #DDD;
                     }
                 }
-                .pt-third{
-                    padding:5px;
-                    width: 150px;
+                .pt-div{
+                    height: 120px;
+                    &.third{
+                        padding:5px;
+                        width:150px;
+                        &.br{
+                            //border-right: 2px groove #999;
+                        }
+                    }
+                    &.half{
+                        padding:10px;
+                        width: 210px;
+                        &.br{
+                            //border-right: 2px groove #999;
+                        }
+                    }
                     float:left;
                     .upto{
+                        color: #DDD;
                         font-weight:bold;
                     }
                     .pct{
+                        color: #DDD;
                         font-family: $labelFontFamily;
                         font-size: 30px;
                     }
                     .off{
+                        color: #DDD;
                         font-size:14px;
                         line-height:10px;
                     }
                     .when{
-                        margin-top: 10px;
+                        color: #DDD;
                     }
                 }
 
@@ -307,3 +342,4 @@ textarea{
         clear:both;
     }
 }
+

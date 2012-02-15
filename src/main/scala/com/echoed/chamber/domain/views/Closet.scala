@@ -16,5 +16,9 @@ case class Closet(
     def convertEchoesToEchoViewPublic = {
         JavaConversions.asJavaCollection(JavaConversions.asScalaBuffer(echoes).map { new EchoViewPublic(_) })
     }
+    
+    def convertEchoesToEchoViewPersonal = {
+        JavaConversions.asJavaCollection(JavaConversions.asScalaBuffer(echoes).map { new EchoViewPersonal(_)})
+    }
 
 }

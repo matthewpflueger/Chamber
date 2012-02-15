@@ -31,8 +31,10 @@ class AdminDashboardController {
     private final val logger = LoggerFactory.getLogger(classOf[AdminLoginController])
 
     @RequestMapping(Array("/admin/dashboard"))
-    def login(   httpServletRequest: HttpServletRequest,
-                 httpServletResponse: HttpServletResponse) = {
+    def login(
+                @CookieValue(value="adminUserId") adminUserId: String,
+                httpServletRequest: HttpServletRequest,
+                httpServletResponse: HttpServletResponse) = {
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
         if(continuation.isExpired){

@@ -86,6 +86,7 @@ class EchoController {
                                     modelAndView.addObject("echoPossibilityView", epv)
                                     modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                                     modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
+                                    modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume()
                                 case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
@@ -101,6 +102,7 @@ class EchoController {
                                     modelAndView.addObject("logoutUrl", lu)
                                     modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                                     modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
+                                    modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
                                     modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                                     modelAndView.addObject(
                                             "facebookAddUrl",
@@ -136,7 +138,7 @@ class EchoController {
                         modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                         modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
-
+                        modelAndView.addObject("minClicks",epv.retailerSettings.minClicks)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume
                 }))

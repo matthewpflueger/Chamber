@@ -16,7 +16,7 @@ import org.codehaus.jackson.`type`.TypeReference
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
 import java.util.{UUID, Properties, List => JList}
-import com.echoed.chamber.domain.views.{Closet, EchoView}
+import com.echoed.chamber.domain.views.{ClosetPersonal, EchoView}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -78,8 +78,8 @@ class ClosetExhibitIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             then("grant the request")
             and("the returned data can be parsed into a domain object")
             val url = new URL(exhibitUrl + "?echoedUserId=" + echoedUser.id)
-            val closet: Closet = new ScalaObjectMapper().readValue(url, new TypeReference[Closet]() {})
-            val echoList = asScalaBuffer(closet.echoes)
+            val closetPersonal: ClosetPersonal = new ScalaObjectMapper().readValue(url, new TypeReference[ClosetPersonal]() {})
+            val echoList =closetPersonal.echoes
 
             for (echo <- echoes) echoList.find(_.echoId == echo.id) should not be (None)
         }

@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
 import akka.dispatch.Future
 import java.util.{Date, ArrayList}
 import com.echoed.chamber.dao._
-import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,FriendCloset, Closet,PublicFeed, EchoViewPublic}
+import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,FriendCloset, Closet,PublicFeed, EchoViewPublic, ClosetPersonal}
 import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
@@ -399,11 +399,11 @@ class EchoedUserServiceActor(
                 val closet = Option(closetDao.findByEchoedUserId(echoedUser.id)).getOrElse(new Closet(echoedUser.id, echoedUser))
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     logger.debug("Echoed user {} has zero echoes", echoedUser.id)
-                    channel ! GetExhibitResponse(msg, Right(closet.copy(
-                            totalCredit = credit, echoes = new ArrayList[EchoView])))
+                    channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(
+                            totalCredit = credit, echoes = new ArrayList[EchoView]))))
                 } else {
                     logger.debug("Echoed user {} has {} echoes", echoedUser.id, closet.echoes.size)
-                    channel ! GetExhibitResponse(msg, Right(closet.copy(totalCredit = credit)))
+                    channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(totalCredit = credit))))
                 }
                 logger.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
             } catch {
