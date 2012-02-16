@@ -25,10 +25,11 @@
         </property>
     </bean>
 
-    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
 
+    <bean id="encrypter" class="com.echoed.util.Encrypter" />
 
-    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" >
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="defaultEncoding" value="UTF-8" />
         <property name="username" value="${mail.user}" />
         <property name="password" value="${mail.password}" />
