@@ -27,7 +27,7 @@ class ResponseTimeInterceptor extends HandlerInterceptor {
         if (logger.isDebugEnabled()) {
             val continuation = ContinuationSupport.getContinuation(request)
 
-            if (continuation.isResumed) {
+            if (!continuation.isSuspended) {
                 Option(continuation.getAttribute(START)).foreach { start =>
                     logger.debug("Http request/response time: {} ", System.currentTimeMillis - start.asInstanceOf[Long]);
                 }
