@@ -24,7 +24,7 @@ class ErrorsInterceptor extends HandlerInterceptor {
     }
 
     def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Object, modelAndView: ModelAndView) {
-        if (modelAndView == null || modelAndView.getViewName == null || modelAndView.getViewName.startsWith("redirect:")) {
+        if (modelAndView == null || modelAndView.getViewName == null) { // || modelAndView.getViewName.startsWith("redirect:")) {
             return
         }
 
@@ -59,6 +59,16 @@ class ErrorsInterceptor extends HandlerInterceptor {
         }
 
         errorsMap.putAll(objects)
+
+
+        //if this came from a redirect we want to add the errors passed on the url to our global errors...
+        Option(request.getParameterValues(errorsAttributeName)).foreach(_.foreach(global.add(_)))
+
+        //if we are redirecting lets pass on the global errors...
+        if (modelAndView.getViewName.startsWith("redirect:")) {
+            modelAndView.addObject(errorsAttributeName, global)
+            logger.debug("Only passing on global errors {} to {}", global, modelAndView.getViewName)
+        }
 
         logger.debug("Found errors {}", modelAndView.getModel.get(errorsAttributeName))
     }

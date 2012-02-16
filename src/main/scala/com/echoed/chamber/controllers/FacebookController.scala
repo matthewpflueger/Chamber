@@ -18,6 +18,8 @@ import org.eclipse.jetty.continuation.{Continuation, ContinuationSupport}
 import com.echoed.chamber.services.facebook.{LocateByFacebookIdResponse, FacebookService, LocateByCodeResponse, FacebookServiceLocator}
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import com.echoed.chamber.services.EchoedException
+import org.springframework.validation.ObjectError
 
 
 @Controller
@@ -57,7 +59,8 @@ class FacebookController {
 
         def error(e: Throwable) {
             logger.error("Unexpected error encountered during Facebook add with code %s and redirect {}" format(code, redirect), e)
-            val modelAndView = new ModelAndView(facebookLoginErrorView, "errorMessage", e.getMessage)
+            val modelAndView = new ModelAndView(facebookLoginErrorView) with Errors
+            modelAndView.addError(e)
             continuation.setAttribute("modelAndView", modelAndView)
             continuation.resume
             modelAndView
@@ -90,7 +93,8 @@ class FacebookController {
                             case GetEchoedUserResponse(_, Right(echoedUser)) => Option(echoedUser.facebookUserId).cata(
                                 facebookUserId => {
                                     logger.error("Facebook account already attached {}", echoedUser.facebookUserId)
-                                    val modelAndView = new ModelAndView(redirectView);
+                                    val modelAndView = new ModelAndView(redirectView) with Errors
+                                    modelAndView.addError("Facebook account already in use")
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume
                                 },
@@ -117,9 +121,9 @@ class FacebookController {
                                                     _ match {
                                                         case AssignFacebookServiceResponse(_, Left(error)) =>
                                                             logger.debug("Error assigning Facebook service to EchoedUser {}: {}", echoedUser.id, error.message)
-                                                            val modelAndView = new ModelAndView(redirectView);
+                                                            val modelAndView = new ModelAndView(redirectView) with Errors;
+                                                            modelAndView.addError(error)
                                                             modelAndView.addAllObjects(parameters)
-                                                            modelAndView.addObject("error", error.getMessage)
                                                             continuation.setAttribute("modelAndView", modelAndView)
                                                             continuation.resume
 
@@ -150,7 +154,8 @@ class FacebookController {
 
         def error(e: Throwable) = {
             logger.error("Unexpected error encountered during Facebook login with code %s and redirect %s" format(code, redirect), e)
-            val modelAndView = new ModelAndView(facebookLoginErrorView, "errorMessage", e.getMessage)
+            val modelAndView = new ModelAndView(facebookLoginErrorView) with Errors
+            modelAndView.addError(e)
             continuation.setAttribute("modelAndView", modelAndView)
             continuation.resume
             modelAndView
@@ -223,7 +228,8 @@ class FacebookController {
 
         def error(e: Throwable) = {
             logger.error("Unexpected error encountered during Facebook app login with signed request %s " format signedRequest, e)
-            val modelAndView = new ModelAndView(facebookLoginErrorView, "errorMessage", e.getMessage)
+            val modelAndView = new ModelAndView(facebookLoginErrorView) with Errors
+            modelAndView.addError(e)
             continuation.setAttribute("modelAndView", modelAndView)
             continuation.resume
             modelAndView
