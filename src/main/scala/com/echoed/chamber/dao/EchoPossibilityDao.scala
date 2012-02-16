@@ -7,6 +7,8 @@ import java.util.{List => JList}
 trait EchoPossibilityDao {
 
     def findById(id: String): EchoPossibility
+    
+    def findByIdOrEchoId(id:String): EchoPossibility
 
     def findByRetailerId(id: String): JList[EchoPossibility]
 

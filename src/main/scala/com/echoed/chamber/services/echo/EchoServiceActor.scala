@@ -119,31 +119,39 @@ class EchoServiceActor extends Actor {
             }
 
             Future {
-                Option(echoDao.findById(echoClick.echoId)).cata(
-                    echo => {
-                        channel.tryTell(RecordEchoClickResponse(msg, Right(echo)))
+                Option(echoPossibilityDao.findByIdOrEchoId(echoClick.echoId)).cata(
+                    echoPossibility =>{
+                        logger.debug("Found EchoPossibility {}", echoPossibility);
+                        logger.debug("Echo Click {}", echoClick);
+                        channel.tryTell(RecordEchoClickResponse(msg, Right(echoPossibility)))
 
-                        Future {
-                            val ec = determinePostId(echo, echoClick, postId)
-                            echoClickDao.insert(ec)
-                            logger.debug("Successfully recorded click for Echo {}", echo.id)
-                        }.onException {
-                            case e => logger.error("Failed to save echo click %s for %s" format(echoClick, echo))
-                        }
+                        Option(echoDao.findById(echoPossibility.echoId)).cata(
+                            echo => {
+                                Future {
+                                    val ec = determinePostId(echo, echoClick, postId)
+                                    echoClickDao.insert(ec.copy( echoPossibilityId = echo.echoPossibilityId))
+                                    logger.debug("Successfully recorded click for Echo {}", echo.id)
+                                }.onException {
+                                    case e => logger.error("Failed to save echo click %s for %s" format(echoClick, echo))
+                                }
 
-                        val emf = Future { Option(echoMetricsDao.findById(echo.echoMetricsId)).get }
-                        val rsf = Future { Option(retailerSettingsDao.findById(echo.retailerSettingsId)).get }
+                                val emf = Future { Option(echoMetricsDao.findById(echo.echoMetricsId)).get }
+                                val rsf = Future { Option(retailerSettingsDao.findById(echo.retailerSettingsId)).get }
 
-                        (for {
-                            echoMetrics <- emf
-                            retailerSettings <- rsf
-                        } yield {
-                            val clickedEcho = echoMetrics.clicked(retailerSettings)
-                            echoMetricsDao.updateForClick(clickedEcho)
-                            logger.debug("Successfully updated click metrics for {}", clickedEcho.echoId)
-                        }).onException {
-                            case e => logger.error("Failed to save echo click metrics for %s" format echo, e)
-                        }
+                                (for {
+                                    echoMetrics <- emf
+                                    retailerSettings <- rsf
+                                } yield {
+                                    val clickedEcho = echoMetrics.clicked(retailerSettings)
+                                    echoMetricsDao.updateForClick(clickedEcho)
+                                    logger.debug("Successfully updated click metrics for {}", clickedEcho.echoId)
+                                }).onException {
+                                    case e => logger.error("Failed to save echo click metrics for %s" format echo, e)
+                                }
+                            },
+                        {
+                            echoClickDao.insert(echoClick.copy(echoId = null, echoPossibilityId = echoClick.echoId))
+                        })
                     },
                     {
                         channel ! RecordEchoClickResponse(msg, Left(EchoNotFound(echoClick.echoId)))

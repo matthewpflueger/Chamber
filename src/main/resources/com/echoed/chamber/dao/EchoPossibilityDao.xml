@@ -27,6 +27,17 @@
             <arg column="echoClickId" javaType="String" />
         </constructor>
     </resultMap>
+    
+    <select id="findByIdOrEchoId" resultMap="echoPossibilityResult">
+        select
+            *
+        from
+            EchoPossibility
+        where
+            id = #{id}
+            or
+            echoId = #{id}
+    </select>
 
     <select id="findById" resultMap="echoPossibilityResult">
     	select * from EchoPossibility where id = #{id}

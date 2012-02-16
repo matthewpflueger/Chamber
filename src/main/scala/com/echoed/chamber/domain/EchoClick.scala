@@ -14,7 +14,8 @@ case class EchoClick(
         referrerUrl: String,
         ipAddress: String,
         clickedOn: Date,
-        forwardedFor: String) {
+        forwardedFor: String,
+        echoPossibilityId: String) {
 
 
     def this(
@@ -33,6 +34,7 @@ case class EchoClick(
         referrerUrl,
         ipAddress,
         new Date,
-        forwardedFor)
+        forwardedFor,
+        null    )
 
 }
