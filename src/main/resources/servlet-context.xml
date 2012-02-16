@@ -79,7 +79,7 @@
         <property name="echoItView" value="echoIt" />
         <property name="errorView" value="error" />
         <property name="cookieManager" ref="cookieManager" />
-        <property name="facebookAddRedirectUrl" value="${http.urls.site}/facebook/login/add" />
+        <property name="facebookAddRedirectUrl" value="${http.urls.site}/facebook/add" />
         <property name="facebookLoginRedirectUrl" value="${http.urls.site}/facebook/login" />
         <property name="logoutUrl" value="${http.urls.site}/logout" />
 
