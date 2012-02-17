@@ -207,18 +207,18 @@ textarea{
             #product_upper{
                 &.large{
                     #product_picture_container{
-                        height: 280px;
+                        max-height: 280px;
                     }
                     #product_picture{
-                        height: 280px;
+                        max-height: 280px;
                     }
                 }
                 &.small{
                     #product_picture_container{
-                        height: 150px;
+                        max-height: 150px;
                     }
                     #product_picture{
-                        height: 150px;
+                        max-height: 150px;
                     }
                 }
                 padding: 10px;
