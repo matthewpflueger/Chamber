@@ -242,8 +242,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         var productDiv = $('<div></div>');
         var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
+        productDiv.hide().appendTo(self.exhibit);
         productDiv.imagesLoaded(function(){
             self.exhibit.isotope('insert',productDiv);
+            productDiv.show();
         });
     }
 });
