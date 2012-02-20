@@ -36,7 +36,14 @@
     </bean>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
+        <property name="dataSource" ref="dataSource" />
+        <property name="defaultTimeout" value="${jdbc.timeout}" />
+
+    </bean>
+
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="isolationLevelName" value="ISOLATION_READ_UNCOMMITTED" />
+        <property name="transactionManager" ref="transactionManager" />
     </bean>
 
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -67,7 +74,7 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
-    <bean id="retailerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    <bean id="partnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
@@ -128,17 +135,15 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
-    <bean id="retailerSettingsDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    <bean id="partnerSettingsDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerSettingsDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
-    <bean id="retailerUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    <bean id="partnerUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerUserDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
-
-    <alias name="retailerUserDao" alias="partnerUserDao" />
 
     <bean id="twitterFollowerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.TwitterFollowerDao" />
@@ -159,12 +164,12 @@
         <property name="mapperInterface" value="com.echoed.chamber.dao.views.RetailerViewDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
-    
+
     <bean id="adminUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.AdminUserDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
-    
+
     <bean id="adminViewDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.views.AdminViewDao"/>
         <property name="sqlSessionTemplate" ref="sqlSession"/>

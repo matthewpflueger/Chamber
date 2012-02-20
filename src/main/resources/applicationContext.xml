@@ -25,7 +25,15 @@
         </property>
     </bean>
 
-    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" >
+        <property name="validationMessageSource" ref="messageSource" />
+    </bean>
+
+    <bean id="globalsManager" class="com.echoed.chamber.services.GlobalsManager" >
+        <property name="urlsProperties" ref="urlsProperties" />
+        <property name="gitProperties" ref="gitProperties" />
+        <property name="facebookClientId" value="${facebook.clientId}" />
+    </bean>
 
     <bean id="encrypter" class="com.echoed.util.Encrypter" />
 
@@ -91,6 +99,10 @@
         <property name="echoedUserServiceLocatorActor" ref="echoedUserServiceLocatorActor" />
     </bean>
 
+    <bean id="partnerService" class="com.echoed.chamber.services.partner.PartnerServiceActorClient">
+        <property name="actorRef" ref="partnerServiceActor" />
+    </bean>
+
     <bean id="partnerUserServiceCreator" class="com.echoed.chamber.services.partneruser.PartnerUserServiceCreatorActorClient">
         <property name="partnerUserServiceCreatorActor" ref="partnerUserServiceCreatorActor" />
     </bean>
@@ -109,6 +121,24 @@
 
 
     <akka:untyped-actor
+            id="partnerServiceActor"
+            implementation="com.echoed.chamber.services.partner.PartnerServiceActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="partnerDao" ref="partnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerUserDao" ref="partnerUserDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="encrypter" ref="encrypter" />
+        <!--suppress SpringModelInspection -->
+        <property name="transactionTemplate" ref="transactionTemplate" />
+        <!--suppress SpringModelInspection -->
+        <property name="emailService" ref="emailService" />
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
             id="emailServiceActor"
             implementation="com.echoed.chamber.services.email.EmailServiceActor"
             autostart="true">
@@ -118,6 +148,8 @@
         <property name="mustacheEngine" ref="mustacheEngine" />
         <!--suppress SpringModelInspection -->
         <property name="mailProperties" ref="mailProperties" />
+        <!--suppress SpringModelInspection -->
+        <property name="globalsManager" ref="globalsManager" />
     </akka:untyped-actor>
 
 
@@ -166,9 +198,9 @@
         <!--suppress SpringModelInspection -->
         <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->
-        <property name="retailerDao" ref="retailerDao" />
+        <property name="retailerDao" ref="partnerDao" />
         <!--suppress SpringModelInspection -->
-        <property name="retailerSettingsDao" ref="retailerSettingsDao" />
+        <property name="retailerSettingsDao" ref="partnerSettingsDao" />
         <!--suppress SpringModelInspection -->
         <property name="echoClickDao" ref="echoClickDao" />
     </akka:untyped-actor>
@@ -228,7 +260,7 @@
         <!--suppress SpringModelInspection -->
         <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->
-        <property name="retailerSettingsDao" ref="retailerSettingsDao" />
+        <property name="retailerSettingsDao" ref="partnerSettingsDao" />
     </akka:untyped-actor>
 
 

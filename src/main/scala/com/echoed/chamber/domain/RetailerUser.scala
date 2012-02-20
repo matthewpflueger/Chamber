@@ -26,6 +26,10 @@ case class RetailerUser(
         UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString,
         null)
 
+    def this(name: String, email: String) = this(
+        null,
+        name,
+        email)
 
     def isPassword(plainTextPassword: String) = {
         password == hash(plainTextPassword)

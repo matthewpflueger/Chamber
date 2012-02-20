@@ -29,9 +29,7 @@
                     <property name="domain" value="${domain}" />
                 </bean>
                 <bean class="com.echoed.chamber.interceptors.GlobalsInterceptor">
-                    <property name="urlsProperties" ref="urlsProperties" />
-                    <property name="gitProperties" ref="gitProperties" />
-                    <property name="facebookClientId" value="${facebook.clientId}" />
+                    <property name="globalsManager" ref="globalsManager" />
                 </bean>
                 <bean class="com.echoed.chamber.interceptors.ErrorsInterceptor">
                     <property name="messageSource" ref="messageSource" />
@@ -65,8 +63,22 @@
 
     <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager" />
 
+
     <!-- Search package for annotated classes -->
     <context:component-scan base-package="com.echoed.chamber"/>
+
+
+    <bean id="registerFormValidator" class="com.echoed.chamber.controllers.partner.RegisterFormValidator" />
+
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean" >
+        <property name="registerDefaultFormatters" value="true" />
+        <property name="formatters">
+            <set>
+                <bean class="org.springframework.format.number.NumberFormatAnnotationFormatterFactory" />
+                <bean class="org.springframework.format.datetime.DateFormatter" />
+            </set>
+        </property>
+    </bean>
 
 
     <!--suppress DuplicatedBeanNamesInspection -->
@@ -146,6 +158,17 @@
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="partnerLoginErrorView" value="login" />
         <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="registerController" class="com.echoed.chamber.controllers.partner.RegisterController">
+        <property name="cookieManager" ref="cookieManager" />
+        <property name="partnerService" ref="partnerService" />
+        <property name="registerView" value="partner_register" />
+        <property name="postRegisterView" value="redirect:partner_register" />
+        <property name="globalValidator" ref="validator" />
+        <property name="formValidator" ref="registerFormValidator" />
+        <property name="conversionService" ref="conversionService" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

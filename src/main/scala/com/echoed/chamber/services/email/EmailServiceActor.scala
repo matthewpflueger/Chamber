@@ -14,6 +14,7 @@ import javax.mail.internet.MimeMessage
 import org.springframework.mail.javamail.{MimeMessageHelper, MimeMessagePreparator, JavaMailSender}
 import java.util.{Properties, Locale, Date}
 import com.echoed.util.mustache.{MustacheEngine, MustacheView, MustacheViewResolver}
+import com.echoed.chamber.services.GlobalsManager
 
 
 class EmailServiceActor extends Actor {
@@ -22,6 +23,7 @@ class EmailServiceActor extends Actor {
 
     @BeanProperty var javaMailSender: JavaMailSender = _
     @BeanProperty var mustacheEngine: MustacheEngine = _
+    @BeanProperty var globalsManager: GlobalsManager = _
     @BeanProperty var from: String = _
 
     @BeanProperty var mailProperties: Properties = _
@@ -38,6 +40,8 @@ class EmailServiceActor extends Actor {
             val channel: Channel[SendEmailResponse] = self.channel
 
             try {
+                globalsManager.addGlobals(model)
+
                 val renderedTemplate = mustacheEngine.compile(templateName).execute(model)
 
                 javaMailSender.send(new MimeMessagePreparator() {

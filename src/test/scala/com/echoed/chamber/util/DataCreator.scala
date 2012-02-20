@@ -340,7 +340,7 @@ class DataCreator {
 
 
     val retailers = List(
-        Retailer(retailerId, on, on, "A Lady & Her Baby"),
+        new Retailer("A Lady & Her Baby").copy(id = retailerId),
         new Retailer("Babesta"),
         new Retailer("Carrot Top"),
         new Retailer("Dimples"),

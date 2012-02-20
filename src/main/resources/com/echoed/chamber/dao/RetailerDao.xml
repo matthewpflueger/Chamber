@@ -10,6 +10,11 @@
             <arg column="updatedOn" javaType="Date" />
             <arg column="createdOn" javaType="Date" />
             <arg column="name" javaType="String" />
+            <arg column="website" javaType="String" />
+            <arg column="phone" javaType="String" />
+            <arg column="hashTag" javaType="String" />
+            <arg column="logo" javaType="String" />
+            <arg column="secret" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -21,11 +26,21 @@
         insert into Retailer(
     			id,
     			createdOn,
-                name)
+                name,
+                website,
+                phone,
+                hashTag,
+                logo,
+                secret)
     	values (
     			#{id},
     			#{createdOn},
-                #{name})
+                #{name},
+                #{website},
+                #{phone},
+                #{hashTag},
+                #{logo},
+                #{secret})
     </insert>
 
     <delete id="deleteById">

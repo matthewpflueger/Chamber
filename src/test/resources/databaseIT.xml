@@ -14,11 +14,11 @@
         <property name="facebookTestUserDao" ref="facebookTestUserDao" />
         <property name="facebookUserDao" ref="facebookUserDao" />
         <property name="echoedUserDao" ref="echoedUserDao" />
-        <property name="retailerDao" ref="retailerDao" />
-        <property name="retailerSettingsDao" ref="retailerSettingsDao" />
+        <property name="retailerDao" ref="partnerDao" />
+        <property name="retailerSettingsDao" ref="partnerSettingsDao" />
         <property name="echoDao" ref="echoDao" />
         <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <property name="retailerUserDao" ref="retailerUserDao"/>
+        <property name="retailerUserDao" ref="partnerUserDao"/>
         <property name="urlsProperties" ref="urlsProperties" />
         <property name="facebookAccessProperties" ref="facebookAccessProperties" />
         <property name="twitterAccessProperties" ref="twitterAccessProperties" />

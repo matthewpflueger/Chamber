@@ -149,6 +149,14 @@ h2{
     background-color:$mainColor;
 }
 
+.error {
+    color: $redColor;
+}
+
+form label em {
+    color: $redColor;
+}
+
 #container{
     min-width: 1000px;
     min-height: 100%;
@@ -623,7 +631,7 @@ section{
         .subtitle{
             width: 600px;
             margin: auto;
-            text-align:center;   
+            text-align:center;
             padding-bottom: 50px;
             font-family: $readingTextFontFamily;
             font-size: 24px;

@@ -1,9 +1,8 @@
 package com.echoed.chamber.services.partneruser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.RetailerUser
 import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, RetailerProductSocialActivityByDate, RetailerSocialActivityByDate,CustomerSocialSummary,RetailerCustomerSocialActivityByDate}
-import com.echoed.chamber.domain.{FacebookComment}
+import com.echoed.chamber.domain.{Retailer, RetailerUser, FacebookComment}
 
 
 sealed trait PartnerUserMessage extends Message
@@ -86,6 +85,13 @@ case class LocateResponse(
         message: Locate,
         value: Either[PUE, PartnerUserService])
         extends PUM with RM[PartnerUserService, Locate, PUE]
+
+
+case class RegisterPartner(partner: Retailer, partnerUser: RetailerUser) extends PUM
+case class RegisterPartnerResponse(
+        message: RegisterPartner,
+        value: Either[PUE, PartnerUserService]) extends PUM with RM[PartnerUserService, RegisterPartner, PUE]
+
 
 
 

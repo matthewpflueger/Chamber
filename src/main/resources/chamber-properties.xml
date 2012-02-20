@@ -94,6 +94,7 @@
         <prop key="jdbc.url">jdbc:mysql://localhost:3306/Echoed</prop>
         <prop key="jdbc.username">root</prop>
         <prop key="jdbc.password">password</prop>
+        <prop key="jdbc.timeout">10</prop>
 
         <prop key="pool.initialSize">5</prop>
         <prop key="pool.minIdle">5</prop>

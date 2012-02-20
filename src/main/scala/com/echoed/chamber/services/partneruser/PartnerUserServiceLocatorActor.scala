@@ -7,6 +7,8 @@ import Scalaz._
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import akka.actor._
 import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
+import com.echoed.util.Encrypter
+import com.echoed.chamber.dao.RetailerDao
 
 
 class PartnerUserServiceLocatorActor extends Actor {
@@ -15,6 +17,8 @@ class PartnerUserServiceLocatorActor extends Actor {
 
     @BeanProperty var partnerUserServiceCreator: PartnerUserServiceCreator = _
     @BeanProperty var cacheManager: CacheManager = _
+    @BeanProperty var encrypter: Encrypter = _
+    @BeanProperty var partnerDao: RetailerDao = _
 
     private val cache = WeakHashMap[String, PartnerUserService]()
     private var cacheById: ConcurrentMap[String, PartnerUserService] = null
@@ -29,7 +33,7 @@ class PartnerUserServiceLocatorActor extends Actor {
     def login(msg: Login, channel: Channel[LoginResponse]) {
         val email = msg.email
         val password = msg.password
-        logger.debug("Locating PartnerUserService for {}", email)
+        logger.debug("Locating PartnerService for {}", email)
 
         cache.get(email) match {
             case Some(partnerUserService) =>
@@ -65,6 +69,7 @@ class PartnerUserServiceLocatorActor extends Actor {
 
 
     def receive = {
+
         case msg @ CacheEntryRemoved(partnerUserId: String, pus: PartnerUserService, cause: String) =>
             logger.debug("Received {}", msg)
             pus.logout(partnerUserId)
