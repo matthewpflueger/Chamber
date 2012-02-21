@@ -11,8 +11,8 @@ trait Errors { this: ModelAndView =>
     def addError(defaultMessage: String, code: Option[String] = None, arguments: Option[Array[AnyRef]] = None) {
         addError(new EchoedException(
             msg = defaultMessage,
-            code = code,
-            arguments = arguments))
+            cde = code,
+            args = arguments))
     }
 
     def addError(e: Throwable) {

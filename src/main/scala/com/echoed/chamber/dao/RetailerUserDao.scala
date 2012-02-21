@@ -5,6 +5,8 @@ import com.echoed.chamber.domain.RetailerUser
 
 trait RetailerUserDao {
 
+    def updatePassword(partnerUser: RetailerUser): Int
+
     def findById(id: String): RetailerUser
 
     def insert(retailerUser: RetailerUser): Int

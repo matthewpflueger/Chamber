@@ -8,9 +8,9 @@ import org.springframework.dao.DataIntegrityViolationException
 import com.echoed.chamber.dao.{RetailerSettingsDao, RetailerDao, RetailerUserDao}
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.{TransactionCallback, TransactionTemplate}
-import java.util.{HashMap => JHashMap}
 import com.echoed.chamber.services.email.EmailService
 import com.echoed.util.TransactionUtils._
+import java.util.{UUID, HashMap => JHashMap}
 
 class PartnerServiceActor extends Actor {
 
@@ -43,7 +43,9 @@ class PartnerServiceActor extends Actor {
             try {
                 val p = partner.copy(secret = encrypter.generateSecretKey)
                 val ps = partnerSettings.copy(retailerId = p.id)
-                val pu = partnerUser.copy(retailerId = p.id)
+                val password = UUID.randomUUID().toString
+                val pu = partnerUser.copy(retailerId = p.id).createPassword(password)
+                val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (partnerUser.email, password))
 
 
                 transactionTemplate.execute({status: TransactionStatus =>
@@ -55,6 +57,7 @@ class PartnerServiceActor extends Actor {
                 channel ! RegisterPartnerResponse(msg, Right(p))
 
                 val model = new JHashMap[String, AnyRef]()
+                model.put("code", code)
                 model.put("partner", p)
                 model.put("partnerUser", pu)
                 emailService.sendEmail(

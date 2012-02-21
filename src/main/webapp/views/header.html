@@ -26,6 +26,10 @@
         Echoed.errors["{{object}}"]["{{field}}"] = "{{message}}"
         //{{/errors.fieldErrors}}
 
+        Echoed.messages = {};
+        Echoed.messages.global = new Array(); //{{#messages.global}}
+        Echoed.messages.global.push("{{this}}");
+        /*{{/messages.global}} // */
 
         Echoed.urls = {}; //{{#urls}}
         Echoed.urls.api = "{{api}}";

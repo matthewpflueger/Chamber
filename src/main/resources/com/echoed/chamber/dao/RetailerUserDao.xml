@@ -44,6 +44,12 @@
                 #{password})
     </insert>
 
+    <update id="updatePassword" parameterType="com.echoed.chamber.domain.RetailerUser">
+        update RetailerUser set
+            password=#{password}
+        where id=#{id}
+    </update>
+
     <delete id="deleteById">
         delete from RetailerUser where id=#{id}
     </delete>

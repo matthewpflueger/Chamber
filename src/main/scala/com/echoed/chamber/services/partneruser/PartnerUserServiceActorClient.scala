@@ -6,40 +6,43 @@ import com.echoed.chamber.services.ActorClient
 
 class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends PartnerUserService with ActorClient {
 
+    def activate(password: String) =
+        (partnerUserServiceActor ? ActivatePartnerUser(password)).mapTo[ActivatePartnerUserResponse]
+
     def getPartnerUser =
         (partnerUserServiceActor ? GetPartnerUser()).mapTo[GetPartnerUserResponse]
-    
+
     def getCustomerSocialSummary(echoedUserId: String) =
         (partnerUserServiceActor ? GetCustomerSocialSummary(echoedUserId)).mapTo[GetCustomerSocialSummaryResponse]
-    
+
     def getCustomerSocialActivityByDate(echoedUserId: String) =
         (partnerUserServiceActor ? GetCustomerSocialActivityByDate(echoedUserId)).mapTo[GetCustomerSocialActivityByDateResponse]
 
     def getRetailerSocialSummary =
         (partnerUserServiceActor ? GetRetailerSocialSummary()).mapTo[GetRetailerSocialSummaryResponse]
-    
+
     def getRetailerSocialActivityByDate =
         (partnerUserServiceActor ? GetRetailerSocialActivityByDate()).mapTo[GetRetailerSocialActivityByDateResponse]
 
     def getProductSocialSummary(productId: String) =
         (partnerUserServiceActor ? GetProductSocialSummary(productId)).mapTo[GetProductSocialSummaryResponse]
-    
+
     def getProductSocialActivityByDate(productId:String) =
         (partnerUserServiceActor ? GetProductSocialActivityByDate(productId)).mapTo[GetProductSocialActivityByDateResponse]
 
-    def getProducts = 
+    def getProducts =
         (partnerUserServiceActor ? GetProducts()).mapTo[GetProductsResponse]
-    
+
     def getTopProducts =
         (partnerUserServiceActor ? GetTopProducts()).mapTo[GetTopProductsResponse]
-    
-    def getCustomers = 
+
+    def getCustomers =
         (partnerUserServiceActor ? GetCustomers()).mapTo[GetCustomersResponse]
 
-    def getTopCustomers = 
+    def getTopCustomers =
         (partnerUserServiceActor ? GetTopCustomers()).mapTo[GetTopCustomersResponse]
-    
-    def getComments = 
+
+    def getComments =
         (partnerUserServiceActor ? GetComments()).mapTo[GetCommentsResponse]
 
     def getCommentsByProductId(productId: String) =

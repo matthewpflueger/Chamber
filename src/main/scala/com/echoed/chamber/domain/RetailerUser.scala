@@ -4,6 +4,7 @@ import java.util.{UUID, Date}
 import java.security.MessageDigest
 import java.nio.charset.Charset
 import org.apache.commons.codec.binary.Base64
+import com.echoed.chamber.services.partneruser.InvalidPassword
 
 
 case class RetailerUser(
@@ -36,6 +37,8 @@ case class RetailerUser(
     }
 
     def createPassword(plainTextPassword: String) = {
+        val ptp = plainTextPassword.trim()
+        if (ptp.length < 6) throw new InvalidPassword()
         this.copy(password = hash(plainTextPassword))
     }
 

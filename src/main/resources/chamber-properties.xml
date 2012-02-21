@@ -150,6 +150,7 @@
         <prop key="exhibitUrl">${http.urls.api}/user/exhibit</prop>
         <prop key="friendsUrl">${http.urls.api}/user/friends</prop>
         <prop key="dashboardUrl">${http.urls.site}/partner/dashboard</prop>
+        <prop key="integrationUrl">${http.urls.site}/partner/integration</prop>
         <prop key="adminDashboardUrl">${http.urls.site}/admin/dashboard</prop>
 
         <prop key="mail.user">no-reply@echoed.com</prop>

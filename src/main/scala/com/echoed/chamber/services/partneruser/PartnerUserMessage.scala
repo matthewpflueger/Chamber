@@ -6,7 +6,10 @@ import com.echoed.chamber.domain.{Retailer, RetailerUser, FacebookComment}
 
 
 sealed trait PartnerUserMessage extends Message
-sealed case class PartnerUserException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)
+sealed case class PartnerUserException(
+        message: String = "",
+        cause: Throwable = null,
+        code: Option[String] = None) extends EchoedException(message, cause, code)
 
 import com.echoed.chamber.services.partneruser.{PartnerUserMessage => PUM}
 import com.echoed.chamber.services.partneruser.{PartnerUserException => PUE}
@@ -86,12 +89,15 @@ case class LocateResponse(
         value: Either[PUE, PartnerUserService])
         extends PUM with RM[PartnerUserService, Locate, PUE]
 
+case class ActivatePartnerUser(password: String) extends PUM
+case class ActivatePartnerUserResponse(
+        message: ActivatePartnerUser,
+        value: Either[PUE, RetailerUser])
+        extends PUM with RM[RetailerUser, ActivatePartnerUser, PUE]
 
-case class RegisterPartner(partner: Retailer, partnerUser: RetailerUser) extends PUM
-case class RegisterPartnerResponse(
-        message: RegisterPartner,
-        value: Either[PUE, PartnerUserService]) extends PUM with RM[PartnerUserService, RegisterPartner, PUE]
-
-
+case class InvalidPassword(
+        _message: String = "Invalid password",
+        _cause: Throwable = null,
+        _code: Option[String] = Some("password.invalid")) extends PUE(_message, _cause, _code)
 
 

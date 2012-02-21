@@ -68,8 +68,6 @@
     <context:component-scan base-package="com.echoed.chamber"/>
 
 
-    <bean id="registerFormValidator" class="com.echoed.chamber.controllers.partner.RegisterFormValidator" />
-
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean" >
         <property name="registerDefaultFormatters" value="true" />
         <property name="formatters">
@@ -161,13 +159,28 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="activateController" class="com.echoed.chamber.controllers.partner.ActivateController">
+        <property name="cookieManager" ref="cookieManager" />
+        <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
+        <property name="activateView" value="partner_activate" />
+        <property name="postActivateView" value="redirect:${integrationUrl}" />
+        <property name="globalValidator" ref="validator" />
+        <property name="encrypter" ref="encrypter" />
+        <property name="formValidator">
+            <bean class="com.echoed.chamber.controllers.partner.ActivateFormValidator" />
+        </property>
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="registerController" class="com.echoed.chamber.controllers.partner.RegisterController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerService" ref="partnerService" />
         <property name="registerView" value="partner_register" />
         <property name="postRegisterView" value="redirect:partner_register" />
         <property name="globalValidator" ref="validator" />
-        <property name="formValidator" ref="registerFormValidator" />
+        <property name="formValidator" >
+            <bean class="com.echoed.chamber.controllers.partner.RegisterFormValidator" />
+        </property>
         <property name="conversionService" ref="conversionService" />
     </bean>
 
@@ -195,6 +208,13 @@
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="partnerDashboardView" value="partner" />
         <property name="partnerDashboardErrorView" value="login" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="integrationController" class="com.echoed.chamber.controllers.partner.IntegrationController">
+        <property name="integrationView" value="partner_integration" />
+        <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
+        <property name="cookieManager" ref="cookieManager" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

@@ -6,10 +6,18 @@ import javax.crypto.{Cipher, KeyGenerator}
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 import scala.reflect.BeanProperty
 
+object Encrypter extends App {
+    val encrypter = new Encrypter
+    encrypter.init()
+    Console.println("Secret key: %s" format encrypter.generateSecretKey)
+}
+
 class Encrypter {
 
     @BeanProperty var keyGenerator: KeyGenerator = _
     @BeanProperty var ivParameterSpec: IvParameterSpec = _
+
+    @BeanProperty var secret: String="PHHabG5MSw6hv4lZJg-Ppg"
 
     @BeanProperty var algorithm: String = "AES"
     @BeanProperty var cipherTransformation: String = "AES/CBC/NoPadding"
@@ -31,7 +39,7 @@ class Encrypter {
         }
     }
 
-    def encrypt(text: String, secret: String) = {
+    def encrypt(text: String, secret: String = secret) = {
         var textBytes = text.getBytes("UTF-8")
         if (textBytes.length % 16 != 0) {
             val newBytes = new Array[Byte](textBytes.length + 16 - (textBytes.length % 16))
@@ -49,7 +57,7 @@ class Encrypter {
     }
 
 
-    def decrypt(text: String, secret: String) = {
+    def decrypt(text: String, secret: String = secret) = {
         val cipher = Cipher.getInstance(cipherTransformation)
         cipher.init(
             Cipher.DECRYPT_MODE,

@@ -13,7 +13,7 @@ import views.{RetailerProductSocialActivityByDate,RetailerSocialActivityByDate,R
 
 
 class PartnerUserServiceActor(
-        partnerUser: RetailerUser,
+        var partnerUser: RetailerUser,
         partnerUserDao: RetailerUserDao,
         retailerViewDao: RetailerViewDao) extends Actor {
 
@@ -22,6 +22,22 @@ class PartnerUserServiceActor(
     self.id = "PartnerUser:%s" format partnerUser.id
 
     def receive = {
+        case msg @ ActivatePartnerUser(password) =>
+            val channel: Channel[ActivatePartnerUserResponse] = self.channel
+
+            try {
+                partnerUser = partnerUser.createPassword(password)
+                partnerUserDao.updatePassword(partnerUser)
+                channel ! ActivatePartnerUserResponse(msg, Right(partnerUser))
+            } catch {
+                case e: InvalidPassword =>
+                    channel ! ActivatePartnerUserResponse(msg, Left(e))
+                case e =>
+                    channel ! ActivatePartnerUserResponse(
+                            msg,
+                            Left(PartnerUserException("Could not activate partner user %s" format partnerUser.name, e)))
+            }
+
         case msg @ Logout(partnerUserId) =>
             val channel: Channel[LogoutResponse] = self.channel
 
