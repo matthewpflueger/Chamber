@@ -296,8 +296,9 @@ h2{
 
 	            img{
 	                width: 230px;
+	                border: 0px;
 	                &.open-echo{
-    	                border-color: $highlightColor;
+    	                //border-color: $highlightColor;
     	            }
     	        }
 	        }
