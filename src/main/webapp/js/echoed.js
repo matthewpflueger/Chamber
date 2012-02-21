@@ -477,10 +477,15 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         this.el.addClass("item_wrap").addClass(this.model.get("echoCategory").replace(" ","-")).html(template).attr("href", Echoed.urls.api + "/echo/" + this.model.get("echoId") + "/1");
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
-        if(this.model.get("echoProductName"))
+        var text = this.el.find(".item_text");
+        if(this.model.get("echoProductName")){
             hover.append('<strong>' + this.model.get("echoProductName") +'</strong><br/><br/>');
+            text.prepend(this.model.get("echoProductName"));
+        }
         if(this.model.get("echoBrand"))
             hover.append('<strong>by ' + this.model.get("echoBrand") + '</strong><br/><br/>');
+            text.prepend('<strong>' + this.model.get("echoBrand") + '</strong><br/>');
+
         if(this.model.get("retailerName"))
             hover.append('@ ' + this.model.get("retailerName") + '<br/><br/>');
         if(this.model.get("echoedUserName"))
