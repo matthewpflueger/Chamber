@@ -5,17 +5,16 @@ import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
-import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.bind.WebDataBinder
-import com.echoed.chamber.services.partner.{RegisterPartnerResponse, PartnerService}
-import com.echoed.chamber.controllers.{Errors, RequestExpiredException, CookieManager}
+import com.echoed.chamber.controllers.{RequestExpiredException, CookieManager}
 import javax.validation.Valid
 import org.springframework.validation.{Validator, BindingResult}
 import org.springframework.core.convert.ConversionService
 import org.springframework.web.bind.annotation.{PathVariable, InitBinder, RequestMapping, RequestMethod}
 import com.echoed.chamber.services.partneruser._
-import org.apache.commons.codec.binary.Base64
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
+import com.echoed.chamber.controllers.ControllerUtils.error
+import org.springframework.web.servlet.ModelAndView
 
 
 @Controller
@@ -46,17 +45,10 @@ class ActivateController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-
-        def error(e: Option[Throwable] = None) = {
-            val modelAndView = new ModelAndView(activateView) with Errors
-            modelAndView.addError(e)
-            continuation.setAttribute("modelAndView", modelAndView)
-            if (continuation.isSuspended) continuation.resume
-            modelAndView
-        }
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         if (continuation.isExpired) {
+            error(activateView, Some(RequestExpiredException()))
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
@@ -70,13 +62,13 @@ class ActivateController {
             logger.debug("Starting activation for {}", email)
 
             partnerUserServiceLocator.login(email, password).onComplete(_.value.get.fold(
-                e => error(Some(e)),
+                e => error(activateView, Some(e)),
                 _ match {
-                    case LoginResponse(_, Left(e)) => error(Some(e))
+                    case LoginResponse(_, Left(e)) => error(activateView, Some(e))
                     case LoginResponse(_, Right(partnerUserService)) => partnerUserService.getPartnerUser.onComplete(_.value.get.fold(
-                        e => error(Some(e)),
+                        e => error(activateView, Some(e)),
                         _ match {
-                            case GetPartnerUserResponse(_, Left(e)) => error(Some(e))
+                            case GetPartnerUserResponse(_, Left(e)) => error(activateView, Some(e))
                             case GetPartnerUserResponse(_, Right(partnerUser)) =>
                                 val modelAndView = new ModelAndView(activateView)
                                 modelAndView.addObject("partnerUser", partnerUser)
@@ -99,39 +91,31 @@ class ActivateController {
             httpServletResponse: HttpServletResponse) = {
 
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-
-        def error(e: Option[Throwable] = None) = {
-            val modelAndView = new ModelAndView(activateView) with Errors
-            modelAndView.addError(e)
-            continuation.setAttribute("modelAndView", modelAndView)
-            if (continuation.isSuspended) continuation.resume
-            modelAndView
-        }
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         if (!bindingResult.hasErrors) {
             formValidator.validate(activateForm, bindingResult)
         }
 
         if (continuation.isExpired) {
-            error(Some(RequestExpiredException()))
+            error(activateView, Some(RequestExpiredException()))
         } else if (bindingResult.hasErrors) {
-            error()
+            error(activateView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
             logger.debug("Activating partner user {}", activateForm.partnerUserId)
 
             partnerUserServiceLocator.locate(activateForm.partnerUserId).onComplete(_.value.get.fold(
-                e => error(Some(e)),
+                e => error(activateView, Some(e)),
                 _ match {
-                    case LocateResponse(_, Left(e)) => error(Some(e))
+                    case LocateResponse(_, Left(e)) => error(activateView, Some(e))
                     case LocateResponse(_, Right(partnerUserService)) => partnerUserService.activate(activateForm.password).onComplete(_.value.get.fold(
-                        e => error(Some(e)),
+                        e => error(activateView, Some(e)),
                         _ match {
                             case ActivatePartnerUserResponse(_, Left(e: InvalidPassword)) =>
                                 bindingResult.rejectValue("password", e.code.get, e.message)
-                                error()
+                                error(activateView)
                             case ActivatePartnerUserResponse(_, Right(partnerUser)) =>
                                 cookieManager.addPartnerUserCookie(httpServletResponse, partnerUser, httpServletRequest)
                                 val modelAndView = new ModelAndView(postActivateView)
@@ -139,7 +123,7 @@ class ActivateController {
                                 continuation.setAttribute("modelAndView", modelAndView)
                                 continuation.resume
                                 logger.debug("Activated partner user {}: {}", partnerUser.id, partnerUser.name)
-                            case ActivatePartnerUserResponse(_, Left(e)) => error(Some(e))
+                            case ActivatePartnerUserResponse(_, Left(e)) => error(activateView, Some(e))
                         }))
                 }))
 

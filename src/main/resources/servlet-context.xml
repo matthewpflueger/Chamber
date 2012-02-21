@@ -151,7 +151,7 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
-    <bean id="partnerLoginController" class="com.echoed.chamber.controllers.PartnerLoginController">
+    <bean id="loginController" class="com.echoed.chamber.controllers.partner.LoginController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="partnerLoginErrorView" value="login" />
@@ -203,7 +203,7 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
-    <bean id="partnerDashboardController" class="com.echoed.chamber.controllers.PartnerDashboardController">
+    <bean id="dashboardController" class="com.echoed.chamber.controllers.partner.DashboardController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="partnerDashboardView" value="partner" />

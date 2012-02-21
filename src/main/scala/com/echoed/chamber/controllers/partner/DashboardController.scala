@@ -1,4 +1,4 @@
-package com.echoed.chamber.controllers
+package com.echoed.chamber.controllers.partner
 
 import org.springframework.stereotype.Controller
 import org.slf4j.LoggerFactory
@@ -8,12 +8,13 @@ import org.eclipse.jetty.continuation.ContinuationSupport
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.partneruser._
 import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod}
+import com.echoed.chamber.controllers.CookieManager
 
 
 @Controller
-class PartnerDashboardController {
+class DashboardController {
 
-    private val logger = LoggerFactory.getLogger(classOf[PartnerDashboardController])
+    private val logger = LoggerFactory.getLogger(classOf[DashboardController])
 
     @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
 
@@ -24,8 +25,8 @@ class PartnerDashboardController {
 
     @RequestMapping(value = Array("/partner/dashboard"), method = Array(RequestMethod.GET))
     def dashboard(
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+             httpServletRequest: HttpServletRequest,
+             httpServletResponse: HttpServletResponse) = {
 
         val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 

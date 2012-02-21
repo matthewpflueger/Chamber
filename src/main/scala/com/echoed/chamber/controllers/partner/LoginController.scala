@@ -1,4 +1,4 @@
-package com.echoed.chamber.controllers
+package com.echoed.chamber.controllers.partner
 
 import org.springframework.stereotype.Controller
 import org.slf4j.LoggerFactory
@@ -7,13 +7,14 @@ import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.partneruser._
-import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod,ResponseBody,PathVariable}
+import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod, ResponseBody, PathVariable}
+import com.echoed.chamber.controllers.CookieManager
 
 
 @Controller
-class PartnerLoginController {
+class LoginController {
 
-    private val logger = LoggerFactory.getLogger(classOf[PartnerLoginController])
+    private val logger = LoggerFactory.getLogger(classOf[LoginController])
 
     @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
 
@@ -25,10 +26,10 @@ class PartnerLoginController {
 
     @RequestMapping(value = Array("/partner/login"))
     def login(
-            @RequestParam(value="email", required=false) email: String,
-            @RequestParam(value="password", required= false) password: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+                     @RequestParam(value = "email", required = false) email: String,
+                     @RequestParam(value = "password", required = false) password: String,
+                     httpServletRequest: HttpServletRequest,
+                     httpServletResponse: HttpServletResponse) = {
 
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)
@@ -38,7 +39,7 @@ class PartnerLoginController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            if(email != null && password != null) {
+            if (email != null && password != null) {
                 def onError(error: PartnerUserException) {
                     logger.debug("Got error during login for {}: {}", email, password)
                     continuation.setAttribute(
@@ -56,9 +57,9 @@ class PartnerLoginController {
                         case GetPartnerUserResponse(_, Right(pu)) =>
                             logger.debug("Successful login for {}", email)
                             cookieManager.addPartnerUserCookie(
-                                    httpServletResponse,
-                                    pu,
-                                    httpServletRequest)
+                                httpServletResponse,
+                                pu,
+                                httpServletRequest)
                             continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown response %s" format unknown)
@@ -66,7 +67,7 @@ class PartnerLoginController {
                     case unknown => throw new RuntimeException("Unknown response %s" format unknown)
                 }
             }
-            else{
+            else {
                 continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginErrorView))
                 continuation.resume()
             }

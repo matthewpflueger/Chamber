@@ -12,6 +12,7 @@ import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.controllers.{RequestExpiredException, Errors, CookieManager}
 import com.echoed.chamber.services.partneruser.{GetPartnerUserResponse, LocateResponse, PartnerUserServiceLocator}
+import com.echoed.chamber.controllers.ControllerUtils.error
 
 
 @Controller
@@ -26,19 +27,11 @@ class IntegrationController {
     @RequestMapping(value = Array("/partner/integration"), method = Array(RequestMethod.GET))
     def integration(request: HttpServletRequest, response: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(request)
+        implicit val continuation = ContinuationSupport.getContinuation(request)
 
-        def error(e: Option[Throwable] = None) = {
-            e.foreach(ex => logger.error("%s" format ex.getMessage, ex))
-            val modelAndView = new ModelAndView(integrationView) with Errors
-            modelAndView.addError(e)
-            continuation.setAttribute("modelAndView", modelAndView)
-            if (continuation.isSuspended) continuation.resume
-            modelAndView
-        }
 
         if (continuation.isExpired) {
-            error(Some(RequestExpiredException()))
+            error(integrationView, Some(RequestExpiredException()))
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(response)
 
@@ -47,13 +40,13 @@ class IntegrationController {
             logger.debug("Showing integration pages for PartnerUser {}", partnerUserId)
 
             partnerUserServiceLocator.locate(partnerUserId.get).onComplete(_.value.get.fold(
-                e => error(Some(e)),
+                e => error(integrationView, Some(e)),
                 _ match {
-                    case LocateResponse(_, Left(e)) => error(Some(e))
+                    case LocateResponse(_, Left(e)) => error(integrationView, Some(e))
                     case LocateResponse(_, Right(partnerUserService)) => partnerUserService.getPartnerUser.onComplete(_.value.get.fold(
-                        e => error(Some(e)),
+                        e => error(integrationView, Some(e)),
                         _ match {
-                            case GetPartnerUserResponse(_, Left(e)) => error(Some(e))
+                            case GetPartnerUserResponse(_, Left(e)) => error(integrationView, Some(e))
                             case GetPartnerUserResponse(_, Right(partnerUser)) =>
                                 val modelAndView = new ModelAndView(integrationView)
                                 modelAndView.addObject("partnerUser", partnerUser)

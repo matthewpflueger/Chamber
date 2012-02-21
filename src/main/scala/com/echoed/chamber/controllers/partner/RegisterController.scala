@@ -13,6 +13,7 @@ import com.echoed.chamber.controllers.{Errors, RequestExpiredException, CookieMa
 import javax.validation.Valid
 import org.springframework.validation.{Validator, BindingResult}
 import org.springframework.core.convert.ConversionService
+import com.echoed.chamber.controllers.ControllerUtils.error
 
 
 @Controller
@@ -54,28 +55,21 @@ class RegisterController {
             formValidator.validate(registerForm, bindingResult)
         }
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-
-        def error(e: Option[Throwable] = None) = {
-            val modelAndView = new ModelAndView(registerView) with Errors
-            modelAndView.addError(e)
-            continuation.setAttribute("modelAndView", modelAndView)
-            if (continuation.isSuspended) continuation.resume
-            modelAndView
-        }
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         if (continuation.isExpired) {
-            error(Some(RequestExpiredException()))
+            error(registerView, Some(RequestExpiredException()))
         } else if (bindingResult.hasErrors) {
-            error()
+            error(registerView)
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
             registerForm.createPartner(partnerService.registerPartner(_, _, _)).onComplete(_.value.get.fold(
-                e => error(Some(e)),
+                e => error(registerView, Some(e)),
                 _ match {
-                    case RegisterPartnerResponse(_, Left(e)) => error(Some(e))
+                    case RegisterPartnerResponse(_, Left(e)) => error(registerView, Some(e))
                     case RegisterPartnerResponse(_, Right(partner)) =>
+                        logger.debug("Successfully registered partner {}", partner)
                         //FIXME!!!
                         continuation.setAttribute("modelAndView", new ModelAndView("redirect:http://www.echoed.com"))
                         continuation.resume
