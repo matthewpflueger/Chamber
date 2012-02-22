@@ -27,3 +27,4 @@ src/main/ops/opt/newrelic/logs
 cloudkick.packages.key
 std.err
 chamber-git.properties
+src/main/webapp/css/*.css
