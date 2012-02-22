@@ -342,7 +342,7 @@
                     <execution>
                         <goals>
                             <goal>revision</goal>
-                         </goals>
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
@@ -350,6 +350,28 @@
                     <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>src/main/resources/chamber-git.properties</generateGitPropertiesFilename>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>compass</executable>
+                    <arguments>
+                        <argument>compile</argument>
+                        <argument>-c</argument>
+                        <argument>${ENV_TYPE}.rb</argument>
+                        <argument>--force</argument>
+                    </arguments>
                 </configuration>
             </plugin>
         </plugins>

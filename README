@@ -1,4 +1,12 @@
 
+Add default environment variables:
+
+- sudo sh -c "echo 'ENV_TYPE=dev' >> /etc/environment"
+
+Install compass:
+
+- sudo apt-get install libcompass-ruby
+
 Install nginx:
 
 - sudo apt-get install nginx
@@ -38,7 +46,7 @@ Install monit (http://www.thegeekstuff.com/2010/11/monit-install-config/):
 Install Cloudkick (https://support.cloudkick.com/Installing_Cloudkick_on_Debian_and_Ubuntu):
 
 - sudo cp src/main/ops/etc/cloudkick.conf /etc/cloudkick.conf
-- sudo echo 'deb http://packages.cloudkick.com/ubuntu lucid main' > /etc/apt/sources.list.d/cloudkick.list
+- sudo sh -c "echo 'deb http://packages.cloudkick.com/ubuntu lucid main' > /etc/apt/sources.list.d/cloudkick.list"
 - curl http://packages.cloudkick.com/cloudkick.packages.key >> cloudkick.packages.key
 - sudo apt-key add cloudkick.packages.key
 - sudo apt-get update
