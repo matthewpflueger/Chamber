@@ -391,7 +391,7 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         if(this.selected == "All")
             anc.addClass("current");
         for(var id in this.categories){
-            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.categories[id].replace(" ","-")).html(id).appendTo(li);
+            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + id.replace(" ","-")).html(id).appendTo(li);
             if(id == this.selected){
                 anc.addClass("current");
             }
