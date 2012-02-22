@@ -369,7 +369,7 @@
                     <arguments>
                         <argument>compile</argument>
                         <argument>-c</argument>
-                        <argument>${ENV_TYPE}.rb</argument>
+                        <argument>src/main/compass/${ENV_TYPE}.rb</argument>
                         <argument>--force</argument>
                     </arguments>
                 </configuration>
