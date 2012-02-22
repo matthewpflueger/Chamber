@@ -35,8 +35,8 @@
                                 </div>
                                 <div id="product-description">
                                     {{#echoPossibility}}
-                                    <strong>{{productName}}</strong><br /><br/>
-                                    by {{brand}}<br /><br/>
+                                    <strong>{{productName}}</strong><br />
+                                    by {{brand}}<br />
                                     {{/echoPossibility}}
                                     ${{productPriceFormatted}}
                                 </div>
@@ -44,30 +44,29 @@
                         </div>
                     </div>
                 </div>
-    	        <div id="right" >
+    	        <div id="right" class="long">
                     <div id="right_content" class="border-grey bg-color-white rounded-corners">
                         {{#retailer}}
                         <div class="confirm-text">
-                            Share this product on Echoed and receive <span class="highlight-focus">1%</span> back.<br/><br/>
-                            Tell your friends on social networks about what you bought and you will receive <span class="highlight-focus">{{minPercentage}}%</span> back when you get at least <span class="highlight-focus">{{minClicks}} people</span> to click through and check out this product.
-                            <br/><br/>After that, the more people that buy or check out the product the more you'll save. Up to <span class="highlight-focus">{{maxPercentage}}%</span>.
-                            <br/><br/>
+                            <p>Share this product on Echoed and receive <span class="highlight-focus">1%</span> back.</p>
+                            <p>Tell your friends on social networks about what you bought and you will receive <span class="highlight-focus">{{minPercentage}}%</span> back when you get at least <span class="highlight-focus">{{minClicks}} people</span> to click through and check out this product.</p>
+                            <p>After that, the more people that buy or check out the product the more you'll save. Up to <span class="highlight-focus">{{maxPercentage}}%</span>.</p>
                         </div>
                         <div class="confirm-label">
                             Sign Up or Login to Share:
                         </div>
                         <div>
                             <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{redirectUrl}}&scope=email,publish_stream,offline_access" >
-                                <img width="200" src="{{urls.images}}/btn_login_fb_50.png"/>
+                                <img width="180" src="{{urls.images}}/btn_login_fb_50.png"/>
                             </a>
                             <a id="twitterLogin" href="{{urls.site}}/twitter?redirect={{twitterUrl}}">
-                                <img width="200" src="{{urls.images}}/btn_login_tw_50.png"/>
+                                <img width="180" src="{{urls.images}}/btn_login_tw_50.png"/>
                             </a>
                         </div>
                         {{/retailer}}
                     </div>
-                    <div style="padding:10px;">
-                        <span class="highlight-focus" style="text-decoration: underline;font-size:24px;"><a href="{{urls.site}}/howitworks" target="_blank">Click Here To Learn More</a></span>
+                    <div id="learnmore">
+                        <span class="highlight-focus"><a href="{{urls.site}}/howitworks" target="_blank">Click Here To Learn More</a></span>
                     </div>
 	            </div>
             </div>

@@ -53,8 +53,8 @@ $textFontFamily: HelveticaNeue-Light,Tahoma,Arial, Helvetica, sans-serif;
         box-shadow: 0 3px 3px rgba(34,25,25,0.4);
         -moz-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
         -webkit-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
-        -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#000000')";
-       	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#000000');
+        -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
+       	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
     }
 
 //RESET
@@ -151,7 +151,7 @@ h2{
 		}
 
 
-		#user{
+        #user{
 			float:right;
 			height: 30px;
             margin-left: 20px;
@@ -215,6 +215,7 @@ h2{
 		padding:10px;
 		margin-bottom:10px;
         text-align:center;
+        width:100%;
         background-color: #FFF;
         @include drop-shadow;
 	}

@@ -203,6 +203,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                         var productModel = new Echoed.Models.Product(product);
                         self.addProduct(productModel,self.filter);
                         self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
+                        self.EvAg.trigger('brand/add',product.echoBrand, product.echoBrand);
                     });
                 }
                 else{
@@ -348,6 +349,25 @@ Echoed.Views.Components.FeedDropdown = Backbone.View.extend({
     },
     triggerClick: function(e){
         this.render();
+    }
+});
+
+Echoed.Views.Components.BrandDropdown = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'addSelector');
+        this.EvAg = options.EvAg;
+        this.baseUrl = options.BaseUrl;
+        this.el = options.el;
+        this.element = $(this.el);
+        if(this.selected == "")
+            this.selected = "All";
+        this.render();
+    },
+    events: {
+        "mouseenter": "showList",
+        "mouseleave": "hideList"
+    },
+    render: function(){
     }
 });
 

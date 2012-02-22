@@ -171,7 +171,7 @@ form label em {
 	#header{
 	    min-width: 1100px;
 		height:40px;
-        background-image: inline-image("bg-whitepx90.png");
+        background-image: image-url("bg-whitepx90.png");
         box-shadow: 0 3px 5px rgba(34,25,25,0.4);
             -moz-box-shadow: 0px 3px 5px rgba(34,25,25,0.4);
             -webkit-box-shadow: 0px 3px 5px rgba(34,25,25,0.4);
@@ -213,7 +213,7 @@ form label em {
                     font-size: 64px;
                 }
                 #lm-top{
-                    background-image: inline-image("bg-whitepx90.png");
+                    background-image: image-url("bg-whitepx90.png");
                     padding: 20px;
                     #lm-partner-form{
                         margin-top:20px;
@@ -243,7 +243,7 @@ form label em {
                     }
                 }
                 #lm-bottom{
-                    background-image: inline-image("bg-blackpx90.png");
+                    background-image: image-url("bg-blackpx90.png");
                     padding:10px 20px;
                 }
             }
@@ -293,7 +293,7 @@ form label em {
         }
 
     .header-container{
-        background-image: inline-image("bk_paper.png");
+        background-image: image-url("bk_paper.png");
     }
 
     .biz{
@@ -400,7 +400,7 @@ form label em {
             position: absolute;
             bottom:0px;
             width: 100%;
-            background-image: inline-image("bg-whitepx90.png");
+            background-image: image-url("bg-whitepx90.png");
         }
    }
 
@@ -512,7 +512,7 @@ section{
     }
     &.wie{
         height: 400px;
-        background-image: inline-image("bk_pgrd.jpg");
+        background-image: image-url("bk_pgrd.jpg");
         background-repeat: repeat-x;
         border-bottom: 2px groove #CCC;
         text-align:center;
@@ -560,10 +560,10 @@ section{
                 float:left;
 
                 &.piggy{
-                    background-image: inline-image("bk_piggy.png");
+                    background-image: image-url("bk_piggy.png");
                 }
                 &.clouds{
-                    background-image: inline-image("bk_clouds.png");
+                    background-image: image-url("bk_clouds.png");
                 }
                 .box-title{
                     font-family: $labelFontFamily;
@@ -600,10 +600,10 @@ section{
                         margin:5px;
                         height: 10px;
                         width: 10px;
-                        background-image: inline-image("btn_dot.png");
+                        background-image: image-url("btn_dot.png");
                         cursor: pointer;
                         &.current,&:hover{
-                            background-image: inline-image("btn_dot_red.png")
+                            background-image: image-url("btn_dot_red.png")
                         }
                     }
                 }
@@ -618,7 +618,7 @@ section{
     }
     &.hiw-reflect{
         height: 150px;
-        background-image: inline-image("bk_gwgrd.png");
+        background-image: image-url("bk_gwgrd.png");
         &.short{
             height: 100px;
         }

@@ -41,10 +41,8 @@
 </body>
 </html>
 <script type="text/javascript">
-    $(document).ready(function(){
-        $('#mainImage').imagesLoaded(function(){
-            var fullBleed = new FullBleed();
-        });
+    $(window).load(function(){
+        var fullBleed = new FullBleed();
     });
 </script>
 {{> google}}
