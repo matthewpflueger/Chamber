@@ -205,8 +205,8 @@ textarea{
         }
 
             #product_upper{
-                min-height:280px;
                 &.large{
+                    min-height:280px;
                     #product_picture_container{
                         max-height: 280px;
                     }
