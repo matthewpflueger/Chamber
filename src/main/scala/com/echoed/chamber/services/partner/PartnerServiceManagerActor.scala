@@ -12,9 +12,9 @@ import com.echoed.chamber.services.email.EmailService
 import com.echoed.util.TransactionUtils._
 import java.util.{UUID, HashMap => JHashMap}
 
-class PartnerServiceActor extends Actor {
+class PartnerServiceManagerActor extends Actor {
 
-    private final val logger = LoggerFactory.getLogger(classOf[PartnerServiceActor])
+    private final val logger = LoggerFactory.getLogger(classOf[PartnerServiceManagerActor])
 
     @BeanProperty var partnerDao: RetailerDao = _
     @BeanProperty var partnerSettingsDao: RetailerSettingsDao = _

@@ -174,7 +174,7 @@
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="registerController" class="com.echoed.chamber.controllers.partner.RegisterController">
         <property name="cookieManager" ref="cookieManager" />
-        <property name="partnerService" ref="partnerService" />
+        <property name="partnerServiceManager" ref="partnerServiceManager" />
         <property name="registerView" value="partner_register" />
         <property name="postRegisterView" value="redirect:partner_register" />
         <property name="globalValidator" ref="validator" />

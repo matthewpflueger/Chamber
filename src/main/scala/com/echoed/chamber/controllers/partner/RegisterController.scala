@@ -8,7 +8,7 @@ import org.eclipse.jetty.continuation.ContinuationSupport
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, RequestMapping, RequestMethod}
-import com.echoed.chamber.services.partner.{RegisterPartnerResponse, PartnerService}
+import com.echoed.chamber.services.partner.{RegisterPartnerResponse, PartnerServiceManager}
 import com.echoed.chamber.controllers.{Errors, RequestExpiredException, CookieManager}
 import javax.validation.Valid
 import org.springframework.validation.{Validator, BindingResult}
@@ -21,7 +21,7 @@ class RegisterController {
 
     private val logger = LoggerFactory.getLogger(classOf[RegisterController])
 
-    @BeanProperty var partnerService: PartnerService = _
+    @BeanProperty var partnerServiceManager: PartnerServiceManager = _
 
     @BeanProperty var registerView: String = _
     @BeanProperty var postRegisterView: String = _
@@ -64,7 +64,7 @@ class RegisterController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            registerForm.createPartner(partnerService.registerPartner(_, _, _)).onComplete(_.value.get.fold(
+            registerForm.createPartner(partnerServiceManager.registerPartner(_, _, _)).onComplete(_.value.get.fold(
                 e => error(registerView, Some(e)),
                 _ match {
                     case RegisterPartnerResponse(_, Left(e)) => error(registerView, Some(e))

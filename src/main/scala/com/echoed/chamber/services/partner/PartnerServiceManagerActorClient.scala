@@ -6,7 +6,7 @@ import scala.reflect.BeanProperty
 import com.echoed.chamber.domain.{RetailerUser, RetailerSettings, Retailer}
 
 
-class PartnerServiceActorClient extends PartnerService with ActorClient {
+class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorClient {
 
     @BeanProperty var actorRef: ActorRef = _
 

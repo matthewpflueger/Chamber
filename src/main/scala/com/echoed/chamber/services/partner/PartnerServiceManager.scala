@@ -4,7 +4,7 @@ import akka.dispatch.Future
 import com.echoed.chamber.domain.{RetailerSettings, RetailerUser, Retailer}
 
 
-trait PartnerService {
+trait PartnerServiceManager {
 
     def registerPartner(
             partner: Retailer,

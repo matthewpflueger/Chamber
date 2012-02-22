@@ -99,8 +99,8 @@
         <property name="echoedUserServiceLocatorActor" ref="echoedUserServiceLocatorActor" />
     </bean>
 
-    <bean id="partnerService" class="com.echoed.chamber.services.partner.PartnerServiceActorClient">
-        <property name="actorRef" ref="partnerServiceActor" />
+    <bean id="partnerServiceManager" class="com.echoed.chamber.services.partner.PartnerServiceManagerActorClient">
+        <property name="actorRef" ref="partnerServiceManagerActor" />
     </bean>
 
     <bean id="partnerUserServiceCreator" class="com.echoed.chamber.services.partneruser.PartnerUserServiceCreatorActorClient">
@@ -121,8 +121,8 @@
 
 
     <akka:untyped-actor
-            id="partnerServiceActor"
-            implementation="com.echoed.chamber.services.partner.PartnerServiceActor"
+            id="partnerServiceManagerActor"
+            implementation="com.echoed.chamber.services.partner.PartnerServiceManagerActor"
             autostart="true">
         <!--suppress SpringModelInspection -->
         <property name="partnerDao" ref="partnerDao" />
