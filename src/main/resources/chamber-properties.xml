@@ -36,7 +36,7 @@
 
         <prop key="domain">echoed.com</prop>
         <prop key="http.urls.site">http://www.${domain}</prop>
-        <prop key="http.urls.api">http://v1-api.${domain}</prop>
+        <prop key="http.urls.api">http://www.${domain}</prop>
         <prop key="http.urls.cdn">http://v1-cdn.${domain}</prop>
         <prop key="http.urls.js">http://js.${domain}</prop>
         <prop key="http.urls.css">http://css.${domain}</prop>
