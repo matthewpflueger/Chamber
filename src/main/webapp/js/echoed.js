@@ -157,6 +157,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.contentTitle = "Echoed | Explore";
                 this.feedSelector = "Friends";
                 this.id = "explore/friends";
+                this.nextInt = 1;
                 break;
             case "exhibit":
                 this.jsonUrl = Echoed.urls.api + "/user/exhibit";

@@ -67,7 +67,7 @@
             EchoPossibility E
             left outer join Retailer R on E.retailerId = R.id
         order by
-            E.boughtOn desc, E.id DESC
+            E.createdOn desc, E.id DESC
         Limit
             #{start}, #{limit}
     </select>
@@ -118,7 +118,7 @@
         where
             EU.id = #{id}
         order by
-            E.boughtOn desc, E.id DESC
+            E.createdOn desc, E.id DESC
         Limit
             #{start},#{limit}
     </select>
