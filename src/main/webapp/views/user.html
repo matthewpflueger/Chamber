@@ -19,65 +19,68 @@
 <body>
     <div id="container">
         <div id="header">
-            <div id="logo">
-                <img height="40px" src="{{urls.images}}/logo.png">
-            </div>
-            <div id="user" class="clearfix">
-                <div id="user-text">
-            	    {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
-                    Total Savings: ${{totalCredit}}
+            <div class="clearfix">
+                <div id="logo">
+                    <img height="40px" src="{{urls.images}}/logo.png">
                 </div>
-                <div id="user-image">
+                <div id="user" class="clearfix">
+                    <div id="user-text">
+                        {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
+                        Total Savings: ${{totalCredit}}
+                    </div>
+                    <div id="user-image">
+                        {{#echoedUser}}
+                            {{#facebookId}}
+                                <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{this}}/picture" />
+                            {{/facebookId}}
+                        {{/echoedUser}}
+                    </div>
+                </div>
+                <div id="header-nav" class="clearfix">
+                    <ul>
+                        <li id="explore_nav">
+                            <a href="#explore">
+                                Explore
+                            </a>
+                        </li>
+                        <li id="exhibit_nav">
+                            <a href="#exhibit">
+                                My Exhibit
+                            </a>
+                        </li>
+                        <li id="friends_nav">
+                            <a href="#friends">
+                                My Friends
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div id="networks">
                     {{#echoedUser}}
-                        {{#facebookId}}
-                            <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{this}}/picture" />
-                        {{/facebookId}}
+                        {{#facebookUserId}}
+                        <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
+                        {{/facebookUserId}}
+                        {{^facebookUserId}}
+                        <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{urls.site}}/facebook/add&scope=email,publish_stream,offline_access">
+                            <img src="{{urls.images}}/btn_sq_grey_fb.png" alt="facebook"/>
+                        </a>
+                        {{/facebookUserId}}
+                        {{#twitterUserId}}
+                        <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
+                        {{/twitterUserId}}
+                        {{^twitterUserId}}
+                        <a id="addTwitterLink" href="{{urls.site}}/twitter?redirect="/>
+                            <img src="{{urls.images}}/btn_sq_grey_tw.png" alt="twitter"/>
+                        </a>
+                        {{/twitterUserId}}
                     {{/echoedUser}}
                 </div>
             </div>
-            <div id="header-nav" class="clearfix">
-                <ul>
-                    <li id="explore_nav">
-                        <a href="#explore">
-                            Explore
-                        </a>
-                    </li>
-                    <li id="exhibit_nav">
-                        <a href="#exhibit">
-                            My Exhibit
-                        </a>
-                    </li>
-                    <li id="friends_nav">
-                        <a href="#friends">
-                            My Friends
-                        </a>
-                    </li>
-                </ul>
+            <div id="content-selector-container">
+                <div id="content-title"></div>
+                <div id="content-selector"></div>
             </div>
-            <div id="networks">
-                {{#echoedUser}}
-                    {{#facebookUserId}}
-                    <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
-                    {{/facebookUserId}}
-                    {{^facebookUserId}}
-                    <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{urls.site}}/facebook/add&scope=email,publish_stream,offline_access">
-                        <img src="{{urls.images}}/btn_sq_grey_fb.png" alt="facebook"/>
-                    </a>
-                    {{/facebookUserId}}
-                    {{#twitterUserId}}
-                    <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
-                    {{/twitterUserId}}
-                    {{^twitterUserId}}
-                    <a id="addTwitterLink" href="{{urls.site}}/twitter?redirect="/>
-                        <img src="{{urls.images}}/btn_sq_grey_tw.png" alt="twitter"/>
-                    </a>
-                    {{/twitterUserId}}
-                {{/echoedUser}}
-            </div>
-        </div>
-        <div id="content-selector-container">
-            <div id="content-title"></div>
-            <div id="content-selector"></div>
+
         </div>
         <div id="content">
         </div>
