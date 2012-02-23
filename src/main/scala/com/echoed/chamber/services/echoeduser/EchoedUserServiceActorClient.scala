@@ -38,11 +38,13 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
 
     def getCloset = (echoedUserServiceActor ? GetExhibit()).mapTo[GetExhibitResponse]
 
-    def getFeed = (echoedUserServiceActor ? GetFeed("0")).mapTo[GetFeedResponse]
+    def getFeed = (echoedUserServiceActor ? GetFeed(0)).mapTo[GetFeedResponse]
     
-    def getFeed(page: String) = (echoedUserServiceActor ? GetFeed(page)).mapTo[GetFeedResponse]
+    def getFeed(page: Int) = (echoedUserServiceActor ? GetFeed(page)).mapTo[GetFeedResponse]
 
-    def getPublicFeed = (echoedUserServiceActor ? GetPublicFeed()).mapTo[GetPublicFeedResponse]
+    def getPublicFeed = (echoedUserServiceActor ? GetPublicFeed(0)).mapTo[GetPublicFeedResponse]
+    
+    def getPublicFeed(page: Int) = (echoedUserServiceActor ? GetPublicFeed(page)).mapTo[GetPublicFeedResponse]
 
     def getFriendCloset(echoedFriendId: String) =
             (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId)).mapTo[GetFriendExhibitResponse]

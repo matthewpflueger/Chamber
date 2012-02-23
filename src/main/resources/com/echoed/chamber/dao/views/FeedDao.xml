@@ -69,7 +69,7 @@
         order by
             E.boughtOn desc, E.id DESC
         Limit
-            0,50
+            #{start}, #{limit}
     </select>
 
     <select id="findByEchoedUserId" resultMap="feedResult">
@@ -120,6 +120,6 @@
         order by
             E.boughtOn desc, E.id DESC
         Limit
-            #{page},50
+            #{start},#{limit}
     </select>
 </mapper>

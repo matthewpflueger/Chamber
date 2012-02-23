@@ -31,9 +31,11 @@ trait EchoedUserService {
 
     def getFeed: Future[GetFeedResponse]
 
-    def getFeed(page: String): Future[GetFeedResponse]
+    def getFeed(page: Int): Future[GetFeedResponse]
 
     def getPublicFeed: Future[GetPublicFeedResponse]
+    
+    def getPublicFeed(page: Int): Future[GetPublicFeedResponse]
 
     def getFriendCloset(echoedFriendId: String): Future[GetFriendExhibitResponse]
 

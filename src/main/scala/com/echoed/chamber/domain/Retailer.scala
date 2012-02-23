@@ -29,7 +29,7 @@ case class Retailer(
         phone,
         hashTag,
         logo,
-        null)
+        UUID.randomUUID.toString)
 
     def this(name: String) = this(
         name,

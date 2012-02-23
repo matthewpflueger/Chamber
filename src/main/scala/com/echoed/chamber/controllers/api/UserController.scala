@@ -39,11 +39,18 @@ class UserController {
         } else Option(continuation.getAttribute("feed")).getOrElse({
             continuation.suspend(httpServletResponse)
 
+            var pageInt: Int = 0;
+            try {
+                pageInt = Integer.parseInt(page);
+            } catch {
+                case nfe:NumberFormatException =>
+                    pageInt = 0;
+            }
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error))=>
                     logger.error("Error locating EchoedUserService for user %s" format echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getPublicFeed.onResult{
+                    echoedUserService.getPublicFeed(pageInt).onResult{
                         case GetPublicFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
                         case GetPublicFeedResponse(_,Right(feed)) =>
                             logger.debug("Found feed of size {}", feed.echoes.size)
@@ -78,11 +85,19 @@ class UserController {
         } else Option(continuation.getAttribute("feed")).getOrElse({
             continuation.suspend(httpServletResponse)
 
+            var pageInt: Int = 0;
+            try {
+                pageInt = Integer.parseInt(page);
+            } catch {
+                case nfe:NumberFormatException =>
+                    pageInt = 0;
+            }
+
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error))=>
                     logger.error("Error locating EchoedUserService: {}", error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getFeed(page).onResult{
+                    echoedUserService.getFeed(pageInt).onResult{
                         case GetFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
                         case GetFeedResponse(_,Right(feed)) =>
                             continuation.setAttribute("feed", feed)

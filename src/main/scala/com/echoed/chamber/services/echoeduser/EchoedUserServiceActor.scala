@@ -353,11 +353,12 @@ class EchoedUserServiceActor(
 
         case msg: GetPublicFeed =>
             val channel: Channel[GetPublicFeedResponse] = self.channel
-
+            val limit = 30;
+            val start = msg.page * limit;
             try {
                 logger.debug("Attempting to retrieve Public Feed for EchoedUser {}", echoedUser.id)
                 //val echoes = JavaConversions.asJavaCollection(JavaConversions.asScalaBuffer(feedDao.getPublicFeed).map { new EchoViewPublic(_) })
-                val echoes = asScalaBuffer(feedDao.getPublicFeed).toList
+                val echoes = asScalaBuffer(feedDao.getPublicFeed(start,limit)).toList
                 val feed = new PublicFeed(echoes)
                 channel ! GetPublicFeedResponse(msg, Right(feed))
             } catch {
@@ -371,13 +372,9 @@ class EchoedUserServiceActor(
 
             try {
                 logger.debug("Attempting to retrieve Feed for EchoedUser {}", echoedUser.id)
-                var page = 0
-                try {
-                    page = Integer.parseInt(msg.page)
-                } catch {
-                    case nfe: NumberFormatException => logger.error("Error parsing page in %s" format msg, nfe)
-                }
-                val feed = feedDao.findByEchoedUserId(echoedUser.id, page)
+                val limit = 30;
+                val start = msg.page * limit;
+                val feed = feedDao.findByEchoedUserId(echoedUser.id, start, limit)
                 if (feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
                     channel ! GetFeedResponse(msg, Right(feed.copy(echoes = new ArrayList[EchoViewDetail])))
                 } else {

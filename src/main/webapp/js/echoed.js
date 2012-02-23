@@ -104,27 +104,35 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this);
+        _.bindAll(this,'triggerScroll');
         this.EvAg = options.EvAg;
+        this.EvAg.bind("triggerInfiniteScroll",this.triggerScroll);
         var self = this;
-
         $(window).scroll(function(){
-           if($(window).scrollTop() + 300 >= $(document).height() - $(window).height()){
-               //self.EvAg.trigger("infiniteScroll");
-           }
+            if($(window).scrollTop() >= $(document).height() - $(window).height()){
+                self.EvAg.trigger("infiniteScroll");
+            }
         });
-
+    },
+    triggerScroll: function(){
+        var self = this;
+        var noVScroll = $(document).height() <= $(window).height();
+        if(noVScroll){
+            self.EvAg.trigger('infiniteScroll');
+        }
     }
+
 });
 
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','addProduct','filterProducts','next');
+        _.bindAll(this,'render','addProduct','filterProducts','next','complete');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
-        this.EvAg.bind('infiniteScroll', this.next);
+        this.productCount = 0;
+        this.productCount2 = 0;
         this.updateDate = new Date();
         this.element = $(this.el);
         this.filter = options.Filter;
@@ -141,6 +149,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.contentTitle = "Echoed | Explore";
                 this.feedSelector = "Everyone";
                 this.id= "explore";
+                this.nextInt = 1;
                 break;
             case "explore/friends":
                 this.jsonUrl = Echoed.urls.api + "/user/feed/friends";
@@ -174,8 +183,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.element.html(template);
                 self.exhibit=$('#exhibit');
 
-
                 var contentSelector = $('#content-selector');
+                contentSelector.html('');
                 var ul = $('<ul></ul>').addClass('dropdown-container').appendTo(contentSelector);
                 if(self.id == "explore" || self.id=="explore/friends"){
                     var viewDropDownEl = $('<li class="dropdown"></li>');
@@ -205,14 +214,13 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                         self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
                         self.EvAg.trigger('brand/add',product.echoBrand, product.echoBrand);
                     });
+                    self.productCount += data.echoes.length;
                 }
                 else{
+                    self.nextInt = null;
                     var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
                     noEchoDiv.appendTo(exhibit);
                 }
-            },
-            error:function (xhr, ajaxOptions, thrownError){
-
             }
         });
 
@@ -223,21 +231,34 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     next: function(){
         var self = this;
-        $.ajax({
-            url: self.jsonUrl,
-            xhrFields: {
-                withCredentials: true
-            },
-            dataType: 'json',
-            success: function(data){
-                $.each(data.echoes, function(index,product){
-                    var productModel = new Echoed.Models.Product(product);
-                    self.addProduct(productModel,self.filter);
-                    self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
-                });
-            }
-        });
-
+        if(self.nextInt != null){
+            self.EvAg.unbind('infiniteScroll');
+            $.ajax({
+                url: self.jsonUrl + "?page=" + self.nextInt,
+                xhrFields: {
+                    withCredentials: true
+                },
+                dataType: 'json',
+                success: function(data){
+                    if(data.echoes.length > 0){
+                        $.each(data.echoes, function(index,product){
+                            var productModel = new Echoed.Models.Product(product);
+                            self.addProduct(productModel,self.filter);
+                            self.EvAg.trigger('category/add',product.echoCategory,product.echoCategory);
+                        });
+                        self.productCount += data.echoes.length;
+                        self.nextInt++;
+                    }
+                    else{
+                        self.nextInt = null;
+                    }
+                }
+            });
+        }
+    },
+    complete: function(){
+        var self = this;
+        self.EvAg.bind('infiniteScroll', self.next);
     },
     addProduct: function(productModel,filter){
         var self = this;
@@ -246,6 +267,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         productDiv.hide().appendTo(self.exhibit);
         productDiv.imagesLoaded(function(){
             self.exhibit.isotope('insert',productDiv);
+            self.productCount2++;
+            if(self.productCount2 == self.productCount){
+                self.complete();
+            }
             productDiv.show();
         });
     }
@@ -521,10 +546,15 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             var diff = then - now;
             var daysleft = parseInt(diff/(24*60*60*1000));
             if(daysleft >= 0){
-                hover.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span>");
+                hover.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/>");
                 self.showOverlay();
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");
+                var visits = this.model.get("echoTotalClicks");
+                var minVisits = this.model.get("retailerMinClicks");
+                if(visits  < minVisits){
+                    hover.append("<span class='highlight'>" + (minVisits - visits) + " click(s) to receive reward</span>");
+                }
             }
         }
         return this;

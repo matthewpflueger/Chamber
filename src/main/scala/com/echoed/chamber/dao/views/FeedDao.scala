@@ -16,7 +16,10 @@ trait FeedDao {
 
     def findByEchoedUserId(
                             @Param("id") echoedUserId: String,
-                            @Param("page") page: Int): Feed
+                            @Param("start") start: Int,
+                            @Param("limit") limit: Int): Feed
 
-    def getPublicFeed: JList[EchoViewPublic]
+    def getPublicFeed(
+                            @Param("start")  start: Int,
+                            @Param("limit") limit: Int): JList[EchoViewPublic]
 }
