@@ -3,9 +3,29 @@ Add default environment variables:
 
 - sudo sh -c "echo 'ENV_TYPE=dev' >> /etc/environment"
 
+
+Generate a ssl cert if necessary:
+     - http://docs.codehaus.org/display/JETTY/How+to+configure+SSL
+     - http://support.godaddy.com/help/article/5239
+
+- keytool -keystore Echoed20120224.keystore -alias Echoed20120224 -genkey -keyalg RSA -keysize 2048
+- keytool -certreq -alias Echoed20120224 -keystore Echoed20120224.keystore -file Echoed20120224.csr -keysize 2048
+- keytool -import -alias root -keystore Echoed20120224.keystore -trustcacerts -file gd_bundle.crt
+- keytool -import -alias cross -keystore Echoed20120224.keystore -trustcacerts -file gd_cross_intermediate.crt
+- keytool -import -alias intermed -keystore Echoed20120224.keystore -trustcacerts -file gd_intermediate.crt
+- keytool -import -alias tomcat -keystore Echoed20120224.keystore -trustcacerts -file echoed.com.crt
+
+
+Install keystore into default location:
+
+- sudo mkdir -p /etc/keystore
+- sudo cp src/main/ops/etc/keystore/*.keystore /etc/keystore/.
+
+
 Install compass:
 
 - sudo apt-get install libcompass-ruby
+
 
 Install nginx:
 

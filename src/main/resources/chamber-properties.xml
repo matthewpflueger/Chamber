@@ -23,6 +23,12 @@
     <!--suppress SpringModelInspection -->
     <util:properties id="defaultPropertyValues">
         <prop key="port">8080</prop>
+
+        <prop key="ssl.port">8443</prop>
+        <prop key="ssl.keyPassword">Ech0ed1nc</prop>
+        <prop key="ssl.keystore">/etc/keystore/Echoed20120224.keystore</prop>
+
+
         <prop key="context"></prop>
         <prop key="resourceBase">/var/www/current</prop>
 
@@ -161,6 +167,8 @@
         <prop key="mail.smtp.auth">true</prop>
         <prop key="mail.smtp.socketFactory.port">${mail.smtp.port}</prop>
         <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+
+        <prop key="echoed.secret">PHHabG5MSw6hv4lZJg-Ppg</prop>
     </util:properties>
 
 

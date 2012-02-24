@@ -35,7 +35,10 @@
         <property name="facebookClientId" value="${facebook.clientId}" />
     </bean>
 
-    <bean id="encrypter" class="com.echoed.util.Encrypter" />
+    <bean id="encrypter" class="com.echoed.util.Encrypter" >
+        <property name="secret" value="${echoed.secret}" />
+    </bean>
+
 
     <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="defaultEncoding" value="UTF-8" />

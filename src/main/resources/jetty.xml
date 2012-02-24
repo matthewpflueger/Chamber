@@ -36,7 +36,7 @@
           destroy-method="stop">
 
         <!-- Thread pool that uses the set defaults
-                         http://download.eclipse.org/jetty/stable-8/apidocs/org/eclipse/jetty/util/thread/ExecutorThreadPool.html  -->
+             http://download.eclipse.org/jetty/stable-8/apidocs/org/eclipse/jetty/util/thread/ExecutorThreadPool.html  -->
         <property name="threadPool" >
             <bean class="org.eclipse.jetty.util.thread.ExecutorThreadPool" >
                 <constructor-arg value="${executor.minThreads}" />
@@ -49,6 +49,15 @@
             <list>
                 <bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
                     <property name="port" value="${port}"/>
+                </bean>
+                <!-- This is a deprecated way to configure ssl but works for now. See the following:
+                     http://wiki.eclipse.org/Jetty/Reference/SSL_Connectors
+                     http://docs.codehaus.org/display/JETTY/How+to+configure+SSL
+                     http://stackoverflow.com/questions/2215550/mavens-jetty-plugin-ssl-configuration-issue -->
+                <bean id="SSLConnector" class="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
+                    <property name="port" value="${ssl.port}" />
+                    <property name="keyPassword" value="${ssl.keyPassword}" />
+                    <property name="keystore" value="${ssl.keystore}" />
                 </bean>
             </list>
         </property>
