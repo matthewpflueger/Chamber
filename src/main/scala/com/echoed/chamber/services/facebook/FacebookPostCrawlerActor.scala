@@ -101,7 +101,7 @@ class FacebookPostCrawlerActor extends Actor {
                 scheduledMessage.foreach(_.cancel(false))
                 logger.debug("Received bad response crawling FacebookPost {}: {}", facebookPostToCrawl.id, e.message)
                 facebookPostDao.updatePostForCrawl(facebookPostToCrawl.facebookPost.copy(
-                    crawledStatus = e.message, crawledOn = new Date))
+                    crawledStatus = e.message.take(254), crawledOn = new Date))
             } finally {
                 next(msg)
             }

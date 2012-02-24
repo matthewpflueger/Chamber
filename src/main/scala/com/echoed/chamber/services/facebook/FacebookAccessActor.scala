@@ -259,16 +259,12 @@ class FacebookAccessActor extends Actor {
 }
 
 
-class Action(
-    @BeanProperty var name: String,
-    @BeanProperty var link: String)
-
 class From {
     @BeanProperty var id: String = _
     @BeanProperty var name: String = _
 }
 
-class Application() {
+class Application {
     @BeanProperty var id: String = _
     @BeanProperty var name: String = _
     @BeanProperty var canvas_name: String = _
@@ -287,7 +283,41 @@ class Comment {
     @BeanProperty var created_time: Date = _
 }
 
-class PostData() {
+class Action(
+        @BeanProperty var name: String,
+        @BeanProperty var link: String) {
+
+    def this() = this(null, null)
+}
+
+class Privacy {
+    @BeanProperty var description: String = _
+    @BeanProperty var value: String = _
+    @BeanProperty var allow: String = _
+    @BeanProperty var deny: String = _
+}
+
+//Example...
+//{"id":"100003326847181_152036588250568",
+// "from":{"name":"Evan Echoed","id":"100003326847181"},
+// "message":"Love these t-shirts!!!",
+// "picture":"http:\/\/platform.ak.fbcdn.net\/www\/app_full_proxy.php?app=323745504330890&v=1&size=z&cksum=d7984f095606cfce7721249e577f7234&src=http\u00253A\u00252F\u00252Fcdn.shopify.com\u00252Fs\u00252Ffiles\u00252F1\u00252F0094\u00252F3522\u00252Fproducts\u00252Ftees2_medium.jpg\u00253F1963",
+// "link":"http:\/\/demo.echoed.com\/echo\/86dd6bcf-1342-46a9-84e9-b1831c7c4965\/45be2f22-3e0d-4e48-b009-253680e91a38",
+// "name":"The Hangover Baby Carrier by Tees For All",
+// "caption":"This is My Description",
+// "icon":"http:\/\/photos-d.ak.fbcdn.net\/photos-ak-snc1\/v85005\/110\/323745504330890\/app_2_323745504330890_8758.gif",
+// "actions":[
+//      {"name":"Comment","link":"http:\/\/www.facebook.com\/100003326847181\/posts\/152036588250568"},
+//      {"name":"Like","link":"http:\/\/www.facebook.com\/100003326847181\/posts\/152036588250568"},
+//      {"name":"View Echoed Exhibit","link":"http:\/\/apps.facebook.com\/echoeddemo\/"}],
+// "privacy":{"description":"Friends","value":"ALL_FRIENDS","allow":"0","deny":"0"},
+// "type":"link",
+// "application":{"name":"EchoedDemo","canvas_name":"echoeddemo","namespace":"echoeddemo","id":"323745504330890"},
+// "created_time":"2012-02-24T18:10:23+0000",
+// "updated_time":"2012-02-24T18:10:23+0000",
+// "comments":{"count":0},
+// "is_published":true}
+class PostData {
     @BeanProperty var id: String = _
     @BeanProperty var from: From = _
     @BeanProperty var message: String = _
@@ -296,12 +326,15 @@ class PostData() {
     @BeanProperty var name: String = _
     @BeanProperty var caption: String = _
     @BeanProperty var icon: String = _
+    @BeanProperty var actions: List[Action] = _
+    @BeanProperty var privacy: Privacy = _
     @BeanProperty var `type`: String = _
     @BeanProperty var application: Application = _
     @BeanProperty var created_time: String = _
     @BeanProperty var updated_time: String = _
     @BeanProperty var likes: ListContainer[From] = _
     @BeanProperty var comments: ListContainer[Comment] = _
+    @BeanProperty var is_published: Boolean = _
 }
 
 case class Friend(
