@@ -12,7 +12,8 @@ case class Retailer(
         phone: String,
         hashTag: String,
         logo: String,
-        secret: String) {
+        secret: String,
+        category: String) {
 
 
     def this(
@@ -20,7 +21,8 @@ case class Retailer(
             website: String,
             phone: String,
             hashTag: String,
-            logo: String) = this(
+            logo: String,
+            category: String) = this(
         UUID.randomUUID.toString,
         new Date,
         new Date,
@@ -29,10 +31,12 @@ case class Retailer(
         phone,
         hashTag,
         logo,
-        UUID.randomUUID.toString)
+        UUID.randomUUID.toString,
+        category)
 
     def this(name: String) = this(
         name,
+        UUID.randomUUID.toString,
         UUID.randomUUID.toString,
         UUID.randomUUID.toString,
         UUID.randomUUID.toString,

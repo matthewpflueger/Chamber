@@ -20,7 +20,7 @@
         <div id="content">
             <div id="thankyou">
                 {{#retailer}}
-                <span class="ty-text">Share Your Purchase and Save up to {{maxPercentage}}%!</span>
+                <span class="ty-text">Receive up to <span class="highlight">{{maxPercentage}}% cash back</span>  on this purchase when you Share it!</span>
                 {{/retailer}}
             </div>
             <div id="lower">
@@ -45,12 +45,12 @@
                     </div>
                 </div>
     	        <div id="right" class="long">
-                    <div id="right_content" class="border-grey bg-color-white rounded-corners">
+                    <div id="right-content">
                         {{#retailer}}
                         <div class="confirm-text">
-                            <p>Share this product on Echoed and receive <span class="highlight-focus">1%</span> back.</p>
-                            <p>Tell your friends on social networks about what you bought and you will receive <span class="highlight-focus">{{minPercentage}}%</span> back when you get at least <span class="highlight-focus">{{minClicks}} people</span> to click through and check out this product.</p>
-                            <p>After that, the more people that buy or check out the product the more you'll save. Up to <span class="highlight-focus">{{maxPercentage}}%</span>.</p>
+                            Receive <span class="highlight-focus">1%</span> back when you share this product.<br/><br/>
+                            Receive <span class="highlight-focus">{{minPercentage}}%</span> back when you get at least <span class="highlight-focus">{{minClicks}} people</span> to click through and check out this product.<br/><br/>
+                            Receive Up to <span class="highlight-focus">{{maxPercentage}}%</span> after that. The more people that check out the product the more you'll save.<br/><br/>
                         </div>
                         <div class="confirm-label">
                             Sign Up or Login to Share:
@@ -64,9 +64,9 @@
                             </a>
                         </div>
                         {{/retailer}}
-                    </div>
-                    <div id="learnmore">
-                        <span class="highlight-focus"><a href="{{urls.site}}/howitworks" target="_blank">Click Here To Learn More</a></span>
+                        <div id="learnmore">
+                            <span class="highlight-focus"><a href="{{urls.site}}/howitworks" target="_blank">Click Here To Learn More</a></span>
+                        </div>
                     </div>
 	            </div>
             </div>

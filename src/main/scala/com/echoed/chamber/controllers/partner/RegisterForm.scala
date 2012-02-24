@@ -24,7 +24,8 @@ case class RegisterForm(
         var creditWindow: Int = 168,
         var activeOn: Date = new Date(),
         var userName: String = null,
-        var email: String = null) {
+        var email: String = null,
+        var category: String = null) {
 
     def this() = {
         this(null)
@@ -32,7 +33,7 @@ case class RegisterForm(
 
 
     def createPartner[T](f: (Retailer, RetailerSettings, RetailerUser) => T): T = {
-        val partner = new Retailer(name, website, phone, hashTag, logo)
+        val partner = new Retailer(name, website, phone, hashTag, logo, category)
         val partnerSettings = new RetailerSettings(
                 partner.id,
                 exhibitPercentage,
@@ -49,6 +50,10 @@ case class RegisterForm(
         f(partner, partnerSettings, partnerUser)
     }
 
+
+    @NotBlank
+    def getCategory() = category
+    def setCategory(category: String) { this.category = category }
 
     @NotBlank
     def getUserName() = userName

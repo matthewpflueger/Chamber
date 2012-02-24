@@ -15,6 +15,7 @@
             <arg column="hashTag" javaType="String" />
             <arg column="logo" javaType="String" />
             <arg column="secret" javaType="String" />
+            <arg column="category" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -31,7 +32,8 @@
                 phone,
                 hashTag,
                 logo,
-                secret)
+                secret,
+                category)
     	values (
     			#{id},
     			#{createdOn},
@@ -40,7 +42,8 @@
                 #{phone},
                 #{hashTag},
                 #{logo},
-                #{secret})
+                #{secret},
+                #{category})
     </insert>
 
     <delete id="deleteById">

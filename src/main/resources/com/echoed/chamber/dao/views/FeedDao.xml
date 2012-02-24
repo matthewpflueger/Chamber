@@ -59,7 +59,7 @@
             E.boughtOn as echoBoughtOn,
             E.imageUrl as echoImageUrl,
             E.productName as echoProductName,
-            E.category as echoCategory,
+            coalesce(R.category,"Other") as echoCategory,
             E.brand as echoBrand,
             E.landingPageUrl as echoLandingPageUrl,
             R.name as retailerName
@@ -89,7 +89,7 @@
             E.boughtOn as echoBoughtOn,
             E.imageUrl as echoImageUrl,
             E.productName as echoProductName,
-            E.category as echoCategory,
+            R.category as echoCategory,
             E.brand as echoBrand,
             coalesce(E.price, 0)  as echoPrice,
             E.landingPageUrl as echoLandingPageUrl,

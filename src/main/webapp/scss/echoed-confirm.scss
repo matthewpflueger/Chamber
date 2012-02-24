@@ -65,7 +65,7 @@ pre, form, fieldset, table, th, td{
 	padding: 0;
 	font-family: $textFontFamily;
     font-size: 14px;
-    color: #FFF;
+    color: #111;
 }
 
 //STANDARD HTML ELEMENTS DEFINITION
@@ -74,7 +74,7 @@ html{
 }
 
 body{
-    background-image: image-url('bk_darklinen.png');
+    background-image: image-url('bk_paper.png');
 }
 
 a{
@@ -87,15 +87,6 @@ h2{
     color: $labelColor;
 }
 
-textarea{
-    padding:2px;
-    font-size: 14px;
-    border: 1px #CCC solid;
-    font-family: $textFontFamily;
-    width:280px;
-    height: 40px;
-}
-
 .confirm-label{
     margin-bottom: 5px;
     font-family: $labelFontFamily;
@@ -103,12 +94,7 @@ textarea{
 }
 
 .confirm-text{
-    font-size: 14px;
-    line-height: 1.5em;
-    margin-bottom: 10px;
-    p{
-        margin-bottom: 20px;
-    }
+    font-size: 19px;
 }
 
 #container{
@@ -169,9 +155,6 @@ textarea{
         font-family: $textFontFamily;
     }
 
-    #lower{
-        height: 330px;
-    }
 
     #left-ei{
         width: 600px;
@@ -193,110 +176,83 @@ textarea{
     }
 
     #left{
-        padding: 10px;
-        background-image: image-url("bk_fancydeboss.png");
         float:left;
-        margin-left: 10px;
-        &.wide{
-            width: 450px;
-        }
-    }
-
-    #left_content{
-        width:100%;
-    }
-
-        #rewards{
-            width: 200px;
-            float:left;
-        }
-
-        .reward_box{
-            width:185px;
-            padding: 5px;
-            padding-top: 25px;
-            margin-bottom:10px;
-        }
-
-
+        margin: 5px;
+        @include drop-shadow;
         #product{
             width: 280px;
-            float:left;
-        }
-
-            #product_upper{
-                #product_picture_container{
-                    width: 280px;
-                }
-                #product_picture{
-                    width: 280px;
-                }
-                #product-description{
-                    padding: 5px;
-                    font-size: 12px;
-                    background-color: #FFF;
-                    font-family: $textFontFamily;
-                    border-top: 1px solid #000;
-                    color: #222;
-                }
-                @include drop-shadow;
+            #product_picture_container{
+                width: 280px;
+                height: 300px;
+                overflow-y: hidden;
             }
-
-
-            #product-text {
+            #product_picture{
+                width: 280px;
+            }
+            #product-description{
+                min-height: 51px;
                 padding: 5px;
-                float:left;
-                margin-bottom: 20px;
-                color: #000;
-                .pt-reward{
-                    color: #111;
-                    .pt-title{
-                        font-family: $labelFontFamily;
-                        font-size: 30px;
-                    }
-                }
-                .pt-div{
-                    &.third{
-                        padding:5px;
-                        width:150px;
-                        &.br{
-                            //border-right: 2px groove #999;
-                        }
-                    }
-                    &.half{
-                        padding:10px;
-                        width: 210px;
-                        &.br{
-                            //border-right: 2px groove #999;
-                        }
-                    }
-                    .upto{
-                        font-weight:bold;
-                    }
-                    .pct{
-                        color: #111;
-                        font-family: $labelFontFamily;
-                        font-size: 24px;
-                    }
-                    .off{
-                        color: #111;
-                        font-size:14px;
-                        line-height:10px;
-                    }
-                    .when{
-                        color: #111;
-                    }
-                }
-
-
+                font-size: 12px;
+                background-color: #FFF;
+                font-family: $textFontFamily;
+                border-top: 1px solid #000;
+                color: #222;
             }
+        }
+    }
+
+    #mid{
+
+        width: 240px;
+        float:left;
+        @include drop-shadow;
+        margin: 5px;
+        background-color: #FFF;
+        height: 360px;
+        #mid-content{
+            padding:5px;
+            #rewards{
+                td{
+                    font-size: 14px;
+                    padding: 10px 5px;
+                }
+                .pct{
+                    font-size: 2em;
+                    font-family: $labelFontFamily;
+                }
+                .off{
+                    text-align:right;
+                }
+            }
+            .pt-reward{
+                color: #111;
+                .pt-title{
+                    font-family: $labelFontFamily;
+                    font-size: 30px;
+                }
+            }
+            .pt-day{
+                font-size: 12px;
+            }
+        }
+    }
+
+
+
+
+
 
     #right{
-        width: 400px;
-        margin-left:20px;
+        height: 360px;
+        margin:5px;
         float:left;
+        background-color:#FFF;
+        @include drop-shadow;
         &.long{
-            width: 550px;
+            width: 620px;
+        }
+        #right-content{
+            padding: 10px;
         }
     }
 
@@ -314,12 +270,28 @@ textarea{
     #right_content{
     }
 
+
+
         #echoes {
             border-collapse: collapse;
+            background-color: #FFF;
             td,th{
                 text-align:center;
-                padding: 0px 5px 5px 5px;
+                padding: 5px;
             }
+            td{
+                height: 40px;
+            }
+            textarea{
+                padding:2px;
+                font-size: 16px;
+                border: 1px #CCC solid;
+                font-family: $textFontFamily;
+                width: 260px;
+                margin: 5px;
+                height: 60px;
+            }
+
         }
 
 .clear{
