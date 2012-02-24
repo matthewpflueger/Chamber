@@ -192,7 +192,7 @@ class FacebookAccessActor extends Actor {
                 val accessToken = facebookPostData.facebookUser.accessToken
 
                 logger.debug("Retrieving data for FacebookPost {}", facebookId)
-                val url = new URL("http://graph.facebook.com/%s?accessToken=%s" format(facebookId, accessToken))
+                val url = new URL("https://graph.facebook.com/%s?access_token=%s" format(facebookId, accessToken))
                 val connection = url.openConnection()
                 connection.setConnectTimeout(5000)
                 connection.setReadTimeout(5000)
