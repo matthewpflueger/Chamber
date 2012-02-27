@@ -98,7 +98,7 @@ h2{
 }
 
 #container{
-	min-width: 900px;
+	min-width: 1000px;
     height: 100%;
 }
 
@@ -175,15 +175,21 @@ h2{
         }
     }
 
+    #lower{
+        width: 980;
+    }
+
     #left{
         float:left;
         margin: 5px;
         @include drop-shadow;
+        background-color: #FFF;
+        height: 360px;
         #product{
             width: 280px;
             #product_picture_container{
                 width: 280px;
-                height: 300px;
+                max-height: 300px;
                 overflow-y: hidden;
             }
             #product_picture{
@@ -193,7 +199,6 @@ h2{
                 min-height: 51px;
                 padding: 5px;
                 font-size: 12px;
-                background-color: #FFF;
                 font-family: $textFontFamily;
                 border-top: 1px solid #000;
                 color: #222;
