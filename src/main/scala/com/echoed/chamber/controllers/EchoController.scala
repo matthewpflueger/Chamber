@@ -16,7 +16,6 @@ import com.echoed.chamber.controllers.ControllerUtils.error
 import akka.dispatch.Future
 import org.eclipse.jetty.continuation.{Continuation, ContinuationSupport}
 import com.echoed.chamber.services.partner.{PartnerServiceManager, LocateResponse, RequestEchoResponse, PartnerService}
-import com.echoed.chamber.interceptors.Continue
 
 
 @Controller
