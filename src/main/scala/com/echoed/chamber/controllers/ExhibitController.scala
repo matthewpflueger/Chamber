@@ -54,7 +54,7 @@ class ExhibitController {
             error(Some(RequestExpiredException("Request expired to view exhibit for user %s" format echoedUserId)))
         } else if (echoedUserId.isEmpty) {
             error()
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.value.get.fold(
@@ -84,7 +84,6 @@ class ExhibitController {
                 }))
 
             continuation.undispatch()
-
-        })
+        }
     }
 }

@@ -11,17 +11,16 @@ case class EchoedException(
         args: Option[Array[AnyRef]] = None,
         errs: Option[Errors] = None) extends AkkaException(msg, cse) {
 
-    def asErrors = {
-        errs.getOrElse {
-            val bindingResult = new BeanPropertyBindingResult(this, BindingResult.MODEL_KEY_PREFIX + this.getClass.getName)
-            bindingResult.addError(new ObjectError(
-                    this.getClass.getSimpleName,
-                    cde.map(Array[String](_)).getOrElse(Array[String]()),
-                    args.getOrElse(Array[AnyRef]()),
-                    msg))
-            bindingResult
-        }
+    def asErrors = errs.getOrElse {
+        val bindingResult = new BeanPropertyBindingResult(this, BindingResult.MODEL_KEY_PREFIX + this.getClass.getSimpleName)
+        bindingResult.addError(new ObjectError(
+                this.getClass.getSimpleName,
+                cde.map(Array[String](_)).getOrElse(Array[String]()),
+                args.getOrElse(Array[AnyRef]()),
+                msg))
+        bindingResult
     }
+
 }
 
 
