@@ -14,7 +14,7 @@ $(document).ready(function(){
     var popup = $('#echoed-popup');
     popup.html('');
 
-    var close = $('<img/>').attr('src','http://demo.echoed.com/images/btn_closewin.png').attr("id","echoed-close");
+    var close = $('<img src="http://demo.echoed.com/images/btn_closewin.png"/>').attr("id","echoed-close");
     popup.append(close);
 
     var div = '<div></div>';
@@ -34,7 +34,7 @@ $(document).ready(function(){
     $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
     var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
     var count = 0;
-    $('img[src^="http://demo.echoed.com/"]').each(function(){
+    $('img[src^="http://demo.echoed.com/echo/button"]').each(function(){
         count++;
         if(count <=3){
             container.css('width',count * 250);
