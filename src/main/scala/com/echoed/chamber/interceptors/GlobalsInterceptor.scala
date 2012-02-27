@@ -6,6 +6,7 @@ import org.springframework.web.servlet.{ModelAndView, HandlerInterceptor}
 import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
 import com.echoed.chamber.services.GlobalsManager
+import scala.collection.JavaConversions._
 
 class GlobalsInterceptor extends HandlerInterceptor {
 
@@ -19,7 +20,7 @@ class GlobalsInterceptor extends HandlerInterceptor {
 
     def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Object, mv: ModelAndView) {
         if (mv != null && mv.getViewName != null && !mv.getViewName.startsWith("redirect:")) {
-            if (request.getProtocol == "https") {
+            if (request.getScheme == "https" || Option(request.getHeader("X-Scheme")).getOrElse("").equals("https")) {
                 globalsManager.addGlobals(mv.getModel, globalsManager.getHttpsUrls())
             } else {
                 globalsManager.addGlobals(mv.getModel, globalsManager.getHttpUrls())
