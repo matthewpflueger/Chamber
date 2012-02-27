@@ -133,6 +133,8 @@
 
 
         <prop key="apiUrl">${http.urls.api}</prop>
+        <prop key="echoJsUrl">${http.urls.site}/echo/js</prop>
+        <prop key="echoRequestUrl">${http.urls.site}/echo/request</prop>
         <prop key="echoUrl">${http.urls.site}/echo</prop>
         <prop key="echoItUrl">${http.urls.site}/echo/it</prop>
         <prop key="buttonUrl">${http.urls.site}/echo/button</prop>

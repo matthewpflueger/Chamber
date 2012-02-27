@@ -27,7 +27,7 @@
             <arg column="echoClickId" javaType="String" />
         </constructor>
     </resultMap>
-    
+
     <select id="findByIdOrEchoId" resultMap="echoPossibilityResult">
         select
             *

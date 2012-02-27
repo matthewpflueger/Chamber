@@ -13,18 +13,25 @@ class MustacheView extends AbstractTemplateView {
 
     def renderMergedTemplateToString(model: JMap[String, Object]) = template.execute(model)
 
+
     protected override def renderMergedTemplateModel(
             model: JMap[String, Object],
             request: HttpServletRequest,
             response: HttpServletResponse) {
 
         response.setContentType(getContentType())
-        val writer = response.getWriter();
+        val writer = response.getWriter()
         try {
             template.execute(model, writer);
         } finally {
             writer.flush();
         }
+    }
+
+    override def getContentType() = {
+        if (getBeanName.endsWith(".js")) "application/x-javascript"
+        else if (getBeanName.endsWith(".json")) "application/json"
+        else super.getContentType
     }
 
 }

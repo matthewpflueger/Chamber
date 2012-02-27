@@ -19,6 +19,8 @@
     <!--suppress SpringModelInspection -->
     <util:properties id="urls">
         <prop key="apiUrl">${apiUrl}</prop>
+        <prop key="echoJsUrl">${echoJsUrl}</prop>
+        <prop key="echoRequestUrl">${echoRequestUrl}</prop>
         <prop key="echoUrl">${echoUrl}</prop>
         <prop key="echoItUrl">${echoItUrl}</prop>
         <prop key="buttonUrl">${buttonUrl}</prop>

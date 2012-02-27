@@ -1,0 +1,13 @@
+
+Echoed = {}
+Echoed.errors = {};
+Echoed.errors.global = new Array(); //{{#errors.global}}
+Echoed.errors.global.push("{{this}}");
+/*{{/errors.global}} // */
+//{{#errors.fieldErrors}}
+Echoed.errors["{{object}}"] = {}
+//{{/errors.fieldErrors}}
+//{{#errors.fieldErrors}}
+Echoed.errors["{{object}}"]["{{field}}"] = "{{message}}"
+//{{/errors.fieldErrors}}
+

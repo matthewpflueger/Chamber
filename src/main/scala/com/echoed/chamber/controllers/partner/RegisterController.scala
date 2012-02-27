@@ -9,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, RequestMapping, RequestMethod}
 import com.echoed.chamber.services.partner.{RegisterPartnerResponse, PartnerServiceManager}
-import com.echoed.chamber.controllers.{Errors, RequestExpiredException, CookieManager}
+import com.echoed.chamber.controllers.{RequestExpiredException, CookieManager}
 import javax.validation.Valid
 import org.springframework.validation.{Validator, BindingResult}
 import org.springframework.core.convert.ConversionService

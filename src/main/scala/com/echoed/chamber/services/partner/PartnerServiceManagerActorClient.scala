@@ -11,6 +11,8 @@ class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorC
     @BeanProperty var actorRef: ActorRef = _
 
     def registerPartner(partner: Retailer, partnerSettings: RetailerSettings, partnerUser: RetailerUser) =
-        (actorRef ? RegisterPartner(partner, partnerSettings, partnerUser)).mapTo[RegisterPartnerResponse]
+            (actorRef ? RegisterPartner(partner, partnerSettings, partnerUser)).mapTo[RegisterPartnerResponse]
 
+    def locatePartnerService(partnerId: String) =
+            (actorRef ? Locate(partnerId)).mapTo[LocateResponse]
 }

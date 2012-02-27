@@ -1,23 +1,16 @@
 package com.echoed.util
 
-import java.security.SecureRandom
 import org.apache.commons.codec.binary.Base64
 import javax.crypto.{Cipher, KeyGenerator}
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 import scala.reflect.BeanProperty
-
-object Encrypter extends App {
-    val encrypter = new Encrypter
-    encrypter.init()
-    Console.println("Secret key: %s" format encrypter.generateSecretKey)
-}
 
 class Encrypter {
 
     @BeanProperty var keyGenerator: KeyGenerator = _
     @BeanProperty var ivParameterSpec: IvParameterSpec = _
 
-    @BeanProperty var secret: String="PHHabG5MSw6hv4lZJg-Ppg"
+    @BeanProperty var secret: String = _ //"PHHabG5MSw6hv4lZJg-Ppg"
 
     @BeanProperty var algorithm: String = "AES"
     @BeanProperty var cipherTransformation: String = "AES/CBC/NoPadding"
@@ -68,3 +61,11 @@ class Encrypter {
         new String(decrypted, "UTF-8").trim()
     }
 }
+
+object Encrypter extends App {
+    val encrypter = new Encrypter
+    encrypter.init()
+    Console.println("Secret key: %s" format encrypter.generateSecretKey)
+}
+
+

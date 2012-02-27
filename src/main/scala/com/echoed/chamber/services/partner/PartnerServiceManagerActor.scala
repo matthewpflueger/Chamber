@@ -5,12 +5,15 @@ import akka.actor.{Channel, Actor}
 import scala.reflect.BeanProperty
 import com.echoed.util.Encrypter
 import org.springframework.dao.DataIntegrityViolationException
-import com.echoed.chamber.dao.{RetailerSettingsDao, RetailerDao, RetailerUserDao}
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.{TransactionCallback, TransactionTemplate}
 import com.echoed.chamber.services.email.EmailService
 import com.echoed.util.TransactionUtils._
-import java.util.{UUID, HashMap => JHashMap}
+import scalaz._
+import Scalaz._
+import akka.dispatch.Future
+import java.util.{Date, UUID, HashMap => JHashMap}
+import com.echoed.chamber.dao.{EchoPossibilityDao, RetailerSettingsDao, RetailerDao, RetailerUserDao}
 
 class PartnerServiceManagerActor extends Actor {
 
@@ -19,6 +22,7 @@ class PartnerServiceManagerActor extends Actor {
     @BeanProperty var partnerDao: RetailerDao = _
     @BeanProperty var partnerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var partnerUserDao: RetailerUserDao = _
+    @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @BeanProperty var encrypter: Encrypter = _
     @BeanProperty var transactionTemplate: TransactionTemplate = _
     @BeanProperty var emailService: EmailService = _
@@ -68,6 +72,39 @@ class PartnerServiceManagerActor extends Actor {
             } catch {
                 case e => error(e)
             }
+
+        case msg @ Locate(partnerId) =>
+            val channel: Channel[LocateResponse] = self.channel
+
+            val pf = Future {
+                Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+            }
+            val psf = Future {
+                Option(partnerSettingsDao.findByActiveOn(partnerId, new Date())).getOrElse(throw PartnerNotActive(partnerId))
+            }
+
+            (for {
+                partner <- pf
+                partnerSettings <- psf
+            } yield {
+                channel ! LocateResponse(msg, Right(new PartnerServiceActorClient(Actor.actorOf(new PartnerServiceActor(
+                        partner,
+                        partnerSettings,
+                        partnerDao,
+                        partnerSettingsDao,
+                        echoPossibilityDao,
+                        encrypter)).start)))
+            }).onException {
+                case e: PartnerException => channel ! LocateResponse(msg, Left(e))
+                case e => channel ! LocateResponse(msg, Left(PartnerException("Error locating partner %s" format partnerId, e)))
+            }
+
+
+//            Option(partnerDao.findById(partnerId)).cata(
+//                partner => channel ! LocateResponse(msg, Right(new PartnerServiceActorClient(
+//                        Actor.actorOf(new PartnerServiceActor(partner, partnerDao, encrypter)).start))),
+//                channel ! LocateResponse(msg, Left(new PartnerNotFound(partnerId))))
+
 
     }
 

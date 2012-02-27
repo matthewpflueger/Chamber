@@ -3,7 +3,6 @@ package com.echoed.chamber.controllers
 import org.springframework.stereotype.Controller
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import org.eclipse.jetty.continuation.ContinuationSupport
 import org.springframework.web.bind.annotation._
 import com.echoed.chamber.domain.EchoClick
 import java.net.URLEncoder
@@ -12,7 +11,12 @@ import com.echoed.chamber.services.echoeduser.{EchoToResponse, EchoedUserService
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.services.echo.{RecordEchoClickResponse, EchoExists, RecordEchoPossibilityResponse, EchoService}
-import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import com.echoed.chamber.controllers.ControllerUtils.error
+import akka.dispatch.Future
+import org.eclipse.jetty.continuation.{Continuation, ContinuationSupport}
+import com.echoed.chamber.services.partner.{PartnerServiceManager, LocateResponse, RequestEchoResponse, PartnerService}
+import com.echoed.chamber.interceptors.Continue
 
 
 @Controller
@@ -20,6 +24,9 @@ import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpSe
 class EchoController {
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoController])
+
+    @BeanProperty var errorEchoJsView: String = _
+    @BeanProperty var echoJsView: String = _
 
     @BeanProperty var echoItView: String = _
     @BeanProperty var buttonView: String = _
@@ -33,19 +40,90 @@ class EchoController {
 
     @BeanProperty var echoService: EchoService = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
+    @BeanProperty var partnerServiceManager: PartnerServiceManager = _
 
     @BeanProperty var cookieManager: CookieManager = _
 
-    @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
-    def button(
-            echoPossibilityParameters: EchoPossibilityParameters,
+
+    @RequestMapping(value = Array("/request"), method = Array(RequestMethod.GET), produces = Array("application/json"))
+    @ResponseBody
+    def request(
+            @RequestParam(value = "pid", required = true) pid: String,
+            @RequestParam(value = "data", required = true) data: String,
+            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
+
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            RequestExpiredException()
+        } else Option(continuation.getAttribute("json")).getOrElse {
+            continuation.suspend(httpServletResponse)
+
+            def resume(json: AnyRef) {
+                continuation.setAttribute("json", json)
+                continuation.resume
+            }
+
+            val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
+            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
+            val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
+
+            partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
+                resume(_),
+                _ match {
+                    case LocateResponse(_, Left(e)) => resume(e)
+                    case LocateResponse(_, Right(p)) => p.requestEcho(data, ip, eu, ec).onComplete(_.value.get.fold(
+                        e => resume(e),
+                        _ match {
+                            case RequestEchoResponse(_, Left(e)) => resume(e)
+                            case RequestEchoResponse(_, Right(echoPossibilityView)) => resume(echoPossibilityView)
+                        }))
+                }))
+
+            continuation.undispatch()
+        }
+    }
+
+    @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
+    def js(
+            @RequestParam(value = "pid", required = true) pid: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            error(errorEchoJsView, Some(RequestExpiredException()))
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
+            continuation.suspend(httpServletResponse)
+
+            partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
+                e => error(errorEchoJsView, Some(e)),
+                _ match {
+                    case LocateResponse(_, Left(e)) => error(errorEchoJsView, Some(e))
+                    case LocateResponse(_, Right(p)) =>
+                        continuation.setAttribute("modelAndView", new ModelAndView(echoJsView, "pid", pid))
+                        continuation.resume
+                }))
+
+            continuation.undispatch()
+        }
+    }
+
+
+    @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
+    def button(
+                      echoPossibilityParameters: EchoPossibilityParameters,
+                      httpServletRequest: HttpServletRequest,
+                      httpServletResponse: HttpServletResponse) = {
         cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoPossibilityParameters.echoedUserId = _)
         cookieManager.findEchoClickCookie(httpServletRequest).foreach(echoPossibilityParameters.echoClickId = _)
         echoService.recordEchoPossibility(echoPossibilityParameters.createButtonEchoPossibility)
         new ModelAndView(buttonView)
     }
+
 
 
     @RequestMapping(method = Array(RequestMethod.GET))

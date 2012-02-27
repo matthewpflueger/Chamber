@@ -134,6 +134,8 @@
         <!--suppress SpringModelInspection -->
         <property name="partnerUserDao" ref="partnerUserDao" />
         <!--suppress SpringModelInspection -->
+        <property name="echoPossibilityDao" ref="echoPossibilityDao" />
+        <!--suppress SpringModelInspection -->
         <property name="encrypter" ref="encrypter" />
         <!--suppress SpringModelInspection -->
         <property name="transactionTemplate" ref="transactionTemplate" />

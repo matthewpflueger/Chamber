@@ -53,7 +53,6 @@
         </property>
     </bean>
 
-
     <bean id="mustacheViewResolver" class="com.echoed.util.mustache.MustacheViewResolver">
         <property name="mustacheEngine" ref="mustacheEngine" />
         <property name="cache" value="${mustache.cache}" />
@@ -83,6 +82,7 @@
     <bean id="echoController" class="com.echoed.chamber.controllers.EchoController">
         <property name="echoService" ref="echoService" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="partnerServiceManager" ref="partnerServiceManager" />
         <property name="buttonView" value="redirect:${buttonViewUrl}" />
         <property name="loginView" value="popuplogin" />
         <property name="confirmView" value="confirm" />
@@ -92,7 +92,8 @@
         <property name="facebookAddRedirectUrl" value="${http.urls.site}/facebook/add" />
         <property name="facebookLoginRedirectUrl" value="${http.urls.site}/facebook/login" />
         <property name="logoutUrl" value="${http.urls.site}/logout" />
-
+        <property name="errorEchoJsView" value="errorEcho.js" />
+        <property name="echoJsView" value="echo.js" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

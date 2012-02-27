@@ -11,5 +11,6 @@ trait PartnerServiceManager {
             partnerSettings: RetailerSettings,
             partnerUser: RetailerUser): Future[RegisterPartnerResponse]
 
+    def locatePartnerService(partnerId: String): Future[LocateResponse]
 }
 
