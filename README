@@ -13,13 +13,15 @@ Generate a ssl cert if necessary:
 - keytool -import -alias root -keystore Echoed20120224.keystore -trustcacerts -file gd_bundle.crt
 - keytool -import -alias cross -keystore Echoed20120224.keystore -trustcacerts -file gd_cross_intermediate.crt
 - keytool -import -alias intermed -keystore Echoed20120224.keystore -trustcacerts -file gd_intermediate.crt
-- keytool -import -alias tomcat -keystore Echoed20120224.keystore -trustcacerts -file echoed.com.crt
+- keytool -import -alias Echoed20120224 -keystore Echoed20120224.keystore -trustcacerts -file echoed.com.crt
+- cp echoed.com.crt Echoed20120224.crt
+- cd src/main/java/exportpriv && javac *.java && java -cp . ExportPriv src/main/ops/etc/keystore/Echoed20120224.keystore Echoed20120224 Ech0ed1nc >> src/main/ops/etc/keystore/Echoed20120224.key
 
 
 Install keystore into default location:
 
 - sudo mkdir -p /etc/keystore
-- sudo cp src/main/ops/etc/keystore/*.keystore /etc/keystore/.
+- sudo cp src/main/ops/etc/keystore/Echoed20120224.* /etc/keystore/.
 
 
 Install compass:
