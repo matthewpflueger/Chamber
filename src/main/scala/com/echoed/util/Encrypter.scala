@@ -4,6 +4,9 @@ import org.apache.commons.codec.binary.Base64
 import javax.crypto.{Cipher, KeyGenerator}
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 import scala.reflect.BeanProperty
+import java.util.zip.{GZIPOutputStream, GZIPInputStream}
+import java.io._
+import scala.io.Source
 
 class Encrypter {
 
@@ -32,8 +35,17 @@ class Encrypter {
         }
     }
 
-    def encrypt(text: String, secret: String = secret) = {
+    def encrypt(text: String, secret: String = secret, gzip: Boolean = true) = {
         var textBytes = text.getBytes("UTF-8")
+        if (gzip) {
+            val os = new ByteArrayOutputStream(textBytes.length)
+            val gzip = new GZIPOutputStream(os)
+            gzip.write(textBytes)
+            gzip.flush()
+            gzip.close()
+            textBytes = os.toByteArray
+        }
+
         if (textBytes.length % 16 != 0) {
             val newBytes = new Array[Byte](textBytes.length + 16 - (textBytes.length % 16))
             System.arraycopy(textBytes, 0, newBytes, 0, textBytes.length)
@@ -50,7 +62,7 @@ class Encrypter {
     }
 
 
-    def decrypt(text: String, secret: String = secret) = {
+    def decrypt(text: String, secret: String = secret, gunzip: Boolean = true) = {
         val cipher = Cipher.getInstance(cipherTransformation)
         cipher.init(
             Cipher.DECRYPT_MODE,
@@ -58,14 +70,16 @@ class Encrypter {
             ivParameterSpec)
 
         val decrypted = cipher.doFinal(Base64.decodeBase64(text))
-        new String(decrypted, "UTF-8").trim()
+        if (gunzip) {
+            new String(Source.fromInputStream(new GZIPInputStream(new ByteArrayInputStream(decrypted)), "UTF-8").toArray)
+        } else new String(decrypted, "UTF-8").trim()
     }
 }
 
 object Encrypter extends App {
     val encrypter = new Encrypter
     encrypter.init()
-    Console.println("Secret key: %s" format encrypter.generateSecretKey)
+    scala.Console.println("Secret key: %s" format encrypter.generateSecretKey)
 }
 
 

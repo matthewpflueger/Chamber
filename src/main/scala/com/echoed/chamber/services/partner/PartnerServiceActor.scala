@@ -9,6 +9,8 @@ import com.echoed.chamber.dao.{RetailerSettingsDao, EchoPossibilityDao, Retailer
 import com.echoed.chamber.domain.views.EchoPossibilityView
 import scala.reflect.BeanProperty
 import java.util.{Date, HashMap => JHashMap}
+import java.util.zip.GZIPInputStream
+import java.io.ByteArrayInputStream
 
 class PartnerServiceActor(
         partner: Retailer,
