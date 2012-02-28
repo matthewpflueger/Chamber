@@ -291,36 +291,29 @@ class EchoController {
             @RequestHeader(value = "Referer", required = false) referrerUrl: String,
             @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
             @RequestHeader(value = "X-Forwarded-For", required = false) forwardedFor: String,
+            @RequestHeader(value = "User-Agent", required = false) userAgent: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-
-        def error(e: Throwable) {
-            logger.error("Error recording echo click for echo %s" format echoId, e)
-            val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
-            continuation.setAttribute("modelAndView", modelAndView)
-            continuation.resume()
-            modelAndView
-        }
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         if (continuation.isExpired) {
-            error(RequestExpiredException())
+            error(errorView, Some(RequestExpiredException()))
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
-
 
             val echoClick = new EchoClick(
                     echoId,
                     cookieManager.findEchoedUserCookie(httpServletRequest).orNull,
                     referrerUrl,
                     Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
-                    forwardedFor)
+                    forwardedFor,
+                    userAgent)
 
             echoService.recordEchoClick(echoClick, postId).onComplete(_.value.get.fold(
-                error(_),
+                e => error(errorView, Some(e)),
                 _ match {
-                    case RecordEchoClickResponse(msg, Left(e)) => error(e)
+                    case RecordEchoClickResponse(msg, Left(e)) => error(errorView, Some(e))
                     case RecordEchoClickResponse(msg, Right(echo)) =>
                         //Add the echoClick tracking cookie if it's not available
                         cookieManager.findEchoClickCookie(httpServletRequest).getOrElse({
