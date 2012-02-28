@@ -53,7 +53,7 @@ class PartnerServiceActor(
                             i.productName,
                             i.category,
                             i.brand,
-                            i.description,
+                            i.description.take(1023),
                             echoClickId.orNull)
                 }.filter { ep =>
                     try {
