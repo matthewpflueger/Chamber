@@ -32,6 +32,7 @@ $(document).ready(function(){
     hiw.appendTo(popup);
 
     $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
+    var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
     var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
     var count = 0;
     $('img[src^="http://demo.echoed.com/echo/button"]').each(function(){
@@ -51,7 +52,8 @@ $(document).ready(function(){
         p.append(ic).append(t);
         container.append(p);
     });
-    container.appendTo(popup);
+    container.appendTo(pcc);
+    pcc.appendTo(popup);
     $('.echoed-p').live('mouseenter', function(){
         $(this).find('.echoed-bs').addClass("current");
     });
