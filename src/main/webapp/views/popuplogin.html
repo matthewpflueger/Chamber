@@ -13,17 +13,14 @@
             <div class="poweredby">
                 <img src="{{urls.images}}/img_pbe.png"/>
             </div>
-            <div class="sharingvalued">
-                <img src="{{urls.images}}/img_sv.png"/>
-            </div>
         </div>
         <div id="content">
             <div id="thankyou">
                 {{#retailer}}
-                <span class="ty-text">Receive up to <span class="highlight">{{maxPercentage}}% cash back</span>  on this purchase when you Share it!</span>
+                <span class="ty-text">{{name}} Would Like To Reward You For Your Purchase!</span>
                 {{/retailer}}
             </div>
-            <div id="lower">
+            <div id="lower" class="clearfix">
                 <div id="left">
                     <div id="left_content">
                         <div id="product">
@@ -47,26 +44,27 @@
     	        <div id="right" class="long">
                     <div id="right-content">
                         {{#retailer}}
-                        <div class="confirm-text">
-                            Receive <span class="highlight-focus">1%</span> back when you share this product.<br/><br/>
-                            Receive <span class="highlight-focus">{{minPercentage}}%</span> back when you get at least <span class="highlight-focus">{{minClicks}} people</span> to click through and check out this product.<br/><br/>
-                            Receive Up to <span class="highlight-focus">{{maxPercentage}}%</span> after that. The more people that check out the product the more you'll save.<br/><br/>
-                        </div>
-                        <div class="confirm-label">
-                            Sign Up or Login to Share:
+                        <div class="confirm-label red">
+                            SHARE NOW TO GET YOUR REWARD, IT'S EASY!
                         </div>
                         <div>
                             <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{redirectUrl}}&scope=email,publish_stream,read_stream,offline_access" >
-                                <img width="180" src="{{urls.images}}/btn_login_fb_50.png"/>
+                                <img height="50" src="{{urls.images}}/btn_facebook_share.png"/>
                             </a>
                             <a id="twitterLogin" href="{{urls.site}}/twitter?redirect={{twitterUrl}}">
-                                <img width="180" src="{{urls.images}}/btn_login_tw_50.png"/>
+                                <img height="50" src="{{urls.images}}/btn_twitter_share.png"/>
                             </a>
                         </div>
-                        {{/retailer}}
-                        <div id="learnmore">
-                            <span class="highlight-focus"><a href="{{urls.site}}/howitworks" target="_blank">Click Here To Learn More</a></span>
+                        <div class="confirm-label" style="margin-top:30px;">
+                            HOW TO GET UP TO 20% BACK ON YOUR PURCHASE:
                         </div>
+                        <div class="confirm-text" style="padding-left: 20px;">
+                            <ul>
+                                <li>Share this purchase with <img src="{{urls.images}}/logo_facebook_bw.png"/> and <img src="{{urls.images}}/logo_twitter_bw.png"/>. Get <span class="highlight-focus">{{minClicks}} friends</span> to click on your link and we will give you <span class="highlight-focus">{{minPercentage}}% back</span>. You'll earn more for every friend that clicks, <span class="highlight-focus">Up to {{maxPercentage}}% back!</span></li>
+                                <li>After 7 days, the reward will be automatically applied back to your original payment method for this item.</li>
+                            </ul>
+                        </div>
+                        {{/retailer}}
                     </div>
 	            </div>
             </div>

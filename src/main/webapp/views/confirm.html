@@ -11,9 +11,6 @@
             <div class="poweredby">
                 <img src="{{urls.images}}/img_pbe.png"/>
             </div>
-            <div class="sharingvalued">
-                <img src="{{urls.images}}/img_sv.png"/>
-            </div>
         </div>
         <div id="content">
             <div id="thankyou">
@@ -38,106 +35,89 @@
                         </div>
                     </div>
                 </div>
-                <div id="mid">
-                    <div id="mid-content">
-                        <div class="pt-reward"><span class="pt-title">Rewards</span></div>
-                        <div class="pt-days">(You have 7 days to register activity)</div>
-                        <table id="rewards">
-                            <tr>
-                                <td class="pct"><span class="highlight-focus">1%</span><br/>Back</td>
-                                <td>When you Echo to your Exhibit</td>
-                            </tr>
-                            <tr>
-                                <td class="pct"><span class="highlight-focus">{{minPercentage}}%</span><br/>Back</td>
-                                <td>When you get {{minClicks}} clicks across your social networks</td>
-                            </tr>
-                            <tr>
-                                <td class="pct"><span class="highlight-focus">{{maxPercentage}}%</span><br/>Back</td>
-                                <td>When more friends buy or check out what you shared.</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
     	        <div id="right" >
                     <div id="right_content" class="border-grey bg-color-white rounded-corners">
-                        <form name="message" id="echo" action="{{urls.site}}/echo/it" method="get">
-                            {{#echoPossibility}}
-                            <input type="hidden" name="echoPossibilityId" value="{{id}}">
-                            {{/echoPossibility}}
-                    	    <table id="echoes" width="100%" cellspacing="5px">
-                                <thead>
-                                    <tr>
-                                        <th>Network</th>
-                                        <th>Message</th>
-                                        <th>On/Off</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td width="60">
-                                            <img src="{{urls.images}}/icon_echoed.png" height="60"/>
-                                        </td>
-                                        <td>
-                                            <textarea name="closetmessage" disabled="disabled"class="rounded-corners" >Item will appear in your Echoed Exhibit</textarea>
-                                        </td>
-                                        <td width="30">
-                                            <input type="checkbox" name="postToEchoedCloset" checked="true" disabled="true"/>
-                                        </td>
-                                    </tr>
-                                    {{#echoedUser}}
-                                    {{#facebookUserId}}
-                                    <tr>
-                                        <td>
-                                        	<img src="{{urls.images}}/icon_facebook.png" height="60"/>
-                                        </td>
-                                        <td>
-                                            <textarea name="facebookMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" name="postToFacebook" checked="true"/>
-                                        </td>
-                                    </tr>
-                                    {{/facebookUserId}}
-                                    {{^facebookUserId}}
-                                    <tr>
-                                        <td colspan="3">
-                                            <a href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{facebookAddUrl}}&scope=email,publish_stream,offline_access">
-                                                <img class="login-button" width="250px" src="{{urls.images}}/btn_add_fb.png">
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {{/facebookUserId}}
-                                    {{#twitterUserId}}
+                        <div id="echoes-container">
+                            <div class="confirm-label red" style="margin-bottom: 5px;">
+                                SHARE NOW TO GET YOUR REWARD, IT'S EASY!
+                            </div>
+                            <div style="margin-bottom:10px;">
+                                Get <strong>10 friends</strong> to click on your link and we will give you <strong>5% back</strong>. You&#39;ll earn more for every friend that clicks, up to <strong>20% back</strong>!
+                            </div>
+                            <form name="message" id="echo" action="{{urls.site}}/echo/it" method="get">
+                                {{#echoPossibility}}
+                                <input type="hidden" name="echoPossibilityId" value="{{id}}">
+                                {{/echoPossibility}}
+                                <table id="echoes" width="100%" cellspacing="5px">
+                                    <thead>
+                                        <tr>
+                                            <th width="40px">Network</th>
+                                            <th>Custom Message</th>
+                                            <th width="20px">On/Off</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{#echoedUser}}
+                                        {{#facebookUserId}}
                                         <tr>
                                             <td>
-                                            	<img src="{{urls.images}}/icon_twitter.png" height="60"/>
+                                                <img src="{{urls.images}}/icon_facebook.png" height="60"/>
                                             </td>
                                             <td>
-                                                <textarea name="twitterMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
+                                                <textarea name="facebookMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
                                             </td>
                                             <td>
-                                                <input type="checkbox" name="postToTwitter" checked="true"/>
+                                                <input type="checkbox" name="postToFacebook" checked="true"/>
                                             </td>
                                         </tr>
-                                    {{/twitterUserId}}
-                                    {{^twitterUserId}}
+                                        {{/facebookUserId}}
+                                        {{^facebookUserId}}
                                         <tr>
-                                            <td colspan="3">
-                                                <a id="twitterLogin" href="{{urls.site}}/twitter?redirect={{twitterAddUrl}}">
-                                                    <img width="200" src='{{urls.images}}/btn_add_tw.png'/>
+                                            <td>
+                                                <a href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{facebookAddUrl}}&scope=email,publish_stream,offline_access">
+                                                    <img src="{{urls.images}}/btn_icon_facebook_bw.png" height="60"/>
                                                 </a>
                                             </td>
+                                            <td>
+                                                Click the icon to add facebook.
+                                            </td>
                                         </tr>
-                                    {{/twitterUserId}}
-                                    {{/echoedUser}}
-                                    <tr>
-                                        <td align="center" colspan="3">
-    										<input id="echoit" type="image" style="cursor:pointer;" class="bg-color-orange rounded-corners" src="{{urls.images}}/btn_echoit.png" />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                             </table>
-                        </form>
+                                        {{/facebookUserId}}
+                                        {{#twitterUserId}}
+                                            <tr>
+                                                <td>
+                                                    <img src="{{urls.images}}/icon_twitter.png" height="60"/>
+                                                </td>
+                                                <td>
+                                                    <textarea name="twitterMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox" name="postToTwitter" checked="true"/>
+                                                </td>
+                                            </tr>
+                                        {{/twitterUserId}}
+                                        {{^twitterUserId}}
+                                            <tr>
+                                                <td>
+                                                    <a id="twitterLogin" href="{{urls.site}}/twitter?redirect={{twitterAddUrl}}">
+                                                        <img src="{{urls.images}}/btn_icon_twitter_bw.png" height="60"/>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    Click the logo to add Twitter
+                                                </td>
+                                            </tr>
+                                        {{/twitterUserId}}
+                                        {{/echoedUser}}
+                                        <tr>
+                                            <td align="center" colspan="3">
+                                                <input id="echoit" type="image" style="cursor:pointer;" class="bg-color-orange rounded-corners" src="{{urls.images}}/btn_echoit.png" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                 </table>
+                            </form>
+                        </div>
                     </div>
 	            </div>
             </div>

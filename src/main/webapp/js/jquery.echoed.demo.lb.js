@@ -26,8 +26,8 @@ $(document).ready(function(){
     });
     $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
     var hiw = $(div).attr("id","echoed-hiw");
-    var et = $(div).attr("id","echoed-hiw-t").html('EARN UP TO A <span class="echoed-highlight">20% REFUND</span> WHEN YOU <span class="echoed-highlight">SHARE</span> YOUR PURCHASES');
-    var ett = $(div).attr("id","echoed-hiw-tt").html("Click on your purchase(s) to receive a refund on that item.");
+    var et = $(div).attr("id","echoed-hiw-t").html('SHARE YOUR PURCHASE AND EARN UP TO <span class="echoed-highlight">20% CASH BACK</span>');
+    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='http://demo.echoed.com/logo_facebook.png'> or <img src='http://demo.echoed.com/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link!");
     hiw.append(et).append(ett);
     hiw.appendTo(popup);
 

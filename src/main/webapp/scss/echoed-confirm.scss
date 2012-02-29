@@ -29,8 +29,8 @@
 }
 
 $mainColor: #E31B23;
-$highlightColor : #FF7733;
-$secondaryColor: #FF7733; //ORANGE
+$highlightColor : #E31B23;
+$secondaryColor: #E31B23; //ORANGE
 
 $fbColor: #3B5998;
 $twitterColor: #4099FF;
@@ -48,7 +48,7 @@ $headerHeight: 50px;
 
 
 $labelFontFamily: TradeGothicBD20Cond, Helvetica, Arial, sans-serif;
-$textFontFamily: HelveticaNeue-Light, Arial, Helvetica, sans-serif;
+$textFontFamily: HelveticaNeue, Arial, Helvetica, sans-serif;
 
     @mixin drop-shadow{
         box-shadow: 0 3px 3px rgba(34,25,25,0.4);
@@ -74,7 +74,6 @@ html{
 }
 
 body{
-    background-image: image-url('bk_paper.png');
 }
 
 a{
@@ -88,33 +87,44 @@ h2{
 }
 
 .confirm-label{
-    margin-bottom: 5px;
+    margin-top: 10px;
+    margin-bottom: 20px;
     font-family: $labelFontFamily;
     font-size: 24px;
+    &.red{
+        color: $mainColor;
+    }
 }
 
-.confirm-text{
-    font-size: 19px;
+li{
+    font-size: 16px;
+    margin-bottom: 15px;
 }
 
 #container{
-	min-width: 1000px;
     height: 100%;
+    padding: 10px;
+    background-color: #FFF;
 }
+
+    #content{
+        width: 965px;
+        background-image: image-url('bk_paper.png');
+        padding: 10px;
+        border:1px solid #333;
+    }
 
     #header{
         height:50px;
+        width: 975px;
         padding-left: 10px;
         background-color: #FFF;
-        box-shadow: 0 3px 5px rgba(34,25,25,0.4);
-            -moz-box-shadow: 0px 3px 5px rgba(34,25,25,0.4);
-            -webkit-box-shadow: 0px 3px 5px rgba(34,25,25,0.4);
     }
 
         .poweredby{
             font-family: $labelFontFamily;
             font-size: 18px;
-            float:left;
+            float:right;
         }
 
         .sharingvalued{
@@ -145,9 +155,9 @@ h2{
     }
     
     .highlight-focus{
-        color: $secondaryColor;
+        color: $mainColor;
         font-weight: bold;
-        font-size: 1.2em;
+        //font-size: 1.2em;
     }
 
     .not-name{
@@ -186,14 +196,14 @@ h2{
         background-color: #FFF;
         height: 360px;
         #product{
-            width: 280px;
+            width: 230px;
             #product_picture_container{
-                width: 280px;
+                width: 230px;
                 max-height: 300px;
                 overflow-y: hidden;
             }
             #product_picture{
-                width: 280px;
+                width: 230px;
             }
             #product-description{
                 min-height: 51px;
@@ -253,9 +263,7 @@ h2{
         float:left;
         background-color:#FFF;
         @include drop-shadow;
-        &.long{
-            width: 620px;
-        }
+        width: 720px;
         #right-content{
             padding: 10px;
         }
@@ -275,26 +283,40 @@ h2{
     #right_content{
     }
 
+    #echoes-container{
+        padding-left: 10px;
+        padding-right: 20px;
+        float:left;
+    }
 
+    #post-it{
+        padding: 20px;
+        width: 160px;
+        line-height: 1.5em;
+        font-size: 16px;
+        float:left;
+    }
 
         #echoes {
             border-collapse: collapse;
             background-color: #FFF;
             td,th{
                 text-align:center;
-                padding: 5px;
+            }
+            th{
+                padding-bottom: 10px;
             }
             td{
-                height: 40px;
+                height: 60px;
             }
             textarea{
-                padding:2px;
+                padding:5px;
                 font-size: 16px;
                 border: 1px #CCC solid;
                 font-family: $textFontFamily;
-                width: 260px;
+                width: 530px;
                 margin: 5px;
-                height: 60px;
+                height: 50px;
             }
 
         }
