@@ -18,6 +18,7 @@
             <arg column="clickedOn" javaType="Date" />
             <arg column="forwardedFor" javaType="String" />
             <arg column="echoPossibilityId" javaType="String"/>
+            <arg column="userAgent" javaType="String"/>
         </constructor>
     </resultMap>
 
@@ -38,7 +39,8 @@
                 ipAddress,
                 clickedOn,
                 forwardedFor,
-                echoPossibilityId)
+                echoPossibilityId,
+                userAgent)
         values (
                 #{id},
                 #{createdOn},
@@ -50,7 +52,8 @@
                 #{ipAddress},
                 #{clickedOn},
                 #{forwardedFor},
-                #{echoPossibilityId})
+                #{echoPossibilityId},
+                #{userAgent})
     </insert>
 
     <delete id="deleteByEchoId">
