@@ -26,9 +26,10 @@
         <prop key="buttonUrl">${buttonUrl}</prop>
         <prop key="buttonViewUrl">${buttonViewUrl}</prop>
         <prop key="loginViewUrl">${loginViewUrl}</prop>
-        <prop key="confirmViewUrl">${confirmViewUrl}</prop>
+        <prop key="confirmUrl">${confirmUrl}</prop>
         <prop key="closetUrl">${closetUrl}</prop>
         <prop key="dashboardUrl">${dashboardUrl}</prop>
+        <prop key="echoTestPage">${http.urls.site}/test/html/echo.html</prop>
     </util:properties>
 
     <bean id="webDriver" class="org.openqa.selenium.firefox.FirefoxDriver" />

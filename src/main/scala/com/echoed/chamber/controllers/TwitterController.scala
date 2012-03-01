@@ -17,7 +17,7 @@ import com.echoed.chamber.services.twitter._
 
 @Controller
 @RequestMapping(Array("/twitter"))
-class TwitterController {
+class TwitterController extends NetworkController {
 
     private val logger = LoggerFactory.getLogger(classOf[TwitterController])
 
@@ -195,4 +195,8 @@ class TwitterController {
             continuation.undispatch()
         }
     }
+
+    def makeAuthorizeUrl(postAuthorizeUrl: String, add: Boolean = false) =
+        "%s/twitter?redirect=%s" format(siteUrl, URLEncoder.encode(postAuthorizeUrl, "UTF-8"))
+
 }

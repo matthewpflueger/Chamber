@@ -12,5 +12,13 @@ trait PartnerService {
             ipAddress: String,
             echoedUserId: Option[String] = None,
             echoClickId: Option[String] = None): Future[RequestEchoResponse]
+
+    def recordEchoStep(
+            echoId: String,
+            step: String,
+            ipAddress: String,
+            echoedUserId: Option[String] = None,
+            echoClickId: Option[String] = None): Future[RecordEchoStepResponse]
+
 }
 

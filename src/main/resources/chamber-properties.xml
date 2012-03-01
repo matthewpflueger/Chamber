@@ -133,12 +133,17 @@
 
 
         <prop key="apiUrl">${http.urls.api}</prop>
+
         <prop key="echoJsUrl">${http.urls.site}/echo/js</prop>
         <prop key="echoRequestUrl">${http.urls.site}/echo/request</prop>
+        <prop key="echoConfirmUrl">${http.urls.site}/echo/confirm</prop>
+        <prop key="echoFinishUrl">${http.urls.site}/echo/finish</prop>
+
         <prop key="echoUrl">${http.urls.site}/echo</prop>
         <prop key="echoItUrl">${http.urls.site}/echo/it</prop>
         <prop key="buttonUrl">${http.urls.site}/echo/button</prop>
         <prop key="closetUrl">${http.urls.site}</prop>
+        <prop key="confirmUrl">${http.urls.site}/echo</prop>
 
         <prop key="buttonViewUrl">${http.urls.images}/button_echoed.png</prop>
         <prop key="loginViewUrl">${http.urls.views}/popuplogin.html</prop>

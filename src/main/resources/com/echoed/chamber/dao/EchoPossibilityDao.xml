@@ -51,6 +51,7 @@
         select count(*) from EchoPossibility
     </select>
 
+
     <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.EchoPossibility">
     	insert into EchoPossibility (
     			id,

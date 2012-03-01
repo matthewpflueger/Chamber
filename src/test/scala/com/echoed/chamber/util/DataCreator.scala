@@ -331,7 +331,7 @@ class DataCreator {
     val twitterUserId = UUID.randomUUID.toString
     val facebookUserId = UUID.randomUUID.toString
     val facebookTestUserId = UUID.randomUUID.toString
-    val retailerId = UUID.randomUUID.toString
+    val retailerId = "e0142506-7d92-4222-b55e-6dd2bca08c93" //UUID.randomUUID.toString
     val adminUserId = UUID.randomUUID.toString
 
     val landingPageUrl = siteUrl
@@ -340,7 +340,7 @@ class DataCreator {
 
 
     val retailers = List(
-        new Retailer("A Lady & Her Baby").copy(id = retailerId, secret = "wC4nP6DLLtaPji6pWSEcBg"),
+        new Retailer("A Lady and Her Baby").copy(id = retailerId, secret = "wC4nP6DLLtaPji6pWSEcBg"),
         new Retailer("Babesta"),
         new Retailer("Carrot Top"),
         new Retailer("Dimples"),

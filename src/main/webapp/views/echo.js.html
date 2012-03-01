@@ -57,7 +57,7 @@ $(document).ready(function(){
                 echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
 
                 delete echoPossibility['echoedUserId'];
-                var p = $(div).addClass("echoed-p").attr("href",Echoed.urls.api + "/echo?" + jQuery.param(echoPossibility));
+                var p = $(div).addClass("echoed-p").attr("id", echoPossibility.id).attr("href", Echoed.urls.api + "/echo/login?id=" + echoPossibility.id);
                 var ic = $(div).addClass("echoed-i-c").append($('<img/>').attr("src",echoPossibility.imageUrl).addClass("echoed-i"));
                 var t = $(div).addClass("echoed-t").html('<strong>' + echoPossibility.brand + '</strong></br>' + echoPossibility.productName);
                 var bs = $(div).addClass("echoed-bs").appendTo(ic);
@@ -76,7 +76,7 @@ $(document).ready(function(){
 
             $('.echoed-p').live('click', function(){
                 var url = $(this).attr("href");
-                window.open(url,'Echoed','width=1030,height=530,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                window.open(url, $(this).attr("id"),'width=1030,height=530,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
                 });
 
             $('#echoed-close').live('click', function(){

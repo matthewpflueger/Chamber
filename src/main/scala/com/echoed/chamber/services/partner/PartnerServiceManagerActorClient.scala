@@ -15,4 +15,7 @@ class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorC
 
     def locatePartnerService(partnerId: String) =
             (actorRef ? Locate(partnerId)).mapTo[LocateResponse]
+
+    def locatePartnerByEchoId(echoId: String) =
+            (actorRef ? LocateByEchoId(echoId)).mapTo[LocateByEchoIdResponse]
 }

@@ -13,7 +13,11 @@ import scalaz._
 import Scalaz._
 import akka.dispatch.Future
 import java.util.{Date, UUID, HashMap => JHashMap}
-import com.echoed.chamber.dao.{EchoPossibilityDao, RetailerSettingsDao, RetailerDao, RetailerUserDao}
+import com.echoed.chamber.dao._
+import scala.collection.mutable.ConcurrentMap
+import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
+import com.echoed.chamber.services.ActorClient
+
 
 class PartnerServiceManagerActor extends Actor {
 
@@ -23,14 +27,33 @@ class PartnerServiceManagerActor extends Actor {
     @BeanProperty var partnerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var partnerUserDao: RetailerUserDao = _
     @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
+    @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var encrypter: Encrypter = _
     @BeanProperty var transactionTemplate: TransactionTemplate = _
     @BeanProperty var emailService: EmailService = _
 
+    @BeanProperty var cacheManager: CacheManager = _
+
+
+    private var cache: ConcurrentMap[String, PartnerService] = null
+
+
+    override def preStart() {
+        cache = cacheManager.getCache[PartnerService]("PartnerServices", Some(new CacheListenerActorClient(self)))
+    }
+
 
     def receive = {
+
+        case msg @ CacheEntryRemoved(partnerId: String, partnerService: PartnerService, cause: String) =>
+            logger.debug("Received {}", msg)
+            partnerService.asInstanceOf[ActorClient].actorRef.stop()
+            logger.debug("Stopped {}", partnerService.id)
+
         case msg @ RegisterPartner(partner, partnerSettings, partnerUser) =>
+            val me = self
             val channel: Channel[RegisterPartnerResponse] = self.channel
+
 
             def error(e: Throwable) {
                 logger.error("Unexpected error processing %s" format msg, e)
@@ -59,6 +82,7 @@ class PartnerServiceManagerActor extends Actor {
                 })
 
                 channel ! RegisterPartnerResponse(msg, Right(p))
+                me ! Locate(p.id)
 
                 val model = new JHashMap[String, AnyRef]()
                 model.put("code", code)
@@ -69,42 +93,63 @@ class PartnerServiceManagerActor extends Actor {
                     "Your Echoed Account",
                     "partner_email_register",
                     model)
+
             } catch {
                 case e => error(e)
             }
 
+
         case msg @ Locate(partnerId) =>
             val channel: Channel[LocateResponse] = self.channel
 
-            val pf = Future {
-                Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+            cache.get(partnerId) match {
+                case Some(partnerService) =>
+                    channel ! LocateResponse(msg, Right(partnerService))
+                    logger.debug("Cache hit for {}", partnerService)
+                case _ =>
+                    val pf = Future {
+                        Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+                    }
+                    val psf = Future {
+                        Option(partnerSettingsDao.findByActiveOn(partnerId, new Date()))
+                                .getOrElse(throw PartnerNotActive(partnerId))
+                    }
+
+                    (for {
+                        partner <- pf
+                        partnerSettings <- psf
+                    } yield {
+                        val partnerService = new PartnerServiceActorClient(Actor.actorOf(new PartnerServiceActor(
+                                partner,
+                                partnerSettings,
+                                partnerDao,
+                                partnerSettingsDao,
+                                echoPossibilityDao,
+                                echoDao,
+                                encrypter)).start)
+                        channel ! LocateResponse(msg, Right(partnerService))
+                        cache.put(partnerId, partnerService)
+                    }).onException {
+                        case e: PartnerException => channel ! LocateResponse(msg, Left(e))
+                        case e => channel ! LocateResponse(msg, Left(PartnerException("Error locating partner %s" format partnerId, e)))
+                    }
             }
-            val psf = Future {
-                Option(partnerSettingsDao.findByActiveOn(partnerId, new Date())).getOrElse(throw PartnerNotActive(partnerId))
-            }
 
-            (for {
-                partner <- pf
-                partnerSettings <- psf
-            } yield {
-                channel ! LocateResponse(msg, Right(new PartnerServiceActorClient(Actor.actorOf(new PartnerServiceActor(
-                        partner,
-                        partnerSettings,
-                        partnerDao,
-                        partnerSettingsDao,
-                        echoPossibilityDao,
-                        encrypter)).start)))
-            }).onException {
-                case e: PartnerException => channel ! LocateResponse(msg, Left(e))
-                case e => channel ! LocateResponse(msg, Left(PartnerException("Error locating partner %s" format partnerId, e)))
-            }
+        case msg @ LocateByEchoId(echoId) =>
+            val me = self
+            val channel: Channel[LocateByEchoIdResponse] = self.channel
 
-
-//            Option(partnerDao.findById(partnerId)).cata(
-//                partner => channel ! LocateResponse(msg, Right(new PartnerServiceActorClient(
-//                        Actor.actorOf(new PartnerServiceActor(partner, partnerDao, encrypter)).start))),
-//                channel ! LocateResponse(msg, Left(new PartnerNotFound(partnerId))))
-
+//            Option(echoDao.findById(echoId)).cata(
+            Option(echoPossibilityDao.findById(echoId)).cata(
+                echo => ((me ? Locate(echo.retailerId)).mapTo[LocateResponse]).onComplete(_.value.get.fold(
+                    e => channel ! LocateByEchoIdResponse(msg, Left(PartnerException("Unexpected error", e))),
+                    _ match {
+                        case LocateResponse(_, Left(e)) => channel ! LocateByEchoIdResponse(msg, Left(e))
+                        case LocateResponse(_, Right(partnerService)) => channel ! LocateByEchoIdResponse(msg, Right(partnerService))
+                    })),
+                {
+                    channel ! LocateByEchoIdResponse(msg, Left(EchoNotFound(echoId)))
+                })
 
     }
 

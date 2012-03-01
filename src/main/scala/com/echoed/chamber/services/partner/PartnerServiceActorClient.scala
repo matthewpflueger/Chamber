@@ -16,4 +16,15 @@ class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService w
             echoedUserId: Option[String] = None,
             echoClickId: Option[String] = None) =
         (actorRef ? RequestEcho(request, ipAddress, echoedUserId, echoClickId)).mapTo[RequestEchoResponse]
+
+
+    def recordEchoStep(
+            echoId: String,
+            step: String,
+            ipAddress: String,
+            echoedUserId: Option[String],
+            echoClickId: Option[String]) =
+        (actorRef ? RecordEchoStep(echoId, step, ipAddress, echoedUserId, echoClickId)).mapTo[RecordEchoStepResponse]
+
+    override def toString = id
 }

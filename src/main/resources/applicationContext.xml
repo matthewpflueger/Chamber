@@ -136,11 +136,15 @@
         <!--suppress SpringModelInspection -->
         <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->
+        <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
         <property name="encrypter" ref="encrypter" />
         <!--suppress SpringModelInspection -->
         <property name="transactionTemplate" ref="transactionTemplate" />
         <!--suppress SpringModelInspection -->
         <property name="emailService" ref="emailService" />
+        <!--suppress SpringModelInspection -->
+        <property name="cacheManager" ref="cacheManager" />
     </akka:untyped-actor>
 
     <akka:untyped-actor

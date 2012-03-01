@@ -6,6 +6,7 @@ import reflect.BeanProperty
 import com.echoed.chamber.services.echoeduser.EchoTo
 
 
+@Deprecated
 case class EchoItParameters(
             @BeanProperty var facebookMessage: String = null,
             @BeanProperty var postToFacebook: Boolean = false,

@@ -24,7 +24,7 @@ import org.springframework.validation.ObjectError
 
 @Controller
 @RequestMapping(Array("/facebook"))
-class FacebookController {
+class FacebookController extends NetworkController {
 
     private val logger = LoggerFactory.getLogger(classOf[FacebookController])
 
@@ -41,6 +41,10 @@ class FacebookController {
 
     @BeanProperty var cookieManager: CookieManager = _
 
+    @BeanProperty var siteUrl: String = _
+
+    @BeanProperty var permissions = "email,publish_stream,read_stream,offline_access"
+    @BeanProperty var authUrl = "https://www.facebook.com/dialog/oauth?scope=%s&client_id=%s&redirect_uri=%s"
 
     private var facebookClientSecretBytes: Array[Byte] = _
     def init() {
@@ -275,15 +279,30 @@ class FacebookController {
                         }))
                 },
                 {
-
                     val canvasPage = URLEncoder.encode(facebookCanvasApp, "UTF-8")
-                    val authUrl = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s&scope=email,publish_stream,read_stream,offline_access" format(facebookClientId, canvasPage)
-                    continuation.setAttribute("modelAndView", new ModelAndView("authredirect", "authUrl", authUrl))
+                    continuation.setAttribute(
+                            "modelAndView",
+                            new ModelAndView(
+                                    "authredirect",
+                                    "authUrl",
+                                    authUrl format(permissions, facebookClientId, canvasPage)))
                     continuation.resume()
                 })
 
             continuation.undispatch()
         })
+    }
+
+    def makeAuthorizeUrl(postAuthorizeUrl: String, add: Boolean = false) = {
+        val postUrl = "%s/facebook/%s?redirect=%s" format (
+                siteUrl,
+                if (add) "add" else "login",
+                URLEncoder.encode(postAuthorizeUrl, "UTF-8"))
+
+        authUrl format(
+                permissions,
+                facebookClientId,
+                URLEncoder.encode(postUrl, "UTF-8"))
     }
 
 }

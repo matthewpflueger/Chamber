@@ -12,5 +12,7 @@ trait PartnerServiceManager {
             partnerUser: RetailerUser): Future[RegisterPartnerResponse]
 
     def locatePartnerService(partnerId: String): Future[LocateResponse]
+
+    def locatePartnerByEchoId(echoId: String): Future[LocateByEchoIdResponse]
 }
 

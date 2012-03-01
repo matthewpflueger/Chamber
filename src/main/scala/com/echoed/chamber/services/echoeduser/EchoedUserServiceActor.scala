@@ -190,7 +190,9 @@ class EchoedUserServiceActor(
                                 echoDao.insert(echo)
                                 echoMetricsDao.insert(echoMetrics)
 
-                                Future { echoPossibilityDao.insertOrUpdate(ep.copy(echoId = echo.id, step = "echoed")) }
+                                Future {
+                                    echoPossibilityDao.insertOrUpdate(ep.copy(echoId = echo.id, step = "%s,echoed" format(ep.step)))
+                                }
 
                                 val requestList = MList[(ActorRef, Message)]()
 
