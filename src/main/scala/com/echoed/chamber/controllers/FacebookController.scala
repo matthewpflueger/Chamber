@@ -277,7 +277,7 @@ class FacebookController {
                 {
 
                     val canvasPage = URLEncoder.encode(facebookCanvasApp, "UTF-8")
-                    val authUrl = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s" format(facebookClientId, canvasPage)
+                    val authUrl = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s&scope=email,publish_stream,read_stream,offline_access" format(facebookClientId, canvasPage)
                     continuation.setAttribute("modelAndView", new ModelAndView("authredirect", "authUrl", authUrl))
                     continuation.resume()
                 })
