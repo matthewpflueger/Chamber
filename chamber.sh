@@ -197,11 +197,15 @@ case $service_args in
         ;;
 
     compass)
-        compass watch -c compass.rb
+        compass watch -c src/main/compass/${ENV_TYPE}.rb
+        ;;
+
+    compass_compile)
+        compass compile -f -c src/main/compass/${ENV_TYPE}.rb
         ;;
 
     *)
-        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass}" >&2
+        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass|compass_compile}" >&2
         exit 1
         ;;
 esac
