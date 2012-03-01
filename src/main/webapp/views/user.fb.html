@@ -19,49 +19,51 @@
 <body>
 <div id="container" class="facebook">
     <div id="header" class="facebook">
-        <div id="logo">
-            <img height="40px" src="{{urls.images}}/logo.png">
-        </div>
-        <div id="user" class="clearfix">
-        </div>
-        <div id="header-nav" class="clearfix">
-            <ul>
-                <li id="explore_nav">
-                    <a href="#explore">
-                        Explore
-                    </a>
-                </li>
-                <li id="exhibit_nav">
-                    <a href="#exhibit">
-                        My Exhibit
-                    </a>
-                </li>
-                <li id="friends_nav">
-                    <a href="#friends">
-                        My Friends
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div id="networks">
-            {{#echoedUser}}
-            {{#facebookUserId}}
-            <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
-            {{/facebookUserId}}
-            {{^facebookUserId}}
-            <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{urls.site}}/facebook/add&scope=email,publish_stream,offline_access">
-                <img src="{{urls.images}}/btn_sq_grey_fb.png" alt="facebook"/>
-            </a>
-            {{/facebookUserId}}
-            {{#twitterUserId}}
-            <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
-            {{/twitterUserId}}
-            {{^twitterUserId}}
-            <a id="addTwitterLink" href="{{urls.site}}/twitter?redirect="/>
-            <img src="{{urls.images}}/btn_sq_grey_tw.png" alt="twitter"/>
-            </a>
-            {{/twitterUserId}}
-            {{/echoedUser}}
+        <div>
+            <div id="logo">
+                <img height="40px" src="{{urls.images}}/logo.png">
+            </div>
+            <div id="user" class="clearfix">
+            </div>
+            <div id="header-nav" class="clearfix">
+                <ul>
+                    <li id="explore_nav">
+                        <a href="#explore">
+                            Explore
+                        </a>
+                    </li>
+                    <li id="exhibit_nav">
+                        <a href="#exhibit">
+                            My Exhibit
+                        </a>
+                    </li>
+                    <li id="friends_nav">
+                        <a href="#friends">
+                            My Friends
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div id="networks">
+                {{#echoedUser}}
+                {{#facebookUserId}}
+                <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
+                {{/facebookUserId}}
+                {{^facebookUserId}}
+                <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{urls.site}}/facebook/add&scope=email,publish_stream,offline_access">
+                    <img src="{{urls.images}}/btn_sq_grey_fb.png" alt="facebook"/>
+                </a>
+                {{/facebookUserId}}
+                {{#twitterUserId}}
+                <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
+                {{/twitterUserId}}
+                {{^twitterUserId}}
+                <a id="addTwitterLink" href="{{urls.site}}/twitter?redirect="/>
+                <img src="{{urls.images}}/btn_sq_grey_tw.png" alt="twitter"/>
+                </a>
+                {{/twitterUserId}}
+                {{/echoedUser}}
+            </div>
         </div>
         <div id="content-selector-container">
             <div id="content-title"></div>
