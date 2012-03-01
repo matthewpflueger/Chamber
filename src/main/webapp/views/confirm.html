@@ -35,17 +35,16 @@
                         </div>
                     </div>
                 </div>
-    	        <div id="right" >
+    	        <div id="right" class="short">
                     <div id="right_content" class="border-grey bg-color-white rounded-corners">
                         <div id="echoes-container">
-                            <div class="confirm-label red" style="margin-bottom: 5px;">
-                                SHARE NOW TO GET YOUR REWARD, IT'S EASY!
-                            </div>
-                            <div style="margin-bottom:10px;">
-                                Get <strong>10 friends</strong> to click on your link and we will give you <strong>5% back</strong>. You&#39;ll earn more for every friend that clicks, up to <strong>20% back</strong>!
+                            <div class="confirm-label red" style="text-align:center;margin-bottom: 5px;">
+                                CLICK "SHARE IT" TO SHARE AND SAVE!
                             </div>
                             <form name="message" id="echo" action="{{urls.site}}/echo/it" method="get">
+                                <div style="text-align: center;"><input id="echoit" type="image" style="cursor:pointer;" src="{{urls.images}}/btn_shareit_off.png" onmouseover="this.src = '{{urls.images}}/btn_shareit_on.png'" onmouseout="this.src='{{urls.images}}/btn_shareit_off.png'"/></div>
                                 {{#echoPossibility}}
+
                                 <input type="hidden" name="echoPossibilityId" value="{{id}}">
                                 {{/echoPossibility}}
                                 <table id="echoes" width="100%" cellspacing="5px">
@@ -109,17 +108,25 @@
                                             </tr>
                                         {{/twitterUserId}}
                                         {{/echoedUser}}
-                                        <tr>
-                                            <td align="center" colspan="3">
-                                                <input id="echoit" type="image" style="cursor:pointer;" class="bg-color-orange rounded-corners" src="{{urls.images}}/btn_echoit.png" />
-                                            </td>
-                                        </tr>
                                     </tbody>
                                  </table>
                             </form>
                         </div>
                     </div>
 	            </div>
+                <div id="mid">
+                    <div id="mid-content">
+                        <div style="margin-left:5px" class="confirm-label">
+                            REMEMBER:
+                        </div>
+                        <div style="margin-bottom:10px;padding-left:25px;padding-right: 15px;">
+                            <ul>
+                                <li>Get <strong>10 friends</strong> to click on your link and we will give you <strong>5% back</strong>. You&#39;ll earn more for every friend that clicks, up to <strong>20% back</strong>!</li>
+                                <li>After <strong>7 days</strong>, the reward will be <strong>automatically applied back to your original payment method</strong> for this item.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

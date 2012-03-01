@@ -547,14 +547,14 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             var diff = then - now;
             var daysleft = parseInt(diff/(24*60*60*1000));
             if(daysleft >= 0){
-                hover.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/>");
+                hover.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/><br/>");
                 self.showOverlay();
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");
                 var visits = this.model.get("echoTotalClicks");
-                var minVisits = this.model.get("retailerMinClicks");
+                var minVisits = this.model.get("retailerSettingsMinClicks");
                 if(visits  < minVisits){
-                    hover.append("<span class='highlight'>" + (minVisits - visits) + " click(s) to receive reward</span>");
+                    hover.append("<span class='highlight'><strong>" + (minVisits - visits) + "more click(s) for your reward</strong></span>");
                 }
             }
         }

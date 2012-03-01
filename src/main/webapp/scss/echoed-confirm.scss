@@ -108,7 +108,7 @@ li{
 }
 
     #content{
-        width: 965px;
+        width: 975px;
         background-image: image-url('bk_paper.png');
         padding: 10px;
         border:1px solid #333;
@@ -139,7 +139,7 @@ li{
         }
 
     #thankyou{
-        padding:10px;
+        padding: 5px 10px 5px 10px;
 
     }
 
@@ -165,33 +165,13 @@ li{
         font-family: $textFontFamily;
     }
 
-
-    #left-ei{
-        width: 600px;
-        float:left;
-        margin-right:25px;
-        margin-left:10px;
-    }
-
-    #right-ei{
-        width: 250px;
-        float:left;
-        text-align: center;
-        @include drop-shadow;
-
-        img{
-            max-height: 200px;
-            max-width: 200px;
-        }
-    }
-
     #lower{
         width: 980px;
     }
 
     #left{
         float:left;
-        margin: 5px;
+        margin: 10px;
         @include drop-shadow;
         background-color: #FFF;
         height: 360px;
@@ -217,15 +197,17 @@ li{
     }
 
     #mid{
-
+        li{
+            line-height: 1.4em;
+        }
         width: 240px;
         float:left;
         @include drop-shadow;
-        margin: 5px;
+        margin: 10px;
         background-color: #FFF;
         height: 360px;
         #mid-content{
-            padding:5px;
+            padding: 0px 10px;
             #rewards{
                 td{
                     font-size: 14px;
@@ -252,18 +234,16 @@ li{
         }
     }
 
-
-
-
-
-
     #right{
         height: 360px;
-        margin:5px;
+        margin: 10px;
         float:left;
         background-color:#FFF;
         @include drop-shadow;
-        width: 720px;
+        width: 700px;
+        &.short{
+            width: 435px;
+        }
         #right-content{
             padding: 10px;
         }
@@ -300,21 +280,24 @@ li{
         #echoes {
             border-collapse: collapse;
             background-color: #FFF;
+            margin-top: 40px;
+            bottom: 0px;
             td,th{
                 text-align:center;
             }
             th{
-                padding-bottom: 10px;
+                padding-top: 10px;
+                padding-bottom: 5px;
             }
-            td{
-                height: 60px;
+            td{              
+                padding: 5px;
             }
             textarea{
                 padding:5px;
-                font-size: 16px;
+                font-size: 14px;
                 border: 1px #CCC solid;
                 font-family: $textFontFamily;
-                width: 530px;
+                width: 270px;
                 margin: 5px;
                 height: 50px;
             }
@@ -347,4 +330,8 @@ li{
     text-decoration: underline;
     padding: 5px;
     font-size: 18px;
+}
+
+#echoit{
+    margin-top: 25px;
 }
