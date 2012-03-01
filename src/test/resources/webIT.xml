@@ -27,6 +27,7 @@
         <prop key="buttonViewUrl">${buttonViewUrl}</prop>
         <prop key="loginViewUrl">${loginViewUrl}</prop>
         <prop key="confirmUrl">${confirmUrl}</prop>
+        <prop key="confirmViewUrl">${confirmViewUrl}</prop>
         <prop key="closetUrl">${closetUrl}</prop>
         <prop key="dashboardUrl">${dashboardUrl}</prop>
         <prop key="echoTestPage">${http.urls.site}/test/html/echo.html</prop>
