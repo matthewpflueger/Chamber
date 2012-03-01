@@ -64,7 +64,7 @@ $(document).ready(function(){
 
     $('.echoed-p').live('click', function(){
         var url = $(this).attr("href");
-        window.open(url,'Echoed','width=960,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+        window.open(url,'Echoed','width=1030,height=530,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
     });
 
     $('#echoed-close').live('click', function(){

@@ -554,7 +554,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
                 var visits = this.model.get("echoTotalClicks");
                 var minVisits = this.model.get("retailerSettingsMinClicks");
                 if(visits  < minVisits){
-                    hover.append("<span class='highlight'><strong>" + (minVisits - visits) + "more click(s) for your reward</strong></span>");
+                    hover.append("<span class='highlight'><strong>" + (minVisits - visits) + " more click(s) for your <br/><br/>reward</strong></span>");
                 }
             }
         }
