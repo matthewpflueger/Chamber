@@ -56,7 +56,6 @@ class GlobalsManager {
 
     def addGlobals(model: JMap[String, AnyRef], urls: JMap[String, String]) {
         model.put(versionAttributeName, version)
-        logger.debug("Added version {}", model.get(versionAttributeName))
         model.put(facebookClientIdAttributeName, facebookClientId)
 
         if (model.get(urlsAttributeName) == null) {
