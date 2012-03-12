@@ -17,40 +17,49 @@
     </div>
     <div id="content">
         <div id="thankyou">
-            <span class="ty-text">You&#39;ve Shared This Product to Your Echoed Exhibit and these Social Networks:</span>
-        </div>
-        <div id="networks">
-            {{#echoFull}}
-            {{#facebookPost}}
-            <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
-            {{/facebookPost}}
-            {{#twitterStatus}}
-            <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
-            {{/twitterStatus}}
-            {{/echoFull}}
+            <span class="ty-text">You&#39;ve Shared This Product to these Social Networks:
+                {{#echoFull}}
+                    {{#facebookPost}}
+                        <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
+                    {{/facebookPost}}
+                    {{#twitterStatus}}
+                        <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
+                    {{/twitterStatus}}
+                {{/echoFull}}
+            </span>
         </div>
         <div class="clearfix">
-            <div id="left-ei">
-                <div class="confirm-label">
-                    What Do You Get?
-                </div>
-                <div id="ct-1" class="confirm-text">
-                    You&#39;ll receive at least 1% off from {{#echoFull}}{{#retailer}}{{name}}{{/retailer}}{{/echoFull}} on this item. You can view and track all your shared purchases from within your <strong><span class="highlight"><a target="_blank" href="{{urls.site}}/#exhibit">Echoed Exhibit</a></span></strong>.
-                </div>
-                <div class="confirm-label">
-                    What&#39;s Next?
-                </div>
-                <div class="confirm-text">
-                    You&#39;ve also shared this item with your social networks. Get at least 20 unique people to check out the product and you will receive 5%. The more friends that check out what you&#39;ve bought
-                    the larger the credit will be. Encourage your friends to click on your shared purchases and to browse your <strong><span class="highlight"><a href="{{urls.site}}/#exhibit">Echoed Exhibit</a></span></strong>.
+            <div id="right">
+                <div id="right-content">
+                    <div class="confirm-label">
+                        WHAT DO YOU GET?
+                    </div>
+                    <div class="confirm-text clearfix">
+                        <div style="float:left;">
+                            <img src="{{urls.images}}/bk_echoedlogo.png" alt="Echoed Logo"/>
+                        </div>
+                        <div style="float:left;padding:10px; width: 475px;">
+                            Thank you for shopping with us.<br/>
+                            <br/><br/>
+                            Track your rewards for the item you just shared from within your <a style="text-decoration: underline;font-weight:bold;" href="{{urls.site}}/#exhibit">Echoed Exhibit</a><br/><br/>
+                            Encourage your friends to click on your shared purchase link and browse your <a style="text-decoration: underline;font-weight:bold;" href="{{urls.site}}/#exhibit">Exhibit</a>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div id="right-ei">
-                <img src="{{#echoFull}}{{imageUrl}}{{/echoFull}}"/>
+            <div id="left">
+                <div id="left_content">
+                    <div id="product">
+                        <div id="product_upper" class="clearfix large">
+                            <div id="product_picture_container" >
+                                <img id="product_picture" src="{{#echoFull}}{{imageUrl}}{{/echoFull}}"/>
+                            </div>
+                            <div id="product-description">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div id="countdown">
-            The countdown starts now! You've got 7 Days to receive up to 20% off your purchase.
         </div>
     </div>
 </div>

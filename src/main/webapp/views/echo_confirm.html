@@ -1,148 +1,135 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link id="stylecss" rel="stylesheet" href="{{urls.css}}/echoed-confirm.css" />
-<title>Confirm</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link id="stylecss" rel="stylesheet" href="{{urls.css}}/echoed-confirm.css" />
+    <title>Confirm</title>
 </head>
 <body>
-	<div id="container">
-        <div id="header" class="clearfix">
-            <div class="poweredby">
-                <img src="{{urls.images}}/img_pbe.png"/>
-            </div>
-            <div class="sharingvalued">
-                <img src="{{urls.images}}/img_sv.png"/>
-            </div>
+<div id="container">
+    <div id="header" class="clearfix">
+        <div class="poweredby">
+            <img src="{{urls.images}}/img_pbe.png"/>
         </div>
-        <div id="content">
-            <div id="thankyou">
-                <span class="ty-text">{{#echoedUser}}{{name}}{{/echoedUser}}, Echo This Purchase and Save!</span><span class="not-name">  ( <span class="highlight"><strong><a href="{{logoutUrl}}">Not {{#echoedUser}}{{name}}{{/echoedUser}}</a></strong></span>? )</span>
-            </div>
-            <div id="lower" class="clearfix">
-                <div id="left" class="wide">
-                    <div id="product">
-                        <div id="product_upper" class="clearfix small">
-                            <div id="product_picture_container">
+    </div>
+    <div id="content">
+        <div id="thankyou">
+            <span class="ty-text">{{#echoedUser}}{{name}}{{/echoedUser}}, Echo This Purchase and Save!</span><span class="not-name">  ( <span class="highlight"><strong><a href="{{logoutUrl}}">Not {{#echoedUser}}{{name}}{{/echoedUser}}</a></strong></span>? )</span>
+        </div>
+        <div id="lower" class="clearfix">
+            <div id="left" class="wide">
+                <div id="product">
+                    <div id="product_upper" class="clearfix small">
+                        <div id="product_picture_container">
                             {{#echoPossibility}}
-                                <img id="product_picture" src="{{imageUrl}}"/>
+                            <img id="product_picture" src="{{imageUrl}}"/>
                             {{/echoPossibility}}
-                            </div>
-                            <div id="product-description">
-                                {{#echoPossibility}}
-                                <strong>{{productName}}</strong><br />
-                                by {{brand}}<br />
-                                {{/echoPossibility}}
-                                ${{productPriceFormatted}}
-                            </div>
+                        </div>
+                        <div id="product-description">
+                            {{#echoPossibility}}
+                            <strong>{{productName}}</strong><br />
+                            by {{brand}}<br />
+                            {{/echoPossibility}}
+                            ${{productPriceFormatted}}
                         </div>
                     </div>
                 </div>
-                <div id="mid">
-                    <div id="mid-content">
-                        <div class="pt-reward"><span class="pt-title">Rewards</span></div>
-                        <div class="pt-days">(You have 7 days to register activity)</div>
-                        <table id="rewards">
-                            <tr>
-                                <td class="pct"><span class="highlight-focus">1%</span><br/>Back</td>
-                                <td>When you Echo to your Exhibit</td>
-                            </tr>
-                            <tr>
-                                <td class="pct"><span class="highlight-focus">{{minPercentage}}%</span><br/>Back</td>
-                                <td>When you get {{minClicks}} clicks across your social networks</td>
-                            </tr>
-                            <tr>
-                                <td class="pct"><span class="highlight-focus">{{maxPercentage}}%</span><br/>Back</td>
-                                <td>When more friends buy or check out what you shared.</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-    	        <div id="right" >
-                    <div id="right_content" class="border-grey bg-color-white rounded-corners">
-                        <form name="message" id="echo" action="{{urls.site}}/echo/finish" method="get">
+            </div>
+            <div id="right" class="short">
+                <div id="right_content" class="border-grey bg-color-white rounded-corners">
+                    <div id="echoes-container">
+                        <div class="confirm-label red" style="text-align:center;margin-bottom: 5px;">
+                            CLICK "SHARE IT" TO SHARE AND SAVE!
+                        </div>
+                        <form name="message" id="echo" action="{{urls.site}}/echo/it" method="get">
+                            <div style="text-align: center;"><input id="echoit" type="image" style="cursor:pointer;" src="{{urls.images}}/btn_shareit_off.png" onmouseover="this.src = '{{urls.images}}/btn_shareit_on.png'" onmouseout="this.src='{{urls.images}}/btn_shareit_off.png'"/></div>
                             {{#echoPossibility}}
-                            <input type="hidden" name="echoId" value="{{id}}">
+
+                            <input type="hidden" name="echoPossibilityId" value="{{id}}">
                             {{/echoPossibility}}
-                    	    <table id="echoes" width="100%" cellspacing="5px">
+                            <table id="echoes" width="100%" cellspacing="5px">
                                 <thead>
-                                    <tr>
-                                        <th>Network</th>
-                                        <th>Message</th>
-                                        <th>On/Off</th>
-                                    </tr>
+                                <tr>
+                                    <th width="40px">Network</th>
+                                    <th>Custom Message</th>
+                                    <th width="20px">On/Off</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td width="60">
-                                            <img src="{{urls.images}}/icon_echoed.png" height="60"/>
-                                        </td>
-                                        <td>
-                                            <textarea name="closetmessage" disabled="disabled"class="rounded-corners" >Item will appear in your Echoed Exhibit</textarea>
-                                        </td>
-                                        <td width="30">
-                                            <input type="checkbox" name="postToEchoedCloset" checked="true" disabled="true"/>
-                                        </td>
-                                    </tr>
-                                    {{#echoedUser}}
-                                    {{#facebookUserId}}
-                                    <tr>
-                                        <td>
-                                        	<img src="{{urls.images}}/icon_facebook.png" height="60"/>
-                                        </td>
-                                        <td>
-                                            <textarea name="facebookMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" name="postToFacebook" checked="true"/>
-                                        </td>
-                                    </tr>
-                                    {{/facebookUserId}}
-                                    {{^facebookUserId}}
-                                    <tr>
-                                        <td colspan="3">
-                                            <a id="facebookLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=facebook&add=true">
-                                                <img class="login-button" width="250px" src="{{urls.images}}/btn_add_fb.png">
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {{/facebookUserId}}
-                                    {{#twitterUserId}}
-                                        <tr>
-                                            <td>
-                                            	<img src="{{urls.images}}/icon_twitter.png" height="60"/>
-                                            </td>
-                                            <td>
-                                                <textarea name="twitterMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
-                                            </td>
-                                            <td>
-                                                <input type="checkbox" name="postToTwitter" checked="true"/>
-                                            </td>
-                                        </tr>
-                                    {{/twitterUserId}}
-                                    {{^twitterUserId}}
-                                        <tr>
-                                            <td colspan="3">
-                                                <a id="twitterLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=twitter&add=true">
-                                                    <img width="200" src='{{urls.images}}/btn_add_tw.png'/>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {{/twitterUserId}}
-                                    {{/echoedUser}}
-                                    <tr>
-                                        <td align="center" colspan="3">
-    										<input id="echoit" type="image" style="cursor:pointer;" class="bg-color-orange rounded-corners" src="{{urls.images}}/btn_echoit.png" />
-                                        </td>
-                                    </tr>
+                                {{#echoedUser}}
+                                {{#facebookUserId}}
+                                <tr>
+                                    <td>
+                                        <img src="{{urls.images}}/icon_facebook.png" height="60"/>
+                                    </td>
+                                    <td>
+                                        <textarea name="facebookMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="postToFacebook" checked="true"/>
+                                    </td>
+                                </tr>
+                                {{/facebookUserId}}
+                                {{^facebookUserId}}
+                                <tr>
+                                    <td>
+                                        <a id="facebookLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=facebook&add=true">
+                                            <img src="{{urls.images}}/btn_icon_facebook_bw.png" height="60"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        Click the icon to add facebook.
+                                    </td>
+                                </tr>
+                                {{/facebookUserId}}
+                                {{#twitterUserId}}
+                                <tr>
+                                    <td>
+                                        <img src="{{urls.images}}/icon_twitter.png" height="60"/>
+                                    </td>
+                                    <td>
+                                        <textarea name="twitterMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="postToTwitter" checked="true"/>
+                                    </td>
+                                </tr>
+                                {{/twitterUserId}}
+                                {{^twitterUserId}}
+                                <tr>
+                                    <td>
+                                        <a id="twitterLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=twitter&add=true">
+                                            <img src="{{urls.images}}/btn_icon_twitter_bw.png" height="60"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        Click the logo to add Twitter
+                                    </td>
+                                </tr>
+                                {{/twitterUserId}}
+                                {{/echoedUser}}
                                 </tbody>
-                             </table>
+                            </table>
                         </form>
                     </div>
-	            </div>
+                </div>
+            </div>
+            <div id="mid">
+                <div id="mid-content">
+                    <div style="margin-left:5px" class="confirm-label">
+                        REMEMBER:
+                    </div>
+                    <div style="margin-bottom:10px;padding-left:25px;padding-right: 15px;">
+                        <ul>
+                            <li>Share this product we will give you <strong>{{minPercentage}}% back</strong>. You&#39;ll earn more for every friend that clicks, up to <strong>{{maxPercentage}}% back</strong>!</li>
+                            <li>After <strong>3 days</strong>, the reward will be <strong>automatically applied back to your original payment method</strong> for this item.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>
 {{> google}}
