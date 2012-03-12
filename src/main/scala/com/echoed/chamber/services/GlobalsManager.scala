@@ -36,7 +36,18 @@ class GlobalsManager {
                 val (key, value) = tuple
                 httpsUrls.put(key.replace("https.urls.", ""), value)
         }
-        version = gitProperties.getProperty("git.commit.id", "")
+        version = gitProperties.getProperty("git.commit.id.abbrev", "")
+        val versionInfo = new StringBuilder()
+        gitProperties.stringPropertyNames().foreach { key =>
+            versionInfo
+                    .append("    ")
+                    .append(key)
+                    .append(": ")
+                    .append(gitProperties.getProperty(key))
+                    .append("\n")
+        }
+        logger.error("Booting Chamber:\n" + versionInfo)
+
     }
 
     def addGlobals(model: JMap[String, AnyRef]) {
@@ -45,6 +56,7 @@ class GlobalsManager {
 
     def addGlobals(model: JMap[String, AnyRef], urls: JMap[String, String]) {
         model.put(versionAttributeName, version)
+        logger.debug("Added version {}", model.get(versionAttributeName))
         model.put(facebookClientIdAttributeName, facebookClientId)
 
         if (model.get(urlsAttributeName) == null) {
