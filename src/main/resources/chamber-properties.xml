@@ -15,7 +15,7 @@
 
 
     <context:property-placeholder
-                location="classpath*:chamber*.properties,classpath:${ENV_TYPE}.properties,classpath:${user.name}.properties"
+                location="classpath:chamber-git.properties,classpath:${ENV_TYPE}.properties,classpath:${user.name}.properties"
                 ignore-resource-not-found="true"
                 local-override="false"
                 properties-ref="defaultPropertyValues"/>
