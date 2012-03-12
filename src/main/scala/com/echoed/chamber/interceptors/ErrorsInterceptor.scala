@@ -67,10 +67,11 @@ class ErrorsInterceptor extends HandlerInterceptor {
         //if we are redirecting lets pass on the global errors...
         if (modelAndView.getViewName.startsWith("redirect:")) {
             modelAndView.addObject(errorsAttributeName, global)
-            logger.debug("Only passing on global errors {} to {}", global, modelAndView.getViewName)
         }
 
-        logger.debug("Found errors {}", modelAndView.getModel.get(errorsAttributeName))
+        if (logger.isDebugEnabled() && (global.size() > 0 || fieldErrors.size() > 0)) {
+            logger.debug("Found errors {}", modelAndView.getModel.get(errorsAttributeName))
+        }
     }
 
     def afterCompletion(request: HttpServletRequest, response: HttpServletResponse, handler: Object, ex: Exception) {
