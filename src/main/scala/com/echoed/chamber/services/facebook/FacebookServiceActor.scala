@@ -55,7 +55,7 @@ class FacebookServiceActor(
                 logger.debug("Retailer Settings ID {}", echo.retailerSettingsId)
                 val retailerSettings = retailerSettingsDao.findById(echo.retailerSettingsId)
                 val retailer = retailerDao.findById(echo.retailerId)
-                val name = "Buy anything now at " + retailer.name + " and  save up to " + "%1.0f".format(retailerSettings.maxPercentage*100)  + "% when you share it with Echoed!"
+                val name = "Buy anything now at " + retailer.name + " and  receive up to " + "%1.0f".format(retailerSettings.maxPercentage*100)  + "% Cash Back when you share it with Echoed!"
                 val caption: String = echo.brand + "<center></center>" + echo.productName
                 val fp = new FacebookPost(
                         name,
