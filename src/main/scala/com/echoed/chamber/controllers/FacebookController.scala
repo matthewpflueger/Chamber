@@ -43,7 +43,7 @@ class FacebookController extends NetworkController {
 
     @BeanProperty var siteUrl: String = _
 
-    @BeanProperty var permissions = "email,publish_stream,read_stream,offline_access"
+    @BeanProperty var permissions = "email,publish_stream,read_stream,offline_access,publish_actions"
     @BeanProperty var authUrl = "https://www.facebook.com/dialog/oauth?scope=%s&client_id=%s&redirect_uri=%s"
 
     private var facebookClientSecretBytes: Array[Byte] = _

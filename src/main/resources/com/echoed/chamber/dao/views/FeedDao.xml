@@ -72,6 +72,27 @@
             #{start}, #{limit}
     </select>
 
+    <select id="getPartnerFeed"  resultMap="echoViewPublicResult">
+        select
+            E.id as echoId,
+            E.boughtOn as echoBoughtOn,
+            E.imageUrl as echoImageUrl,
+            E.productName as echoProductName,
+            coalesce(R.category,"Other") as echoCategory,
+            E.brand as echoBrand,
+            E.landingPageUrl as echoLandingPageUrl,
+            R.name as retailerName
+        from
+            EchoPossibility E
+            left outer join Retailer R on E.retailerId = R.id
+        where
+            R.name = #{partnerName}
+        order by
+            E.createdOn desc, E.id DESC
+        Limit
+            #{start}, #{limit}
+    </select>
+
     <select id="findByEchoedUserId" resultMap="feedResult">
         select
             EU.id as echoedUserId,

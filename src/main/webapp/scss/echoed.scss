@@ -204,6 +204,7 @@ h2{
             line-height: 25px;
             font-family: $navFontFamily;
             border-bottom: 1px solid #999;
+            border-top: 1px solid #999;
             a{
                 margin: 0px 10px;
                 color: $navColor;
@@ -276,14 +277,14 @@ h2{
                     @include drop-shadow;
 
                     li{
-                        width: 150px;
+                        width: 250px;
                         float: left;
                         display: inline;
                     }
                     a{
                         display:block;
-                        padding: 5px;
-                        height: 20px;
+                        padding: 7px 5px;
+                        //height: 20px;
                         text-align:left;
                     }
                 }

@@ -12,7 +12,7 @@
                 <img src="{{urls.images}}/img_pbe.png"/>
             </div>
         </div>
-        <div id="content">
+        <div id="content" class="clearfix">
             <div id="thankyou">
                 <span class="ty-text">{{#echoedUser}}{{name}}{{/echoedUser}}, Echo This Purchase and Save!</span><span class="not-name">  ( <span class="highlight"><strong><a href="{{logoutUrl}}">Not {{#echoedUser}}{{name}}{{/echoedUser}}</a></strong></span>? )</span>
             </div>
@@ -73,7 +73,7 @@
                                         {{^facebookUserId}}
                                         <tr>
                                             <td>
-                                                <a href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{facebookAddUrl}}&scope=email,publish_stream,offline_access">
+                                                <a href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{facebookAddUrl}}&scope=email,publish_stream,offline_access,publish_actions">
                                                     <img src="{{urls.images}}/btn_icon_facebook_bw.png" height="60"/>
                                                 </a>
                                             </td>

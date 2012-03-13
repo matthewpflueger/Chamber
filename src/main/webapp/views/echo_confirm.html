@@ -12,7 +12,7 @@
             <img src="{{urls.images}}/img_pbe.png"/>
         </div>
     </div>
-    <div id="content">
+    <div id="content" class="clearfix">
         <div id="thankyou">
             <span class="ty-text">{{#echoedUser}}{{name}}{{/echoedUser}}, Echo This Purchase and Save!</span><span class="not-name">  ( <span class="highlight"><strong><a href="{{logoutUrl}}">Not {{#echoedUser}}{{name}}{{/echoedUser}}</a></strong></span>? )</span>
         </div>
@@ -63,7 +63,7 @@
                                         <img src="{{urls.images}}/icon_facebook.png" height="60"/>
                                     </td>
                                     <td>
-                                        <textarea name="facebookMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
+                                        <textarea name="facebookMessage" class="rounded-corners" >I just bought the {{#echoPossibility}}{{productName}}{{/echoPossibility}} from {{#retailer}}{{name}}{{/retailer}}. All of {{#retailer}}{{name}}{{/retailer}}'s stuff is really cool, you guys need to check out their site!</textarea>
                                     </td>
                                     <td>
                                         <input type="checkbox" name="postToFacebook" checked="true"/>

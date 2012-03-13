@@ -40,6 +40,8 @@ trait EchoedUserService {
     def getFriendCloset(echoedFriendId: String): Future[GetFriendExhibitResponse]
 
     def getFriends: Future[GetEchoedFriendsResponse]
+    
+    def getPartnerFeed(partnerName: String, page: Int): Future[GetPartnerFeedResponse]
 
     def logout(echoedUserId: String): Future[LogoutResponse]
 }

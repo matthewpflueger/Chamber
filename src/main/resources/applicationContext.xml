@@ -183,6 +183,10 @@
         <!--suppress SpringModelInspection -->
         <property name="facebookFriendDao" ref="facebookFriendDao" />
         <!--suppress SpringModelInspection -->
+        <property name="partnerDao" ref="partnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerSettingsDao" ref="partnerSettingsDao"/>
+        <!--suppress SpringModelInspection -->
         <property name="urlsProperties" ref="urlsProperties" />
     </akka:untyped-actor>
 

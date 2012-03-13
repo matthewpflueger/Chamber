@@ -41,7 +41,6 @@ $(document).ready(function(){
             var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='" + Echoed.urls.images +  "/logo_facebook.png'> or <img src='" + Echoed.urls.images +  "/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
             hiw.append(et).append(ett);
             hiw.appendTo(popup);
-
             $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
             var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
             var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
@@ -76,6 +75,7 @@ $(document).ready(function(){
 
             $('.echoed-p').live('click', function(){
                 var url = $(this).attr("href");
+                //$('#echoed-iframe').attr("src",url).css("height","500px");
                 window.open(url, $(this).attr("id"),'width=1030,height=530,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
                 });
 

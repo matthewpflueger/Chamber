@@ -388,6 +388,22 @@ class EchoedUserServiceActor(
                     logger.error("Unexpected error when fetching feed for EchoedUser %s" format echoedUser.id, e)
             }
 
+        case msg: GetPartnerFeed =>
+                val channel: Channel[GetPartnerFeedResponse] = self.channel
+            try{
+                val partnerName = msg.partnerName
+                logger.debug("Attempting to retrieve Partner Feed for Partner {} as EchoedUser {} ", partnerName, echoedUser.id)
+                val limit = 30;
+                val start = msg.page * limit;
+                val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerName,start, limit)).toList
+                val partnerFeed = new PublicFeed(echoes)
+                channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
+            } catch {
+                case e =>
+                    channel ! GetPartnerFeedResponse(msg, Left(new EchoedUserException("Canont get partner feed", e)))
+                    logger.error("Unexpected erorr when fetching partner feed for EchoedUser %s" format echoedUser.id, e)
+            }
+
 
         case msg: GetExhibit =>
             val channel: Channel[GetExhibitResponse] = self.channel

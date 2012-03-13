@@ -126,40 +126,42 @@
 </head>
 <body class="retailer">
 <div id="container">
-    <div id="header">
-        <div id="logo">
-            <img src="{{urls.images}}/logo.png">
+    <div id="header" class="partner">
+        <div class="clearfix">
+            <div id="logo">
+                <img src="{{urls.images}}/logo.png">
+            </div>
+            <div id="header-nav">
+                <ul>
+                    <li id="summary_nav">
+                        <a href="#summary">
+                            Summary
+                        </a>
+                    </li>
+                    <li id="rewards_nav">
+                        <a href="#rewards">
+                            Reward Manager
+                        </a>
+                    </li>
+                    <li id="reports_nav">
+                        <a href="#reports">
+                            Reports
+                        </a>
+                    </li>
+                    <li id="settings_nav">
+                        <a href="#settings">
+                            Settings
+                        </a>
+                    </li>
+                    <div class="clear"></div>
+                </ul>
+            </div>
+            <div id="user">
+                {{#partnerUser}}{{name}}{{/partnerUser}} ( <span class="highlight"><strong><a id="logout" href="http://v1-api.echoed.com/logout">Logout</a></strong></span> )<br/>
+            </div>
         </div>
-        <div id="header-nav">
-            <ul>
-                <li id="summary_nav">
-                    <a href="#summary">
-                        Summary
-                    </a>
-                </li>
-                <li id="rewards_nav">
-                    <a href="#rewards">
-                        Reward Manager
-                    </a>
-                </li>
-                <li id="reports_nav">
-                    <a href="#reports">
-                        Reports
-                    </a>
-                </li>
-                <li id="settings_nav">
-                    <a href="#settings">
-                        Settings
-                    </a>
-                </li>
-                <div class="clear"></div>
-            </ul>
-        </div>
-        <div id="user">
-            {{#partnerUser}}{{name}}{{/partnerUser}} ( <span class="highlight"><strong><a id="logout" href="http://v1-api.echoed.com/logout">Logout</a></strong></span> )<br/>
-        </div>
+        <div id="sub-nav" style="display:none"></div>
     </div>
-    <div id="sub-nav" style="display:none"></div>
     <div id="content">
     </div>
 </div>
@@ -176,7 +178,6 @@
 <script type="text/template" id="template-view-reports-products">
     <div class="row">
         <div class="full">
-
             <div id="report-summary">
                 <div class="full-column-left">
                     <div id="product-selector" class="report-selector">

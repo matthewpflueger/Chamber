@@ -326,6 +326,7 @@ class PostData {
     @BeanProperty var name: String = _
     @BeanProperty var caption: String = _
     @BeanProperty var icon: String = _
+    @BeanProperty var description: String = _
     @BeanProperty var actions: List[Action] = _
     @BeanProperty var privacy: Privacy = _
     @BeanProperty var `type`: String = _

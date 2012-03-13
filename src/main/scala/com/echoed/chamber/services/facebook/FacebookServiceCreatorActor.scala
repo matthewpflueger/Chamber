@@ -4,7 +4,7 @@ import com.echoed.chamber.domain.FacebookUser
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import akka.dispatch.Future
-import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao}
+import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao, RetailerDao,  RetailerSettingsDao}
 import akka.actor.{Channel, Actor}
 import java.util.Properties
 
@@ -17,6 +17,8 @@ class FacebookServiceCreatorActor extends Actor {
     @BeanProperty var facebookUserDao: FacebookUserDao = _
     @BeanProperty var facebookPostDao: FacebookPostDao = _
     @BeanProperty var facebookFriendDao: FacebookFriendDao = _
+    @BeanProperty var partnerSettingsDao: RetailerSettingsDao = _
+    @BeanProperty var partnerDao: RetailerDao = _
     @BeanProperty var urlsProperties: Properties = _
 
     var echoClickUrl: String = _
@@ -73,6 +75,8 @@ class FacebookServiceCreatorActor extends Actor {
                                     facebookUserDao,
                                     facebookPostDao,
                                     facebookFriendDao,
+                                    partnerDao,
+                                    partnerSettingsDao,
                                     echoClickUrl)).start)))
                             logger.debug("Created FacebookService with user {}", facebookUser)
                     }))
@@ -93,6 +97,8 @@ class FacebookServiceCreatorActor extends Actor {
                                 facebookUserDao,
                                 facebookPostDao,
                                 facebookFriendDao,
+                                partnerDao,
+                                partnerSettingsDao,
                                 echoClickUrl)).start)))
                         logger.debug("Created Facebook service {}", facebookUserId)
                     case None =>
@@ -129,6 +135,8 @@ class FacebookServiceCreatorActor extends Actor {
                                         facebookUserDao,
                                         facebookPostDao,
                                         facebookFriendDao,
+                                        partnerDao,
+                                        partnerSettingsDao,
                                         echoClickUrl)).start)))
                             logger.debug("Created FacebookService from Facebook id {}", facebookId)
                     }))

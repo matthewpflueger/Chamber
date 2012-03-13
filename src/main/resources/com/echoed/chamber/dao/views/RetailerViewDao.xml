@@ -224,8 +224,7 @@
                 FacebookUser.echoedUserId
         )
     </sql>
-
-
+    
     <select id="getTopProductsWithRetailerId" resultMap="retailerProductsListView">
         SELECT <include refid="productColumns" />
         FROM

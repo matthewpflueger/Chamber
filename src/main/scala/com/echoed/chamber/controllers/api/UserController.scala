@@ -21,7 +21,7 @@ class UserController {
     @BeanProperty var cookieManager: CookieManager = _
     @BeanProperty var closetView: String = _
     @BeanProperty var errorView: String = _
-
+    
     @RequestMapping(value = Array("/feed/public"), method = Array(RequestMethod.GET))
     @ResponseBody
     def publicFeed(
@@ -67,7 +67,7 @@ class UserController {
         })
 
     }
-
+    
     @RequestMapping(value = Array("/feed/friends"), method = Array(RequestMethod.GET))
     @ResponseBody
     def feed(
@@ -204,6 +204,61 @@ class UserController {
                     continuation.setAttribute("friends",e)
                     continuation.resume()
             }
+            continuation.undispatch()
+        })
+    }
+    
+    @RequestMapping(value = Array("/feed/partner/{name}"), method=Array(RequestMethod.GET))
+    @ResponseBody
+    def partnerFeed(
+            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
+            @PathVariable(value="name") partnerName: String,
+            @RequestParam(value="page", required=false) page: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
+        
+        logger.debug("Requesting for Partner Feed for Partner {}", partnerName )
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if(continuation.isExpired){
+        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            var pageInt: Int = 0;
+            try {
+                pageInt = Integer.parseInt(page);
+            } catch {
+                case nfe:NumberFormatException =>
+                    pageInt = 0;
+            }
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult{
+                case LocateWithIdResponse(_, Left(error)) =>
+                    logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
+                case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                    echoedUserService.getPartnerFeed(partnerName, pageInt).onResult{
+                        case GetPartnerFeedResponse(_, Left(error)) =>
+                            logger.error("Error Getting Partner Feed for partne %s" format partnerName , error)
+                        case GetPartnerFeedResponse(_, Right(partnerFeed)) =>
+                            continuation.setAttribute("jsonResponse", partnerFeed)
+                            continuation.resume()
+                    }
+                    .onException{
+                        case e =>
+                            logger.error("Exception thrown getting partner feed for partner %s" format partnerName, e)
+                            continuation.setAttribute("jsonResponse", e)
+                            continuation.resume()
+                    }
+            }
+            .onException{
+                case e =>
+                    logger.error("Exception thrown when Locating EchoedUserService for user %s" format echoedUserId, e)
+                    continuation.setAttribute("jsonResponse", e)
+                    continuation.resume()
+            }
+            
             continuation.undispatch()
         })
     }

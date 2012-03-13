@@ -3,7 +3,7 @@ package com.echoed.chamber.services.facebook
 import org.slf4j.LoggerFactory
 import java.util.Date
 import com.echoed.chamber.domain._
-import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao}
+import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao, RetailerDao,  RetailerSettingsDao}
 import scala.collection.JavaConversions.asScalaBuffer
 import akka.actor.{Channel, Actor}
 
@@ -14,6 +14,8 @@ class FacebookServiceActor(
         facebookUserDao: FacebookUserDao,
         facebookPostDao: FacebookPostDao,
         facebookFriendDao: FacebookFriendDao,
+        retailerDao: RetailerDao,
+        retailerSettingsDao: RetailerSettingsDao,
         echoClickUrl: String) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[FacebookServiceActor])
@@ -50,10 +52,11 @@ class FacebookServiceActor(
 
             try {
                 logger.debug("Creating new FacebookPost with message {} for {}", echo, message)
-                val name = echo.productName + " by " + echo.brand
-                var caption: String = null;
-                if(echo.description != null) caption = echo.description
-                else caption = echo.productName + " by " + echo.brand
+                logger.debug("Retailer Settings ID {}", echo.retailerSettingsId)
+                val retailerSettings = retailerSettingsDao.findById(echo.retailerSettingsId)
+                val retailer = retailerDao.findById(echo.retailerId)
+                val name = "Buy anything now at " + retailer.name + " and  save up to " + "%1.0f".format(retailerSettings.maxPercentage*100)  + "% when you share it with Echoed!"
+                val caption: String = echo.brand + "<center></center>" + echo.productName
                 val fp = new FacebookPost(
                         name,
                         message,

@@ -30,7 +30,6 @@ $twitterColor: #4099FF;
     }
 
 #echoed-fade { /*--Transparent background layer--*/
-	//display: none; /*--hidden by default--*/
 	background: #000;
 	position: fixed; left: 0; top: 0;
 	width: 100%; height: 100%;
@@ -38,7 +37,6 @@ $twitterColor: #4099FF;
 	z-index: 9999;
 }
 #echoed-popup{
-	//display: none; /*--hidden by default--*/
     padding: 10px;
 	border: 10px solid #FFF;
     text-align: center;
