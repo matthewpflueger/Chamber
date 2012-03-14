@@ -23,6 +23,8 @@ class FacebookPostCrawlerActor extends Actor {
     @BeanProperty var facebookAccess: ActorClient = _
     @BeanProperty var interval: Long = 60000
     @BeanProperty var future: Option[CompletableFuture[GetPostDataResponse]] = None
+    @BeanProperty var postedOnDaysBefore: Int = -8
+    @BeanProperty var postedOnHoursBefore: Int = -1
 
     private var scheduledMessage: Option[Future[AnyRef]] = None
 
@@ -43,13 +45,13 @@ class FacebookPostCrawlerActor extends Actor {
     def findFacebookPostToCrawl = {
         val postedOnStartDate = {
             val cal = Calendar.getInstance()
-            cal.add(Calendar.DAY_OF_MONTH, -8)
+            cal.add(Calendar.DAY_OF_MONTH, postedOnDaysBefore)
             cal.getTime
         }
 
         val postedOnEndDate = {
             val cal = Calendar.getInstance()
-            cal.add(Calendar.HOUR, -1)
+            cal.add(Calendar.HOUR, postedOnHoursBefore)
             cal.getTime
         }
 
