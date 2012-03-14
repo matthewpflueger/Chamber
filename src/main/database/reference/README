@@ -1,0 +1,5 @@
+This directory is a place to put reference SQL statements and other database scripts so
+we do not have to rewrite every query everytime.
+
+Feel free to add anything you find useful but please refrain from modifying what is not yours
+unless absolutely necessary.
