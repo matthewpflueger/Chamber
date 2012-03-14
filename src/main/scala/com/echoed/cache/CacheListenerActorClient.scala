@@ -11,7 +11,8 @@ class CacheListenerActorClient(val actorRef: ActorRef) extends CacheListener wit
 
     def onRemoval(key: String, value: AnyRef, cause: String) {
         logger.debug("Cache entry {} removed due to {}", key, cause)
-        actorRef ! CacheEntryRemoved(key, value, cause)
+        //we are ignoring null values as they hold no interest to us at this time...
+        Option(value).foreach(actorRef ! CacheEntryRemoved(key, _, cause))
     }
 }
 
