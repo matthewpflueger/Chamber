@@ -32,6 +32,7 @@ class EchoController {
     @BeanProperty var echoLoginNotNeededView: String = _
     @BeanProperty var echoConfirmView: String = _
     @BeanProperty var echoFinishView: String = _
+    @BeanProperty var echoDuplicateView: String = _
 
     @BeanProperty var echoItView: String = _
     @BeanProperty var buttonView: String = _
@@ -39,6 +40,7 @@ class EchoController {
     @BeanProperty var postLoginView: String = _
     @BeanProperty var confirmView: String = _
     @BeanProperty var errorView: String = _
+    @BeanProperty var duplicateView: String = _
     @BeanProperty var facebookAddRedirectUrl: String = _
     @BeanProperty var facebookLoginRedirectUrl: String = _
     @BeanProperty var logoutUrl: String = _
@@ -97,7 +99,7 @@ class EchoController {
 
             def resume(json: AnyRef) {
                 continuation.setAttribute("json", json)
-                continuation.resume
+                continuation.resume()
             }
 
             val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
@@ -166,13 +168,13 @@ class EchoController {
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(data.echoPossibility.price));
                         modelAndView.addObject("minClicks", data.retailerSettings.minClicks)
                         continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume
+                        continuation.resume()
                     },
                     eus => {
                         logger.debug("Recognized user for echo login {}", eus.id)
                         val modelAndView = new ModelAndView(echoLoginNotNeededView, "id", id)
                         continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume
+                        continuation.resume()
                     }
                 )
             }).onException { case e => error(errorView, e) }
@@ -325,9 +327,12 @@ class EchoController {
                         echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.value.get.fold(
                             e => error(errorView, e),
                             _ match {
+                                case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
+                                    //logger.debug("Received error response to echo", e)
+                                    continuation.setAttribute("modelAndView", new ModelAndView(echoDuplicateView, "echo", echo))
+                                    continuation.resume()
                                 case EchoToResponse(_, Left(e)) =>
-                                    logger.debug("Received error response to echo", e)
-                                    error(errorView, e)
+                                    error(errorView,e)
                                 case EchoToResponse(_, Right(echoFull)) =>
                                     continuation.setAttribute("modelAndView", new ModelAndView(echoFinishView, "echoFull", echoFull))
                                     continuation.resume()
@@ -446,7 +451,7 @@ class EchoController {
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                         modelAndView.addObject("minClicks",epv.retailerSettings.minClicks)
                         continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume
+                        continuation.resume()
                 }))
         }
 
@@ -492,9 +497,9 @@ class EchoController {
                         echoedUserService.echoTo(echoItParameters.createEchoTo).onComplete(_.value.get.fold(
                             e => error(errorView, e),
                             _ match {
-                                case EchoToResponse(_, Left(e)) =>
-                                    logger.debug("Received error response to echo", e)
-                                    error(errorView, e)
+                                case EchoToResponse(_, Left(DuplicateEcho(echo ,message, _))) =>
+                                    continuation.setAttribute("modelAndView", new ModelAndView(duplicateView,"echo", echo))
+                                    continuation.resume()
                                 case EchoToResponse(_, Right(echoFull)) =>
                                     continuation.setAttribute("modelAndView", new ModelAndView(echoItView, "echoFull", echoFull))
                                     continuation.resume()

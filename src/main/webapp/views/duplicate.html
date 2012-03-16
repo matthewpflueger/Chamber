@@ -3,7 +3,6 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link id="stylecss" rel="stylesheet" href="{{urls.css}}/echoed-confirm.css" />
-    <script type="text/javascript" src="http://assets.pinterest.com/js/pinit.js"></script>
     <title>Thank you</title>
 </head>
 <body>
@@ -15,30 +14,21 @@
     </div>
     <div id="content">
         <div id="thankyou">
-            <span class="ty-text">You&#39;ve Shared This Product to these Social Networks:
-                {{#echoFull}}
-                    {{#facebookPost}}
-                        <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
-                    {{/facebookPost}}
-                    {{#twitterStatus}}
-                        <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
-                    {{/twitterStatus}}
-                {{/echoFull}}
-            </span>
+            <span class="ty-text">This product has already been Echoed</span>
         </div>
         <div class="clearfix">
             <div id="right">
                 <div id="right-content">
                     <div class="confirm-label">
-                        WHAT DO YOU GET?
                     </div>
                     <div class="confirm-text clearfix">
-                        <div>
-                            Thank you for shopping with us. You can share this product on these additional networks!<br/>
-                            {{#echoFull}}{{#echo}}<a href="http://pinterest.com/pin/create/button?url=http%3A%2F%2Fwww.echoed.com%2Fecho%2F{{id}}&media={{imageUrl}}" class="pin-it-button" count-layout="none">Pin it</a>{{/echo}}{{/echoFull}}
+                        <div style="float:left;padding:10px; width: 475px;">
+                            Thank you for shopping with us.<br/>
                             <br/><br/>
                             Track your rewards for the item you just shared from within your <a style="text-decoration: underline;font-weight:bold;" href="{{urls.site}}/#exhibit">Echoed Exhibit</a><br/><br/>
                             Encourage your friends to click on your shared purchase link and browse your <a style="text-decoration: underline;font-weight:bold;" href="{{urls.site}}/#exhibit">Exhibit</a>
+                            {{#echo}}<a href="http://pinterest.com/pin/create/button?url=http%3A%2F%2Fwww.echoed.com%2Fecho%2F{{id}}&media={{imageUrl}}" class="pin-it-button" count-layout="none">Pint it</a>{{/echo}}
+                            <script type="text/javascript" src="http://assets.pinterest.com/js/pinit.js"></script>
                         </div>
                     </div>
                 </div>
@@ -48,13 +38,13 @@
                     <div id="product">
                         <div id="product_upper" class="clearfix large">
                             <div id="product_picture_container" >
-                                <img id="product_picture" src="{{#echoFull}}{{#echo}}{{imageUrl}}{{/echo}}{{/echoFull}}"/>
+                                <img id="product_picture" src="{{#echo}}{{imageUrl}}{{/echo}}"/>
                             </div>
                             <div id="product-description">
-                                {{#echoFull}}{{#echo}}
-                                <strong>{{brand}}</strong><br/>
-                                {{productName}}
-                                {{/echo}}{{/echoFull}}
+                                {{#echo}}
+                                    <strong>{{brand}}</strong><br/>
+                                    {{productName}}
+                                {{/echo}}
                             </div>
                         </div>
                     </div>
@@ -64,6 +54,5 @@
     </div>
 </div>
 </body>
-<script type="text/javascript" src="http://assets.pinterest.com/js/pinit.js"></script>
 </html>
 {{> google}}

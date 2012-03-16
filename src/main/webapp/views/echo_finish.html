@@ -40,7 +40,7 @@
                             <br/><br/>
                             Track your rewards for the item you just shared from within your <a style="text-decoration: underline;font-weight:bold;" href="{{urls.site}}/#exhibit">Echoed Exhibit</a><br/><br/>
                             Encourage your friends to click on your shared purchase link and browse your <a style="text-decoration: underline;font-weight:bold;" href="{{urls.site}}/#exhibit">Exhibit</a>
-                            <a href="http://pinterest.com/pin/create/button?url=http%3A%2F%2Fwww.echoed.com%2Fecho%2F{{id}}&media={{imageUrl}}" class="pin-it-button" count-layout="none">Pint it</a>
+                            {{#echoFull}}{{#echo}}<a href="http://pinterest.com/pin/create/button?url=http%3A%2F%2Fwww.echoed.com%2Fecho%2F{{id}}&media={{imageUrl}}" class="pin-it-button" count-layout="none">Pin it</a>{{/echo}}{{/echoFull}}
                             <script type="text/javascript" src="http://assets.pinterest.com/js/pinit.js"></script>
                         </div>
                     </div>
@@ -51,9 +51,12 @@
                     <div id="product">
                         <div id="product_upper" class="clearfix large">
                             <div id="product_picture_container" >
-                                <img id="product_picture" src="{{#echoFull}}{{imageUrl}}{{/echoFull}}"/>
+                                <img id="product_picture" src="{{#echoFull}}{{#echo}}{{imageUrl}}{{/echo}}{{/echoFull}}"/>
                             </div>
                             <div id="product-description">
+                                {{#echoFull}}{{#echo}}
+                                {{brand}}
+                                {{/echo}}{{/echoFull}}
                             </div>
                         </div>
                     </div>

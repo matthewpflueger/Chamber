@@ -6,40 +6,29 @@ import com.echoed.chamber.domain._
 
 case class EchoFull(
         id: String,
+        echo: Echo, 
         retailer: Retailer,
-        customerId: String,
-        productId: String,
-        boughtOn: Date,
-        orderId: String,
-        price: Float,
-        imageUrl: String,
-        echoedUser: EchoedUser,
+        echoedUser: EchoedUser, 
         facebookPost: FacebookPost,
         twitterStatus: TwitterStatus,
-        echoPossibilityId: String,
-        landingPageUrl: String) {
+        retailerSettings: RetailerSettings) {
 
     def this(
             echo: Echo,
             retailer: Retailer,
             echoedUser: EchoedUser,
             facebookPost: FacebookPost,
-            twitterStatus: TwitterStatus) = this(
+            twitterStatus: TwitterStatus,
+            retailerSettings: RetailerSettings) = this(
         echo.id,
+        echo,
         retailer,
-        echo.customerId,
-        echo.productId,
-        echo.boughtOn,
-        echo.orderId,
-        echo.price,
-        echo.imageUrl,
         echoedUser,
         facebookPost,
         twitterStatus,
-        echo.echoPossibilityId,
-        echo.landingPageUrl)
+        retailerSettings)
 
-    def this(echo: Echo, echoedUser: EchoedUser) = this(echo, null, echoedUser, null, null)
+    def this(echo: Echo, echoedUser: EchoedUser,retailerSettings: RetailerSettings) = this(echo, null, echoedUser, null, null, retailerSettings)
 
 }
 

@@ -192,19 +192,26 @@ class EchoedUserServiceActor(
                                         .echoed(retailerSettings)
                                 echoMetricsDao.updateForEcho(echoMetrics)
                                 echo = echo.copy(echoMetricsId = echoMetrics.id)
+
                                 echoDao.updateForEcho(echo)
 
+                                try{
 
-                                val requestList = MList[(ActorRef, Message)]()
+                                    val requestList = MList[(ActorRef, Message)]()
 
-                                if (echoToFacebook) requestList += ((me, ETF(echo, facebookMessage)))
-                                if (echoToTwitter) requestList += ((me, EchoToTwitter(echo, twitterMessage)))
+                                    if (echoToFacebook) requestList += ((me, ETF(echo, facebookMessage)))
+                                    if (echoToTwitter) requestList += ((me, EchoToTwitter(echo, twitterMessage)))
 
-                                val context = (channel, new EchoFull(echo, echoedUser), msg)
-                                Actor.actorOf(classOf[ScatterGather]).start() ! Scatter(
-                                        requestList.toList,
-                                        Some(context),
-                                        Duration(10, "seconds"))
+                                    val context = (channel, new EchoFull(echo, echoedUser, retailerSettings), msg)
+                                    Actor.actorOf(classOf[ScatterGather]).start() ! Scatter(
+                                            requestList.toList,
+                                            Some(context),
+                                            Duration(10, "seconds"))
+
+                                } catch {
+                                    case e =>
+                                        channel ! EchoToResponse(msg, Left(DuplicateEcho(echo,"Duplicate Echo")))
+                                }
                             },
                             {
                                 channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))
@@ -390,7 +397,9 @@ class EchoedUserServiceActor(
             }
 
         case msg: GetPartnerFeed =>
-                val channel: Channel[GetPartnerFeedResponse] = self.channel
+
+            val channel: Channel[GetPartnerFeedResponse] = self.channel
+
             try{
                 val partnerName = msg.partnerName
                 logger.debug("Attempting to retrieve Partner Feed for Partner {} as EchoedUser {} ", partnerName, echoedUser.id)
