@@ -38,9 +38,6 @@
             <div id="right" class="short">
                 <div id="right_content" class="border-grey bg-color-white rounded-corners">
                     <div id="echoes-container">
-                        <div class="confirm-label red" style="text-align:center;margin-bottom: 5px;">
-                            CLICK "SHARE IT" TO SHARE AND SAVE!
-                        </div>
                         <form name="message" id="echo" action="{{urls.site}}/echo/it" method="get">
                             <div style="text-align: center;"><input id="echoit" type="image" style="cursor:pointer;" src="{{urls.images}}/btn_shareit_off.png" onmouseover="this.src = '{{urls.images}}/btn_shareit_on.png'" onmouseout="this.src='{{urls.images}}/btn_shareit_off.png'"/></div>
                             {{#echoPossibility}}
@@ -50,9 +47,9 @@
                             <table id="echoes" width="100%" cellspacing="5px">
                                 <thead>
                                 <tr>
-                                    <th width="40px">Network</th>
-                                    <th>Custom Message</th>
-                                    <th width="20px">On/Off</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th </th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -60,7 +57,7 @@
                                 {{#facebookUserId}}
                                 <tr>
                                     <td>
-                                        <img src="{{urls.images}}/icon_facebook.png" height="60"/>
+                                        <img src="{{urls.images}}/icon_facebook.png" class="icon"/>
                                     </td>
                                     <td>
                                         <textarea name="facebookMessage" class="rounded-corners" >I just bought the {{#echoPossibility}}{{productName}}{{/echoPossibility}} from {{#retailer}}{{name}}{{/retailer}}. All of {{#retailer}}{{name}}{{/retailer}}'s stuff is really cool, you guys need to check out their site!</textarea>
@@ -74,7 +71,7 @@
                                 <tr>
                                     <td>
                                         <a id="facebookLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=facebook&add=true">
-                                            <img src="{{urls.images}}/btn_icon_facebook_bw.png" height="60"/>
+                                            <img src="{{urls.images}}/btn_icon_facebook_bw.png" class="icon"/>
                                         </a>
                                     </td>
                                     <td>
@@ -85,7 +82,7 @@
                                 {{#twitterUserId}}
                                 <tr>
                                     <td>
-                                        <img src="{{urls.images}}/icon_twitter.png" height="60"/>
+                                        <img src="{{urls.images}}/icon_twitter.png" class="icon"/>
                                     </td>
                                     <td>
                                         <textarea name="twitterMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
@@ -99,7 +96,7 @@
                                 <tr>
                                     <td>
                                         <a id="twitterLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=twitter&add=true">
-                                            <img src="{{urls.images}}/btn_icon_twitter_bw.png" height="60"/>
+                                            <img src="{{urls.images}}/btn_icon_twitter_bw.png" class="icon"/>
                                         </a>
                                     </td>
                                     <td>
@@ -121,8 +118,7 @@
                     </div>
                     <div style="margin-bottom:10px;padding-left:25px;padding-right: 15px;">
                         <ul>
-                            <li>Share this product we will give you <strong>{{minPercentage}}% back</strong>. You&#39;ll earn more for every friend that clicks, up to <strong>{{maxPercentage}}% back</strong>!</li>
-                            <li>After <strong>3 days</strong>, the reward will be <strong>automatically applied back to your original payment method</strong> for this item.</li>
+                            <li>Share this product and get <strong>{{minPercentage}}% back</strong>. Earn more for every friend that clicks, up to <strong>{{maxPercentage}}% back</strong>!</li>
                         </ul>
                     </div>
                 </div>

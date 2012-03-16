@@ -92,17 +92,17 @@ img{
 
 .confirm-label{
     margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     font-family: $labelFontFamily;
-    font-size: 24px;
+    font-size: 18px;
     &.red{
         color: $mainColor;
     }
 }
 
 li{
-    font-size: 16px;
-    margin-bottom: 15px;
+    font-size: 14px;
+    margin-bottom: 8px;
 }
 
 #container{
@@ -112,23 +112,24 @@ li{
 }
 
     #content{
-        width: 975px;
+        width: 750px;
         background-image: image-url('bk_paper.png');
         padding: 10px;
         border:1px solid #333;
     }
 
     #header{
-        height:50px;
-        width: 975px;
+        height:25px;
+        width: 750px;
         padding-left: 10px;
         background-color: #FFF;
     }
 
         .poweredby{
-            font-family: $labelFontFamily;
-            font-size: 18px;
             float:right;
+            img{
+                height: 25px;
+            }
         }
 
         .sharingvalued{
@@ -149,7 +150,7 @@ li{
 
     .ty-text{
         font-family: TradeGothicBD20Cond;
-        font-size: 36px;
+        font-size: 27px;
         letter-spacing: -2px;
     }
 
@@ -170,27 +171,27 @@ li{
     }
 
     #lower{
-        width: 980px;
+
     }
 
     #left{
         float:left;
-        margin: 10px;
+        margin: 8px;
         @include drop-shadow;
         background-color: #FFF;
-        height: 360px;
+        height: 270px;
         #product{
-            width: 230px;
+            width: 180px;
             #product_picture_container{
-                width: 230px;
-                max-height: 300px;
+                width: 180px;
+                max-height: 220px;
                 overflow-y: hidden;
             }
             #product_picture{
-                width: 230px;
+                width: 180px;
             }
             #product-description{
-                min-height: 51px;
+                min-height: 35px;
                 padding: 5px;
                 font-size: 12px;
                 font-family: $textFontFamily;
@@ -204,49 +205,26 @@ li{
         li{
             line-height: 1.4em;
         }
-        width: 240px;
+        width: 180px;
         float:left;
         @include drop-shadow;
         margin: 10px;
         background-color: #FFF;
-        height: 360px;
+        height: 270px;
         #mid-content{
             padding: 0px 10px;
-            #rewards{
-                td{
-                    font-size: 14px;
-                    padding: 10px 5px;
-                }
-                .pct{
-                    font-size: 2em;
-                    font-family: $labelFontFamily;
-                }
-                .off{
-                    text-align:right;
-                }
-            }
-            .pt-reward{
-                color: #111;
-                .pt-title{
-                    font-family: $labelFontFamily;
-                    font-size: 30px;
-                }
-            }
-            .pt-day{
-                font-size: 12px;
-            }
         }
     }
 
     #right{
-        height: 360px;
+        height: 270px;
         margin: 10px;
         float:left;
         background-color:#FFF;
         @include drop-shadow;
-        width: 700px;
+        width: 525px;
         &.short{
-            width: 435px;
+            width: 330px;
         }
         #right-content{
             padding: 10px;
@@ -275,7 +253,7 @@ li{
 
     #post-it{
         padding: 20px;
-        width: 160px;
+        width: 120px;
         line-height: 1.5em;
         font-size: 16px;
         float:left;
@@ -284,8 +262,10 @@ li{
         #echoes {
             border-collapse: collapse;
             background-color: #FFF;
-            margin-top: 40px;
             bottom: 0px;
+            .icon{
+                height: 30px;
+            }
             td,th{
                 text-align:center;
             }
@@ -298,12 +278,16 @@ li{
             }
             textarea{
                 padding:5px;
-                font-size: 14px;
+                font-size: 12px;
+                width: 220px;
+                height: 55px;
                 border: 1px #CCC solid;
                 font-family: $textFontFamily;
-                width: 270px;
                 margin: 5px;
-                height: 50px;
+                background: transparent;
+                border: 1px solid #A4A2A2;
+                resize: none;
+                border-radius: 6px;
             }
 
         }
@@ -337,6 +321,7 @@ li{
 }
 
 #echoit{
-    margin-top: 25px;
+    margin-top: 10px;
+    height: 50px;
 }
 
