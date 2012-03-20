@@ -49,6 +49,7 @@
         <prop key="http.urls.images">http://images.${domain}</prop>
         <prop key="http.urls.views">http://views.${domain}</prop>
         <prop key="http.urls.messages">http://messages.${domain}</prop>
+        <prop key="http.urls.products">https://products.${domain}</prop>
 
         <prop key="https.urls.site">https://www.${domain}</prop>
         <prop key="https.urls.api">https://v1-api.${domain}</prop>
@@ -58,7 +59,13 @@
         <prop key="https.urls.images">https://c779203.ssl.cf2.rackcdn.com</prop>
         <prop key="https.urls.views">https://c779203.ssl.cf2.rackcdn.com</prop>
         <prop key="https.urls.messages">https://c779203.ssl.cf2.rackcdn.com</prop>
+        <prop key="https.urls.products">https://c10415403.ssl.cf2.rackcdn.com</prop>
 
+
+        <prop key="blobstore.provider">cloudfiles-us</prop>
+        <prop key="blobstore.identity">echoedinc</prop>
+        <prop key="blobstore.credential">753478208613b74742190a7f5e07113c</prop>
+        <prop key="blobstore.containers.products">products</prop>
 
 
 

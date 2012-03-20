@@ -794,7 +794,6 @@ class DataCreator {
             updatedOn = on,
             createdOn = on,
             retailerId = retailerId,
-            imageUrl = echoImageUrl_1,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_1,
             twitterStatusId = twitterStatusId_1,
@@ -804,7 +803,8 @@ class DataCreator {
             echoClickId = null,
             step = "test",
             order = Order(echoId_1, on, on, customerId_1, on, orderId_1),
-            product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1))
+            product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1),
+            image = new Image(echoImageUrl_1))
 
     private val _echoes = List(
         Echo(
@@ -812,7 +812,6 @@ class DataCreator {
             updatedOn = on,
             createdOn = on,
             retailerId = retailerId,
-            imageUrl = echoImageUrl_1,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_1,
             twitterStatusId = twitterStatusId_1,
@@ -822,13 +821,13 @@ class DataCreator {
             echoClickId = null,
             step = "test",
             order = Order(echoId_1, on, on, customerId_1, on, orderId_1),
-            product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1)),
+            product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1),
+            image = new Image(echoImageUrl_1)),
         Echo(
             id = echoId_2,
             updatedOn = on,
             createdOn = on,
             retailerId = retailerId,
-            imageUrl = echoImageUrl_2,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_2,
             twitterStatusId = twitterStatusId_2,
@@ -838,8 +837,8 @@ class DataCreator {
             echoClickId = null,
             step = "test",
             order = Order(echoId_2, on, on, customerId_2, on, orderId_2),
-            product = Product(echoId_2, on, on, productId_2, price_2, landingPageUrl, productName_2, category_2, brand_2, description_2))
-
+            product = Product(echoId_2, on, on, productId_2, price_2, landingPageUrl, productName_2, category_2, brand_2, description_2),
+            image = new Image(echoImageUrl_2))
     )
 
     val echoMetrics = _echoes.map(new EchoMetrics(_, retailerSettings))

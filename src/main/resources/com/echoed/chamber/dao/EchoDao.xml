@@ -36,7 +36,6 @@
             <arg column="updatedOn" javaType="Date" />
             <arg column="createdOn" javaType="Date" />
             <arg column="retailerId" javaType="String" />
-            <arg column="imageUrl" javaType="String" />
             <arg column="echoedUserId" javaType="String" />
             <arg column="facebookPostId" javaType="String" />
             <arg column="twitterStatusId" javaType="String"/>
@@ -47,6 +46,7 @@
             <arg column="step" javaType="String" />
             <arg resultMap="orderResult" javaType="com.echoed.chamber.domain.Order" />
             <arg resultMap="productResult" javaType="com.echoed.chamber.domain.Product" />
+            <arg resultMap="image" javaType="com.echoed.chamber.domain.Image"/>
         </constructor>
     </resultMap>
 
@@ -82,6 +82,8 @@
                 orderId,
                 price,
                 imageUrl,
+                echoedUserId,
+                facebookPostId,
                 echoPossibilityId,
                 landingPageUrl,
                 retailerSettingsId,
@@ -102,6 +104,8 @@
                 #{order.orderId},
                 #{product.price},
                 #{imageUrl},
+                #{echoedUserId},
+                #{facebookPostId},
                 #{echoPossibilityId},
                 #{product.landingPageUrl},
                 #{retailerSettingsId},

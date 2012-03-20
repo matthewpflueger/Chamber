@@ -3,9 +3,10 @@ package com.echoed.chamber.services.echo
 import akka.actor.ActorRef
 import reflect.BeanProperty
 import com.echoed.chamber.domain._
+import com.echoed.chamber.services.ActorClient
 
 
-class EchoServiceActorClient extends EchoService {
+class EchoServiceActorClient extends EchoService with ActorClient {
 
     @BeanProperty var echoServiceActor: ActorRef = _
 
@@ -21,5 +22,5 @@ class EchoServiceActorClient extends EchoService {
     def recordEchoClick(echoClick: EchoClick, postId: String) =
             (echoServiceActor ? RecordEchoClick(echoClick, postId)).mapTo[RecordEchoClickResponse]
 
-
+    def actorRef = echoServiceActor
 }

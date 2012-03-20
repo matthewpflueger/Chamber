@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.EchoPossibilityDao">
+
+    <cache-ref namespace="com.echoed.chamber.dao.cache.Default" />
+
+    <resultMap id="imageResult" type="com.echoed.chamber.domain.Image">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="imageUrl" javaType="String"/>
+            <arg column="imageOriginalUrl" javaType="String"/>
+            <arg column="imageWidth" javaType="_int"/>
+            <arg column="imageHeight" javaType="_int"/>
+            <arg column="imageGrabbedOn" javaType="Date" />
+            <arg column="imageGrabbedStatus" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <sql id="imageColumns">
+        imageUrl,
+        imageOriginalUrl,
+        imageWidth,
+        imageHeight,
+        imageGrabbedOn,
+        imageGrabbedStatus
+    </sql>
+
+    <sql id="imageUpdateColumns">
+        imageUrl = #{imageUrl},
+        imageWidth = #{imageWidth},
+        imageHeight = #{imageHeight},
+        imageGrabbedOn = #{imageGrabbedOn},
+        imageGrabbedStatus = #{imageGrabbedStatus}
+    </sql>
+
+    <select id="findProcessedByOriginalUrl" resultMap="imageResult">
+        select <include refid="imageColumns" />
+        from EchoPossibility
+        where imageOriginalUrl = #{imageOriginalUrl}
+        and imageGrabbedOn is not null
+        order by imageGrabbedOn desc
+        limit 1
+    </select>
+
+    <update id="update" parameterType="com.echoed.chamber.domain.Image">
+        update EchoPossibility set <include refid="imageUpdateColumns" />
+        where id = #{id}
+    </update>
+
+    <update id="updateAll" parameterType="com.echoed.chamber.domain.Image">
+        update EchoPossibility set <include refid="imageUpdateColumns" />
+        where imageOriginalUrl = #{imageOriginalUrl}
+    </update>
+
+    <update id="updateAllUnprocessed" parameterType="com.echoed.chamber.domain.Image">
+        update EchoPossibility set <include refid="imageUpdateColumns" />
+        where imageOriginalUrl = #{imageOriginalUrl}
+        and imageGrabbedOn is null
+    </update>
+
+</mapper>

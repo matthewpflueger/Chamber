@@ -12,7 +12,6 @@ case class Echo(
         updatedOn: Date,
         createdOn: Date,
         retailerId: String,
-        imageUrl: String,
         echoedUserId: String,
         facebookPostId: String,
         twitterStatusId: String,
@@ -22,7 +21,9 @@ case class Echo(
         echoClickId: String,
         step: String,
         order: Order,
-        product: Product) {
+        product: Product,
+        image: Image) {
+
 
     this.ensuring(step != null, "Step cannot be null")
 
@@ -109,7 +110,6 @@ object Echo {
             updatedOn = date,
             createdOn = date,
             retailerId = retailerId,
-            imageUrl = imageUrl,
             echoedUserId = null,
             facebookPostId = null,
             twitterStatusId = null,
@@ -119,7 +119,8 @@ object Echo {
             echoClickId = echoClickId,
             step = step,
             order = Order(id, date, date, customerId, boughtOn, orderId),
-            product = Product(id, date, date, productId, price, landingPageUrl, productName, category, brand, description))
+            product = Product(id, date, date, productId, price, landingPageUrl, productName, category, brand, description),
+            image = new Image(imageUrl))
     }
 }
 

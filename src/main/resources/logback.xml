@@ -51,6 +51,8 @@
     <logger name="com.echoed.chamber.dao" level="info" />
     <logger name="com.echoed" level="debug" />
     <logger name="org.codegist" level="debug" />
+    <!--<logger name="org.jclouds" level="debug" />-->
+
 
     <root level="warn">
         <appender-ref ref="all" />
