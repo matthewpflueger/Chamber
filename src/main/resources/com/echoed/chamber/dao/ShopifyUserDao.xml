@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.ShopifyUserDao">
+
+    <resultMap id="shopifyUserResult" type="com.echoed.chamber.domain.shopify.ShopifyUser">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="shopifyId" javaType="String" />
+            <arg column="domain" javaType="String" />
+            <arg column="name" javaType="String" />
+            <arg column="zip" javaType="String" />
+            <arg column="shopOwner" javaType="String" />
+            <arg column="email" javaType="String" />
+            <arg column="country" javaType="String" />
+            <arg column="city" javaType="String" />
+            <arg column="shopifyDomain" javaType="String" />
+            <arg column="password" javaType="String" />
+            <arg column="partnerId" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <select id="findByPartnerId" resultMap="shopifyUserResult">
+        select * from ShopifyPartner where shopifyId=#{shopifyId}
+    </select>
+    
+    <select id="findByShopifyId" resultMap="shopifyUserResult">
+        select * from ShopifyPartner where shopifyId=#{shopifyId}
+    </select>
+
+    <select id="findByDomain" resultMap="shopifyUserResult">
+        select * from ShopifyPartner where domain=#{domain}
+    </select>
+
+    <select id="findByShopifyDomain" resultMap="shopifyUserResult">
+        select * from ShopifyPartner where shopifyDomain=#{shopifyDomain}
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.FacebookUser">
+    	insert into ShopifyPartner(
+    			id,
+    			updatedOn,
+    			createdOn,
+    			shopifyId,
+    			domain,
+    			name,
+    			zip,
+    			shopOwner,
+    			email,
+    			country,
+    			city,
+    			shopifyDomain,
+    			password,
+    			partnerId)
+    		values (
+    			#{id},
+    			#{updatedOn},
+    			#{createdOn},
+    			#{shopifyId},
+    			#{domain},
+    			#{name},
+    			#{zip},
+    			#{shopOwner},
+    			#{email},
+    			#{country},
+    			#{city},
+    			#{shopifyDomain},
+    			#{password},
+    			#{partnerId})
+    		on duplicate key update
+    		    name=#{name},
+                email=#{email},
+                city=#{city},
+                country=#{country},
+                zip=#{zip}
+    </insert>
+
+</mapper>
+

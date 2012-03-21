@@ -1,0 +1,89 @@
+package com.echoed.chamber.services.shopify
+
+import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.domain._
+import com.shopify.api.credentials.Credential
+import com.shopify.api.resources._
+import shopify.ShopifyUser
+
+sealed trait ShopifyMessage extends Message
+
+sealed case class ShopifyException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)
+
+import com.echoed.chamber.services.shopify.{ShopifyMessage => SM}
+import com.echoed.chamber.services.shopify.{ShopifyException => SE}
+
+case class LocateByPartnerId(partnerId: String) extends SM
+case class LocateByPartnerIdResponse(message: LocateByPartnerId, value: Either[SE, ShopifyUserService])
+    extends SM 
+    with RM[ShopifyUserService, LocateByPartnerId, SE]
+
+case class LocateByToken(shop: String,  signature: String, t: String,  timeStamp: String) extends SM
+case class LocateByTokenResponse(message: LocateByToken,  value: Either[SE, ShopifyUserService])
+    extends SM 
+    with RM[ShopifyUserService, LocateByToken,  SE]
+
+case class LocateByShopDomain(shopifyShopDomain: String) extends SM
+case class LocateByShopDomainResponse(message: LocateByShopDomain, value: Either[SE, ShopifyUserService])
+    extends SM 
+    with RM[ShopifyUserService, LocateByShopDomain, SE]
+
+case class CreateFromPartnerId(partnerId: String) extends SM
+case class CreateFromPartnerIdResponse(message: CreateFromPartnerId, value: Either[SE, ShopifyUserService])
+    extends SM
+    with RM[ShopifyUserService, CreateFromPartnerId, SE]
+
+
+case class CreateFromToken(shop: String, signature: String,  t: String,  timeStamp:String) extends SM
+case class CreateFromTokenResponse(message: CreateFromToken, value: Either[SE, ShopifyUserService])
+    extends SM
+    with RM[ShopifyUserService, CreateFromToken, SE]
+
+case class CreateFromShopDomain(shopDomain: String) extends SM
+case class CreateFromShopDomainResponse(message: CreateFromShopDomain, value: Either[SE,  ShopifyUserService])
+    extends SM
+    with RM[ShopifyUserService, CreateFromShopDomain, SE]
+
+case class GetOrder(orderId: Int) extends SM
+case class GetOrderResponse(message: GetOrder,  value: Either[SE,  String])
+    extends SM
+    with RM[String,  GetOrder,  SE]
+
+case class GetShop(password: String) extends SM
+case class GetShopResponse(message: GetShop, value: Either[SE, ShopifyUser])
+    extends SM
+    with RM[ShopifyUser, GetShop, SE]
+
+case class GetShopifyUser() extends SM
+case class GetShopifyUserResponse(message: GetShopifyUser,  value: Either[SE, ShopifyUser])
+    extends SM
+    with RM[ShopifyUser,  GetShopifyUser, SE]
+
+
+//Shopify Accesss
+
+
+case class FetchPassword(shop: String,  signature: String, t: String,  timeStamp: String) extends SM
+case class FetchPasswordResponse(message: FetchPassword, value: Either[SE, String])
+    extends SM
+    with RM[String, FetchPassword, SE]
+
+case class FetchShop(shop: String, password: String) extends SM
+case class FetchShopResponse(message: FetchShop, value: Either[SE, ShopifyUser])
+    extends SM
+    with RM[ShopifyUser,  FetchShop, SE]
+
+case class FetchOrder(shop:String, password: String, orderId: Int) extends SM
+case class FetchOrderResponse(message: FetchOrder,  value: Either[SE,  String])
+    extends SM
+    with RM[String, FetchOrder, SE]
+
+case class FetchProduct(shop: String, password: String, productId: Int) extends SM
+case class FetchProductResponse(message: FetchProduct, value: Either[SE,  Product])
+    extends SM
+    with RM[Product, FetchProduct, SE]
+
+case class FetchProducts(shop: String, password: String) extends SM
+case class FetchProductsResponse(message: FetchProducts, value: Either[SE, List[Product]])
+    extends SM 
+    with RM[List[Product],  FetchProducts,  SE]
