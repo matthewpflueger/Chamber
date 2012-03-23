@@ -185,9 +185,7 @@ class EchoedUserServiceActor(
                         if(ep.isEchoed) {
                             logger.debug("Duplicate Echo: {}" , ep)
                             channel ! EchoToResponse(msg, Left(DuplicateEcho(ep,"Duplicate Echo")))
-                        }
-                        else {
-                        Option(retailerSettingsDao.findById(ep.retailerSettingsId)).cata(
+                        } else Option(retailerSettingsDao.findById(ep.retailerSettingsId)).cata(
                             retailerSettings => {
 
                                 var echo = ep.copy(echoedUserId = echoedUser.id, step = "%s,echoed" format ep.step)
@@ -197,7 +195,6 @@ class EchoedUserServiceActor(
                                         .echoed(retailerSettings)
                                 echoMetricsDao.updateForEcho(echoMetrics)
                                 echo = echo.copy(echoMetricsId = echoMetrics.id)
-
                                 echoDao.updateForEcho(echo)
 
                                 try{
@@ -223,7 +220,6 @@ class EchoedUserServiceActor(
                                 channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))
                                 logger.warn("Did not find RetailerSettings {} for Echo {}", ep.retailerSettingsId, ep.id)
                             })
-                        }
                     },
                     {
                         channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))

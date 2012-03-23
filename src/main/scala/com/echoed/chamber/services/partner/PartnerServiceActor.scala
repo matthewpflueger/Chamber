@@ -167,7 +167,6 @@ class PartnerServiceActor(
                     channel ! RequestShopifyEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
             }
 
-
         case msg @ RecordEchoStep(echoId, step, ipAddress, echoedUserId, echoClickId) =>
             val channel: Channel[RecordEchoStepResponse] = self.channel
 

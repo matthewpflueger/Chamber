@@ -46,16 +46,32 @@
             <arg column="step" javaType="String" />
             <arg resultMap="orderResult" javaType="com.echoed.chamber.domain.Order" />
             <arg resultMap="productResult" javaType="com.echoed.chamber.domain.Product" />
-            <arg resultMap="image" javaType="com.echoed.chamber.domain.Image"/>
+            <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
         </constructor>
     </resultMap>
 
+
+    <sql id="echoSelect">
+        select
+            E.*,
+            <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
+        from Echo E
+        join Image I on E.imageId = I.id
+    </sql>
+
     <select id="findById" resultMap="echoResult">
-        select * from Echo where id = #{id}
+        <include refid="echoSelect" />
+        where E.id = #{id}
     </select>
 
     <select id="findByEchoPossibilityId" resultMap="echoResult">
-    	select * from Echo where echoPossibilityId = #{echoPossibilityId}
+        <include refid="echoSelect" />
+        where E.echoPossibilityId = #{echoPossibilityId}
+    </select>
+
+    <select id="findByIdOrEchoPossibilityId" resultMap="echoResult">
+        <include refid="echoSelect" />
+        where E.id = #{id} or E.echoPossibilityId = #{id}
     </select>
 
     <select id="findByIdOrEchoPossibilityId" resultMap="echoResult">
@@ -63,7 +79,8 @@
     </select>
 
     <select id="findByRetailerId" resultMap="echoResult">
-    	select * from Echo where retailerId = #{retailerId}
+        <include refid="echoSelect" />
+    	where E.retailerId = #{retailerId}
     </select>
 
     <select id="selectCount" resultType="long" useCache="false" >
@@ -81,7 +98,6 @@
                 boughtOn,
                 orderId,
                 price,
-                imageUrl,
                 echoedUserId,
                 facebookPostId,
                 echoPossibilityId,
@@ -93,7 +109,9 @@
                 description,
                 echoClickId,
                 step,
-                echoMetricsId)
+                imageUrl,
+                echoMetricsId,
+                imageId)
         values (
                 #{id},
                 #{createdOn},
@@ -103,7 +121,6 @@
                 #{order.boughtOn},
                 #{order.orderId},
                 #{product.price},
-                #{imageUrl},
                 #{echoedUserId},
                 #{facebookPostId},
                 #{echoPossibilityId},
@@ -115,7 +132,9 @@
                 #{product.description},
                 #{echoClickId},
                 #{step},
-                #{echoMetricsId})
+                #{image.url},
+                #{echoMetricsId},
+                #{image.id})
     </insert>
 
     <update id="updateForStep" parameterType="com.echoed.chamber.domain.Echo">

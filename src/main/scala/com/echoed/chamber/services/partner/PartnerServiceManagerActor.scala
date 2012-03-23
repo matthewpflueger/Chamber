@@ -170,7 +170,6 @@ class PartnerServiceManagerActor extends Actor {
                                 channel ! LocateResponse(msg, Right(partnerService))
                                 cache.put(partnerId, partnerService)
                         }))
-
             }
 
         case msg @ LocateByEchoId(echoId) =>

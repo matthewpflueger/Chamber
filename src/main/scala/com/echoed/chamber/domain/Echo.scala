@@ -15,7 +15,7 @@ case class Echo(
         echoedUserId: String,
         facebookPostId: String,
         twitterStatusId: String,
-        echoPossibilityId: String,
+        @deprecated echoPossibilityId: String,
         retailerSettingsId: String,
         echoMetricsId: String,
         echoClickId: String,
@@ -61,6 +61,9 @@ case class Echo(
     val customerId = order.customerId
     val boughtOn = order.boughtOn
 
+    val imageUrl = image.preferredUrl
+    val imageWidth = image.preferredWidth
+    val imageHeight = image.preferredHeight
 }
 
 
