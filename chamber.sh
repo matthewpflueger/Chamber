@@ -204,8 +204,38 @@ case $service_args in
         compass compile -f -c src/main/compass/${ENV_TYPE}.rb
         ;;
 
+    migrate_status)
+        PACKAGE="mvn migration:status -Dmigration.path=src/main/database"
+        echo "Running ${PACKAGE}"
+        $PACKAGE
+        result=$?
+        if [[ $result > 0 ]]; then
+            exit 1;
+        fi
+        ;;
+
+    migrate_up)
+        PACKAGE="mvn migration:up -Dmigration.path=src/main/database"
+        echo "Running ${PACKAGE}"
+        $PACKAGE
+        result=$?
+        if [[ $result > 0 ]]; then
+            exit 1;
+        fi
+        ;;
+
+    migrate_down)
+        PACKAGE="mvn migration:down -Dmigration.path=src/main/database"
+        echo "Running ${PACKAGE}"
+        $PACKAGE
+        result=$?
+        if [[ $result > 0 ]]; then
+            exit 1;
+        fi
+        ;;
+
     *)
-        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass|compass_compile}" >&2
+        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass|compass_compile|migrate_status|migrate_up|migrate_down}" >&2
         exit 1
         ;;
 esac
