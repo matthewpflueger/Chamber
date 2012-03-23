@@ -12,10 +12,10 @@ trait FacebookPostDao {
 
     def findByEchoedUserId(echoedUserId: String): JList[FacebookPost]
 
-    def findPostToCrawl(
-            @Param("postedOnStartDate") postedOnStartDate: Date,
-            @Param("postedOnEndDate") postedOnEndDate: Date,
-            @Param("crawledOnEndDate") crawledOnEndDate: Date): FacebookPostData
+//    def findPostToCrawl(
+//            @Param("postedOnStartDate") postedOnStartDate: Date,
+//            @Param("postedOnEndDate") postedOnEndDate: Date,
+//            @Param("crawledOnEndDate") crawledOnEndDate: Date): FacebookPostData
 
     def findPostToCrawl(
             @Param("postedOnStartDate") postedOnStartDate: Date,
@@ -23,9 +23,9 @@ trait FacebookPostDao {
             @Param("crawledOnEndDate") crawledOnEndDate: Date,
             @Param("echoedUserId") echoedUserId: String): FacebookPostData
 
-    def findOldPostToCrawl(
-            @Param("postedOnBeforeDate") postedOnBeforeDate: Date,
-            @Param("crawledOnEndDate") crawledOnEndDate: Date): FacebookPostData
+//    def findOldPostToCrawl(
+//            @Param("postedOnBeforeDate") postedOnBeforeDate: Date,
+//            @Param("crawledOnEndDate") crawledOnEndDate: Date): FacebookPostData
 
     def findOldPostToCrawl(
             @Param("postedOnBeforeDate") postedOnBeforeDate: Date,

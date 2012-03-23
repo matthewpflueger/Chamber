@@ -48,6 +48,7 @@
 
     <!--<logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="debug" />-->
     <logger name="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor" level="info" />
+    <logger name="com.echoed.chamber.dao" level="info" />
     <logger name="com.echoed" level="debug" />
 
     <root level="warn">

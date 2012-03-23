@@ -57,8 +57,8 @@ class FacebookPostCrawlerActor extends Actor {
 
         val crawledOnEndDate = postedOnEndDate
 
-        Option(facebookPostDao.findPostToCrawl(postedOnStartDate, postedOnEndDate, crawledOnEndDate)).getOrElse {
-            Option(facebookPostDao.findOldPostToCrawl(postedOnStartDate, postedOnStartDate)).orNull
+        Option(facebookPostDao.findPostToCrawl(postedOnStartDate, postedOnEndDate, crawledOnEndDate, null)).getOrElse {
+            Option(facebookPostDao.findOldPostToCrawl(postedOnStartDate, postedOnStartDate, null)).orNull
         }
     }
 
