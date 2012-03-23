@@ -5,10 +5,12 @@ import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import akka.actor._
-import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
+import scala.collection.mutable.ConcurrentMap
+import java.util.concurrent.{ConcurrentHashMap => JConcurrentHashMap}
+import com.echoed.chamber.services.ActorClient
+import scala.collection.JavaConversions._
 
 
 class TwitterServiceLocatorActor extends Actor {
@@ -18,7 +20,7 @@ class TwitterServiceLocatorActor extends Actor {
     @BeanProperty var twitterServiceCreator: TwitterServiceCreator = _
     @BeanProperty var cacheManager: CacheManager = _
 
-    private val cache = WeakHashMap[String, TwitterService]()
+    private var cache: ConcurrentMap[String, TwitterService] = new JConcurrentHashMap[String, TwitterService]()
     private var idCache: ConcurrentMap[String, TwitterService] = null
 
 
@@ -31,7 +33,7 @@ class TwitterServiceLocatorActor extends Actor {
             logger.debug("Received {}", msg)
             twitterService.logout(twitterUserId)
             for ((key, ts) <- cache if (ts.id == twitterService.id)) {
-                cache -= key
+                cache.remove(key).foreach(_.asInstanceOf[ActorClient].actorRef.stop())
                 logger.debug("Removed {} from cache", ts.id)
             }
             logger.debug("Sent logout for {}", twitterService)
@@ -55,7 +57,7 @@ class TwitterServiceLocatorActor extends Actor {
                             case GetRequestTokenResponse(_, Left(e)) => throw e
                             case GetRequestTokenResponse(_, Right(requestToken)) =>
                                 logger.debug("Caching TwitterService with token {}", requestToken.getToken)
-                                cache += ("requestToken:" + requestToken.getToken -> twitterService)
+                                cache.put("requestToken:" + requestToken.getToken, twitterService)
                         }.onException {
                             case e => logger.error("Unexpected error when trying to cache TwitterService with request token", e)
                         }

@@ -24,7 +24,6 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
     @Autowired @BeanProperty var encrypter: Encrypter = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
-    @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
@@ -62,10 +61,11 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
     def cleanUp {
         webDriverUtils.clearEchoedCookies()
+        webDriverUtils.clearFacebookCookies()
+        webDriverUtils.clearTwitterCookies()
         twitterUserDao.deleteByScreenName(twitterUser.screenName)
         retailerDao.deleteByName(retailer.name)
         retailerSettingsDao.deleteByRetailerId(retailer.id)
-        echoPossibilityDao.deleteByRetailerId(retailer.id)
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoDao.deleteByRetailerId(retailer.id)
     }
@@ -109,7 +109,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
                 "orderId": "testOrderId",
                 "items": [
                     {
-                        "productId": "testProductId1",
+                        "productId": "testProductId11",
                         "productName":  "test product name",
                         "price": 1,
                         "imageUrl": "http://nowhere.com/images/someproduct.png",
@@ -119,7 +119,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
                         "description": "My incredibly long description about this particularly stupid product in an attempt to cause errors in using GET with an incredibly long url hopefully hitting the 2K limit"
                     },
                     {
-                        "productId": "testProductId2",
+                        "productId": "testProductId22",
                         "productName":  "test product name",
                         "price": 1,
                         "imageUrl": "http://nowhere.com/images/someproduct.png",
@@ -131,15 +131,19 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
                 ]
             }"""
 
-            val encryptedRequest = encrypter.encrypt(echoRequest, retailer.secret)
+            try {
+                val encryptedRequest = encrypter.encrypt(echoRequest, retailer.secret)
 
-            val url = "%s?pid=%s&data=%s" format(echoRequestUrl, retailer.id, encryptedRequest)
-            webDriver.get(url)
-            webDriver.getPageSource should include("testProductId1")
-            webDriver.getPageSource should include("testProductId2")
+                val url = "%s?pid=%s&data=%s" format(echoRequestUrl, retailer.id, encryptedRequest)
+                webDriver.get(url)
+                webDriver.getPageSource should include("testProductId1")
+                webDriver.getPageSource should include("testProductId2")
 
-            val echoes = echoPossibilityDao.findByRetailerId(retailer.id)
-            echoes should have length(2)
+                val echoes = echoDao.findByRetailerId(retailer.id)
+                echoes should have length(2)
+            } finally {
+                echoDao.deleteByRetailerId(retailer.id)
+            }
         }
 
 
@@ -151,7 +155,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
             when("there are items to be shared")
             webDriver.getPageSource should include("test product name")
-            val echoes = echoPossibilityDao.findByRetailerId(retailer.id)
+            val echoes = echoDao.findByRetailerId(retailer.id)
             echoes should have length(2)
             var echo = echoes(0)
             echo.step should equal("request")
@@ -162,12 +166,12 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             and("show the echo login screen")
             webDriver.switchTo().window(echo.id)
             webDriver.getPageSource should include("test product name")
-            echo = echoPossibilityDao.findById(echo.id)
+            echo = echoDao.findById(echo.id)
             echo.step should equal("request,login")
 
             then("choose Facebook to login and share the item to")
             webDriver.findElement(By.id("facebookLogin")).click()
-            echo = echoPossibilityDao.findById(echo.id)
+            echo = echoDao.findById(echo.id)
             echo.step should equal("request,login,authorize-facebook")
 
             Thread.sleep(500)
@@ -179,7 +183,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             then("show the echo confirm page")
             webDriver.getTitle should equal("Confirm")
             webDriver.getPageSource should include("test product name")
-            echo = echoPossibilityDao.findById(echo.id)
+            echo = echoDao.findById(echo.id)
             echo.step should equal("request,login,authorize-facebook,confirm")
 
             val facebookUser = facebookUserDao.findByEmail(echoedUser.email)
@@ -198,19 +202,20 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             pass = webDriver.findElement(By.id("password"))
             pass.sendKeys(dataCreator.twitterPassword)
             pass.submit()
+            Thread.sleep(1000)
 
             and("re-show the echo confirm page")
             webDriver.getTitle should equal("Confirm")
             webDriver.getPageSource should include("test product name")
-            echo = echoPossibilityDao.findById(echo.id)
+            echo = echoDao.findById(echo.id)
             echo.step should equal("request,login,authorize-facebook,confirm,authorize-twitter,confirm")
 
             then("share the item")
             webDriver.findElement(By.id("echoit")).click()
-            echo = echoPossibilityDao.findById(echo.id)
+            echo = echoDao.findById(echo.id)
             echo.step should equal("request,login,authorize-facebook,confirm,authorize-twitter,confirm,echoed")
 
-            val ec = echoDao.findById(echo.echoId)
+            val ec = echoDao.findById(echo.id)
             ec should not be(null)
             ec.twitterStatusId should not be(null)
             ec.facebookPostId should not be(null)

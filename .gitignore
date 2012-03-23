@@ -30,3 +30,4 @@ chamber-git.properties
 src/main/webapp/css/*.css
 all.log
 errors.log
+.scala_dependencies

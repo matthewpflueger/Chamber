@@ -3,16 +3,16 @@ package com.echoed.chamber.controllers
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.scalatest.matchers.ShouldMatchers
-import java.util.Date
-import com.echoed.chamber.domain.{RetailerSettings, Retailer, EchoPossibility}
-import com.echoed.chamber.dao.{RetailerSettingsDao, RetailerDao, EchoPossibilityDao}
 import com.echoed.chamber.util.DataCreator
+import com.echoed.chamber.dao.{EchoDao, RetailerSettingsDao, RetailerDao}
+import com.echoed.chamber.domain.{Echo, RetailerSettings, Retailer}
+import java.util.{UUID, Date}
 
 
 class EchoHelper extends ShouldMatchers {
 
     @Autowired @BeanProperty var dataCreator: DataCreator = _
-    @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
+    @Autowired @BeanProperty var echoDao: EchoDao = _
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
 
@@ -43,8 +43,8 @@ class EchoHelper extends ShouldMatchers {
         retailerDao.insert(retailer)
         retailerSettingsDao.insert(retailerSettings)
 
-        echoPossibilityDao.deleteByRetailerId(retailer.id)
-        val echoPossibility = new EchoPossibility(
+        echoDao.deleteByRetailerId(retailer.id)
+        var echoPossibility = Echo.make(
                 retailer.id,
                 customerId,
                 productId,
@@ -53,29 +53,36 @@ class EchoHelper extends ShouldMatchers {
                 orderId,
                 price,
                 imageUrl,
-                echoedUserId,
-                echoId,
                 landingPageUrl,
                 productName,
                 category,
                 brand,
                 description,
-                echoClickId);
+                echoClickId,
+                retailerSettings.id)
 
-        val count = echoPossibilityDao.selectCount
+        echoPossibility = if (echoId != null) echoPossibility.copy(id = echoId) else echoPossibility
+        echoPossibility = if (echoedUserId != null) echoPossibility.copy(echoedUserId = echoedUserId) else echoPossibility
+
+        val count = echoDao.selectCount
         (echoPossibility, count)
     }
 
-    def validateEchoPossibility(echoPossibility: EchoPossibility, count: Long) {
+    def validateEchoPossibility(echoPossibility: Echo, count: Long) = {
         validateCountIs(count + 1)
-        val recordedEchoPossibility = echoPossibilityDao.findById(echoPossibility.id)
+        val recordedEchoPossibility = echoDao.findByEchoPossibilityId(echoPossibility.echoPossibilityId)
         recordedEchoPossibility.id should not be (null)
-        recordedEchoPossibility.step should equal (echoPossibility.step)
-        recordedEchoPossibility.echoedUserId should equal (echoPossibility.echoedUserId)
-        recordedEchoPossibility.echoId should equal (echoPossibility.echoId)
+        recordedEchoPossibility.step contains (echoPossibility.step)
+        if (recordedEchoPossibility.step.contains("echoed")) {
+            recordedEchoPossibility.echoedUserId should not be(null)
+        } else {
+            recordedEchoPossibility.echoedUserId should be(null)
+        }
+        recordedEchoPossibility.echoPossibilityId should equal (echoPossibility.echoPossibilityId)
+        recordedEchoPossibility
     }
 
-    def getEchoPossibilityCount = echoPossibilityDao.selectCount
+    def getEchoPossibilityCount = echoDao.selectCount
 
     def validateCountIs(count: Long) {
         //This is a nasty hack to allow time for the underlying database to be updated.  To repeat this bug start
@@ -83,6 +90,6 @@ class EchoHelper extends ShouldMatchers {
         //will pass the first time but fail the second time (of course it should always pass so you will have to force a database update).
         //Anyway, for some reason manually flushing the SQL statement caches does not work...
         Thread.sleep(1000)
-        count should equal (echoPossibilityDao.selectCount)
+        count should equal (echoDao.selectCount)
     }
 }

@@ -11,8 +11,8 @@ import java.util.{Date, Properties}
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.chamber.dao.{RetailerUserDao, EchoDao, EchoedUserDao}
-import org.openqa.selenium.{By, Cookie, WebDriver}
 import com.echoed.util.{WebDriverUtils, IntegrationTest}
+import org.openqa.selenium.{Dimension, By, Cookie, WebDriver}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -112,6 +112,9 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
 
         scenario("a partner user logs out and is redirected out of their dashboard", IntegrationTest) {
             webDriver.getTitle should startWith ("Echoed")
+
+            val dimension = webDriver.manage().window().getSize
+            webDriver.manage().window().setSize(new Dimension(1200, dimension.getHeight))
 
             given("a request to logout")
             when("the user is logged in")

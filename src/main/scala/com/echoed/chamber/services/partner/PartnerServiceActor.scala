@@ -4,23 +4,25 @@ import org.slf4j.LoggerFactory
 import akka.actor.{Channel, Actor}
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
 import org.codehaus.jackson.`type`.TypeReference
-import com.echoed.chamber.domain.{RetailerSettings, EchoPossibility, Retailer}
 import com.echoed.chamber.domain.views.EchoPossibilityView
 import scala.reflect.BeanProperty
 import java.util.Date
 import akka.dispatch.Future
-import com.echoed.chamber.dao.{EchoDao, RetailerSettingsDao, EchoPossibilityDao, RetailerDao}
 import scalaz._
 import Scalaz._
-
+import com.echoed.chamber.domain.{EchoMetrics, Echo, RetailerSettings, Retailer}
+import com.echoed.chamber.dao.{EchoMetricsDao, EchoDao, RetailerSettingsDao, RetailerDao}
+import org.springframework.transaction.support.TransactionTemplate
+import com.echoed.util.TransactionUtils._
+import org.springframework.transaction.TransactionStatus
 
 class PartnerServiceActor(
         partner: Retailer,
-        partnerSettings: RetailerSettings,
         partnerDao: RetailerDao,
         partnerSettingsDao: RetailerSettingsDao,
-        echoPossibilityDao: EchoPossibilityDao,
         echoDao: EchoDao,
+        echoMetricsDao: EchoMetricsDao,
+        transactionTemplate: TransactionTemplate,
         encrypter: Encrypter) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[PartnerServiceActor])
@@ -40,8 +42,11 @@ class PartnerServiceActor(
                         decryptedRequest,
                         new TypeReference[EchoRequest]() {})
 
-                val echoPossibilities = echoRequest.items.map { i =>
-                    new EchoPossibility(
+                val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
+                        .getOrElse(throw new PartnerNotActive(partner.id))
+
+                val echoes = echoRequest.items.map { i =>
+                    Echo.make(
                             partner.id,
                             echoRequest.customerId,
                             i.productId,
@@ -50,29 +55,34 @@ class PartnerServiceActor(
                             echoRequest.orderId,
                             i.price,
                             i.imageUrl,
-                            echoedUserId.orNull,
-                            null, //echoId
                             i.landingPageUrl,
                             i.productName,
                             i.category,
                             i.brand,
                             i.description.take(1023),
-                            echoClickId.orNull)
+                            echoClickId.orNull,
+                            partnerSettings.id)
                 }.filter { ep =>
                     try {
-                        echoPossibilityDao.insertOrUpdate(ep)
+                        val echoMetrics = new EchoMetrics(ep, partnerSettings)
+                        transactionTemplate.execute({status: TransactionStatus =>
+                            echoMetricsDao.insert(echoMetrics)
+                            echoDao.insert(ep.copy(echoMetricsId = echoMetrics.id))
+                        })
                         true
                     } catch { case e => logger.error("Could not save %s" format ep, e); false }
                 }
 
-                if (echoPossibilities.isEmpty) {
+                if (echoes.isEmpty) {
                     channel ! RequestEchoResponse(msg, Left(InvalidEchoRequest()))
                 } else {
                     channel ! RequestEchoResponse(
                             msg,
-                            Right(new EchoPossibilityView(echoPossibilities, partner, partnerSettings)))
+                            Right(new EchoPossibilityView(echoes, partner, partnerSettings)))
                 }
             } catch {
+                case e: PartnerNotActive =>
+                    channel ! RequestEchoResponse(msg, Left(e))
                 case e =>
                     logger.error("Error processing %s" format e, msg)
                     channel ! RequestEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
@@ -80,28 +90,24 @@ class PartnerServiceActor(
 
 
         case msg @ RecordEchoStep(echoId, step, ipAddress, echoedUserId, echoClickId) =>
-            import com.echoed.chamber.services.echo.{RecordEchoPossibilityResponse => REPR}
-
             val channel: Channel[RecordEchoStepResponse] = self.channel
 
             logger.debug("Processing {}", msg)
 
             Future {
-                echoPossibilityDao.findById(echoId)
+                echoDao.findById(echoId)
             }.onComplete(_.value.get.fold(
                 e => channel ! RecordEchoStepResponse(msg, Left(PartnerException("Error retrieving echo %s" format echoId, e))),
                 ep => {
+                    val partnerSettings = partnerSettingsDao.findById(ep.retailerSettingsId)
                     val epv = new EchoPossibilityView(ep, partner, partnerSettings)
-                    Option(echoDao.findByEchoPossibilityId(echoId)).cata(
-                        ec => channel ! RecordEchoStepResponse(msg, Left(EchoExists(epv.copy(echo = ec)))),
-                        {
-                            channel ! RecordEchoStepResponse(msg, Right(epv))
-                            echoPossibilityDao.insertOrUpdate(ep.copy(
-                                    step = "%s,%s" format(ep.step, step),
-                                    echoedUserId = echoedUserId.getOrElse(ep.echoedUserId),
-                                    echoClickId = echoClickId.getOrElse(ep.echoClickId)))
-                            logger.debug("Recorded step {} for echo {}", step, ep.id)
-                        })
+                    if (ep.isEchoed) {
+                        channel ! RecordEchoStepResponse(msg, Left(EchoExists(epv)))
+                    } else {
+                        channel ! RecordEchoStepResponse(msg, Right(epv))
+                        echoDao.updateForStep(ep.copy(step = "%s,%s" format(ep.step, step)))
+                        logger.debug("Recorded step {} for echo {}", step, ep.id)
+                    }
             })).onException {
                 case e =>
                     channel ! RecordEchoStepResponse(msg, Left(PartnerException("Unexpected error", e)))
@@ -128,4 +134,3 @@ class EchoItem {
     @BeanProperty var landingPageUrl: String = _
     @BeanProperty var description: String = _
 }
-

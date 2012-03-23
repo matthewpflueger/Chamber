@@ -8,13 +8,13 @@ import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import scala.collection.JavaConversions
 import org.openqa.selenium.{By, Cookie, WebDriver}
-import com.echoed.chamber.domain.{Echo, FacebookPost}
 import com.echoed.chamber.dao._
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.util.{Properties, Date}
 import com.echoed.util.{WebDriverUtils, IntegrationTest}
 import org.slf4j.LoggerFactory
+import com.echoed.chamber.domain.{EchoMetrics, Echo, FacebookPost}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -25,7 +25,6 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
     @Autowired @BeanProperty var echoDao: EchoDao = _
     @Autowired @BeanProperty var echoMetricsDao: EchoMetricsDao = _
-    @Autowired @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @Autowired @BeanProperty var echoClickDao: EchoClickDao = _
@@ -62,6 +61,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
     //Set in "a known user clicks to confirm their echo and is directed to thanks for echoing page"
     //Used in the following tests for clicking on the post and tracking the click...
     var echo: Echo = null
+    var count: Long = 0
     var facebookPost: FacebookPost = null
 
     var echoedUser = dataCreator.echoedUser.copy(twitterId = null, twitterUserId = null)
@@ -75,7 +75,6 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
         facebookUserDao.deleteByEmail(facebookUser.email)
         retailerDao.deleteByName(retailer.name)
         retailerSettingsDao.deleteByRetailerId(retailer.id)
-        echoPossibilityDao.deleteByRetailerId(retailer.id)
         echoDao.deleteByRetailerId(retailer.id)
         echoMetricsDao.deleteByRetailerId(retailer.id)
     }
@@ -113,44 +112,55 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             webDriverUtils.clearEchoedCookies()
 
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "login")
-            webDriver.get(echoPossibility.asUrlParams(prefix = echoUrl + "?", encode = true))
+            val (e, c) = echoHelper.setupEchoPossibility(step = "login")
+            echo = e
+            count = c
+//            val (echoPossibility, count) = echoHelper.setupEchoPossibility(step = "login")
+//            webDriver.get(echoPossibility.asUrlParams(prefix = echoUrl + "?", encode = true))
+            webDriver.get(echo.asUrlParams(prefix = echoUrl + "?", encode = true))
 
             then("show the login page")
             webDriver.getTitle should equal ("Login")
 
-            and("record the EchoPossibility in the database")
-            echoHelper.validateEchoPossibility(echoPossibility, count)
+            and("record the Echo in the database")
+            echo = echoHelper.validateEchoPossibility(echo, count)
+//            echo = echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 
         scenario("a known user clicks on echo button with valid parameters and is redirected to confirmation page", IntegrationTest) {
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(
-                    step = "confirm",
-                    echoedUserId = echoedUser.id)
+            echo should not be(null)
+//            val (echoPossibility, count) = echoHelper.setupEchoPossibility(
+//                    step = "confirm",
+//                    echoedUserId = echoedUser.id)
 
             given("a request to echo a purchase")
             when("the user is recognized (has a cookie) and with valid parameters")
             webDriverUtils.addEchoedUserCookie(echoedUser)
-            val echoUrlWithParams = echoPossibility.asUrlParams(prefix = echoUrl + "?", encode = true)
+            val echoUrlWithParams = echo.asUrlParams(prefix = echoUrl + "?", encode = true)
+//            val echoUrlWithParams = echoPossibility.asUrlParams(prefix = echoUrl + "?", encode = true)
             webDriver.get(echoUrlWithParams)
 
             then("show the echo confirmation page")
             webDriver.getCurrentUrl should equal (echoUrlWithParams) //we did not redirect...
             webDriver.getTitle should equal ("Confirm")
 
-            and("record the EchoPossibility in the database")
-            echoHelper.validateEchoPossibility(echoPossibility, count)
+            and("record the Echo in the database")
+            echo = echoHelper.validateEchoPossibility(echo, count)
+//            echo = echoHelper.validateEchoPossibility(echoPossibility, count)
 
         }
 
         scenario("a known user clicks to confirm their echo and is directed to thanks for echoing page", IntegrationTest) {
-
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(
-                    step = "confirm",
-                    echoedUserId = echoedUser.id)
-
-            echoPossibilityDao.insertOrUpdate(echoPossibility)
-            echoDao.deleteByEchoPossibilityId(echoPossibility.id)
+            echo should not be(null)
+//            val (ep, count) = echoHelper.setupEchoPossibility(
+//                    step = "confirm",
+//                    echoedUserId = echoedUser.id)
+//
+//            echoDao.deleteByEchoPossibilityId(ep.id)
+//            val em = new EchoMetrics(ep, dataCreator.retailerSettings)
+//            echoMetricsDao.insert(em)
+//            val echoPossibility = ep.copy(echoMetricsId = em.id)
+//            echoDao.insert(echoPossibility)
 
 
             given("a request to confirm the echo")
@@ -159,13 +169,15 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             val postToFacebook = true
             val facebookMessage = "This is my echoed purchase!"
-            webDriver.get("%s?postToFacebook=%s&facebookMessage=%s&echoPossibilityId=%s" format(echoItUrl, postToFacebook, facebookMessage, echoPossibility.id))
+            webDriver.get("%s?postToFacebook=%s&facebookMessage=%s&echoPossibilityId=%s" format(echoItUrl, postToFacebook, facebookMessage, echo.echoPossibilityId))
+//            webDriver.get("%s?postToFacebook=%s&facebookMessage=%s&echoPossibilityId=%s" format(echoItUrl, postToFacebook, facebookMessage, echoPossibility.id))
 
             then("show the thank you page")
             webDriver.getTitle should equal ("Thank you")
 
             and("record the Echo in the database")
-            echo = echoDao.findByEchoPossibilityId(echoPossibility.id)
+            echo = echoDao.findByEchoPossibilityId(echo.echoPossibilityId)
+//            echo = echoDao.findByEchoPossibilityId(echoPossibility.echoPossibilityId)
             echo should not be (null)
             echo.echoedUserId should equal (echoedUser.id)
             echo.echoMetricsId should not be (null)
@@ -182,8 +194,9 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             facebookPost.postedOn should not be (null)
             facebookPost.facebookId should not be (null)
 
-            and("update the EchoPossibility with the Echo information")
-            echoHelper.validateEchoPossibility(echoPossibility.copy(echoId = echo.id, step = "echoed"), count)
+            and("update the Echo with the Echo information")
+            echo = echoHelper.validateEchoPossibility(echo, count) //.copy(echoId = echo.id, step = "echoed"), count)
+//            echoHelper.validateEchoPossibility(echoPossibility, count) //.copy(echoId = echo.id, step = "echoed"), count)
         }
 
     }
@@ -210,9 +223,8 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             webDriver.get("http://www.facebook.com/profile.php?id=%s&sk=wall" format dataCreator.facebookUser.facebookId)
             val allAnchors = JavaConversions.collectionAsScalaIterable(webDriver.findElements(By.tagName("a")))
-            val url = "%s/echo/%s/%s" format(siteUrl, echo.id, facebookPost.id)
             val firstEcho = allAnchors.find(webElement => {
-                webElement.getAttribute("href") == url
+                Option(webElement.getAttribute("href")).orElse(Some("")).map(_.contains(facebookPost.id)).get
             }).get
 
             when("the user is unknown (no echoedUserId)")
@@ -224,7 +236,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
                 if (windowHandle != currentWindowHandle) webDriver.switchTo().window(windowHandle)
 
             try {
-                webDriver.getCurrentUrl should startWith(echo.landingPageUrl)
+                webDriver.getCurrentUrl should startWith(echo.product.landingPageUrl)
             } finally {
                 try {
                     if (currentWindowHandle != webDriver.getWindowHandle) {

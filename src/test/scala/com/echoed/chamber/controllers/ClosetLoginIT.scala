@@ -43,7 +43,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     } ensuring (_ == true, "Missing parameters")
 
 
-    val echoedUser = dataCreator.echoedUser
+    val echoedUser = dataCreator.echoedUser.copy(twitterUserId = null)
     val facebookUser = dataCreator.facebookUser
     val echoes = dataCreator.echoes
     val echoMetrics = dataCreator.echoMetrics
@@ -103,6 +103,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
         scenario("a known user navigates to exhibit and is shown their closet", IntegrationTest) {
             echoes.foreach(echoDao.insert(_))
+            echoes.foreach(echoDao.updateForEcho(_))
 
             val closet = closetDao.findByEchoedUserId(echoedUser.id)
             closet should not be null

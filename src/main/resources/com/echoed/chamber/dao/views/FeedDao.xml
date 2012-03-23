@@ -64,7 +64,7 @@
             E.landingPageUrl as echoLandingPageUrl,
             R.name as retailerName
         from
-            EchoPossibility E
+            Echo E
             left outer join Retailer R on E.retailerId = R.id
         order by
             E.createdOn desc, E.id DESC
@@ -83,7 +83,7 @@
             E.landingPageUrl as echoLandingPageUrl,
             R.name as retailerName
         from
-            EchoPossibility E
+            Echo E
             left outer join Retailer R on E.retailerId = R.id
         where
             R.name = #{partnerName}

@@ -26,8 +26,8 @@ class PartnerServiceManagerActor extends Actor {
     @BeanProperty var partnerDao: RetailerDao = _
     @BeanProperty var partnerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var partnerUserDao: RetailerUserDao = _
-    @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @BeanProperty var echoDao: EchoDao = _
+    @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @BeanProperty var encrypter: Encrypter = _
     @BeanProperty var transactionTemplate: TransactionTemplate = _
     @BeanProperty var emailService: EmailService = _
@@ -121,11 +121,11 @@ class PartnerServiceManagerActor extends Actor {
                     } yield {
                         val partnerService = new PartnerServiceActorClient(Actor.actorOf(new PartnerServiceActor(
                                 partner,
-                                partnerSettings,
                                 partnerDao,
                                 partnerSettingsDao,
-                                echoPossibilityDao,
                                 echoDao,
+                                echoMetricsDao,
+                                transactionTemplate,
                                 encrypter)).start)
                         channel ! LocateResponse(msg, Right(partnerService))
                         cache.put(partnerId, partnerService)
@@ -139,8 +139,7 @@ class PartnerServiceManagerActor extends Actor {
             val me = self
             val channel: Channel[LocateByEchoIdResponse] = self.channel
 
-//            Option(echoDao.findById(echoId)).cata(
-            Option(echoPossibilityDao.findById(echoId)).cata(
+            Option(echoDao.findById(echoId)).cata(
                 echo => ((me ? Locate(echo.retailerId)).mapTo[LocateResponse]).onComplete(_.value.get.fold(
                     e => channel ! LocateByEchoIdResponse(msg, Left(PartnerException("Unexpected error", e))),
                     _ match {

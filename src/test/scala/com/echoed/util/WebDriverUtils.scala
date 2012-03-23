@@ -26,7 +26,7 @@ class WebDriverUtils extends ShouldMatchers {
     val facebookUrl = "http://www.facebook.com"
 
     def init() {
-        if (domain != "localhost" && domain != "localhost.local" && domain.charAt(0) != '.') {
+        if (domain != "localhost" && domain != "localhost.com" && domain.charAt(0) != '.') {
             domain = "." + domain
         }
     }
@@ -54,6 +54,7 @@ class WebDriverUtils extends ShouldMatchers {
                     cal.getTime})
                 .build()
         webDriver.get(echoedUrl)
+        logger.debug("Current url is: {}", webDriver.getCurrentUrl)
         val cookies = webDriver.manage().getCookies
         logger.debug("Cookies for {} are {}", echoedUrl, cookies)
         webDriver.manage().addCookie(cookie)

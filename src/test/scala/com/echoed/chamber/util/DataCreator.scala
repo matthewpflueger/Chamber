@@ -270,7 +270,7 @@ class DataCreator {
                 val categories = List("Shoes","Clothes","Random","Other","Accessories")
                 val category = categories(random.nextInt(5))
                 val picNum = random.nextInt(15) + 1
-                var e = new Echo(
+                var e = Echo.make(
                     retailerId = r.id,
                     customerId = "customerId",
                     productId = "productId",
@@ -278,18 +278,19 @@ class DataCreator {
                     orderId = "orderId",
                     price = random.nextInt(100).toFloat+5,
                     imageUrl = "%s/Pic%s.jpg" format(imagesUrl, picNum),
-                    echoedUserId = eu.id,
-                    facebookPostId = null,
-                    twitterStatusId = null,
-                    echoPossibilityId = "echoPossibilityId%s-%s-%s" format(index, num, picNum),
                     landingPageUrl = siteUrl,
-                    retailerSettingsId = rs.id,
                     productName = "productName",
                     category = category,
                     brand = "brand",
                     description = "These are amazing",
-                    echoMetricsId = null,
+                    step = null,
                     echoClickId = null)
+                e = e.copy(
+                        echoedUserId = eu.id,
+                        echoPossibilityId = "echoPossibilityId%s-%s-%s" format(index, num, picNum),
+                        retailerSettingsId = rs.id)
+
+
                 var em = new EchoMetrics(e, rs)
                 e = e.copy(echoMetricsId = em.id)
                 em = em.echoed(rs)
@@ -429,7 +430,7 @@ class DataCreator {
     val echoedUserEmail = facebookUserEmail
     val facebookUserPassword = "1234567890"
     val facebookUserLoginPageUrl = "https://www.facebook.com/platform/test_account_login.php?user_id=100003177284815&n=cbCYwnYPx73Nbm4"
-    val facebookUserAccessToken = "AAAChmwwiYUYBADniflduptYu5RhYjbgDvtjNA17OnbAJEZAhVPPsiAK2nXSxoOpGMxAaBxsa6wGn6jvNqb2UlDOVZAF8rfssCbZCMJKoAZDZD"
+    val facebookUserAccessToken = "AAAD8YEkH92ABAORXZCAzEzFRf7kOXqoV9xZCcLWzROESl0p8QmKdZAMFi1wg6WiqrQ7VA5WEq1R4UTkSydNUVnuWRYOZBFT47hReP40a7wZDZD"
 
     val facebookUser = FacebookUser(
         facebookUserId,
@@ -793,24 +794,17 @@ class DataCreator {
             updatedOn = on,
             createdOn = on,
             retailerId = retailerId,
-            customerId = customerId_1,
-            productId = productId_1,
-            boughtOn = on,
-            orderId = orderId_1,
-            price = price_1,
             imageUrl = echoImageUrl_1,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_1,
             twitterStatusId = twitterStatusId_1,
             echoPossibilityId = echoPossibilities(0).id,
-            landingPageUrl = landingPageUrl,
             retailerSettingsId = retailerSettingsFuture.id,
-            productName = productName_1,
-            category = category_1,
-            brand = brand_1,
-            description = description_1,
             echoMetricsId = null,
-            echoClickId = null)
+            echoClickId = null,
+            step = "test",
+            order = Order(echoId_1, on, on, customerId_1, on, orderId_1),
+            product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1))
 
     private val _echoes = List(
         Echo(
@@ -818,47 +812,34 @@ class DataCreator {
             updatedOn = on,
             createdOn = on,
             retailerId = retailerId,
-            customerId = customerId_1,
-            productId = productId_1,
-            boughtOn = on,
-            orderId = orderId_1,
-            price = price_1,
             imageUrl = echoImageUrl_1,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_1,
             twitterStatusId = twitterStatusId_1,
             echoPossibilityId = echoPossibilities(0).id,
-            landingPageUrl = landingPageUrl,
             retailerSettingsId = retailerSettings.id,
-            productName = productName_1,
-            category = category_1,
-            brand = brand_1,
-            description = description_1,
             echoMetricsId = null,
-            echoClickId = null),
+            echoClickId = null,
+            step = "test",
+            order = Order(echoId_1, on, on, customerId_1, on, orderId_1),
+            product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1)),
         Echo(
             id = echoId_2,
             updatedOn = on,
             createdOn = on,
             retailerId = retailerId,
-            customerId = customerId_2,
-            productId = productId_2,
-            boughtOn = on,
-            orderId = orderId_2,
-            price = price_2,
             imageUrl = echoImageUrl_2,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_2,
             twitterStatusId = twitterStatusId_2,
             echoPossibilityId = echoPossibilities(1).id,
-            landingPageUrl = landingPageUrl,
             retailerSettingsId = retailerSettings.id,
-            productName = productName_2,
-            category = category_2,
-            brand = brand_2,
-            description = description_2,
             echoMetricsId = null,
-            echoClickId = null)
+            echoClickId = null,
+            step = "test",
+            order = Order(echoId_2, on, on, customerId_2, on, orderId_2),
+            product = Product(echoId_2, on, on, productId_2, price_2, landingPageUrl, productName_2, category_2, brand_2, description_2))
+
     )
 
     val echoMetrics = _echoes.map(new EchoMetrics(_, retailerSettings))

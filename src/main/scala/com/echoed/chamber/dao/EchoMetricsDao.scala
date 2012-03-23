@@ -9,6 +9,8 @@ trait EchoMetricsDao {
 
     def insert(echoMetrics: EchoMetrics): Int
 
+    def updateForEcho(echoMetrics: EchoMetrics): Int
+
     def updateForClick(echoMetrics: EchoMetrics): Int
 
     def findByEchoId(echoId: String): EchoMetrics

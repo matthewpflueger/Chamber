@@ -90,7 +90,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             echoedUser should not be (null)
             val echoPossibility = e.copy(echoedUserId = echoedUser.id, step = "confirm")
 
-            and("record the EchoPossibility in the database")
+            and("record the Echo in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 
@@ -126,7 +126,7 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
             echoedUser should not be (null)
             val echoPossibility = e.copy(echoedUserId = echoedUser.id, step = "confirm")
 
-            and("record the EchoPossibility in the database")
+            and("record the Echo in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 

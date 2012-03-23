@@ -12,6 +12,9 @@ import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}
 import twitter4j.auth.RequestToken
+import java.util.concurrent.{ConcurrentHashMap => JConcurrentHashMap}
+import scala.collection.JavaConversions._
+import com.echoed.cache.CacheManager
 
 
 class TwitterAccessActor extends Actor {
@@ -22,14 +25,20 @@ class TwitterAccessActor extends Actor {
     @BeanProperty var consumerSecret: String = _  //Called Consumer Secret for Twitter
     @BeanProperty var callbackUrl: String = _  //Callback Url
 
+    @BeanProperty var cacheManager: CacheManager = _
+
     @BeanProperty var properties: Properties = _
 
-    private val cache = WeakHashMap[String, Twitter]()
+    import scala.collection.mutable.ConcurrentMap
+
+    private var cache: ConcurrentMap[String, Twitter] = null
+
 
     override def preStart {
         //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
         // where placeholder values were not being resolved
         {
+            cache = cacheManager.getCache[Twitter]("Twitters") //, Some(new CacheListenerActorClient(self)))
             consumerKey = properties.getProperty("consumerKey")
             consumerSecret = properties.getProperty("consumerSecret")
             //callbackUrl = properties.getProperty("callbackUrl")

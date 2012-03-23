@@ -81,6 +81,7 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
             when("the user has no associated Twitter account and their Twitter credentials matches no existing Twitter account")
             then("send them to Twitter to login")
             webDriver.findElement(By.id("addTwitterLink")).click
+            Thread.sleep(1000)
             webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
             val pass = webDriver.findElement(By.id("password"))
             pass.sendKeys(dataCreator.twitterPassword)

@@ -23,7 +23,6 @@ class EchoedUserServiceCreatorActor extends Actor {
     @BeanProperty var echoedUserDao: EchoedUserDao = _
     @BeanProperty var closetDao: ClosetDao = _
     @BeanProperty var feedDao: FeedDao = _
-    @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
     @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoedFriendDao: EchoedFriendDao = _
@@ -149,7 +148,6 @@ class EchoedUserServiceCreatorActor extends Actor {
                             closetDao = closetDao,
                             echoedFriendDao = echoedFriendDao,
                             feedDao = feedDao,
-                            echoPossibilityDao = echoPossibilityDao,
                             retailerSettingsDao = retailerSettingsDao,
                             echoDao = echoDao,
                             echoMetricsDao = echoMetricsDao,

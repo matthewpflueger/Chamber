@@ -17,7 +17,7 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="echoPossibilityResult" type="com.echoed.chamber.domain.EchoPossibility">
+    <resultMap id="echoPossibilityResult" type="com.echoed.chamber.domain.Echo">
         <constructor>
             <idArg column="id" javaType="String"/>
             <arg column="updatedOn" javaType="Date" />
@@ -61,29 +61,10 @@
             0,20
     </select>
 
-    <select id="getEchoPossibilities" resultMap="echoPossibilityResult">
-        select
-            id,
-            updatedOn,
-            createdOn,
-            retailerId,
-            customerId,
-            productId,
-            boughtOn,
-            step,
-            orderId,
-            price,
-            imageUrl,
-            echoedUserId,
-            echoId,
-            landingPageUrl,
-            productName,
-            category,
-            brand,
-            description,
-            echoClickId
+    <select id="getEchoPossibilities" resultMap="com.echoed.chamber.dao.EchoDao.echoResult">
+        select *
         from
-            EchoPossibility
+            Echo
         order by
             createdOn desc
         limit

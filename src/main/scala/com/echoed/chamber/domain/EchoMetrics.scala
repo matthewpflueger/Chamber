@@ -31,7 +31,7 @@ case class EchoMetrics(
         echo.retailerId,
         echo.retailerSettingsId,
         echo.price,
-        retailerSettings.creditWindowEndsAt,
+        null,
         0,
         0,
         0,
@@ -44,10 +44,11 @@ case class EchoMetrics(
         require(retailerSettingsId == rs.id)
         require(credit == 0)
         require(fee == 0)
-        require(totalClicks == 0)
+        require(creditWindowEndsAt == null)
+        //require(totalClicks == 0)
 
         val (cr, fe) = update(0, rs.closetPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage)
-        this.copy(credit = cr, fee = fe)
+        this.copy(credit = cr, fee = fe, creditWindowEndsAt = rs.creditWindowEndsAt)
     }
 
     def clicked(rs: RetailerSettings): EchoMetrics = {

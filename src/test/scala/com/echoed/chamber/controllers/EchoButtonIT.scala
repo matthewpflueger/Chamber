@@ -120,7 +120,7 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
             then("redirect to the button")
             webDriver.getCurrentUrl should equal (buttonViewUrl)
 
-            and("record the EchoPossibility in the database")
+            and("record the Echo in the database")
             echoHelper.validateEchoPossibility(echoPossibility, count)
         }
 

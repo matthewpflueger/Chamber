@@ -8,32 +8,30 @@ import java.util.Date
 
 
 @RunWith(classOf[JUnitRunner])
-class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
+class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
 
-    describe("An EchoPossibility") {
+    describe("An Echo") {
 
         it("should return null for the id if missing properties") {
-            given("a newly instantiated EchoPossibility")
-            val echoPossibility = new EchoPossibility(null, null, null, null, null, null, 0, null, null, null, null,null,null,null,null,null)
+            given("a newly instantiated Echo")
+            val echo = Echo.make(null, null, null, null, "step", null, 0, null, null, null, null, null, null, null)
 
             when("no properties have been set")
             then("the id should be null")
-            echoPossibility.id should be (null)
+            echo.echoPossibilityId should be (null)
         }
 
         it("should return a url safe base 64 string when all necessary properties are set") {
-            given("an EchoPossibility with all necessary properties set")
-            val echoPossibility = new EchoPossibility(
+            given("an Echo with all necessary properties set")
+            val echo = Echo.make(
                 "retailerId",
                 "customerId",
                 "productId",
                 new Date,
-                null,
+                "test",
                 "orderId",
                 100,
                 "imageUrl",
-                null,
-                null,
                 "landingPageUrl",
                 "productName",
                 "category",
@@ -43,22 +41,20 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
 
             when("all necessary properties have been set")
             then("the id should return a valid base64 string")
-            echoPossibility.id should not be (null)
+            echo.echoPossibilityId should not be (null)
         }
 
         it("should return a map of its properties") {
-            given("an EchoPossibility")
-            val echoPossibility = new EchoPossibility(
+            given("an Echo")
+            val echo = Echo.make(
                 "retailerId",
                 "customerId",
                 "productId",
                 new Date,
-                null,
+                "test",
                 "orderId",
                 100,
                 "imageUrl",
-                null,
-                null,
                 "landingPageUrl",
                 "productName",
                 "category",
@@ -67,25 +63,23 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
                 "echoClickId")
 
             when("asMap is called")
-            val map = echoPossibility.asMap
+            val map = echo.asMap
 
             then("a map of all its properties should be returned")
             map.get("retailerId").get should equal ("retailerId")
         }
 
         it("should return a url string of its properties") {
-            given("an EchoPossibility")
-            val echoPossibility = new EchoPossibility(
+            given("an Echo")
+            val echo = Echo.make(
                 "retailerId",
                 "customerId",
                 "productId",
                 new Date,
-                null,
+                "test",
                 "orderId",
                 100,
                 "imageUrl",
-                null,
-                null,
                 "landingPageUrl",
                 "productName",
                 "category",
@@ -94,7 +88,7 @@ class EchoPossibilityTest extends Spec with GivenWhenThen with ShouldMatchers {
                 "echoClickId")
 
             when("asUrlParams is called")
-            val urlParams = echoPossibility.asUrlParams()
+            val urlParams = echo.asUrlParams()
 
             then("a string of all its properties should be returned in the form of url parameters")
             urlParams should not be (null)

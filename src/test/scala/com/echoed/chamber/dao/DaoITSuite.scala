@@ -11,7 +11,6 @@ class DaoITSuite extends Suites(
     new EchoDaoIT,
     new EchoedUserDaoIT,
     new EchoedFriendDaoIT,
-    new EchoPossibilityDaoIT,
     new FacebookFriendDaoIT,
     new FacebookPostDaoIT,
     new FacebookUserDaoIT,

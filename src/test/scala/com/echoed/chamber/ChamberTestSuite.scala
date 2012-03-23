@@ -8,7 +8,7 @@ import com.echoed.chamber.domain._
 
 @RunWith(classOf[JUnitRunner])
 class ChamberTestSuite extends Suites(
-    new EchoPossibilityTest,
+    new EchoTest,
     new EchoMetricsTest,
     new RetailerUserTest,
     new RetailerSettingsTest,

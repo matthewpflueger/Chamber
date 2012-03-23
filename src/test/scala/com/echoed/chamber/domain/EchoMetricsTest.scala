@@ -22,7 +22,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             activeOn = new Date,
             creditWindow = 1)
 
-    var echo = new Echo(
+    var echo = Echo.make(
             retailerId = "retailerId",
             customerId = "customerId",
             productId = "productId",
@@ -30,20 +30,22 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             orderId = "orderId",
             price = 10.00f,
             imageUrl = "imageUrl",
-            echoedUserId = "echoedUserId",
-            facebookPostId = "facebookPostId",
-            twitterStatusId = "twitterStatusId",
-            echoPossibilityId = "echoPossibilityId",
             landingPageUrl = "landingPageUrl",
             productName= "My Awesome Boots",
             category= "Footwear",
             brand = "Nike",
             description = "These are amazing boots",
-            retailerSettingsId = retailerSettings.id,
-            echoMetricsId = null,
-            echoClickId = null)
+            echoClickId = null,
+            step = "test")
+    echo = echo.copy(
+            echoedUserId = "echoedUserId",
+            facebookPostId = "facebookPostId",
+            twitterStatusId = "twitterStatusId",
+            echoPossibilityId = "echoPossibilityId",
+            retailerSettingsId = retailerSettings.id)
 
     var echoMetrics = new EchoMetrics(echo, retailerSettings)
+    echo = echo.copy(echoMetricsId = echoMetrics.id)
 
     def verifyZeroResidual(em: EchoMetrics) {
         em.residualClicks should be(0)
@@ -151,7 +153,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             when("clicked multiple times")
             then("it should calculate the fee up to max echoed percentage")
             retailerSettings = retailerSettings.copy(echoedMaxPercentage = 0.15f)
-            echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0)
+            echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0, creditWindowEndsAt = null)
 
             echoMetrics = echoMetrics.echoed(retailerSettings)
 
@@ -181,7 +183,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             when("clicked multiple times")
             then("it should calculate the fee using echoed match percentage up to echoed max percentage ")
             retailerSettings = retailerSettings.copy(echoedMaxPercentage = 0.18f, echoedMatchPercentage = 0.8f)
-            echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0)
+            echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0, creditWindowEndsAt = null)
 
             echoMetrics = echoMetrics.echoed(retailerSettings)
             echoMetrics.totalClicks should be (0)
@@ -235,7 +237,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             when("clicked multiple times within the credit window")
             then("it should calculate the credit and fee only when in the credit window")
             retailerSettings = retailerSettings.copy(echoedMaxPercentage = 0.2f, echoedMatchPercentage = 1f)
-            echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0)
+            echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0, creditWindowEndsAt = null)
 
             echoMetrics = echoMetrics.echoed(retailerSettings)
             echoMetrics.totalClicks should be (0)

@@ -80,17 +80,32 @@
                 #{residualFee})
     </insert>
 
+    <update id="updateForEcho" parameterType="com.echoed.chamber.domain.EchoMetrics">
+        update EchoMetrics set
+            echoedUserId = #{echoedUserId},
+            creditWindowEndsAt = #{creditWindowEndsAt},
+            totalClicks = #{totalClicks},
+            clicks = #{clicks},
+            credit = #{credit},
+            fee = #{fee},
+            residualClicks = #{residualClicks},
+            residualCredit = #{residualCredit},
+            residualFee = #{residualFee}
+        where
+            id = #{id}
+    </update>
+
     <update id="updateForClick" parameterType="com.echoed.chamber.domain.EchoMetrics">
         update EchoMetrics set
-            totalClicks=#{totalClicks},
-            clicks=#{clicks},
-            credit=#{credit},
-            fee=#{fee},
-            residualClicks=#{residualClicks},
-            residualCredit=#{residualCredit},
-            residualFee=#{residualFee}
+            totalClicks = #{totalClicks},
+            clicks = #{clicks},
+            credit = #{credit},
+            fee = #{fee},
+            residualClicks = #{residualClicks},
+            residualCredit = #{residualCredit},
+            residualFee = #{residualFee}
         where
-            id=#{id}
+            id = #{id}
     </update>
 
     <delete id="deleteByEchoId">

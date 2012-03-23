@@ -27,7 +27,6 @@ class EchoedUserServiceActor(
         closetDao: ClosetDao,
         echoedFriendDao: EchoedFriendDao,
         feedDao: FeedDao,
-        echoPossibilityDao: EchoPossibilityDao,
         retailerSettingsDao: RetailerSettingsDao,
         echoDao: EchoDao,
         echoMetricsDao: EchoMetricsDao,
@@ -180,19 +179,21 @@ class EchoedUserServiceActor(
             val channel: Channel[EchoToResponse] = self.channel
 
             try {
-                Option(echoPossibilityDao.findById(echoPossibilityId)).cata(
+                //TODO finding by either id is to support the old integration method - should just use findById...
+                Option(echoDao.findByIdOrEchoPossibilityId(echoPossibilityId)).cata(
                     ep => {
-                        Option(retailerSettingsDao.findByActiveOn(ep.retailerId, new Date)).cata(
+                        Option(retailerSettingsDao.findById(ep.retailerSettingsId)).cata(
                             retailerSettings => {
-                                var echo = new Echo(ep, retailerSettings)
-                                val echoMetrics = new EchoMetrics(echo, retailerSettings).echoed(retailerSettings)
-                                echo = echo.copy(echoMetricsId = echoMetrics.id)
-                                echoDao.insert(echo)
-                                echoMetricsDao.insert(echoMetrics)
 
-                                Future {
-                                    echoPossibilityDao.insertOrUpdate(ep.copy(echoId = echo.id, step = "%s,echoed" format(ep.step)))
-                                }
+                                var echo = ep.copy(echoedUserId = echoedUser.id, step = "%s,echoed" format ep.step)
+                                val echoMetrics = echoMetricsDao
+                                        .findById(echo.echoMetricsId)
+                                        .copy(echoedUserId = echoedUser.id)
+                                        .echoed(retailerSettings)
+                                echoMetricsDao.updateForEcho(echoMetrics)
+                                echo = echo.copy(echoMetricsId = echoMetrics.id)
+                                echoDao.updateForEcho(echo)
+
 
                                 val requestList = MList[(ActorRef, Message)]()
 
@@ -207,12 +208,12 @@ class EchoedUserServiceActor(
                             },
                             {
                                 channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))
-                                logger.warn("Did not find RetailerSettings for Retailer {} for EchoPossibility {}", ep.retailerId, ep.id)
+                                logger.warn("Did not find RetailerSettings {} for Echo {}", ep.retailerSettingsId, ep.id)
                             })
                     },
                     {
                         channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))
-                        logger.debug("Did not find EchoPossibility {}", msg.echoPossibilityId)
+                        logger.debug("Did not find Echo {}", msg.echoPossibilityId)
                     })
             } catch {
                 case e =>

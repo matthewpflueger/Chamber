@@ -156,7 +156,6 @@
                 sum(EC.echoClicks) as echoClicks,
                 sum(EP.sales) as totalSales,
                 sum(EP.volume) as totalSalesVolume
-
             FROM
                 Echo E
                 LEFT OUTER JOIN
@@ -201,11 +200,11 @@
                         count(id) as volume,
                         sum(price) as sales
                     from
-                        EchoPossibility
+                        Echo
                     group by
                         id
                 )
-                EP ON EP.id = E.echoPossibilityId
+                EP ON EP.id = E.id
             GROUP BY
                 E.id
         )
@@ -527,7 +526,7 @@
         select
             coalesce(sum(EP.price),0)
         from
-            EchoPossibility EP
+            Echo EP
         where
             EP.retailerId = #{retailerId}
             <if test="echoedUserId != null">
@@ -543,7 +542,7 @@
         select
             count(id)
         from
-            EchoPossibility EP
+            Echo EP
         where
             EP.retailerId = #{retailerId}
             <if test="echoedUserId != null">
@@ -675,7 +674,7 @@
             Date(EP.createdOn) as date,
             count(EP.id) as total
         from
-            EchoPossibility EP
+            Echo EP
         where
             EP.retailerId= #{retailerId}
             <if test="echoedUserId != null">
@@ -694,7 +693,7 @@
             Date(EP.createdOn) as date,
             sum(EP.price) as total
         from
-            EchoPossibility EP
+            Echo EP
         where
             EP.retailerId= #{retailerId}
             <if test="echoedUserId != null">

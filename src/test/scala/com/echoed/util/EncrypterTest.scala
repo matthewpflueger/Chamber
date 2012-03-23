@@ -59,7 +59,7 @@ class EncrypterTest extends Spec with GivenWhenThen with ShouldMatchers {
             then("it should match typical php AES encryption of the same string")
 
             val s = Base64.encodeBase64URLSafeString("1234567890123456".getBytes("US-ASCII"))
-            val cT = encrypter.encrypt(text, s)
+            val cT = encrypter.encrypt(text, s, false)
 
             val hCT = Hex.encodeHexString(Base64.decodeBase64(cT))
             //see http://www.chilkatsoft.com/p/php_aes.asp

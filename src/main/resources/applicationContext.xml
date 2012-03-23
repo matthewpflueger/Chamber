@@ -134,9 +134,9 @@
         <!--suppress SpringModelInspection -->
         <property name="partnerUserDao" ref="partnerUserDao" />
         <!--suppress SpringModelInspection -->
-        <property name="echoPossibilityDao" ref="echoPossibilityDao" />
-        <!--suppress SpringModelInspection -->
         <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
         <!--suppress SpringModelInspection -->
         <property name="encrypter" ref="encrypter" />
         <!--suppress SpringModelInspection -->
@@ -209,13 +209,13 @@
         <!--suppress SpringModelInspection -->
         <property name="echoMetricsDao" ref="echoMetricsDao" />
         <!--suppress SpringModelInspection -->
-        <property name="echoPossibilityDao" ref="echoPossibilityDao" />
-        <!--suppress SpringModelInspection -->
         <property name="retailerDao" ref="partnerDao" />
         <!--suppress SpringModelInspection -->
         <property name="retailerSettingsDao" ref="partnerSettingsDao" />
         <!--suppress SpringModelInspection -->
         <property name="echoClickDao" ref="echoClickDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="transactionTemplate" ref="transactionTemplate" />
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -224,6 +224,8 @@
            autostart="true">
         <!--suppress SpringModelInspection -->
         <property name="properties" ref="twitterAccessProperties"/>
+        <!--suppress SpringModelInspection -->
+        <property name="cacheManager" ref="cacheManager" />
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -270,8 +272,6 @@
         <property name="echoDao" ref="echoDao" />
         <!--suppress SpringModelInspection -->
         <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoPossibilityDao" ref="echoPossibilityDao" />
         <!--suppress SpringModelInspection -->
         <property name="retailerSettingsDao" ref="partnerSettingsDao" />
     </akka:untyped-actor>

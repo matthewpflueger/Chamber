@@ -102,7 +102,7 @@ class FacebookLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             eu.email should be (facebookUser.email)
             eu.facebookUserId should equal (facebookUser.id)
 
-            and("record the EchoPossibility in the database")
+            and("record the Echo in the database")
             echoHelper.validateEchoPossibility(ep.copy(echoedUserId = eu.id, step = "confirm"), count)
         }
 

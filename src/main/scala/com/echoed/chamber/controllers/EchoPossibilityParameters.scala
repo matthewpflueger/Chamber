@@ -2,11 +2,9 @@ package com.echoed.chamber.controllers
 
 import reflect.BeanProperty
 import java.util.Date
-import org.apache.commons.codec.binary.Base64
-import collection.mutable.ArrayBuilder
-import java.net.URLEncoder
-import com.echoed.chamber.domain.EchoPossibility
+import com.echoed.chamber.domain.Echo
 
+@deprecated(message = "This class is part of the old integration method which will be removed asap")
 case class EchoPossibilityParameters(
         @BeanProperty var retailerId: String = null,
         @BeanProperty var customerId: String = null,
@@ -31,14 +29,18 @@ case class EchoPossibilityParameters(
     }
 
 
-
+    @deprecated
     def createLoginEchoPossibility = createEchoPossibilityWithStep("login")
+    @deprecated
     def createButtonEchoPossibility = createEchoPossibilityWithStep("button")
+    @deprecated
     def createConfirmEchoPossibility = createEchoPossibilityWithStep("confirm")
+    @deprecated
     def createFacebookEchoPossibility = createEchoPossibilityWithStep("facebook")
+    @deprecated
     def createTwitterEchoPossibility = createEchoPossibilityWithStep("twitter")
 
-    private def createEchoPossibilityWithStep(step: String) = new EchoPossibility(
+    private def createEchoPossibilityWithStep(step: String) = Echo.make(
             retailerId,
             customerId,
             productId,
@@ -47,8 +49,6 @@ case class EchoPossibilityParameters(
             orderId,
             price,
             imageUrl,
-            echoedUserId,
-            echoId,
             landingPageUrl,
             productName,
             category,

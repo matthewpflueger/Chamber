@@ -43,9 +43,13 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
     override def beforeAll = {
         cleanup
         echoedUserDao.insert(echoedUser)
-        echoes.foreach(echoDao.insert(_))
+        echoes.foreach { echo =>
+            echoDao.insert(echo)
+            echoDao.updateForEcho(echo)
+        }
         echoMetrics.map(_.echoed(retailerSettings).clicked(retailerSettings).clicked(retailerSettings)).foreach(echoMetricsDao.insert(_))
     }
+
     override def afterAll = cleanup
 
     feature("A developer can view Closet data") {

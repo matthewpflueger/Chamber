@@ -21,5 +21,10 @@
         <property name="javaMailProperties" ref="mailProperties" />
     </bean>
 
+    <bean id="globalsManager" class="com.echoed.chamber.services.GlobalsManager" >
+        <property name="urlsProperties" ref="urlsProperties" />
+        <property name="gitProperties" ref="gitProperties" />
+        <property name="facebookClientId" value="${facebook.clientId}" />
+    </bean>
 
 </beans>

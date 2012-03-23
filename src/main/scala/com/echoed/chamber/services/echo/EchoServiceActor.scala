@@ -9,29 +9,33 @@ import scala.Option
 import com.echoed.chamber.dao.views.RetailerViewDao
 import com.echoed.chamber.dao._
 import com.echoed.chamber.domain.views.EchoPossibilityView
-import com.echoed.chamber.domain.{EchoPossibility, EchoClick, Echo}
 import java.util.Date
 
 import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}
+import com.echoed.chamber.domain.{EchoMetrics, EchoClick, Echo}
+import org.springframework.transaction.TransactionStatus
+import com.echoed.util.TransactionUtils._
+import org.springframework.transaction.TransactionStatus
+import org.springframework.transaction.support.TransactionTemplate
 
 
 class EchoServiceActor extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoServiceActor])
 
-    @BeanProperty var echoPossibilityDao: EchoPossibilityDao = _
-    @BeanProperty var retailerViewDao: RetailerViewDao = _
     @BeanProperty var retailerDao: RetailerDao = _
     @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @BeanProperty var echoClickDao: EchoClickDao = _
+    @BeanProperty var transactionTemplate: TransactionTemplate = _
 
 
     def receive = {
-        case msg @ RecordEchoPossibility(echoPossibility: EchoPossibility) =>
+        //TODO RecordEchoPossibility is deprecated and will be deleted asap!
+        case msg @ RecordEchoPossibility(echoPossibility: Echo) =>
             import com.echoed.chamber.services.echo.{RecordEchoPossibilityResponse => REPR}
 
             val channel: Channel[REPR] = self.channel
@@ -45,7 +49,7 @@ class EchoServiceActor extends Actor {
                 Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date))
             }
             val echoFuture = Future {
-                Option(echoDao.findByEchoPossibilityId(echoPossibility.id))
+                Option(echoDao.findByEchoPossibilityId(echoPossibility.echoPossibilityId))
             }
 
             (for {
@@ -57,15 +61,30 @@ class EchoServiceActor extends Actor {
 
                 try {
                     //this checks to see if we have the minimum info for recording an echo possibility...
-                    Option(echoPossibility.id).get
+                    Option(echoPossibility.echoPossibilityId).get
                     val epv = new EchoPossibilityView(echoPossibility, retailer.get, retailerSettings.get)
 
                     echo.cata(
-                        ec => channel ! REPR(msg, Left(EchoExists(epv.copy(echo = ec), "Item already echoed"))),
+                        ec => {
+                            if (ec.isEchoed) {
+                                channel ! REPR(msg, Left(EchoExists(epv.copy(echo = ec), "Item already echoed")))
+                            } else {
+                                ec.copy(step = "%s,%s" format(ec.step, echoPossibility.step))
+                                echoDao.updateForStep(ec)
+                                channel ! REPR(msg, Right(epv.copy(echo = ec)))
+                            }
+                        },
                         {
-                            channel ! REPR(msg, Right(epv))
-                            echoPossibilityDao.insertOrUpdate(echoPossibility)
-                            logger.debug("Recorded {}", echoPossibility)
+                            var ec = echoPossibility.copy(retailerSettingsId = retailerSettings.get.id)
+                            val echoMetrics = new EchoMetrics(ec, retailerSettings.get)
+                            ec = ec.copy(echoMetricsId = echoMetrics.id)
+                            transactionTemplate.execute({status: TransactionStatus =>
+                                echoMetricsDao.insert(echoMetrics)
+                                echoDao.insert(ec)
+                            })
+
+                            channel ! REPR(msg, Right(epv.copy(echo = ec)))
+                            logger.debug("Recorded {}", ec)
                         })
                 } catch {
                     case e: NoSuchElementException =>
@@ -98,7 +117,7 @@ class EchoServiceActor extends Actor {
             val channel: Channel[GetEchoPossibilityResponse] = self.channel
 
             Future {
-                Option(echoPossibilityDao.findById(echoPossibilityId)).cata(
+                Option(echoDao.findById(echoPossibilityId)).cata(
                     ep => channel ! GetEchoPossibilityResponse(msg, Right(ep)),
                     channel ! GetEchoPossibilityResponse(msg, Left(EchoPossibilityNotFound(echoPossibilityId)))
                 )
@@ -118,46 +137,42 @@ class EchoServiceActor extends Actor {
                 logger.error("Error processing %s" format msg, e)
             }
 
-            Future {
-                Option(echoPossibilityDao.findByIdOrEchoId(echoClick.echoId)).cata(
-                    echoPossibility =>{
-                        logger.debug("Found EchoPossibility {}", echoPossibility);
-                        logger.debug("Echo Click {}", echoClick);
-                        channel.tryTell(RecordEchoClickResponse(msg, Right(echoPossibility)))
+            try {
+                Option(echoDao.findById(echoClick.echoId)).cata(
+                    echo => {
+                        logger.debug("Found {}", echo);
+                        logger.debug("Recording {}", echoClick);
+                        channel tryTell RecordEchoClickResponse(msg, Right(echo))
 
-                        Option(echoDao.findById(echoPossibility.echoId)).cata(
-                            echo => {
-                                Future {
-                                    val ec = determinePostId(echo, echoClick, postId)
-                                    echoClickDao.insert(ec.copy( echoPossibilityId = echo.echoPossibilityId))
-                                    logger.debug("Successfully recorded click for Echo {}", echo.id)
-                                }.onException {
-                                    case e => logger.error("Failed to save echo click %s for %s" format(echoClick, echo))
-                                }
+                        //this really should be sent to another actor that has a durable mailbox...
+                        Future {
+                            val ec = determinePostId(echo, echoClick, postId)
+                            echoClickDao.insert(ec.copy(echoPossibilityId = echo.echoPossibilityId))
+                            logger.debug("Successfully recorded click for Echo {}", echo.id)
 
-                                val emf = Future { Option(echoMetricsDao.findById(echo.echoMetricsId)).get }
-                                val rsf = Future { Option(retailerSettingsDao.findById(echo.retailerSettingsId)).get }
-
-                                (for {
-                                    echoMetrics <- emf
-                                    retailerSettings <- rsf
-                                } yield {
-                                    val clickedEcho = echoMetrics.clicked(retailerSettings)
-                                    echoMetricsDao.updateForClick(clickedEcho)
-                                    logger.debug("Successfully updated click metrics for {}", clickedEcho.echoId)
-                                }).onException {
-                                    case e => logger.error("Failed to save echo click metrics for %s" format echo, e)
-                                }
-                            },
-                        {
-                            echoClickDao.insert(echoClick.copy(echoId = null, echoPossibilityId = echoClick.echoId))
-                        })
+                            (for {
+                                echoMetrics <- Option(echoMetricsDao.findById(echo.echoMetricsId))
+                                retailerSettings <- Option(retailerSettingsDao.findById(echo.retailerSettingsId))
+                            } yield {
+                                val clickedEcho = echoMetrics.clicked(retailerSettings)
+                                echoMetricsDao.updateForClick(clickedEcho)
+                                logger.debug("Successfully updated click metrics for {}", clickedEcho.echoId)
+                                true
+                            }).orElse {
+                                logger.error("Failed to save echo click metrics for %s" format echo)
+                                None
+                            }
+                        }.onException {
+                            case e => logger.error("Failed to save echo click %s for %s" format(echoClick, echo), e)
+                        }
                     },
                     {
                         channel ! RecordEchoClickResponse(msg, Left(EchoNotFound(echoClick.echoId)))
                         logger.error("Did not find echo to record click, postId {}, {}", postId, echoClick)
                     })
-            }.onException { case e => error(e) }
+            } catch {
+                case e => error(e)
+            }
     }
 
     def determinePostId(echo: Echo, echoClick: EchoClick, postId: String) =

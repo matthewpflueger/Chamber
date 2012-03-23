@@ -16,6 +16,7 @@ import javax.mail.{Flags, Folder, Session}
 import scala.reflect.BeanProperty
 import com.samskivert.mustache.Template
 import com.echoed.util.mustache.{MustacheEngine, MustacheView, MustacheViewResolver}
+import com.echoed.chamber.services.GlobalsManager
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:emailIT.xml"))
@@ -25,6 +26,7 @@ class EmailServiceActorIT extends FeatureSpec with GivenWhenThen with ShouldMatc
 
     @Autowired @BeanProperty var javaMailSender: JavaMailSender = _
     @Autowired @BeanProperty var mailProperties: Properties = _
+    @Autowired @BeanProperty var globalsManager: GlobalsManager = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
@@ -46,6 +48,7 @@ class EmailServiceActorIT extends FeatureSpec with GivenWhenThen with ShouldMatc
             val actorRef = TestActorRef[EmailServiceActor]
             actorRef.underlyingActor.from = "no-reply-dev@echoed.com"
             actorRef.underlyingActor.javaMailSender = javaMailSender
+            actorRef.underlyingActor.globalsManager = globalsManager
             actorRef.underlyingActor.mustacheEngine = new MustacheEngine {
                 override def compile(templateName: String) = {
                     templateName should equal(uuid)

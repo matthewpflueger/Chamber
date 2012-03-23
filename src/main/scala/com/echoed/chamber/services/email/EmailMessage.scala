@@ -1,8 +1,6 @@
 package com.echoed.chamber.services.email
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.views.EchoPossibilityView
-import com.echoed.chamber.domain.{EchoClick, Echo, EchoPossibility}
 import java.util.{Map => JMap}
 
 

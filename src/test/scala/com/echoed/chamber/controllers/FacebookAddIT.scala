@@ -133,6 +133,7 @@ class FacebookAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
 
                 and("do not add the Facebook account")
+                Thread.sleep(1000)
                 webDriver.getTitle should startWith ("Echoed")
                 evaluating { webDriver.findElement(By.id("facebookAccount")) } should produce [org.openqa.selenium.NoSuchElementException]
                 webDriver.findElement(By.id("addFacebookLink")) should not be(null)
