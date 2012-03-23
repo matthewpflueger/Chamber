@@ -402,7 +402,7 @@ class EchoController {
                                             URLEncoder.encode("echo?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
                                     val modelAndView = new ModelAndView(confirmView)
                                     modelAndView.addObject("echoedUser", echoedUser)
-                                    modelAndView.addObject("echoPossibility", echoPossibility)
+                                    modelAndView.addObject("echoPossibility", epv.echo)
                                     modelAndView.addObject("retailer", epv.retailer)
                                     modelAndView.addObject("retailerSettings", epv.retailerSettings)
                                     modelAndView.addObject("logoutUrl", lu)
