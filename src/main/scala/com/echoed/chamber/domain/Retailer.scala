@@ -1,7 +1,7 @@
 package com.echoed.chamber.domain
 
 import java.util.{UUID, Date}
-
+import shopify.ShopifyUser
 
 case class Retailer(
         id: String,
@@ -14,7 +14,6 @@ case class Retailer(
         logo: String,
         secret: String,
         category: String) {
-
 
     def this(
             name: String,
@@ -41,5 +40,17 @@ case class Retailer(
         UUID.randomUUID.toString,
         UUID.randomUUID.toString,
         UUID.randomUUID.toString)
+
+    def this(shopifyUser: ShopifyUser) = this(
+        shopifyUser.partnerId,
+        new Date,
+        new Date,
+        shopifyUser.name,
+        shopifyUser.domain,
+        shopifyUser.phone,
+        null,
+        null,
+        UUID.randomUUID.toString,
+        "Other")
 }
 

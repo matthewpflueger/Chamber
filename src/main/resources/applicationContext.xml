@@ -121,7 +121,18 @@
     <bean id="adminUserServiceLocator" class="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActorClient">
         <property name="adminUserServiceLocatorActor"  ref="adminUserServiceLocatorActor" />
     </bean>
+    
+    <bean id="shopifyUserServiceCreator" class="com.echoed.chamber.services.shopify.ShopifyUserServiceCreatorActorClient">
+        <property name="shopifyUserServiceCreatorActor" ref="shopifyUserServiceCreatorActor"/>
+    </bean>
+    
+    <bean id="shopifyUserServiceLocator" class="com.echoed.chamber.services.shopify.ShopifyUserServiceLocatorActorClient">
+        <property name="shopifyUserServiceLocatorActor" ref="shopifyUserServiceLocatorActor" />
+    </bean>
 
+    <bean id="shopifyAccess" class="com.echoed.chamber.services.shopify.ShopifyAccessActorClient">
+        <property name="shopifyAccessActor" ref="shopifyAccessActor"/>
+    </bean>
 
     <akka:untyped-actor
             id="partnerServiceManagerActor"
@@ -328,6 +339,37 @@
             <!--suppress SpringModelInspection -->
             <property name="cacheManager" ref="cacheManager" />
     </akka:untyped-actor>
+    
+    <akka:untyped-actor
+            id="shopifyUserServiceCreatorActor"
+            implementation="com.echoed.chamber.services.shopify.ShopifyUserServiceCreatorActor"
+            autostart="true">
+            <!--suppress SpringModelInspection -->
+            <property name="shopifyAccess" ref="shopifyAccess"/>
+            <!--suppress SpringModelInspection -->
+            <property name="shopifyUserDao" ref="shopifyUserDao"/>
+    </akka:untyped-actor>
+    
+    <akka:untyped-actor
+            id="shopifyUserServiceLocatorActor"
+            implementation="com.echoed.chamber.services.shopify.ShopifyUserServiceLocatorActor"
+            autostart="true">
+            <!--suppress SpringModelInspection -->
+            <property name="shopifyUserServiceCreator" ref="shopifyUserServiceCreator"/>
+            <!--suppress SpringModelInspection -->
+            <property name="cacheManager" ref="cacheManager"/>
+    </akka:untyped-actor>
+
+
+    <akka:untyped-actor
+            id="shopifyAccessActor"
+            implementation="com.echoed.chamber.services.shopify.ShopifyAccessActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="shopifyAccessProperties" />
+    </akka:untyped-actor>
+
+    
 
 
     <akka:untyped-actor

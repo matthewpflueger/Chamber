@@ -12,6 +12,9 @@ class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorC
 
     def registerPartner(partner: Retailer, partnerSettings: RetailerSettings, partnerUser: RetailerUser) =
             (actorRef ? RegisterPartner(partner, partnerSettings, partnerUser)).mapTo[RegisterPartnerResponse]
+    
+    def updatePartnerSettings(partnerSettings: RetailerSettings) =
+            (actorRef ? UpdatePartnerSettings(partnerSettings)).mapTo[UpdatePartnerSettingsResponse]
 
     def locatePartnerService(partnerId: String) =
             (actorRef ? Locate(partnerId)).mapTo[LocateResponse]

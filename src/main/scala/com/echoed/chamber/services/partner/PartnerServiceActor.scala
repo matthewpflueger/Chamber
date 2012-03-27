@@ -30,6 +30,11 @@ class PartnerServiceActor(
     self.id = "Partner:%s" format partner.id
 
     def receive = {
+
+        case msg @ GetPartner() =>
+            val channel: Channel[GetPartnerResponse] = self.channel
+            channel ! GetPartnerResponse(msg, Right(partner))
+
         case msg @ RequestEcho(request, ipAddress, echoedUserId, echoClickId) =>
             val channel: Channel[RequestEchoResponse] = self.channel
 
@@ -86,6 +91,70 @@ class PartnerServiceActor(
                 case e =>
                     logger.error("Error processing %s" format e, msg)
                     channel ! RequestEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
+            }
+
+        case msg @ RequestShopifyEcho(order, ipAddress, echoedUserId, echoClickId) =>
+            val channel: Channel[RequestShopifyEchoResponse] = self.channel
+
+            logger.debug("Received {}", msg)
+            try {
+                val items = order.lineItems.map { li => 
+                    val ei = new EchoItem()
+                    ei.productId = li.productId
+                    ei.productName = li.product.title
+                    ei.category = li.product.category
+                    ei.brand = partner.name
+                    ei.price = li.price.toFloat
+                    ei.imageUrl = li.product.imageSrc
+                    ei.landingPageUrl = li.product.imageSrc
+                    ei.description = li.product.description
+                    ei
+                }
+                val echoRequest: EchoRequest = new EchoRequest()
+                echoRequest.items = items
+                echoRequest.customerId = order.customerId
+                echoRequest.orderId = order.orderId
+                echoRequest.boughtOn = new Date
+                logger.debug("Echo Request: {}", echoRequest)
+                val echoPossibilities = echoRequest.items.map { i=>
+                    new EchoPossibility(
+                        partner.id,
+                        echoRequest.customerId,
+                        i.productId,
+                        echoRequest.boughtOn,
+                        "request",
+                        echoRequest.orderId,
+                        i.price,
+                        i.imageUrl,
+                        echoedUserId.orNull,
+                        null,
+                        i.landingPageUrl,
+                        i.productName,
+                        i.category,
+                        i.brand,
+                        i.description.take(1023),
+                        echoClickId.orNull)
+                }.filter { ep =>
+                    try {
+                        echoPossibilityDao.insertOrUpdate(ep)
+                        true
+                    } catch { case e => logger.error("Could not save %s" format ep, e ); false }
+                    
+                }
+                
+                if (echoPossibilities.isEmpty) {
+                    channel ! RequestShopifyEchoResponse(msg, Left(InvalidEchoRequest()))
+                } else {
+                    channel ! RequestShopifyEchoResponse(
+                            msg,
+                            Right(new EchoPossibilityView(echoPossibilities, partner, partnerSettings))
+                    )
+                }
+
+            } catch {
+                case e =>
+                    logger.error("Error processing %s" format e, msg)
+                    channel ! RequestShopifyEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
             }
 
 

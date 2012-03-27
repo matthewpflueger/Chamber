@@ -13,6 +13,7 @@
             <arg column="zip" javaType="String" />
             <arg column="shopOwner" javaType="String" />
             <arg column="email" javaType="String" />
+            <arg column="phone" javaType="String"/>
             <arg column="country" javaType="String" />
             <arg column="city" javaType="String" />
             <arg column="shopifyDomain" javaType="String" />
@@ -22,7 +23,7 @@
     </resultMap>
 
     <select id="findByPartnerId" resultMap="shopifyUserResult">
-        select * from ShopifyPartner where shopifyId=#{shopifyId}
+        select * from ShopifyPartner where partnerId=#{partnerId}
     </select>
     
     <select id="findByShopifyId" resultMap="shopifyUserResult">
@@ -48,6 +49,7 @@
     			zip,
     			shopOwner,
     			email,
+    			phone,
     			country,
     			city,
     			shopifyDomain,
@@ -63,6 +65,7 @@
     			#{zip},
     			#{shopOwner},
     			#{email},
+    			#{phone},
     			#{country},
     			#{city},
     			#{shopifyDomain},

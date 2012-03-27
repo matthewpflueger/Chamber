@@ -28,7 +28,8 @@ class ShopifyUserServiceCreatorActor  extends Actor{
     def updateShopifyUser(me: ShopifyUser) = {
         val shopifyUser = Option(shopifyUserDao.findByShopifyId(me.shopifyId)) match {
             case Some(su) =>
-                me
+                logger.debug("Shopify Partner Found : {}", su)
+                me.copy(partnerId = su.partnerId)
             case None =>
                 me
         }
@@ -79,6 +80,7 @@ class ShopifyUserServiceCreatorActor  extends Actor{
                 logger.error("Error processing %s" format msg, e)
             }
             try {
+                logger.debug("Creating Credentials for Shop From PartnerId: {}", partnerId)
                 Option(shopifyUserDao.findByPartnerId(partnerId)) match {
                     case Some(shopifyUser) =>
                         shopifyAccess.fetchShop(shopifyUser.shopifyDomain, shopifyUser.password).onComplete(_.value.get.fold(

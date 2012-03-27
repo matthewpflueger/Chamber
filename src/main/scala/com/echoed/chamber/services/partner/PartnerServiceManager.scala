@@ -5,6 +5,8 @@ import com.echoed.chamber.domain.{RetailerSettings, RetailerUser, Retailer}
 
 
 trait PartnerServiceManager {
+    
+    def updatePartnerSettings( partnerSettings: RetailerSettings ): Future[UpdatePartnerSettingsResponse]
 
     def registerPartner(
             partner: Retailer,

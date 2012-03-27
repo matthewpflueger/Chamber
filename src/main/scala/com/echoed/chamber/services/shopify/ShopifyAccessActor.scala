@@ -15,6 +15,7 @@ import com.shopify.api.resources._
 import scala.collection.mutable.WeakHashMap
 
 import com.echoed.chamber.domain.shopify.ShopifyUser
+import collection.JavaConversions._
 
 class ShopifyAccessActor extends Actor {
 
@@ -56,21 +57,35 @@ class ShopifyAccessActor extends Actor {
                     channel ! FetchProductResponse(msg, Left(ShopifyException("Error retrieving products", e)))
             }
 
+        case msg @ FetchProducts(shop, password) =>
+            val channel: Channel[FetchProductsResponse] = self.channel
+            try {
+                val shopifyClient = getShopifyClient(shop, password)
+                val productService: ProductsService = shopifyClient.constructService(classOf[ProductsService])
+                //logger.debug("Found Products: {} ,", productService.getProducts.toString);
+                val products = productService.getProducts.toList
+                channel ! FetchProductsResponse(msg, Right(products))
+            } catch{
+                case e =>
+                    logger.error("Error Fetching Products: {}", e)
+                    channel ! FetchProductsResponse(msg, Left(ShopifyException("Error Fetching Products", e)))
+            } 
+
         case msg @ FetchOrder(shop, password, orderId) =>
             val channel: Channel[FetchOrderResponse] = self.channel
             try {
                 logger.debug("Fetching Order: {}", orderId)
                 val shopifyClient = getShopifyClient(shop,password)
                 val orderService: OrdersService = shopifyClient.constructService(classOf[OrdersService])
-                val orders = orderService.getOrders
-                logger.debug("Received Order: {} ", orders)
-                channel ! FetchOrderResponse(msg, Right(orders.toString))
+                val order: Order = orderService.getOrder(orderId)
+                logger.debug("Received Order: {} ", order)
+                channel ! FetchOrderResponse(msg, Right(order))
             } catch {
                 case e =>
                     logger.error("Error fetching order: {}", e)
                     channel ! FetchOrderResponse(msg, Left(ShopifyException("Error retrieving orders", e)))
             }
-
+            
         case msg @ FetchShop(shop, password) =>
             val channel: Channel[FetchShopResponse] = self.channel
             try {

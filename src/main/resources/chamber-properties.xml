@@ -245,6 +245,12 @@
         <prop key="callbackUrl">${twitter.callbackUrl}</prop>
     </util:properties>
 
+    <!--suppress SpringModelInspection -->
+    <util:properties id="shopifyAccessProperties">
+        <prop key="shopifyApiKey">${shopify.apiKey}</prop>
+        <prop key="shopifySecret">${shopify.sharedSecret}</prop>
+    </util:properties>
+
 
 </beans>
 

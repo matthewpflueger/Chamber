@@ -18,4 +18,6 @@ trait ShopifyAccess {
     
     def fetchOrder(shop: String, password: String,  orderId: Int): Future[FetchOrderResponse]
     
+    def fetchProducts(shop: String, password: String): Future[FetchProductsResponse]
+    
 }

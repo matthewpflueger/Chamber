@@ -32,4 +32,7 @@ class ShopifyAccessActorClient
     def fetchShop(shop: String, password: String) =
         (shopifyAccessActor ? FetchShop(shop, password)).mapTo[FetchShopResponse]
     
+    def fetchProducts(shop: String,  password: String) = 
+        (shopifyAccessActor ? FetchProducts(shop, password)).mapTo[FetchProductsResponse]
+    
 }

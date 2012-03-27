@@ -1,0 +1,90 @@
+    $(document).ready(function () {
+
+        $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.css?v={{version}}" />');
+
+        Echoed = {};
+        Echoed.urls = {}; //{{#urls}}
+        Echoed.urls.api = "{{api}}";
+        Echoed.urls.cdn = "{{cdn}}";
+        Echoed.urls.js = "{{js}}";
+        Echoed.urls.css = "{{css}}";
+        Echoed.urls.images = "{{images}}";
+        Echoed.urls.views = "{{views}}";
+        Echoed.urls.site = "{{site}}";
+        /*{{/urls}} // */
+
+        //data = "{{epv}}";
+
+        var div = '<div></div>';
+        var popup = $(div).attr("id", "echoed-popup");
+        popup.appendTo($('body')).fadeIn();
+        var close = $('<img src="' + Echoed.urls.images + '/btn_closewin.png"/>').attr("id", "echoed-close");
+        popup.append(close);
+
+        var popMargTop = (0);
+        var popMargLeft = (360);
+        popup.css({
+        'top':50,
+        'margin-left':-popMargLeft
+        });
+        $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
+        var hiw = $(div).attr("id", "echoed-hiw");
+        var et = $(div).attr("id", "echoed-hiw-t").html('SHARE WITH FRIENDS AND EARN UP TO <span class="echoed-highlight">20% CASH BACK</span>');
+        var ett = $(div).attr("id", "echoed-hiw-tt").html("Share this on <img src='" + Echoed.urls.images + "/logo_facebook.png'> or <img src='" + Echoed.urls.images + "/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
+        hiw.append(et).append(ett);
+        hiw.appendTo(popup);
+        $('#echoed-fade').css({'filter':'alpha(opacity=80)'}).fadeIn();
+        var pcc = $(div).attr("id", "echoed-pcc").addClass("clearfix");
+        var container = $(div).attr("id", "echoed-p-c").addClass("clearfix");
+        var count = 0;
+
+        il = $('<div></div>').attr("id","echoed-il").css("padding-top","40px").css("height","160px").css("text-align","center")
+        il.append('<img src="' + Echoed.urls.images + '/ajax-loader.gif" />').appendTo(pcc);
+
+        pcc.appendTo(popup);
+        $('.echoed-p').live('mouseenter', function () {
+        $(this).find('.echoed-bs').addClass("current");
+        });
+
+        $('.echoed-p').live('mouseleave', function () {
+        $(this).find('.echoed-bs').removeClass("current");
+        });
+
+        $('.echoed-p').live('click', function () {
+        var url = $(this).attr("href");
+        window.open(url, $(this).attr("id"), 'width=720,height=370,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+        });
+
+        $('#echoed-close').live('click', function () {
+        $('#echoed-fade,#echoed-popup').fadeOut();
+        });
+
+        $.ajax({
+            url:Echoed.urls.api + "/echo/shopifyrequest",
+            dataType:'jsonp',
+            data:{
+                "pid":"{{pid}}",
+                "orderId":echoData
+            },
+            success:function (data) {
+                $(data.echoPossibilities).each(function (index, echoPossibility) {
+                pcc.html('');
+                container.appendTo(pcc);
+                count++;
+                if (count <= 5) {
+                container.css('width', count * 160);
+                }
+
+                echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
+
+                delete echoPossibility['echoedUserId'];
+                var p = $(div).addClass("echoed-p").attr("id", echoPossibility.id).attr("href", Echoed.urls.api + "/echo/login?id=" + echoPossibility.id);
+                var ic = $(div).addClass("echoed-i-c").append($('<img/>').attr("src", echoPossibility.imageUrl).addClass("echoed-i"));
+                var t = $(div).addClass("echoed-t").html('<strong>' + echoPossibility.brand + '</strong></br>' + echoPossibility.productName);
+                var bs = $(div).addClass("echoed-bs").appendTo(ic);
+                p.append(ic).append(t).hide().appendTo(container).fadeIn();
+                //container.append(p);
+                });
+            }
+        });
+    });

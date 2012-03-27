@@ -4,7 +4,7 @@ import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Mess
 import com.echoed.chamber.domain._
 import com.shopify.api.credentials.Credential
 import com.shopify.api.resources._
-import shopify.ShopifyUser
+import shopify.{ShopifyOrderFull, ShopifyUser}
 
 sealed trait ShopifyMessage extends Message
 
@@ -44,10 +44,24 @@ case class CreateFromShopDomainResponse(message: CreateFromShopDomain, value: Ei
     extends SM
     with RM[ShopifyUserService, CreateFromShopDomain, SE]
 
+
+//Shopify User Service
+
 case class GetOrder(orderId: Int) extends SM
-case class GetOrderResponse(message: GetOrder,  value: Either[SE,  String])
+case class GetOrderResponse(message: GetOrder,  value: Either[SE,  Order])
     extends SM
-    with RM[String,  GetOrder,  SE]
+    with RM[Order,  GetOrder,  SE]
+
+case class GetOrderFull(orderId: Int) extends SM
+case class GetOrderFullResponse(message: GetOrderFull,  value: Either[SE, ShopifyOrderFull])
+    extends SM
+    with RM[ShopifyOrderFull, GetOrderFull, SE]
+
+case class GetProducts() extends SM
+case class GetProductsResponse(message: GetProducts,  value: Either[SE, List[Product]])
+    extends SM
+    with RM[List[Product], GetProducts, SE]
+
 
 case class GetShop(password: String) extends SM
 case class GetShopResponse(message: GetShop, value: Either[SE, ShopifyUser])
@@ -74,9 +88,9 @@ case class FetchShopResponse(message: FetchShop, value: Either[SE, ShopifyUser])
     with RM[ShopifyUser,  FetchShop, SE]
 
 case class FetchOrder(shop:String, password: String, orderId: Int) extends SM
-case class FetchOrderResponse(message: FetchOrder,  value: Either[SE,  String])
+case class FetchOrderResponse(message: FetchOrder,  value: Either[SE,  Order])
     extends SM
-    with RM[String, FetchOrder, SE]
+    with RM[Order, FetchOrder, SE]
 
 case class FetchProduct(shop: String, password: String, productId: Int) extends SM
 case class FetchProductResponse(message: FetchProduct, value: Either[SE,  Product])
@@ -87,3 +101,5 @@ case class FetchProducts(shop: String, password: String) extends SM
 case class FetchProductsResponse(message: FetchProducts, value: Either[SE, List[Product]])
     extends SM 
     with RM[List[Product],  FetchProducts,  SE]
+
+

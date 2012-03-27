@@ -15,6 +15,7 @@ import com.echoed.chamber.controllers.ControllerUtils._
 import akka.dispatch.{AlreadyCompletedFuture, Future}
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.partner._
+import com.echoed.chamber.services.shopify._
 import com.echoed.chamber.domain.{EchoedUser, EchoClick}
 import java.util.{Map => JMap}
 import com.echoed.chamber.services.EchoedException
@@ -27,6 +28,7 @@ class EchoController {
     private final val logger = LoggerFactory.getLogger(classOf[EchoController])
 
     @BeanProperty var echoJsView: String = _
+    @BeanProperty var echoShopifyJsView: String = _
     @BeanProperty var echoJsErrorView: String = _
     @BeanProperty var echoLoginView: String = _
     @BeanProperty var echoLoginNotNeededView: String = _
@@ -48,10 +50,112 @@ class EchoController {
     @BeanProperty var echoService: EchoService = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var partnerServiceManager: PartnerServiceManager = _
+    @BeanProperty var shopifyUserServiceLocator: ShopifyUserServiceLocator = _
 
     @BeanProperty var cookieManager: CookieManager = _
 
     @BeanProperty var networkControllers: JMap[String, NetworkController] = _
+
+    @RequestMapping(value = Array("/shopifyjs"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
+    def shopifyJs(
+                @RequestParam(value = "pid", required = true) pid: String,
+                httpServletRequest: HttpServletRequest,
+                httpServletResponse: HttpServletResponse) = {
+
+        implicit  val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        
+        if (continuation.isExpired) {
+            error(echoJsErrorView, Some(RequestExpiredException()))
+        } else Option( continuation.getAttribute("modelAndView")).getOrElse {
+            continuation.suspend(httpServletResponse)
+
+            logger.debug("Requesting Shopify Js for Partner {}", pid)
+
+            partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
+                e => error(echoJsErrorView, Some(e)),
+                _ match {
+                    case LocateResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
+                    case LocateResponse(_, Right(p)) =>
+                        shopifyUserServiceLocator.locateByPartnerId(pid).onComplete(_.value.get.fold(
+                            e=> error(echoJsErrorView, Some(e)),
+                            _ match {
+                                case LocateByPartnerIdResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
+                                case LocateByPartnerIdResponse(_, Right(shopifyUserService)) =>
+                                    continuation.setAttribute("modelAndView", new ModelAndView(echoShopifyJsView, "pid", pid))
+                                    continuation.resume()
+                            }))
+                }))
+            continuation.undispatch()
+        }
+    }
+
+    @RequestMapping(value = Array("/shopifyrequest"), method = Array(RequestMethod.GET), produces = Array("application/json"))
+    @ResponseBody
+    def shopifyRequest(
+            @RequestParam(value = "pid", required = true) pid: String,
+            @RequestParam(value = "orderId", required = true) orderId: String,
+            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        implicit  val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired) {
+            error(echoJsErrorView, Some(RequestExpiredException()))
+        } else Option( continuation.getAttribute("json")).getOrElse {
+            continuation.suspend(httpServletResponse)
+
+
+            val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
+            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
+            val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
+
+
+            def resume(json: AnyRef) {
+                continuation.setAttribute("json", json)
+                continuation.resume()
+            }
+
+            logger.debug("Requsting Order: {} for Shopify Partner: {}", orderId, pid)
+            partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
+                e => error(echoJsErrorView, Some(e)),
+                _ match {
+                    case LocateResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
+                    case LocateResponse(_, Right(p)) =>
+                        logger.debug("Found partner service for partnerId: {}", pid)
+                        logger.debug("Locating Shopify Service for partnerId: {}", pid)
+                        shopifyUserServiceLocator.locateByPartnerId(pid).onComplete(_.value.get.fold(
+                            resume(_),
+                            _ match {
+                                case LocateByPartnerIdResponse(_, Left(e)) =>
+                                    logger.debug("Error locating Shopify Service for partnerId: {}", pid)
+                                    resume(_)
+                                case LocateByPartnerIdResponse(_, Right(shopifyUserService)) =>
+                                    logger.debug("Found Shopify Service for partnerId: {}", pid)
+                                    var orderNumber: Int = 0;
+                                    try {
+                                        orderNumber = Integer.parseInt(orderId);
+                                    } catch {
+                                        case nfe:NumberFormatException =>
+                                            orderNumber = 0;
+                                    }
+                                    shopifyUserService.getOrderFull(orderNumber).onComplete(_.value.get.fold(
+                                        resume(_),
+                                        _ match {
+                                            case GetOrderFullResponse(_, Left(e)) => resume(e)
+                                            case GetOrderFullResponse(_, Right(order)) =>
+                                                p.requestShopifyEcho(order, ip, eu, ec).onComplete(_.value.get.fold(
+                                                    resume(_),
+                                                    _ match {
+                                                        case RequestShopifyEchoResponse(_, Left(e)) => resume(e)
+                                                        case RequestShopifyEchoResponse(_, Right(echoPossibilityView)) => resume(echoPossibilityView)
+                                                    }))
+                                        }))
+                            }))
+                }))
+            continuation.undispatch()
+        }
+    }
 
 
     @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
@@ -63,7 +167,7 @@ class EchoController {
         implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         if (continuation.isExpired) {
-            error(echoJsErrorView, Some(RequestExpiredException()))
+            RequestExpiredException()
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
 
@@ -73,7 +177,7 @@ class EchoController {
                     case LocateResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
                     case LocateResponse(_, Right(p)) =>
                         continuation.setAttribute("modelAndView", new ModelAndView(echoJsView, "pid", pid))
-                        continuation.resume
+                        continuation.resume()
                 }))
 
             continuation.undispatch()
@@ -294,11 +398,11 @@ class EchoController {
                         modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                         continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume
+                        continuation.resume()
                     })
             }).onException { case e => error(errorView, e) }
 
-            continuation.undispatch
+            continuation.undispatch()
         }
     }
 

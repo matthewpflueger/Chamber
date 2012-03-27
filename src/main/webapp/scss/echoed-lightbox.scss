@@ -92,6 +92,7 @@ $twitterColor: #4099FF;
     background-color: #CCC;
     background-image: image-url("bk_paper.png");
     border:1px solid #333;
+    min-height: 200px;
 }
 
 .fb{
@@ -108,14 +109,14 @@ $twitterColor: #4099FF;
     float:left;
     background-color: #FFF;
     @include drop-shadow;
-    height: 290px;
+    height: 200px;
     cursor:pointer;
     .echoed-i-c{
-        width: 230px;
-        max-height:240px;
+        width: 160px;
+        max-height:160px;
         overflow: hidden;
         .echoed-i{
-            width: 230px;
+            width: 160px;
         }
         .echoed-bs{
             width: 112px;

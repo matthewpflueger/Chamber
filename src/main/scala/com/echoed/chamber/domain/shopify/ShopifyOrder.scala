@@ -8,6 +8,10 @@ package com.echoed.chamber.domain.shopify
  * To change this template use File | Settings | File Templates.
  */
 
-class ShopifyOrder {
+case class ShopifyOrder(
+            orderId: String,
+            orderNumber: String,
+            customerId: String,
+            lineItem: ShopifyLineItem) {
 
 }

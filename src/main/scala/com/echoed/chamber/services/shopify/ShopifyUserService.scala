@@ -6,6 +6,8 @@ trait ShopifyUserService {
     
     def getOrder(orderId: Int): Future[GetOrderResponse]
     
+    def getOrderFull(orderId: Int): Future[GetOrderFullResponse]
+    
     def getShopifyUser: Future[GetShopifyUserResponse]
 
 }

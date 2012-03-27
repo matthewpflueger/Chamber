@@ -4,11 +4,15 @@ import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
 import scala.reflect.BeanProperty
 import com.echoed.chamber.domain.{RetailerUser, RetailerSettings, Retailer}
+import com.echoed.chamber.domain.shopify.ShopifyOrderFull
 
 
 class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService with ActorClient {
 
     val id = actorRef.id
+    
+    def getPartner =
+        (actorRef ? GetPartner()).mapTo[GetPartnerResponse]
 
     def requestEcho(
             request: String,
@@ -16,6 +20,13 @@ class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService w
             echoedUserId: Option[String] = None,
             echoClickId: Option[String] = None) =
         (actorRef ? RequestEcho(request, ipAddress, echoedUserId, echoClickId)).mapTo[RequestEchoResponse]
+    
+    def requestShopifyEcho(
+            shopifyOrder: ShopifyOrderFull,
+            ipAddress: String,
+            echoedUserId: Option[String] = None, 
+            echoClickId: Option[String] = None) =
+        (actorRef ? RequestShopifyEcho(shopifyOrder, ipAddress, echoedUserId, echoClickId)).mapTo[RequestShopifyEchoResponse]
 
 
     def recordEchoStep(

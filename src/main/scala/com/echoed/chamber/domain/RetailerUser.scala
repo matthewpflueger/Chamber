@@ -5,7 +5,7 @@ import java.security.MessageDigest
 import java.nio.charset.Charset
 import org.apache.commons.codec.binary.Base64
 import com.echoed.chamber.services.partneruser.InvalidPassword
-
+import com.echoed.chamber.domain.shopify.ShopifyUser
 
 case class RetailerUser(
         id: String,
@@ -16,7 +16,18 @@ case class RetailerUser(
         email: String,
         salt: String,
         password: String) {
-
+    
+    def this(shopifyUser: ShopifyUser) = this(
+        UUID.randomUUID.toString,
+        new Date,
+        new Date,
+        shopifyUser.partnerId,
+        shopifyUser.name,
+        shopifyUser.email,
+        UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString,
+        null
+    )
+    
     def this(retailerId: String, name: String, email: String) = this(
         UUID.randomUUID.toString,
         new Date,

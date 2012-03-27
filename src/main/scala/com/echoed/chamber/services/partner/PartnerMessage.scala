@@ -2,6 +2,7 @@ package com.echoed.chamber.services.partner
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.{RetailerSettings, Retailer, RetailerUser, FacebookComment}
+import com.echoed.chamber.domain.shopify.ShopifyOrderFull
 import com.echoed.chamber.domain.views._
 
 
@@ -21,6 +22,16 @@ case class RegisterPartner(partner: Retailer, partnerSettings: RetailerSettings,
 case class RegisterPartnerResponse(
         message: RegisterPartner,
         value: Either[PE, Retailer]) extends PM with RM[Retailer, RegisterPartner, PE]
+
+case class UpdatePartner(partner: Retailer, partnerSettings: RetailerSettings, partnerUser: RetailerUser) extends PM
+case class UpdatePartnerResponse(
+        message: UpdatePartner, 
+        value: Either[PE, Retailer]) extends PM with RM[Retailer, UpdatePartner, PE]
+
+case class UpdatePartnerSettings(partnerSettings: RetailerSettings) extends PM
+case class UpdatePartnerSettingsResponse(
+        message: UpdatePartnerSettings, 
+        value: Either[PE, RetailerSettings]) extends PM with RM[RetailerSettings,  UpdatePartnerSettings, PE]
 
 
 case class Locate(partnerId: String) extends PM
@@ -45,6 +56,15 @@ case class PartnerNotFound(
 }
 
 
+case class PartnerAlreadyExists(
+        partnerId: String, 
+        _message: String = "Partner Already Exists",
+        _cause: Throwable = null,
+        _code: Option[String] = Some("alreadyexists.partner"),
+        _args: Option[Array[AnyRef]] = None) extends PE(_message, _cause, _code, _args) {
+    def this(partnerId: String) = this(partnerId, _args = Some(Array(partnerId)))
+}
+
 case class PartnerNotActive(
         partnerId: String,
         _message: String = "Partner not active",
@@ -60,6 +80,20 @@ case class InvalidEchoRequest(_message: String = "Invalid echo request",
                               _code: Option[String] = Some("invalid.echoRequest"),
                               _args: Option[Array[AnyRef]] = None) extends PE(_message, _cause, _code, _args)
 
+
+case class GetPartner() extends PM
+case class GetPartnerResponse(
+        message: GetPartner, 
+        value: Either[PE, Retailer]) extends PM with RM[Retailer, GetPartner,  PE]
+
+case class RequestShopifyEcho(
+        order: ShopifyOrderFull, 
+        ipAddress: String, 
+        echoedUserId: Option[String] = None,
+        echoClickId: Option[String] = None) extends PM
+case class RequestShopifyEchoResponse(
+        message: RequestShopifyEcho,
+        value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RequestShopifyEcho, PE]
 
 case class RequestEcho(
         request: String,

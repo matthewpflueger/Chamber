@@ -188,6 +188,55 @@
             <version>[2.2,)</version>
         </dependency>
 
+        <!-- Codehaus Jackson Dependency Used for Shopify4j-->
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mrbean</artifactId>
+            <version>1.9.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codegist.crest</groupId>
+            <artifactId>codegist-crest</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codegist.crest</groupId>
+            <artifactId>crest-parent</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
+       <dependency>
+           <groupId>org.json</groupId>
+           <artifactId>org.json</artifactId>
+           <version>chargebee-1.0</version>
+       </dependency>
+
+        <!-- Apache -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.1.2</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

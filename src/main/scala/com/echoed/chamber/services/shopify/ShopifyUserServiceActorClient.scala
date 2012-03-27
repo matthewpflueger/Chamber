@@ -22,7 +22,11 @@ class ShopifyUserServiceActorClient(shopifyUserServiceActor: ActorRef)
 
     def getOrder(orderId: Int) =
         (shopifyUserServiceActor ? GetOrder(orderId)).mapTo[GetOrderResponse]
-    
+
+
+    def getOrderFull(orderId: Int) =
+        (shopifyUserServiceActor ? GetOrderFull(orderId)).mapTo[GetOrderFullResponse]
+
     def getShopifyUser() = 
         (shopifyUserServiceActor ? GetShopifyUser()).mapTo[GetShopifyUserResponse]
 
