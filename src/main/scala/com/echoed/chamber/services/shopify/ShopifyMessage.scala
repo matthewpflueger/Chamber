@@ -3,7 +3,7 @@ package com.echoed.chamber.services.shopify
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain._
 import com.shopify.api.credentials.Credential
-import com.shopify.api.resources._
+import com.shopify.api.resources.{Order => SO, Product=> SP}
 import shopify.{ShopifyOrderFull, ShopifyUser}
 
 sealed trait ShopifyMessage extends Message
@@ -48,9 +48,9 @@ case class CreateFromShopDomainResponse(message: CreateFromShopDomain, value: Ei
 //Shopify User Service
 
 case class GetOrder(orderId: Int) extends SM
-case class GetOrderResponse(message: GetOrder,  value: Either[SE,  Order])
+case class GetOrderResponse(message: GetOrder,  value: Either[SE,  SO])
     extends SM
-    with RM[Order,  GetOrder,  SE]
+    with RM[SO,  GetOrder,  SE]
 
 case class GetOrderFull(orderId: Int) extends SM
 case class GetOrderFullResponse(message: GetOrderFull,  value: Either[SE, ShopifyOrderFull])
@@ -58,9 +58,9 @@ case class GetOrderFullResponse(message: GetOrderFull,  value: Either[SE, Shopif
     with RM[ShopifyOrderFull, GetOrderFull, SE]
 
 case class GetProducts() extends SM
-case class GetProductsResponse(message: GetProducts,  value: Either[SE, List[Product]])
+case class GetProductsResponse(message: GetProducts,  value: Either[SE, List[SP]])
     extends SM
-    with RM[List[Product], GetProducts, SE]
+    with RM[List[SP], GetProducts, SE]
 
 
 case class GetShop(password: String) extends SM
@@ -88,18 +88,18 @@ case class FetchShopResponse(message: FetchShop, value: Either[SE, ShopifyUser])
     with RM[ShopifyUser,  FetchShop, SE]
 
 case class FetchOrder(shop:String, password: String, orderId: Int) extends SM
-case class FetchOrderResponse(message: FetchOrder,  value: Either[SE,  Order])
+case class FetchOrderResponse(message: FetchOrder,  value: Either[SE,  SO])
     extends SM
-    with RM[Order, FetchOrder, SE]
+    with RM[SO, FetchOrder, SE]
 
 case class FetchProduct(shop: String, password: String, productId: Int) extends SM
-case class FetchProductResponse(message: FetchProduct, value: Either[SE,  Product])
+case class FetchProductResponse(message: FetchProduct, value: Either[SE,  SP])
     extends SM
-    with RM[Product, FetchProduct, SE]
+    with RM[SP, FetchProduct, SE]
 
 case class FetchProducts(shop: String, password: String) extends SM
-case class FetchProductsResponse(message: FetchProducts, value: Either[SE, List[Product]])
+case class FetchProductsResponse(message: FetchProducts, value: Either[SE, List[SP]])
     extends SM 
-    with RM[List[Product],  FetchProducts,  SE]
+    with RM[List[SP],  FetchProducts,  SE]
 
 

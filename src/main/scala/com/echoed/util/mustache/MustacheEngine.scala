@@ -21,6 +21,8 @@ class MustacheEngine extends InitializingBean with ResourceLoaderAware {
 
     def compile(templateName: String) = compiler.compile(templateLoader.getTemplate(templateName))
 
+    def compileTemplateString(templateString: String) = compiler.compile(templateString)
+
     def afterPropertiesSet() {
         templateLoader = Option(templateLoader).getOrElse(new MustacheTemplateLoader(prefix, suffix, resourceLoader))
         compiler = Mustache.compiler

@@ -429,15 +429,20 @@ class EchoController {
                     case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
                         echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.value.get.fold(
-                            e => error(errorView, e),
+                            e => {
+                                logger.debug("Error!")
+                                error(errorView, e)
+                            },
                             _ match {
                                 case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
-                                    //logger.debug("Received error response to echo", e)
+                                    logger.debug("Received duplicate echo response to echo", echo)
                                     continuation.setAttribute("modelAndView", new ModelAndView(echoDuplicateView, "echo", echo))
                                     continuation.resume()
                                 case EchoToResponse(_, Left(e)) =>
+                                    logger.debug("Received error: {}", e)
                                     error(errorView,e)
                                 case EchoToResponse(_, Right(echoFull)) =>
+                                    logger.debug("Received echo response {}", echoFull)
                                     continuation.setAttribute("modelAndView", new ModelAndView(echoFinishView, "echoFull", echoFull))
                                     continuation.resume()
                                     logger.debug("Successfully echoed {}", echoFull)
@@ -602,6 +607,7 @@ class EchoController {
                             e => error(errorView, e),
                             _ match {
                                 case EchoToResponse(_, Left(DuplicateEcho(echo ,message, _))) =>
+                                    logger.debug("Duplicate Echo!")
                                     continuation.setAttribute("modelAndView", new ModelAndView(duplicateView,"echo", echo))
                                     continuation.resume()
                                 case EchoToResponse(_, Right(echoFull)) =>

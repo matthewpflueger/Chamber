@@ -57,12 +57,13 @@ case class PartnerNotFound(
 
 
 case class PartnerAlreadyExists(
-        partnerId: String, 
+        partnerId: String,
+        partnerUser: RetailerUser,
         _message: String = "Partner Already Exists",
         _cause: Throwable = null,
         _code: Option[String] = Some("alreadyexists.partner"),
         _args: Option[Array[AnyRef]] = None) extends PE(_message, _cause, _code, _args) {
-    def this(partnerId: String) = this(partnerId, _args = Some(Array(partnerId)))
+    def this(partnerId: String, partnerUser: RetailerUser) = this(partnerId, partnerUser, _args = Some(Array(partnerId)))
 }
 
 case class PartnerNotActive(

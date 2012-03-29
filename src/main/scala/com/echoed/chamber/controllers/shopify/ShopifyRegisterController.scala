@@ -44,7 +44,7 @@ class ShopifyRegisterController {
                        @RequestParam(value = "pid", required = true) pid: String,
                        httpServletRequest: HttpServletRequest,
                        httpServletResponse: HttpServletResponse) = {
-        
+
         implicit  val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
         def error(e: Throwable) = {
@@ -60,7 +60,7 @@ class ShopifyRegisterController {
             error(RequestExpiredException("Error"))
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
-            
+
             partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
                 error(_),
                 _ match {

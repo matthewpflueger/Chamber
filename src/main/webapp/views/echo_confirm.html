@@ -38,11 +38,11 @@
             <div id="right" class="short">
                 <div id="right_content" class="border-grey bg-color-white rounded-corners">
                     <div id="echoes-container">
-                        <form name="message" id="echo" action="{{urls.site}}/echo/it" method="get">
+                        <form name="message" id="echo" action="{{urls.site}}/echo/finish" method="get">
                             <div style="text-align: center;"><input id="echoit" type="image" style="cursor:pointer;" src="{{urls.images}}/btn_shareit_off.png" onmouseover="this.src = '{{urls.images}}/btn_shareit_on.png'" onmouseout="this.src='{{urls.images}}/btn_shareit_off.png'"/></div>
                             {{#echoPossibility}}
 
-                            <input type="hidden" name="echoPossibilityId" value="{{id}}">
+                            <input type="hidden" name="echoId" value="{{id}}">
                             {{/echoPossibility}}
                             <table id="echoes" width="100%" cellspacing="5px">
                                 <thead>

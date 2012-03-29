@@ -182,6 +182,11 @@ class EchoedUserServiceActor(
                 //TODO finding by either id is to support the old integration method - should just use findById...
                 Option(echoDao.findByIdOrEchoPossibilityId(echoPossibilityId)).cata(
                     ep => {
+                        if(ep.isEchoed) {
+                            logger.debug("Duplicate Echo: {}" , ep)
+                            channel ! EchoToResponse(msg, Left(DuplicateEcho(ep,"Duplicate Echo")))
+                        }
+                        else {
                         Option(retailerSettingsDao.findById(ep.retailerSettingsId)).cata(
                             retailerSettings => {
 
@@ -210,6 +215,7 @@ class EchoedUserServiceActor(
 
                                 } catch {
                                     case e =>
+                                        logger.debug("Duplicate Echo: {}", echo)
                                         channel ! EchoToResponse(msg, Left(DuplicateEcho(echo,"Duplicate Echo")))
                                 }
                             },
@@ -217,6 +223,7 @@ class EchoedUserServiceActor(
                                 channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))
                                 logger.warn("Did not find RetailerSettings {} for Echo {}", ep.retailerSettingsId, ep.id)
                             })
+                        }
                     },
                     {
                         channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))

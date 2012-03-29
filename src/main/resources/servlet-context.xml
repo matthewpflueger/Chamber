@@ -243,9 +243,11 @@
     <!-- suppress DuplicatedBeanNamesInspection -->
     <bean id="shopifyController" class="com.echoed.chamber.controllers.shopify.ShopifyController">
         <property name="shopifyUserServiceLocator" ref="shopifyUserServiceLocator"/>
+        <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="partnerServiceManager" ref="partnerServiceManager" />
         <property name="shopifyIntegrationView" value="shopify_integration" />
-        <property name="partnerDashboardView" value="redirect:partner/dashboard" />
+        <property name="mustacheEngine" ref="mustacheEngine"/>
+        <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
         <property name="cookieManager" ref="cookieManager" />
     </bean>
     

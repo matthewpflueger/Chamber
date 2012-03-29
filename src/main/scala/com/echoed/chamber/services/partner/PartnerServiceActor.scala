@@ -110,14 +110,20 @@ class PartnerServiceActor(
                     ei.description = li.product.description
                     ei
                 }
+
+                val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
+                    .getOrElse(throw new PartnerNotActive(partner.id))
+
+
                 val echoRequest: EchoRequest = new EchoRequest()
                 echoRequest.items = items
                 echoRequest.customerId = order.customerId
                 echoRequest.orderId = order.orderId
                 echoRequest.boughtOn = new Date
                 logger.debug("Echo Request: {}", echoRequest)
-                val echoPossibilities = echoRequest.items.map { i=>
-                    new EchoPossibility(
+
+                val echoes = echoRequest.items.map { i=>
+                    Echo.make(
                         partner.id,
                         echoRequest.customerId,
                         i.productId,
@@ -126,28 +132,32 @@ class PartnerServiceActor(
                         echoRequest.orderId,
                         i.price,
                         i.imageUrl,
-                        echoedUserId.orNull,
-                        null,
                         i.landingPageUrl,
                         i.productName,
                         i.category,
                         i.brand,
                         i.description.take(1023),
-                        echoClickId.orNull)
+                        echoClickId.orNull,
+                        partnerSettings.id)
+
                 }.filter { ep =>
                     try {
-                        echoPossibilityDao.insertOrUpdate(ep)
+                        val echoMetrics = new EchoMetrics(ep, partnerSettings)
+                        transactionTemplate.execute({status: TransactionStatus =>
+                            echoMetricsDao.insert(echoMetrics)
+                            echoDao.insert(ep.copy(echoMetricsId = echoMetrics.id))
+                        })
                         true
                     } catch { case e => logger.error("Could not save %s" format ep, e ); false }
                     
                 }
                 
-                if (echoPossibilities.isEmpty) {
+                if (echoes.isEmpty) {
                     channel ! RequestShopifyEchoResponse(msg, Left(InvalidEchoRequest()))
                 } else {
                     channel ! RequestShopifyEchoResponse(
                             msg,
-                            Right(new EchoPossibilityView(echoPossibilities, partner, partnerSettings))
+                            Right(new EchoPossibilityView(echoes, partner, partnerSettings))
                     )
                 }
 

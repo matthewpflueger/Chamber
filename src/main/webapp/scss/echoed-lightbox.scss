@@ -61,14 +61,18 @@ $twitterColor: #4099FF;
         font-size: 34px;
         padding-bottom: 5px;
         line-height: 1em;
+        font-family: $labelFontFamily;
 
     }
     #echoed-hiw-tt{
         font-size: 24px;
+        font-family: $labelFontFamily;
     }
 
     .echoed-highlight{
         color: $mainColor;
+        font-size: 34px;
+        font-family: $labelFontFamily;
     }
 
 }

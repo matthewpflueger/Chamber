@@ -16,19 +16,23 @@ import com.echoed.chamber.controllers.CookieManager
 import com.echoed.chamber.services.partner.PartnerServiceManager
 import com.echoed.chamber.services.partner.{RegisterPartnerResponse, PartnerNotActive, PartnerNotFound, PartnerAlreadyExists}
 import com.echoed.chamber.domain.{Retailer, RetailerSettings, RetailerUser}
-
+import com.echoed.chamber.services.partneruser.{GetPartnerUserResponse, LoginResponse, PartnerUserServiceLocator}
+import com.echoed.util.mustache.MustacheEngine
+import java.util.{Date, UUID, HashMap => JHashMap}
 
 @Controller
 @RequestMapping(Array("/shopify"))
 class ShopifyController {
 
     @BeanProperty var shopifyUserServiceLocator: ShopifyUserServiceLocator = _
+    @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
     @BeanProperty var partnerServiceManager: PartnerServiceManager = _
 
     @BeanProperty var cookieManager: CookieManager = _
 
     @BeanProperty var shopifyIntegrationView: String = _
-    @BeanProperty var partnerDashboardView: String = _
+    @BeanProperty var partnerLoginView: String = _
+    @BeanProperty var mustacheEngine: MustacheEngine = _
 
     private val logger = LoggerFactory.getLogger(classOf[ShopifyController])
 
@@ -68,7 +72,8 @@ class ShopifyController {
                                 case GetShopifyUserResponse(_, Right(shopifyUser)) =>
                                     val partner = new Retailer(shopifyUser)
                                     val partnerSettings = RetailerSettings.createFutureRetailerSettings(shopifyUser.partnerId)
-                                    val partnerUser = new RetailerUser(shopifyUser)
+                                    var partnerUser = new RetailerUser(shopifyUser)
+                                    partnerUser = partnerUser.createPassword(shopifyUser.partnerId)
                                     partnerServiceManager.registerPartner(partner,partnerSettings,partnerUser).onComplete(_.value.get.fold(
                                         error(_),
                                         _ match {
@@ -87,9 +92,24 @@ class ShopifyController {
                                                 continuation.setAttribute("modelAndView", modelAndView)
                                                 continuation.resume();
                                             case RegisterPartnerResponse(_, Left(e: PartnerAlreadyExists)) =>
-                                                cookieManager.addPartnerUserCookie(httpServletResponse,partnerUser,httpServletRequest)
-                                                continuation.setAttribute("modelAndView", new ModelAndView(partnerDashboardView))
-                                                continuation.resume();
+                                                //IF THE PARTNER ALREADY EXISTS LOG THEM IN
+                                                logger.debug("Partner Already Exists with Partner User: {}", e.partnerUser)
+                                                partnerUserServiceLocator.login(shopifyUser.email, shopifyUser.partnerId).onComplete(_.value.get.fold(
+                                                    error(_),
+                                                    _ match {
+                                                        case LoginResponse(_, Left(e)) =>
+                                                        case LoginResponse(_, Right(partnerUserService)) => partnerUserService.getPartnerUser.onComplete(_.value.get.fold(
+                                                            error(_),
+                                                            _ match{
+                                                                case GetPartnerUserResponse(_, Left(e2)) => error(e2)
+                                                                case GetPartnerUserResponse(_, Right(pu)) =>
+                                                                    cookieManager.addPartnerUserCookie(httpServletResponse, pu, httpServletRequest)
+                                                                    continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
+                                                                    continuation.resume()
+                                                            }))
+
+                                                    }
+                                                ))
                                         }))
                             }))
                 }))

@@ -6,7 +6,7 @@ import com.echoed.chamber.domain.shopify._
 import com.echoed.chamber.dao.ShopifyUserDao
 import akka.actor.{Channel, Actor}
 import shopify.ShopifyUser
-import com.shopify.api.resources._
+import com.shopify.api.resources.{ Order => SO, Product => SP }
 import collection.JavaConversions
 import java.util.{HashMap}
 
@@ -74,12 +74,12 @@ class ShopifyUserServiceActor(
                 val order = (me ? GetOrder(orderId)).map(_ match {
                         case GetOrderResponse(_, Left(e)) => error(e)
                         case GetOrderResponse(_, Right(o)) =>o
-                    }).map(_.asInstanceOf[Order])
+                    }).map(_.asInstanceOf[SO])
 
                 val products = (me ? GetProducts()).map(_ match {
                     case GetProductsResponse(_, Left(e)) => error(e)
                     case GetProductsResponse(_, Right(p)) => p
-                    }).map(_.asInstanceOf[List[Product]])
+                    }).map(_.asInstanceOf[List[SP]])
 
                 (for {
                     o <- order
