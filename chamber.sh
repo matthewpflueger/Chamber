@@ -47,7 +47,7 @@ case $service_args in
 
         CLASSPATH=".:${TARGET}"
         OVERRIDES="src/overrides/resources"
-        ARGS_INTERESTING="-XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled"
+        ARGS_INTERESTING="-XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled -XX:+UseCompressedOops"
         ARGS="-server -Xms1024m -Xmx2048m -XX:PermSize=256m  -Djava.net.preferIPv4Stack=true -Dsun.net.client.defaultConnectTimeout=5000 -Dsun.net.client.defaultReadTimeout=5000"
 
 
@@ -106,6 +106,7 @@ case $service_args in
         ;;
 
     reload)
+        service_cmd "dump"
         service_cmd "clean"
         service_cmd "package"
         service_cmd "restart"
@@ -234,8 +235,18 @@ case $service_args in
         fi
         ;;
 
+    dump)
+        DUMP="mysqldump -u root -ppassword --database Echoed"
+        echo "Running $DUMP"
+        $DUMP > dump-`date +%Y%m%d%H%M%S`.sql
+        result=$?
+        if [[ $result > 0 ]]; then
+            exit 1;
+        fi
+        ;;
+
     *)
-        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass|compass_compile|migrate_status|migrate_up|migrate_down}" >&2
+        echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass|compass_compile|migrate_status|migrate_up|migrate_down|dump}" >&2
         exit 1
         ;;
 esac
