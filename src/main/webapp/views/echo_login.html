@@ -56,12 +56,12 @@
                         </a>
                     </div>
                     <div class="confirm-label" style="margin-top:30px;">
-                        HOW TO GET UP TO 20% BACK ON YOUR PURCHASE:
+                        HOW TO GET UP TO {{maxPercentage}}% BACK ON YOUR PURCHASE:
                     </div>
                     <div class="confirm-text" style="padding-left: 20px;">
                         <ul>
                             <li>Share this purchase with <img src="{{urls.images}}/logo_facebook_bw.png"/> and <img src="{{urls.images}}/logo_twitter_bw.png"/> get <span class="highlight-focus">{{minPercentage}}% back</span>. Get your friends to click through and earn <span class="highlight-focus">up to {{maxPercentage}}% back!</span></li>
-                            <li>After <span class="highlight-focus">3 days</span>, the reward will be <span class="highlight-focus">automatically applied back to your original payment method</span> for this item.</li>
+                            <li>After <span class="highlight-focus">{{numberDays}} days</span>, the reward will be <span class="highlight-focus">automatically applied back to your original payment method</span> for this item.</li>
                         </ul>
                     </div>
                     {{/retailer}}

@@ -269,6 +269,7 @@ class EchoController {
                         modelAndView.addObject("echoPossibilityView", data)
                         modelAndView.addObject("maxPercentage", "%1.0f".format(data.retailerSettings.maxPercentage*100));
                         modelAndView.addObject("minPercentage", "%1.0f".format(data.retailerSettings.minPercentage*100));
+                        modelAndView.addObject("numberDays", data.retailerSettings.creditWindow / 24)
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(data.echoPossibility.price));
                         modelAndView.addObject("minClicks", data.retailerSettings.minClicks)
                         continuation.setAttribute("modelAndView", modelAndView)
@@ -325,7 +326,7 @@ class EchoController {
                         continuation.resume
                 }))
 
-            continuation.undispatch
+            continuation.undispatch()
         }
     }
 
@@ -376,6 +377,7 @@ class EchoController {
                             modelAndView.addObject("echoPossibilityView", epv)
                             modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                             modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
+                            modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
                             modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
                             continuation.setAttribute("modelAndView", modelAndView)
                             continuation.resume()
@@ -385,7 +387,7 @@ class EchoController {
                         val echoPossibility = epv.echoPossibility
                         val lu = "%s?redirect=%s" format(
                                 logoutUrl,
-                                URLEncoder.encode("echo?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
+                                URLEncoder.encode("echo/login?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
                         val modelAndView = new ModelAndView(echoConfirmView)
                         modelAndView.addObject("id", id)
                         modelAndView.addObject("echoedUser", eu)
@@ -397,6 +399,7 @@ class EchoController {
                         modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                         modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
+                        modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                     })
@@ -507,6 +510,7 @@ class EchoController {
                                     modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                                     modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                                     modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
+                                    modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume()
                                 case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
@@ -523,6 +527,7 @@ class EchoController {
                                     modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                                     modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                                     modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
+                                    modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
                                     modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                                     modelAndView.addObject(
                                             "facebookAddUrl",
@@ -559,6 +564,7 @@ class EchoController {
                         modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                         modelAndView.addObject("minClicks",epv.retailerSettings.minClicks)
+                        modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                 }))
