@@ -1,5 +1,6 @@
 package com.shopify.api.endpoints;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -63,12 +64,16 @@ public abstract class API {
 				--keyLength;
 				String value = queryParameters.get(key);
 				if(value != null) {
-					builder.append(URLEncoder.encode(key));
-					builder.append("=");
-					builder.append(URLEncoder.encode(value));
-					if(keyLength > 0) {
-						builder.append("&");
-					}
+                    try {
+                        builder.append(URLEncoder.encode(key, "UTF-8"));
+                        builder.append("=");
+                        builder.append(URLEncoder.encode(value, "UTF-8"));
+                        if(keyLength > 0) {
+                            builder.append("&");
+                        }
+                    } catch (UnsupportedEncodingException uee) {
+                        throw new RuntimeException(uee);
+                    }
 				}
 			}
 		}

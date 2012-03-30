@@ -74,10 +74,6 @@
         where E.id = #{id} or E.echoPossibilityId = #{id}
     </select>
 
-    <select id="findByIdOrEchoPossibilityId" resultMap="echoResult">
-        select * from Echo where id = #{id} or echoPossibilityId = #{id}
-    </select>
-
     <select id="findByRetailerId" resultMap="echoResult">
         <include refid="echoSelect" />
     	where E.retailerId = #{retailerId}

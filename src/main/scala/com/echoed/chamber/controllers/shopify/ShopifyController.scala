@@ -110,6 +110,7 @@ class ShopifyController {
 
                                                     }
                                                 ))
+                                            case RegisterPartnerResponse(_, Left(e)) => error(e)
                                         }))
                             }))
                 }))

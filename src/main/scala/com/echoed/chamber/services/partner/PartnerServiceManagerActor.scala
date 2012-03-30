@@ -88,45 +88,46 @@ class PartnerServiceManagerActor extends Actor {
                 (me ? Locate(partner.id)).onComplete(_.value.get.fold(
                     error(_),
                     _ match {
-                    case LocateResponse(_, Right(partnerService)) =>
-                        logger.debug("Partner Already Exists {}", partnerService)
-                        val pu = partnerUserDao.findByEmail(partnerUser.email)
-                        channel ! RegisterPartnerResponse(msg, Left(PartnerAlreadyExists(partner.id, pu)))
-                    case LocateResponse(_, Left(e: PartnerNotActive)) =>
-                        logger.debug("Partner Not Active!")
-                        channel ! RegisterPartnerResponse(msg, Left(PartnerNotActive(partner.id)))
-                    case LocateResponse(_, Left(e: PartnerNotFound)) =>
-                        val p = partner.copy(secret = encrypter.generateSecretKey)
-                        val ps = partnerSettings.copy(retailerId = p.id)
+                        case LocateResponse(_, Right(partnerService)) =>
+                            logger.debug("Partner Already Exists {}", partnerService)
+                            val pu = partnerUserDao.findByEmail(partnerUser.email)
+                            channel ! RegisterPartnerResponse(msg, Left(PartnerAlreadyExists(partner.id, pu)))
+                        case LocateResponse(_, Left(e: PartnerNotActive)) =>
+                            logger.debug("Partner Not Active!")
+                            channel ! RegisterPartnerResponse(msg, Left(PartnerNotActive(partner.id)))
+                        case LocateResponse(_, Left(e: PartnerNotFound)) =>
+                            val p = partner.copy(secret = encrypter.generateSecretKey)
+                            val ps = partnerSettings.copy(retailerId = p.id)
 
 
-                        val password = UUID.randomUUID().toString
+                            val password = UUID.randomUUID().toString
 
-                        //Create a new hashed password for the partnerUser if one has not already been set
-                        //Used to handle Shopify Partner Users where the password is already created
-                        val pu = partnerUser.copy(retailerId = p.id).createPassword(password)
+                            //Create a new hashed password for the partnerUser if one has not already been set
+                            //Used to handle Shopify Partner Users where the password is already created
+                            val pu = partnerUser.copy(retailerId = p.id).createPassword(password)
 
-                        val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (partnerUser.email, password))
+                            val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (partnerUser.email, password))
 
 
-                        transactionTemplate.execute({status: TransactionStatus =>
-                            partnerDao.insert(p)
-                            partnerSettingsDao.insert(ps)
-                            partnerUserDao.insert(pu)
-                        })
+                            transactionTemplate.execute({status: TransactionStatus =>
+                                partnerDao.insert(p)
+                                partnerSettingsDao.insert(ps)
+                                partnerUserDao.insert(pu)
+                            })
 
-                        channel ! RegisterPartnerResponse(msg, Right(p))
-                        me ? Locate(p.id)
+                            channel ! RegisterPartnerResponse(msg, Right(p))
+                            me ? Locate(p.id)
 
-                        val model = new JHashMap[String, AnyRef]()
-                        model.put("code", code)
-                        model.put("partner", p)
-                        model.put("partnerUser", pu)
-                        emailService.sendEmail(
-                            partnerUser.email,
-                            "Your Echoed Account",
-                            "partner_email_register",
-                            model)
+                            val model = new JHashMap[String, AnyRef]()
+                            model.put("code", code)
+                            model.put("partner", p)
+                            model.put("partnerUser", pu)
+                            emailService.sendEmail(
+                                partnerUser.email,
+                                "Your Echoed Account",
+                                "partner_email_register",
+                                model)
+                        case LocateResponse(_, Left(e)) => error(e)
                 })).onException({
                     case e => error(e)
                 })

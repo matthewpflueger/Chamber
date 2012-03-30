@@ -128,7 +128,7 @@
         <prop key="pool.logAbandoned">true</prop>
 
         <prop key="mybatis.config">classpath:mybatis.xml</prop>
-        <prop key="mybatis.mappers">classpath*:com/echoed/chamber/dao/**/*.xml</prop>
+        <prop key="mybatis.mappers">classpath*:com/echoed/chamber/dao/cache/*.xml</prop>
         <prop key="mybatis.executorType">BATCH</prop>
 
 

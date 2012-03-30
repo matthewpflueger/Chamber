@@ -131,7 +131,6 @@ class ImageServiceActor extends Actor {
         } catch {
             case e: FileNotFoundException => f(Left(ImageNotFound(image, _cause = e)))
             case e =>
-                logger.error("Error processing image %s from %s" format(descriptor, url), e)
                 f(Left(e))
         } finally {
             bufferedImage.foreach(_.flush)

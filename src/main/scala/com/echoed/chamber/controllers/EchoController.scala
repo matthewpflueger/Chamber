@@ -463,9 +463,13 @@ class EchoController {
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
-        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoPossibilityParameters.echoedUserId = _)
-        cookieManager.findEchoClickCookie(httpServletRequest).foreach(echoPossibilityParameters.echoClickId = _)
-        echoService.recordEchoPossibility(echoPossibilityParameters.createButtonEchoPossibility)
+        try {
+            cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoPossibilityParameters.echoedUserId = _)
+            cookieManager.findEchoClickCookie(httpServletRequest).foreach(echoPossibilityParameters.echoClickId = _)
+            echoService.recordEchoPossibility(echoPossibilityParameters.createButtonEchoPossibility)
+        } catch {
+            case e => logger.error("Error creating Echo at button step for %s" format echoPossibilityParameters, e)
+        }
         new ModelAndView(buttonView)
     }
 

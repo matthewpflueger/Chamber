@@ -67,6 +67,9 @@ class ShopifyRegisterController {
                     case LocateResponse(_, Left(e: PartnerNotActive)) =>
                         continuation.setAttribute("modelAndView", new ModelAndView(registerView, "registerForm", new ShopifyRegisterForm(Some(pid))))
                         continuation.resume()
+                    case LocateResponse(_, Left(e)) =>
+                        //we have an unknown error - what to do???
+                        error(e)
                     case LocateResponse(_, Right(partnerService)) =>
                         logger.debug("partnerService Received: {}", partnerService)
                         continuation.setAttribute("modelAndView", new ModelAndView(registerView, "registerForm", new ShopifyRegisterForm(Some(pid))))
