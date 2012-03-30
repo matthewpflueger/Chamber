@@ -184,6 +184,11 @@
         <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
 
         <prop key="echoed.secret">PHHabG5MSw6hv4lZJg-Ppg</prop>
+
+
+
+        <prop key="shopify.apiKey">6823b10656f187940f72703bdadec7f6</prop>
+        <prop key="shopify.sharedSecret">f5d718ba3160382481eb2dcd312bffab</prop>
     </util:properties>
 
 
