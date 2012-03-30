@@ -17,6 +17,7 @@ import com.echoed.chamber.dao._
 import scala.collection.mutable.ConcurrentMap
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import com.echoed.chamber.services.ActorClient
+import com.echoed.chamber.services.image.ImageService
 
 
 class PartnerServiceManagerActor extends Actor {
@@ -28,6 +29,8 @@ class PartnerServiceManagerActor extends Actor {
     @BeanProperty var partnerUserDao: RetailerUserDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
+    @BeanProperty var imageDao: ImageDao = _
+    @BeanProperty var imageService: ImageService = _
     @BeanProperty var encrypter: Encrypter = _
     @BeanProperty var transactionTemplate: TransactionTemplate = _
     @BeanProperty var emailService: EmailService = _
@@ -165,6 +168,8 @@ class PartnerServiceManagerActor extends Actor {
                                     partnerSettingsDao,
                                     echoDao,
                                     echoMetricsDao,
+                                    imageDao,
+                                    imageService,
                                     transactionTemplate,
                                     encrypter)).start())
                                 channel ! LocateResponse(msg, Right(partnerService))

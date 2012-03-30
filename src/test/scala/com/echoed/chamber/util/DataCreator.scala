@@ -336,8 +336,10 @@ class DataCreator {
     val adminUserId = UUID.randomUUID.toString
 
     val landingPageUrl = siteUrl
-    val echoImageUrl_1 = "%s/Pic1.jpg" format imagesUrl
-    val echoImageUrl_2 = "%s/Pic2.jpg" format imagesUrl
+    val echoImageFileName_1 = "Pic1.jpg"
+    val echoImageFileName_2 = "Pic2.jpg"
+    val echoImageUrl_1 = "%s/%s" format(imagesUrl, echoImageFileName_1)
+    val echoImageUrl_2 = "%s/%s" format(imagesUrl, echoImageFileName_2)
 
 
     val retailers = List(
@@ -806,6 +808,16 @@ class DataCreator {
             product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1),
             image = new Image(echoImageUrl_1))
 
+
+
+    val noImage = new Image(imagesUrl + "/%s" format "does-not-exist.jpg")
+    val smallImage = new Image(imagesUrl + "/%s" format "bg-blackPx.png")
+
+    val images = List(
+        new Image(echoImageUrl_1),
+        new Image(echoImageUrl_2))
+
+
     private val _echoes = List(
         Echo(
             id = echoId_1,
@@ -822,7 +834,7 @@ class DataCreator {
             step = "test",
             order = Order(echoId_1, on, on, customerId_1, on, orderId_1),
             product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1),
-            image = new Image(echoImageUrl_1)),
+            image = images(0)),
         Echo(
             id = echoId_2,
             updatedOn = on,
@@ -838,8 +850,7 @@ class DataCreator {
             step = "test",
             order = Order(echoId_2, on, on, customerId_2, on, orderId_2),
             product = Product(echoId_2, on, on, productId_2, price_2, landingPageUrl, productName_2, category_2, brand_2, description_2),
-            image = new Image(echoImageUrl_2))
-    )
+            image = images(1)))
 
     val echoMetrics = _echoes.map(new EchoMetrics(_, retailerSettings))
     val echoes = echoMetrics.zip(_echoes).map { tuple =>

@@ -17,6 +17,7 @@ class DaoITSuite extends Suites(
     new FacebookTestUserDaoIT,
     new FacebookLikeDaoIT,
     new FacebookCommentDaoIT,
+    new ImageDaoIT,
     new RetailerDaoIT,
     new RetailerSettingsDaoIT,
     new RetailerUserDaoIT,

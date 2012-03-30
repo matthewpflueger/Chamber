@@ -1,16 +1,19 @@
 package com.echoed.chamber.dao
 
-import java.util.{List => JList}
-import com.echoed.chamber.domain.{Image, EchoPossibility}
+import com.echoed.chamber.domain.Image
+import java.util.Date
 
 trait ImageDao {
 
+    def insert(image: Image): Int
+
     def update(image: Image): Int
 
-    def updateAll(image: Image): Int
+    def findByUrl(url: String): Image
 
-    def updateAllUnprocessed(image: Image): Int
+    def findById(id: String): Image
 
-    def findProcessedByOriginalUrl(url: String): Image
+    def findUnprocessed(lastProcessedBeforeDate: Date): Image
 
+    def deleteByUrl(url: String): Int
 }

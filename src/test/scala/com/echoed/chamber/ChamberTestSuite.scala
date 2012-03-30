@@ -12,5 +12,6 @@ class ChamberTestSuite extends Suites(
     new EchoMetricsTest,
     new RetailerUserTest,
     new RetailerSettingsTest,
+    new ImageTest,
     new FacebookAccessActorTest)
 

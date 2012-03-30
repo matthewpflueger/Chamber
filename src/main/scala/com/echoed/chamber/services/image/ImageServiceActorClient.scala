@@ -8,10 +8,9 @@ import com.echoed.chamber.services.ActorClient
 
 class ImageServiceActorClient extends ImageService with ActorClient {
 
-    @BeanProperty var imageServiceActor: ActorRef = _
+    @BeanProperty var actorRef: ActorRef = _
 
-    def grabImage(image: Image) =
-        (imageServiceActor ? GrabImage(image)).mapTo[GrabImageResponse]
+    def processImage(image: Image) =
+        (actorRef ? ProcessImage(image)).mapTo[ProcessImageResponse]
 
-    def actorRef = imageServiceActor
 }

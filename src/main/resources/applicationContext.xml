@@ -61,6 +61,18 @@
     </bean>
 
 
+    <bean id="blobStore" class="com.echoed.util.BlobStore">
+        <property name="provider" value="${blobstore.provider}" />
+        <property name="username" value="${blobstore.identity}" />
+        <property name="credential" value="${blobstore.credential}" />
+        <property name="container" value="${blobstore.container}" />
+        <property name="containerUrl" value="${blobstore.containerUrl}" />
+    </bean>
+
+
+    <bean id="imageService" class="com.echoed.chamber.services.image.ImageServiceActorClient">
+        <property name="actorRef" ref="imageServiceActor" />
+    </bean>
 
     <bean id="emailService" class="com.echoed.chamber.services.email.EmailServiceActorClient">
         <property name="actorRef" ref="emailServiceActor" />
@@ -149,6 +161,10 @@
         <!--suppress SpringModelInspection -->
         <property name="echoMetricsDao" ref="echoMetricsDao" />
         <!--suppress SpringModelInspection -->
+        <property name="imageDao" ref="imageDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageService" ref="imageService" />
+        <!--suppress SpringModelInspection -->
         <property name="encrypter" ref="encrypter" />
         <!--suppress SpringModelInspection -->
         <property name="transactionTemplate" ref="transactionTemplate" />
@@ -156,6 +172,16 @@
         <property name="emailService" ref="emailService" />
         <!--suppress SpringModelInspection -->
         <property name="cacheManager" ref="cacheManager" />
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+            id="imageServiceActor"
+            implementation="com.echoed.chamber.services.image.ImageServiceActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="imageDao" ref="imageDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="blobStore" ref="blobStore" />
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -226,6 +252,10 @@
         <!--suppress SpringModelInspection -->
         <property name="echoClickDao" ref="echoClickDao" />
         <!--suppress SpringModelInspection -->
+        <property name="imageDao" ref="imageDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageService" ref="imageService" />
+        <!--suppress SpringModelInspection -->
         <property name="transactionTemplate" ref="transactionTemplate" />
     </akka:untyped-actor>
 
@@ -287,7 +317,6 @@
         <property name="retailerSettingsDao" ref="partnerSettingsDao" />
     </akka:untyped-actor>
 
-
     <akka:untyped-actor
             id="echoedUserServiceLocatorActor"
             implementation="com.echoed.chamber.services.echoeduser.EchoedUserServiceLocatorActor"
@@ -297,7 +326,6 @@
         <!--suppress SpringModelInspection -->
         <property name="cacheManager" ref="cacheManager" />
     </akka:untyped-actor>
-
 
     <akka:untyped-actor
             id="partnerUserServiceCreatorActor"
@@ -370,7 +398,6 @@
     </akka:untyped-actor>
 
     
-
 
     <akka:untyped-actor
             id="facebookPostCrawlerActor"

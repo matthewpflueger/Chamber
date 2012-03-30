@@ -1,61 +1,95 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.echoed.chamber.dao.EchoPossibilityDao">
+<mapper namespace="com.echoed.chamber.dao.ImageDao">
 
     <cache-ref namespace="com.echoed.chamber.dao.cache.Default" />
 
     <resultMap id="imageResult" type="com.echoed.chamber.domain.Image">
         <constructor>
-            <idArg column="id" javaType="String" />
-            <arg column="imageUrl" javaType="String"/>
-            <arg column="imageOriginalUrl" javaType="String"/>
-            <arg column="imageWidth" javaType="_int"/>
-            <arg column="imageHeight" javaType="_int"/>
-            <arg column="imageGrabbedOn" javaType="Date" />
-            <arg column="imageGrabbedStatus" javaType="String" />
+            <idArg column="imageId" javaType="String" />
+            <arg column="imageUpdatedOn" javaType="Date" />
+            <arg column="imageCreatedOn" javaType="Date" />
+            <arg column="imageUrl" javaType="String" />
+            <arg column="imageOriginalUrl" javaType="String" />
+            <arg column="imageOriginalWidth" javaType="_int" />
+            <arg column="imageOriginalHeight" javaType="_int" />
+            <arg column="imageSizedUrl" javaType="String" />
+            <arg column="imageSizedWidth" javaType="_int" />
+            <arg column="imageSizedHeight" javaType="_int" />
+            <arg column="imageThumbnailUrl" javaType="String" />
+            <arg column="imageThumbnailWidth" javaType="_int" />
+            <arg column="imageThumbnailHeight" javaType="_int" />
+            <arg column="imageProcessedOn" javaType="Date" />
+            <arg column="imageProcessedStatus" javaType="String" />
         </constructor>
     </resultMap>
 
     <sql id="imageColumns">
-        imageUrl,
-        imageOriginalUrl,
-        imageWidth,
-        imageHeight,
-        imageGrabbedOn,
-        imageGrabbedStatus
+        I.id as imageId,
+        I.updatedOn as imageUpdatedOn,
+        I.createdOn as imageCreatedOn,
+        I.url as imageUrl,
+        I.originalUrl as imageOriginalUrl,
+        I.originalWidth as imageOriginalWidth,
+        I.originalHeight as imageOriginalHeight,
+        I.sizedUrl as imageSizedUrl,
+        I.sizedWidth as imageSizedWidth,
+        I.sizedHeight as imageSizedHeight,
+        I.thumbnailUrl as imageThumbnailUrl,
+        I.thumbnailWidth as imageThumbnailWidth,
+        I.thumbnailHeight as imageThumbnailHeight,
+        I.processedOn as imageProcessedOn,
+        I.processedStatus as imageProcessedStatus
     </sql>
 
-    <sql id="imageUpdateColumns">
-        imageUrl = #{imageUrl},
-        imageWidth = #{imageWidth},
-        imageHeight = #{imageHeight},
-        imageGrabbedOn = #{imageGrabbedOn},
-        imageGrabbedStatus = #{imageGrabbedStatus}
-    </sql>
-
-    <select id="findProcessedByOriginalUrl" resultMap="imageResult">
-        select <include refid="imageColumns" />
-        from EchoPossibility
-        where imageOriginalUrl = #{imageOriginalUrl}
-        and imageGrabbedOn is not null
-        order by imageGrabbedOn desc
-        limit 1
+    <select id="findByUrl" resultMap="imageResult">
+        select <include refid="imageColumns" /> from Image I where I.url = #{url}
     </select>
 
+    <select id="findById" resultMap="imageResult">
+        select <include refid="imageColumns" /> from Image I where I.id = #{id}
+    </select>
+
+    <select id="findUnprocessed" resultMap="imageResult" useCache="false">
+        select <include refid="imageColumns" />
+        from Image I
+        where (I.processedOn is null or I.processedOn &lt; #{lastProcessedBeforeDate})
+        and (I.originalUrl is null or I.sizedUrl is null or I.thumbnailUrl is null)
+        order by I.processedOn asc
+        limit 1;
+    </select>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.Image">
+        insert into Image(
+            id,
+            updatedOn,
+            createdOn,
+            url)
+        values (
+            #{id},
+            #{updatedOn},
+            #{createdOn},
+            #{url})
+    </insert>
+
     <update id="update" parameterType="com.echoed.chamber.domain.Image">
-        update EchoPossibility set <include refid="imageUpdateColumns" />
+        update Image set
+            originalUrl = #{originalUrl},
+            originalWidth = #{originalWidth},
+            originalHeight = #{originalHeight},
+            sizedUrl = #{sizedUrl},
+            sizedWidth = #{sizedWidth},
+            sizedHeight = #{sizedHeight},
+            thumbnailUrl = #{thumbnailUrl},
+            thumbnailWidth = #{thumbnailWidth},
+            thumbnailHeight = #{thumbnailHeight},
+            processedOn = #{processedOn},
+            processedStatus = #{processedStatus}
         where id = #{id}
     </update>
 
-    <update id="updateAll" parameterType="com.echoed.chamber.domain.Image">
-        update EchoPossibility set <include refid="imageUpdateColumns" />
-        where imageOriginalUrl = #{imageOriginalUrl}
-    </update>
-
-    <update id="updateAllUnprocessed" parameterType="com.echoed.chamber.domain.Image">
-        update EchoPossibility set <include refid="imageUpdateColumns" />
-        where imageOriginalUrl = #{imageOriginalUrl}
-        and imageGrabbedOn is null
-    </update>
+    <delete id="deleteByUrl">
+        delete from Image where url = #{url}
+    </delete>
 
 </mapper>

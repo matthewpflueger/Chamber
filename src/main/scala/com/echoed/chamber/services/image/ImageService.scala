@@ -6,6 +6,6 @@ import com.echoed.chamber.domain._
 
 trait ImageService {
 
-    def grabImage(image: Image): Future[GrabImageResponse]
+    def processImage(image: Image): Future[ProcessImageResponse]
 
 }

@@ -14,7 +14,7 @@ class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
 
         it("should return null for the id if missing properties") {
             given("a newly instantiated Echo")
-            val echo = Echo.make(null, null, null, null, "step", null, 0, null, null, null, null, null, null, null)
+            val echo = Echo.make(null, null, null, null, "step", null, 0, "test", null, null, null, null, null, null)
 
             when("no properties have been set")
             then("the id should be null")

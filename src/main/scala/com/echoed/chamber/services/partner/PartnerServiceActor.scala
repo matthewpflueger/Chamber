@@ -10,11 +10,12 @@ import java.util.Date
 import akka.dispatch.Future
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.domain.{EchoMetrics, Echo, RetailerSettings, Retailer}
-import com.echoed.chamber.dao.{EchoMetricsDao, EchoDao, RetailerSettingsDao, RetailerDao}
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.TransactionUtils._
 import org.springframework.transaction.TransactionStatus
+import com.echoed.chamber.dao._
+import com.echoed.chamber.domain._
+import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 
 class PartnerServiceActor(
         partner: Retailer,
@@ -22,6 +23,8 @@ class PartnerServiceActor(
         partnerSettingsDao: RetailerSettingsDao,
         echoDao: EchoDao,
         echoMetricsDao: EchoMetricsDao,
+        imageDao: ImageDao,
+        imageService: ImageService,
         transactionTemplate: TransactionTemplate,
         encrypter: Encrypter) extends Actor {
 
@@ -67,16 +70,30 @@ class PartnerServiceActor(
                             i.description.take(1023),
                             echoClickId.orNull,
                             partnerSettings.id)
-                }.filter { ep =>
+                }.map { ec =>
                     try {
-                        val echoMetrics = new EchoMetrics(ep, partnerSettings)
                         transactionTemplate.execute({status: TransactionStatus =>
+                            val echoMetrics = new EchoMetrics(ec, partnerSettings)
+                            val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
+                                logger.debug("New image for processing {}", ec.image.url)
+                                imageDao.insert(ec.image)
+                                imageService.processImage(ec.image).onComplete(_.value.get.fold(
+                                    e => logger.error("Unexpected error processing image for echo %s" format ec.id, e),
+                                    _ match {
+                                        case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo %s" format ec.id, e)
+                                        case ProcessImageResponse(_, Right(image)) => logger.debug("Successfully processed image for echo {}", ec.id)
+                                    }
+                                ))
+                                ec.image
+                            }
                             echoMetricsDao.insert(echoMetrics)
-                            echoDao.insert(ep.copy(echoMetricsId = echoMetrics.id))
+                            val echo = ec.copy(echoMetricsId = echoMetrics.id, image = img)
+                            echoDao.insert(echo)
+                            echo
                         })
-                        true
-                    } catch { case e => logger.error("Could not save %s" format ep, e); false }
-                }
+                    } catch { case e => logger.error("Could not save %s" format ec, e); e }
+                }.filter(_.isInstanceOf[Echo]).map(_.asInstanceOf[Echo])
+
 
                 if (echoes.isEmpty) {
                     channel ! RequestEchoResponse(msg, Left(InvalidEchoRequest()))

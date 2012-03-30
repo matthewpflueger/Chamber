@@ -4,17 +4,6 @@
 
     <cache-ref namespace="com.echoed.chamber.dao.cache.Default" />
 
-    <resultMap id="image" type="com.echoed.chamber.domain.Image">
-        <constructor>
-            <arg column="imageUrl" javaType="String"/>
-            <arg column="imageOriginalUrl" javaType="String"/>
-            <arg column="imageWidth" javaType="_int"/>
-            <arg column="imageHeight" javaType="_int"/>
-            <arg column="imageGrabbedOn" javaType="Date" />
-            <arg column="imageValidatedOn" javaType="Date" />
-        </constructor>
-    </resultMap>
-
     <resultMap id="orderResult" type="com.echoed.chamber.domain.Order">
         <constructor>
             <idArg column="id" javaType="String" />

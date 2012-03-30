@@ -17,6 +17,15 @@
 
     <bean id="encrypter" class="com.echoed.util.Encrypter" />
 
+    <bean id="blobStore" class="com.echoed.util.BlobStore">
+        <property name="provider" value="${blobstore.provider}" />
+        <property name="username" value="${blobstore.identity}" />
+        <property name="credential" value="${blobstore.credential}" />
+        <property name="container" value="test" />
+        <property name="containerUrl" value="http://c12192380.r80.cf2.rackcdn.com" />
+    </bean>
+
+
     <!-- This is a hack to get url properties injected into our tests.  The actual values are defined in servlet-context-properties.xml but
          we reference them via the properties bean below because we could not get the test instances to wire correctly :( -->
     <!--suppress SpringModelInspection -->

@@ -24,6 +24,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
     @Autowired @BeanProperty var encrypter: Encrypter = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
+    @Autowired @BeanProperty var imageDao: ImageDao = _
     @Autowired @BeanProperty var retailerDao: RetailerDao = _
     @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
@@ -68,6 +69,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
         retailerSettingsDao.deleteByRetailerId(retailer.id)
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoDao.deleteByRetailerId(retailer.id)
+        imageDao.deleteByUrl("http://nowhere.com/images/someproduct.png")
     }
 
     override def beforeAll() {

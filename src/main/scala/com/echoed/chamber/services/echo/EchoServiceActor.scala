@@ -19,6 +19,7 @@ import org.springframework.transaction.TransactionStatus
 import com.echoed.util.TransactionUtils._
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.TransactionTemplate
+import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 
 
 class EchoServiceActor extends Actor {
@@ -30,6 +31,8 @@ class EchoServiceActor extends Actor {
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @BeanProperty var echoClickDao: EchoClickDao = _
+    @BeanProperty var imageDao: ImageDao = _
+    @BeanProperty var imageService: ImageService = _
     @BeanProperty var transactionTemplate: TransactionTemplate = _
 
 
@@ -75,12 +78,27 @@ class EchoServiceActor extends Actor {
                             }
                         },
                         {
-                            var ec = echoPossibility.copy(retailerSettingsId = retailerSettings.get.id)
-                            val echoMetrics = new EchoMetrics(ec, retailerSettings.get)
-                            ec = ec.copy(echoMetricsId = echoMetrics.id)
-                            transactionTemplate.execute({status: TransactionStatus =>
+
+                            val ec = transactionTemplate.execute({status: TransactionStatus =>
+                                var ec = echoPossibility.copy(retailerSettingsId = retailerSettings.get.id)
+                                val echoMetrics = new EchoMetrics(ec, retailerSettings.get)
+                                ec = ec.copy(echoMetricsId = echoMetrics.id)
+
+                                val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
+                                    imageDao.insert(ec.image)
+                                    imageService.processImage(ec.image).onComplete(_.value.get.fold(
+                                        e => logger.error("Unexpected error processing image for echo %s" format ec.id, e),
+                                        _ match {
+                                            case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo %s" format ec.id, e)
+                                            case ProcessImageResponse(_, Right(image)) => logger.debug("Successfully processed image for echo {}", ec.id)
+                                        }
+                                    ))
+                                    ec.image
+                                }
                                 echoMetricsDao.insert(echoMetrics)
+                                ec = ec.copy(echoMetricsId = echoMetrics.id, image = img)
                                 echoDao.insert(ec)
+                                ec
                             })
 
                             channel ! REPR(msg, Right(epv.copy(echo = ec)))

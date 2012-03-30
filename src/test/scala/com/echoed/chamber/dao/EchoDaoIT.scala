@@ -18,6 +18,7 @@ import scala.collection.JavaConversions._
 class EchoDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     @Autowired @BeanProperty var echoDao: EchoDao = _
+    @Autowired @BeanProperty var imageDao: ImageDao = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
@@ -25,6 +26,7 @@ class EchoDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with 
     val echoes = dataCreator.echoes
 
     def cleanup() {
+        echoes.foreach(e => imageDao.deleteByUrl(e.image.url))
         echoDao.deleteByRetailerId(echoes(0).retailerId)
         echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
     }
@@ -35,8 +37,9 @@ class EchoDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with 
     feature("A developer can manipulate Echo data") {
 
         scenario("new Echoes are inserted", IntegrationTest) {
+            echoes.foreach(e => imageDao.insert(e.image))
             echoes.foreach(echoDao.insert(_))
-            val echoList = asScalaBuffer(echoDao.findByRetailerId(echoes(0).retailerId))
+            val echoList = echoDao.findByRetailerId(echoes(0).retailerId)
             echoList should not be (null)
             echoList.length should equal (echoes.length)
 
