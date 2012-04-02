@@ -96,14 +96,12 @@ object Echo {
                 r <- Option(retailerId)
                 c <- Option(customerId)
                 p <- Option(productId)
-                b <- Option(boughtOn)
                 o <- Option(orderId)
             } yield {
                 val arrayBuilder = ArrayBuilder.make[Byte]
                 arrayBuilder ++= r.getBytes(e)
                 arrayBuilder ++= c.getBytes(e)
                 arrayBuilder ++= p.getBytes(e)
-                arrayBuilder ++= b.toString.getBytes(e)
                 arrayBuilder ++= o.getBytes(e)
                 Base64.encodeBase64URLSafeString(arrayBuilder.result())
             }).orNull
