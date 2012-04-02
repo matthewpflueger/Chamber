@@ -36,6 +36,7 @@ $(document).ready(function(){
     c.append(et).append(pcc).append(ett);
     c.appendTo(popup);
 
+    var count = 0;
 
 
     $('img[src^="http://demo.echoed.com/echo/button"]').each(function(){
