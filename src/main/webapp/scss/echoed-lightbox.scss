@@ -37,8 +37,7 @@ $twitterColor: #4099FF;
 	z-index: 9999;
 }
 #echoed-popup{
-    padding: 10px;
-	border: 10px solid #FFF;
+	border: 20px solid #FFF;
     text-align: center;
     color: #111;
 	float: left;
@@ -46,35 +45,39 @@ $twitterColor: #4099FF;
     margin:auto;
     left: 50%;
 	z-index: 99999;
-    width: 720px;
-    background-color: #FFF;
-    //background-image: image-url("bk_paper.png");
+    width: 740px;
     font-family: $textFontFamily;
+    //background-image: image-url("bk_paper.png");
 }
 
-#echoed-hiw{
-    //height: 120px;
-    padding-bottom: 10px;
+#echoed-header{
+    height: 40px;
+    background-color: #FFF;
+    text-align: center;
+}
+
+#echoed-container{
+    background-image: image_url("bk_paper.png");
+    padding: 10px;
+    border: 2px #000 solid;
+}
+
+#echoed-hiw-t{
+    font-size: 34px;
+    margin-bottom: 10px;
     font-family: $labelFontFamily;
-    
-    #echoed-hiw-t{
-        font-size: 34px;
-        padding-bottom: 5px;
-        line-height: 1em;
-        font-family: $labelFontFamily;
+}
 
-    }
-    #echoed-hiw-tt{
-        font-size: 24px;
-        font-family: $labelFontFamily;
-    }
+#echoed-hiw-tt{
+    font-size: 24px;
+    margin: 10px 0px;
+    font-family: $labelFontFamily;
+}
 
-    .echoed-highlight{
-        color: $mainColor;
-        font-size: 34px;
-        font-family: $labelFontFamily;
-    }
-
+.echoed-highlight{
+    color: $mainColor;
+    font-size: 34px;
+    font-family: $labelFontFamily;
 }
 
 #echoed-header{
@@ -84,7 +87,7 @@ $twitterColor: #4099FF;
 #echoed-close{
     cursor: pointer;
     float:right;
-    margin: -35px -35px 0 0;
+    margin: -45px -45px 0 0;
 }
 
 #echoed-p-c{
@@ -93,10 +96,8 @@ $twitterColor: #4099FF;
 
 #echoed-pcc{
     padding: 10px;
-    background-color: #CCC;
-    background-image: image-url("bk_paper.png");
-    border:1px solid #333;
-    min-height: 200px;
+    border: 2px #FFF groove;
+    min-height: 300px;
 }
 
 .fb{
@@ -113,25 +114,25 @@ $twitterColor: #4099FF;
     float:left;
     background-color: #FFF;
     @include drop-shadow;
-    height: 200px;
+    height: 300px;
     cursor:pointer;
     .echoed-i-c{
-        width: 160px;
-        max-height:160px;
+        width: 230px;
+        height: 260px;
         overflow: hidden;
         .echoed-i{
-            width: 160px;
+            width: 230px;
         }
         .echoed-bs{
-            width: 112px;
-            height: 53px;
-            background-image: image-url("btn_share_trans.png");
+            width: 70px;
+            height: 33px;
+            background-image: image-url("btn_share.png");
             background-repeat: no-repeat;
             position:absolute;
-            top:50%;
+            top: 50%;
             left:50%;
-            margin: -25px;
-            margin-left: -56px;
+            margin: -16px;
+            margin-left: -35px;
             &.current{
                 background-image: image-url("btn_share.png");
             }

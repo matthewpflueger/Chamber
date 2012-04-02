@@ -9,8 +9,8 @@
 <body>
 <div id="container">
     <div id="header" class="clearfix">
-        <div class="poweredby">
-            <img src="{{urls.images}}/img_pbe.png"/>
+        <div class="retailer-logo">
+            <img src="{{retailerLogo}}"/>
         </div>
     </div>
     <div id="content">
@@ -27,22 +27,6 @@
             </span>
         </div>
         <div class="clearfix">
-            <div id="right">
-                <div id="right-content">
-                    <div class="confirm-label">
-                        WHAT DO YOU GET?
-                    </div>
-                    <div class="confirm-text clearfix">
-                        <div>
-                            Thank you for shopping with us. You can share this product on these additional networks!<br/>
-                            {{#echoFull}}{{#echo}}<a href="http://pinterest.com/pin/create/button?url=http%3A%2F%2Fwww.echoed.com%2Fecho%2F{{id}}&media={{imageUrl}}" class="pin-it-button" count-layout="none">Pin it</a>{{/echo}}{{/echoFull}}
-                            <br/><br/>
-                            Track your rewards for the item you just shared from within your <a style="text-decoration: underline;font-weight:bold;" href="{{urls.site}}/#exhibit">Echoed Exhibit</a><br/><br/>
-                            Encourage your friends to click on your shared purchase link and browse your <a style="text-decoration: underline;font-weight:bold;" href="{{urls.site}}/#exhibit">Exhibit</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div id="left">
                 <div id="left_content">
                     <div id="product">
@@ -60,10 +44,22 @@
                     </div>
                 </div>
             </div>
+            <div id="right">
+                <div id="right-content">
+                    <div class="confirm-label">
+                        TRACK YOUR REWARDS IN THE ECHOED EXHIBIT
+                    </div>
+                    <div class="confirm-text" style="margin-top: 20px;">
+                        Head over to your Exhibit, where you can track the cash back you&#39;re earning. Visit your Exhibit any time or explore cool products your friends are sharing at Echoed.com.
+                    </div>
+                    <div style="text-align:center;margin-top: 20px;">
+                        <a href="{{urls.site}}/#exhibit" target="_blank"><img id="echoedExhibit" src="{{urls.images}}/btn_toexhibit.png"</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 </body>
-<script type="text/javascript" src="http://assets.pinterest.com/js/pinit.js"></script>
 </html>
 {{> google}}

@@ -64,7 +64,7 @@ pre, form, fieldset, table, th, td{
 	margin:0;
 	padding: 0;
 	font-family: $textFontFamily;
-    font-size: 14px;
+    font-size: 16px;
     color: #111;
 }
 
@@ -94,7 +94,7 @@ img{
     margin-top: 10px;
     margin-bottom: 10px;
     font-family: $labelFontFamily;
-    font-size: 18px;
+    font-size: 24px;
     &.red{
         color: $mainColor;
     }
@@ -119,24 +119,23 @@ li{
     }
 
     #header{
-        height:25px;
+        height: 40px;
         width: 750px;
-        padding-left: 10px;
         background-color: #FFF;
     }
+        .retailer-logo{
+            height: 40px;
+            text-align:center;
+            img {
+                height: 40px;
+            }
+        }
 
         .poweredby{
             float:right;
             img{
-                height: 25px;
+                height: 40px;
             }
-        }
-
-        .sharingvalued{
-            font-family: $labelFontFamily;
-            font-size: 40px;
-            float:right;
-            margin-right: 5px;
         }
 
         .red{
@@ -151,7 +150,7 @@ li{
     .ty-text{
         font-family: TradeGothicBD20Cond;
         font-size: 27px;
-        letter-spacing: -2px;
+        letter-spacing: -1px;
     }
 
     .highlight{
@@ -176,7 +175,7 @@ li{
 
     #left{
         float:left;
-        margin: 8px;
+        margin: 10px;
         @include drop-shadow;
         background-color: #FFF;
         height: 270px;
@@ -184,7 +183,8 @@ li{
             width: 180px;
             #product_picture_container{
                 width: 180px;
-                max-height: 220px;
+                height: 220px;
+                //max-height: 220px;
                 overflow-y: hidden;
             }
             #product_picture{
@@ -196,23 +196,16 @@ li{
                 font-size: 12px;
                 font-family: $textFontFamily;
                 border-top: 1px solid #000;
+                white-space: nowrap;
                 color: #222;
             }
         }
     }
 
     #mid{
-        li{
-            line-height: 1.4em;
-        }
-        width: 180px;
-        float:left;
-        @include drop-shadow;
-        margin: 10px;
-        background-color: #FFF;
         height: 270px;
         #mid-content{
-            padding: 0px 10px;
+            padding: 10px;
         }
     }
 
@@ -264,7 +257,7 @@ li{
             background-color: #FFF;
             bottom: 0px;
             .icon{
-                height: 30px;
+                height: 60px;
             }
             td,th{
                 text-align:center;
@@ -278,9 +271,9 @@ li{
             }
             textarea{
                 padding:5px;
-                font-size: 12px;
-                width: 210px;
-                height: 55px;
+                font-size: 14px;
+                width: 370px;
+                height: 50px;
                 border: 1px #CCC solid;
                 font-family: $textFontFamily;
                 margin: 5px;
@@ -325,3 +318,6 @@ li{
     height: 50px;
 }
 
+#echoedExhibit{
+    height: 50px;
+}

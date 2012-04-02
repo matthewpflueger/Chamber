@@ -13,6 +13,39 @@ $(document).ready(function(){
     Echoed.urls.site = "{{site}}";
     /*{{/urls}} // */
 
+    var div = '<div></div>';
+    var popup = $(div).attr("id","echoed-popup");
+    popup.appendTo($('body')).fadeIn();
+    var close = $('<img src="' + Echoed.urls.images + '/btn_closewin.png"/>').attr("id","echoed-close");
+    popup.append(close);
+
+    var popMargTop = (0) ;
+    var popMargLeft = (360);
+    popup.css({
+        'top' : 50,
+        'margin-left' : -popMargLeft
+    });
+    $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
+    var h = $(div).attr("id","echoed-header");
+    h.append('<img src="{{partner.logo}}"/>').appendTo(popup);
+
+    var c = $(div).attr("id","echoed-container");
+
+    var hiw = $(div).attr("id","echoed-hiw");
+    var et = $(div).attr("id","echoed-hiw-t").html('SHARE WITH FRIENDS AND EARN UP TO 20% CASH BACK');
+    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='" + Echoed.urls.images +  "/logo_facebook.png'> or <img src='" + Echoed.urls.images +  "/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
+    var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
+    var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
+    pcc.append(container);
+    c.append(et).append(pcc).append(ett);
+    c.appendTo(popup);
+    $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
+
+    var count = 0;
+
+    $('#echoed-close').live('click', function(){
+        $('#echoed-fade,#echoed-popup').fadeOut();
+    });
 
     $.ajax({
         url: Echoed.urls.api + "/echo/request",
@@ -22,29 +55,6 @@ $(document).ready(function(){
             "data": echoData
         },
         success: function(data) {
-
-            var div = '<div></div>';
-            var popup = $(div).attr("id","echoed-popup");
-            popup.appendTo($('body')).fadeIn();
-            var close = $('<img src="' + Echoed.urls.images + '/btn_closewin.png"/>').attr("id","echoed-close");
-            popup.append(close);
-
-            var popMargTop = (0) ;
-            var popMargLeft = (360);
-            popup.css({
-                'top' : 50,
-                'margin-left' : -popMargLeft
-            });
-            $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
-            var hiw = $(div).attr("id","echoed-hiw");
-            var et = $(div).attr("id","echoed-hiw-t").html('SHARE WITH FRIENDS AND EARN UP TO <span class="echoed-highlight">20% CASH BACK</span>');
-            var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='" + Echoed.urls.images +  "/logo_facebook.png'> or <img src='" + Echoed.urls.images +  "/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
-            hiw.append(et).append(ett);
-            hiw.appendTo(popup);
-            $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-            var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
-            var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
-            var count = 0;
 
             $(data.echoPossibilities).each(function(index,echoPossibility){
 
@@ -63,8 +73,7 @@ $(document).ready(function(){
                 p.append(ic).append(t);
                 container.append(p);
             });
-            container.appendTo(pcc);
-            pcc.appendTo(popup);
+
             $('.echoed-p').live('mouseenter', function(){
                 $(this).find('.echoed-bs').addClass("current");
                 });
@@ -76,13 +85,9 @@ $(document).ready(function(){
             $('.echoed-p').live('click', function(){
                 var url = $(this).attr("href");
                 //$('#echoed-iframe').attr("src",url).css("height","500px");
-                window.open(url, $(this).attr("id"),'width=720,height=370,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                window.open(url, $(this).attr("id"),'width=720,height=400,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
                 });
 
-            $('#echoed-close').live('click', function(){
-                $('#echoed-fade,#echoed-popup').fadeOut();
-            });
-            //popup.appendTo($('body')).fadeIn();
         }
     });
 });

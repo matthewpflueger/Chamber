@@ -176,10 +176,18 @@ class EchoController {
                 _ match {
                     case LocateResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
                     case LocateResponse(_, Right(p)) =>
-                        continuation.setAttribute("modelAndView", new ModelAndView(echoJsView, "pid", pid))
-                        continuation.resume()
+                        p.getPartner.onComplete(_.value.get.fold(
+                            e => error(echoJsErrorView, Some(e)),
+                            _ match {
+                                case GetPartnerResponse(_, Left(e2)) => error(echoJsErrorView, Some(e2))
+                                case GetPartnerResponse(_, Right(partner)) =>
+                                    val modelAndView = new ModelAndView(echoJsView)
+                                    modelAndView.addObject("pid",pid)
+                                    modelAndView.addObject("partner",partner)
+                                    continuation.setAttribute("modelAndView", modelAndView)
+                                    continuation.resume()
+                            }))
                 }))
-
             continuation.undispatch()
         }
     }
@@ -218,10 +226,10 @@ class EchoController {
                         e => resume(e),
                         _ match {
                             case RequestEchoResponse(_, Left(e)) => resume(e)
-                            case RequestEchoResponse(_, Right(echoPossibilityView)) => resume(echoPossibilityView)
+                            case RequestEchoResponse(_, Right(echoPossibilityView)) =>
+                                resume(echoPossibilityView)
                         }))
                 }))
-
             continuation.undispatch()
         }
     }
@@ -267,6 +275,7 @@ class EchoController {
                         val modelAndView = new ModelAndView(echoLoginView)
 
                         modelAndView.addObject("echoPossibilityView", data)
+                        modelAndView.addObject("retailerLogo", data.retailer.logo)
                         modelAndView.addObject("maxPercentage", "%1.0f".format(data.retailerSettings.maxPercentage*100));
                         modelAndView.addObject("minPercentage", "%1.0f".format(data.retailerSettings.minPercentage*100));
                         modelAndView.addObject("numberDays", data.retailerSettings.creditWindow / 24)
@@ -377,6 +386,7 @@ class EchoController {
                             modelAndView.addObject("echoPossibilityView", epv)
                             modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                             modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
+                            modelAndView.addObject("retailerLogo", epv.retailer.logo)
                             modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
                             modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
                             continuation.setAttribute("modelAndView", modelAndView)
@@ -395,6 +405,7 @@ class EchoController {
                         modelAndView.addObject("retailer", epv.retailer)
                         modelAndView.addObject("retailerSettings", epv.retailerSettings)
                         modelAndView.addObject("logoutUrl", lu)
+                        modelAndView.addObject("retailerLogo", epv.retailer.logo)
                         modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                         modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                         modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
@@ -511,6 +522,7 @@ class EchoController {
                                     val modelAndView = new ModelAndView(errorView)
                                     modelAndView.addObject("errorMessage", "This item has already been shared")
                                     modelAndView.addObject("echoPossibilityView", epv)
+                                    modelAndView.addObject("retailerLogo", epv.retailer.logo)
                                     modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                                     modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                                     modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
@@ -526,6 +538,7 @@ class EchoController {
                                     modelAndView.addObject("echoedUser", echoedUser)
                                     modelAndView.addObject("echoPossibility", epv.echo)
                                     modelAndView.addObject("retailer", epv.retailer)
+                                    modelAndView.addObject("retailerLogo", epv.retailer.logo)
                                     modelAndView.addObject("retailerSettings", epv.retailerSettings)
                                     modelAndView.addObject("logoutUrl", lu)
                                     modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
@@ -564,6 +577,7 @@ class EchoController {
                                 + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
 
                         modelAndView.addObject("echoPossibilityView", epv)
+                        modelAndView.addObject("retailerLogo", epv.retailer.logo)
                         modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
                         modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));

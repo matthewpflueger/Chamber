@@ -8,13 +8,13 @@
 <body>
 <div id="container">
     <div id="header" class="clearfix">
-        <div class="poweredby">
-            <img src="{{urls.images}}/img_pbe.png"/>
+        <div class="retailer-logo">
+            <img src="{{retailerLogo}}"/>
         </div>
     </div>
     <div id="content" class="clearfix">
         <div id="thankyou">
-            <span class="ty-text">{{#echoedUser}}{{name}}{{/echoedUser}}, Echo This Purchase and Save!</span><span class="not-name">  ( <span class="highlight"><strong><a href="{{logoutUrl}}">Not {{#echoedUser}}{{name}}{{/echoedUser}}</a></strong></span>? )</span>
+            <span class="ty-text">{{#echoedUser}}{{name}}{{/echoedUser}}, Share And Immediately Earn {{minPercentage}}% Back!</span><span class="not-name">  ( <span class="highlight"><strong><a href="{{logoutUrl}}">Not {{#echoedUser}}{{name}}{{/echoedUser}}</a></strong></span>? )</span>
         </div>
         <div id="lower" class="clearfix">
             <div id="left" class="wide">
@@ -35,13 +35,11 @@
                     </div>
                 </div>
             </div>
-            <div id="right" class="short">
-                <div id="right_content" class="border-grey bg-color-white rounded-corners">
+            <div id="right" class="long">
+                <div id="right_content">
                     <div id="echoes-container">
                         <form name="message" id="echo" action="{{urls.site}}/echo/finish" method="get">
-                            <div style="text-align: center;"><input id="echoit" type="image" style="cursor:pointer;" src="{{urls.images}}/btn_shareit_off.png" onmouseover="this.src = '{{urls.images}}/btn_shareit_on.png'" onmouseout="this.src='{{urls.images}}/btn_shareit_off.png'"/></div>
                             {{#echoPossibility}}
-
                             <input type="hidden" name="echoId" value="{{id}}">
                             {{/echoPossibility}}
                             <table id="echoes" width="100%" cellspacing="5px">
@@ -96,7 +94,7 @@
                                 <tr>
                                     <td>
                                         <a id="twitterLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=twitter&add=true">
-                                            <img src="{{urls.images}}/btn_icon_twitter_bw.png" class="icon"/>
+                                            <img src="{{urls.images}}/icon_twitter.png" class="icon"/>
                                         </a>
                                     </td>
                                     <td>
@@ -104,22 +102,15 @@
                                     </td>
                                 </tr>
                                 {{/twitterUserId}}
+                                <tr>
+                                    <td colspan="3">
+                                        <div style="text-align: center;"><input id="echoit" type="image" style="cursor:pointer;" src="{{urls.images}}/btn_clicktoshare.png" /></div>
+                                    </td>
+                                </tr>
                                 {{/echoedUser}}
                                 </tbody>
                             </table>
                         </form>
-                    </div>
-                </div>
-            </div>
-            <div id="mid">
-                <div id="mid-content">
-                    <div style="margin-left:5px" class="confirm-label">
-                        REMEMBER:
-                    </div>
-                    <div style="margin-bottom:10px;padding-left:25px;padding-right: 15px;">
-                        <ul>
-                            <li>Share this product and get <strong>{{minPercentage}}% back</strong>. Earn more for every friend that clicks, up to <strong>{{maxPercentage}}% back</strong>!</li>
-                        </ul>
                     </div>
                 </div>
             </div>
