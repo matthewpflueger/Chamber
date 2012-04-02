@@ -56,8 +56,6 @@ $(document).ready(function(){
         p.append(ic).append(t);
         container.append(p);
     });
-    container.appendTo(pcc);
-    pcc.appendTo(popup);
     $('.echoed-p').live('mouseenter', function(){
         $(this).find('.echoed-bs').addClass("current");
     });
@@ -75,7 +73,7 @@ $(document).ready(function(){
         $('#echoed-fade,#echoed-popup').fadeOut();
     });
     
-    
     popup.appendTo($('body')).fadeIn();
+
 });
 
