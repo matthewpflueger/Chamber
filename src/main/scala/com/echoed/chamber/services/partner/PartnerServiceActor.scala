@@ -32,13 +32,62 @@ class PartnerServiceActor(
 
     self.id = "Partner:%s" format partner.id
 
+    private def requestEcho(echoRequest: EchoRequest, echoClickId: Option[String] = None) = {
+        val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
+                .getOrElse(throw new PartnerNotActive(partner.id))
+
+        val echoes = echoRequest.items.map { i =>
+            Echo.make(
+                partner.id,
+                echoRequest.customerId,
+                i.productId,
+                echoRequest.boughtOn,
+                "request",
+                echoRequest.orderId,
+                i.price,
+                i.imageUrl,
+                i.landingPageUrl,
+                i.productName,
+                i.category,
+                i.brand,
+                i.description.take(1023),
+                echoClickId.orNull,
+                partnerSettings.id)
+        }.map { ec =>
+            try {
+                transactionTemplate.execute({status: TransactionStatus =>
+                    val echoMetrics = new EchoMetrics(ec, partnerSettings)
+                    val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
+                        logger.debug("New image for processing {}", ec.image.url)
+                        imageDao.insert(ec.image)
+                        imageService.processImage(ec.image).onComplete(_.value.get.fold(
+                            e => logger.error("Unexpected error processing image for echo %s" format ec.id, e),
+                            _ match {
+                                case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo %s" format ec.id, e)
+                                case ProcessImageResponse(_, Right(image)) => logger.debug("Successfully processed image for echo {}", ec.id)
+                            }
+                        ))
+                        ec.image
+                    }
+                    echoMetricsDao.insert(echoMetrics)
+                    val echo = ec.copy(echoMetricsId = echoMetrics.id, image = img)
+                    echoDao.insert(echo)
+                    echo
+                })
+            } catch { case e => logger.error("Could not save %s" format ec, e); e }
+        }.filter(_.isInstanceOf[Echo]).map(_.asInstanceOf[Echo])
+
+        if (echoes.isEmpty) throw new InvalidEchoRequest()
+        else new EchoPossibilityView(echoes, partner, partnerSettings)
+    }
+
     def receive = {
 
         case msg @ GetPartner() =>
             val channel: Channel[GetPartnerResponse] = self.channel
             channel ! GetPartnerResponse(msg, Right(partner))
 
-        case msg @ RequestEcho(request, ipAddress, echoedUserId, echoClickId) =>
+        case msg @ RequestEcho(request, ipAddres, echoedUserId, echoClickId) =>
             val channel: Channel[RequestEchoResponse] = self.channel
 
             logger.debug("Received {}", msg)
@@ -50,61 +99,10 @@ class PartnerServiceActor(
                         decryptedRequest,
                         new TypeReference[EchoRequest]() {})
 
-                val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
-                        .getOrElse(throw new PartnerNotActive(partner.id))
-
-                val echoes = echoRequest.items.map { i =>
-                    Echo.make(
-                            partner.id,
-                            echoRequest.customerId,
-                            i.productId,
-                            echoRequest.boughtOn,
-                            "request",
-                            echoRequest.orderId,
-                            i.price,
-                            i.imageUrl,
-                            i.landingPageUrl,
-                            i.productName,
-                            i.category,
-                            i.brand,
-                            i.description.take(1023),
-                            echoClickId.orNull,
-                            partnerSettings.id)
-                }.map { ec =>
-                    try {
-                        transactionTemplate.execute({status: TransactionStatus =>
-                            val echoMetrics = new EchoMetrics(ec, partnerSettings)
-                            val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
-                                logger.debug("New image for processing {}", ec.image.url)
-                                imageDao.insert(ec.image)
-                                imageService.processImage(ec.image).onComplete(_.value.get.fold(
-                                    e => logger.error("Unexpected error processing image for echo %s" format ec.id, e),
-                                    _ match {
-                                        case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo %s" format ec.id, e)
-                                        case ProcessImageResponse(_, Right(image)) => logger.debug("Successfully processed image for echo {}", ec.id)
-                                    }
-                                ))
-                                ec.image
-                            }
-                            echoMetricsDao.insert(echoMetrics)
-                            val echo = ec.copy(echoMetricsId = echoMetrics.id, image = img)
-                            echoDao.insert(echo)
-                            echo
-                        })
-                    } catch { case e => logger.error("Could not save %s" format ec, e); e }
-                }.filter(_.isInstanceOf[Echo]).map(_.asInstanceOf[Echo])
-
-
-                if (echoes.isEmpty) {
-                    channel ! RequestEchoResponse(msg, Left(InvalidEchoRequest()))
-                } else {
-                    channel ! RequestEchoResponse(
-                            msg,
-                            Right(new EchoPossibilityView(echoes, partner, partnerSettings)))
-                }
+                channel ! RequestEchoResponse(msg, Right(requestEcho(echoRequest, echoClickId)))
             } catch {
-                case e: PartnerNotActive =>
-                    channel ! RequestEchoResponse(msg, Left(e))
+                case e: InvalidEchoRequest => channel ! RequestEchoResponse(msg, Left(e))
+                case e: PartnerNotActive => channel ! RequestEchoResponse(msg, Left(e))
                 case e =>
                     logger.error("Error processing %s" format e, msg)
                     channel ! RequestEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
@@ -128,9 +126,6 @@ class PartnerServiceActor(
                     ei
                 }
 
-                val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
-                    .getOrElse(throw new PartnerNotActive(partner.id))
-
 
                 val echoRequest: EchoRequest = new EchoRequest()
                 echoRequest.items = items
@@ -139,46 +134,10 @@ class PartnerServiceActor(
                 echoRequest.boughtOn = new Date
                 logger.debug("Echo Request: {}", echoRequest)
 
-                val echoes = echoRequest.items.map { i=>
-                    Echo.make(
-                        partner.id,
-                        echoRequest.customerId,
-                        i.productId,
-                        echoRequest.boughtOn,
-                        "request",
-                        echoRequest.orderId,
-                        i.price,
-                        i.imageUrl,
-                        i.landingPageUrl,
-                        i.productName,
-                        i.category,
-                        i.brand,
-                        i.description.take(1023),
-                        echoClickId.orNull,
-                        partnerSettings.id)
-
-                }.filter { ep =>
-                    try {
-                        val echoMetrics = new EchoMetrics(ep, partnerSettings)
-                        transactionTemplate.execute({status: TransactionStatus =>
-                            echoMetricsDao.insert(echoMetrics)
-                            echoDao.insert(ep.copy(echoMetricsId = echoMetrics.id))
-                        })
-                        true
-                    } catch { case e => logger.error("Could not save %s" format ep, e ); false }
-                    
-                }
-                
-                if (echoes.isEmpty) {
-                    channel ! RequestShopifyEchoResponse(msg, Left(InvalidEchoRequest()))
-                } else {
-                    channel ! RequestShopifyEchoResponse(
-                            msg,
-                            Right(new EchoPossibilityView(echoes, partner, partnerSettings))
-                    )
-                }
-
+                channel ! RequestShopifyEchoResponse(msg, Right(requestEcho(echoRequest, echoClickId)))
             } catch {
+                case e: InvalidEchoRequest => channel ! RequestShopifyEchoResponse(msg, Left(e))
+                case e: PartnerNotActive => channel ! RequestShopifyEchoResponse(msg, Left(e))
                 case e =>
                     logger.error("Error processing %s" format e, msg)
                     channel ! RequestShopifyEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
