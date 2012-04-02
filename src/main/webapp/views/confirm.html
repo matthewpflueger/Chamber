@@ -11,9 +11,6 @@
             <div class="retailer-logo">
                 <img src="{{retailerLogo}}"/>
             </div>
-            <div class="poweredby">
-                <img src="{{urls.images}}/img_pbe.png"/>
-            </div>
         </div>
         <div id="content" class="clearfix">
             <div id="thankyou">
@@ -38,10 +35,10 @@
                         </div>
                     </div>
                 </div>
-    	        <div id="right" class="short">
-                    <div id="right_content" class="border-grey bg-color-white rounded-corners">
+    	        <div id="right" class="long">
+                    <div id="right_content">
                         <div id="echoes-container">
-                            <form name="message" id="echo" action="{{urls.site}}/echo/finish" method="get">
+                            <form name="message" id="echo" action="{{urls.site}}/echo/it" method="get">
                                 {{#echoPossibility}}
                                 <input type="hidden" name="echoId" value="{{id}}">
                                 {{/echoPossibility}}
@@ -117,18 +114,6 @@
                         </div>
                     </div>
 	            </div>
-                <div id="mid">
-                    <div id="mid-content">
-                        <div style="margin-left:5px" class="confirm-label">
-                            REMEMBER:
-                        </div>
-                        <div style="margin-bottom:10px;padding-left:25px;padding-right: 15px;">
-                            <ul>
-                                <li>Share this product and get <strong>{{minPercentage}}% back</strong>. Earn more for every friend that clicks, up to <strong>{{maxPercentage}}% back</strong>!</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
