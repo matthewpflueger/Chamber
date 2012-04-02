@@ -12,7 +12,7 @@ function echoed_share(store_id, order_id, item_id,item_name,item_type,item_brand
                 + "&category=" + encodeURIComponent(item_type)
                 + "&description=" + encodeURIComponent(item_description)
                 + "&brand=" + encodeURIComponent(item_brand);
-	window.open(url,'Echoed','width=720,height=370,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+	window.open(url,'Echoed','width=720,height=400,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
 	return false;
 }
 
