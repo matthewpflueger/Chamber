@@ -25,16 +25,22 @@ $(document).ready(function(){
         'margin-left' : -popMargLeft
     });
     $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
-    var hiw = $(div).attr("id","echoed-hiw");
-    var et = $(div).attr("id","echoed-hiw-t").html('SHARE YOUR PURCHASE AND EARN UP TO <span class="echoed-highlight">20% CASH BACK</span>');
-    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='http://v1-cdn.echoed.com/logo_facebook.png'> or <img src='http://v1-cdn.echoed.com/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
-    hiw.append(et).append(ett);
-    hiw.appendTo(popup);
-
     $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
+
+    var h = $(div).attr("id","echoed-header");
+    h.append('<img src="{{partner.logo}}"/>').appendTo(popup);
+
+    var c = $(div).attr("id","echoed-container");
+
+    var et = $(div).attr("id","echoed-hiw-t").html('SHARE WITH FRIENDS AND EARN UP TO 20% CASH BACK');
+    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='" + Echoed.urls.images +  "/logo_facebook.png'> or <img src='" + Echoed.urls.images +  "/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
     var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
     var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
-    var count = 0;
+    pcc.append(container);
+    c.append(et).append(pcc).append(ett);
+    c.appendTo(popup);
+
+
     $('img[src^="http://www.echoed.com/echo/button"]').each(function(){
         count++;
         if(count <=3){
