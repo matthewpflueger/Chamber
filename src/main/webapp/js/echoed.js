@@ -234,6 +234,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                         self.EvAg.trigger('Brand/add',product.echoBrand, product.echoBrand);
                     });
                     self.productCount += data.echoes.length;
+                    self.EvAg.bind('infiniteScroll', self.next);
                 }
                 else{
                     self.nextInt = null;
@@ -271,7 +272,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                             self.EvAg.trigger('Brand/add',product.echoBrand,product.echoBrand);
                         });
                         self.productCount += data.echoes.length;
+                        self.EvAg.bind('infiniteScroll', self.next);
                         self.nextInt++;
+
                     }
                     else{
                         self.nextInt = null;
@@ -289,10 +292,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var productDiv = $('<div></div>');
         var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
         self.exhibit.isotope('insert',productDiv);
-        self.productCount2++;
-        if(self.productCount2 == self.productCount){
-            self.complete();
-        }
     }
 });
 
