@@ -28,9 +28,8 @@ $(document).ready(function(){
     $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
 
     var c = $(div).attr("id","echoed-container");
-
     var et = $(div).attr("id","echoed-hiw-t").html('SHARE WITH FRIENDS AND EARN UP TO 20% CASH BACK');
-    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='" + Echoed.urls.images +  "/logo_facebook.png'> or <img src='" + Echoed.urls.images +  "/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
+    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='http://demo.echoed.com/images/logo_facebook.png'> or <img src='https://demo.echoed.com/images/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
     var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
     var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
     pcc.append(container);
