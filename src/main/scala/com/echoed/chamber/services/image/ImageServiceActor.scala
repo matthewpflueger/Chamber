@@ -163,7 +163,7 @@ class ImageServiceActor extends Actor {
 
 
     private def error(image: Image, e: Throwable, processStatus: Option[String] = None) {
-        logger.error("Error processing %s" format image, e)
+        logger.info("Error processing %s" format image, e)
         val img = image.copy(processedOn = new Date, processedStatus = processStatus.getOrElse(e.getMessage.take(254)))
 
         val imageException =
@@ -317,7 +317,7 @@ class ImageServiceActor extends Actor {
             val me = self
 
             resp.cata(
-                logger.error("Error processing low priority image %s" format msg.image.url, _),
+                logger.info("Error processing low priority image %s" format msg.image.url, _),
                 logger.debug("Successfully processed low priority image {}", _))
             me ! FindUnprocessedImage()
 
