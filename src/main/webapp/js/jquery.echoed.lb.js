@@ -28,8 +28,6 @@ $(document).ready(function(){
     $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
 
     var h = $(div).attr("id","echoed-header");
-    h.append('<img src="{{partner.logo}}"/>').appendTo(popup);
-
     var c = $(div).attr("id","echoed-container");
 
     var et = $(div).attr("id","echoed-hiw-t").html('SHARE WITH FRIENDS AND EARN UP TO 20% CASH BACK');
