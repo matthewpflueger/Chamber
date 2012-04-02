@@ -288,15 +288,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         var productDiv = $('<div></div>');
         var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
-        productDiv.hide().appendTo(self.exhibit);
-        productDiv.imagesLoaded(function(){
-            self.exhibit.isotope('insert',productDiv);
-            self.productCount2++;
-            if(self.productCount2 == self.productCount){
-                self.complete();
-            }
-            productDiv.show();
-        });
+        self.exhibit.isotope('insert',productDiv);
+        self.productCount2++;
+        if(self.productCount2 == self.productCount){
+            self.complete();
+        }
     }
 });
 
@@ -532,7 +528,9 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var template = _.template($('#templates-components-product').html());
         var self = this;
         var landingUrl = Echoed.urls.api + "/echo/" + this.model.get("echoId");
-        var imageUrl =   this.model.get("echoImageUrl");
+        var imageUrl =   this.model.get("image").preferredUrl;
+        var imageWidth = this.model.get("image").preferredWidth;
+        var imageHeight = this.model.get("image").preferredHeight;
         this.el.addClass("item_wrap").addClass('Brand-' + this.model.get("echoBrand").replace(/ /g,"-")).addClass('Category-' + this.model.get("echoCategory").replace(" ","-")).html(template).attr("href",landingUrl + '/1');
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
@@ -557,6 +555,12 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             hover.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/><br/>');
         }
         img.attr('src', imageUrl);
+        if (imageWidth > 0) {
+            img.attr('width', imageWidth)
+        }
+        if (imageHeight > 0) {
+            img.attr('height', imageHeight)
+        }
         if(this.model.get("echoCreditWindowEndsAt")){
             var then = this.model.get("echoCreditWindowEndsAt");
             var a = new Date();

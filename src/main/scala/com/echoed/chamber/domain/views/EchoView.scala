@@ -1,12 +1,12 @@
 package com.echoed.chamber.domain.views
 
 import java.util.Date
+import com.echoed.chamber.domain.Image
 
 
 case class EchoView(
         echoId: String,
         echoBoughtOn: Date,
-        echoImageUrl: String,
         echoProductName: String,
         echoCategory: String,
         echoBrand: String,
@@ -24,5 +24,6 @@ case class EchoView(
         facebookPostId: String,
         facebookPostFacebookId: String,
         twitterStatusId: String,
-        twitterStatusTwitterId: String)
+        twitterStatusTwitterId: String,
+        image: Image)
 

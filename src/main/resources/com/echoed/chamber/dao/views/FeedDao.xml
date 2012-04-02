@@ -28,7 +28,6 @@
     <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoViewDetail">
         <constructor>
             <idArg column="echoId" javaType="String" />
-            <arg column="echoImageUrl" javaType="String" />
             <arg column="echoProductName" javaType="String"/>
             <arg column="echoCategory" javaType="String"/>
             <arg column="echoBrand" javaType="String"/>
@@ -37,6 +36,7 @@
             <arg column="echoedFriendName" javaType="String"/>
             <arg column="retailerId" javaType="String" />
             <arg column="retailerName" javaType="String" />
+            <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
         </constructor>
     </resultMap>
 
@@ -44,12 +44,12 @@
         <constructor>
             <idArg column="echoId" javaType="String"/>
             <arg column="echoBoughtOn" javaType="Date"/>
-            <arg column="echoImageUrl" javaType="String"/>
             <arg column="echoProductName" javaType="String"/>
             <arg column="echoCategory" javaType="String"/>
             <arg column="echoBrand" javaType="String"/>
             <arg column="echoLandingPageUrl" javaType="String"/>
             <arg column="retailerName" javaType="String"/>
+            <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
         </constructor>
     </resultMap>
 
@@ -57,15 +57,17 @@
         select
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
-            E.imageUrl as echoImageUrl,
             E.productName as echoProductName,
             coalesce(R.category,"Other") as echoCategory,
             E.brand as echoBrand,
             E.landingPageUrl as echoLandingPageUrl,
-            R.name as retailerName
+            R.name as retailerName,
+            <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
         from
             Echo E
-            left outer join Retailer R on E.retailerId = R.id
+            join Image I on E.imageId = I.id
+            join Retailer R on E.retailerId = R.id
+        where I.sizedWidth > 0
         order by
             E.createdOn desc, E.id DESC
         Limit
@@ -76,15 +78,16 @@
         select
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
-            E.imageUrl as echoImageUrl,
             E.productName as echoProductName,
             coalesce(R.category,"Other") as echoCategory,
             E.brand as echoBrand,
             E.landingPageUrl as echoLandingPageUrl,
-            R.name as retailerName
+            R.name as retailerName,
+            <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
         from
             Echo E
-            left outer join Retailer R on E.retailerId = R.id
+            join Image I on E.imageId = I.id
+            join Retailer R on E.retailerId = R.id
         where
             R.name = #{partnerName}
         order by
@@ -108,7 +111,6 @@
             EU2.screenName as echoedFriendScreenName,
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
-            E.imageUrl as echoImageUrl,
             E.productName as echoProductName,
             R.category as echoCategory,
             E.brand as echoBrand,
@@ -125,19 +127,21 @@
             FP.id as facebookPostId,
             FP.facebookId as facebookPostFacebookId,
             TS.id as twitterStatusId,
-            TS.twitterId as twitterStatusTwitterId
+            TS.twitterId as twitterStatusTwitterId,
+            <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
         from
             EchoedUser EU
             left outer join EchoedFriend EF on EU.id = EF.fromEchoedUserId
             left outer join EchoedUser EU2 on EF.toEchoedUserId = EU2.id
             left outer join Echo E on EF.toEchoedUserId = E.echoedUserId
+            left outer join Image I on E.imageId = I.id
             left outer join EchoMetrics EM on E.id = EM.echoId
             left outer join Retailer R on E.retailerId = R.id
             left outer join RetailerSettings RS on E.retailerSettingsId = RS.id
             left outer join FacebookPost FP on E.facebookPostId = FP.id
             left outer join TwitterStatus TS on E.twitterStatusId = TS.id
         where
-            EU.id = #{id}
+            EU.id = #{id} and I.sizedWidth > 0
         order by
             E.createdOn desc, E.id DESC
         Limit
