@@ -268,8 +268,8 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             }
 
             echoMetrics.clicks should equal (clicks)
-            echoMetrics.credit should be (1.6f plusOrMinus 0.01f)
-            echoMetrics.fee should be (1.6f plusOrMinus 0.01f)
+            echoMetrics.credit should be (1.21f plusOrMinus 0.01f)
+            echoMetrics.fee should be (1.21f plusOrMinus 0.01f)
 
             verifyZeroResidual(echoMetrics)
 

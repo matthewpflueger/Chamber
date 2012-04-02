@@ -81,7 +81,7 @@ case class EchoMetrics(
         } else if (totalClicks == rs.maxClicks) {
             updateForWindow(update(totalClicks, rs.maxPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage))
         } else {
-            val percentage = logOfBase(rs.maxClicks, totalClicks - rs.minClicks) * (rs.maxPercentage - rs.minPercentage) + rs.minPercentage
+            val percentage = (scala.math.pow(logOfBase(rs.maxClicks, totalClicks - rs.minClicks), 3) * (rs.maxPercentage - rs.minPercentage) + rs.minPercentage).asInstanceOf[Float]
             updateForWindow(update(totalClicks, percentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage))
         }
     }
