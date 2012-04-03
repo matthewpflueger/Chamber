@@ -17,7 +17,7 @@
     <div id="content">
         <div id="thankyou">
             {{#retailer}}
-            <span class="ty-text">{{name}} Would Like To Reward You For Your Purchase!</span>
+            <span class="ty-text">Share Now, Get Rewarded From {{name}}</span>
             {{/retailer}}
         </div>
         <div id="lower" class="clearfix">
@@ -45,7 +45,7 @@
                 <div id="right-content">
                     {{#retailer}}
                     <div class="confirm-label">
-                        SHARE NOW TO GET YOUR REWARD, IT'S EASY!
+                        EARN UP TO {{maxPercentage}} BACK ON YOUR ORIGINAL FORM OF PAYMENT
                     </div>
                     <div>
                         <a id="facebookLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=facebook" >
@@ -57,12 +57,17 @@
                     </div>
                     <div class="confirm-text" style="margin-top: 30px;">
                         <ul>
-                            Share this purchase with <img src="{{urls.images}}/logo_facebook_bw.png"/> and <img src="{{urls.images}}/logo_twitter_bw.png"/> and get an automatic <strong>{{minPercentage}}% back</strong>. Get your friends to click through and earn up to <strong>{{maxPercentage}}% back on your original form of payment!</strong>
+                           Get an automatic <strong>{{minPercentage}}% back</strong> just for sharing your purchase. As more friends click your shared link, your cash back will grow,  <strong>up to {{maxPercentage}}% back on your original form of payment!</strong>
                         </ul>
                     </div>
                     {{/retailer}}
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="footer">
+        <div class="poweredbyechoed">
+            <img src="{{urls.images}}/img_pbe.png"/>
         </div>
     </div>
 </div>

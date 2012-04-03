@@ -17,7 +17,7 @@
         <div id="content">
             <div id="thankyou">
                 {{#retailer}}
-                <span class="ty-text">{{name}} Would Like To Reward You For Your Purchase!</span>
+                <span class="ty-text">Share Now, Get Rewarded From {{name}}</span>
                 {{/retailer}}
             </div>
             <div id="lower" class="clearfix">
@@ -45,7 +45,7 @@
                     <div id="right-content">
                         {{#retailer}}
                         <div class="confirm-label">
-                            SHARE NOW TO GET YOUR REWARD, IT'S EASY!
+                            EARN UP TO {{maxPercentage}} BACK ON YOUR ORIGINAL FORM OF PAYMENT!
                         </div>
                         <div>
                             <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{redirectUrl}}&scope=email,publish_stream,read_stream,offline_access,publish_actions" >
@@ -63,6 +63,11 @@
                         {{/retailer}}
                     </div>
 	            </div>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="poweredbyechoed">
+                <img src="{{urls.images}}/img_pbe.png"/>
             </div>
         </div>
     </div>

@@ -9,12 +9,14 @@
 <div id="container">
     <div id="header" class="clearfix">
         <div class="retailer-logo">
-            <img src="{{retailerLogo}}"/>
+            {{#echoFull}}
+            <img src="{{#retailer}}{{logo}}{{/retailer}}"/>
+            {{/echoFull}}
         </div>
     </div>
     <div id="content">
         <div id="thankyou">
-            <span class="ty-text">You&#39;ve Shared This Product to these Social Networks:
+            <span class="ty-text">Successfully Echoed! You Shared To:
                 {{#echoFull}}
                     {{#facebookPost}}
                         <img align="absmiddle" id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
@@ -35,7 +37,8 @@
                             </div>
                             <div id="product-description">
                                 {{#echoFull}}{{#echo}}
-                                {{brand}}
+                                <strong>{{brand}}</strong><br/>
+                                {{productName}}
                                 {{/echo}}{{/echoFull}}
                             </div>
                         </div>
@@ -48,13 +51,18 @@
                         TRACK YOUR REWARDS IN THE ECHOED EXHIBIT
                     </div>
                     <div class="confirm-text" style="margin-top: 20px;">
-                        Head over to your Exhibit, where you can track the cash back you&#39;re earning. Visit your Exhibit any time or explore cool products your friends are sharing at Echoed.com.
+                        Head over to your <strong>Exhibit</strong>, where you can track the cash back you&#39;re earning. Visit your Exhibit any time or explore cool products your friends are sharing at <strong>Echoed.com</strong>.
                     </div>
                     <div style="text-align:center;margin-top: 20px;">
                         <a href="{{urls.site}}/#exhibit" target="_blank"><img id="echoedExhibit" src="{{urls.images}}/btn_toexhibit.png"</a>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="footer">
+        <div class="poweredbyechoed">
+            <img src="{{urls.images}}/img_pbe.png"/>
         </div>
     </div>
 </div>
