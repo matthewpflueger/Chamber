@@ -125,7 +125,6 @@ $twitterColor: #4099FF;
     height: 300px;
     cursor:pointer;
     &:hover{
-        //border: 2px #F00 solid;
         @include drop-shadow-highlight;
     }
     .echoed-i-c{
@@ -151,6 +150,7 @@ $twitterColor: #4099FF;
         font-family: $textFontFamily;
         text-overflow: ellipsis;
         overflow: hidden;
+        width: 230px;
     }
 }
 

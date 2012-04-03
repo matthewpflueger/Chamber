@@ -98,14 +98,17 @@ a{
 }
 
 h1{
-    font-family: $labelFontFamily;
-    font-size: 64px;
-    color: #000;
+    font-family: $navFontFamily;
+    font-size: 50px;
+    color: $labelColor;
+    font-weight: 400;
 }
 
 h2{
     font-family: $navFontFamily;
     color: $labelColor;
+    font-size: 50px;
+    font-weight: 400;
 }
 
 .primary-text{
@@ -273,6 +276,11 @@ form label em {
     .center{
         width:960px;
         margin:auto;
+        &.biz-bk {
+            background-image: image-url("bk_biz.png");
+            background-position: right;
+            background-repeat: no-repeat;
+        }
         &.bb{
             border-bottom: 2px groove #FFF;
         }
@@ -504,6 +512,12 @@ form label em {
 #mainImage{
     float:left;
 }
+.title{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align:center;
+    text-shadow: #fff 1px 1px 0;
+}
 
 section{
     .emb_logo{
@@ -512,7 +526,7 @@ section{
     }
     &.wie{
         height: 400px;
-        background-image: image-url("bk_pgrd.jpg");
+        background-image: image-url("bk_paper.png");
         background-repeat: repeat-x;
         border-bottom: 2px groove #CCC;
         text-align:center;
@@ -617,8 +631,10 @@ section{
         }
     }
     &.hiw-reflect{
-        height: 150px;
+        //height: 150px;
         background-image: image-url("bk_gwgrd.png");
+        background-repeat: repeat-x;
+
         &.short{
             height: 100px;
         }
