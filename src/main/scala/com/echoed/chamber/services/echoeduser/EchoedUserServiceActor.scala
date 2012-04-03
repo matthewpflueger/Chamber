@@ -388,7 +388,7 @@ class EchoedUserServiceActor(
                 val limit = 30;
                 val start = msg.page * limit;
                 val feed = feedDao.findByEchoedUserId(echoedUser.id, start, limit)
-                if (feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
+                if (feed == null || feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
                     channel ! GetFeedResponse(msg, Right(feed.copy(echoes = new ArrayList[EchoViewDetail])))
                 } else {
                     channel ! GetFeedResponse(msg, Right(feed))
