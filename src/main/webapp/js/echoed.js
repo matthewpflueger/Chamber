@@ -572,10 +572,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");
                 var visits = this.model.get("echoTotalClicks");
-                var minVisits = this.model.get("retailerSettingsMinClicks");
-                if(visits  < minVisits){
-                    hover.append("<span class='highlight'><strong>" + (minVisits - visits) + " more click(s) for your <br/><br/>reward</strong></span>");
-                }
+                hover.append("<span class='highlight'><strong>" + visits + " have clicked through your link</strong></span>");
             }
         }
         return this;
