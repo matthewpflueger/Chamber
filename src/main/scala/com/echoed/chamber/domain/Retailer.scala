@@ -12,7 +12,7 @@ case class Retailer(
         phone: String,
         hashTag: String,
         logo: String,
-        secret: String,
+        @transient secret: String,
         category: String) {
 
     def this(
