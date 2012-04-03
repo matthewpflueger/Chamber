@@ -579,7 +579,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");
                 var visits = this.model.get("echoTotalClicks");
-                hover.append("<span class='highlight'><strong>" + visits + "people have visited</strong></span>");
+                hover.append("<span class='highlight'><strong>" + visits + " people have visited</strong></span>");
             }
         }
         return this;
