@@ -81,8 +81,8 @@
                 var p = $(div).addClass("echoed-p").attr("id", echoPossibility.id).attr("href", Echoed.urls.api + "/echo/login?id=" + echoPossibility.id);
                 var ic = $(div).addClass("echoed-i-c").append($('<img/>').attr("src", echoPossibility.imageUrl).addClass("echoed-i"));
                 var t = $(div).addClass("echoed-t").html('<strong>' + echoPossibility.brand + '</strong></br>' + echoPossibility.productName);
-                var bs = $(div).addClass("echoed-bs").appendTo(ic);
-                p.append(ic).append(t).hide().appendTo(container).fadeIn();
+                var bs = $(div).addClass("echoed-bs");
+                p.append(bs).append(ic).append(t).hide().appendTo(container).fadeIn();
                 //container.append(p);
                 });
             }

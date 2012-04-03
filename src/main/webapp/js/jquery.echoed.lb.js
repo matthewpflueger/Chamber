@@ -52,8 +52,8 @@ $(document).ready(function(){
         var p = $(div).addClass("echoed-p").attr("href","http://www.echoed.com/echo?" + queryString);
         var ic = $(div).addClass("echoed-i-c").append($('<img/>').attr("src",imageUrl).addClass("echoed-i"));
         var t = $(div).addClass("echoed-t").html('<strong>' + brand + '</strong></br>' + name);
-        var bs = $(div).addClass("echoed-bs").appendTo(ic);
-        p.append(ic).append(t);
+        var bs = $(div).addClass("echoed-bs");
+        p.append(bs).append(ic).append(t);
         container.append(p);
     });
 
@@ -67,7 +67,7 @@ $(document).ready(function(){
 
     $('.echoed-p').live('click', function(){
         var url = $(this).attr("href");
-        window.open(url,'Echoed','width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+        window.open(url,'Echoed','width=800,height=420,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
     });
 
     $('#echoed-close').live('click', function(){

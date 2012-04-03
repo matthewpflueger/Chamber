@@ -29,6 +29,14 @@ $twitterColor: #4099FF;
        	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
     }
 
+    @mixin drop-shadow-highlight{
+        box-shadow: 0 3px 3px rgba(227,37,25,0.4);
+        -moz-box-shadow: 0px 3px 3px rgba(227,37,25,0.4);
+        -webkit-box-shadow: 0px 3px 3px rgba(227,37,25,0.4);
+        -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#FF0000')";
+        filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#FF0000');
+    }
+
 #echoed-fade { /*--Transparent background layer--*/
 	background: #000;
 	position: fixed; left: 0; top: 0;
@@ -45,7 +53,7 @@ $twitterColor: #4099FF;
     margin:auto;
     left: 50%;
 	z-index: 99999;
-    width: 740px;
+    width: 760px;
     font-family: $textFontFamily;
     //background-image: image-url("bk_paper.png");
 }
@@ -95,7 +103,7 @@ $twitterColor: #4099FF;
 }
 
 #echoed-pcc{
-    padding: 10px;
+    padding: 5px;
     border: 2px #FFF groove;
     min-height: 300px;
 }
@@ -116,32 +124,26 @@ $twitterColor: #4099FF;
     @include drop-shadow;
     height: 300px;
     cursor:pointer;
+    &:hover{
+        //border: 2px #F00 solid;
+        @include drop-shadow-highlight;
+    }
     .echoed-i-c{
         width: 230px;
-        height: 260px;
+        height: 210px;
         overflow: hidden;
         .echoed-i{
             width: 230px;
         }
-        .echoed-bs{
-            width: 70px;
-            height: 33px;
-            background-image: image-url("btn_share.png");
-            background-repeat: no-repeat;
-            position:absolute;
-            top: 50%;
-            left:50%;
-            margin: -16px;
-            margin-left: -35px;
-            &.current{
-                background-image: image-url("btn_share.png");
-            }
-        }
+    }
+    .echoed-bs{
+        width: 230px;
+        height: 50px;
+        background-image: image-url("btn_clicktosharelb.png");
     }
     .echoed-t{
         padding: 5px;
         text-align:left;
-        border-top: 1px solid #000;
         line-height: 1.2em;
         white-space: normal;
         font-size: 12px;
