@@ -139,9 +139,10 @@ class ImageServiceActor extends Actor {
     }
 
 
-    private def update(image: Image) {
+    private def update(image: Image) = {
         try {
-            imageDao.update(image)
+            val img = image.copy(processedOn = new Date, processedStatus = Option(image.processedStatus).map(_.take(254)).orNull)
+            imageDao.update(img)
         } catch {
             case e => logger.error("Error persisting %s" format image, e)
         }
@@ -162,18 +163,17 @@ class ImageServiceActor extends Actor {
     }
 
 
-    private def error(image: Image, e: Throwable, processStatus: Option[String] = None) {
+    private def error(image: Image, e: Throwable, processedStatus: Option[String] = None) {
         logger.info("Error processing %s" format image, e)
-        val img = image.copy(processedOn = new Date, processedStatus = processStatus.getOrElse(e.getMessage.take(254)))
 
         val imageException =
                 if (e.isInstanceOf[ImageException]) {
                     e.asInstanceOf[ImageException]
                 } else {
-                    ImageException(img, processStatus.getOrElse("Error processing image"), e)
+                    ImageException(image, processedStatus.getOrElse("Error processing image"), e)
                 }
 
-        sendResponse(img, Left(imageException))
+        sendResponse(image.copy(processedStatus = imageException.getMessage), Left(imageException))
     }
 
 
@@ -185,7 +185,7 @@ class ImageServiceActor extends Actor {
                 imageInfo.fileName,
                 imageInfo.contentType,
                 imageInfo.metadata).onComplete(_.value.get.fold(
-            e => me ! ImageStoreError(image, e, Some("Error storing image %s: %s" format(imageInfo.fileName, e.getMessage.take(200)))),
+            e => me ! ImageStoreError(image, e, Some("Error storing image %s: %s" format(imageInfo.fileName, e.getMessage))),
             storedUrl => success(storedUrl)))
     }
 
@@ -230,7 +230,7 @@ class ImageServiceActor extends Actor {
 
             logger.debug("Processing original image from {}", image.url)
             processImage(image, image.url, "original") {
-                case Left(e) => error(image, e, Some("Error processing original image: %s" format e.getMessage.take(200)))
+                case Left(e) => error(image, e, Some("Error processing original image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     logger.debug("Storing original image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
@@ -264,7 +264,7 @@ class ImageServiceActor extends Actor {
                         else Some(Scalr.resize(bi, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, sizedImageTargetWidth, bi.getHeight))
                     }) {
 
-                case Left(e) => error(image, e, Some("Error processing sized image: %s" format e.getMessage.take(200)))
+                case Left(e) => error(image, e, Some("Error processing sized image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     logger.debug("Storing sized image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
@@ -296,7 +296,7 @@ class ImageServiceActor extends Actor {
                         else Some(Scalr.resize(bi, Scalr.Method.BALANCED, Scalr.Mode.FIT_EXACT, thumbImageTargetWidth, thumbImageTargetHeight))
                     }) {
 
-                case Left(e) => error(image, e, Some("Error processing thumbnamil image: %s" format e.getMessage.take(200)))
+                case Left(e) => error(image, e, Some("Error processing thumbnamil image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     logger.debug("Storing thumbnail image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
