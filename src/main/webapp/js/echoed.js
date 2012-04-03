@@ -291,7 +291,14 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         var productDiv = $('<div></div>');
         var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
-        self.exhibit.isotope('insert',productDiv);
+        var imageHeight = productModel.get("image").preferredHeight;
+        if(imageHeight) {
+            self.exhibit.isotope('insert',productDiv);
+        } else {
+            productDiv.imagesLoaded(function(){
+                self.exhibit.isotope('insert',productDiv);
+            });
+        }
     }
 });
 
@@ -572,7 +579,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");
                 var visits = this.model.get("echoTotalClicks");
-                hover.append("<span class='highlight'><strong>" + visits + " have clicked through your link</strong></span>");
+                hover.append("<span class='highlight'><strong>" + visits + "people have visited</strong></span>");
             }
         }
         return this;
