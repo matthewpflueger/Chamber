@@ -247,10 +247,12 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     filterProducts: function(filter){
         var self = this;
+
         if(!filter)
             selector = '*';
         else
-            selector = "." + filter.replace("_",".");
+            selector = "." + encodeURIComponent(filter);
+        alert(selector);
         self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
     },
     next: function(){
@@ -444,7 +446,7 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         if(this.selected == "All")
             anc.addClass("current");
         for(var id in this.list){
-            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + this.name + "-" + id.replace(/ /g,"-")).html(id).appendTo(li);
+            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + encodeURIComponent(this.name + "-" + id)).html(id).appendTo(li);
             if(id == this.selected){
                 anc.addClass("current");
             }
@@ -468,7 +470,7 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
             var selectorArray = e.split("_");
             for(var i=0;i<selectorArray.length;i++){
                 if(selectorArray[i].search(this.name,0)==0){
-                    this.selected = selectorArray[i].substr(this.name.length + 1).replace("-"," ");
+                    this.selected = decodeURIComponent(selectorArray[i].substr(this.name.length + 1));
                 }
             }
         }
@@ -537,7 +539,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var imageUrl =   this.model.get("image").preferredUrl;
         var imageWidth = this.model.get("image").preferredWidth;
         var imageHeight = this.model.get("image").preferredHeight;
-        this.el.addClass("item_wrap").addClass('Brand-' + this.model.get("echoBrand").replace(/ /g,"-")).addClass('Category-' + this.model.get("echoCategory").replace(" ","-")).html(template).attr("href",landingUrl + '/1');
+        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Category-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href",landingUrl + '/1');
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
@@ -579,7 +581,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");
                 var visits = this.model.get("echoTotalClicks");
-                hover.append("<span class='highlight'><strong>" + visits + " people have visited</strong></span>");
+                //hover.append("<span class='highlight'><strong>" + visits + " people have visited</strong></span>");
             }
         }
         return this;

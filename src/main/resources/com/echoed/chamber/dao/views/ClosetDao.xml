@@ -92,7 +92,7 @@
             left outer join TwitterStatus TS on E.twitterStatusId = TS.id
         where EU.id = #{id}
         ORDER BY
-            E.boughtOn DESC
+            E.createdOn DESC
     </select>
 
 
