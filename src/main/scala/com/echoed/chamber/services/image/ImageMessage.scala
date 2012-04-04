@@ -60,4 +60,7 @@ private[image] case class ProcessThumbnailImage(image: Image) extends IM
 
 private[image] case class FindUnprocessedImage() extends IM
 
+
 private[image] case class ImageStoreError(image: Image, error: Throwable, message: Option[String] = None) extends IM
+
+private[image] case class ReloadBlobStore() extends IM

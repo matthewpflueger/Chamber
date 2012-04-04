@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit
 import java.util.{Calendar, Date}
 import akka.dispatch.{CompletableFuture, PriorityGenerator, PriorityExecutorBasedEventDrivenDispatcher}
 import java.io.{FileNotFoundException, ByteArrayOutputStream, ByteArrayInputStream}
+import org.jclouds.rest.AuthorizationException
+import java.util.concurrent.atomic.{AtomicLong}
 
 
 class ImageServiceActor extends Actor {
@@ -42,6 +44,7 @@ class ImageServiceActor extends Actor {
     @BeanProperty var thumbImageTargetHeight = 120
 
     @BeanProperty var findUnprocessedImagesInterval: Long = 60000
+    @BeanProperty var reloadBlobStoreInterval: Long = 60000
     @BeanProperty var lastProcessedWithinMinutes: Int = 30
 
 
@@ -49,6 +52,7 @@ class ImageServiceActor extends Actor {
 
     private val responses = MMap[String, ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]]()
 
+    private val reloadBlobStore = new AtomicLong(System.currentTimeMillis())
 
     override def preStart() {
         val me = self
@@ -141,7 +145,7 @@ class ImageServiceActor extends Actor {
 
     private def update(image: Image) = {
         try {
-            val img = image.copy(processedOn = new Date, processedStatus = Option(image.processedStatus).map(_.take(254)).orNull)
+            val img = image.copy(processedOn = new Date, processedStatus = image.processedStatus.take(510))
             imageDao.update(img)
         } catch {
             case e => logger.error("Error persisting %s" format image, e)
@@ -185,12 +189,33 @@ class ImageServiceActor extends Actor {
                 imageInfo.fileName,
                 imageInfo.contentType,
                 imageInfo.metadata).onComplete(_.value.get.fold(
-            e => me ! ImageStoreError(image, e, Some("Error storing image %s: %s" format(imageInfo.fileName, e.getMessage))),
+            e => {
+                //ugly hack to get the blob store to re-authorize at a maximum rate of once a reloadBlobStoreInterval
+                //this was supposedly fixed in jclouds 1.3.0 but for the life of me I can't see to get it to work
+                //http://code.google.com/p/jclouds/issues/detail?id=731&can=1&q=Authorization&sort=-milestone
+                if (e.isInstanceOf[AuthorizationException]) {
+                    logger.debug("Received authorization error - will try to reload blob store")
+                    val now = System.currentTimeMillis()
+                    val previousReloadBlobStore = reloadBlobStore.get()
+                    val nextReloadBlobStore = now + reloadBlobStoreInterval
+                    if (now > previousReloadBlobStore && reloadBlobStore.compareAndSet(previousReloadBlobStore, nextReloadBlobStore)) {
+                        logger.debug("Sending ReloadBlobStore message")
+                        me ! ReloadBlobStore()
+                    }
+                }
+                me ! ImageStoreError(image, e, Some("Error storing image %s: %s" format(imageInfo.fileName, e.getMessage)))
+            },
             storedUrl => success(storedUrl)))
     }
 
 
     protected def receive = {
+
+        case msg: ReloadBlobStore =>
+            logger.debug("Reloading blob store")
+            blobStore.destroy()
+            blobStore.init()
+
 
         case msg @ ProcessImage(image) =>
             val me = self

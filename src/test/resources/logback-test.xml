@@ -8,6 +8,7 @@
         </encoder>
     </appender>
 
+    <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="debug" />
     <logger name="org.springframework" level="error"/>
     <logger name="com.echoed" level="debug"/>
 
