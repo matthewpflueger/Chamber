@@ -62,11 +62,9 @@
     </select>
 
     <select id="getEchoPossibilities" resultMap="com.echoed.chamber.dao.EchoDao.echoResult">
-        select *
-        from
-            Echo
+        <include refid="com.echoed.chamber.dao.EchoDao.echoSelect" />
         order by
-            createdOn desc
+            E.createdOn desc
         limit
             0,20
     </select>
