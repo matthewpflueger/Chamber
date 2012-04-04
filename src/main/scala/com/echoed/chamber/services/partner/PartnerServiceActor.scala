@@ -31,7 +31,7 @@ class PartnerServiceActor(
     private final val logger = LoggerFactory.getLogger(classOf[PartnerServiceActor])
 
     self.id = "Partner:%s" format partner.id
-
+    
     private def requestEcho(echoRequest: EchoRequest, echoClickId: Option[String] = None) = {
         val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
                 .getOrElse(throw new PartnerNotActive(partner.id))
@@ -82,6 +82,13 @@ class PartnerServiceActor(
     }
 
     def receive = {
+
+        case msg @ GetPartnerSettings() =>
+            val channel: Channel[GetPartnerSettingsResponse] = self.channel
+            val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date)).cata(
+                rs => channel ! GetPartnerSettingsResponse(msg, Right(rs)),
+                channel ! GetPartnerSettingsResponse(msg, Left(new PartnerNotActive(partner.id))))
+
 
         case msg @ GetPartner() =>
             val channel: Channel[GetPartnerResponse] = self.channel

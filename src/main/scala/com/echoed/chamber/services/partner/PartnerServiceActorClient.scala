@@ -14,6 +14,9 @@ class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService w
     def getPartner =
         (actorRef ? GetPartner()).mapTo[GetPartnerResponse]
 
+    def getPartnerSettings =
+        (actorRef ? GetPartnerSettings()).mapTo[GetPartnerSettingsResponse]
+
     def requestEcho(
             request: String,
             ipAddress: String,

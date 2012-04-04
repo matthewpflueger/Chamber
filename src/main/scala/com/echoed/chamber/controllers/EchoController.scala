@@ -181,11 +181,19 @@ class EchoController {
                             _ match {
                                 case GetPartnerResponse(_, Left(e2)) => error(echoJsErrorView, Some(e2))
                                 case GetPartnerResponse(_, Right(partner)) =>
-                                    val modelAndView = new ModelAndView(echoJsView)
-                                    modelAndView.addObject("pid",pid)
-                                    modelAndView.addObject("partner",partner)
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
+                                    p.getPartnerSettings.onComplete(_.value.get.fold(
+                                        e => error(echoJsErrorView, Some(e)),
+                                        _ match {
+                                            case GetPartnerSettingsResponse(_, Left(e3)) => error(echoJsErrorView, Some(e3))
+                                            case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
+                                                val modelAndView = new ModelAndView(echoJsView)
+                                                modelAndView.addObject("pid",pid)
+                                                modelAndView.addObject("partner",partner)
+                                                modelAndView.addObject("partnerSettings", partnerSettings)
+                                                modelAndView.addObject("maxPercentage", "%1.0f".format(partnerSettings.maxPercentage*100));
+                                                continuation.setAttribute("modelAndView", modelAndView)
+                                                continuation.resume()
+                                        }))
                             }))
                 }))
             continuation.undispatch()

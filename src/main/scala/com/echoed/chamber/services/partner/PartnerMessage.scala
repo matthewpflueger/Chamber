@@ -87,6 +87,11 @@ case class GetPartnerResponse(
         message: GetPartner, 
         value: Either[PE, Retailer]) extends PM with RM[Retailer, GetPartner,  PE]
 
+case class GetPartnerSettings() extends PM
+case class GetPartnerSettingsResponse(
+        message: GetPartnerSettings,
+        value: Either[PE, RetailerSettings]) extends PM with RM[RetailerSettings, GetPartnerSettings, PE]
+
 case class RequestShopifyEcho(
         order: ShopifyOrderFull, 
         ipAddress: String, 

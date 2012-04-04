@@ -10,6 +10,8 @@ trait PartnerService {
     
     def getPartner: Future[GetPartnerResponse]
     
+    def getPartnerSettings: Future[GetPartnerSettingsResponse]
+    
     def requestShopifyEcho(
             order: ShopifyOrderFull,
             ipAddress: String,
