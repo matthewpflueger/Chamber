@@ -10,7 +10,6 @@ import scala.collection.JavaConversions._
 import akka.dispatch.Future
 import java.util.{Date, ArrayList}
 import com.echoed.chamber.dao._
-import com.echoed.chamber.domain.views.{EchoFull, EchoViewDetail, EchoView,FriendCloset, Closet,PublicFeed, EchoViewPublic, ClosetPersonal}
 import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
@@ -19,6 +18,7 @@ import com.echoed.chamber.services.echoeduser.{Logout => L, LogoutResponse => LR
 import com.echoed.chamber.services.facebook._
 import akka.util.Duration
 import scala.collection.JavaConversions
+import com.echoed.chamber.domain.views._
 
 
 class EchoedUserServiceActor(
@@ -387,8 +387,8 @@ class EchoedUserServiceActor(
                 logger.debug("Attempting to retrieve Feed for EchoedUser {}", echoedUser.id)
                 val limit = 30;
                 val start = msg.page * limit;
-                val feed = feedDao.findByEchoedUserId(echoedUser.id, start, limit)
-                if (feed == null || feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
+                val feed = Option(feedDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(Feed(echoedUser.id, echoedUser, null))
+                if (feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
                     channel ! GetFeedResponse(msg, Right(feed.copy(echoes = new ArrayList[EchoViewDetail])))
                 } else {
                     channel ! GetFeedResponse(msg, Right(feed))
