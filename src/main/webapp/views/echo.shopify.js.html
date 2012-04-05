@@ -30,7 +30,7 @@
         $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
         var hiw = $(div).attr("id", "echoed-hiw");
         var et = $(div).attr("id","echoed-hiw-t").html('GET UP TO {{maxPercentage}}% BACK WHEN YOU SHARE YOUR PURCHASE');
-        var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get more money back with each click!");
+        var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");
         hiw.append(et).append(ett);
         hiw.appendTo(popup);
         $('#echoed-fade').css({'filter':'alpha(opacity=80)'}).fadeIn();
@@ -72,7 +72,7 @@
                 container.appendTo(pcc);
                 count++;
                 if (count <= 5) {
-                container.css('width', count * 160);
+                container.css('width', count * 170);
                 }
 
                 echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();

@@ -29,7 +29,7 @@ $(document).ready(function(){
 
     var c = $(div).attr("id","echoed-container");
     var et = $(div).attr("id","echoed-hiw-t").html('GET UP TO {{maxPercentage}}% BACK WHEN YOU SHARE YOUR PURCHASE');
-    var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get more money back with each click!");
+    var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");
     var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
     var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
     pcc.append(container);
@@ -42,7 +42,7 @@ $(document).ready(function(){
     $('img[src^="http://demo.echoed.com/echo/button"]').each(function(){
         count++;
         if(count <=3){
-            container.css('width',count * 250);
+            container.css('width',count * 170);
         }
         var pair = $(this).attr("src").split("?");
         var queryString = pair[1];
