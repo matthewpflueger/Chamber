@@ -47,11 +47,11 @@
                         EARN UP TO {{maxPercentage}}% BACK ON YOUR ORIGINAL FORM OF PAYMENT
                     </div>
                     <div>
-                        <a id="facebookLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=facebook" >
-                            <img width="200" src="{{urls.images}}/btn_login_fb_50.png"/>
+                        <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{redirectUrl}}&scope=email,publish_stream,read_stream,offline_access,publish_actions" >
+                            <img height="50" src="{{urls.images}}/btn_facebook_login.png"/>
                         </a>
-                        <a id="twitterLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=twitter">
-                            <img width="200" src="{{urls.images}}/btn_login_tw_50.png"/>
+                        <a id="twitterLogin" href="{{urls.site}}/twitter?redirect={{twitterUrl}}">
+                            <img height="50" src="{{urls.images}}/btn_twitter_login.png"/>
                         </a>
                     </div>
                     <div class="confirm-text" style="margin-top: 30px;">

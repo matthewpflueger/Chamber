@@ -45,7 +45,7 @@ $twitterColor: #4099FF;
 	z-index: 9999;
 }
 #echoed-popup{
-	border: 20px solid #FFF;
+	border: 15px solid #FFF;
     text-align: center;
     color: #111;
 	float: left;
@@ -53,7 +53,7 @@ $twitterColor: #4099FF;
     margin:auto;
     left: 50%;
 	z-index: 99999;
-    width: 760px;
+    width: 540px;
     font-family: $textFontFamily;
     //background-image: image-url("bk_paper.png");
 }
@@ -74,15 +74,15 @@ $twitterColor: #4099FF;
 }
 
 #echoed-hiw-t{
-    font-size: 34px;
+    font-size: 24px;
     margin-bottom: 10px;
     color: #111;
     font-family: $labelFontFamily;
 }
 
 #echoed-hiw-tt{
-    font-size: 24px;
-    margin: 10px 0px;
+    font-size: 16px;
+    margin: 5px 0px;
     color: #111;
     font-family: $labelFontFamily;
 }
@@ -110,7 +110,7 @@ $twitterColor: #4099FF;
 #echoed-pcc{
     padding: 5px;
     border: 2px #FFF groove;
-    min-height: 300px;
+    min-height: 210px;
 }
 
 .fb{
@@ -127,22 +127,22 @@ $twitterColor: #4099FF;
     float:left;
     background-color: #FFF;
     @include drop-shadow;
-    height: 300px;
+    height: 210px;
     cursor:pointer;
     &:hover{
         @include drop-shadow-highlight;
     }
     .echoed-i-c{
-        width: 230px;
-        height: 210px;
+        width: 160px;
+        height: 140px;
         overflow: hidden;
         .echoed-i{
-            width: 230px;
+            width: 160px;
         }
     }
     .echoed-bs{
-        width: 230px;
-        height: 50px;
+        width: 160px;
+        height: 35px;
         background-image: image-url("btn_clicktosharelb.png");
     }
     .echoed-t{
@@ -155,7 +155,7 @@ $twitterColor: #4099FF;
         font-family: $textFontFamily;
         text-overflow: ellipsis;
         overflow: hidden;
-        width: 220px;
+        width: 150px;
     }
 }
 

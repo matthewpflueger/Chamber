@@ -31,8 +31,8 @@ $(document).ready(function(){
 
     var c = $(div).attr("id","echoed-container");
 
-    var et = $(div).attr("id","echoed-hiw-t").html('SHARE WITH FRIENDS AND EARN UP TO {{maxPercentage}}% CASH BACK');
-    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='" + Echoed.urls.images +  "/logo_facebook.png'> or <img src='" + Echoed.urls.images +  "/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
+    var et = $(div).attr("id","echoed-hiw-t").html('GET UP TO {{maxPercentage}}% BACK WHEN YOU SHARE YOUR PURCHASE');
+    var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get more money back with each click!");
     var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
     var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
     pcc.append(container);
@@ -59,7 +59,7 @@ $(document).ready(function(){
 
                 count++;
                 if(count <=3){
-                    container.css('width',count * 250);
+                    container.css('width',count * 160);
                 }
 
                 echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
