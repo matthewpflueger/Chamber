@@ -254,7 +254,7 @@ class ImageServiceActor extends Actor {
             val me = self
 
             logger.debug("Processing original image from {}", image.url)
-            processImage(image, image.url, "original") {
+            processImage(image, image.urlWithEncodedFileName, "original") {
                 case Left(e) => error(image, e, Some("Error processing original image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     logger.debug("Storing original image {}", imageInfo.fileName)

@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain
 
 import java.util.{UUID, Date}
+import java.net.URLEncoder
 
 
 case class Image(
@@ -55,6 +56,8 @@ case class Image(
         val i = fileName.lastIndexOf('.')
         (if (i > -1) fileName.substring(i + 1) else "").toLowerCase
     }
+
+    val urlWithEncodedFileName = url.replace(fileName, URLEncoder.encode(fileName, "UTF-8").replace("+", "%20"))
 
     val isValidFormat = Image.imageFormats.contains(ext)
     val originalFileName = findFileName(originalUrl)
