@@ -45,10 +45,12 @@ class ImageServiceActor extends Actor {
 
     @BeanProperty var findUnprocessedImagesInterval: Long = 60000
     @BeanProperty var reloadBlobStoreInterval: Long = 60000
-    @BeanProperty var lastProcessedWithinMinutes: Int = 30
+    @BeanProperty var lastProcessedBeforeMinutes: Int = 30
 
 
+    //only for testing purposes
     var future: Option[CompletableFuture[ProcessImageResponse]] = None
+    var unprocessedFuture: Option[CompletableFuture[Option[Image]]] = None
 
     private val responses = MMap[String, ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]]()
 
@@ -177,7 +179,7 @@ class ImageServiceActor extends Actor {
                     ImageException(image, processedStatus.getOrElse("Error processing image"), e)
                 }
 
-        sendResponse(image.copy(processedStatus = imageException.getMessage), Left(imageException))
+        sendResponse(image.copy(processedStatus = imageException.getMessage, retries = image.retries + 1), Left(imageException))
     }
 
 
@@ -357,22 +359,29 @@ class ImageServiceActor extends Actor {
         case msg @ FindUnprocessedImage() =>
             val me = self
 
-            if (findUnprocessedImagesInterval > 0 && lastProcessedWithinMinutes > 0) {
+            if (findUnprocessedImagesInterval > 0 && lastProcessedBeforeMinutes > 0) {
                 val lastProcessedBeforeDate = {
                     val cal = Calendar.getInstance()
-                    cal.add(Calendar.MINUTE, lastProcessedWithinMinutes * -1)
+                    cal.add(Calendar.MINUTE, lastProcessedBeforeMinutes * -1)
                     cal.getTime
                 }
 
                 logger.debug("Looking for unprocessed images last processed before {}", lastProcessedBeforeDate)
                 Option(imageDao.findUnprocessed(lastProcessedBeforeDate)).cata(
-                    me ! ProcessLowPriorityImage(_),
-                    Scheduler.scheduleOnce(me, FindUnprocessedImage(), findUnprocessedImagesInterval, TimeUnit.MILLISECONDS))
+                    image => {
+                        me ! ProcessLowPriorityImage(image)
+                        unprocessedFuture.foreach(_.completeWithResult(Some(image)))
+                    },
+                    {
+                        Scheduler.scheduleOnce(me, FindUnprocessedImage(), findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
+                        unprocessedFuture.foreach(_.completeWithResult(None))
+                    })
             } else {
                 logger.info(
                     "Not finding unprocessed images because findUnprocessedImagesInterval {} or lastProcessWithinMinutes {} less than or equal to zero",
                     findUnprocessedImagesInterval,
-                    lastProcessedWithinMinutes)
+                    lastProcessedBeforeMinutes)
+                unprocessedFuture.foreach(_.completeWithResult(None))
             }
 
 

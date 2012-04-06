@@ -19,7 +19,8 @@ case class Image(
         thumbnailWidth: Int,
         thumbnailHeight: Int,
         processedOn: Date,
-        processedStatus: String) {
+        processedStatus: String,
+        retries: Int) {
 
 
     def this(url: String) = this(
@@ -37,7 +38,8 @@ case class Image(
         0,
         0,
         null,
-        null)
+        null,
+        0)
 
     require(url != null)
 
