@@ -148,7 +148,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "friend":
                 this.jsonUrl = Echoed.urls.api + "/user/exhibit/" + options.Id;
                 this.baseUrl = "#friends/exhibit/" + options.Id + "/";
-                this.contentTitle = "Echoed | Friends Exhibit";
+                this.contentTitle = "Friends";
                 this.id = "friends";
                 break;
             case "partners":
@@ -161,7 +161,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "explore":
                 this.jsonUrl = Echoed.urls.api + "/user/feed/public";
                 this.baseUrl = "#explore/";
-                this.contentTitle = "Echoed | Explore";
+                this.contentTitle = "Feed";
                 this.feedSelector = "Everyone";
                 this.id= "explore";
                 this.nextInt = 1;
@@ -169,7 +169,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "explore/friends":
                 this.jsonUrl = Echoed.urls.api + "/user/feed/friends";
                 this.baseUrl = "#exploref/";
-                this.contentTitle = "Echoed | Explore";
+                this.contentTitle = "Feed";
                 this.feedSelector = "Friends";
                 this.id = "explore/friends";
                 this.nextInt = 1;
@@ -177,7 +177,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "exhibit":
                 this.jsonUrl = Echoed.urls.api + "/user/exhibit";
                 this.baseUrl = "#exhibit/";
-                this.contentTitle = "Echoed | My Exhibit";
+                this.contentTitle = "My Exhibit";
                 this.id = null;
                 break;
         }
