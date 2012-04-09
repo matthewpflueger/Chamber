@@ -22,6 +22,11 @@ class FacebookServiceActor(
 
     self.id = "FacebookService:%s" format facebookUser.id
 
+    override def preStart {
+        //hack to reset our posts to be crawled - really should send a message to FacebookPostCrawler to crawl our posts...
+        facebookPostDao.resetPostsToCrawl(facebookUser.id)
+    }
+
     def receive = {
         case msg: GetFacebookUser =>
             val channel: Channel[GetFacebookUserResponse] = self.channel

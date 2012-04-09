@@ -39,6 +39,18 @@ case class GetPostDataResponse(message: GetPostData, value: Either[FE, FacebookP
         extends FM
         with RM[FacebookPostData, GetPostData, FE]
 
+case class GetPostDataError(
+        facebookPost: FacebookPost,
+        `type`: String,
+        code: Int,
+        m: String) extends FE(m)
+
+case class GetPostDataOAuthError(
+       _facebookPost: FacebookPost,
+       _type: String,
+       _code: Int,
+       _m: String) extends GetPostDataError(_facebookPost, _type, _code, _m)
+
 case class GetPostDataFalse(m: String = "Facebook returned false for post", facebookPost: FacebookPost) extends FE(m)
 
 case class GetFriends(accessToken: String, facebookId: String, facebookUserId: String) extends FM

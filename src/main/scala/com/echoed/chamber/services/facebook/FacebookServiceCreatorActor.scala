@@ -70,14 +70,14 @@ class FacebookServiceCreatorActor extends Actor {
 
                             channel ! CreateFromCodeResponse(msg, Right(new FacebookServiceActorClient(Actor.actorOf(
                                     new FacebookServiceActor(
-                                    facebookUser,
-                                    facebookAccess,
-                                    facebookUserDao,
-                                    facebookPostDao,
-                                    facebookFriendDao,
-                                    partnerDao,
-                                    partnerSettingsDao,
-                                    echoClickUrl)).start)))
+                                            facebookUser,
+                                            facebookAccess,
+                                            facebookUserDao,
+                                            facebookPostDao,
+                                            facebookFriendDao,
+                                            partnerDao,
+                                            partnerSettingsDao,
+                                            echoClickUrl)).start)))
                             logger.debug("Created FacebookService with user {}", facebookUser)
                     }))
             } catch { case e => error(e) }
@@ -92,14 +92,14 @@ class FacebookServiceCreatorActor extends Actor {
                     case Some(facebookUser) =>
                         channel ! CreateFromIdResponse(msg, Right(
                             new FacebookServiceActorClient(Actor.actorOf(new FacebookServiceActor(
-                                facebookUser,
-                                facebookAccess,
-                                facebookUserDao,
-                                facebookPostDao,
-                                facebookFriendDao,
-                                partnerDao,
-                                partnerSettingsDao,
-                                echoClickUrl)).start)))
+                                    facebookUser,
+                                    facebookAccess,
+                                    facebookUserDao,
+                                    facebookPostDao,
+                                    facebookFriendDao,
+                                    partnerDao,
+                                    partnerSettingsDao,
+                                    echoClickUrl)).start)))
                         logger.debug("Created Facebook service {}", facebookUserId)
                     case None =>
                         channel ! CreateFromIdResponse(msg, Left(FacebookUserNotFound(facebookUserId)))

@@ -38,6 +38,8 @@ trait FacebookPostDao {
 
     def updatePostForCrawl(facebookPost: FacebookPost): Int
 
+    def resetPostsToCrawl(facebookUserId: String): Int
+
     def deleteByEchoedUserId(echoedUserId: String): Int
 
 }

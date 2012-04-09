@@ -655,7 +655,8 @@ class DataCreator {
             postedOn = on,
             facebookId = "100003177284815_125947867521122",
             crawledStatus = null,
-            crawledOn = null),
+            crawledOn = null,
+            retries = 0),
         FacebookPost(
             id = facebookPostId_2,
             updatedOn = on,
@@ -671,7 +672,8 @@ class DataCreator {
             postedOn = on,
             facebookId = "100003177284815_125947200854522",
             crawledStatus = null,
-            crawledOn = null)
+            crawledOn = null,
+            retries = 0)
     )
 
     /* Other FacebookPost ids we could use...

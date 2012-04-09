@@ -10,6 +10,7 @@ import com.echoed.chamber.dao.{FacebookCommentDao, FacebookLikeDao, FacebookPost
 import akka.actor.{Scheduler, Actor}
 import java.util.concurrent.{Future, TimeUnit}
 import akka.dispatch.CompletableFuture
+import com.echoed.chamber.domain.FacebookPost
 
 
 class FacebookPostCrawlerActor extends Actor {
@@ -62,6 +63,20 @@ class FacebookPostCrawlerActor extends Actor {
         }
     }
 
+    protected def updateForCrawl(
+            msg: GetPostDataResponse,
+            facebookPost: FacebookPost,
+            crawlStatus: String,
+            retries: Int)(f: Unit => Unit) {
+        try {
+            logger.debug("Updating post %s for crawl status %s, retries %s" format (facebookPost.id, crawlStatus, retries))
+            scheduledMessage.foreach(_.cancel(false))
+            facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = crawlStatus, crawledOn = new Date, retries = retries))
+        } finally {
+            next(msg)
+        }
+    }
+
     protected def receive = {
         case 'next =>
             try {
@@ -77,35 +92,35 @@ class FacebookPostCrawlerActor extends Actor {
                 if (interval > 0) scheduledMessage = Option(Scheduler.scheduleOnce(self, 'next, interval, TimeUnit.MILLISECONDS))
             }
 
+
         case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Right(facebookPostData)) =>
-            try {
-                scheduledMessage.foreach(_.cancel(false))
-                logger.debug("Received good response crawling FacebookPost {}", facebookPostToCrawl.id)
-                facebookPostDao.updatePostForCrawl(facebookPostToCrawl.facebookPost.copy(
-                        crawledStatus = "crawled", crawledOn = new Date))
+            updateForCrawl(msg, facebookPostToCrawl.facebookPost, "crawled", 0) { _ =>
                 facebookPostData.likes.foreach { facebookLikeDao.insertOrUpdate(_) }
                 facebookPostData.comments.foreach { facebookCommentDao.insertOrUpdate(_) }
-            } finally {
-                next(msg)
+                logger.debug("Received good response for FacebookPost {}", facebookPostData.facebookPost.id)
+            }
+
+        case msg @ GetPostDataResponse(_, Left(GetPostDataOAuthError(facebookPost, _, _, message))) =>
+            //don't bother retrying this crawl
+            updateForCrawl(msg, facebookPost, message, retries = 1000) { _ =>
+                logger.debug("Received auth error crawling FacebookPost {}", facebookPost.id)
             }
 
         case msg @ GetPostDataResponse(_, Left(GetPostDataFalse(_, facebookPost))) =>
-            try {
-                scheduledMessage.foreach(_.cancel(false))
+            //don't bother retrying this crawl
+            updateForCrawl(msg, facebookPost, "false", retries = 1000) { _ =>
                 logger.debug("Received false response crawling FacebookPost {}", facebookPost.id)
-                facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = "false", crawledOn = new Date))
-            } finally {
-                next(msg)
+            }
+
+        case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e @ GetPostDataError(_, _, _, _))) => //facebookPost, t, c, m))) =>
+            val message = "%s, type %s, code %s" format(e.m, e.`type`, e.code)
+            updateForCrawl(msg, e.facebookPost, message, retries = facebookPostToCrawl.facebookPost.retries + 1) { _ =>
+                logger.debug("Received error response {} crawling FacebookPost {}", message, e.facebookPost.id)
             }
 
         case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e)) =>
-            try {
-                scheduledMessage.foreach(_.cancel(false))
+            updateForCrawl(msg, facebookPostToCrawl.facebookPost, e.message.take(254), facebookPostToCrawl.facebookPost.retries + 1) { _ =>
                 logger.debug("Received bad response crawling FacebookPost {}: {}", facebookPostToCrawl.id, e.message)
-                facebookPostDao.updatePostForCrawl(facebookPostToCrawl.facebookPost.copy(
-                    crawledStatus = e.message.take(254), crawledOn = new Date))
-            } finally {
-                next(msg)
             }
     }
 }

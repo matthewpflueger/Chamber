@@ -18,7 +18,8 @@ case class FacebookPost(
         postedOn: Date,
         facebookId: String,
         crawledStatus: String,
-        crawledOn: Date) {
+        crawledOn: Date,
+        retries: Int) {
 
     def this(
             name: String, 
@@ -45,7 +46,8 @@ case class FacebookPost(
         postedOn,
         facebookId,
         null,
-        null)
+        null,
+        0)
 
 }
 

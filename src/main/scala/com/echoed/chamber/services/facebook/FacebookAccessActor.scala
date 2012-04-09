@@ -17,6 +17,7 @@ import java.util.{Date, Properties}
 import java.net.{HttpURLConnection, URL}
 import com.google.common.io.ByteStreams
 import akka.actor.{Channel, Actor}
+import java.io.InputStream
 
 
 class FacebookAccessActor extends Actor {
@@ -187,33 +188,65 @@ class FacebookAccessActor extends Actor {
             }
 
 
+            var connection: Option[HttpURLConnection] = None
+            var inputStream: Option[InputStream] = None
             try {
                 val facebookId = facebookPostData.facebookPost.facebookId
                 val accessToken = facebookPostData.facebookUser.accessToken
 
                 logger.debug("Retrieving data for FacebookPost {}", facebookId)
                 val url = new URL("https://graph.facebook.com/%s?access_token=%s" format(facebookId, accessToken))
-                val connection = url.openConnection()
-                connection.setConnectTimeout(5000)
-                connection.setReadTimeout(5000)
-                val inputStream = connection.getInputStream
+                connection = Option(url.openConnection().asInstanceOf[HttpURLConnection])
+                connection.get.connect
+                connection.get.getResponseCode match {
+                    case good if (good >= 200 && good < 300) =>
+                        inputStream = Option(connection.get.getInputStream)
+                        val bytes = ByteStreams.toByteArray(inputStream.get)
+                        if (new String(bytes, "UTF-8") == "false") {
+                            logger.debug("Fetch of Facebook post {} returned false", facebookPostData.facebookPost.facebookId)
+                            channel ! GetPostDataResponse(msg, Left(GetPostDataFalse(facebookPost = facebookPostData.facebookPost)))
+                        } else {
+                            deserializeFacebookPost(bytes)
+                        }
 
-                try {
-                    val bytes: Array[Byte] = ByteStreams.toByteArray(connection.getInputStream)
-                    if (new String(bytes, "UTF-8") == "false") {
-                        logger.debug("Fetch of Facebook post {} returned false", facebookPostData.facebookPost.facebookId)
-                        channel ! GetPostDataResponse(msg, Left(GetPostDataFalse(facebookPost = facebookPostData.facebookPost)))
-                    } else {
-                        deserializeFacebookPost(bytes)
-                    }
-                } finally {
-                    inputStream.close()
+                    case bad if (bad >= 400 && bad < 600) =>
+                        inputStream = Option(connection.get.getErrorStream)
+                        val bytes = ByteStreams.toByteArray(inputStream.get)
+                        if (logger.isDebugEnabled) {
+                            logger.debug("Error response for post {} is: {}", facebookPostData.facebookPost.id, new String(bytes, "UTF-8"))
+                        }
+                        val errorContainer = (new ScalaObjectMapper().readValue(bytes, classOf[ErrorContainer]))
+                        if (errorContainer == null || errorContainer.error == null || errorContainer.error.`type` == null) {
+                            //no additional info?!?!
+                            throw new FacebookException("Unexpected response code %s" format bad)
+                        }
+                        if (errorContainer.error.`type` == "OAuthException") {
+                            channel ! GetPostDataResponse(msg, Left(GetPostDataOAuthError(
+                                facebookPostData.facebookPost,
+                                errorContainer.error.`type`,
+                                errorContainer.error.code,
+                                errorContainer.error.message)))
+                        } else {
+                            channel ! GetPostDataResponse(msg, Left(GetPostDataError(
+                                    facebookPostData.facebookPost,
+                                    errorContainer.error.`type`,
+                                    errorContainer.error.code,
+                                    errorContainer.error.message)))
+                        }
+
+                    case other =>
+                        throw new FacebookException("Unexpected response code %s" format other)
                 }
+
             } catch {
-//                case e: BFE =>
+                case fe: FacebookException =>
+                    channel ! GetPostDataResponse(msg, Left(fe))
                 case e =>
-                    logger.error("Exception when retrieving data for FacebookPost {}: {}", facebookPostData.facebookPost.facebookId, e.getMessage)
-                    self.channel ! GetPostDataResponse(msg, Left(FacebookException("%s: %s" format(e.getClass.getName, e.getMessage), e)))
+                    logger.error("Exception when retrieving data for FacebookPost {}: {}", facebookPostData.facebookPost.facebookId, e)
+                    channel ! GetPostDataResponse(msg, Left(FacebookException("%s: %s" format(e.getClass.getName, e.getMessage), e)))
+            } finally {
+                inputStream.foreach(_.close)
+                connection.foreach(_.disconnect())
             }
 
 
@@ -259,6 +292,23 @@ class FacebookAccessActor extends Actor {
 }
 
 
+//{
+//    "error": {
+//        "message": "Error validating access token: Session has expired at unix time 1333861200. The current unix time is 1333916314.",
+//        "type": "OAuthException",
+//        "code": 190
+//    }
+//}
+class ErrorContainer {
+    @BeanProperty var error: Error = _
+}
+
+class Error {
+    @BeanProperty var message: String = _
+    @BeanProperty var `type`: String = _
+    @BeanProperty var code: Int = _
+}
+
 class From {
     @BeanProperty var id: String = _
     @BeanProperty var name: String = _
@@ -284,8 +334,8 @@ class Comment {
 }
 
 class Action(
-        @BeanProperty var name: String,
-        @BeanProperty var link: String) {
+    @BeanProperty var name: String,
+    @BeanProperty var link: String) {
 
     def this() = this(null, null)
 }

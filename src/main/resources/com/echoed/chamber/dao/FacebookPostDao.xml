@@ -21,6 +21,7 @@
             <arg column="facebookId" javaType="String" />
             <arg column="crawledStatus" javaType="String" />
             <arg column="crawledOn" javaType="Date" />
+            <arg column="retries" javaType="_int" />
         </constructor>
     </resultMap>
 
@@ -84,6 +85,7 @@
         </if>
         and FP.postedOn between #{postedOnStartDate} and #{postedOnEndDate}
         and (FP.crawledOn is null or FP.crawledOn &lt; #{crawledOnEndDate})
+        and FP.retries &lt; 3
         order by FP.crawledOn asc
         limit 1;
     </select>
@@ -98,6 +100,7 @@
         </if>
         and FP.crawledOn &lt; #{crawledOnEndDate}
         and FP.postedOn &lt; #{postedOnBeforeDate}
+        and FP.retries &lt; 3
         order by FP.postedOn desc
         limit 1;
     </select>
@@ -145,8 +148,15 @@
     <update id="updatePostForCrawl" parameterType="com.echoed.chamber.domain.FacebookPost">
         update FacebookPost set
                 crawledOn=#{crawledOn},
-                crawledStatus=#{crawledStatus}
+                crawledStatus=#{crawledStatus},
+                retries=#{retries}
             where id=#{id}
+    </update>
+
+    <update id="resetPostsToCrawl">
+        update FacebookPost set
+                retries = 0
+            where facebookUserId = #{facebookUserId}
     </update>
 
     <delete id="deleteByEchoedUserId">
