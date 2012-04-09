@@ -70,13 +70,15 @@ $(document).ready(function(){
     });
 
 
+    $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
+
     var arrPageSizes = ___getPageSize();
+
     $('#echoed-fade').css({
         width: arrPageSizes[0],
         height: arrPageSizes[1]
     });
 
-    $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
 
     var c = $(div).attr("id","echoed-container");
     var et = $(div).attr("id","echoed-hiw-t").html('GET UP TO 20% BACK WHEN YOU SHARE YOUR PURCHASE');
