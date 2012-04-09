@@ -61,8 +61,9 @@ render: function(){
             var table = {"style":"report-table","header": [{"text":"Name"},{"text":"Created On"},{"text":"Email"}],"rows": []};
             $.each(users, function(index,user){
                 var row = { "href": "#", cells:[]};
+                var date = new Date(user.createdOn);
                 row.cells.push({"text": user.name});
-                row.cells.push({"text": user.createdOn});
+                row.cells.push({"text": date.toDateString()});
                 row.cells.push({"text": user.email });
                 table.rows.push(row);
             });

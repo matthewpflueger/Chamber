@@ -38,13 +38,12 @@ $twitterColor: #4099FF;
     }
 
 #echoed-fade { /*--Transparent background layer--*/
-	background: #000;
-	position: fixed; left: 0; top: 0;
-	width: 100%; height: 100%;
-	opacity: .80;
+	position: absolute;
 	z-index: 9999;
+    background-image: image_url("bg-blackPx.png");
 }
 #echoed-popup{
+    background-color: #FFF;
 	border: 15px solid #FFF;
     text-align: center;
     color: #111;
@@ -54,8 +53,14 @@ $twitterColor: #4099FF;
     left: 50%;
 	z-index: 99999;
     width: 550px;
+    margin-left: -275px;
+    top: 50px;
     font-family: $textFontFamily;
-    //background-image: image-url("bk_paper.png");
+}
+
+#echoed-close{
+    cursor: pointer;
+    float:right;
 }
 
 #echoed-header{
@@ -97,11 +102,7 @@ $twitterColor: #4099FF;
     height: 40px;
 }
 
-#echoed-close{
-    cursor: pointer;
-    float:right;
-    margin: -35px -35px 0 0;
-}
+
 
 #echoed-p-c{
     margin:auto;
@@ -110,15 +111,7 @@ $twitterColor: #4099FF;
 #echoed-pcc{
     padding: 5px;
     border: 2px #FFF groove;
-    min-height: 210px;
-}
-
-.fb{
-    color: $fbColor;
-}
-
-.tw{
-    color: $twitterColor;
+    min-height: 220px;
 }
 
 .echoed-p{

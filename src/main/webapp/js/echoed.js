@@ -252,7 +252,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             selector = '*';
         else
             selector = "." + encodeURIComponent(filter);
-        alert(selector);
         self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
     },
     next: function(){
