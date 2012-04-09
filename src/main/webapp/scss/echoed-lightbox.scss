@@ -62,11 +62,13 @@ $twitterColor: #4099FF;
 
 #echoed-close{
     cursor: pointer;
-    float:right;
+    position: absolute;
+    right:0px;
 }
 
 #echoed-header{
     height: 40px;
+    width: 100%;
     background-color: #FFF;
     text-align: center;
     #echoed-h-l {

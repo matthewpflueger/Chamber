@@ -1,90 +1,105 @@
-    $(document).ready(function () {
 
-        $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.css?v={{version}}" />');
+function ___getPageSize() {
+    var xScroll, yScroll;
+    if (window.innerHeight && window.scrollMaxY) {
+        xScroll = window.innerWidth + window.scrollMaxX;
+        yScroll = window.innerHeight + window.scrollMaxY;
+    } else if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac
+        xScroll = document.body.scrollWidth;
+        yScroll = document.body.scrollHeight;
+    } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
+        xScroll = document.body.offsetWidth;
+        yScroll = document.body.offsetHeight;
+    }
+    var windowWidth, windowHeight;
+    if (self.innerHeight) {    // all except Explorer
+        if (document.documentElement.clientWidth) {
+            windowWidth = document.documentElement.clientWidth;
+        } else {
+            windowWidth = self.innerWidth;
+        }
+        windowHeight = self.innerHeight;
+    } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+        windowWidth = document.documentElement.clientWidth;
+        windowHeight = document.documentElement.clientHeight;
+    } else if (document.body) { // other Explorers
+        windowWidth = document.body.clientWidth;
+        windowHeight = document.body.clientHeight;
+    }
+// for small pages with total height less then height of the viewport
+    if (yScroll < windowHeight) {
+        pageHeight = windowHeight;
+    } else {
+        pageHeight = yScroll;
+    }
+// for small pages with total width less then width of the viewport
+    if (xScroll < windowWidth) {
+        pageWidth = xScroll;
+    } else {
+        pageWidth = windowWidth;
+    }
+    arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
+    return arrayPageSize;
+}
 
-        Echoed = {};
-        Echoed.urls = {}; //{{#urls}}
-        Echoed.urls.api = "{{api}}";
-        Echoed.urls.cdn = "{{cdn}}";
-        Echoed.urls.js = "{{js}}";
-        Echoed.urls.css = "{{css}}";
-        Echoed.urls.images = "{{images}}";
-        Echoed.urls.views = "{{views}}";
-        Echoed.urls.site = "{{site}}";
-        /*{{/urls}} // */
+(function ($) {
 
-        //data = "{{epv}}";
+    $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.css?v={{version}}" />');
 
-        var div = '<div></div>';
-        var popup = $(div).attr("id", "echoed-popup");
-        popup.appendTo($('body')).fadeIn();
-        var close = $('<img src="' + Echoed.urls.images + '/btn_closewin.png"/>').attr("id", "echoed-close");
-        popup.append(close);
+    Echoed = {};
+    Echoed.urls = {}; //{{#urls}}
+    Echoed.urls.api = "{{api}}";
+    Echoed.urls.cdn = "{{cdn}}";
+    Echoed.urls.js = "{{js}}";
+    Echoed.urls.css = "{{css}}";
+    Echoed.urls.images = "{{images}}";
+    Echoed.urls.views = "{{views}}";
+    Echoed.urls.site = "{{site}}";
+    /*{{/urls}} // */
 
-        var popMargTop = (0);
-        var popMargLeft = (360);
-        popup.css({
-        'top':50,
-        'margin-left':-popMargLeft
-        });
-        $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
-        var hiw = $(div).attr("id", "echoed-hiw");
-        var et = $(div).attr("id","echoed-hiw-t").html('GET UP TO {{maxPercentage}}% BACK WHEN YOU SHARE YOUR PURCHASE');
-        var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");
-        hiw.append(et).append(ett);
-        hiw.appendTo(popup);
-        $('#echoed-fade').css({'filter':'alpha(opacity=80)'}).fadeIn();
-        var pcc = $(div).attr("id", "echoed-pcc").addClass("clearfix");
-        var container = $(div).attr("id", "echoed-p-c").addClass("clearfix");
-        var count = 0;
+    var arrPageSizes = ___getPageSize();
 
-        il = $('<div></div>').attr("id","echoed-il").css("padding-top","40px").css("height","160px").css("text-align","center")
-        il.append('<img src="' + Echoed.urls.images + '/ajax-loader.gif" />').appendTo(pcc);
+    $('body').prepend('<div id="echoed-fade"></div>');
 
-        pcc.appendTo(popup);
-        $('.echoed-p').live('mouseenter', function () {
-        $(this).find('.echoed-bs').addClass("current");
-        });
-
-        $('.echoed-p').live('mouseleave', function () {
-        $(this).find('.echoed-bs').removeClass("current");
-        });
-
-        $('.echoed-p').live('click', function () {
-        var url = $(this).attr("href");
-        window.open(url, $(this).attr("id"), 'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-        });
-
-        $('#echoed-close').live('click', function () {
-        $('#echoed-fade,#echoed-popup').fadeOut();
-        });
-
-        $.ajax({
-            url:Echoed.urls.api + "/echo/shopifyrequest",
-            dataType:'jsonp',
-            data:{
-                "pid":"{{pid}}",
-                "orderId":echoData
-            },
-            success:function (data) {
-                $(data.echoPossibilities).each(function (index, echoPossibility) {
-                pcc.html('');
-                container.appendTo(pcc);
-                count++;
-                if (count <= 5) {
-                container.css('width', count * 170);
-                }
-
-                echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
-
-                delete echoPossibility['echoedUserId'];
-                var p = $(div).addClass("echoed-p").attr("id", echoPossibility.id).attr("href", Echoed.urls.api + "/echo/login?id=" + echoPossibility.id);
-                var ic = $(div).addClass("echoed-i-c").append($('<img/>').attr("src", echoPossibility.imageUrl).addClass("echoed-i"));
-                var t = $(div).addClass("echoed-t").html('<strong>' + echoPossibility.brand + '</strong></br>' + echoPossibility.productName);
-                var bs = $(div).addClass("echoed-bs");
-                p.append(bs).append(ic).append(t).hide().appendTo(container).fadeIn();
-                //container.append(p);
-                });
-            }
-        });
+    $('#echoed-fade').css({
+        width:arrPageSizes[0],
+        height:arrPageSizes[1]
     });
+
+
+    var popup = $('<div id="echoed-popup"><img src="http://images.echoed.com/btn_closewin.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}"/ >{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
+    popup.appendTo($('body')).fadeIn();
+    $('#echoed-hiw-t').html('GET UP TO {{maxPercentage}}% BACK WHEN YOU SHARE YOUR PURCHASE');
+    $('#echoed-hiw-tt').html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");
+    var container = $('#echoed-p-c');
+    var count = 0;
+    $.ajax({
+        url:Echoed.urls.api + "/echo/shopifyrequest",
+        dataType:'jsonp',
+        data:{
+            "pid":"{{pid}}",
+            "data":echoData
+        },
+        success:function (data) {
+            $(data.echoPossibilities).each(function (index, echoPossibility) {
+                count++;
+                if (count <= 3) {
+                    container.css('width', count * 170);
+                }
+                echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
+                var p = $('<div id="' + echoPossibility.id + '" class="echoed-p" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '"><div class="echoed-bs"></div><div class="echoed-i-c"><img src="' + echoPossibility.imageUrl + '" /></div><div class="echoed-t"><strong>' + echoPossibility.brand + '</strong><br/>' + echoPossibility.productName + '</div></div>');
+                container.append(p);
+            });
+        }
+    });
+
+    $('.echoed-p').live('click', function () {
+        var url = $(this).attr("href");
+        window.open(url, "Echoed", 'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+    });
+
+    $('#echoed-close').live('click', function () {
+        $('#echoed-fade,#echoed-popup').hide();
+    });
+
+})(jQuery);

@@ -65,8 +65,7 @@ function ___getPageSize() {
         height: arrPageSizes[1]
     });
 
-
-    var popup = $('<div id="echoed-popup"><div id="echoed-header">{{#partner}}<img src="{{logo}}">{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
+    var popup = $('<div id="echoed-popup"><img src="http://images.echoed.com/btn_closewin.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}"/ >{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
     popup.appendTo($('body')).fadeIn();
     $('#echoed-hiw-t').html('GET UP TO {{maxPercentage}}% BACK WHEN YOU SHARE YOUR PURCHASE');
     $('#echoed-hiw-tt').html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");
@@ -95,6 +94,10 @@ function ___getPageSize() {
     $('.echoed-p').live('click',function(){
         var url = $(this).attr("href");
         window.open(url, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+    });
+
+    $('#echoed-close').live('click', function() {
+        $('#echoed-fade,#echoed-popup').hide();
     });
 
 })(jQuery);
