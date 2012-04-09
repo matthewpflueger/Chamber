@@ -186,7 +186,7 @@ class EchoController {
                                         _ match {
                                             case GetPartnerSettingsResponse(_, Left(e3)) => error(echoJsErrorView, Some(e3))
                                             case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                                                val modelAndView = new ModelAndView(echoJsView)
+                                                val modelAndView = new ModelAndView(echoJsView + ".0")
                                                 modelAndView.addObject("pid",pid)
                                                 modelAndView.addObject("partner",partner)
                                                 modelAndView.addObject("partnerSettings", partnerSettings)

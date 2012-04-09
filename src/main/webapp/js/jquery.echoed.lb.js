@@ -1,3 +1,5 @@
+
+
 function getQueryVariable(string, variable){
     var vars = string.split("&");
     for ( var i = 0; i < vars.length; i++){
@@ -15,18 +17,22 @@ $(document).ready(function(){
     popup.html('');
 
     var close = $('<img/>').attr('src','http://v1-cdn.echoed.com/btn_closewin.png').attr("id","echoed-close");
-    popup.append(close);
 
     var div = '<div></div>';
-    var popMargTop = (0) ;
-    var popMargLeft = (360);
-    popup.css({
-        'top' : 50,
-        'margin-left' : -popMargLeft
-    });
+
     $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
     $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
 
+    var arrPageSizes = ___getPageSize();
+
+    $('#echoed-fade').css({
+        width: arrPageSizes[0],
+        height: arrPageSizes[1]
+    });
+
+    var h = $(div).attr("id","echoed-header");
+    h.appendTo(popup);
+    h.append(close);
     var c = $(div).attr("id","echoed-container");
     var et = $(div).attr("id","echoed-hiw-t").html('GET UP TO 20% BACK WHEN YOU SHARE YOUR PURCHASE');
     var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");

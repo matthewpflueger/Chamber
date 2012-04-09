@@ -43,7 +43,7 @@ function ___getPageSize() {
 
 (function($){
 
-    $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.css?v={{version}}" />');
+    $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.0.css?v={{version}}" />');
 
     Echoed = {};
     Echoed.urls = {}; //{{#urls}}
@@ -85,7 +85,7 @@ function ___getPageSize() {
                     container.css('width',count * 170);
                 }
                 echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
-                var p = $('<div id="' + echoPossibility.id + '" class="echoed-p" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '"><div class="echoed-bs"></div><div class="echoed-i-c"><img src="' + echoPossibility.imageUrl + '" /></div><div class="echoed-t"><strong>' + echoPossibility.brand + '</strong><br/>' + echoPossibility.productName + '</div></div>');
+                var p = $('<div id="' + echoPossibility.id + '" class="echoed-p" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '"><div class="echoed-i-c"><div class="echoed-ol"><div class="echoed-bs"></div></div><img src="' + echoPossibility.imageUrl + '" /></div><div class="echoed-t"><strong>' + echoPossibility.brand + '</strong><br/>' + echoPossibility.productName + '</div></div>');
                 container.append(p);
             });
         }

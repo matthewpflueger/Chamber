@@ -40,6 +40,7 @@ class AdminLoginController {
         @RequestParam(value="email") email:String,
         @RequestParam(value="password") password:String, 
         @RequestParam(value="name") name: String,
+        @RequestParam(value="token") token: String,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
