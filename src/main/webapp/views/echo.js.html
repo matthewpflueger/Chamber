@@ -66,10 +66,10 @@ function ___getPageSize() {
     });
 
 
-    var popup = $('<div id="echoed-popup"><div id="echoed-header"></div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
+    var popup = $('<div id="echoed-popup"><div id="echoed-header">{{#partner}}<img src="{{logo}}">{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
     popup.appendTo($('body')).fadeIn();
     $('#echoed-hiw-t').html('GET UP TO {{maxPercentage}}% BACK WHEN YOU SHARE YOUR PURCHASE');
-    $('#echoed-hiw-tt').html("Share the products you've purchased with friends and get money back on your <br/> original form of payment with each click!");
+    $('#echoed-hiw-tt').html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");
     var container = $('#echoed-p-c');
     var count = 0;
     $.ajax({

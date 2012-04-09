@@ -161,7 +161,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "explore":
                 this.jsonUrl = Echoed.urls.api + "/user/feed/public";
                 this.baseUrl = "#explore/";
-                this.contentTitle = "Feed";
+                this.contentTitle = "Live Feed";
                 this.feedSelector = "Everyone";
                 this.id= "explore";
                 this.nextInt = 1;
@@ -212,7 +212,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 var brandDropDownEl = $('<li class="dropdown"></li>');
                 brandDropDownEl.appendTo(ul);
                 var categoryDropDown = new Echoed.Views.Components.Dropdown({el: dropDownEl,Name: 'Category', EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Filter: self.filter});
-                var brandDropdown = new Echoed.Views.Components.Dropdown({ el: brandDropDownEl, Name: 'Brand', EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Filter: self.filter});
+                //var brandDropdown = new Echoed.Views.Components.Dropdown({ el: brandDropDownEl, Name: 'Brand', EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Filter: self.filter});
                 var exhibit = $('#exhibit');
                 if(self.id == "friends")
                     $('#content-title').html(data.echoedUserName + "'s Exhibit");
