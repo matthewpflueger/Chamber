@@ -34,3 +34,4 @@ errors.log
 *.log
 *.log.gz
 dump-*.sql
+dump-*.sql.gz
