@@ -236,9 +236,11 @@ case $service_args in
         ;;
 
     dump)
+        DATE=`date +%Y%m%d%H%M%S`
         DUMP="mysqldump -u root -ppassword --database Echoed"
-        echo "Running $DUMP"
-        $DUMP > dump-`date +%Y%m%d%H%M%S`.sql
+        echo "Running $DUMP | gzip > dump-${DATE}.sql.gz"
+        $DUMP | gzip > dump-${DATE}.sql.gz
+         
         result=$?
         if [[ $result > 0 ]]; then
             exit 1;
