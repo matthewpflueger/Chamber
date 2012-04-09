@@ -15,12 +15,15 @@ class GlobalsManager {
     @BeanProperty var urlsProperties: Properties = new Properties()
     @BeanProperty var gitProperties: Properties = new Properties()
 
+    @BeanProperty var httpsSiteUrlAttributeName = "https"
     @BeanProperty var urlsAttributeName = "urls"
     @BeanProperty var versionAttributeName = "version"
     @BeanProperty var facebookClientIdAttributeName = "facebookClientId"
 
     @BeanProperty val httpUrls = new JHashMap[String, String]()
     @BeanProperty val httpsUrls = new JHashMap[String, String]()
+    @BeanProperty var httpsSiteUrl: String = ""
+
     @BeanProperty var version = ""
     @BeanProperty var facebookClientId = ""
 
@@ -35,6 +38,9 @@ class GlobalsManager {
             tuple =>
                 val (key, value) = tuple
                 httpsUrls.put(key.replace("https.urls.", ""), value)
+                if (key == "https.urls.site") {
+                    httpsSiteUrl = value
+                }
         }
         version = gitProperties.getProperty("git.commit.id.abbrev", "")
         val versionInfo = new StringBuilder()
@@ -57,6 +63,7 @@ class GlobalsManager {
     def addGlobals(model: JMap[String, AnyRef], urls: JMap[String, String]) {
         model.put(versionAttributeName, version)
         model.put(facebookClientIdAttributeName, facebookClientId)
+        model.put(httpsSiteUrlAttributeName, httpsSiteUrl)
 
         if (model.get(urlsAttributeName) == null) {
             model.put(urlsAttributeName, urls)

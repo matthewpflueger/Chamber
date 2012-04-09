@@ -5,8 +5,6 @@ import scala.reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.{RetailerUser, EchoClick, EchoedUser,AdminUser}
 import com.echoed.util.CookieToString
-import scalaz._
-import Scalaz._
 
 
 class CookieManager {
@@ -15,7 +13,8 @@ class CookieManager {
 
     @BeanProperty var domain = ".echoed.com"
     @BeanProperty var path = "/"
-    @BeanProperty var maxAge = Int.MaxValue;
+    @BeanProperty var sessionAge = 30*60 //30 minutes
+    @BeanProperty var persistentAge = 31556926 //1 year
     @BeanProperty var httpOnly = true
 
     @BeanProperty var echoedUserCookieName = "eu"
@@ -33,7 +32,7 @@ class CookieManager {
             response: HttpServletResponse = null,
             echoedUser: EchoedUser = null,
             request: HttpServletRequest = null) = {
-        val cookie = makeCookie(echoedUserCookieName, Option(echoedUser).map(_.id), Option(request))
+        val cookie = makeCookie(echoedUserCookieName, Option(echoedUser).map(_.id), Option(request), Option(persistentAge))
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }
@@ -46,7 +45,7 @@ class CookieManager {
             response: HttpServletResponse = null,
             echoClick: EchoClick = null,
             request: HttpServletRequest = null) = {
-        val cookie = makeCookie(echoClickCookieName, Option(echoClick).map(_.id), Option(request))
+        val cookie = makeCookie(echoClickCookieName, Option(echoClick).map(_.id), Option(request), Option(persistentAge))
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }
@@ -60,7 +59,7 @@ class CookieManager {
         adminUser: AdminUser = null,
         request: HttpServletRequest= null) = {
         
-        val cookie = makeCookie(adminUserCookieName, Option(adminUser).map(_.id), Option(request))
+        val cookie = makeCookie(adminUserCookieName, Option(adminUser).map(_.id), Option(request), Option(sessionAge), true)
         Option(response).foreach(_.addCookie(cookie))
         cookie
         
@@ -74,7 +73,7 @@ class CookieManager {
             response: HttpServletResponse = null,
             partnerUser: RetailerUser = null,
             request: HttpServletRequest = null) = {
-        val cookie = makeCookie(partnerUserCookieName, Option(partnerUser).map(_.id), Option(request))
+        val cookie = makeCookie(partnerUserCookieName, Option(partnerUser).map(_.id), Option(request), Option(sessionAge), true)
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }
@@ -102,15 +101,17 @@ class CookieManager {
             name: String,
             value: Option[String] = None,
             request: Option[HttpServletRequest] = None,
-            expiresIn: Option[Int] = None) = {
+            expiresIn: Option[Int] = None,
+            secure: Boolean = false) = {
         val cookie = new Cookie(name, value.getOrElse("")) with CookieToString
         cookie.setDomain(determineDomain(request))
         cookie.setPath(path)
         cookie.setHttpOnly(httpOnly)
-        cookie.setMaxAge(value.map(_ => maxAge).getOrElse(0))
+        cookie.setSecure(secure)
+        if (value == None) cookie.setMaxAge(0) //delete the cookie
+        else if (expiresIn != None) cookie.setMaxAge(expiresIn.get) //not a session cookie, set the max age...
         logger.debug("Created new {}", cookie)
         cookie
     }
+
 }
-
-

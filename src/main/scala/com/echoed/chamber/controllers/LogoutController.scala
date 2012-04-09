@@ -10,6 +10,7 @@ import com.echoed.chamber.services.partneruser.PartnerUserServiceLocator
 import org.apache.ibatis.session.SqlSessionFactory
 import scala.collection.JavaConversions._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import com.echoed.chamber.services.adminuser.AdminUserServiceLocator
 
 
 @Controller
@@ -20,6 +21,7 @@ class LogoutController {
 
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
+    @BeanProperty var adminUserServiceLocator: AdminUserServiceLocator = _
     @BeanProperty var postLogoutView: String = _
 
     @BeanProperty var cookieManager: CookieManager = _
@@ -35,8 +37,11 @@ class LogoutController {
 
         cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoedUserServiceLocator.logout(_))
         cookieManager.findPartnerUserCookie(httpServletRequest).foreach(partnerUserServiceLocator.logout(_))
+        cookieManager.findAdminUserCookie(httpServletRequest).foreach(adminUserServiceLocator.logout(_))
+
         cookieManager.addEchoedUserCookie(httpServletResponse, request = httpServletRequest)
         cookieManager.addPartnerUserCookie(httpServletResponse, request = httpServletRequest)
+        cookieManager.addAdminUserCookie(httpServletResponse, request = httpServletRequest)
 
         //This is disgusting and will be removed asap!!!
         if (flush == "2390uvqq03rJN_asdfoasdifu190" && Option(sqlSessionFactory) != None) {

@@ -142,6 +142,7 @@
         <property name="cookieManager" ref="cookieManager" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
+        <property name="adminUserServiceLocator" ref="adminUserServiceLocator" />
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
         <property name="postLogoutView" value="redirect:${http.urls.site}" />
     </bean>
