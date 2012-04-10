@@ -19,6 +19,7 @@ import com.echoed.chamber.services.shopify._
 import com.echoed.chamber.domain.{EchoedUser, EchoClick}
 import java.util.{Map => JMap}
 import com.echoed.chamber.services.EchoedException
+import java.util.concurrent.atomic.AtomicLong
 
 
 @Controller
@@ -55,6 +56,8 @@ class EchoController {
     @BeanProperty var cookieManager: CookieManager = _
 
     @BeanProperty var networkControllers: JMap[String, NetworkController] = _
+
+    @BeanProperty var counter: AtomicLong = new AtomicLong(0);
 
     @RequestMapping(value = Array("/shopifyjs"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
     def shopifyJs(
@@ -170,7 +173,7 @@ class EchoController {
             RequestExpiredException()
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
-
+            val count = counter.getAndIncrement % 2
             partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
                 e => error(echoJsErrorView, Some(e)),
                 _ match {
@@ -186,8 +189,9 @@ class EchoController {
                                         _ match {
                                             case GetPartnerSettingsResponse(_, Left(e3)) => error(echoJsErrorView, Some(e3))
                                             case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                                                val modelAndView = new ModelAndView(echoJsView + ".0")
+                                                val modelAndView = new ModelAndView(echoJsView + "." + count)
                                                 modelAndView.addObject("pid",pid)
+                                                modelAndView.addObject("version", echoJsView + "." + count)
                                                 modelAndView.addObject("partner",partner)
                                                 modelAndView.addObject("partnerSettings", partnerSettings)
                                                 modelAndView.addObject("maxPercentage", "%1.0f".format(partnerSettings.maxPercentage*100));
