@@ -22,6 +22,12 @@ class WebDriverUtils extends ShouldMatchers {
     @BeanProperty var logoutUrl: String = _ //"http://www.echoed.com/logout"
     @BeanProperty var closetUrl: String = _ //"http://www.echoed.com"
 
+    val expiresOn = {
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.SECOND, 30*60) //c.getMaxAge())
+        cal.getTime
+    }
+
     val twitterUrl = "http://www.twitter.com"
     val facebookUrl = "http://www.facebook.com"
 
@@ -48,10 +54,7 @@ class WebDriverUtils extends ShouldMatchers {
         val cookie = new Cookie.Builder(c.getName, c.getValue)
                 .domain(domain)
                 .path(c.getPath)
-                .expiresOn({
-                    val cal = Calendar.getInstance()
-                    cal.add(Calendar.SECOND, c.getMaxAge())
-                    cal.getTime})
+                .expiresOn(expiresOn)
                 .build()
         webDriver.get(echoedUrl)
         logger.debug("Current url is: {}", webDriver.getCurrentUrl)

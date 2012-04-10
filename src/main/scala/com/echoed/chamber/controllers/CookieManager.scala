@@ -21,18 +21,34 @@ class CookieManager {
     @BeanProperty var echoClickCookieName = "ec"
     @BeanProperty var partnerUserCookieName = "pu"
     @BeanProperty var adminUserCookieName = "au"
+    @BeanProperty var browserIdCookieName = "bi"
+
 
     private var baseDomain: String = "echoed.com"
 
+
     def init() {
         baseDomain = if (domain.charAt(0) == '.') domain.substring(1) else domain
+    }
+
+    def addBrowserIdCookie(
+            response: HttpServletResponse = null,
+            value: String = null,
+            request: HttpServletRequest = null) = {
+        val cookie = makeCookie(browserIdCookieName, Option(value), Option(request), Option(persistentAge))
+        Option(response).foreach(_.addCookie(cookie))
+        cookie
+    }
+
+    def findBrowserIdCookie(request: HttpServletRequest) = {
+        getCookie(request, browserIdCookieName).flatMap(c => Option(c.getValue))
     }
 
     def addEchoedUserCookie(
             response: HttpServletResponse = null,
             echoedUser: EchoedUser = null,
             request: HttpServletRequest = null) = {
-        val cookie = makeCookie(echoedUserCookieName, Option(echoedUser).map(_.id), Option(request), Option(persistentAge))
+        val cookie = makeCookie(echoedUserCookieName, Option(echoedUser).map(_.id), Option(request))
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }
@@ -45,7 +61,7 @@ class CookieManager {
             response: HttpServletResponse = null,
             echoClick: EchoClick = null,
             request: HttpServletRequest = null) = {
-        val cookie = makeCookie(echoClickCookieName, Option(echoClick).map(_.id), Option(request), Option(persistentAge))
+        val cookie = makeCookie(echoClickCookieName, Option(echoClick).map(_.id), Option(request))
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }
@@ -85,6 +101,8 @@ class CookieManager {
     def getCookie(httpServletRequest: HttpServletRequest, name: String) = {
         val cookie = httpServletRequest.getCookies()
             .find(cookie => if (cookie.getName == name) true else false)
+            //or else look in the request for the cookie...
+            .orElse(Option(httpServletRequest.getAttribute(name)).map(_.asInstanceOf[Cookie]))
             .orElse(Some(new Cookie(name, null)))
         logger.debug("Found cookie {}={}", cookie.get.getName, cookie.get.getValue)
         cookie
@@ -109,7 +127,10 @@ class CookieManager {
         cookie.setHttpOnly(httpOnly)
         cookie.setSecure(secure)
         if (value == None) cookie.setMaxAge(0) //delete the cookie
-        else if (expiresIn != None) cookie.setMaxAge(expiresIn.get) //not a session cookie, set the max age...
+        else if (expiresIn != None) cookie.setMaxAge(expiresIn.get) //not a browser session cookie, set the max age...
+
+        //add cookie to request attributes to make it available on the request immediately
+        request.foreach(_.setAttribute(name, cookie))
         logger.debug("Created new {}", cookie)
         cookie
     }

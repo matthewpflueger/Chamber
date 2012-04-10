@@ -11,21 +11,18 @@ case class EchoClick(
         facebookPostId: String,
         twitterStatusId: String,
         echoedUserId: String,
-        referrerUrl: String,
+        browserId: String,
         ipAddress: String,
-        clickedOn: Date,
-        forwardedFor: String,
-        echoPossibilityId: String,
-        userAgent: String) {
-
+        userAgent: String,
+        referrerUrl: String) {
 
     def this(
             echoId: String,
             echoedUserId: String,
-            referrerUrl: String,
+            browserId: String,
             ipAddress: String,
-            forwardedFor: String,
-            userAgent: String) = this(
+            userAgent: String,
+            referrerUrl: String) = this(
         UUID.randomUUID.toString,
         new Date,
         new Date,
@@ -33,11 +30,10 @@ case class EchoClick(
         null,
         null,
         echoedUserId,
-        referrerUrl,
+        browserId,
         ipAddress,
-        new Date,
-        forwardedFor,
-        null,
-        userAgent)
+        userAgent,
+        referrerUrl)
+
 
 }

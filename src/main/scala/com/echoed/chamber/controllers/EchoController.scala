@@ -97,7 +97,9 @@ class EchoController {
     def shopifyRequest(
             @RequestParam(value = "pid", required = true) pid: String,
             @RequestParam(value = "orderId", required = true) orderId: String,
+            @RequestHeader(value = "Referer", required = false) referrerUrl: String,
             @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
+            @RequestHeader(value = "User-Agent", required = true) userAgent: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -108,7 +110,8 @@ class EchoController {
         } else Option( continuation.getAttribute("json")).getOrElse {
             continuation.suspend(httpServletResponse)
 
-
+            //browser id is required and should be set in the BrowserIdInterceptor...
+            val bi = cookieManager.findBrowserIdCookie(httpServletRequest).get
             val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
             val ec = cookieManager.findEchoClickCookie(httpServletRequest)
             val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
@@ -147,7 +150,7 @@ class EchoController {
                                         _ match {
                                             case GetOrderFullResponse(_, Left(e)) => resume(e)
                                             case GetOrderFullResponse(_, Right(order)) =>
-                                                p.requestShopifyEcho(order, ip, eu, ec).onComplete(_.value.get.fold(
+                                                p.requestShopifyEcho(order, bi, ip, userAgent, referrerUrl, eu, ec).onComplete(_.value.get.fold(
                                                     resume(_),
                                                     _ match {
                                                         case RequestShopifyEchoResponse(_, Left(e)) => resume(e)
@@ -210,7 +213,9 @@ class EchoController {
     def request(
             @RequestParam(value = "pid", required = true) pid: String,
             @RequestParam(value = "data", required = true) data: String,
+            @RequestHeader(value = "Referer", required = false) referrerUrl: String,
             @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
+            @RequestHeader(value = "User-Agent", required = true) userAgent: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -226,6 +231,8 @@ class EchoController {
                 continuation.resume()
             }
 
+            //browser id is required and should be set in the BrowserIdInterceptor...
+            val bi = cookieManager.findBrowserIdCookie(httpServletRequest).get
             val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
             val ec = cookieManager.findEchoClickCookie(httpServletRequest)
             val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
@@ -234,7 +241,7 @@ class EchoController {
                 resume(_),
                 _ match {
                     case LocateResponse(_, Left(e)) => resume(e)
-                    case LocateResponse(_, Right(p)) => p.requestEcho(data, ip, eu, ec).onComplete(_.value.get.fold(
+                    case LocateResponse(_, Right(p)) => p.requestEcho(data, bi, ip, userAgent, referrerUrl, eu, ec).onComplete(_.value.get.fold(
                         e => resume(e),
                         _ match {
                             case RequestEchoResponse(_, Left(e)) => resume(e)
@@ -250,7 +257,6 @@ class EchoController {
     @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
     def login(
             @RequestParam(value = "id", required = true) id: String,
-            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -263,7 +269,6 @@ class EchoController {
 
             val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
             val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-            val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
 
             val echoedUserNotFound = LocateWithIdResponse(LocateWithId(eu.orNull), Left(EchoedUserNotFound(eu.orNull)))
             val echoedUserResponse = eu.cata(
@@ -272,7 +277,7 @@ class EchoController {
 
             val recordEchoStepResponse  = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
                 case LocateByEchoIdResponse(_, Left(e)) => throw e
-                case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "login", ip, eu, ec)
+                case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "login", eu, ec)
             })
 
             (for {
@@ -315,7 +320,6 @@ class EchoController {
             @RequestParam(value = "id", required = true) id: String,
             @RequestParam(value = "network", required = true) network: String,
             @RequestParam(value = "add", required = false, defaultValue = "false") add: Boolean,
-            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -332,14 +336,13 @@ class EchoController {
 
             val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
             val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-            val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
 
             partnerServiceManager.locatePartnerByEchoId(id).onComplete(_.value.get.fold(
                 e => error(errorView, e),
                 _ match {
                     case LocateByEchoIdResponse(_, Left(e)) => error(errorView, e)
                     case LocateByEchoIdResponse(_, Right(ps)) =>
-                        ps.recordEchoStep(id, "authorize-%s" format network, ip, eu, ec)
+                        ps.recordEchoStep(id, "authorize-%s" format network, eu, ec)
                         val authorizeUrl = networkController.makeAuthorizeUrl("echo/confirm?id=%s" format id, add)
                         logger.debug("Redirecting for authorization to {}", authorizeUrl)
                         val modelAndView = new ModelAndView("redirect:%s" format authorizeUrl)
@@ -355,7 +358,6 @@ class EchoController {
     @RequestMapping(value = Array("/confirm"), method = Array(RequestMethod.GET))
     def confirm(
             @RequestParam(value = "id", required = true) id: String,
-            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -371,15 +373,13 @@ class EchoController {
             continuation.suspend(httpServletResponse)
 
             val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-            val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
-
             val echoedUserResponse = echoedUserServiceLocator
                     .getEchoedUserServiceWithId(eu.get)
                     .flatMap(_.resultOrException.getEchoedUser)
 
             val recordEchoStepResponse  = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
                 case LocateByEchoIdResponse(_, Left(e)) => throw e
-                case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "confirm", ip, eu, ec)
+                case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "confirm", eu, ec)
             })
 
             (for {
@@ -483,10 +483,19 @@ class EchoController {
     @Deprecated
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
     def button(
+            @RequestHeader(value = "Referer", required = false) referrerUrl: String,
+            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
+            @RequestHeader(value = "User-Agent", required = true) userAgent: String,
             echoPossibilityParameters: EchoPossibilityParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
         try {
+
+            cookieManager.findBrowserIdCookie(httpServletRequest).foreach(echoPossibilityParameters.browserId = _)
+            echoPossibilityParameters.ipAddress = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
+            echoPossibilityParameters.userAgent = userAgent
+            echoPossibilityParameters.referrerUrl = referrerUrl
+
             cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoPossibilityParameters.echoedUserId = _)
             cookieManager.findEchoClickCookie(httpServletRequest).foreach(echoPossibilityParameters.echoClickId = _)
             echoService.recordEchoPossibility(echoPossibilityParameters.createButtonEchoPossibility)
@@ -677,12 +686,12 @@ class EchoController {
             continuation.suspend(httpServletResponse)
 
             val echoClick = new EchoClick(
-                    echoId,
-                    cookieManager.findEchoedUserCookie(httpServletRequest).orNull,
-                    referrerUrl,
-                    Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
-                    forwardedFor,
-                    userAgent)
+                    echoId = echoId,
+                    echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull,
+                    browserId = cookieManager.findBrowserIdCookie(httpServletRequest).get,
+                    referrerUrl = referrerUrl,
+                    ipAddress = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
+                    userAgent = userAgent)
 
             echoService.recordEchoClick(echoClick, postId).onComplete(_.value.get.fold(
                 e => error(errorView, Some(e)),

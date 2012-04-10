@@ -1,9 +1,9 @@
 package com.echoed.chamber.services.partner
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.{RetailerSettings, Retailer, RetailerUser, FacebookComment}
 import com.echoed.chamber.domain.shopify.ShopifyOrderFull
 import com.echoed.chamber.domain.views._
+import com.echoed.chamber.domain._
 
 
 sealed trait PartnerMessage extends Message
@@ -93,8 +93,11 @@ case class GetPartnerSettingsResponse(
         value: Either[PE, RetailerSettings]) extends PM with RM[RetailerSettings, GetPartnerSettings, PE]
 
 case class RequestShopifyEcho(
-        order: ShopifyOrderFull, 
-        ipAddress: String, 
+        order: ShopifyOrderFull,
+        browserId: String,
+        ipAddress: String,
+        userAgent: String,
+        referrerUrl: String,
         echoedUserId: Option[String] = None,
         echoClickId: Option[String] = None) extends PM
 case class RequestShopifyEchoResponse(
@@ -103,7 +106,10 @@ case class RequestShopifyEchoResponse(
 
 case class RequestEcho(
         request: String,
+        browserId: String,
         ipAddress: String,
+        userAgent: String,
+        referrerUrl: String,
         echoedUserId: Option[String] = None,
         echoClickId: Option[String] = None) extends PM
 case class RequestEchoResponse(
@@ -114,7 +120,6 @@ case class RequestEchoResponse(
 case class RecordEchoStep(
         echoId: String,
         step: String,
-        ipAddress: String,
         echoedUserId: Option[String] = None,
         echoClickId: Option[String] = None) extends PM
 case class RecordEchoStepResponse(

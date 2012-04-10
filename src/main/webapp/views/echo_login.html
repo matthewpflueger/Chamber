@@ -47,10 +47,10 @@
                         GET UP TO {{maxPercentage}}% BACK ON YOUR ORIGINAL FORM OF PAYMENT
                     </div>
                     <div>
-                        <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{redirectUrl}}&scope=email,publish_stream,read_stream,offline_access,publish_actions" >
+                        <a id="facebookLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=facebook" >
                             <img height="50" src="{{urls.images}}/btn_facebook_login.png"/>
                         </a>
-                        <a id="twitterLogin" href="{{urls.site}}/twitter?redirect={{twitterUrl}}">
+                        <a id="twitterLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=twitter">
                             <img height="50" src="{{urls.images}}/btn_twitter_login.png"/>
                         </a>
                     </div>

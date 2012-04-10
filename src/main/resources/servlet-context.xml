@@ -21,10 +21,16 @@
     <import resource="classpath:chamber-properties.xml" />
 
 
+    <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager" />
+
+
     <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
         <property name="interceptors">
             <util:list>
                 <bean class="com.echoed.chamber.interceptors.ResponseTimeInterceptor" />
+                <bean class="com.echoed.chamber.interceptors.BrowserIdInterceptor">
+                    <property name="cookieManager" ref="cookieManager" />
+                </bean>
                 <bean class="com.echoed.chamber.interceptors.AccessControlInterceptor">
                     <property name="domain" value="${domain}" />
                 </bean>
@@ -60,7 +66,7 @@
         <property name="suffix" value="${mustache.suffix}" />
     </bean>
 
-    <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager" />
+
 
 
     <!-- Search package for annotated classes -->

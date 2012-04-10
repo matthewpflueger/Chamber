@@ -26,10 +26,10 @@ class LoginController {
 
     @RequestMapping(value = Array("/partner/login"))
     def login(
-                     @RequestParam(value = "email", required = false) email: String,
-                     @RequestParam(value = "password", required = false) password: String,
-                     httpServletRequest: HttpServletRequest,
-                     httpServletResponse: HttpServletResponse) = {
+            @RequestParam(value = "email", required = false) email: String,
+            @RequestParam(value = "password", required = false) password: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
 
         val continuation = ContinuationSupport.getContinuation(httpServletRequest)

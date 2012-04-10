@@ -165,7 +165,7 @@ class EchoServiceActor extends Actor {
                         //this really should be sent to another actor that has a durable mailbox...
                         Future {
                             val ec = determinePostId(echo, echoClick, postId)
-                            echoClickDao.insert(ec.copy(echoPossibilityId = echo.echoPossibilityId))
+                            echoClickDao.insert(ec)
                             logger.debug("Successfully recorded click for Echo {}", echo.id)
 
                             (for {
@@ -195,10 +195,11 @@ class EchoServiceActor extends Actor {
 
     def determinePostId(echo: Echo, echoClick: EchoClick, postId: String) =
         Option(postId) match {
-            case Some(f) if echo.facebookPostId == f  => echoClick.copy(facebookPostId = postId)
+            case Some(f) if echo.facebookPostId == f => echoClick.copy(facebookPostId = postId)
             case Some(t) if echo.twitterStatusId == t => echoClick.copy(twitterStatusId = postId)
+            case Some("1") => echoClick
             case Some(_) =>
-                logger.warn("Invalid post id {}", postId)
+                logger.warn("Invalid post id {} for {}", postId, echo)
                 echoClick
             case None =>
                 logger.warn("Null post id")

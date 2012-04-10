@@ -19,26 +19,31 @@ class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService w
 
     def requestEcho(
             request: String,
+            browserId: String,
             ipAddress: String,
+            userAgent: String,
+            referrerUrl: String,
             echoedUserId: Option[String] = None,
             echoClickId: Option[String] = None) =
-        (actorRef ? RequestEcho(request, ipAddress, echoedUserId, echoClickId)).mapTo[RequestEchoResponse]
+        (actorRef ? RequestEcho(request, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId)).mapTo[RequestEchoResponse]
     
     def requestShopifyEcho(
             shopifyOrder: ShopifyOrderFull,
+            browserId: String,
             ipAddress: String,
+            userAgent: String,
+            referrerUrl: String,
             echoedUserId: Option[String] = None, 
             echoClickId: Option[String] = None) =
-        (actorRef ? RequestShopifyEcho(shopifyOrder, ipAddress, echoedUserId, echoClickId)).mapTo[RequestShopifyEchoResponse]
+        (actorRef ? RequestShopifyEcho(shopifyOrder, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId)).mapTo[RequestShopifyEchoResponse]
 
 
     def recordEchoStep(
             echoId: String,
             step: String,
-            ipAddress: String,
             echoedUserId: Option[String],
             echoClickId: Option[String]) =
-        (actorRef ? RecordEchoStep(echoId, step, ipAddress, echoedUserId, echoClickId)).mapTo[RecordEchoStepResponse]
+        (actorRef ? RecordEchoStep(echoId, step, echoedUserId, echoClickId)).mapTo[RecordEchoStepResponse]
 
     override def toString = id
 }

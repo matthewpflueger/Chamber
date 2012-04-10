@@ -45,21 +45,25 @@ class EchoHelper extends ShouldMatchers {
 
         echoDao.deleteByRetailerId(retailer.id)
         var echoPossibility = Echo.make(
-                retailer.id,
-                customerId,
-                productId,
-                boughtOn,
-                step,
-                orderId,
-                price,
-                imageUrl,
-                landingPageUrl,
-                productName,
-                category,
-                brand,
-                description,
-                echoClickId,
-                retailerSettings.id)
+                retailerId = retailer.id,
+                customerId = customerId,
+                productId = productId,
+                boughtOn = boughtOn,
+                step = step,
+                orderId = orderId,
+                price = price,
+                imageUrl = imageUrl,
+                landingPageUrl = landingPageUrl,
+                productName = productName,
+                category = category,
+                brand = brand,
+                description = description,
+                echoClickId = echoClickId,
+                browserId = null,
+                ipAddress = null,
+                userAgent = null,
+                referrerUrl = null,
+                partnerSettingsId = retailerSettings.id)
 
         echoPossibility = if (echoId != null) echoPossibility.copy(id = echoId) else echoPossibility
         echoPossibility = if (echoedUserId != null) echoPossibility.copy(echoedUserId = echoedUserId) else echoPossibility

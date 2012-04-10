@@ -10,11 +10,51 @@ import java.util.Date
 @RunWith(classOf[JUnitRunner])
 class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
 
+    def makeEcho = {
+        Echo.make(
+            retailerId = "retailerId",
+            customerId = "customerId",
+            productId = "productId",
+            boughtOn = new Date,
+            step = "test",
+            orderId = "orderId",
+            price = 100,
+            imageUrl = "imageUrl",
+            landingPageUrl = "landingPageUrl",
+            productName = "productName",
+            category = "category",
+            brand = "brand",
+            description = "description",
+            browserId = null,
+            ipAddress = null,
+            userAgent = null,
+            referrerUrl = null,
+            echoClickId = "echoClickId")
+    }
+
     describe("An Echo") {
 
         it("should return null for the id if missing properties") {
             given("a newly instantiated Echo")
-            val echo = Echo.make(null, null, null, null, "step", null, 0, "test", null, null, null, null, null, null)
+            val echo = Echo.make(
+                retailerId = null,
+                customerId = null,
+                productId = null,
+                boughtOn = new Date,
+                step = "test",
+                orderId = null,
+                price = 100,
+                imageUrl = "imageUrl",
+                landingPageUrl = "landingPageUrl",
+                productName = "productName",
+                category = "category",
+                brand = "brand",
+                description = "description",
+                browserId = null,
+                ipAddress = null,
+                userAgent = null,
+                referrerUrl = null,
+                echoClickId = "echoClickId")
 
             when("no properties have been set")
             then("the id should be null")
@@ -23,21 +63,7 @@ class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
 
         it("should return a url safe base 64 string when all necessary properties are set") {
             given("an Echo with all necessary properties set")
-            val echo = Echo.make(
-                "retailerId",
-                "customerId",
-                "productId",
-                new Date,
-                "test",
-                "orderId",
-                100,
-                "imageUrl",
-                "landingPageUrl",
-                "productName",
-                "category",
-                "brand",
-                "description",
-                "echoClickId")
+            val echo = makeEcho
 
             when("all necessary properties have been set")
             then("the id should return a valid base64 string")
@@ -46,21 +72,7 @@ class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
 
         it("should return a map of its properties") {
             given("an Echo")
-            val echo = Echo.make(
-                "retailerId",
-                "customerId",
-                "productId",
-                new Date,
-                "test",
-                "orderId",
-                100,
-                "imageUrl",
-                "landingPageUrl",
-                "productName",
-                "category",
-                "brand",
-                "description",
-                "echoClickId")
+            val echo = makeEcho
 
             when("asMap is called")
             val map = echo.asMap
@@ -71,21 +83,7 @@ class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
 
         it("should return a url string of its properties") {
             given("an Echo")
-            val echo = Echo.make(
-                "retailerId",
-                "customerId",
-                "productId",
-                new Date,
-                "test",
-                "orderId",
-                100,
-                "imageUrl",
-                "landingPageUrl",
-                "productName",
-                "category",
-                "brand",
-                "description",
-                "echoClickId")
+            val echo = makeEcho
 
             when("asUrlParams is called")
             val urlParams = echo.asUrlParams()

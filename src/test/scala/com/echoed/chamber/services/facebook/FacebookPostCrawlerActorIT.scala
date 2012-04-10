@@ -120,7 +120,7 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
                 facebookPostCrawlerActor.underlyingActor.future = Some(future)
                 facebookPostCrawlerActor ! 'next
 
-                val response = future.await(Duration(10, "seconds")).get.resultOrException
+                val response = future.await(Duration(20, "seconds")).get.resultOrException
                 val likes = facebookLikeDao.findByFacebookPostId(response.facebookPost.id)
                 val comments = facebookCommentDao.findByFacebookPostId(response.facebookPost.id)
 

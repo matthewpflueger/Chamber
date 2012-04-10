@@ -13,6 +13,7 @@ import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.chamber.dao.{RetailerUserDao, EchoDao, EchoedUserDao}
 import com.echoed.util.{WebDriverUtils, IntegrationTest}
 import org.openqa.selenium.{Dimension, By, Cookie, WebDriver}
+import org.openqa.selenium.firefox.{FirefoxProfile, FirefoxDriver}
 
 
 @RunWith(classOf[JUnitRunner])

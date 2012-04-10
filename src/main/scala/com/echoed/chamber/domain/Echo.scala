@@ -20,6 +20,10 @@ case class Echo(
         echoMetricsId: String,
         echoClickId: String,
         step: String,
+        browserId: String,
+        ipAddress: String,
+        userAgent: String,
+        referrerUrl: String,
         order: Order,
         product: Product,
         image: Image) {
@@ -84,6 +88,10 @@ object Echo {
             brand: String,
             description: String,
             echoClickId:String,
+            browserId: String,
+            ipAddress: String,
+            userAgent: String,
+            referrerUrl: String,
             partnerSettingsId: String = null) = {
 
         val id = UUID.randomUUID.toString
@@ -119,6 +127,10 @@ object Echo {
             echoMetricsId = null,
             echoClickId = echoClickId,
             step = step,
+            browserId = browserId,
+            ipAddress = ipAddress,
+            userAgent = userAgent,
+            referrerUrl = referrerUrl,
             order = Order(id, date, date, customerId, boughtOn, orderId),
             product = Product(id, date, date, productId, price, landingPageUrl, productName, category, brand, description),
             image = new Image(imageUrl))

@@ -21,8 +21,11 @@ case class EchoPossibilityParameters(
         @BeanProperty var category: String = null,
         @BeanProperty var brand: String = null,
         @BeanProperty var description: String = null,
-        @BeanProperty var echoClickId: String = null) {
-
+        @BeanProperty var echoClickId: String = null,
+        @BeanProperty var browserId: String = null,
+        @BeanProperty var ipAddress: String = null,
+        @BeanProperty var userAgent: String = null,
+        @BeanProperty var referrerUrl: String = null) {
 
     def this() = {
         this(null)
@@ -41,19 +44,23 @@ case class EchoPossibilityParameters(
     def createTwitterEchoPossibility = createEchoPossibilityWithStep("twitter")
 
     private def createEchoPossibilityWithStep(step: String) = Echo.make(
-            retailerId,
-            customerId,
-            productId,
-            boughtOn,
-            step,
-            orderId,
-            price,
-            imageUrl,
-            landingPageUrl,
-            productName,
-            category,
-            brand,
-            description,
-            echoClickId)
+            retailerId = retailerId,
+            customerId = customerId,
+            productId = productId,
+            boughtOn = boughtOn,
+            step = step,
+            orderId = orderId,
+            price = price,
+            imageUrl = imageUrl,
+            landingPageUrl = landingPageUrl,
+            productName = productName,
+            category = category,
+            brand = brand,
+            description = description,
+            browserId = browserId,
+            ipAddress = ipAddress,
+            userAgent = userAgent,
+            referrerUrl = referrerUrl,
+            echoClickId = echoClickId)
 
 }

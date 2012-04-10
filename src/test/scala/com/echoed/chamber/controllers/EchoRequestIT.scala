@@ -166,7 +166,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             webDriver.findElement(By.id(echo.id)).click()
 
             and("show the echo login screen")
-            webDriver.switchTo().window(echo.id)
+            webDriver.switchTo().window("Echoed") //echo.id)
             webDriver.getPageSource should include("test product name")
             echo = echoDao.findById(echo.id)
             echo.step should equal("request,login")

@@ -72,6 +72,7 @@ class FacebookPostCrawlerActor extends Actor {
             logger.debug("Updating post %s for crawl status %s, retries %s" format (facebookPost.id, crawlStatus, retries))
             scheduledMessage.foreach(_.cancel(false))
             facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = crawlStatus, crawledOn = new Date, retries = retries))
+            f()
         } finally {
             next(msg)
         }

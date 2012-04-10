@@ -31,28 +31,40 @@ class PartnerServiceActor(
     private final val logger = LoggerFactory.getLogger(classOf[PartnerServiceActor])
 
     self.id = "Partner:%s" format partner.id
-    
-    private def requestEcho(echoRequest: EchoRequest, echoClickId: Option[String] = None) = {
+
+
+    private def requestEcho(
+            echoRequest: EchoRequest,
+            browserId: String,
+            ipAddress: String,
+            userAgent: String,
+            referrerUrl: String,
+            echoClickId: Option[String] = None) = {
+
         val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
                 .getOrElse(throw new PartnerNotActive(partner.id))
 
         val echoes = echoRequest.items.map { i =>
             Echo.make(
-                partner.id,
-                echoRequest.customerId,
-                i.productId,
-                echoRequest.boughtOn,
-                "request",
-                echoRequest.orderId,
-                i.price,
-                i.imageUrl,
-                i.landingPageUrl,
-                i.productName,
-                i.category,
-                i.brand,
-                i.description.take(1023),
-                echoClickId.orNull,
-                partnerSettings.id)
+                retailerId = partner.id,
+                customerId = echoRequest.customerId,
+                productId = i.productId,
+                boughtOn = echoRequest.boughtOn,
+                step = "request",
+                orderId = echoRequest.orderId,
+                price = i.price,
+                imageUrl = i.imageUrl,
+                landingPageUrl = i.landingPageUrl,
+                productName = i.productName,
+                category = i.category,
+                brand = i.brand,
+                description = i.description.take(1023),
+                echoClickId = echoClickId.orNull,
+                browserId = browserId,
+                ipAddress = ipAddress,
+                userAgent = userAgent,
+                referrerUrl = referrerUrl,
+                partnerSettingsId = partnerSettings.id)
         }.map { ec =>
             try {
                 //CHECK FOR EXISTING ECHO POSSIBILITY IF CHECKOUT IS REFRESHED
@@ -97,7 +109,8 @@ class PartnerServiceActor(
             val channel: Channel[GetPartnerResponse] = self.channel
             channel ! GetPartnerResponse(msg, Right(partner))
 
-        case msg @ RequestEcho(request, ipAddress, echoedUserId, echoClickId) =>
+
+        case msg @ RequestEcho(request, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId) =>
             val channel: Channel[RequestEchoResponse] = self.channel
 
             logger.debug("Received {}", msg)
@@ -109,7 +122,13 @@ class PartnerServiceActor(
                         decryptedRequest,
                         new TypeReference[EchoRequest]() {})
 
-                channel ! RequestEchoResponse(msg, Right(requestEcho(echoRequest, echoClickId)))
+                channel ! RequestEchoResponse(msg, Right(requestEcho(
+                        echoRequest,
+                        browserId,
+                        ipAddress,
+                        userAgent,
+                        referrerUrl,
+                        echoClickId)))
             } catch {
                 case e: InvalidEchoRequest => channel ! RequestEchoResponse(msg, Left(e))
                 case e: PartnerNotActive => channel ! RequestEchoResponse(msg, Left(e))
@@ -118,7 +137,7 @@ class PartnerServiceActor(
                     channel ! RequestEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
             }
 
-        case msg @ RequestShopifyEcho(order, ipAddress, echoedUserId, echoClickId) =>
+        case msg @ RequestShopifyEcho(order, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId) =>
             val channel: Channel[RequestShopifyEchoResponse] = self.channel
 
             logger.debug("Received {}", msg)
@@ -144,7 +163,13 @@ class PartnerServiceActor(
                 echoRequest.boughtOn = new Date
                 logger.debug("Echo Request: {}", echoRequest)
 
-                channel ! RequestShopifyEchoResponse(msg, Right(requestEcho(echoRequest, echoClickId)))
+                channel ! RequestShopifyEchoResponse(msg, Right(requestEcho(
+                        echoRequest,
+                        browserId,
+                        ipAddress,
+                        userAgent,
+                        referrerUrl,
+                        echoClickId)))
             } catch {
                 case e: InvalidEchoRequest => channel ! RequestShopifyEchoResponse(msg, Left(e))
                 case e: PartnerNotActive => channel ! RequestShopifyEchoResponse(msg, Left(e))
@@ -153,7 +178,7 @@ class PartnerServiceActor(
                     channel ! RequestShopifyEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
             }
 
-        case msg @ RecordEchoStep(echoId, step, ipAddress, echoedUserId, echoClickId) =>
+        case msg @ RecordEchoStep(echoId, step, echoedUserId, echoClickId) =>
             val channel: Channel[RecordEchoStepResponse] = self.channel
 
             logger.debug("Processing {}", msg)

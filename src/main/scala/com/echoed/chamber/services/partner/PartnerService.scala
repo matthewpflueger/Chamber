@@ -14,20 +14,25 @@ trait PartnerService {
     
     def requestShopifyEcho(
             order: ShopifyOrderFull,
+            browserId: String,
             ipAddress: String,
+            userAgent: String,
+            referrerUrl: String,
             echoedUserId: Option[String] = None, 
             echoClickId: Option[String] = None): Future[RequestShopifyEchoResponse]
 
     def requestEcho(
             request: String,
+            browserId: String,
             ipAddress: String,
+            userAgent: String,
+            referrerUrl: String,
             echoedUserId: Option[String] = None,
             echoClickId: Option[String] = None): Future[RequestEchoResponse]
 
     def recordEchoStep(
             echoId: String,
             step: String,
-            ipAddress: String,
             echoedUserId: Option[String] = None,
             echoClickId: Option[String] = None): Future[RecordEchoStepResponse]
 

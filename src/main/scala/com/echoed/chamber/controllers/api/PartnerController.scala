@@ -75,7 +75,7 @@ class PartnerController {
                                     continuation.setAttribute("jsonResponse", productComments)
                                     continuation.resume()
                             })
-                        case _ =>
+                        case _ => error(new IllegalArgumentException("Invalid Request"))
                     }
             })
             continuation.undispatch();
@@ -87,10 +87,10 @@ class PartnerController {
     @RequestMapping(value = Array("/customers/{id}/{query}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getCustomerJSON(
-                              @PathVariable(value="id") customerId: String,
-                              @PathVariable(value="query") query: String,
-                              httpServletRequest: HttpServletRequest,
-                              httpServletResponse: HttpServletResponse) = {
+            @PathVariable(value="id") customerId: String,
+            @PathVariable(value="query") query: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
         val continuation = ContinuationSupport.getContinuation((httpServletRequest))
 
@@ -132,10 +132,8 @@ class PartnerController {
                                     continuation.setAttribute("jsonResponse", socialActivityHistory)
                                     continuation.resume()
                             })
-                        case "comments" =>
-                        case _ =>
-                            continuation.setAttribute("jsonResponse", "Invalid Request")
-                            continuation.resume()
+                        case "comments" => error(new IllegalArgumentException("Invalid Request"))
+                        case _ => error(new IllegalArgumentException("Invalid Request"))
                     }
             })
 
@@ -146,9 +144,9 @@ class PartnerController {
     @RequestMapping(value = Array("/retailer/{query}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getRetailerJSON(
-                           @PathVariable(value="query") query: String,
-                           httpServletRequest: HttpServletRequest,
-                           httpServletResponse: HttpServletResponse) = {
+            @PathVariable(value="query") query: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
         val continuation = ContinuationSupport.getContinuation((httpServletRequest))
 
@@ -179,7 +177,7 @@ class PartnerController {
                                     error(e)
                                 case GetRetailerSocialSummaryResponse(_, Right(retailerSocialSummary)) =>
                                     logger.debug("Retailer Social Summary: {}", retailerSocialSummary)
-                                    continuation.setAttribute("jsonResponse",retailerSocialSummary)
+                                    continuation.setAttribute("jsonResponse", retailerSocialSummary)
                                     continuation.resume()
                             })
                         case "history" =>
@@ -231,7 +229,7 @@ class PartnerController {
                                     continuation.setAttribute("jsonResponse", products)
                                     continuation.resume
                             })
-                        case _ =>
+                        case _ => error(new IllegalArgumentException("Invalid Request"))
                     }
             })
 

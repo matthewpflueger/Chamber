@@ -44,6 +44,10 @@
             <arg column="echoMetricsId" javaType="String" />
             <arg column="echoClickId" javaType="String" />
             <arg column="step" javaType="String" />
+            <arg column="browserId" javaType="String" />
+            <arg column="ipAddress" javaType="String" />
+            <arg column="userAgent" javaType="String" />
+            <arg column="referrerUrl" javaType="String" />
             <arg resultMap="orderResult" javaType="com.echoed.chamber.domain.Order" />
             <arg resultMap="productResult" javaType="com.echoed.chamber.domain.Product" />
             <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
@@ -105,6 +109,10 @@
                 description,
                 echoClickId,
                 step,
+                browserId,
+                ipAddress,
+                userAgent,
+                referrerUrl,
                 imageUrl,
                 echoMetricsId,
                 imageId)
@@ -128,6 +136,10 @@
                 #{product.description},
                 #{echoClickId},
                 #{step},
+                #{browserId},
+                #{ipAddress},
+                #{userAgent},
+                #{referrerUrl},
                 #{image.url},
                 #{echoMetricsId},
                 #{image.id})

@@ -36,6 +36,10 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             brand = "Nike",
             description = "These are amazing boots",
             echoClickId = null,
+            browserId = null,
+            ipAddress = null,
+            userAgent = null,
+            referrerUrl = null,
             step = "test")
     echo = echo.copy(
             echoedUserId = "echoedUserId",

@@ -33,7 +33,13 @@
         <prop key="echoTestPage">${http.urls.site}/test/html/echo.html</prop>
     </util:properties>
 
-    <bean id="webDriver" class="org.openqa.selenium.firefox.FirefoxDriver" />
+    <bean id="firefoxProfile" class="org.openqa.selenium.firefox.FirefoxProfile">
+        <property name="assumeUntrustedCertificateIssuer" value="false" />
+    </bean>
+    <bean id="webDriver" class="org.openqa.selenium.firefox.FirefoxDriver">
+        <constructor-arg ref="firefoxProfile" />
+    </bean>
+
     <bean id="webDriverUtils" class="com.echoed.util.WebDriverUtils">
         <property name="webDriver" ref="webDriver" />
         <property name="domain" value="${domain}" />
