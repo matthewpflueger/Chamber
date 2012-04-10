@@ -334,7 +334,6 @@ class ImageServiceActor extends Actor {
                             thumbnailHeight = imageInfo.height,
                             processedOn = new Date,
                             processedStatus = "processed")
-                        update(image)
                         sendResponse(img, Right(img))
                     }
             }
