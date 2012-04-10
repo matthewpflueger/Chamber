@@ -101,7 +101,8 @@ $(document).ready(function(){
         var ic = $(div).addClass("echoed-i-c").append($('<img/>').attr("src",imageUrl).addClass("echoed-i"));
         var t = $(div).addClass("echoed-t").html('<strong>' + brand + '</strong></br>' + name);
         var bs = $(div).addClass("echoed-bs");
-        p.append(bs).append(ic).append(t);
+        var ol = $(div).addClass("echoed-ol");
+        p.append(ol.append(bs)).append(ic).append(t);
         container.append(p);
     });
 
