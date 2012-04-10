@@ -55,25 +55,28 @@ class PartnerServiceActor(
                 partnerSettings.id)
         }.map { ec =>
             try {
-                transactionTemplate.execute({status: TransactionStatus =>
-                    val echoMetrics = new EchoMetrics(ec, partnerSettings)
-                    val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
-                        logger.debug("New image for processing {}", ec.image.url)
-                        imageDao.insert(ec.image)
-                        imageService.processImage(ec.image).onComplete(_.value.get.fold(
-                            e => logger.error("Unexpected error processing image for echo %s" format ec.id, e),
-                            _ match {
-                                case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo %s" format ec.id, e)
-                                case ProcessImageResponse(_, Right(image)) => logger.debug("Successfully processed image for echo {}", ec.id)
-                            }
-                        ))
-                        ec.image
-                    }
-                    echoMetricsDao.insert(echoMetrics)
-                    val echo = ec.copy(echoMetricsId = echoMetrics.id, image = img)
-                    echoDao.insert(echo)
-                    echo
-                })
+                //CHECK FOR EXISTING ECHO POSSIBILITY IF CHECKOUT IS REFRESHED
+                Option(echoDao.findByEchoPossibilityId(ec.echoPossibilityId)).getOrElse {
+                    transactionTemplate.execute({status: TransactionStatus =>
+                        val echoMetrics = new EchoMetrics(ec, partnerSettings)
+                        val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
+                            logger.debug("New image for processing {}", ec.image.url)
+                            imageDao.insert(ec.image)
+                            imageService.processImage(ec.image).onComplete(_.value.get.fold(
+                                e => logger.error("Unexpected error processing image for echo %s" format ec.id, e),
+                                _ match {
+                                    case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo %s" format ec.id, e)
+                                    case ProcessImageResponse(_, Right(image)) => logger.debug("Successfully processed image for echo {}", ec.id)
+                                }
+                            ))
+                            ec.image
+                        }
+                        echoMetricsDao.insert(echoMetrics)
+                        val echo = ec.copy(echoMetricsId = echoMetrics.id, image = img)
+                        echoDao.insert(echo)
+                        echo
+                    })
+                }
             } catch { case e => logger.error("Could not save %s" format ec, e); e }
         }.filter(_.isInstanceOf[Echo]).map(_.asInstanceOf[Echo])
 
@@ -94,7 +97,7 @@ class PartnerServiceActor(
             val channel: Channel[GetPartnerResponse] = self.channel
             channel ! GetPartnerResponse(msg, Right(partner))
 
-        case msg @ RequestEcho(request, ipAddres, echoedUserId, echoClickId) =>
+        case msg @ RequestEcho(request, ipAddress, echoedUserId, echoClickId) =>
             val channel: Channel[RequestEchoResponse] = self.channel
 
             logger.debug("Received {}", msg)
