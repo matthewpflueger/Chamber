@@ -24,6 +24,7 @@ case class Echo(
         ipAddress: String,
         userAgent: String,
         referrerUrl: String,
+        view: String,
         order: Order,
         product: Product,
         image: Image) {
@@ -92,7 +93,8 @@ object Echo {
             ipAddress: String,
             userAgent: String,
             referrerUrl: String,
-            partnerSettingsId: String = null) = {
+            partnerSettingsId: String = null,
+            view: String = null) = {
 
         val id = UUID.randomUUID.toString
         val date = new Date
@@ -131,6 +133,7 @@ object Echo {
             ipAddress = ipAddress,
             userAgent = userAgent,
             referrerUrl = referrerUrl,
+            view = view,
             order = Order(id, date, date, customerId, boughtOn, orderId),
             product = Product(id, date, date, productId, price, landingPageUrl, productName, category, brand, description),
             image = new Image(imageUrl))

@@ -160,12 +160,18 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             val echoes = echoDao.findByRetailerId(retailer.id)
             echoes should have length(2)
             var echo = echoes(0)
+            echo.userAgent should not be(null)
+            echo.ipAddress should not be(null)
+            echo.browserId should not be(null)
+            echo.view should not be(null)
             echo.step should equal("request")
 
             then("click to share the item")
+            Thread.sleep(500)
             webDriver.findElement(By.id(echo.id)).click()
 
             and("show the echo login screen")
+            Thread.sleep(1000)
             webDriver.switchTo().window("Echoed") //echo.id)
             webDriver.getPageSource should include("test product name")
             echo = echoDao.findById(echo.id)
@@ -181,6 +187,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             var pass = webDriver.findElement(By.id("pass"))
             pass.sendKeys(dataCreator.facebookUserPassword)
             pass.submit()
+            Thread.sleep(500)
 
             then("show the echo confirm page")
             webDriver.getTitle should equal("Confirm")
@@ -221,6 +228,10 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             ec should not be(null)
             ec.twitterStatusId should not be(null)
             ec.facebookPostId should not be(null)
+            ec.userAgent should not be(null)
+            ec.ipAddress should not be(null)
+            ec.browserId should not be(null)
+            ec.view should not be(null)
             webDriver.findElement(By.id("facebookAccount")) should not be(null)
             webDriver.findElement(By.id("twitterAccount")) should not be(null)
         }

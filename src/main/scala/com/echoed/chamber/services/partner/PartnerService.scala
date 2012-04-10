@@ -28,7 +28,8 @@ trait PartnerService {
             userAgent: String,
             referrerUrl: String,
             echoedUserId: Option[String] = None,
-            echoClickId: Option[String] = None): Future[RequestEchoResponse]
+            echoClickId: Option[String] = None,
+            version: Option[String] = None): Future[RequestEchoResponse]
 
     def recordEchoStep(
             echoId: String,

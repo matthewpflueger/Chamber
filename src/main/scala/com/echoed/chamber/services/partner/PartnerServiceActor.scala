@@ -39,7 +39,8 @@ class PartnerServiceActor(
             ipAddress: String,
             userAgent: String,
             referrerUrl: String,
-            echoClickId: Option[String] = None) = {
+            echoClickId: Option[String] = None,
+            view: Option[String] = None) = {
 
         val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
                 .getOrElse(throw new PartnerNotActive(partner.id))
@@ -64,10 +65,11 @@ class PartnerServiceActor(
                 ipAddress = ipAddress,
                 userAgent = userAgent,
                 referrerUrl = referrerUrl,
-                partnerSettingsId = partnerSettings.id)
+                partnerSettingsId = partnerSettings.id,
+                view = view.orNull)
         }.map { ec =>
             try {
-                //CHECK FOR EXISTING ECHO POSSIBILITY IF CHECKOUT IS REFRESHED
+                //check for existing echo in the case of a page refresh we do not want to bomb out...
                 Option(echoDao.findByEchoPossibilityId(ec.echoPossibilityId)).getOrElse {
                     transactionTemplate.execute({status: TransactionStatus =>
                         val echoMetrics = new EchoMetrics(ec, partnerSettings)
@@ -100,7 +102,7 @@ class PartnerServiceActor(
 
         case msg @ GetPartnerSettings() =>
             val channel: Channel[GetPartnerSettingsResponse] = self.channel
-            val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date)).cata(
+            Option(partnerSettingsDao.findByActiveOn(partner.id, new Date)).cata(
                 rs => channel ! GetPartnerSettingsResponse(msg, Right(rs)),
                 channel ! GetPartnerSettingsResponse(msg, Left(new PartnerNotActive(partner.id))))
 
@@ -110,7 +112,7 @@ class PartnerServiceActor(
             channel ! GetPartnerResponse(msg, Right(partner))
 
 
-        case msg @ RequestEcho(request, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId) =>
+        case msg @ RequestEcho(request, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId, view) =>
             val channel: Channel[RequestEchoResponse] = self.channel
 
             logger.debug("Received {}", msg)
@@ -128,7 +130,8 @@ class PartnerServiceActor(
                         ipAddress,
                         userAgent,
                         referrerUrl,
-                        echoClickId)))
+                        echoClickId,
+                        view)))
             } catch {
                 case e: InvalidEchoRequest => channel ! RequestEchoResponse(msg, Left(e))
                 case e: PartnerNotActive => channel ! RequestEchoResponse(msg, Left(e))

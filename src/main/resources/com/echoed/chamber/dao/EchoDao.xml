@@ -48,6 +48,7 @@
             <arg column="ipAddress" javaType="String" />
             <arg column="userAgent" javaType="String" />
             <arg column="referrerUrl" javaType="String" />
+            <arg column="view" javaType="String" />
             <arg resultMap="orderResult" javaType="com.echoed.chamber.domain.Order" />
             <arg resultMap="productResult" javaType="com.echoed.chamber.domain.Product" />
             <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
@@ -113,6 +114,7 @@
                 ipAddress,
                 userAgent,
                 referrerUrl,
+                view,
                 imageUrl,
                 echoMetricsId,
                 imageId)
@@ -140,6 +142,7 @@
                 #{ipAddress},
                 #{userAgent},
                 #{referrerUrl},
+                #{view},
                 #{image.url},
                 #{echoMetricsId},
                 #{image.id})

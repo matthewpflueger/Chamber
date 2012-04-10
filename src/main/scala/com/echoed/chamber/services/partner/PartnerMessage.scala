@@ -111,7 +111,8 @@ case class RequestEcho(
         userAgent: String,
         referrerUrl: String,
         echoedUserId: Option[String] = None,
-        echoClickId: Option[String] = None) extends PM
+        echoClickId: Option[String] = None,
+        view: Option[String] = None) extends PM
 case class RequestEchoResponse(
         message: RequestEcho,
         value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RequestEcho, PE]

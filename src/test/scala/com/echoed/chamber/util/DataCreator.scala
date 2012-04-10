@@ -805,6 +805,7 @@ class DataCreator {
             ipAddress = null,
             userAgent = null,
             referrerUrl = null,
+            view = null,
             order = Order(echoId_1, on, on, customerId_1, on, orderId_1),
             product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1),
             image = new Image(echoImageUrl_1))
@@ -837,6 +838,7 @@ class DataCreator {
             ipAddress = null,
             userAgent = null,
             referrerUrl = null,
+            view = null,
             order = Order(echoId_1, on, on, customerId_1, on, orderId_1),
             product = Product(echoId_1, on, on, productId_1, price_1, landingPageUrl, productName_1, category_1, brand_1, description_1),
             image = images(0)),
@@ -857,6 +859,7 @@ class DataCreator {
             ipAddress = null,
             userAgent = null,
             referrerUrl = null,
+            view = null,
             order = Order(echoId_2, on, on, customerId_2, on, orderId_2),
             product = Product(echoId_2, on, on, productId_2, price_2, landingPageUrl, productName_2, category_2, brand_2, description_2),
             image = images(1)))

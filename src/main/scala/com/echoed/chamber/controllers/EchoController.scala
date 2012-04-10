@@ -57,7 +57,7 @@ class EchoController {
 
     @BeanProperty var networkControllers: JMap[String, NetworkController] = _
 
-    @BeanProperty var counter: AtomicLong = new AtomicLong(0);
+    val counter: AtomicLong = new AtomicLong(0);
 
     @RequestMapping(value = Array("/shopifyjs"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
     def shopifyJs(
@@ -176,7 +176,6 @@ class EchoController {
             RequestExpiredException()
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
-            val count = counter.getAndIncrement % 2
             partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
                 e => error(echoJsErrorView, Some(e)),
                 _ match {
@@ -192,9 +191,10 @@ class EchoController {
                                         _ match {
                                             case GetPartnerSettingsResponse(_, Left(e3)) => error(echoJsErrorView, Some(e3))
                                             case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                                                val modelAndView = new ModelAndView(echoJsView + "." + count)
+                                                val view = echoJsView + "." + (counter.getAndIncrement % 2)
+                                                val modelAndView = new ModelAndView(view)
                                                 modelAndView.addObject("pid",pid)
-                                                modelAndView.addObject("version", echoJsView + "." + count)
+                                                modelAndView.addObject("view", view)
                                                 modelAndView.addObject("partner",partner)
                                                 modelAndView.addObject("partnerSettings", partnerSettings)
                                                 modelAndView.addObject("maxPercentage", "%1.0f".format(partnerSettings.maxPercentage*100));
@@ -213,6 +213,7 @@ class EchoController {
     def request(
             @RequestParam(value = "pid", required = true) pid: String,
             @RequestParam(value = "data", required = true) data: String,
+            @RequestParam(value = "view", required = false) view: String,
             @RequestHeader(value = "Referer", required = false) referrerUrl: String,
             @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
             @RequestHeader(value = "User-Agent", required = true) userAgent: String,
@@ -241,7 +242,15 @@ class EchoController {
                 resume(_),
                 _ match {
                     case LocateResponse(_, Left(e)) => resume(e)
-                    case LocateResponse(_, Right(p)) => p.requestEcho(data, bi, ip, userAgent, referrerUrl, eu, ec).onComplete(_.value.get.fold(
+                    case LocateResponse(_, Right(p)) => p.requestEcho(
+                            data,
+                            bi,
+                            ip,
+                            userAgent,
+                            referrerUrl,
+                            eu,
+                            ec,
+                            Option(view)).onComplete(_.value.get.fold(
                         e => resume(e),
                         _ match {
                             case RequestEchoResponse(_, Left(e)) => resume(e)

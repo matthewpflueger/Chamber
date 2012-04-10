@@ -24,8 +24,9 @@ class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService w
             userAgent: String,
             referrerUrl: String,
             echoedUserId: Option[String] = None,
-            echoClickId: Option[String] = None) =
-        (actorRef ? RequestEcho(request, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId)).mapTo[RequestEchoResponse]
+            echoClickId: Option[String] = None,
+            view: Option[String] = None) =
+        (actorRef ? RequestEcho(request, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId, view)).mapTo[RequestEchoResponse]
     
     def requestShopifyEcho(
             shopifyOrder: ShopifyOrderFull,

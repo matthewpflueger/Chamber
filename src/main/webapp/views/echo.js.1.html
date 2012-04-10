@@ -81,13 +81,13 @@ function ___getPageSize() {
         data: {
             "pid": "{{pid}}",
             "data": echoData,
-            "version" : "{{version}}"
+            "view" : "{{view}}"
         },
         success: function(data) {
             $(data.echoPossibilities).each(function(index,echoPossibility){
                 echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
                 //var p = $('<div id="' + echoPossibility.id + '" class="echoed-p" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '"><div class="echoed-t"></div></div>');
-                var t = $('<tr valign="middle" class="echoed-p"><td><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td>' + echoPossibility.productName + '<br/>$' + echoPossibility.price + '</td><td><img class="echoed-l" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '" src="{{urls.images}}/btn_share_red.png" /></a></td></tr>');
+                var t = $('<tr valign="middle" class="echoed-p"><td><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td>' + echoPossibility.productName + '<br/>$' + echoPossibility.price + '</td><td><img id=' + echoPossibility.id + ' class="echoed-l" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '" src="{{urls.images}}/btn_share_red.png" /></a></td></tr>');
                 tbody.append(t);
             });
         }
