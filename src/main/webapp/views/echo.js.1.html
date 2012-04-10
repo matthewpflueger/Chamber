@@ -56,6 +56,7 @@ function ___getPageSize() {
     Echoed.urls.site = "{{site}}";
     /*{{/urls}} // */
 
+
     var arrPageSizes = ___getPageSize();
 
     $('body').prepend('<div id="echoed-fade"></div>');
@@ -79,7 +80,8 @@ function ___getPageSize() {
         dataType: 'jsonp',
         data: {
             "pid": "{{pid}}",
-            "data": echoData
+            "data": echoData,
+            "version" : "{{version}}"
         },
         success: function(data) {
             $(data.echoPossibilities).each(function(index,echoPossibility){

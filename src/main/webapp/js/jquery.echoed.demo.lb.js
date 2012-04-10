@@ -75,8 +75,8 @@ $(document).ready(function(){
     h.appendTo(popup);
     h.append(close);
     var c = $(div).attr("id","echoed-container");
-    var et = $(div).attr("id","echoed-hiw-t").html('GET UP TO 20% BACK WHEN YOU SHARE YOUR PURCHASE');
-    var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");
+    var et = $(div).attr("id","echoed-hiw-t").html('SHARE YOUR PURCHASE AND EARN UP TO <span class="echoed-highlight">20% CASH BACK</span>');
+    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='http://demo.echoed.com/images/logo_facebook.png'> or <img src='http://demo.echoed.com/images/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
     var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
     var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
     pcc.append(container);

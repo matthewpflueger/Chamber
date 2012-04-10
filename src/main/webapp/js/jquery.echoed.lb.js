@@ -1,4 +1,45 @@
-
+function ___getPageSize() {
+    var xScroll, yScroll;
+    if (window.innerHeight && window.scrollMaxY) {
+        xScroll = window.innerWidth + window.scrollMaxX;
+        yScroll = window.innerHeight + window.scrollMaxY;
+    } else if (document.body.scrollHeight > document.body.offsetHeight){ // all but Explorer Mac
+        xScroll = document.body.scrollWidth;
+        yScroll = document.body.scrollHeight;
+    } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
+        xScroll = document.body.offsetWidth;
+        yScroll = document.body.offsetHeight;
+    }
+    var windowWidth, windowHeight;
+    if (self.innerHeight) {	// all except Explorer
+        if(document.documentElement.clientWidth){
+            windowWidth = document.documentElement.clientWidth;
+        } else {
+            windowWidth = self.innerWidth;
+        }
+        windowHeight = self.innerHeight;
+    } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+        windowWidth = document.documentElement.clientWidth;
+        windowHeight = document.documentElement.clientHeight;
+    } else if (document.body) { // other Explorers
+        windowWidth = document.body.clientWidth;
+        windowHeight = document.body.clientHeight;
+    }
+    // for small pages with total height less then height of the viewport
+    if(yScroll < windowHeight){
+        pageHeight = windowHeight;
+    } else {
+        pageHeight = yScroll;
+    }
+    // for small pages with total width less then width of the viewport
+    if(xScroll < windowWidth){
+        pageWidth = xScroll;
+    } else {
+        pageWidth = windowWidth;
+    }
+    arrayPageSize = new Array(pageWidth,pageHeight,windowWidth,windowHeight);
+    return arrayPageSize;
+}
 
 function getQueryVariable(string, variable){
     var vars = string.split("&");
@@ -16,7 +57,7 @@ $(document).ready(function(){
     var popup = $('#echoed-popup');
     popup.html('');
 
-    var close = $('<img/>').attr('src','http://v1-cdn.echoed.com/btn_closewin.png').attr("id","echoed-close");
+    var close = $('<img/>').attr('src','http://images.echoed.com/btn_closewin.png').attr("id","echoed-close");
 
     var div = '<div></div>';
 
@@ -34,8 +75,10 @@ $(document).ready(function(){
     h.appendTo(popup);
     h.append(close);
     var c = $(div).attr("id","echoed-container");
-    var et = $(div).attr("id","echoed-hiw-t").html('GET UP TO 20% BACK WHEN YOU SHARE YOUR PURCHASE');
-    var ett = $(div).attr("id","echoed-hiw-tt").html("Share the products you've purchased with friends and get money back on your original form of payment with each click!");
+
+
+    var et = $(div).attr("id","echoed-hiw-t").html('SHARE YOUR PURCHASE AND EARN UP TO <span class="echoed-highlight">20% CASH BACK</span>');
+    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='http://images.echoed.com/logo_facebook.png'> or <img src='http://images.echoed.com/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
     var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
     var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
     pcc.append(container);
