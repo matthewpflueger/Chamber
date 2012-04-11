@@ -4,10 +4,10 @@ import org.apache.commons.codec.binary.Base64
 import javax.crypto.{Cipher, KeyGenerator}
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 import scala.reflect.BeanProperty
-import java.util.zip.{GZIPOutputStream, GZIPInputStream}
 import java.io._
 import scala.io.Source
 import org.slf4j.LoggerFactory
+import java.util.zip._
 
 class Encrypter {
 
@@ -74,8 +74,15 @@ class Encrypter {
             ivParameterSpec)
 
         val decrypted = cipher.doFinal(Base64.decodeBase64(text))
+        logger.debug("Decrypted String: {}", decrypted)
         if (gunzip) {
-            new String(Source.fromInputStream(new GZIPInputStream(new ByteArrayInputStream(decrypted)), "UTF-8").toArray)
+            try{
+                new String(Source.fromInputStream(new GZIPInputStream(new ByteArrayInputStream(decrypted)), "UTF-8").toArray)
+            }
+            catch {
+                case e: IOException =>
+                    new String(Source.fromInputStream(new InflaterInputStream(new ByteArrayInputStream(Base64.decodeBase64(decrypted)), new Inflater(true)), "UTF-8").toArray)
+            }
         } else new String(decrypted, "UTF-8").trim()
     }
 }
