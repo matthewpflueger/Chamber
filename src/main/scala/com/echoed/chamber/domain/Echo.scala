@@ -131,11 +131,21 @@ object Echo {
             step = step,
             browserId = browserId,
             ipAddress = ipAddress,
-            userAgent = userAgent,
+            userAgent = userAgent.take(254),
             referrerUrl = referrerUrl,
             view = view,
             order = Order(id, date, date, customerId, boughtOn, orderId),
-            product = Product(id, date, date, productId, price, landingPageUrl, productName, category, brand, description),
+            product = Product(
+                        id,
+                        date,
+                        date,
+                        productId,
+                        price,
+                        landingPageUrl,
+                        productName,
+                        category,
+                        brand,
+                        description.take(1023)),
             image = new Image(imageUrl))
     }
 }

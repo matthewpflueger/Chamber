@@ -59,7 +59,7 @@ class PartnerServiceActor(
                 productName = i.productName,
                 category = i.category,
                 brand = i.brand,
-                description = i.description.take(1023),
+                description = i.description,
                 echoClickId = echoClickId.orNull,
                 browserId = browserId,
                 ipAddress = ipAddress,
