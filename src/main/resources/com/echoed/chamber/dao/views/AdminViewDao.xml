@@ -40,7 +40,7 @@
             <arg column="echoClickId" javaType="String" />
         </constructor>
     </resultMap>
-    
+
     <select id="getUsers" resultMap="echoedUserResult">
         select
             id,
