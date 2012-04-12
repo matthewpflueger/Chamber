@@ -346,12 +346,16 @@ class EchoedUserServiceActor(
             }
 
 
-        case msg @ GetFriendExhibit(echoedFriendUserId) =>
+        case msg @ GetFriendExhibit(echoedFriendUserId, page) =>
             val channel: Channel[GetFriendExhibitResponse] = self.channel
 
             try {
                 val echoedFriend = Option(echoedFriendDao.findFriendByEchoedUserId(echoedUser.id, echoedFriendUserId)).orNull
-                val closet: Closet = closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId)
+
+                val limit = 30;
+                val start = msg.page * limit;
+
+                val closet: Closet = closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId, start, limit)
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet.copy(echoes = new ArrayList[EchoView]))))
                 }
@@ -424,7 +428,11 @@ class EchoedUserServiceActor(
             try {
                 logger.debug("Fetching exhibit for EchoedUser {}", echoedUser.id)
                 val credit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
-                val closet = Option(closetDao.findByEchoedUserId(echoedUser.id)).getOrElse(new Closet(echoedUser.id, echoedUser))
+
+                val limit = 30;
+                val start = msg.page * limit;
+
+                val closet = Option(closetDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new Closet(echoedUser.id, echoedUser))
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     logger.debug("Echoed user {} has zero echoes", echoedUser.id)
                     channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(

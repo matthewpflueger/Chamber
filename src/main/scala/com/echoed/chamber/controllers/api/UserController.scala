@@ -131,11 +131,19 @@ class UserController {
         } else Option(continuation.getAttribute("exhibit")).getOrElse({
             continuation.suspend(httpServletResponse)
 
+            var pageInt: Int = 0;
+            try {
+                pageInt = Integer.parseInt(page);
+            } catch {
+                case nfe:NumberFormatException =>
+                    pageInt = 0;
+            }
+
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
                     logger.error("Error Locating EchoedUserService With Id %s" format echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getCloset.onResult {
+                    echoedUserService.getCloset(pageInt).onResult {
                         case GetExhibitResponse(_,Left(error)) =>
                             logger.error("Error Getting Closet for %s" format echoedUserId, error)
                             throw new RuntimeException("Unknown Response %s" format error)

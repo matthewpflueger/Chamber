@@ -44,7 +44,7 @@ case class EchoToTwitter(echo:Echo, echoMessage: Option[String]) extends EUM
 case class EchoToTwitterResponse(message:EchoToTwitter,  value: Either[EUE, TwitterStatus])
     extends EUM with RM[TwitterStatus, EchoToTwitter,  EUE]
 
-case class GetFriendExhibit(echoedFriendUserId: String) extends EUM
+case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
     extends EUM with RM[FriendCloset, GetFriendExhibit, EUE]
 
@@ -52,7 +52,7 @@ case class GetEchoedUser() extends EUM
 case class GetEchoedUserResponse(message: GetEchoedUser, value: Either[EUE, EchoedUser])
     extends EUM with RM[EchoedUser, GetEchoedUser,  EUE]
 
-case class GetExhibit() extends EUM
+case class GetExhibit(page: Int) extends EUM
 case class GetExhibitResponse(message: GetExhibit, value: Either[EUE, ClosetPersonal])
     extends EUM with RM[ClosetPersonal, GetExhibit, EUE]
 

@@ -55,7 +55,7 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
     feature("A developer can view Closet data") {
 
         scenario("Closet data is queried", IntegrationTest) {
-            val closet = closetDao.findByEchoedUserId(echoedUser.id)
+            val closet = closetDao.findByEchoedUserId(echoedUser.id, 0 , 30)
             closet should not be(null)
             closet.echoedUser should not be(null)
             closet.echoes should not be(null)

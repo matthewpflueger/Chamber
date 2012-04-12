@@ -36,7 +36,9 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def echoToTwitter(echo:Echo,  message: Option[String]) =
         (echoedUserServiceActor ? (EchoToTwitter(echo,message))).mapTo[EchoToTwitterResponse]
 
-    def getCloset = (echoedUserServiceActor ? GetExhibit()).mapTo[GetExhibitResponse]
+    def getCloset = (echoedUserServiceActor ? GetExhibit(0)).mapTo[GetExhibitResponse]
+
+    def getCloset(page: Int) = (echoedUserServiceActor ? GetExhibit(page)).mapTo[GetExhibitResponse]
 
     def getFeed = (echoedUserServiceActor ? GetFeed(0)).mapTo[GetFeedResponse]
     
@@ -49,7 +51,10 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def getPublicFeed(page: Int) = (echoedUserServiceActor ? GetPublicFeed(page)).mapTo[GetPublicFeedResponse]
 
     def getFriendCloset(echoedFriendId: String) =
-            (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId)).mapTo[GetFriendExhibitResponse]
+            (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId, 0)).mapTo[GetFriendExhibitResponse]
+    
+    def getFriendCloset(echoedFriendId: String, page: Int) = 
+            (echoedUserServiceActor ? GetFriendExhibit(echoedFriendId, page)).mapTo[GetFriendExhibitResponse]
 
     def getFriends = (echoedUserServiceActor ? GetEchoedFriends()).mapTo[GetEchoedFriendsResponse]
 

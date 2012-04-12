@@ -93,6 +93,8 @@
         where EU.id = #{id}
         ORDER BY
             E.createdOn DESC
+        LIMIT
+            #{start}, #{limit}
     </select>
 
 

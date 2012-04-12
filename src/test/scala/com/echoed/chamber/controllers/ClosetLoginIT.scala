@@ -105,7 +105,7 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             echoes.foreach(echoDao.insert(_))
             echoes.foreach(echoDao.updateForEcho(_))
 
-            val closet = closetDao.findByEchoedUserId(echoedUser.id)
+            val closet = closetDao.findByEchoedUserId(echoedUser.id, 0, 30)
             closet should not be null
             closet.echoedUser should not be null
             closet.echoedUser.id should equal (echoedUser.id)

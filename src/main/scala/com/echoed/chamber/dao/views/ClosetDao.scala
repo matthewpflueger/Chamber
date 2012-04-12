@@ -1,11 +1,15 @@
 package com.echoed.chamber.dao.views
 
 import com.echoed.chamber.domain.views.Closet
+import org.apache.ibatis.annotations.Param
 
 
 trait ClosetDao {
 
-    def findByEchoedUserId(echoedUserId: String): Closet
+    def findByEchoedUserId(
+        @Param("id") echoedUserId: String,
+        @Param("start") start: Int, 
+        @Param("limit") limit: Int): Closet
 
     def totalCreditByEchoedUserId(echoedUserId: String): Float
 
