@@ -5,11 +5,11 @@ $fbColor: #3B5998;
 $twitterColor: #4099FF;
 
     @mixin drop-shadow{
-        box-shadow: 0 3px 3px rgba(34,25,25,0.4);
-        -moz-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
-        -webkit-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
-        -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
-       	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
+        box-shadow: 0 1px 1px rgba(34,25,25,0.4);
+        -moz-box-shadow: 0px 1px 1px rgba(34,25,25,0.4);
+        -webkit-box-shadow: 0px 1px 1px rgba(34,25,25,0.4);
+        -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#666666')";
+       	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=1, Direction=180, Color='#666666');
     }
 
     @mixin drop-shadow-highlight{
@@ -54,6 +54,7 @@ $twitterColor: #4099FF;
         padding: 5px;
         border-bottom: 2px #FFF groove;
         text-align:left;
+        vertical-align: middle;
     }
 }
 
@@ -140,6 +141,10 @@ $twitterColor: #4099FF;
         width: 100px;
         max-height: 120px;
         overflow: hidden;
+        @include drop-shadow;
+        .echoed-i{
+            width: 100px;
+        }
     }
     .echoed-bs{
         width: 124px;
