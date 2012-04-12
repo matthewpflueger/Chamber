@@ -37,18 +37,14 @@
             <div id="right" class="long">
                 <div id="right_content">
                     <div id="echoes-container">
+                        <div class="confirm-label">
+                            STEP 2 OF 2: Login to Share With Friends
+                        </div>
                         <form name="message" id="echo" action="{{urls.site}}/echo/finish" method="get">
                             {{#echoPossibility}}
                             <input type="hidden" name="echoId" value="{{id}}">
                             {{/echoPossibility}}
-                            <table id="echoes" width="100%" cellspacing="5px">
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th </th>
-                                </tr>
-                                </thead>
+                            <table id="echoes" width="100%" >
                                 <tbody>
                                 {{#echoedUser}}
                                 {{#facebookUserId}}

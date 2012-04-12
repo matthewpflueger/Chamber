@@ -17,7 +17,7 @@
         <div id="content">
             <div id="thankyou">
                 {{#retailer}}
-                <span class="ty-text">Share Now, Get Rewarded From {{name}}</span>
+                <span class="ty-text">Show Your Friends Why you Love {{name}}, It's Worth It</span>
                 {{/retailer}}
             </div>
             <div id="lower" class="clearfix">
@@ -44,7 +44,7 @@
                     <div id="right-content">
                         {{#retailer}}
                         <div class="confirm-label">
-                            GET UP TO {{maxPercentage}}% BACK ON YOUR ORIGINAL FORM OF PAYMENT!
+                            STEP 1 OF 2: Login to Share With Friends
                         </div>
                         <div>
                             <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{redirectUrl}}&scope=email,publish_stream,read_stream,offline_access,publish_actions" >
@@ -54,10 +54,9 @@
                                 <img height="50" src="{{urls.images}}/btn_twitter_login.png"/>
                             </a>
                         </div>
-                        <div class="confirm-text" style="margin-top: 30px;">
-                            <ul>
-                                Get an automatic <strong>{{minPercentage}}% back</strong> just for sharing your purchase. As more friends click your shared link, your cash back will grow, <strong>up to {{maxPercentage}}%</strong>
-                            </ul>
+                        <div class="confirm-text" style="margin-top: 20px;">
+                            We want to thank you for supporting {{#retailer}}{{name}}{{/retailer}}. Please tell your friends about your purchase and help us grow. To show our appreciation we'll give you an instant <strong>{{minPercentage}}% off this items just for sharing.</strong><br/><br/>
+                            As more friends use your link to visit our site, <strong>your reward can grow up to {{maxPercentage}}%.</strong> All rewards will be automatically credited to the card you used to buy this item.
                         </div>
                         {{/retailer}}
                     </div>

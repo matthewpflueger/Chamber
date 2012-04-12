@@ -1,8 +1,8 @@
 window.onload = function(){
     var _body = document.getElementsByTagName('body')[0];
     loadJSInclude('https://crypto-js.googlecode.com/files/2.5.3-crypto-sha1-hmac-pbkdf2-blockmodes-aes.js',function(){
-        loadJSInclude('http://js.echoed.com/rawdeflate.js', function(){
-            loadJSInclude('http://js.echoed.com/jquery-1.6.2.min.js', function(){
+        loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/rawdeflate.js', function(){
+            loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
                 var string = echoedRequest;
 
                 var secret = Crypto.util.base64ToBytes(EchoedKey);
@@ -21,7 +21,7 @@ window.onload = function(){
                 _body.appendChild(script);
                 var requestScript = document.createElement("script");
                 requestScript.type = "text/javascript";
-                requestScript.src = 'http://www.echoed.com/echo/js?pid=' + EchoedPartnerId;
+                requestScript.src = 'https://www.echoed.com/echo/js?pid=' + EchoedPartnerId;
                 _body.appendChild(requestScript);
             })
         })

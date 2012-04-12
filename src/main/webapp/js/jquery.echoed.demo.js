@@ -21,7 +21,7 @@ window.onload = function(){
                 _body.appendChild(script);
                 var requestScript = document.createElement("script");
                 requestScript.type = "text/javascript";
-                requestScript.src = 'http://demo.echoed.com/echo/js?pid=' + echoedPartnerId;
+                requestScript.src = 'https://demo.echoed.com/echo/js?pid=' + echoedPartnerId;
                 _body.appendChild(requestScript);
             })
         })

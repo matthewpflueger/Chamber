@@ -90,6 +90,10 @@ img{
     border: 0px;
 }
 
+.confirm-text{
+    font-size: 14px;
+}
+
 .confirm-label{
     margin-top: 10px;
     margin-bottom: 10px;
@@ -249,7 +253,6 @@ li{
 
         #echoes {
             border-collapse: collapse;
-            background-color: #FFF;
             bottom: 0px;
             .icon{
                 height: 60px;
@@ -262,7 +265,7 @@ li{
                 padding-bottom: 5px;
             }
             td{              
-                padding: 5px;
+                padding: 1px 5px;
             }
             textarea{
                 padding:5px;
