@@ -69,6 +69,13 @@
         where E.id = #{id}
     </select>
 
+
+    <select id="findByIdOrPostId" resultMap="echoResult">
+        <include refid="echoSelect" />
+        where E.id = #{id} or E.facebookPostId = #{id} or E.twitterStatusId = #{id}
+    </select>
+
+
     <select id="findByEchoPossibilityId" resultMap="echoResult">
         <include refid="echoSelect" />
         where E.echoPossibilityId = #{echoPossibilityId}

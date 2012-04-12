@@ -9,7 +9,6 @@ import scala.Option
 import com.echoed.chamber.dao.views.RetailerViewDao
 import com.echoed.chamber.dao._
 import com.echoed.chamber.domain.views.EchoPossibilityView
-import java.util.Date
 
 import scalaz._
 import Scalaz._
@@ -20,6 +19,7 @@ import com.echoed.util.TransactionUtils._
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
+import java.util.{UUID, Date}
 
 
 class EchoServiceActor extends Actor {
@@ -147,7 +147,7 @@ class EchoServiceActor extends Actor {
 
 
 
-        case msg @ RecordEchoClick(echoClick, postId) =>
+        case msg @ RecordEchoClick(echoClick, linkId, postId) =>
             val channel: Channel[RecordEchoClickResponse] = self.channel
 
             def error(e: Throwable) {
@@ -155,8 +155,17 @@ class EchoServiceActor extends Actor {
                 logger.error("Error processing %s" format msg, e)
             }
 
+            //only use the postId if it looks like a valid uuid
+            val id = Option(postId).flatMap { pi =>
+                try {
+                    Some(UUID.fromString(pi).toString)
+                } catch {
+                    case e => None
+                }
+            }.getOrElse(linkId)
+
             try {
-                Option(echoDao.findById(echoClick.echoId)).cata(
+                Option(echoDao.findByIdOrPostId(id)).cata(
                     echo => {
                         logger.debug("Found {}", echo);
                         logger.debug("Recording {}", echoClick);
@@ -164,8 +173,8 @@ class EchoServiceActor extends Actor {
 
                         //this really should be sent to another actor that has a durable mailbox...
                         Future {
-                            val ec = determinePostId(echo, echoClick, postId)
-                            echoClickDao.insert(ec)
+                            val ec = determinePostId(echo, echoClick.copy(echoId = echo.id), if (linkId == echo.id) postId else linkId)
+                            echoClickDao.insert(ec.copy(userAgent = ec.userAgent.take(254)))
                             logger.debug("Successfully recorded click for Echo {}", echo.id)
 
                             (for {
@@ -185,8 +194,8 @@ class EchoServiceActor extends Actor {
                         }
                     },
                     {
-                        channel ! RecordEchoClickResponse(msg, Left(EchoNotFound(echoClick.echoId)))
-                        logger.error("Did not find echo to record click, postId {}, {}", postId, echoClick)
+                        channel ! RecordEchoClickResponse(msg, Left(EchoNotFound(id)))
+                        logger.error("Did not find echo to record click - id {}, {}", id, echoClick)
                     })
             } catch {
                 case e => error(e)
@@ -199,11 +208,11 @@ class EchoServiceActor extends Actor {
             case Some(t) if echo.twitterStatusId == t => echoClick.copy(twitterStatusId = postId)
             case Some("1") => echoClick
             case Some(_) =>
-                logger.warn("Invalid post id {} for {}", postId, echo)
+                logger.warn("Invalid post id {} for {}", id, echo)
                 echoClick
             case None =>
-                logger.warn("Null post id")
                 echoClick
         }
+
 
 }

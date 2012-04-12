@@ -676,13 +676,25 @@ class EchoController {
     }
 
 
+    @RequestMapping(value = Array("/{linkId}"), method = Array(RequestMethod.GET))
+    def click(
+            @PathVariable(value = "linkId") linkId: String,
+            @RequestHeader(value = "Referer", required = false) referrerUrl: String,
+            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
+            @RequestHeader(value = "X-Forwarded-For", required = false) forwardedFor: String,
+            @RequestHeader(value = "User-Agent", required = false) userAgent: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+        echoes(linkId, null, referrerUrl, remoteIp, userAgent, httpServletRequest, httpServletResponse)
+    }
+
+    @deprecated(message = "This will eventually go away as we do not need a postId anymore")
     @RequestMapping(value = Array("/{echoId}/{postId}"), method = Array(RequestMethod.GET))
     def echoes(
             @PathVariable(value = "echoId") echoId: String,
             @PathVariable(value = "postId") postId: String,
             @RequestHeader(value = "Referer", required = false) referrerUrl: String,
             @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
-            @RequestHeader(value = "X-Forwarded-For", required = false) forwardedFor: String,
             @RequestHeader(value = "User-Agent", required = false) userAgent: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -695,14 +707,14 @@ class EchoController {
             continuation.suspend(httpServletResponse)
 
             val echoClick = new EchoClick(
-                    echoId = echoId,
+                    echoId = null, //we will determine what the echoId is in the service...
                     echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull,
                     browserId = cookieManager.findBrowserIdCookie(httpServletRequest).get,
                     referrerUrl = referrerUrl,
                     ipAddress = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
                     userAgent = userAgent)
 
-            echoService.recordEchoClick(echoClick, postId).onComplete(_.value.get.fold(
+            echoService.recordEchoClick(echoClick, echoId, postId).onComplete(_.value.get.fold(
                 e => error(errorView, Some(e)),
                 _ match {
                     case RecordEchoClickResponse(msg, Left(e)) => error(errorView, Some(e))

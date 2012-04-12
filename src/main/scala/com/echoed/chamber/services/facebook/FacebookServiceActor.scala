@@ -71,8 +71,7 @@ class FacebookServiceActor(
                         facebookUser.id,
                         echo.echoedUserId,
                         echo.id)
-                //TODO externalize the facebookPost url!
-                val facebookPost = fp.copy(link = "%s/%s/%s" format(echoClickUrl, echo.id, fp.id))
+                val facebookPost = fp.copy(link = "%s/%s" format(echoClickUrl, fp.id))
                 facebookPostDao.insert(facebookPost)
 
                 logger.debug("Sending request to post to FacebookAccessActor {}", facebookPost)

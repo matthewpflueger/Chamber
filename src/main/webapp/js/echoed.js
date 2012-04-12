@@ -538,7 +538,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var imageUrl =   this.model.get("image").preferredUrl;
         var imageWidth = this.model.get("image").preferredWidth;
         var imageHeight = this.model.get("image").preferredHeight;
-        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Category-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href",landingUrl + '/1');
+        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Category-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");

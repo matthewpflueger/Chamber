@@ -38,6 +38,6 @@ case class GetEchoPossibility(echoPossibilityId: String) extends EM
 case class GetEchoPossibilityResponse(message: GetEchoPossibility, value: Either[EE, Echo])
         extends EM with RM[Echo, GetEchoPossibility, EE]
 
-case class RecordEchoClick(echoClick: EchoClick, postId: String) extends EM
+case class RecordEchoClick(echoClick: EchoClick, linkId: String, postId: String) extends EM
 case class RecordEchoClickResponse(message: RecordEchoClick, value: Either[EE, Echo])
         extends EM with RM[Echo, RecordEchoClick, EE]

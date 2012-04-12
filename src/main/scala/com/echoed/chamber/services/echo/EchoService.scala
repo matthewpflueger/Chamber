@@ -12,6 +12,6 @@ trait EchoService {
 
     def getEcho(echoPossibilityId:String): Future[GetEchoResponse]
 
-    def recordEchoClick(echoClick: EchoClick, postId: String): Future[RecordEchoClickResponse]
+    def recordEchoClick(echoClick: EchoClick, linkId: String, postId: String): Future[RecordEchoClickResponse]
 
 }

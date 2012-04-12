@@ -131,7 +131,7 @@ object Echo {
             step = step,
             browserId = browserId,
             ipAddress = ipAddress,
-            userAgent = userAgent.take(254),
+            userAgent = Option(userAgent).map(_.take(254)).orNull,
             referrerUrl = referrerUrl,
             view = view,
             order = Order(id, date, date, customerId, boughtOn, orderId),
@@ -145,7 +145,7 @@ object Echo {
                         productName,
                         category,
                         brand,
-                        description.take(1023)),
+                        Option(description).map(_.take(1023)).orNull),
             image = new Image(imageUrl))
     }
 }

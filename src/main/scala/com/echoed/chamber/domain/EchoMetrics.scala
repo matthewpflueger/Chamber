@@ -40,25 +40,33 @@ case class EchoMetrics(
         0,
         0)
 
+    val isEchoed = echoedUserId != null && creditWindowEndsAt != null
+
     def echoed(rs: RetailerSettings) = {
         require(retailerSettingsId == rs.id)
         require(credit == 0)
         require(fee == 0)
         require(creditWindowEndsAt == null)
-        //require(totalClicks == 0)
 
-        val (cr, fe) = update(0, rs.closetPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage)
+        val (cr, fe) = update(rs.closetPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage)
         this.copy(credit = cr, fee = fe, creditWindowEndsAt = rs.creditWindowEndsAt)
     }
 
     def clicked(rs: RetailerSettings): EchoMetrics = {
-        clicked(rs, creditWindowEndsAt.after(new Date))
-    }
-
-    /* Only for testing... */
-    protected[domain] def clicked(rs: RetailerSettings, withinCreditWindow: Boolean): EchoMetrics = {
         require(retailerSettingsId == rs.id)
 
+        if (isEchoed) {
+            clicked(rs, creditWindowEndsAt.after(new Date))
+        } else if (totalClicks == 0) {
+            val (cr, fe) = update(rs.closetPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage)
+            this.copy(residualCredit = cr, residualFee = fe, totalClicks = 1, residualClicks = 1)
+        } else {
+            clicked(rs, false)
+        }
+    }
+
+    /* package visible for testing purposes otherwise should be private... */
+    protected[domain] def clicked(rs: RetailerSettings, withinCreditWindow: Boolean): EchoMetrics = {
         val totalClicks = this.totalClicks + 1
 
         def withinWindow(tuple: Tuple2[Float, Float]) = this.copy(
@@ -75,20 +83,19 @@ case class EchoMetrics(
         val updateForWindow = if (withinCreditWindow) withinWindow _ else outsideWindow _
 
         if (totalClicks < 1 || totalClicks < rs.minClicks || totalClicks > rs.maxClicks) {
-            this.copy(totalClicks = totalClicks) //if we are under the min or over the max we don't track...
+            //if we are under the min or over the max we don't track credit or fee...
+            if (withinCreditWindow) updateForWindow((credit, fee)) else updateForWindow((residualCredit, residualFee))
         } else if (totalClicks == rs.minClicks) {
-            updateForWindow(update(totalClicks, rs.minPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage))
+            updateForWindow(update(rs.minPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage))
         } else if (totalClicks == rs.maxClicks) {
-            updateForWindow(update(totalClicks, rs.maxPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage))
+            updateForWindow(update(rs.maxPercentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage))
         } else {
             val percentage = (scala.math.pow(logOfBase(rs.maxClicks, totalClicks - rs.minClicks), 3) * (rs.maxPercentage - rs.minPercentage) + rs.minPercentage).asInstanceOf[Float]
-            updateForWindow(update(totalClicks, percentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage))
+            updateForWindow(update(percentage, rs.echoedMaxPercentage, rs.echoedMatchPercentage))
         }
     }
 
-
     private def update(
-            totalClicks: Int,
             percentage: Float,
             echoedMaxPercentage: Float,
             echoedMatchPercentage: Float) = {

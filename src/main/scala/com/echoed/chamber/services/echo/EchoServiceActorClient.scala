@@ -19,8 +19,8 @@ class EchoServiceActorClient extends EchoService with ActorClient {
     def getEcho(echoPossibilityId: String) =
             (echoServiceActor ? GetEcho(echoPossibilityId)).mapTo[GetEchoResponse]
 
-    def recordEchoClick(echoClick: EchoClick, postId: String) =
-            (echoServiceActor ? RecordEchoClick(echoClick, postId)).mapTo[RecordEchoClickResponse]
+    def recordEchoClick(echoClick: EchoClick, linkId: String, postId: String) =
+            (echoServiceActor ? RecordEchoClick(echoClick, linkId, postId)).mapTo[RecordEchoClickResponse]
 
     def actorRef = echoServiceActor
 }

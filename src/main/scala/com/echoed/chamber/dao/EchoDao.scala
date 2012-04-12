@@ -17,6 +17,8 @@ trait EchoDao {
 
     def updateTwitterStatusId(echo: Echo): Int
 
+    def findByIdOrPostId(id: String): Echo
+
     def findByEchoPossibilityId(echoPossibilityId: String): Echo
 
     @deprecated(message = "This is to support the old integration method")
