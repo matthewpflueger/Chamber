@@ -62,12 +62,10 @@ function getEchoedJsonString(){
         var item = {};
         var pair = $(this).attr("src").split("?");
         var queryString = pair[1];
-        if(orderId = "") {
-            partnerId = getQueryVariable(queryString, "partnerId");
-            orderId = getQueryVariable(queryString, "orderId");
-            customerId = getQueryVariable(queryString, "customerId");
-            boughtOn = getQueryVariable(queryString, "boughtOn");
-        }
+        partnerId = getQueryVariable(queryString, "partnerId");
+        orderId = getQueryVariable(queryString, "orderId");
+        customerId = getQueryVariable(queryString, "customerId");
+        boughtOn = getQueryVariable(queryString, "boughtOn");
         item['productId'] = getQueryVariable(queryString, 'productId');
         item['productName'] = getQueryVariable(queryString, 'productName');
         item['category'] = getQueryVariable(queryString, 'category');
