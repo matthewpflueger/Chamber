@@ -288,13 +288,22 @@ class UserController {
         } else Option(continuation.getAttribute("closet")).getOrElse({
             continuation.suspend(httpServletResponse)
 
+            var pageInt: Int = 0;
+            try {
+                pageInt = Integer.parseInt(page);
+            } catch {
+                case nfe:NumberFormatException =>
+                    pageInt = 0;
+            }
+
+
             val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onResult {
                 case LocateWithIdResponse(_,Left(error)) =>
                     logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getFriendCloset(echoedFriendId).onResult{
+                    echoedUserService.getFriendCloset(echoedFriendId, pageInt).onResult{
                         case GetFriendExhibitResponse(_,Left(error)) =>
                             logger.error("Error Getting Friend's Closet for user %s" format echoedUserId, error)
                         case GetFriendExhibitResponse(_,Right(closet)) =>
