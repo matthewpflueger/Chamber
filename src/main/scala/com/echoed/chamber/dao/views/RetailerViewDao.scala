@@ -20,21 +20,8 @@ trait RetailerViewDao {
             @Param("echoedUserId") echoedUserId: String,
             @Param("retailerId") retailerId: String): EchoedUser
 
-
-
     def getTotalFacebookFriendsByEchoedUser(@Param("echoedUserId") echoedUserId: String): Int
 
-    def getTotalFacebookLikesByRetailerIdProductId(
-            @Param("productId") productId: String,
-            @Param("retailerId") retailerId: String): ProductSocialActivityTotal
-
-    def getTotalFacebookCommentsByRetailerIdProductId(
-            @Param("productId") productId: String,
-            @Param("retailerId") retailerId: String): ProductSocialActivityTotal
-
-    def getTotalEchoClicksByRetailerIdProductId(
-            @Param("productId") productId: String,
-            @Param("retailerId") retailerId: String): ProductSocialActivityTotal
 
     def getSocialActivityByRetailerId(retailerId: String): RetailerSocialSummary
 
@@ -80,14 +67,12 @@ trait RetailerViewDao {
             @Param("retailerId") retailerId: String, 
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId:String): JList[SocialActivityTotalByDate]
-
-    def getCommentsByRetailerIdProductId(
+    
+    def getComments(
             @Param("retailerId") retailerId: String,
+            @Param("echoedUserId") echoedUserId: String,
             @Param("productId") productId: String): JList[FacebookComment]
 
-    def getCommentsByRetailerId(
-            @Param("retailerId") retailerId: String): JList[FacebookComment]
-    
     def getTotalSalesAmount(
             @Param("retailerId") retailerId: String, 
             @Param("echoedUserId") echoedUserId: String, 
@@ -112,7 +97,7 @@ trait RetailerViewDao {
             @Param("retailerId") retailerId: String, 
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId: String) : Int
-    
+
     def getTotalEchoes(
             @Param("retailerId") retailerId: String, 
             @Param("echoedUserId") echoedUserId: String, 

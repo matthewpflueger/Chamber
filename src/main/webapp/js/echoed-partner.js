@@ -169,14 +169,16 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                         },
                         success: function(data){
                             self.element.hide().html(template);
-                            var table = {"style":"report-table","header": [{"text":"Customer"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
+                            var table = {"style":"report-table","header": [{"text":"Customer"},{"text":"($)Purchases"},{"text":"(#)Purchases"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                             $.each(data.customers, function(index,customer){
                                 var row = {"href":"#reports/customers/" + customer.echoedUserId , cells:[]};
-                                row.cells.push({"text":customer.echoedUserName, "style" : ""});
-                                row.cells.push({"text":customer.totalEchoes, "style" : "number"});
-                                row.cells.push({"text":customer.totalEchoClicks, "style" : "number"});
-                                row.cells.push({"text":customer.totalFacebookLikes, "style" : "number"});
-                                row.cells.push({"text":customer.totalFacebookComments, "style" : "number"});
+                                row.cells.push({"text" : customer.echoedUserName, "style" : ""});
+                                row.cells.push({"text" : customer.totalSales, "style" : "number"});
+                                row.cells.push({"text" : customer.totalSalesVolume, "style" : "number"});
+                                row.cells.push({"text" : customer.totalEchoes, "style" : "number"});
+                                row.cells.push({"text" : customer.totalEchoClicks, "style" : "number"});
+                                row.cells.push({"text" : customer.totalFacebookLikes, "style" : "number"});
+                                row.cells.push({"text" : customer.totalFacebookComments, "style" : "number"});
                                 table.rows.push(row);
                             });
                             var customerTable = new Echoed.Views.Components.TableTemplate({EvAg: self.EvAg, el: "#table-container",table:table});
@@ -194,11 +196,13 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                         },
                         success: function(data){
                             self.element.hide().html(template);
-                            var table = {"style":"report-table","header": [{"text":"Product Name"},{"text":"SKU"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
+                            var table = {"style":"report-table","header": [{"text":"Product Name"},{"text":"($)Sales"},{"text":"(#)Sales"},{"text":"SKU"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                             $.each(data.products, function(index,product){
                                 var row = {"href":"#reports/products/" + product.productId , cells:[]};
                                 row.cells.push({"text":product.productName, "style" : ""});
                                 row.cells.push({"text":product.productId, "style" : ""});
+                                row.cells.push({"text":product.totalSales, "style" : "number"});
+                                row.cells.push({"text":product.totalSalesVolume, "style": "number"});
                                 row.cells.push({"text":product.totalEchoes, "style" : "number"});
                                 row.cells.push({"text":product.totalEchoClicks, "style" : "number"});
                                 row.cells.push({"text":product.totalFacebookLikes, "style" : "number"});
@@ -290,11 +294,11 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
                 },
                 success: function(data){
                     $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
-                    $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
-                    $('#ss-retweets').hide().html(0).fadeIn();
-                    $('#ss-new-echoes').hide().html(data.totalEchoes).fadeIn();
-                    $('#ss-open-echoes').hide().html(0).fadeIn();
+                    $('#ss-echoes').hide().html(data.totalEchoes).fadeIn();
+                    $('#ss-purchases').hide().html(data.totalSalesVolume).fadeIn();
+                    $('#ss-visits').hide().html(data.totalEchoClicks).fadeIn();
                     $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
+                    $('#ss-salesamount').hide().html(data.totalSales).fadeIn();
                 },
                 error:function (xhr, ajaxOptions, thrownError){
                 }
@@ -308,12 +312,15 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                var table = {"style":"top-table","header": [{"text":"Product Name"},{"text":"SKU"},{"text":"Echoes"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
+                var table = {"style":"top-table","header": [{"text":"Product Name"},{"text":"Product Id"},{"text":"Echoes"},{"text":"(#) Sales"},{"text":"($) Sales"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                 $.each(data.products, function(index,product){
                     var row = {"href": "#reports/products/" + product.productId, cells:[] };
                     row.cells.push({"text" : product.productName, "style" : ""});
                     row.cells.push({"text" : product.productId, "style" : ""});
+                    row.cells.push({"text" : product.totalSalesVolume, "style" : "number"});
+                    row.cells.push({"text" : product.totalSales, "style" : "number"});
                     row.cells.push({"text" : product.totalEchoes, "style" : "number"});
+                    row.cells.push({"text" : product.totalEchoClicks, "style" : "number"});
                     row.cells.push({"text" : product.totalFacebookLikes, "style" : "number"});
                     row.cells.push({"text" : product.totalFacebookComments, "style" : "number"});
                     table.rows.push(row);
@@ -328,14 +335,16 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                var table = {"style":"top-table","header": [{"text":"Customer"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
+                var table = {"style":"top-table","header": [{"text":"Customer"},{"text":"(#) Purchases"},{"text":"($) Purchases"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                 $.each(data.customers, function(index,customer){
                     var row = {"href":"#reports/customers/" + customer.echoedUserId , cells:[]};
                     row.cells.push({"text":customer.echoedUserName, "style" : ""});
-                    row.cells.push({"text":customer.totalEchoes, "style" : "number"});
-                    row.cells.push({"text":customer.totalEchoClicks, "style" : "number"});
-                    row.cells.push({"text":customer.totalFacebookLikes, "style" : "number"});
-                    row.cells.push({"text":customer.totalFacebookComments, "style" : "number"});
+                    row.cells.push({"text" : customer.totalSalesVolume, "style" : "number"});
+                    row.cells.push({"text" : customer.totalSales, "style" : "number"});
+                    row.cells.push({"text" : customer.totalEchoes, "style" : "number"});
+                    row.cells.push({"text" : customer.totalEchoClicks, "style" : "number"});
+                    row.cells.push({"text" : customer.totalFacebookLikes, "style" : "number"});
+                    row.cells.push({"text" : customer.totalFacebookComments, "style" : "number"});
                     table.rows.push(row);
                 });
                 var topCustomersTable = new Echoed.Views.Components.TableTemplate({EvAg: self.EvAg, el: '#top-customers-table', table: table})
@@ -519,6 +528,16 @@ Echoed.Views.Components.DonutChart = Backbone.View.extend({
     }
 });
 
+Echoed.Views.Components.Comments = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+    },
+    render: function(){
+
+    }
+});
+
 Echoed.Views.Components.Chart = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this);
@@ -547,6 +566,9 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
             success: function(data){
                 $.each(data.series, function(index,activity){
                     var chartData = { name: activity.name, data: []};
+                    if (chartData.name == "Sales($)"){
+                        chartData.yAxis = 1;
+                    }
                     if(activity.data.length > 0){
                         $.each(activity.data, function(index,history){
                             var a = [];
@@ -567,7 +589,8 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
         var chartOptions = {
             chart: {
                 renderTo: this.el.substr(1),
-                defaultSeriesType: 'area',
+                defaultSeriesType: 'spline',
+                stacked: true,
                 zoomType: 'x'
 
             },
@@ -577,7 +600,8 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
             },
             colors: ['#3B5998', '#09F','#497593','#EE7402','#6A971F','#C6014A','#0274B8','#F0B500','#92ACBE'],
             title: { text: ''},
-            yAxis:{
+            yAxis:[{
+                min: 0,
                 title:{
                     text: 'Activity',
                     style: {
@@ -587,7 +611,18 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                         fontSize: '11px'
                     }
                 }
-            },
+            },{
+                title:{
+                    text: 'Activity',
+                    style: {
+                        fontWeight: 'normal',
+                        color: '#666666',
+                        fontFamily:'"Helvetica Neue",Helvetica,Arial',
+                        fontSize: '11px'
+                    }
+                },
+                opposite: true
+            }],
             xAxis: {
                 type: 'datetime',
                 dateTimeLabelFormats:{

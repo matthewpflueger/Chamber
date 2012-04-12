@@ -100,6 +100,8 @@
             <arg column="totalFacebookComments" javaType="_int" />
             <arg column="totalEchoClicks" javaType="_int"/>
             <arg column="totalFacebookFriends" javaType="_int"/>
+            <arg column="totalSales" javaType="_float"/>
+            <arg column="totalSalesVolume" javaType="_int"/>
         </constructor>
     </resultMap>
     
@@ -127,12 +129,26 @@
         coalesce (R.id) as retailerId,
         coalesce (R.name) as retailerName,
         coalesce(E.imageUrl) as productImageUrl,
-        count(E.id) as totalEchoes,
+        count(E.echoedUserId) as totalEchoes,
         coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
         coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
         coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
         coalesce(sum(ESA.totalSales),0) as totalSales,
         coalesce(sum(ESA.totalSalesVolume),0) as totalSalesVolume
+    </sql>
+
+    <sql id="customerColumns">
+        R.id as retailerId,
+        R.name as retailerName,
+        EU.id as echoedUserId,
+        EU.name as echoedUserName,
+        count(E.echoedUserId) as totalEchoes,
+        coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
+        coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
+        coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
+        coalesce(sum(ESA.totalSales),0) as totalSales,
+        coalesce(sum(ESA.totalSalesVolume),0) as totalSalesVolume,
+        coalesce(FF.facebookFriends, 0) as totalFacebookFriends
     </sql>
 
     <sql id="aggregateSalesByRetailerIdAndProductId">
@@ -238,7 +254,7 @@
         GROUP BY
             R.id, R.name, E.productId, E.productName, E.brand, E.category
         ORDER BY
-            totalEchoes DESC
+            totalSalesVolume DESC
         LIMIT
             0, 5
     </select>
@@ -280,82 +296,9 @@
             R.id, R.name, E.productId, E.productName
     </select>
 
-    <select id="getTotalFacebookLikesByRetailerIdProductId" resultMap="productSocialActivityTotal">
-        SELECT
-            R.id as retailerId,
-            E.productId as productId,
-            E.productName as productName,
-            count(FBL.id) as total
-        FROM
-            Retailer R
-            LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
-            LEFT OUTER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            LEFT OUTER JOIN
-            FacebookLike FBL ON FBP.id = FBL.facebookPostId
-        WHERE
-            R.id = #{retailerId}
-            AND
-            E.productId= #{productId}
-        GROUP BY
-            R.id, E.productId, E.productName
-    </select>
-
-    <select id="getTotalFacebookCommentsByRetailerIdProductId" resultMap="productSocialActivityTotal">
-        SELECT
-            R.id as retailerId,
-            E.productId as productId,
-            E.productName as productName,
-            count(FBC.id) as total
-        FROM
-            Retailer R
-            LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
-            LEFT OUTER JOIN
-            FacebookPost FBP ON FBP.echoId = E.id
-            LEFT OUTER JOIN
-            FacebookComment FBC ON FBP.id = FBC.facebookPostId
-        WHERE
-            R.id = #{retailerId}
-            AND
-            E.productId= #{productId}
-        GROUP BY
-            R.id, E.productId, E.productName
-    </select>
-
-    <select id="getTotalEchoClicksByRetailerIdProductId" resultMap="productSocialActivityTotal">
-        SELECT
-            R.id as retailerId,
-            E.productId as productId,
-            E.productName as productName,
-            count(EC.id) as total
-        FROM
-            Retailer R
-            LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
-            LEFT OUTER JOIN
-            EchoClick EC ON EC.echoId = E.id
-        WHERE
-            R.id = #{retailerId}
-            AND
-            E.productId= #{productId}
-        GROUP BY
-            R.id, E.productId, E.productName
-    </select>
-
     <select id="getTopCustomersWithRetailerId" resultMap="retailerCustomerListView" >
-        SELECT
-            R.id as retailerId,
-            R.name as retailerName,
-            EU.id as echoedUserId,
-            EU.name as echoedUserName,
-            count(E.id) as totalEchoes,
-            coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
-            coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
-            coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
-            coalesce(FF.facebookFriends, 0) as totalFacebookFriends
-         FROM
+        SELECT <include refid="customerColumns"/>
+        FROM
             Retailer R
             LEFT OUTER JOIN
             Echo E ON R.id = E.retailerId
@@ -377,16 +320,7 @@
 
 
     <select id="getCustomersWithRetailerId" resultMap="retailerCustomerListView" >
-        SELECT
-        R.id as retailerId,
-        R.name as retailerName,
-        EU.id as echoedUserId,
-        EU.name as echoedUserName,
-        count(E.id) as totalEchoes,
-        coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
-        coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
-        coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
-        coalesce(FF.facebookFriends, 0) as totalFacebookFriends
+        SELECT <include refid="customerColumns"/>
         FROM
         Retailer R
         LEFT OUTER JOIN
@@ -469,7 +403,7 @@
             EU.id =  #{echoedUserId}
     </select>
 
-    <select id="getCommentsByRetailerId" resultMap="comments">
+    <select id="getComments" resultMap="comments">
         SELECT
             FBC.id,
             FBC.updatedOn,
@@ -490,37 +424,16 @@
             FacebookComment FBC ON FBC.facebookPostId = FP.id
         WHERE
             E.retailerId = #{retailerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId= #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
         ORDER BY
             FBC.createdOn DESC
     </select>
 
-    
-    <select id="getCommentsByRetailerIdProductId" resultMap="comments">
-        SELECT
-            FBC.id,
-            FBC.updatedOn,
-            FBC.createdOn,
-            FBC.facebookPostId,
-            FBC.facebookUserId,
-            FBC.echoedUserId,
-            FBC.facebookId,
-            FBC.byFacebookId,
-            FBC.name,
-            FBC.message,
-            FBC.createdAt
-        FROM
-            Echo E
-            INNER JOIN
-            FacebookPost FP ON FP.echoId = E.id
-            INNER JOIN
-            FacebookComment FBC ON FBC.facebookPostId = FP.id
-        WHERE
-            E.productId = #{productId}
-            AND
-            E.retailerId = #{retailerId}
-        ORDER BY
-            FBC.createdOn DESC
-    </select>
     
     <select id="getTotalSalesAmount" resultType="_float">
         select

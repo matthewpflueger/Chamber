@@ -40,77 +40,76 @@
 <script type="text/template" id="template-view-summary">
     <div class="row">
         <div id="summary-stats" class="full box clearfix">
-            <div class="full-column-left">
-                <div class="label">Social Activity</div>
-                <div id="chart" class="half-chart">
-                </div>
-            </div>
-            <div class="full-column-right">
-                <div class="ss-row">
-                    <div class="ss-box">
-                        <div class="ss-box-label">
-                            Open Echoes
-                        </div>
-                        <div id="ss-open-echoes" class="ss-box-number echoed-text">
-                        </div>
+            <div class="ss-row">
+                <div class="ss-box">
+                    <div class="ss-box-label">
+                        ($) Sales
                     </div>
-                    <div class="ss-box">
-                        <div class="ss-box-label">
-                            New Echoes
-                        </div>
-                        <div id="ss-new-echoes" class="ss-box-number echoed-text">
-                        </div>
-                    </div>
-                    <div class="ss-box">
-                        <div class="ss-box-label">
-                            Visitors
-                        </div>
-                        <div id="ss-views" class="ss-box-number echoed-text">
-                        </div>
+                    <div id="ss-salesamount" class="ss-box-number echoed-text">
                     </div>
                 </div>
-                <div  class="ss-row">
-                    <div class="ss-box">
-                        <div class="ss-box-label">
-                            Comments
-                        </div>
-                        <div id="ss-comments" class="ss-box-number fb-text">
-                        </div>
+                <div class="ss-box">
+                    <div class="ss-box-label">
+                        (#) Sales
                     </div>
-                    <div class="ss-box">
-                        <div class="ss-box-label">
-                            Likes
-                        </div>
-                        <div id="ss-likes" class="ss-box-number fb-text">
-                        </div>
+                    <div id="ss-purchases" class="ss-box-number echoed-text">
                     </div>
-                    <div class="ss-box">
-                        <div class="ss-box-label">
-                            Retweets
-                        </div>
-                        <div id="ss-retweets" class="ss-box-number twitter-text">
-                        </div>
+                </div>
+                <div class="ss-box">
+                    <div class="ss-box-label">
+                        Echoes
+                    </div>
+                    <div id="ss-echoes" class="ss-box-number echoed-text">
+                    </div>
+                </div>
+                <div class="ss-box">
+                    <div class="ss-box-label">
+                        Page Visits
+                    </div>
+                    <div id="ss-visits" class="ss-box-number echoed-text">
+                    </div>
+                </div>
+                <div class="ss-box">
+                    <div class="ss-box-label">
+                        Comments
+                    </div>
+                    <div id="ss-comments" class="ss-box-number fb-text">
+                    </div>
+                </div>
+                <div class="ss-box">
+                    <div class="ss-box-label">
+                        Likes
+                    </div>
+                    <div id="ss-likes" class="ss-box-number fb-text">
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
-        <div id="chart-container" class="box half clearfix">
+        <div class="box full clearfix">
+            <div class="label">Social Activity</div>
+            <div id="chart" class="half-chart"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="box full clearfix">
             <div class="label">
                 Top Products
             </div>
             <div id="top-products-table">
             </div>
         </div>
-        <div id="chart-container" class="box half clearfix">
+        <div class="clear"></div>
+    </div>
+    <div class="row">
+        <div class="box full clearfix">
             <div class="label">
                 Top Customers
             </div>
             <div id="top-customers-table">
             </div>
         </div>
-        <div class="clear"></div>
     </div>
 </script>
 
@@ -143,11 +142,6 @@
                             Reports
                         </a>
                     </li>
-                    <li id="settings_nav">
-                        <a href="#settings">
-                            Settings
-                        </a>
-                    </li>
                     <div class="clear"></div>
                 </ul>
             </div>
@@ -174,11 +168,10 @@
     <div class="row">
         <div class="full box clearfix">
             <div id="report-summary">
+                <div id="product-selector" class="report-selector">
+                    <div id="select-report" class="label"></div>
+                </div>
                 <div class="full-column-left">
-                    <div id="product-selector" class="report-selector">
-                        <div id="select-report" class="label">
-                        </div>
-                    </div>
                     <div>
                         <div class="product-detail-image-container">
                             <img id="product-image" class="product-detail-image"/>
@@ -254,11 +247,7 @@
     </div>
     <div class="row">
         <div class="full box clearfix">
-            <div class="report-nav">
-                <div class="label">DYNAMIC REPORTING</div>
-                <div class="report-options">
-                </div>
-            </div>
+            <div class="label">DYNAMIC REPORTING</div>
             <div id="product-report-chart" class="report-chart">
             </div>
         </div>
@@ -329,11 +318,7 @@
     </div>
     <div class="row">
         <div class="full box clearfix">
-            <div class="report-nav">
-                <div class="label">DYNAMIC REPORTING</div>
-                <div class="report-options">
-                </div>
-            </div>
+            <div class="label">DYNAMIC REPORTING</div>
             <div id="customer-report-chart" class="report-chart">
             </div>
         </div>

@@ -2,7 +2,7 @@ package com.echoed.chamber.services.partneruser
 
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.views.{SocialActivityTotalByDate,CustomerSocialSummary,SocialActivityHistory}
+import com.echoed.chamber.domain.views.{SocialActivityTotalByDate,CustomerSocialSummary,SocialActivityHistory, RetailerSocialSummary}
 import com.echoed.chamber.dao.RetailerUserDao
 import com.echoed.chamber.dao.views.{RetailerViewDao}
 import akka.actor.{Channel, Actor}
@@ -87,10 +87,15 @@ class PartnerUserServiceActor(
             self.channel ! GetCustomerSocialActivityByDateResponse(msg, Right(new RetailerCustomerSocialActivityByDate(partnerUser.retailerId,msg.echoedUserId,series)))
 
         case msg: GetRetailerSocialSummary =>
-            Option(retailerViewDao.getSocialActivityByRetailerId(partnerUser.retailerId)).cata(
-                rs => self.channel ! GetRetailerSocialSummaryResponse(msg, Right(rs)),
-                self.channel ! GetRetailerSocialSummaryResponse(msg, Left(PartnerUserException("Social summary not available"))))
-
+            val likes = retailerViewDao.getTotalFacebookLikes(partnerUser.retailerId, null, null)
+            val comments  = retailerViewDao.getTotalFacebookComments(partnerUser.retailerId, null, null)
+            val clicks = retailerViewDao.getTotalEchoClicks(partnerUser.retailerId, null, null)
+            val echoes = retailerViewDao.getTotalEchoes(partnerUser.retailerId, null,null)
+            val volume = retailerViewDao.getTotalSalesVolume(partnerUser.retailerId, null, null)
+            val sales = retailerViewDao.getTotalSalesAmount(partnerUser.retailerId, null, null)
+            self.channel ! GetRetailerSocialSummaryResponse(
+                    msg,
+                    Right(new RetailerSocialSummary(partnerUser.retailerId, partnerUser.name, echoes, likes, comments, clicks, sales, volume)))
         case msg: GetRetailerSocialActivityByDate =>
 
             var series = new ArrayList[SocialActivityHistory]
@@ -149,15 +154,14 @@ class PartnerUserServiceActor(
                 self.channel ! GetTopCustomersResponse(msg, Left(PartnerUserException("Top customers not available"))))
 
         case msg: GetComments =>
-            Option(retailerViewDao.getCommentsByRetailerId(partnerUser.retailerId)).cata(
+            Option(retailerViewDao.getComments(partnerUser.retailerId, null, null)).cata(
                 resultSet => self.channel ! GetCommentsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
                 self.channel ! GetCommentsResponse(msg, Left(PartnerUserException("Comments not available"))))
 
         case msg: GetCommentsByProductId =>
-            Option(retailerViewDao.getCommentsByRetailerIdProductId(partnerUser.retailerId, msg.productId)).cata(
+            Option(retailerViewDao.getComments(partnerUser.retailerId, null, msg.productId)).cata(
                 resultSet => self.channel ! GetCommentsByProductIdResponse(msg, Right(asScalaBuffer(resultSet).toList)),
                 self.channel ! GetCommentsByProductIdResponse(msg, Left(PartnerUserException("Comments by product not available"))))
-
     }
 
 }

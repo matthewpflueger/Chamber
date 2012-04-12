@@ -1,5 +1,5 @@
 Highcharts.theme = {
-    yAxis: {
+    yAxis: [{
         min: 0,
         title: {
             style:{
@@ -27,7 +27,9 @@ Highcharts.theme = {
         lineWidth: 1,
         lineColor: '#000'
 
-    },
+    },  {
+        min: 0
+    }],
     xAxis: {
         lineColor: '#000',
         labels:{
