@@ -1,44 +1,44 @@
-function ___getPageSize() {
-    var xScroll, yScroll;
-    if (window.innerHeight && window.scrollMaxY) {
-        xScroll = window.innerWidth + window.scrollMaxX;
-        yScroll = window.innerHeight + window.scrollMaxY;
-    } else if (document.body.scrollHeight > document.body.offsetHeight){ // all but Explorer Mac
-        xScroll = document.body.scrollWidth;
-        yScroll = document.body.scrollHeight;
-    } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
-        xScroll = document.body.offsetWidth;
-        yScroll = document.body.offsetHeight;
+window.onload = function(){
+    var _body = document.getElementsByTagName('body')[0];
+    loadJSInclude('https://crypto-js.googlecode.com/files/2.5.3-crypto-sha1-hmac-pbkdf2-blockmodes-aes.js',function(){
+        loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/rawdeflate.js', function(){
+            loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
+                var string = getEchoedJsonString();
+                //var string = JSON.stringify(echoedRequest);
+
+                var secret = Crypto.util.base64ToBytes(echoedKey);
+                var iv = Crypto.charenc.Binary.stringToBytes("1234567890123456");
+
+                var content = Crypto.util.bytesToBase64(Crypto.charenc.Binary.stringToBytes(RawDeflate.deflate(string)));
+
+                var crypted = Crypto.AES.encrypt(content ,secret,{ mode: new Crypto.mode.CBC(Crypto.pad.NoPadding), iv: iv });
+                crypted = crypted.replace(/\+/g,"-");
+                crypted = crypted.replace(/\//g,"_");
+                console.log("Encrypted: " + crypted);
+
+                var script = document.createElement("script");
+                script.type = "text/javascript";
+                script.innerHTML = 'echoData = "' + crypted + '"';
+                _body.appendChild(script);
+                var requestScript = document.createElement("script");
+                requestScript.type = "text/javascript";
+                requestScript.src = 'https://www.echoed.com/echo/js?pid=' + echoedPartnerId;
+                _body.appendChild(requestScript);
+            })
+        })
+    });
+}
+
+function loadJSInclude(scriptPath, callback){
+    var scriptNode = document.createElement("script");
+    scriptNode.type ="text/javascript";
+    scriptNode.src = scriptPath;
+    var head = document.getElementsByTagName('HEAD')[0];
+    head.appendChild(scriptNode);
+    if(callback != null) {
+        scriptNode.onreadystatechange = callback;
+        scriptNode.onload = callback;
     }
-    var windowWidth, windowHeight;
-    if (self.innerHeight) {	// all except Explorer
-        if(document.documentElement.clientWidth){
-            windowWidth = document.documentElement.clientWidth;
-        } else {
-            windowWidth = self.innerWidth;
-        }
-        windowHeight = self.innerHeight;
-    } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
-        windowWidth = document.documentElement.clientWidth;
-        windowHeight = document.documentElement.clientHeight;
-    } else if (document.body) { // other Explorers
-        windowWidth = document.body.clientWidth;
-        windowHeight = document.body.clientHeight;
-    }
-    // for small pages with total height less then height of the viewport
-    if(yScroll < windowHeight){
-        pageHeight = windowHeight;
-    } else {
-        pageHeight = yScroll;
-    }
-    // for small pages with total width less then width of the viewport
-    if(xScroll < windowWidth){
-        pageWidth = xScroll;
-    } else {
-        pageWidth = windowWidth;
-    }
-    arrayPageSize = new Array(pageWidth,pageHeight,windowWidth,windowHeight);
-    return arrayPageSize;
 }
 
 function getQueryVariable(string, variable){
@@ -52,77 +52,36 @@ function getQueryVariable(string, variable){
     return null;
 }
 
-$(document).ready(function(){
-
-    var popup = $('#echoed-popup');
-    popup.html('');
-
-    var close = $('<img/>').attr('src','http://images.echoed.com/btn_closewin.png').attr("id","echoed-close");
-
-    var div = '<div></div>';
-
-    $('body').append('<div id="echoed-fade"></div>'); //Add the fade layer to bottom of the body tag.
-    $('#echoed-fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-
-    var arrPageSizes = ___getPageSize();
-
-    $('#echoed-fade').css({
-        width: arrPageSizes[0],
-        height: arrPageSizes[1]
-    });
-
-    var h = $(div).attr("id","echoed-header");
-    h.appendTo(popup);
-    h.append(close);
-    var c = $(div).attr("id","echoed-container");
-
-
-    var et = $(div).attr("id","echoed-hiw-t").html('SHARE YOUR PURCHASE AND EARN UP TO <span class="echoed-highlight">20% CASH BACK</span>');
-    var ett = $(div).attr("id","echoed-hiw-tt").html("Share this on <img src='http://images.echoed.com/logo_facebook.png'> or <img src='http://images.echoed.com/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
-    var pcc = $(div).attr("id","echoed-pcc").addClass("clearfix");
-    var container = $(div).attr("id","echoed-p-c").addClass("clearfix");
-    pcc.append(container);
-    c.append(et).append(pcc).append(ett);
-    c.appendTo(popup);
-
-    var count=0;
-
+function getEchoedJsonString(){
+    var orderId = "";
+    var customerId = "";
+    var boughtOn = "";
+    var partnerId = "";
+    var items = [];
     $('img[src^="http://www.echoed.com/echo/button"]').each(function(){
-        count++;
-        if(count <=3){
-            container.css('width',count * 170);
-        }
+        var item = {};
         var pair = $(this).attr("src").split("?");
         var queryString = pair[1];
-        var imageUrl = getQueryVariable(queryString, 'imageUrl');
-        var brand = getQueryVariable(queryString,'brand');
-        var name = getQueryVariable(queryString,'productName');
-        var p = $(div).addClass("echoed-p").attr("href","http://www.echoed.com/echo?" + queryString);
-        var ic = $(div).addClass("echoed-i-c").append($('<img/>').attr("src",imageUrl).addClass("echoed-i"));
-        var t = $(div).addClass("echoed-t").html('<strong>' + brand + '</strong></br>' + name);
-        var bs = $(div).addClass("echoed-bs");
-        var ol = $(div).addClass("echoed-ol");
-        p.append(ol.append(bs)).append(ic).append(t);
-        container.append(p);
+        if(orderId = "") {
+            partnerId = getQueryVariable(queryString, "partnerId");
+            orderId = getQueryVariable(queryString, "orderId");
+            customerId = getQueryVariable(queryString, "customerId");
+            boughtOn = getQueryVariable(queryString, "boughtOn");
+        }
+        item['productId'] = getQueryVariable(queryString, 'productId');
+        item['productName'] = getQueryVariable(queryString, 'productName');
+        item['category'] = getQueryVariable(queryString, 'category');
+        item['brand'] = getQueryVariable(queryString,'brand');
+        item['price'] = getQueryVariable(queryString, 'price');
+        item['imageUrl'] = getQueryVariable(queryString, 'imageUrl');
+        item['landingPageUrl'] = getQueryVariable(queryString, 'landingPageUrl');
+        item['description'] = getQueryVariable(queryString, 'description');
+        items.push(item);
     });
-
-    $('.echoed-p').live('mouseenter', function(){
-        $(this).find('.echoed-bs').addClass("current");
-    });
-
-    $('.echoed-p').live('mouseleave', function(){
-        $(this).find('.echoed-bs').removeClass("current");
-    });
-
-    $('.echoed-p').live('click', function(){
-        var url = $(this).attr("href");
-        window.open(url,'Echoed','width=800,height=420,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-    });
-
-    $('#echoed-close').live('click', function(){
-        $('#echoed-fade,#echoed-popup').fadeOut();
-    });
-    
-    popup.appendTo($('body')).fadeIn();
-});
-
+    var request = {};
+    request['orderId'] = orderId;
+    request['customerId'] = customerId;
+    request['boughtOn'] = boughtOn;
+    request['items'] = items;
+    return JSON.stringify(request);
+}

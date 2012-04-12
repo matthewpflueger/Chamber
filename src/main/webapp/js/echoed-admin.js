@@ -77,7 +77,7 @@ render: function(){
             withCredentials: true
         },
         success: function(echoPossibilities){
-            var table = {"style":"report-table", "header": [{"text": "Date"},{"text":"Retailer Id"},{"text":"Order Id"},{"text": "Product Id"},{"text":"Price"},{"text":"step"},{"text":"view"}], rows: []};
+            var table = {"style":"report-table", "header": [{"text": "Date"},{"text":"Retailer Id"},{"text":"Order Id"},{"text": "Product Id"},{"text":"Price"},{"text":"view"},{"text":"step"}], rows: []};
             $.each(echoPossibilities, function(index,echoPossibility){
                 var row = { "href":"#", cells:[] };
                 var date = new Date(echoPossibility.createdOn);
@@ -86,8 +86,8 @@ render: function(){
                 row.cells.push({"text": echoPossibility.orderId} );
                 row.cells.push({"text": echoPossibility.productId} );
                 row.cells.push({"text": echoPossibility.price} );
-                row.cells.push({"text": echoPossibility.step} );
                 row.cells.push({"text": echoPossibility.view});
+                row.cells.push({"text": echoPossibility.step} );
                 table.rows.push(row);
             });
             var echoPossibilityTable = new Echoed.Views.Components.TableTemplate({ EvAg:self.EvAg, el: "#echoes", table: table})

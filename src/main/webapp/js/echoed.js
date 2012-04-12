@@ -149,7 +149,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "friend":
                 this.jsonUrl = Echoed.urls.api + "/user/exhibit/" + options.Id;
                 this.baseUrl = "#friends/exhibit/" + options.Id + "/";
-                this.contentTitle = "Friends";
+                this.contentTitle = "Your Friends";
                 this.id = "friends";
                 this.nextInt = 1;
                 break;
@@ -163,7 +163,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "explore":
                 this.jsonUrl = Echoed.urls.api + "/user/feed/public";
                 this.baseUrl = "#explore/";
-                this.contentTitle = "Live Feed";
+                this.contentTitle = "What People Are Buying";
                 this.feedSelector = "Everyone";
                 this.id= "explore";
                 this.nextInt = 1;
@@ -171,7 +171,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "explore/friends":
                 this.jsonUrl = Echoed.urls.api + "/user/feed/friends";
                 this.baseUrl = "#exploref/";
-                this.contentTitle = "Feed";
+                this.contentTitle = "What Your Friends Are Sharing";
                 this.feedSelector = "Friends";
                 this.id = "explore/friends";
                 this.nextInt = 1;
