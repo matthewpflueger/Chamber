@@ -612,8 +612,9 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
                     }
                 }
             },{
+                min: 0,
                 title:{
-                    text: 'Activity',
+                    text: '($) Purchases',
                     style: {
                         fontWeight: 'normal',
                         color: '#666666',
