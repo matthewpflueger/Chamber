@@ -100,13 +100,13 @@ a{
 h1{
     font-family: $navFontFamily;
     font-size: 50px;
-    color: $labelColor;
+    color: #333;
     font-weight: 400;
 }
 
 h2{
     font-family: $navFontFamily;
-    color: $labelColor;
+    color: #333;
     font-size: 50px;
     font-weight: 400;
 }
@@ -175,9 +175,9 @@ form label em {
 	    min-width: 1100px;
 		height:40px;
         background-image: image-url("bg-whitepx90.png");
-        box-shadow: 0 3px 5px rgba(34,25,25,0.4);
-            -moz-box-shadow: 0px 3px 5px rgba(34,25,25,0.4);
-            -webkit-box-shadow: 0px 3px 5px rgba(34,25,25,0.4);
+        box-shadow: 0 1px 1px rgba(34,25,25,0.4);
+            -moz-box-shadow: 0px 1px 1px rgba(34,25,25,0.4);
+            -webkit-box-shadow: 0px 1px 1px rgba(34,25,25,0.4);
 	}
 
 		#logo{
