@@ -6,7 +6,7 @@ window.onload = function(){
                 var string = getEchoedJsonString();
                 //var string = JSON.stringify(echoedRequest);
 
-                var secret = Crypto.util.base64ToBytes(echoedKey);
+                var secret = Crypto.util.base64ToBytes("yNE5MCWCZDXsLU3rGAqfRg");
                 var iv = Crypto.charenc.Binary.stringToBytes("1234567890123456");
 
                 var content = Crypto.util.bytesToBase64(Crypto.charenc.Binary.stringToBytes(RawDeflate.deflate(string)));
@@ -22,7 +22,7 @@ window.onload = function(){
                 _body.appendChild(script);
                 var requestScript = document.createElement("script");
                 requestScript.type = "text/javascript";
-                requestScript.src = 'https://www.echoed.com/echo/js?pid=' + echoedPartnerId;
+                requestScript.src = 'https://www.echoed.com/echo/js?pid=476776f8-5685-11e1-8e6a-4040a0bd5958';
                 _body.appendChild(requestScript);
             })
         })
