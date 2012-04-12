@@ -6,13 +6,13 @@ import org.scalatest.matchers.ShouldMatchers
 import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import org.openqa.selenium.{By, WebDriver}
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.util.{UUID, Properties}
 import com.echoed.chamber.dao.{FacebookUserDao, EchoedUserDao, TwitterUserDao}
 import com.echoed.util.IntegrationTest
 import com.echoed.util.WebDriverUtils
+import org.openqa.selenium.{Dimension, By, WebDriver}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -80,6 +80,8 @@ class TwitterAddIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
             when("the user has no associated Twitter account and their Twitter credentials matches no existing Twitter account")
             then("send them to Twitter to login")
+            val dimension = webDriver.manage().window().getSize
+            webDriver.manage().window().setSize(new Dimension(1200, dimension.getHeight))
             webDriver.findElement(By.id("addTwitterLink")).click
             Thread.sleep(1000)
             webDriver.findElement(By.id("username_or_email")).sendKeys(twitterUser.screenName)
