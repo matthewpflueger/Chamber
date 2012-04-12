@@ -132,10 +132,11 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','addProduct','filterProducts','next','complete');
+        _.bindAll(this,'render','addProduct','filterProducts','next','complete','relayout');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
+        this.EvAg.bind('exhibit/relayout', this.relayout);
         this.productCount = 0;
         this.productCount2 = 0;
         this.element = $(this.el);
@@ -220,11 +221,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     $('#content-title').html(self.contentTitle);
                 if(data.echoes.length > 0){
                     exhibit.isotope({
-                        animationOptions: {
-                            duration: 500,
-                            easing: 'linear',
-                            queue: false
+                        masonry:{
+                            columnWidth: 5
                         },
+                        itemSelector: '.item_wrap',
                         filter: self.filter
                     });
                     $.each(data.echoes, function(index,product){
@@ -244,6 +244,12 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             }
         });
 
+    },
+    relayout: function(e){
+        var self = this;
+        self.exhibit.isotope('reLayout', function(){
+            $("html, body").animate({scrollTop: e.offset().top - 90 }, 300);
+        });
     },
     filterProducts: function(filter){
         var self = this;
@@ -291,7 +297,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     addProduct: function(productModel,filter){
         var self = this;
         var productDiv = $('<div></div>');
-        var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel});
+        var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg });
         var imageHeight = productModel.get("image").preferredHeight;
         if(imageHeight) {
             self.exhibit.isotope('insert',productDiv);
@@ -505,25 +511,23 @@ Echoed.Views.Components.Tooltip = Backbone.View.extend({
         this.posY = this.element.offset.bottom;
         this.render();
     },
-    events:{
-        "mouseenter": "showList",
-        "mouseleave": "hideList"
-    },
     render: function(){
-
+        var template = _.template($('#templates-components-tooltip').html());
     },
-    showList: function(){
-
+    showTooltip: function(){
+        this.el.fadeIn();
     },
-    hideList: function(){
-
+    hideTooltip: function(){
+        this.el.fadeOut();
     }
 });
 
 Echoed.Views.Components.Product = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'showOverlay','hideOverlay');
+        _.bindAll(this,'showOverlay','hideOverlay','enlarge','shrink','click');
         this.el = options.el;
+        this.EvAg = options.EvAg;
+        this.state =0;
         this.render();
     },
     events:{
@@ -542,12 +546,11 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
-        //var pinit = this.el.find(".pin-it-button");
-        //pinit.attr("href",'http://pinterest.com/pin/create/button?url=' + encodeURIComponent(landingUrl) + '&media=' + encodeURIComponent(imageUrl));
-        //drawPinIt(pinit[0]);
+        var tooltipEl = this.el.find(".product-tooltip");
+        self.toolTip = new Echoed.Views.Components.Tooltip({ el: tooltipEl, EvAg: self.EvAg });
         if(this.model.get("echoProductName")){
             hover.append('<strong>' + this.model.get("echoProductName") +'</strong><br/><br/>');
-            text.prepend(this.model.get("echoProductName"));
+            text.prepend(this.model.get("echoProductName")+'<br/>');
         }
         if(this.model.get("echoBrand"))
             hover.append('<strong>by ' + this.model.get("echoBrand") + '</strong><br/><br/>');
@@ -586,12 +589,38 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         return this;
     },
     showOverlay: function(){
-        this.el.find('.item_hover').fadeIn('fast');
+        this.el.find('.item_hover').slideDown('fast');
+        //this.el.css("width","460px");
+        //this.EvAg.trigger('exhibit/relayout');
+        //this.toolTip.showTooltip();
     },
     hideOverlay: function(){
-        this.el.find('.item_hover').fadeOut('fast');
+        this.el.find('.item_hover').slideUp('fast');
+        //this.el.find(".item_text").css("height","");
+        //this.EvAg.trigger('exhibit/relayout');
+        //this.el.find('.item_hover').fadeOut('fast');
+        //this.el.css("width","");
+        //this.EvAg.trigger('exhibit/relayout');
+        //this.toolTip.hideTooltip();
+    },
+    enlarge: function(){
+        var self = this;
+        this.el.css("width","460px");
+        this.EvAg.trigger("exhibit/relayout",self.el);
+        this.state = 1;
+    },
+    shrink: function(){
+        this.el.css("width","");
+        this.EvAg.trigger("exhibit/relayout");
+        this.state = 0;
     },
     click: function(){
+        //if(this.state == 0){
+            //this.enlarge();
+        //} else {
+          //  this.shrink();
+        //}
+        //this.EvAg.trigger('exhibit/relayout');
         var url = this.el.attr("href");
         window.open(url);
     }
