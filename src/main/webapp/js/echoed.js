@@ -151,6 +151,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.baseUrl = "#friends/exhibit/" + options.Id + "/";
                 this.contentTitle = "Friends";
                 this.id = "friends";
+                this.nextInt = 1;
                 break;
             case "partners":
                 this.jsonUrl = Echoed.urls.api + "/user/feed/partner/" + options.Name;
@@ -180,6 +181,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.baseUrl = "#exhibit/";
                 this.contentTitle = "My Exhibit";
                 this.id = null;
+                this.nextInt = 1;
                 break;
         }
         this.render();
