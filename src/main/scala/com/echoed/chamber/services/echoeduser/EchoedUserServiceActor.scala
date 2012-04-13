@@ -188,7 +188,7 @@ class EchoedUserServiceActor(
                         } else Option(retailerSettingsDao.findById(ep.retailerSettingsId)).cata(
                             retailerSettings => {
 
-                                var echo = ep.copy(echoedUserId = echoedUser.id, step = "%s,echoed" format ep.step)
+                                var echo = ep.copy(echoedUserId = echoedUser.id, step = ("%s,echoed" format ep.step).takeRight(254))
                                 val echoMetrics = echoMetricsDao
                                         .findById(echo.echoMetricsId)
                                         .copy(echoedUserId = echoedUser.id)
