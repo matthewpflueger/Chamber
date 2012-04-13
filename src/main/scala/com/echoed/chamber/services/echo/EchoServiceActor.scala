@@ -72,7 +72,7 @@ class EchoServiceActor extends Actor {
                             if (ec.isEchoed) {
                                 channel ! REPR(msg, Left(EchoExists(epv.copy(echo = ec), "Item already echoed")))
                             } else {
-                                val ec2 = ec.copy(step = "%s,%s" format(ec.step, echoPossibility.step))
+                                val ec2 = ec.copy(step = ("%s,%s" format(ec.step, echoPossibility.step)).takeRight(254))
                                 echoDao.updateForStep(ec2)
                                 channel ! REPR(msg, Right(epv.copy(echo = ec2)))
                             }

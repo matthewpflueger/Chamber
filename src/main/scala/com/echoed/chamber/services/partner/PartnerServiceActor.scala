@@ -197,7 +197,7 @@ class PartnerServiceActor(
                         channel ! RecordEchoStepResponse(msg, Left(EchoExists(epv)))
                     } else {
                         channel ! RecordEchoStepResponse(msg, Right(epv))
-                        echoDao.updateForStep(ep.copy(step = "%s,%s" format(ep.step, step)))
+                        echoDao.updateForStep(ep.copy(step = ("%s,%s" format(ep.step, step)).takeRight(254)))
                         logger.debug("Recorded step {} for echo {}", step, ep.id)
                     }
             })).onException {
