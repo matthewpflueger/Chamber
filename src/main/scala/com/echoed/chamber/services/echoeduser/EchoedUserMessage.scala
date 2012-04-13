@@ -15,9 +15,9 @@ import com.echoed.chamber.services.echoeduser.{ EchoedUserException => EUE }
 
 
 case class DuplicateEcho(
-                            echo: Echo,
-                            m: String = "",
-                            c: Throwable = null) extends EchoedUserException(m, c)
+        echo: Echo,
+        m: String = "",
+        c: Throwable = null) extends EchoedUserException(m, c)
 
 case class AssignFacebookService(facebookService: FacebookService) extends EUM
 case class AssignFacebookServiceResponse(message: AssignFacebookService, value: Either[EUE, FacebookService])

@@ -132,6 +132,7 @@
         <prop key="mybatis.executorType">BATCH</prop>
 
 
+        <prop key="geolocation.serviceUrl">http://www.ipaddressapi.com/l/50fef98b6b9e054b97e695187dde7a3d9a071e7881eb?h=</prop>
 
 
         <prop key="mustache.cache">true</prop>
@@ -264,6 +265,10 @@
         <prop key="shopifySecret">${shopify.sharedSecret}</prop>
     </util:properties>
 
+    <!--suppress SpringModelInspection -->
+    <util:properties id="geoLocationProperties">
+        <prop key="geoLocationServiceUrl">${geolocation.serviceUrl}</prop>
+    </util:properties>
 
 </beans>
 

@@ -561,6 +561,7 @@ class DataCreator {
     val echoId_1 = UUID.randomUUID.toString
     val echoId_2 = UUID.randomUUID.toString
 
+    val ipAddress_1 = "66.202.133.170"
     val orderId_1 = "orderId_1"
     val productId_1 = "productId_1"
     val customerId_1 = "customerId_1"
@@ -570,6 +571,7 @@ class DataCreator {
     val brand_1 = "Nike"
     val description_1 = "These are amazing boots"
 
+    val ipAddress_2 = "66.202.133.171"
     val orderId_2 = "orderId_2"
     val productId_2 = "productId_2"
     val customerId_2 = "customerId_2"
@@ -578,6 +580,9 @@ class DataCreator {
     val category_2 = "Accessories"
     val brand_2 = "Reebok"
     val description_2= "These are amazing gloves"
+
+    val ipAddress_3 = "66.202.133.172"
+    val ipAddress_4 = "66.202.133.173"
 
     val echoPossibilities = List(
         EchoPossibilityParameters(
@@ -746,7 +751,7 @@ class DataCreator {
             echoedUserId = echoedUserId,
             referrerUrl = "http://facebook.com",
             browserId = UUID.randomUUID().toString,
-            ipAddress = "127.0.0.1",
+            ipAddress = ipAddress_3,
             userAgent = "testUserAgent"),
         EchoClick(
             id = UUID.randomUUID.toString,
@@ -758,7 +763,7 @@ class DataCreator {
             echoedUserId = echoedUserId,
             browserId = UUID.randomUUID().toString,
             referrerUrl = "http://twitter.com",
-            ipAddress = "127.0.0.1",
+            ipAddress = ipAddress_3,
             userAgent = "testUserAgent")
     )
 
@@ -773,7 +778,7 @@ class DataCreator {
             echoedUserId = echoedUserId,
             browserId = UUID.randomUUID().toString,
             referrerUrl = "http://facebook.com",
-            ipAddress = "127.0.0.1",
+            ipAddress = ipAddress_4,
             userAgent = "testUserAgent"),
         EchoClick(
             id = UUID.randomUUID.toString,
@@ -785,7 +790,7 @@ class DataCreator {
             echoedUserId = echoedUserId,
             browserId = UUID.randomUUID().toString,
             referrerUrl = "http://twitter.com",
-            ipAddress = "127.0.0.1",
+            ipAddress = ipAddress_4,
             userAgent = "testUserAgent"))
 
     val echoFuture =  Echo(
@@ -820,6 +825,74 @@ class DataCreator {
         new Image(echoImageUrl_2))
 
 
+    val geoLocations = List(
+        GeoLocation(
+            id = UUID.randomUUID().toString,
+            updatedOn = on,
+            createdOn = on,
+            ipAddress = ipAddress_1,
+            countryCode =  "US",
+            countryName = "United States",
+            regionCode = "New York",
+            regionName = "New York",
+            city = "New York",
+            postcode = "10017",
+            latitude = "40.7488",
+            longitude = "-73.9846",
+            isp = "isp",
+            organization = "organization",
+            updateStatus = "updateStatus"),
+        GeoLocation(
+            id = UUID.randomUUID().toString,
+            updatedOn = on,
+            createdOn = on,
+            ipAddress = ipAddress_2,
+            countryCode =  "US",
+            countryName = "United States",
+            regionCode = "New York",
+            regionName = "New York",
+            city = "New York",
+            postcode = "10017",
+            latitude = "40.7488",
+            longitude = "-73.9846",
+            isp = "isp",
+            organization = "organization",
+            updateStatus = "updateStatus"),
+        GeoLocation(
+            id = UUID.randomUUID().toString,
+            updatedOn = on,
+            createdOn = on,
+            ipAddress = ipAddress_3,
+            countryCode =  "US",
+            countryName = "United States",
+            regionCode = "New York",
+            regionName = "New York",
+            city = "New York",
+            postcode = "10017",
+            latitude = "40.7488",
+            longitude = "-73.9846",
+            isp = "isp",
+            organization = "organization",
+            updateStatus = "updateStatus"),
+        GeoLocation(
+            id = UUID.randomUUID().toString,
+            updatedOn = on,
+            createdOn = on,
+            ipAddress = ipAddress_4,
+            countryCode =  "US",
+            countryName = "United States",
+            regionCode = "New York",
+            regionName = "New York",
+            city = "New York",
+            postcode = "10017",
+            latitude = "40.7488",
+            longitude = "-73.9846",
+            isp = "isp",
+            organization = "organization",
+            updateStatus = "updateStatus"))
+
+
+
     private val _echoes = List(
         Echo(
             id = echoId_1,
@@ -835,7 +908,7 @@ class DataCreator {
             echoClickId = null,
             step = "test",
             browserId = null,
-            ipAddress = null,
+            ipAddress = ipAddress_1,
             userAgent = null,
             referrerUrl = null,
             view = null,
@@ -856,7 +929,7 @@ class DataCreator {
             echoClickId = null,
             step = "test",
             browserId = null,
-            ipAddress = null,
+            ipAddress = ipAddress_2,
             userAgent = null,
             referrerUrl = null,
             view = null,

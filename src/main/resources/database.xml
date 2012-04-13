@@ -60,6 +60,11 @@
     <!-- NOTE: We have to manually register our dao's here instead of using MyBatis's
                  MapperScannerConfigurer because placeholders do not get resolved :( -->
 
+    <bean id="geoLocationDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.GeoLocationDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
     <bean id="imageDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.ImageDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />

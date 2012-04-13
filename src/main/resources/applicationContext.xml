@@ -412,4 +412,16 @@
         <!--suppress SpringModelInspection -->
         <property name="facebookAccess" ref="facebookAccess" />
     </akka:untyped-actor>
+
+
+    <akka:untyped-actor
+            id="geoLocationServiceActor"
+            implementation="com.echoed.chamber.services.geolocation.GeoLocationServiceActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="geoLocationDao" ref="geoLocationDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="geoLocationProperties" />
+    </akka:untyped-actor>
+
 </beans>
