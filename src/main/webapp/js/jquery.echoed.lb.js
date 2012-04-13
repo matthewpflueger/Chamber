@@ -1,10 +1,12 @@
+var popup = document.getElementById('echoed-popup');
+popup.parentNode.removeChild(popup);
+
 window.onload = function(){
     var _body = document.getElementsByTagName('body')[0];
     loadJSInclude('https://crypto-js.googlecode.com/files/2.5.3-crypto-sha1-hmac-pbkdf2-blockmodes-aes.js',function(){
         loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/rawdeflate.js', function(){
             loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
                 var string = getEchoedJsonString();
-                //var string = JSON.stringify(echoedRequest);
 
                 var secret = Crypto.util.base64ToBytes("yNE5MCWCZDXsLU3rGAqfRg");
                 var iv = Crypto.charenc.Binary.stringToBytes("1234567890123456");
@@ -79,7 +81,7 @@ function getEchoedJsonString(){
     var request = {};
     request['orderId'] = orderId;
     request['customerId'] = customerId;
-    request['boughtOn'] = boughtOn;
+    request['boughtOn'] = "";
     request['items'] = items;
     return JSON.stringify(request);
 }
