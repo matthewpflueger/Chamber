@@ -11,13 +11,14 @@ import scala.collection.JavaConversions._
 import com.echoed.chamber.domain._
 import scalaz._
 import Scalaz._
-import scala.collection.mutable.WeakHashMap
 import com.echoed.util.ScalaObjectMapper
 import java.util.{Date, Properties}
 import java.net.{HttpURLConnection, URL}
 import com.google.common.io.ByteStreams
 import akka.actor.{Channel, Actor}
 import java.io.InputStream
+import java.util.concurrent.ConcurrentHashMap
+import collection.mutable.ConcurrentMap
 
 
 class FacebookAccessActor extends Actor {
@@ -30,7 +31,7 @@ class FacebookAccessActor extends Actor {
     @BeanProperty var canvasApp: String = _
     @BeanProperty var properties: Properties = _
 
-    private val cache = WeakHashMap[String, FacebookBatcher]()
+    private val cache: ConcurrentMap[String, FacebookBatcher] = new ConcurrentHashMap[String, FacebookBatcher]()
 
     override def preStart {
         //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration

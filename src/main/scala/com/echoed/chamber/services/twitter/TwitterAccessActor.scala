@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory
 import twitter4j.{TwitterFactory, Twitter}
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.User
-import scala.collection.mutable.WeakHashMap
 import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}

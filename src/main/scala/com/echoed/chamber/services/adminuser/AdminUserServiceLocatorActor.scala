@@ -6,8 +6,9 @@ import scalaz._
 import Scalaz._
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import akka.actor._
-import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
-
+import scala.collection.mutable.ConcurrentMap
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConversions._
 
 
 class AdminUserServiceLocatorActor extends Actor {
@@ -17,7 +18,7 @@ class AdminUserServiceLocatorActor extends Actor {
     @BeanProperty var adminUserServiceCreator: AdminUserServiceCreator = _
     @BeanProperty var cacheManager: CacheManager = _
 
-    private val cache = WeakHashMap[String, AdminUserService]()
+    private val cache: ConcurrentMap[String, AdminUserService] = new ConcurrentHashMap[String, AdminUserService]()
     private var cacheById: ConcurrentMap[String, AdminUserService] = null
 
     override def preStart() {

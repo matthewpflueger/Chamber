@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.shopify
 
-import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
+import scala.collection.mutable.ConcurrentMap
 
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import reflect.BeanProperty
@@ -9,21 +9,12 @@ import scalaz._
 import Scalaz._
 import akka.actor._
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 3/16/12
- * Time: 12:36 PM
- * To change this template use File | Settings | File Templates.
- */
 
 class ShopifyUserServiceLocatorActor extends Actor{
 
     private val logger = LoggerFactory.getLogger(classOf[ShopifyUserServiceLocatorActor])
 
-    private val cache = WeakHashMap[String, ShopifyUserService]()
     private var cacheByPartnerId: ConcurrentMap[String, ShopifyUserService] = null
-    private var cacheByShopDomain: ConcurrentMap[String, ShopifyUserService] = null
 
     @BeanProperty var shopifyUserServiceCreator: ShopifyUserServiceCreator = _
     @BeanProperty var cacheManager: CacheManager = _

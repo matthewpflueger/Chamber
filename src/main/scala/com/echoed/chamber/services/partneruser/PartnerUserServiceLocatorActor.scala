@@ -6,9 +6,11 @@ import scalaz._
 import Scalaz._
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import akka.actor._
-import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
+import scala.collection.mutable.ConcurrentMap
 import com.echoed.util.Encrypter
 import com.echoed.chamber.dao.RetailerDao
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConversions._
 
 
 class PartnerUserServiceLocatorActor extends Actor {
@@ -20,7 +22,7 @@ class PartnerUserServiceLocatorActor extends Actor {
     @BeanProperty var encrypter: Encrypter = _
     @BeanProperty var partnerDao: RetailerDao = _
 
-    private val cache = WeakHashMap[String, PartnerUserService]()
+    private val cache: ConcurrentMap[String, PartnerUserService] = new ConcurrentHashMap[String, PartnerUserService]()
     private var cacheById: ConcurrentMap[String, PartnerUserService] = null
 
 

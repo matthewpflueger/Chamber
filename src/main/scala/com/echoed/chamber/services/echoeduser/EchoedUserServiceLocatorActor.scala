@@ -2,17 +2,13 @@ package com.echoed.chamber.services.echoeduser
 
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.services.ActorClient
 import scalaz._
 import Scalaz._
 import akka.actor._
-import com.echoed.chamber.domain.FacebookUser
-import com.echoed.chamber.services.twitter.{GetUserResponse, GetUser, TwitterService}
-import scala.collection.JavaConversions.JConcurrentMapWrapper
-import java.util.concurrent.ConcurrentHashMap
+import com.echoed.chamber.services.twitter.GetUserResponse
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
-import scala.collection.mutable.{ConcurrentMap, WeakHashMap}
-import com.echoed.chamber.services.facebook.{GetFacebookUserResponse, FacebookService}
+import scala.collection.mutable.ConcurrentMap
+import com.echoed.chamber.services.facebook.GetFacebookUserResponse
 
 class EchoedUserServiceLocatorActor extends Actor {
 

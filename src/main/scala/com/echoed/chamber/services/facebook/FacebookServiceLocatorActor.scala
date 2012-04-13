@@ -6,7 +6,9 @@ import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}
 import com.echoed.cache.{CacheEntryRemoved, CacheManager, CacheListenerActorClient}
-import scala.collection.mutable.{WeakHashMap, ConcurrentMap}
+import scala.collection.mutable.ConcurrentMap
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConversions._
 
 
 class FacebookServiceLocatorActor extends Actor {
@@ -18,7 +20,7 @@ class FacebookServiceLocatorActor extends Actor {
 
 
     private var cache: ConcurrentMap[String, FacebookService] = null
-    private val cacheByFacebookId = WeakHashMap[String, FacebookService]()
+    private val cacheByFacebookId: ConcurrentMap[String, FacebookService] = new ConcurrentHashMap[String, FacebookService]()
 
 
     override def preStart() {

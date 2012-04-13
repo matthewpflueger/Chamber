@@ -12,16 +12,17 @@ import com.shopify.api.APIAuthorization
 import com.shopify.api.endpoints._
 import com.shopify.api.resources._
 
-import scala.collection.mutable.WeakHashMap
 
 import com.echoed.chamber.domain.shopify.ShopifyUser
 import collection.JavaConversions._
+import java.util.concurrent.ConcurrentHashMap
+import collection.mutable.{ConcurrentMap}
 
 class ShopifyAccessActor extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[ShopifyAccessActor])
 
-    private val cache = WeakHashMap[String, ShopifyClient]()
+    private val cache: ConcurrentMap[String, ShopifyClient] = new ConcurrentHashMap[String, ShopifyClient]()
 
     @BeanProperty var shopifySecret: String = _
     @BeanProperty var shopifyApiKey: String = _
