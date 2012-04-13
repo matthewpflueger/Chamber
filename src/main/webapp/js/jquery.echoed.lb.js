@@ -7,7 +7,7 @@ window.onload = function(){
         loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/rawdeflate.js', function(){
             loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
                 var string = getEchoedJsonString();
-
+                $('link[href^="https://c779203.ssl.cf2.rackcdn.com/echoed-lightbox.css"]').remove();
                 var secret = Crypto.util.base64ToBytes("yNE5MCWCZDXsLU3rGAqfRg");
                 var iv = Crypto.charenc.Binary.stringToBytes("1234567890123456");
 
