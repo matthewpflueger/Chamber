@@ -76,6 +76,7 @@
                 #{ipAddress},
                 #{updateStatus})
             on duplicate key update
+                updatedOn = now(),
                 updateStatus = #{updateStatus}
     </insert>
 
@@ -111,6 +112,7 @@
                 #{organization},
                 #{updateStatus})
             on duplicate key update
+                updatedOn = now(),
                 countryCode = #{countryCode},
                 countryName = #{countryName},
                 regionCode = #{regionCode},
