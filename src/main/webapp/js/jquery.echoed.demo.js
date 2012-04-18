@@ -3,7 +3,7 @@ window.onload = function(){
     loadJSInclude('https://crypto-js.googlecode.com/files/2.5.3-crypto-sha1-hmac-pbkdf2-blockmodes-aes.js',function(){
         loadJSInclude('https://demo.echoed.com/js/rawdeflate.js', function(){
             loadJSInclude('https://demo.echoed.com/js/jquery-1.6.2.min.js', function(){
-                var string = echoedRequest;
+                var string = JSON.stringify(echoedRequest);
 
                 var secret = Crypto.util.base64ToBytes(echoedKey);
                 var iv = Crypto.charenc.Binary.stringToBytes("1234567890123456");

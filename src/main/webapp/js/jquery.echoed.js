@@ -3,7 +3,7 @@ window.onload = function(){
     loadJSInclude('https://crypto-js.googlecode.com/files/2.5.3-crypto-sha1-hmac-pbkdf2-blockmodes-aes.js',function(){
         loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/rawdeflate.js', function(){
             loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
-                var string = echoedRequest;
+                var string = JSON.stringify(echoedRequest);
 
                 var secret = Crypto.util.base64ToBytes(EchoedKey);
                 var iv = Crypto.charenc.Binary.stringToBytes("1234567890123456");
@@ -33,7 +33,7 @@ function loadJSInclude(scriptPath, callback){
     scriptNode.type ="text/javascript";
     scriptNode.src = scriptPath;
     var head = document.getElementsByTagName('HEAD')[0];
-    head.appendChild(scriptNode)
+    head.appendChild(scriptNode);
     if(callback != null) {
         scriptNode.onreadystatechange = callback;
         scriptNode.onload = callback;
