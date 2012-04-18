@@ -16,9 +16,9 @@ case class ShopifyOrderFull(
                 orderId: String,
                 orderNumber: String, 
                 customerId: String,
-                shopifyUser: ShopifyUser, 
+                shopifyUser: ShopifyPartner,
                 lineItems: List[ShopifyLineItem]) {
     
-    def this(o: Order, su: ShopifyUser, lineItems: List[ShopifyLineItem] ) = this(o.getId.toString, o.getOrderNumber.toString, o.getCustomer.getId.toString, su, lineItems)
+    def this(o: Order, su: ShopifyPartner, lineItems: List[ShopifyLineItem] ) = this(o.getId.toString, o.getOrderNumber.toString, o.getCustomer.getId.toString, su, lineItems)
     
 }

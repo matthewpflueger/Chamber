@@ -3,15 +3,8 @@ package com.echoed.chamber.domain.shopify
 import java.util.{UUID, Date}
 import com.shopify.api.resources.Shop
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 3/16/12
- * Time: 12:58 PM
- * To change this template use File | Settings | File Templates.
- */
 
-case class ShopifyUser(
+case class ShopifyPartner(
                           id: String,
                           updatedOn: Date,
                           createdOn: Date,

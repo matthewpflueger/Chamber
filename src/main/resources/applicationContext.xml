@@ -375,7 +375,7 @@
             <!--suppress SpringModelInspection -->
             <property name="shopifyAccess" ref="shopifyAccess"/>
             <!--suppress SpringModelInspection -->
-            <property name="shopifyUserDao" ref="shopifyUserDao"/>
+            <property name="shopifyUserDao" ref="shopifyPartnerDao"/>
     </akka:untyped-actor>
     
     <akka:untyped-actor

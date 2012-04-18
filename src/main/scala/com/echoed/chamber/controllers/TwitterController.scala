@@ -196,7 +196,7 @@ class TwitterController extends NetworkController {
         }
     }
 
-    def makeAuthorizeUrl(postAuthorizeUrl: String, add: Boolean = false) =
+    def makeAuthorizeUrl(postAuthorizeUrl: String, add: Boolean = false, useExtendedPermissions: Boolean = true) =
         "%s/twitter?redirect=%s" format(siteUrl, URLEncoder.encode(postAuthorizeUrl, "UTF-8"))
 
 }

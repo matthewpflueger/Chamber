@@ -3,17 +3,17 @@ package com.echoed.chamber.services.shopify
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.shopify._
-import com.echoed.chamber.dao.ShopifyUserDao
+import com.echoed.chamber.dao.ShopifyPartnerDao
 import akka.actor.{Channel, Actor}
-import shopify.ShopifyUser
+import shopify.ShopifyPartner
 import com.shopify.api.resources.{ Order => SO, Product => SP }
 import collection.JavaConversions
 import java.util.{HashMap}
 
 class ShopifyUserServiceActor(
         shopifyAccess: ShopifyAccess,
-        shopifyUserDao: ShopifyUserDao,
-        shopifyUser: ShopifyUser) extends Actor {
+        shopifyUserDao: ShopifyPartnerDao,
+        shopifyUser: ShopifyPartner) extends Actor {
 
 
     private val logger = LoggerFactory.getLogger(classOf[ShopifyUserServiceActor])

@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory
 import akka.dispatch.Future
 import akka.actor.{Channel, Actor}
 import java.util.Properties
-import com.echoed.chamber.dao.ShopifyUserDao
-import com.echoed.chamber.domain.shopify.ShopifyUser
+import com.echoed.chamber.dao.ShopifyPartnerDao
+import com.echoed.chamber.domain.shopify.ShopifyPartner
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,9 +23,9 @@ class ShopifyUserServiceCreatorActor  extends Actor{
     private val logger = LoggerFactory.getLogger(classOf[ShopifyUserServiceCreatorActor])
 
     @BeanProperty var shopifyAccess: ShopifyAccess = _
-    @BeanProperty var shopifyUserDao: ShopifyUserDao = _
+    @BeanProperty var shopifyUserDao: ShopifyPartnerDao = _
 
-    def updateShopifyUser(me: ShopifyUser) = {
+    def updateShopifyUser(me: ShopifyPartner) = {
         val shopifyUser = Option(shopifyUserDao.findByShopifyId(me.shopifyId)) match {
             case Some(su) =>
                 logger.debug("Shopify Partner Found : {}", su)

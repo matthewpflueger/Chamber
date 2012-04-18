@@ -13,7 +13,7 @@ import com.shopify.api.endpoints._
 import com.shopify.api.resources._
 
 
-import com.echoed.chamber.domain.shopify.ShopifyUser
+import com.echoed.chamber.domain.shopify.ShopifyPartner
 import collection.JavaConversions._
 import java.util.concurrent.ConcurrentHashMap
 import collection.mutable.{ConcurrentMap}
@@ -93,7 +93,7 @@ class ShopifyAccessActor extends Actor {
                 val shopifyClient = getShopifyClient(shop, password)
                 val shopService: ShopService = shopifyClient.constructService(classOf[ShopService])
                 val shopObject: Shop = shopService.getShop
-                val shopifyUser = new ShopifyUser(shopObject)
+                val shopifyUser = new ShopifyPartner(shopObject)
                 logger.debug("Received Shop: {} ", shopObject)
                 channel ! FetchShopResponse(msg, Right(shopifyUser))
             }

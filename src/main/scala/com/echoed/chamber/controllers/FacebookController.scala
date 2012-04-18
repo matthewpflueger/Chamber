@@ -43,7 +43,8 @@ class FacebookController extends NetworkController {
 
     @BeanProperty var siteUrl: String = _
 
-    @BeanProperty var permissions = "email,publish_stream,read_stream,offline_access,publish_actions"
+    @BeanProperty var extendedPermissions = "publish_stream,read_stream"
+    @BeanProperty var limitedPermissions = "email,user_birthday,publish_actions"
     @BeanProperty var authUrl = "https://www.facebook.com/dialog/oauth?scope=%s&client_id=%s&redirect_uri=%s"
 
     private var facebookClientSecretBytes: Array[Byte] = _
@@ -285,7 +286,7 @@ class FacebookController extends NetworkController {
                             new ModelAndView(
                                     "authredirect",
                                     "authUrl",
-                                    authUrl format(permissions, facebookClientId, canvasPage)))
+                                    authUrl format(limitedPermissions, facebookClientId, canvasPage)))
                     continuation.resume()
                 })
 
@@ -293,14 +294,14 @@ class FacebookController extends NetworkController {
         })
     }
 
-    def makeAuthorizeUrl(postAuthorizeUrl: String, add: Boolean = false) = {
+    def makeAuthorizeUrl(postAuthorizeUrl: String, add: Boolean = false, useExtendedPermissions: Boolean = true) = {
         val postUrl = "%s/facebook/%s?redirect=%s" format (
                 siteUrl,
                 if (add) "add" else "login",
                 URLEncoder.encode(postAuthorizeUrl, "UTF-8"))
 
         authUrl format(
-                permissions,
+                if (useExtendedPermissions) extendedPermissions else limitedPermissions,
                 facebookClientId,
                 URLEncoder.encode(postUrl, "UTF-8"))
     }

@@ -4,7 +4,7 @@ import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Mess
 import com.echoed.chamber.domain._
 import com.shopify.api.credentials.Credential
 import com.shopify.api.resources.{Order => SO, Product=> SP}
-import shopify.{ShopifyOrderFull, ShopifyUser}
+import shopify.{ShopifyOrderFull, ShopifyPartner}
 
 sealed trait ShopifyMessage extends Message
 
@@ -64,14 +64,14 @@ case class GetProductsResponse(message: GetProducts,  value: Either[SE, List[SP]
 
 
 case class GetShop(password: String) extends SM
-case class GetShopResponse(message: GetShop, value: Either[SE, ShopifyUser])
+case class GetShopResponse(message: GetShop, value: Either[SE, ShopifyPartner])
     extends SM
-    with RM[ShopifyUser, GetShop, SE]
+    with RM[ShopifyPartner, GetShop, SE]
 
 case class GetShopifyUser() extends SM
-case class GetShopifyUserResponse(message: GetShopifyUser,  value: Either[SE, ShopifyUser])
+case class GetShopifyUserResponse(message: GetShopifyUser,  value: Either[SE, ShopifyPartner])
     extends SM
-    with RM[ShopifyUser,  GetShopifyUser, SE]
+    with RM[ShopifyPartner,  GetShopifyUser, SE]
 
 
 //Shopify Accesss
@@ -83,9 +83,9 @@ case class FetchPasswordResponse(message: FetchPassword, value: Either[SE, Strin
     with RM[String, FetchPassword, SE]
 
 case class FetchShop(shop: String, password: String) extends SM
-case class FetchShopResponse(message: FetchShop, value: Either[SE, ShopifyUser])
+case class FetchShopResponse(message: FetchShop, value: Either[SE, ShopifyPartner])
     extends SM
-    with RM[ShopifyUser,  FetchShop, SE]
+    with RM[ShopifyPartner,  FetchShop, SE]
 
 case class FetchOrder(shop:String, password: String, orderId: Int) extends SM
 case class FetchOrderResponse(message: FetchOrder,  value: Either[SE,  SO])
