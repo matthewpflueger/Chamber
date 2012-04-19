@@ -24,9 +24,9 @@ class PartnerServiceManagerActor extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[PartnerServiceManagerActor])
 
-    @BeanProperty var partnerDao: RetailerDao = _
-    @BeanProperty var partnerSettingsDao: RetailerSettingsDao = _
-    @BeanProperty var partnerUserDao: RetailerUserDao = _
+    @BeanProperty var partnerDao: PartnerDao = _
+    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
+    @BeanProperty var partnerUserDao: PartnerUserDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @BeanProperty var imageDao: ImageDao = _
@@ -97,14 +97,14 @@ class PartnerServiceManagerActor extends Actor {
                             channel ! RegisterPartnerResponse(msg, Left(PartnerNotActive(partner.id)))
                         case LocateResponse(_, Left(e: PartnerNotFound)) =>
                             val p = partner.copy(secret = encrypter.generateSecretKey)
-                            val ps = partnerSettings.copy(retailerId = p.id)
+                            val ps = partnerSettings.copy(partnerId = p.id)
 
 
                             val password = UUID.randomUUID().toString
 
                             //Create a new hashed password for the partnerUser if one has not already been set
                             //Used to handle Shopify Partner Users where the password is already created
-                            val pu = partnerUser.copy(retailerId = p.id).createPassword(password)
+                            val pu = partnerUser.copy(partnerId = p.id).createPassword(password)
 
                             val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (partnerUser.email, password))
 
@@ -183,7 +183,7 @@ class PartnerServiceManagerActor extends Actor {
             val channel: Channel[LocateByEchoIdResponse] = self.channel
 
             Option(echoDao.findById(echoId)).cata(
-                echo => ((me ? Locate(echo.retailerId)).mapTo[LocateResponse]).onComplete(_.value.get.fold(
+                echo => ((me ? Locate(echo.partnerId)).mapTo[LocateResponse]).onComplete(_.value.get.fold(
                     e => channel ! LocateByEchoIdResponse(msg, Left(PartnerException("Unexpected error", e))),
                     _ match {
                         case LocateResponse(_, Left(e)) => channel ! LocateByEchoIdResponse(msg, Left(e))

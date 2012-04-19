@@ -10,15 +10,15 @@
     {{#echoPossibilityView}}
 	<div id="container">
         <div id="header" class="clearfix">
-            <div class="retailer-logo">
-                <img src="{{retailerLogo}}"/>
+            <div class="partner-logo">
+                <img src="{{partnerLogo}}"/>
             </div>
         </div>
         <div id="content">
             <div id="thankyou">
-                {{#retailer}}
+                {{#partner}}
                 <span class="ty-text">Show Your Friends Why you Love {{name}}, It's Worth It</span>
-                {{/retailer}}
+                {{/partner}}
             </div>
             <div id="lower" class="clearfix">
                 <div id="left">
@@ -42,7 +42,7 @@
                 </div>
     	        <div id="right" class="long">
                     <div id="right-content">
-                        {{#retailer}}
+                        {{#partner}}
                         <div class="confirm-label">
                             STEP 1 OF 2: Login to Share With Friends
                         </div>
@@ -55,10 +55,10 @@
                             </a>
                         </div>
                         <div class="confirm-text" style="margin-top: 20px;">
-                            We want to thank you for supporting {{#retailer}}{{name}}{{/retailer}}. Please tell your friends about your purchase and help us grow. To show our appreciation we'll give you an instant <strong>{{minPercentage}}% off this items just for sharing.</strong><br/><br/>
+                            We want to thank you for supporting {{#partner}}{{name}}{{/partner}}. Please tell your friends about your purchase and help us grow. To show our appreciation we'll give you an instant <strong>{{minPercentage}}% off this items just for sharing.</strong><br/><br/>
                             As more friends use your link to visit our site, <strong>your reward can grow up to {{maxPercentage}}%.</strong> All rewards will be automatically credited to the card you used to buy this item.
                         </div>
-                        {{/retailer}}
+                        {{/partner}}
                     </div>
 	            </div>
             </div>

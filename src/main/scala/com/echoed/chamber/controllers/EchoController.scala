@@ -301,12 +301,12 @@ class EchoController {
                         val modelAndView = new ModelAndView(echoLoginView)
 
                         modelAndView.addObject("echoPossibilityView", data)
-                        modelAndView.addObject("retailerLogo", data.retailer.logo)
-                        modelAndView.addObject("maxPercentage", "%1.0f".format(data.retailerSettings.maxPercentage*100));
-                        modelAndView.addObject("minPercentage", "%1.0f".format(data.retailerSettings.minPercentage*100));
-                        modelAndView.addObject("numberDays", data.retailerSettings.creditWindow / 24)
+                        modelAndView.addObject("partnerLogo", data.partner.logo)
+                        modelAndView.addObject("maxPercentage", "%1.0f".format(data.partnerSettings.maxPercentage*100));
+                        modelAndView.addObject("minPercentage", "%1.0f".format(data.partnerSettings.minPercentage*100));
+                        modelAndView.addObject("numberDays", data.partnerSettings.creditWindow / 24)
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(data.echoPossibility.price));
-                        modelAndView.addObject("minClicks", data.retailerSettings.minClicks)
+                        modelAndView.addObject("minClicks", data.partnerSettings.minClicks)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                     },
@@ -405,11 +405,11 @@ class EchoController {
                             modelAndView.addObject("id", id)
                             modelAndView.addObject("errorMessage", "This item has already been shared")
                             modelAndView.addObject("echoPossibilityView", epv)
-                            modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
-                            modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
-                            modelAndView.addObject("retailerLogo", epv.retailer.logo)
-                            modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
-                            modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
+                            modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
+                            modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
+                            modelAndView.addObject("partnerLogo", epv.partner.logo)
+                            modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
+                            modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
                             continuation.setAttribute("modelAndView", modelAndView)
                             continuation.resume()
                         case e => error(errorView, e)
@@ -423,15 +423,15 @@ class EchoController {
                         modelAndView.addObject("id", id)
                         modelAndView.addObject("echoedUser", eu)
                         modelAndView.addObject("echoPossibility", echoPossibility)
-                        modelAndView.addObject("retailer", epv.retailer)
-                        modelAndView.addObject("retailerSettings", epv.retailerSettings)
+                        modelAndView.addObject("partner", epv.partner)
+                        modelAndView.addObject("partnerSettings", epv.partnerSettings)
                         modelAndView.addObject("logoutUrl", lu)
-                        modelAndView.addObject("retailerLogo", epv.retailer.logo)
-                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
-                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
-                        modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
+                        modelAndView.addObject("partnerLogo", epv.partner.logo)
+                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
+                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
+                        modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
-                        modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
+                        modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                     })
@@ -552,11 +552,11 @@ class EchoController {
                                     val modelAndView = new ModelAndView(errorView)
                                     modelAndView.addObject("errorMessage", "This item has already been shared")
                                     modelAndView.addObject("echoPossibilityView", epv)
-                                    modelAndView.addObject("retailerLogo", epv.retailer.logo)
-                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
-                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
-                                    modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
-                                    modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
+                                    modelAndView.addObject("partnerLogo", epv.partner.logo)
+                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
+                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
+                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
+                                    modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume()
                                 case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
@@ -567,14 +567,14 @@ class EchoController {
                                     val modelAndView = new ModelAndView(confirmView)
                                     modelAndView.addObject("echoedUser", echoedUser)
                                     modelAndView.addObject("echoPossibility", epv.echo)
-                                    modelAndView.addObject("retailer", epv.retailer)
-                                    modelAndView.addObject("retailerLogo", epv.retailer.logo)
-                                    modelAndView.addObject("retailerSettings", epv.retailerSettings)
+                                    modelAndView.addObject("partner", epv.partner)
+                                    modelAndView.addObject("partnerLogo", epv.partner.logo)
+                                    modelAndView.addObject("partnerSettings", epv.partnerSettings)
                                     modelAndView.addObject("logoutUrl", lu)
-                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
-                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
-                                    modelAndView.addObject("minClicks", epv.retailerSettings.minClicks);
-                                    modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
+                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
+                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
+                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
+                                    modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
                                     modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                                     modelAndView.addObject(
                                             "facebookAddUrl",
@@ -607,12 +607,12 @@ class EchoController {
                                 + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
 
                         modelAndView.addObject("echoPossibilityView", epv)
-                        modelAndView.addObject("retailerLogo", epv.retailer.logo)
-                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.retailerSettings.maxPercentage*100));
-                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.retailerSettings.minPercentage*100));
+                        modelAndView.addObject("partnerLogo", epv.partner.logo)
+                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
+                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
-                        modelAndView.addObject("minClicks",epv.retailerSettings.minClicks)
-                        modelAndView.addObject("numberDays", epv.retailerSettings.creditWindow / 24)
+                        modelAndView.addObject("minClicks",epv.partnerSettings.minClicks)
+                        modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                 }))

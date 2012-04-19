@@ -27,7 +27,7 @@ class EchoedUserServiceActor(
         closetDao: ClosetDao,
         echoedFriendDao: EchoedFriendDao,
         feedDao: FeedDao,
-        retailerSettingsDao: RetailerSettingsDao,
+        partnerSettingsDao: PartnerSettingsDao,
         echoDao: EchoDao,
         echoMetricsDao: EchoMetricsDao,
         facebookServiceLocator: FacebookServiceLocator,
@@ -185,14 +185,14 @@ class EchoedUserServiceActor(
                         if(ep.isEchoed) {
                             logger.debug("Duplicate Echo: {}" , ep)
                             channel ! EchoToResponse(msg, Left(DuplicateEcho(ep,"Duplicate Echo")))
-                        } else Option(retailerSettingsDao.findById(ep.retailerSettingsId)).cata(
-                            retailerSettings => {
+                        } else Option(partnerSettingsDao.findById(ep.partnerSettingsId)).cata(
+                            partnerSettings => {
 
                                 var echo = ep.copy(echoedUserId = echoedUser.id, step = ("%s,echoed" format ep.step).takeRight(254))
                                 val echoMetrics = echoMetricsDao
                                         .findById(echo.echoMetricsId)
                                         .copy(echoedUserId = echoedUser.id)
-                                        .echoed(retailerSettings)
+                                        .echoed(partnerSettings)
                                 echoMetricsDao.updateForEcho(echoMetrics)
                                 echo = echo.copy(echoMetricsId = echoMetrics.id)
                                 echoDao.updateForEcho(echo)
@@ -204,7 +204,7 @@ class EchoedUserServiceActor(
                                     if (echoToFacebook) requestList += ((me, ETF(echo, facebookMessage)))
                                     if (echoToTwitter) requestList += ((me, EchoToTwitter(echo, twitterMessage)))
 
-                                    val context = (channel, new EchoFull(echo, echoedUser, retailerSettings), msg)
+                                    val context = (channel, new EchoFull(echo, echoedUser, partnerSettings), msg)
                                     Actor.actorOf(classOf[ScatterGather]).start() ! Scatter(
                                             requestList.toList,
                                             Some(context),
@@ -218,7 +218,7 @@ class EchoedUserServiceActor(
                             },
                             {
                                 channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))
-                                logger.warn("Did not find RetailerSettings {} for Echo {}", ep.retailerSettingsId, ep.id)
+                                logger.warn("Did not find PartnerSettings {} for Echo {}", ep.partnerSettingsId, ep.id)
                             })
                     },
                     {

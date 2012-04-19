@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.echoed.chamber.dao.views.RetailerViewDao">
+<mapper namespace="com.echoed.chamber.dao.views.PartnerViewDao">
 
     <cache-ref namespace="com.echoed.chamber.dao.cache.Flushing30" />
     
@@ -19,10 +19,10 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="retailerSocialSummaryResult" type="com.echoed.chamber.domain.views.RetailerSocialSummary">
+    <resultMap id="partnerSocialSummaryResult" type="com.echoed.chamber.domain.views.PartnerSocialSummary">
         <constructor>
-            <idArg column="retailerId" javaType="String"/>
-            <arg column="retailerName" javaType="String" />
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="partnerName" javaType="String" />
             <arg column="totalEchoes" javaType="_int" />
             <arg column="totalFacebookLikes" javaType="_int" />
             <arg column="totalFacebookComments" javaType="_int" />
@@ -32,18 +32,18 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="retailerProductsListView" type="com.echoed.chamber.domain.views.RetailerProductsListView">
+    <resultMap id="partnerProductsListView" type="com.echoed.chamber.domain.views.PartnerProductsListView">
         <constructor>
-            <idArg column="retailerId" javaType="String"/>
-            <arg column="retailerName" javaType="String"/>
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="partnerName" javaType="String"/>
         </constructor>
         <collection property="products" ofType="com.echoed.chamber.domain.views.ProductSocialSummary" javaType="ArrayList" resultMap="productSocialSummaryResult"/>
     </resultMap>
     
-    <resultMap id="retailerProductSocialActivityByDate" type="com.echoed.chamber.domain.views.RetailerProductSocialActivityByDate">
+    <resultMap id="partnerProductSocialActivityByDate" type="com.echoed.chamber.domain.views.PartnerProductSocialActivityByDate">
         <constructor>
-            <idArg column="retailerId" javaType="String"/>
-            <arg column="retailerName" javaType="String"/>
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="partnerName" javaType="String"/>
             <arg column="activityType"  javaType="String"/>
         </constructor>
         <collection property="activityType" ofType="com.echoed.chamber.domain.views.SocialActivityTotalByDate" javaType="ArrayList" resultMap="socialActivityTotalByDate"/>
@@ -51,7 +51,7 @@
     
     <resultMap id="productSocialActivityTotal" type="com.echoed.chamber.domain.views.ProductSocialActivityTotal">
         <constructor>
-            <idArg column="retailerId" javaType="String"/>
+            <idArg column="partnerId" javaType="String"/>
             <arg column="productId" javaType="String"/>
             <arg column="productName" javaType="String"/>
             <arg column="total" javaType= "_int"/>
@@ -71,8 +71,8 @@
             <arg column="productName" javaType="String" />
             <arg column="productBrand" javaType="String" />
             <arg column="productCategory" javaType="String" />
-            <arg column="retailerId" javaType="String" />
-            <arg column="retailerName" javaType="String" />
+            <arg column="partnerId" javaType="String" />
+            <arg column="partnerName" javaType="String" />
             <arg column="productImageUrl" javaType="String" />
             <arg column="totalEchoes" javaType="_int" />
             <arg column="totalFacebookLikes" javaType="_int" />
@@ -83,10 +83,10 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="retailerCustomerListView" type="com.echoed.chamber.domain.views.RetailerCustomerListView">
+    <resultMap id="partnerCustomerListView" type="com.echoed.chamber.domain.views.PartnerCustomerListView">
         <constructor>
-            <idArg column="retailerId" javaType="String"/>
-            <arg column="retailerName" javaType="String"/>
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="partnerName" javaType="String"/>
         </constructor>
         <collection property="customers" ofType="com.echoed.chamber.domain.views.CustomerSocialSummary" javaType="ArrayList" resultMap="customerSocialSummaryResult"/>
     </resultMap>
@@ -126,8 +126,8 @@
         coalesce (E.productName) as productName,
         coalesce (E.brand) as productBrand,
         coalesce (E.category) as productCategory,
-        coalesce (R.id) as retailerId,
-        coalesce (R.name) as retailerName,
+        coalesce (P.id) as partnerId,
+        coalesce (P.name) as partnerName,
         coalesce(E.imageUrl) as productImageUrl,
         count(E.echoedUserId) as totalEchoes,
         coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
@@ -138,8 +138,8 @@
     </sql>
 
     <sql id="customerColumns">
-        R.id as retailerId,
-        R.name as retailerName,
+        P.id as partnerId,
+        P.name as partnerName,
         EU.id as echoedUserId,
         EU.name as echoedUserName,
         count(E.echoedUserId) as totalEchoes,
@@ -151,15 +151,15 @@
         coalesce(FF.facebookFriends, 0) as totalFacebookFriends
     </sql>
 
-    <sql id="aggregateSalesByRetailerIdAndProductId">
+    <sql id="aggregateSalesByPartnerIdAndProductId">
         (
             SELECT
                 EP.productId as productId
-                EP.retailerId as retailerId
+                EP.partnerId as partnerId
                 sum(EP.price) as totalSales
             GROUP BY
                 EP.productId,
-                EP.retailerId
+                EP.partnerId
         )
     </sql>
 
@@ -240,38 +240,38 @@
         )
     </sql>
     
-    <select id="getTopProductsWithRetailerId" resultMap="retailerProductsListView">
+    <select id="getTopProductsWithPartnerId" resultMap="partnerProductsListView">
         SELECT <include refid="productColumns" />
         FROM
-            Retailer R
+            Partner P
             LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
+            Echo E ON P.id = E.partnerId
             LEFT OUTER JOIN
             <include refid="aggregateStatsByEcho" />
             ESA ON E.id=ESA.echoId
         WHERE
-            R.id = #{retailerId}
+            P.id = #{partnerId}
         GROUP BY
-            R.id, R.name, E.productId, E.productName, E.brand, E.category
+            P.id, P.name, E.productId, E.productName, E.brand, E.category
         ORDER BY
             totalSalesVolume DESC
         LIMIT
             0, 5
     </select>
 
-    <select id="getProductsWithRetailerId" resultMap="retailerProductsListView">
+    <select id="getProductsWithPartnerId" resultMap="partnerProductsListView">
         SELECT <include refid="productColumns" />
         FROM
-        Retailer R
+        Partner P
         LEFT OUTER JOIN
-        Echo E ON R.id = E.retailerId
+        Echo E ON P.id = E.partnerId
         LEFT OUTER JOIN
         <include refid="aggregateStatsByEcho" />
         ESA ON E.id=ESA.echoId
         WHERE
-        R.id = #{retailerId}
+        P.id = #{partnerId}
         GROUP BY
-        R.id, R.name, E.productId, E.productName, E.brand, E.category
+        P.id, P.name, E.productId, E.productName, E.brand, E.category
         ORDER BY
         totalEchoes DESC
         LIMIT
@@ -279,29 +279,29 @@
     </select>
 
 
-    <select id="getSocialActivityByProductIdAndRetailerId" resultMap="productSocialSummaryResult">
+    <select id="getSocialActivityByProductIdAndPartnerId" resultMap="productSocialSummaryResult">
         SELECT <include refid="productColumns" />
         FROM
-            Retailer R
+            Partner P
             LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
+            Echo E ON P.id = E.partnerId
             LEFT OUTER JOIN
             <include refid="aggregateStatsByEcho" />
             ESA on E.id=ESA.echoId
         WHERE
-            R.id = #{retailerId}
+            P.id = #{partnerId}
             AND
             E.productId = #{productId}
         GROUP BY
-            R.id, R.name, E.productId, E.productName
+            P.id, P.name, E.productId, E.productName
     </select>
 
-    <select id="getTopCustomersWithRetailerId" resultMap="retailerCustomerListView" >
+    <select id="getTopCustomersWithPartnerId" resultMap="partnerCustomerListView" >
         SELECT <include refid="customerColumns"/>
         FROM
-            Retailer R
+            Partner P
             LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
+            Echo E ON P.id = E.partnerId
             LEFT OUTER JOIN
             EchoedUser EU ON  E.echoedUserId = EU.id
             LEFT OUTER JOIN
@@ -311,20 +311,20 @@
             <include refid="friendsAggregate" />
             FF ON FF.echoedUserId=EU.id
         WHERE
-            R.id = #{retailerId}
+            P.id = #{partnerId}
         GROUP BY
-            R.id, R.name, EU.id, EU.name
+            P.id, P.name, EU.id, EU.name
         LIMIT
             0,5
     </select>
 
 
-    <select id="getCustomersWithRetailerId" resultMap="retailerCustomerListView" >
+    <select id="getCustomersWithPartnerId" resultMap="partnerCustomerListView" >
         SELECT <include refid="customerColumns"/>
         FROM
-        Retailer R
+        Partner P
         LEFT OUTER JOIN
-        Echo E ON R.id = E.retailerId
+        Echo E ON P.id = E.partnerId
         LEFT OUTER JOIN
         EchoedUser EU ON  E.echoedUserId = EU.id
         LEFT OUTER JOIN
@@ -334,17 +334,17 @@
         <include refid="friendsAggregate" />
         FF ON FF.echoedUserId=EU.id
         WHERE
-        R.id = #{retailerId}
+        P.id = #{partnerId}
         GROUP BY
-        R.id, R.name, EU.id, EU.name
+        P.id, P.name, EU.id, EU.name
         LIMIT
         #{start},#{limit}
     </select>
 
-    <select id="getSocialActivityByRetailerId" resultMap="retailerSocialSummaryResult">
+    <select id="getSocialActivityByPartnerId" resultMap="partnerSocialSummaryResult">
        SELECT
-            R.id as retailerId,
-            R.name as retailerName,
+            P.id as partnerId,
+            P.name as partnerName,
             count(E.id) as totalEchoes,
             coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
             coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
@@ -352,19 +352,19 @@
             coalesce(sum(ESA.totalSales),0) as totalSales,
             coalesce(sum(ESA.totalSalesVolume),0) as totalSalesVolume
         FROM
-            Retailer R
+            Partner P
             LEFT OUTER JOIN
-            Echo E ON R.id = E.retailerId
+            Echo E ON P.id = E.partnerId
             LEFT OUTER JOIN
             <include refid="aggregateStatsByEcho"/>
             ESA ON E.id = ESA.echoId
         WHERE
-            R.id = #{retailerId}
+            P.id = #{partnerId}
         GROUP BY
-            R.id, R.name
+            P.id, P.name
     </select>
     
-    <select id="getEchoedUserByRetailerUser" resultMap="echoedUser">
+    <select id="getEchoedUserByPartnerUser" resultMap="echoedUser">
         SELECT
             EU.id as id,
             EU.updatedOn as updatedOn,
@@ -381,11 +381,11 @@
             INNER JOIN
             Echo E ON EU.id = E.echoedUserId
             INNER JOIN
-            Retailer R ON R.id = E.retailerId
+            Partner P ON P.id = E.partnerId
         WHERE
             EU.id = #{echoedUserId}
             AND
-            R.id = #{retailerId}
+            P.id = #{partnerId}
         GROUP BY
             EU.id, EU.name
     </select>
@@ -423,7 +423,7 @@
             INNER JOIN
             FacebookComment FBC ON FBC.facebookPostId = FP.id
         WHERE
-            E.retailerId = #{retailerId}
+            E.partnerId = #{partnerId}
             <if test="echoedUserId != null">
                 and E.echoedUserId= #{echoedUserId}
             </if>
@@ -441,7 +441,7 @@
         from
             Echo EP
         where
-            EP.retailerId = #{retailerId}
+            EP.partnerId = #{partnerId}
             <if test="echoedUserId != null">
                 and EP.echoedUserId = #{echoedUserId}
             </if>
@@ -457,7 +457,7 @@
         from
             Echo EP
         where
-            EP.retailerId = #{retailerId}
+            EP.partnerId = #{partnerId}
             <if test="echoedUserId != null">
                 and EP.echoedUserId = #{echoedUserId}
             </if>
@@ -476,7 +476,7 @@
             INNER JOIN
             FacebookComment FBC ON FBC.facebookPostId = FBP.id
         WHERE
-            E.retailerId = #{retailerId}
+            E.partnerId = #{partnerId}
             <if test="echoedUserId != null">
                 and E.echoedUserId = #{echoedUserId}
             </if>
@@ -493,7 +493,7 @@
             INNER JOIN
             EchoClick EC ON EC.echoId = E.id
         WHERE
-            E.retailerId = #{retailerId}
+            E.partnerId = #{partnerId}
             <if test="echoedUserId != null">
                 and E.echoedUserId = #{echoedUserId}
             </if>
@@ -512,7 +512,7 @@
             INNER JOIN
             FacebookLike FBL ON FBL.facebookPostId = FBP.id
         WHERE
-        E.retailerId = #{retailerId}
+        E.partnerId = #{partnerId}
         <if test="echoedUserId != null">
             and E.echoedUserId = #{echoedUserId}
         </if>
@@ -527,7 +527,7 @@
         FROM
             Echo E
         WHERE
-            E.retailerId = #{retailerId}
+            E.partnerId = #{partnerId}
             <if test="echoedUserId != null">
                 and E.echoedUserId = #{echoedUserId}
             </if>
@@ -547,7 +547,7 @@
             INNER JOIN
             FacebookLike FBL ON FBL.facebookPostId = FBP.id
         WHERE
-            E.retailerId= #{retailerId}
+            E.partnerId= #{partnerId}
             <if test="echoedUserId != null">
                 and E.echoedUserId = #{echoedUserId}
             </if>
@@ -570,7 +570,7 @@
             INNER JOIN
             FacebookComment FBC ON FBC.facebookPostID = FBC.id
         WHERE
-            E.retailerId= #{retailerId}
+            E.partnerId= #{partnerId}
             <if test="echoedUserId != null">
                 and E.echoedUserId = #{echoedUserId}
             </if>
@@ -589,7 +589,7 @@
         from
             Echo EP
         where
-            EP.retailerId= #{retailerId}
+            EP.partnerId= #{partnerId}
             <if test="echoedUserId != null">
                 and EP.echoedUserId = #{echoedUserId}
             </if>
@@ -608,7 +608,7 @@
         from
             Echo EP
         where
-            EP.retailerId= #{retailerId}
+            EP.partnerId= #{partnerId}
             <if test="echoedUserId != null">
                 and EP.echoedUserId = #{echoedUserId}
             </if>
@@ -628,7 +628,7 @@
             inner join
             EchoClick EC on E.id = EC.echoId
         WHERE
-            E.retailerId= #{retailerId}
+            E.partnerId= #{partnerId}
             <if test="echoedUserId != null">
                 and E.echoedUserId = #{echoedUserId}
             </if>

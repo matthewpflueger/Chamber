@@ -10,7 +10,7 @@ import com.echoed.chamber.dao.views.ClosetDao
 import java.util.{Date, Properties}
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
-import com.echoed.chamber.dao.{RetailerUserDao, EchoDao, EchoedUserDao}
+import com.echoed.chamber.dao.{PartnerUserDao, EchoDao, EchoedUserDao}
 import com.echoed.util.{WebDriverUtils, IntegrationTest}
 import org.openqa.selenium.{Dimension, By, Cookie, WebDriver}
 import org.openqa.selenium.firefox.{FirefoxProfile, FirefoxDriver}
@@ -20,7 +20,7 @@ import org.openqa.selenium.firefox.{FirefoxProfile, FirefoxDriver}
 @ContextConfiguration(locations = Array("classpath:webIT.xml"))
 class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
-    @Autowired @BeanProperty var partnerUserDao: RetailerUserDao = _
+    @Autowired @BeanProperty var partnerUserDao: PartnerUserDao = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
     @Autowired @BeanProperty var webDriverUtils: WebDriverUtils = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
@@ -37,7 +37,7 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
     } ensuring (_ == true, "Missing parameters")
 
 
-    val partnerUser = dataCreator.retailerUser
+    val partnerUser = dataCreator.partnerUser
 
 
     def cleanup() {
@@ -101,7 +101,7 @@ class PartnerUserLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatch
             given("a request to login")
             when("there are good credentials")
             webDriver.findElement(By.id("email")).sendKeys(partnerUser.email)
-            webDriver.findElement(By.id("password")).sendKeys(dataCreator.retailerUserPassword)
+            webDriver.findElement(By.id("password")).sendKeys(dataCreator.partnerUserPassword)
             webDriver.findElement(By.id("login")).click()
 
             then("then redirect to the dashboard page")

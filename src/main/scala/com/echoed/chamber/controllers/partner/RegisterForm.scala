@@ -1,8 +1,8 @@
 package com.echoed.chamber.controllers.partner
 
-import com.echoed.chamber.domain.{RetailerSettings, RetailerUser, Retailer}
+import com.echoed.chamber.domain.{PartnerSettings, PartnerUser, Partner}
 import java.util.{UUID, Date}
-import org.hibernate.validator.constraints.{NotBlank, Email, URL, Range}
+import org.hibernate.validator.constraints.{NotBlank, Email, URL}
 import org.springframework.format.annotation.NumberFormat.Style
 import javax.validation.constraints._
 import org.springframework.format.annotation.{DateTimeFormat, NumberFormat}
@@ -32,9 +32,9 @@ case class RegisterForm(
     }
 
 
-    def createPartner[T](f: (Retailer, RetailerSettings, RetailerUser) => T): T = {
-        val partner = new Retailer(name, website, phone, hashTag, logo, category)
-        val partnerSettings = new RetailerSettings(
+    def createPartner[T](f: (Partner, PartnerSettings, PartnerUser) => T): T = {
+        val partner = new Partner(name, website, phone, hashTag, logo, category)
+        val partnerSettings = new PartnerSettings(
                 partner.id,
                 exhibitPercentage,
                 minClicks,
@@ -45,7 +45,7 @@ case class RegisterForm(
                 echoedMaxPercentage,
                 creditWindow,
                 activeOn)
-        val partnerUser = new RetailerUser(partner.id, name, email).createPassword(UUID.randomUUID().toString)
+        val partnerUser = new PartnerUser(partner.id, name, email).createPassword(UUID.randomUUID().toString)
 
         f(partner, partnerSettings, partnerUser)
     }

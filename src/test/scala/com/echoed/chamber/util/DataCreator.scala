@@ -23,11 +23,11 @@ class DataCreator {
     @BeanProperty var facebookTestUserDao: FacebookTestUserDao = _
     @BeanProperty var facebookUserDao: FacebookUserDao = _
     @BeanProperty var echoedUserDao: EchoedUserDao = _
-    @BeanProperty var retailerDao: RetailerDao = _
-    @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
+    @BeanProperty var partnerDao: PartnerDao = _
+    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
-    @BeanProperty var retailerUserDao: RetailerUserDao = _
+    @BeanProperty var partnerUserDao: PartnerUserDao = _
 
     @BeanProperty var urlsProperties: Properties = _
     @BeanProperty var facebookAccessProperties: Properties = _
@@ -238,21 +238,21 @@ class DataCreator {
     def generateDataSet() {
         logger.debug("Generating data set")
 
-        retailers.foreach { r =>
-            retailerSettingsDao.deleteByRetailerId(r.id)
-            echoDao.deleteByRetailerId(r.id)
-            retailerDao.deleteByName(r.name)
+        partners.foreach { r =>
+            partnerSettingsDao.deleteByPartnerId(r.id)
+            echoDao.deleteByPartnerId(r.id)
+            partnerDao.deleteByName(r.name)
 
-            retailerDao.insert(r)
+            partnerDao.insert(r)
             logger.debug("Created {}", r)
         }
 
-        retailerSettingsList.foreach { rs =>
-            retailerSettingsDao.insert(rs)
+        partnerSettingsList.foreach { rs =>
+            partnerSettingsDao.insert(rs)
             logger.debug("Created {}", rs)
         }
 
-        retailerUserDao.insert(retailerUser)
+        partnerUserDao.insert(partnerUser)
 
         val random = new Random
         val users = generateEchoedUsers.map(_._2).zipWithIndex
@@ -260,18 +260,18 @@ class DataCreator {
         users.foreach { tuple =>
             val (eu, index) = tuple
 
-            val ran = random.nextInt(retailers.length)
+            val ran = random.nextInt(partners.length)
             logger.debug("Generating {} echoes", ran)
 
             for (num <- 0 to ran) {
-                val r = retailers(num)
-                val rs = retailerSettingsList.find(_.retailerId == r.id).get
+                val r = partners(num)
+                val rs = partnerSettingsList.find(_.partnerId == r.id).get
 
                 val categories = List("Shoes","Clothes","Random","Other","Accessories")
                 val category = categories(random.nextInt(5))
                 val picNum = random.nextInt(15) + 1
                 var e = Echo.make(
-                    retailerId = r.id,
+                    partnerId = r.id,
                     customerId = "customerId",
                     productId = "productId",
                     boughtOn = new Date,
@@ -292,7 +292,7 @@ class DataCreator {
                 e = e.copy(
                         echoedUserId = eu.id,
                         echoPossibilityId = "echoPossibilityId%s-%s-%s" format(index, num, picNum),
-                        retailerSettingsId = rs.id)
+                        partnerSettingsId = rs.id)
 
 
                 var em = new EchoMetrics(e, rs)
@@ -332,11 +332,11 @@ class DataCreator {
     val echoedUserId = UUID.randomUUID.toString
     val fromEchoedUserId = echoedUserId
     val toEchoedUserId = UUID.randomUUID.toString
-    val retailerUserId = UUID.randomUUID.toString
+    val partnerUserId = UUID.randomUUID.toString
     val twitterUserId = UUID.randomUUID.toString
     val facebookUserId = UUID.randomUUID.toString
     val facebookTestUserId = UUID.randomUUID.toString
-    val retailerId = "e0142506-7d92-4222-b55e-6dd2bca08c93" //UUID.randomUUID.toString
+    val partnerId = "e0142506-7d92-4222-b55e-6dd2bca08c93" //UUID.randomUUID.toString
     val adminUserId = UUID.randomUUID.toString
 
     val landingPageUrl = siteUrl
@@ -346,34 +346,34 @@ class DataCreator {
     val echoImageUrl_2 = "%s/%s" format(imagesUrl, echoImageFileName_2)
 
 
-    val retailers = List(
-        new Retailer("A Lady and Her Baby").copy(id = retailerId, secret = "wC4nP6DLLtaPji6pWSEcBg"),
-        new Retailer("Babesta"),
-        new Retailer("Carrot Top"),
-        new Retailer("Dimples"),
-        new Retailer("Economy Candy"),
-        new Retailer("Flight Club"),
-        new Retailer("Galt Baby"),
-        new Retailer("Halt Pint Citizens"),
-        new Retailer("Ina"),
-        new Retailer("Ju Ju Beane Boutique"),
-        new Retailer("Kirma Zabete"),
-        new Retailer("Lemonade Couture"),
-        new Retailer("Madison Rose"),
-        new Retailer("Neda"),
-        new Retailer("Oak"),
-        new Retailer("Pink Olive"),
-        new Retailer("Salvor Projects")
+    val partners = List(
+        new Partner("A Lady and Her Baby").copy(id = partnerId, secret = "wC4nP6DLLtaPji6pWSEcBg"),
+        new Partner("Babesta"),
+        new Partner("Carrot Top"),
+        new Partner("Dimples"),
+        new Partner("Economy Candy"),
+        new Partner("Flight Club"),
+        new Partner("Galt Baby"),
+        new Partner("Halt Pint Citizens"),
+        new Partner("Ina"),
+        new Partner("Ju Ju Beane Boutique"),
+        new Partner("Kirma Zabete"),
+        new Partner("Lemonade Couture"),
+        new Partner("Madison Rose"),
+        new Partner("Neda"),
+        new Partner("Oak"),
+        new Partner("Pink Olive"),
+        new Partner("Salvor Projects")
     )
 
-    //val retailers = retailerDao.selectAll
-    val retailer = retailers(0)
+    //val partners = partnerDao.selectAll
+    val partner = partners(0)
     val creditWindow = 168
-    val retailerSettingsFuture = RetailerSettings(
+    val partnerSettingsFuture = PartnerSettings(
             id = UUID.randomUUID.toString,
             updatedOn = on,
             createdOn = on,
-            retailerId = retailerId,
+            partnerId = partnerId,
             closetPercentage = 0.01f,
             minClicks = 1,
             minPercentage = 0.1f,
@@ -383,9 +383,9 @@ class DataCreator {
             echoedMaxPercentage = 0.2f,
             activeOn = future.getTime,
             creditWindow = creditWindow)
-    val retailerSettingsList = retailerSettingsFuture :: retailers.map { r =>
-            new RetailerSettings(
-                retailerId = r.id,
+    val partnerSettingsList = partnerSettingsFuture :: partners.map { r =>
+            new PartnerSettings(
+                partnerId = r.id,
                 closetPercentage = 0.01f,
                 minClicks = 1,
                 minPercentage = 0.1f,
@@ -396,7 +396,7 @@ class DataCreator {
                 activeOn = past.getTime,
                 creditWindow = creditWindow)
         }.toList
-    val retailerSettings = retailerSettingsList(1)
+    val partnerSettings = partnerSettingsList(1)
 
 
 
@@ -500,12 +500,12 @@ class DataCreator {
         "tech@echoed.com"
     ).createPassword(adminUserPassword)
 
-    val retailerUserPassword = "testpassword"
-    val retailerUser = new RetailerUser(
-        retailerId,
+    val partnerUserPassword = "testpassword"
+    val partnerUser = new PartnerUser(
+        partnerId,
         "Test PartnerUser",
         "tech@echoed.com"
-    ).createPassword(retailerUserPassword)
+    ).createPassword(partnerUserPassword)
 
     val echoedUser = EchoedUser(
         echoedUserId,
@@ -586,7 +586,8 @@ class DataCreator {
 
     val echoPossibilities = List(
         EchoPossibilityParameters(
-            retailerId,
+            partnerId,
+            partnerId,
             customerId_1,
             productId_1,
             on,
@@ -602,7 +603,8 @@ class DataCreator {
             description_1,
             null).createButtonEchoPossibility,
         EchoPossibilityParameters(
-            retailerId,
+            partnerId,
+            partnerId,
             customerId_2,
             productId_2,
             on,
@@ -797,12 +799,12 @@ class DataCreator {
             id = echoId_1,
             updatedOn = on,
             createdOn = on,
-            retailerId = retailerId,
+            partnerId = partnerId,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_1,
             twitterStatusId = twitterStatusId_1,
             echoPossibilityId = echoPossibilities(0).id,
-            retailerSettingsId = retailerSettingsFuture.id,
+            partnerSettingsId = partnerSettingsFuture.id,
             echoMetricsId = null,
             echoClickId = null,
             step = "test",
@@ -898,12 +900,12 @@ class DataCreator {
             id = echoId_1,
             updatedOn = on,
             createdOn = on,
-            retailerId = retailerId,
+            partnerId = partnerId,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_1,
             twitterStatusId = twitterStatusId_1,
             echoPossibilityId = echoPossibilities(0).id,
-            retailerSettingsId = retailerSettings.id,
+            partnerSettingsId = partnerSettings.id,
             echoMetricsId = null,
             echoClickId = null,
             step = "test",
@@ -919,12 +921,12 @@ class DataCreator {
             id = echoId_2,
             updatedOn = on,
             createdOn = on,
-            retailerId = retailerId,
+            partnerId = partnerId,
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_2,
             twitterStatusId = twitterStatusId_2,
             echoPossibilityId = echoPossibilities(1).id,
-            retailerSettingsId = retailerSettings.id,
+            partnerSettingsId = partnerSettings.id,
             echoMetricsId = null,
             echoClickId = null,
             step = "test",
@@ -937,7 +939,7 @@ class DataCreator {
             product = Product(echoId_2, on, on, productId_2, price_2, landingPageUrl, productName_2, category_2, brand_2, description_2),
             image = images(1)))
 
-    val echoMetrics = _echoes.map(new EchoMetrics(_, retailerSettings))
+    val echoMetrics = _echoes.map(new EchoMetrics(_, partnerSettings))
     val echoes = echoMetrics.zip(_echoes).map { tuple =>
         val (em, e) = tuple
         e.copy(echoMetricsId = em.id)

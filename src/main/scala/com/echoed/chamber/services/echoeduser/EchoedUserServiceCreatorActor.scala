@@ -3,16 +3,14 @@ package com.echoed.chamber.services.echoeduser
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 
-import akka.dispatch.Future
 import com.echoed.chamber.dao.views.{ClosetDao, FeedDao}
 import com.echoed.chamber.dao._
 import akka.actor.{Channel, Actor}
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.services.twitter.{GetTwitterServiceWithIdResponse, GetUserResponse, TwitterService, TwitterServiceLocator}
-import com.echoed.chamber.domain.{FacebookUser, EchoedUser}
-import org.springframework.beans.factory.annotation.Required
-import com.echoed.chamber.services.facebook.{GetFacebookUserResponse, FacebookServiceLocator, FacebookService}
+import com.echoed.chamber.services.twitter.{GetUserResponse, TwitterServiceLocator}
+import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.services.facebook.{GetFacebookUserResponse, FacebookServiceLocator}
 
 
 class EchoedUserServiceCreatorActor extends Actor {
@@ -23,7 +21,7 @@ class EchoedUserServiceCreatorActor extends Actor {
     @BeanProperty var echoedUserDao: EchoedUserDao = _
     @BeanProperty var closetDao: ClosetDao = _
     @BeanProperty var feedDao: FeedDao = _
-    @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
+    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoedFriendDao: EchoedFriendDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
@@ -148,7 +146,7 @@ class EchoedUserServiceCreatorActor extends Actor {
                             closetDao = closetDao,
                             echoedFriendDao = echoedFriendDao,
                             feedDao = feedDao,
-                            retailerSettingsDao = retailerSettingsDao,
+                            partnerSettingsDao = partnerSettingsDao,
                             echoDao = echoDao,
                             echoMetricsDao = echoMetricsDao,
                             facebookServiceLocator = facebookServiceLocator,

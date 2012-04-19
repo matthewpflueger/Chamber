@@ -1,34 +1,36 @@
 package com.echoed.chamber.domain.views
 
-import java.util.Date
 import com.echoed.chamber.domain._
 
 
 case class EchoFull(
         id: String,
         echo: Echo, 
-        retailer: Retailer,
+        partner: Partner,
         echoedUser: EchoedUser, 
         facebookPost: FacebookPost,
         twitterStatus: TwitterStatus,
-        retailerSettings: RetailerSettings) {
+        partnerSettings: PartnerSettings) {
 
     def this(
             echo: Echo,
-            retailer: Retailer,
+            partner: Partner,
             echoedUser: EchoedUser,
             facebookPost: FacebookPost,
             twitterStatus: TwitterStatus,
-            retailerSettings: RetailerSettings) = this(
+            partnerSettings: PartnerSettings) = this(
         echo.id,
         echo,
-        retailer,
+        partner,
         echoedUser,
         facebookPost,
         twitterStatus,
-        retailerSettings)
+        partnerSettings)
 
-    def this(echo: Echo, echoedUser: EchoedUser,retailerSettings: RetailerSettings) = this(echo, null, echoedUser, null, null, retailerSettings)
+    def this(
+            echo: Echo,
+            echoedUser: EchoedUser,
+            partnerSettings: PartnerSettings) = this(echo, null, echoedUser, null, null, partnerSettings)
 
 }
 

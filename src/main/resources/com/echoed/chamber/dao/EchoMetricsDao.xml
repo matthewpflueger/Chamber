@@ -11,8 +11,8 @@
             <arg column="createdOn" javaType="Date" />
             <arg column="echoId" javaType="String" />
             <arg column="echoedUserId" javaType="String" />
-            <arg column="retailerId" javaType="String" />
-            <arg column="retailerSettingsId" javaType="String" />
+            <arg column="partnerId" javaType="String" />
+            <arg column="partnerSettingsId" javaType="String" />
             <arg column="price" javaType="_float" />
             <arg column="creditWindowEndsAt" javaType="Date" />
             <arg column="totalClicks" javaType="_int" />
@@ -37,12 +37,12 @@
     	select * from EchoMetrics where echoedUserId = #{echoedUserId}
     </select>
 
-    <select id="findByRetailerId" resultMap="echoMetricsResult">
-    	select * from EchoMetrics where retailerId = #{retailerId}
+    <select id="findByPartnerId" resultMap="echoMetricsResult">
+    	select * from EchoMetrics where partnerId = #{partnerId}
     </select>
 
-    <select id="findByRetailerSettingsId" resultMap="echoMetricsResult">
-    	select * from EchoMetrics where retailerSettingsId = #{retailerSettingsId}
+    <select id="findByPartnerSettingsId" resultMap="echoMetricsResult">
+    	select * from EchoMetrics where partnerSettingsId = #{partnerSettingsId}
     </select>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.EchoMetrics">
@@ -51,8 +51,8 @@
     			createdOn,
                 echoId,
                 echoedUserId,
-                retailerId,
-                retailerSettingsId,
+                partnerId,
+                partnerSettingsId,
                 price,
                 creditWindowEndsAt,
                 totalClicks,
@@ -67,8 +67,8 @@
                 #{createdOn},
                 #{echoId},
                 #{echoedUserId},
-                #{retailerId},
-                #{retailerSettingsId},
+                #{partnerId},
+                #{partnerSettingsId},
                 #{price},
                 #{creditWindowEndsAt},
                 #{totalClicks},
@@ -116,12 +116,12 @@
         delete from EchoMetrics where echoedUserId=#{echoedUserId}
     </delete>
 
-    <delete id="deleteByRetailerId">
-        delete from EchoMetrics where retailerId=#{retailerId}
+    <delete id="deleteByPartnerId">
+        delete from EchoMetrics where partnerId=#{partnerId}
     </delete>
 
-    <delete id="deleteByRetailerSettingsId">
-        delete from EchoMetrics where retailerSettingsId=#{retailerSettingsId}
+    <delete id="deleteByPartnerSettingsId">
+        delete from EchoMetrics where partnerSettingsId=#{partnerSettingsId}
     </delete>
 
 </mapper>

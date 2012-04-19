@@ -11,7 +11,7 @@ case class EchoViewDetail(
         echoLandingPageUrl: String,
         echoedUserId: String,
         echoedUserName: String,
-        retailerId: String,
-        retailerName: String,
+        partnerId: String,
+        partnerName: String,
         image: Image)
 

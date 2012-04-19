@@ -1,105 +1,98 @@
 package com.echoed.chamber.dao.views
 
-import com.echoed.chamber.domain.views.{RetailerSocialSummary, ProductSocialSummary, RetailerProductsListView, RetailerCustomerListView, SocialActivityTotalByDate,ProductSocialActivityTotal}
 import com.echoed.chamber.domain.{FacebookComment}
 import com.echoed.chamber.domain.EchoedUser
 import org.apache.ibatis.annotations.Param
 import java.util.{List => JList}
+import com.echoed.chamber.domain.views._
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 1/5/12
- * Time: 9:21 AM
- * To change this template use File | Settings | File Templates.
- */
 
-trait RetailerViewDao {
+trait PartnerViewDao {
     
-    def getEchoedUserByRetailerUser(
+    def getEchoedUserByPartnerUser(
             @Param("echoedUserId") echoedUserId: String,
-            @Param("retailerId") retailerId: String): EchoedUser
+            @Param("partnerId") partnerId: String): EchoedUser
 
     def getTotalFacebookFriendsByEchoedUser(@Param("echoedUserId") echoedUserId: String): Int
 
 
-    def getSocialActivityByRetailerId(retailerId: String): RetailerSocialSummary
+    def getSocialActivityByPartnerId(partnerId: String): PartnerSocialSummary
 
-    def getSocialActivityByProductIdAndRetailerId(
+    def getSocialActivityByProductIdAndPartnerId(
          @Param("productId") productId: String,
-         @Param("retailerId") retailerId: String): ProductSocialSummary
+         @Param("partnerId") partnerId: String): ProductSocialSummary
     
-    def getProductsWithRetailerId(
-            @Param("retailerId") retailerId: String,
+    def getProductsWithPartnerId(
+            @Param("partnerId") partnerId: String,
             @Param("start") start: Int, 
-            @Param("limit") limit: Int): RetailerProductsListView
+            @Param("limit") limit: Int): PartnerProductsListView
 
-    def getTopProductsWithRetailerId(retailerId: String): RetailerProductsListView
+    def getTopProductsWithPartnerId(partnerId: String): PartnerProductsListView
     
-    def getCustomersWithRetailerId(
-            @Param("retailerId") retailerId: String,
+    def getCustomersWithPartnerId(
+            @Param("partnerId") partnerId: String,
             @Param("start") start: Int,
-            @Param("limit") limit: Int): RetailerCustomerListView
+            @Param("limit") limit: Int): PartnerCustomerListView
 
-    def getTopCustomersWithRetailerId(retailerId: String): RetailerCustomerListView
+    def getTopCustomersWithPartnerId(partnerId: String): PartnerCustomerListView
 
     def getFacebookLikesHistory(
-            @Param("retailerId") retailerId: String,
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String,
             @Param("productId") productId: String): JList[SocialActivityTotalByDate]
     
     def getFacebookCommentsHistory(
-            @Param("retailerId") retailerId: String,
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String,
             @Param("productId") productId: String): JList[SocialActivityTotalByDate]
 
     def getEchoClicksHistory(
-            @Param("retailerId") retailerId: String,
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String,
             @Param("productId") productId: String): JList[SocialActivityTotalByDate]
 
     def getSalesAmountHistory(
-            @Param("retailerId") retailerId: String,
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String,
             @Param("productId") productId:String): JList[SocialActivityTotalByDate]
 
     def getSalesVolumeHistory(
-            @Param("retailerId") retailerId: String, 
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId:String): JList[SocialActivityTotalByDate]
     
     def getComments(
-            @Param("retailerId") retailerId: String,
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String,
             @Param("productId") productId: String): JList[FacebookComment]
 
     def getTotalSalesAmount(
-            @Param("retailerId") retailerId: String, 
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId: String) : Float
     
     def getTotalSalesVolume(
-            @Param("retailerId") retailerId: String,
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String,
             @Param("productId") productId: String): Int
     
     def getTotalFacebookComments(
-            @Param("retailerId") retailerId: String, 
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId: String): Int
     
     def getTotalEchoClicks(
-            @Param("retailerId") retailerId: String, 
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId: String) : Int
     
     def getTotalFacebookLikes(
-            @Param("retailerId") retailerId: String, 
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId: String) : Int
 
     def getTotalEchoes(
-            @Param("retailerId") retailerId: String, 
+            @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId: String): Int
 }

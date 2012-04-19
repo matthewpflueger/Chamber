@@ -8,7 +8,7 @@ import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManag
 import akka.actor._
 import scala.collection.mutable.ConcurrentMap
 import com.echoed.util.Encrypter
-import com.echoed.chamber.dao.RetailerDao
+import com.echoed.chamber.dao.PartnerDao
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 
@@ -20,7 +20,7 @@ class PartnerUserServiceLocatorActor extends Actor {
     @BeanProperty var partnerUserServiceCreator: PartnerUserServiceCreator = _
     @BeanProperty var cacheManager: CacheManager = _
     @BeanProperty var encrypter: Encrypter = _
-    @BeanProperty var partnerDao: RetailerDao = _
+    @BeanProperty var partnerDao: PartnerDao = _
 
     private val cache: ConcurrentMap[String, PartnerUserService] = new ConcurrentHashMap[String, PartnerUserService]()
     private var cacheById: ConcurrentMap[String, PartnerUserService] = null

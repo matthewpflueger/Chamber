@@ -25,8 +25,8 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
     @Autowired @BeanProperty var echoDao: EchoDao = _
     @Autowired @BeanProperty var echoMetricsDao: EchoMetricsDao = _
-    @Autowired @BeanProperty var retailerDao: RetailerDao = _
-    @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
+    @Autowired @BeanProperty var partnerDao: PartnerDao = _
+    @Autowired @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
     @Autowired @BeanProperty var echoClickDao: EchoClickDao = _
     @Autowired @BeanProperty var facebookUserDao: FacebookUserDao = _
     @Autowired @BeanProperty var facebookPostDao: FacebookPostDao = _
@@ -66,33 +66,33 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
     var echoedUser = dataCreator.echoedUser.copy(twitterId = null, twitterUserId = null)
     var facebookUser = dataCreator.facebookUser
-    var retailer = dataCreator.retailer
-    var retailerSettings = dataCreator.retailerSettings
+    var partner = dataCreator.partner
+    var partnerSettings = dataCreator.partnerSettings
 
     def cleanUp {
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
         facebookUserDao.deleteByEmail(facebookUser.email)
-        retailerDao.deleteByName(retailer.name)
-        retailerSettingsDao.deleteByRetailerId(retailer.id)
-        echoDao.deleteByRetailerId(retailer.id)
-        echoMetricsDao.deleteByRetailerId(retailer.id)
+        partnerDao.deleteByName(partner.name)
+        partnerSettingsDao.deleteByPartnerId(partner.id)
+        echoDao.deleteByPartnerId(partner.id)
+        echoMetricsDao.deleteByPartnerId(partner.id)
     }
 
     override def beforeAll() {
         assert(echoedUser.facebookUserId == facebookUser.id)
-        assert(retailerSettings.retailerId == retailer.id)
+        assert(partnerSettings.partnerId == partner.id)
         cleanUp
         echoedUserDao.insert(echoedUser)
         facebookUserDao.insertOrUpdate(facebookUser)
-        retailerDao.insert(retailer)
-        retailerSettingsDao.insert(retailerSettings)
+        partnerDao.insert(partner)
+        partnerSettingsDao.insert(partnerSettings)
     }
 
     override def afterAll = cleanUp
 
 
-    feature("A user can share their purchase by clicking on the Echo button on a retailer's purchase confirmation page") {
+    feature("A user can share their purchase by clicking on the Echo button on a partner's purchase confirmation page") {
 
         info("As a recent purchaser")
         info("I want to be able to click on the Echo button")
@@ -102,7 +102,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             given("a request to echo a purchase")
             when("there is invalid parameters")
             then("redirect to Echoed's error page")
-            and("collect information about the retailer and order so we may contact the retailer to fix")
+            and("collect information about the partner and order so we may contact the partner to fix")
             pending
         }
 
@@ -157,7 +157,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 //                    echoedUserId = echoedUser.id)
 //
 //            echoDao.deleteByEchoPossibilityId(ep.id)
-//            val em = new EchoMetrics(ep, dataCreator.retailerSettings)
+//            val em = new EchoMetrics(ep, dataCreator.partnerSettings)
 //            echoMetricsDao.insert(em)
 //            val echoPossibility = ep.copy(echoMetricsId = em.id)
 //            echoDao.insert(echoPossibility)
@@ -205,9 +205,9 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
         info("As a person on a social platform")
         info("I want to be able to click on a friend's post")
-        info("So that I can go to the retailer's site and see/buy the product that my friend purchased")
+        info("So that I can go to the partner's site and see/buy the product that my friend purchased")
 
-        scenario("an unknown person clicks on their friend's Facebook post and is redirected to the retailer's product/landing page", IntegrationTest) {
+        scenario("an unknown person clicks on their friend's Facebook post and is redirected to the partner's product/landing page", IntegrationTest) {
             echo should not be (null)
             facebookPost should not be (null)
 
@@ -230,7 +230,7 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
             when("the user is unknown (no echoedUserId)")
             firstEcho.click
 
-            then("redirect to the retailer's landing page")
+            then("redirect to the partner's landing page")
             val currentWindowHandle = webDriver.getWindowHandle
             for (windowHandle: String <- JavaConversions.asScalaSet(webDriver.getWindowHandles()))
                 if (windowHandle != currentWindowHandle) webDriver.switchTo().window(windowHandle)

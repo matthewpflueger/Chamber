@@ -3,11 +3,11 @@ package com.echoed.chamber.domain
 import java.util.{Calendar, UUID, Date}
 
 
-case class RetailerSettings(
+case class PartnerSettings(
         id: String,
         updatedOn: Date,
         createdOn: Date,
-        retailerId: String,
+        partnerId: String,
         closetPercentage: Float,
         minClicks: Int,
         minPercentage: Float,
@@ -30,7 +30,7 @@ case class RetailerSettings(
 
 
     def this(
-            retailerId: String,
+            partnerId: String,
             closetPercentage: Float,
             minClicks: Int,
             minPercentage: Float,
@@ -43,7 +43,7 @@ case class RetailerSettings(
         UUID.randomUUID.toString,
         new Date,
         new Date,
-        retailerId,
+        partnerId,
         closetPercentage,
         minClicks,
         minPercentage,
@@ -62,8 +62,8 @@ case class RetailerSettings(
     }
 }
 
-object RetailerSettings { 
-    def createFutureRetailerSettings(retailerId: String) = {
+object PartnerSettings {
+    def createFuturePartnerSettings(partnerId: String) = {
         val cal = Calendar.getInstance()
         cal.set(Calendar.YEAR,2038)
         cal.set(Calendar.MONTH,0)
@@ -71,10 +71,11 @@ object RetailerSettings {
         cal.set(Calendar.HOUR,0)
         cal.set(Calendar.MINUTE,0)
         cal.set(Calendar.SECOND,0)
-        RetailerSettings(UUID.randomUUID.toString,
+
+        PartnerSettings(UUID.randomUUID.toString,
                             new Date,
                             new Date,
-                            retailerId,
+                            partnerId,
                             0.001f,
                             1,
                             0.0011f,

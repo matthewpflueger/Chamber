@@ -10,8 +10,8 @@ case class EchoMetrics(
         createdOn: Date,
         echoId: String,
         echoedUserId: String,
-        retailerId: String,
-        retailerSettingsId: String,
+        partnerId: String,
+        partnerSettingsId: String,
         price: Float,
         creditWindowEndsAt: Date,
         totalClicks: Int,
@@ -22,14 +22,14 @@ case class EchoMetrics(
         residualCredit: Float,
         residualFee: Float) {
 
-    def this(echo: Echo, retailerSettings: RetailerSettings) = this(
+    def this(echo: Echo, partnerSettings: PartnerSettings) = this(
         UUID.randomUUID.toString,
         new Date,
         new Date,
         echo.id,
         echo.echoedUserId,
-        echo.retailerId,
-        echo.retailerSettingsId,
+        echo.partnerId,
+        echo.partnerSettingsId,
         echo.price,
         null,
         0,
@@ -42,8 +42,8 @@ case class EchoMetrics(
 
     val isEchoed = echoedUserId != null && creditWindowEndsAt != null
 
-    def echoed(rs: RetailerSettings) = {
-        require(retailerSettingsId == rs.id)
+    def echoed(rs: PartnerSettings) = {
+        require(partnerSettingsId == rs.id)
         require(credit == 0)
         require(fee == 0)
         require(creditWindowEndsAt == null)
@@ -52,8 +52,8 @@ case class EchoMetrics(
         this.copy(credit = cr, fee = fe, creditWindowEndsAt = rs.creditWindowEndsAt)
     }
 
-    def clicked(rs: RetailerSettings): EchoMetrics = {
-        require(retailerSettingsId == rs.id)
+    def clicked(rs: PartnerSettings): EchoMetrics = {
+        require(partnerSettingsId == rs.id)
 
         if (isEchoed) {
             clicked(rs, creditWindowEndsAt.after(new Date))
@@ -66,7 +66,7 @@ case class EchoMetrics(
     }
 
     /* package visible for testing purposes otherwise should be private... */
-    protected[domain] def clicked(rs: RetailerSettings, withinCreditWindow: Boolean): EchoMetrics = {
+    protected[domain] def clicked(rs: PartnerSettings, withinCreditWindow: Boolean): EchoMetrics = {
         val totalClicks = this.totalClicks + 1
 
         def withinWindow(tuple: Tuple2[Float, Float]) = this.copy(

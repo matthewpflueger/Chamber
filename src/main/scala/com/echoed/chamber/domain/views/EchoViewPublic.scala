@@ -12,7 +12,7 @@ case class EchoViewPublic(
         echoCategory: String,
         echoBrand: String,
         echoLandingPageUrl: String,
-        retailerName: String,
+        partnerName: String,
         image: Image){
     
     def this(echoView: EchoView) = this(
@@ -22,7 +22,7 @@ case class EchoViewPublic(
             echoView.echoCategory,
             echoView.echoBrand,
             echoView.echoLandingPageUrl,
-            echoView.retailerName,
+            echoView.partnerName,
             echoView.image)
 }
 

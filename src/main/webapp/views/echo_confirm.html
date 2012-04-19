@@ -8,8 +8,8 @@
 <body>
 <div id="container">
     <div id="header" class="clearfix">
-        <div class="retailer-logo">
-            <img src="{{retailerLogo}}"/>
+        <div class="partner-logo">
+            <img src="{{partnerLogo}}"/>
         </div>
     </div>
     <div id="content" class="clearfix">
@@ -53,7 +53,7 @@
                                         <img src="{{urls.images}}/icon_facebook.png" class="icon"/>
                                     </td>
                                     <td>
-                                        <textarea name="facebookMessage" class="rounded-corners" >I just bought the {{#echoPossibility}}{{productName}}{{/echoPossibility}} from {{#retailer}}{{name}}{{/retailer}}. All of {{#retailer}}{{name}}{{/retailer}}'s stuff is really cool, you guys need to check out their site!</textarea>
+                                        <textarea name="facebookMessage" class="rounded-corners" >I just bought the {{#echoPossibility}}{{productName}}{{/echoPossibility}} from {{#partner}}{{name}}{{/partner}}. All of {{#partner}}{{name}}{{/partner}}'s stuff is really cool, you guys need to check out their site!</textarea>
                                     </td>
                                     <td>
                                         <input type="checkbox" name="postToFacebook" checked="true"/>
@@ -78,7 +78,7 @@
                                         <img src="{{urls.images}}/icon_twitter.png" class="icon"/>
                                     </td>
                                     <td>
-                                        <textarea name="twitterMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#retailer}}{{name}}{{/retailer}}</textarea>
+                                        <textarea name="twitterMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#partner}}{{name}}{{/partner}}</textarea>
                                     </td>
                                     <td>
                                         <input type="checkbox" name="postToTwitter" checked="true"/>

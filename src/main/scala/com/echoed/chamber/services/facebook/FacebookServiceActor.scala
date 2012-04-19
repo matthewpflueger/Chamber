@@ -3,7 +3,7 @@ package com.echoed.chamber.services.facebook
 import org.slf4j.LoggerFactory
 import java.util.Date
 import com.echoed.chamber.domain._
-import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao, RetailerDao,  RetailerSettingsDao}
+import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao, PartnerDao,  PartnerSettingsDao}
 import scala.collection.JavaConversions.asScalaBuffer
 import akka.actor.{Channel, Actor}
 
@@ -14,8 +14,8 @@ class FacebookServiceActor(
         facebookUserDao: FacebookUserDao,
         facebookPostDao: FacebookPostDao,
         facebookFriendDao: FacebookFriendDao,
-        retailerDao: RetailerDao,
-        retailerSettingsDao: RetailerSettingsDao,
+        partnerDao: PartnerDao,
+        partnerSettingsDao: PartnerSettingsDao,
         echoClickUrl: String) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[FacebookServiceActor])
@@ -57,10 +57,10 @@ class FacebookServiceActor(
 
             try {
                 logger.debug("Creating new FacebookPost with message {} for {}", echo, message)
-                logger.debug("Retailer Settings ID {}", echo.retailerSettingsId)
-                val retailerSettings = retailerSettingsDao.findById(echo.retailerSettingsId)
-                val retailer = retailerDao.findById(echo.retailerId)
-                val name = "Buy anything now at " + retailer.name + " and  receive up to " + "%1.0f".format(retailerSettings.maxPercentage*100)  + "% Cash Back when you share it with Echoed!"
+                logger.debug("Partner Settings ID {}", echo.partnerSettingsId)
+                val partnerSettings = partnerSettingsDao.findById(echo.partnerSettingsId)
+                val partner = partnerDao.findById(echo.partnerId)
+                val name = "Buy anything now at " + partner.name + " and  receive up to " + "%1.0f".format(partnerSettings.maxPercentage*100)  + "% Cash Back when you share it with Echoed!"
                 val caption: String = echo.brand + "<center></center>" + echo.productName
                 val fp = new FacebookPost(
                         name,

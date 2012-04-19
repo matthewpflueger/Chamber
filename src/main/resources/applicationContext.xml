@@ -246,9 +246,9 @@
         <!--suppress SpringModelInspection -->
         <property name="echoMetricsDao" ref="echoMetricsDao" />
         <!--suppress SpringModelInspection -->
-        <property name="retailerDao" ref="partnerDao" />
+        <property name="partnerDao" ref="partnerDao" />
         <!--suppress SpringModelInspection -->
-        <property name="retailerSettingsDao" ref="partnerSettingsDao" />
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
         <!--suppress SpringModelInspection -->
         <property name="echoClickDao" ref="echoClickDao" />
         <!--suppress SpringModelInspection -->
@@ -314,7 +314,7 @@
         <!--suppress SpringModelInspection -->
         <property name="echoMetricsDao" ref="echoMetricsDao" />
         <!--suppress SpringModelInspection -->
-        <property name="retailerSettingsDao" ref="partnerSettingsDao" />
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -334,7 +334,7 @@
         <!--suppress SpringModelInspection -->
         <property name="partnerUserDao" ref="partnerUserDao" />
         <!--suppress SpringModelInspection -->
-        <property name="retailerViewDao" ref="retailerViewDao"/>
+        <property name="partnerViewDao" ref="partnerViewDao"/>
     </akka:untyped-actor>
 
 

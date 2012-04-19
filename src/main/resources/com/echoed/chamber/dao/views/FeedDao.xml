@@ -34,8 +34,8 @@
             <arg column="echoLandingPageUrl" javaType="String" />
             <arg column="echoedFriendId" javaType="String"/>
             <arg column="echoedFriendName" javaType="String"/>
-            <arg column="retailerId" javaType="String" />
-            <arg column="retailerName" javaType="String" />
+            <arg column="partnerId" javaType="String" />
+            <arg column="partnerName" javaType="String" />
             <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
         </constructor>
     </resultMap>
@@ -48,7 +48,7 @@
             <arg column="echoCategory" javaType="String"/>
             <arg column="echoBrand" javaType="String"/>
             <arg column="echoLandingPageUrl" javaType="String"/>
-            <arg column="retailerName" javaType="String"/>
+            <arg column="partnerName" javaType="String"/>
             <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
         </constructor>
     </resultMap>
@@ -58,15 +58,15 @@
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
             E.productName as echoProductName,
-            coalesce(R.category,"Other") as echoCategory,
+            coalesce(P.category,"Other") as echoCategory,
             E.brand as echoBrand,
             E.landingPageUrl as echoLandingPageUrl,
-            R.name as retailerName,
+            P.name as partnerName,
             <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
         from
             Echo E
             join Image I on E.imageId = I.id
-            join Retailer R on E.retailerId = R.id
+            join Partner P on E.partnerId = P.id
         where I.sizedWidth > 0
         order by
             E.createdOn desc, E.id DESC
@@ -79,17 +79,17 @@
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
             E.productName as echoProductName,
-            coalesce(R.category,"Other") as echoCategory,
+            coalesce(P.category,"Other") as echoCategory,
             E.brand as echoBrand,
             E.landingPageUrl as echoLandingPageUrl,
-            R.name as retailerName,
+            P.name as partnerName,
             <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
         from
             Echo E
             join Image I on E.imageId = I.id
-            join Retailer R on E.retailerId = R.id
+            join Partner P on E.partnerId = P.id
         where
-            R.name = #{partnerName}
+            P.name = #{partnerName}
         order by
             E.createdOn desc, E.id DESC
         Limit
@@ -112,18 +112,18 @@
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
             E.productName as echoProductName,
-            R.category as echoCategory,
+            P.category as echoCategory,
             E.brand as echoBrand,
             coalesce(E.price, 0)  as echoPrice,
             E.landingPageUrl as echoLandingPageUrl,
             coalesce(EM.totalClicks, 0) as echoTotalClicks,
             ROUND(coalesce(EM.credit, 0),2) as echoCredit,
-            R.id as retailerId,
-            R.name as retailerName,
-            RS.id as retailerSettingsId,
-            coalesce(RS.minClicks, 0) as retailerSettingsMinClicks,
-            coalesce(RS.minPercentage, 0) as retailerSettingsMinPercentage,
-            coalesce(RS.maxPercentage, 0) as retailerSettingsMaxPercentage,
+            P.id as partnerId,
+            P.name as partnerName,
+            PS.id as partnerSettingsId,
+            coalesce(PS.minClicks, 0) as partnerSettingsMinClicks,
+            coalesce(PS.minPercentage, 0) as partnerSettingsMinPercentage,
+            coalesce(PS.maxPercentage, 0) as partnerSettingsMaxPercentage,
             FP.id as facebookPostId,
             FP.facebookId as facebookPostFacebookId,
             TS.id as twitterStatusId,
@@ -136,8 +136,8 @@
             left outer join Echo E on EF.toEchoedUserId = E.echoedUserId
             left outer join Image I on E.imageId = I.id
             left outer join EchoMetrics EM on E.id = EM.echoId
-            left outer join Retailer R on E.retailerId = R.id
-            left outer join RetailerSettings RS on E.retailerSettingsId = RS.id
+            left outer join Partner P on E.partnerId = P.id
+            left outer join PartnerSettings PS on E.partnerSettingsId = PS.id
             left outer join FacebookPost FP on E.facebookPostId = FP.id
             left outer join TwitterStatus TS on E.twitterStatusId = TS.id
         where

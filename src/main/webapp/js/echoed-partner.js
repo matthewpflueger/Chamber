@@ -162,7 +162,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
             switch(self.report){
                 case "customers":
                     $.ajax({
-                        url: Echoed.urls.api  + "/partner/retailer/customers",
+                        url: Echoed.urls.api  + "/partner/reports/customers",
                         dataType: 'json',
                         xhrFields: {
                             withCredentials: true
@@ -189,7 +189,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                     break;
                 case "products":
                     $.ajax({
-                        url: Echoed.urls.api + "/partner/retailer/products",
+                        url: Echoed.urls.api + "/partner/reports/products",
                         dataType: 'json',
                         xhrFields: {
                             withCredentials: true
@@ -287,7 +287,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         var template = _.template($('#template-view-summary').html());
         $(this.el).hide().html(template).fadeIn(function() {
             $.ajax({
-                url: Echoed.urls.api  + "/partner/retailer/summary",
+                url: Echoed.urls.api  + "/partner/reports/summary",
                 dataType: 'json',
                 xhrFields: {
                     withCredentials: true
@@ -304,9 +304,9 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
                 }
             });
         });
-        var chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart', type: "retailer"});
+        var chart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#chart', type: "partner"});
         $.ajax({
-            url: Echoed.urls.api + "/partner/retailer/topproducts",
+            url: Echoed.urls.api + "/partner/reports/topproducts",
             dataType: 'json',
             xhrFields: {
                 withCredentials: true
@@ -329,7 +329,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
             }
         });
         $.ajax({
-            url: Echoed.urls.api  + "/partner/retailer/topcustomers",
+            url: Echoed.urls.api  + "/partner/reports/topcustomers",
             dataType: 'json',
             xhrFields: {
                 withCredentials: true
@@ -546,8 +546,8 @@ Echoed.Views.Components.Chart = Backbone.View.extend({
         this.el = options.el;
         var self = this;
         switch(options.type){
-            case 'retailer':
-                self.url = Echoed.urls.api + "/partner/retailer/history";
+            case 'partner':
+                self.url = Echoed.urls.api + "/partner/reports/history";
                 break;
             case 'product':
                 self.url = Echoed.urls.api + "/partner/products/" + options.productId +"/history";

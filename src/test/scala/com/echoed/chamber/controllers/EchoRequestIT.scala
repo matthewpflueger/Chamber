@@ -25,8 +25,8 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
     @Autowired @BeanProperty var encrypter: Encrypter = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
     @Autowired @BeanProperty var imageDao: ImageDao = _
-    @Autowired @BeanProperty var retailerDao: RetailerDao = _
-    @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
+    @Autowired @BeanProperty var partnerDao: PartnerDao = _
+    @Autowired @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
     @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var facebookUserDao: FacebookUserDao = _
     @Autowired @BeanProperty var twitterUserDao: TwitterUserDao = _
@@ -55,8 +55,8 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
 
 
-    var retailer = dataCreator.retailer
-    var retailerSettings = dataCreator.retailerSettings
+    var partner = dataCreator.partner
+    var partnerSettings = dataCreator.partnerSettings
     var echoedUser = dataCreator.echoedUser
     var twitterUser = dataCreator.twitterUser
 
@@ -65,18 +65,18 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
         webDriverUtils.clearFacebookCookies()
         webDriverUtils.clearTwitterCookies()
         twitterUserDao.deleteByScreenName(twitterUser.screenName)
-        retailerDao.deleteByName(retailer.name)
-        retailerSettingsDao.deleteByRetailerId(retailer.id)
+        partnerDao.deleteByName(partner.name)
+        partnerSettingsDao.deleteByPartnerId(partner.id)
         echoedUserDao.deleteByEmail(echoedUser.email)
-        echoDao.deleteByRetailerId(retailer.id)
+        echoDao.deleteByPartnerId(partner.id)
         imageDao.deleteByUrl("http://nowhere.com/images/someproduct.png")
     }
 
     override def beforeAll() {
-        assert(retailerSettings.retailerId == retailer.id)
+        assert(partnerSettings.partnerId == partner.id)
         cleanUp
-        retailerDao.insert(retailer)
-        retailerSettingsDao.insert(retailerSettings)
+        partnerDao.insert(partner)
+        partnerSettingsDao.insert(partnerSettings)
     }
 
     override def afterAll = cleanUp
@@ -93,9 +93,9 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             when("the partner is active in the system")
             then("return valid javascript to facilitate echoing the purchases")
 
-            val url = "%s?pid=%s" format(echoJsUrl, retailer.id)
+            val url = "%s?pid=%s" format(echoJsUrl, partner.id)
             webDriver.get(url)
-            webDriver.getPageSource should include(retailer.id)
+            webDriver.getPageSource should include(partner.id)
         }
 
 
@@ -134,17 +134,17 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
             }"""
 
             try {
-                val encryptedRequest = encrypter.encrypt(echoRequest, retailer.secret)
+                val encryptedRequest = encrypter.encrypt(echoRequest, partner.secret)
 
-                val url = "%s?pid=%s&data=%s" format(echoRequestUrl, retailer.id, encryptedRequest)
+                val url = "%s?pid=%s&data=%s" format(echoRequestUrl, partner.id, encryptedRequest)
                 webDriver.get(url)
                 webDriver.getPageSource should include("testProductId1")
                 webDriver.getPageSource should include("testProductId2")
 
-                val echoes = echoDao.findByRetailerId(retailer.id)
+                val echoes = echoDao.findByPartnerId(partner.id)
                 echoes should have length(2)
             } finally {
-                echoDao.deleteByRetailerId(retailer.id)
+                echoDao.deleteByPartnerId(partner.id)
             }
         }
 
@@ -157,7 +157,7 @@ class EchoRequestIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
 
             when("there are items to be shared")
             webDriver.getPageSource should include("test product name")
-            val echoes = echoDao.findByRetailerId(retailer.id)
+            val echoes = echoDao.findByPartnerId(partner.id)
             echoes should have length(2)
             var echo = echoes(0)
             echo.userAgent should not be(null)

@@ -10,8 +10,8 @@ import java.util.Date
 @RunWith(classOf[JUnitRunner])
 class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
-    var retailerSettings = new RetailerSettings(
-            retailerId = "retailerId",
+    var partnerSettings = new PartnerSettings(
+            partnerId = "partnerId",
             closetPercentage = 0.01f,
             minClicks = 1,
             minPercentage = 0.1f,
@@ -23,7 +23,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             creditWindow = 1)
 
     var echo = Echo.make(
-            retailerId = "retailerId",
+            partnerId = "partnerId",
             customerId = "customerId",
             productId = "productId",
             boughtOn = new Date,
@@ -46,9 +46,9 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             facebookPostId = "facebookPostId",
             twitterStatusId = "twitterStatusId",
             echoPossibilityId = "echoPossibilityId",
-            retailerSettingsId = retailerSettings.id)
+            partnerSettingsId = partnerSettings.id)
 
-    var echoMetrics = new EchoMetrics(echo, retailerSettings)
+    var echoMetrics = new EchoMetrics(echo, partnerSettings)
     echo = echo.copy(echoMetricsId = echoMetrics.id)
 
     var residualEchoMetrics = echoMetrics.copy()
@@ -71,7 +71,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("a new Echo")
             when("not echoed before")
             then("it should calculate the credit and fee when echoed")
-            echoMetrics = echoMetrics.echoed(retailerSettings)
+            echoMetrics = echoMetrics.echoed(partnerSettings)
             echoMetrics.totalClicks should be (0)
             echoMetrics.clicks should be (0)
             echoMetrics.credit should be (0.1f plusOrMinus 0.01f)
@@ -84,7 +84,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("a new Echo")
             when("not echoed before")
             then("it should calculate the residual credit and residual fee when clicked")
-            residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+            residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
             residualEchoMetrics.totalClicks should be (1)
             residualEchoMetrics.residualClicks should be (1)
             residualEchoMetrics.residualCredit should be (0.1f plusOrMinus 0.01f)
@@ -97,14 +97,14 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an already echoed Echo")
             when("echoed again")
             then("it should throw an exception")
-            evaluating { echoMetrics.echoed(retailerSettings) } should produce [IllegalArgumentException]
+            evaluating { echoMetrics.echoed(partnerSettings) } should produce [IllegalArgumentException]
         }
 
         it("should not calculate the credit and fee when under the min clicks") {
             given("an Echo below the min number of clicks")
             when("clicked")
             then("it should not calculate the credit and fee of the click")
-            var rs = retailerSettings.copy(minClicks = 2)
+            var rs = partnerSettings.copy(minClicks = 2)
             var em = echoMetrics.copy()
             em = em.clicked(rs)
             em.totalClicks should be (1)
@@ -120,7 +120,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an Echo below the min number of clicks")
             when("clicked")
             then("it should not calculate the residual credit and residual fee of the click")
-            var rs = retailerSettings.copy(minClicks = 3)
+            var rs = partnerSettings.copy(minClicks = 3)
             var em = residualEchoMetrics.copy()
             em = em.clicked(rs)
             em.totalClicks should be (2)
@@ -136,7 +136,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an Echo")
             when("clicked")
             then("it should calculate the credit and fee of the click")
-            echoMetrics = echoMetrics.clicked(retailerSettings)
+            echoMetrics = echoMetrics.clicked(partnerSettings)
             echoMetrics.totalClicks should be (1)
             echoMetrics.clicks should be (1)
             echoMetrics.credit should be (1)
@@ -149,7 +149,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an Echo")
             when("clicked and not echoed")
             then("it should calculate the residual credit and fee of the click")
-            residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+            residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
             residualEchoMetrics.totalClicks should be (2)
             residualEchoMetrics.residualClicks should be (2)
             residualEchoMetrics.residualCredit should be (1)
@@ -169,14 +169,14 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
             verifyZeroResidual(echoMetrics)
 
-            echoMetrics = echoMetrics.clicked(retailerSettings).clicked(retailerSettings) //click to get it past the min percentage
+            echoMetrics = echoMetrics.clicked(partnerSettings).clicked(partnerSettings) //click to get it past the min percentage
 
             var clicks = echoMetrics.clicks
             var credit = echoMetrics.credit
             var fee = echoMetrics.fee
 
-            for (num <- echoMetrics.totalClicks + 1 to retailerSettings.maxClicks) {
-                echoMetrics = echoMetrics.clicked(retailerSettings)
+            for (num <- echoMetrics.totalClicks + 1 to partnerSettings.maxClicks) {
+                echoMetrics = echoMetrics.clicked(partnerSettings)
                 echoMetrics.totalClicks should be (num)
                 echoMetrics.clicks should be (clicks + 1)
                 echoMetrics.credit should be > credit
@@ -186,13 +186,13 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 clicks = echoMetrics.clicks
             }
 
-            echoMetrics.totalClicks should equal (retailerSettings.maxClicks)
+            echoMetrics.totalClicks should equal (partnerSettings.maxClicks)
             echoMetrics.clicks should be (clicks)
             echoMetrics.credit should be (2f)
             echoMetrics.fee should be (2f)
 
             for (num <- echoMetrics.totalClicks + 1 to (echoMetrics.totalClicks + 5)) {
-                echoMetrics = echoMetrics.clicked(retailerSettings)
+                echoMetrics = echoMetrics.clicked(partnerSettings)
                 echoMetrics.totalClicks should be (num)
                 echoMetrics.clicks should be (num)
                 echoMetrics.credit should be (2f)
@@ -214,14 +214,14 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
             verifyZero(residualEchoMetrics)
 
-            residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings).clicked(retailerSettings) //click to get it past the min percentage
+            residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings).clicked(partnerSettings) //click to get it past the min percentage
 
             var clicks = residualEchoMetrics.residualClicks
             var credit = residualEchoMetrics.residualCredit
             var fee = residualEchoMetrics.residualFee
 
-            for (num <- residualEchoMetrics.totalClicks + 1 to retailerSettings.maxClicks) {
-                residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+            for (num <- residualEchoMetrics.totalClicks + 1 to partnerSettings.maxClicks) {
+                residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
                 residualEchoMetrics.totalClicks should be (num)
                 residualEchoMetrics.residualClicks should be (clicks + 1)
                 residualEchoMetrics.residualCredit should be > credit
@@ -231,13 +231,13 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 clicks = residualEchoMetrics.residualClicks
             }
 
-            residualEchoMetrics.totalClicks should equal (retailerSettings.maxClicks)
+            residualEchoMetrics.totalClicks should equal (partnerSettings.maxClicks)
             residualEchoMetrics.residualClicks should be (clicks)
             residualEchoMetrics.residualCredit should be (2f)
             residualEchoMetrics.residualFee should be (2f)
 
             for (num <- residualEchoMetrics.totalClicks + 1 to (residualEchoMetrics.totalClicks + 5)) {
-                residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+                residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
                 residualEchoMetrics.totalClicks should be (num)
                 residualEchoMetrics.residualClicks should be (num)
                 residualEchoMetrics.residualCredit should be (2f)
@@ -251,21 +251,21 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an Echo")
             when("clicked multiple times")
             then("it should calculate the fee up to max echoed percentage")
-            retailerSettings = retailerSettings.copy(echoedMaxPercentage = 0.15f)
+            partnerSettings = partnerSettings.copy(echoedMaxPercentage = 0.15f)
             echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0, creditWindowEndsAt = null)
 
-            echoMetrics = echoMetrics.echoed(retailerSettings)
+            echoMetrics = echoMetrics.echoed(partnerSettings)
 
-            for (num <- echoMetrics.totalClicks + 1 to retailerSettings.maxClicks)
-                echoMetrics = echoMetrics.clicked(retailerSettings)
+            for (num <- echoMetrics.totalClicks + 1 to partnerSettings.maxClicks)
+                echoMetrics = echoMetrics.clicked(partnerSettings)
 
-            echoMetrics.totalClicks should equal (retailerSettings.maxClicks)
+            echoMetrics.totalClicks should equal (partnerSettings.maxClicks)
             echoMetrics.clicks should equal (echoMetrics.totalClicks)
             echoMetrics.credit should be (2f)
             echoMetrics.fee should be (1.5f)
 
             for (num <- echoMetrics.totalClicks + 1 to (echoMetrics.totalClicks + 5)) {
-                echoMetrics = echoMetrics.clicked(retailerSettings)
+                echoMetrics = echoMetrics.clicked(partnerSettings)
                 echoMetrics.totalClicks should be (num)
                 echoMetrics.clicks should be (num)
                 echoMetrics.credit should be (2f)
@@ -280,7 +280,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an Echo")
             when("clicked multiple times outside credit window")
             then("it should calculate the residual fee up to max echoed percentage")
-            retailerSettings = retailerSettings.copy(echoedMaxPercentage = 0.15f)
+            partnerSettings = partnerSettings.copy(echoedMaxPercentage = 0.15f)
             residualEchoMetrics = residualEchoMetrics.copy(
                     totalClicks = 0,
                     clicks = 0,
@@ -291,16 +291,16 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
                     residualFee = 0,
                     creditWindowEndsAt = null)
 
-            for (num <- residualEchoMetrics.totalClicks + 1 to retailerSettings.maxClicks)
-                residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+            for (num <- residualEchoMetrics.totalClicks + 1 to partnerSettings.maxClicks)
+                residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
 
-            residualEchoMetrics.totalClicks should equal (retailerSettings.maxClicks)
+            residualEchoMetrics.totalClicks should equal (partnerSettings.maxClicks)
             residualEchoMetrics.residualClicks should equal (residualEchoMetrics.totalClicks)
             residualEchoMetrics.residualCredit should be (2f)
             residualEchoMetrics.residualFee should be (1.5f)
 
             for (num <- residualEchoMetrics.totalClicks + 1 to (residualEchoMetrics.totalClicks + 5)) {
-                residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+                residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
                 residualEchoMetrics.totalClicks should be (num)
                 residualEchoMetrics.residualClicks should be (num)
                 residualEchoMetrics.residualCredit should be (2f)
@@ -315,17 +315,17 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an Echo")
             when("clicked multiple times")
             then("it should calculate the fee using echoed match percentage up to echoed max percentage ")
-            retailerSettings = retailerSettings.copy(echoedMaxPercentage = 0.18f, echoedMatchPercentage = 0.8f)
+            partnerSettings = partnerSettings.copy(echoedMaxPercentage = 0.18f, echoedMatchPercentage = 0.8f)
             echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0, creditWindowEndsAt = null)
 
-            echoMetrics = echoMetrics.echoed(retailerSettings)
+            echoMetrics = echoMetrics.echoed(partnerSettings)
             echoMetrics.totalClicks should be (0)
             echoMetrics.clicks should be (0)
             echoMetrics.credit should be (0.1f plusOrMinus 0.01f)
             echoMetrics.fee should be (0.08f plusOrMinus 0.001f)
 
 
-            echoMetrics = echoMetrics.clicked(retailerSettings).clicked(retailerSettings) //click to get it past the min percentage
+            echoMetrics = echoMetrics.clicked(partnerSettings).clicked(partnerSettings) //click to get it past the min percentage
             echoMetrics.totalClicks should be (2)
             echoMetrics.clicks should be (2)
 
@@ -335,8 +335,8 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
             fee should be < (credit)
 
-            for (num <- echoMetrics.totalClicks + 1 to retailerSettings.maxClicks) {
-                echoMetrics = echoMetrics.clicked(retailerSettings)
+            for (num <- echoMetrics.totalClicks + 1 to partnerSettings.maxClicks) {
+                echoMetrics = echoMetrics.clicked(partnerSettings)
                 echoMetrics.totalClicks should be (num)
                 echoMetrics.clicks should be (num)
                 echoMetrics.credit should be > credit
@@ -346,7 +346,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 clicks = echoMetrics.clicks
             }
 
-            echoMetrics.totalClicks should equal (retailerSettings.maxClicks)
+            echoMetrics.totalClicks should equal (partnerSettings.maxClicks)
             echoMetrics.clicks should equal (echoMetrics.totalClicks)
             echoMetrics.credit should be (2f)
             echoMetrics.fee should be (1.8f plusOrMinus 0.01f)
@@ -354,7 +354,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             verifyZeroResidual(echoMetrics)
 
             for (num <- echoMetrics.totalClicks + 1 to (echoMetrics.totalClicks + 5)) {
-                echoMetrics = echoMetrics.clicked(retailerSettings)
+                echoMetrics = echoMetrics.clicked(partnerSettings)
                 echoMetrics.totalClicks should be (num)
                 echoMetrics.clicks should be (num)
                 echoMetrics.credit should be (2f)
@@ -369,7 +369,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an Echo")
             when("clicked multiple times outside of credit window")
             then("it should calculate the residual fee using echoed match percentage up to echoed max percentage ")
-            retailerSettings = retailerSettings.copy(echoedMaxPercentage = 0.18f, echoedMatchPercentage = 0.8f)
+            partnerSettings = partnerSettings.copy(echoedMaxPercentage = 0.18f, echoedMatchPercentage = 0.8f)
             residualEchoMetrics = residualEchoMetrics.copy(
                     totalClicks = 0,
                     clicks = 0,
@@ -380,7 +380,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
                     residualFee = 0,
                     creditWindowEndsAt = null)
 
-            residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+            residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
             residualEchoMetrics.totalClicks should be (1)
             residualEchoMetrics.residualClicks should be (1)
             residualEchoMetrics.residualCredit should be (0.1f plusOrMinus 0.01f)
@@ -388,7 +388,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
             verifyZero(residualEchoMetrics)
 
-            residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings).clicked(retailerSettings) //click to get it past the min percentage
+            residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings).clicked(partnerSettings) //click to get it past the min percentage
             residualEchoMetrics.totalClicks should be (3)
             residualEchoMetrics.residualClicks should be (3)
 
@@ -398,8 +398,8 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
             residualFee should be < (residualCredit)
 
-            for (num <- residualEchoMetrics.totalClicks + 1 to retailerSettings.maxClicks) {
-                residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+            for (num <- residualEchoMetrics.totalClicks + 1 to partnerSettings.maxClicks) {
+                residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
                 residualEchoMetrics.totalClicks should be (num)
                 residualEchoMetrics.residualClicks should be (num)
                 residualEchoMetrics.residualCredit should be > residualCredit
@@ -409,7 +409,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 residualClicks = residualEchoMetrics.residualClicks
             }
 
-            residualEchoMetrics.totalClicks should equal (retailerSettings.maxClicks)
+            residualEchoMetrics.totalClicks should equal (partnerSettings.maxClicks)
             residualEchoMetrics.residualClicks should equal (residualEchoMetrics.totalClicks)
             residualEchoMetrics.residualCredit should be (2f)
             residualEchoMetrics.residualFee should be (1.8f plusOrMinus 0.01f)
@@ -417,7 +417,7 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             verifyZero(residualEchoMetrics)
 
             for (num <- residualEchoMetrics.totalClicks + 1 to (residualEchoMetrics.totalClicks + 5)) {
-                residualEchoMetrics = residualEchoMetrics.clicked(retailerSettings)
+                residualEchoMetrics = residualEchoMetrics.clicked(partnerSettings)
                 residualEchoMetrics.totalClicks should be (num)
                 residualEchoMetrics.residualClicks should be (num)
                 residualEchoMetrics.residualCredit should be (2f)
@@ -432,13 +432,13 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             given("an Echo")
             when("clicked multiple times within the credit window")
             then("it should calculate the credit and fee only when in the credit window")
-            retailerSettings = retailerSettings.copy(echoedMaxPercentage = 0.2f, echoedMatchPercentage = 1f)
+            partnerSettings = partnerSettings.copy(echoedMaxPercentage = 0.2f, echoedMatchPercentage = 1f)
             echoMetrics = echoMetrics.copy(totalClicks = 0, clicks = 0, credit = 0, fee = 0, creditWindowEndsAt = null)
 
             verifyZero(echoMetrics)
             verifyZeroResidual(echoMetrics)
 
-            echoMetrics = echoMetrics.clicked(retailerSettings).clicked(retailerSettings) //click to get it past the min percentage
+            echoMetrics = echoMetrics.clicked(partnerSettings).clicked(partnerSettings) //click to get it past the min percentage
             echoMetrics.totalClicks should be (2)
             echoMetrics.residualClicks should be (2)
             echoMetrics.residualCredit should be (1)
@@ -446,12 +446,12 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
             verifyZero(echoMetrics)
 
-            echoMetrics = echoMetrics.echoed(retailerSettings)
+            echoMetrics = echoMetrics.echoed(partnerSettings)
             echoMetrics.totalClicks should be (2)
             echoMetrics.credit should be (0.1f plusOrMinus 0.01f)
             echoMetrics.fee should be (0.1f plusOrMinus 0.01f)
 
-            echoMetrics = echoMetrics.clicked(retailerSettings).clicked(retailerSettings) //click to get it past the min percentage
+            echoMetrics = echoMetrics.clicked(partnerSettings).clicked(partnerSettings) //click to get it past the min percentage
             echoMetrics.totalClicks should be (4)
             echoMetrics.clicks should be (2)
             echoMetrics.credit should be (1.1f plusOrMinus 0.01f)
@@ -465,8 +465,8 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             var credit = echoMetrics.credit
             var fee = echoMetrics.fee
 
-            for (num <- echoMetrics.totalClicks + 1 to (retailerSettings.maxClicks - 5)) {
-                echoMetrics = echoMetrics.clicked(retailerSettings)
+            for (num <- echoMetrics.totalClicks + 1 to (partnerSettings.maxClicks - 5)) {
+                echoMetrics = echoMetrics.clicked(partnerSettings)
                 echoMetrics.totalClicks should be (num)
                 echoMetrics.clicks should be (echoMetrics.totalClicks - echoMetrics.residualClicks)
                 echoMetrics.credit should be > credit
@@ -490,8 +490,8 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             var residualFee = echoMetrics.residualFee
             var residualClicks = echoMetrics.residualClicks
 
-            for (num <- echoMetrics.totalClicks + 1 to retailerSettings.maxClicks) {
-                echoMetrics = echoMetrics.clicked(retailerSettings, false) //clicks no longer within window...
+            for (num <- echoMetrics.totalClicks + 1 to partnerSettings.maxClicks) {
+                echoMetrics = echoMetrics.clicked(partnerSettings, false) //clicks no longer within window...
                 echoMetrics.totalClicks should be (num)
                 echoMetrics.residualClicks should be (residualClicks + 1)
                 echoMetrics.residualCredit should be > residualCredit

@@ -6,7 +6,7 @@ import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 
 import org.slf4j.LoggerFactory
 import scala.Option
-import com.echoed.chamber.dao.views.RetailerViewDao
+import com.echoed.chamber.dao.views.PartnerViewDao
 import com.echoed.chamber.dao._
 import com.echoed.chamber.domain.views.EchoPossibilityView
 
@@ -26,8 +26,8 @@ class EchoServiceActor extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoServiceActor])
 
-    @BeanProperty var retailerDao: RetailerDao = _
-    @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
+    @BeanProperty var partnerDao: PartnerDao = _
+    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @BeanProperty var echoClickDao: EchoClickDao = _
@@ -45,19 +45,19 @@ class EchoServiceActor extends Actor {
 
             logger.debug("Processing {}", msg)
 
-            val retailerFuture = Future {
-                Option(retailerDao.findById(echoPossibility.retailerId))
+            val partnerFuture = Future {
+                Option(partnerDao.findById(echoPossibility.partnerId))
             }
-            val retailerSettingsFuture = Future {
-                Option(retailerSettingsDao.findByActiveOn(echoPossibility.retailerId, new Date))
+            val partnerSettingsFuture = Future {
+                Option(partnerSettingsDao.findByActiveOn(echoPossibility.partnerId, new Date))
             }
             val echoFuture = Future {
                 Option(echoDao.findByEchoPossibilityId(echoPossibility.echoPossibilityId))
             }
 
             (for {
-                retailer <- retailerFuture
-                retailerSettings <- retailerSettingsFuture
+                partner <- partnerFuture
+                partnerSettings <- partnerSettingsFuture
                 echo <- echoFuture
             } yield {
                 logger.debug("Recording {}", echoPossibility)
@@ -65,7 +65,7 @@ class EchoServiceActor extends Actor {
                 try {
                     //this checks to see if we have the minimum info for recording an echo possibility...
                     Option(echoPossibility.echoPossibilityId).get
-                    val epv = new EchoPossibilityView(echoPossibility, retailer.get, retailerSettings.get)
+                    val epv = new EchoPossibilityView(echoPossibility, partner.get, partnerSettings.get)
 
                     echo.cata(
                         ec => {
@@ -80,8 +80,8 @@ class EchoServiceActor extends Actor {
                         {
 
                             val ec = transactionTemplate.execute({status: TransactionStatus =>
-                                var ec = echoPossibility.copy(retailerSettingsId = retailerSettings.get.id)
-                                val echoMetrics = new EchoMetrics(ec, retailerSettings.get)
+                                var ec = echoPossibility.copy(partnerSettingsId = partnerSettings.get.id)
+                                val echoMetrics = new EchoMetrics(ec, partnerSettings.get)
                                 ec = ec.copy(echoMetricsId = echoMetrics.id)
 
                                 val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
@@ -179,9 +179,9 @@ class EchoServiceActor extends Actor {
 
                             (for {
                                 echoMetrics <- Option(echoMetricsDao.findById(echo.echoMetricsId))
-                                retailerSettings <- Option(retailerSettingsDao.findById(echo.retailerSettingsId))
+                                partnerSettings <- Option(partnerSettingsDao.findById(echo.partnerSettingsId))
                             } yield {
-                                val clickedEcho = echoMetrics.clicked(retailerSettings)
+                                val clickedEcho = echoMetrics.clicked(partnerSettings)
                                 echoMetricsDao.updateForClick(clickedEcho)
                                 logger.debug("Successfully updated click metrics for {}", clickedEcho.echoId)
                                 true

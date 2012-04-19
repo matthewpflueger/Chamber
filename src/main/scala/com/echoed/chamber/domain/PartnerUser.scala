@@ -7,11 +7,11 @@ import org.apache.commons.codec.binary.Base64
 import com.echoed.chamber.services.partneruser.InvalidPassword
 import com.echoed.chamber.domain.shopify.ShopifyPartner
 
-case class RetailerUser(
+case class PartnerUser(
         id: String,
         updatedOn: Date,
         createdOn: Date,
-        retailerId: String,
+        partnerId: String,
         name: String,
         email: String,
         salt: String,
@@ -28,11 +28,11 @@ case class RetailerUser(
         null
     )
     
-    def this(retailerId: String, name: String, email: String) = this(
+    def this(partnerId: String, name: String, email: String) = this(
         UUID.randomUUID.toString,
         new Date,
         new Date,
-        retailerId,
+        partnerId,
         name,
         email,
         UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString,

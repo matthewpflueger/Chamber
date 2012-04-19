@@ -35,12 +35,12 @@
             <idArg column="id" javaType="String" />
             <arg column="updatedOn" javaType="Date" />
             <arg column="createdOn" javaType="Date" />
-            <arg column="retailerId" javaType="String" />
+            <arg column="partnerId" javaType="String" />
             <arg column="echoedUserId" javaType="String" />
             <arg column="facebookPostId" javaType="String" />
             <arg column="twitterStatusId" javaType="String"/>
             <arg column="echoPossibilityId" javaType="String" />
-            <arg column="retailerSettingsId" javaType="String" />
+            <arg column="partnerSettingsId" javaType="String" />
             <arg column="echoMetricsId" javaType="String" />
             <arg column="echoClickId" javaType="String" />
             <arg column="step" javaType="String" />
@@ -86,9 +86,9 @@
         where E.id = #{id} or E.echoPossibilityId = #{id}
     </select>
 
-    <select id="findByRetailerId" resultMap="echoResult">
+    <select id="findByPartnerId" resultMap="echoResult">
         <include refid="echoSelect" />
-    	where E.retailerId = #{retailerId}
+    	where E.partnerId = #{partnerId}
     </select>
 
     <select id="selectCount" resultType="long" useCache="false" >
@@ -100,7 +100,7 @@
     	insert into Echo(
     			id,
     			createdOn,
-                retailerId,
+                partnerId,
                 customerId,
                 productId,
                 boughtOn,
@@ -110,7 +110,7 @@
                 facebookPostId,
                 echoPossibilityId,
                 landingPageUrl,
-                retailerSettingsId,
+                partnerSettingsId,
                 productName,
                 category,
                 brand,
@@ -128,7 +128,7 @@
         values (
                 #{id},
                 #{createdOn},
-                #{retailerId},
+                #{partnerId},
                 #{order.customerId},
                 #{product.productId},
                 #{order.boughtOn},
@@ -138,7 +138,7 @@
                 #{facebookPostId},
                 #{echoPossibilityId},
                 #{product.landingPageUrl},
-                #{retailerSettingsId},
+                #{partnerSettingsId},
                 #{product.productName},
                 #{product.category},
                 #{product.brand},
@@ -188,8 +188,8 @@
         delete from Echo where echoPossibilityId = #{echoPossibilityId}
     </delete>
 
-    <delete id="deleteByRetailerId">
-        delete from Echo where retailerId = #{retailerId}
+    <delete id="deleteByPartnerId">
+        delete from Echo where partnerId = #{partnerId}
     </delete>
 
     <delete id="deleteById">

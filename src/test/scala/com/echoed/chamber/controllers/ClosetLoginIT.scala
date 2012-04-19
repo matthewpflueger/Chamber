@@ -5,11 +5,10 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.springframework.beans.factory.annotation.Autowired
 import scala.reflect.BeanProperty
-import com.echoed.chamber.domain.{Echo, EchoedUser}
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import com.echoed.chamber.dao.views.ClosetDao
-import org.openqa.selenium.{Cookie, WebDriver}
-import java.util.{Date, Properties}
+import org.openqa.selenium.WebDriver
+import java.util.Properties
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.util.IntegrationTest
@@ -53,10 +52,10 @@ class ClosetLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers w
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
         facebookUserDao.deleteByEmail(facebookUser.email)
-        echoDao.deleteByRetailerId(echoes(0).retailerId)
-        echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
-        echoMetricsDao.deleteByRetailerId(echoes(0).retailerId)
-        echoMetricsDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
+        echoDao.deleteByPartnerId(echoes(0).partnerId)
+        echoDao.findByPartnerId(echoes(0).partnerId).size should equal (0)
+        echoMetricsDao.deleteByPartnerId(echoes(0).partnerId)
+        echoMetricsDao.findByPartnerId(echoes(0).partnerId).size should equal (0)
     }
 
     override def beforeAll = {

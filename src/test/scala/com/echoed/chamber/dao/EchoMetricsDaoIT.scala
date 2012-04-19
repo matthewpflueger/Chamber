@@ -27,8 +27,8 @@ class EchoMetricsDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatcher
     val echoMetrics = dataCreator.echoMetrics
 
     def cleanup() {
-        echoMetricsDao.deleteByRetailerId(echoMetrics(0).retailerId)
-        echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
+        echoMetricsDao.deleteByPartnerId(echoMetrics(0).partnerId)
+        echoDao.findByPartnerId(echoes(0).partnerId).size should equal (0)
     }
 
     override def beforeAll = cleanup
@@ -38,7 +38,7 @@ class EchoMetricsDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatcher
 
         scenario("new EchoMetrics are inserted", IntegrationTest) {
             echoMetrics.foreach(echoMetricsDao.insert(_))
-            val echoMetricsList = asScalaBuffer(echoMetricsDao.findByRetailerId(echoMetrics(0).retailerId))
+            val echoMetricsList = asScalaBuffer(echoMetricsDao.findByPartnerId(echoMetrics(0).partnerId))
             echoMetricsList should not be (null)
             echoMetricsList.length should equal (echoes.length)
 

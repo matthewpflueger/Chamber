@@ -15,9 +15,9 @@ case class EchoViewPersonal(
        echoTotalClicks: Int,
        echoCredit: Float,
        echoCreditWindowEndsAt: Date,
-       retailerName: String,
-       retailerSettingsMinClicks: Int,
-       retailerSettingsMinPercentage: Float,
+       partnerName: String,
+       partnerSettingsMinClicks: Int,
+       partnerSettingsMinPercentage: Float,
        image: Image) {
 
     
@@ -32,8 +32,8 @@ case class EchoViewPersonal(
             echoView.echoTotalClicks,
             echoView.echoCredit,
             echoView.echoCreditWindowEndsAt,
-            echoView.retailerName,
-            echoView.retailerSettingsMinClicks,
-            echoView.retailerSettingsMinPercentage,
+            echoView.partnerName,
+            echoView.partnerSettingsMinClicks,
+            echoView.partnerSettingsMinPercentage,
             echoView.image)
 }

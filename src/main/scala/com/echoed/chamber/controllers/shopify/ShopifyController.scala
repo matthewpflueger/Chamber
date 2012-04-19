@@ -1,24 +1,21 @@
 package com.echoed.chamber.controllers.shopify
 
 import org.springframework.stereotype.Controller
-import java.util.ArrayList
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
-import scalaz._
-import Scalaz._
 import com.echoed.chamber.services.shopify.ShopifyUserServiceLocator
-import com.echoed.chamber.services.shopify.{LocateByTokenResponse, GetOrderResponse, GetShopifyUserResponse}
+import com.echoed.chamber.services.shopify.{LocateByTokenResponse, GetShopifyUserResponse}
 import com.echoed.chamber.controllers.CookieManager
 import com.echoed.chamber.services.partner.PartnerServiceManager
-import com.echoed.chamber.services.partner.{RegisterPartnerResponse, PartnerNotActive, PartnerNotFound, PartnerAlreadyExists}
-import com.echoed.chamber.domain.{Retailer, RetailerSettings, RetailerUser}
+import com.echoed.chamber.services.partner.{RegisterPartnerResponse, PartnerNotActive, PartnerAlreadyExists}
+import com.echoed.chamber.domain.{Partner, PartnerSettings, PartnerUser}
 import com.echoed.chamber.services.partneruser.{GetPartnerUserResponse, LoginResponse, PartnerUserServiceLocator}
 import com.echoed.util.mustache.MustacheEngine
-import java.util.{Date, UUID, HashMap => JHashMap}
+
 
 @Controller
 @RequestMapping(Array("/shopify"))
@@ -70,9 +67,9 @@ class ShopifyController {
                             _ match {
                                 case GetShopifyUserResponse(_, Left(e)) => error(e)
                                 case GetShopifyUserResponse(_, Right(shopifyUser)) =>
-                                    val partner = new Retailer(shopifyUser)
-                                    val partnerSettings = RetailerSettings.createFutureRetailerSettings(shopifyUser.partnerId)
-                                    var partnerUser = new RetailerUser(shopifyUser)
+                                    val partner = new Partner(shopifyUser)
+                                    val partnerSettings = PartnerSettings.createFuturePartnerSettings(shopifyUser.partnerId)
+                                    var partnerUser = new PartnerUser(shopifyUser)
                                     partnerUser = partnerUser.createPassword(shopifyUser.partnerId)
                                     partnerServiceManager.registerPartner(partner,partnerSettings,partnerUser).onComplete(_.value.get.fold(
                                         error(_),

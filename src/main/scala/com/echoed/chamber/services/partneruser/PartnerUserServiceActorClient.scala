@@ -18,11 +18,11 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
     def getCustomerSocialActivityByDate(echoedUserId: String) =
         (partnerUserServiceActor ? GetCustomerSocialActivityByDate(echoedUserId)).mapTo[GetCustomerSocialActivityByDateResponse]
 
-    def getRetailerSocialSummary =
-        (partnerUserServiceActor ? GetRetailerSocialSummary()).mapTo[GetRetailerSocialSummaryResponse]
+    def getPartnerSocialSummary =
+        (partnerUserServiceActor ? GetPartnerSocialSummary()).mapTo[GetPartnerSocialSummaryResponse]
 
-    def getRetailerSocialActivityByDate =
-        (partnerUserServiceActor ? GetRetailerSocialActivityByDate()).mapTo[GetRetailerSocialActivityByDateResponse]
+    def getPartnerSocialActivityByDate =
+        (partnerUserServiceActor ? GetPartnerSocialActivityByDate()).mapTo[GetPartnerSocialActivityByDateResponse]
 
     def getProductSocialSummary(productId: String) =
         (partnerUserServiceActor ? GetProductSocialSummary(productId)).mapTo[GetProductSocialSummaryResponse]

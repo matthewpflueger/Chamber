@@ -18,20 +18,20 @@ import com.echoed.chamber.services.partner.{PartnerMessage => PM}
 import com.echoed.chamber.services.partner.{PartnerException => PE}
 
 
-case class RegisterPartner(partner: Retailer, partnerSettings: RetailerSettings, partnerUser: RetailerUser) extends PM
+case class RegisterPartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM
 case class RegisterPartnerResponse(
         message: RegisterPartner,
-        value: Either[PE, Retailer]) extends PM with RM[Retailer, RegisterPartner, PE]
+        value: Either[PE, Partner]) extends PM with RM[Partner, RegisterPartner, PE]
 
-case class UpdatePartner(partner: Retailer, partnerSettings: RetailerSettings, partnerUser: RetailerUser) extends PM
+case class UpdatePartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM
 case class UpdatePartnerResponse(
         message: UpdatePartner, 
-        value: Either[PE, Retailer]) extends PM with RM[Retailer, UpdatePartner, PE]
+        value: Either[PE, Partner]) extends PM with RM[Partner, UpdatePartner, PE]
 
-case class UpdatePartnerSettings(partnerSettings: RetailerSettings) extends PM
+case class UpdatePartnerSettings(partnerSettings: PartnerSettings) extends PM
 case class UpdatePartnerSettingsResponse(
         message: UpdatePartnerSettings, 
-        value: Either[PE, RetailerSettings]) extends PM with RM[RetailerSettings,  UpdatePartnerSettings, PE]
+        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings,  UpdatePartnerSettings, PE]
 
 
 case class Locate(partnerId: String) extends PM
@@ -58,12 +58,12 @@ case class PartnerNotFound(
 
 case class PartnerAlreadyExists(
         partnerId: String,
-        partnerUser: RetailerUser,
+        partnerUser: PartnerUser,
         _message: String = "Partner Already Exists",
         _cause: Throwable = null,
         _code: Option[String] = Some("alreadyexists.partner"),
         _args: Option[Array[AnyRef]] = None) extends PE(_message, _cause, _code, _args) {
-    def this(partnerId: String, partnerUser: RetailerUser) = this(partnerId, partnerUser, _args = Some(Array(partnerId)))
+    def this(partnerId: String, partnerUser: PartnerUser) = this(partnerId, partnerUser, _args = Some(Array(partnerId)))
 }
 
 case class PartnerNotActive(
@@ -85,12 +85,12 @@ case class InvalidEchoRequest(_message: String = "Invalid echo request",
 case class GetPartner() extends PM
 case class GetPartnerResponse(
         message: GetPartner, 
-        value: Either[PE, Retailer]) extends PM with RM[Retailer, GetPartner,  PE]
+        value: Either[PE, Partner]) extends PM with RM[Partner, GetPartner,  PE]
 
 case class GetPartnerSettings() extends PM
 case class GetPartnerSettingsResponse(
         message: GetPartnerSettings,
-        value: Either[PE, RetailerSettings]) extends PM with RM[RetailerSettings, GetPartnerSettings, PE]
+        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings, GetPartnerSettings, PE]
 
 case class RequestShopifyEcho(
         order: ShopifyOrderFull,

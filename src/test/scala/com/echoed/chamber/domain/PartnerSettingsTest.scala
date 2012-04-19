@@ -8,17 +8,17 @@ import java.util.Date
 
 
 @RunWith(classOf[JUnitRunner])
-class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
+class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
-    describe("A RetailerSettings") {
+    describe("A PartnerSettings") {
 
         it("cannot be constructed with invalid values") {
 
-            given("a RetailerSettings")
+            given("a PartnerSettings")
             when("everything is negative")
             then("throw IllegalArgumentException")
-            evaluating { new RetailerSettings(
-                retailerId = "retailerId",
+            evaluating { new PartnerSettings(
+                partnerId = "partnerId",
                 closetPercentage = -1f,
                 minClicks = -1,
                 minPercentage = -1f,
@@ -30,11 +30,11 @@ class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 creditWindow = -1)
             } should produce [IllegalArgumentException]
 
-            given("a RetailerSettings")
+            given("a PartnerSettings")
             when("creditWindow is less than 0")
             then("throw IllegalArgumentException")
-            evaluating { new RetailerSettings(
-                retailerId = "retailerId",
+            evaluating { new PartnerSettings(
+                partnerId = "partnerId",
                 closetPercentage = 0,
                 minClicks = 0,
                 minPercentage = 0,
@@ -46,11 +46,11 @@ class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 creditWindow = -1)
             } should produce [IllegalArgumentException]
 
-            given("a RetailerSettings")
+            given("a PartnerSettings")
             when("minClicks is greater than maxClicks")
             then("throw IllegalArgumentException")
-            evaluating { new RetailerSettings(
-                retailerId = "retailerId",
+            evaluating { new PartnerSettings(
+                partnerId = "partnerId",
                 closetPercentage = 0,
                 minClicks = 1,
                 minPercentage = 0,
@@ -63,11 +63,11 @@ class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
             } should produce [IllegalArgumentException]
 
 
-            given("a RetailerSettings")
+            given("a PartnerSettings")
             when("minPercentage is less than closetPercentage")
             then("throw IllegalArgumentException")
-            evaluating { new RetailerSettings(
-                retailerId = "retailerId",
+            evaluating { new PartnerSettings(
+                partnerId = "partnerId",
                 closetPercentage = 0.1f,
                 minClicks = 0,
                 minPercentage = 0.01f,
@@ -80,11 +80,11 @@ class RetailerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
             } should produce [IllegalArgumentException]
 
 
-            given("a RetailerSettings")
+            given("a PartnerSettings")
             when("maxPercentage is less than minPercentage")
             then("throw IllegalArgumentException")
-            evaluating { new RetailerSettings(
-                retailerId = "retailerId",
+            evaluating { new PartnerSettings(
+                partnerId = "partnerId",
                 closetPercentage = 0,
                 minClicks = 0,
                 minPercentage = 0.1f,

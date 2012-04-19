@@ -12,7 +12,7 @@ class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
 
     def makeEcho = {
         Echo.make(
-            retailerId = "retailerId",
+            partnerId = "partnerId",
             customerId = "customerId",
             productId = "productId",
             boughtOn = new Date,
@@ -37,7 +37,7 @@ class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
         it("should return null for the id if missing properties") {
             given("a newly instantiated Echo")
             val echo = Echo.make(
-                retailerId = null,
+                partnerId = null,
                 customerId = null,
                 productId = null,
                 boughtOn = new Date,
@@ -78,7 +78,7 @@ class EchoTest extends Spec with GivenWhenThen with ShouldMatchers {
             val map = echo.asMap
 
             then("a map of all its properties should be returned")
-            map.get("retailerId").get should equal ("retailerId")
+            map.get("partnerId").get should equal ("partnerId")
         }
 
         it("should return a url string of its properties") {

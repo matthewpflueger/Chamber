@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.util.{IntegrationTest, CookieValidator}
 import com.echoed.chamber.util.DataCreator
-import com.echoed.chamber.dao.{RetailerSettingsDao, RetailerDao}
+import com.echoed.chamber.dao.{PartnerSettingsDao, PartnerDao}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -21,8 +21,8 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoButtonIT])
 
-    @Autowired @BeanProperty var retailerDao: RetailerDao = _
-    @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
+    @Autowired @BeanProperty var partnerDao: PartnerDao = _
+    @Autowired @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
     @Autowired @BeanProperty var echoHelper: EchoHelper = _
     @Autowired @BeanProperty var webDriver: WebDriver = _
@@ -31,8 +31,8 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
-    val retailer = dataCreator.retailer
-    val retailerSettings = dataCreator.retailerSettings
+    val partner = dataCreator.partner
+    val partnerSettings = dataCreator.partnerSettings
 
     var buttonUrl: String = null
     var buttonViewUrl: String = null
@@ -44,26 +44,26 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
     } ensuring (_ == true, "Missing parameters")
 
     def cleanUp {
-        retailerDao.deleteByName(retailer.name)
-        retailerSettingsDao.deleteByRetailerId(retailer.id)
+        partnerDao.deleteByName(partner.name)
+        partnerSettingsDao.deleteByPartnerId(partner.id)
     }
 
     override def beforeAll() {
         cleanUp
-        retailerDao.insert(retailer)
-        retailerSettingsDao.insert(retailerSettings)
+        partnerDao.insert(partner)
+        partnerSettingsDao.insert(partnerSettings)
     }
 
     override def afterAll = cleanUp
 
-    feature("An Echo button is shown on a retailer's purchase confirmation page") {
+    feature("An Echo button is shown on a partner's purchase confirmation page") {
 
-        info("As a retailer")
+        info("As a partner")
         info("I want to be able to show the Echo button on my confirmation pages")
         info("So that my customers can share their purchases with friends")
 
 
-        scenario("button is requested with no retailer, customer, or purchase info", IntegrationTest) {
+        scenario("button is requested with no partner, customer, or purchase info", IntegrationTest) {
             val count = echoHelper.getEchoPossibilityCount
 
             given("a request for the button")
@@ -80,38 +80,38 @@ class EchoButtonIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
             echoHelper.validateCountIs(count)
         }
 
-        scenario("button is requested with invalid retailer id", IntegrationTest) {
-            val fooRetailer = retailer.copy(id = "foo")
-            val fooRetailerSettings = retailerSettings.copy(retailerId = fooRetailer.id)
+        scenario("button is requested with invalid partner id", IntegrationTest) {
+            val fooPartner = partner.copy(id = "foo")
+            val fooPartnerSettings = partnerSettings.copy(partnerId = fooPartner.id)
 
-            def deleteRetailer {
-                retailerDao.deleteById(fooRetailer.id)
-                retailerSettingsDao.deleteByRetailerId(fooRetailer.id)
+            def deletePartner {
+                partnerDao.deleteById(fooPartner.id)
+                partnerSettingsDao.deleteByPartnerId(fooPartner.id)
             }
 
             try {
                 val (echoPossibility, count) = echoHelper.setupEchoPossibility(
-                        retailer = fooRetailer,
-                        retailerSettings = fooRetailerSettings)
+                        partner = fooPartner,
+                        partnerSettings = fooPartnerSettings)
 
-                deleteRetailer
+                deletePartner
 
                 given("a request for the button")
                 webDriver.get(echoPossibility.asUrlParams(prefix = buttonUrl + "?", encode = true))
 
-                when("there is an invalid retailer id")
+                when("there is an invalid partner id")
                 then("redirect to the button")
                 webDriver.getCurrentUrl should equal (buttonViewUrl)
 
                 and("no info should be recorded in the database")
                 echoHelper.validateCountIs(count)
             } finally {
-                deleteRetailer
+                deletePartner
             }
         }
 
         scenario("button is requested with valid parameters", IntegrationTest) {
-            val (echoPossibility, count) = echoHelper.setupEchoPossibility(retailer)
+            val (echoPossibility, count) = echoHelper.setupEchoPossibility(partner)
 
             given("a request for the button")
             webDriver.get(echoPossibility.asUrlParams(prefix = buttonUrl + "?", encode = true))

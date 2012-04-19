@@ -81,7 +81,7 @@
     </bean>
 
     <bean id="partnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.PartnerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
@@ -142,12 +142,12 @@
     </bean>
 
     <bean id="partnerSettingsDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerSettingsDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.PartnerSettingsDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
     <bean id="partnerUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.RetailerUserDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.PartnerUserDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
@@ -166,8 +166,8 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
-    <bean id="retailerViewDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.views.RetailerViewDao" />
+    <bean id="partnerViewDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.views.PartnerViewDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 

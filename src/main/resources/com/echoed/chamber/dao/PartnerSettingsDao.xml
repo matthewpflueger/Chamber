@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.echoed.chamber.dao.RetailerSettingsDao">
+<mapper namespace="com.echoed.chamber.dao.PartnerSettingsDao">
 
     <cache-ref namespace="com.echoed.chamber.dao.cache.Default" />
 
-    <resultMap id="retailerSettingsResult" type="com.echoed.chamber.domain.RetailerSettings">
+    <resultMap id="partnerSettingsResult" type="com.echoed.chamber.domain.PartnerSettings">
         <constructor>
             <idArg column="id" javaType="String" />
             <arg column="updatedOn" javaType="Date" />
             <arg column="createdOn" javaType="Date" />
-            <arg column="retailerId" javaType="String" />
+            <arg column="partnerId" javaType="String" />
             <arg column="closetPercentage" javaType="_float" />
             <arg column="minClicks" javaType="_int" />
             <arg column="minPercentage" javaType="_float" />
@@ -22,28 +22,28 @@
         </constructor>
     </resultMap>
 
-    <select id="findById" resultMap="retailerSettingsResult">
-        select * from RetailerSettings where id=#{id}
+    <select id="findById" resultMap="partnerSettingsResult">
+        select * from PartnerSettings where id=#{id}
     </select>
 
-    <select id="findByRetailerId" resultMap="retailerSettingsResult">
-        select * from RetailerSettings where retailerId=#{retailerId}
+    <select id="findByPartnerId" resultMap="partnerSettingsResult">
+        select * from PartnerSettings where partnerId=#{partnerId}
     </select>
 
-    <select id="findByActiveOn" resultMap="retailerSettingsResult" >
+    <select id="findByActiveOn" resultMap="partnerSettingsResult" >
         select *
-        from RetailerSettings
-        where retailerId = #{retailerId}
+        from PartnerSettings
+        where partnerId = #{partnerId}
         and activeOn &lt;= #{activeOn}
         order by activeOn desc
         limit 1
     </select>
 
-    <insert id="insert" parameterType="com.echoed.chamber.domain.RetailerSettings">
-        insert into RetailerSettings(
+    <insert id="insert" parameterType="com.echoed.chamber.domain.PartnerSettings">
+        insert into PartnerSettings(
     			id,
     			createdOn,
-    			retailerId,
+    			partnerId,
                 closetPercentage,
                 minClicks,
                 minPercentage,
@@ -56,7 +56,7 @@
     	values (
     			#{id},
     			#{createdOn},
-    			#{retailerId},
+    			#{partnerId},
                 #{closetPercentage},
                 #{minClicks},
                 #{minPercentage},
@@ -68,12 +68,12 @@
                 #{activeOn})
     </insert>
 
-    <delete id="deleteByRetailerId">
-        delete from RetailerSettings where retailerId=#{retailerId}
+    <delete id="deleteByPartnerId">
+        delete from PartnerSettings where partnerId=#{partnerId}
     </delete>
 
     <delete id="deleteById">
-        delete from RetailerSettings where id=#{id}
+        delete from PartnerSettings where id=#{id}
     </delete>
 
 </mapper>

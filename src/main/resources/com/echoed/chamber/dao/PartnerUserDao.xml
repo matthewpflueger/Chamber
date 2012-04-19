@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.echoed.chamber.dao.RetailerUserDao">
+<mapper namespace="com.echoed.chamber.dao.PartnerUserDao">
 
     <cache-ref namespace="com.echoed.chamber.dao.cache.Default" />
 
-    <resultMap id="retailerUserResult" type="com.echoed.chamber.domain.RetailerUser">
+    <resultMap id="partnerUserResult" type="com.echoed.chamber.domain.PartnerUser">
         <constructor>
             <idArg column="id" javaType="String" />
             <arg column="updatedOn" javaType="Date" />
             <arg column="createdOn" javaType="Date" />
-            <arg column="retailerId" javaType="String" />
+            <arg column="partnerId" javaType="String" />
             <arg column="name" javaType="String" />
             <arg column="email" javaType="String" />
             <arg column="salt" javaType="String" />
@@ -17,19 +17,19 @@
         </constructor>
     </resultMap>
 
-    <select id="findById" resultMap="retailerUserResult">
-        select * from RetailerUser where id = #{id}
+    <select id="findById" resultMap="partnerUserResult">
+        select * from PartnerUser where id = #{id}
     </select>
 
-    <select id="findByEmail" resultMap="retailerUserResult">
-        select * from RetailerUser where email = #{email}
+    <select id="findByEmail" resultMap="partnerUserResult">
+        select * from PartnerUser where email = #{email}
     </select>
 
-    <insert id="insert" parameterType="com.echoed.chamber.domain.RetailerUser">
-        insert into RetailerUser(
+    <insert id="insert" parameterType="com.echoed.chamber.domain.PartnerUser">
+        insert into PartnerUser(
     			id,
     			createdOn,
-    			retailerId,
+    			partnerId,
                 name,
                 email,
                 salt,
@@ -37,25 +37,25 @@
     	values (
     			#{id},
     			#{createdOn},
-    			#{retailerId},
+    			#{partnerId},
                 #{name},
                 #{email},
                 #{salt},
                 #{password})
     </insert>
 
-    <update id="updatePassword" parameterType="com.echoed.chamber.domain.RetailerUser">
-        update RetailerUser set
+    <update id="updatePassword" parameterType="com.echoed.chamber.domain.PartnerUser">
+        update PartnerUser set
             password=#{password}
         where id=#{id}
     </update>
 
     <delete id="deleteById">
-        delete from RetailerUser where id=#{id}
+        delete from PartnerUser where id=#{id}
     </delete>
 
     <delete id="deleteByEmail">
-        delete from RetailerUser where email=#{email}
+        delete from PartnerUser where email=#{email}
     </delete>
 
 </mapper>

@@ -557,9 +557,9 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         if(this.model.get("echoBrand"))
             hover.append('<strong>by ' + this.model.get("echoBrand") + '</strong><br/><br/>');
 
-        if(this.model.get("retailerName")){
-            text.prepend('<strong>' + this.model.get("retailerName") + '</strong><br/>');
-            hover.append('@ ' + this.model.get("retailerName") + '<br/><br/>');
+        if(this.model.get("partnerName")){
+            text.prepend('<strong>' + this.model.get("partnerName") + '</strong><br/>');
+            hover.append('@ ' + this.model.get("partnerName") + '<br/><br/>');
         }
         if(this.model.get("echoedUserName"))
             hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/><br/>');

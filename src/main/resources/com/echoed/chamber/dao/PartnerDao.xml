@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.echoed.chamber.dao.RetailerDao">
+<mapper namespace="com.echoed.chamber.dao.PartnerDao">
 
     <cache-ref namespace="com.echoed.chamber.dao.cache.Default" />
 
-    <resultMap id="retailerResult" type="com.echoed.chamber.domain.Retailer">
+    <resultMap id="partnerResult" type="com.echoed.chamber.domain.Partner">
         <constructor>
             <idArg column="id" javaType="String" />
             <arg column="updatedOn" javaType="Date" />
@@ -19,12 +19,12 @@
         </constructor>
     </resultMap>
 
-    <select id="findById" resultMap="retailerResult">
-        select * from Retailer where id = #{id}
+    <select id="findById" resultMap="partnerResult">
+        select * from Partner where id = #{id}
     </select>
 
-    <insert id="insert" parameterType="com.echoed.chamber.domain.Retailer">
-        insert into Retailer(
+    <insert id="insert" parameterType="com.echoed.chamber.domain.Partner">
+        insert into Partner(
     			id,
     			createdOn,
                 name,
@@ -47,11 +47,11 @@
     </insert>
 
     <delete id="deleteById">
-        delete from Retailer where id=#{id}
+        delete from Partner where id=#{id}
     </delete>
 
     <delete id="deleteByName">
-        delete from Retailer where name=#{name}
+        delete from Partner where name=#{name}
     </delete>
 
 </mapper>

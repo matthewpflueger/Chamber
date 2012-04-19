@@ -2,8 +2,6 @@ package com.echoed.chamber.services.partner
 
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
-import scala.reflect.BeanProperty
-import com.echoed.chamber.domain.{RetailerUser, RetailerSettings, Retailer}
 import com.echoed.chamber.domain.shopify.ShopifyOrderFull
 
 

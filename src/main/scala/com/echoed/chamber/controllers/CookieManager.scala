@@ -3,7 +3,7 @@ package com.echoed.chamber.controllers
 import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.{RetailerUser, EchoClick, EchoedUser,AdminUser}
+import com.echoed.chamber.domain.{PartnerUser, EchoClick, EchoedUser,AdminUser}
 import com.echoed.util.CookieToString
 
 
@@ -87,7 +87,7 @@ class CookieManager {
     
     def addPartnerUserCookie(
             response: HttpServletResponse = null,
-            partnerUser: RetailerUser = null,
+            partnerUser: PartnerUser = null,
             request: HttpServletRequest = null) = {
         val cookie = makeCookie(partnerUserCookieName, Option(partnerUser).map(_.id), Option(request), Option(sessionAge), true)
         Option(response).foreach(_.addCookie(cookie))

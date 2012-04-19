@@ -4,7 +4,7 @@ import com.echoed.chamber.domain.FacebookUser
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import akka.dispatch.Future
-import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao, RetailerDao,  RetailerSettingsDao}
+import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao, PartnerDao,  PartnerSettingsDao}
 import akka.actor.{Channel, Actor}
 import java.util.Properties
 
@@ -17,8 +17,8 @@ class FacebookServiceCreatorActor extends Actor {
     @BeanProperty var facebookUserDao: FacebookUserDao = _
     @BeanProperty var facebookPostDao: FacebookPostDao = _
     @BeanProperty var facebookFriendDao: FacebookFriendDao = _
-    @BeanProperty var partnerSettingsDao: RetailerSettingsDao = _
-    @BeanProperty var partnerDao: RetailerDao = _
+    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
+    @BeanProperty var partnerDao: PartnerDao = _
     @BeanProperty var urlsProperties: Properties = _
 
     var echoClickUrl: String = _

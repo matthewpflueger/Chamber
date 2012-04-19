@@ -4,22 +4,22 @@ import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.scalatest.matchers.ShouldMatchers
 import com.echoed.chamber.util.DataCreator
-import com.echoed.chamber.dao.{EchoDao, RetailerSettingsDao, RetailerDao}
-import com.echoed.chamber.domain.{Echo, RetailerSettings, Retailer}
-import java.util.{UUID, Date}
+import com.echoed.chamber.dao.{EchoDao, PartnerSettingsDao, PartnerDao}
+import java.util.Date
+import com.echoed.chamber.domain.{Echo, PartnerSettings, Partner}
 
 
 class EchoHelper extends ShouldMatchers {
 
     @Autowired @BeanProperty var dataCreator: DataCreator = _
     @Autowired @BeanProperty var echoDao: EchoDao = _
-    @Autowired @BeanProperty var retailerDao: RetailerDao = _
-    @Autowired @BeanProperty var retailerSettingsDao: RetailerSettingsDao = _
+    @Autowired @BeanProperty var partnerDao: PartnerDao = _
+    @Autowired @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
 
     def setupEchoPossibility(
-            retailer: Retailer = dataCreator.retailer,
-            retailerSettings: RetailerSettings = dataCreator.retailerSettings,
-            customerId: String = "testRetailerCustomerId",
+            partner: Partner = dataCreator.partner,
+            partnerSettings: PartnerSettings = dataCreator.partnerSettings,
+            customerId: String = "testPartnerCustomerId",
             productId: String = "testProductId",
             boughtOn: Date = new Date(1320871016126L), //Wed Nov 09 15:36:56 EST 2011,
             step: String = "button",
@@ -35,17 +35,17 @@ class EchoHelper extends ShouldMatchers {
             description: String = "These are amazing boots",
             echoClickId: String = null) = {
 
-        assert(retailerSettings.retailerId == retailer.id)
+        assert(partnerSettings.partnerId == partner.id)
 
-        retailerDao.deleteByName(retailer.name)
-        retailerSettingsDao.deleteByRetailerId(retailerSettings.retailerId)
-        retailerSettingsDao.deleteById(retailerSettings.id)
-        retailerDao.insert(retailer)
-        retailerSettingsDao.insert(retailerSettings)
+        partnerDao.deleteByName(partner.name)
+        partnerSettingsDao.deleteByPartnerId(partnerSettings.partnerId)
+        partnerSettingsDao.deleteById(partnerSettings.id)
+        partnerDao.insert(partner)
+        partnerSettingsDao.insert(partnerSettings)
 
-        echoDao.deleteByRetailerId(retailer.id)
+        echoDao.deleteByPartnerId(partner.id)
         var echoPossibility = Echo.make(
-                retailerId = retailer.id,
+                partnerId = partner.id,
                 customerId = customerId,
                 productId = productId,
                 boughtOn = boughtOn,
@@ -63,7 +63,7 @@ class EchoHelper extends ShouldMatchers {
                 ipAddress = null,
                 userAgent = null,
                 referrerUrl = null,
-                partnerSettingsId = retailerSettings.id)
+                partnerSettingsId = partnerSettings.id)
 
         echoPossibility = if (echoId != null) echoPossibility.copy(id = echoId) else echoPossibility
         echoPossibility = if (echoedUserId != null) echoPossibility.copy(echoedUserId = echoedUserId) else echoPossibility

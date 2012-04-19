@@ -6,6 +6,7 @@ import com.echoed.chamber.domain.Echo
 
 @deprecated(message = "This class is part of the old integration method which will be removed asap")
 case class EchoPossibilityParameters(
+        @BeanProperty var partnerId: String = null,
         @BeanProperty var retailerId: String = null,
         @BeanProperty var customerId: String = null,
         @BeanProperty var productId: String = null,
@@ -44,7 +45,7 @@ case class EchoPossibilityParameters(
     def createTwitterEchoPossibility = createEchoPossibilityWithStep("twitter")
 
     private def createEchoPossibilityWithStep(step: String) = Echo.make(
-            retailerId = retailerId,
+            partnerId = Option(retailerId).getOrElse(partnerId),
             customerId = customerId,
             productId = productId,
             boughtOn = boughtOn,

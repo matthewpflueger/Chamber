@@ -2,7 +2,7 @@ package com.echoed.chamber.dao
 
 
 import java.util.{List => JList}
-import com.echoed.chamber.domain.{EchoMetrics, Echo}
+import com.echoed.chamber.domain.EchoMetrics
 
 
 trait EchoMetricsDao {
@@ -21,13 +21,13 @@ trait EchoMetricsDao {
 
     def findById(id: String): EchoMetrics
 
-    def findByRetailerSettingsId(retailerSettingsId: String): JList[EchoMetrics]
+    def findByPartnerSettingsId(partnerSettingsId: String): JList[EchoMetrics]
 
-    def findByRetailerId(retailerId: String): JList[EchoMetrics]
+    def findByPartnerId(partnerId: String): JList[EchoMetrics]
 
-    def deleteByRetailerSettingsId(retailerSettingsId: String): Int
+    def deleteByPartnerSettingsId(partnerSettingsId: String): Int
 
-    def deleteByRetailerId(retailerId: String): Int
+    def deleteByPartnerId(partnerId: String): Int
 
-    def deleteByEchoedUserId(retailerId: String): Int
+    def deleteByEchoedUserId(partnerId: String): Int
 }

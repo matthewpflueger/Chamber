@@ -29,15 +29,15 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
     val echoedUser = dataCreator.echoedUser
     val echoes = dataCreator.echoes
     val echoMetrics = dataCreator.echoMetrics
-    val retailerSettings = dataCreator.retailerSettings
+    val partnerSettings = dataCreator.partnerSettings
 
     def cleanup() {
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
-        echoDao.deleteByRetailerId(echoes(0).retailerId)
-        echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
-        echoMetricsDao.deleteByRetailerId(echoes(0).retailerId)
-        echoMetricsDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
+        echoDao.deleteByPartnerId(echoes(0).partnerId)
+        echoDao.findByPartnerId(echoes(0).partnerId).size should equal (0)
+        echoMetricsDao.deleteByPartnerId(echoes(0).partnerId)
+        echoMetricsDao.findByPartnerId(echoes(0).partnerId).size should equal (0)
     }
 
     override def beforeAll = {
@@ -47,7 +47,7 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
             echoDao.insert(echo)
             echoDao.updateForEcho(echo)
         }
-        echoMetrics.map(_.echoed(retailerSettings).clicked(retailerSettings).clicked(retailerSettings)).foreach(echoMetricsDao.insert(_))
+        echoMetrics.map(_.echoed(partnerSettings).clicked(partnerSettings).clicked(partnerSettings)).foreach(echoMetricsDao.insert(_))
     }
 
     override def afterAll = cleanup
@@ -73,7 +73,7 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
             val totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
             totalCredit should not be(0f)
 
-            echoMetricsDao.findByRetailerId(echoes(0).retailerId).map(_.credit).sum should be(totalCredit)
+            echoMetricsDao.findByPartnerId(echoes(0).partnerId).map(_.credit).sum should be(totalCredit)
         }
 
     }

@@ -28,9 +28,9 @@ trait EchoDao {
 
     def findById(id: String): Echo
 
-    def findByRetailerId(retailerId: String): JList[Echo]
+    def findByPartnerId(partnerId: String): JList[Echo]
 
-    def deleteByRetailerId(retailerId: String): Int
+    def deleteByPartnerId(partnerId: String): Int
 
     def selectCount: Long
 

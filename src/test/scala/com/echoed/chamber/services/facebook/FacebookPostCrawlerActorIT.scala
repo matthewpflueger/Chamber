@@ -105,7 +105,7 @@ class FacebookPostCrawlerActorIT extends FeatureSpec with GivenWhenThen with Sho
 
     feature("Likes and comments of a post will be tracked") {
 
-        info("As a purchaser or retailer")
+        info("As a purchaser or partner")
         info("I want to know how many people have liked or commented on a echoed purchase to Facebook")
         info("So that I can track how influential my echoed purchases are")
 

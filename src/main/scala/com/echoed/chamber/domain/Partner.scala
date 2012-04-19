@@ -3,7 +3,7 @@ package com.echoed.chamber.domain
 import java.util.{UUID, Date}
 import shopify.ShopifyPartner
 
-case class Retailer(
+case class Partner(
         id: String,
         updatedOn: Date,
         createdOn: Date,

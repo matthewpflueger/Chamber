@@ -11,12 +11,12 @@ case class Echo(
         id: String,
         updatedOn: Date,
         createdOn: Date,
-        retailerId: String,
+        partnerId: String,
         echoedUserId: String,
         facebookPostId: String,
         twitterStatusId: String,
         @deprecated echoPossibilityId: String,
-        retailerSettingsId: String,
+        partnerSettingsId: String,
         echoMetricsId: String,
         echoClickId: String,
         step: String,
@@ -75,7 +75,7 @@ case class Echo(
 object Echo {
 
     def make(
-            retailerId: String,
+            partnerId: String,
             customerId: String,
             productId: String,
             boughtOn: Date,
@@ -103,7 +103,7 @@ object Echo {
         //be included as it changes with every step the user takes to echo a purchase (button, login, etc)
         val echoPossibilityId = (for {
                 e <- Option("UTF-8")
-                r <- Option(retailerId)
+                r <- Option(partnerId)
                 c <- Option(customerId)
                 p <- Option(productId)
                 o <- Option(orderId)
@@ -120,12 +120,12 @@ object Echo {
             id = id,
             updatedOn = date,
             createdOn = date,
-            retailerId = retailerId,
+            partnerId = partnerId,
             echoedUserId = null,
             facebookPostId = null,
             twitterStatusId = null,
             echoPossibilityId = echoPossibilityId,
-            retailerSettingsId = partnerSettingsId,
+            partnerSettingsId = partnerSettingsId,
             echoMetricsId = null,
             echoClickId = echoClickId,
             step = step,

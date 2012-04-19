@@ -43,12 +43,12 @@ class ClosetExhibitIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
 
     var echoedUser = dataCreator.echoedUser.copy(id = UUID.randomUUID.toString, facebookUserId = null, twitterUserId = null)
     var echoes = dataCreator.echoes.map(_.copy(echoedUserId = echoedUser.id))
-    var echoMetrics = dataCreator.echoMetrics.map(_.copy(echoedUserId = echoedUser.id)).map(_.echoed(dataCreator.retailerSettings))
-    var retailerSettings = dataCreator.retailerSettings
+    var echoMetrics = dataCreator.echoMetrics.map(_.copy(echoedUserId = echoedUser.id)).map(_.echoed(dataCreator.partnerSettings))
+    var partnerSettings = dataCreator.partnerSettings
 
     def cleanup() {
-        echoDao.deleteByRetailerId(echoes(0).retailerId)
-        echoMetricsDao.deleteByRetailerId(echoes(0).retailerId)
+        echoDao.deleteByPartnerId(echoes(0).partnerId)
+        echoMetricsDao.deleteByPartnerId(echoes(0).partnerId)
         echoedUserDao.deleteByEmail(echoedUser.email)
         echoedUserDao.deleteByScreenName(echoedUser.screenName)
     }

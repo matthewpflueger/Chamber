@@ -18,9 +18,9 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 
 class PartnerServiceActor(
-        partner: Retailer,
-        partnerDao: RetailerDao,
-        partnerSettingsDao: RetailerSettingsDao,
+        partner: Partner,
+        partnerDao: PartnerDao,
+        partnerSettingsDao: PartnerSettingsDao,
         echoDao: EchoDao,
         echoMetricsDao: EchoMetricsDao,
         imageDao: ImageDao,
@@ -47,7 +47,7 @@ class PartnerServiceActor(
 
         val echoes = echoRequest.items.map { i =>
             Echo.make(
-                retailerId = partner.id,
+                partnerId = partner.id,
                 customerId = echoRequest.customerId,
                 productId = i.productId,
                 boughtOn = echoRequest.boughtOn,
@@ -191,7 +191,7 @@ class PartnerServiceActor(
             }.onComplete(_.value.get.fold(
                 e => channel ! RecordEchoStepResponse(msg, Left(PartnerException("Error retrieving echo %s" format echoId, e))),
                 ep => {
-                    val partnerSettings = partnerSettingsDao.findById(ep.retailerSettingsId)
+                    val partnerSettings = partnerSettingsDao.findById(ep.partnerSettingsId)
                     val epv = new EchoPossibilityView(ep, partner, partnerSettings)
                     if (ep.isEchoed) {
                         channel ! RecordEchoStepResponse(msg, Left(EchoExists(epv)))

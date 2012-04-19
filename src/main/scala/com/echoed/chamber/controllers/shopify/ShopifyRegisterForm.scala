@@ -1,6 +1,6 @@
 package com.echoed.chamber.controllers.shopify
 
-import com.echoed.chamber.domain.{RetailerSettings, RetailerUser, Retailer}
+import com.echoed.chamber.domain.{PartnerSettings, PartnerUser, Partner}
 import java.util.{UUID, Date}
 import org.hibernate.validator.constraints.{NotBlank, Email, URL, Range}
 import org.springframework.format.annotation.NumberFormat.Style
@@ -26,8 +26,8 @@ case class ShopifyRegisterForm(
         this(None)
     }
 
-    def updatePartnerSettings[T](f: (RetailerSettings) => T): T = {
-        val partnerSettings = new RetailerSettings(
+    def updatePartnerSettings[T](f: (PartnerSettings) => T): T = {
+        val partnerSettings = new PartnerSettings(
             partnerId,
             exhibitPercentage,
             minClicks,

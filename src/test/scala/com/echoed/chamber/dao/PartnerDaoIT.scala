@@ -14,29 +14,29 @@ import com.echoed.chamber.util.DataCreator
 
 @RunWith(classOf[JUnitRunner])
 @ContextConfiguration(locations = Array("classpath:databaseIT.xml"))
-class RetailerDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
+class PartnerDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
-    @Autowired @BeanProperty var retailerDao: RetailerDao = _
+    @Autowired @BeanProperty var partnerDao: PartnerDao = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
 
-    val retailer = dataCreator.retailer
+    val partner = dataCreator.partner
 
     def cleanup() {
-        retailerDao.deleteByName(retailer.name)
-        retailerDao.deleteById(retailer.id)
-        retailerDao.findById(retailer.id) should be (null)
+        partnerDao.deleteByName(partner.name)
+        partnerDao.deleteById(partner.id)
+        partnerDao.findById(partner.id) should be (null)
     }
 
     override def beforeAll = cleanup
     override def afterAll = cleanup
 
-    feature("A developer can manipulate Retailer data") {
+    feature("A developer can manipulate Partner data") {
 
-        scenario("a new Retailer is inserted", IntegrationTest) {
-            retailerDao.insert(retailer)
-            retailerDao.findById(retailer.id) should not be (null)
+        scenario("a new Partner is inserted", IntegrationTest) {
+            partnerDao.insert(partner)
+            partnerDao.findById(partner.id) should not be (null)
         }
 
     }

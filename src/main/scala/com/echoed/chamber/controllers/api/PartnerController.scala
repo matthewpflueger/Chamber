@@ -117,7 +117,7 @@ class PartnerController {
                         case "summary" =>
                             pus.getCustomerSocialSummary(customerId).onResult({
                                 case GetCustomerSocialSummaryResponse(_, Left(e)) =>
-                                    logger.error("Error getting Retailer Top Products {}", e)
+                                    logger.error("Error getting Partner Top Products {}", e)
                                     error(e)
                                 case GetCustomerSocialSummaryResponse(_, Right(customerSocialSummary)) =>
                                     logger.debug("Customer Social Summary: {}", customerSocialSummary)
@@ -141,9 +141,9 @@ class PartnerController {
         })
     }
 
-    @RequestMapping(value = Array("/retailer/{query}"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/reports/{query}"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getRetailerJSON(
+    def getPartnerJSON(
             @PathVariable(value="query") query: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -171,22 +171,22 @@ class PartnerController {
                 case LocateResponse(_, Right(pus)) =>
                     query match {
                         case "summary" =>
-                            pus.getRetailerSocialSummary.onResult({
-                                case GetRetailerSocialSummaryResponse(_, Left(e)) =>
-                                    logger.error("Error getting Retailer Social Summary", e)
+                            pus.getPartnerSocialSummary.onResult({
+                                case GetPartnerSocialSummaryResponse(_, Left(e)) =>
+                                    logger.error("Error getting Partner Social Summary", e)
                                     error(e)
-                                case GetRetailerSocialSummaryResponse(_, Right(retailerSocialSummary)) =>
-                                    logger.debug("Retailer Social Summary: {}", retailerSocialSummary)
-                                    continuation.setAttribute("jsonResponse", retailerSocialSummary)
+                                case GetPartnerSocialSummaryResponse(_, Right(partnerSocialSummary)) =>
+                                    logger.debug("Partner Social Summary: {}", partnerSocialSummary)
+                                    continuation.setAttribute("jsonResponse", partnerSocialSummary)
                                     continuation.resume()
                             })
                         case "history" =>
-                            pus.getRetailerSocialActivityByDate.onResult({
-                                case GetRetailerSocialActivityByDateResponse(_, Left(e)) =>
-                                    logger.error("Error getting Retailer Social Activity History")
+                            pus.getPartnerSocialActivityByDate.onResult({
+                                case GetPartnerSocialActivityByDateResponse(_, Left(e)) =>
+                                    logger.error("Error getting Partner Social Activity History")
                                     error(e)
-                                case GetRetailerSocialActivityByDateResponse(_, Right(retailerSocialActivity)) =>
-                                    continuation.setAttribute("jsonResponse", retailerSocialActivity)
+                                case GetPartnerSocialActivityByDateResponse(_, Right(partnerSocialActivity)) =>
+                                    continuation.setAttribute("jsonResponse", partnerSocialActivity)
                                     continuation.resume()
                             })
                         case "comments" =>

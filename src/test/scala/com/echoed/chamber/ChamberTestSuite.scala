@@ -10,8 +10,8 @@ import com.echoed.chamber.domain._
 class ChamberTestSuite extends Suites(
     new EchoTest,
     new EchoMetricsTest,
-    new RetailerUserTest,
-    new RetailerSettingsTest,
+    new PartnerUserTest,
+    new PartnerSettingsTest,
     new ImageTest,
     new FacebookAccessActorTest)
 

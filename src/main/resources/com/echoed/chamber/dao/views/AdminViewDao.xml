@@ -22,7 +22,7 @@
             <idArg column="id" javaType="String"/>
             <arg column="updatedOn" javaType="Date" />
             <arg column="createdOn" javaType="Date" />
-            <arg column="retailerId" javaType="String" />
+            <arg column="partnerId" javaType="String" />
             <arg column="customerId" javaType="String" />
             <arg column="productId" javaType="String" />
             <arg column="boughtOn" javaType="Date" />

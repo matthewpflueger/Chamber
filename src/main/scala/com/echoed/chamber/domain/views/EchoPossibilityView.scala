@@ -5,22 +5,22 @@ import com.echoed.chamber.domain._
 
 case class EchoPossibilityView(
         echoPossibilities: List[Echo],
-        retailer: Retailer,
-        retailerSettings: RetailerSettings,
+        partner: Partner,
+        partnerSettings: PartnerSettings,
         echoedUser: EchoedUser,
         echo: Echo) {
 
-    def this(echoPossibilities: List[Echo], retailer: Retailer, retailerSettings: RetailerSettings) = this(
+    def this(echoPossibilities: List[Echo], partner: Partner, partnerSettings: PartnerSettings) = this(
         echoPossibilities,
-        retailer,
-        retailerSettings,
+        partner,
+        partnerSettings,
         null,
         null)
 
-    def this(echoPossibility: Echo, retailer: Retailer, retailerSettings: RetailerSettings) = this(
+    def this(echoPossibility: Echo, partner: Partner, partnerSettings: PartnerSettings) = this(
         List(echoPossibility),
-        retailer,
-        retailerSettings)
+        partner,
+        partnerSettings)
 
     val echoPossibility = echoPossibilities(0)
 }

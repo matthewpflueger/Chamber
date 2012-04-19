@@ -15,9 +15,9 @@ trait PartnerUserService {
 
     def getCustomerSocialActivityByDate(echoedUserId: String): Future[GetCustomerSocialActivityByDateResponse]
 
-    def getRetailerSocialSummary: Future[GetRetailerSocialSummaryResponse]
+    def getPartnerSocialSummary: Future[GetPartnerSocialSummaryResponse]
 
-    def getRetailerSocialActivityByDate: Future[GetRetailerSocialActivityByDateResponse]
+    def getPartnerSocialActivityByDate: Future[GetPartnerSocialActivityByDateResponse]
 
     def getProductSocialSummary(productId: String): Future[GetProductSocialSummaryResponse]
 

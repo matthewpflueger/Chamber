@@ -3,7 +3,7 @@ package com.echoed.chamber.services.adminuser
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
 import akka.actor.{Channel, Actor}
-import views.{RetailerProductSocialActivityByDate,RetailerSocialActivityByDate,RetailerCustomerSocialActivityByDate}
+import views.{PartnerProductSocialActivityByDate,PartnerSocialActivityByDate,PartnerCustomerSocialActivityByDate}
 import com.echoed.chamber.dao.AdminUserDao
 import com.echoed.chamber.dao.views.AdminViewDao
 import scala.collection.JavaConversions._

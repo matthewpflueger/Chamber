@@ -27,8 +27,8 @@ class EchoDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with 
 
     def cleanup() {
         echoes.foreach(e => imageDao.deleteByUrl(e.image.url))
-        echoDao.deleteByRetailerId(echoes(0).retailerId)
-        echoDao.findByRetailerId(echoes(0).retailerId).size should equal (0)
+        echoDao.deleteByPartnerId(echoes(0).partnerId)
+        echoDao.findByPartnerId(echoes(0).partnerId).size should equal (0)
     }
 
     override def beforeAll = cleanup
@@ -39,7 +39,7 @@ class EchoDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with 
         scenario("new Echoes are inserted", IntegrationTest) {
             echoes.foreach(e => imageDao.insert(e.image))
             echoes.foreach(echoDao.insert(_))
-            val echoList = echoDao.findByRetailerId(echoes(0).retailerId)
+            val echoList = echoDao.findByPartnerId(echoes(0).partnerId)
             echoList should not be (null)
             echoList.length should equal (echoes.length)
 

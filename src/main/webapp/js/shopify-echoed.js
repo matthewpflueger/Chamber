@@ -1,6 +1,6 @@
 function echoed_share(store_id, order_id, item_id,item_name,item_type,item_brand,item_image,item_url,bought_on,item_price,item_description){
 	var url ="http://demo.echoed.com/echo?"
-			    + "retailerId=" + encodeURIComponent(store_id)
+			    + "partnerId=" + encodeURIComponent(store_id)
 				+ "&customerId="  + encodeURIComponent(order_id)
 				+ "&productId=" + encodeURIComponent(item_id)
 				+ "&orderId=" + encodeURIComponent(order_id)
