@@ -208,7 +208,7 @@ class EchoedUserServiceActor(
                                     Actor.actorOf(classOf[ScatterGather]).start() ! Scatter(
                                             requestList.toList,
                                             Some(context),
-                                            Duration(10, "seconds"))
+                                            Duration(20, "seconds"))
 
                                 } catch {
                                     case e =>
