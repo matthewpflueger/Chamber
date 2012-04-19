@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Your Echoed Account</title>
+</head>
+<body class="nooverflow">
+<div>
+    <p>
+    Thank you, {{partnerUser.name}}, for choosing Echoed to help {{partner.name}} increase its brand awareness and sales.
+    </p>
+    <p>
+        Click on the following link (or paste it into your browser's location bar) in order to activate your account and
+        set your password.
+    </p>
+    <p>
+        <a href="{{urls.site}}/partner/activate/{{code}}">{{urls.site}}/partner/activate/{{code}}</a>
+    </p>
+    <p>
+        After successfully activating your account you will receive your secret key and instructions on how to
+        integrate the Echoed service.
+    </p>
+</div>
+</body>
+</html>

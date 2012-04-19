@@ -44,6 +44,7 @@ case class RegisterForm(
                 echoedMatchPercentage,
                 echoedMaxPercentage,
                 creditWindow,
+                "echo.js.0, echo.js.1",
                 activeOn)
         val partnerUser = new PartnerUser(partner.id, name, email).createPassword(UUID.randomUUID().toString)
 

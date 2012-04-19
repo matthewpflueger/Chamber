@@ -8,16 +8,17 @@ case class Partner(
         updatedOn: Date,
         createdOn: Date,
         name: String,
-        website: String,
+        domain: String,
         phone: String,
         hashTag: String,
         logo: String,
         @transient secret: String,
-        category: String) {
+        category: String,
+        cloudPartnerId: String) {
 
     def this(
             name: String,
-            website: String,
+            domain: String,
             phone: String,
             hashTag: String,
             logo: String,
@@ -26,31 +27,22 @@ case class Partner(
         new Date,
         new Date,
         name,
-        website,
+        domain,
         phone,
         hashTag,
         logo,
         UUID.randomUUID.toString,
-        category)
+        category,
+        null)
 
     def this(name: String) = this(
-        name,
-        UUID.randomUUID.toString,
-        UUID.randomUUID.toString,
-        UUID.randomUUID.toString,
-        UUID.randomUUID.toString,
-        UUID.randomUUID.toString)
+            name,
+            UUID.randomUUID.toString,
+            UUID.randomUUID.toString,
+            UUID.randomUUID.toString,
+            UUID.randomUUID.toString,
+            UUID.randomUUID.toString)
 
-    def this(shopifyUser: ShopifyPartner) = this(
-        shopifyUser.partnerId,
-        new Date,
-        new Date,
-        shopifyUser.name,
-        shopifyUser.domain,
-        shopifyUser.phone,
-        null,
-        null,
-        UUID.randomUUID.toString,
-        "Other")
+
 }
 

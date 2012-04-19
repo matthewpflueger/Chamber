@@ -45,6 +45,7 @@ function service_cmd() {
 
     case $service_args in
         clean)
+            rm -Rf out
             CLEAN="mvn -DskipTests clean"
             echo "Running ${CLEAN}"
             $CLEAN

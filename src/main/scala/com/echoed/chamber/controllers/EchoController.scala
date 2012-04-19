@@ -15,12 +15,11 @@ import com.echoed.chamber.controllers.ControllerUtils._
 import akka.dispatch.{AlreadyCompletedFuture, Future}
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.services.shopify._
 import com.echoed.chamber.domain.{EchoedUser, EchoClick}
 import java.util.{Map => JMap}
 import com.echoed.chamber.services.EchoedException
 import java.util.concurrent.atomic.AtomicLong
-
+import scala.collection.JavaConversions._
 
 @Controller
 @RequestMapping(Array("/echo"))
@@ -51,117 +50,12 @@ class EchoController {
     @BeanProperty var echoService: EchoService = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var partnerServiceManager: PartnerServiceManager = _
-    @BeanProperty var shopifyUserServiceLocator: ShopifyUserServiceLocator = _
 
     @BeanProperty var cookieManager: CookieManager = _
 
     @BeanProperty var networkControllers: JMap[String, NetworkController] = _
 
     val counter: AtomicLong = new AtomicLong(0);
-
-    @RequestMapping(value = Array("/shopifyjs"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
-    def shopifyJs(
-                @RequestParam(value = "pid", required = true) pid: String,
-                httpServletRequest: HttpServletRequest,
-                httpServletResponse: HttpServletResponse) = {
-
-        implicit  val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        
-        if (continuation.isExpired) {
-            error(echoJsErrorView, Some(RequestExpiredException()))
-        } else Option( continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            logger.debug("Requesting Shopify Js for Partner {}", pid)
-
-            partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
-                e => error(echoJsErrorView, Some(e)),
-                _ match {
-                    case LocateResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
-                    case LocateResponse(_, Right(p)) =>
-                        shopifyUserServiceLocator.locateByPartnerId(pid).onComplete(_.value.get.fold(
-                            e=> error(echoJsErrorView, Some(e)),
-                            _ match {
-                                case LocateByPartnerIdResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
-                                case LocateByPartnerIdResponse(_, Right(shopifyUserService)) =>
-                                    continuation.setAttribute("modelAndView", new ModelAndView(echoShopifyJsView, "pid", pid))
-                                    continuation.resume()
-                            }))
-                }))
-            continuation.undispatch()
-        }
-    }
-
-    @RequestMapping(value = Array("/shopifyrequest"), method = Array(RequestMethod.GET), produces = Array("application/json"))
-    @ResponseBody
-    def shopifyRequest(
-            @RequestParam(value = "pid", required = true) pid: String,
-            @RequestParam(value = "orderId", required = true) orderId: String,
-            @RequestHeader(value = "Referer", required = false) referrerUrl: String,
-            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
-            @RequestHeader(value = "User-Agent", required = true) userAgent: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
-
-        implicit  val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-
-        if (continuation.isExpired) {
-            error(echoJsErrorView, Some(RequestExpiredException()))
-        } else Option( continuation.getAttribute("json")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            //browser id is required and should be set in the BrowserIdInterceptor...
-            val bi = cookieManager.findBrowserIdCookie(httpServletRequest).get
-            val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
-            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-            val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
-
-
-            def resume(json: AnyRef) {
-                continuation.setAttribute("json", json)
-                continuation.resume()
-            }
-
-            logger.debug("Requsting Order: {} for Shopify Partner: {}", orderId, pid)
-            partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
-                e => error(echoJsErrorView, Some(e)),
-                _ match {
-                    case LocateResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
-                    case LocateResponse(_, Right(p)) =>
-                        logger.debug("Found partner service for partnerId: {}", pid)
-                        logger.debug("Locating Shopify Service for partnerId: {}", pid)
-                        shopifyUserServiceLocator.locateByPartnerId(pid).onComplete(_.value.get.fold(
-                            resume(_),
-                            _ match {
-                                case LocateByPartnerIdResponse(_, Left(e)) =>
-                                    logger.debug("Error locating Shopify Service for partnerId: {}", pid)
-                                    resume(_)
-                                case LocateByPartnerIdResponse(_, Right(shopifyUserService)) =>
-                                    logger.debug("Found Shopify Service for partnerId: {}", pid)
-                                    var orderNumber: Int = 0;
-                                    try {
-                                        orderNumber = Integer.parseInt(orderId);
-                                    } catch {
-                                        case nfe:NumberFormatException =>
-                                            orderNumber = 0;
-                                    }
-                                    shopifyUserService.getOrderFull(orderNumber).onComplete(_.value.get.fold(
-                                        resume(_),
-                                        _ match {
-                                            case GetOrderFullResponse(_, Left(e)) => resume(e)
-                                            case GetOrderFullResponse(_, Right(order)) =>
-                                                p.requestShopifyEcho(order, bi, ip, userAgent, referrerUrl, eu, ec).onComplete(_.value.get.fold(
-                                                    resume(_),
-                                                    _ match {
-                                                        case RequestShopifyEchoResponse(_, Left(e)) => resume(e)
-                                                        case RequestShopifyEchoResponse(_, Right(echoPossibilityView)) => resume(echoPossibilityView)
-                                                    }))
-                                        }))
-                            }))
-                }))
-            continuation.undispatch()
-        }
-    }
 
 
     @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
@@ -176,34 +70,20 @@ class EchoController {
             RequestExpiredException()
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
-            partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
+
+            partnerServiceManager.getView(pid).onComplete(_.value.get.fold(
                 e => error(echoJsErrorView, Some(e)),
                 _ match {
-                    case LocateResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
-                    case LocateResponse(_, Right(p)) =>
-                        p.getPartner.onComplete(_.value.get.fold(
-                            e => error(echoJsErrorView, Some(e)),
-                            _ match {
-                                case GetPartnerResponse(_, Left(e2)) => error(echoJsErrorView, Some(e2))
-                                case GetPartnerResponse(_, Right(partner)) =>
-                                    p.getPartnerSettings.onComplete(_.value.get.fold(
-                                        e => error(echoJsErrorView, Some(e)),
-                                        _ match {
-                                            case GetPartnerSettingsResponse(_, Left(e3)) => error(echoJsErrorView, Some(e3))
-                                            case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                                                val view = echoJsView + "." + (counter.getAndIncrement % 2)
-                                                val modelAndView = new ModelAndView(view)
-                                                modelAndView.addObject("pid",pid)
-                                                modelAndView.addObject("view", view)
-                                                modelAndView.addObject("partner",partner)
-                                                modelAndView.addObject("partnerSettings", partnerSettings)
-                                                modelAndView.addObject("maxPercentage", "%1.0f".format(partnerSettings.maxPercentage*100));
-                                                continuation.setAttribute("modelAndView", modelAndView)
-                                                continuation.resume()
-                                        }))
-                            }))
-                }))
-            continuation.undispatch()
+                    case GetViewResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
+                    case GetViewResponse(_, Right(vd)) =>
+                        val modelAndView = new ModelAndView(vd.view, vd.model)
+                        continuation.setAttribute("modelAndView", modelAndView)
+                        continuation.resume()
+
+                }
+            ))
+
+            continuation.undispatch
         }
     }
 
@@ -238,29 +118,27 @@ class EchoController {
             val ec = cookieManager.findEchoClickCookie(httpServletRequest)
             val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
 
-            partnerServiceManager.locatePartnerService(pid).onComplete(_.value.get.fold(
-                resume(_),
-                _ match {
-                    case LocateResponse(_, Left(e)) => resume(e)
-                    case LocateResponse(_, Right(p)) => p.requestEcho(
-                            data,
-                            bi,
-                            ip,
-                            userAgent,
-                            referrerUrl,
-                            eu,
-                            ec,
-                            Option(view)).onComplete(_.value.get.fold(
-                        e => resume(e),
-                        _ match {
-                            case RequestEchoResponse(_, Left(e)) => resume(e)
-                            case RequestEchoResponse(_, Right(echoPossibilityView)) =>
-                                resume(echoPossibilityView)
-                        }))
-                }))
+            partnerServiceManager.requestEcho(
+                partnerId = pid,
+                request = data,
+                browserId = bi,
+                ipAddress = ip,
+                userAgent = userAgent,
+                referrerUrl = referrerUrl,
+                echoedUserId = eu,
+                echoClickId = ec,
+                view = Option(view)).onComplete(_.value.get.fold(
+                    e => resume(e),
+                    _ match {
+                        case RequestEchoResponse(_, Left(e)) => resume(e)
+                        case RequestEchoResponse(_, Right(echoPossibilityView)) =>
+                            resume(echoPossibilityView)
+                    }))
+
             continuation.undispatch()
         }
     }
+
 
 
     @RequestMapping(value = Array("/login"), method = Array(RequestMethod.GET))
@@ -276,7 +154,7 @@ class EchoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
 
-            val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
+            val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
             val ec = cookieManager.findEchoClickCookie(httpServletRequest)
 
             val echoedUserNotFound = LocateWithIdResponse(LocateWithId(eu.orNull), Left(EchoedUserNotFound(eu.orNull)))
@@ -284,10 +162,7 @@ class EchoController {
                     echoedUserServiceLocator.getEchoedUserServiceWithId(_).recover { case e => echoedUserNotFound },
                     new AlreadyCompletedFuture(Right(echoedUserNotFound)))
 
-            val recordEchoStepResponse  = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
-                case LocateByEchoIdResponse(_, Left(e)) => throw e
-                case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "login", eu, ec)
-            })
+            val recordEchoStepResponse  = partnerServiceManager.recordEchoStep(id, "login", eu, ec)
 
             (for {
                 eur <- echoedUserResponse
@@ -332,34 +207,19 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        implicit val continuation: Continuation = null //no need for continuation on this one...
 
         val networkController = networkControllers.get(network)
+        val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
+        val ec = cookieManager.findEchoClickCookie(httpServletRequest)
 
         if (networkController == null) {
             error(errorView, EchoedException("Invalid network"))
-        } else if (continuation.isExpired) {
-            error(errorView, RequestExpiredException())
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
-            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-
-            partnerServiceManager.locatePartnerByEchoId(id).onComplete(_.value.get.fold(
-                e => error(errorView, e),
-                _ match {
-                    case LocateByEchoIdResponse(_, Left(e)) => error(errorView, e)
-                    case LocateByEchoIdResponse(_, Right(ps)) =>
-                        ps.recordEchoStep(id, "authorize-%s" format network, eu, ec)
-                        val authorizeUrl = networkController.makeAuthorizeUrl("echo/confirm?id=%s" format id, add)
-                        logger.debug("Redirecting for authorization to {}", authorizeUrl)
-                        val modelAndView = new ModelAndView("redirect:%s" format authorizeUrl)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume
-                }))
-
-            continuation.undispatch()
+        } else {
+            partnerServiceManager.recordEchoStep(id, "authorize-%s" format network, eu, ec)
+            val authorizeUrl = networkController.makeAuthorizeUrl("echo/confirm?id=%s" format id, add)
+            logger.debug("Redirecting for authorization to {}", authorizeUrl)
+            new ModelAndView("redirect:%s" format authorizeUrl)
         }
     }
 

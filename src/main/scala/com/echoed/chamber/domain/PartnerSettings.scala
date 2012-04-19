@@ -16,17 +16,20 @@ case class PartnerSettings(
         echoedMatchPercentage: Float,
         echoedMaxPercentage: Float,
         creditWindow: Int,
+        views: String,
         activeOn: Date) {
 
-    require(closetPercentage >= 0)
-    require(echoedMaxPercentage >= 0)
-    require(echoedMatchPercentage >= 0)
-    require(minClicks >= 0)
-    require(creditWindow >= 0)
+    require(closetPercentage >= 0, "Closet percentage is less than 0")
+    require(echoedMaxPercentage >= 0, "Echoed max percentage is less than 0")
+    require(echoedMatchPercentage >= 0, "Echoed match percentage is less than 0")
+    require(minClicks >= 0, "Minimum clicks is less than 0")
+    require(creditWindow >= 0, "Credit window is less than 0")
 
-    require(minClicks <= maxClicks)
-    require(minPercentage >= closetPercentage)
-    require(maxPercentage >= minPercentage)
+    require(minClicks <= maxClicks, "Minimum clicks is greater than max clicks")
+    require(minPercentage >= closetPercentage, "Closet percentage is greater than minimum percentage")
+    require(maxPercentage >= minPercentage, "Minimum percentage is greater than maximum percentage")
+
+    require(views != null && views.length > 0, "Views is null or empty")
 
 
     def this(
@@ -39,6 +42,7 @@ case class PartnerSettings(
             echoedMatchPercentage: Float,
             echoedMaxPercentage: Float,
             creditWindow: Int,
+            views: String,
             activeOn: Date) = this(
         UUID.randomUUID.toString,
         new Date,
@@ -52,7 +56,11 @@ case class PartnerSettings(
         echoedMatchPercentage,
         echoedMaxPercentage,
         creditWindow,
+        views,
         activeOn)
+
+
+    lazy val viewsList = views.split(",").map(_.trim)
 
 
     def creditWindowEndsAt = {
@@ -84,7 +92,9 @@ object PartnerSettings {
                             1,
                             0.1f,
                             168,
+                            "echoed.js.0",
                             cal.getTime)
+
     }
     
 }

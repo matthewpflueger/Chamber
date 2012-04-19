@@ -382,7 +382,9 @@ class DataCreator {
             echoedMatchPercentage = 1f,
             echoedMaxPercentage = 0.2f,
             activeOn = future.getTime,
-            creditWindow = creditWindow)
+            creditWindow = creditWindow,
+            views = "echo.js.0, echo.js.1")
+
     val partnerSettingsList = partnerSettingsFuture :: partners.map { r =>
             new PartnerSettings(
                 partnerId = r.id,
@@ -394,7 +396,8 @@ class DataCreator {
                 echoedMatchPercentage = 1f,
                 echoedMaxPercentage = 0.2f,
                 activeOn = past.getTime,
-                creditWindow = creditWindow)
+                creditWindow = creditWindow,
+                views = "echo.js.0, echo.js.1")
         }.toList
     val partnerSettings = partnerSettingsList(1)
 

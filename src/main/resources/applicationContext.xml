@@ -2,8 +2,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:akka="http://akka.io/schema/akka"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
 	        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/util
+            http://www.springframework.org/schema/util/spring-util-3.0.xsd
             http://akka.io/schema/akka
             http://akka.io/akka-1.3.1.xsd"
        default-init-method="init"
@@ -138,17 +142,18 @@
         <property name="adminUserServiceLocatorActor"  ref="adminUserServiceLocatorActor" />
     </bean>
     
-    <bean id="shopifyUserServiceCreator" class="com.echoed.chamber.services.shopify.ShopifyUserServiceCreatorActorClient">
-        <property name="shopifyUserServiceCreatorActor" ref="shopifyUserServiceCreatorActor"/>
-    </bean>
-    
-    <bean id="shopifyUserServiceLocator" class="com.echoed.chamber.services.shopify.ShopifyUserServiceLocatorActorClient">
-        <property name="shopifyUserServiceLocatorActor" ref="shopifyUserServiceLocatorActor" />
+    <bean id="shopifyPartnerServiceManager" class="com.echoed.chamber.services.partner.shopify.ShopifyPartnerServiceManagerActorClient">
+        <property name="actorRef" ref="shopifyPartnerServiceManagerActor" />
     </bean>
 
-    <bean id="shopifyAccess" class="com.echoed.chamber.services.shopify.ShopifyAccessActorClient">
+    <bean id="shopifyAccess" class="com.echoed.chamber.services.partner.shopify.ShopifyAccessActorClient">
         <property name="shopifyAccessActor" ref="shopifyAccessActor"/>
     </bean>
+
+
+    <util:map id="cloudPartners">
+        <entry key="Shopify" value-ref="shopifyPartnerServiceManager" />
+    </util:map>
 
     <akka:untyped-actor
             id="partnerServiceManagerActor"
@@ -176,6 +181,8 @@
         <property name="emailService" ref="emailService" />
         <!--suppress SpringModelInspection -->
         <property name="cacheManager" ref="cacheManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="cloudPartners" ref="cloudPartners" />
     </akka:untyped-actor>
 
     <akka:untyped-actor
@@ -372,33 +379,50 @@
             <property name="cacheManager" ref="cacheManager" />
     </akka:untyped-actor>
     
+
     <akka:untyped-actor
-            id="shopifyUserServiceCreatorActor"
-            implementation="com.echoed.chamber.services.shopify.ShopifyUserServiceCreatorActor"
+            id="shopifyPartnerServiceManagerActor"
+            implementation="com.echoed.chamber.services.partner.shopify.ShopifyPartnerServiceManagerActor"
             autostart="true">
-            <!--suppress SpringModelInspection -->
-            <property name="shopifyAccess" ref="shopifyAccess"/>
-            <!--suppress SpringModelInspection -->
-            <property name="shopifyUserDao" ref="shopifyPartnerDao"/>
-    </akka:untyped-actor>
-    
-    <akka:untyped-actor
-            id="shopifyUserServiceLocatorActor"
-            implementation="com.echoed.chamber.services.shopify.ShopifyUserServiceLocatorActor"
-            autostart="true">
-            <!--suppress SpringModelInspection -->
-            <property name="shopifyUserServiceCreator" ref="shopifyUserServiceCreator"/>
-            <!--suppress SpringModelInspection -->
-            <property name="cacheManager" ref="cacheManager"/>
+        <!--suppress SpringModelInspection -->
+        <property name="partnerDao" ref="partnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerUserDao" ref="partnerUserDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageDao" ref="imageDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageService" ref="imageService" />
+        <!--suppress SpringModelInspection -->
+        <property name="encrypter" ref="encrypter" />
+        <!--suppress SpringModelInspection -->
+        <property name="transactionTemplate" ref="transactionTemplate" />
+        <!--suppress SpringModelInspection -->
+        <property name="emailService" ref="emailService" />
+        <!--suppress SpringModelInspection -->
+        <property name="cacheManager" ref="cacheManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="shopifyAccess" ref="shopifyAccess" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerServiceManager" ref="partnerServiceManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="shopifyPartnerDao" ref="shopifyPartnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="shopifyProperties" />
     </akka:untyped-actor>
 
 
     <akka:untyped-actor
             id="shopifyAccessActor"
-            implementation="com.echoed.chamber.services.shopify.ShopifyAccessActor"
+            implementation="com.echoed.chamber.services.partner.shopify.ShopifyAccessActor"
             autostart="true">
         <!--suppress SpringModelInspection -->
-        <property name="properties" ref="shopifyAccessProperties" />
+        <property name="properties" ref="shopifyProperties" />
     </akka:untyped-actor>
 
     

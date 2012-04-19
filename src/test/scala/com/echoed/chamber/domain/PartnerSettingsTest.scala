@@ -27,7 +27,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMaxPercentage = -1f,
                 echoedMatchPercentage = -1f,
                 activeOn = new Date,
-                creditWindow = -1)
+                creditWindow = -1,
+                views = null)
             } should produce [IllegalArgumentException]
 
             given("a PartnerSettings")
@@ -43,7 +44,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMaxPercentage = 0,
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
-                creditWindow = -1)
+                creditWindow = -1,
+                views = null)
             } should produce [IllegalArgumentException]
 
             given("a PartnerSettings")
@@ -59,7 +61,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMaxPercentage = 0,
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
-                creditWindow = 1)
+                creditWindow = 1,
+                views = null)
             } should produce [IllegalArgumentException]
 
 
@@ -76,7 +79,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMaxPercentage = 0,
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
-                creditWindow = 1)
+                creditWindow = 1,
+                views = null)
             } should produce [IllegalArgumentException]
 
 
@@ -93,7 +97,26 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMaxPercentage = 0,
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
-                creditWindow = 1)
+                creditWindow = 1,
+                views = null)
+            } should produce [IllegalArgumentException]
+
+
+            given("a PartnerSettings")
+            when("views is null or empty")
+            then("throw IllegalArgumentException")
+            evaluating { new PartnerSettings(
+                partnerId = "partnerId",
+                closetPercentage = 0,
+                minClicks = 0,
+                minPercentage = 0.1f,
+                maxClicks = 1,
+                maxPercentage = 0.02f,
+                echoedMaxPercentage = 0,
+                echoedMatchPercentage = 0,
+                activeOn = new Date,
+                creditWindow = 1,
+                views = "")
             } should produce [IllegalArgumentException]
 
         }

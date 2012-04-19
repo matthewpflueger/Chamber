@@ -6,9 +6,9 @@ import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
 
 
-sealed trait PartnerMessage extends Message
+trait PartnerMessage extends Message
 
-sealed case class PartnerException(
+case class PartnerException(
         message: String = "",
         cause: Throwable = null,
         code: Option[String] = None,
@@ -18,20 +18,28 @@ import com.echoed.chamber.services.partner.{PartnerMessage => PM}
 import com.echoed.chamber.services.partner.{PartnerException => PE}
 
 
+abstract case class PartnerIdentifiable(partnerId: String) extends PM
+abstract case class EchoIdentifiable(echoId: String) extends PM
+
+import com.echoed.chamber.services.partner.{PartnerIdentifiable => PI}
+import com.echoed.chamber.services.partner.{EchoIdentifiable => EI}
+
+
+
 case class RegisterPartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM
 case class RegisterPartnerResponse(
         message: RegisterPartner,
-        value: Either[PE, Partner]) extends PM with RM[Partner, RegisterPartner, PE]
+        value: Either[PE, PartnerService]) extends PM with RM[PartnerService, RegisterPartner, PE]
 
 case class UpdatePartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM
 case class UpdatePartnerResponse(
         message: UpdatePartner, 
         value: Either[PE, Partner]) extends PM with RM[Partner, UpdatePartner, PE]
 
-case class UpdatePartnerSettings(partnerSettings: PartnerSettings) extends PM
-case class UpdatePartnerSettingsResponse(
-        message: UpdatePartnerSettings, 
-        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings,  UpdatePartnerSettings, PE]
+//case class UpdatePartnerSettings(partnerSettings: PartnerSettings) extends PM
+//case class UpdatePartnerSettingsResponse(
+//        message: UpdatePartnerSettings,
+//        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings,  UpdatePartnerSettings, PE]
 
 
 case class Locate(partnerId: String) extends PM
@@ -46,6 +54,19 @@ case class LocateByEchoIdResponse(
         value: Either[PE, PartnerService]) extends PM with RM[PartnerService, LocateByEchoId, PE]
 
 
+case class LocateByDomain(domain: String) extends PM
+case class LocateByDomainResponse(
+        message: LocateByDomain,
+        value: Either[PE, PartnerService]) extends PM with RM[PartnerService, LocateByDomain, PE]
+
+
+case class GetView(_partnerId: String) extends PI(_partnerId)
+case class GetViewResponse(
+        message: GetView,
+        value: Either[PE, ViewDescription]) extends PM with RM[ViewDescription, GetView, PE]
+
+
+
 case class PartnerNotFound(
         partnerId: String,
         _message: String = "Partner not found",
@@ -57,14 +78,11 @@ case class PartnerNotFound(
 
 
 case class PartnerAlreadyExists(
-        partnerId: String,
-        partnerUser: PartnerUser,
-        _message: String = "Partner Already Exists",
+        partnerService: PartnerService,
+        _message: String = "Partner already exists",
         _cause: Throwable = null,
         _code: Option[String] = Some("alreadyexists.partner"),
-        _args: Option[Array[AnyRef]] = None) extends PE(_message, _cause, _code, _args) {
-    def this(partnerId: String, partnerUser: PartnerUser) = this(partnerId, partnerUser, _args = Some(Array(partnerId)))
-}
+        _args: Option[Array[AnyRef]] = None) extends PE(_message, _cause, _code, _args)
 
 case class PartnerNotActive(
         partnerId: String,
@@ -82,29 +100,30 @@ case class InvalidEchoRequest(_message: String = "Invalid echo request",
                               _args: Option[Array[AnyRef]] = None) extends PE(_message, _cause, _code, _args)
 
 
-case class GetPartner() extends PM
-case class GetPartnerResponse(
-        message: GetPartner, 
-        value: Either[PE, Partner]) extends PM with RM[Partner, GetPartner,  PE]
-
-case class GetPartnerSettings() extends PM
-case class GetPartnerSettingsResponse(
-        message: GetPartnerSettings,
-        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings, GetPartnerSettings, PE]
-
-case class RequestShopifyEcho(
-        order: ShopifyOrderFull,
-        browserId: String,
-        ipAddress: String,
-        userAgent: String,
-        referrerUrl: String,
-        echoedUserId: Option[String] = None,
-        echoClickId: Option[String] = None) extends PM
-case class RequestShopifyEchoResponse(
-        message: RequestShopifyEcho,
-        value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RequestShopifyEcho, PE]
+//case class GetPartner() extends PM
+//case class GetPartnerResponse(
+//        message: GetPartner,
+//        value: Either[PE, Partner]) extends PM with RM[Partner, GetPartner,  PE]
+//
+//case class GetPartnerSettings() extends PM
+//case class GetPartnerSettingsResponse(
+//        message: GetPartnerSettings,
+//        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings, GetPartnerSettings, PE]
+//
+//case class RequestShopifyEcho(
+//        order: ShopifyOrderFull,
+//        browserId: String,
+//        ipAddress: String,
+//        userAgent: String,
+//        referrerUrl: String,
+//        echoedUserId: Option[String] = None,
+//        echoClickId: Option[String] = None) extends PM
+//case class RequestShopifyEchoResponse(
+//        message: RequestShopifyEcho,
+//        value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RequestShopifyEcho, PE]
 
 case class RequestEcho(
+        _partnerId: String,
         request: String,
         browserId: String,
         ipAddress: String,
@@ -112,17 +131,17 @@ case class RequestEcho(
         referrerUrl: String,
         echoedUserId: Option[String] = None,
         echoClickId: Option[String] = None,
-        view: Option[String] = None) extends PM
+        view: Option[String] = None) extends PI(_partnerId)
 case class RequestEchoResponse(
         message: RequestEcho,
         value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RequestEcho, PE]
 
 
 case class RecordEchoStep(
-        echoId: String,
+        _echoId: String,
         step: String,
         echoedUserId: Option[String] = None,
-        echoClickId: Option[String] = None) extends PM
+        echoClickId: Option[String] = None) extends EI(_echoId)
 case class RecordEchoStepResponse(
         message: RecordEchoStep,
         value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RecordEchoStep, PE]
@@ -134,4 +153,6 @@ case class EchoExists(
         _cause: Throwable = null) extends PE(_message, _cause)
 
 case class EchoNotFound(id: String, m: String = "Echo not found") extends PE(m)
+
+
 

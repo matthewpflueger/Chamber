@@ -32,8 +32,10 @@ class PartnerServiceActor(
 
     self.id = "Partner:%s" format partner.id
 
+    var viewCounter = 0
 
-    private def requestEcho(
+
+    protected def requestEcho(
             echoRequest: EchoRequest,
             browserId: String,
             ipAddress: String,
@@ -98,21 +100,19 @@ class PartnerServiceActor(
         else new EchoPossibilityView(echoes, partner, partnerSettings)
     }
 
+
     def receive = {
 
-        case msg @ GetPartnerSettings() =>
-            val channel: Channel[GetPartnerSettingsResponse] = self.channel
-            Option(partnerSettingsDao.findByActiveOn(partner.id, new Date)).cata(
-                rs => channel ! GetPartnerSettingsResponse(msg, Right(rs)),
-                channel ! GetPartnerSettingsResponse(msg, Left(new PartnerNotActive(partner.id))))
-
-
-        case msg @ GetPartner() =>
-            val channel: Channel[GetPartnerResponse] = self.channel
-            channel ! GetPartnerResponse(msg, Right(partner))
-
-
-        case msg @ RequestEcho(request, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId, view) =>
+        case msg @ RequestEcho(
+                partnerId,
+                request,
+                browserId,
+                ipAddress,
+                userAgent,
+                referrerUrl,
+                echoedUserId,
+                echoClickId,
+                view) =>
             val channel: Channel[RequestEchoResponse] = self.channel
 
             logger.debug("Received {}", msg)
@@ -140,46 +140,6 @@ class PartnerServiceActor(
                     channel ! RequestEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
             }
 
-        case msg @ RequestShopifyEcho(order, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId) =>
-            val channel: Channel[RequestShopifyEchoResponse] = self.channel
-
-            logger.debug("Received {}", msg)
-            try {
-                val items = order.lineItems.map { li => 
-                    val ei = new EchoItem()
-                    ei.productId = li.productId
-                    ei.productName = li.product.title
-                    ei.category = li.product.category
-                    ei.brand = partner.name
-                    ei.price = li.price.toFloat
-                    ei.imageUrl = li.product.imageSrc
-                    ei.landingPageUrl = li.product.imageSrc
-                    ei.description = li.product.description
-                    ei
-                }
-
-
-                val echoRequest: EchoRequest = new EchoRequest()
-                echoRequest.items = items
-                echoRequest.customerId = order.customerId
-                echoRequest.orderId = order.orderId
-                echoRequest.boughtOn = new Date
-                logger.debug("Echo Request: {}", echoRequest)
-
-                channel ! RequestShopifyEchoResponse(msg, Right(requestEcho(
-                        echoRequest,
-                        browserId,
-                        ipAddress,
-                        userAgent,
-                        referrerUrl,
-                        echoClickId)))
-            } catch {
-                case e: InvalidEchoRequest => channel ! RequestShopifyEchoResponse(msg, Left(e))
-                case e: PartnerNotActive => channel ! RequestShopifyEchoResponse(msg, Left(e))
-                case e =>
-                    logger.error("Error processing %s" format e, msg)
-                    channel ! RequestShopifyEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
-            }
 
         case msg @ RecordEchoStep(echoId, step, echoedUserId, echoClickId) =>
             val channel: Channel[RecordEchoStepResponse] = self.channel
@@ -205,9 +165,35 @@ class PartnerServiceActor(
                     channel ! RecordEchoStepResponse(msg, Left(PartnerException("Unexpected error", e)))
                     logger.error("Error processing %s" format msg, e)
             }
-    }
 
+
+        case msg: GetView =>
+            val channel: Channel[GetViewResponse] = self.channel
+
+            Future {
+                Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
+            }.onComplete(_.value.get.fold(
+                e => channel ! GetViewResponse(msg, Left(PartnerException("Error retrieving partner settings for %s" format partner.id, e))),
+                _.cata(
+                    ps => {
+                        val view = ps.views
+                        channel ! GetViewResponse(msg, Right(ViewDescription(view, Map(
+                                        "pid" -> partner.id,
+                                        "view" -> ps.viewsList(viewCounter % ps.viewsList.length),
+                                        "partner" -> partner,
+                                        "partnerSettings" -> ps,
+                                        "maxPercentage" -> "%1.0f".format(ps.maxPercentage * 100)))))
+                    },
+                    channel ! GetViewResponse(msg, Left(PartnerNotActive(partner.id)))
+
+            ))).onException {
+                case e =>
+                    channel ! GetViewResponse(msg, Left(PartnerException("Unexpected error", e)))
+                    logger.error("Error processing %s" format msg, e)
+            }
+    }
 }
+
 
 class EchoRequest {
     @BeanProperty var customerId: String = _

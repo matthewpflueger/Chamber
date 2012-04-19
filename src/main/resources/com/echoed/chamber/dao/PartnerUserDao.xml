@@ -44,10 +44,16 @@
                 #{password})
     </insert>
 
+    <update id="update" parameterType="com.echoed.chamber.domain.PartnerUser">
+        update PartnerUser set
+            name = #{name},
+            email = #{email}
+        where id = #{id}
+    </update>
     <update id="updatePassword" parameterType="com.echoed.chamber.domain.PartnerUser">
         update PartnerUser set
-            password=#{password}
-        where id=#{id}
+            password = #{password}
+        where id = #{id}
     </update>
 
     <delete id="deleteById">

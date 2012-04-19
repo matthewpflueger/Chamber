@@ -11,14 +11,37 @@ class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorC
     @BeanProperty var actorRef: ActorRef = _
 
     def registerPartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) =
-            (actorRef ? RegisterPartner(partner, partnerSettings, partnerUser)).mapTo[RegisterPartnerResponse]
+        (actorRef ? RegisterPartner(partner, partnerSettings, partnerUser)).mapTo[RegisterPartnerResponse]
     
-    def updatePartnerSettings(partnerSettings: PartnerSettings) =
-            (actorRef ? UpdatePartnerSettings(partnerSettings)).mapTo[UpdatePartnerSettingsResponse]
-
     def locatePartnerService(partnerId: String) =
-            (actorRef ? Locate(partnerId)).mapTo[LocateResponse]
+        (actorRef ? Locate(partnerId)).mapTo[LocateResponse]
+
+    def locatePartnerByDomain(domain: String) =
+        (actorRef ? LocateByDomain(domain)).mapTo[LocateByDomainResponse]
 
     def locatePartnerByEchoId(echoId: String) =
-            (actorRef ? LocateByEchoId(echoId)).mapTo[LocateByEchoIdResponse]
+        (actorRef ? LocateByEchoId(echoId)).mapTo[LocateByEchoIdResponse]
+
+    def getView(partnerId: String) =
+        (actorRef ? GetView(partnerId)).mapTo[GetViewResponse]
+
+    def recordEchoStep(
+            echoId: String,
+            step: String,
+            echoedUserId: Option[String] = None,
+            echoClickId: Option[String] = None) =
+        (actorRef ? RecordEchoStep(echoId, step, echoedUserId, echoClickId)).mapTo[RecordEchoStepResponse]
+
+    def requestEcho(
+            partnerId: String,
+            request: String,
+            browserId: String,
+            ipAddress: String,
+            userAgent: String,
+            referrerUrl: String,
+            echoedUserId: Option[String] = None,
+            echoClickId: Option[String] = None,
+            view: Option[String] = None) =
+        (actorRef ? RequestEcho(partnerId, request, browserId, ipAddress, userAgent, referrerUrl, echoedUserId, echoClickId, view)).mapTo[RequestEchoResponse]
+
 }

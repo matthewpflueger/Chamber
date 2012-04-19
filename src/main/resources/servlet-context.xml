@@ -89,7 +89,6 @@
         <property name="echoService" ref="echoService" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <property name="shopifyUserServiceLocator" ref="shopifyUserServiceLocator" />
         <property name="cookieManager" ref="cookieManager" />
 
         <property name="echoJsView" value="echo.js" />
@@ -249,26 +248,13 @@
 
     <!-- suppress DuplicatedBeanNamesInspection -->
     <bean id="shopifyController" class="com.echoed.chamber.controllers.shopify.ShopifyController">
-        <property name="shopifyUserServiceLocator" ref="shopifyUserServiceLocator"/>
-        <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
-        <property name="partnerServiceManager" ref="partnerServiceManager" />
+        <property name="shopifyPartnerServiceManager" ref="shopifyPartnerServiceManager" />
         <property name="shopifyIntegrationView" value="shopify_integration" />
-        <property name="mustacheEngine" ref="mustacheEngine"/>
         <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
         <property name="cookieManager" ref="cookieManager" />
     </bean>
     
-    <bean id="shopifyRegisterController" class="com.echoed.chamber.controllers.shopify.ShopifyRegisterController">
-        <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <property name="registerView" value="shopify_update" />
-        <property name="postRegisterView" value="redirect:shopify_update" />
-        <property name="globalValidator" ref="validator" />
-        <property name="formValidator" >
-            <bean class="com.echoed.chamber.controllers.shopify.ShopifyRegisterFormValidator" />
-        </property>
-        <property name="conversionService" ref="conversionService" />
-    </bean>
-    
+
     <bean id="publicController" class="com.echoed.chamber.controllers.api.PublicController">
         <property name="feedService"  ref="feedService"/>
     </bean>

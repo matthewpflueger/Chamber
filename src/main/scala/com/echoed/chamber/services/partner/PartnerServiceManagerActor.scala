@@ -1,23 +1,23 @@
 package com.echoed.chamber.services.partner
 
 import org.slf4j.LoggerFactory
-import akka.actor.{Channel, Actor}
 import scala.reflect.BeanProperty
 import com.echoed.util.Encrypter
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.transaction.TransactionStatus
-import org.springframework.transaction.support.{TransactionCallback, TransactionTemplate}
+import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.email.EmailService
 import com.echoed.util.TransactionUtils._
 import scalaz._
 import Scalaz._
 import akka.dispatch.Future
-import java.util.{Date, UUID, HashMap => JHashMap}
 import com.echoed.chamber.dao._
 import scala.collection.mutable.ConcurrentMap
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
-import com.echoed.chamber.services.ActorClient
 import com.echoed.chamber.services.image.ImageService
+import com.echoed.chamber.services.ActorClient
+import akka.actor.{PoisonPill, Channel, Actor}
+import java.util.{UUID, HashMap => JHashMap}
 
 
 class PartnerServiceManagerActor extends Actor {
@@ -35,6 +35,8 @@ class PartnerServiceManagerActor extends Actor {
     @BeanProperty var transactionTemplate: TransactionTemplate = _
     @BeanProperty var emailService: EmailService = _
 
+    @BeanProperty var cloudPartners: JHashMap[String, ActorClient] = _
+
     @BeanProperty var cacheManager: CacheManager = _
 
 
@@ -50,21 +52,9 @@ class PartnerServiceManagerActor extends Actor {
 
         case msg @ CacheEntryRemoved(partnerId: String, partnerService: PartnerService, cause: String) =>
             logger.debug("Received {}", msg)
-            partnerService.asInstanceOf[ActorClient].actorRef.stop()
+            partnerService.asInstanceOf[ActorClient].actorRef tryTell PoisonPill
             logger.debug("Stopped {}", partnerService.id)
 
-        case msg @ UpdatePartnerSettings(partnerSettings) =>
-            val me = self
-            val channel: Channel[UpdatePartnerSettingsResponse] = self.channel
-
-            try {
-                val ps = partnerSettings
-                partnerSettingsDao.insert(ps)
-                channel ! UpdatePartnerSettingsResponse(msg, Right(ps))
-            } catch {
-                case e =>
-                    channel ! UpdatePartnerSettingsResponse(msg, Left(PartnerException(e.getCause.getMessage,e)))
-            }
 
         case msg @ RegisterPartner(partner, partnerSettings, partnerUser) =>
             val me = self
@@ -84,29 +74,20 @@ class PartnerServiceManagerActor extends Actor {
             }
 
             try {
-                
-                (me ? Locate(partner.id)).onComplete(_.value.get.fold(
+                (me ? LocateByDomain(partner.domain)).onComplete(_.value.get.fold(
                     error(_),
                     _ match {
-                        case LocateResponse(_, Right(partnerService)) =>
-                            logger.debug("Partner Already Exists {}", partnerService)
-                            val pu = partnerUserDao.findByEmail(partnerUser.email)
-                            channel ! RegisterPartnerResponse(msg, Left(PartnerAlreadyExists(partner.id, pu)))
-                        case LocateResponse(_, Left(e: PartnerNotActive)) =>
-                            logger.debug("Partner Not Active!")
-                            channel ! RegisterPartnerResponse(msg, Left(PartnerNotActive(partner.id)))
-                        case LocateResponse(_, Left(e: PartnerNotFound)) =>
+                        case LocateByDomainResponse(_, Right(partnerService)) =>
+                            logger.debug("Partner already exists {}", partner.domain)
+                            channel ! RegisterPartnerResponse(msg, Left(PartnerAlreadyExists(partnerService)))
+                        case LocateByDomainResponse(_, Left(e: PartnerNotFound)) =>
                             val p = partner.copy(secret = encrypter.generateSecretKey)
                             val ps = partnerSettings.copy(partnerId = p.id)
 
-
                             val password = UUID.randomUUID().toString
-
-                            //Create a new hashed password for the partnerUser if one has not already been set
-                            //Used to handle Shopify Partner Users where the password is already created
                             val pu = partnerUser.copy(partnerId = p.id).createPassword(password)
 
-                            val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (partnerUser.email, password))
+                            val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (pu.email, password))
 
 
                             transactionTemplate.execute({status: TransactionStatus =>
@@ -115,54 +96,52 @@ class PartnerServiceManagerActor extends Actor {
                                 partnerUserDao.insert(pu)
                             })
 
-                            channel ! RegisterPartnerResponse(msg, Right(p))
-                            me ? Locate(p.id)
-
                             val model = new JHashMap[String, AnyRef]()
                             model.put("code", code)
                             model.put("partner", p)
                             model.put("partnerUser", pu)
+
                             emailService.sendEmail(
-                                partnerUser.email,
-                                "Your Echoed Account",
-                                "partner_email_register",
-                                model)
-                        case LocateResponse(_, Left(e)) => error(e)
-                })).onException({
-                    case e => error(e)
-                })
+                                    partnerUser.email,
+                                    "Your Echoed Account",
+                                    "partner_email_register",
+                                    model)
+
+                            (me ? Locate(partner.id)).onComplete(_.value.get.fold(
+                                error(_),
+                                _ match {
+                                    case LocateResponse(_, Left(e)) => error(e)
+                                    case LocateResponse(_, Right(partnerService)) =>
+                                        channel ! RegisterPartnerResponse(msg, Right(partnerService))
+                                }))
+                        case LocateByDomainResponse(_, Left(e)) => error(e)
+                    }))
             } catch {
                 case e => error(e)
             }
 
 
         case msg @ Locate(partnerId) =>
-            val channel: Channel[LocateResponse] = self.channel
+            implicit val channel: Channel[LocateResponse] = self.channel
 
             cache.get(partnerId) match {
                 case Some(partnerService) =>
                     channel ! LocateResponse(msg, Right(partnerService))
                     logger.debug("Cache hit for {}", partnerService)
                 case _ =>
-                    logger.debug("Looking up Partner Id: {}", partnerId)
+                    logger.debug("Looking up partner {}", partnerId)
                     Future {
-                        val pf = Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
-                        val pfs = Option(partnerSettingsDao.findByActiveOn(partnerId, new Date()))
-                                        .getOrElse(throw PartnerNotActive(partnerId))
-                        (pf,pfs)
+                        Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
                     }.onComplete(_.value.get.fold(
                         _ match {
                             case e: PartnerNotFound =>
-                                logger.debug("Partner Not Found: {}", partnerId)
-                                channel ! LocateResponse(msg, Left(e))
-                            case e: PartnerNotActive =>
-                                logger.debug("Partner Not Active: {}", partnerId)
+                                logger.debug("Partner not found {}", partnerId)
                                 channel ! LocateResponse(msg, Left(e))
                             case e: PartnerException => channel ! LocateResponse(msg, Left(e))
                             case e => channel ! LocateResponse(msg, Left(PartnerException("Error locating partner %s" format partnerId, e)))
                         },
                         {
-                            case (partner,partnerSettings) =>
+                            case partner if (Option(partner.cloudPartnerId) == None) =>
                                 val partnerService = new PartnerServiceActorClient(Actor.actorOf(new PartnerServiceActor(
                                     partner,
                                     partnerDao,
@@ -173,10 +152,15 @@ class PartnerServiceManagerActor extends Actor {
                                     imageService,
                                     transactionTemplate,
                                     encrypter)).start())
-                                channel ! LocateResponse(msg, Right(partnerService))
                                 cache.put(partnerId, partnerService)
+                                channel ! LocateResponse(msg, Right(partnerService))
+
+                            case partner =>
+                                logger.debug("Found {} partner {}", partner.cloudPartnerId, partner.name)
+                                cloudPartners.get(partner.cloudPartnerId).actorRef forward msg
                         }))
             }
+
 
         case msg @ LocateByEchoId(echoId) =>
             val me = self
@@ -193,6 +177,58 @@ class PartnerServiceManagerActor extends Actor {
                     channel ! LocateByEchoIdResponse(msg, Left(EchoNotFound(echoId)))
                 })
 
+
+        case msg @ LocateByDomain(domain) =>
+            val me = self
+            val channel: Channel[LocateByDomainResponse] = self.channel
+
+            Option(partnerDao.findByDomain(domain)).cata(
+                partner => (me ? Locate(partner.id)).mapTo[LocateResponse].onComplete(_.value.get.fold(
+                    e => channel ! LocateByDomainResponse(msg, Left(PartnerException("Unexpected error", e))),
+                    _ match {
+                        case LocateResponse(_, Left(e)) => channel ! LocateByDomainResponse(msg, Left(e))
+                        case LocateResponse(_, Right(partnerService)) => channel ! LocateByDomainResponse(msg, Right(partnerService))
+                    })),
+                {
+                    channel ! LocateByDomainResponse(msg, Left(PartnerNotFound(domain)))
+                })
+
+
+        case msg @ PartnerIdentifiable(partnerId) =>
+            val me = self
+            val channel = self.channel
+
+            val constructor = findResponseConstructor(msg)
+
+            (me ? Locate(partnerId)).mapTo[LocateResponse].onComplete(_.value.get.fold(
+                e => channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating partner %s" format partnerId, e))),
+                _ match {
+                    case LocateResponse(_, Left(e)) => channel ! constructor.newInstance(msg, Left(e))
+                    case LocateResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef forward msg
+                }))
+
+
+        case msg @ EchoIdentifiable(echoId) =>
+            val me = self
+            val channel = self.channel
+
+            val constructor = findResponseConstructor(msg)
+
+            (me ? LocateByEchoId(echoId)).mapTo[LocateByEchoIdResponse].onComplete(_.value.get.fold(
+                e => channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating with echo id %s" format echoId, e))),
+                _ match {
+                    case LocateByEchoIdResponse(_, Left(e)) => channel ! constructor.newInstance(msg, Left(e))
+                    case LocateByEchoIdResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef forward msg
+                }))
     }
 
+
+    private def findResponseConstructor(msg: PartnerMessage) = {
+        val requestClass = msg.getClass
+        val responseClass = Thread.currentThread.getContextClassLoader.loadClass(requestClass.getName + "Response")
+        responseClass.getConstructor(requestClass, classOf[Either[_, _]])
+    }
 }
+
+
+

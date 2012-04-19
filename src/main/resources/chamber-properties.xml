@@ -186,10 +186,11 @@
 
         <prop key="echoed.secret">PHHabG5MSw6hv4lZJg-Ppg</prop>
 
+        <!-- to add our app http://<your store>.shopify.com/admin/api/auth?api_key= -->
+        <prop key="shopify.apiKey">a2838f71f19944f9291104f70ba3a5f7</prop>
+        <prop key="shopify.sharedSecret">d27b867254075a772b67572fa0ea74c4</prop>
 
-
-        <prop key="shopify.apiKey">6823b10656f187940f72703bdadec7f6</prop>
-        <prop key="shopify.sharedSecret">f5d718ba3160382481eb2dcd312bffab</prop>
+        <prop key="accountManagerEmail">accountmanager@echoed.com</prop>
     </util:properties>
 
 
@@ -260,9 +261,10 @@
     </util:properties>
 
     <!--suppress SpringModelInspection -->
-    <util:properties id="shopifyAccessProperties">
+    <util:properties id="shopifyProperties">
         <prop key="shopifyApiKey">${shopify.apiKey}</prop>
         <prop key="shopifySecret">${shopify.sharedSecret}</prop>
+        <prop key="accountManagerEmail">${accountManagerEmail}</prop>
     </util:properties>
 
     <!--suppress SpringModelInspection -->

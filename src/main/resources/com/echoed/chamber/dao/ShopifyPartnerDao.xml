@@ -38,7 +38,7 @@
         select * from ShopifyPartner where shopifyDomain=#{shopifyDomain}
     </select>
 
-    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.FacebookUser">
+    <insert id="insert" parameterType="com.echoed.chamber.domain.shopify.ShopifyPartner">
     	insert into ShopifyPartner(
     			id,
     			updatedOn,
@@ -71,13 +71,18 @@
     			#{shopifyDomain},
     			#{password},
     			#{partnerId})
-    		on duplicate key update
-    		    name=#{name},
-                email=#{email},
-                city=#{city},
-                country=#{country},
-                zip=#{zip}
     </insert>
 
+    <update id="update" parameterType="com.echoed.chamber.domain.shopify.ShopifyPartner">
+        update ShopifyPartner set
+            name = #{name},
+            email = #{email},
+            phone = #{phone},
+            city = #{city},
+            country = #{country},
+            zip = #{zip},
+            password = #{password}
+        where id = #{id}
+    </update>
 </mapper>
 

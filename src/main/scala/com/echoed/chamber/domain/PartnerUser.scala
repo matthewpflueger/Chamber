@@ -14,20 +14,10 @@ case class PartnerUser(
         partnerId: String,
         name: String,
         email: String,
-        salt: String,
-        password: String) {
+        @transient salt: String,
+        @transient password: String) {
     
-    def this(shopifyUser: ShopifyPartner) = this(
-        UUID.randomUUID.toString,
-        new Date,
-        new Date,
-        shopifyUser.partnerId,
-        shopifyUser.name,
-        shopifyUser.email,
-        UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString,
-        null
-    )
-    
+
     def this(partnerId: String, name: String, email: String) = this(
         UUID.randomUUID.toString,
         new Date,
@@ -42,6 +32,8 @@ case class PartnerUser(
         null,
         name,
         email)
+
+    val hasPassword = Option(password) != None
 
     def isPassword(plainTextPassword: String) = {
         password == hash(plainTextPassword)

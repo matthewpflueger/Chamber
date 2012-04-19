@@ -16,8 +16,10 @@ object ControllerUtils {
         e.foreach(ex => logger.error("%s" format ex.getMessage, ex))
         val modelAndView = new ModelAndView(view) with Errors
         modelAndView.addError(e)
-        continuation.setAttribute("modelAndView", modelAndView)
-        if (continuation.isSuspended) continuation.resume
+        Option(continuation).foreach { c =>
+            c.setAttribute("modelAndView", modelAndView)
+            if (c.isSuspended) c.resume
+        }
         modelAndView
     }
 }

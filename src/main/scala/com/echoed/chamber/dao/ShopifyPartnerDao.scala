@@ -9,6 +9,8 @@ trait ShopifyPartnerDao {
 
     def findByPartnerId(partnerId: String): ShopifyPartner
 
-    def insertOrUpdate(shopifyUser: ShopifyPartner): Int
+    def insert(shopifyPartner: ShopifyPartner): Int
+
+    def update(shopifyPartner: ShopifyPartner): Int
 
 }
