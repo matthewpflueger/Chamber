@@ -36,13 +36,14 @@ Echoed.Models.Page = Backbone.Model.extend({
 
 Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
-        _.bindAll(this, 'summary', 'rewards', 'settings', 'reports');
+        _.bindAll(this, 'summary', 'rewards', 'settings', 'reports','echoes');
         this.page = null;
         this.EvAg = options.EvAg;
     },
     routes:{
         "summary": "summary",
         "": "summary",
+        "echoes": "echoes",
         "rewards": "rewards",
         "settings": "settings",
         "reports": "reports",
@@ -59,6 +60,11 @@ Echoed.Router = Backbone.Router.extend({
             var pageView = new Echoed.Views.Pages.Rewards({EvAg: this.EvAg});
         this.page = "rewards";
     },
+    echoes: function() {
+        if(this.page != "echoes")
+            var pageView = new Echoed.Views.Pages.Echoes({EvAg: this.EvAg});
+        this.page = "echoes";
+    },
     settings: function() {
         if(this.page != "settings")
             var pageView = new Echoed.Views.Pages.Settings({EvAg: this.EvAg});
@@ -70,6 +76,49 @@ Echoed.Router = Backbone.Router.extend({
             var pageView = new Echoed.Views.Pages.Reports({EvAg: this.EvAg,report: report,reportId: id});
         this.EvAg.trigger('subnav/change',{subnav: report});
         this.page= newPage;
+    }
+});
+
+Echoed.Views.Pages.Echoes = Backbone.View.extend({
+    el: '#content',
+    initialize: function(options){
+        _.bindAll(this, 'render');
+        this.element = $(this.el);
+        this.EvAg = options.EvAg;
+        this.EvAg.trigger('title/change',{title: 'Echoes' });
+        this.EvAg.trigger('page/change', {page: 'echoes' });
+        this.render();
+    },
+    render: function(){
+        var self = this;
+        var template = _.template($('#template-view-echoes').html());
+        self.element.html(template);
+        $.ajax({
+            url: Echoed.urls.api + "/partner/retailer/echoes",
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+                var table = {"style":"report-table","header": [{"text":"Order Id"},{"text" : "Product Id"}, {"text" : "Product Name"}, {"text" : "Purchase Date"}, { "text" : "Credit"}, { "text" : "Visitors" }, { "text" : "Credit Window Ends At" } ],"rows": []};
+                $.each(data, function(index, echo){
+                    var row = {"href":"#", cells:[]};
+                    var cDate = new Date(echo.createdOn);
+                    var eDate = new Date(echo.creditWindowEndsAt);
+
+                    row.cells.push({"text": echo.orderId, "style" : ""});
+                    row.cells.push({"text": echo.productId, "style" : ""});
+                    row.cells.push({"text": echo.productName, "style" : ""});
+                    row.cells.push({"text": cDate.toDateString() , "style" : ""});
+                    row.cells.push({"text": echo.credit , "style" : "number"});
+                    row.cells.push({"text": echo.totalClicks, "style" : "number"});
+                    row.cells.push({"text": eDate.toDateString() , "style" : ""});
+                    table.rows.push(row);
+                });
+                var echoesTable = new Echoed.Views.Components.TableTemplate({EvAg: self.EvAg, el: "#echoes-table",table:table});
+                self.element.fadeIn();
+            }
+        });
     }
 });
 
@@ -326,6 +375,33 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
                     table.rows.push(row);
                 });
                 var topProductsTable = new Echoed.Views.Components.TableTemplate({EvAg: self.EvAg, el:'#top-products-table', table:table});
+            }
+        });
+        $.ajax({
+            url: Echoed.urls.api  + "/partner/reports/geolocation",
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+                var center = new google.maps.LatLng(0, 0);
+                var options = {
+                    'zoom' : 2,
+                    'center' : center,
+                    'mapTypeId' : google.maps.MapTypeId.ROADMAP
+                };
+                var map = new google.maps.Map(document.getElementById("map"), options);
+                var markers= [];
+                $.each(data, function(index, marker){
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(marker.latitude, marker.longitude),
+                        map: map
+
+                    });
+                    markers.push(marker)
+
+                });
+                var markerCluster = new MarkerClusterer(map, markers);
             }
         });
         $.ajax({

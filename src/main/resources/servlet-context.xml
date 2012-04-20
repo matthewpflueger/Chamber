@@ -125,7 +125,7 @@
         <property name="facebookCanvasApp" value="${facebook.canvasApp}" />
         <property name="postLoginView" value="redirect:${http.urls.site}" />
         <property name="postAddView" value="redirect:${http.urls.site}" />
-        <property name="facebookLoginErrorView" value="redirect:${facebookLoginErrorViewUrl}" />
+        <property name="facebookLoginErrorView" value="error" />
         <property name="facebookClientId" value="${facebook.clientId}" />
         <property name="facebookClientSecret" value="${facebook.clientSecret}" />
         <property name="siteUrl" value="${http.urls.site}" />
@@ -267,6 +267,10 @@
             <bean class="com.echoed.chamber.controllers.shopify.ShopifyRegisterFormValidator" />
         </property>
         <property name="conversionService" ref="conversionService" />
+    </bean>
+    
+    <bean id="publicController" class="com.echoed.chamber.controllers.api.PublicController">
+        <property name="feedService"  ref="feedService"/>
     </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->

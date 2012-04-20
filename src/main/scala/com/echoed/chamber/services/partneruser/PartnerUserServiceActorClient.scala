@@ -48,6 +48,13 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
     def getCommentsByProductId(productId: String) =
         (partnerUserServiceActor ? GetCommentsByProductId(productId: String)).mapTo[GetCommentsByProductIdResponse]
 
+    def getEchoClickGeoLocation =
+        (partnerUserServiceActor ? GetEchoClickGeoLocation()).mapTo[GetEchoClickGeoLocationResponse]
+    
+    def getEchoes = 
+        (partnerUserServiceActor ? GetEchoes()).mapTo[GetEchoesResponse]
+
+
     def logout(partnerUserId: String) =
         (partnerUserServiceActor ? Logout(partnerUserId)).mapTo[LogoutResponse]
 

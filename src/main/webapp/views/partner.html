@@ -1,6 +1,7 @@
 {{> partnerheader}}
 <title>Echoed | Partner</title>
-
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false" ></script>
+<script type="text/javascript" src="{{urls.js}}/markerclusterer_compiled.js"></script>
 <script type="text/javascript">
     function dump(arr,level) {
         var dumped_text = "";
@@ -32,6 +33,18 @@
         <div class="full box clearfix">
             <div id="table-container">
 
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="template-view-echoes">
+    <div class="row">
+        <div class="box full clearfix">
+            <div class="label">
+                Echoes
+            </div>
+            <div id="echoes-table">
             </div>
         </div>
     </div>
@@ -94,6 +107,15 @@
     </div>
     <div class="row">
         <div class="box full clearfix">
+            <div class='label'>
+                Location
+            </div>
+            <div id="map" style="height:400px;">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="box full clearfix">
             <div class="label">
                 Top Products
             </div>
@@ -135,6 +157,11 @@
                     <li id="summary_nav">
                         <a href="#summary">
                             Summary
+                        </a>
+                    </li>
+                    <li id="echoes_nav">
+                        <a href="#echoes">
+                            Echoes
                         </a>
                     </li>
                     <li id="reports_nav">

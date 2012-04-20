@@ -1,5 +1,7 @@
 package com.echoed.chamber.dao.views
 
+import com.echoed.chamber.domain.GeoLocation
+
 import com.echoed.chamber.domain.{FacebookComment}
 import com.echoed.chamber.domain.EchoedUser
 import org.apache.ibatis.annotations.Param
@@ -95,4 +97,14 @@ trait PartnerViewDao {
             @Param("partnerId") partnerId: String,
             @Param("echoedUserId") echoedUserId: String, 
             @Param("productId") productId: String): Int
+    
+    def getEchoClickGeoLocation(
+            @Param("partnerId") partnerId: String,
+            @Param("echoedUserId") echoedUserId: String,
+            @Param("productId") productId: String): JList[GeoLocation]
+    
+    def getPartnerEchoView(
+            @Param("parnterId") partnerId: String): JList[PartnerEchoView]
+
+
 }

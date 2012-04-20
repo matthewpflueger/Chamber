@@ -180,6 +180,15 @@ class PartnerController {
                                     continuation.setAttribute("jsonResponse", partnerSocialSummary)
                                     continuation.resume()
                             })
+                        case "echoes" =>
+                            pus.getEchoes.onResult({
+                                case GetEchoesResponse(_, Left(e)) =>
+                                    logger.error("Error getting Echoes", e)
+                                    error(e)
+                                case GetEchoesResponse(_, Right(echoes)) =>
+                                    continuation.setAttribute("jsonResponse", echoes)
+                                    continuation.resume()
+                            })
                         case "history" =>
                             pus.getPartnerSocialActivityByDate.onResult({
                                 case GetPartnerSocialActivityByDateResponse(_, Left(e)) =>
@@ -227,7 +236,15 @@ class PartnerController {
                                     error(e)
                                 case GetTopProductsResponse(_, Right(products)) =>
                                     continuation.setAttribute("jsonResponse", products)
-                                    continuation.resume
+                                    continuation.resume()
+                            })
+                        case "geolocation" =>
+                            pus.getEchoClickGeoLocation.onResult({
+                                case GetEchoClickGeoLocationResponse(_, Left(e)) =>
+                                    error(e)
+                                case GetEchoClickGeoLocationResponse(_, Right(geolocation)) =>
+                                    continuation.setAttribute("jsonResponse",geolocation)
+                                    continuation.resume()
                             })
                         case _ => error(new IllegalArgumentException("Invalid Request"))
                     }

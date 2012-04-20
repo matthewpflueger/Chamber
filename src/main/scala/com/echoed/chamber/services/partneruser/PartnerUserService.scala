@@ -34,6 +34,12 @@ trait PartnerUserService {
     def getComments: Future[GetCommentsResponse]
 
     def getCommentsByProductId(productId:String): Future[GetCommentsByProductIdResponse]
+    
+    def getEchoClickGeoLocation: Future[GetEchoClickGeoLocationResponse]
+
+    def getEchoes: Future[GetEchoesResponse]
+    
+    //def getEchoes: Future[]
 
     def logout(partnerUserId: String): Future[LogoutResponse]
 }

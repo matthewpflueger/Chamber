@@ -77,6 +77,10 @@
     <bean id="emailService" class="com.echoed.chamber.services.email.EmailServiceActorClient">
         <property name="actorRef" ref="emailServiceActor" />
     </bean>
+    
+    <bean id="feedService" class="com.echoed.chamber.services.feed.FeedServiceActorClient">
+        <property name="feedServiceActor" ref="feedServiceActor" />
+    </bean>
 
     <bean id="facebookAccess" class="com.echoed.chamber.services.facebook.FacebookAccessActorClient">
         <property name="actorRef" ref="facebookAccessActor" />
@@ -412,8 +416,7 @@
         <!--suppress SpringModelInspection -->
         <property name="facebookAccess" ref="facebookAccess" />
     </akka:untyped-actor>
-
-
+    
     <akka:untyped-actor
             id="geoLocationServiceActor"
             implementation="com.echoed.chamber.services.geolocation.GeoLocationServiceActor"
@@ -422,6 +425,14 @@
         <property name="geoLocationDao" ref="geoLocationDao" />
         <!--suppress SpringModelInspection -->
         <property name="properties" ref="geoLocationProperties" />
+    </akka:untyped-actor>
+    
+    <akka:untyped-actor
+            id="feedServiceActor"
+            implementation="com.echoed.chamber.services.feed.FeedServiceActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="feedDao" ref="feedDao" />
     </akka:untyped-actor>
 
 </beans>

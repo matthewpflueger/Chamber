@@ -1,8 +1,8 @@
 package com.echoed.chamber.services.partneruser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.views.{PartnerSocialSummary, ProductSocialSummary, PartnerProductsListView, PartnerCustomerListView, PartnerProductSocialActivityByDate, PartnerSocialActivityByDate,CustomerSocialSummary,PartnerCustomerSocialActivityByDate}
-import com.echoed.chamber.domain.{Partner, PartnerUser, FacebookComment}
+import com.echoed.chamber.domain.views.{PartnerSocialSummary, ProductSocialSummary, PartnerProductsListView, PartnerCustomerListView, PartnerProductSocialActivityByDate, PartnerSocialActivityByDate,CustomerSocialSummary,PartnerCustomerSocialActivityByDate, PartnerEchoView}
+import com.echoed.chamber.domain.{Partner, PartnerUser, FacebookComment, GeoLocation}
 
 
 sealed trait PartnerUserMessage extends Message
@@ -36,9 +36,14 @@ case class GetCustomerSocialActivityByDate(echoedUserId: String) extends PUM
 case class GetCustomerSocialActivityByDateResponse(message: GetCustomerSocialActivityByDate, value: Either[PartnerUserException, PartnerCustomerSocialActivityByDate])
         extends PUM with RM[PartnerCustomerSocialActivityByDate, GetCustomerSocialActivityByDate, PUE]
 
+
 case class GetPartnerSocialSummary() extends PUM
 case class GetPartnerSocialSummaryResponse(message: GetPartnerSocialSummary, value: Either[PartnerUserException, PartnerSocialSummary])
         extends PUM with RM[PartnerSocialSummary, GetPartnerSocialSummary, PUE]
+
+case class GetEchoClickGeoLocation() extends PUM
+case class GetEchoClickGeoLocationResponse(message: GetEchoClickGeoLocation, value: Either[PartnerUserException, List[GeoLocation]])
+        extends PUM with RM[List[GeoLocation], GetEchoClickGeoLocation, PUE]
 
 case class GetPartnerSocialActivityByDate() extends PUM
 case class GetPartnerSocialActivityByDateResponse(message: GetPartnerSocialActivityByDate, value: Either[PartnerUserException, PartnerSocialActivityByDate])
@@ -64,10 +69,13 @@ case class GetCustomers() extends PUM
 case class GetCustomersResponse(message: GetCustomers, value: Either[PartnerUserException,PartnerCustomerListView])
     extends PUM with RM[PartnerCustomerListView, GetCustomers, PUE]
 
+case class GetEchoes() extends PUM
+case class GetEchoesResponse(message: GetEchoes,  value: Either[PartnerUserException, List[PartnerEchoView]])
+    extends PUM with RM[List[PartnerEchoView], GetEchoes, PUE]
+
 case class GetTopCustomers() extends PUM
 case class GetTopCustomersResponse(message: GetTopCustomers, value: Either[PartnerUserException,PartnerCustomerListView])
     extends PUM with RM[PartnerCustomerListView, GetTopCustomers, PUE]
-
 
 case class GetComments() extends PUM
 case class GetCommentsResponse(message: GetComments, value: Either[PartnerUserException,List[FacebookComment]] )

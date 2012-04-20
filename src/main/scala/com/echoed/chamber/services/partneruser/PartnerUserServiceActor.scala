@@ -153,6 +153,11 @@ class PartnerUserServiceActor(
                 resultSet => self.channel ! GetTopCustomersResponse(msg, Right(resultSet)),
                 self.channel ! GetTopCustomersResponse(msg, Left(PartnerUserException("Top customers not available"))))
 
+        case msg: GetEchoes =>
+            Option(partnerViewDao.getPartnerEchoView(partnerUser.partnerId)).cata(
+                resultSet => self.channel ! GetEchoesResponse(msg, Right(asScalaBuffer(resultSet).toList)),
+                self.channel ! GetEchoesResponse(msg, Left(PartnerUserException("Echoes Not Available"))))
+
         case msg: GetComments =>
             Option(partnerViewDao.getComments(partnerUser.partnerId, null, null)).cata(
                 resultSet => self.channel ! GetCommentsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
@@ -162,6 +167,12 @@ class PartnerUserServiceActor(
             Option(partnerViewDao.getComments(partnerUser.partnerId, null, msg.productId)).cata(
                 resultSet => self.channel ! GetCommentsByProductIdResponse(msg, Right(asScalaBuffer(resultSet).toList)),
                 self.channel ! GetCommentsByProductIdResponse(msg, Left(PartnerUserException("Comments by product not available"))))
+
+        case msg: GetEchoClickGeoLocation =>
+            Option(partnerViewDao.getEchoClickGeoLocation(partnerUser.partnerId, null, null)).cata(
+                resultSet => self.channel ! GetEchoClickGeoLocationResponse(msg, Right(asScalaBuffer(resultSet).toList)),
+                self.channel ! GetEchoClickGeoLocationResponse(msg, Left(PartnerUserException("Geolocation For Echo Clicks Not Available")))
+            )
     }
 
 }
