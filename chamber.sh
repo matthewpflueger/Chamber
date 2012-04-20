@@ -38,7 +38,10 @@ case $service_args in
         echo "Starting $DESC"
         shift
 
-        ENV_TYPE=dev
+        if [[ "${ENV_TYPE}" == "" ]]; then
+            ENV_TYPE=dev
+        fi
+
         CONTEXT=src/main/resources/jetty.xml
         TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
         MAIN=com.echoed.chamber.Main
@@ -77,6 +80,7 @@ case $service_args in
         fi
 
         [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+        [ -r ./$NAME ] && . ./$NAME
         #if [ -e /etc/default/$NAME ]; then 
         #    source /etc/default/$NAME
         #    echo "ENV_TYPE=${ENV_TYPE}"
