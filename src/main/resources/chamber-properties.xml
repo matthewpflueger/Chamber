@@ -77,7 +77,7 @@
 
         <prop key="facebook.accessToken">177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA</prop>
         <prop key="facebook.accessTokenUrl">
-            https://graph.facebook.com/oauth/access_token?client_id=${facebook.clientId}&amp;client_secret=${facebook.clientSecret&amp;grant_type=client_credentials
+            https://graph.facebook.com/oauth/access_token?client_id=${facebook.clientId}&amp;client_secret=${facebook.clientSecret}&amp;grant_type=client_credentials
         </prop>
         <prop key="facebook.redirectUrl">${http.urls.site}</prop>
 
