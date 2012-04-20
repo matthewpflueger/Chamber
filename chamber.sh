@@ -222,7 +222,7 @@ function service_cmd() {
             ;;
 
         migrate_status)
-            PACKAGE="mvn migration:status -Dmigration.path=src/main/database"
+            PACKAGE="mvn migration:status -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
             echo "Running ${PACKAGE}"
             $PACKAGE
             result=$?
@@ -232,7 +232,7 @@ function service_cmd() {
             ;;
 
         migrate_up)
-            PACKAGE="mvn migration:up -Dmigration.path=src/main/database"
+            PACKAGE="mvn migration:up -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
             echo "Running ${PACKAGE}"
             $PACKAGE
             result=$?
@@ -242,7 +242,7 @@ function service_cmd() {
             ;;
 
         migrate_down)
-            PACKAGE="mvn migration:down -Dmigration.path=src/main/database"
+            PACKAGE="mvn migration:down -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
             echo "Running ${PACKAGE}"
             $PACKAGE
             result=$?

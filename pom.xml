@@ -475,6 +475,7 @@
                             <goal>up</goal>
                         </goals>
                         <configuration>
+                            <environment>${ENV_TYPE}</environment>
                             <repository>src/main/database</repository>
                         </configuration>
                     </execution>
