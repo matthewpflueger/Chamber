@@ -3,6 +3,8 @@
 NAME=chamber
 DESC=Chamber
 
+SCRIPT=`readlink -f $0`
+BASEDIR=`dirname $SCRIPT`
 
 if [[ ! -e "$JAVA_HOME/bin/java" ]]; then
     JAVA_HOME=/usr/local/lib/java
@@ -48,10 +50,25 @@ case $service_args in
 
         NEWRELIC=/usr/local/lib/newrelic/newrelic.jar
 
+        MIN_MEM="1024m"
+        MAX_MEM="2048m"
+        PERM_SIZE="256m"
+        CONNECT_TIMEOUT="10000"
+        READ_TIMEOUT="10000"
         CLASSPATH=".:${TARGET}"
         OVERRIDES="src/overrides/resources"
         ARGS_INTERESTING="-XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled -XX:+UseCompressedOops"
-        ARGS="-server -Xms1024m -Xmx2048m -XX:PermSize=256m  -Djava.net.preferIPv4Stack=true -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=10000"
+
+
+        # Load the system environment variable overrides
+        [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+        [ -r $BASEDIR/$NAME ] && . $BASEDIR/$NAME
+        #if [ -e /etc/default/$NAME ]; then 
+        #    source /etc/default/$NAME
+        #    echo "ENV_TYPE=${ENV_TYPE}"
+        #fi
+
+        ARGS="-server -Xms${MIN_MEM} -Xmx${MAX_MEM} -XX:PermSize=${PERM_SIZE} -Djava.net.preferIPv4Stack=true -Dsun.net.client.defaultConnectTimeout=${CONNECT_TIMEOUT} -Dsun.net.client.defaultReadTimeout=${READ_TIMEOUT}"
 
 
         if [[ "$1" == "-o" ]]; then
@@ -79,12 +96,6 @@ case $service_args in
             CONTEXT=${1}
         fi
 
-        [ -r /etc/default/$NAME ] && . /etc/default/$NAME
-        [ -r ./$NAME ] && . ./$NAME
-        #if [ -e /etc/default/$NAME ]; then 
-        #    source /etc/default/$NAME
-        #    echo "ENV_TYPE=${ENV_TYPE}"
-        #fi
 
         echo "java ${ARGS} -DENV_TYPE=${ENV_TYPE} -cp ${CLASSPATH} ${MAIN} ${CONTEXT}"
 
