@@ -253,9 +253,10 @@ function service_cmd() {
 
         dump)
             DATE=`date +%Y%m%d%H%M%S`
+            HOST=`hostname`
             DUMP="mysqldump -u ${DATABASE_USER} -p${DATABASE_PASSWORD} --database ${DATABASE}"
-            echo "Running $DUMP | gzip > dump-${DATABASE}-${DATE}.sql.gz"
-            $DUMP | gzip > dump-${DATABASE}-${DATE}.sql.gz
+            echo "Running $DUMP | gzip > dump-${HOST}-${DATABASE}-${DATE}.sql.gz"
+            $DUMP | gzip > dump-${HOST}-${DATABASE}-${DATE}.sql.gz
              
             result=$?
             if [[ $result > 0 ]]; then
