@@ -30,7 +30,7 @@ trait PartnerViewDao {
             @Param("limit") limit: Int): PartnerProductsListView
 
     def getTopProductsWithPartnerId(partnerId: String): PartnerProductsListView
-    
+
     def getCustomersWithPartnerId(
             @Param("partnerId") partnerId: String,
             @Param("start") start: Int,

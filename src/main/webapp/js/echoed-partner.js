@@ -171,7 +171,7 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                                 $('#cs-views').hide().html(data.totalEchoClicks).fadeIn();
                                 $('#cs-retweets').hide().html(0).fadeIn();
                                 $('#cs-echoes').hide().html(data.totalEchoes).fadeIn();
-                                $('#cs-total').hide().html("$" + data.totalSales).fadeIn();
+                                $('#cs-total').hide().html("$" + data.totalSales.toFixed(2)).fadeIn();
                                 $('#cs-purchases').hide().html(data.totalSalesVolume).fadeIn();
                                 $('#cs-comments').hide().html(data.totalFacebookComments).fadeIn();
                             });
@@ -221,8 +221,13 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                             var table = {"style":"report-table","header": [{"text":"Customer"},{"text":"($)Purchases"},{"text":"(#)Purchases"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                             $.each(data.customers, function(index,customer){
                                 var row = {"href":"#reports/customers/" + customer.echoedUserId , cells:[]};
-                                row.cells.push({"text" : customer.echoedUserName, "style" : ""});
-                                row.cells.push({"text" : customer.totalSales, "style" : "number"});
+                                if(customer.echoedUserName){
+                                    row.cells.push({"text" : customer.echoedUserName, "style" : ""});
+                                }
+                                else {
+                                    row.cells.push({"text" : "Guest", "style" : ""});
+                                }
+                                row.cells.push({"text" : "$" + customer.totalSales.toFixed(2), "style" : "number"});
                                 row.cells.push({"text" : customer.totalSalesVolume, "style" : "number"});
                                 row.cells.push({"text" : customer.totalEchoes, "style" : "number"});
                                 row.cells.push({"text" : customer.totalEchoClicks, "style" : "number"});
@@ -245,12 +250,12 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                         },
                         success: function(data){
                             self.element.hide().html(template);
-                            var table = {"style":"report-table","header": [{"text":"Product Name"},{"text":"($)Sales"},{"text":"(#)Sales"},{"text":"SKU"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
+                            var table = {"style":"report-table","header": [{"text":"Product Name"},{"text":"Product Id"},{"text":"($)Purchases"},{"text":"(#)Purchases"},{"text":"Echoes"},{"text":"Page Views"},{"text":"Likes"},{"text":"Comments"}],"rows": []};
                             $.each(data.products, function(index,product){
                                 var row = {"href":"#reports/products/" + product.productId , cells:[]};
                                 row.cells.push({"text":product.productName, "style" : ""});
                                 row.cells.push({"text":product.productId, "style" : ""});
-                                row.cells.push({"text":product.totalSales, "style" : "number"});
+                                row.cells.push({"text": "$" + product.totalSales.toFixed(2), "style" : "number"});
                                 row.cells.push({"text":product.totalSalesVolume, "style": "number"});
                                 row.cells.push({"text":product.totalEchoes, "style" : "number"});
                                 row.cells.push({"text":product.totalEchoClicks, "style" : "number"});
@@ -347,7 +352,7 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
                     $('#ss-purchases').hide().html(data.totalSalesVolume).fadeIn();
                     $('#ss-visits').hide().html(data.totalEchoClicks).fadeIn();
                     $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
-                    $('#ss-salesamount').hide().html(data.totalSales).fadeIn();
+                    $('#ss-salesamount').hide().html("$" + data.totalSales.toFixed(2)).fadeIn();
                 },
                 error:function (xhr, ajaxOptions, thrownError){
                 }

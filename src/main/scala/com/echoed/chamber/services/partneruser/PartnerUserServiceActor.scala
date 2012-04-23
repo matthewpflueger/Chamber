@@ -96,8 +96,9 @@ class PartnerUserServiceActor(
             self.channel ! GetPartnerSocialSummaryResponse(
                     msg,
                     Right(new PartnerSocialSummary(partnerUser.partnerId, partnerUser.name, echoes, likes, comments, clicks, sales, volume)))
-        case msg: GetPartnerSocialActivityByDate =>
 
+
+        case msg: GetPartnerSocialActivityByDate =>
             var series = new ArrayList[SocialActivityHistory]
 
             val comments = partnerViewDao.getFacebookCommentsHistory(partnerUser.partnerId,null,null)
