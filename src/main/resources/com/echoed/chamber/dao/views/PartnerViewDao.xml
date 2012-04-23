@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.views.PartnerViewDao">
+
+    <cache-ref namespace="com.echoed.chamber.dao.cache.Flushing30" />
+
+    <resultMap id="echoedUser" type="com.echoed.chamber.domain.EchoedUser">
+        <constructor>
+            <idArg column="id" javaType="String"/>
+            <arg column="updatedOn" javaType = "Date"/>
+            <arg column="createdOn" javaType = "Date"/>
+            <arg column="name" javaType="String"/>
+            <arg column="email" javaType="String"/>
+            <arg column="screenName" javaType="String"/>
+            <arg column="facebookUserId" javaType="String"/>
+            <arg column="facebookId" javaType="String"/>
+            <arg column="twitterUserId" javaType="String"/>
+            <arg column="facebookUserId" javaType="String"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="partnerSocialSummaryResult" type="com.echoed.chamber.domain.views.PartnerSocialSummary">
+        <constructor>
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="partnerName" javaType="String" />
+            <arg column="totalEchoes" javaType="_int" />
+            <arg column="totalFacebookLikes" javaType="_int" />
+            <arg column="totalFacebookComments" javaType="_int" />
+            <arg column="totalEchoClicks" javaType="_int"/>
+            <arg column="totalSales" javaType="_float"/>
+            <arg column="totalSalesVolume" javaType="_int"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="partnerProductsListView" type="com.echoed.chamber.domain.views.PartnerProductsListView">
+        <constructor>
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="partnerName" javaType="String"/>
+        </constructor>
+        <collection property="products" ofType="com.echoed.chamber.domain.views.ProductSocialSummary" javaType="ArrayList" resultMap="productSocialSummaryResult"/>
+    </resultMap>
+    
+    <resultMap id="partnerProductSocialActivityByDate" type="com.echoed.chamber.domain.views.PartnerProductSocialActivityByDate">
+        <constructor>
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="partnerName" javaType="String"/>
+            <arg column="activityType"  javaType="String"/>
+        </constructor>
+        <collection property="activityType" ofType="com.echoed.chamber.domain.views.SocialActivityTotalByDate" javaType="ArrayList" resultMap="socialActivityTotalByDate"/>
+    </resultMap>
+    
+    <resultMap id="productSocialActivityTotal" type="com.echoed.chamber.domain.views.ProductSocialActivityTotal">
+        <constructor>
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="productId" javaType="String"/>
+            <arg column="productName" javaType="String"/>
+            <arg column="total" javaType= "_int"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="socialActivityTotalByDate" type="com.echoed.chamber.domain.views.SocialActivityTotalByDate">
+        <constructor>
+            <idArg column="date" javaType="Date"/>
+            <arg column="total" javaType="_int"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="productSocialSummaryResult" type="com.echoed.chamber.domain.views.ProductSocialSummary">
+        <constructor>
+            <idArg column="productId" javaType="String" />
+            <arg column="productName" javaType="String" />
+            <arg column="productBrand" javaType="String" />
+            <arg column="productCategory" javaType="String" />
+            <arg column="partnerId" javaType="String" />
+            <arg column="partnerName" javaType="String" />
+            <arg column="productImageUrl" javaType="String" />
+            <arg column="totalEchoes" javaType="_int" />
+            <arg column="totalFacebookLikes" javaType="_int" />
+            <arg column="totalFacebookComments" javaType="_int" />
+            <arg column="totalEchoClicks" javaType="_int"/>
+            <arg column="totalSales" javaType="_float" />
+            <arg column="totalSalesVolume" javaType="_int"/>
+        </constructor>
+    </resultMap>
+
+
+    <resultMap id="partnerEchoView" type="com.echoed.chamber.domain.views.PartnerEchoView">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="orderId" javaType="String" />
+            <arg column="productId" javaType="String" />
+            <arg column="productName" javaType="String"/>
+            <arg column="price" javaType="_float"/>
+            <arg column="totalClicks" javaType="_int" />
+            <arg column="credit" javaType="_float"/>
+            <arg column="creditWindowEndsAt" javaType="Date"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="partnerCustomerListView" type="com.echoed.chamber.domain.views.PartnerCustomerListView">
+        <constructor>
+            <idArg column="partnerId" javaType="String"/>
+            <arg column="partnerName" javaType="String"/>
+        </constructor>
+        <collection property="customers" ofType="com.echoed.chamber.domain.views.CustomerSocialSummary" javaType="ArrayList" resultMap="customerSocialSummaryResult"/>
+    </resultMap>
+
+    <resultMap id="customerSocialSummaryResult" type="com.echoed.chamber.domain.views.CustomerSocialSummary">
+        <constructor>
+            <idArg column="echoedUserId" javaType="String" />
+            <arg column="echoedUserName" javaType="String"/>
+            <arg column="totalEchoes" javaType="_int" />
+            <arg column="totalFacebookLikes" javaType="_int" />
+            <arg column="totalFacebookComments" javaType="_int" />
+            <arg column="totalEchoClicks" javaType="_int"/>
+            <arg column="totalFacebookFriends" javaType="_int"/>
+            <arg column="totalSales" javaType="_float"/>
+            <arg column="totalSalesVolume" javaType="_int"/>
+        </constructor>
+    </resultMap>
+    
+    <resultMap id="comments" type="com.echoed.chamber.domain.FacebookComment">
+        <constructor>
+            <idArg column="id" javaType="String" />
+            <arg column="updatedOn" javaType="Date" />
+            <arg column="createdOn" javaType="Date" />
+            <arg column="facebookPostId" javaType="String" />
+            <arg column="facebookUserId" javaType="String" />
+            <arg column="echoedUserId" javaType="String" />
+            <arg column="facebookId" javaType="String" />
+            <arg column="byFacebookId" javaType="String" />
+            <arg column="name" javaType="String" />
+            <arg column="message" javaType="String" />
+            <arg column="createdAt" javaType="Date" />
+        </constructor>
+    </resultMap>
+
+    <sql id="productColumns">
+        E.productId as productId,
+        coalesce (E.productName) as productName,
+        coalesce (E.brand) as productBrand,
+        coalesce (E.category) as productCategory,
+        coalesce (P.id) as partnerId,
+        coalesce (P.name) as partnerName,
+        coalesce(E.imageUrl) as productImageUrl,
+        count(E.echoedUserId) as totalEchoes,
+        coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
+        coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
+        coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
+        coalesce(sum(ESA.totalSales),0) as totalSales,
+        coalesce(sum(ESA.totalSalesVolume),0) as totalSalesVolume
+    </sql>
+
+    <sql id="customerColumns">
+        P.id as partnerId,
+        P.name as partnerName,
+        EU.id as echoedUserId,
+        EU.name as echoedUserName,
+        count(E.echoedUserId) as totalEchoes,
+        coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
+        coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
+        coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
+        coalesce(sum(ESA.totalSales),0) as totalSales,
+        coalesce(sum(ESA.totalSalesVolume),0) as totalSalesVolume,
+        coalesce(FF.facebookFriends, 0) as totalFacebookFriends
+    </sql>
+
+    <sql id="aggregateSalesByPartnerIdAndProductId">
+        (
+            SELECT
+                EP.productId as productId
+                EP.partnerId as partnerId
+                sum(EP.price) as totalSales
+            GROUP BY
+                EP.productId,
+                EP.partnerId
+        )
+    </sql>
+
+    <sql id="aggregateStatsByEcho">
+        (
+            SELECT
+                E.id as echoId,
+                sum(FBL.likes) as facebookLikes,
+                sum(FBC.comments) as facebookComments,
+                sum(EC.echoClicks) as echoClicks,
+                sum(EP.sales) as totalSales,
+                sum(EP.volume) as totalSalesVolume
+            FROM
+                Echo E
+                LEFT OUTER JOIN
+                FacebookPost FBP ON FBP.echoId = E.id
+                LEFT OUTER JOIN
+                (
+                    SELECT
+                        facebookPostId,
+                        count(id) as likes
+                    FROM
+                        FacebookLike
+                    GROUP BY
+                        facebookPostId
+                )
+                FBL ON FBL.facebookPostId = FBP.id
+                LEFT OUTER JOIN
+                (
+                    SELECT
+                        facebookPostId,
+                        count(id) as comments
+                    FROM
+                        FacebookComment
+                    GROUP BY
+                        facebookPostId
+                )
+                FBC ON FBC.facebookPostId = FBP.id
+                LEFT OUTER JOIN
+                (
+                    SELECT
+                        echoId,
+                        count(id) as echoClicks
+                    FROM
+                        EchoClick
+                    GROUP BY
+                        echoId
+                )
+                EC ON E.id = EC.echoId
+                LEFT OUTER JOIN
+                (
+                    SELECT
+                        id,
+                        count(id) as volume,
+                        sum(price) as sales
+                    from
+                        Echo
+                    group by
+                        id
+                )
+                EP ON EP.id = E.id
+            GROUP BY
+                E.id
+        )
+    </sql>
+
+    <sql id="friendsAggregate">
+        (
+            SELECT
+                FacebookUser.echoedUserId,
+                count(FacebookFriend.id) as facebookFriends
+            FROM
+                FacebookUser
+                LEFT OUTER JOIN
+                FacebookFriend ON FacebookUser.id = FacebookFriend.facebookUserId
+            GROUP BY
+                FacebookUser.echoedUserId
+        )
+    </sql>
+    
+    <select id="getTopProductsWithPartnerId" resultMap="partnerProductsListView">
+        SELECT <include refid="productColumns" />
+        FROM
+            Partner P
+            LEFT OUTER JOIN
+            Echo E ON P.id = E.partnerId
+            LEFT OUTER JOIN
+            <include refid="aggregateStatsByEcho" />
+            ESA ON E.id=ESA.echoId
+        WHERE
+            P.id = #{partnerId}
+        GROUP BY
+            P.id, P.name, E.productId, E.productName, E.brand, E.category
+        ORDER BY
+            totalSalesVolume DESC
+        LIMIT
+            0, 5
+    </select>
+
+    <select id="getProductsWithPartnerId" resultMap="partnerProductsListView">
+        SELECT <include refid="productColumns" />
+        FROM
+        Partner P
+        LEFT OUTER JOIN
+        Echo E ON P.id = E.partnerId
+        LEFT OUTER JOIN
+        <include refid="aggregateStatsByEcho" />
+        ESA ON E.id=ESA.echoId
+        WHERE
+        P.id = #{partnerId}
+        GROUP BY
+        P.id, P.name, E.productId, E.productName, E.brand, E.category
+        ORDER BY
+        totalSales DESC
+        LIMIT
+        #{start}, #{limit}
+    </select>
+
+
+    <select id="getSocialActivityByProductIdAndPartnerId" resultMap="productSocialSummaryResult">
+        SELECT <include refid="productColumns" />
+        FROM
+            Partner P
+            LEFT OUTER JOIN
+            Echo E ON P.id = E.partnerId
+            LEFT OUTER JOIN
+            <include refid="aggregateStatsByEcho" />
+            ESA on E.id=ESA.echoId
+        WHERE
+            P.id = #{partnerId}
+            AND
+            E.productId = #{productId}
+        GROUP BY
+            P.id, P.name, E.productId, E.productName
+    </select>
+
+    <select id="getTopCustomersWithPartnerId" resultMap="partnerCustomerListView" >
+        SELECT <include refid="customerColumns"/>
+        FROM
+            Partner P
+            LEFT OUTER JOIN
+            Echo E ON P.id = E.partnerId
+            LEFT OUTER JOIN
+            EchoedUser EU ON  E.echoedUserId = EU.id
+            LEFT OUTER JOIN
+            <include refid="aggregateStatsByEcho" />
+            ESA ON E.id = ESA.echoId
+            LEFT OUTER JOIN
+            <include refid="friendsAggregate" />
+            FF ON FF.echoedUserId=EU.id
+        WHERE
+            P.id = #{partnerId}
+        GROUP BY
+            P.id, P.name, EU.id, EU.name
+        LIMIT
+            0,5
+    </select>
+
+
+    <select id="getCustomersWithPartnerId" resultMap="partnerCustomerListView" >
+        SELECT <include refid="customerColumns"/>
+        FROM
+        Partner P
+        LEFT OUTER JOIN
+        Echo E ON P.id = E.partnerId
+        LEFT OUTER JOIN
+        EchoedUser EU ON  E.echoedUserId = EU.id
+        LEFT OUTER JOIN
+        <include refid="aggregateStatsByEcho" />
+        ESA ON E.id = ESA.echoId
+        LEFT OUTER JOIN
+        <include refid="friendsAggregate" />
+        FF ON FF.echoedUserId=EU.id
+        WHERE
+        P.id = #{partnerId}
+        GROUP BY
+        P.id, P.name, EU.id, EU.name
+        LIMIT
+        #{start},#{limit}
+    </select>
+
+    <select id="getSocialActivityByPartnerId" resultMap="partnerSocialSummaryResult">
+       SELECT
+            P.id as partnerId,
+            P.name as partnerName,
+            count(E.id) as totalEchoes,
+            coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
+            coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
+            coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
+            coalesce(sum(ESA.totalSales),0) as totalSales,
+            coalesce(sum(ESA.totalSalesVolume),0) as totalSalesVolume
+        FROM
+            Partner P
+            LEFT OUTER JOIN
+            Echo E ON P.id = E.partnerId
+            LEFT OUTER JOIN
+            <include refid="aggregateStatsByEcho"/>
+            ESA ON E.id = ESA.echoId
+        WHERE
+            P.id = #{partnerId}
+        GROUP BY
+            P.id, P.name
+    </select>
+    
+    <select id="getEchoedUserByPartnerUser" resultMap="echoedUser">
+        SELECT
+            EU.id as id,
+            EU.updatedOn as updatedOn,
+            EU.createdOn as createdOn,
+            EU.name as name,
+            EU.email as email,
+            EU.screenName as screenName,
+            EU.facebookUserId as facebookUserId,
+            EU.facebookId as facebookId,
+            EU.twitterUserId as twitterUserId,
+            EU.twitterId as twitterId
+        FROM
+            EchoedUser EU
+            INNER JOIN
+            Echo E ON EU.id = E.echoedUserId
+            INNER JOIN
+            Partner P ON P.id = E.partnerId
+        WHERE
+            EU.id = #{echoedUserId}
+            AND
+            P.id = #{partnerId}
+        GROUP BY
+            EU.id, EU.name
+    </select>
+
+    <select id="getTotalFacebookFriendsByEchoedUser" resultType="_int" useCache="false">
+        SELECT
+            coalesce(count(FF.id),0)
+        FROM
+            EchoedUser EU
+            INNER JOIN
+            FacebookUser FU ON EU.id = FU.echoedUserId
+            INNER JOIN
+            FacebookFriend FF ON FU.id = FF.facebookUserId
+        WHERE
+            EU.id =  #{echoedUserId}
+    </select>
+
+    <select id="getComments" resultMap="comments">
+        SELECT
+            FBC.id,
+            FBC.updatedOn,
+            FBC.createdOn,
+            FBC.facebookPostId,
+            FBC.facebookUserId,
+            FBC.echoedUserId,
+            FBC.facebookId,
+            FBC.byFacebookId,
+            FBC.name,
+            FBC.message,
+            FBC.createdAt
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FP ON FP.echoId = E.id
+            INNER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FP.id
+        WHERE
+            E.partnerId = #{partnerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId= #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+        ORDER BY
+            FBC.createdOn DESC
+    </select>
+
+    
+    <select id="getTotalSalesAmount" resultType="_float">
+        select
+            coalesce(sum(EP.price),0)
+        from
+            Echo EP
+        where
+            EP.partnerId = #{partnerId}
+            <if test="echoedUserId != null">
+                and EP.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and EP.productId = #{productId}
+            </if>
+    </select>
+
+
+    <select id="getTotalSalesVolume" resultType="_int">
+        select
+            count(id)
+        from
+            Echo EP
+        where
+            EP.partnerId = #{partnerId}
+            <if test="echoedUserId != null">
+                and EP.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and EP.productId = #{productId}
+            </if>
+    </select>
+
+    <select id="getTotalFacebookComments" resultType="_int" useCache="false" >
+        SELECT
+            coalesce(count(FBC.id),0)
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            INNER JOIN
+            FacebookComment FBC ON FBC.facebookPostId = FBP.id
+        WHERE
+            E.partnerId = #{partnerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+    </select>
+
+    <select id="getTotalEchoClicks" resultType="_int" useCache="false" >
+        SELECT
+            coalesce(count(EC.id),0)
+        FROM
+            Echo E
+            INNER JOIN
+            EchoClick EC ON EC.echoId = E.id
+        WHERE
+            E.partnerId = #{partnerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+    </select>
+
+    <select id="getTotalFacebookLikes" resultType="_int" useCache="false" >
+        SELECT
+            coalesce(count(FBL.id),0)
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            INNER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+        WHERE
+        E.partnerId = #{partnerId}
+        <if test="echoedUserId != null">
+            and E.echoedUserId = #{echoedUserId}
+        </if>
+        <if test="productId != null">
+            and E.productId = #{productId}
+        </if>
+    </select>
+
+    <select id="getTotalEchoes" resultType="_int" useCache="false" >
+        SELECT
+            coalesce(count(E.id),0)
+        FROM
+            Echo E
+        WHERE
+            E.echoedUserId is not null
+            and
+            E.partnerId = #{partnerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+    </select>
+
+    <select id="getFacebookLikesHistory" resultMap="socialActivityTotalByDate">
+        SELECT
+            Date(FBL.createdOn) as date,
+            count(FBL.id) as total
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            INNER JOIN
+            FacebookLike FBL ON FBL.facebookPostId = FBP.id
+        WHERE
+            E.partnerId= #{partnerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+        GROUP BY
+            Date(FBL.createdOn)
+    </select>
+
+
+    <select id="getFacebookCommentsHistory" resultMap="socialActivityTotalByDate">
+        SELECT
+            Date(FBC.createdOn) as date,
+            count(FBC.id) as total
+        FROM
+            Echo E
+            INNER JOIN
+            FacebookPost FBP ON FBP.echoId = E.id
+            INNER JOIN
+            FacebookComment FBC ON FBC.facebookPostID = FBC.id
+        WHERE
+            E.partnerId= #{partnerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+        GROUP BY
+            Date(FBC.createdOn)
+    </select>
+
+
+    <select id="getSalesVolumeHistory"  resultMap="socialActivityTotalByDate">
+        select
+            Date(EP.createdOn) as date,
+            count(EP.id) as total
+        from
+            Echo EP
+        where
+            EP.partnerId= #{partnerId}
+            <if test="echoedUserId != null">
+                and EP.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and EP.productId = #{productId}
+            </if>
+        group by
+            Date(EP.createdOn)
+
+    </select>
+    
+    <select id="getSalesAmountHistory" resultMap="socialActivityTotalByDate">
+        select
+            Date(EP.createdOn) as date,
+            sum(EP.price) as total
+        from
+            Echo EP
+        where
+            EP.partnerId= #{partnerId}
+            <if test="echoedUserId != null">
+                and EP.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and EP.productId = #{productId}
+            </if>
+            group by
+            Date(EP.createdOn)
+    </select>
+
+    <select id="getEchoClicksHistory" resultMap="socialActivityTotalByDate">
+        SELECT
+            Date(EC.createdOn) as date,
+            count(EC.id) as total
+        FROM
+            Echo E
+            inner join
+            EchoClick EC on E.id = EC.echoId
+        WHERE
+            E.partnerId= #{partnerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+        GROUP BY
+            Date(EC.createdOn)
+    </select>
+
+    <select id="getEchoClickGeoLocation" resultMap="com.echoed.chamber.dao.GeoLocationDao.geoLocationResult" >
+        select
+            G.*
+        from
+            Partner P
+            inner join
+            Echo E on P.id = E.partnerId
+            inner join
+            EchoClick EC on EC.echoId = E.id
+            inner join
+            GeoLocation G on EC.ipAddress = G.ipAddress
+        where
+            P.id = #{partnerId}
+            <if test="echoedUserId != null">
+                and E.echoedUserId = #{echoedUserId}
+            </if>
+            <if test="productId != null">
+                and E.productId = #{productId}
+            </if>
+    </select>
+    
+    
+    <select id="getPartnerEchoView" resultMap="partnerEchoView">
+        select
+            E.id,
+            E.createdOn,
+            E.orderId,
+            E.productId,
+            E.productName,
+            EM.price,
+            EM.totalClicks,
+            EM.credit,
+            EM.creditWindowEndsAt
+        from
+            Echo E
+            inner join
+            EchoMetrics EM on E.id = EM.echoId
+        where
+            E.partnerId = #{partnerId}
+            and
+            E.echoedUserId IS NOT NULL
+        order by
+            EM.creditWindowEndsAt Desc,
+            E.orderId Desc
+    </select>
+
+</mapper>
