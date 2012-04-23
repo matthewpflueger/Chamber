@@ -94,7 +94,7 @@ Echoed.Views.Pages.Echoes = Backbone.View.extend({
         var template = _.template($('#template-view-echoes').html());
         self.element.html(template);
         $.ajax({
-            url: Echoed.urls.api + "/partner/retailer/echoes",
+            url: Echoed.urls.api + "/partner/reports/echoes",
             dataType: 'json',
             xhrFields: {
                 withCredentials: true
@@ -110,7 +110,7 @@ Echoed.Views.Pages.Echoes = Backbone.View.extend({
                     row.cells.push({"text": echo.productId, "style" : ""});
                     row.cells.push({"text": echo.productName, "style" : ""});
                     row.cells.push({"text": cDate.toDateString() , "style" : ""});
-                    row.cells.push({"text": echo.credit , "style" : "number"});
+                    row.cells.push({"text": "$" + echo.credit.toFixed(2) , "style" : "number"});
                     row.cells.push({"text": echo.totalClicks, "style" : "number"});
                     row.cells.push({"text": eDate.toDateString() , "style" : ""});
                     table.rows.push(row);
@@ -190,16 +190,14 @@ Echoed.Views.Pages.Reports = Backbone.View.extend({
                             self.element.hide().html(template).fadeIn(function(){
                                 var reportChart = new Echoed.Views.Components.Chart({EvAg: this.EvAg, el: '#product-report-chart', productId: self.reportId, type: "product"});
                                 $('#select-report').html(data.productName);
-                                $('#ss-likes').hide().html(data.totalFacebookLikes).fadeIn();
-                                $('#ss-views').hide().html(data.totalEchoClicks).fadeIn();
-                                $('#ss-retweets').hide().html(0).fadeIn();
-                                $('#ss-new-echoes').hide().html(data.totalEchoes).fadeIn();
-                                $('#ss-open-echoes').hide().html(0).fadeIn();
-                                $('#ss-comments').hide().html(data.totalFacebookComments).fadeIn();
+                                $('#ps-likes').hide().html(data.totalFacebookLikes).fadeIn();
+                                $('#ps-views').hide().html(data.totalEchoClicks).fadeIn();
+                                $('#ps-echoes').hide().html(data.totalEchoes).fadeIn();
+                                $('#ps-comments').hide().html(data.totalFacebookComments).fadeIn();
+                                $('#ps-purchases').hide().html(data.totalSalesVolume).fadeIn();
+                                $('#ps-purchaseamount').hide().html("$" + data.totalSales.toFixed(2)).fadeIn();
                                 $('#product-image').attr("src",data.productImageUrl);
-                                $('#product-sku').html(data.productId);
-                                $('#product-category').html(data.productCategory);
-                                $('#product-brand').html(data.productBrand);
+                                $('#product-sku').html("Product Id:" + data.productId);
                             });
                         }
                     });

@@ -247,8 +247,8 @@ h2{
             text-align:left;
         }
 
-            .select-report{
-                margin-bottom: 5px;
+            #select-report{
+                margin-bottom: 20px;
                 width: 200px;
                 padding: 0px 10px;
                 background-color: white;
@@ -257,36 +257,34 @@ h2{
                 -webkit-appearance: none;
             }
 
-        .product-detail-image-container{
-            float:left;
-            padding: 10px;
-            width: 150px;
-            height: 200px;
-            text-align:left;
-            overflow:hidden;
-        }
+        .product-detail{
 
-        .product-detail-image{
-            width: 150px;
-        }
-
-        .product-detail-table-container{
-            float:left;
-        }
-
-        .product-detail-table{
-            font-size:14px;
-            font-family: $textFontFamily;
-            tr{
-                td{
-                    padding: 10px 20px 5px 0px;
-                    border-bottom: 1px solid #CCC;
-                }
-            }
-            td{
+            width: 200px;
+            border: 1px solid #000;
+            font-size: 14px;
+            .product-detail-image-container{
+                float:left;
+                width: 200px;
+                height: 200px;
                 text-align:left;
+                overflow:hidden;
+                border-bottom: 1px solid #000;
             }
+
+            .product-detail-image{
+                width: 200px;
+            }
+
+            .product-detail-table-container{
+                float:left;
+                padding: 5px;
+            }
+
+
         }
+
+
+
 
 
 
@@ -338,17 +336,18 @@ h2{
                 cursor:pointer;
             }
             th,td{
-                padding: 20px;
+                padding: 10px;
                 font-family: $textFontFamily;
-                font-size: 12px;
                 border: 1px solid #CCC;
             }
             td{
                 &.number{
                     text-align:right;
                 }
+                font-size: 14px;
             }
             th{
+                font-size: 12px;
                 background-color: #DEDEDE;
                 font-weight: bold;
             }

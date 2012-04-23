@@ -104,7 +104,7 @@ trait PartnerViewDao {
             @Param("productId") productId: String): JList[GeoLocation]
     
     def getPartnerEchoView(
-            @Param("parnterId") partnerId: String): JList[PartnerEchoView]
+            @Param("partnerId") partnerId: String): JList[PartnerEchoView]
 
 
 }
