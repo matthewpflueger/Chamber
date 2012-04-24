@@ -15,12 +15,16 @@ import javax.imageio.ImageIO
 import org.imgscalr.Scalr
 import com.echoed.chamber.domain.Image
 import collection.mutable.{ListBuffer, Map => MMap}
-import java.util.concurrent.TimeUnit
 import java.util.{Calendar, Date}
 import akka.dispatch.{CompletableFuture, PriorityGenerator, PriorityExecutorBasedEventDrivenDispatcher}
 import java.io.{FileNotFoundException, ByteArrayOutputStream, ByteArrayInputStream}
 import org.jclouds.rest.AuthorizationException
 import java.util.concurrent.atomic.{AtomicLong}
+import java.util.concurrent.TimeUnit
+import scala.collection.mutable.ConcurrentMap
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConversions._
+
 
 
 class ImageServiceActor extends Actor {
@@ -52,13 +56,19 @@ class ImageServiceActor extends Actor {
     var future: Option[CompletableFuture[ProcessImageResponse]] = None
     var unprocessedFuture: Option[CompletableFuture[Option[Image]]] = None
 
-    private val responses = MMap[String, ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]]()
+    //responses is a concurrent map because the sendResponse call gets initiated post blobStore.store in a future...
+    private val responses: ConcurrentMap[String, ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]] =
+        new ConcurrentHashMap[String, ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]]()
 
     private val reloadBlobStore = new AtomicLong(System.currentTimeMillis())
 
     override def preStart() {
         val me = self
         me ! FindUnprocessedImage()
+
+        //this is a hack to make sure we continue to process failed images as we have a bug (API-67) that causes the
+        //original Scheduler call to never happen again if a low priority image bugs out :(
+        Scheduler.schedule(me, FindUnprocessedImage(), findUnprocessedImagesInterval, findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
     }
 
     private case class ImageInfo(
@@ -223,16 +233,20 @@ class ImageServiceActor extends Actor {
             val me = self
             val channel: Channel[ProcessImageResponse] = self.channel
 
+            logger.debug("Starting to process {}", image.url)
             if (image.isProcessed) {
                 logger.debug("Image has already been processed {}", image)
                 future.foreach(_.completeWithResult(ProcessImageResponse(msg, Right(image))))
                 channel ! ProcessImageResponse(msg, Right(image))
             } else responses.get(image.url).cata(
                 //looks like we are already processing this image so lets just remember to respond later...
-                list => list += ((msg, channel)),
+                list => {
+                    list += ((msg, channel))
+                    logger.debug("Already processing image {}, list of channels waiting for response {}", image.url, list)
+                },
                 {
                     //we are not working on the image so lets see what we need to do...
-                    logger.debug("Starting to process {}", image)
+                    logger.debug("Processing {}", image.url)
                     val list = ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]()
                     list += ((msg, channel))
                     responses.put(image.url, list)
@@ -245,7 +259,7 @@ class ImageServiceActor extends Actor {
                         me ! ProcessThumbnailImage(image)
                     } else {
                         //sanity check...
-                        logger.error("Image already processed!?!? %s" format image, new RuntimeException())
+                        logger.error("Image already processed!?!? %s" format image.url, new RuntimeException())
                         responses.remove(image.url)
                         channel ! ProcessImageResponse(msg, Right(image))
                     }
@@ -372,7 +386,7 @@ class ImageServiceActor extends Actor {
                         unprocessedFuture.foreach(_.completeWithResult(Some(image)))
                     },
                     {
-                        Scheduler.scheduleOnce(me, FindUnprocessedImage(), findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
+                        //Scheduler.scheduleOnce(me, FindUnprocessedImage(), findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
                         unprocessedFuture.foreach(_.completeWithResult(None))
                     })
             } else {
