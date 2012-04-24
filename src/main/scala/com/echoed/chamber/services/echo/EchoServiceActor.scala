@@ -174,7 +174,8 @@ class EchoServiceActor extends Actor {
                         //this really should be sent to another actor that has a durable mailbox...
                         Future {
                             val ec = determinePostId(echo, echoClick.copy(echoId = echo.id), if (linkId == echo.id) postId else linkId)
-                            echoClickDao.insert(ec.copy(userAgent = ec.userAgent.take(254)))
+                            //a null UserAgent really is an invalid click - needs to be filtered out in the future...
+                            echoClickDao.insert(ec.copy(userAgent = Option(ec.userAgent).map(_.take(254)).orNull))
                             logger.debug("Successfully recorded click for Echo {}", echo.id)
 
                             (for {
