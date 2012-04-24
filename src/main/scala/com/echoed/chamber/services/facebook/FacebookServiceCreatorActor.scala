@@ -75,8 +75,6 @@ class FacebookServiceCreatorActor extends Actor {
                                             facebookUserDao,
                                             facebookPostDao,
                                             facebookFriendDao,
-                                            partnerDao,
-                                            partnerSettingsDao,
                                             echoClickUrl)).start)))
                             logger.debug("Created FacebookService with user {}", facebookUser)
                     }))
@@ -97,8 +95,6 @@ class FacebookServiceCreatorActor extends Actor {
                                     facebookUserDao,
                                     facebookPostDao,
                                     facebookFriendDao,
-                                    partnerDao,
-                                    partnerSettingsDao,
                                     echoClickUrl)).start)))
                         logger.debug("Created Facebook service {}", facebookUserId)
                     case None =>
@@ -135,8 +131,6 @@ class FacebookServiceCreatorActor extends Actor {
                                         facebookUserDao,
                                         facebookPostDao,
                                         facebookFriendDao,
-                                        partnerDao,
-                                        partnerSettingsDao,
                                         echoClickUrl)).start)))
                             logger.debug("Created FacebookService from Facebook id {}", facebookId)
                     }))

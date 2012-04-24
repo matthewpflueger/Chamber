@@ -29,6 +29,8 @@ case class EchoToFacebookResponse(message: EchoToFacebook, value: Either[FE, Fac
         extends FM
         with RM[FacebookPost, EchoToFacebook, FE]
 
+case class RetryEchoToFacebook(facebookPost: FacebookPost, retries: Int = 1) extends FM
+
 case class Post(accessToken: String, facebookId: String, facebookPost: FacebookPost) extends FM
 case class PostResponse(message: Post, value: Either[FE, FacebookPost])
         extends FM

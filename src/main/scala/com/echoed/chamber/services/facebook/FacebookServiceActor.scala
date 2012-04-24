@@ -3,9 +3,10 @@ package com.echoed.chamber.services.facebook
 import org.slf4j.LoggerFactory
 import java.util.Date
 import com.echoed.chamber.domain._
-import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao, PartnerDao,  PartnerSettingsDao}
+import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao}
 import scala.collection.JavaConversions.asScalaBuffer
-import akka.actor.{Channel, Actor}
+import java.util.concurrent.TimeUnit
+import akka.actor.{ActorRef, Scheduler, Channel, Actor}
 
 
 class FacebookServiceActor(
@@ -14,11 +15,12 @@ class FacebookServiceActor(
         facebookUserDao: FacebookUserDao,
         facebookPostDao: FacebookPostDao,
         facebookFriendDao: FacebookFriendDao,
-        partnerDao: PartnerDao,
-        partnerSettingsDao: PartnerSettingsDao,
         echoClickUrl: String) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[FacebookServiceActor])
+
+    val maxPostToFacebookRetries = 10
+    val facebookPostRetryInterval = 60000
 
     self.id = "FacebookService:%s" format facebookUser.id
 
@@ -26,6 +28,30 @@ class FacebookServiceActor(
         //hack to reset our posts to be crawled - really should send a message to FacebookPostCrawler to crawl our posts...
         facebookPostDao.resetPostsToCrawl(facebookUser.id)
     }
+
+
+    private def postToFacebook(fp: FacebookPost, me: ActorRef, retries: Int = 0) {
+
+        def scheduleRetry(e: Throwable) {
+            if (retries >= maxPostToFacebookRetries) {
+                logger.error("Failed to post %s, retries %s, last error was %s" format(fp, retries, e))
+            } else {
+                logger.debug("Retrying {} due to error {}", fp, e)
+                Scheduler.scheduleOnce(me, RetryEchoToFacebook(fp, retries + 1), facebookPostRetryInterval, TimeUnit.MILLISECONDS)
+            }
+        }
+
+        logger.debug("Trying to post {}, retries {}", fp, retries)
+        facebookAccess.post(facebookUser.accessToken, facebookUser.facebookId, fp).onComplete(_.value.get.fold(
+            scheduleRetry(_),
+            _ match {
+                case PostResponse(_, Left(e)) => scheduleRetry(e)
+                case PostResponse(_, Right(fp)) =>
+                    logger.debug("Successful post {}, retries {}", fp, retries)
+                    facebookPostDao.updatePostedOn(fp.copy(postedOn = new Date))
+            }))
+    }
+
 
     def receive = {
         case msg: GetFacebookUser =>
@@ -48,6 +74,7 @@ class FacebookServiceActor(
 
 
         case msg @ EchoToFacebook(echo, message) =>
+            val me = self
             val channel: Channel[EchoToFacebookResponse] = self.channel
 
             def error(e: Throwable) {
@@ -57,13 +84,9 @@ class FacebookServiceActor(
 
             try {
                 logger.debug("Creating new FacebookPost with message {} for {}", echo, message)
-                logger.debug("Partner Settings ID {}", echo.partnerSettingsId)
-                val partnerSettings = partnerSettingsDao.findById(echo.partnerSettingsId)
-                val partner = partnerDao.findById(echo.partnerId)
-                //val name = "Buy anything now at " + partner.name + " and  receive up to " + "%1.0f".format(partnerSettings.maxPercentage*100)  + "% Cash Back when you share it with Echoed!"
                 val name: String = echo.productName + " from " + echo.brand + "<center></center>"
                 val caption: String = echo.brand + "<center></center>" + echo.productName
-                val fp = new FacebookPost(
+                var fp = new FacebookPost(
                         name,
                         message,
                         caption,
@@ -72,23 +95,15 @@ class FacebookServiceActor(
                         facebookUser.id,
                         echo.echoedUserId,
                         echo.id)
-                val facebookPost = fp.copy(link = "%s/%s" format(echoClickUrl, fp.id))
-                facebookPostDao.insert(facebookPost)
-
-                logger.debug("Sending request to post to FacebookAccessActor {}", facebookPost)
-                facebookAccess.post(facebookUser.accessToken, facebookUser.facebookId, facebookPost).onComplete(_.value.get.fold(
-                    error(_),
-                    _ match {
-                        case PostResponse(_, Left(e: FacebookException)) => channel ! EchoToFacebookResponse(msg, Left(e))
-                        case PostResponse(_, Left(e)) => error(e)
-                        case PostResponse(_, Right(fp)) =>
-                                logger.debug("Received post from FacebookAccessActor {}", fp)
-                                val fpp = fp.copy(postedOn = new Date)
-                                channel ! EchoToFacebookResponse(msg, Right(fp))
-                                facebookPostDao.updatePostedOn(fpp)
-                                logger.debug("Successfully posted {}", fpp)
-                    }))
+                fp = fp.copy(link = "%s/%s" format(echoClickUrl, fp.id))
+                facebookPostDao.insert(fp)
+                channel tryTell EchoToFacebookResponse(msg, Right(fp))
+                postToFacebook(fp, me)
             } catch { case e => error(e) }
+
+
+        case RetryEchoToFacebook(facebookPost, retries) =>
+            postToFacebook(facebookPost, self, retries + 1)
 
 
         case msg: GetFriends =>
