@@ -191,7 +191,6 @@ class EchoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with Bef
 
             facebookPost = facebookPostDao.findByEchoId(echo.id)
             facebookPost should not be (null)
-            facebookPost.postedOn should not be (null)
             facebookPost.facebookId should not be (null)
 
             and("update the Echo with the Echo information")
