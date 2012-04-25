@@ -97,7 +97,7 @@ class FacebookPostCrawlerActor extends Actor {
         case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Right(facebookPostData)) =>
             updateForCrawl(msg, facebookPostToCrawl.facebookPost, "crawled", 0) { _ =>
                 facebookPostData.likes.foreach { facebookLikeDao.insertOrUpdate(_) }
-                facebookPostData.comments.foreach { facebookCommentDao.insertOrUpdate(_) }
+                facebookPostData.comments.foreach { fc => facebookCommentDao.insertOrUpdate(fc.copy(message = fc.message.take(1024))) }
                 logger.debug("Received good response for FacebookPost {}", facebookPostData.facebookPost.id)
             }
 
