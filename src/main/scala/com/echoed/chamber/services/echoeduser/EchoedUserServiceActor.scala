@@ -350,16 +350,15 @@ class EchoedUserServiceActor(
             val channel: Channel[GetFriendExhibitResponse] = self.channel
 
             try {
-                val echoedFriend = Option(echoedFriendDao.findFriendByEchoedUserId(echoedUser.id, echoedFriendUserId)).orNull
-
+                val echoedFriend = echoedFriendDao.findFriendByEchoedUserId(echoedUser.id, echoedFriendUserId)
                 val limit = 30;
                 val start = msg.page * limit;
 
-                val closet: Closet = closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId, start, limit)
+                val closet = Option(closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId, start, limit))
+                                .getOrElse(Closet(echoedFriend.toEchoedUserId, echoedUserDao.findById(echoedFriend.toEchoedUserId), null, 0))
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet.copy(echoes = new ArrayList[EchoView]))))
-                }
-                else{
+                } else {
                     channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet)))
                 }
             } catch {
