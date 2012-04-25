@@ -46,6 +46,9 @@
         </encoder>
     </appender>
 
+    <!-- below just clutter the logs -->
+    <logger name="org.springframework.web.servlet.PageNotFound" level="error" />
+
     <!--<logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="debug" />-->
     <logger name="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor" level="info" />
     <logger name="com.echoed.chamber.dao" level="info" />
