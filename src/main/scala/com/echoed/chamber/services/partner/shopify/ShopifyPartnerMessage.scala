@@ -37,75 +37,36 @@ case class RegisterShopifyPartnerResponse(message: RegisterShopifyPartner, value
         extends SPM
         with RM[RegisterShopifyPartnerEnvelope, RegisterShopifyPartner, PE]
 
-case class Update(shopifyPartner: ShopifyPartner) extends SPM
-case class UpdateResponse(message: Update, value: Either[SPE, ShopifyPartner])
+private[shopify] case class Update(shopifyPartner: ShopifyPartner) extends SPM
+private[shopify] case class UpdateResponse(message: Update, value: Either[SPE, ShopifyPartner])
         extends SPM
         with RM[ShopifyPartner, Update, SPE]
 
 
 
-
-//case class LocateByPartnerId(partnerId: String) extends SPM
-//
-//case class LocateByPartnerIdResponse(message: LocateByPartnerId, value: Either[SPE, ShopifyPartnerService])
-//        extends SPM
-//        with RM[ShopifyPartnerService, LocateByPartnerId, SPE]
-//
-//case class LocateByToken(shop: String, signature: String, t: String, timeStamp: String) extends SPM
-//
-//case class LocateByTokenResponse(message: LocateByToken, value: Either[SPE, ShopifyPartnerService])
-//        extends SPM
-//        with RM[ShopifyPartnerService, LocateByToken, SPE]
-//
-//case class LocateByShopDomain(shopifyShopDomain: String) extends SPM
-//
-//case class LocateByShopDomainResponse(message: LocateByShopDomain, value: Either[SPE, ShopifyPartnerService])
-//        extends SPM
-//        with RM[ShopifyPartnerService, LocateByShopDomain, SPE]
-//
-//case class CreateFromPartnerId(partnerId: String) extends SPM
-//
-//case class CreateFromPartnerIdResponse(message: CreateFromPartnerId, value: Either[SPE, ShopifyPartnerService])
-//        extends SPM
-//        with RM[ShopifyPartnerService, CreateFromPartnerId, SPE]
-//
-//
-//case class CreateFromToken(shop: String, signature: String, t: String, timeStamp: String) extends SPM
-//
-//case class CreateFromTokenResponse(message: CreateFromToken, value: Either[SPE, ShopifyPartnerService])
-//        extends SPM
-//        with RM[ShopifyPartnerService, CreateFromToken, SPE]
-//
-//case class CreateFromShopDomain(shopDomain: String) extends SPM
-//
-//case class CreateFromShopDomainResponse(message: CreateFromShopDomain, value: Either[SPE, ShopifyPartnerService])
-//        extends SPM
-//        with RM[ShopifyPartnerService, CreateFromShopDomain, SPE]
-
-
-case class GetShopifyPartner() extends SPM
-case class GetShopifyPartnerResponse(message: GetShopifyPartner, value: Either[SPE, ShopifyPartner])
+private[shopify] case class GetShopifyPartner() extends SPM
+private[shopify] case class GetShopifyPartnerResponse(message: GetShopifyPartner, value: Either[SPE, ShopifyPartner])
         extends SPM
         with RM[ShopifyPartner, GetShopifyPartner, SPE]
 
-case class GetOrder(orderId: Int) extends SPM
-case class GetOrderResponse(message: GetOrder, value: Either[SPE, SO])
+private[shopify] case class GetOrder(orderId: Int) extends SPM
+private[shopify] case class GetOrderResponse(message: GetOrder, value: Either[SPE, SO])
         extends SPM
         with RM[SO, GetOrder, SPE]
 
-case class GetOrderFull(orderId: Int) extends SPM
-case class GetOrderFullResponse(message: GetOrderFull, value: Either[SPE, ShopifyOrderFull])
+private[shopify] case class GetOrderFull(orderId: Int) extends SPM
+private[shopify] case class GetOrderFullResponse(message: GetOrderFull, value: Either[SPE, ShopifyOrderFull])
         extends SPM
         with RM[ShopifyOrderFull, GetOrderFull, SPE]
 
-case class GetProducts() extends SPM
-case class GetProductsResponse(message: GetProducts, value: Either[SPE, List[SP]])
+private[shopify] case class GetProducts() extends SPM
+private[shopify] case class GetProductsResponse(message: GetProducts, value: Either[SPE, List[SP]])
         extends SPM
         with RM[List[SP], GetProducts, SPE]
 
 
-case class GetShop(password: String) extends SPM
-case class GetShopResponse(message: GetShop, value: Either[SPE, ShopifyPartner])
+private[shopify] case class GetShop(password: String) extends SPM
+private[shopify] case class GetShopResponse(message: GetShop, value: Either[SPE, ShopifyPartner])
         extends SPM
         with RM[ShopifyPartner, GetShop, SPE]
 

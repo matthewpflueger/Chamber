@@ -23,8 +23,8 @@ class NetworkSolutionsDispatchAccessActor extends Actor {
 
     @BeanProperty var application: String = _
     @BeanProperty var certificate: String = _
+    @BeanProperty var client: Http = _
 
-    val client = new Http
     val urn = "urn:networksolutions:apis"
     val endpoint = url("https://ecomapi.networksolutions.com/SoapService.asmx")
 
@@ -39,6 +39,8 @@ class NetworkSolutionsDispatchAccessActor extends Actor {
 
             application != null && certificate != null
         } ensuring(_ == true, "Missing parameters")
+
+        require(client != null, "Missing required http client")
     }
 
 

@@ -1,4 +1,4 @@
-package com.echoed.chamber.controllers.networksolutions
+package com.echoed.chamber.controllers.partner.networksolutions
 
 import com.echoed.chamber.domain.{PartnerSettings, PartnerUser, Partner}
 import java.util.{UUID, Date}
@@ -22,21 +22,18 @@ case class RegisterForm(
     @Email
     @NotBlank
     def getEmail = email
-
     def setEmail(email: String) {
         this.email = email
     }
 
     @NotBlank
     def getName = name
-
     def setName(name: String) {
         this.name = name
     }
 
     @NotBlank
     def getPhone = phone
-
     def setPhone(phone: String) {
         this.phone = phone
     }

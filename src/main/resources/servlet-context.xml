@@ -247,7 +247,7 @@
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->
-    <bean id="shopifyController" class="com.echoed.chamber.controllers.shopify.ShopifyController">
+    <bean id="shopifyController" class="com.echoed.chamber.controllers.partner.shopify.ShopifyController">
         <property name="shopifyPartnerServiceManager" ref="shopifyPartnerServiceManager" />
         <property name="shopifyIntegrationView" value="shopify_integration" />
         <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
@@ -255,13 +255,22 @@
     </bean>
     
     <!-- suppress DuplicatedBeanNamesInspection -->
-    <bean id="networkSolutionsController" class="com.echoed.chamber.controllers.networksolutions.NetworkSolutionsController">
+    <bean id="networkSolutionsController" class="com.echoed.chamber.controllers.partner.networksolutions.NetworkSolutionsController">
         <property name="networkSolutionsPartnerServiceManager" ref="networkSolutionsPartnerServiceManager" />
         <property name="registerView" value="networksolutions_register" />
         <property name="postAuthView" value="networksolutions_auth" />
         <property name="globalValidator" ref="validator" />
         <property name="conversionService" ref="conversionService" />
         <property name="successUrl" value="${http.urls.site}/networksolutions/auth" />
+    </bean>
+
+    <!-- suppress DuplicatedBeanNamesInspection -->
+    <bean id="bigCommerceController" class="com.echoed.chamber.controllers.partner.bigcommerce.BigCommerceController">
+        <property name="bigCommercePartnerServiceManager" ref="bigCommercePartnerServiceManager" />
+        <property name="registerView" value="bigcommerce_register" />
+        <property name="postRegisterView" value="bigcommerce_integration" />
+        <property name="globalValidator" ref="validator" />
+        <property name="conversionService" ref="conversionService" />
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->

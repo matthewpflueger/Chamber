@@ -1,47 +1,47 @@
-package com.echoed.chamber.services.partner.networksolutions
+package com.echoed.chamber.services.partner.bigcommerce
 
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain._
 import akka.actor.Channel
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.domain.{NetworkSolutionsPartner, Partner}
+import com.echoed.chamber.domain.Partner
+import com.echoed.chamber.domain.bigcommerce.BigCommercePartner
 
 
-class NetworkSolutionsPartnerServiceActor(
-        var networkSolutionsPartner: NetworkSolutionsPartner,
-        partner: Partner,
-        networkSolutionsAccess: NetworkSolutionsAccess,
-        networkSolutionsPartnerDao: NetworkSolutionsPartnerDao,
-        partnerDao: PartnerDao,
-        partnerSettingsDao: PartnerSettingsDao,
-        echoDao: EchoDao,
-        echoMetricsDao: EchoMetricsDao,
-        imageDao: ImageDao,
-        imageService: ImageService,
-        transactionTemplate: TransactionTemplate,
-        encrypter: Encrypter) extends PartnerServiceActor(
-            partner,
-            partnerDao,
-            partnerSettingsDao,
-            echoDao,
-            echoMetricsDao,
-            imageDao,
-            imageService,
-            transactionTemplate,
-            encrypter) {
+class BigCommercePartnerServiceActor(
+            var bigCommercePartner: BigCommercePartner,
+            partner: Partner,
+            bigCommerceAccess: BigCommerceAccess,
+            bigCommercePartnerDao: BigCommercePartnerDao,
+            partnerDao: PartnerDao,
+            partnerSettingsDao: PartnerSettingsDao,
+            echoDao: EchoDao,
+            echoMetricsDao: EchoMetricsDao,
+            imageDao: ImageDao,
+            imageService: ImageService,
+            transactionTemplate: TransactionTemplate,
+            encrypter: Encrypter) extends PartnerServiceActor(
+        partner,
+        partnerDao,
+        partnerSettingsDao,
+        echoDao,
+        echoMetricsDao,
+        imageDao,
+        imageService,
+        transactionTemplate,
+        encrypter) {
 
 
-    private val logger = LoggerFactory.getLogger(classOf[NetworkSolutionsPartnerServiceActor])
+    private val logger = LoggerFactory.getLogger(classOf[BigCommercePartnerServiceActor])
 
-    self.id = "NetworkSolutionsPartnerService:%s" format networkSolutionsPartner.id
+    self.id = "BigCommercePartnerService:%s" format bigCommercePartner.id
 
-    override def receive = networkSolutionsPartnerReceive.orElse(super.receive)
+    override def receive = bigCommercePartnerReceive.orElse(super.receive)
 
-    private def networkSolutionsPartnerReceive: Receive = {
+    private def bigCommercePartnerReceive: Receive = {
         case msg @ RequestEcho(
                 partnerId,
                 order,
@@ -63,18 +63,18 @@ class NetworkSolutionsPartnerServiceActor(
             }
 
             try {
-                val orderNumber = java.lang.Long.parseLong(order)
-
-                networkSolutionsAccess.fetchOrder(networkSolutionsPartner.userToken, orderNumber).onComplete(_.value.get.fold(
+                val orderId = java.lang.Long.parseLong(order)
+                bigCommerceAccess.fetchOrder(bigCommercePartner.credentials, orderId).onComplete(_.value.get.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)
                         case FetchOrderResponse(_, Right(echoRequest)) =>
+                            logger.debug("Received BigCommerce echo request {}", echoRequest)
                             channel ! RequestEchoResponse(msg, Right(requestEcho(
                                 echoRequest.copy(items = echoRequest.items.map { i => i.copy(
                                     brand = Option(i.brand).getOrElse(partner.name),
-                                    landingPageUrl = "%s/%s" format(networkSolutionsPartner.storeUrl, i.landingPageUrl),
-                                    imageUrl = "%s/%s" format(networkSolutionsPartner.storeUrl, i.imageUrl)
+                                    landingPageUrl = "%s%s" format(bigCommercePartner.storeUrl, i.landingPageUrl),
+                                    imageUrl = "%s/product_images/%s" format(bigCommercePartner.storeUrl, i.imageUrl)
                                 )}),
                                 browserId,
                                 ipAddress,
@@ -83,6 +83,7 @@ class NetworkSolutionsPartnerServiceActor(
                                 echoClickId)))
                     }))
             } catch { case e => error(e) }
+
     }
 
 }

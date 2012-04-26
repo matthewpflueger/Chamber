@@ -1,4 +1,4 @@
-package com.echoed.chamber.controllers.shopify
+package com.echoed.chamber.controllers.partner.shopify
 
 import org.springframework.stereotype.Controller
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}

@@ -284,6 +284,11 @@
     </util:properties>
 
     <!--suppress SpringModelInspection -->
+    <util:properties id="bigCommerceProperties">
+        <prop key="accountManagerEmail">${accountManagerEmail}</prop>
+    </util:properties>
+
+    <!--suppress SpringModelInspection -->
     <util:properties id="geoLocationProperties">
         <prop key="geoLocationServiceUrl">${geolocation.serviceUrl}</prop>
         <prop key="lastUpdatedBeforeHours">${geolocation.lastUpdatedBeforeHours}</prop>

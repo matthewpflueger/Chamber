@@ -260,3 +260,4 @@ class EchoServiceActor extends Actor {
 }
 
 private case class FilteredException(message: String, echoClick: EchoClick) extends EchoedException(message)
+

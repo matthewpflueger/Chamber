@@ -19,6 +19,8 @@
     <import resource="classpath:database.xml" />
 
 
+    <bean id="httpClient" class="dispatch.nio.Http" destroy-method="shutdown" />
+
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <property name="cacheSeconds" value="-1" /> <!-- cache forever -->
         <property name="basenames">
@@ -159,13 +161,22 @@
 
     <bean id="networkSolutionsAccess" class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActorClient">
         <property name="networkSolutionsAccessActor" ref="networkSolutionsDispatchAccessActor"/>
-        <!--<property name="networkSolutionsAccessActor" ref="networkSolutionsAccessActor"/>-->
+    </bean>
+
+
+    <bean id="bigCommercePartnerServiceManager" class="com.echoed.chamber.services.partner.bigcommerce.BigCommercePartnerServiceManagerActorClient">
+        <property name="actorRef" ref="bigCommercePartnerServiceManagerActor" />
+    </bean>
+
+    <bean id="bigCommerceAccess" class="com.echoed.chamber.services.partner.bigcommerce.BigCommerceAccessActorClient">
+        <property name="bigCommerceAccessActor" ref="bigCommerceAccessActor"/>
     </bean>
 
 
     <util:map id="cloudPartners">
         <entry key="Shopify" value-ref="shopifyPartnerServiceManager" />
         <entry key="Network Solutions" value-ref="networkSolutionsPartnerServiceManager" />
+        <entry key="BigCommerce" value-ref="bigCommercePartnerServiceManager" />
     </util:map>
 
 
@@ -514,16 +525,54 @@
             autostart="true">
         <!--suppress SpringModelInspection -->
         <property name="properties" ref="networkSolutionsProperties" />
+        <!--suppress SpringModelInspection -->
+        <property name="client" ref="httpClient" />
     </akka:untyped-actor>
 
-    <!--<akka:untyped-actor-->
-            <!--id="networkSolutionsAccessActor"-->
-            <!--implementation="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActor"-->
-            <!--autostart="true">-->
-        <!--&lt;!&ndash;suppress SpringModelInspection &ndash;&gt;-->
-        <!--<property name="properties" ref="networkSolutionsProperties" />-->
-    <!--</akka:untyped-actor>-->
 
+    <akka:untyped-actor
+            id="bigCommercePartnerServiceManagerActor"
+            implementation="com.echoed.chamber.services.partner.bigcommerce.BigCommercePartnerServiceManagerActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="partnerDao" ref="partnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerUserDao" ref="partnerUserDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageDao" ref="imageDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageService" ref="imageService" />
+        <!--suppress SpringModelInspection -->
+        <property name="encrypter" ref="encrypter" />
+        <!--suppress SpringModelInspection -->
+        <property name="transactionTemplate" ref="transactionTemplate" />
+        <!--suppress SpringModelInspection -->
+        <property name="emailService" ref="emailService" />
+        <!--suppress SpringModelInspection -->
+        <property name="cacheManager" ref="cacheManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="bigCommerceAccess" ref="bigCommerceAccess" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerServiceManager" ref="partnerServiceManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="bigCommercePartnerDao" ref="bigCommercePartnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="bigCommerceProperties" />
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+            id="bigCommerceAccessActor"
+            implementation="com.echoed.chamber.services.partner.bigcommerce.BigCommerceAccessActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="client" ref="httpClient" />
+    </akka:untyped-actor>
 
 
     <akka:untyped-actor

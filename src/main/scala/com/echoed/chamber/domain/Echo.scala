@@ -5,6 +5,7 @@ import java.lang.{Math => JMath}
 import collection.mutable.ArrayBuilder
 import org.apache.commons.codec.binary.Base64
 import java.net.URLEncoder
+import com.echoed.util.ObjectUtils
 
 
 case class Echo(
@@ -34,27 +35,9 @@ case class Echo(
 
     val isEchoed = echoedUserId != null
 
-    def asUrlParams(prefix: String = "", encode: Boolean = false) = {
-        val params = (List[String]() /: asMap) {(list, keyValue) =>
-            val (key, value) = keyValue
-            (Option(value), encode) match {
-                case (Some(v), false) => (key + "=" + v.toString) :: list
-                case (Some(v), true) => (key + "=" + URLEncoder.encode(v.toString, "UTF-8")) :: list
-                case _ => list
-            }
-        }
-        prefix + params.mkString("&")
-    }
+    def asUrlParams(prefix: String = "", encode: Boolean = false) = ObjectUtils.asUrlParams(this, prefix, encode)
 
-    def asMap = {
-        (Map[String, String]() /: this.getClass.getDeclaredFields) {(a, f) =>
-            f.setAccessible(true)
-            Option(f.get(this)) match {
-                case Some(v) => a + (f.getName -> v.toString)
-                case _ => a
-            }
-        }
-    }
+    def asMap = ObjectUtils.asMap(this)
 
     val productId = product.productId
     val productName = product.productName

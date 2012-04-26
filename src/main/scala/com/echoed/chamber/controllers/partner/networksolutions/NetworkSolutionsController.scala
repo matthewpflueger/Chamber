@@ -1,4 +1,4 @@
-package com.echoed.chamber.controllers.networksolutions
+package com.echoed.chamber.controllers.partner.networksolutions
 
 import org.springframework.stereotype.Controller
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
@@ -72,7 +72,7 @@ class NetworkSolutionsController {
                 _ match {
                     case RegisterNetworkSolutionsPartnerResponse(_, Left(e)) => error(registerView, Some(e))
                     case RegisterNetworkSolutionsPartnerResponse(_, Right(loginUrl)) =>
-                        logger.debug("Successfully registered partner {}, login url is {}", registerForm.email, loginUrl)
+                        logger.debug("Successfully registered Network Solutions partner {}, login url is {}", registerForm.email, loginUrl)
                         continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format loginUrl))
                         continuation.resume
                 }))

@@ -178,6 +178,7 @@
             <artifactId>dispatch-nio_${scala.version}</artifactId>
             <version>0.8.8</version>
         </dependency>
+
         <dependency>
             <groupId>org.joda</groupId>
             <artifactId>joda-convert</artifactId>

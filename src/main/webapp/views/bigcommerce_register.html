@@ -1,0 +1,106 @@
+    {{> partial_header}}
+    <title>Echoed | BigCommerce Partner Register</title>
+    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css"/>
+</head>
+<body>
+<img id="mainImage" src="{{urls.images}}/bleed-couch.jpg" style="display:none;"/>
+<div id="container">
+    {{> partial_staticNavBar }}
+    <div id="primary">
+        <div class="center clearfix">
+            <div id="lm">
+                <div id="lm-top" class="clearfix">
+                    <div id="lm-label">BigCommerce Partner Register</div>
+                    <div id="lm-partner-form">
+                        <div id="lm-error">
+                        {{#errors.global}}{{this}}{{/errors.global}}
+                        </div>
+                        <form action="{{urls.site}}/bigcommerce" method="POST">
+                            <fieldset>
+                                <legend>Contact details</legend>
+                                <label  for="registerForm.name">Name<em> * </em><span class="error">{{errors.registerForm.name}}</span></label>
+                                <input  id="registerForm.name"
+                                        name="registerForm.name"
+                                        type="text"
+                                        placeholder="What is your name?"
+                                        value="{{registerForm.name}}" />
+                                <label  for="registerForm.email">Email<em> * </em><span class="error">{{errors.registerForm.email}}</span></label>
+                                <input  id="registerForm.email"
+                                        name="registerForm.email"
+                                        type="text"
+                                        placeholder="What is your email?"
+                                        value="{{registerForm.email}}" />
+                                <label  for="registerForm.phone">Phone<em> * </em><span class="error">{{errors.registerForm.phone}}</span></label>
+                                <input  id="registerForm.phone"
+                                        name="registerForm.phone"
+                                        type="text"
+                                        placeholder="What is the business phone number?"
+                                        value="{{registerForm.phone}}" />
+                                <label  for="registerForm.businessName">Business Name<em> * </em><span class="error">{{errors.registerForm.businessName}}</span></label>
+                                <input  id="registerForm.businessName"
+                                        name="registerForm.businessName"
+                                        type="text"
+                                        placeholder="What is the name of the business?"
+                                        value="{{registerForm.businessName}}" />
+                                <label  for="registerForm.website">Website<em> * </em><span class="error">{{errors.registerForm.website}}</span></label>
+                                <input  id="registerForm.website"
+                                        name="registerForm.website"
+                                        type="text"
+                                        placeholder="What is the home page of the eCommerce website?"
+                                        value="{{registerForm.website}}" />
+                            </fieldset>
+                            <fieldset>
+                                <legend>API details</legend>
+                                <p>
+                                    Information on how to enable API access for a user is available
+                                    <a href="https://developer.bigcommerce.com/display/API/Authentication">here.</a>
+                                    We recommend creating a unique user with API access enabled.  The Echoed platform
+                                    needs read access to orders, products, and customers available as Manage Orders,
+                                    Manage Products, and Manager Customers.
+                                </p>
+                                <label  for="registerForm.apiUser">API User<em> * </em><span class="error">{{errors.registerForm.apiUser}}</span></label>
+                                <input  id="registerForm.apiUser"
+                                        name="registerForm.apiUser"
+                                        type="text"
+                                        placeholder="What is the login name of the user with API access?"
+                                        value="{{registerForm.apiUser}}" />
+                                <label  for="registerForm.apiPath">API Path<em> * </em><span class="error">{{errors.registerForm.apiPath}}</span></label>
+                                <input  id="registerForm.apiPath"
+                                        name="registerForm.apiPath"
+                                        type="text"
+                                        placeholder="What is the path to the API?"
+                                        value="{{registerForm.apiPath}}" />
+                                <label  for="registerForm.apiToken">API Token<em> * </em><span class="error">{{errors.registerForm.apiToken}}</span></label>
+                                <input  id="registerForm.apiToken"
+                                        name="registerForm.apiToken"
+                                        type="text"
+                                        placeholder="What is the token for API access?"
+                                        value="{{registerForm.apiToken}}" />
+                            </fieldset>
+                            <br/>
+                            <input  id="registerForm.register"
+                                    name="registerForm.register"
+                                    type="submit" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="gap"></div>
+    <div id="footer" class="float">
+        <div class="center clearfix">
+            {{> partial_footerNav}}
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#mainImage').imagesLoaded(function(){
+            var fullBleed = new FullBleed();
+        });
+    });
+</script>
+{{> partial_google}}
