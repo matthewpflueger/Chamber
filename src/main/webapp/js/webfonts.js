@@ -1,7 +1,5 @@
 WebFontConfig = {
     google: { families: ['Lato:300,400,700,900'] },
-    custom: { families: ['BebasNeue'],
-              urls: [ 'http://localhost.com:8080/css/BebasNeue.css']}
 };
 (function(){
     var wf= document.createElement('script');
