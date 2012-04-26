@@ -1,6 +1,6 @@
 $mainColor: #DC0814; //RED
 $redColor: #DC0814; //RED
-$secondaryColor: #ff6f00; //ORANGE
+$secondaryColor: #DC0814; //ORANGE
 $greyColor : #444444;
 $fbColor: #3B5998;
 $twitterColor: #4099FF;
@@ -47,6 +47,14 @@ $readingTextLineHeight: 1.5em;
     color: $color;
     font-weight: 700;
 }
+
+@mixin textFontLight($size: 16px, $color: #111){
+        font-family: $readingTextFontFamily;
+        font-weight: 300;
+        color: $color;
+        font-size: $size;
+    }
+
 
 @mixin labelFont($size: 32px, $color: #333) {
     font-size: $size;
@@ -183,7 +191,7 @@ form label em {
     width: 100%;
     position:absolute;
     z-index:10;
-    background-image: image-url("bk_paper.png");
+    background-image: image-url("bk_noise.png");
     &.grey{
         background-color: #e7e7e7;
     }
@@ -225,7 +233,7 @@ form label em {
 
             #lm{
                 z-index: 10000;
-                background-color: #FFFFFF;
+                background-color: #F8F8F8;
                 margin-top: 50px;
                 width: 550px;
                 position:absolute;
@@ -233,9 +241,9 @@ form label em {
                 left: 50%;
                 padding: 20px;
                 border-radius: 10px;
-                box-shadow: 0px 0px 3px 3px rgba(34,25,25,0.4);
-                -moz-box-shadow: 0px 0px 3px 3px rgba(34,25,25,0.4);
-                -webkit-box-shadow: 0px 0px 3px 3px rgba(34,25,25,0.4);
+                box-shadow: 3px 3px 3px rgba(10,10,10,0.8);
+                -moz-box-shadow: 3px 3px 3px rgba(10,10,10,0.8);
+                -webkit-box-shadow: 3px 3px 3px rgba(10,10,10,0.8);
 
                 #lm-label{
                     @include labelFont;
@@ -255,7 +263,8 @@ form label em {
                     #lm-bottom-left{
                         float:left;
                         line-height:1.5em;
-                        width: 145px;
+                        @include textFontBold(14px, #000);
+                        width: 130px;
                     }
                     #lm-bottom-right{
                         .login{
@@ -330,25 +339,21 @@ form label em {
 
 
 
-    #footer{
+   #footer{
         position: absolute;
         bottom: 0px;
         width: 100%;
         height: 50px;
         background-color: #FFF;
-        border-top: 1px solid #000;
+        box-shadow: 0 -2px 2px rgba(34,25,25,0.5);
+                -moz-box-shadow: 0px -2px 2px rgba(34,25,25,0.5);
+                -webkit-box-shadow: 0px -2px 2px rgba(34,25,25,0.5);
 
-        &.relative{
-            height: 50px;
-            border-top: 1px solid #000;
-            padding-top: 10px;
-        }
         &.float{
             position: absolute;
             bottom:0px;
             width: 100%;
             z-index: 10000;
-            border-top: 1px solid #000;
         }
    }
 
@@ -608,7 +613,7 @@ section{
         border-top: 1px solid #333;
         padding: 5px;
         line-height: 1.2em;
-        font-size: 14px;
+        @include textFont(14px, #111);
     }
 }
 
@@ -619,6 +624,5 @@ section{
     left:0px;
     height: 100%;
     width: 100%;
-    //background-image: image-url("bg-whitepx30.png");
     z-index: 200;
 }

@@ -114,43 +114,14 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
-        if(this.model.get("echoProductName")){
-            hover.append('<strong>' + this.model.get("echoProductName") +'</strong><br/><br/>');
-            text.prepend(this.model.get("echoProductName")+'<br/>');
-        }
-        if(this.model.get("echoBrand"))
-            hover.append('<strong>by ' + this.model.get("echoBrand") + '</strong><br/><br/>');
-
-        if(this.model.get("retailerName")){
-            text.prepend('<strong>' + this.model.get("retailerName") + '</strong><br/>');
-            hover.append('@ ' + this.model.get("retailerName") + '<br/><br/>');
-        }
-        if(this.model.get("echoedUserName"))
-            hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/><br/>');
-        if(this.model.get("echoCredit")){
-            hover.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/><br/>');
-        }
+        text.append('<strong>' + this.model.get("partnerName") + '</strong><br/>');
+        text.append(this.model.get("echoProductName"));
         img.attr('src', imageUrl);
         if (imageWidth > 0) {
             img.attr('width', imageWidth)
         }
         if (imageHeight > 0) {
             img.attr('height', imageHeight)
-        }
-        if(this.model.get("echoCreditWindowEndsAt")){
-            var then = this.model.get("echoCreditWindowEndsAt");
-            var a = new Date();
-            var now = a.getTime();
-            var diff = then - now;
-            var daysleft = parseInt(diff/(24*60*60*1000));
-            if(daysleft >= 0){
-                hover.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/><br/>");
-                self.showOverlay();
-                var t = setTimeout(self.hideOverlay, 3000);
-                img.addClass("open-echo");
-                var visits = this.model.get("echoTotalClicks");
-                //hover.append("<span class='highlight'><strong>" + visits + " people have visited</strong></span>");
-            }
         }
         return this;
     },
