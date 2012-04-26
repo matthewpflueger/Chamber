@@ -8,12 +8,12 @@
 <body>
 <div id="container">
     {{> staticNavBar }}
-    <div id="primary">
-        <div class="center-outline">
+    <section>
+        <div class="center">
             <div class="title">
                 <h1>Contact Us</h1>
             </div>
-            <div>
+            <div class="roundbox">
                 <form id="cu-form" name="contactus" action="" method="GET">
                     <label for="name">Your Name</label>
                     <input id="name" type="text" value=""/>
@@ -25,12 +25,15 @@
                 </form>
             </div>
         </div>
-    </div>
-    <div id="footer">
-        <div class="center">
+    </section>
+    <div id="footer" class="float">
+        <div class="center clearfix">
             <div id="footer-nav">
                 <a href="{{urls.site}}/howitworks">How It Works</a>
                 <a href="{{urls.site}}/contactus">Contact Us</a>
+                <div class="copyright" style="float:right;line-height:45px;">
+                    Copyright 2012 - Echoed Inc.
+                </div>
             </div>
         </div>
     </div>

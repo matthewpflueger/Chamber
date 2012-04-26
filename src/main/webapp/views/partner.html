@@ -200,71 +200,62 @@
                 </div>
                 <div class="full-column-left">
                     <div>
-                        <div class="product-detail-image-container">
-                            <img id="product-image" class="product-detail-image"/>
-                        </div>
-                        <div class="product-detail-table-container">
-                            <table class="product-detail-table" cellspacing="0">
-                                <tr>
-                                    <td width="100px">SKU</td>
-                                    <td id="product-sku"></td>
-                                </tr>
-                                <tr>
-                                    <td>Brand</td>
-                                    <td id="product-brand"></td>
-                                </tr>
-                                <tr>
-                                    <td>Category</td>
-                                    <td id="product-category"></td>
-                                </tr>
-                            </table>
+                        <div class="product-detail clearfix">
+                            <div class="product-detail-image-container">
+                                <img id="product-image" class="product-detail-image"/>
+                            </div>
+                            <div class="product-detail-table-container">
+                                <div id="product-sku"></div>
+                                <div id="product-brand"></div>
+                                <div id="product-category"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="full-column-right">
-                    <div class="ss-row">
+                    <div  class="ss-row">
                         <div class="ss-box">
                             <div class="ss-box-label">
-                                Open Echoes
+                                ($) Purchases
                             </div>
-                            <div id="ss-open-echoes" class="ss-box-number echoed-text">
+                            <div id="ps-purchaseamount" class="ss-box-number echoed-text">
                             </div>
                         </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
-                                New Echoes
+                                (#) Purchases
                             </div>
-                            <div id="ss-new-echoes" class="ss-box-number echoed-text">
+                            <div id="ps-purchases" class="ss-box-number echoed-text">
                             </div>
                         </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
                                 Page Views
                             </div>
-                            <div id="ss-views" class="ss-box-number echoed-text">
+                            <div id="ps-views" class="ss-box-number echoed-text">
                             </div>
                         </div>
                     </div>
-                    <div  class="ss-row">
+                    <div class="ss-row">
+                        <div class="ss-box">
+                            <div class="ss-box-label">
+                                Echoes
+                            </div>
+                            <div id="ps-echoes" class="ss-box-number echoed-text">
+                            </div>
+                        </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
                                 Comments
                             </div>
-                            <div id="ss-comments" class="ss-box-number fb-text">
+                            <div id="ps-comments" class="ss-box-number fb-text">
                             </div>
                         </div>
                         <div class="ss-box">
                             <div class="ss-box-label">
                                 Likes
                             </div>
-                            <div id="ss-likes" class="ss-box-number fb-text">
-                            </div>
-                        </div>
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Retweets
-                            </div>
-                            <div id="ss-retweets" class="ss-box-number twitter-text">
+                            <div id="ps-likes" class="ss-box-number fb-text">
                             </div>
                         </div>
                     </div>
@@ -285,60 +276,51 @@
 <script type="text/template" id="template-view-reports-customers">
     <div class="row">
         <div class="full box clearfix">
-            <div id="customer-selector" class="report-selector">
+            <div id="customer-selector" class="report-selector" style="margin-bottom: 20px;">
                 <div id="select-report" class="label">
                 </div>
             </div>
             <div id="report-summary-customer">
-                <div id="summary-stats-column1">
-                </div>
-                <div id="summary-stats-column2" class="full-column-right">
-                    <div id="ss-upper_row" class="ss-row">
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Likes
-                            </div>
-                            <div id="cs-likes" class="ss-box-number fb-text">
-                            </div>
+                <div id="ss-upper_row" class="ss-row">
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Total Sales
                         </div>
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Comments
-                            </div>
-                            <div id="cs-comments" class="ss-box-number fb-text">
-                            </div>
-                        </div>
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Echoes
-                            </div>
-                            <div id="cs-echoes" class="ss-box-number echoed-text">
-                            </div>
-                        </div>
+                        <div id="cs-total" class="ss-box-number echoed-text"></div>
                     </div>
-                    <div id="ss-lower_row" class="ss-row">
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Purchases
-                            </div>
-                            <div id="cs-purchases" class="ss-box-number echoed-text">
-                            </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Purchases
                         </div>
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Views
-                            </div>
-                            <div id="cs-views" class="ss-box-number echoed-text">
-                            </div>
-                        </div>
-                        <div class="ss-box">
-                            <div class="ss-box-label">
-                                Total Sales
-                            </div>
-                            <div id="cs-total" class="ss-box-number echoed-text">
-                            </div>
-                        </div>
+                        <div id="cs-purchases" class="ss-box-number echoed-text"></div>
                     </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Echoes
+                        </div>
+                        <div id="cs-echoes" class="ss-box-number echoed-text"></div>
+                    </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Page Views
+                        </div>
+                        <div id="cs-views" class="ss-box-number echoed-text"></div>
+                    </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Likes
+                        </div>
+                        <div id="cs-likes" class="ss-box-number fb-text"></div>
+                    </div>
+                    <div class="ss-box">
+                        <div class="ss-box-label">
+                            Comments
+                        </div>
+                        <div id="cs-comments" class="ss-box-number fb-text"></div>
+                    </div>
+
+
+
                 </div>
             </div>
         </div>
