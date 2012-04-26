@@ -14,7 +14,8 @@ case class EchoClick(
         browserId: String,
         ipAddress: String,
         userAgent: String,
-        referrerUrl: String) {
+        referrerUrl: String,
+        filtered: Boolean) {
 
     def this(
             echoId: String,
@@ -33,7 +34,8 @@ case class EchoClick(
         browserId,
         ipAddress,
         userAgent,
-        referrerUrl)
+        referrerUrl,
+        false)
 
 
 }

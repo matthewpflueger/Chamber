@@ -179,29 +179,31 @@ class EchoServiceActor extends Actor {
                         Future {
                             val ec = determinePostId(echo, echoClick.copy(echoId = echo.id), if (linkId == echo.id) postId else linkId)
                             echoClickDao.insert(ec.copy(userAgent = Option(ec.userAgent).map(_.take(254)).orNull))
-                            logger.debug("Successfully recorded click for Echo {}", echo.id)
+                            logger.debug("Successfully recorded EchoClick {}", ec.id)
 
 
                             //start of really bad hack to filter some obviously bad clicks...
                             if (Option(ec.userAgent) == null) {
-                                throw FilteredException("Filtering null UserAgent %s" format ec)
+                                throw FilteredException("Filtering null UserAgent for EchoClick %s" format ec.id, ec)
                             }
                             if (ec.echoedUserId == echo.echoedUserId) {
-                                throw FilteredException("Filtering user clicking own echo %s" format ec)
+                                throw FilteredException("Filtering user clicking own echo EchoClick %s" format ec.id, ec)
                             }
                             if (filteredUserAgents.exists(ec.userAgent.contains(_))) {
-                                throw FilteredException("Filtering robot %s" format ec)
+                                throw FilteredException("Filtering robot EchoClick %s" format ec.id, ec)
                             }
 
                             val echoClicks = Option(echoClickDao.findByEchoId(ec.echoId))
                                                 .getOrElse(Collections.emptyList[EchoClick]())
-                                                .dropWhile(_.id == ec.id)
+                                                .filterNot(_.id == ec.id)
 
-                            if (echoClicks.exists(_.browserId == ec.browserId)) {
-                                throw FilteredException("Filtering duplicate click from browser %s" format ec)
-                            }
-                            if (echoClicks.exists(e => e.ipAddress == ec.ipAddress && (ec.createdOn.getTime - e.createdOn.getTime) < 60000)) {
-                                throw FilteredException("Filtering fast click from same ipAddress %s" format ec)
+                            echoClicks.foreach { existing =>
+                                if (existing.browserId == ec.browserId) {
+                                    throw FilteredException("Filtering duplicate click from browser EchoClick %s" format ec.id, ec)
+                                }
+                                if (existing.ipAddress == ec.ipAddress && ((ec.createdOn.getTime - existing.createdOn.getTime) < 60000)) {
+                                    throw FilteredException("Filtering fast click from same ipAddress EchoClick %s" format ec.id, ec)
+                                }
                             }
 
 
@@ -218,7 +220,9 @@ class EchoServiceActor extends Actor {
                                 None
                             }
                         }.onException {
-                            case e: FilteredException => logger.debug(e.getMessage)
+                            case e: FilteredException =>
+                                logger.debug(e.getMessage)
+                                echoClickDao.updateFiltered(e.echoClick)
                             case e => logger.error("Failed to save echo click %s for %s" format(echoClick, echo), e)
                         }
                     },
@@ -246,4 +250,4 @@ class EchoServiceActor extends Actor {
 
 }
 
-private case class FilteredException(message: String) extends EchoedException(message)
+private case class FilteredException(message: String, echoClick: EchoClick) extends EchoedException(message)

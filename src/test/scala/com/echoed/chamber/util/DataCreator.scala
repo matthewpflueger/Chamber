@@ -757,7 +757,8 @@ class DataCreator {
             referrerUrl = "http://facebook.com",
             browserId = UUID.randomUUID().toString,
             ipAddress = ipAddress_3,
-            userAgent = "testUserAgent"),
+            userAgent = "testUserAgent",
+            filtered = false),
         EchoClick(
             id = UUID.randomUUID.toString,
             updatedOn = on,
@@ -769,7 +770,8 @@ class DataCreator {
             browserId = UUID.randomUUID().toString,
             referrerUrl = "http://twitter.com",
             ipAddress = ipAddress_3,
-            userAgent = "testUserAgent")
+            userAgent = "testUserAgent",
+            filtered = false)
     )
 
     val echoClicks_2 = List(
@@ -784,7 +786,8 @@ class DataCreator {
             browserId = UUID.randomUUID().toString,
             referrerUrl = "http://facebook.com",
             ipAddress = ipAddress_4,
-            userAgent = "testUserAgent"),
+            userAgent = "testUserAgent",
+            filtered = false),
         EchoClick(
             id = UUID.randomUUID.toString,
             updatedOn = on,
@@ -796,7 +799,8 @@ class DataCreator {
             browserId = UUID.randomUUID().toString,
             referrerUrl = "http://twitter.com",
             ipAddress = ipAddress_4,
-            userAgent = "testUserAgent"))
+            userAgent = "testUserAgent",
+            filtered = false))
 
     val echoFuture =  Echo(
             id = echoId_1,

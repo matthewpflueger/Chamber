@@ -17,12 +17,17 @@
             <arg column="ipAddress" javaType="String" />
             <arg column="userAgent" javaType="String"/>
             <arg column="referrerUrl" javaType="String" />
+            <arg column="filtered" javaType="_boolean" />
         </constructor>
     </resultMap>
 
     <select id="findByEchoId" resultMap="echoClickResult">
         select * from EchoClick where echoId = #{echoId}
     </select>
+
+    <update id="updateFiltered" parameterType="com.echoed.chamber.domain.EchoClick">
+        update EchoClick set filtered = 1 where id = #{id}
+    </update>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.EchoClick">
 

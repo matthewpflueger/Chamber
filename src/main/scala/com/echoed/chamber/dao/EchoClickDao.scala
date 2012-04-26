@@ -8,6 +8,8 @@ trait EchoClickDao {
 
     def insert(echoClick: EchoClick): Int
 
+    def updateFiltered(echoClick: EchoClick): Int
+
     def findByEchoId(echoId: String): JList[EchoClick]
 
     def deleteByEchoId(echoId: String): Int
