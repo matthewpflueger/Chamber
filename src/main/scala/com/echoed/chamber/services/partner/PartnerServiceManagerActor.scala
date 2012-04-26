@@ -16,8 +16,8 @@ import scala.collection.mutable.ConcurrentMap
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import com.echoed.chamber.services.image.ImageService
 import com.echoed.chamber.services.ActorClient
-import akka.actor.{PoisonPill, Channel, Actor}
 import java.util.{UUID, HashMap => JHashMap}
+import akka.actor.{ForwardableChannel, PoisonPill, Channel, Actor}
 
 
 class PartnerServiceManagerActor extends Actor {
@@ -196,7 +196,7 @@ class PartnerServiceManagerActor extends Actor {
 
         case msg @ PartnerIdentifiable(partnerId) =>
             val me = self
-            val channel = self.channel
+            val channel = self.channel.asInstanceOf[ForwardableChannel]
 
             val constructor = findResponseConstructor(msg)
 
@@ -204,13 +204,13 @@ class PartnerServiceManagerActor extends Actor {
                 e => channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating partner %s" format partnerId, e))),
                 _ match {
                     case LocateResponse(_, Left(e)) => channel ! constructor.newInstance(msg, Left(e))
-                    case LocateResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef forward msg
+                    case LocateResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef.forward(msg)(channel)
                 }))
 
 
         case msg @ EchoIdentifiable(echoId) =>
             val me = self
-            val channel = self.channel
+            val channel = self.channel.asInstanceOf[ForwardableChannel]
 
             val constructor = findResponseConstructor(msg)
 
@@ -218,7 +218,7 @@ class PartnerServiceManagerActor extends Actor {
                 e => channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating with echo id %s" format echoId, e))),
                 _ match {
                     case LocateByEchoIdResponse(_, Left(e)) => channel ! constructor.newInstance(msg, Left(e))
-                    case LocateByEchoIdResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef forward msg
+                    case LocateByEchoIdResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef.forward(msg)(channel)
                 }))
     }
 

@@ -16,6 +16,7 @@ import org.springframework.transaction.TransactionStatus
 import com.echoed.chamber.dao._
 import com.echoed.chamber.domain._
 import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
+import java.util.concurrent.atomic.AtomicInteger
 
 class PartnerServiceActor(
         partner: Partner,
@@ -32,7 +33,7 @@ class PartnerServiceActor(
 
     self.id = "Partner:%s" format partner.id
 
-    var viewCounter = 0
+    val viewCounter: AtomicInteger = new AtomicInteger(0)
 
 
     protected def requestEcho(
@@ -176,10 +177,11 @@ class PartnerServiceActor(
                 e => channel ! GetViewResponse(msg, Left(PartnerException("Error retrieving partner settings for %s" format partner.id, e))),
                 _.cata(
                     ps => {
-                        val view = ps.views
+                        val view = ps.viewsList(viewCounter.incrementAndGet() % ps.viewsList.length)
+
                         channel ! GetViewResponse(msg, Right(ViewDescription(view, Map(
                                         "pid" -> partner.id,
-                                        "view" -> ps.viewsList(viewCounter % ps.viewsList.length),
+                                        "view" -> view,
                                         "partner" -> partner,
                                         "partnerSettings" -> ps,
                                         "maxPercentage" -> "%1.0f".format(ps.maxPercentage * 100)))))
