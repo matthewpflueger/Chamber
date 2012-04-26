@@ -248,6 +248,31 @@
         <property name="cacheManager" ref="cacheManager" />
     </akka:untyped-actor>
 
+    <util:list id="filteredUserAgents">
+        <value>Googlebot</value>
+        <value>bitlybot</value>
+        <value>Crowsnest</value>
+        <value>facebookexternalhit</value>
+        <value>Jakarta</value>
+        <value>Java</value>
+        <value>JS-Kit</value>
+        <value>LinkedInBot</value>
+        <value>news.me extractor</value>
+        <value>newsme</value>
+        <value>NING</value>
+        <value>RockMeltEmbedService</value>
+        <value>ShowyouBot</value>
+        <value>Twitterbot</value>
+        <value>Voyager</value>
+        <value>Yepi</value>
+        <value>Yeti</value>
+        <value>TweetedTimes Bot</value>
+        <value>TweetmemeBot</value>
+        <value>YandexBot</value>
+        <value>Butterfly</value>
+        <value>AppEngine-Google</value>
+    </util:list>
+
     <akka:untyped-actor
             id="echoServiceActor"
             implementation="com.echoed.chamber.services.echo.EchoServiceActor"
@@ -269,32 +294,7 @@
         <!--suppress SpringModelInspection -->
         <property name="transactionTemplate" ref="transactionTemplate" />
         <!--suppress SpringModelInspection -->
-        <property name="filteredUserAgents">
-            <util:list>
-                <value>Googlebot</value>
-                <value>bitlybot</value>
-                <value>Crowsnest</value>
-                <value>facebookexternalhit</value>
-                <value>Jakarta</value>
-                <value>Java</value>
-                <value>JS-Kit</value>
-                <value>LinkedInBot</value>
-                <value>news.me extractor</value>
-                <value>newsme</value>
-                <value>NING</value>
-                <value>RockMeltEmbedService</value>
-                <value>ShowyouBot</value>
-                <value>Twitterbot</value>
-                <value>Voyager</value>
-                <value>Yepi</value>
-                <value>Yeti</value>
-                <value>TweetedTimes Bot</value>
-                <value>TweetmemeBot</value>
-                <value>YandexBot</value>
-                <value>Butterfly</value>
-                <value>AppEngine-Google</value>
-            </util:list>
-        </property>
+        <property name="filteredUserAgents" ref="filteredUserAgents" />
     </akka:untyped-actor>
 
     <akka:untyped-actor
