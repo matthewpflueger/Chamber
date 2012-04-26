@@ -15,14 +15,14 @@ class GlobalsManager {
     @BeanProperty var urlsProperties: Properties = new Properties()
     @BeanProperty var gitProperties: Properties = new Properties()
 
-    @BeanProperty var httpsSiteUrlAttributeName = "https"
+    @BeanProperty var httpUrlsAttributeName = "http"
+    @BeanProperty var httpsUrlsAttributeName = "https"
     @BeanProperty var urlsAttributeName = "urls"
     @BeanProperty var versionAttributeName = "version"
     @BeanProperty var facebookClientIdAttributeName = "facebookClientId"
 
     @BeanProperty val httpUrls = new JHashMap[String, String]()
     @BeanProperty val httpsUrls = new JHashMap[String, String]()
-    @BeanProperty var httpsSiteUrl: String = ""
 
     @BeanProperty var version = ""
     @BeanProperty var facebookClientId = ""
@@ -38,10 +38,8 @@ class GlobalsManager {
             tuple =>
                 val (key, value) = tuple
                 httpsUrls.put(key.replace("https.urls.", ""), value)
-                if (key == "https.urls.site") {
-                    httpsSiteUrl = value
-                }
         }
+
         version = gitProperties.getProperty("git.commit.id.abbrev", "")
         val versionInfo = new StringBuilder()
         gitProperties.stringPropertyNames().foreach { key =>
@@ -53,7 +51,6 @@ class GlobalsManager {
                     .append("\n")
         }
         logger.error("Booting Chamber:\n" + versionInfo)
-
     }
 
     def addGlobals(model: JMap[String, AnyRef]) {
@@ -63,15 +60,10 @@ class GlobalsManager {
     def addGlobals(model: JMap[String, AnyRef], urls: JMap[String, String]) {
         model.put(versionAttributeName, version)
         model.put(facebookClientIdAttributeName, facebookClientId)
-        model.put(httpsSiteUrlAttributeName, httpsSiteUrl)
 
-        if (model.get(urlsAttributeName) == null) {
-            model.put(urlsAttributeName, urls)
-        } else if (model.get(urlsAttributeName).isInstanceOf[JMap[String, String]]) {
-            urls.putAll(model.get(urlsAttributeName).asInstanceOf[JMap[String, String]])
-            model.put(urlsAttributeName, urls)
-        } else {
-            logger.debug("Attribute of name {} already exists: {}", urlsAttributeName, model.get(urlsAttributeName))
-        }
+        model.put(httpUrlsAttributeName, httpUrls)
+        model.put(httpsUrlsAttributeName, httpsUrls)
+
+        model.put(urlsAttributeName, urls)
     }
 }

@@ -54,7 +54,7 @@
                 <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
                 {{/facebookUserId}}
                 {{^facebookUserId}}
-                <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{urls.site}}/facebook/add&scope=email,publish_stream,offline_access">
+                <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{http.site}}/facebook/add&scope=email,publish_stream,offline_access">
                     <img src="{{urls.images}}/btn_sq_grey_fb.png" alt="facebook"/>
                 </a>
                 {{/facebookUserId}}
