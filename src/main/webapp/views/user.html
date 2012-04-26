@@ -1,4 +1,4 @@
-    {{> header}}
+    {{> partial_header}}
     <title>Echoed</title>
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css?v={{version}}"/>
     <script type="text/template" id="templates-components-product">
@@ -23,8 +23,8 @@
 </head>
 <body>
     <div id="container">
-        <div id="header">
-            <div class="clearfix">
+        <div id="header-container">
+            <div id="header" class="clearfix">
                 <div id="logo">
                     <img height="40px" src="{{urls.images}}/logo.png">
                 </div>
@@ -45,12 +45,12 @@
                     <ul>
                         <li id="explore_nav">
                             <a href="#explore">
-                                Live Feed
+                                What Are People Buying?
                             </a>
                         </li>
                         <li id="exhibit_nav">
                             <a href="#exhibit">
-                                My Exhibit
+                                What I've Shared
                             </a>
                         </li>
                         <li id="friends_nav">
@@ -159,4 +159,4 @@
         Echoed.init();
     });
 </script>
-{{> google}}
+{{> partial_google}}

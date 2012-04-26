@@ -17,12 +17,12 @@ import Scalaz._
 @Controller
 class StaticController {
 
-    @BeanProperty var howItWorksView: String = _
+    @BeanProperty var whatIsEchoedView: String = _
     @BeanProperty var contactUsView: String = _
     @BeanProperty var businessView: String = _
 
-    @RequestMapping(value = Array("/howitworks*"), method = Array(RequestMethod.GET))
-    def howItWorks = new ModelAndView(howItWorksView)
+    @RequestMapping(value = Array("/whatisechoed*"), method = Array(RequestMethod.GET))
+    def howItWorks = new ModelAndView(whatIsEchoedView)
 
     @RequestMapping(value = Array("/contactus*"), method = Array(RequestMethod.GET))
     def contactUs = new ModelAndView(contactUsView)

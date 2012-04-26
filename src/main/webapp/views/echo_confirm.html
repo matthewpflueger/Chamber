@@ -53,7 +53,7 @@
                                         <img src="{{urls.images}}/icon_facebook.png" class="icon"/>
                                     </td>
                                     <td>
-                                        <textarea name="facebookMessage" class="rounded-corners" >I just bought the {{#echoPossibility}}{{productName}}{{/echoPossibility}} from {{#partner}}{{name}}{{/partner}}. All of {{#partner}}{{name}}{{/partner}}'s stuff is really cool, you guys need to check out their site!</textarea>
+                                        <textarea name="facebookMessage" class="rounded-corners" >I just bought the {{#echoPossibility}}{{productName}}{{/echoPossibility}} from {{#partner}}{{name}}{{/partner}}. Check out some of the other great products at {{#partner}}{{name}}{{/partner}}!</textarea>
                                     </td>
                                     <td>
                                         <input type="checkbox" name="postToFacebook" checked="true"/>
@@ -114,4 +114,4 @@
 </div>
 </body>
 </html>
-{{> google}}
+{{> partial_google}}

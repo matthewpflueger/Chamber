@@ -1,4 +1,4 @@
-    {{> header}}
+    {{> partial_header}}
     <title>Echoed</title>
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css?v={{version}}"/>
     <script type="text/template" id="templates-components-product">
@@ -22,8 +22,8 @@
 </head>
 <body>
 <div id="container" class="facebook">
-    <div id="header" class="facebook">
-        <div class="clearfix">
+    <div id="header-container" class="facebook">
+        <div id="header" class="clearfix">
             <div id="logo">
                 <img height="40px" src="{{urls.images}}/logo.png">
             </div>
@@ -144,4 +144,4 @@
         Echoed.init();
     });
 </script>
-{{> google}}
+{{> partial_google}}

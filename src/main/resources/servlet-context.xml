@@ -258,6 +258,12 @@
     <bean id="publicController" class="com.echoed.chamber.controllers.api.PublicController">
         <property name="feedService"  ref="feedService"/>
     </bean>
+    
+    <bean id="staticController" class="com.echoed.chamber.controllers.StaticController">
+        <property name="businessView"  value="public_business" />
+        <property name="contactUsView"  value="public_contactus" />
+        <property name="whatIsEchoedView" value="public_whatisechoed" />
+    </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>

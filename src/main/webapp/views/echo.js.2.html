@@ -1,0 +1,220 @@
+
+    function ___getPageSize() {
+        var xScroll, yScroll;
+        if (window.innerHeight && window.scrollMaxY) {
+            xScroll = window.innerWidth + window.scrollMaxX;
+            yScroll = window.innerHeight + window.scrollMaxY;
+        } else if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac
+            xScroll = document.body.scrollWidth;
+            yScroll = document.body.scrollHeight;
+        } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
+            xScroll = document.body.offsetWidth;
+            yScroll = document.body.offsetHeight;
+        }
+        var windowWidth, windowHeight;
+        if (self.innerHeight) {    // all except Explorer
+            if (document.documentElement.clientWidth) {
+                windowWidth = document.documentElement.clientWidth;
+            } else {
+                windowWidth = self.innerWidth;
+            }
+            windowHeight = self.innerHeight;
+        } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+            windowWidth = document.documentElement.clientWidth;
+            windowHeight = document.documentElement.clientHeight;
+        } else if (document.body) { // other Explorers
+            windowWidth = document.body.clientWidth;
+            windowHeight = document.body.clientHeight;
+        }
+// for small pages with total height less then height of the viewport
+        if (yScroll < windowHeight) {
+            pageHeight = windowHeight;
+        } else {
+            pageHeight = yScroll;
+        }
+// for small pages with total width less then width of the viewport
+        if (xScroll < windowWidth) {
+            pageWidth = xScroll;
+        } else {
+            pageWidth = windowWidth;
+        }
+        arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
+        return arrayPageSize;
+    }
+
+    function EchoedActivateNetwork(e){
+        Echoed[e] = true;
+        $('.echoed-cb[network^=' + e + ']').each(function(){
+            $(this).attr("checked", true);
+        });
+    }
+
+    function EchoedDeactivateNetwork(e){
+        Echoed[e] = false;
+        $('.echoed-cb[network^=' + e + ']').each(function(){
+            $(this).attr("checked",false);
+        });
+    }
+
+    function EchoedSetName(e){
+        var li = $('<div class="echoed-li">You are logged into Echoed as: ' + e +  ' (<span class="echoed-not echoed-highlight">Not ' + e + '?</span>)</div>')
+        li.hide().prependTo($('#echoed-l-i-c')).slideDown();
+    }
+
+    function EchoedLogout(){
+        $('.echoed-li').slideUp(function(){ $(this).remove() });
+        Echoed.name = "";
+        EchoedDeactivate();
+        EchoedDeactivateNetwork('facebook');
+        EchoedDeactivateNetwork('twitter');
+    }
+
+    function EchoedDeactivate(){
+        $('.echoed-l').removeClass('active');
+    }
+
+    function EchoedActivate(){
+
+        $('.echoed-l').addClass('active');
+    }
+
+    function receiveMessageResponse(e){
+        if(e.data.name){
+            EchoedSetName(e.data.name);
+            EchoedActivate();
+        }
+        if(e.data.facebook){
+            EchoedActivateNetwork("facebook");
+        }
+        if(e.data.twitter){
+            EchoedActivateNetwork("twitter");
+        }
+    }
+
+    (function ($) {
+        var css = $('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.2.css?v={{version}}" />');
+        $('body').append(css);
+
+        Echoed = {};
+        Echoed.urls = {}; //{{#urls}}
+        Echoed.urls.api = "{{api}}";
+        Echoed.urls.cdn = "{{cdn}}";
+        Echoed.urls.js = "{{js}}";
+        Echoed.urls.css = "{{css}}";
+        Echoed.urls.images = "{{images}}";
+        Echoed.urls.views = "{{views}}";
+        Echoed.urls.site = "{{site}}";
+        Echoed.facebook = false;
+        Echoed.twitter = false;
+        Echoed.name = "";
+        /*{{/urls}} // */
+
+        var arrPageSizes = ___getPageSize();
+
+        $('body').prepend('<div id="echoed-fade"></div>');
+
+        $('#echoed-fade').css({
+            width:arrPageSizes[0],
+            height:arrPageSizes[1]
+        });
+
+        var popup = $('<div id="echoed-popup"><img src="http://images.echoed.com/btn_closewin.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}"/ >{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
+        popup.appendTo($('body')).fadeIn();
+        $('#echoed-hiw-t').html('Thank You For Your Order');
+        $('#echoed-hiw-tt').html("Get up to {{maxPercentage}}% cash back on each item you share with friends. Your rewards for sharing are automatically applied back to your credit card. Click the Share button to begin.");
+        var container = $('#echoed-p-c');
+        var table = $('<table><thead><tr><th align="left" colspan="1" width="100px">Your Cart</th><th colspan="3" valign="bottom"><div id="echoed-l-i-c"></div></th></tr></thead></table>');
+        var tbody = $('<tbody></tbody>');
+        table.append(tbody);
+        $.ajax({
+            url:Echoed.urls.api + "/echo/request",
+            dataType:'jsonp',
+            data:{
+                "pid":"{{pid}}",
+                "data":echoData,
+                "view":"{{view}}"
+            },
+            success:function (data) {
+                container.append(table);
+                $(data.echoPossibilities).each(function (index, echoPossibility) {
+                    echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
+                    var message = "";
+                    var placeHolder = "Tell your friends why you bought this product and save up to {{maxPercentage}}% when your friends click through";
+                    var t1 = $('<tr><td colspan="4"><div><strong>' + echoPossibility.productName + '</strong> ($' + echoPossibility.price + ')</td></tr>');
+                    var t2 =  $('<tr valign="middle" class="echoed-p"><td class="echoed-td1" valign="middle"><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td class="echoed-td2" valign="middle"><textarea id="' + echoPossibility.id +  '-ta" placeholder="' + placeHolder + '">' + message + '</textarea></td><td class="echoed-td3"><input id="' + echoPossibility.id + '-facebook" class="echoed-cb" echoPossibilityId="' + echoPossibility.id + '" network="facebook" type="checkbox" name="option1"/><span class="echoed-td-t">Share To Facebook</span><br/><input id="' + echoPossibility.id + '-twitter" class="echoed-cb" echoPossibilityId="' + echoPossibility.id + '" network="twitter" type="checkbox" name="option1"/><span class="echoed-td-t">Share To Twitter</span></td><td class="echoed-td4" valign="middle"><span id=' + echoPossibility.id + ' class="echoed-l" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '"></span></a></td></tr>');
+                    tbody.append(t1);
+                    tbody.append(t2);
+                });
+            }
+        });
+
+        $('.echoed-l').live('click', function(){
+            var self = $(this);
+            var echoId = self.attr("id");
+            if(self.hasClass('active')){
+                var textarea = $('#' + echoId + '-ta');
+                var tac = textarea.parent();
+                var message = textarea.val();
+
+                if(message.length > 0){
+                    var overlay = $('<img src="{{urls.images}}/flower-loader.gif" />');
+                    self.parent().append(overlay);
+                    self.hide();
+                    var echoId = self.attr("id");
+                    var postToFacebook = $('#' + echoId + '-facebook');
+                    var postToTwitter = $('#' + echoId + '-twitter');
+                    var row = self.parent().parent();
+                    $.ajax({
+                        type: 'GET',
+                        url: Echoed.urls.api + "/echo/finishjson",
+                        dataType: 'jsonp',
+                        data :{
+                            facebookMessage: message,
+                            //postToFacebook: postToFacebook.val(),
+                            postToFacebook: false,
+                            twitterMesage: message,
+                            //postToTwitter: postToTwitter.val(),
+                            postToTwitter: false,
+                            echoId: echoId
+                        },
+                        success: function(data){
+                            overlay.remove();
+                            textarea.remove();
+                            postToFacebook.remove();
+                            postToTwitter.remove();
+                            tac.append("This product has been Echoed successfully. Head over to your <strong>Exhibit</strong>, where you can track the cash back you're earning. Visit your Exhibit any time or explore cool products your friends are sharing at <a class='highlight' href='{{urls.site}}/#exhibit'><strong>Echoed.com</strong></a>.");
+                            row.find('.echoed-td3').remove();
+                            row.find('.echoed-td4').remove();
+                            row.find('.echoed-td2').css("font-size","14px").attr("colspan","3");
+                            row.find(".echoed-td-t").remove();
+                        }
+                    });
+                } else {
+                    alert('Please enter a message to share with friends');
+                }
+            } else {
+                alert('Please select a network to share this product on');
+            }
+        });
+
+        $('.echoed-not').live('click', function(){
+            EchoedLogout();
+        });
+
+        $('.echoed-cb').live('click', function () {
+            if($(this).attr('checked')){
+                if(!Echoed[$(this).attr("network")]){
+                    var echoedAuthorizeURL = "{{urls.site}}/echo/authorize?close=true&id=" + $(this).attr("echoPossibilityId") + "&network=" + $(this).attr("network");
+                    window.addEventListener('message', receiveMessageResponse , false);
+                    window.open(echoedAuthorizeURL, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                    return false;
+                }
+            }
+        });
+
+        $('#echoed-close').live('click', function () {
+            $('#echoed-fade,#echoed-popup').hide();
+        });
+
+    })(jQuery);
+

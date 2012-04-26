@@ -551,20 +551,20 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var tooltipEl = this.el.find(".product-tooltip");
         self.toolTip = new Echoed.Views.Components.Tooltip({ el: tooltipEl, EvAg: self.EvAg });
         if(this.model.get("echoProductName")){
-            hover.append('<strong>' + this.model.get("echoProductName") +'</strong><br/><br/>');
+            hover.append(this.model.get("echoProductName") + '<br/>');
             text.prepend(this.model.get("echoProductName")+'<br/>');
         }
         if(this.model.get("echoBrand"))
-            hover.append('<strong>by ' + this.model.get("echoBrand") + '</strong><br/><br/>');
+            hover.append('by ' + this.model.get("echoBrand") + '<br/>');
 
         if(this.model.get("partnerName")){
-            text.prepend('<strong>' + this.model.get("partnerName") + '</strong><br/>');
-            hover.append('@ ' + this.model.get("partnerName") + '<br/><br/>');
+            text.prepend(this.model.get("partnerName") + '<br/>');
+            hover.append('@ ' + this.model.get("partnerName") + '<br/>');
         }
         if(this.model.get("echoedUserName"))
-            hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/><br/>');
+            hover.append('<span class="highlight">' + this.model.get("echoedUserName") + '</span><br/>');
         if(this.model.get("echoCredit")){
-            hover.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/><br/>');
+            hover.append("<span class='highlight'>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</span><br/>');
         }
         img.attr('src', imageUrl);
         if (imageWidth > 0) {
@@ -580,7 +580,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             var diff = then - now;
             var daysleft = parseInt(diff/(24*60*60*1000));
             if(daysleft >= 0){
-                hover.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/><br/>");
+                hover.append("<span class='highlight'>Days Left: "+ (daysleft + 1) + "</span><br/>");
                 self.showOverlay();
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");

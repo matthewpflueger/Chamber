@@ -1,28 +1,40 @@
-    {{> public_header }}
+    {{> partial_header_public }}
     <title>Echoed</title>
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css?v={{version}}" />
 </head>
 
 <body class="nooverflow">
     <div id="container">
-        {{> staticNavBarWide }}
+        {{> partial_staticNavBar }}
         <div id="content">
         </div>
         <div id="lm">
             <div id="lm-top" class="clearfix">
-                <div id="lm-label">Sharing. <span class="primary-text">Valued.</span></div>
-                <div style="margin-top: 20px;">
-                    <span class="lm-text-large">Discover products shared by people who have actually purchased them.<br/><br/></span>
-                    <span class="lm-text">Buy a product at one of our partners, share it with friends and receive cash back. Share products on Facebook and Twitter too<br/> to spread the products you love.</span>
+                <div id="lm-top-left">
+                    <img src="{{urls.images}}/btn_home_logo.png"  />
                 </div>
-                <div style="margin-top: 20px;">
-                    <div>
-                        <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{urls.site}}/facebook/login&scope=email,user_birthday,publish_actions">
-                            <img class="login-button" src="{{urls.images}}/btn_login_fb_50.png">
-                        </a>
-                        <a id="twitterLogin" href="{{urls.site}}/twitter?redirect=">
-                            <img class="login-button" src="{{urls.images}}/btn_login_tw_50.png">
-                        </a>
+                <div id="lm-top-right">
+                    <div id="lm-top-text">
+                        <span class="lm-text-large">Discover products shared by people who have actually purchased them.<br/><br/></span>
+                        <span class="lm-text">Buy a product from one of our partners, share it with friends on Facebook and Twitter and receive cash back. Echoed makes spreading your love for great products worth it!</span>
+                    </div>
+                </div>
+            </div>
+            <div id="lm-bottom" class="clearfix">
+                <div id="lm-bottom-text">
+                    <div id="lm-bottom-left">
+                        <span class="lm-text-bold">Want To See More? Already A Member?</span>
+                    </div>
+                    <div id="lm-bottom-right">
+                        <div class="login">
+                            <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{urls.site}}/facebook/login&scope=email,user_birthday,publish_actions">
+                                <img class="login-button" src="{{urls.images}}/btn_facebook_login.png">
+                            </a>
+
+                            <a id="twitterLogin" href="{{urls.site}}/twitter?redirect=">
+                                <img class="login-button" src="{{urls.images}}/btn_twitter_login.png">
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -30,15 +42,7 @@
         <div id="gap"></div>
     </div>
     <div id="footer" class="float">
-        <div class="center clearfix">
-            <div id="footer-nav">
-                <a href="{{urls.site}}/howitworks">How It Works</a>
-                <a href="{{urls.site}}/contactus">Contact Us</a>
-                <div class="copyright" style="float:right;line-height:45px;">
-                    Copyright 2012 - Echoed Inc.
-                </div>
-            </div>
-        </div>
+        {{ > partial_footerNav }}
     </div>
 </body>
 </html>
@@ -126,4 +130,4 @@
         };
 
     </script>
-{{> google}}
+{{> partial_google}}

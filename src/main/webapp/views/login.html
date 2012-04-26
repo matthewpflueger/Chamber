@@ -1,10 +1,10 @@
-    {{> header}}
+    {{> partial_header}}
     <title>Echoed | Partner Login</title>
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css?v={{version}}"/>
 </head>
 <body class="nooverflow">
 <div id="container">
-    {{> staticNavBarWide }}
+    {{> partial_staticNavBar }}
     <div id="lm">
         <div id="lm-top" class="clearfix">
             <div id="lm-label">Partner Login</div>
@@ -39,4 +39,4 @@
         var fullBleed = new FullBleed();
     });
 </script>
-{{> google}}
+{{> partial_google}}

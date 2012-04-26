@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <script type="text/javascript">
+        window.setTimeout( function(){
+            var data = {};
+            {{#echoedUserName}}
+                data.name = '{{this}}';
+            {{/echoedUserName}}
+            {{#facebookUserId}}
+                data.facebook = true;
+            {{/facebookUserId}}
+            {{#twitterUserId}}
+                data.twitter = true;
+            {{/twitterUserId}}
+            data.success = true;
+            window.opener.postMessage(data, "*");
+            window.close();
+        }, 1000);
+
+    </script>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-close.css?v={{version}}"/>
+</head>
+<body>
+    <div id="container">
+        <div id="message">
+            <img src="{{urls.images}}/logo.png" /><br/>
+            <img src="{{urls.images}}/bar-loader.gif" /><br/>
+            {{#network}}
+                Logging into Echoed with {{this}}
+            {{/network}}
+        </div>
+    </div>
+</body>
