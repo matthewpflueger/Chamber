@@ -20,6 +20,9 @@ import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 import java.util.{UUID, Date}
+import java.util.{List => JList, Collections}
+import scala.collection.JavaConversions._
+import com.echoed.chamber.services.EchoedException
 
 
 class EchoServiceActor extends Actor {
@@ -35,6 +38,7 @@ class EchoServiceActor extends Actor {
     @BeanProperty var imageService: ImageService = _
     @BeanProperty var transactionTemplate: TransactionTemplate = _
 
+    @BeanProperty var filteredUserAgents: JList[String] = _
 
     def receive = {
         //TODO RecordEchoPossibility is deprecated and will be deleted asap!
@@ -174,9 +178,32 @@ class EchoServiceActor extends Actor {
                         //this really should be sent to another actor that has a durable mailbox...
                         Future {
                             val ec = determinePostId(echo, echoClick.copy(echoId = echo.id), if (linkId == echo.id) postId else linkId)
-                            //a null UserAgent really is an invalid click - needs to be filtered out in the future...
                             echoClickDao.insert(ec.copy(userAgent = Option(ec.userAgent).map(_.take(254)).orNull))
                             logger.debug("Successfully recorded click for Echo {}", echo.id)
+
+
+                            //start of really bad hack to filter some obviously bad clicks...
+                            if (Option(ec.userAgent) == null) {
+                                throw FilteredException("Filtering null UserAgent %s" format ec)
+                            }
+                            if (ec.echoedUserId == echo.echoedUserId) {
+                                throw FilteredException("Filtering user clicking own echo %s" format ec)
+                            }
+                            if (filteredUserAgents.exists(ec.userAgent.contains(_))) {
+                                throw FilteredException("Filtering robot %s" format ec)
+                            }
+
+                            val echoClicks = Option(echoClickDao.findByEchoId(ec.echoId))
+                                                .getOrElse(Collections.emptyList[EchoClick]())
+                                                .dropWhile(_.id == ec.id)
+
+                            if (echoClicks.exists(_.browserId == ec.browserId)) {
+                                throw FilteredException("Filtering duplicate click from browser %s" format ec)
+                            }
+                            if (echoClicks.exists(e => e.ipAddress == ec.ipAddress && (ec.createdOn.getTime - e.createdOn.getTime) < 60000)) {
+                                throw FilteredException("Filtering fast click from same ipAddress %s" format ec)
+                            }
+
 
                             (for {
                                 echoMetrics <- Option(echoMetricsDao.findById(echo.echoMetricsId))
@@ -191,6 +218,7 @@ class EchoServiceActor extends Actor {
                                 None
                             }
                         }.onException {
+                            case e: FilteredException => logger.debug(e.getMessage)
                             case e => logger.error("Failed to save echo click %s for %s" format(echoClick, echo), e)
                         }
                     },
@@ -217,3 +245,5 @@ class EchoServiceActor extends Actor {
 
 
 }
+
+private case class FilteredException(message: String) extends EchoedException(message)
