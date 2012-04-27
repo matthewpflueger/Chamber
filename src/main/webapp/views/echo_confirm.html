@@ -40,71 +40,32 @@
                         <div class="confirm-label">
                             STEP 2 OF 2: Customize Your Message And Share
                         </div>
-                        <form name="message" id="echo" action="{{urls.site}}/echo/finish" method="get">
+                        <form name="echo" id="echo" action="{{urls.site}}/echo/finish" method="get">
                             {{#echoPossibility}}
                             <input type="hidden" name="echoId" value="{{id}}">
                             {{/echoPossibility}}
-                            <table id="echoes" width="100%" >
-                                <tbody>
-                                {{#echoedUser}}
-                                {{#facebookUserId}}
-                                <tr>
-                                    <td>
-                                        <img src="{{urls.images}}/icon_facebook.png" class="icon"/>
-                                    </td>
-                                    <td>
-                                        <textarea name="facebookMessage" class="rounded-corners" >I just bought the {{#echoPossibility}}{{productName}}{{/echoPossibility}} from {{#partner}}{{name}}{{/partner}}. Check out some of the other great products at {{#partner}}{{name}}{{/partner}}!</textarea>
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" name="postToFacebook" checked="true"/>
-                                    </td>
-                                </tr>
-                                {{/facebookUserId}}
-                                {{^facebookUserId}}
-                                <tr>
-                                    <td>
-                                        <a id="facebookLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=facebook&add=true">
-                                            <img src="{{urls.images}}/icon_facebook.png" class="icon"/>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <textarea name="facebookMessage" class="rounded-corners" disabled="disabled">Click the icon to add facebook.</textarea>
-                                    </td>
-                                </tr>
-                                {{/facebookUserId}}
-                                {{#twitterUserId}}
-                                <tr>
-                                    <td>
-                                        <img src="{{urls.images}}/icon_twitter.png" class="icon"/>
-                                    </td>
-                                    <td>
-                                        <textarea name="twitterMessage" class="rounded-corners" >Check out the {{#echoPossibility}}{{productName}}{{/echoPossibility}} I just bought from {{#partner}}{{name}}{{/partner}}</textarea>
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" name="postToTwitter" checked="true"/>
-                                    </td>
-                                </tr>
-                                {{/twitterUserId}}
-                                {{^twitterUserId}}
-                                <tr>
-                                    <td>
-                                        <a id="twitterLogin" href="{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=twitter&add=true">
-                                            <img src="{{urls.images}}/icon_twitter.png" class="icon"/>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <textarea name="twitterMessage" class="rounded-corners" disabled="disabled">Click the logo to add Twitter</textarea>
-                                    </td>
-                                </tr>
-                                {{/twitterUserId}}
-                                <tr>
-                                    <td colspan="3">
-                                        <div style="text-align: center;"><input id="echoit" type="image" style="cursor:pointer;" src="{{urls.images}}/btn_clicktoshare.png" /></div>
-                                    </td>
-                                </tr>
-                                {{/echoedUser}}
-                                </tbody>
-                            </table>
+                            <div id="echoes" width="100%" >
+                                <div><textarea id="message" name="message" class="rounded-corners" placeholder="Leave a message and tell your friends why you bought {{#echoPossibility}}{{productName}}{{/echoPossibility}}. The more friends that click through and check out this product the more you save!"></textarea></div>
+                                <div style="font-size:14px;line-height: 25px;">
+                                    {{#echoedUser}}
+                                        <img align="absmiddle" src="{{urls.images}}/icon_facebook.png" height="25px"/>
+                                        {{#facebookUserId}}
+                                            <input type="checkbox" name="postToFacebook" checked="true"/>Share to Facebook
+                                        {{/facebookUserId}}
+                                        {{^facebookUserId}}
+                                            <input type="checkbox" name="postToFacebook" onclick="addFacebook(this);"/>Click to Add Facebook
+                                        {{/facebookUserId}}
+                                        <img align="absmiddle" src="{{urls.images}}/icon_twitter.png" height="25px"/>
+                                        {{#twitterUserId}}
+                                            <input type="checkbox" name="postToTwitter" checked="true"/>Share to Twitter
+                                        {{/twitterUserId}}
+                                        {{^twitterUserId}}
+                                            <input type="checkbox" name="postToTwitter" onclick="addTwitter(this);"/>Click to Add Twitter
+                                        {{/twitterUserId}}
+                                    {{/echoedUser}}
+                                </div>
+                                <div style="text-align: center;"><img id="echoit" onclick="formSubmit();" style="cursor:pointer;" src="{{urls.images}}/btn_clicktoshare.png" /></div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -114,4 +75,26 @@
 </div>
 </body>
 </html>
+<script type="text/javascript">
+    function addTwitter(obj){
+        obj.checked=false;
+        window.location.href = "{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=twitter&add=true";
+    }
+    function addFacebook(obj){
+        obj.checked=false;
+        window.location.href = "{{urls.site}}/echo/authorize?id={{echoPossibility.id}}&network=facebook&add=true";
+    }
+
+    function formSubmit(){
+        var ta = document.getElementById("message");
+        if(ta.value != ""){
+            var form = document.getElementById("echo");
+            //alert(ta.value);
+            form.submit();
+        } else {
+            alert("Please leave a message telling your friends why you bought the {{#echoPossibility}}{{productName}}{{/echoPossibility}}. Get them to click through and check it out and you'll save more.");
+            ta.select();
+        }
+    }
+</script>
 {{> partial_google}}

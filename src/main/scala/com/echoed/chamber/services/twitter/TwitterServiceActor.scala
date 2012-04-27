@@ -109,7 +109,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
             try {
                 logger.debug("Creating new TwitterStatus with message {} for {}", echo, message)
-                var status = "%s %s/" format(message, echoClickUrl)
+                var status = "%s %s/" format(message.take(115), echoClickUrl)
                 var twitterStatus = new TwitterStatus(
                     echo.id,
                     echo.echoedUserId,

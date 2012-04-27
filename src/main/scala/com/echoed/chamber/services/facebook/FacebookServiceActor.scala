@@ -88,7 +88,7 @@ class FacebookServiceActor(
                 val caption: String = echo.brand + "<center></center>" + echo.productName
                 var fp = new FacebookPost(
                         name,
-                        message,
+                        message.take(254),
                         caption,
                         echo.imageUrl,
                         null,

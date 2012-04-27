@@ -6,9 +6,8 @@ import com.echoed.chamber.services.echoeduser.EchoTo
 
 
 case class EchoFinishParameters(
-        @BeanProperty var facebookMessage: String = null,
+        @BeanProperty var message: String = null,
         @BeanProperty var postToFacebook: Boolean = false,
-        @BeanProperty var twitterMessage: String = null,
         @BeanProperty var postToTwitter: Boolean = false,
         @BeanProperty var echoedUserId: String = null,
         @BeanProperty var echoId: String = null) {
@@ -16,7 +15,6 @@ case class EchoFinishParameters(
     def this() = this(
             null,
             false,
-            null,
             false,
             null,
             null)
@@ -24,9 +22,9 @@ case class EchoFinishParameters(
     def createEchoTo = new EchoTo(
             echoedUserId,
             echoId,
-            Option(facebookMessage),
+            Option(message),
             postToFacebook,
-            Option(twitterMessage),
+            Option(message),
             postToTwitter)
 }
 
