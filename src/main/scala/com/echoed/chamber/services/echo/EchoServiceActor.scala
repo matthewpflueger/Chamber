@@ -193,12 +193,11 @@ class EchoServiceActor extends Actor {
                                 throw FilteredException("Filtering robot EchoClick %s" format ec.id, ec)
                             }
 
-                            val echoClicks = Option(echoClickDao.findByEchoId(ec.echoId))
-                                                .getOrElse(Collections.emptyList[EchoClick]())
-                                                .filterNot(_.id == ec.id)
-
-                            echoClicks.foreach { existing =>
-                                if (existing.browserId == ec.browserId) {
+                            Option(echoClickDao.findByEchoId(ec.echoId))
+                                    .getOrElse(Collections.emptyList[EchoClick]())
+                                    .filterNot(_.id == ec.id)
+                                    .foreach { existing =>
+                                if (!existing.filtered && existing.browserId == ec.browserId) {
                                     throw FilteredException("Filtering duplicate click from browser EchoClick %s" format ec.id, ec)
                                 }
                                 if (existing.ipAddress == ec.ipAddress && ((ec.createdOn.getTime - existing.createdOn.getTime) < 60000)) {
