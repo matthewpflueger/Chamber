@@ -558,13 +558,13 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             hover.append('by ' + this.model.get("echoBrand") + '<br/>');
 
         if(this.model.get("partnerName")){
-            text.prepend(this.model.get("partnerName") + '<br/>');
+            text.prepend('<strong>'+this.model.get("partnerName") + '</strong><br/>');
             hover.append('@ ' + this.model.get("partnerName") + '<br/>');
         }
         if(this.model.get("echoedUserName"))
-            hover.append('<span class="highlight">' + this.model.get("echoedUserName") + '</span><br/>');
+            hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/>');
         if(this.model.get("echoCredit")){
-            hover.append("<span class='highlight'>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</span><br/>');
+            hover.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
         }
         img.attr('src', imageUrl);
         if (imageWidth > 0) {
@@ -580,51 +580,55 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             var diff = then - now;
             var daysleft = parseInt(diff/(24*60*60*1000));
             if(daysleft >= 0){
-                hover.append("<span class='highlight'>Days Left: "+ (daysleft + 1) + "</span><br/>");
+                hover.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/>");
                 self.showOverlay();
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");
                 var visits = this.model.get("echoTotalClicks");
-                //hover.append("<span class='highlight'><strong>" + visits + " people have visited</strong></span>");
             }
         }
         return this;
     },
     showOverlay: function(){
         this.el.find('.item_hover').slideDown('fast');
-        //this.el.css("width","460px");
-        //this.EvAg.trigger('exhibit/relayout');
-        //this.toolTip.showTooltip();
     },
     hideOverlay: function(){
         this.el.find('.item_hover').slideUp('fast');
-        //this.el.find(".item_text").css("height","");
-        //this.EvAg.trigger('exhibit/relayout');
-        //this.el.find('.item_hover').fadeOut('fast');
-        //this.el.css("width","");
-        //this.EvAg.trigger('exhibit/relayout');
-        //this.toolTip.hideTooltip();
     },
     enlarge: function(){
         var self = this;
-        this.el.css("width","460px");
-        this.EvAg.trigger("exhibit/relayout",self.el);
+        self.EvAg.trigger("item/enlarge");
+        this.el.css({
+            height: 720,
+            width: 720
+        });
+        self.el.find('.item_content').fadeOut(function(){
+            self.el.find('.item_content_large').fadeIn()
+        });
+
+        self.EvAg.bind("item/enlarge", self.shrink);
+        self.EvAg.trigger("exhibit/relayout",self.el);
         this.state = 1;
     },
     shrink: function(){
-        this.el.css("width","");
-        this.EvAg.trigger("exhibit/relayout");
-        this.state = 0;
+        var self= this;
+        self.el.css({
+            height: "",
+            width: ""
+        });
+        self.state = 0;
+        self.el.find('.item_content').fadeIn();
+        self.el.find('.item_content_large').hide();
+
     },
     click: function(){
-        //if(this.state == 0){
-            //this.enlarge();
-        //} else {
-          //  this.shrink();
-        //}
-        //this.EvAg.trigger('exhibit/relayout');
+        var self = this;
         var url = this.el.attr("href");
         window.open(url);
+        //if(this.state == 0){
+        //    self.enlarge();
+        //} else{
+        //}
     }
 });
 

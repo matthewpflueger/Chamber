@@ -2,14 +2,20 @@
     <title>Echoed</title>
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css?v={{version}}"/>
     <script type="text/template" id="templates-components-product">
-        <div class="item_hover" style="display:none;">
-            <div class="item_hover_wrap">
+        <div class="item_content">
+            <div class="item_hover" style="display:none;">
+                <div class="item_hover_wrap">
+                </div>
+            </div>
+            <img class="exhibit_image" width="230px" src=""/>
+            <div class="item_text">
             </div>
         </div>
-        <img class="exhibit_image" width="230px" src=""/>
-        <div class="item_text">
+        <div class="item_content_large" style="display:none;">
+            <div class="icl_right">
+                <textarea></textarea>
+            </div>
         </div>
-        <div class="product-tooltip"></div>
     </script>
     <script type="text/templates" id="templates-components-tooltip">
 
@@ -29,16 +35,15 @@
                     <img height="40px" src="{{urls.images}}/logo.png">
                 </div>
                 <div id="user" class="clearfix">
-                    <div id="user-text">
-                        {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
-                        Total Savings: ${{totalCredit}}
-                    </div>
                     <div id="user-image">
                         {{#echoedUser}}
-                            {{#facebookId}}
-                                <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{this}}/picture" />
-                            {{/facebookId}}
+                        {{#facebookId}}
+                        <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{this}}/picture" />
+                        {{/facebookId}}
                         {{/echoedUser}}
+                    </div>
+                    <div id="user-text">
+                        {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
                     </div>
                 </div>
                 <div id="header-nav" class="clearfix">

@@ -66,7 +66,7 @@ html{
 }
 
 body{
-    background-image: image-url("bk_paper.png");
+    background-image: image-url("bk_noise.png");
 }
 
 img{
@@ -131,7 +131,8 @@ h2{
             font-size: 12px;
             padding: 5px 5px;
             #user-text{
-                font-size: 12px;
+                line-height:30px;
+                font-size: 16px;
                 float:left;
                 text-align:left;
             }
@@ -171,8 +172,8 @@ h2{
 
 	#content-selector-container{
 	    position:relative;
-		padding:10px;
-		margin-bottom:10px;
+	    height: 16px;
+	    padding: 10px;
         text-align:center;
         background-color: #FFF;
         @include drop-shadow;
@@ -183,7 +184,6 @@ h2{
         margin:10px;
         top:0px;
         left:0px;
-        //width: 100px;
         float:left;
         @include navFont;
         color: $highlightColor;
@@ -194,8 +194,8 @@ h2{
 		#content-selector{
 			//font-family: $navFontFamily;
             position:relative;
-            height: 20px;
 			margin: 0px auto 0px;
+
             a{
                 margin: 0px 10px;
                 &:hover{
@@ -231,7 +231,7 @@ h2{
                     background-color: #FFF;
                     position:absolute;
                     display:none;
-                    top: 40px;
+                    top: 36px;
                     left: 0px;
                     border: 1px solid #CCC;
                     z-index: 10;
@@ -293,6 +293,30 @@ h2{
 	                border: 0px;
 	                &.open-echo{
     	                //border-color: $highlightColor;
+    	            }
+    	        }
+
+    	        .item_content_large{
+    	            padding: 5px;
+    	            .icl_left{
+                        height: 100%;
+                        float:left;
+                        width: 240px;
+                        height: 470px;
+                        border: 1px solid #ccc;
+    	            }
+    	            .icl_right{
+    	                border: 1px solid #ccc;
+    	                float:left;
+    	                width: 466px;
+    	                height: 470px;
+    	                text-align:center;
+                        textarea{
+                            width: 400px;
+                            height: 75px;
+                            border-radius: 5px;
+                            resize: none;
+                        }
     	            }
     	        }
 	        }

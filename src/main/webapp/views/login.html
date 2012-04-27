@@ -22,21 +22,9 @@
     </div>
 </div>
 <div id="footer" class="float">
-    <div class="center clearfix">
-        <div id="footer-nav">
-            <a href="{{urls.site}}/howitworks">How It Works</a>
-            <a href="{{urls.site}}/contactus">Contact Us</a>
-            <div class="copyright" style="float:right;line-height:45px;">
-                Copyright 2012 - Echoed Inc.
-            </div>
-        </div>
-    </div>
+    {{ > partial_footerNav }}
 </div>
 </body>
 </html>
-<script type="text/javascript">
-    $(window).load(function(){
-        var fullBleed = new FullBleed();
-    });
-</script>
+
 {{> partial_google}}
