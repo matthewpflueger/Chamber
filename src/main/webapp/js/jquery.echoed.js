@@ -1,7 +1,7 @@
 window.onload = function(){
     var _body = document.getElementsByTagName('body')[0];
     loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/integration-libs.js', function(){
-        if(EchoedBaseUrl == undefined){
+        if(typeof(EchoedBaseUrl) == "undefined"){
             EchoedBaseUrl = "https://www.echoed.com";
         }
 
