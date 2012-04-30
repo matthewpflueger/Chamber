@@ -313,7 +313,7 @@
         <repository>
             <id>AkkaRepo</id>
             <name>Akka Repo</name>
-            <url>http://akka.io/repository/</url>
+            <url>http://repo.akka.io/releases</url>
             <layout>default</layout>
         </repository>
 
