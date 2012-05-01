@@ -102,6 +102,7 @@
         <prop key="git.commit.time"></prop>
 
 
+        <prop key="version">${git.commit.id.abbrev}</prop>
 
 
         <prop key="jdbc.driverClassName">com.mysql.jdbc.Driver</prop>
@@ -136,7 +137,7 @@
 
 
         <prop key="mustache.cache">true</prop>
-        <prop key="mustache.prefix">${http.urls.views}/</prop>
+        <prop key="mustache.prefix">${http.urls.views}/${version}</prop>
         <prop key="mustache.suffix">.html</prop>
         <prop key="mustache.defaultValue"> </prop>
 

@@ -442,7 +442,6 @@
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>compile</phase>
                     </execution>
                 </executions>
                 <configuration>
@@ -455,7 +454,6 @@
                     </arguments>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.mybatis.maven</groupId>
                 <artifactId>maven-migration-plugin</artifactId>
@@ -484,7 +482,33 @@
         </plugins>
     </build>
 
-	<profiles>
+    <profiles>
+        <profile>
+            <id>cloud</id>
+            <activation>
+                <property>
+                    <name>env.ENV_TYPE</name>
+                    <value>staging</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.echoed</groupId>
+                        <artifactId>cloud-maven-plugin</artifactId>
+                        <version>1.0-SNAPSHOT</version>
+                        <executions>
+                            <execution>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>upload</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>allinone</id>
             <build>

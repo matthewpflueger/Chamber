@@ -37,6 +37,7 @@
         <property name="urlsProperties" ref="urlsProperties" />
         <property name="gitProperties" ref="gitProperties" />
         <property name="facebookClientId" value="${facebook.clientId}" />
+        <property name="version" value="${version}" />
     </bean>
 
     <bean id="encrypter" class="com.echoed.util.Encrypter" >

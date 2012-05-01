@@ -40,7 +40,10 @@ class GlobalsManager {
                 httpsUrls.put(key.replace("https.urls.", ""), value)
         }
 
-        version = gitProperties.getProperty("git.commit.id.abbrev", "")
+        if (version == null || version.length() < 1) {
+            version = gitProperties.getProperty("git.commit.id.abbrev", "")
+        }
+
         val versionInfo = new StringBuilder()
         gitProperties.stringPropertyNames().foreach { key =>
             versionInfo
