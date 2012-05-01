@@ -21,7 +21,8 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             echoedMaxPercentage = 0.2f,
             activeOn = new Date,
             creditWindow = 1,
-            views = "echo.js.0, echo.js.1")
+            views = "echo.js.0, echo.js.1",
+            hashTag = "@test")
 
     var echo = Echo.make(
             partnerId = "partnerId",

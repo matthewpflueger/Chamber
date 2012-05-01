@@ -28,7 +28,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMatchPercentage = -1f,
                 activeOn = new Date,
                 creditWindow = -1,
-                views = null)
+                views = null,
+                hashTag = "@test")
             } should produce [IllegalArgumentException]
 
             given("a PartnerSettings")
@@ -45,7 +46,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
                 creditWindow = -1,
-                views = null)
+                views = null,
+                hashTag = "@test")
             } should produce [IllegalArgumentException]
 
             given("a PartnerSettings")
@@ -62,7 +64,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
                 creditWindow = 1,
-                views = null)
+                views = null,
+                hashTag = "@test")
             } should produce [IllegalArgumentException]
 
 
@@ -80,7 +83,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
                 creditWindow = 1,
-                views = null)
+                views = null,
+                hashTag = "@test")
             } should produce [IllegalArgumentException]
 
 
@@ -98,7 +102,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
                 creditWindow = 1,
-                views = null)
+                views = null,
+                hashTag = "@test")
             } should produce [IllegalArgumentException]
 
 
@@ -116,7 +121,8 @@ class PartnerSettingsTest extends Spec with GivenWhenThen with ShouldMatchers {
                 echoedMatchPercentage = 0,
                 activeOn = new Date,
                 creditWindow = 1,
-                views = "")
+                views = "",
+                hashTag = "@test")
             } should produce [IllegalArgumentException]
 
         }

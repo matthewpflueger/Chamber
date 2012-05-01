@@ -34,11 +34,20 @@ class TwitterLoginIT extends FeatureSpec with GivenWhenThen with ShouldMatchers 
     var loginViewUrl: String = null
     var confirmViewUrl: String = null
 
+    var echoLoginUrl: String = null
+    var echoConfirmUrl: String = null
+    var echoFinishUrl: String = null
+
     {
         echoUrl = urls.getProperty("echoUrl")
         loginViewUrl = urls.getProperty("loginViewUrl")
         confirmViewUrl = urls.getProperty("confirmViewUrl")
-        echoUrl != null && loginViewUrl != null && confirmViewUrl != null
+
+        echoLoginUrl = urls.getProperty("echoLoginUrl")
+        echoConfirmUrl = urls.getProperty("echoConfirmUrl")
+        echoFinishUrl = urls.getProperty("echoFinishUrl")
+
+        echoUrl != null && loginViewUrl != null && confirmViewUrl != null && echoLoginUrl != null && echoConfirmUrl != null && echoFinishUrl != null
     } ensuring (_ == true, "Missing parameters")
 
 

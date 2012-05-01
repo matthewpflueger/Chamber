@@ -146,6 +146,7 @@
 
         <prop key="echoJsUrl">${http.urls.site}/echo/js</prop>
         <prop key="echoRequestUrl">${http.urls.site}/echo/request</prop>
+        <prop key="echoLoginUrl">${http.urls.site}/echo/login</prop>
         <prop key="echoConfirmUrl">${http.urls.site}/echo/confirm</prop>
         <prop key="echoFinishUrl">${http.urls.site}/echo/finish</prop>
 
