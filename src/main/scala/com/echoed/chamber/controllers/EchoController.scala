@@ -82,7 +82,6 @@ class EchoController {
 
                 }
             ))
-
             continuation.undispatch
         }
     }
@@ -204,6 +203,7 @@ class EchoController {
             @RequestParam(value = "id", required = true) id: String,
             @RequestParam(value = "network", required = true) network: String,
             @RequestParam(value = "add", required = false, defaultValue = "false") add: Boolean,
+            @RequestParam(value = "close", required=false, defaultValue = "false") close: Boolean,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -217,10 +217,78 @@ class EchoController {
             error(errorView, EchoedException("Invalid network"))
         } else {
             partnerServiceManager.recordEchoStep(id, "authorize-%s" format network, eu, ec)
-            val authorizeUrl = networkController.makeAuthorizeUrl("echo/confirm?id=%s" format id, add)
+            var authorizeUrl = ""
+            if (close)
+                authorizeUrl = networkController.makeAuthorizeUrl("echo/close?id=%s&network=%s" format (id, network), add)
+            else
+                authorizeUrl = networkController.makeAuthorizeUrl("echo/confirm?id=%s" format id, add)
+            //val authorizeUrl = networkController.makeAuthorizeUrl("echo/confirm?id=%s" format id, add)
             logger.debug("Redirecting for authorization to {}", authorizeUrl)
             new ModelAndView("redirect:%s" format authorizeUrl)
         }
+    }
+    
+    @RequestMapping(value = Array("/close"), method = Array(RequestMethod.GET))
+    def close(
+            @RequestParam(value = "id", required = true) id: String,
+            @RequestParam(value = "network", required = true) network: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+        
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
+
+        if(continuation.isExpired) {
+            error(errorView, RequestExpiredException())
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse{
+            continuation.suspend(httpServletResponse)
+
+
+            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
+            val echoedUserResponse = echoedUserServiceLocator
+                .getEchoedUserServiceWithId(eu.get)
+                .flatMap(_.resultOrException.getEchoedUser)
+
+            val recordEchoStepResponse  = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
+                case LocateByEchoIdResponse(_, Left(e)) => throw e
+                case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "confirm", eu, ec)
+            })
+
+            (for {
+                eur <- echoedUserResponse
+                resr <- recordEchoStepResponse
+            } yield {
+                val eu = eur.resultOrException
+                resr.cata(
+                    _ match {
+                        case EchoExists(epv, message, _) =>
+                            val modelAndView = new ModelAndView("echo_auth_complete")
+                            modelAndView.addObject("echoedUserName", eu.name)
+                            modelAndView.addObject("facebookUserId", eu.facebookUserId)
+                            modelAndView.addObject("twitterUserId", eu.twitterUserId)
+                            modelAndView.addObject("network", network)
+                            continuation.setAttribute("modelAndView", modelAndView)
+                            continuation.resume()
+
+                        case e =>
+                            val modelAndView = new ModelAndView("echo_auth_complete")
+                            continuation.setAttribute("modelAndView", modelAndView)
+                            continuation.resume()
+                    },
+                    epv => {
+                        val modelAndView = new ModelAndView("echo_auth_complete")
+                        modelAndView.addObject("echoedUserName", eu.name)
+                        modelAndView.addObject("facebookUserId", eu.facebookUserId)
+                        modelAndView.addObject("twitterUserId", eu.twitterUserId)
+                        modelAndView.addObject("network", network)
+                        continuation.setAttribute("modelAndView", modelAndView)
+                        continuation.resume()
+                    })
+            }).onException {case e=> error(errorView,e)}
+            continuation.undispatch()
+        }
+
     }
 
 
@@ -299,6 +367,50 @@ class EchoController {
 
             continuation.undispatch()
         }
+    }
+
+    @RequestMapping(value = Array("/finishjson"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def finishJSON(
+            echoFinishParameters: EchoFinishParameters,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+        
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if(continuation.isExpired) {
+            error(errorView, RequestExpiredException("We encountered an error sharing your purchase"))
+        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+            continuation.suspend(httpServletResponse)
+            cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoFinishParameters.echoedUserId = _)
+            logger.debug("Echoing {}", echoFinishParameters)
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onComplete(_.value.get.fold(
+                e => error(errorView, e),
+                _ match {
+                    case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
+                    case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                        echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.value.get.fold(
+                            e => {
+                                logger.debug("Error!")
+                                error(errorView, e)
+                            },
+                            _ match {
+                                case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
+                                    continuation.setAttribute("jsonResponse", echo)
+                                    continuation.resume()
+                                case EchoToResponse(_, Left(e)) =>
+                                    logger.debug("Received error: {}", e)
+                                    error(errorView,e)
+                                case EchoToResponse(_, Right(echoFull)) =>
+                                    logger.debug("Received echo response {}", echoFull)
+                                    continuation.setAttribute("jsonResponse", echoFull)
+                                    continuation.resume()
+                                    logger.debug("Successfully echoed {}", echoFull)
+                            }))
+                }))
+            continuation.undispatch()
+        })
     }
 
 
@@ -586,8 +698,13 @@ class EchoController {
                                     echoClick,
                                     httpServletRequest)
                         })
-
-                        continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
+                        if(userAgent.indexOf("iPhone") != -1){
+                            logger.debug("Returned Echo: {}", echo)
+                            val modelAndView = new ModelAndView("mobile_browser")
+                            modelAndView.addObject("echo",echo)
+                            continuation.setAttribute("modelAndView", modelAndView)
+                        } else
+                            continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
                         continuation.resume()
                 }))
             continuation.undispatch()
