@@ -421,6 +421,7 @@
                 <version>2.0.2</version>
                 <executions>
                     <execution>
+                        <phase>process-sources</phase>
                         <goals>
                             <goal>revision</goal>
                         </goals>
@@ -439,6 +440,7 @@
                 <version>1.2.1</version>
                 <executions>
                     <execution>
+                        <phase>process-sources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
