@@ -17,6 +17,7 @@ case class PartnerSettings(
         echoedMaxPercentage: Float,
         creditWindow: Int,
         views: String,
+        hashTag: String,
         activeOn: Date) {
 
     require(closetPercentage >= 0, "Closet percentage is less than 0")
@@ -43,6 +44,7 @@ case class PartnerSettings(
             echoedMaxPercentage: Float,
             creditWindow: Int,
             views: String,
+            hashTag: String,
             activeOn: Date) = this(
         UUID.randomUUID.toString,
         new Date,
@@ -57,6 +59,7 @@ case class PartnerSettings(
         echoedMaxPercentage,
         creditWindow,
         views,
+        hashTag,
         activeOn)
 
 
@@ -93,6 +96,7 @@ object PartnerSettings {
                             0.1f,
                             168,
                             "echoed.js.0",
+                            "",
                             cal.getTime)
 
     }

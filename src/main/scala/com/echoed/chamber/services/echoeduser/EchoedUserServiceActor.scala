@@ -196,13 +196,12 @@ class EchoedUserServiceActor(
                                 echoMetricsDao.updateForEcho(echoMetrics)
                                 echo = echo.copy(echoMetricsId = echoMetrics.id)
                                 echoDao.updateForEcho(echo)
-
                                 try{
 
                                     val requestList = MList[(ActorRef, Message)]()
 
                                     if (echoToFacebook) requestList += ((me, ETF(echo, facebookMessage)))
-                                    if (echoToTwitter) requestList += ((me, EchoToTwitter(echo, twitterMessage)))
+                                    if (echoToTwitter) requestList += ((me, EchoToTwitter(echo, twitterMessage, partnerSettings)))
 
                                     val context = (channel, new EchoFull(echo, echoedUser, partnerSettings), msg)
                                     Actor.actorOf(classOf[ScatterGather]).start() ! Scatter(
@@ -310,7 +309,7 @@ class EchoedUserServiceActor(
             }
 
 
-        case msg @ EchoToTwitter(echo, echoMessage) =>
+        case msg @ EchoToTwitter(echo, echoMessage, partnerSettings) =>
             val channel: Channel[EchoToTwitterResponse] = self.channel
 
             def error(e: Throwable) {
@@ -319,7 +318,9 @@ class EchoedUserServiceActor(
             }
 
             try {
-                val em = echoMessage.getOrElse("Checkout my recent purchase of %s" format echo.productName)
+                var em = echoMessage.getOrElse("Checkout my recent purchase of %s" format echo.productName)
+                if(em.indexOf(partnerSettings.hashTag) == -1)
+                    em = "%s %s" format (em.take(115 - (partnerSettings.hashTag.length() + 1)), partnerSettings.hashTag)
                 Option(echoedUser.twitterUserId).cata( //facebookService.cata(
                     tui => twitterServiceLocator.getTwitterServiceWithId(tui).onComplete(_.value.get.fold(
                         e => error(e),

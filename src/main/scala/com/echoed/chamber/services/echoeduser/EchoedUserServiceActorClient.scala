@@ -30,11 +30,11 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
         //set very high we will leave this unset for now...
 //        (echoedUserServiceActor.?(echoTo)(timeout = Duration(30, "seconds"))).mapTo[EchoToResponse]
 
-    def echoToFacebook(echo:Echo, message: Option[String]) =
-        (echoedUserServiceActor ? (EchoToFacebook(echo, message))).mapTo[EchoToFacebookResponse]
+//    def echoToFacebook(echo:Echo, message: Option[String]) =
+//        (echoedUserServiceActor ? (EchoToFacebook(echo, message))).mapTo[EchoToFacebookResponse]
 
-    def echoToTwitter(echo:Echo,  message: Option[String]) =
-        (echoedUserServiceActor ? (EchoToTwitter(echo,message))).mapTo[EchoToTwitterResponse]
+    //def echoToTwitter(echo:Echo,  message: Option[String]) =
+//        (echoedUserServiceActor ? (EchoToTwitter(echo,message))).mapTo[EchoToTwitterResponse]
 
     def getCloset = (echoedUserServiceActor ? GetExhibit(0)).mapTo[GetExhibitResponse]
 

@@ -19,6 +19,7 @@
             <arg column="echoedMaxPercentage" javaType="_float" />
             <arg column="creditWindow" javaType="_int" />
             <arg column="views" javaType="String" />
+            <arg column="hashTag" javaType="String" />
             <arg column="activeOn" javaType="Date" />
         </constructor>
     </resultMap>
@@ -54,6 +55,7 @@
                 echoedMaxPercentage,
                 creditWindow,
                 views,
+                hashTag,
                 activeOn)
     	values (
     			#{id},
@@ -68,6 +70,7 @@
                 #{echoedMaxPercentage},
                 #{creditWindow},
                 #{views},
+                #{hashTag},
                 #{activeOn})
     </insert>
 

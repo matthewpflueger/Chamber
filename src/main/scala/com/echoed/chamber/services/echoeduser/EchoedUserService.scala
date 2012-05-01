@@ -23,9 +23,9 @@ trait EchoedUserService {
 
     def echoTo(echoTo: EchoTo): Future[EchoToResponse]
 
-    def echoToFacebook(echo: Echo, message: Option[String]): Future[EchoToFacebookResponse]
+    //def echoToFacebook(echo: Echo, message: Option[String]): Future[EchoToFacebookResponse]
 
-    def echoToTwitter(echo:Echo,  message: Option[String]): Future[EchoToTwitterResponse]
+    //def echoToTwitter(echo:Echo,  message: Option[String]): Future[EchoToTwitterResponse]
 
     def getCloset: Future[GetExhibitResponse]
 

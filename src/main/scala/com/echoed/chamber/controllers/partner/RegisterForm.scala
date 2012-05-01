@@ -45,6 +45,7 @@ case class RegisterForm(
                 echoedMaxPercentage,
                 creditWindow,
                 "echo.js.0, echo.js.1",
+                hashTag,
                 activeOn)
         val partnerUser = new PartnerUser(partner.id, name, email).createPassword(UUID.randomUUID().toString)
 
@@ -78,7 +79,7 @@ case class RegisterForm(
     def getPhone = phone
     def setPhone(phone: String) { this.phone = phone }
 
-    @Pattern(regexp = "^$|^#.*", message="{regexp.hashTag}")
+    @Pattern(regexp = "^$|^@.*", message="{regexp.hashTag}")
     def getHashTag = hashTag
     def setHashTag(hashTag: String) { this.hashTag = hashTag }
 
