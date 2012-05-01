@@ -49,7 +49,7 @@ class ImageServiceActor extends Actor {
 
     @BeanProperty var findUnprocessedImagesInterval: Long = 60000
     @BeanProperty var reloadBlobStoreInterval: Long = 60000
-    @BeanProperty var lastProcessedBeforeMinutes: Int = 30
+    @BeanProperty var lastProcessedBeforeMinutes: Int = 5
 
 
     //only for testing purposes
@@ -71,16 +71,6 @@ class ImageServiceActor extends Actor {
         Scheduler.schedule(me, FindUnprocessedImage(), findUnprocessedImagesInterval, findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
     }
 
-    private case class ImageInfo(
-            bytes: Array[Byte],
-            bufferedImage: BufferedImage,
-            fileName: String,
-            width: Int,
-            height: Int,
-            contentType: String,
-            metadata: Option[Map[String, String]],
-            md5: String,
-            ext: String)
 
 
     private def download(url: String) = {
@@ -167,12 +157,15 @@ class ImageServiceActor extends Actor {
     private def sendResponse(image: Image, response: Either[ImageException, Image]) {
         update(image)
 
-        responses.get(image.url).foreach(_.foreach { tuple =>
+        responses.remove(image.url).orElse {
+            logger.debug("Nobody waiting for image processing response {}", response)
+            None
+        }.foreach(_.foreach { tuple =>
             val message = tuple._1
             val channel = tuple._2
+            logger.debug("Sending image processing response {}", response)
             channel tryTell ProcessImageResponse(message, response)
         })
-        responses.remove(image.url)
 
         //only for testing purposes...
         future.foreach(_.completeWithResult(ProcessImageResponse(ProcessImage(image), response)))
@@ -212,7 +205,8 @@ class ImageServiceActor extends Actor {
                     val nextReloadBlobStore = now + reloadBlobStoreInterval
                     if (now > previousReloadBlobStore && reloadBlobStore.compareAndSet(previousReloadBlobStore, nextReloadBlobStore)) {
                         logger.debug("Sending ReloadBlobStore message")
-                        me ! ReloadBlobStore()
+                        me ! ReloadBlobStore(image, imageInfo, success)
+                        return
                     }
                 }
                 me ! ImageStoreError(image, e, Some("Error storing image %s: %s" format(imageInfo.fileName, e.getMessage)))
@@ -223,10 +217,11 @@ class ImageServiceActor extends Actor {
 
     protected def receive = {
 
-        case msg: ReloadBlobStore =>
+        case msg @ ReloadBlobStore(image, imageInfo, success) =>
             logger.debug("Reloading blob store")
             blobStore.destroy()
             blobStore.init()
+            store(image, imageInfo)(success)
 
 
         case msg @ ProcessImage(image) =>

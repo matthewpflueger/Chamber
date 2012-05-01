@@ -2,6 +2,7 @@ package com.echoed.chamber.services.image
 
 import com.echoed.chamber.domain.Image
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import java.awt.image.BufferedImage
 
 
 sealed trait ImageMessage extends Message
@@ -63,4 +64,15 @@ private[image] case class FindUnprocessedImage() extends IM
 
 private[image] case class ImageStoreError(image: Image, error: Throwable, message: Option[String] = None) extends IM
 
-private[image] case class ReloadBlobStore() extends IM
+private[image] case class ReloadBlobStore(image: Image, imageInfo: ImageInfo, success: String => Unit) extends IM
+
+private[image] case class ImageInfo(
+            bytes: Array[Byte],
+            bufferedImage: BufferedImage,
+            fileName: String,
+            width: Int,
+            height: Int,
+            contentType: String,
+            metadata: Option[Map[String, String]],
+            md5: String,
+            ext: String)
