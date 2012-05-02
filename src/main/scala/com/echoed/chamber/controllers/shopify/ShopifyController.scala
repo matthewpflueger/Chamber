@@ -45,7 +45,8 @@ class ShopifyController {
 
         def makeView(envelope: RegisterShopifyPartnerEnvelope) {
             val modelAndView = new ModelAndView(shopifyIntegrationView)
-            modelAndView.addObject("partner", envelope.shopifyPartner)
+            modelAndView.addObject("shopifyPartner", envelope.shopifyPartner)
+            modelAndView.addObject("partner", envelope.partner)
             modelAndView.addObject("partnerUser", envelope.partnerUser)
             continuation.setAttribute("modelAndView", modelAndView)
             continuation.resume()
