@@ -2,7 +2,7 @@
 
 # Set this to the root of your project when deployed:
 http_path = "/"
-http_images_path = "http://staging.echoed.com/images/"
+http_images_path = "http://images.echoed.com/"
 css_dir = "src/main/webapp/css"
 sass_dir = "src/main/webapp/scss"
 images_dir = "src/main/webapp/images"
