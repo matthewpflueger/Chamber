@@ -122,7 +122,7 @@ class PartnerServiceManagerActor extends Actor {
 
 
         case msg @ Locate(partnerId) =>
-            implicit val channel: Channel[LocateResponse] = self.channel
+            val channel = self.channel.asInstanceOf[ForwardableChannel]
 
             cache.get(partnerId) match {
                 case Some(partnerService) =>
@@ -157,7 +157,7 @@ class PartnerServiceManagerActor extends Actor {
 
                             case partner =>
                                 logger.debug("Found {} partner {}", partner.cloudPartnerId, partner.name)
-                                cloudPartners.get(partner.cloudPartnerId).actorRef forward msg
+                                cloudPartners.get(partner.cloudPartnerId).actorRef.forward(msg)(channel)
                         }))
             }
 
