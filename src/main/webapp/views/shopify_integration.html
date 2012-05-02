@@ -16,10 +16,29 @@
                             {{#errors.global}}{{this}}{{/errors.global}}
                         </div>
                         <div>
-                            An account manager will reach out to you to help you set up your account at the phone # and email below.<br/><br/>
-                            Phone Number: <strong>{{partner.phone}}</strong><br/>
-                            Email: <strong>{{partnerUser.email}}</strong><br/>
-                            Placeholder: {{#placeholder}}{{this}}{{/placeholder}}
+                            <p>
+                                Thank you, {{partnerUser.name}} for choosing Echoed to
+                                help {{partner.name}} increase its brand awareness and sales.
+                            </p>
+                            <p>
+                                An account manager will reach out to you to help you set up your account at the phone # and email below.<br/><br/>
+                                Phone Number: <strong>{{partner.phone}}</strong><br/>
+                                Email: <strong>{{partnerUser.email}}</strong><br/>
+                            </p>
+                            <p>
+                                <strong>Integration instructions:</strong>
+                                In Shopify's Admin, under Preferences -> Checkout & Payment,
+                                copy and paste the following into Additional Content & Scripts then click the
+                                Apply these settings button.
+                            </p>
+                            <p><pre>
+                                &lt;script type="text/javascript" src="https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js"&gt;&lt;/script&gt;
+                                &lt;script type="text/javascript"&gt;var echoData = '{{id}}';&lt;/script&gt;
+                                &lt;script type="text/javascript" src="https://echoed.com/echo/js?pid={{partner.id}}"&gt;&lt;/script&gt;
+                            </pre></p>
+                            <p>
+                                Please do not hesitate to email accountmanager@echoed.com or call 917-267-4591 with your questions.
+                            </p>
                         </div>
                     </div>
                 </div>

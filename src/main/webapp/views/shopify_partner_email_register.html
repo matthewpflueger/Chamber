@@ -5,8 +5,10 @@
 </head>
 <body class="nooverflow">
 <div>
+
     <p>
-    Thank you, {{partnerUser.name}}, for choosing Echoed to help {{partner.name}} increase its brand awareness and sales.
+        Thank you, {{partnerUser.name}} for choosing Echoed to
+        help {{partner.name}} increase its brand awareness and sales.
     </p>
     <p>
         Click on the following link (or paste it into your browser's location bar) in order to activate your account and
@@ -16,8 +18,21 @@
         <a href="{{urls.site}}/partner/activate/{{code}}">{{urls.site}}/partner/activate/{{code}}</a>
     </p>
     <p>
-        After successfully activating your account you will receive your secret key and instructions on how to
-        integrate the Echoed service.
+        An account manager will reach out to you to help you set up your account.
+    </p>
+    <p>
+        <strong>Integration instructions:</strong>
+        In Shopify's Admin, under Preferences -> Checkout & Payment,
+        copy and paste the following into Additional Content & Scripts then click the
+        Apply these settings button.
+    </p>
+    <p><pre>
+        &lt;script type="text/javascript" src="https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript"&gt;var echoData = '{{id}}';&lt;/script&gt;
+        &lt;script type="text/javascript" src="https://echoed.com/echo/js?pid={{partner.id}}"&gt;&lt;/script&gt;
+    </pre></p>
+    <p>
+        Please do not hesitate to email accountmanager@echoed.com or call 917-267-4591 with your questions.
     </p>
 </div>
 </body>
