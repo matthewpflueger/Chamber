@@ -206,7 +206,7 @@ class ShopifyPartnerServiceActor(
 
 
         case msg @ Update(sp) =>
-            require(sp.id == this.shopifyPartner.id, "Trying to update wrong Shopify partner %s" format sp)
+            require(sp.domain == this.shopifyPartner.domain, "Trying to update Shopify partner %s with wrong data %s" format(shopifyPartner, sp))
             shopifyPartner = shopifyPartner.copy(
                 name = sp.name,
                 email = sp.email,

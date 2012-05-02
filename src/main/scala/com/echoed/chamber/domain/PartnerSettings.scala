@@ -95,7 +95,7 @@ object PartnerSettings {
                             1,
                             0.1f,
                             168,
-                            "echoed.js.0",
+                            "echo.js.0,echo.js.1,echo.js.2",
                             "",
                             cal.getTime)
 

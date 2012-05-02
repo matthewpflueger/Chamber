@@ -77,22 +77,17 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                 Future {
                     val sp = Option(shopifyPartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
                     val p = Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
-                    val ps = Option(partnerSettingsDao.findByActiveOn(partnerId, new Date()))
-                            .getOrElse(throw PartnerNotActive(partnerId))
-                    (sp, p, ps)
+                    (sp, p)
                 }.onComplete(_.value.get.fold(
                     _ match {
                         case e: PartnerNotFound =>
                             logger.debug("Partner not found: {}", partnerId)
                             channel ! LocateResponse(msg, Left(e))
-                        case e: PartnerNotActive =>
-                            logger.debug("Partner not active: {}", partnerId)
-                            channel ! LocateResponse(msg, Left(e))
                         case e: PartnerException => channel ! LocateResponse(msg, Left(e))
                         case e => channel ! LocateResponse(msg, Left(PartnerException("Error locating partner %s" format partnerId, e)))
                     },
                     {
-                        case (shopifyPartner, partner, partnerSettings) =>
+                        case (shopifyPartner, partner) =>
                             logger.debug("Found Shopify partner {}", shopifyPartner.name)
                             val partnerService = new ShopifyPartnerServiceActorClient(Actor.actorOf(new ShopifyPartnerServiceActor(
                                 shopifyPartner,
@@ -156,6 +151,7 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                                         model.put("code", code)
                                         model.put("shopifyPartner", sp)
                                         model.put("partnerUser", pu)
+                                        model.put("partner", p)
 
                                         emailService.sendEmail(
                                             pu.email,

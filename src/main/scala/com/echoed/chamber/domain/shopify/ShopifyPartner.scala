@@ -57,6 +57,6 @@ object ShopifyPartner {
 
     def createPartnerUser(shopifyPartner: ShopifyPartner) = {
         require(shopifyPartner.partnerId != null, "Partner is null for %s" format this)
-        new PartnerUser(shopifyPartner.partnerId, shopifyPartner.name, shopifyPartner.email)
+        new PartnerUser(shopifyPartner.partnerId, shopifyPartner.shopOwner, shopifyPartner.email)
     }
 }
