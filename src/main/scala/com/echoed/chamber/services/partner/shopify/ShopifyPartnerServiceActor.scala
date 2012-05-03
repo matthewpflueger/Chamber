@@ -84,7 +84,7 @@ class ShopifyPartnerServiceActor(
                                 ei.brand = shopifyPartner.name
                                 ei.price = li.price.toFloat
                                 ei.imageUrl = li.product.imageSrc
-                                ei.landingPageUrl = li.product.imageSrc
+                                ei.landingPageUrl = "http://%s/products/%s" format(shopifyPartner.domain, li.product.handle)
                                 ei.description = li.product.description
                                 ei
                             }
