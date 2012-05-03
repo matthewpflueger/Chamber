@@ -127,6 +127,37 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
         var self = this;
         var template = _.template($('#templates-pages-summary').html());
         self.element.html(template);
+
+Echoed.Router = Backbone.Router.extend({
+    initialize:function (options) {
+        _.bindAll(this, 'summary');
+        this.page = null;
+        this.EvAg = options.EvAg;
+    },
+    routes:{
+        "": "summary",
+        "summary":"summary",
+        "partners":"partners"
+    },
+    summary: function(){
+        var pageView = new Echoed.Views.Pages.Summary({EvAg:this.EvAg});
+        this.page = "summary";
+    },
+    partners: function(){
+        var pageView = new Echoed.Views.Pages.Partners({EvAg:this.EvAg});
+        this.page = "partners";
+    }
+});
+
+Echoed.Views.Pages.Summary = Backbone.View.extend({
+    el:'#content',
+    initialize:function (options) {
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.render();
+    },
+    render:function () {
+
         $.ajax({
             url:Echoed.urls.api + "/admin/users",
             dataType:'json',
