@@ -197,20 +197,6 @@ class PartnerServiceActor(
 }
 
 
-class EchoRequest {
-    @BeanProperty var customerId: String = _
-    @BeanProperty var orderId: String = _
-    @BeanProperty var boughtOn: Date = _
-    @BeanProperty var items: List[EchoItem] = _
-}
 
-class EchoItem {
-    @BeanProperty var productId: String = _
-    @BeanProperty var productName: String = _
-    @BeanProperty var category: String = _
-    @BeanProperty var brand: String = _
-    @BeanProperty var price: Float = 0
-    @BeanProperty var imageUrl: String = _
-    @BeanProperty var landingPageUrl: String = _
-    @BeanProperty var description: String = _
-}
+
+

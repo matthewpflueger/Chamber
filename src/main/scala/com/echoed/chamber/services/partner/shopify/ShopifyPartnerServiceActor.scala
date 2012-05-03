@@ -77,32 +77,24 @@ class ShopifyPartnerServiceActor(
                         case GetOrderFullResponse(_, Left(e)) => error(e)
                         case GetOrderFullResponse(_, Right(order)) =>
                             val items = order.lineItems.map { li =>
-                                val ei = new EchoItem()
-                                ei.productId = li.productId
-                                ei.productName = li.product.title
-                                ei.category = li.product.category
-                                ei.brand = shopifyPartner.name
-                                ei.price = li.price.toFloat
-                                ei.imageUrl = li.product.imageSrc
-                                ei.landingPageUrl = "http://%s/products/%s" format(shopifyPartner.domain, li.product.handle)
-                                ei.description = li.product.description
-                                ei
+                                EchoItem(
+                                        productId = li.productId,
+                                        productName = li.product.title,
+                                        category = li.product.category,
+                                        brand = shopifyPartner.name,
+                                        price = li.price.toFloat,
+                                        imageUrl = li.product.imageSrc,
+                                        landingPageUrl = "http://%s/products/%s" format(shopifyPartner.domain, li.product.handle),
+                                        description = li.product.description)
                             }
 
-                            val echoRequest: EchoRequest = new EchoRequest()
-                            echoRequest.items = items
-                            echoRequest.customerId = order.customerId
-                            echoRequest.orderId = order.orderId
-                            echoRequest.boughtOn = new Date
-                            logger.debug("Echo Request: {}", echoRequest)
-
                             channel ! RequestEchoResponse(msg, Right(requestEcho(
-                                echoRequest,
-                                browserId,
-                                ipAddress,
-                                userAgent,
-                                referrerUrl,
-                                echoClickId)))
+                                    EchoRequest(order.orderId, order.customerId, new Date(), items),
+                                    browserId,
+                                    ipAddress,
+                                    userAgent,
+                                    referrerUrl,
+                                    echoClickId)))
                     }))
             } catch {
                 case e: InvalidEchoRequest => channel ! RequestEchoResponse(msg, Left(e))

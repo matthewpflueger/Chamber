@@ -40,6 +40,9 @@ class ShopifyPartnerServiceManagerActor extends Actor {
     @BeanProperty var emailService: EmailService = _
     @BeanProperty var accountManagerEmail: String = _
 
+    @BeanProperty var accountManagerEmailTemplate = "shopify_partner_accountManager_email"
+    @BeanProperty var partnerEmailTemplate = "shopify_partner_email_register"
+
     @BeanProperty var cacheManager: CacheManager = _
 
     //represents the parent in Akka 2.0 router setup
@@ -156,13 +159,13 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                                         emailService.sendEmail(
                                             pu.email,
                                             "Thank you for choosing Echoed",
-                                            "shopify_partner_email_register",
+                                            partnerEmailTemplate,
                                             model)
 
                                         emailService.sendEmail(
                                             accountManagerEmail,
                                             "New Shopify partner %s" format sp.name,
-                                            "shopify_partner_accountManager_email",
+                                            accountManagerEmailTemplate,
                                             model)
 
                                     case LocateByDomainResponse(_, Left(e)) => error(e)

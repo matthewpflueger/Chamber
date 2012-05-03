@@ -28,7 +28,6 @@ class EchoController {
     private final val logger = LoggerFactory.getLogger(classOf[EchoController])
 
     @BeanProperty var echoJsView: String = _
-    @BeanProperty var echoShopifyJsView: String = _
     @BeanProperty var echoJsErrorView: String = _
     @BeanProperty var echoLoginView: String = _
     @BeanProperty var echoLoginNotNeededView: String = _

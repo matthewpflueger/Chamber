@@ -9,6 +9,8 @@ object ControllerUtils {
 
     private val logger = LoggerFactory.getLogger(classOf[ControllerUtils])
 
+    def error(e: Throwable)(implicit continuation: Continuation): ModelAndView = error("error", Some(e))(continuation)
+
     def error(view: String, e: Throwable)(implicit continuation: Continuation): ModelAndView =
             error(view, Some(e))(continuation)
 

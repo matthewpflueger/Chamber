@@ -54,7 +54,7 @@ class EmailServiceActor extends Actor {
                     }
                 })
 
-                logger.debug("Sent {}: {}", recipient, renderedTemplate)
+                logger.debug("Sent {}: {}", recipient, templateName)
                 channel ! SendEmailResponse(msg, Right(true))
             } catch {
                 case e =>

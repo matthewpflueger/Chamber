@@ -9,12 +9,6 @@ class ShopifyPartnerServiceActorClient(actorRef: ActorRef)
         extends PartnerServiceActorClient(actorRef)
         with ShopifyPartnerService {
 
-//    def getOrder(orderId: Int) =
-//        (actorRef ? GetOrder(orderId)).mapTo[GetOrderResponse]
-//
-//    def getOrderFull(orderId: Int) =
-//        (actorRef ? GetOrderFull(orderId)).mapTo[GetOrderFullResponse]
-
     def update(shopifyPartner: ShopifyPartner) =
         (actorRef ? Update(shopifyPartner)).mapTo[UpdateResponse]
 

@@ -24,7 +24,7 @@ class GeoLocationServiceActor extends Actor {
 
     @BeanProperty var properties: Properties = _
 
-    private var lastUpdatedBeforeMillis: Int = _
+    private var lastUpdatedBeforeMillis: Long = _
     private var findClick = true
 
     override def preStart() {
@@ -32,10 +32,13 @@ class GeoLocationServiceActor extends Actor {
         //where placeholder values were not being resolved
         {
             if (geoLocationServiceUrl == null) geoLocationServiceUrl = properties.getProperty("geoLocationServiceUrl")
+            if (properties.getProperty("lastUpdatedBeforeHours") != null)
+                lastUpdatedBeforeHours = Integer.parseInt(properties.getProperty("lastUpdatedBeforeHours"))
+
             geoLocationServiceUrl != null
         } ensuring (_ == true, "Missing parameters")
 
-        lastUpdatedBeforeMillis = lastUpdatedBeforeHours * 60 * 60 * 1000
+        lastUpdatedBeforeMillis = lastUpdatedBeforeHours.toLong * 60 * 60 * 1000
 
         self ! FindForCrawl()
     }

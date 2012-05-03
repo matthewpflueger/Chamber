@@ -60,6 +60,8 @@ case class LocateByDomainResponse(
         value: Either[PE, PartnerService]) extends PM with RM[PartnerService, LocateByDomain, PE]
 
 
+case class ViewDescription(view: String, model: Map[String, Any])
+
 case class GetView(_partnerId: String) extends PI(_partnerId)
 case class GetViewResponse(
         message: GetView,

@@ -176,6 +176,11 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
+    <bean id="networkSolutionsPartnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.NetworkSolutionsPartnerDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
     <bean id="adminUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.AdminUserDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />

@@ -142,7 +142,8 @@
     <bean id="adminUserServiceLocator" class="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActorClient">
         <property name="adminUserServiceLocatorActor"  ref="adminUserServiceLocatorActor" />
     </bean>
-    
+
+
     <bean id="shopifyPartnerServiceManager" class="com.echoed.chamber.services.partner.shopify.ShopifyPartnerServiceManagerActorClient">
         <property name="actorRef" ref="shopifyPartnerServiceManagerActor" />
     </bean>
@@ -152,9 +153,20 @@
     </bean>
 
 
+    <bean id="networkSolutionsPartnerServiceManager" class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsPartnerServiceManagerActorClient">
+        <property name="actorRef" ref="networkSolutionsPartnerServiceManagerActor" />
+    </bean>
+
+    <bean id="networkSolutionsAccess" class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActorClient">
+        <property name="networkSolutionsAccessActor" ref="networkSolutionsAccessActor"/>
+    </bean>
+
+
     <util:map id="cloudPartners">
         <entry key="Shopify" value-ref="shopifyPartnerServiceManager" />
+        <entry key="Network Solutions" value-ref="networkSolutionsPartnerServiceManager" />
     </util:map>
+
 
     <akka:untyped-actor
             id="partnerServiceManagerActor"
@@ -458,6 +470,52 @@
     </akka:untyped-actor>
 
     
+
+    <akka:untyped-actor
+            id="networkSolutionsPartnerServiceManagerActor"
+            implementation="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsPartnerServiceManagerActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="partnerDao" ref="partnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerUserDao" ref="partnerUserDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageDao" ref="imageDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageService" ref="imageService" />
+        <!--suppress SpringModelInspection -->
+        <property name="encrypter" ref="encrypter" />
+        <!--suppress SpringModelInspection -->
+        <property name="transactionTemplate" ref="transactionTemplate" />
+        <!--suppress SpringModelInspection -->
+        <property name="emailService" ref="emailService" />
+        <!--suppress SpringModelInspection -->
+        <property name="cacheManager" ref="cacheManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="networkSolutionsAccess" ref="networkSolutionsAccess" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerServiceManager" ref="partnerServiceManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="networkSolutionsPartnerDao" ref="networkSolutionsPartnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="networkSolutionsProperties" />
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+            id="networkSolutionsAccessActor"
+            implementation="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="networkSolutionsProperties" />
+    </akka:untyped-actor>
+
+
 
     <akka:untyped-actor
             id="facebookPostCrawlerActor"

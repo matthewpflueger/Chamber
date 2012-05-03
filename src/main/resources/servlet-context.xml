@@ -92,7 +92,6 @@
         <property name="cookieManager" ref="cookieManager" />
 
         <property name="echoJsView" value="echo.js" />
-        <property name="echoShopifyJsView" value="echo.shopify.js" />
         <property name="echoJsErrorView" value="echo_error.js" />
         <property name="echoLoginView" value="echo_login" />
         <property name="echoLoginNotNeededView" value="redirect:${echoConfirmUrl}" />
@@ -255,11 +254,22 @@
         <property name="cookieManager" ref="cookieManager" />
     </bean>
     
+    <!-- suppress DuplicatedBeanNamesInspection -->
+    <bean id="networkSolutionsController" class="com.echoed.chamber.controllers.networksolutions.NetworkSolutionsController">
+        <property name="networkSolutionsPartnerServiceManager" ref="networkSolutionsPartnerServiceManager" />
+        <property name="registerView" value="networksolutions_register" />
+        <property name="postAuthView" value="networksolutions_auth" />
+        <property name="globalValidator" ref="validator" />
+        <property name="conversionService" ref="conversionService" />
+        <property name="successUrl" value="${http.urls.site}/networksolutions/auth" />
+    </bean>
 
+    <!-- suppress DuplicatedBeanNamesInspection -->
     <bean id="publicController" class="com.echoed.chamber.controllers.api.PublicController">
         <property name="feedService"  ref="feedService"/>
     </bean>
-    
+
+    <!-- suppress DuplicatedBeanNamesInspection -->
     <bean id="staticController" class="com.echoed.chamber.controllers.StaticController">
         <property name="businessView"  value="public_business" />
         <property name="contactUsView"  value="public_contactus" />

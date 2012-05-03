@@ -135,6 +135,7 @@
 
 
         <prop key="geolocation.serviceUrl">http://www.ipaddressapi.com/l/50fef98b6b9e054b97e695187dde7a3d9a071e7881eb?h=</prop>
+        <prop key="geolocation.lastUpdatedBeforeHours">24</prop>
 
 
         <prop key="mustache.cache">true</prop>
@@ -175,7 +176,7 @@
         <prop key="exhibitUrl">${http.urls.api}/user/exhibit</prop>
         <prop key="friendsUrl">${http.urls.api}/user/friends</prop>
         <prop key="dashboardUrl">${https.urls.site}/partner/dashboard</prop>
-        <prop key="integrationUrl">${http.urls.site}/partner/integration</prop>
+        <prop key="integrationUrl">${https.urls.site}/partner/integration</prop>
         <prop key="adminDashboardUrl">${https.urls.site}/admin/dashboard</prop>
 
         <prop key="mail.user">no-reply@echoed.com</prop>
@@ -192,6 +193,10 @@
         <!-- to add our app http://<your store>.shopify.com/admin/api/auth?api_key= -->
         <prop key="shopify.apiKey">a2838f71f19944f9291104f70ba3a5f7</prop>
         <prop key="shopify.sharedSecret">d27b867254075a772b67572fa0ea74c4</prop>
+
+        <!-- http://www.networksolutions.com/support/public-api-documentation -->
+        <prop key="networksolutions.application">Echoed</prop>
+        <prop key="networksolutions.certificate">e33f5dbeabf9492fa9d3beea52216e81</prop>
 
         <prop key="accountManagerEmail">accountmanager@echoed.com</prop>
     </util:properties>
@@ -272,8 +277,16 @@
     </util:properties>
 
     <!--suppress SpringModelInspection -->
+    <util:properties id="networkSolutionsProperties">
+        <prop key="application">${networksolutions.application}</prop>
+        <prop key="certificate">${networksolutions.certificate}</prop>
+        <prop key="accountManagerEmail">${accountManagerEmail}</prop>
+    </util:properties>
+
+    <!--suppress SpringModelInspection -->
     <util:properties id="geoLocationProperties">
         <prop key="geoLocationServiceUrl">${geolocation.serviceUrl}</prop>
+        <prop key="lastUpdatedBeforeHours">${geolocation.lastUpdatedBeforeHours}</prop>
     </util:properties>
 
 </beans>

@@ -6,8 +6,6 @@ import com.echoed.chamber.domain.{PartnerSettings, PartnerUser, Partner}
 
 trait PartnerServiceManager {
     
-    //def updatePartnerSettings( partnerSettings: PartnerSettings ): Future[UpdatePartnerSettingsResponse]
-
     def registerPartner(
             partner: Partner,
             partnerSettings: PartnerSettings,
