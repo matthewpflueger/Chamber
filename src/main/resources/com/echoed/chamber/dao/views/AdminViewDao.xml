@@ -40,6 +40,20 @@
             <arg column="echoClickId" javaType="String" />
         </constructor>
     </resultMap>
+    
+    <select id="getPartners" resultType="com.echoed.chamber.domain.Partner">
+        select
+            *
+        from
+            Partner
+    </select>
+
+    <select id="getPartnerSettings" resultType="com.echoed.chamber.domain.PartnerSettings">
+        select
+            *
+        from
+            PartnerSettings
+    </select>
 
     <select id="getPartners" resultType="com.echoed.chamber.domain.Partner">
         select
