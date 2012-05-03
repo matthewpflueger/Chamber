@@ -66,10 +66,48 @@ class AdminController {
             continuation.undispatch()
             
         })
-        
-        
     }
-    
+
+    @RequestMapping(value = Array("/partners"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getPartnersJSON(
+                        httpServletRequest: HttpServletRequest,
+                        httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if(continuation.isExpired){
+            logger.error("Request expired getting users via admin api")
+            continuation.setAttribute("jsonResponse","error")
+            continuation.resume()
+        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+                case LocateAdminUserServiceResponse(_, Left(e)) =>
+                    continuation.setAttribute("jsonResponse","error")
+                    continuation.resume()
+                case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                    logger.debug("AdminUser Service Located")
+                    adminUserService.getPartners.onResult({
+                        case GetPartnersResponse(_, Left(e)) =>
+                            continuation.setAttribute("jsonResponse", "error")
+                            continuation.resume()
+                        case GetPartnersResponse(_, Right(partners)) =>
+                            logger.debug("Received Json Response For Users: {}",partners)
+                            continuation.setAttribute("jsonResponse",partners)
+                            continuation.resume()
+                    })
+            })
+            continuation.undispatch()
+        })
+
+    }
+
+
+
     @RequestMapping(value = Array("/users"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getUsersJSON(

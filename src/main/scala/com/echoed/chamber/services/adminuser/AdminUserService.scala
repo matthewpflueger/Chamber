@@ -17,6 +17,8 @@ trait AdminUserService {
     def getAdminUser: Future[GetAdminUserResponse]
     
     def getUsers: Future[GetUsersResponse]
+
+    def getPartners: Future[GetPartnersResponse]
     
     def getEchoPossibilities: Future[GetEchoPossibilitesResponse]
     

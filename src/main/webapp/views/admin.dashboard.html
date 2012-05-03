@@ -1,4 +1,33 @@
 {{> partial_header_admin}}
+<script type="text/templates" id="templates-pages-partners">
+    <div id="partner-container">
+        <select id="partners">
+        </select>
+    </div>
+    <div id="partner-settings-container">
+
+    </div>
+</script>
+<script type="text/templates" id="templates-pages-summary">
+    <div class="row">
+        <div class="full">
+            <div class="label">
+                Echoed Users
+            </div>
+            <div id="echoed-users">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="full">
+            <div class="label">
+                Echo Possibilities
+            </div>
+            <div id="echoes">
+            </div>
+        </div>
+    </div>
+</script>
 <div id="container">
     <div id="header">
         <div id="logo">
@@ -10,27 +39,21 @@
             </div>
         </div>
         <div id="header-nav" class="clearfix">
+            <ul>
+                <li id="summary_nav">
+                    <a href="#summary">
+                        Summary
+                    </a>
+                </li>
+                <li id="partners_nav">
+                    <a href="#partners">
+                        Partners
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
     <div id="content">
-        <div class="row">
-            <div class="full">
-                <div class="label">
-                    Echoed Users
-                </div>
-                <div id="echoed-users">
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="full">
-                <div class="label">
-                    Echo Possibilities
-                </div>
-                <div id="echoes">
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 </body>

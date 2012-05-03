@@ -3,7 +3,7 @@ package com.echoed.chamber.services.adminuser
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 
 import java.util.{List => JList}
-import com.echoed.chamber.domain.{Echo, AdminUser, EchoedUser}
+import com.echoed.chamber.domain._
 
 sealed trait AdminUserMessage extends Message
 sealed case class AdminUserException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)
@@ -28,6 +28,18 @@ case class GetAdminUserResponse(
                 message: GetAdminUser,
                 value: Either[AUE,AdminUser])
                 extends AUM with RM[AdminUser,GetAdminUser,AUE]
+
+case class GetPartners() extends AUM
+case class GetPartnersResponse(
+                message: GetPartners,
+                value: Either[AUE, JList[Partner]])
+                extends AUM with RM[JList[Partner], GetPartners, AUE]
+
+case class GetPartnerSettings(partnerId: String) extends AUM
+case class GetPartnerSettingsResponse(
+                message: GetPartnerSettings, 
+                value: Either[AUE, JList[PartnerSettings]])
+                extends AUM with RM[JList[PartnerSettings], GetPartnerSettings, AUE]
 
 case class GetUsers() extends AUM
 case class GetUsersResponse(

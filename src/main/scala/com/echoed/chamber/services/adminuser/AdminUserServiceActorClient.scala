@@ -9,6 +9,12 @@ class AdminUserServiceActorClient(adminUserServiceActor: ActorRef) extends Admin
     
     def getUsers =
         (adminUserServiceActor ? GetUsers()).mapTo[GetUsersResponse]
+
+    def getPartners =
+        (adminUserServiceActor ? GetPartners()).mapTo[GetPartnersResponse]
+
+    def getPartnerSettings(partnerId: String) =
+        (adminUserServiceActor ? GetPartnerSettings(partnerId)).mapTo[GetPartnerSettingsResponse]
     
     def getEchoPossibilities =
         (adminUserServiceActor ? GetEchoPossibilities()).mapTo[GetEchoPossibilitesResponse]

@@ -40,6 +40,23 @@
             <arg column="echoClickId" javaType="String" />
         </constructor>
     </resultMap>
+    
+    <select id="getPartners" resultMap="com.echoed.chamber.dao.PartnerDao.partnerResult">
+        select
+            *
+        from
+            Partner
+        order by
+            name asc
+    </select>
+
+    <select id="getPartnerSettings" resultMap="com.echoed.chamber.dao.PartnerSettingsDao.partnerSettingsResult">
+        select
+            *
+        from
+            PartnerSettings
+        order by activeOn desc
+    </select>
 
     <select id="getUsers" resultMap="echoedUserResult">
         select
