@@ -185,11 +185,9 @@ class EchoServiceActor extends Actor {
                             //start of really bad hack to filter some obviously bad clicks...
                             if (Option(ec.userAgent) == null) {
                                 throw FilteredException("Filtering null UserAgent for EchoClick %s" format ec.id, ec)
-                            }
-                            if (ec.echoedUserId == echo.echoedUserId) {
+                            } else if (ec.echoedUserId == echo.echoedUserId) {
                                 throw FilteredException("Filtering user clicking own echo EchoClick %s" format ec.id, ec)
-                            }
-                            if (filteredUserAgents.exists(ec.userAgent.contains(_))) {
+                            } else if (filteredUserAgents.exists(ec.userAgent.contains(_))) {
                                 throw FilteredException("Filtering robot EchoClick %s" format ec.id, ec)
                             }
 
