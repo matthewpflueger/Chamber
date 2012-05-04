@@ -119,7 +119,6 @@ class EchoServiceActor extends Actor {
                     logger.error("Error processing %s" format msg, e)
             }
 
-
         case msg @ GetEcho(echoPossibilityId) =>
             val channel: Channel[GetEchoResponse] = self.channel
 
@@ -134,6 +133,19 @@ class EchoServiceActor extends Actor {
                     logger.error("Error processing %s" format msg, e)
             }
 
+        case msg @ GetEchoById(echoId) =>
+            val channel: Channel[GetEchoByIdResponse] = self.channel
+            
+            Future {
+                Option(echoDao.findById(echoId)).cata(
+                    echo => channel ! GetEchoByIdResponse(msg, Right(echo)),
+                    channel ! GetEchoByIdResponse(msg, Left(EchoNotFound(echoId)))
+                )
+            }.onException{
+                case e =>
+                    channel ! GetEchoByIdResponse(msg, Left(EchoException("Could not get echo", e)))
+                    logger.error("Error processing %s" format msg, e)
+            }
 
         case msg @ GetEchoPossibility(echoPossibilityId) =>
             val channel: Channel[GetEchoPossibilityResponse] = self.channel

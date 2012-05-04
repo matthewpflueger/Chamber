@@ -11,6 +11,8 @@ trait FacebookAccess {
     def getMe(code: String, queryString: String): Future[GetMeResponse]
 
     def getFriends(accessToken: String, facebookId: String, facebookUserId: String): Future[GetFriendsResponse]
+    
+    def publishAction(accessToken: String, action: String, obj: String,  objUrl: String): Future[PublishActionResponse]
 
     def post(accessToken: String, facebookId: String, facebookPost: FacebookPost): Future[PostResponse]
 

@@ -8,7 +8,6 @@ import java.net.URLEncoder
 import org.springframework.web.servlet.ModelAndView
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.services.echo.{RecordEchoClickResponse, EchoExists, RecordEchoPossibilityResponse, EchoService}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.eclipse.jetty.continuation.{Continuation, ContinuationSupport}
 import com.echoed.chamber.controllers.ControllerUtils._
@@ -20,6 +19,7 @@ import java.util.{Map => JMap}
 import com.echoed.chamber.services.EchoedException
 import java.util.concurrent.atomic.AtomicLong
 import scala.collection.JavaConversions._
+import com.echoed.chamber.services.echo.{RecordEchoClickResponse, EchoExists, RecordEchoPossibilityResponse, EchoService, GetEchoByIdResponse}
 
 @Controller
 @RequestMapping(Array("/echo"))
@@ -46,6 +46,8 @@ class EchoController {
     @BeanProperty var facebookAddRedirectUrl: String = _
     @BeanProperty var facebookLoginRedirectUrl: String = _
     @BeanProperty var logoutUrl: String = _
+
+    @BeanProperty var productGraphUrl: String = _
 
     @BeanProperty var echoService: EchoService = _
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
@@ -685,7 +687,7 @@ class EchoController {
                     referrerUrl = referrerUrl,
                     ipAddress = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
                     userAgent = userAgent)
-
+            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull
             echoService.recordEchoClick(echoClick, echoId, postId).onComplete(_.value.get.fold(
                 e => error(errorView, Some(e)),
                 _ match {
@@ -698,14 +700,17 @@ class EchoController {
                                     echoClick,
                                     httpServletRequest)
                         })
-                        if(userAgent.indexOf("iPhone") != -1){
-                            logger.debug("Returned Echo: {}", echo)
-                            val modelAndView = new ModelAndView("mobile_browser")
-                            modelAndView.addObject("echo",echo)
-                            continuation.setAttribute("modelAndView", modelAndView)
-                        } else
-                            continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
+                        logger.debug("Returned Echo: {}", echo)
+                        continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
                         continuation.resume()
+                        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.value.get.fold(
+                            e => logger.debug("Error"),
+                            _ match {
+                                case LocateWithIdResponse(_, Left(e)) =>
+                                case LocateWithIdResponse(_, Right(eus)) =>
+                                    logger.debug("Publishing Action: ")
+                                    eus.publishFacebookAction("browse","product", productGraphUrl + echoId)
+                            }))
                 }))
             continuation.undispatch()
         })

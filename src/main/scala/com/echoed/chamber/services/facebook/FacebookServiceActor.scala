@@ -101,6 +101,30 @@ class FacebookServiceActor(
                 postToFacebook(fp, me)
             } catch { case e => error(e) }
 
+        case msg @ PublishActionToFacebook(action, obj, objUrl) =>
+            val me = self
+            val channel: Channel[PublishActionToFacebookResponse] = self.channel
+            def error(e: Throwable) {
+                channel ! PublishActionToFacebookResponse(msg, Left(FacebookException("Could not publish action to Facebook", e)))
+                logger.error("Error processing %s" format msg, e)
+            }
+            
+            try {
+                logger.debug("Publishing Action %s?%s=%s for facebookUser: {}" format (action, obj, objUrl) , facebookUser)
+                facebookAccess.publishAction(facebookUser.accessToken, action, obj, objUrl ).onComplete(_.value.get.fold(
+                    error(_),
+                    _ match {
+                        case PublishActionResponse(_, Left(e)) => error(e)
+                        case PublishActionResponse(_, Right(facebookAction)) => 
+                            channel ! PublishActionToFacebookResponse(msg, Right(facebookAction))
+                            logger.debug("Successfully published action to Facebook")
+                    }))
+                
+            } catch {
+                case e =>
+                    logger.error("Error processing %s" format msg, e)
+                    error(e)
+            }
 
         case RetryEchoToFacebook(facebookPost, retries) =>
             postToFacebook(facebookPost, self, retries + 1)

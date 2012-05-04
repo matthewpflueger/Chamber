@@ -14,7 +14,7 @@ class FacebookServiceActorClient(facebookServiceActor: ActorRef)
 
     def actorRef = facebookServiceActor
 
-    def getFacebookUser =
+    def getFacebookUser() =
             (facebookServiceActor ? GetFacebookUser()).mapTo[GetFacebookUserResponse]
 
     def assignEchoedUser(echoedUser: EchoedUser) =
@@ -22,6 +22,9 @@ class FacebookServiceActorClient(facebookServiceActor: ActorRef)
 
     def echo(echo: Echo, message: String) =
             (facebookServiceActor ? EchoToFacebook(echo, message)).mapTo[EchoToFacebookResponse]
+
+    def publishAction(action: String, obj: String,  objUrl: String) =
+            (facebookServiceActor ? PublishActionToFacebook(action, obj, objUrl)).mapTo[PublishActionToFacebookResponse]
 
     def getFacebookFriends() =
             (facebookServiceActor ? GetFriends(null, null, null)).mapTo[GetFriendsResponse]

@@ -21,6 +21,9 @@ class FacebookAccessActorClient
 
     def post(accessToken: String, facebookId: String, facebookPost: FacebookPost) =
             (actorRef ? Post(accessToken, facebookId, facebookPost)).mapTo[PostResponse]
+    
+    def publishAction(accessToken: String,  action: String,  obj: String, objUrl: String) =
+            (actorRef ? PublishAction(accessToken, action, obj, objUrl)).mapTo[PublishActionResponse]
 
     def logout(accessToken: String) =
             (actorRef ? Logout(accessToken)).mapTo[LogoutResponse]

@@ -35,6 +35,9 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
 
     //def echoToTwitter(echo:Echo,  message: Option[String]) =
 //        (echoedUserServiceActor ? (EchoToTwitter(echo,message))).mapTo[EchoToTwitterResponse]
+    
+    def publishFacebookAction(action: String, obj: String, objUrl: String) =
+        (echoedUserServiceActor ? PublishFacebookAction(action, obj, objUrl)).mapTo[PublishFacebookActionResponse]
 
     def getCloset = (echoedUserServiceActor ? GetExhibit(0)).mapTo[GetExhibitResponse]
 

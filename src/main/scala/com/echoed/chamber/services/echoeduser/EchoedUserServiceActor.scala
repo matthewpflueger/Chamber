@@ -150,7 +150,7 @@ class EchoedUserServiceActor(
 
             try {
                 logger.debug("Attempting to assign FacebookService to EchoedUser {}", echoedUser.id)
-                facebookService.getFacebookUser().onComplete(_.value.get.fold(
+                facebookService.getFacebookUser.onComplete(_.value.get.fold(
                     error(_),
                     _ match {
                         case GetFacebookUserResponse(_, Left(e)) => error(e)
@@ -308,6 +308,37 @@ class EchoedUserServiceActor(
                 case e => error(e)
             }
 
+        case msg @ PublishFacebookAction(action, obj, objUrl) =>
+            val channel: Channel[PublishFacebookActionResponse] = self.channel
+
+            def error(e: Throwable) {
+                channel ! PublishFacebookActionResponse(msg, Left(EchoedUserException("Error publishin Facebook Action", e)))
+                logger.error("Unexpected error processing %s" format msg, e)
+            }
+
+            try {
+                Option(echoedUser.facebookUserId).cata(
+                    fui => facebookServiceLocator.locateById(fui).onComplete(_.value.get.fold(
+                        error(_),
+                        _ match {
+                            case LocateByIdResponse(_, Left(e)) => error(e)
+                            case LocateByIdResponse(_, Right(fs)) =>
+                                fs.publishAction(action, obj, objUrl).onComplete(_.value.get.fold(
+                                    error(_),
+                                    _ match {
+                                        case PublishActionToFacebookResponse(_, Left(e)) => error(e)
+                                        case PublishActionToFacebookResponse(_, Right(fa)) =>
+                                            logger.debug("Successfully published Action")
+                                    }))
+                        })),
+                    {
+                        channel ! PublishFacebookActionResponse(msg, Left(EchoedUserException("Not Associated to Facebook")))
+                        logger.debug("Could not publish action {} because user {} does not have a FacebookService", action)
+                    })
+            } catch {
+                case e => error(e)
+            }            
+
 
         case msg @ EchoToTwitter(echo, echoMessage, partnerSettings) =>
             val channel: Channel[EchoToTwitterResponse] = self.channel
@@ -345,6 +376,9 @@ class EchoedUserServiceActor(
             } catch {
                 case e => error(e)
             }
+
+
+
 
 
         case msg @ GetFriendExhibit(echoedFriendUserId, page) =>

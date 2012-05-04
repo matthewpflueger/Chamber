@@ -16,9 +16,9 @@ import java.util.{Date, Properties}
 import java.net.{HttpURLConnection, URL}
 import com.google.common.io.ByteStreams
 import akka.actor.{Channel, Actor}
-import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
 import collection.mutable.ConcurrentMap
+import java.io.{OutputStreamWriter, InputStream}
 
 
 class FacebookAccessActor extends Actor {
@@ -30,6 +30,7 @@ class FacebookAccessActor extends Actor {
     @BeanProperty var redirectUrl: String = _
     @BeanProperty var canvasApp: String = _
     @BeanProperty var properties: Properties = _
+    @BeanProperty var appNameSpace: String = _
 
     private val cache: ConcurrentMap[String, FacebookBatcher] = new ConcurrentHashMap[String, FacebookBatcher]()
 
@@ -41,6 +42,7 @@ class FacebookAccessActor extends Actor {
             if (clientSecret == null) clientSecret = properties.getProperty("clientSecret")
             if (redirectUrl == null) redirectUrl = properties.getProperty("redirectUrl")
             if (canvasApp == null) canvasApp = properties.getProperty("canvasApp")
+            if (appNameSpace == null) appNameSpace = properties.getProperty("appNameSpace")
             clientId != null && clientSecret != null && redirectUrl != null && canvasApp != null
         } ensuring (_ == true, "Missing parameters")
     }
@@ -128,6 +130,38 @@ class FacebookAccessActor extends Actor {
                 case e =>
                     channel ! PostResponse(msg, Left(FacebookException("Could not post to Facebook", e)))
                     logger.error("Error processing %s" format msg, e)
+            }
+
+        case msg @ PublishAction(accessToken, action, obj, objUrl) =>
+            val channel: Channel[PublishActionResponse] = self.channel
+
+            val url = new URL("https://graph.facebook.com/me/%s:%s?" format(appNameSpace, action))
+            val urlParameters = "%s=%s&access_token=%s" format(obj, objUrl, accessToken)
+            logger.debug("urlParamters: {}", urlParameters)
+            var connection: Option[HttpURLConnection] = None
+            var inputStream: Option[InputStream] = None
+
+            logger.debug("Publishing Action: %s?%s=%s" format (action, obj, objUrl))
+            connection = Option(url.openConnection().asInstanceOf[HttpURLConnection])
+            try {
+                connection.get.setRequestMethod("POST")
+                connection.get.setDoOutput(true)
+                val wr: OutputStreamWriter = new OutputStreamWriter(connection.get.getOutputStream)
+                wr.write(urlParameters)
+                wr.flush()
+
+                if(connection.get.getResponseCode >= 400){
+                    inputStream = Option(connection.get.getErrorStream)
+                    val bytes = ByteStreams.toByteArray(inputStream.get)
+                    logger.debug("Server returned HTTP response Code 400:  Publishing Action Response %s" format new String(bytes, "UTF-8") )
+                } else {
+                    inputStream = Option(connection.get.getInputStream)
+                    val bytes = ByteStreams.toByteArray(inputStream.get)
+                    logger.debug("Received Publish Action Response %s" format new String(bytes, "UTF-8"))
+                }
+            } catch {
+                case e =>
+                    logger.debug("Error processing %s" format e)
             }
 
 

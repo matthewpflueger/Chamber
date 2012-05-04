@@ -23,6 +23,8 @@ trait EchoedUserService {
 
     def echoTo(echoTo: EchoTo): Future[EchoToResponse]
 
+    def publishFacebookAction(action: String, obj: String, objUrl: String): Future[PublishFacebookActionResponse]
+
     //def echoToFacebook(echo: Echo, message: Option[String]): Future[EchoToFacebookResponse]
 
     //def echoToTwitter(echo:Echo,  message: Option[String]): Future[EchoToTwitterResponse]

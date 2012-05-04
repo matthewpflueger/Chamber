@@ -15,6 +15,8 @@ trait FacebookService {
     def assignEchoedUser(echoedUser: EchoedUser): Future[AssignEchoedUserResponse]
 
     def echo(echo: Echo, message: String): Future[EchoToFacebookResponse]
+    
+    def publishAction(action: String, obj: String, objUrl: String): Future[PublishActionToFacebookResponse]
 
     def getFacebookFriends(): Future[GetFriendsResponse]
 
