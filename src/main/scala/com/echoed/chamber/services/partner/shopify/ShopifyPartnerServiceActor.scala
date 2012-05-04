@@ -122,7 +122,7 @@ class ShopifyPartnerServiceActor(
 
             try {
                 logger.debug("Fetching order {} for Shopify partner {}", orderId, shopifyPartner.name)
-                shopifyAccess.fetchOrder(shopifyPartner.domain, shopifyPartner.password, orderId).onComplete(_.value.get.fold(
+                shopifyAccess.fetchOrder(shopifyPartner.shopifyDomain, shopifyPartner.password, orderId).onComplete(_.value.get.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)
@@ -144,7 +144,7 @@ class ShopifyPartnerServiceActor(
 
             try {
                 logger.debug("Fetching products for Shopify partner %s", shopifyPartner.name)
-                shopifyAccess.fetchProducts(shopifyPartner.domain, shopifyPartner.password).onComplete(_.value.get.fold(
+                shopifyAccess.fetchProducts(shopifyPartner.shopifyDomain, shopifyPartner.password).onComplete(_.value.get.fold(
                     error(_),
                     _ match {
                         case FetchProductsResponse(_, Left(e)) => error(e)
