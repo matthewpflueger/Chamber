@@ -38,6 +38,8 @@ class FacebookGraphController {
             error(errorView, Some(RequestExpiredException()))
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
+
+            logger.debug("Retrieving Facebook Graph Product Page for Echo: {}", linkId)
             echoService.getEchoById(linkId).onComplete(_.value.get.fold(
                 e => error(errorView, Some(e)),
                 _ match {
