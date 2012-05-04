@@ -14,7 +14,8 @@ object DataCreatorMain {
         //dataCreator.importFacebookTestUsers()
         //dataCreator.linkFacebookTestUsers()
 //        dataCreator.addFacebookTestUsersToApps()
-        dataCreator.generateDataSet()
+        dataCreator.removeFacebookTestUsersFromApps()
+//        dataCreator.generateDataSet()
 
     }
 }

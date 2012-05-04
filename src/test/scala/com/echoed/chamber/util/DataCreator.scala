@@ -16,6 +16,7 @@ import com.echoed.chamber.dao._
 import com.echoed.util.ScalaObjectMapper
 import com.echoed.chamber.domain._
 import java.util.{Properties, Random, List => JList, Calendar, Date, UUID}
+import com.google.common.io.ByteStreams
 
 
 class DataCreator {
@@ -48,6 +49,8 @@ class DataCreator {
     val changeUrl = "https://graph.facebook.com/%s?password=%s&method=post&access_token=%s"
     val linkUrl = "https://graph.facebook.com/%s/friends/%s?method=post&access_token=%s"
     val addAppUrl = "https://graph.facebook.com/%s/accounts/test-users?installed=true&permissions=email,publish_stream,offline_access&uid=%s&owner_access_token=177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA&access_token=%s&method=post"
+    val removeAppUrl = "https://graph.facebook.com/%s/accounts/test-users?method=delete&uid=%s&access_token=%s"
+
 
     def init() {
         appId = facebookAccessProperties.getProperty("clientId")
@@ -56,12 +59,27 @@ class DataCreator {
         siteUrl = urlsProperties.getProperty("http.urls.site")
     }
 
-    def open(url: URL)(op: BufferedReader => Unit) = {
-        val reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()))
-        try {
-            op(reader)
-        } finally {
-            reader.close
+    def open(url: URL, failOnError: Boolean = true)(op: BufferedReader => Unit) = {
+        val connection = Option(url.openConnection().asInstanceOf[HttpURLConnection])
+        connection.get.connect
+        connection.get.getResponseCode match {
+            case good if (good >= 200 && good < 300) =>
+                val reader = new BufferedReader(new InputStreamReader(connection.get.getInputStream()))
+                try {
+                    op(reader)
+                } finally {
+                    reader.close
+                }
+
+            case bad if (bad >= 400 && bad < 600) =>
+                val inputStream = Option(connection.get.getErrorStream)
+                val bytes = ByteStreams.toByteArray(inputStream.get)
+                if (logger.isDebugEnabled) {
+                    logger.debug("Error response from url {} is: {}", url.toExternalForm, new String(bytes, "UTF-8"))
+                }
+                if (failOnError) {
+                    connection.get.getInputStream
+                }
         }
     }
 
@@ -191,6 +209,23 @@ class DataCreator {
         }
     }
 
+    def removeFacebookTestUsersFromApps() {
+        val appAccessTokens =
+            "177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA" :: Nil
+
+        val facebookTestUsers = facebookTestUserDao.selectAll
+        facebookTestUsers.add(facebookTestUser)
+
+        appAccessTokens.foreach { token =>
+            val id = token.substring(0, 15)
+            logger.debug("Removing Facebook test user from application {}", id)
+
+            facebookTestUsers.foreach { user =>
+                open(new URL(removeAppUrl format(id, user.facebookId, token)))({ _ =>
+                    logger.debug("Removed Facebook user {} from app {}", user, id)})
+            }
+        }
+    }
 
     def cleanupEchoedUsers(list: Buffer[(FacebookUser, EchoedUser)]) {
         list.foreach { tuple =>
