@@ -164,7 +164,9 @@ class PartnerController {
 
             val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-            partnerUserServiceLocator.locate(partnerUserId.get).onResult({
+            //temporary fix until locator/creator can be combined into manager and all calls go through manager...
+            if (!partnerUserId.isDefined) error(new IllegalArgumentException("No partner user"))
+            else partnerUserServiceLocator.locate(partnerUserId.get).onResult({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
                     error(e)
