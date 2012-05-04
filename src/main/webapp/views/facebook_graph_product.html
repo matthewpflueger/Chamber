@@ -1,0 +1,17 @@
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head prefix="og: http://ogp.me/ns# {{facebookAppNameSpace}}:
+                  http://ogp.me/ns/apps/{{facebookAppNameSpace}}#">
+    <title>OG Tutorial App</title>
+    <meta property="fb:app_id" content="{{facebookClientId}}" />
+    <meta property="og:type" content="{{facebookAppNameSpace}}:product" />
+    {{#echo}}
+    <meta property="og:title" content="{{productName}}" />
+    <meta property="og:image" content="{{imageUrl}}" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:url" content="{{landingPageUrl}}">
+    {{/echo}}
+</head>
+<body>
+</body>
+</html>
