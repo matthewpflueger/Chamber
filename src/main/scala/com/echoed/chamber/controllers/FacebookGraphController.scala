@@ -45,6 +45,7 @@ class FacebookGraphController {
                 _ match {
                     case GetEchoByIdResponse(msg, Left(e)) => error(errorView, Some(e))
                     case GetEchoByIdResponse(msg, Right(echo)) =>
+                        logger.debug("Successfully retreived Echo {} , Responding with Facebook Graph Product View", echo)
                         val modelAndView = new ModelAndView(facebookGraphProductView)
                         modelAndView.addObject("echo", echo)
                         modelAndView.addObject("facebookClientId", facebookClientId)
