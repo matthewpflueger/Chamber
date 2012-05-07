@@ -252,6 +252,16 @@ function service_cmd() {
             fi
             ;;
 
+        migrate_new)
+            PACKAGE="mvn migration:new -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database -Dmigration.description=${service_args[*]:1}"
+            echo "Running ${PACKAGE}"
+            $PACKAGE
+            result=$?
+            if [[ $result > 0 ]]; then
+                exit 1;
+            fi
+            ;;
+
         dump)
             DATE=`date +%Y%m%d%H%M%S`
             HOST=`hostname`
