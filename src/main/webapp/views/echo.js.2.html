@@ -91,7 +91,28 @@
         }
     }
 
-    (function ($) {
+
+    function loadJSInclude(scriptPath, callback){
+        var scriptNode = document.createElement("script");
+        scriptNode.type ="text/javascript";
+        scriptNode.src = scriptPath;
+        var head = document.getElementsByTagName('HEAD')[0];
+        head.appendChild(scriptNode);
+        if(callback != null) {
+            scriptNode.onreadystatechange = callback;
+            scriptNode.onload = callback;
+        }
+    }
+
+    if(typeof jQuery == 'undefined'){
+        loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
+            echoedPrompt();
+        });
+    } else {
+        echoedPrompt(jQuery);
+    }
+
+    function echoedPrompt(){
         var css = $('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.2.css" />');
         $('body').append(css);
 
@@ -216,5 +237,5 @@
             $('#echoed-fade,#echoed-popup').hide();
         });
 
-    })(jQuery);
+    };
 

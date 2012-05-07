@@ -54,12 +54,14 @@ function loadJSInclude(scriptPath, callback){
 }
 
 if(typeof jQuery == 'undefined'){
-    loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', echoedPrompt(jQuery));
+    loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
+        echoedPrompt();
+    });
 } else {
-    echoedPrompt(jQuery);
+    echoedPrompt();
 }
 
-var echoedPrompt = (function($){
+function echoedPrompt(){
 
     $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.0.css" />');
 
@@ -119,4 +121,4 @@ var echoedPrompt = (function($){
         $('#echoed-fade,#echoed-popup').hide();
     });
 
-})(jQuery);
+};
