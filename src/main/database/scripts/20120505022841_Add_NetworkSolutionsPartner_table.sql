@@ -11,15 +11,9 @@ create table NetworkSolutionsPartner (
     userKey varchar(36) not null unique key,
     userToken varchar(255) unique key,
     userTokenExpiresOn timestamp,
-<<<<<<< HEAD
-    storeUrl varchar(255) not null unique key,
-    secureStoreUrl varchar(255) not null unique key,
-    companyName varchar(255) not null unique key,
-=======
     storeUrl varchar(255) unique key,
     secureStoreUrl varchar(255) unique key,
     companyName varchar(255) unique key,
->>>>>>> WIP Network Solutions commerce integration
     partnerId varchar(36) unique key
 );
 
