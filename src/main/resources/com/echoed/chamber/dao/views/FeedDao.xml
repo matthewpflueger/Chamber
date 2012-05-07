@@ -52,8 +52,59 @@
             <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
         </constructor>
     </resultMap>
-
     <select id="getPublicFeed" resultMap="echoViewPublicResult">
+        select
+            coalesce(E.id) as echoId,
+            max(E.createdOn) as echoBoughtOn,
+            E.productName as echoProductName,
+            coalesce(P.category, "Other") as echoCategory,
+            E.brand as echoBrand,
+            E.landingPageUrl as echoLandingPageUrl,
+            P.name as partnerName,
+            I.id as imageId,
+            I.updatedOn as imageUpdatedOn,
+            I.createdOn as imageCreatedOn,
+            I.url as imageUrl,
+            I.originalUrl as imageOriginalUrl,
+            I.originalWidth as imageOriginalWidth,
+            I.originalHeight as imageOriginalHeight,
+            I.sizedUrl as imageSizedUrl,
+            I.sizedWidth as imageSizedWidth,
+            I.sizedHeight as imageSizedHeight,
+            I.thumbnailUrl as imageThumbnailUrl,
+            I.thumbnailWidth as imageThumbnailWidth,
+            I.thumbnailHeight as imageThumbnailHeight,
+            I.processedOn as imageProcessedOn,
+            I.processedStatus as imageProcessedStatus,
+            I.retries as imageRetries
+        from
+            Echo E
+            join Image I on E.imageId = I.id
+            join Partner P on E.partnerId = P.id
+        where
+            I.sizedWidth > 0
+        group by
+            echoProductName,
+            echoBrand,
+            echoLandingPageUrl,
+            partnerName,
+            imageId,
+            imageOriginalUrl,
+            imageSizedUrl,
+            imageSizedWidth,
+            imageThumbnailUrl,
+            imageThumbnailWidth,
+            imageThumbnailHeight,
+            imageProcessedOn,
+            imageProcessedStatus,
+            imageRetries
+        order by
+            echoBoughtOn desc
+        limit
+            #{start}, #{limit}
+    </select>
+
+    <select id="getPublicFeedOld" resultMap="echoViewPublicResult">
         select
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
