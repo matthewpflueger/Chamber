@@ -270,6 +270,13 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>com.echoed.networksolutions</groupId>
+            <artifactId>ecomapi</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
