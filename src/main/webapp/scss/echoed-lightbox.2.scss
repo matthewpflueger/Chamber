@@ -86,6 +86,12 @@ $twitterColor: #4099FF;
         @include TextFontNormal(14px);
         text-align:left;
         vertical-align: middle;
+        .echoed-td-t{
+            line-height: 1.5em;
+        }
+        .echoed-title{
+            @include TextFontBold(16px);
+        }
         &.echoed-td1, &.echoed-td2, &.echoed-td3, &.echoed-td4{
             font-size: 12px;
             border-bottom: 2px #FFF groove;
@@ -152,11 +158,6 @@ $twitterColor: #4099FF;
     color: #111;
 }
 
-.echoed-highlight{
-    color: $mainColor;
-    font-size: 34px;
-}
-
 #echoed-header{
     height: 40px;
     text-align: left;
@@ -175,6 +176,7 @@ $twitterColor: #4099FF;
 }
 
 .echoed-p{
+    height: 120px;
     &:hover{
         .echoed-bs{
             background-image: image-url("btn_share_white.png");
@@ -252,7 +254,7 @@ $twitterColor: #4099FF;
 }
 
 
-.highlight{
+.echoed-highlight, .echoed-highlight:hover{
     font-weight:bold;
-    color: #FF0000;
+    color: #E31B23;
 }

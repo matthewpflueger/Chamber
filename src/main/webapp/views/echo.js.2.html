@@ -1,3 +1,28 @@
+function dump(arr,level) {
+var dumped_text = "";
+if(!level) level = 0;
+
+//The padding given at the beginning of the line.
+var level_padding = "";
+for(var j=0;j<level+1;j++) level_padding += "    ";
+
+if(typeof(arr) == 'object') { //Array/Hashes/Objects
+for(var item in arr) {
+var value = arr[item];
+
+if(typeof(value) == 'object') { //If it is an array,
+dumped_text += level_padding + "'" + item + "' ...\n";
+dumped_text += dump(value,level+1);
+} else {
+dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+}
+}
+} else { //Stings/Chars/Numbers etc.
+dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+}
+return dumped_text;
+}
+
 
     function ___getPageSize() {
         var xScroll, yScroll;
@@ -45,14 +70,14 @@
     function EchoedActivateNetwork(e){
         Echoed[e] = true;
         $('.echoed-cb[network^=' + e + ']').each(function(){
-            $(this).attr("checked", true);
+            $(this).attr("checked", "checked");
         });
     }
 
     function EchoedDeactivateNetwork(e){
         Echoed[e] = false;
         $('.echoed-cb[network^=' + e + ']').each(function(){
-            $(this).attr("checked",false);
+            $(this).removeAttr("checked");
         });
     }
 
@@ -151,7 +176,7 @@
             height:arrPageSizes[1]
         });
 
-        var popup = $('<div id="echoed-popup"><img src="{{urls.images}}/btn_closewin.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}"/ >{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
+        var popup = $('<div id="echoed-popup"><img src="{{urls.images}}/btn_close_x.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}"/ >{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
         popup.appendTo($('body')).fadeIn();
         $('#echoed-hiw-t').html('Thank You For Your Order');
         $('#echoed-hiw-tt').html("Get up to {{maxPercentage}}% cash back on each item you share with friends. Earn cash back for every friend that clicks on your shared item. Your rewards for sharing are automatically applied back to your credit card.");
@@ -174,7 +199,7 @@
                     var message = "";
                     var placeHolder = "Tell your friends why you bought this product and save up to {{maxPercentage}}% when your friends click through";
                     var t1 = $('<tr><td colspan="4"><div><strong>' + echoPossibility.productName + '</strong> ($' + echoPossibility.price + ')</td></tr>');
-                    var t2 =  $('<tr valign="middle" class="echoed-p"><td class="echoed-td1" valign="middle"><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td class="echoed-td2" valign="middle"><textarea id="' + echoPossibility.id +  '-ta" placeholder="' + placeHolder + '">' + message + '</textarea></td><td class="echoed-td3"><img align="absmiddle" src="{{urls.images}}/btn_sq_clr_fb.png"/><input id="' + echoPossibility.id + '-facebook" class="echoed-cb" echoPossibilityId="' + echoPossibility.id + '" network="facebook" type="checkbox" name="option1"/><span class="echoed-td-t">Share To Facebook</span><br/><img align="absmiddle" src="{{urls.images}}/btn_sq_clr_tw.png"/><input id="' + echoPossibility.id + '-twitter" class="echoed-cb" echoPossibilityId="' + echoPossibility.id + '" network="twitter" type="checkbox" name="option1"/><span class="echoed-td-t">Share To Twitter</span></td><td class="echoed-td4" valign="middle"><span id=' + echoPossibility.id + ' class="echoed-l" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '"></span></a></td></tr>');
+                    var t2 =  $('<tr valign="middle" class="echoed-p"><td class="echoed-td1" valign="middle"><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td class="echoed-td2" valign="middle"><textarea id="' + echoPossibility.id +  '-ta" placeholder="' + placeHolder + '">' + message + '</textarea></td><td class="echoed-td3"><img height="25px" align="absmiddle" src="{{urls.images}}/btn_sq_clr_fb.png"/><input id="' + echoPossibility.id + '-facebook" class="echoed-cb" echoPossibilityId="' + echoPossibility.id + '" network="facebook" type="checkbox" name="option1"/><span class="echoed-td-t">Share To Facebook</span><br/><img height="25px" align="absmiddle" src="{{urls.images}}/btn_sq_clr_tw.png"/><input id="' + echoPossibility.id + '-twitter" class="echoed-cb" echoPossibilityId="' + echoPossibility.id + '" network="twitter" type="checkbox" name="option1"/><span class="echoed-td-t">Share To Twitter</span></td><td class="echoed-td4" valign="middle"><span id=' + echoPossibility.id + ' class="echoed-l" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '"></span></a></td></tr>');
                     tbody.append(t1);
                     tbody.append(t2);
                 });
@@ -194,32 +219,33 @@
                     self.parent().append(overlay);
                     self.hide();
                     var echoId = self.attr("id");
-                    var postToFacebook = $('#' + echoId + '-facebook');
-                    var postToTwitter = $('#' + echoId + '-twitter');
+                    var postToFacebook = $('#' + echoId + '-facebook').is(":checked");
+                    var postToTwitter = $('#' + echoId + '-twitter').is(":checked");
                     var row = self.parent().parent();
                     $.ajax({
                         type: 'GET',
                         url: Echoed.urls.api + "/echo/finishjson",
                         dataType: 'jsonp',
                         data :{
-                            facebookMessage: message,
-                            postToFacebook: postToFacebook.val(),
-                            postToFacebook: false,
-                            twitterMessage: message,
-
-                            postToTwitter: false,
+                            message: message,
+                            postToFacebook: postToFacebook,
+                            postToTwitter: postToTwitter,
                             echoId: echoId
                         },
                         success: function(data){
                             overlay.remove();
                             textarea.remove();
-                            postToFacebook.remove();
-                            postToTwitter.remove();
-                            tac.append("This product has been Echoed successfully. Head over to <span class='highlight'>Echoed</span> where you can track the cash back you're earning. Visit your Exhibit any time or explore cool products your friends are sharing at <a class='highlight' target='_blank' href='{{urls.site}}/#exhibit'><strong>Echoed.com</strong></a>.");
                             row.find('.echoed-td3').remove();
                             row.find('.echoed-td4').remove();
                             row.find('.echoed-td2').css("font-size","14px").attr("colspan","3");
                             row.find(".echoed-td-t").remove();
+                            tac.append("<span class='echoed-title'>Successfully Shared To: </span>");
+                            if(data.facebookPost != null)
+                                tac.append($('<img height="25px" align="absmiddle" src="{{urls.images}}/btn_sq_clr_fb.png"/>'));
+                            if(data.twitterStatus != null)
+                                tac.append($('<img height="25px" align="absmiddle" src="{{urls.images}}/btn_sq_clr_tw.png"/>'));
+                            tac.append("<br/><br/>- Tell your friends about what you've shared. As your friends click comment or buy, the larger your reward grows.<br/><br/> - Track the rewards you've earned in real-time in your <a target='_blank' href='{{urls.site}}/#exhibit' class='echoed-highlight'>Echoed Exhibit</a>");
+
                         }
                     });
                 } else {
@@ -235,7 +261,9 @@
         });
 
         $('.echoed-cb').live('click', function () {
-            if($(this).attr('checked')){
+            if(!$(this).is(':checked')){
+                $(this).removeAttr('checked');
+            } else {
                 if(!Echoed[$(this).attr("network")]){
                     var echoedAuthorizeURL = "{{urls.site}}/echo/authorize?close=true&id=" + $(this).attr("echoPossibilityId") + "&network=" + $(this).attr("network");
                     window.addEventListener('message', receiveMessageResponse , false);
