@@ -186,7 +186,7 @@
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="activateView" value="partner_activate" />
-        <property name="postActivateView" value="redirect:${integrationUrl}" />
+        <property name="postActivateView" value="redirect:${dashboardUrl}" />
         <property name="globalValidator" ref="validator" />
         <property name="encrypter" ref="encrypter" />
         <property name="formValidator">
