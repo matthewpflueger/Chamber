@@ -20,6 +20,17 @@ $twitterColor: #4099FF;
         filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#FF0000');
     }
 
+    @mixin TextFontNormal($size: "16px") {
+        font-family: Lato, Arial, sans-serifs;
+        font-size: $size;
+    }
+    @mixin TextFontBold($size: "16px") {
+        font-family: Lato, Arial, sans-serifs;
+        font-weight: 700;
+        font-size: $size;
+    }
+
+
 #echoed-fade { /*--Transparent background layer--*/
 	position: absolute;
 	z-index: 9999;
@@ -52,11 +63,10 @@ $twitterColor: #4099FF;
 
     textarea{
         padding:5px;
-        font-size: 14px;
         width: 300px;
         height: 50px;
         border: 1px #CCC solid;
-        font-family: $textFontFamily;
+        @include TextFontNormal(14px);
         margin: 5px;
         background: #FFF;
         border: 1px solid #A4A2A2;
@@ -66,14 +76,14 @@ $twitterColor: #4099FF;
 
 
     th{
-        font-size: 16px;
+        @include TextFontNormal(16px);
         font-weight: normal;
         padding: 5px;
         border-bottom: 2px #FFF groove;
     }
     td{
         padding: 10px 0px;
-        font-size: 14px;
+        @include TextFontNormal(14px);
         text-align:left;
         vertical-align: middle;
         &.echoed-td1, &.echoed-td2, &.echoed-td3, &.echoed-td4{
@@ -131,24 +141,20 @@ $twitterColor: #4099FF;
 }
 
 #echoed-hiw-t{
-    font-size: 24px;
+    @include TextFontBold(24px);
     margin-bottom: 10px;
     color: #111;
-    font-weight: bold;
-    font-family: $labelFontFamily;
 }
 
 #echoed-hiw-tt{
-    font-size: 16px;
+    @include TextFontNormal(16px);
     margin: 5px 0px;
     color: #111;
-    font-family: $labelFontFamily;
 }
 
 .echoed-highlight{
     color: $mainColor;
     font-size: 34px;
-    font-family: $labelFontFamily;
 }
 
 #echoed-header{
@@ -211,21 +217,25 @@ $twitterColor: #4099FF;
         text-align:left;
         line-height: 1.2em;
         white-space: nowrap;
-        font-size: 12px;
+        @include TextFontNormal(12px);
         color: #111;
-        font-family: $textFontFamily;
         text-overflow: ellipsis;
         overflow: hidden;
         width: 150px;
     }
     .echoed-l{
-        background-image: image-url('btn_share_red_flat_30.png');
+        background-image: image-url('btn_share_red_n.png');
         display:block;
-        width: 81px;
-        height: 30px;
-        &.active{
+        width: 103px;
+        height: 51px;
+        &.on{
+            &:hover{
+                background-image: image-url('btn_share_red_h.png');
+            }
+            &:active{
+                background-image: image-url('btn_share_red_a.png');
+            }
             cursor: pointer;
-            background-image: image-url('btn_share_red_flat_30.png');
         }
     }
 }
@@ -242,3 +252,7 @@ $twitterColor: #4099FF;
 }
 
 
+.highlight{
+    font-weight:bold;
+    color: #FF0000;
+}

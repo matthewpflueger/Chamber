@@ -54,12 +54,24 @@ function loadJSInclude(scriptPath, callback){
 }
 
 if(typeof jQuery == 'undefined'){
-    loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
-        echoedPrompt();
+    loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/damnit.js?811d70b87140025bfe3845b1f8a13773608017dc', function(){
+        ApplicationError.config({prompt_user: false});
+        loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
+            try {
+                echoedPrompt();
+            } catch(e) {
+                ApplicationError.notify(e.stack);
+            }
+        });
     });
 } else {
-    echoedPrompt();
+    try {
+        echoedPrompt();
+    } catch(e) {
+        ApplicationError.notify(e.stack);
+    }
 }
+
 
 function echoedPrompt(){
 
@@ -91,8 +103,9 @@ function echoedPrompt(){
     $('#echoed-hiw-tt').html("Share this on <img src='{{urls.images}}/logo_facebook.png'> or <img src='{{urls.images}}/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
     var container = $('#echoed-p-c');
     var count = 0;
+
     $.ajax({
-        url: Echoed.urls.api + "/echo/request",
+         url: Echoed.urls.api + "/echo/request",
         dataType: 'jsonp',
         data: {
             "pid": "{{pid}}",
