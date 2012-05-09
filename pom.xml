@@ -286,11 +286,11 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>com.echoed.networksolutions</groupId>
-            <artifactId>ecomapi</artifactId>
-            <version>0.2-SNAPSHOT</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.echoed.networksolutions</groupId>-->
+            <!--<artifactId>ecomapi</artifactId>-->
+            <!--<version>0.2-SNAPSHOT</version>-->
+        <!--</dependency>-->
 
 
         <!-- Test dependencies -->

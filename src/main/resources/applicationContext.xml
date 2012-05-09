@@ -516,13 +516,13 @@
         <property name="properties" ref="networkSolutionsProperties" />
     </akka:untyped-actor>
 
-    <akka:untyped-actor
-            id="networkSolutionsAccessActor"
-            implementation="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="properties" ref="networkSolutionsProperties" />
-    </akka:untyped-actor>
+    <!--<akka:untyped-actor-->
+            <!--id="networkSolutionsAccessActor"-->
+            <!--implementation="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActor"-->
+            <!--autostart="true">-->
+        <!--&lt;!&ndash;suppress SpringModelInspection &ndash;&gt;-->
+        <!--<property name="properties" ref="networkSolutionsProperties" />-->
+    <!--</akka:untyped-actor>-->
 
 
 
