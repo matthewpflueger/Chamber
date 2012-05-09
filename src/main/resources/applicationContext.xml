@@ -158,7 +158,8 @@
     </bean>
 
     <bean id="networkSolutionsAccess" class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActorClient">
-        <property name="networkSolutionsAccessActor" ref="networkSolutionsAccessActor"/>
+        <property name="networkSolutionsAccessActor" ref="networkSolutionsDispatchAccessActor"/>
+        <!--<property name="networkSolutionsAccessActor" ref="networkSolutionsAccessActor"/>-->
     </bean>
 
 
@@ -503,6 +504,14 @@
         <property name="partnerServiceManager" ref="partnerServiceManager" />
         <!--suppress SpringModelInspection -->
         <property name="networkSolutionsPartnerDao" ref="networkSolutionsPartnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="networkSolutionsProperties" />
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+            id="networkSolutionsDispatchAccessActor"
+            implementation="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsDispatchAccessActor"
+            autostart="true">
         <!--suppress SpringModelInspection -->
         <property name="properties" ref="networkSolutionsProperties" />
     </akka:untyped-actor>

@@ -194,10 +194,22 @@
             <version>6.0.3</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>net.databinder</groupId>
-            <artifactId>dispatch-http_${scala.version}</artifactId>
+            <artifactId>dispatch-nio_${scala.version}</artifactId>
             <version>0.8.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.joda</groupId>
+            <artifactId>joda-convert</artifactId>
+            <version>1.2</version>
+            <!-- mandatory in Scala -->
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.1</version>
         </dependency>
 
         <!-- Twitter4J dependencies -->
