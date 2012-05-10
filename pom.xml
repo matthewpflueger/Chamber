@@ -127,27 +127,6 @@
         </dependency>
 
 
-        <!-- JBoss is nice enough to provide implmentations of javaee...  We
-             define them here as a nicetie to child projects (easy testing).
-             These api's are at provided scope as they should be provided by
-             whatever container we run in like Tomcat.  However Tomcat doesn't
-             provide jstl so you may need to explicitly require jstl at
-             compile scope (or make sure Ops has jstl in the lib directory).
-             See the commented out section below if you need to explicity
-             require jstl in your project. -->
-        <!-- <dependency>
-           <groupId>org.jboss.spec</groupId>
-           <artifactId>jboss-javaee-6.0</artifactId>
-           <version>1.0.0.Final</version>
-           <type>pom</type>
-           <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
-            <scope>compile</scope>
-        </dependency> -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
@@ -284,12 +263,6 @@
             <version>4.2</version>
         </dependency>
 
-
-        <!--<dependency>-->
-            <!--<groupId>com.echoed.networksolutions</groupId>-->
-            <!--<artifactId>ecomapi</artifactId>-->
-            <!--<version>0.2-SNAPSHOT</version>-->
-        <!--</dependency>-->
 
 
         <!-- Test dependencies -->
@@ -509,97 +482,65 @@
             </plugin>
         </plugins>
         <pluginManagement>
-        	<plugins>
-        		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-        		<plugin>
-        			<groupId>org.eclipse.m2e</groupId>
-        			<artifactId>lifecycle-mapping</artifactId>
-        			<version>1.0.0</version>
-        			<configuration>
-        				<lifecycleMappingMetadata>
-        					<pluginExecutions>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									org.scala-tools
-        								</groupId>
-        								<artifactId>
-        									maven-scala-plugin
-        								</artifactId>
-        								<versionRange>
-        									[2.15.2,)
-        								</versionRange>
-        								<goals>
-        									<goal>testCompile</goal>
-        									<goal>compile</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									org.codehaus.mojo
-        								</groupId>
-        								<artifactId>
-        									exec-maven-plugin
-        								</artifactId>
-        								<versionRange>
-        									[1.2.1,)
-        								</versionRange>
-        								<goals>
-        									<goal>exec</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									org.mybatis.maven
-        								</groupId>
-        								<artifactId>
-        									maven-migration-plugin
-        								</artifactId>
-        								<versionRange>
-        									[1.0.0,)
-        								</versionRange>
-        								<goals>
-        									<goal>up</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									pl.project13.maven
-        								</groupId>
-        								<artifactId>
-        									git-commit-id-plugin
-        								</artifactId>
-        								<versionRange>
-        									[2.0.2,)
-        								</versionRange>
-        								<goals>
-        									<goal>revision</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        					</pluginExecutions>
-        				</lifecycleMappingMetadata>
-        			</configuration>
-        		</plugin>
-        	</plugins>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.scala-tools</groupId>
+                                        <artifactId>maven-scala-plugin</artifactId>
+                                        <versionRange>[2.15.2,)</versionRange>
+                                        <goals>
+                                            <goal>testCompile</goal>
+                                            <goal>compile</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action><ignore></ignore></action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.codehaus.mojo</groupId>
+                                        <artifactId>exec-maven-plugin</artifactId>
+                                        <versionRange>[1.2.1,)</versionRange>
+                                        <goals>
+                                            <goal>exec</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action><ignore></ignore></action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.mybatis.maven</groupId>
+                                        <artifactId>maven-migration-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>up</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action><ignore></ignore></action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>pl.project13.maven</groupId>
+                                        <artifactId>git-commit-id-plugin</artifactId>
+                                        <versionRange>[2.0.2,)</versionRange>
+                                        <goals>
+                                            <goal>revision</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action><ignore></ignore></action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
         </pluginManagement>
     </build>
 
