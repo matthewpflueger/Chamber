@@ -36,3 +36,4 @@ errors.log
 dump-*.sql
 dump-*.sql.gz
 ./chamber
+.cache
