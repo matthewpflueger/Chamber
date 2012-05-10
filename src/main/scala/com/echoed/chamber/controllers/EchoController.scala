@@ -178,7 +178,10 @@ class EchoController {
                         modelAndView.addObject("echoPossibilityView", data)
                         modelAndView.addObject("partnerLogo", data.partner.logo)
                         modelAndView.addObject("maxPercentage", "%1.0f".format(data.partnerSettings.maxPercentage*100));
-                        modelAndView.addObject("minPercentage", "%1.0f".format(data.partnerSettings.minPercentage*100));
+                        //modelAndView.addObject("minPercentage", "%1.0f".format(data.partnerSettings.minPercentage*100));
+
+                        if(data.partnerSettings.closetPercentage > 0)
+                            modelAndView.addObject("closetPercentage", "%1.0f".format(data.partnerSettings.closetPercentage*100));
                         modelAndView.addObject("numberDays", data.partnerSettings.creditWindow / 24)
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(data.echoPossibility.price));
                         modelAndView.addObject("minClicks", data.partnerSettings.minClicks)
@@ -268,7 +271,7 @@ class EchoController {
                             modelAndView.addObject("echoedUserName", eu.name)
                             modelAndView.addObject("facebookUserId", eu.facebookUserId)
                             modelAndView.addObject("twitterUserId", eu.twitterUserId)
-                            modelAndView.addObject("network", network)
+                            modelAndView.addObject("network", network.capitalize)
                             continuation.setAttribute("modelAndView", modelAndView)
                             continuation.resume()
 
@@ -282,7 +285,7 @@ class EchoController {
                         modelAndView.addObject("echoedUserName", eu.name)
                         modelAndView.addObject("facebookUserId", eu.facebookUserId)
                         modelAndView.addObject("twitterUserId", eu.twitterUserId)
-                        modelAndView.addObject("network", network)
+                        modelAndView.addObject("network", network.capitalize)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                     })
