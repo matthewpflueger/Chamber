@@ -400,6 +400,10 @@
                 <artifactId>maven-scala-plugin</artifactId>
                 <version>2.15.2</version>
                 <configuration>
+                    <jvmArgs>
+                        <jvmArg>-Xms64m</jvmArg>
+                        <jvmArg>-Xmx512m</jvmArg>
+                    </jvmArgs>
                     <launchers>
                         <launcher>
                             <id>scalatest</id>
