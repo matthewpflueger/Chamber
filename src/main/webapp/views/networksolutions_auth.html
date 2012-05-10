@@ -10,11 +10,7 @@
         <div class="center clearfix">
             <div id="lm">
                 <div id="lm-top" class="clearfix">
-<<<<<<< HEAD
-                    <div id="lm-label">Shopify</div>
-=======
                     <div id="lm-label">Network Solutions</div>
->>>>>>> WIP Network Solutions commerce integration
                     <div id="lm-partner-form">
                         <div id="lm-error">
                             {{#errors.global}}{{this}}{{/errors.global}}
@@ -24,37 +20,13 @@
                                 Thank you, {{partnerUser.name}} for choosing Echoed to
                                 help {{partner.name}} increase its brand awareness and sales.
                             </p>
-<<<<<<< HEAD
-                            <p>
-=======
                             <p><br/><br/>
->>>>>>> WIP Network Solutions commerce integration
                                 An account manager will reach out to you to help you set up your account at the phone # and email below.<br/><br/>
                                 Phone Number: <strong>{{partner.phone}}</strong><br/>
                                 Email: <strong>{{partnerUser.email}}</strong><br/>
                             </p>
-<<<<<<< HEAD
-                            <p>
-                                <strong>Integration instructions:</strong>
-                                In Network Solutions Ecommerce Control Panel, under Operations -&gt; Payments, copy and paste
-                                the following into the Confirmation Message of each enabled payment type.  For example,
-                                if you have enabled credit card payments, for each configured gateway, click on the Edit
-                                action button on the right and paste the code into Confirmation Message text box.
-                                Then click the Save &amp; Return button.
-                            </p>
-                            <p>
-                                If you have a custom confirmation page, as long as it has access the Network Solutions
-                                script variables, the code below can be copied and pasted at the bottom of the page.
-                            </p>
-                            <p><pre>
-                                &lt;script type="text/javascript"&gt;var echoData = '&lt;%Order.Number%&gt;';&lt;/script&gt;
-                                &lt;script type="text/javascript" src="https://echoed.com/echo/js?pid={{partner.id}}"&gt;&lt;/script&gt;
-                            </pre></p>
-                            <p>
-=======
                             {{> networksolutions_partial_integration}}
                             <p><br/><br/>
->>>>>>> WIP Network Solutions commerce integration
                                 Please do not hesitate to email accountmanager@echoed.com or call 917-267-4591 with your questions.
                             </p>
                         </div>
