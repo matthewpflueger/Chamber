@@ -16,7 +16,7 @@ case class ShopifyOrderFull(
             su: ShopifyPartner,
             lineItems: List[ShopifyLineItem] ) = this(
         o.getId.toString,
-        if (o.getOrderNumber == null) o.getId.toString else o.getOrderNumber.toString,
+        o.getOrderNumber.toString,
         if (o.getCustomer == null) "Guest" else o.getCustomer.getId.toString,
         su,
         lineItems)
