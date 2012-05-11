@@ -54,24 +54,27 @@ $twitterColor: #4099FF;
      margin-left: -375px;
      top: 50px;
      font-family: $textFontFamily;
-     border-radius: 10px;
+     border-radius: 5px;
      padding: 10px;
      table{
         border-collapse: collapse;
         width: 100%;
     }
 
+    input[type="checkbox"]{
+        margin: 3px;
+    }
+
     textarea{
         padding:5px;
         width: 300px;
-        height: 50px;
+        height: 60px;
         border: 1px #CCC solid;
         @include TextFontNormal(14px);
         margin: 5px;
         background: #FFF;
         border: 1px solid #A4A2A2;
         resize: none;
-        border-radius: 6px;
     }
 
 
@@ -89,12 +92,16 @@ $twitterColor: #4099FF;
         .echoed-td-t{
             line-height: 1.5em;
         }
+
+        &.echoed-tdspan{
+            border-top: 2px #FFF groove;
+        }
+
         .echoed-title{
             @include TextFontBold(16px);
         }
         &.echoed-td1, &.echoed-td2, &.echoed-td3, &.echoed-td4{
             font-size: 12px;
-            border-bottom: 2px #FFF groove;
             padding: 0px 0px 10px 0px;
         }
         &.echoed-td1{
@@ -141,21 +148,25 @@ $twitterColor: #4099FF;
 }
 
 #echoed-container{
-    background-color: #F1F1F1;
+    background-image: image-url("bk_noise.png");
     padding: 10px;
     border: 1px #000 solid;
 }
 
 #echoed-hiw-t{
-    @include TextFontBold(24px);
+    @include TextFontBold(30px);
+    text-shadow: 0px 1px 1px #FFF;
     margin-bottom: 10px;
     color: #111;
 }
 
 #echoed-hiw-tt{
     @include TextFontNormal(16px);
-    margin: 5px 0px;
+    margin: 10px 0px;
     color: #111;
+    background-image: image-url("bk_noise.png");
+    padding: 10px;
+    border: 1px #000 solid;
 }
 
 #echoed-header{
