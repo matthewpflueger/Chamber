@@ -4,7 +4,8 @@ import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.shopify._
 import akka.actor.{Channel, Actor}
 import com.shopify.api.resources.{Order => SO, Product => SP}
-import collection.JavaConversions
+import collection.mutable.{Map => MMap}
+import collection.JavaConversions._
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
@@ -76,6 +77,8 @@ class ShopifyPartnerServiceActor(
                     _ match {
                         case GetOrderFullResponse(_, Left(e)) => error(e)
                         case GetOrderFullResponse(_, Right(order)) =>
+                            logger.debug("Creating {} EchoItems from Shopify order {}", order.lineItems.size, order.orderId)
+
                             val items = order.lineItems.map { li =>
                                 EchoItem(
                                         productId = li.productId,
@@ -174,23 +177,17 @@ class ShopifyPartnerServiceActor(
                     p <- products
                 } yield {
 
-                    val m = new HashMap[String, ShopifyProduct]
-                    val sp = p.map {
-                        new ShopifyProduct(_)
-                    }
+                    val m = MMap[Int, ShopifyProduct]()
+                    p.foreach { i => m(i.getId) = new ShopifyProduct(i) }
 
-                    sp map {
-                        t => m.put(t.id, t)
-                    }
-
-                    val lineItems = (JavaConversions.asScalaBuffer(o.getLineItems).map {
-                        li => new ShopifyLineItem(li, m.get(li.getProductId.toString))
-                    }).toList
-
-                    val shopifyOrderFull = new ShopifyOrderFull(o, shopifyPartner, lineItems)
-
-                    logger.debug("Responding with Shopify Orders: {}", shopifyOrderFull)
-                    channel ! GetOrderFullResponse(msg, Right(shopifyOrderFull))
+                    logger.debug("Responding with Shopify Order {}", o.getId)
+                    channel ! GetOrderFullResponse(msg, Right(new ShopifyOrderFull(
+                                o,
+                                shopifyPartner,
+                                o.getLineItems
+                                    .filter { li => m.contains(li.getProductId) }
+                                    .map { li => new ShopifyLineItem(li, m(li.getProductId)) }
+                                    .toList)))
                 })
             } catch {
                 case e => error(e)

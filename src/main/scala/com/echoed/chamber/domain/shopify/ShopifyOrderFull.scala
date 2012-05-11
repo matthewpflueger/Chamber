@@ -4,14 +4,6 @@ package com.echoed.chamber.domain.shopify
 import com.shopify.api.resources.{Order, Product}
 
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 3/25/12
- * Time: 3:09 PM
- * To change this template use File | Settings | File Templates.
- */
-
 case class ShopifyOrderFull(
                 orderId: String,
                 orderNumber: String, 
@@ -19,6 +11,14 @@ case class ShopifyOrderFull(
                 shopifyUser: ShopifyPartner,
                 lineItems: List[ShopifyLineItem]) {
     
-    def this(o: Order, su: ShopifyPartner, lineItems: List[ShopifyLineItem] ) = this(o.getId.toString, o.getOrderNumber.toString, o.getCustomer.getId.toString, su, lineItems)
+    def this(
+            o: Order,
+            su: ShopifyPartner,
+            lineItems: List[ShopifyLineItem] ) = this(
+        o.getId.toString,
+        if (o.getOrderNumber == null) o.getId.toString else o.getOrderNumber.toString,
+        if (o.getCustomer == null) "Guest" else o.getCustomer.getId.toString,
+        su,
+        lineItems)
     
 }
