@@ -56,7 +56,7 @@ function service_cmd() {
             ;;
 
         package)
-            PACKAGE="mvn -DskipTests -Pallinone package"
+            PACKAGE="mvn -DskipTests -Dsun.net.client.defaultConnectTimeout=1000 -Dsun.net.client.defaultReadTimeout=1000 -Pallinone package"
             echo "Running ${PACKAGE}"
             $PACKAGE
             result=$?
