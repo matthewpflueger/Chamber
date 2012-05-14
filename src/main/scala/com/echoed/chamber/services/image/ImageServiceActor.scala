@@ -233,18 +233,22 @@ class ImageServiceActor extends Actor {
                 logger.debug("Image has already been processed {}", image)
                 future.foreach(_.completeWithResult(ProcessImageResponse(msg, Right(image))))
                 channel ! ProcessImageResponse(msg, Right(image))
-            } else responses.get(image.url).cata(
+            } else /* commenting this out as it is really buggy - we have a leak that causes the response list to grow
+                      indefinitely - see API-67 this is part of that whole thing...
+                   responses.get(image.url).cata(
                 //looks like we are already processing this image so lets just remember to respond later...
                 list => {
                     list += ((msg, channel))
                     logger.debug("Already processing image {}, list of channels waiting for response {}", image.url, list)
-                },
+                },   */
                 {
+                    val list = responses.getOrElseUpdate(image.url, { ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]() })
+
                     //we are not working on the image so lets see what we need to do...
                     logger.debug("Processing {}", image.url)
-                    val list = ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]()
+//                    val list = ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]()
                     list += ((msg, channel))
-                    responses.put(image.url, list)
+//                    responses.put(image.url, list)
 
                     if (!image.hasOriginal) {
                         me ! ProcessOriginalImage(image)
@@ -258,7 +262,7 @@ class ImageServiceActor extends Actor {
                         responses.remove(image.url)
                         channel ! ProcessImageResponse(msg, Right(image))
                     }
-                })
+                } //)
 
 
         case msg @ ProcessOriginalImage(image) =>
