@@ -388,7 +388,7 @@ class EchoController {
 
         if(continuation.isExpired) {
             error(errorView, RequestExpiredException("We encountered an error sharing your purchase"))
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
             cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoFinishParameters.echoedUserId = _)
             logger.debug("Echoing {}", echoFinishParameters)
@@ -399,20 +399,15 @@ class EchoController {
                     case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
                         echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.value.get.fold(
-                            e => {
-                                logger.debug("Error!")
-                                error(errorView, e)
-                            },
+                            e => error(errorView, e),
                             _ match {
                                 case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
-                                    continuation.setAttribute("jsonResponse", echo)
+                                    continuation.setAttribute("modelAndView", echo)
                                     continuation.resume()
-                                case EchoToResponse(_, Left(e)) =>
-                                    logger.debug("Received error: {}", e)
-                                    error(errorView,e)
+                                case EchoToResponse(_, Left(e)) => error(errorView,e)
                                 case EchoToResponse(_, Right(echoFull)) =>
                                     logger.debug("Received echo response {}", echoFull)
-                                    continuation.setAttribute("jsonResponse", echoFull)
+                                    continuation.setAttribute("modelAndView", echoFull)
                                     continuation.resume()
                                     logger.debug("Successfully echoed {}", echoFull)
                             }))
@@ -444,18 +439,13 @@ class EchoController {
                     case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
                         echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.value.get.fold(
-                            e => {
-                                logger.debug("Error!")
-                                error(errorView, e)
-                            },
+                            e => error(errorView, e),
                             _ match {
                                 case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
                                     logger.debug("Received duplicate echo response to echo", echo)
                                     continuation.setAttribute("modelAndView", new ModelAndView(echoDuplicateView, "echo", echo))
                                     continuation.resume()
-                                case EchoToResponse(_, Left(e)) =>
-                                    logger.debug("Received error: {}", e)
-                                    error(errorView,e)
+                                case EchoToResponse(_, Left(e)) => error(errorView,e)
                                 case EchoToResponse(_, Right(echoFull)) =>
                                     logger.debug("Received echo response {}", echoFull)
                                     continuation.setAttribute("modelAndView", new ModelAndView(echoFinishView, "echoFull", echoFull))
