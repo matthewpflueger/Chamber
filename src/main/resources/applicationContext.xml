@@ -65,6 +65,7 @@
 
     <bean id="cacheManager" class="com.echoed.cache.LocalCacheManager">
         <property name="expireInMinutes" value="${cache.expireInMinutes}" />
+        <property name="expirationConfig" ref="cacheProperties" />
     </bean>
 
 

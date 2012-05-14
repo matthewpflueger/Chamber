@@ -199,8 +199,16 @@
         <prop key="networksolutions.certificate">e33f5dbeabf9492fa9d3beea52216e81</prop>
 
         <prop key="accountManagerEmail">accountmanager@echoed.com</prop>
+
+
+        <!-- cache expiration configs zero or less does not expire -->
+        <prop key="cache.PartnerServices">-1</prop>
     </util:properties>
 
+
+    <util:properties id="cacheProperties">
+        <prop key="PartnerServices">${cache.PartnerServices}</prop>
+    </util:properties>
 
     <util:properties id="mailProperties">
         <prop key="mail.user">${mail.user}</prop>
