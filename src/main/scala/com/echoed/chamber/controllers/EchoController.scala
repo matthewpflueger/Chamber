@@ -337,8 +337,10 @@ class EchoController {
                             modelAndView.addObject("id", id)
                             modelAndView.addObject("errorMessage", "This item has already been shared")
                             modelAndView.addObject("echoPossibilityView", epv)
-                            modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
-                            modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
+                            modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
+                            modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
+                            if(epv.partnerSettings.closetPercentage > 0)
+                                modelAndView.addObject("closetPercentage", "%1.0f".format(epv.partnerSettings.closetPercentage*100))
                             modelAndView.addObject("partnerLogo", epv.partner.logo)
                             modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
                             modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
@@ -361,6 +363,8 @@ class EchoController {
                         modelAndView.addObject("partnerLogo", epv.partner.logo)
                         modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
                         modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
+                        if(epv.partnerSettings.closetPercentage > 0)
+                            modelAndView.addObject("closetPercentage", "%1.0f".format(epv.partnerSettings.closetPercentage*100))
                         modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
                         modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
                         modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
