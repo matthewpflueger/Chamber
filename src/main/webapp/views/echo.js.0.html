@@ -48,7 +48,6 @@ function loadJSInclude(scriptPath, callback){
     var head = document.getElementsByTagName('HEAD')[0];
     head.appendChild(scriptNode);
     if(callback != null) {
-        scriptNode.onreadystatechange = callback;
         scriptNode.onload = callback;
     }
 }

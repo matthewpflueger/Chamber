@@ -14,7 +14,33 @@
                     data.twitter = true;
                 {{/twitterUserId}}
                 data.success = true;
-                window.opener.postMessage(data, "*");
+
+                var target = "echoed-iframe";
+                var host = window.opener.frames[target];
+                if (window.opener) {
+                    try {
+                        // test if we have access to the document
+                        if (window.opener.document.title) {
+                            host = window.opener;
+                        }
+                    }
+                    catch (xDomainError) {
+                        // we have an opener, but it's not on our domain,
+                        host = window.opener.frames[target];
+                    }
+                    if (host) {
+                        try {
+                            //host.setApp(window);
+
+                        }
+                        catch (browserHostError) {
+                            alert("was unable to gain a reference to the iframe");
+                        }
+                    }
+                }
+                var dataString = JSON.stringify(data);
+                alert(dataString);
+                host.postMessageInterface(dataString);
                 window.close();
             }, 1000);
 

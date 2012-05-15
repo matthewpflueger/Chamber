@@ -84,14 +84,15 @@
     }
 
     function receiveMessageResponse(e){
-        if(e.data.name){
-            EchoedSetName(e.data.name);
+        var data = JSON.parse(e.data);
+        if(data.name){
+            EchoedSetName(data.name);
             EchoedActivate();
         }
-        if(e.data.facebook){
+        if(data.facebook){
             EchoedActivateNetwork("facebook");
         }
-        if(e.data.twitter){
+        if(data.twitter){
             EchoedActivateNetwork("twitter");
         }
     }
@@ -103,7 +104,6 @@
         var head = document.getElementsByTagName('HEAD')[0];
         head.appendChild(scriptNode);
         if(callback != null) {
-            scriptNode.onreadystatechange = callback;
             scriptNode.onload = callback;
         }
     }
@@ -119,6 +119,12 @@
     }
 
     function echoedPrompt(){
+
+        if(window.addEventListener){
+            window.addEventListener('message', receiveMessageResponse , false);
+        } else if (window.attachEvent) {
+            window.attachEvent('onmessage', receiveMessageResponse);
+        }
 
         Echoed = {};
         Echoed.urls = {}; //{{#urls}}
@@ -150,8 +156,6 @@
 
         var body = document.getElementsByTagName('BODY')[0];
 
-
-
         var fadeNode = document.createElement("div");
         fadeNode.id = "echoed-fade";
         body.insertBefore(fadeNode, body.firstChild);
@@ -161,6 +165,13 @@
 
         var popupNode = document.createElement("div");
         popupNode.id = "echoed-popup";
+
+        var iFrameNode = document.createElement('iframe');
+        iFrameNode.height = "0px";
+        iFrameNode.width = "0px";
+        iFrameNode.style.border = "none";
+        iFrameNode.id = "echoed-iframe";
+        popupNode.appendChild(iFrameNode);
 
         var closeImg = document.createElement("img");
         closeImg.src = "{{urls.images}}/btn_close_x.png";
@@ -283,7 +294,8 @@
             } else {
                 if(!Echoed[$(this).attr("network")]){
                     var echoedAuthorizeURL = "{{urls.site}}/echo/authorize?close=true&id=" + $(this).attr("echoPossibilityId") + "&network=" + $(this).attr("network");
-                    window.addEventListener('message', receiveMessageResponse , false);
+                    var iFrame = document.getElementById("echoed-iframe");
+                    iFrame.src = "{{urls.site}}/html/iframe.html";
                     window.open(echoedAuthorizeURL, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
                     return false;
                 }
