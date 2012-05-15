@@ -295,7 +295,7 @@
                 if(!Echoed[$(this).attr("network")]){
                     var echoedAuthorizeURL = "{{urls.site}}/echo/authorize?close=true&id=" + $(this).attr("echoPossibilityId") + "&network=" + $(this).attr("network");
                     var child = window.open("about:blank", "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-                    child.location = "{{urls.site}}/echo/iframe";
+                    child.location = "echoedAuthorizeURL";
                     var iFrame = document.getElementById("echoed-iframe");
                     iFrame.src = "{{urls.site}}/echo/iframe";
 
