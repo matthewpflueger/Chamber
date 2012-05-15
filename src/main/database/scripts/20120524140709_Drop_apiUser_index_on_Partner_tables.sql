@@ -16,5 +16,7 @@ alter table NetworkSolutionsPartner add index userKey (userKey);
 --//@UNDO
 -- SQL to undo the change goes here.
 
--- we are not going to worry about the unique indexes...
+alter table BigCommercePartner add index apiToken (apiToken);
+alter table NetworkSolutionsPartner add index userToken (userToken);
+
 

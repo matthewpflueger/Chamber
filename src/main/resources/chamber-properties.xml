@@ -211,11 +211,13 @@
 
         <!-- cache expiration configs zero or less does not expire -->
         <prop key="cache.PartnerServices">-1</prop>
+        <prop key="cache.MagentoGoSessions">14</prop>
     </util:properties>
 
 
     <util:properties id="cacheProperties">
         <prop key="PartnerServices">${cache.PartnerServices}</prop>
+        <prop key="MagentoGoSessions">${cache.MagentoGoSessions}</prop>
     </util:properties>
 
     <util:properties id="mailProperties">
@@ -304,6 +306,11 @@
 
     <!--suppress SpringModelInspection -->
     <util:properties id="bigCommerceProperties">
+        <prop key="accountManagerEmail">${accountManagerEmail}</prop>
+    </util:properties>
+
+    <!--suppress SpringModelInspection -->
+    <util:properties id="magentoGoProperties">
         <prop key="accountManagerEmail">${accountManagerEmail}</prop>
     </util:properties>
 

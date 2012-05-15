@@ -1,0 +1,25 @@
+<p><br/><br/>
+    <strong>Integration instructions:</strong>
+    In the MagentoGo control panel for managing your store, under System -&gt; Configuration, click Design in the
+    menu on the right, select Footer, and copy and paste the following into the Miscellaneous HTML section then click
+    the Save Config button.
+</p>
+<p><br/><br/>
+    <pre>
+&lt;script type="text/javascript"&gt;
+if (window.location.href.match(/checkout\/onepage\/success/i)) {
+	Event.observe(window, 'load', function() {
+		var t = $$('.col1-layout .col-main p a')[0].innerHTML;
+		echoData = t.match(/[0-9]+/i)[0];
+
+		if (echoData) {
+			var scriptNode = document.createElement('script');
+			scriptNode.type = 'text/javascript';
+			scriptNode.src = "https://echoed.com/echo/js?pid={{partner.id}}";
+			document.getElementsByTagName("head")[0].appendChild(scriptNode);
+		}
+	});
+}
+&lt;/script&gt;
+    </pre>
+</p>

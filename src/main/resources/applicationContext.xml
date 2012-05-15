@@ -174,10 +174,20 @@
     </bean>
 
 
+    <bean id="magentoGoPartnerServiceManager" class="com.echoed.chamber.services.partner.magentogo.MagentoGoPartnerServiceManagerActorClient">
+        <property name="actorRef" ref="magentoGoPartnerServiceManagerActor" />
+    </bean>
+
+    <bean id="magentoGoAccess" class="com.echoed.chamber.services.partner.magentogo.MagentoGoAccessActorClient">
+        <property name="magentoGoAccessActor" ref="magentoGoAccessActor"/>
+    </bean>
+
+
     <util:map id="cloudPartners">
         <entry key="Shopify" value-ref="shopifyPartnerServiceManager" />
         <entry key="Network Solutions" value-ref="networkSolutionsPartnerServiceManager" />
         <entry key="BigCommerce" value-ref="bigCommercePartnerServiceManager" />
+        <entry key="MagentoGo" value-ref="magentoGoPartnerServiceManager" />
     </util:map>
 
 
@@ -573,6 +583,53 @@
             autostart="true">
         <!--suppress SpringModelInspection -->
         <property name="client" ref="httpClient" />
+    </akka:untyped-actor>
+
+
+    <akka:untyped-actor
+            id="magentoGoPartnerServiceManagerActor"
+            implementation="com.echoed.chamber.services.partner.magentogo.MagentoGoPartnerServiceManagerActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="partnerDao" ref="partnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerUserDao" ref="partnerUserDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoDao" ref="echoDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageDao" ref="imageDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="imageService" ref="imageService" />
+        <!--suppress SpringModelInspection -->
+        <property name="encrypter" ref="encrypter" />
+        <!--suppress SpringModelInspection -->
+        <property name="transactionTemplate" ref="transactionTemplate" />
+        <!--suppress SpringModelInspection -->
+        <property name="emailService" ref="emailService" />
+        <!--suppress SpringModelInspection -->
+        <property name="cacheManager" ref="cacheManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="magentoGoAccess" ref="magentoGoAccess" />
+        <!--suppress SpringModelInspection -->
+        <property name="partnerServiceManager" ref="partnerServiceManager" />
+        <!--suppress SpringModelInspection -->
+        <property name="magentoGoPartnerDao" ref="magentoGoPartnerDao" />
+        <!--suppress SpringModelInspection -->
+        <property name="properties" ref="magentoGoProperties" />
+    </akka:untyped-actor>
+
+    <akka:untyped-actor
+            id="magentoGoAccessActor"
+            implementation="com.echoed.chamber.services.partner.magentogo.MagentoGoAccessActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="client" ref="httpClient" />
+        <!--suppress SpringModelInspection -->
+        <property name="cacheManager" ref="cacheManager" />
     </akka:untyped-actor>
 
 

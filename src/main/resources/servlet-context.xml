@@ -303,6 +303,15 @@
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->
+    <bean id="magentoGoController" class="com.echoed.chamber.controllers.partner.magentogo.MagentoGoController">
+        <property name="magentoGoPartnerServiceManager" ref="magentoGoPartnerServiceManager" />
+        <property name="registerView" value="magentogo_register" />
+        <property name="postRegisterView" value="magentogo_integration" />
+        <property name="globalValidator" ref="validator" />
+        <property name="conversionService" ref="conversionService" />
+    </bean>
+
+    <!-- suppress DuplicatedBeanNamesInspection -->
     <bean id="publicController" class="com.echoed.chamber.controllers.api.PublicController">
         <property name="feedService"  ref="feedService"/>
     </bean>

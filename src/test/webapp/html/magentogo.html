@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>MagentoGo Test</title>
+</head>
+<body>
+MagentoGo test
+<script type="text/javascript">
+//	Event.observe(window, 'load', function() {
+		echoData = "100000006";
+		if (echoData) {
+			var scriptNode = document.createElement('script');
+			scriptNode.type = 'text/javascript';
+			scriptNode.src = "https://localhost:8443/echo/js?pid=ca7d4d4c-4bd9-44de-a6d3-ed342cef0cec";
+			document.getElementsByTagName("head")[0].appendChild(scriptNode);
+		}
+//	});
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>New MagentoGo partner {{partner.name}}</title>
+</head>
+<body>
+<div>
+    <p>
+        {{partnerUser.name}} has added Echoed to their MagentoGo store <a href="http://{{partner.domain}}">{{partner.name}}</a>.
+        Please contact them at <strong>{{partner.phone}}</strong> or <strong>{{partnerUser.email}}</strong>
+    </p>
+    <p>For your reference, the integration instructions the partner received is below:</p>
+    {{> magentogo_partial_integration}}
+</div>
+</body>
+</html>

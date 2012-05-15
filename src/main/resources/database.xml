@@ -186,6 +186,11 @@
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
+    <bean id="magentoGoPartnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.MagentoGoPartnerDao" />
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
     <bean id="adminUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.echoed.chamber.dao.AdminUserDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
