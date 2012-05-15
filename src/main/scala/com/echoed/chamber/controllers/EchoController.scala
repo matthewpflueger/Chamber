@@ -231,6 +231,16 @@ class EchoController {
             new ModelAndView("redirect:%s" format authorizeUrl)
         }
     }
+
+    @RequestMapping(value = Array("iframe"), method = Array(RequestMethod.GET))
+    def iframe(
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val modelAndView = new ModelAndView("echo_iframe")
+        modelAndView
+
+    }
     
     @RequestMapping(value = Array("/close"), method = Array(RequestMethod.GET))
     def close(
