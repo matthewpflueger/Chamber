@@ -61,6 +61,10 @@ $twitterColor: #4099FF;
         width: 100%;
     }
 
+    iframe {
+        border: none;
+    }
+
     input[type="checkbox"]{
         margin: 3px;
     }
@@ -84,6 +88,8 @@ $twitterColor: #4099FF;
         padding: 5px;
         border-bottom: 2px #FFF groove;
     }
+
+
     td{
         padding: 10px 0px;
         @include TextFontNormal(14px);
@@ -105,12 +111,12 @@ $twitterColor: #4099FF;
             padding: 0px 0px 10px 0px;
         }
         &.echoed-td1{
-            width: 150px;
+            width: 130px;
         }
         &.echoed-td2{
         }
         &.echoed-td3{
-            width: 250px;
+            width: 270px;
         }
         &.echoed-td4{
             width: 90px;
