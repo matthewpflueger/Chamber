@@ -19,7 +19,7 @@ CONTEXT=src/main/resources/jetty.xml
 TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
 MAIN=com.echoed.chamber.Main
 
-NEWRELIC=/usr/local/lib/newrelic/newrelic.jar
+NEWRELIC=${BASEDIR}/src/main/ops/opt/newrelic/newrelic.jar
 
 MIN_MEM="1024m"
 MAX_MEM="2048m"
@@ -84,7 +84,7 @@ function service_cmd() {
             fi
 
             if [ -e ${NEWRELIC} ]; then
-                ARGS="-javaagent:${NEWRELIC} $ARGS"
+                ARGS="-javaagent:${NEWRELIC} -Dnewrelic.environment=${ENV_TYPE} $ARGS"
             fi
 
             if [ ! -e ${TARGET} ]; then
