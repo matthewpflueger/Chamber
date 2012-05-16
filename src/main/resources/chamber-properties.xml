@@ -80,7 +80,7 @@
         <prop key="facebook.accessTokenUrl">
             https://graph.facebook.com/oauth/access_token?client_id=${facebook.clientId}&amp;client_secret=${facebook.clientSecret}&amp;grant_type=client_credentials
         </prop>
-        <prop key="facebook.redirectUrl">${http.urls.site}</prop>
+        <prop key="facebook.redirectUrl">${https.urls.site}</prop>
 
         <prop key="twitter.consumerKey">Gb6kawhjcWu3wLc9aWJqQ</prop>
         <prop key="twitter.consumerSecret">cpJ8p207SeDSiCvMVMeuBROS0j3KG421C2BrdePweS4</prop>
