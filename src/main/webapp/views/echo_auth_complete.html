@@ -16,30 +16,21 @@
                 data.success = true;
 
                 var target = "echoed-iframe";
-                var host = window.opener.frames[target];
-                if (window.opener) {
-                    try {
-                        // test if we have access to the document
-                        if (window.opener.document.title) {
-                            host = window.opener;
-                        }
-                    }
-                    catch (xDomainError) {
-                        // we have an opener, but it's not on our domain,
-                        host = window.opener.frames[target];
-                    }
-                    if (host) {
-                        try {
-                            //host.setApp(window);
-
-                        }
-                        catch (browserHostError) {
-                            alert("was unable to gain a reference to the iframe");
-                        }
-                    }
-                }
                 var dataString = JSON.stringify(data);
-                host.postMessageInterface(dataString);
+                var host = null;
+                try {
+                    host = window.opener.frames[target];
+                    host.postMessageInterface(dataString);
+                } catch (error) {
+                    window.opener.postMessage(dataString,"*");
+                }
+
+                /*if(host === null){
+                    window.opener.postMessage(dataString,"*");
+                } else {
+                    host.postMessageInterface(dataString);
+                }*/
+
                 window.close();
             }, 1000);
 
