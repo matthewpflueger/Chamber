@@ -171,6 +171,7 @@
         iFrameNode.width = "0px";
         iFrameNode.style.border = "none";
         iFrameNode.id = "echoed-iframe";
+        iFrameNode.src = "{{urls.site}}/echo/iframe";
         popupNode.appendChild(iFrameNode);
 
         var closeImg = document.createElement("img");
@@ -297,8 +298,7 @@
                     var child = window.open("about:blank", "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
                     child.location = echoedAuthorizeURL;
                     var iFrame = document.getElementById("echoed-iframe");
-                    iFrame.src = "{{urls.site}}/echo/iframe";
-
+                    iFrame.src = "{{https.site}}/echo/iframe";
                     return false;
                 }
             }
