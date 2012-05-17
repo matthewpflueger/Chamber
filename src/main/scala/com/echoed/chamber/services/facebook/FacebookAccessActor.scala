@@ -290,14 +290,16 @@ class FacebookAccessActor extends Actor {
                 removeFacebookBatcher(accessToken).cata(
                     facebookBatcher => {
                         logger.debug("Removed FacebookBatcher from cache for accessToken {}", accessToken)
+                        self.channel ! LogoutResponse(msg, Right(true))
 
-                        val url = new URL("https://www.facebook.com/logout.php?next=%s&access_token=%s" format(redirectUrl, accessToken))
-                        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-                        connection.setConnectTimeout(5000)
-                        connection.setReadTimeout(5000)
-
-                        val logoutResponse = "%s:%s" format(connection.getResponseCode, connection.getResponseMessage)
-                        logger.debug("Logout of {} returned {}", accessToken, logoutResponse)
+                        //this does not work - seems there is no way to actually logout of Facebook via the backend
+//                        val url = new URL("https://www.facebook.com/logout.php?next=%s&access_token=%s" format(redirectUrl, accessToken))
+//                        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+//                        connection.setConnectTimeout(5000)
+//                        connection.setReadTimeout(5000)
+//
+//                        val logoutResponse = "%s:%s" format(connection.getResponseCode, connection.getResponseMessage)
+//                        logger.debug("Logout of {} returned {}", accessToken, logoutResponse)
                     },
                     {
                         self.channel ! LogoutResponse(msg, Right(false))
