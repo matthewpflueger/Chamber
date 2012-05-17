@@ -1,17 +1,42 @@
 {{> partial_header}}
-<title>Echoed | BigCommerce Integration</title>
+<title>Echoed | BigCommerce Partner Register</title>
 <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css"/>
 </head>
-<body class="">
-<img id="mainImage" src="{{urls.images}}/bleed-couch.jpg" style="display:none;"/>
+<body>
 <div id="container">
     {{> partial_staticNavBar }}
-    <div id="primary">
-        <div class="center clearfix">
-            <div id="lm">
-                <div id="lm-top" class="clearfix">
-                    <div id="lm-label">Shopify</div>
-                    <div id="lm-partner-form">
+    <section>
+        <div class="center">
+            <div class="title">
+                <h2>BigCommerce Integration <img align="absmiddle" src="{{urls.images}}/bk_partner_bigcom.png"/></h2>
+            </div>
+            <div class="roundbox integration">
+                <div class="subtitle">Enable API Access</div>
+                To grant a user access to the API, go to your store's control panel and follow these steps:<br/>
+                <ol>
+                    <li>Login To Your BigCommerce Store
+                    </li>
+                    <div style="text-align: center;">
+                        <img src="{{urls.images}}/bk_bigcommerce_1.png"/>
+                    </div>
+                    <li>Navigate to the Users area.</li>
+                    <div style="text-align: center;">
+                        <img src="{{urls.images}}/bk_bigcommerce_2.png"/>
+                    </div>
+                    <li><strong>Edit</strong> or <strong>Create</strong> the user you want to allow access to the API.</li>
+                    <li>Scroll down to the Enable the API setting and check the <strong>Yes, allow this user to use the API check box</strong></li>
+                    <li>An access token will be generated and shown below</li>
+                    <li>Copy the <strong>API Path</strong> and the <strong>API Token</strong></li>
+                    <li>Click the Save button</li>
+                    <div style="text-align: center;">
+                        <img src="{{urls.images}}/bk_bigcommerce_3.png"/>
+                    </div>
+                </ol>
+                <div class="subtitle">Register As An Echoed BigCommerce Partner</div>
+                Fill in the following information: <br/><br/>
+                You'll need the <strong>API User</strong>, <strong>API Path</strong> and <strong>API Token</strong> from earlier.
+                <div class="register_form_container">
+                    <div class="register_form">
                         <div id="lm-error">
                             {{#errors.global}}{{this}}{{/errors.global}}
                         </div>
@@ -32,29 +57,43 @@
                         </div>
                     </div>
                 </div>
+                You'll receive an email confirmation that details next steps for the integration.
+                <div style="text-align: center;">
+                    <img src="{{urls.images}}/bk_bigcommerce_4.png"/>
+                </div>
+                <div class="subtitle">Finalize The Integration</div>
+                Head back over to your BigCommerce store, you're almost done!
+                <ol>
+                    <li>Login to Your BigCommerce Store's control panel</li>
+                    <li>Click on <strong>Settings</strong> and then select <strong>Conversions</strong> from the drop down menu</li>
+                    <div style="text-align: center;">
+                        <img src="{{urls.images}}/bk_bigcommerce_5.png"/>
+                    </div>
+                    <li>In the <strong>Conversion Tracking Code Box</strong>, enter the code from your <strong>email confirmation</strong></li>
+                    <div style="text-align: center;">
+                        <img src="{{urls.images}}/bk_bigcommerce_6.png"/>
+                    </div>
+                    <li>Click <strong>Save</strong></li>
+                    <li>You'll receive the popup below:</li>
+                    <div style="text-align: center;">
+                        <img src="{{urls.images}}/bk_bigcommerce_7.png"/>
+                    </div>
+                    <li>Click <strong>OK</strong>, your work is done</li>
+                </ol>
+                <div class="subtitle">Activation</div>
+                <br/>
+                Your account manager will reach out to activate your account and ask you to place a test order
             </div>
         </div>
-    </div>
+    </section>
     <div id="gap"></div>
     <div id="footer" class="float">
-        <div class="center clearfix">
-            <div id="footer-nav">
-                <a href="{{urls.site}}/howitworks">How It Works</a>
-                <a href="{{urls.site}}/contactus">Contact Us</a>
-                <div class="copyright" style="float:right;line-height:45px;">
-                    Copyright 2012 - Echoed Inc.
-                </div>
-            </div>
-        </div>
+        {{> partial_footerNav}}
     </div>
 </div>
 </body>
 </html>
-<script type="text/javascript">
-    $(document).ready(function(){
-        $('#mainImage').imagesLoaded(function(){
-            var fullBleed = new FullBleed();
-        });
-    });
-</script>
 {{> partial_google}}
+
+
+
