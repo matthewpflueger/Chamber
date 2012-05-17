@@ -58,10 +58,10 @@ class PartnerUserServiceActor(
             self.channel ! GetPartnerUserResponse(msg, Right(partnerUser))
 
         case msg: GetCustomerSocialSummary =>
-            val echoedUser = partnerViewDao.getEchoedUserByPartnerUser(msg.echoedUserId,partnerUser.partnerId)
-            if (echoedUser.id== null)
-                self.channel ! GetCustomerSocialSummaryResponse(msg, Left(PartnerUserException("Error Retrieving Echoed User ")))
-            else {
+            val echoedUser = partnerViewDao.getEchoedUserByPartnerUser(msg.echoedUserId, partnerUser.partnerId)
+            if (echoedUser == null || echoedUser.id == null) {
+                self.channel ! GetCustomerSocialSummaryResponse(msg, Left(PartnerUserException("Error retrieving Echoed user")))
+            } else {
                 val likes = partnerViewDao.getTotalFacebookLikes(partnerUser.partnerId, msg.echoedUserId, null)
                 val comments  = partnerViewDao.getTotalFacebookComments(partnerUser.partnerId,msg.echoedUserId, null)
                 val clicks = partnerViewDao.getTotalEchoClicks(partnerUser.partnerId,msg.echoedUserId, null)
