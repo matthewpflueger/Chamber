@@ -425,6 +425,26 @@ form label em {
     font-weight:bold;
 }
 
+.subtitle{
+    @include textFontBold(30px);
+    border-bottom: 2px solid #CCC;
+}
+
+.integration{
+    font-size: 20px;
+    ol{
+        li{
+            //margin-left: 40px;
+            margin: 10px 0px 10px 40px;
+        }
+    }
+    img {
+        margin: 20px;
+        border: 2px #DDD solid;
+        @include drop-shadow;
+    }
+}
+
 .clearfix{
     zoom:1;
     &:before,&:after{
@@ -456,6 +476,30 @@ form label em {
             height:250px;
             font-size: 18px;
             line-height: 1.5em;
+        }
+    }
+
+    .register_form_container{
+        margin: 20px 0px;
+        .register_form{
+            margin: auto;
+            width: 600px;
+            padding: 10px;
+            background-color: #DDD;
+            border: 1px;
+
+            label{
+                font-size: 16px;
+                margin: 10px 0px 5px 0px;
+                display:block;
+            }
+            input[type=text],input[type=password]{
+                display:block;
+                width: 400px;
+                font-size: 16px;
+                line-height: 1em;
+                border: 1px solid #CCC;
+            }
         }
     }
 
