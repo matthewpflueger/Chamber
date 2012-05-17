@@ -428,6 +428,7 @@ form label em {
 .subtitle{
     @include textFontBold(30px);
     border-bottom: 2px solid #CCC;
+    margin-bottom: 15px;
 }
 
 .integration{
@@ -485,12 +486,15 @@ form label em {
             margin: auto;
             width: 600px;
             padding: 10px;
-            background-color: #DDD;
-            border: 1px;
+            background-color: #F1F1F1;
+            border: 1px solid #000;
+            border-radius: 5px;
+            @include drop-shadow;
+
 
             label{
                 font-size: 16px;
-                margin: 10px 0px 5px 0px;
+                margin: 10px 5px 5px 5px;
                 display:block;
             }
             input[type=text],input[type=password]{
@@ -499,6 +503,7 @@ form label em {
                 font-size: 16px;
                 line-height: 1em;
                 border: 1px solid #CCC;
+                margin: 5px;
             }
         }
     }
