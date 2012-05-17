@@ -283,6 +283,8 @@
         <property name="businessView"  value="public_business" />
         <property name="contactUsView"  value="public_contactus" />
         <property name="whatIsEchoedView" value="public_whatisechoed" />
+        <property name="privacyView" value="public_privacy"/>
+        <property name="termsView" value="public_terms"/>
     </bean>
     
     <bean id="facebookGraphController" class="com.echoed.chamber.controllers.FacebookGraphController">
