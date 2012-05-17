@@ -51,9 +51,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.element.html(template);
                 self.exhibit=$('#exhibit');
 
-                var contentSelector = $('#content-selector');
-                contentSelector.html('');
-                var ul = $('<ul></ul>').addClass('dropdown-container').appendTo(contentSelector);
                 var exhibit = $('#exhibit');
                 if(data.echoes.length > 0){
                     exhibit.isotope({
@@ -69,7 +66,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     });
                 }
                 window.setTimeout(function(){
-                    self.element.html('');
+                    self.element.empty();
                     self.render();
                 }, 30000);
             }
@@ -93,25 +90,18 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
 Echoed.Views.Components.Product = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'showOverlay','hideOverlay');
         this.el = options.el;
         this.EvAg = options.EvAg;
         this.state =0;
         this.render();
     },
-    events:{
-        "mouseenter": "hideOverlay",
-        "mouseleave": "showOverlay"
-    },
     render: function(){
         var template = _.template($('#templates-components-product').html());
         var self = this;
-        var landingUrl = Echoed.urls.api + "/echo/" + this.model.get("echoId");
         var imageUrl =   this.model.get("image").preferredUrl;
         var imageWidth = this.model.get("image").preferredWidth;
         var imageHeight = this.model.get("image").preferredHeight;
-        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Category-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
-        var hover = this.el.find(".item_hover_wrap");
+        this.el.addClass("item_wrap").css("cursor", "default").html(template);
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
         text.append('<strong>' + this.model.get("partnerName") + '</strong><br/>');
@@ -124,11 +114,5 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             img.attr('height', imageHeight)
         }
         return this;
-    },
-    showOverlay: function(){
-        this.el.find('.overlay-white').fadeIn('fast');
-    },
-    hideOverlay: function(){
-        this.el.find('.overlay-white').fadeOut('fast');
     }
 });
