@@ -3,7 +3,6 @@ package com.echoed.chamber.services.partner.shopify
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.shopify._
 import akka.actor.{Channel, Actor}
-import com.shopify.api.resources.{Order => SO, Product => SP}
 import collection.mutable.{Map => MMap}
 import collection.JavaConversions._
 import com.echoed.chamber.dao._
@@ -13,6 +12,8 @@ import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
 import java.util.{Date, HashMap}
 import com.echoed.chamber.domain.Partner
+import akka.dispatch.Future
+import com.shopify.api.resources.{LineItem, Order => SO, Product => SP}
 
 
 class ShopifyPartnerServiceActor(
@@ -144,7 +145,7 @@ class ShopifyPartnerServiceActor(
                     _ match {
                         case FetchProductsResponse(_, Left(e)) => error(e)
                         case FetchProductsResponse(_, Right(products)) =>
-                            logger.debug("Received Products: {}", products)
+                            logger.debug("Received {} products", products.length)
                             channel ! GetProductsResponse(msg, Right(products))
                     }))
             } catch {
@@ -157,41 +158,44 @@ class ShopifyPartnerServiceActor(
             val channel: Channel[GetOrderFullResponse] = self.channel
 
             def error(e: Throwable) {
-                channel ! GetOrderFullResponse(msg, Left(ShopifyPartnerException("Error Getting Order Full")))
+                logger.error("Received error fetching Shopify order %s for %s" format(orderId, partner.name))
+                 e match {
+                    case spe: ShopifyPartnerException => channel ! GetOrderFullResponse(msg, Left(spe))
+                    case _ => channel ! GetOrderFullResponse(
+                            msg,
+                            Left(ShopifyPartnerException("Error fetching Shopify order %s for %s" format(orderId, partner.name), e)))
+                }
             }
 
-            try {
-
-                val order = (me ? GetOrder(orderId)).map(_ match {
+            (me ? GetOrder(orderId)).onComplete(_.value.get.fold(
+                e => error(e),
+                _ match {
                     case GetOrderResponse(_, Left(e)) => error(e)
-                    case GetOrderResponse(_, Right(o)) => o
-                }).map(_.asInstanceOf[SO])
+                    case GetOrderResponse(_, Right(o)) =>
+                        logger.debug("Successfully fetched Shopify order {} for {}", o.getId, partner.name)
 
-                val products = (me ? GetProducts()).map(_ match {
-                    case GetProductsResponse(_, Left(e)) => error(e)
-                    case GetProductsResponse(_, Right(p)) => p
-                }).map(_.asInstanceOf[List[SP]])
+                        val liMap = MMap[String, LineItem]()
+                        val productList = Future.sequence(o.getLineItems.map { li =>
+                            logger.debug("Fetching Shopify product {} for order {}", li.getProductId, o.getId)
+                            liMap(li.getProductId.toString) = li
+                            shopifyAccess.fetchProduct(shopifyPartner.domain, shopifyPartner.password, li.getProductId)
+                        })
 
-                (for {
-                    o <- order
-                    p <- products
-                } yield {
-
-                    val m = MMap[Int, ShopifyProduct]()
-                    p.foreach { i => m(i.getId) = new ShopifyProduct(i) }
-
-                    logger.debug("Responding with Shopify Order {}", o.getId)
-                    channel ! GetOrderFullResponse(msg, Right(new ShopifyOrderFull(
-                                o,
-                                shopifyPartner,
-                                o.getLineItems
-                                    .filter { li => m.contains(li.getProductId) }
-                                    .map { li => new ShopifyLineItem(li, m(li.getProductId)) }
-                                    .toList)))
-                })
-            } catch {
-                case e => error(e)
-            }
+                        productList.onComplete(_.value.get.fold(
+                            e => error(e),
+                            resList => {
+                                val shopifyLineItems = resList
+                                    .filter(_.value.isRight)
+                                    .map(res => new ShopifyProduct(res.resultOrException))
+                                    .map(p => new ShopifyLineItem(liMap(p.id), p))
+                                    .toList
+                                logger.debug("Successfully fetched {} products for order {}", shopifyLineItems.length, o.getId)
+                                channel ! GetOrderFullResponse(msg, Right(new ShopifyOrderFull(
+                                            o,
+                                            shopifyPartner,
+                                            shopifyLineItems)))
+                            }))
+                }))
 
 
         case msg @ Update(sp) =>

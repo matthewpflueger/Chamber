@@ -25,6 +25,9 @@ class ShopifyAccessActorClient extends ShopifyAccess with ActorClient with Seria
     def fetchProducts(shop: String, password: String) =
         (shopifyAccessActor ? FetchProducts(shop, password)).mapTo[FetchProductsResponse]
 
+    def fetchProduct(shop: String, password: String, productId: Int) =
+        (shopifyAccessActor ? FetchProduct(shop, password, productId)).mapTo[FetchProductResponse]
+
     def fetchShopFromToken(shop: String, signature: String, t: String, timeStamp: String) =
         (shopifyAccessActor ? FetchShopFromToken(shop, signature, t, timeStamp)).mapTo[FetchShopFromTokenResponse]
 }
