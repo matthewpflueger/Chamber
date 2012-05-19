@@ -10,6 +10,7 @@ import Scalaz._
 import java.util.concurrent.TimeUnit
 import io.Source
 import java.util.{Properties, UUID, Date}
+import java.nio.charset.MalformedInputException
 
 
 class GeoLocationServiceActor extends Actor {
@@ -104,6 +105,10 @@ class GeoLocationServiceActor extends Actor {
                 channel ! GeoLocateResponse(msg, Right(geoLocation))
 
             } catch {
+                case e: MalformedInputException =>
+                    logger.debug("MalformedInputException occurred fetching IP address {}", gl.ipAddress)
+                    channel ! GeoLocateResponse(msg, Left(MalformedResponse(gl.ipAddress, e)))
+                    geoLocationDao.insertOrUpdate(geoLocation.copy(updateStatus = e.getMessage().take(254)))
                 case e: IllegalArgumentException =>
                     logger.error("Error in response", e)
                     channel ! GeoLocateResponse(msg, Left(MalformedResponse(gl.ipAddress, e)))

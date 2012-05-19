@@ -15,8 +15,6 @@ trait GeoLocationDao {
             @Param("lastUpdatedOn") lastUpdatedOn: Date,
             @Param("findClick") findClick: Boolean): GeoLocation
 
-    def insertOrUpdateForFailure(geoLocation: GeoLocation): Int
-
     def insertOrUpdate(geoLocation: GeoLocation): Int
 
     def deleteById(id: String): Int

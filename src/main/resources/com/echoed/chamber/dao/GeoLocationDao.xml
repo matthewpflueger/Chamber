@@ -64,21 +64,6 @@
             limit 1;
     </select>
 
-    <insert id="insertOrUpdateForFailure" parameterType="com.echoed.chamber.domain.GeoLocation">
-        insert into GeoLocation(
-                id,
-                createdOn,
-                ipAddress,
-                updateStatus)
-            values (
-                #{id},
-                #{createdOn},
-                #{ipAddress},
-                #{updateStatus})
-            on duplicate key update
-                updatedOn = now(),
-                updateStatus = #{updateStatus}
-    </insert>
 
     <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.GeoLocation">
     	insert into GeoLocation(
