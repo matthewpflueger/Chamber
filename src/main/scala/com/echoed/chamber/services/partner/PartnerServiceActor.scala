@@ -46,7 +46,7 @@ class PartnerServiceActor(
             view: Option[String] = None) = {
 
         val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
-                .getOrElse(throw new PartnerNotActive(partner.id))
+                .getOrElse(throw new PartnerNotActive(partner))
 
         val echoes = echoRequest.items.map { i =>
             Echo.make(
@@ -186,7 +186,7 @@ class PartnerServiceActor(
                                         "partnerSettings" -> ps,
                                         "maxPercentage" -> "%1.0f".format(ps.maxPercentage * 100)))))
                     },
-                    channel ! GetViewResponse(msg, Left(PartnerNotActive(partner.id)))
+                    channel ! GetViewResponse(msg, Left(PartnerNotActive(partner)))
 
             ))).onException {
                 case e =>
