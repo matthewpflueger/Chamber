@@ -178,7 +178,7 @@ class ShopifyPartnerServiceActor(
                         val productList = Future.sequence(o.getLineItems.map { li =>
                             logger.debug("Fetching Shopify product {} for order {}", li.getProductId, o.getId)
                             liMap(li.getProductId.toString) = li
-                            shopifyAccess.fetchProduct(shopifyPartner.domain, shopifyPartner.password, li.getProductId)
+                            shopifyAccess.fetchProduct(shopifyPartner.shopifyDomain, shopifyPartner.password, li.getProductId)
                         })
 
                         productList.onComplete(_.value.get.fold(
