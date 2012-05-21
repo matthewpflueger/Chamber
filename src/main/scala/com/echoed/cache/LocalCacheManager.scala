@@ -2,12 +2,12 @@ package com.echoed.cache
 
 import scala.collection.JavaConversions._
 import com.google.common.collect.MapMaker
-import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
 import scala.collection.mutable.ConcurrentMap
 import java.util.{HashMap => JMap}
 import scala.reflect.BeanProperty
 import com.google.common.cache.{RemovalCause, RemovalNotification, RemovalListener, CacheBuilder}
+import java.util.concurrent.{ThreadFactory, Executors, TimeUnit}
 
 class LocalCacheManager extends CacheManager {
 
@@ -16,8 +16,18 @@ class LocalCacheManager extends CacheManager {
     @BeanProperty var expireInMinutes = 30
     @BeanProperty var expirationConfig = new JMap[String, String]()
 
+    @BeanProperty var cleanUpCachesEverySeconds = 10
+
     private val caches: ConcurrentMap[String, ConcurrentMap[String, AnyRef]] =
                 new MapMaker().concurrencyLevel(4).makeMap[String, ConcurrentMap[String, AnyRef]]()
+
+    Executors.newScheduledThreadPool(1, new ThreadFactory() {
+        def newThread(r: Runnable) = new Thread(r, "LocalCacheManager")
+    }).scheduleAtFixedRate(new Runnable {
+        def run() {
+            for (k <- caches.keys) caches(k).asInstanceOf[com.google.common.cache.Cache[Any, Any]].cleanUp
+        }
+    }, 60, cleanUpCachesEverySeconds, TimeUnit.SECONDS)
 
     def getCache[V <: AnyRef](cacheName: String, cacheListener: Option[CacheListener] = None) = {
         caches.getOrElseUpdate(cacheName, {
@@ -27,13 +37,13 @@ class LocalCacheManager extends CacheManager {
                     .softValues
                     .removalListener(new RemovalListenerProxy(cacheListener.getOrElse(NoOpCacheListener)))
 
-            val expire =
+            val expires =
                 if (expirationConfig.containsKey(cacheName))
                     java.lang.Integer.parseInt(expirationConfig.get(cacheName))
                 else expireInMinutes
-            if (expire > 0) builder.expireAfterAccess(expireInMinutes, TimeUnit.MINUTES)
+            if (expires > 0) builder.expireAfterAccess(expireInMinutes, TimeUnit.MINUTES)
 
-            logger.debug("Built cache {} with expires {}", cacheName, expire)
+            logger.debug("Built cache {} with expires {}", cacheName, expires)
             builder.build[String, AnyRef].asMap
         }).asInstanceOf[ConcurrentMap[String, V]]
     }
