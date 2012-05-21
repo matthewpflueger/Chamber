@@ -444,6 +444,12 @@ form label em {
         border: 2px #DDD solid;
         @include drop-shadow;
     }
+    textarea{
+        width: 80%;
+        height: 100px;
+        resize: none;
+    }
+
     input[type="submit"] {
         padding: 10px;
         cursor: pointer;

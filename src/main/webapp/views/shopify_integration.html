@@ -8,30 +8,33 @@
     <section>
         <div class="center">
             <div class="title">
-                <h1>Completing Your Shopify Integration <img align="absmiddle" src="{{urls.images}}/bk_partner_shopify.png"/></h1>
+                <h1>Thank You For Installing Echoed <img align="absmiddle" src="{{urls.images}}/bk_partner_shopify.png"/></h1>
             </div>
             <div class="roundbox integration">
-                <div class="subtitle">Completing Your Integration:</div>
+                <div class="subtitle">What's Next?</div>
+                <p><strong>Before we take your store live with Echoed</strong>, an account manager will reach out via the contact information you've provided below to discuss custom parameters for your store.</p><br/>
+                <p>Phone Number: <strong>{{partner.phone}}</strong></p><br/>
+                <p>Email: <strong>{{partnerUser.email}}</strong></p><br/>
+                <p>
+                    If you would like to reach out directly please call <strong>917.267.4591</strong>, send an email to <strong>accountmanager@echoed.com</strong> or use the live chat tool bar below.
+                </p>
+                <div class="subtitle">Complete Your Integration:</div>
                 <ol>
-                    <li>Head over to thh admin section of your Shopify store</li>
+                    <li>Head over to the admin section of your Shopify store</li>
                     <div style="text-align: center;">
                         <img src="{{urls.images}}/bk_shopify_1.png"/>
                     </div>
                     <li>Under <strong>Preferences</strong>, go to the <strong>Checkout & Payment</strong> section</li>
                     <li>Scroll down to the Additional Contents & Scripts area, copy and paste the following text:</li>
-                    {{> shopify_partial_integration}}
+                    <div style="text-align:center;">
+                        <textarea>{{> shopify_partial_integration}}</textarea>
+                    </div>
+
                     <div style="text-align: center;">
                         <img src="{{urls.images}}/bk_shopify_2.png"/>
                     </div>
                     <li>Make sure to click <strong>Apply These Settings</strong></li>
                 </ol>
-                <div class="subtitle">What's Next?</div>
-                <p><strong>Before we take your store live with Echoed</strong>, an account manager will reach out via the contact information you've provided below to discuss custom parameters for your store.</p>
-                Phone Number: <strong>{{partner.phone}}</strong><br/>
-                Email: <strong>{{partnerUser.email}}</strong><br/><br/>
-                <p>
-                    If you would like to reach out directly please call 917.267.4591, send an email to accountmanager@echoed.com or use the live chat tool bar below.
-                </p>
             </div>
         </div>
     </section>
