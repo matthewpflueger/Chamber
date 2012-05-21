@@ -95,6 +95,7 @@
             <arg column="totalClicks" javaType="_int" />
             <arg column="credit" javaType="_float"/>
             <arg column="creditWindowEndsAt" javaType="Date"/>
+            <arg column="closed" javaType="_int"/>
         </constructor>
     </resultMap>
 
@@ -502,11 +503,11 @@
 
     <select id="getTotalEchoClicks" resultType="_int" useCache="false" >
         SELECT
-            coalesce(count(EC.id),0)
+            sum(EM.totalClicks)
         FROM
             Echo E
             INNER JOIN
-            EchoClick EC ON EC.echoId = E.id
+            EchoMetrics EM on EM.echoId = E.id
         WHERE
             E.partnerId = #{partnerId}
             <if test="echoedUserId != null">
@@ -688,7 +689,11 @@
             EM.price,
             EM.totalClicks,
             EM.credit,
-            EM.creditWindowEndsAt
+            EM.creditWindowEndsAt,
+            case when EM.creditWindowEndsAt &lt; NOW()
+                then 1
+                else 0
+                end as closed
         from
             Echo E
             inner join

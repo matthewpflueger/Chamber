@@ -100,12 +100,12 @@ Echoed.Views.Pages.Echoes = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                var table = {"style":"report-table","header": [{"text":"Order Id"},{"text" : "Product Id"}, {"text" : "Product Name"}, {"text" : "Purchase Date"}, { "text" : "Credit"}, { "text" : "Visitors" }, { "text" : "Credit Window Ends At" } ],"rows": []};
+                var table = {"style":"report-table","header": [{"text":"Order Id"},{"text" : "Product Id"}, {"text" : "Product Name"}, {"text" : "Purchase Date"}, { "text" : "Credit"}, { "text" : "Visitors" }, { "text" : "Credit Window Ends At" }, { "text" : "Status"} ],"rows": []};
                 $.each(data, function(index, echo){
                     var row = {"href":"#", cells:[]};
                     var cDate = new Date(echo.createdOn);
                     var eDate = new Date(echo.creditWindowEndsAt);
-
+                    var closed = echo.closed ? "closed" : "open";
                     row.cells.push({"text": echo.orderId, "style" : ""});
                     row.cells.push({"text": echo.productId, "style" : ""});
                     row.cells.push({"text": echo.productName, "style" : ""});
@@ -113,6 +113,7 @@ Echoed.Views.Pages.Echoes = Backbone.View.extend({
                     row.cells.push({"text": "$" + echo.credit.toFixed(2) , "style" : "number"});
                     row.cells.push({"text": echo.totalClicks, "style" : "number"});
                     row.cells.push({"text": eDate.toDateString() , "style" : ""});
+                    row.cells.push({"text": closed, "style" : "" });
                     table.rows.push(row);
                 });
                 var echoesTable = new Echoed.Views.Components.TableTemplate({EvAg: self.EvAg, el: "#echoes-table",table:table});

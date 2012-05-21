@@ -19,7 +19,8 @@ case class PartnerEchoView(
         price: Float,
         totalClicks: Int,
         credit: Float,
-        creditWindowEndsAt : Date) {
+        creditWindowEndsAt : Date,
+        closed: Int) {
 
 
 }
