@@ -15,11 +15,15 @@ trait EchoedUserService {
 
     def getEchoedUser: Future[GetEchoedUserResponse]
 
+    def updateEchoedUserEmail(email: String): Future[UpdateEchoedUserEmailResponse]
+
+    def updateEchoedUser(echoedUser: EchoedUser): Future[UpdateEchoedUserResponse]
+
     def assignTwitterService(twitterService:TwitterService): Future[AssignTwitterServiceResponse]
 
     def assignFacebookService(facebookService:FacebookService): Future[AssignFacebookServiceResponse]
 
-//    def getTwitterFollowers: Future[Array[TwitterFollower]]
+    //def getTwitterFollowers: Future[Array[TwitterFollower]]
 
     def echoTo(echoTo: EchoTo): Future[EchoToResponse]
 

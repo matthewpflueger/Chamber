@@ -19,6 +19,11 @@ case class DuplicateEcho(
         m: String = "",
         c: Throwable = null) extends EchoedUserException(m, c)
 
+case class EmailAlreadyExists(
+        email: String,
+        m: String = "Email already in Use",
+        c: Throwable = null) extends EchoedUserException(m, c)
+
 case class AssignFacebookService(facebookService: FacebookService) extends EUM
 case class AssignFacebookServiceResponse(message: AssignFacebookService, value: Either[EUE, FacebookService])
     extends EUM with RM[FacebookService, AssignFacebookService, EUE]
@@ -55,6 +60,14 @@ case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EU
 case class GetEchoedUser() extends EUM
 case class GetEchoedUserResponse(message: GetEchoedUser, value: Either[EUE, EchoedUser])
     extends EUM with RM[EchoedUser, GetEchoedUser,  EUE]
+
+case class UpdateEchoedUserEmail(email: String) extends EUM
+case class UpdateEchoedUserEmailResponse(message: UpdateEchoedUserEmail, value: Either[EUE, EchoedUser])
+    extends EUM with RM[EchoedUser, UpdateEchoedUserEmail, EUE]
+
+case class UpdateEchoedUser(echoedUser: EchoedUser) extends EUM
+case class UpdateEchoedUserResponse(message: UpdateEchoedUser, value: Either[EUE, EchoedUser])
+    extends EUM with RM[EchoedUser, UpdateEchoedUser, EUE]
 
 case class GetExhibit(page: Int) extends EUM
 case class GetExhibitResponse(message: GetExhibit, value: Either[EUE, ClosetPersonal])

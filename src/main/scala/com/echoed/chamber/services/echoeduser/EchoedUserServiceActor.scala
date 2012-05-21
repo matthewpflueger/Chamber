@@ -59,6 +59,26 @@ class EchoedUserServiceActor(
             val channel: Channel[GetEchoedUserResponse] = self.channel
             channel ! GetEchoedUserResponse(msg, Right(echoedUser))
 
+        case msg @ UpdateEchoedUserEmail(em) =>
+            val channel: Channel[UpdateEchoedUserEmailResponse] = self.channel
+            logger.debug("Updating Email for EchoedUser {} with {}", echoedUser, em )
+            Option(echoedUserDao.findByEmail(em)).getOrElse(None) match {
+                case None =>
+                    logger.debug("Echoed User {} attempting to register existing email {}", echoedUser, em)
+                    echoedUser = echoedUser.copy(email = em)
+                    echoedUserDao.update(echoedUser)
+                    channel ! UpdateEchoedUserEmailResponse(msg, Right(echoedUser))
+                case eu =>
+                    channel ! UpdateEchoedUserEmailResponse(msg, Left(EmailAlreadyExists(em)))
+            }
+
+
+        case msg @ UpdateEchoedUser(eu) =>
+            val channel: Channel[UpdateEchoedUserResponse] = self.channel
+            echoedUser = eu
+            echoedUserDao.update(echoedUser)
+            channel ! UpdateEchoedUserResponse(msg, Right(echoedUser))
+
         //Logout
         case msg @ L(echoedUserId) =>
             val channel: Channel[LR] = self.channel

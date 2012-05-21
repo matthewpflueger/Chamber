@@ -15,6 +15,12 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def getEchoedUser() =
             (echoedUserServiceActor ? GetEchoedUser()).mapTo[GetEchoedUserResponse]
 
+    def updateEchoedUserEmail(email: String) =
+            (echoedUserServiceActor ? UpdateEchoedUserEmail(email)).mapTo[UpdateEchoedUserEmailResponse]
+
+    def updateEchoedUser(echoedUser: EchoedUser) =
+            (echoedUserServiceActor ? UpdateEchoedUser(echoedUser)).mapTo[UpdateEchoedUserResponse]
+
     def assignFacebookService(facebookService:FacebookService) =
             (echoedUserServiceActor ? (AssignFacebookService(facebookService))).mapTo[AssignFacebookServiceResponse]
 
