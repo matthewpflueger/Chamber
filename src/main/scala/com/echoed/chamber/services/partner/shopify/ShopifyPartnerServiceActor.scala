@@ -98,7 +98,8 @@ class ShopifyPartnerServiceActor(
                                     ipAddress,
                                     userAgent,
                                     referrerUrl,
-                                    echoClickId)))
+                                    echoClickId,
+                                    view)))
                     }))
             } catch {
                 case e: InvalidEchoRequest => channel ! RequestEchoResponse(msg, Left(e))

@@ -80,7 +80,8 @@ class NetworkSolutionsPartnerServiceActor(
                                 ipAddress,
                                 userAgent,
                                 referrerUrl,
-                                echoClickId)))
+                                echoClickId,
+                                view)))
                     }))
             } catch { case e => error(e) }
     }
