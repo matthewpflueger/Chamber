@@ -36,6 +36,9 @@ class EchoController {
     @BeanProperty var echoDuplicateView: String = _
 
     @BeanProperty var echoItView: String = _
+
+    @BeanProperty var echoRedirectView: String = _
+
     @BeanProperty var buttonView: String = _
     @BeanProperty var loginView: String = _
     @BeanProperty var postLoginView: String = _
@@ -707,7 +710,10 @@ class EchoController {
                                     httpServletRequest)
                         })
                         logger.debug("Returned Echo: {}", echo)
-                        continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
+                        //continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
+                        val modelAndView = new ModelAndView(echoRedirectView)
+                        modelAndView.addObject("echo", echo)
+                        continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                         echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.value.get.fold(
                             e => logger.debug("Error"),
