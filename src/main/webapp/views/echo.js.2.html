@@ -43,9 +43,12 @@
 
     function EchoedActivateNetwork(e){
         Echoed[e] = true;
-        $('.echoed-cb[network^=' + e + ']').each(function(){
-            $(this).attr("checked", "checked");
-        });
+        jQuery.noConflict();
+        (function($){
+            $('.echoed-cb[network^=' + e + ']').each(function(){
+                $(this).attr("checked", "checked");
+            });
+        })(jQuery);
     }
 
     function EchoedPostMessageInterface(str){
@@ -56,18 +59,27 @@
 
     function EchoedDeactivateNetwork(e){
         Echoed[e] = false;
-        $('.echoed-cb[network^=' + e + ']').each(function(){
-            $(this).removeAttr("checked");
-        });
+        jQuery.noConflict();
+        (function($){
+            $('.echoed-cb[network^=' + e + ']').each(function(){
+                $(this).removeAttr("checked");
+            });
+        })(jQuery);
     }
 
     function EchoedSetName(e){
-        var li = $('<div class="echoed-li">You are logged into Echoed as: ' + e +  ' (<span class="echoed-not echoed-highlight">Not ' + e + '?</span>)</div>')
-        li.hide().prependTo($('#echoed-l-i-c')).slideDown();
+        jQuery.noConflict();
+        (function($){
+            var li = $('<div class="echoed-li">You are logged into Echoed as: ' + e +  ' (<span class="echoed-not echoed-highlight">Not ' + e + '?</span>)</div>')
+            li.hide().prependTo($('#echoed-l-i-c')).slideDown();
+        })(jQuery);
     }
 
     function EchoedLogout(){
-        $('.echoed-li').slideUp(function(){ $(this).remove() });
+        jQuery.noConflict();
+        (function($){
+            $('.echoed-li').slideUp(function(){ $(this).remove() });
+        })(jQuery);
         Echoed.name = "";
         EchoedDeactivate();
         EchoedDeactivateNetwork('facebook');
@@ -75,12 +87,17 @@
     }
 
     function EchoedDeactivate(){
-        $('.echoed-l').removeClass('on');
+        jQuery.noConflict();
+        (function($){
+            $('.echoed-l').removeClass('on');
+        })(jQuery);
     }
 
     function EchoedActivate(){
-
-        $('.echoed-l').addClass('on');
+        jQuery.noConflict();
+        (function($){
+            $('.echoed-l').addClass('on');
+        })(jQuery);
     }
 
     function receiveMessageResponse(e){
