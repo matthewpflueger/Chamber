@@ -120,6 +120,9 @@
 
     function echoedPrompt(){
 
+        jQuery.noConflict();
+        (function($){
+
         if(window.addEventListener){
             window.addEventListener('message', receiveMessageResponse , false);
         } else if (window.attachEvent) {
@@ -307,5 +310,5 @@
         $('#echoed-close').live('click', function () {
             $('#echoed-fade,#echoed-popup').hide();
         });
-    };
-
+    })(jQuery);
+};

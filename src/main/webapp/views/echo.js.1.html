@@ -62,63 +62,65 @@ if(typeof jQuery == 'undefined'){
 }
 
 function echoedPrompt(){
+    jQuery.noConflict();
+    (function($) {
 
-    $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.1.css" />');
+        $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.1.css" />');
 
-    Echoed = {};
-    Echoed.urls = {}; //{{#urls}}
-    Echoed.urls.api = "{{api}}";
-    Echoed.urls.cdn = "{{cdn}}";
-    Echoed.urls.js = "{{js}}";
-    Echoed.urls.css = "{{css}}";
-    Echoed.urls.images = "{{images}}";
-    Echoed.urls.views = "{{views}}";
-    Echoed.urls.site = "{{site}}";
-    /*{{/urls}} // */
+        Echoed = {};
+        Echoed.urls = {}; //{{#urls}}
+        Echoed.urls.api = "{{api}}";
+        Echoed.urls.cdn = "{{cdn}}";
+        Echoed.urls.js = "{{js}}";
+        Echoed.urls.css = "{{css}}";
+        Echoed.urls.images = "{{images}}";
+        Echoed.urls.views = "{{views}}";
+        Echoed.urls.site = "{{site}}";
+        /*{{/urls}} // */
 
 
-    var arrPageSizes = ___getPageSize();
+        var arrPageSizes = ___getPageSize();
 
-    $('body').prepend('<div id="echoed-fade"></div>');
+        $('body').prepend('<div id="echoed-fade"></div>');
 
-    $('#echoed-fade').css({
-        width: arrPageSizes[0],
-        height: arrPageSizes[1]
-    });
+        $('#echoed-fade').css({
+            width: arrPageSizes[0],
+            height: arrPageSizes[1]
+        });
 
-    var popup = $('<div id="echoed-popup"><img src="http://images.echoed.com/btn_closewin.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}"/ >{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
-    popup.appendTo($('body')).fadeIn();
-    $('#echoed-hiw-t').html('Thank You For Your Order');
-    $('#echoed-hiw-tt').html("Get up to {{maxPercentage}}% cash back on each item you share. Your rewards for sharing are automatically applied back to your credit card. Click the Share button to begin.");
-    var container = $('#echoed-p-c');
-    var table= $('<table><thead><tr><th width="100px">Your Cart:</th><th width="500px"></th><th width="100px"></th></tr></thead></table>');
-    container.append(table);
-    var tbody = $('<tbody></tbody>');
-    table.append(tbody);
-    $.ajax({
-        url: Echoed.urls.api + "/echo/request",
-        dataType: 'jsonp',
-        data: {
-            "pid": "{{pid}}",
-            "data": echoData,
-            "view" : "{{view}}"
-        },
-        success: function(data) {
-            $(data.echoPossibilities).each(function(index,echoPossibility){
-                echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
-                var t = $('<tr valign="middle" class="echoed-p"><td valign="middle"><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td valign="top">' + echoPossibility.productName + '<br/>$' + echoPossibility.price + '</td><td valign="middle"><img id=' + echoPossibility.id + ' class="echoed-l" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '" src="{{urls.images}}/btn_share_red_flat.png" height="30px" /></a></td></tr>');
-                tbody.append(t);
-            });
-        }
-    });
+        var popup = $('<div id="echoed-popup"><img src="http://images.echoed.com/btn_closewin.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}"/ >{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
+        popup.appendTo($('body')).fadeIn();
+        $('#echoed-hiw-t').html('Thank You For Your Order');
+        $('#echoed-hiw-tt').html("Get up to {{maxPercentage}}% cash back on each item you share. Your rewards for sharing are automatically applied back to your credit card. Click the Share button to begin.");
+        var container = $('#echoed-p-c');
+        var table= $('<table><thead><tr><th width="100px">Your Cart:</th><th width="500px"></th><th width="100px"></th></tr></thead></table>');
+        container.append(table);
+        var tbody = $('<tbody></tbody>');
+        table.append(tbody);
+        $.ajax({
+            url: Echoed.urls.api + "/echo/request",
+            dataType: 'jsonp',
+            data: {
+                "pid": "{{pid}}",
+                "data": echoData,
+                "view" : "{{view}}"
+            },
+            success: function(data) {
+                $(data.echoPossibilities).each(function(index,echoPossibility){
+                    echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
+                    var t = $('<tr valign="middle" class="echoed-p"><td valign="middle"><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td valign="top">' + echoPossibility.productName + '<br/>$' + echoPossibility.price + '</td><td valign="middle"><img id=' + echoPossibility.id + ' class="echoed-l" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '" src="{{urls.images}}/btn_share_red_flat.png" height="30px" /></a></td></tr>');
+                    tbody.append(t);
+                });
+            }
+        });
 
-    $('.echoed-l').live('click',function(){
-        var url = $(this).attr("href");
-        window.open(url, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-    });
+        $('.echoed-l').live('click',function(){
+            var url = $(this).attr("href");
+            window.open(url, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+        });
 
-    $('#echoed-close').live('click', function() {
-        $('#echoed-fade,#echoed-popup').hide();
-    });
-
+        $('#echoed-close').live('click', function() {
+            $('#echoed-fade,#echoed-popup').hide();
+        });
+    })(jQuery);
 };
