@@ -106,6 +106,46 @@ class AdminController {
 
     }
 
+    @RequestMapping(value = Array("/partners/{id}/settings"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getPartnerSettingsJSON(
+            @PathVariable(value = "id") partnerId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        if (continuation.isExpired){
+            logger.error("Request expired getting users via admin api")
+            continuation.setAttribute("jsonResponse","error")
+            continuation.resume()
+        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+
+            continuation.suspend(httpServletResponse)
+
+            val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+                case LocateAdminUserServiceResponse(_, Left(e)) =>
+                    continuation.setAttribute("jsonResponse","error")
+                    continuation.resume()
+                case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                    logger.debug("AdminUser Service Located")
+                    adminUserService.getPartnerSettings(partnerId).onResult({
+                        case GetPartnerSettingsResponse(_, Left(e)) =>
+                            continuation.setAttribute("jsonResponse", "error")
+                            continuation.resume()
+                        case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
+                            logger.debug("Received Json Response For Partner Settings: {}",partnerSettings)
+                            continuation.setAttribute("jsonResponse",partnerSettings)
+                            continuation.resume()
+                    })
+            })
+            continuation.undispatch()
+        })
+
+    }
+
 
 
     @RequestMapping(value = Array("/users"), method = Array(RequestMethod.GET))

@@ -55,6 +55,8 @@
             *
         from
             PartnerSettings
+        where
+            partnerId = #{partnerId}
         order by activeOn desc
     </select>
 

@@ -1,0 +1,450 @@
+
+//$mainColor: #FF7733;
+$mainColor: #E31B23;
+$highlightColor : #FF7733;
+$fbColor: #3B5998;
+$twitterColor: #4099FF;
+
+$labelColor: #666;
+$navColor: #111;
+
+
+$containerColor: #FFF;
+$backgroundColor: #CCC;
+
+$headerHeight: 40px;
+
+$navFontFamily: Lato, Arial, sans-serif;
+$readingTextFontFamily: Lato, HelveticaNeue-Light, Arial, Helvetica, sans-serif;
+
+//MIXINS
+
+@mixin headerFont($size: 16px, $color: #333) {
+    font-family: $navFontFamily;
+    font-size: $size;
+    font-weight: 300;
+    color: $color;
+}
+
+@mixin navFont($size: 16px, $color: #333) {
+    font-family: $navFontFamily;
+    font-size: $size;
+    color: $color;
+}
+
+@mixin textFont($size: 14px, $color: #333) {
+    font-family: $readingTextFontFamily;
+    font-size: $size;
+    color: $color;
+}
+
+@mixin textFontBold($size: 14px, $color: #333) {
+    font-family: $readingTextFontFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: 700;
+}
+
+@mixin textFontLight($size: 16px, $color: #111){
+    font-family: $readingTextFontFamily;
+    font-weight: 300;
+    color: $color;
+    font-size: $size;
+}
+
+
+@mixin labelFont($size: 32px, $color: #333) {
+    font-size: $size;
+    color: $color;
+    font-weight: 700;
+}
+
+
+//DROP SHADOW
+@mixin drop-shadow{
+    box-shadow: 0 3px 3px rgba(34,25,25,0.4);
+    -moz-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
+    -webkit-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
+}
+
+//RESET
+html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
+pre, form, fieldset, table, th, td{
+    margin:0;
+    padding: 0;
+    font-family: $readingTextFontFamily;
+}
+
+table{
+    border-collapse: collapse;
+}
+
+//STANDARD HTML ELEMENTS DEFINITION
+html{
+    height: 100%;
+}
+
+body{
+    background-image: image-url("bk_noise.png");
+}
+
+img{
+    border: none;
+}
+
+th{
+    font-weight: normal;
+}
+
+a{
+    text-decoration:none;
+    color: inherit;
+    &:visited{
+        text-decoration: none;
+        color: inherit;
+    }
+}
+
+h2{
+    font-family: $navFontFamily;
+    color: $labelColor;
+}
+
+/*Echoed Colors*/
+.echoed-text{
+    color:$highlightColor;
+}
+
+/*Facebook Colors*/
+.fb-text,.like-text,.comment-text{
+    color: $fbColor;
+}
+
+/*Twitter Colors*/
+.twitter-text,.retweet-text{
+    color: $twitterColor;
+}
+
+/*White Areas*/
+.third,.half,.table_container{
+    background-color: $containerColor;
+}
+
+.highlight{
+    color: $highlightColor;
+}
+
+
+#container{
+    min-width: 1000px;
+    height: 100%;
+    &.facebook{
+        min-width: 740px;
+    }
+}
+
+#header{
+    position:fixed;
+    z-index: 1000;
+    width: 100%;
+    min-width: 1100px;
+    //height:40px;
+    border-bottom: 1px solid #999;
+    background-color: $containerColor;
+    @include drop-shadow;
+
+    &.facebook{
+        min-width: 740px;
+    }
+    #user{
+        float:right;
+        margin-right:5px;
+    }
+
+    #logo{
+        margin-left:10px;
+        line-height: $headerHeight;
+        float:left;
+        font-family: $navFontFamily;
+    }
+
+    #header-nav{
+        margin-left:25px;
+        float:left;
+        li{
+            padding:5px 10px;
+            height: 30px;
+            line-height: 40px;
+            list-style:none;
+            font-size: 20px;
+            font-family: $navFontFamily;
+            color: $navColor;
+            float:left;
+        }
+        li:hover, .current{
+            color: $highlightColor;
+        }
+    }
+
+    #sub-nav{
+        height: 25px;
+        background-color: $containerColor;
+        text-align:center;
+        line-height: 25px;
+        font-family: $navFontFamily;
+        border-bottom: 1px solid #999;
+        border-top: 1px solid #999;
+        a{
+            margin: 0px 10px;
+            color: $navColor;
+            &:hover,&.current{
+                color: $highlightColor;
+            }
+        }
+    }
+}
+
+#content{
+    padding-top: 60px;
+    padding: 60px 10px 0px 10px;
+}
+
+
+
+
+#summary-stats{
+
+}
+
+.full-column-left{
+    width:450px;
+    float:left;
+}
+
+.full-column-right{
+    width:450px;
+    margin-right:10px;
+    float:right;
+}
+
+.ss-row{
+    height:100px;
+}
+
+.ss-box{
+    height:100px;
+    width: 130px;
+    float: left;
+    margin: 0px 0px 0px 20px;
+}
+
+.ss-box-label{
+    width:100%;
+    margin-bottom:5px;
+    text-align:right;
+    font-family: $navFontFamily;
+    font-size: 1.5em;
+    color: $labelColor;
+}
+
+.ss-box-number{
+    width:100%;
+    text-align:right;
+    font-size: 48px;
+    font-weight: bold;
+    font-family: $navFontFamily;
+}
+.report-selector{
+    text-align:left;
+}
+
+#select-report{
+    margin-bottom: 20px;
+    width: 200px;
+    padding: 0px 10px;
+    background-color: white;
+    font-size: 1.5em;
+    font-family: $navFontFamily;
+    -webkit-appearance: none;
+}
+
+.product-detail{
+
+    width: 200px;
+    border: 1px solid #000;
+    font-size: 14px;
+    .product-detail-image-container{
+        float:left;
+        width: 200px;
+        height: 200px;
+        text-align:left;
+        overflow:hidden;
+        border-bottom: 1px solid #000;
+    }
+
+    .product-detail-image{
+        width: 200px;
+    }
+
+    .product-detail-table-container{
+        float:left;
+        padding: 5px;
+    }
+
+
+}
+
+
+
+
+
+
+.report-nav{
+    width:200px;
+    float:left;
+    min-height:400px;
+}
+
+.report-label{
+    text-align: left;
+}
+
+.report-chart{
+    min-height:300px;
+}
+
+#top-products-table, #top-customers-table{
+    //height:250px;
+}
+
+.top-table{
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px;
+    tr{
+        border: 1px solid #CCC;
+        cursor:pointer;
+    }
+    th{
+        font-weight:bold;
+        background-color: #EBEBEB;
+        padding:10px;
+    }
+    td{
+        text-align:left;
+        padding: 5px;
+        &.number{
+            text-align:right;
+        }
+        border: 1px solid #CCC;
+    }
+}
+
+.report-table{
+    border-collapse: collapse;
+    width: 100%;
+    tr{
+        cursor:pointer;
+    }
+    th,td{
+        padding: 10px;
+        @include textFontLight(14px);
+        border: 1px solid #CCC;
+    }
+    td{
+        &.number{
+            text-align:right;
+        }
+        font-size: 14px;
+    }
+    th{
+        font-size: 12px;
+        background-color: #DEDEDE;
+        font-weight: bold;
+    }
+}
+
+//CLEARFIX
+
+.row{
+    padding: 20px 10px 0px 10px;
+}
+
+.row:after{
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.box{
+    background-color: $containerColor;
+    @include drop-shadow;
+    &.full{
+        padding: 10px;
+        width: 920px;
+    }
+    &.half{
+        padding: 10px;
+        width: 439px;
+        margin-right: 20px;
+        height: 300px;
+        float:left;
+    }
+}
+
+.half-chart{
+    height: 270px;
+}
+
+.label{
+    font-family: $navFontFamily;
+    color: $labelColor;
+    font-size: 1.5em;
+    text-align:left;
+    margin-bottom: 20px;
+}
+
+.third{
+    padding: 10px;
+    width: 279px;
+    margin-right: 20px;
+    min-height: 300px;
+    float:left;
+    background-color: $containerColor;
+}
+
+.clear{
+    clear:both;
+}
+
+.clearfix{
+    zoom:1;
+    &:before,&:after{
+        content:"";
+        display:table;
+    }
+    &:after{
+        clear:both;
+    }
+}
+
+.center{
+    width:960px;
+    margin:auto;
+}
+
+.orange{
+    color: $highlightColor;
+}
+
+.roundbox{
+    background-color: #FFF;
+    border-radius: 5px;
+    padding: 20px;
+    @include drop-shadow;
+    margin-bottom: 20px;
+}

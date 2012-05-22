@@ -56,6 +56,7 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
         _.bindAll(this);
         this.EvAg = options.EvAg;
         this.element = $(this.el);
+        this.EvAg.bind('select/change', this.renderPartnerSettings);
         this.render();
     },
     render: function(){
@@ -88,7 +89,37 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                alert('test');
+
+                var table = {"style" : "report-table" ,
+                    "header" : [
+                        { "text": "Setting Id"},
+                        { "text": "Partner Id"},
+                        { "text": "Share %"},
+                        { "text": "Min Clicks"},
+                        { "text": "Min %"},
+                        { "text": "Max Clicks"},
+                        { "text": "Max %"},
+                        { "text": "Views"},
+                        { "text": "@ Handle"},
+                        { "text": "@ ActiveDate"}
+                    ],
+                    "rows" : []};
+                $.each(data, function(index, partnerSettings){
+                    var row = { "href":"#", cells:[]};
+                    row.cells.push({"text" : partnerSettings.id});
+                    row.cells.push({"text" : partnerSettings.partnerId });
+                    row.cells.push({"text" : partnerSettings.closetPercentage });
+                    row.cells.push({"text" : partnerSettings.minClicks });
+                    row.cells.push({"text" : partnerSettings.minPercentage });
+                    row.cells.push({"text" : partnerSettings.maxClicks });
+                    row.cells.push({"text" : partnerSettings.maxPercentage });
+                    row.cells.push({"text" : partnerSettings.views });
+                    row.cells.push({"text" : partnerSettings.hashtag ? partnerSettings.hashtag: ""});
+                    row.cells.push({"text" : partnerSettings.activeOn });
+                    table.rows.push(row);
+                });
+                $('#partner-settings-container').empty();
+                var settingsTable = new Echoed.Views.Components.TableTemplate({ EvAg:self.EvAg, el:"#partner-settings-container", table:table})
             }
         })
     }
@@ -225,7 +256,7 @@ Echoed.Views.Components.TableTemplate = Backbone.View.extend({
         $.each(self.table.rows, function (index, row) {
             var tr = $('<tr></tr>').appendTo(tbody).attr("href", row.href);
             $.each(row.cells, function (index, cell) {
-                var td = $('<td></td>').html(cell.text).addClass(cell.style).appendTo(tr);
+                var td = $('<td></td>').html(cell.text).addClass(cell.style ? cell.style : "").appendTo(tr);
             });
         });
         table.appendTo(this.element);

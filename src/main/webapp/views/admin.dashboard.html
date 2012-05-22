@@ -1,15 +1,19 @@
 {{> partial_header_admin}}
 <script type="text/templates" id="templates-pages-partners">
-    <div id="partner-container">
+    <div id="partner-container" class="roundbox">
+        <div class="label">
+            Partner
+        </div>
         <select id="partners">
         </select>
     </div>
-    <div id="partner-settings-container">
-
+    <div class="roundbox">
+        <div class="label">Partner Settings</div>
+        <div id="partner-settings-container"></div>
     </div>
 </script>
 <script type="text/templates" id="templates-pages-summary">
-    <div class="row">
+    <div class="row roundbox">
         <div class="full">
             <div class="label">
                 Echoed Users
@@ -18,7 +22,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row roundbox">
         <div class="full">
             <div class="label">
                 Echo Possibilities
