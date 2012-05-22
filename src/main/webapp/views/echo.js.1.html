@@ -102,8 +102,8 @@ function echoedPrompt(){
             dataType: 'jsonp',
             data: {
                 "pid": "{{pid}}",
-                "data": echoData,
-                "view" : "{{view}}"
+                "view" : "{{view}}",
+                "data": echoData
             },
             success: function(data) {
                 $(data.echoPossibilities).each(function(index,echoPossibility){
