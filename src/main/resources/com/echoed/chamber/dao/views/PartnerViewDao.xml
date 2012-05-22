@@ -361,7 +361,7 @@
        SELECT
             P.id as partnerId,
             P.name as partnerName,
-            count(E.id) as totalEchoes,
+            coalesce(count(E.id), 0) as totalEchoes,
             coalesce(sum(ESA.facebookLikes), 0) as totalFacebookLikes,
             coalesce(sum(ESA.facebookComments), 0) as totalFacebookComments,
             coalesce(sum(ESA.echoClicks), 0) as totalEchoClicks,
@@ -503,7 +503,7 @@
 
     <select id="getTotalEchoClicks" resultType="_int" useCache="false" >
         SELECT
-            sum(EM.totalClicks)
+            coalesce(sum(EM.totalClicks), 0)
         FROM
             Echo E
             INNER JOIN
@@ -622,7 +622,7 @@
     <select id="getSalesAmountHistory" resultMap="socialActivityTotalByDate">
         select
             Date(EP.createdOn) as date,
-            sum(EP.price) as total
+            coalesce(sum(EP.price), 0) as total
         from
             Echo EP
         where
