@@ -139,10 +139,10 @@ class EchoRegisterController {
                             _ match {
                                 case EmailAlreadyExists(em, _ , _) =>
                                     logger.debug("Email Already Exists")
-                                    val modelAndView = new ModelAndView(echoRegisterView + "?id=%s" format id)
+                                    val modelAndView = new ModelAndView(echoRegisterView)
                                     modelAndView.addObject("id", id)
                                     if(close == true) modelAndView.addObject("close", "true")
-                                    modelAndView.addObject("email_error", "This Email Already Exists")
+                                    modelAndView.addObject("error_email", "This Email Already Exists")
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume()
                             },
