@@ -151,6 +151,8 @@
         <prop key="echoLoginUrl">${http.urls.site}/echo/login</prop>
         <prop key="echoConfirmUrl">${http.urls.site}/echo/confirm</prop>
         <prop key="echoFinishUrl">${http.urls.site}/echo/finish</prop>
+        <prop key="echoCloseUrl">${http.urls.site}/echo/close</prop>
+        <prop key="echoRegisterUrl">${http.urls.site}/echo/register</prop>
 
         <prop key="echoUrl">${http.urls.site}/echo</prop>
         <prop key="echoItUrl">${http.urls.site}/echo/it</prop>

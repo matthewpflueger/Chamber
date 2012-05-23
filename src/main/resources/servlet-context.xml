@@ -83,6 +83,26 @@
         </property>
     </bean>
 
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="echoRegisterController" class="com.echoed.chamber.controllers.echo.EchoRegisterController">
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="partnerServiceManager" ref="partnerServiceManager" />
+        <property name="cookieManager" ref="cookieManager" />
+
+        <property name="errorView" value="error" />
+
+        <property name="globalValidator" ref="validator" />
+        <property name="formValidator" >
+            <bean class="com.echoed.chamber.controllers.echo.EchoRegisterFormValidator" />
+        </property>
+        <property name="conversionService" ref="conversionService" />
+
+        <property name="echoCloseViewUrl" value="redirect:${echoCloseUrl}"/>
+        <property name="echoConfirmViewUrl" value="redirect:${echoConfirmUrl}"/>
+        <property name="echoRegisterView" value="echo_register" />
+
+    </bean>
+
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="echoController" class="com.echoed.chamber.controllers.EchoController">
@@ -95,8 +115,11 @@
         <property name="echoJsErrorView" value="echo_error.js" />
         <property name="echoLoginView" value="echo_login" />
         <property name="echoLoginNotNeededView" value="redirect:${echoConfirmUrl}" />
+        <property name="echoRegisterUrl" value = "redirect:${echoRegisterUrl}" />
         <property name="echoConfirmView" value="echo_confirm" />
         <property name="echoFinishView" value="echo_finish" />
+        <property name="echoIframe" value="echo_iframe" />
+        <property name="echoAuthComplete" value="echo_auth_complete" />
 
         <property name="echoRedirectView" value="echo_redirect" />
 
@@ -285,8 +308,8 @@
         <property name="businessView"  value="public_business" />
         <property name="contactUsView"  value="public_contactus" />
         <property name="whatIsEchoedView" value="public_whatisechoed" />
-        <property name="privacyView" value="public_privacy"/>
-        <property name="termsView" value="public_terms"/>
+        <property name="privacyView" value="public_privacy" />
+        <property name="termsView" value="public_terms" />
     </bean>
     
     <bean id="facebookGraphController" class="com.echoed.chamber.controllers.FacebookGraphController">
