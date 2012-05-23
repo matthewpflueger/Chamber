@@ -76,6 +76,12 @@ class ClosetDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wit
             echoMetricsDao.findByPartnerId(echoes(0).partnerId).map(_.credit).sum should be(totalCredit)
         }
 
+        scenario("Sum of echo clicks is queried", IntegrationTest) {
+            val totalClicks = closetDao.totalClicksByEchoedUserId(echoedUser.id)
+            totalClicks should not be(0)
+            echoMetricsDao.findByEchoedUserId(echoes(0).echoedUserId).map(_.totalClicks).sum should be (totalClicks)
+        }
+
     }
 
 }
