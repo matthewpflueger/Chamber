@@ -56,7 +56,6 @@ case class PartnerUser(
 }
 
 object PasswordGenerator extends App {
-
     def generate(password: String) {
         val pu = new PartnerUser("", "").createPassword(password)
         println("Salt: %s" format pu.salt)
