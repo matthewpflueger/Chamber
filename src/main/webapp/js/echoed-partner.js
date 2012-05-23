@@ -105,7 +105,7 @@ Echoed.Views.Pages.Echoes = Backbone.View.extend({
                     var row = {"href":"#", cells:[]};
                     var cDate = new Date(echo.createdOn);
                     var eDate = new Date(echo.creditWindowEndsAt);
-                    var closed = echo.closed ? "closed" : "open";
+                    var status = echo.closed ? "closed" : "active";
                     row.cells.push({"text": echo.orderId, "style" : ""});
                     row.cells.push({"text": echo.productId, "style" : ""});
                     row.cells.push({"text": echo.productName, "style" : ""});
@@ -113,7 +113,7 @@ Echoed.Views.Pages.Echoes = Backbone.View.extend({
                     row.cells.push({"text": "$" + echo.credit.toFixed(2) , "style" : "number"});
                     row.cells.push({"text": echo.totalClicks, "style" : "number"});
                     row.cells.push({"text": eDate.toDateString() , "style" : ""});
-                    row.cells.push({"text": closed, "style" : "" });
+                    row.cells.push({"text": status, "style" : "" });
                     table.rows.push(row);
                 });
                 var echoesTable = new Echoed.Views.Components.TableTemplate({EvAg: self.EvAg, el: "#echoes-table",table:table});
@@ -289,6 +289,37 @@ Echoed.Views.Pages.Settings = Backbone.View.extend({
     render: function() {
         var template = _.template($('#template-view-settings').html());
         $(this.el).hide().html(template).fadeIn();
+        $.ajax({
+            url: Echoed.urls.api + "/partner/settings",
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+
+                var table = {"style" : "report-table" ,
+                    "header" : [
+                        { "text": "Share %"},
+                        { "text": "Min %"},
+                        { "text": "Max %"},
+                        { "text": "@ Handle"},
+                        { "text": "Active Date"}
+                    ],
+                    "rows" : []};
+                $.each(data, function(index, partnerSettings){
+                    var row = { "href":"#", cells:[]};
+                    var date = new Date(partnerSettings.activeOn);
+                    row.cells.push({"text" : (partnerSettings.closetPercentage * 100).toFixed(0) + "%", "style" : "number" });
+                    row.cells.push({"text" : (partnerSettings.minPercentage * 100).toFixed(0) + "%", "style" : "number"  });
+                    row.cells.push({"text" : (partnerSettings.maxPercentage * 100).toFixed(0) + "%", "style" : "number"  });
+                    row.cells.push({"text" : partnerSettings.hashtag ? partnerSettings.hashtag : ""});
+                    row.cells.push({"text" : date.toDateString() });
+                    table.rows.push(row);
+                });
+                $('#partner-settings-container').empty();
+                var settingsTable = new Echoed.Views.Components.TableTemplate({ EvAg:self.EvAg, el:"#settings-container", table:table})
+            }
+        });
         return this;
     }
 });
