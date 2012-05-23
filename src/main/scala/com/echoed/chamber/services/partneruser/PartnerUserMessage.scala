@@ -2,7 +2,7 @@ package com.echoed.chamber.services.partneruser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.views.{PartnerSocialSummary, ProductSocialSummary, PartnerProductsListView, PartnerCustomerListView, PartnerProductSocialActivityByDate, PartnerSocialActivityByDate,CustomerSocialSummary,PartnerCustomerSocialActivityByDate, PartnerEchoView}
-import com.echoed.chamber.domain.{Partner, PartnerUser, FacebookComment, GeoLocation}
+import com.echoed.chamber.domain._
 
 
 sealed trait PartnerUserMessage extends Message
@@ -27,6 +27,10 @@ case class LogoutResponse(message: Logout, value: Either[PUE, Boolean])
 case class GetPartnerUser() extends PUM
 case class GetPartnerUserResponse(message: GetPartnerUser, value: Either[PartnerUserException, PartnerUser])
         extends PUM with RM[PartnerUser, GetPartnerUser, PUE]
+
+case class GetPartnerSettings() extends PUM
+case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerUserException, List[PartnerSettings]])
+        extends PUM with RM[List[PartnerSettings], GetPartnerSettings, PUE]
 
 case class GetCustomerSocialSummary(echoedUserId: String) extends PUM
 case class GetCustomerSocialSummaryResponse(message: GetCustomerSocialSummary, value: Either[PartnerUserException, CustomerSocialSummary])

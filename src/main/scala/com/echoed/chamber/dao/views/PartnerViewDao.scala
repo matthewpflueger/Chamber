@@ -1,15 +1,16 @@
 package com.echoed.chamber.dao.views
 
-import com.echoed.chamber.domain.GeoLocation
 
-import com.echoed.chamber.domain.{FacebookComment}
-import com.echoed.chamber.domain.EchoedUser
 import org.apache.ibatis.annotations.Param
 import java.util.{List => JList}
 import com.echoed.chamber.domain.views._
+import com.echoed.chamber.domain.{PartnerSettings, GeoLocation, FacebookComment, EchoedUser}
 
 
 trait PartnerViewDao {
+
+    def getPartnerSettings(
+            @Param("partnerId") partnerId: String): JList[PartnerSettings]
     
     def getEchoedUserByPartnerUser(
             @Param("echoedUserId") echoedUserId: String,

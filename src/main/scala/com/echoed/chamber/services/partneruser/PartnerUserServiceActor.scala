@@ -57,6 +57,11 @@ class PartnerUserServiceActor(
         case msg: GetPartnerUser =>
             self.channel ! GetPartnerUserResponse(msg, Right(partnerUser))
 
+        case msg: GetPartnerSettings =>
+            Option(partnerViewDao.getPartnerSettings(partnerUser.partnerId)).cata(
+                resultSet => self.channel ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
+                self.channel ! GetPartnerSettingsResponse(msg, Left(PartnerUserException("Partner Settings not available"))))
+
         case msg: GetCustomerSocialSummary =>
             val echoedUser = partnerViewDao.getEchoedUserByPartnerUser(msg.echoedUserId, partnerUser.partnerId)
             if (echoedUser == null || echoedUser.id == null) {
@@ -97,7 +102,6 @@ class PartnerUserServiceActor(
                     msg,
                     Right(new PartnerSocialSummary(partnerUser.partnerId, partnerUser.name, echoes, likes, comments, clicks, sales, volume)))
 
-
         case msg: GetPartnerSocialActivityByDate =>
             var series = new ArrayList[SocialActivityHistory]
 
@@ -117,8 +121,6 @@ class PartnerUserServiceActor(
             Option(partnerViewDao.getSocialActivityByProductIdAndPartnerId(msg.productId, partnerUser.partnerId)).cata(
                 resultSet => self.channel ! GetProductSocialSummaryResponse(msg, Right(resultSet)),
                 self.channel ! GetProductSocialSummaryResponse(msg, Left(PartnerUserException("Product summary not available"))))
-
-
 
         case msg: GetProductSocialActivityByDate =>
             var series = new ArrayList[SocialActivityHistory]

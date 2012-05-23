@@ -12,6 +12,9 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
     def getPartnerUser =
         (partnerUserServiceActor ? GetPartnerUser()).mapTo[GetPartnerUserResponse]
 
+    def getPartnerSettings =
+        (partnerUserServiceActor ? GetPartnerSettings()).mapTo[GetPartnerSettingsResponse]
+
     def getCustomerSocialSummary(echoedUserId: String) =
         (partnerUserServiceActor ? GetCustomerSocialSummary(echoedUserId)).mapTo[GetCustomerSocialSummaryResponse]
 

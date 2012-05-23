@@ -19,6 +19,46 @@ class PartnerController {
     @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
     @BeanProperty var cookieManager: CookieManager = _
 
+    @RequestMapping(value = Array("/settings"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getSettings(
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        def error(e: Throwable) {
+            continuation.setAttribute("jsonResponse", e)
+            continuation.resume()
+        }
+
+        if(continuation.isExpired){
+
+        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
+
+            partnerUserServiceLocator.locate(partnerUserId.get).onResult({
+                case LocateResponse(_, Left(e)) =>
+                    logger.error("Error Receiving Partner USer SErvice With PartnerUserId: {}", partnerUserId)
+                    error(e)
+                case LocateResponse(_, Right(pus)) =>
+                    pus.getPartnerSettings.onResult({
+                        case GetPartnerSettingsResponse(_, Left(e)) =>
+                            logger.error("Error Retrieving Partner Settings for PartnerUser {}", partnerUserId)
+                            error(e)
+                        case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
+                            logger.debug("Successfully received partnerSettings for PartnerUser {}", partnerUserId)
+                            continuation.setAttribute("jsonResponse", partnerSettings)
+                            continuation.resume()
+                    })
+            })
+            continuation.undispatch()
+        })
+
+    }
+
     @RequestMapping(value = Array("/products/{id}/{query}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getJSON(
