@@ -15,6 +15,8 @@ trait EchoedUserService {
 
     def getEchoedUser: Future[GetEchoedUserResponse]
 
+    def getProfile: Future[GetProfileResponse]
+
     def updateEchoedUserEmail(email: String): Future[UpdateEchoedUserEmailResponse]
 
     def updateEchoedUser(echoedUser: EchoedUser): Future[UpdateEchoedUserResponse]

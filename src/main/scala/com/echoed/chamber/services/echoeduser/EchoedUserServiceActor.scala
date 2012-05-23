@@ -19,6 +19,7 @@ import com.echoed.chamber.services.facebook._
 import akka.util.Duration
 import scala.collection.JavaConversions
 import com.echoed.chamber.domain.views._
+import com.echoed.chamber.domain.views.echoeduser.Profile
 
 
 class EchoedUserServiceActor(
@@ -58,6 +59,13 @@ class EchoedUserServiceActor(
         case msg: GetEchoedUser =>
             val channel: Channel[GetEchoedUserResponse] = self.channel
             channel ! GetEchoedUserResponse(msg, Right(echoedUser))
+
+
+        case msg: GetProfile =>
+            val channel: Channel[GetProfileResponse] = self.channel
+            val totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
+            val totalVisits = closetDao.totalClicksByEchoedUserId(echoedUser.id)
+            channel ! GetProfileResponse(msg, Right(new Profile(echoedUser, totalCredit, totalVisits)))
 
         case msg @ UpdateEchoedUserEmail(em) =>
             val channel: Channel[UpdateEchoedUserEmailResponse] = self.channel

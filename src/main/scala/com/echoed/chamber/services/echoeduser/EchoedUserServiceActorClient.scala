@@ -15,6 +15,9 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def getEchoedUser() =
             (echoedUserServiceActor ? GetEchoedUser()).mapTo[GetEchoedUserResponse]
 
+    def getProfile() =
+            (echoedUserServiceActor ? GetProfile()).mapTo[GetProfileResponse]
+
     def updateEchoedUserEmail(email: String) =
             (echoedUserServiceActor ? UpdateEchoedUserEmail(email)).mapTo[UpdateEchoedUserEmailResponse]
 

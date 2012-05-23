@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Mess
 import com.echoed.chamber.services.facebook.{FacebookService}
 import com.echoed.chamber.services.twitter.{TwitterService}
 import com.echoed.chamber.domain.views.{EchoFull, Feed, Closet, ClosetPersonal, FriendCloset, PublicFeed}
+import com.echoed.chamber.domain.views.echoeduser.Profile
 import com.echoed.chamber.domain._
 
 
@@ -68,6 +69,10 @@ case class UpdateEchoedUserEmailResponse(message: UpdateEchoedUserEmail, value: 
 case class UpdateEchoedUser(echoedUser: EchoedUser) extends EUM
 case class UpdateEchoedUserResponse(message: UpdateEchoedUser, value: Either[EUE, EchoedUser])
     extends EUM with RM[EchoedUser, UpdateEchoedUser, EUE]
+
+case class GetProfile() extends EUM
+case class GetProfileResponse(message: GetProfile, value: Either[EUE, Profile])
+    extends EUM with RM[Profile, GetProfile, EUE]
 
 case class GetExhibit(page: Int) extends EUM
 case class GetExhibitResponse(message: GetExhibit, value: Either[EUE, ClosetPersonal])
