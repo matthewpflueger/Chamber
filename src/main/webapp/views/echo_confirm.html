@@ -3,6 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link id="stylecss" rel="stylesheet" href="{{urls.css}}/echoed-confirm.css" />
+    <script type='text/javascript' src="{{urls.js}}/webfonts.js"></script>
     <title>Confirm</title>
 </head>
 <body>
@@ -38,7 +39,7 @@
                 <div id="right_content">
                     <div id="echoes-container">
                         <div class="confirm-label">
-                            STEP 2 OF 2: Customize Your Message And Share
+                            Step 2 Of 2: Customize Your Message And Share
                         </div>
                         <form name="echo" id="echo" action="{{urls.site}}/echo/finish" method="get">
                             {{#echoPossibility}}
@@ -64,7 +65,7 @@
                                         {{/twitterUserId}}
                                     {{/echoedUser}}
                                 </div>
-                                <div style="text-align: center;"><img id="echoit" onclick="formSubmit();" style="cursor:pointer;" src="{{urls.images}}/btn_clicktoshare.png" /></div>
+                                <div style="text-align: center;"><img id="echoit" onclick="formSubmit();" style="cursor:pointer;" src="{{urls.images}}/btn_share_red_n.png" /></div>
                             </div>
                         </form>
                     </div>
