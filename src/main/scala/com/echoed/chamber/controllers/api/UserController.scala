@@ -21,6 +21,40 @@ class UserController {
     @BeanProperty var cookieManager: CookieManager = _
     @BeanProperty var closetView: String = _
     @BeanProperty var errorView: String = _
+
+    @RequestMapping(value = Array("/me"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def me(
+        @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
+        httpServletRequest: HttpServletRequest,
+        httpServletResponse: HttpServletResponse) = {
+
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (continuation.isExpired){
+            new ModelAndView(errorView)
+        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+                case LocateWithIdResponse(_, Left(error)) =>
+                    logger.error("Error locating EchoedUserService for user %s " format echoedUserId, error)
+                case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                    echoedUserService.getProfile.onResult {
+                        case GetProfileResponse(_, Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
+                        case GetProfileResponse(_, Right(profile)) =>
+                            logger.debug("Found Echoed User {}", profile)
+                            continuation.setAttribute("jsonResponse", profile)
+                            continuation.resume()
+                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
+                    }
+            }
+
+            continuation.undispatch()
+        })
+    }
+
     
     @RequestMapping(value = Array("/feed/public"), method = Array(RequestMethod.GET))
     @ResponseBody
