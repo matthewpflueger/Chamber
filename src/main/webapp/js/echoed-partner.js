@@ -405,7 +405,23 @@ Echoed.Views.Pages.Summary = Backbone.View.extend({
                     markers.push(marker)
 
                 });
-                var markerCluster = new MarkerClusterer(map, markers);
+                mcOptions = {styles: [
+                {
+                    height: 30,
+                    width: 30,
+                    url: Echoed.urls.images + "/bk_marker_small.png"
+                },
+                {
+                    height: 50,
+                    width: 50,
+                    url: Echoed.urls.images + "/bk_marker_medium.png"
+                },
+                {
+                    height: 70,
+                    width: 70,
+                    url: Echoed.urls.images + "/bk_marker_large.png"
+                }]};
+                var markerCluster = new MarkerClusterer(map, markers, mcOptions);
             }
         });
         $.ajax({
@@ -612,6 +628,18 @@ Echoed.Views.Components.Comments = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this);
         this.EvAg = options.EvAg;
+        $.ajax({
+            url: Echeod.urls.api + "/partner/reports/comments",
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+                $.each(data, function(index, comment){
+
+                });
+            }
+        })
     },
     render: function(){
 
