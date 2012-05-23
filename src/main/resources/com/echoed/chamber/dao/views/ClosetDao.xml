@@ -101,4 +101,8 @@
     <select id="totalCreditByEchoedUserId" resultType="_float" useCache="false" >
         select coalesce(sum(credit), 0) as totalCredit from EchoMetrics where echoedUserId = #{echoedUserId}
     </select>
+
+    <select id="totalClicksByEchoedUserId" resultType="_int" useCache="false">
+        select coalesce(sum(totalClicks), 0) as totalClicks from EchoMetrics where echoedUserId = #{echoedUserId}
+    </select>
 </mapper>

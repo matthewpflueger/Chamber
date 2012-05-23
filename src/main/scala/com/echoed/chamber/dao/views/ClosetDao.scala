@@ -13,4 +13,6 @@ trait ClosetDao {
 
     def totalCreditByEchoedUserId(echoedUserId: String): Float
 
+    def totalClicksByEchoedUserId(echoedUserId: String): Int
+
 }
