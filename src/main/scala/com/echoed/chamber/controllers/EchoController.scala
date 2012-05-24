@@ -28,6 +28,7 @@ class EchoController {
     private final val logger = LoggerFactory.getLogger(classOf[EchoController])
 
     @BeanProperty var echoJsView: String = _
+    @BeanProperty var echoJsNotActiveView: String = _
     @BeanProperty var echoJsErrorView: String = _
     @BeanProperty var echoLoginView: String = _
     @BeanProperty var echoLoginNotNeededView: String = _
@@ -38,9 +39,7 @@ class EchoController {
     @BeanProperty var echoIframe: String = _
 
     @BeanProperty var echoRegisterUrl: String = _
-
     @BeanProperty var echoItView: String = _
-
     @BeanProperty var echoRedirectView: String = _
 
     @BeanProperty var buttonView: String = _
@@ -82,6 +81,12 @@ class EchoController {
             partnerServiceManager.getView(pid).onComplete(_.value.get.fold(
                 e => error(echoJsErrorView, Some(e)),
                 _ match {
+                    case GetViewResponse(_, Left(e: PartnerNotActive)) =>
+                        logger.debug("Partner Not Active: Serving Partner Not Active JS template")
+                        val modelAndView = new ModelAndView(echoJsNotActiveView)
+                        modelAndView.addObject("pid", pid)
+                        continuation.setAttribute("modelAndView",modelAndView)
+                        continuation.resume()
                     case GetViewResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
                     case GetViewResponse(_, Right(vd)) =>
                         val modelAndView = new ModelAndView(vd.view, vd.model)

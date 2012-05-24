@@ -113,6 +113,7 @@
 
         <property name="echoJsView" value="echo.js" />
         <property name="echoJsErrorView" value="echo_error.js" />
+        <property name="echoJsNotActiveView" value="echo.js.inactive" />
         <property name="echoLoginView" value="echo_login" />
         <property name="echoLoginNotNeededView" value="redirect:${echoConfirmUrl}" />
         <property name="echoRegisterUrl" value = "redirect:${echoRegisterUrl}" />
@@ -120,6 +121,7 @@
         <property name="echoFinishView" value="echo_finish" />
         <property name="echoIframe" value="echo_iframe" />
         <property name="echoAuthComplete" value="echo_auth_complete" />
+
 
         <property name="echoRedirectView" value="echo_redirect" />
 
