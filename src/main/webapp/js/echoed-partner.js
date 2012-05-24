@@ -299,21 +299,19 @@ Echoed.Views.Pages.Settings = Backbone.View.extend({
 
                 var table = {"style" : "report-table" ,
                     "header" : [
+                        { "text": "Active Date"},
                         { "text": "Share %"},
-                        { "text": "Min %"},
                         { "text": "Max %"},
-                        { "text": "@ Handle"},
-                        { "text": "Active Date"}
+                        { "text": "@ Handle"}
                     ],
                     "rows" : []};
                 $.each(data, function(index, partnerSettings){
                     var row = { "href":"#", cells:[]};
                     var date = new Date(partnerSettings.activeOn);
+                    row.cells.push({"text" : date.toDateString() });
                     row.cells.push({"text" : (partnerSettings.closetPercentage * 100).toFixed(0) + "%", "style" : "number" });
-                    row.cells.push({"text" : (partnerSettings.minPercentage * 100).toFixed(0) + "%", "style" : "number"  });
                     row.cells.push({"text" : (partnerSettings.maxPercentage * 100).toFixed(0) + "%", "style" : "number"  });
                     row.cells.push({"text" : partnerSettings.hashtag ? partnerSettings.hashtag : ""});
-                    row.cells.push({"text" : date.toDateString() });
                     table.rows.push(row);
                 });
                 $('#partner-settings-container').empty();
