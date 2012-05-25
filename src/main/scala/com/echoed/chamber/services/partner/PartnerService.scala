@@ -6,6 +6,8 @@ import akka.dispatch.Future
 trait PartnerService {
 
     val id: String
+
+    def getPartner: Future[GetPartnerResponse]
     
     def requestEcho(
             partnerId: String,

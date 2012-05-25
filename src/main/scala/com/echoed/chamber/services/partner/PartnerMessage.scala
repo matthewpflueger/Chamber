@@ -42,6 +42,11 @@ case class UpdatePartnerResponse(
 //        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings,  UpdatePartnerSettings, PE]
 
 
+case class GetPartner() extends PM
+case class GetPartnerResponse(
+        message: GetPartner,
+        value: Either[PE, Partner]) extends PM with RM[Partner, GetPartner, PE]
+
 case class Locate(partnerId: String) extends PM
 case class LocateResponse(
         message: Locate,

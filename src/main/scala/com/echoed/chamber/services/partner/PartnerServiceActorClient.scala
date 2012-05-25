@@ -7,6 +7,9 @@ import com.echoed.chamber.services.ActorClient
 class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService with ActorClient {
 
     val id = actorRef.id
+
+    def getPartner =
+        (actorRef ? GetPartner()).mapTo[GetPartnerResponse]
     
     def requestEcho(
             partnerId: String,

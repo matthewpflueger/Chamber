@@ -104,6 +104,10 @@ class PartnerServiceActor(
 
     def receive = {
 
+        case msg: GetPartner =>
+            val channel: Channel[GetPartnerResponse] = self.channel
+            channel ! GetPartnerResponse(msg, Right(partner))
+
         case msg @ RequestEcho(
                 partnerId,
                 request,
