@@ -19,7 +19,7 @@ import java.util.{Map => JMap}
 import com.echoed.chamber.services.EchoedException
 import java.util.concurrent.atomic.AtomicLong
 import scala.collection.JavaConversions._
-import com.echoed.chamber.services.echo.{RecordEchoClickResponse, EchoExists, RecordEchoPossibilityResponse, EchoService, GetEchoByIdResponse}
+import com.echoed.chamber.services.echo.{RecordEchoClickResponse, RecordEchoPossibilityResponse, EchoService, GetEchoByIdResponse, GetEchoByIdAndEchoedUserIdResponse}
 
 @Controller
 @RequestMapping(Array("/echo"))
@@ -38,6 +38,7 @@ class EchoController {
     @BeanProperty var echoAuthComplete: String = _
     @BeanProperty var echoIframe: String = _
 
+    @BeanProperty var echoEchoedUrl: String = _
     @BeanProperty var echoRegisterUrl: String = _
     @BeanProperty var echoItView: String = _
     @BeanProperty var echoRedirectView: String = _
@@ -85,6 +86,7 @@ class EchoController {
                         logger.debug("Partner Not Active: Serving Partner Not Active JS template")
                         val modelAndView = new ModelAndView(echoJsNotActiveView)
                         modelAndView.addObject("pid", pid)
+                        modelAndView.addObject("view", echoJsNotActiveView)
                         continuation.setAttribute("modelAndView",modelAndView)
                         continuation.resume()
                     case GetViewResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
@@ -180,33 +182,38 @@ class EchoController {
                 eur <- echoedUserResponse
                 resr <- recordEchoStepResponse
             } yield {
-                val data = resr.resultOrException
-
-                eur.cata(
-                    e => {
-                        logger.debug("Requesting login for echo {}", data.echoPossibility.id)
-                        val modelAndView = new ModelAndView(echoLoginView)
-
-                        modelAndView.addObject("echoPossibilityView", data)
-                        modelAndView.addObject("partnerLogo", data.partner.logo)
-                        modelAndView.addObject("maxPercentage", "%1.0f".format(data.partnerSettings.maxPercentage*100));
-                        //modelAndView.addObject("minPercentage", "%1.0f".format(data.partnerSettings.minPercentage*100));
-
-                        if(data.partnerSettings.closetPercentage > 0)
-                            modelAndView.addObject("closetPercentage", "%1.0f".format(data.partnerSettings.closetPercentage*100));
-                        modelAndView.addObject("numberDays", data.partnerSettings.creditWindow / 24)
-                        modelAndView.addObject("productPriceFormatted", "%.2f".format(data.echoPossibility.price));
-                        modelAndView.addObject("minClicks", data.partnerSettings.minClicks)
+                resr match {
+                    case RecordEchoStepResponse(_, Left(EchoExists(_, _ , _))) =>
+                        logger.debug("Product already echoed, Redirecting to echo/echoed")
+                        val modelAndView = new ModelAndView(echoEchoedUrl, "id", id)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
-                    },
-                    eus => {
-                        logger.debug("Recognized user for echo login {}", eus.id)
-                        val modelAndView = new ModelAndView(echoLoginNotNeededView, "id", id)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-                    }
-                )
+                    case RecordEchoStepResponse(_, Right(data)) =>
+                        eur.cata(
+                            e =>{
+                                logger.debug("Requesting login for echo {}", data.echoPossibility.id)
+                                val modelAndView = new ModelAndView(echoLoginView)
+
+                                modelAndView.addObject("echoPossibilityView", data)
+                                modelAndView.addObject("partnerLogo", data.partner.logo)
+                                modelAndView.addObject("maxPercentage", "%1.0f".format(data.partnerSettings.maxPercentage*100));
+                                //modelAndView.addObject("minPercentage", "%1.0f".format(data.partnerSettings.minPercentage*100));
+
+                                if(data.partnerSettings.closetPercentage > 0)
+                                    modelAndView.addObject("closetPercentage", "%1.0f".format(data.partnerSettings.closetPercentage*100));
+                                modelAndView.addObject("numberDays", data.partnerSettings.creditWindow / 24)
+                                modelAndView.addObject("productPriceFormatted", "%.2f".format(data.echoPossibility.price));
+                                modelAndView.addObject("minClicks", data.partnerSettings.minClicks)
+                                continuation.setAttribute("modelAndView", modelAndView)
+                                continuation.resume()
+                            },
+                            eus => {
+                                logger.debug("Recognized user for echo login {}", eus.id)
+                                val modelAndView = new ModelAndView(echoLoginNotNeededView, "id", id)
+                                continuation.setAttribute("modelAndView", modelAndView)
+                                continuation.resume()
+                            })
+                }
             }).onException { case e => error(errorView, e) }
 
             continuation.undispatch()
@@ -284,39 +291,34 @@ class EchoController {
                 eur <- echoedUserResponse
                 resr <- recordEchoStepResponse
             } yield {
+
                 val eu = eur.resultOrException
-                Option(eu.email).getOrElse(None) match {
-                    case None =>
-                        val modelAndView = new ModelAndView(echoRegisterUrl + "?id=%s&close=true" format id)
+
+                resr.cata(
+                    _ match {
+                        case EchoExists(epv, message, _) =>
+                            val modelAndView = new ModelAndView(echoAuthComplete)
+                            modelAndView.addObject("echoedUserName", eu.name)
+                            modelAndView.addObject("facebookUserId", eu.facebookUserId)
+                            modelAndView.addObject("twitterUserId", eu.twitterUserId)
+                            modelAndView.addObject("network", network.capitalize)
+                            continuation.setAttribute("modelAndView", modelAndView)
+                            continuation.resume()
+
+                        case e =>
+                            val modelAndView = new ModelAndView(echoAuthComplete)
+                            continuation.setAttribute("modelAndView", modelAndView)
+                            continuation.resume()
+                    },
+                    epv => {
+                        val modelAndView = new ModelAndView(echoAuthComplete)
+                        modelAndView.addObject("echoedUserName", eu.name)
+                        modelAndView.addObject("facebookUserId", eu.facebookUserId)
+                        modelAndView.addObject("twitterUserId", eu.twitterUserId)
+                        modelAndView.addObject("network", network.capitalize)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
-                    case em =>
-                        resr.cata(
-                            _ match {
-                                case EchoExists(epv, message, _) =>
-                                    val modelAndView = new ModelAndView(echoAuthComplete)
-                                    modelAndView.addObject("echoedUserName", eu.name)
-                                    modelAndView.addObject("facebookUserId", eu.facebookUserId)
-                                    modelAndView.addObject("twitterUserId", eu.twitterUserId)
-                                    modelAndView.addObject("network", network.capitalize)
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
-
-                                case e =>
-                                    val modelAndView = new ModelAndView(echoAuthComplete)
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
-                            },
-                            epv => {
-                                val modelAndView = new ModelAndView(echoAuthComplete)
-                                modelAndView.addObject("echoedUserName", eu.name)
-                                modelAndView.addObject("facebookUserId", eu.facebookUserId)
-                                modelAndView.addObject("twitterUserId", eu.twitterUserId)
-                                modelAndView.addObject("network", network.capitalize)
-                                continuation.setAttribute("modelAndView", modelAndView)
-                                continuation.resume()
-                            })
-                }
+                    })
             }).onException {case e=> error(errorView,e)}
             continuation.undispatch()
         }
@@ -354,56 +356,38 @@ class EchoController {
                 resr <- recordEchoStepResponse
             } yield {
                 val eu = eur.resultOrException
-
-                Option(eu.email).getOrElse(None) match {
-                    case None =>
-                        val modelAndView = new ModelAndView(echoRegisterUrl + "?id=%s" format id)
+                resr.cata(
+                    _ match {
+                        case EchoExists(epv, message, _) =>
+                            logger.debug("Product already echoed {}, Redirecting to echo/echoed", epv.echo)
+                            val modelAndView = new ModelAndView(echoEchoedUrl, "id", id)
+                            continuation.setAttribute("modelAndView", modelAndView)
+                            continuation.resume()
+                        case e => error(errorView, e)
+                    },
+                    epv => {
+                        val echoPossibility = epv.echoPossibility
+                        val lu = "%s?redirect=%s" format(
+                                logoutUrl,
+                                URLEncoder.encode("echo/login?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
+                        val modelAndView = new ModelAndView(echoConfirmView)
+                        modelAndView.addObject("id", id)
+                        modelAndView.addObject("echoedUser", eu)
+                        modelAndView.addObject("echoPossibility", echoPossibility)
+                        modelAndView.addObject("partner", epv.partner)
+                        modelAndView.addObject("partnerSettings", epv.partnerSettings)
+                        modelAndView.addObject("logoutUrl", lu)
+                        modelAndView.addObject("partnerLogo", epv.partner.logo)
+                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
+                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
+                        if(epv.partnerSettings.closetPercentage > 0)
+                            modelAndView.addObject("closetPercentage", "%1.0f".format(epv.partnerSettings.closetPercentage*100))
+                        modelAndView.addObject("minClicks", epv.partnerSettings.minClicks)
+                        modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price))
+                        modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
-                    case em =>
-                        resr.cata(
-                            _ match {
-                                case EchoExists(epv, message, _) =>
-                                    logger.debug("Echo possibility already echoed {}", epv.echo)
-                                    val modelAndView = new ModelAndView(errorView)
-                                    modelAndView.addObject("id", id)
-                                    modelAndView.addObject("errorMessage", "This item has already been shared")
-                                    modelAndView.addObject("echoPossibilityView", epv)
-                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
-                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
-                                    if(epv.partnerSettings.closetPercentage > 0)
-                                        modelAndView.addObject("closetPercentage", "%1.0f".format(epv.partnerSettings.closetPercentage*100))
-                                    modelAndView.addObject("partnerLogo", epv.partner.logo)
-                                    modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
-                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
-                                case e => error(errorView, e)
-                            },
-                            epv => {
-                                val echoPossibility = epv.echoPossibility
-                                val lu = "%s?redirect=%s" format(
-                                        logoutUrl,
-                                        URLEncoder.encode("echo/login?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
-                                val modelAndView = new ModelAndView(echoConfirmView)
-                                modelAndView.addObject("id", id)
-                                modelAndView.addObject("echoedUser", eu)
-                                modelAndView.addObject("echoPossibility", echoPossibility)
-                                modelAndView.addObject("partner", epv.partner)
-                                modelAndView.addObject("partnerSettings", epv.partnerSettings)
-                                modelAndView.addObject("logoutUrl", lu)
-                                modelAndView.addObject("partnerLogo", epv.partner.logo)
-                                modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
-                                modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
-                                if(epv.partnerSettings.closetPercentage > 0)
-                                    modelAndView.addObject("closetPercentage", "%1.0f".format(epv.partnerSettings.closetPercentage*100))
-                                modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
-                                modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
-                                modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
-                                continuation.setAttribute("modelAndView", modelAndView)
-                                continuation.resume()
-                            })
-                }
+                    })
             }).onException { case e => error(errorView, e) }
 
             continuation.undispatch()
@@ -476,12 +460,13 @@ class EchoController {
                             _ match {
                                 case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
                                     logger.debug("Received duplicate echo response to echo", echo)
-                                    continuation.setAttribute("modelAndView", new ModelAndView(echoDuplicateView, "echo", echo))
+                                    continuation.setAttribute("modelAndView", new ModelAndView(echoEchoedUrl, "id", echoFinishParameters.getEchoId()))
                                     continuation.resume()
                                 case EchoToResponse(_, Left(e)) => error(errorView,e)
                                 case EchoToResponse(_, Right(echoFull)) =>
                                     logger.debug("Received echo response {}", echoFull)
-                                    continuation.setAttribute("modelAndView", new ModelAndView(echoFinishView, "echoFull", echoFull))
+                                    //continuation.setAttribute("modelAndView", new ModelAndView(echoFinishView, "echoFull", echoFull))
+                                    continuation.setAttribute("modelAndView", new ModelAndView(echoEchoedUrl, "id", echoFinishParameters.getEchoId()))
                                     continuation.resume()
                                     logger.debug("Successfully echoed {}", echoFull)
                             }))
@@ -491,6 +476,64 @@ class EchoController {
         })
     }
 
+    @RequestMapping(value = Array("/echoed"), method=Array(RequestMethod.GET))
+    def echoed(
+            @RequestParam(value = "id", required = true) id: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
+        if (eu.isEmpty){
+            error(errorView, EchoedUserNotFound(""))
+        } else if (continuation.isExpired) {
+            error(errorView, RequestExpiredException("We encounted an error sharing your purchase"))
+        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
+            continuation.suspend(httpServletResponse)
+
+
+
+            val echoedUserResponse = echoedUserServiceLocator
+                .getEchoedUserServiceWithId(eu.get)
+                .flatMap(_.resultOrException.getEchoedUser)
+
+            val partnerServiceResponse  = partnerServiceManager
+                .locatePartnerByEchoId(id)
+                .flatMap(_.resultOrException.getPartner)
+
+            (for {
+                eur <- echoedUserResponse
+                psr <- partnerServiceResponse
+            } yield {
+                val echoedUser = eur.resultOrException
+                val partner = psr.resultOrException
+                Option(echoedUser.email).getOrElse(None) match {
+                    case None =>
+                        val modelAndView = new ModelAndView(echoRegisterUrl + "?id=%s" format id)
+                        continuation.setAttribute("modelAndView", modelAndView)
+                        continuation.resume()
+                    case email =>
+                        echoService.getEchoByIdAndEchoedUserId(id, eu.get).onComplete(_.value.get.fold(
+                            e => error(errorView, e),
+                            _ match {
+                                case GetEchoByIdAndEchoedUserIdResponse(_, Left(e)) => error(errorView, e)
+                                case GetEchoByIdAndEchoedUserIdResponse(_, Right(echo)) =>
+                                    val modelAndView = new ModelAndView(echoFinishView)
+                                    modelAndView.addObject("echo", echo)
+                                    modelAndView.addObject("partner", partner)
+                                    modelAndView.addObject("echoedUser", echoedUser)
+                                    continuation.setAttribute("modelAndView", modelAndView)
+                                    continuation.resume()
+                            }
+                        ))
+                }
+            }).onException({
+                case e => error(errorView, e)
+            })
+            continuation.undispatch()
+        })
+    }
 
     @Deprecated
     @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
@@ -556,9 +599,9 @@ class EchoController {
                                     modelAndView.addObject("errorMessage", "This item has already been shared")
                                     modelAndView.addObject("echoPossibilityView", epv)
                                     modelAndView.addObject("partnerLogo", epv.partner.logo)
-                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
-                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
-                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
+                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
+                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
+                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks)
                                     modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume()
@@ -574,11 +617,11 @@ class EchoController {
                                     modelAndView.addObject("partnerLogo", epv.partner.logo)
                                     modelAndView.addObject("partnerSettings", epv.partnerSettings)
                                     modelAndView.addObject("logoutUrl", lu)
-                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
-                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
-                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks);
+                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
+                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
+                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks)
                                     modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
-                                    modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
+                                    modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price))
                                     modelAndView.addObject(
                                             "facebookAddUrl",
                                             URLEncoder.encode(
@@ -611,9 +654,9 @@ class EchoController {
 
                         modelAndView.addObject("echoPossibilityView", epv)
                         modelAndView.addObject("partnerLogo", epv.partner.logo)
-                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100));
-                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100));
-                        modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price));
+                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
+                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
+                        modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price))
                         modelAndView.addObject("minClicks",epv.partnerSettings.minClicks)
                         modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
                         continuation.setAttribute("modelAndView", modelAndView)

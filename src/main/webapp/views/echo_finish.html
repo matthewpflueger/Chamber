@@ -10,22 +10,23 @@
 <div id="container">
     <div id="header" class="clearfix">
         <div class="partner-logo">
-            {{#echoFull}}
             {{#partner}}<img src="{{logo}}"/>{{/partner}}
-            {{/echoFull}}
+        </div>
+        <div class="echoed-logo">
+            <img src="{{urls.images}}/logo.png"/>
         </div>
     </div>
     <div id="content">
         <div id="thankyou">
-            <span class="ty-text">Successfully Echoed! You Shared To:
-                {{#echoFull}}
-                    {{#facebookPost}}
+            <span class="ty-text">This Has Been Successfully Echoed! You Shared To:
+                {{#echo}}
+                    {{#facebookPostId}}
                         <img align="absmiddle" id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
-                    {{/facebookPost}}
-                    {{#twitterStatus}}
+                    {{/facebookPostId}}
+                    {{#twitterStatusId}}
                         <img align="absmiddle" id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
-                    {{/twitterStatus}}
-                {{/echoFull}}
+                    {{/twitterStatusId}}
+                {{/echo}}
             </span>
         </div>
         <div class="clearfix">
@@ -34,13 +35,13 @@
                     <div id="product">
                         <div id="product_upper" class="clearfix large">
                             <div id="product_picture_container" >
-                                <img id="product_picture" src="{{#echoFull}}{{#echo}}{{imageUrl}}{{/echo}}{{/echoFull}}"/>
+                                <img id="product_picture" src="{{#echo}}{{imageUrl}}{{/echo}}"/>
                             </div>
                             <div id="product-description">
-                                {{#echoFull}}{{#echo}}
+                                {{#echo}}
                                 <strong>{{brand}}</strong><br/>
                                 {{productName}}
-                                {{/echo}}{{/echoFull}}
+                                {{/echo}}
                             </div>
                         </div>
                     </div>
@@ -49,13 +50,13 @@
             <div id="right">
                 <div id="right-content">
                     <div class="confirm-label">
-                        TRACK YOUR REWARDS IN THE ECHOED EXHIBIT
+                        Track Your Rewards
                     </div>
                     <div class="confirm-text" style="margin-top: 20px;">
-                        Head over to your <strong>Exhibit</strong>, where you can track the cash back you&#39;re earning. Visit your Exhibit any time or explore cool products your friends are sharing at <strong>Echoed.com</strong>.
+                        Head over to your <strong>Echoed</strong>, where you can track the cash back you&#39;re earning. Visit your Exhibit any time or explore cool products your friends are sharing at <strong>Echoed.com</strong>.
                     </div>
                     <div style="text-align:center;margin-top: 20px;">
-                        <a href="{{urls.site}}/#exhibit" target="_blank"><img id="echoedExhibit" src="{{urls.images}}/btn_toexhibit.png"</a>
+                        <a href="{{urls.site}}/#exhibit" target="_blank"><img id="echoedExhibit" src="{{urls.images}}/btn_toexhibit.png" height="50px"/></a>
                     </div>
                 </div>
             </div>

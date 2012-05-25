@@ -35,6 +35,7 @@ class EchoRegisterController {
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
 
     @BeanProperty var echoConfirmViewUrl: String = _
+    @BeanProperty var echoEchoedViewUrl: String = _
     @BeanProperty var echoCloseViewUrl: String = _
 
     private final val logger = LoggerFactory.getLogger(classOf[EchoRegisterController])
@@ -150,11 +151,11 @@ class EchoRegisterController {
                                 case e =>
                                     close match {
                                         case true =>
-                                            val modelAndView = new ModelAndView(echoCloseViewUrl + "?id=%s" format id)
+                                            val modelAndView = new ModelAndView(echoCloseViewUrl, "id", id)
                                             continuation.setAttribute("modelAndView", modelAndView)
                                             continuation.resume()
                                         case false =>
-                                            val modelAndView = new ModelAndView(echoConfirmViewUrl + "?id=%s" format id)
+                                            val modelAndView = new ModelAndView(echoEchoedViewUrl, "id", id)
                                             continuation.setAttribute("modelAndView", modelAndView)
                                             continuation.resume()
                                     }
