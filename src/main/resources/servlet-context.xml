@@ -98,7 +98,7 @@
         <property name="conversionService" ref="conversionService" />
 
         <property name="echoCloseViewUrl" value="redirect:${echoCloseUrl}"/>
-        <property name="echoConfirmViewUrl" value="redirect:${echoConfirmUrl}"/>
+        <property name="echoEchoedViewUrl" value="redirect:${echoEchoedUrl}"/>
         <property name="echoRegisterView" value="echo_register" />
 
     </bean>
@@ -117,6 +117,8 @@
         <property name="echoLoginView" value="echo_login" />
         <property name="echoLoginNotNeededView" value="redirect:${echoConfirmUrl}" />
         <property name="echoRegisterUrl" value = "redirect:${echoRegisterUrl}" />
+        <property name="echoEchoedUrl" value = "redirect:${echoEchoedUrl}" />
+
         <property name="echoConfirmView" value="echo_confirm" />
         <property name="echoFinishView" value="echo_finish" />
         <property name="echoIframe" value="echo_iframe" />

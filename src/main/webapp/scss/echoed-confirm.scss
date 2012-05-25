@@ -155,6 +155,15 @@ body {
 .partner-logo {
     height: 40px;
     text-align: left;
+    float: left;
+    img {
+        height: 40px;
+    }
+}
+
+.echoed-logo{
+    float:right;
+    height: 40px;
     img {
         height: 40px;
     }
@@ -165,7 +174,7 @@ body {
 }
 
 #thankyou {
-    padding: 5px 10px 5px 10px;
+    padding: 10px 10px 0px 10px;
 
 }
 

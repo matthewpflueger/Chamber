@@ -14,11 +14,14 @@
         <div class="partner-logo">
             <img src="{{partnerLogo}}"/>
         </div>
+        <div class="echoed-logo">
+            <img src="{{urls.images}}/logo.png"/>
+        </div>
     </div>
     <div id="content">
         <div id="thankyou">
             {{#partner}}
-            <span class="ty-text">Show Your Friends Why you Love {{name}}, It's Worth It</span>
+            <span class="ty-text">Show Your Friends Why you Love {{name}}</span>
             {{/partner}}
         </div>
         <div id="lower" class="clearfix">
@@ -56,8 +59,8 @@
                         </a>
                     </div>
                     <div class="confirm-text" style="margin-top: 20px;">
-                        We want to thank you for supporting {{#partner}}{{name}}{{/partner}}. Please tell your friends about your purchase and help us grow. <br/><br/>
-                        As more friends use your link to visit our site, your reward will grow, <strong>up to {{maxPercentage}}%.</strong> All rewards will be automatically credited to the card you used to buy this item.
+                        Thank you for supporting {{#partner}}{{name}}{{/partner}}. Use Echoed to tell your friends about your purchase and help us grow. <br/><br/>
+                        <strong>Receive up to {{maxPercentage}}% cash back on your purchase when you share it. The more people that use your link to visit our site, the greater your reward. All rewards will be automatically applied to your original form of payment.</strong>
                     </div>
                     {{/partner}}
                 </div>

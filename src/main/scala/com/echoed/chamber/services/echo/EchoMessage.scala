@@ -33,6 +33,10 @@ case class GetEchoById(echoId: String) extends EM
 case class GetEchoByIdResponse(message: GetEchoById, value: Either[EE, Echo])
         extends EM with RM[Echo, GetEchoById, EE]
 
+case class GetEchoByIdAndEchoedUserId(echoId: String, echoedUserId: String) extends EM
+case class GetEchoByIdAndEchoedUserIdResponse(message: GetEchoByIdAndEchoedUserId, value: Either[EE, Echo])
+        extends EM with RM[Echo, GetEchoByIdAndEchoedUserId, EE]
+
 case class EchoNotFound(id: String, m: String = "Echo not found") extends EE(m)
 
 case class EchoPossibilityNotFound(id: String, m: String = "Echo possibility not found") extends EE(m)

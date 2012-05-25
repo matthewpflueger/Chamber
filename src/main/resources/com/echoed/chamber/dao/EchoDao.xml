@@ -69,6 +69,10 @@
         where E.id = #{id}
     </select>
 
+    <select id="findByIdAndEchoedUserId" resultMap="echoResult">
+        <include refid="echoSelect" />
+        where E.id = #{id} and E.echoedUserId = #{echoedUserId}
+    </select>
 
     <select id="findByIdOrPostId" resultMap="echoResult">
         <include refid="echoSelect" />
