@@ -41,6 +41,15 @@
         limit 1
     </select>
 
+    <select id="findInactive" resultMap="partnerSettingsResult">
+        select *
+        from PartnerSettings
+        where partnerId = #{partnerId}
+        and activeOn &gt;= #{activeOn}
+        order by activeOn desc
+        limit 1
+    </select>
+
     <insert id="insert" parameterType="com.echoed.chamber.domain.PartnerSettings">
         insert into PartnerSettings(
     			id,

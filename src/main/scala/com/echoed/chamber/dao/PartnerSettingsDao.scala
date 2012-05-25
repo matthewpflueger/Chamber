@@ -15,6 +15,10 @@ trait PartnerSettingsDao {
             @Param("partnerId") partnerId: String,
             @Param("activeOn") activeOn: Date): PartnerSettings
 
+    def findInactive(
+            @Param("partnerId") partnerId: String,
+            @Param("activeOn") activeOn: Date): PartnerSettings
+
     def insert(partnerSettings: PartnerSettings): Int
 
     def deleteByPartnerId(partnerId: String): Int

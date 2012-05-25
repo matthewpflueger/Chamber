@@ -46,7 +46,8 @@ class PartnerServiceActor(
             view: Option[String] = None) = {
 
         val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
-                .getOrElse(throw new PartnerNotActive(partner))
+                .getOrElse(Option(partnerSettingsDao.findInactive(partner.id,new Date))
+                    .getOrElse(throw new PartnerNotActive(partner)))
 
         val echoes = echoRequest.items.map { i =>
             Echo.make(
