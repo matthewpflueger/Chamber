@@ -3,7 +3,7 @@ package com.echoed.chamber.dao
 import com.echoed.chamber.domain.Echo
 
 import java.util.{List => JList}
-
+import org.apache.ibatis.annotations.Param
 
 trait EchoDao {
 
@@ -27,6 +27,10 @@ trait EchoDao {
     def deleteByEchoPossibilityId(echoPossibilityId: String): Int
 
     def findById(id: String): Echo
+
+    def findByIdAndEchoedUserId(
+        @Param("id") id: String,
+        @Param("echoedUserId") echoedUserId: String): Echo
 
     def findByPartnerId(partnerId: String): JList[Echo]
 
