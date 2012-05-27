@@ -1,19 +1,14 @@
 package com.echoed.chamber.services.email
 
 import reflect.BeanProperty
-import akka.dispatch.Future
 
 import org.slf4j.LoggerFactory
-import scala.Option
-import com.echoed.chamber.domain.views.EchoPossibilityView
 
-import scalaz._
-import Scalaz._
 import akka.actor.{Channel, Actor}
 import javax.mail.internet.MimeMessage
 import org.springframework.mail.javamail.{MimeMessageHelper, MimeMessagePreparator, JavaMailSender}
-import java.util.{Properties, Locale, Date}
-import com.echoed.util.mustache.{MustacheEngine, MustacheView, MustacheViewResolver}
+import java.util.Properties
+import com.echoed.util.mustache.MustacheEngine
 import com.echoed.chamber.services.GlobalsManager
 
 
@@ -30,7 +25,7 @@ class EmailServiceActor extends Actor {
 
     override def preStart {
         {
-            if (from == null) from = mailProperties.getProperty("mail.user")
+            if (from == null) from = mailProperties.getProperty("mail.from")
             from != null
         } ensuring (_ == true, "Missing parameters")
     }

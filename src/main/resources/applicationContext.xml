@@ -49,8 +49,8 @@
 
     <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="defaultEncoding" value="UTF-8" />
-        <property name="username" value="${mail.user}" />
-        <property name="password" value="${mail.password}" />
+        <property name="username" value="${mail.smtp.user}" />
+        <property name="password" value="${mail.smtp.password}" />
         <property name="javaMailProperties" ref="mailProperties" />
     </bean>
 

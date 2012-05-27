@@ -182,10 +182,15 @@
         <prop key="integrationUrl">${https.urls.site}/partner/integration</prop>
         <prop key="adminDashboardUrl">${https.urls.site}/admin/dashboard</prop>
 
-        <prop key="mail.user">no-reply@echoed.com</prop>
-        <prop key="mail.password">Ech0edMa1l</prop>
+
         <prop key="mail.imap.host">imap.gmail.com</prop>
-        <prop key="mail.smtp.host">smtp.gmail.com</prop>
+        <prop key="mail.imap.user">no-reply@echoed.com</prop>
+        <prop key="mail.imap.password">Ech0edMa1l</prop>
+
+        <prop key="mail.from">no-reply@echoed.com</prop>
+        <prop key="mail.smtp.user">echoedinc</prop>
+        <prop key="mail.smtp.password">Ech0ed1nc</prop>
+        <prop key="mail.smtp.host">smtp.sendgrid.net</prop>
         <prop key="mail.smtp.port">465</prop>
         <prop key="mail.smtp.auth">true</prop>
         <prop key="mail.smtp.socketFactory.port">${mail.smtp.port}</prop>
@@ -214,9 +219,12 @@
     </util:properties>
 
     <util:properties id="mailProperties">
-        <prop key="mail.user">${mail.user}</prop>
-        <prop key="mail.password">${mail.password}</prop>
         <prop key="mail.imap.host">${mail.imap.host}</prop>
+        <prop key="mail.imap.user">${mail.imap.user}</prop>
+        <prop key="mail.imap.password">${mail.imap.password}</prop>
+        <prop key="mail.from">${mail.from}</prop>
+        <prop key="mail.user">${mail.smtp.user}</prop>
+        <prop key="mail.password">${mail.smtp.password}</prop>
         <prop key="mail.smtp.host">${mail.smtp.host}</prop>
         <prop key="mail.smtp.port">${mail.smtp.port}</prop>
         <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
