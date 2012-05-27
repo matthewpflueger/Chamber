@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory
 import scala.collection.mutable.ConcurrentMap
 import java.util.{HashMap => JMap}
 import scala.reflect.BeanProperty
-import com.google.common.cache.{RemovalCause, RemovalNotification, RemovalListener, CacheBuilder}
 import java.util.concurrent.{ThreadFactory, Executors, TimeUnit}
+import com.google.common.cache._
 
 class LocalCacheManager extends CacheManager {
 
@@ -16,21 +16,27 @@ class LocalCacheManager extends CacheManager {
     @BeanProperty var expireInMinutes = 30
     @BeanProperty var expirationConfig = new JMap[String, String]()
 
-    @BeanProperty var cleanUpCachesEverySeconds = 10
+    @BeanProperty var cleanUpCachesEverySeconds = 30
 
-    private val caches: ConcurrentMap[String, ConcurrentMap[String, AnyRef]] =
-                new MapMaker().concurrencyLevel(4).makeMap[String, ConcurrentMap[String, AnyRef]]()
+    private val caches: ConcurrentMap[String, Cache[String, AnyRef]] =
+                new MapMaker().concurrencyLevel(4).makeMap[String, Cache[String, AnyRef]]()
 
     Executors.newScheduledThreadPool(1, new ThreadFactory() {
         def newThread(r: Runnable) = new Thread(r, "LocalCacheManager")
-    }).scheduleAtFixedRate(new Runnable {
+    }).scheduleWithFixedDelay(new Runnable {
         def run() {
-            for (k <- caches.keys) caches(k).asInstanceOf[com.google.common.cache.Cache[Any, Any]].cleanUp
+            try {
+                for (k <- caches.keys) caches(k).cleanUp
+            } catch {
+                case e =>
+                    logger.error("Error cleaning up caches - cache cleanup has terminated!", e)
+                    throw e
+            }
         }
     }, 60, cleanUpCachesEverySeconds, TimeUnit.SECONDS)
 
     def getCache[V <: AnyRef](cacheName: String, cacheListener: Option[CacheListener] = None) = {
-        caches.getOrElseUpdate(cacheName, {
+        asScalaConcurrentMap(caches.getOrElseUpdate(cacheName, {
             val builder = CacheBuilder
                     .newBuilder()
                     .concurrencyLevel(4)
@@ -44,8 +50,8 @@ class LocalCacheManager extends CacheManager {
             if (expires > 0) builder.expireAfterAccess(expireInMinutes, TimeUnit.MINUTES)
 
             logger.debug("Built cache {} with expires {}", cacheName, expires)
-            builder.build[String, AnyRef].asMap
-        }).asInstanceOf[ConcurrentMap[String, V]]
+            builder.build[String, AnyRef]
+        }).asMap).asInstanceOf[ConcurrentMap[String, V]]
     }
 }
 
