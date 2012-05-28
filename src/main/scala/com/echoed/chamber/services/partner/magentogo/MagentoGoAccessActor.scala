@@ -2,7 +2,6 @@ package com.echoed.chamber.services.partner.magentogo
 
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import collection.JavaConversions._
 
 import dispatch._
 import dispatch.nio.Http
@@ -21,10 +20,8 @@ import collection.mutable.{ConcurrentMap, ListBuffer => MList, HashMap => MMap}
 import xml.Node
 
 import akka.actor._
-import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 import akka.dispatch.{PriorityExecutorBasedEventDrivenDispatcher, PriorityGenerator}
-import com.echoed.chamber.services.facebook.FacebookService
-import com.echoed.cache.{CacheListenerActorClient, CacheManager}
+import com.echoed.cache.CacheManager
 
 
 class MagentoGoAccessActor extends Actor {
@@ -171,12 +168,15 @@ class MagentoGoAccessActor extends Actor {
             }
 
             def fetchOrder(sessionId: String) {
+                logger.debug("Fetching order {} for {}", orderId, credentials)
                 client(order(credentials, sessionId, orderId) <> { res =>
                     logger.debug("Received order {} for {}", orderId, credentials)
                     val orderResult = asMap((res \\ "callReturn").head)
                     val productIds = orderResult("items").asInstanceOf[List[Map[String, String]]].map(_("product_id"))
 
+                    logger.debug("Fetching products {} for {}", productIds, credentials)
                     client(products(credentials, sessionId, productIds) <> { res =>
+                        logger.debug("Received products {} for {}", productIds, credentials)
                         var index = 0
                         val echoItems = (asList((res \\ "multiCallReturn").head).partition { _ =>
                             val even = index % 2 == 0
@@ -187,21 +187,26 @@ class MagentoGoAccessActor extends Actor {
                             val images = tuple._2.asInstanceOf[List[Map[String, Any]]]
 
                             new EchoItem(
-                                product("product_id").toString,
-                                product("name").toString,
+                                product.get("product_id").map(_.toString).orNull,
+                                product.get("name").map(_.toString).orNull,
                                 null,
                                 null,
-                                java.lang.Float.parseFloat(product("price").toString),
+                                product.get("price").map(p => java.lang.Float.parseFloat(p.toString)).getOrElse(0f),
                                 images.headOption.map(_("url")).getOrElse("").toString,
-                                product("url_path").toString,
-                                product("short_description").toString)
-                        }.filter(_.isValid).toList
+                                product.get("url_path").map(_.toString).orNull,
+                                product.get("short_description").map(_.toString).orNull)
+                        }.filter { i =>
+                            if (!i.isValid) logger.debug("Filtered invalid EchoItem {}", i)
+                            i.isValid
+                        }.toList
 
-                        channel ! FetchOrderResponse(msg, Right(new EchoRequest(
+                        val echoRequest = new EchoRequest(
                             orderId.toString,
                             orderResult("customer_id").toString,
                             dateFormatter.parseDateTime(orderResult("created_at").toString).toDate,
-                            echoItems)))
+                            echoItems)
+                        channel ! FetchOrderResponse(msg, Right(echoRequest))
+                        logger.debug("Finished fetching order {} for {}", orderId, credentials)
                     } >! {
                         case e => error(e)
                     })
@@ -213,11 +218,14 @@ class MagentoGoAccessActor extends Actor {
             cache.get(credentials.apiPath).cata(
                 fetchOrder(_),
                 {
+                    logger.debug("Creating session for {}", credentials)
                     (self ? Validate(credentials)).mapTo[ValidateResponse].onComplete(_.value.get.fold(
                         e => error(e),
                         _ match {
                             case ValidateResponse(_, Left(e)) => error(e)
-                            case ValidateResponse(_, Right(sessionId)) => fetchOrder(sessionId)
+                            case ValidateResponse(_, Right(sessionId)) =>
+                                logger.debug("Successfully created session for {}", credentials)
+                                fetchOrder(sessionId)
                         }))
                 })
     }
