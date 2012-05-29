@@ -4,7 +4,7 @@ import com.echoed.chamber.services.partner.PartnerServiceManagerActorClient
 import com.echoed.chamber.services.ActorClient
 import akka.actor.ActorRef
 import reflect.BeanProperty
-import com.echoed.chamber.domain.magentogo.MagentoGoPartner
+import com.echoed.chamber.domain.partner.magentogo.MagentoGoPartner
 
 class MagentoGoPartnerServiceManagerActorClient
         extends MagentoGoPartnerServiceManager

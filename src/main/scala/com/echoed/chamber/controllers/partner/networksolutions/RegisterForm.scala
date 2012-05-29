@@ -1,12 +1,6 @@
 package com.echoed.chamber.controllers.partner.networksolutions
 
-import com.echoed.chamber.domain.{PartnerSettings, PartnerUser, Partner}
-import java.util.{UUID, Date}
-import org.hibernate.validator.constraints.{NotBlank, Email, URL}
-import org.springframework.format.annotation.NumberFormat.Style
-import javax.validation.constraints._
-import org.springframework.format.annotation.{DateTimeFormat, NumberFormat}
-import org.springframework.format.annotation.DateTimeFormat.ISO
+import org.hibernate.validator.constraints.{NotBlank, Email}
 
 case class RegisterForm(
         var name: String = null,

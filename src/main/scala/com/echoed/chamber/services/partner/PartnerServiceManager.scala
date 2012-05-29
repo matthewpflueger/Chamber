@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.partner
 
 import akka.dispatch.Future
-import com.echoed.chamber.domain.{PartnerSettings, PartnerUser, Partner}
+import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 
 
 trait PartnerServiceManager {

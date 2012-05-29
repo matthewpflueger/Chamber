@@ -1,8 +1,8 @@
 package com.echoed.chamber.services.partner.shopify
 
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.shopify._
-import akka.actor.{Channel, Actor}
+import com.echoed.chamber.domain.partner.shopify._
+import akka.actor.Channel
 import collection.mutable.{Map => MMap}
 import collection.JavaConversions._
 import com.echoed.chamber.dao._
@@ -10,10 +10,12 @@ import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
-import java.util.{Date, HashMap}
-import com.echoed.chamber.domain.Partner
+import java.util.Date
+import com.echoed.chamber.domain.partner.Partner
 import akka.dispatch.Future
-import com.shopify.api.resources.{LineItem, Order => SO, Product => SP}
+import com.shopify.api.resources.LineItem
+import partner.shopify.ShopifyPartnerDao
+import partner.{PartnerSettingsDao, PartnerDao}
 
 
 class ShopifyPartnerServiceActor(

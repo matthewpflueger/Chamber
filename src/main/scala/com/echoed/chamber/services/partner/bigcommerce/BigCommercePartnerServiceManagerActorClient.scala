@@ -4,7 +4,7 @@ import com.echoed.chamber.services.partner.PartnerServiceManagerActorClient
 import com.echoed.chamber.services.ActorClient
 import akka.actor.ActorRef
 import reflect.BeanProperty
-import com.echoed.chamber.domain.bigcommerce.BigCommercePartner
+import com.echoed.chamber.domain.partner.bigcommerce.BigCommercePartner
 
 class BigCommercePartnerServiceManagerActorClient
         extends BigCommercePartnerServiceManager

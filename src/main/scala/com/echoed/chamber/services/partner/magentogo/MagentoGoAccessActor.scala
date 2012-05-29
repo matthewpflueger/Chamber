@@ -14,7 +14,7 @@ import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
 import xml.NodeSeq
 
 
-import com.echoed.chamber.domain.magentogo.MagentoGoCredentials
+import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
 import org.joda.time.format.DateTimeFormat
 import collection.mutable.{ConcurrentMap, ListBuffer => MList, HashMap => MMap}
 import xml.Node

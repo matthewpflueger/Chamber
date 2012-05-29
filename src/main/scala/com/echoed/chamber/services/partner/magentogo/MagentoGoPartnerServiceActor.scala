@@ -7,8 +7,11 @@ import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.domain.Partner
-import com.echoed.chamber.domain.magentogo.MagentoGoPartner
+
+import com.echoed.chamber.domain.partner.magentogo.MagentoGoPartner
+import partner.magentogo.MagentoGoPartnerDao
+import partner.{PartnerDao, PartnerSettingsDao}
+import com.echoed.chamber.domain.partner.Partner
 
 
 class MagentoGoPartnerServiceActor(

@@ -3,8 +3,9 @@ package com.echoed.chamber.controllers
 import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.{PartnerUser, EchoClick, EchoedUser,AdminUser}
+import com.echoed.chamber.domain.{EchoClick, EchoedUser,AdminUser}
 import com.echoed.util.CookieToString
+import com.echoed.chamber.domain.partner.PartnerUser
 
 
 class CookieManager {

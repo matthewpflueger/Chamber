@@ -13,12 +13,14 @@ import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.email.EmailService
 import com.echoed.util.TransactionUtils._
+import partner.networksolutions.NetworkSolutionsPartnerDao
+import partner.{PartnerSettingsDao, PartnerUserDao, PartnerDao}
 import scalaz._
 import Scalaz._
 import akka.dispatch.Future
 import java.util.{Properties, HashMap, UUID}
-import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.NetworkSolutionsPartner
+import com.echoed.chamber.domain.partner.networksolutions.NetworkSolutionsPartner
+import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 
 
 class NetworkSolutionsPartnerServiceManagerActor extends Actor {

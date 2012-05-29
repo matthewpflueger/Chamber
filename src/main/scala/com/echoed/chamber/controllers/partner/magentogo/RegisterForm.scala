@@ -1,7 +1,7 @@
 package com.echoed.chamber.controllers.partner.magentogo
 
 import org.hibernate.validator.constraints.{URL, NotBlank, Email}
-import com.echoed.chamber.domain.magentogo.MagentoGoPartner
+import com.echoed.chamber.domain.partner.magentogo.MagentoGoPartner
 
 
 case class RegisterForm(

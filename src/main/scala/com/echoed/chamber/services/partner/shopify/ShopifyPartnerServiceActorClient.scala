@@ -2,7 +2,7 @@ package com.echoed.chamber.services.partner.shopify
 
 import akka.actor.ActorRef
 import com.echoed.chamber.services.partner.PartnerServiceActorClient
-import com.echoed.chamber.domain.shopify.ShopifyPartner
+import com.echoed.chamber.domain.partner.shopify.ShopifyPartner
 
 
 class ShopifyPartnerServiceActorClient(actorRef: ActorRef)

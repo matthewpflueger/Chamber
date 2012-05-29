@@ -1,10 +1,10 @@
 package com.echoed.chamber.services.partner.shopify
 
 import com.echoed.chamber.services.{ResponseMessage => RM}
-import com.echoed.chamber.domain._
 import com.shopify.api.resources.{Order => SO, Product => SP}
-import shopify.{ShopifyOrderFull, ShopifyPartner}
-import com.echoed.chamber.services.partner.{PartnerAlreadyExists, PartnerService, PartnerException => PE, PartnerMessage => PM}
+import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
+import com.echoed.chamber.domain.partner.shopify.{ShopifyOrderFull, ShopifyPartner}
+import com.echoed.chamber.services.partner.{PartnerAlreadyExists, PartnerException => PE, PartnerMessage => PM}
 
 sealed trait ShopifyPartnerMessage extends PM
 

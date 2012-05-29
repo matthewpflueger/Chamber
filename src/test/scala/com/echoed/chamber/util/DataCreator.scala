@@ -2,21 +2,21 @@ package com.echoed.chamber.util
 
 import com.echoed.chamber.controllers.EchoPossibilityParameters
 import scala.reflect.BeanProperty
-import org.springframework.beans.factory.annotation.Autowired
-import com.echoed.chamber.domain.views.EchoView
 import scala.collection.JavaConversions.asScalaBuffer
 import org.codehaus.jackson.`type`.TypeReference
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.facebook.Me
-import java.net.{HttpURLConnection, URLEncoder, URL}
+import java.net.{HttpURLConnection, URL}
 import java.io.{InputStreamReader, BufferedReader}
 import org.codehaus.jackson.map.ObjectMapper
-import scala.collection.mutable.{ListBuffer, Buffer}
+import scala.collection.mutable.Buffer
 import com.echoed.chamber.dao._
 import com.echoed.util.ScalaObjectMapper
 import com.echoed.chamber.domain._
-import java.util.{Properties, Random, List => JList, Calendar, Date, UUID}
+import java.util.{Properties, Random, Calendar, Date, UUID}
 import com.google.common.io.ByteStreams
+import com.echoed.chamber.dao.partner.{PartnerUserDao, PartnerSettingsDao, PartnerDao}
+import com.echoed.chamber.domain.partner.{PartnerUser, PartnerSettings, Partner}
 
 
 class DataCreator {

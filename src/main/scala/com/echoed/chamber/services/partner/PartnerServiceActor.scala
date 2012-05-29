@@ -5,7 +5,6 @@ import akka.actor.{Channel, Actor}
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
 import org.codehaus.jackson.`type`.TypeReference
 import com.echoed.chamber.domain.views.EchoPossibilityView
-import scala.reflect.BeanProperty
 import java.util.Date
 import akka.dispatch.Future
 import scalaz._
@@ -17,6 +16,9 @@ import com.echoed.chamber.dao._
 import com.echoed.chamber.domain._
 import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 import java.util.concurrent.atomic.AtomicInteger
+import com.echoed.chamber.domain.partner.Partner
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
+
 
 class PartnerServiceActor(
         partner: Partner,

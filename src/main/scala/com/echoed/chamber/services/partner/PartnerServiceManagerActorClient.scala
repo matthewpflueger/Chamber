@@ -3,7 +3,7 @@ package com.echoed.chamber.services.partner
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
 import scala.reflect.BeanProperty
-import com.echoed.chamber.domain.{PartnerUser, PartnerSettings, Partner}
+import com.echoed.chamber.domain.partner.{PartnerUser, PartnerSettings, Partner}
 
 
 class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorClient {

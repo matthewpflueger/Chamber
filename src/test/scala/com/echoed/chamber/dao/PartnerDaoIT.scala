@@ -2,6 +2,7 @@ package com.echoed.chamber.dao
 
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
+import partner.PartnerDao
 import reflect.BeanProperty
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner

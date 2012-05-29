@@ -2,8 +2,9 @@ package com.echoed.chamber.services.partner.magentogo
 
 import com.echoed.chamber.services.{ResponseMessage => RM}
 import com.echoed.chamber.domain._
-import magentogo.{MagentoGoCredentials, MagentoGoPartner}
+import com.echoed.chamber.domain.partner.magentogo.{MagentoGoCredentials, MagentoGoPartner}
 import com.echoed.chamber.services.partner.{EchoRequest, PartnerAlreadyExists, PartnerException => PE, PartnerMessage => PM}
+import partner.{PartnerUser, Partner}
 
 sealed trait MagentoGoPartnerMessage extends PM
 

@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Mess
 
 import java.util.{List => JList}
 import com.echoed.chamber.domain._
+import partner.{PartnerSettings, Partner}
 
 sealed trait AdminUserMessage extends Message
 sealed case class AdminUserException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)

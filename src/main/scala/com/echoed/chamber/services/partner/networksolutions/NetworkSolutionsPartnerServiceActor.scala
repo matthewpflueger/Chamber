@@ -1,14 +1,16 @@
 package com.echoed.chamber.services.partner.networksolutions
 
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain._
 import akka.actor.Channel
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.domain.{NetworkSolutionsPartner, Partner}
+import com.echoed.chamber.domain.partner.networksolutions.NetworkSolutionsPartner
+import com.echoed.chamber.domain.partner.Partner
+import com.echoed.chamber.dao.partner.networksolutions.NetworkSolutionsPartnerDao
+import com.echoed.chamber.dao.partner.{PartnerSettingsDao, PartnerDao}
 
 
 class NetworkSolutionsPartnerServiceActor(

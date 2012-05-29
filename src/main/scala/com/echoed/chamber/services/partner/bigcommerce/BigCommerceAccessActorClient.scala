@@ -3,7 +3,7 @@ package com.echoed.chamber.services.partner.bigcommerce
 import reflect.BeanProperty
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
-import com.echoed.chamber.domain.bigcommerce.BigCommerceCredentials
+import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
 
 
 class BigCommerceAccessActorClient extends BigCommerceAccess with ActorClient with Serializable {

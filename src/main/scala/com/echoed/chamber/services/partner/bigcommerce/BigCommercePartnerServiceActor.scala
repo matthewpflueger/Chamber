@@ -7,8 +7,10 @@ import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.domain.Partner
-import com.echoed.chamber.domain.bigcommerce.BigCommercePartner
+import com.echoed.chamber.domain.partner.Partner
+import com.echoed.chamber.domain.partner.bigcommerce.BigCommercePartner
+import partner.bigcommerce.BigCommercePartnerDao
+import partner.{PartnerSettingsDao, PartnerDao}
 
 
 class BigCommercePartnerServiceActor(

@@ -4,7 +4,7 @@ import akka.actor.Actor
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 
-import com.echoed.chamber.dao.PartnerUserDao
+import com.echoed.chamber.dao.partner.PartnerUserDao
 import com.echoed.chamber.dao.views.PartnerViewDao
 
 import scalaz._

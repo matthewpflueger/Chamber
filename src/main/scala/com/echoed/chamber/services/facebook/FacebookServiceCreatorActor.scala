@@ -4,7 +4,8 @@ import com.echoed.chamber.domain.FacebookUser
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import akka.dispatch.Future
-import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao, PartnerDao,  PartnerSettingsDao}
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
+import com.echoed.chamber.dao.{FacebookFriendDao, FacebookPostDao, FacebookUserDao}
 import akka.actor.{Channel, Actor}
 import java.util.Properties
 

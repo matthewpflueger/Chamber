@@ -1,7 +1,8 @@
 package com.echoed.chamber.dao.views
 
 import java.util.{List => JList}
-import com.echoed.chamber.domain.{PartnerSettings, Partner, Echo, EchoedUser}
+import com.echoed.chamber.domain.{Echo, EchoedUser}
+import com.echoed.chamber.domain.partner.{PartnerSettings, Partner}
 import org.apache.ibatis.annotations.Param
 
 

@@ -1,7 +1,8 @@
 package com.echoed.chamber.domain
 
 import java.lang.{Math => JMath}
-import java.util.{GregorianCalendar, Calendar, UUID, Date}
+import java.util.{UUID, Date}
+import partner.PartnerSettings
 
 
 case class EchoMetrics(

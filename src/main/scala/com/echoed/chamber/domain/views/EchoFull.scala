@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain.views
 
 import com.echoed.chamber.domain._
+import partner.{PartnerSettings, Partner}
 
 
 case class EchoFull(

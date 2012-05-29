@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.feed
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.shopify.ShopifyOrderFull
+import com.echoed.chamber.domain.partner.shopify.ShopifyOrderFull
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
 

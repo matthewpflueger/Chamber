@@ -8,7 +8,7 @@ import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManag
 import akka.actor._
 import scala.collection.mutable.ConcurrentMap
 import com.echoed.util.Encrypter
-import com.echoed.chamber.dao.PartnerDao
+import com.echoed.chamber.dao.partner.PartnerDao
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 

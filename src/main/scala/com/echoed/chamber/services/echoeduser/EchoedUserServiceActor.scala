@@ -20,6 +20,7 @@ import akka.util.Duration
 import scala.collection.JavaConversions
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.views.echoeduser.Profile
+import com.echoed.chamber.dao.partner.PartnerSettingsDao
 
 
 class EchoedUserServiceActor(

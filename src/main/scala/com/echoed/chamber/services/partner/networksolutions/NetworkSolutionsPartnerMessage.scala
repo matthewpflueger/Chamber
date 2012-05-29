@@ -4,6 +4,8 @@ import com.echoed.chamber.services.{ResponseMessage => RM}
 import java.util.Date
 import com.echoed.chamber.services.partner.{EchoRequest, PartnerAlreadyExists, PartnerException => PEx, PartnerMessage => PM}
 import com.echoed.chamber.domain._
+import partner.networksolutions.NetworkSolutionsPartner
+import partner.{PartnerUser, Partner}
 
 sealed trait NetworkSolutionsPartnerMessage extends PM
 

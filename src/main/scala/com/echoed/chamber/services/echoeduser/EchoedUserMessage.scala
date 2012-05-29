@@ -1,11 +1,12 @@
 package com.echoed.chamber.services.echoeduser
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.services.facebook.{FacebookService}
-import com.echoed.chamber.services.twitter.{TwitterService}
-import com.echoed.chamber.domain.views.{EchoFull, Feed, Closet, ClosetPersonal, FriendCloset, PublicFeed}
+import com.echoed.chamber.services.facebook.FacebookService
+import com.echoed.chamber.services.twitter.TwitterService
+import com.echoed.chamber.domain.views.{EchoFull, Feed, ClosetPersonal, FriendCloset, PublicFeed}
 import com.echoed.chamber.domain.views.echoeduser.Profile
 import com.echoed.chamber.domain._
+import partner.PartnerSettings
 
 
 sealed trait EchoedUserMessage extends Message
@@ -46,7 +47,7 @@ case class EchoToFacebook(echo:Echo, echoMessage: Option[String]) extends EUM
 case class EchoToFacebookResponse(message: EchoToFacebook, value: Either[EUE, FacebookPost])
     extends EUM with RM[FacebookPost, EchoToFacebook, EUE]
 
-case class EchoToTwitter(echo:Echo, echoMessage: Option[String],partnerSettings: PartnerSettings) extends EUM
+case class EchoToTwitter(echo:Echo, echoMessage: Option[String], partnerSettings: PartnerSettings) extends EUM
 case class EchoToTwitterResponse(message:EchoToTwitter,  value: Either[EUE, TwitterStatus])
     extends EUM with RM[TwitterStatus, EchoToTwitter,  EUE]
 

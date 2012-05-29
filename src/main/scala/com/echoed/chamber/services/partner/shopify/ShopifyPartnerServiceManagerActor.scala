@@ -5,7 +5,7 @@ import akka.actor.{Channel, Actor}
 import collection.mutable.ConcurrentMap
 import com.echoed.cache.CacheManager
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.domain.PartnerSettings
+
 import com.echoed.chamber.services.partner._
 import org.springframework.transaction.TransactionStatus
 import com.echoed.util.Encrypter
@@ -14,11 +14,14 @@ import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.email.EmailService
 import com.echoed.util.TransactionUtils._
+import partner.shopify.ShopifyPartnerDao
+import partner.{PartnerDao, PartnerSettingsDao, PartnerUserDao}
 import scalaz._
 import Scalaz._
 import akka.dispatch.Future
-import java.util.{Properties, Date, HashMap, UUID}
-import com.echoed.chamber.domain.shopify.ShopifyPartner
+import java.util.{Properties, HashMap, UUID}
+import com.echoed.chamber.domain.partner.shopify.ShopifyPartner
+import com.echoed.chamber.domain.partner.PartnerSettings
 
 
 class ShopifyPartnerServiceManagerActor extends Actor {
@@ -111,7 +114,6 @@ class ShopifyPartnerServiceManagerActor extends Actor {
 
 
         case msg @ RegisterShopifyPartner(shop, signature, t, timeStamp) =>
-            val me = self
             val channel: Channel[RegisterShopifyPartnerResponse] = self.channel
 
             def error(e: Throwable) {

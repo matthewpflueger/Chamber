@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.partner.magentogo
 
 import akka.dispatch.Future
-import com.echoed.chamber.domain.magentogo.MagentoGoCredentials
+import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
 
 
 trait MagentoGoAccess {

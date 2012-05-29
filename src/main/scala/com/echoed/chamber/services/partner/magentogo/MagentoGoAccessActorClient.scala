@@ -3,7 +3,7 @@ package com.echoed.chamber.services.partner.magentogo
 import reflect.BeanProperty
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
-import com.echoed.chamber.domain.magentogo.MagentoGoCredentials
+import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
 
 
 class MagentoGoAccessActorClient extends MagentoGoAccess with ActorClient with Serializable {

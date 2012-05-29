@@ -3,9 +3,11 @@ package com.echoed.chamber.services.partneruser
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.views.{SocialActivityTotalByDate,CustomerSocialSummary,SocialActivityHistory, PartnerSocialSummary}
-import com.echoed.chamber.dao.PartnerUserDao
+import com.echoed.chamber.dao.partner.PartnerUserDao
+import com.echoed.chamber.dao.partner.PartnerUserDao
 import com.echoed.chamber.dao.views.{PartnerViewDao}
 import akka.actor.{Channel, Actor}
+import partner.PartnerUser
 import scala.collection.JavaConversions._
 import java.util.ArrayList
 import views.{PartnerProductSocialActivityByDate,PartnerSocialActivityByDate,PartnerCustomerSocialActivityByDate}

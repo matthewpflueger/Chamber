@@ -707,7 +707,7 @@
             E.orderId Desc
     </select>
 
-    <select id="getPartnerSettings" resultMap="com.echoed.chamber.dao.PartnerSettingsDao.partnerSettingsResult">
+    <select id="getPartnerSettings" resultMap="com.echoed.chamber.dao.partner.PartnerSettingsDao.partnerSettingsResult">
         select * from PartnerSettings where partnerId=#{partnerId}
     </select>
 

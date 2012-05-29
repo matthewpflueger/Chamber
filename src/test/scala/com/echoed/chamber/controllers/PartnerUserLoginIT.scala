@@ -6,14 +6,13 @@ import org.scalatest.matchers.ShouldMatchers
 import org.springframework.beans.factory.annotation.Autowired
 import scala.reflect.BeanProperty
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import com.echoed.chamber.dao.views.ClosetDao
-import java.util.{Date, Properties}
+import java.util.Properties
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
-import com.echoed.chamber.dao.{PartnerUserDao, EchoDao, EchoedUserDao}
+import com.echoed.chamber.dao.partner.PartnerUserDao
+
 import com.echoed.util.{WebDriverUtils, IntegrationTest}
-import org.openqa.selenium.{Dimension, By, Cookie, WebDriver}
-import org.openqa.selenium.firefox.{FirefoxProfile, FirefoxDriver}
+import org.openqa.selenium.{Dimension, By, WebDriver}
 
 
 @RunWith(classOf[JUnitRunner])

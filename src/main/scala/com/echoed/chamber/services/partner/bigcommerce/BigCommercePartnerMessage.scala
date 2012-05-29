@@ -2,10 +2,11 @@ package com.echoed.chamber.services.partner.bigcommerce
 
 import com.echoed.chamber.services.{ResponseMessage => RM}
 import com.echoed.chamber.domain._
-import bigcommerce.{BigCommerceCredentials, BigCommercePartner}
+import partner.bigcommerce.{BigCommerceCredentials, BigCommercePartner}
 import com.shopify.api.resources.{Order => SO, Product => SP}
-import shopify.{ShopifyOrderFull, ShopifyPartner}
+import partner.shopify.{ShopifyOrderFull, ShopifyPartner}
 import com.echoed.chamber.services.partner.{EchoRequest, PartnerAlreadyExists, PartnerService, PartnerException => PE, PartnerMessage => PM}
+import partner.{PartnerUser, Partner}
 
 sealed trait BigCommercePartnerMessage extends PM
 

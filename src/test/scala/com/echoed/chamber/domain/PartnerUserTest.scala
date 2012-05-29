@@ -4,7 +4,8 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{GivenWhenThen, Spec}
 import org.scalatest.matchers.ShouldMatchers
-import java.util.{UUID, Date}
+import java.util.UUID
+import partner.PartnerUser
 
 
 @RunWith(classOf[JUnitRunner])

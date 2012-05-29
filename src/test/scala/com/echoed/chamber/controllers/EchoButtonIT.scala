@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import com.echoed.util.{IntegrationTest, CookieValidator}
 import com.echoed.chamber.util.DataCreator
-import com.echoed.chamber.dao.{PartnerSettingsDao, PartnerDao}
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 
 
 @RunWith(classOf[JUnitRunner])

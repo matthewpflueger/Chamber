@@ -10,6 +10,7 @@ import com.echoed.chamber.dao.views.PartnerViewDao
 import com.echoed.chamber.dao._
 import com.echoed.chamber.domain.views.EchoPossibilityView
 
+import partner.{PartnerSettingsDao, PartnerDao}
 import scalaz._
 import Scalaz._
 import akka.actor.{Channel, Actor}

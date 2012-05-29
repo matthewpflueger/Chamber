@@ -13,7 +13,7 @@ import com.shopify.api.endpoints._
 import com.shopify.api.resources._
 
 
-import com.echoed.chamber.domain.shopify.ShopifyPartner
+import com.echoed.chamber.domain.partner.shopify.ShopifyPartner
 import collection.JavaConversions._
 import java.util.concurrent.ConcurrentHashMap
 import collection.mutable.ConcurrentMap

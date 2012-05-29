@@ -1,9 +1,9 @@
 package com.echoed.chamber.services.partner
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.shopify.ShopifyOrderFull
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
+import partner.{PartnerSettings, PartnerUser, Partner}
 
 
 trait PartnerMessage extends Message
@@ -35,12 +35,6 @@ case class UpdatePartner(partner: Partner, partnerSettings: PartnerSettings, par
 case class UpdatePartnerResponse(
         message: UpdatePartner, 
         value: Either[PE, Partner]) extends PM with RM[Partner, UpdatePartner, PE]
-
-//case class UpdatePartnerSettings(partnerSettings: PartnerSettings) extends PM
-//case class UpdatePartnerSettingsResponse(
-//        message: UpdatePartnerSettings,
-//        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings,  UpdatePartnerSettings, PE]
-
 
 case class GetPartner() extends PM
 case class GetPartnerResponse(

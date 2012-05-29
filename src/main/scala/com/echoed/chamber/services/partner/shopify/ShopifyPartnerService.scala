@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.partner.shopify
 
 import com.echoed.chamber.services.partner.PartnerService
-import com.echoed.chamber.domain.shopify.ShopifyPartner
+import com.echoed.chamber.domain.partner.shopify.ShopifyPartner
 import akka.dispatch.Future
 
 trait ShopifyPartnerService extends PartnerService {

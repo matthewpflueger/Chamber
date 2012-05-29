@@ -12,6 +12,7 @@ import scalaz._
 import Scalaz._
 import akka.dispatch.Future
 import com.echoed.chamber.dao._
+import partner.{PartnerDao, PartnerSettingsDao, PartnerUserDao}
 import scala.collection.mutable.ConcurrentMap
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import com.echoed.chamber.services.image.ImageService

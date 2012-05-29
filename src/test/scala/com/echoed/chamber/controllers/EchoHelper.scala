@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import reflect.BeanProperty
 import org.scalatest.matchers.ShouldMatchers
 import com.echoed.chamber.util.DataCreator
-import com.echoed.chamber.dao.{EchoDao, PartnerSettingsDao, PartnerDao}
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
+import com.echoed.chamber.dao.EchoDao
 import java.util.Date
-import com.echoed.chamber.domain.{Echo, PartnerSettings, Partner}
+import com.echoed.chamber.domain.Echo
+import com.echoed.chamber.domain.partner.{PartnerSettings, Partner}
 
 
 class EchoHelper extends ShouldMatchers {

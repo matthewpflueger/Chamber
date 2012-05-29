@@ -15,6 +15,7 @@ import java.util.{Properties, Date}
 import com.echoed.util.{WebDriverUtils, IntegrationTest}
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.{EchoMetrics, Echo, FacebookPost}
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 
 
 @RunWith(classOf[JUnitRunner])

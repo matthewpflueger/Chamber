@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import com.echoed.chamber.dao.views.{ClosetDao, FeedDao}
 import com.echoed.chamber.dao._
 import akka.actor.{Channel, Actor}
+import partner.PartnerSettingsDao
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.services.twitter.{GetUserResponse, TwitterServiceLocator}

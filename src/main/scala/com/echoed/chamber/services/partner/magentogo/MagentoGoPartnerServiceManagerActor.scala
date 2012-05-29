@@ -13,12 +13,14 @@ import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.email.EmailService
 import com.echoed.util.TransactionUtils._
+import partner.magentogo.MagentoGoPartnerDao
+import partner.{PartnerSettingsDao, PartnerDao, PartnerUserDao}
 import scalaz._
 import Scalaz._
 import java.util.{Properties, HashMap, UUID}
-import com.echoed.chamber.domain.{PartnerUser, Partner, PartnerSettings}
 import com.echoed.util.{ObjectUtils, Encrypter}
-import com.echoed.chamber.domain.magentogo.MagentoGoCredentials
+import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
+import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 
 
 class MagentoGoPartnerServiceManagerActor extends Actor {

@@ -5,6 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{GivenWhenThen, Spec}
 import org.scalatest.matchers.ShouldMatchers
 import java.util.Date
+import partner.PartnerSettings
 
 
 @RunWith(classOf[JUnitRunner])

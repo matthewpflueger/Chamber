@@ -41,7 +41,7 @@
         </constructor>
     </resultMap>
     
-    <select id="getPartners" resultMap="com.echoed.chamber.dao.PartnerDao.partnerResult">
+    <select id="getPartners" resultMap="com.echoed.chamber.dao.partner.PartnerDao.partnerResult">
         select
             *
         from
@@ -50,7 +50,7 @@
             name asc
     </select>
 
-    <select id="getPartnerSettings" resultMap="com.echoed.chamber.dao.PartnerSettingsDao.partnerSettingsResult">
+    <select id="getPartnerSettings" resultMap="com.echoed.chamber.dao.partner.PartnerSettingsDao.partnerSettingsResult">
         select
             *
         from

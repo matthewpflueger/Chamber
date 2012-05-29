@@ -18,7 +18,7 @@ import com.echoed.util.ScalaJson._
 import akka.actor.{Scheduler, PoisonPill, Channel, Actor}
 import java.util.concurrent.TimeUnit
 import akka.dispatch.{DefaultCompletableFuture, Future}
-import com.echoed.chamber.domain.bigcommerce.BigCommerceCredentials
+import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
 import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 
 

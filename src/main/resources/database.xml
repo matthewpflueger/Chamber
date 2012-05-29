@@ -81,7 +81,7 @@
     </bean>
 
     <bean id="partnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.PartnerDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.partner.PartnerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
@@ -142,12 +142,12 @@
     </bean>
 
     <bean id="partnerSettingsDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.PartnerSettingsDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.partner.PartnerSettingsDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
     <bean id="partnerUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.PartnerUserDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.partner.PartnerUserDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
@@ -172,22 +172,22 @@
     </bean>
 
     <bean id="shopifyPartnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.ShopifyPartnerDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.partner.shopify.ShopifyPartnerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
     <bean id="networkSolutionsPartnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.NetworkSolutionsPartnerDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.partner.networksolutions.NetworkSolutionsPartnerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
     <bean id="bigCommercePartnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.BigCommercePartnerDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.partner.bigcommerce.BigCommercePartnerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 
     <bean id="magentoGoPartnerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.echoed.chamber.dao.MagentoGoPartnerDao" />
+        <property name="mapperInterface" value="com.echoed.chamber.dao.partner.magentogo.MagentoGoPartnerDao" />
         <property name="sqlSessionTemplate" ref="sqlSession" />
     </bean>
 

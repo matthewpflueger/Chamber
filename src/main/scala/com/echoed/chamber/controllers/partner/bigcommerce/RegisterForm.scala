@@ -1,8 +1,7 @@
 package com.echoed.chamber.controllers.partner.bigcommerce
 
 import org.hibernate.validator.constraints.{URL, NotBlank, Email}
-import org.hibernate.validator.constraints.URL._
-import com.echoed.chamber.domain.bigcommerce.BigCommercePartner
+import com.echoed.chamber.domain.partner.bigcommerce.BigCommercePartner
 
 
 case class RegisterForm(

@@ -1,6 +1,6 @@
 package com.echoed.chamber.controllers.partner
 
-import com.echoed.chamber.domain.{PartnerSettings, PartnerUser, Partner}
+import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import java.util.{UUID, Date}
 import org.hibernate.validator.constraints.{NotBlank, Email, URL}
 import org.springframework.format.annotation.NumberFormat.Style

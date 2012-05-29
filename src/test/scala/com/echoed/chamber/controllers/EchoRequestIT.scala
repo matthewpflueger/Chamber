@@ -14,6 +14,7 @@ import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.util.Properties
 import org.slf4j.LoggerFactory
 import com.echoed.util.{Encrypter, WebDriverUtils, IntegrationTest}
+import com.echoed.chamber.dao.partner.{PartnerSettingsDao, PartnerDao}
 
 
 @RunWith(classOf[JUnitRunner])
