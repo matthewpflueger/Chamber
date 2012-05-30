@@ -135,7 +135,7 @@ class EchoRegisterController {
                         eur <- echoedUserResponse
                         resr <- recordEchoStepResponse
                     }  yield {
-                        val es = resr.resultOrException
+                        //val es = resr.resultOrException
                         eur.cata(
                             _ match {
                                 case EmailAlreadyExists(em, _ , _) =>
