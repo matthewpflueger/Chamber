@@ -201,4 +201,9 @@
         <property name="sqlSessionTemplate" ref="sqlSession"/>
     </bean>
 
+    <bean id="eventLogDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.echoed.chamber.dao.EventLogDao"/>
+        <property name="sqlSessionTemplate" ref="sqlSession"/>
+    </bean>
+
 </beans>

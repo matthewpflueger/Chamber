@@ -185,6 +185,7 @@
     <bean id="exhibitController" class="com.echoed.chamber.controllers.ExhibitController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="eventService" ref="eventService" />
         <property name="closetView" value="user" />
         <property name="closetViewFacebook"  value="user.fb" />
         <property name="indexView" value="index" />

@@ -163,8 +163,6 @@
 
         <prop key="buttonViewUrl">${http.urls.images}/button_echoed.png</prop>
         <prop key="loginViewUrl">${http.urls.views}/popuplogin.html</prop>
-        <prop key="errorViewUrl">${http.urls.views}/error.html</prop>
-        <prop key="closetViewUrl">${http.urls.views}/user.html</prop>
 
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
 

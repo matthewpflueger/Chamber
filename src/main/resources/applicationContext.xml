@@ -86,7 +86,11 @@
     <bean id="emailService" class="com.echoed.chamber.services.email.EmailServiceActorClient">
         <property name="actorRef" ref="emailServiceActor" />
     </bean>
-    
+
+    <bean id="eventService" class="com.echoed.chamber.services.event.EventServiceActorClient">
+        <property name="actorRef" ref="eventServiceActor" />
+    </bean>
+
     <bean id="feedService" class="com.echoed.chamber.services.feed.FeedServiceActorClient">
         <property name="feedServiceActor" ref="feedServiceActor" />
     </bean>
@@ -231,6 +235,16 @@
         <!--suppress SpringModelInspection -->
         <property name="blobStore" ref="blobStore" />
     </akka:untyped-actor>
+
+
+    <akka:untyped-actor
+            id="eventServiceActor"
+            implementation="com.echoed.chamber.services.event.EventServiceActor"
+            autostart="true">
+        <!--suppress SpringModelInspection -->
+        <property name="eventLogDao" ref="eventLogDao" />
+    </akka:untyped-actor>
+
 
     <akka:untyped-actor
             id="emailServiceActor"

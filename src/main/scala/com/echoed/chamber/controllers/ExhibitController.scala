@@ -9,6 +9,7 @@ import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
+import com.echoed.chamber.services.event.EventService
 
 
 @Controller
@@ -24,6 +25,9 @@ class ExhibitController {
     @BeanProperty var indexView: String = _
 
     @BeanProperty var cookieManager: CookieManager = _
+
+    @BeanProperty var eventService: EventService = _
+
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def exhibit(
@@ -67,7 +71,14 @@ class ExhibitController {
                             _ match {
                                 case GetExhibitResponse(_, Left(e)) => error(Some(e))
                                 case GetExhibitResponse(_, Right(closet)) =>
-                                    val view = if (appType == "facebook") closetViewFacebook else closetView;
+                                    val view =
+                                        if (appType == "facebook") {
+                                            eventService.facebookCanvasViewed(closet.echoedUser)
+                                            closetViewFacebook
+                                        } else {
+                                            eventService.exhibitViewed(closet.echoedUser)
+                                            closetView
+                                        }
                                     logger.debug("View for app type {}: {}", appType, view)
 
                                     val modelAndView = new ModelAndView(view)
