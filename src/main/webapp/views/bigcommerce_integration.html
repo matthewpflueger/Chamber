@@ -11,52 +11,11 @@
                 <h2>BigCommerce Integration <img align="absmiddle" src="{{urls.images}}/bk_partner_bigcom.png"/></h2>
             </div>
             <div class="roundbox integration">
-                <div class="subtitle">Enable API Access</div>
-                To grant a user access to the API, go to your store's control panel and follow these steps:<br/>
-                <ol>
-                    <li>Login To Your BigCommerce Store
-                    </li>
-                    <div style="text-align: center;">
-                        <img src="{{urls.images}}/bk_bigcommerce_1.png"/>
-                    </div>
-                    <li>Navigate to the Users area.</li>
-                    <div style="text-align: center;">
-                        <img src="{{urls.images}}/bk_bigcommerce_2.png"/>
-                    </div>
-                    <li><strong>Edit</strong> or <strong>Create</strong> the user you want to allow access to the API.</li>
-                    <li>Scroll down to the Enable the API setting and check the <strong>Yes, allow this user to use the API check box</strong></li>
-                    <li>An access token will be generated and shown below</li>
-                    <li>Copy the <strong>API Path</strong> and the <strong>API Token</strong></li>
-                    <li>Click the Save button</li>
-                    <div style="text-align: center;">
-                        <img src="{{urls.images}}/bk_bigcommerce_3.png"/>
-                    </div>
-                </ol>
-                <div class="subtitle">Register As An Echoed BigCommerce Partner</div>
-                Fill in the following information: <br/><br/>
-                You'll need the <strong>API User</strong>, <strong>API Path</strong> and <strong>API Token</strong> from earlier.
-                <div class="register_form_container">
-                    <div class="register_form">
-                        <div id="lm-error">
-                            {{#errors.global}}{{this}}{{/errors.global}}
-                        </div>
-                        <div>
-                            <p>
-                                Thank you, {{partnerUser.name}} for choosing Echoed to
-                                help {{partner.name}} increase its brand awareness and sales.
-                            </p>
-                            <p>
-                                An account manager will reach out to you to help you set up your account at the phone # and email below.<br/><br/>
-                                Phone Number: <strong>{{partner.phone}}</strong><br/>
-                                Email: <strong>{{partnerUser.email}}</strong><br/>
-                            </p>
-                            {{> bigcommerce_partial_integration}}
-                            <p>
-                                Please do not hesitate to email accountmanager@echoed.com or call 917-267-4591 with your questions.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <div class="subtitle">Success! You Have Registered As An Echoed BigCommerce Partner</div>
+                Thank you, {{partnerUser.name}} for choosing Echoed to help {{partner.name}} increase its
+                brand awareness and sales.<br/><br/>
+                An account manager will be reaching out to you to answer any questions you may have but please do not
+                hesitate to email accountmanager@echoed.com or call 917-267-4591.<br/><br/>
                 You'll receive an email confirmation that details next steps for the integration.
                 <div style="text-align: center;">
                     <img src="{{urls.images}}/bk_bigcommerce_4.png"/>
