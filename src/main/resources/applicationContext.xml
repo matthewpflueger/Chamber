@@ -19,6 +19,7 @@
     <import resource="classpath:database.xml" />
 
 
+    <bean class="com.echoed.util.XTrustProvider" init-method="install" />
     <bean id="httpClient" class="dispatch.nio.Http" destroy-method="shutdown" />
 
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">

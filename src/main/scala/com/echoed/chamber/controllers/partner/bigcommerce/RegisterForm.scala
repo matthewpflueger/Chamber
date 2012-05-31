@@ -66,9 +66,9 @@ case class RegisterForm(
         this.apiUser = apiUser
     }
 
-    @URL(protocol = "http")
+    @URL(protocol = "https")
     @NotBlank
-    def getApiPath() = website
+    def getApiPath() = apiPath
     def setApiPath(apiPath: String) { this.apiPath = apiPath }
 
     @NotBlank
