@@ -81,8 +81,12 @@
             Echo E
             join Image I on E.imageId = I.id
             join Partner P on E.partnerId = P.id
+            join EchoMetrics EM on EM.echoId = E.id
+            join PartnerSettings PS on PS.id=EM.partnerSettingsId
         where
             I.sizedWidth > 0
+            and
+            PS.activeOn &lt;= Now()
         group by
             echoProductName,
             echoBrand,
