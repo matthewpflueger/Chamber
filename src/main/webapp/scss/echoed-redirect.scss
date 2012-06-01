@@ -67,9 +67,9 @@ pre, form, fieldset, table, th, td{
     @include textFontLight(36px);
     .product{
         img{
-            margin: 20px;
+            margin: 10px;
         }
-        a, a:visited{
+        a, a:visited    {
           @include textFontBold(20px);
         }
         .product-name, .partner-name{
