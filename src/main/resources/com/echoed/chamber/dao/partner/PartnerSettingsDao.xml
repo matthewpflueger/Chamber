@@ -20,6 +20,9 @@
             <arg column="creditWindow" javaType="_int" />
             <arg column="views" javaType="String" />
             <arg column="hashTag" javaType="String" />
+            <arg column="couponCode"  javaType="String" />
+            <arg column="couponDescription" javaType="String" />
+            <arg column="couponExpiresOn" javaType="Date" />
             <arg column="activeOn" javaType="Date" />
         </constructor>
     </resultMap>
@@ -65,6 +68,9 @@
                 creditWindow,
                 views,
                 hashTag,
+                couponCode,
+                couponDescription,
+                couponExpiresOn,
                 activeOn)
     	values (
     			#{id},
@@ -80,6 +86,9 @@
                 #{creditWindow},
                 #{views},
                 #{hashTag},
+                #{couponCode},
+                #{couponDescription},
+                #{couponExpiresOn},
                 #{activeOn})
     </insert>
 

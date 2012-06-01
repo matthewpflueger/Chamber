@@ -10,6 +10,10 @@ class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService w
 
     def getPartner =
         (actorRef ? GetPartner()).mapTo[GetPartnerResponse]
+
+    def getEcho(
+            echoId: String) =
+        (actorRef ? GetEcho(echoId)).mapTo[GetEchoResponse]
     
     def requestEcho(
             partnerId: String,

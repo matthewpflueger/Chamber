@@ -18,6 +18,9 @@ case class PartnerSettings(
         creditWindow: Int,
         views: String,
         hashTag: String,
+        couponCode: String,
+        couponDescription: String,
+        couponExpiresOn: Date,
         activeOn: Date) {
 
     require(closetPercentage >= 0, "Closet percentage is less than 0")
@@ -32,7 +35,6 @@ case class PartnerSettings(
 
     require(views != null && views.length > 0, "Views is null or empty")
 
-
     def this(
             partnerId: String,
             closetPercentage: Float,
@@ -45,6 +47,9 @@ case class PartnerSettings(
             creditWindow: Int,
             views: String,
             hashTag: String,
+            couponCode: String,
+            couponDescription: String,
+            couponExpiresOn: Date,
             activeOn: Date) = this(
         UUID.randomUUID.toString,
         new Date,
@@ -60,7 +65,40 @@ case class PartnerSettings(
         creditWindow,
         views,
         hashTag,
+        couponCode: String,
+        couponDescription: String,
+        couponExpiresOn: Date,
         activeOn)
+
+    def this(
+                partnerId: String,
+                closetPercentage: Float,
+                minClicks: Int,
+                minPercentage: Float,
+                maxClicks: Int,
+                maxPercentage: Float,
+                echoedMatchPercentage: Float,
+                echoedMaxPercentage: Float,
+                creditWindow: Int,
+                views: String,
+                hashTag: String,
+                activeOn: Date) = this(
+        partnerId,
+        closetPercentage,
+        minClicks,
+        minPercentage,
+        maxClicks,
+        maxPercentage,
+        echoedMatchPercentage,
+        echoedMaxPercentage,
+        creditWindow,
+        views,
+        hashTag,
+        "",
+        "",
+        new Date(0),
+        activeOn
+    )
 
 
     lazy val viewsList = views.split(",").map(_.trim)
@@ -98,6 +136,9 @@ object PartnerSettings {
             creditWindow = 168,
             views = "echo.js.free",
             hashTag = "",
+            couponCode = "",
+            couponDescription = "",
+            couponExpiresOn = new Date(0),
             activeOn = cal.getTime)
 
     }

@@ -25,6 +25,9 @@ class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorC
     def getView(partnerId: String) =
         (actorRef ? GetView(partnerId)).mapTo[GetViewResponse]
 
+    def getEcho(echoId: String) =
+        (actorRef ? GetEcho(echoId)).mapTo[GetEchoResponse]
+
     def recordEchoStep(
             echoId: String,
             step: String,

@@ -419,7 +419,10 @@ class DataCreator {
             activeOn = future.getTime,
             creditWindow = creditWindow,
             views = "echo.js.0, echo.js.1",
-            hashTag = "@test")
+            hashTag = "@test",
+            couponCode = null,
+            couponDescription = null,
+            couponExpiresOn = new Date(0))
 
     val partnerSettingsList = partnerSettingsFuture :: partners.map { r =>
             new PartnerSettings(

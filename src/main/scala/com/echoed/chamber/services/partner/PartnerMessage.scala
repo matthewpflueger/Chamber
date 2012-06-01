@@ -138,6 +138,11 @@ case class RequestEchoResponse(
         message: RequestEcho,
         value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RequestEcho, PE]
 
+case class GetEcho(__echoId: String) extends EI(__echoId)
+case class GetEchoResponse(
+        message: GetEcho,
+        value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, GetEcho, PE]
+
 
 case class RecordEchoStep(
         _echoId: String,

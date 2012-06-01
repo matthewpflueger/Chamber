@@ -8,7 +8,9 @@ trait PartnerService {
     val id: String
 
     def getPartner: Future[GetPartnerResponse]
-    
+
+    def getEcho(echoId: String): Future[GetEchoResponse]
+
     def requestEcho(
             partnerId: String,
             request: String,

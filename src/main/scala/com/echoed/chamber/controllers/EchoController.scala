@@ -15,11 +15,12 @@ import akka.dispatch.{AlreadyCompletedFuture, Future}
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.partner._
 import com.echoed.chamber.domain.{EchoedUser, EchoClick}
-import java.util.{Map => JMap}
 import com.echoed.chamber.services.EchoedException
 import java.util.concurrent.atomic.AtomicLong
 import scala.collection.JavaConversions._
 import com.echoed.chamber.services.echo.{RecordEchoClickResponse, RecordEchoPossibilityResponse, EchoService, GetEchoByIdResponse, GetEchoByIdAndEchoedUserIdResponse}
+import java.util.{Date, Map => JMap}
+import java.text.DateFormat
 
 @Controller
 @RequestMapping(Array("/echo"))
@@ -42,6 +43,7 @@ class EchoController {
     @BeanProperty var echoRegisterUrl: String = _
     @BeanProperty var echoItView: String = _
     @BeanProperty var echoRedirectView: String = _
+    @BeanProperty var echoCouponView: String = _
 
     @BeanProperty var buttonView: String = _
     @BeanProperty var loginView: String = _
@@ -760,33 +762,57 @@ class EchoController {
                     ipAddress = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
                     userAgent = userAgent)
             val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull
-            echoService.recordEchoClick(echoClick, echoId, postId).onComplete(_.value.get.fold(
-                e => error(errorView, Some(e)),
-                _ match {
-                    case RecordEchoClickResponse(msg, Left(e)) => error(errorView, Some(e))
-                    case RecordEchoClickResponse(msg, Right(echo)) =>
-                        //Add the echoClick tracking cookie if it's not available
-                        cookieManager.findEchoClickCookie(httpServletRequest).getOrElse({
-                            cookieManager.addEchoClickCookie(
+
+            val partnerServiceManagerResponse = partnerServiceManager.getEcho(echoId)
+            val echoServiceResponse = echoService.recordEchoClick(echoClick, echoId, postId)
+            (for {
+                psmr <- partnerServiceManagerResponse
+                esr <- echoServiceResponse
+            } yield {
+                val ec = esr.resultOrException
+                psmr match {
+                        case GetEchoResponse(msg, Left(e)) =>
+                            error(errorView, e)
+                        case GetEchoResponse(msg, Right(epv)) =>
+                            cookieManager.findEchoClickCookie(httpServletRequest).getOrElse({
+                                cookieManager.addEchoClickCookie(
                                     httpServletResponse,
                                     echoClick,
                                     httpServletRequest)
-                        })
-                        logger.debug("Returned Echo: {}", echo)
-                        //continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
-                        val modelAndView = new ModelAndView(echoRedirectView)
-                        modelAndView.addObject("echo", echo)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-                        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.value.get.fold(
-                            e => logger.debug("Error"),
-                            _ match {
-                                case LocateWithIdResponse(_, Left(e)) =>
-                                case LocateWithIdResponse(_, Right(eus)) =>
-                                    logger.debug("Publishing Action: ")
-                                    eus.publishFacebookAction("browse","product", productGraphUrl + echoId)
+                            })
+                            val echo = epv.echoPossibilities.head
+                            val partnerSettings = epv.partnerSettings
+                            val partner = epv.partner
+                            logger.debug("Returned Echo: {}", echo)
+
+                            //continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
+                            if (partnerSettings.couponCode != null && partnerSettings.couponExpiresOn.compareTo(new Date()) > 0){
+                                logger.debug("Coupon Code!")
+                                val modelAndView = new ModelAndView(echoCouponView)
+                                modelAndView.addObject("echo", echo)
+                                modelAndView.addObject("partnerSettings", partnerSettings)
+                                modelAndView.addObject("partner", partner)
+                                val df = DateFormat.getDateInstance(DateFormat.MEDIUM)
+                                modelAndView.addObject("couponExpiresOn", df.format(partnerSettings.couponExpiresOn))
+                                continuation.setAttribute("modelAndView", modelAndView)
+                                continuation.resume()
+                            } else {
+                                logger.debug("No Coupon Code!")
+                                val modelAndView = new ModelAndView(echoRedirectView)
+                                modelAndView.addObject("echo", echo)
+                                continuation.setAttribute("modelAndView", modelAndView)
+                                continuation.resume()
+                            }
+                            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.value.get.fold(
+                                e => logger.debug("Error"),
+                                _ match {
+                                    case LocateWithIdResponse(_, Left(e)) =>
+                                    case LocateWithIdResponse(_, Right(eus)) =>
+                                        logger.debug("Publishing Action: ")
+                                        eus.publishFacebookAction("browse","product", productGraphUrl + echoId)
                             }))
-                }))
+                }
+            })
             continuation.undispatch()
         })
     }

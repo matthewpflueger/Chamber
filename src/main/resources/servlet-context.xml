@@ -115,6 +115,7 @@
         <property name="echoJsErrorView" value="echo_error.js" />
         <property name="echoJsNotActiveView" value="echo.js.inactive" />
         <property name="echoLoginView" value="echo_login" />
+        <property name="echoCouponView" value="echo_coupon" />
         <property name="echoLoginNotNeededView" value="redirect:${echoConfirmUrl}" />
         <property name="echoRegisterUrl" value = "redirect:${echoRegisterUrl}" />
         <property name="echoEchoedUrl" value = "redirect:${echoEchoedUrl}" />

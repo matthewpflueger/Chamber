@@ -148,6 +148,23 @@ class PartnerServiceActor(
                     channel ! RequestEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
             }
 
+        case msg @ GetEcho(echoId) =>
+            val channel: Channel[GetEchoResponse] = self.channel
+            logger.debug("Processing {}", msg)
+            Future {
+                echoDao.findById(echoId)
+            }.onComplete(_.value.get.fold(
+                e => channel ! GetEchoResponse(msg, Left(PartnerException("Error retrieving echo %s" format echoId, e))),
+                ep => {
+                    val partnerSettings = partnerSettingsDao.findById(ep.partnerSettingsId)
+                    val epv = new EchoPossibilityView(ep, partner, partnerSettings)
+                    channel ! GetEchoResponse(msg, Right(epv))
+                    logger.debug("Returned EchoPossibility View: {}", epv)
+            })).onException {
+                case e =>
+                    channel ! GetEchoResponse(msg, Left(PartnerException("Unexpected error", e)))
+                    logger.error("Error processing %s" format msg, e)
+            }
 
         case msg @ RecordEchoStep(echoId, step, echoedUserId, echoClickId) =>
             val channel: Channel[RecordEchoStepResponse] = self.channel

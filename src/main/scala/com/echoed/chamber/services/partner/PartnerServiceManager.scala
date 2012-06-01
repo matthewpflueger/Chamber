@@ -19,6 +19,9 @@ trait PartnerServiceManager {
 
     def getView(partnerId: String): Future[GetViewResponse]
 
+    def getEcho(
+            echoId: String): Future[GetEchoResponse]
+
     def recordEchoStep(
             echoId: String,
             step: String,
