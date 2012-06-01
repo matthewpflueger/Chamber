@@ -25,6 +25,18 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             views = "echo.js.0, echo.js.1",
             hashTag = "@test")
 
+    var zeroPartnerSettings = partnerSettings.copy(
+            closetPercentage = 0f,
+            minClicks = 0,
+            minPercentage = 0f)
+
+    var zeroZeroPartnerSettings = partnerSettings.copy(
+            closetPercentage = 0f,
+            minClicks = 0,
+            minPercentage = 0f,
+            maxClicks = 200,
+            maxPercentage = 0f)
+
     var echo = Echo.make(
             partnerId = "partnerId",
             customerId = "customerId",
@@ -56,6 +68,11 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
     var residualEchoMetrics = echoMetrics.copy()
 
+    var zeroEchoMetrics = new EchoMetrics(echo, zeroPartnerSettings)
+    var zeroResidualEchoMetrics = zeroEchoMetrics.copy()
+
+    var zeroZeroEchoMetrics = new EchoMetrics(echo, zeroZeroPartnerSettings)
+
     def verifyZeroResidual(em: EchoMetrics) {
         em.residualClicks should be(0)
         em.residualCredit should be(0)
@@ -70,6 +87,32 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
 
     describe("An Echo") {
 
+        it("should always be zero for a free echo") {
+            given("a new free Echo")
+            when("not echoed before")
+            then("it should calculate 0 credit and fee when echoed for free")
+            zeroZeroEchoMetrics = zeroZeroEchoMetrics.echoed(zeroZeroPartnerSettings)
+            zeroZeroEchoMetrics.totalClicks should be (0)
+            zeroZeroEchoMetrics.clicks should be (0)
+            zeroZeroEchoMetrics.credit should be (0.0f)
+            zeroZeroEchoMetrics.fee should be (0.0f)
+
+            verifyZeroResidual(zeroZeroEchoMetrics)
+        }
+
+        it("should calculate the 0 credit and fee for being echoed for free") {
+            given("a new Echo")
+            when("not echoed before")
+            then("it should calculate 0 credit and fee when echoed for free")
+            zeroEchoMetrics = zeroEchoMetrics.echoed(zeroPartnerSettings)
+            zeroEchoMetrics.totalClicks should be (0)
+            zeroEchoMetrics.clicks should be (0)
+            zeroEchoMetrics.credit should be (0.0f)
+            zeroEchoMetrics.fee should be (0.0f)
+
+            verifyZeroResidual(zeroEchoMetrics)
+        }
+
         it("should calculate the credit and fee for being echoed") {
             given("a new Echo")
             when("not echoed before")
@@ -81,6 +124,19 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             echoMetrics.fee should be (0.1f plusOrMinus 0.01f)
 
             verifyZeroResidual(echoMetrics)
+        }
+
+        it("should calculate the 0 residual credit and residual fee for being clicked when not echoed") {
+            given("a new Echo")
+            when("not echoed before")
+            then("it should calculate the 0 residual credit and residual fee when clicked")
+            zeroResidualEchoMetrics = zeroResidualEchoMetrics.clicked(zeroPartnerSettings)
+            zeroResidualEchoMetrics.totalClicks should be (1)
+            zeroResidualEchoMetrics.residualClicks should be (1)
+            zeroResidualEchoMetrics.residualCredit should be (0f)
+            zeroResidualEchoMetrics.residualFee should be (0f)
+
+            verifyZero(zeroResidualEchoMetrics)
         }
 
         it("should calculate the residual credit and residual fee for being clicked when not echoed") {
@@ -133,6 +189,32 @@ class EchoMetricsTest extends Spec with GivenWhenThen with ShouldMatchers {
             em.residualFee should be (0.1f plusOrMinus 0.01f)
 
             verifyZero(em)
+        }
+
+        it("should calculate the 0 credit and fee for being clicked") {
+            given("an Echo")
+            when("clicked")
+            then("it should calculate the 0 credit and fee of the click")
+            0 until 5 foreach(_ => zeroEchoMetrics = zeroEchoMetrics.clicked(zeroPartnerSettings))
+            zeroEchoMetrics.totalClicks should be (5)
+            zeroEchoMetrics.clicks should be (5)
+            zeroEchoMetrics.credit should be (0.68f plusOrMinus 0.01f)
+            zeroEchoMetrics.fee should be (0.68f plusOrMinus 0.01f)
+
+            verifyZeroResidual(zeroEchoMetrics)
+        }
+
+        it("should always be zero credit and fee for being clicked when free") {
+            given("a free Echo")
+            when("clicked")
+            then("it should always be free")
+            0 until 100 foreach(_ => zeroZeroEchoMetrics = zeroZeroEchoMetrics.clicked(zeroZeroPartnerSettings))
+            zeroZeroEchoMetrics.totalClicks should be (100)
+            zeroZeroEchoMetrics.clicks should be (100)
+            zeroZeroEchoMetrics.credit should be (0f)
+            zeroZeroEchoMetrics.fee should be (0f)
+
+            verifyZeroResidual(zeroZeroEchoMetrics)
         }
 
         it("should calculate the credit and fee for being clicked") {
