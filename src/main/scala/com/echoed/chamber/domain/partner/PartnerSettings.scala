@@ -89,14 +89,14 @@ object PartnerSettings {
             createdOn = new Date,
             partnerId = partnerId,
             closetPercentage = 0f,
-            minClicks = 1,
-            minPercentage = 0.01f,
+            minClicks = 0,
+            minPercentage = 0f,
             maxClicks = 200,
-            maxPercentage = 0.1f,
+            maxPercentage = 0f,
             echoedMatchPercentage = 1,
             echoedMaxPercentage = 0.1f,
             creditWindow = 168,
-            views = "echo.js.1",
+            views = "echo.js.free",
             hashTag = "",
             activeOn = cal.getTime)
 
