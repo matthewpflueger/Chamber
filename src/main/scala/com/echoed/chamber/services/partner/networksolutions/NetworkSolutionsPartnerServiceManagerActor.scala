@@ -190,7 +190,7 @@ class NetworkSolutionsPartnerServiceManagerActor extends Actor {
 
                                         val password = UUID.randomUUID().toString
                                         val pu = new PartnerUser(p.id, nsp.name, nsp.email).createPassword(password)
-                                        val ps = PartnerSettings.createFuturePartnerSettings(p.id)
+                                        val ps = PartnerSettings.createPartnerSettings(p.id)
 
                                         val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (pu.email, password))
 

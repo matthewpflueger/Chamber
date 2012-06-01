@@ -135,7 +135,7 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                                         val (p, sp) = ShopifyPartner.createPartner(shopifyPartner)
                                         val password = UUID.randomUUID().toString
                                         val pu = ShopifyPartner.createPartnerUser(sp).createPassword(password)
-                                        val ps = PartnerSettings.createFuturePartnerSettings(p.id)
+                                        val ps = PartnerSettings.createPartnerSettings(p.id)
 
                                         val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (pu.email, password))
 

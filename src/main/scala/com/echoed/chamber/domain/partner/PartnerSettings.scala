@@ -103,6 +103,7 @@ case class PartnerSettings(
 
     lazy val viewsList = views.split(",").map(_.trim)
 
+    val isFree = maxPercentage <= 0
 
     def creditWindowEndsAt = {
         val cal = Calendar.getInstance()
@@ -112,15 +113,7 @@ case class PartnerSettings(
 }
 
 object PartnerSettings {
-    def createFuturePartnerSettings(partnerId: String) = {
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.YEAR, 2038)
-        cal.set(Calendar.MONTH, 0)
-        cal.set(Calendar.DAY_OF_MONTH, 0)
-        cal.set(Calendar.HOUR, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-
+    def createPartnerSettings(partnerId: String) = {
         PartnerSettings(
             id = UUID.randomUUID.toString,
             updatedOn = new Date,
@@ -139,7 +132,7 @@ object PartnerSettings {
             couponCode = "",
             couponDescription = "",
             couponExpiresOn = new Date(0),
-            activeOn = cal.getTime)
+            activeOn = new Date)
 
     }
 
