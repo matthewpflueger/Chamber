@@ -4,7 +4,7 @@
 alter table PartnerSettings
         add column couponCode varchar(36) null,
         add column couponDescription varchar(1024) null,
-        add column couponExpiresOn timestamp default '1970-01-01 00:00:00';
+        add column couponExpiresOn timestamp default '1971-01-01 00:00:00';
 
 --//@UNDO
 -- SQL to undo the change goes here.
