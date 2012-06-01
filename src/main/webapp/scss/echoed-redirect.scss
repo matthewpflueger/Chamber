@@ -50,6 +50,10 @@ pre, form, fieldset, table, th, td{
     position:absolute;
     left: 10px;
     top: 10px;
+    img {
+        max-height: 80px;
+        max-width: 300px;
+    }
 }
 
 .coupon-container{
@@ -66,7 +70,7 @@ pre, form, fieldset, table, th, td{
             margin: 20px;
         }
         a, a:visited,{
-          @include textFontBold(16px);
+          @include textFontBold(20px);
         }
         .product-name, .partner-name{
             @include textFontBold(36px);
