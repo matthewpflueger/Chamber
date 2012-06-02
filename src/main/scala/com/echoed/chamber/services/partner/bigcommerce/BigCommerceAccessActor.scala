@@ -194,7 +194,8 @@ class BigCommerceAccessActor extends Actor {
                                 p("categories").toString,
                                 java.lang.Float.parseFloat(p("price").toString),
                                 null,
-                                p("custom_url").toString,
+                                //for some reason custom_url actually gets set as null?!?!
+                                Option(p("custom_url")).map(_.toString).orNull,
                                 p("description").toString)
                     } { case e => orderActor ! ('errorProduct, e) }
 
