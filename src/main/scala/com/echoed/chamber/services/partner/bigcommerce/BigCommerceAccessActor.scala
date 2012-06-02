@@ -52,10 +52,11 @@ class BigCommerceAccessActor extends Actor {
             (callback: InputStream => Unit)
             (error: ExceptionListener) = client(endpoint(c, path).>>(callback).>!(error))
 
+
     private def requestAsMap(c: BigCommerceCredentials, path: String)
             (callback: Map[String, AnyRef] => Unit)
             (error: ExceptionListener) =
-        request(c, path) { in => callback(parse[Map[String, AnyRef]](in)) } (error)
+        request(c, path) { in => callback(parse[Map[String, AnyRef]](in).withDefaultValue("")) } (error)
 
     private def requestAsArray(c: BigCommerceCredentials, path: String)
             (callback: Array[JMap[String, AnyRef]] => Unit)
@@ -64,6 +65,12 @@ class BigCommerceAccessActor extends Actor {
 
 
     def receive = {
+        case msg @ ('error, e: IllegalStateException) =>
+            logger.error("Restarting Http client due to error", e)
+            client = new Http
+        case msg @ ('error, e: Throwable) =>
+            logger.error("Received error but not restarting Http client", e)
+
         case msg @ Validate(credentials) =>
             val channel: Channel[ValidateResponse] = self.channel
             requestAsMap(credentials, "time") { map =>
@@ -77,6 +84,7 @@ class BigCommerceAccessActor extends Actor {
             }
 
         case msg @ FetchOrder(credentials, order) =>
+            val me = self
             val channel: Channel[FetchOrderResponse] = self.channel
 
             val orderActor = Actor.actorOf(new Actor {
@@ -100,8 +108,8 @@ class BigCommerceAccessActor extends Actor {
                     if (!responseSent && expected == products && expected == images && echoRequest != null) {
                         logger.debug("Completed fetching order {} for {}", order, credentials)
                         channel ! FetchOrderResponse(msg, Right(echoRequest.copy(items = echoItems.map { i =>
-                            i.copy(imageUrl = imageMap.get(i.productId).orNull)
-                        }.filter(_.imageUrl != null).toList)))
+                                i.copy(imageUrl = imageMap.get(i.productId).orNull)
+                            }.filter(_.isValid).toList)))
                         responseSent = true
                     } else {
                         logger.debug("Order {} not complete - still waiting for {} responses", order, (expected * 2 - products - images))
@@ -141,16 +149,19 @@ class BigCommerceAccessActor extends Actor {
                         logger.error("Error fetching product for order %s with %s" format(order, credentials), e)
                         products += 1
                         complete
+                        me ! ('error, e)
                     case ('errorImage, productId: String, e: Throwable) =>
                         logger.error("Error fetching image for product %s for order %s with %s" format(productId, order, credentials), e)
                         images += 1
                         complete
+                        me ! ('error, e)
                     case ('error, message: String, e: Throwable) =>
                         logger.error(message, e)
                         channel ! FetchOrderResponse(
                             msg,
                             Left(BigCommercePartnerException("Error fetching BigCommerce order %s" format order, e)))
                         responseSent = true
+                        me ! ('error, e)
                 }
             }).start
 
