@@ -67,6 +67,7 @@ class BigCommerceAccessActor extends Actor {
     def receive = {
         case msg @ ('error, e: IllegalStateException) =>
             logger.error("Restarting Http client due to error", e)
+            client.shutdown()
             client = new Http
         case msg @ ('error, e: Throwable) =>
             logger.error("Received error but not restarting Http client", e)
@@ -111,6 +112,8 @@ class BigCommerceAccessActor extends Actor {
                                 i.copy(imageUrl = imageMap.get(i.productId).orNull)
                             }.filter(_.isValid).toList)))
                         responseSent = true
+                    } else if (responseSent) {
+                        logger.debug("Response for order {} already sent", order)
                     } else {
                         logger.debug("Order {} not complete - still waiting for {} responses", order, (expected * 2 - products - images))
                     }
