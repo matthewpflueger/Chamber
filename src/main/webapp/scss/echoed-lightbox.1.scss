@@ -92,7 +92,7 @@ $twitterColor: #4099FF;
 
     td{
         padding: 10px 0px;
-        @include TextFontNormal(18px);
+        @include TextFontNormal(16px);
         text-align:left;
         vertical-align: middle;
         .echoed-td-t{
@@ -167,7 +167,7 @@ $twitterColor: #4099FF;
 }
 
 #echoed-hiw-tt{
-    @include TextFontNormal(16px);
+    @include TextFontBold(18px);
     margin: 10px 0px;
     color: #111;
     background-image: image-url("bk_noise.png");
