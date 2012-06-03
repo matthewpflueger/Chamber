@@ -67,6 +67,13 @@ function echoedPrompt(){
 
         $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.1.css" />');
 
+
+        var fontNode = document.createElement("link");
+        fontNode.type= "text/css";
+        fontNode.rel = "stylesheet";
+        fontNode.href= "https://fonts.googleapis.com/css?family=Lato:400,700";
+        document.getElementsByTagName('HEAD')[0].appendChild(fontNode);
+
         Echoed = {};
         Echoed.urls = {}; //{{#urls}}
         Echoed.urls.api = "{{api}}";
@@ -108,7 +115,7 @@ function echoedPrompt(){
             success: function(data) {
                 $(data.echoPossibilities).each(function(index,echoPossibility){
                     echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
-                    var t = $('<tr valign="middle" class="echoed-p"><td valign="middle"><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td valign="top">' + echoPossibility.productName + '<br/>$' + echoPossibility.price + '</td><td valign="middle"><img id=' + echoPossibility.id + ' class="echoed-l" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '" src="{{urls.images}}/btn_share_red_flat.png" height="30px" /></a></td></tr>');
+                    var t = $('<tr valign="middle" class="echoed-p"><td valign="middle"><div class="echoed-i-c"><img class="echoed-i" src="' + echoPossibility.imageUrl + '" /></div></td><td valign="top">' + echoPossibility.productName + '<br/>$' + echoPossibility.price + '</td><td valign="middle"><span class="echoed-l on" href="' + Echoed.urls.api + '/echo/login?id=' + echoPossibility.id + '"></span></a></td></tr>');
                     tbody.append(t);
                 });
             }
