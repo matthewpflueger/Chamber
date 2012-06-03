@@ -121,3 +121,5 @@ case class TweetResponse(message: Tweet, value: Either[TE, TwitterStatus])
 case class Logout(twitterUserId: String) extends TM
 case class LogoutResponse(message: Logout, value: Either[TE, Boolean])
     extends TM with RM[Boolean, Logout, TE]
+
+case class RetryTweet(twitterStatus: TwitterStatus, retries: Int = 1) extends TM
