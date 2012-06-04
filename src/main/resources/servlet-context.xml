@@ -275,6 +275,12 @@
     <bean id="adminController" class="com.echoed.chamber.controllers.api.AdminController">
         <property name="adminUserServiceLocator" ref="adminUserServiceLocator"/>
         <property name="cookieManager" ref="cookieManager"/>
+        <property name="globalValidator" ref="validator" />
+        <property name="formValidator" >
+            <bean class="com.echoed.chamber.controllers.api.admin.AdminUpdatePartnerSettingsFormValidator" />
+        </property>
+        <property name="conversionService" ref="conversionService" />
+
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->

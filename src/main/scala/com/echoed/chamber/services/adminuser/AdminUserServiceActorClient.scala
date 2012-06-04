@@ -2,6 +2,7 @@ package com.echoed.chamber.services.adminuser
 
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
+import com.echoed.chamber.domain.partner.PartnerSettings
 
 class AdminUserServiceActorClient(adminUserServiceActor: ActorRef) extends AdminUserService with ActorClient {
 
@@ -21,6 +22,9 @@ class AdminUserServiceActorClient(adminUserServiceActor: ActorRef) extends Admin
 
     def getAdminUser =
         (adminUserServiceActor ? GetAdminUser()).mapTo[GetAdminUserResponse]
+
+    def updatePartnerSettings(partnerSettings: PartnerSettings) =
+        (adminUserServiceActor ? UpdatePartnerSettings(partnerSettings)).mapTo[UpdatePartnerSettingsResponse]
 
     def logout(adminUserId: String) =
         (adminUserServiceActor ? Logout(adminUserId)).mapTo[LogoutResponse]

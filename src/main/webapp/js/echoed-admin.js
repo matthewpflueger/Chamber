@@ -41,12 +41,14 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         var self = this;
         self.element.html('');
         $.each(rows, function(index, row){
-            self.element.append($('<option></option>').attr("value",row.value).html(row.text));
+            self.element.append($('<option></option>').attr("value", row.value).html(row.text));
         });
     },
     onchange: function(){
         var self = this;
-        self.EvAg.trigger("select/change", self.element.val());
+        var optionText = self.element.find("option:selected").text();
+        var optionValue = self.element.val();
+        self.EvAg.trigger("select/change", optionText, optionValue);
     }
 });
 
@@ -58,6 +60,9 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
         this.element = $(this.el);
         this.EvAg.bind('select/change', this.renderPartnerSettings);
         this.render();
+    },
+    events: {
+        "click .partner-setting-submit" : "updatePartnerSettings"
     },
     render: function(){
         var self = this;
@@ -81,9 +86,27 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
             }
         })
     },
-    renderPartnerSettings: function(e){
+    updatePartnerSettings: function(){
+        var form = $('#partner-settings-add');
+        var serializedString = form.serialize();
+        var v = $('#partnerId').val();
+        alert(serializedString);
         $.ajax({
-            url: Echoed.urls.api + "/admin/partners/" + e + "/settings",
+            url: Echoed.urls.api + "/admin/partners/" + v + "/settings/update",
+            data: form.serialize(),
+            type: 'POST',
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+                alert('success');
+            }
+        })
+    },
+    renderPartnerSettings: function(t, v){
+        $.ajax({
+            url: Echoed.urls.api + "/admin/partners/" + v + "/settings",
             dataType: 'json',
             xhrFields: {
                 withCredentials: true
@@ -120,6 +143,8 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                 });
                 $('#partner-settings-container').empty();
                 var settingsTable = new Echoed.Views.Components.TableTemplate({ EvAg:self.EvAg, el:"#partner-settings-container", table:table})
+                $('#partnerName').val(t);
+                $('#partnerId').val(v);
             }
         })
     }

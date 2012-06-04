@@ -450,6 +450,8 @@
             <property name="adminUserDao" ref="adminUserDao" />
             <!--suppress SpringModelInspection -->
             <property name="adminViewDao" ref="adminViewDao" />
+            <!--suppress SpringModelInspection -->
+            <property name="partnerSettingsDao" ref="partnerSettingsDao" />
     </akka:untyped-actor>
 
     <akka:untyped-actor

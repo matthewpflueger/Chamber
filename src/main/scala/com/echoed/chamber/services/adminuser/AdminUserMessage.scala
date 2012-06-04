@@ -70,3 +70,7 @@ case class LoginResponse(
 case class Logout(partnerUserId: String) extends AUM
 case class LogoutResponse(message: Logout, value: Either[AUE, Boolean])
     extends AUM with RM[Boolean, Logout, AUE]
+
+case class UpdatePartnerSettings(partnerSettings: PartnerSettings) extends AUM
+case class UpdatePartnerSettingsResponse(message: UpdatePartnerSettings, value: Either[AUE, PartnerSettings])
+    extends AUM with RM[PartnerSettings, UpdatePartnerSettings, AUE]

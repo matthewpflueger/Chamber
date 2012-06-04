@@ -10,6 +10,7 @@ import akka.actor.{Channel, Actor}
 import com.echoed.chamber.dao.AdminUserDao
 import com.echoed.chamber.dao.views.AdminViewDao
 import com.echoed.chamber.domain.AdminUser
+import com.echoed.chamber.dao.partner.PartnerSettingsDao
 
 class AdminUserServiceCreatorActor extends Actor{
 
@@ -17,13 +18,14 @@ class AdminUserServiceCreatorActor extends Actor{
 
     @BeanProperty var adminUserDao: AdminUserDao = _
     @BeanProperty var adminViewDao: AdminViewDao = _
+    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
 
     def receive = {
         case msg @ CreateAdminUserService(email) =>
             logger.debug("Loading AdminUser for {}", email)
             Option(adminUserDao.findByEmail(email)).cata(
                 au => self.channel ! CreateAdminUserServiceResponse(msg, Right(new AdminUserServiceActorClient(
-                    Actor.actorOf(new AdminUserServiceActor(au, adminUserDao,adminViewDao)).start))),
+                    Actor.actorOf(new AdminUserServiceActor(au, adminUserDao, adminViewDao, partnerSettingsDao)).start))),
                 self.channel ! CreateAdminUserServiceResponse(msg, Left(new AdminUserException(
                     "No user with email %s" format email))))
         case msg @CreateAdminUser(email,name,password) =>

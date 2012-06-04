@@ -6,9 +6,14 @@ import akka.actor.{Channel, Actor}
 import views.{PartnerProductSocialActivityByDate,PartnerSocialActivityByDate,PartnerCustomerSocialActivityByDate}
 import com.echoed.chamber.dao.AdminUserDao
 import com.echoed.chamber.dao.views.AdminViewDao
+import com.echoed.chamber.domain.partner.PartnerSettings
 import scala.collection.JavaConversions._
 import java.util.ArrayList
+import com.echoed.chamber.dao.partner.PartnerSettingsDao
 
+
+import scalaz._
+import Scalaz._
 /**
  * Created by IntelliJ IDEA.
  * User: jonlwu
@@ -20,7 +25,8 @@ import java.util.ArrayList
 class AdminUserServiceActor(
         adminUser: AdminUser,
         adminUserDao: AdminUserDao,
-        adminViewDao: AdminViewDao) extends Actor {
+        adminViewDao: AdminViewDao,
+        partnerSettingsDao: PartnerSettingsDao) extends Actor {
 
     private final val logger = LoggerFactory.getLogger(classOf[AdminUserServiceActor])
 
@@ -39,6 +45,14 @@ class AdminUserServiceActor(
         case msg: GetEchoPossibilities =>
             logger.debug("Retrieving EchoPossibilities")
             self.channel ! GetEchoPossibilitesResponse(msg, Right(asScalaBuffer(adminViewDao.getEchoPossibilities).toList))
+        case msg @ UpdatePartnerSettings(partnerSettings) =>
+            val channel: Channel[UpdatePartnerSettingsResponse] = self.channel
+            logger.debug("Updating Partner Settings")
+            Option(partnerSettingsDao.insert(partnerSettings)).cata(
+                resultSet => channel ! UpdatePartnerSettingsResponse(msg, Right(partnerSettings)),
+                channel ! UpdatePartnerSettingsResponse(msg, Left(new AdminUserException("Error inserting PartnerSettings")))
+            )
+
         case msg: GetAdminUser =>
             logger.debug("Retreiving AdminUser: {}", adminUser)
             self.channel ! GetAdminUserResponse(msg, Right(adminUser))

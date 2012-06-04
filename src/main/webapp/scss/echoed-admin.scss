@@ -448,3 +448,16 @@ h2{
     @include drop-shadow;
     margin-bottom: 20px;
 }
+
+
+label, input{
+    display:block;
+    margin: 10px 0px;
+}
+
+input, select, option {
+    padding: 5px 10px;
+    @include textFont(16px);
+    width: 400px;
+    border: 1px #CCC solid;
+}

@@ -1,5 +1,6 @@
 package com.echoed.chamber.controllers.api
 
+import admin.AdminUpdatePartnerSettingsForm
 import org.springframework.stereotype.Controller
 import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -7,12 +8,15 @@ import reflect.BeanProperty
 import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.facebook.{FacebookService, FacebookServiceLocator}
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
-import com.echoed.chamber.services.echo.EchoService
-import org.springframework.web.servlet.ModelAndView
-import scala.collection.JavaConversions
 import com.echoed.chamber.services.adminuser._
-import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod,ResponseBody,PathVariable}
 import com.echoed.chamber.controllers.CookieManager
+import com.echoed.chamber.domain.partner.PartnerSettings
+import java.util.Date
+import org.springframework.web.bind.annotation._
+import org.springframework.web.bind.WebDataBinder
+import org.springframework.validation.{Validator , BindingResult }
+import javax.validation.Valid
+import org.springframework.core.convert.ConversionService
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,8 +33,21 @@ class AdminController {
     
     @BeanProperty var adminUserServiceLocator: AdminUserServiceLocator = _
 
+    @BeanProperty var globalValidator: Validator = _
+    @BeanProperty var formValidator: Validator = _
+    @BeanProperty var conversionService: ConversionService = _
+
+
     @BeanProperty var cookieManager: CookieManager = _
-    
+
+    @InitBinder
+    def initBinder(binder: WebDataBinder) {
+        binder.setFieldDefaultPrefix("registerForm.")
+        binder.setValidator(globalValidator)
+        binder.setConversionService(conversionService)
+    }
+
+
     @RequestMapping(value = Array("/echoPossibility"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getEchoPossibilityJSON(
@@ -105,6 +122,56 @@ class AdminController {
         })
 
     }
+
+    @RequestMapping(value = Array("/partners/{id}/settings/update"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def updatePartnerSettingsJSON(
+            @Valid adminUpdatePartnerSettingsForm: AdminUpdatePartnerSettingsForm,
+            bindingResult: BindingResult,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+
+        if (!bindingResult.hasErrors) {
+            formValidator.validate(adminUpdatePartnerSettingsForm, bindingResult)
+        }
+
+
+        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        logger.debug("Attempting to update partner settings for partner Id {}", adminUpdatePartnerSettingsForm)
+
+        if (continuation.isExpired) {
+            logger.error("Request expired updating Partner Setings via Admin Api")
+            continuation.setAttribute("jsonResponse", "error")
+            continuation.resume()
+        } else if (bindingResult.hasErrors) {
+        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+
+            val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+
+            continuation.suspend(httpServletResponse)
+
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+                case LocateAdminUserServiceResponse(_, Left(e)) =>
+                    continuation.setAttribute("jsonResponse", "error")
+                    continuation.resume()
+                case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                    logger.debug("AdminUser Service Located")
+                    adminUpdatePartnerSettingsForm.createPartnerSettings(adminUserService.updatePartnerSettings(_)).onComplete(_.value.get.fold(
+                        e => continuation.setAttribute("jsonResponse", e),
+                        _ match {
+                            case UpdatePartnerSettingsResponse(_, Left(e)) =>
+                                continuation.setAttribute("jsonResponse", e)
+                                continuation.resume()
+                            case UpdatePartnerSettingsResponse(_, Right(ps)) =>
+                                continuation.setAttribute("jsonResponse", ps)
+                                continuation.resume()
+                        }))
+            })
+            continuation.undispatch()
+        })
+    }
+
 
     @RequestMapping(value = Array("/partners/{id}/settings"), method = Array(RequestMethod.GET))
     @ResponseBody

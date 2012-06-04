@@ -2,6 +2,8 @@ package com.echoed.chamber.services.adminuser
 
 import com.echoed.chamber.domain.AdminUser
 import akka.dispatch.Future
+import com.echoed.chamber.domain.partner.PartnerSettings
+
 /**
  * Created by IntelliJ IDEA.
  * User: jonlwu
@@ -21,6 +23,8 @@ trait AdminUserService {
     def getPartners: Future[GetPartnersResponse]
 
     def getPartnerSettings(partnerId: String): Future[GetPartnerSettingsResponse]
+
+    def updatePartnerSettings(partnerSettings: PartnerSettings): Future[UpdatePartnerSettingsResponse]
     
     def getEchoPossibilities: Future[GetEchoPossibilitesResponse]
     
