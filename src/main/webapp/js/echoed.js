@@ -51,6 +51,7 @@ Echoed.Router = Backbone.Router.extend({
         window.location.href = "#";
     },
     explore: function(filter){
+        _gaq.push(['_trackPageview', 'explore/' + filter]);
         if(this.page != "Explore"){
             this.page = "Explore";
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "explore"});
@@ -61,6 +62,7 @@ Echoed.Router = Backbone.Router.extend({
         this.EvAg.trigger("page/change","explore");
     },
     exploreFriends: function(filter){
+        _gaq.push(['_trackPageview', 'exploref/' + filter]);
         if(this.page != "Explore/Friends"){
             this.page = "Explore/Friends";
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "explore/friends"});
@@ -71,6 +73,7 @@ Echoed.Router = Backbone.Router.extend({
     },
     partnerFeed: function(name,filter) {
         var newPage = "Partner/" + name;
+        _gaq.push(['_trackPageview', newPage]);
         if(this.page != newPage){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "partners", Name: name});
             this.page = newPage
@@ -80,6 +83,7 @@ Echoed.Router = Backbone.Router.extend({
         this.EvAg.trigger("page/change","partners");
     },
     exhibit: function(filter) {
+        _gaq.push(['_trackPageview', 'exhibit/' + filter]);
         if(this.page != "Exhibit"){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: filter, Type: "exhibit"});
             this.page = "Exhibit";
@@ -90,12 +94,14 @@ Echoed.Router = Backbone.Router.extend({
 
     },
     friends: function() {
+        _gaq.push(['_trackPageview', 'friends']);
         pageView = new Echoed.Views.Pages.Friends({EvAg: this.EvAg});
         this.EvAg.trigger("page/change","friends");
         this.page = "Friends";
     },
     friendsExhibit: function(id, filter){
         var newPage = "Friends/Exhibit/" + id;
+        _gaq.push(['_trackPageview', newPage]);
         if(this.page != newPage){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: filter, Type: "friend", Id: id});
             this.page = newPage
@@ -202,6 +208,14 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.element.html(template);
                 self.exhibit=$('#exhibit');
 
+                self.exhibit.isotope({
+                    masonry:{
+                        columnWidth: 5
+                    },
+                    itemSelector: '.item_wrap',
+                    filter: self.filter
+                });
+
                 var contentSelector = $('#content-selector');
                 contentSelector.html('');
                 var ul = $('<ul></ul>').addClass('dropdown-container').appendTo(contentSelector);
@@ -215,20 +229,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 var brandDropDownEl = $('<li class="dropdown"></li>');
                 brandDropDownEl.appendTo(ul);
                 var categoryDropDown = new Echoed.Views.Components.Dropdown({el: dropDownEl,Name: 'Category', EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Filter: self.filter});
-                //var brandDropdown = new Echoed.Views.Components.Dropdown({ el: brandDropDownEl, Name: 'Brand', EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Filter: self.filter});
-                var exhibit = $('#exhibit');
                 if(self.id == "friends")
                     $('#content-title').html(data.echoedUserName + "'s Exhibit");
                 else
                     $('#content-title').html(self.contentTitle);
                 if(data.echoes.length > 0){
-                    exhibit.isotope({
-                        masonry:{
-                            columnWidth: 5
-                        },
-                        itemSelector: '.item_wrap',
-                        filter: self.filter
-                    });
                     $.each(data.echoes, function(index,product){
                         var productModel = new Echoed.Models.Product(product);
                         self.addProduct(productModel,self.filter);

@@ -165,3 +165,11 @@
     });
 </script>
 {{> partial_google}}
+<script>
+    _gaq.push(['_setCustomVar',
+            1,
+            'User Id',
+            '{{#echoedUser}}{{id}}{{/echoedUser}}',
+            2
+    ]);
+</script>
