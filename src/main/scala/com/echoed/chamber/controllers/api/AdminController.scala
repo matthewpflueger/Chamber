@@ -17,6 +17,7 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.validation.{Validator , BindingResult }
 import javax.validation.Valid
 import org.springframework.core.convert.ConversionService
+import com.echoed.chamber.controllers.ControllerUtils._
 
 /**
  * Created by IntelliJ IDEA.
@@ -145,6 +146,8 @@ class AdminController {
             continuation.setAttribute("jsonResponse", "error")
             continuation.resume()
         } else if (bindingResult.hasErrors) {
+            "error"
+            //continuation.resume()
         } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
 
             val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)

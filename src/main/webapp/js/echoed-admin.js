@@ -90,7 +90,6 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
         var form = $('#partner-settings-add');
         var serializedString = form.serialize();
         var v = $('#partnerId').val();
-        alert(serializedString);
         $.ajax({
             url: Echoed.urls.api + "/admin/partners/" + v + "/settings/update",
             data: form.serialize(),
@@ -100,7 +99,7 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                alert('success');
+                alert(JSON.stringify(data));
             }
         })
     },
@@ -116,7 +115,6 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                 var table = {"style" : "report-table" ,
                     "header" : [
                         { "text": "Setting Id"},
-                        { "text": "Partner Id"},
                         { "text": "Share %"},
                         { "text": "Min Clicks"},
                         { "text": "Min %"},
@@ -124,13 +122,17 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                         { "text": "Max %"},
                         { "text": "Views"},
                         { "text": "@ Handle"},
+                        { "text": "Coupon Code"},
+                        { "text": "Coupon Description"},
+                        { "text": "Expires On"},
                         { "text": "@ ActiveDate"}
                     ],
                     "rows" : []};
                 $.each(data, function(index, partnerSettings){
                     var row = { "href":"#", cells:[]};
+                    var expiresDate = new Date(partnerSettings.couponExpiresOn);
+                    var activeDate = new Date(partnerSettings.activeOn);
                     row.cells.push({"text" : partnerSettings.id});
-                    row.cells.push({"text" : partnerSettings.partnerId });
                     row.cells.push({"text" : partnerSettings.closetPercentage });
                     row.cells.push({"text" : partnerSettings.minClicks });
                     row.cells.push({"text" : partnerSettings.minPercentage });
@@ -138,11 +140,14 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                     row.cells.push({"text" : partnerSettings.maxPercentage });
                     row.cells.push({"text" : partnerSettings.views });
                     row.cells.push({"text" : partnerSettings.hashtag ? partnerSettings.hashtag: ""});
-                    row.cells.push({"text" : partnerSettings.activeOn });
+                    row.cells.push({"text" : partnerSettings.couponCode });
+                    row.cells.push({"text" : partnerSettings.couponDescription });
+                    row.cells.push({"text" : expiresDate.toDateString() });
+                    row.cells.push({"text" : activeDate.toDateString() });
                     table.rows.push(row);
                 });
                 $('#partner-settings-container').empty();
-                var settingsTable = new Echoed.Views.Components.TableTemplate({ EvAg:self.EvAg, el:"#partner-settings-container", table:table})
+                var settingsTable = new Echoed.Views.Components.TableTemplate({ EvAg:self.EvAg, el:"#partner-settings-container", table:table});
                 $('#partnerName').val(t);
                 $('#partnerId').val(v);
             }

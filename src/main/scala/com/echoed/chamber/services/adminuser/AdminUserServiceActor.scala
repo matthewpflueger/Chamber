@@ -49,8 +49,14 @@ class AdminUserServiceActor(
             val channel: Channel[UpdatePartnerSettingsResponse] = self.channel
             logger.debug("Updating Partner Settings")
             Option(partnerSettingsDao.insert(partnerSettings)).cata(
-                resultSet => channel ! UpdatePartnerSettingsResponse(msg, Right(partnerSettings)),
-                channel ! UpdatePartnerSettingsResponse(msg, Left(new AdminUserException("Error inserting PartnerSettings")))
+                resultSet => {
+                    logger.debug("Successfully inserted new Partner Settings")
+                    channel ! UpdatePartnerSettingsResponse(msg, Right(partnerSettings))
+                },
+                {
+                    logger.error("Error inserting new Partner Settings {}" , partnerSettings)
+                    channel ! UpdatePartnerSettingsResponse(msg, Left(new AdminUserException("Error inserting PartnerSettings")))
+                }
             )
 
         case msg: GetAdminUser =>
