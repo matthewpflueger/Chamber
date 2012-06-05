@@ -159,7 +159,7 @@ case class EchoExists(
         _message: String = "Item already echoed",
         _cause: Throwable = null) extends PE(_message, _cause)
 
-case class EchoNotFound(id: String, m: String = "Echo not found") extends PE(m)
+case class EchoNotFound(id: String, m: String = "Echo not found %s") extends PE(m format id)
 
 
 
