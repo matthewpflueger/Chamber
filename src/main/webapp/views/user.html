@@ -11,93 +11,169 @@
             <div class="item_text">
             </div>
         </div>
-        <div class="item_content_large" style="display:none;">
-            <div class="icl_right">
-                <textarea></textarea>
+        <div class="item_content_large clearfix" style="display:none;">
+            <div class="icl_in"></div>
+            <div class="icl_pn"></div>
+            <div class="icl_top clearfix">
+                <div class="icl_left">
+                    <div class="icli">
+                        <img class="icl-i-i" width="230px" src=""/>
+                    </div>
+                </div>
+                <div class="icl_right">
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/templates" id="templates-components-fbp">
+        <div class="message">
+        </div>
+    </script>
+    <script type="text/templates" id="templates-components-profile">
+        <div class="profile_content">
+            <div class="profile_username"></div>
+            <div class="clearfix">
+                <div class="profile_stat">
+                    <div class="profile_reward"></div>
+                </div>
+                <div class="profile_stat">
+                    <div class="profile_referrers"></div>
+                </div>
+            </div>
+            <div class="clearfix">
+                <div class="profile_stat">
+                    <div class="profile_label">Comments</div>
+                    <div class="profile_comments"></div>
+                </div>
+                <div class="profile_stat">
+                    <div class="profile_label">Likes</div>
+                    <div class="profile_comments"></div>
+                </div>
             </div>
         </div>
     </script>
     <script type="text/templates" id="templates-components-tooltip">
-
     </script>
-
-
     <script type="text/templates" id="templates-pages-exhibit">
-        <div id="exhibit">
+        <!--<div id="title"></div>-->
+        <div id="content-title"></div>
+        <div id="exhibit" class="clearfix"></div>
+    </script>
+    <script type="text/templates" id="templates-components-photo">
+        <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
+        <div class="field-title">Post a Photo</div>
+        <div class="field-body">
+        </div>
+    </script>
+    <script type="text/templates" id="templates-components-ask">
+        <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
+        <div class="field-title">Ask a Question</div>
+        <div class="field-body">
+            <form name="">
+                <div class=""></div>
+                <div>
+                    <textarea placeholder="Ask a Question"></textarea>
+                </div>
+                <div class="field-button">
+                    Ask Question
+                </div>
+            </form>
+        </div>
+    </script>
+    <script type="text/templates" id="templates-components-testimonial">
+        <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
+        <div class="field-title">Write a Testimonial</div>
+        <div class="field-body">
+            <form name="">
+                <input id="" type="hidden">
+                <div class=""></div>
+                <div>
+                    <textarea placeholder="Write a Testimonial"></textarea>
+                </div>
+                <div class="field-button">
+                    Submit Testimonial
+                </div>
+            </form>
         </div>
     </script>
 </head>
 <body>
     <div id="container">
-        <div id="header-container">
-            <div id="header" class="clearfix">
-                <div id="logo">
-                    <img height="40px" src="{{urls.images}}/logo.png">
-                </div>
-                <div id="user" class="clearfix">
-                    <div id="user-image">
-                        {{#echoedUser}}
-                        {{#facebookId}}
-                        <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{this}}/picture" />
-                        {{/facebookId}}
-                        {{/echoedUser}}
-                    </div>
-                    <div id="user-text">
-                        {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
-                    </div>
-                </div>
-                <div id="header-nav" class="clearfix">
-                    <ul>
-                        <li id="explore_nav">
-                            <a href="#explore">
-                                What Are People Buying?
-                            </a>
-                        </li>
-                        <li id="exhibit_nav">
-                            <a href="#exhibit">
-                                What I've Shared
-                            </a>
-                        </li>
-                        <li id="friends_nav">
-                            <a href="#friends">
-                                My Friends
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div id="networks">
+        <div id="nav-container">
+            <div id="logo">
+                <img height="40px" src="{{urls.images}}/logo.png">
+            </div>
+            <div id="user" class="clearfix">
+                <div id="user-image">
                     {{#echoedUser}}
-                        {{#facebookUserId}}
-                        <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
-                        {{/facebookUserId}}
-                        {{^facebookUserId}}
-                        <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{http.site}}/facebook/add&scope=email,publish_stream,read_stream,offline_access">
-                            <img src="{{urls.images}}/btn_sq_grey_fb.png" alt="facebook"/>
-                        </a>
-                        {{/facebookUserId}}
-                        {{#twitterUserId}}
-                        <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
-                        {{/twitterUserId}}
-                        {{^twitterUserId}}
-                        <a id="addTwitterLink" href="{{urls.site}}/twitter?redirect="/>
-                            <img src="{{urls.images}}/btn_sq_grey_tw.png" alt="twitter"/>
-                        </a>
-                        {{/twitterUserId}}
+                    {{#facebookId}}
+                    <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{this}}/picture" />
+                    {{/facebookId}}
                     {{/echoedUser}}
                 </div>
+                <div id="user-text">
+                    {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
+                </div>
             </div>
+            <div id="actions"></div>
+            <div id="header-nav" class="clearfix">
+                <div class="nav-label">
+                    Explore
+                </div>
+                <ul>
+                    <li id="explore_nav">
+                        <a href="#explore">
+                            Everyone
+                        </a>
+                    </li>
+                    <li id="friends_nav">
+                        <a href="#me/friends">
+                            My Friends
+                        </a>
+                    </li>
+                    <li id="exhibit_nav">
+                        <a href="#me">
+                            Me
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!--<div id="networks">
+                {{#echoedUser}}
+                    {{#facebookUserId}}
+                    <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
+                    {{/facebookUserId}}
+                    {{^facebookUserId}}
+                    <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{http.site}}/facebook/add&scope=email,publish_stream,read_stream,offline_access">
+                        <img src="{{urls.images}}/btn_sq_grey_fb.png" alt="facebook"/>
+                    </a>
+                    {{/facebookUserId}}
+                    {{#twitterUserId}}
+                    <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
+                    {{/twitterUserId}}
+                    {{^twitterUserId}}
+                    <a id="addTwitterLink" href="{{urls.site}}/twitter?redirect="/>
+                        <img src="{{urls.images}}/btn_sq_grey_tw.png" alt="twitter"/>
+                    </a>
+                    {{/twitterUserId}}
+                {{/echoedUser}}
+            </div> -->
             <div id="content-selector-container">
-                <div id="content-title"></div>
-                <div id="content-selector"></div>
+                <div id="content-selector" class="dropdown">
+                    <div id="content-filter">
+                        <div class="dd-header"></div>
+                        <div class="dd-body"></div>
+                    </div>
+                    <div id="content-sort"></div>
+                </div>
             </div>
-
         </div>
-        <div id="content">
-        </div>
+        <div id="content" class="clearfix"></div>
+        <div id="field" style="display:none;"></div>
     </div>
 </body>
 </html>
-<script>
+<script type="text/javascript">
     $.Isotope.prototype._getCenteredMasonryColumns = function() {
         this.width = this.element.width();
 
@@ -155,9 +231,6 @@
             width : (this.masonry.cols - unusedCols) * this.masonry.columnWidth
         };
     };
-
-</script>
-<script>
 </script>
 <script type="text/javascript">
     $(document).ready(function() {
@@ -165,11 +238,3 @@
     });
 </script>
 {{> partial_google}}
-<script>
-    _gaq.push(['_setCustomVar',
-            1,
-            'User Id',
-            '{{#echoedUser}}{{id}}{{/echoedUser}}',
-            2
-    ]);
-</script>

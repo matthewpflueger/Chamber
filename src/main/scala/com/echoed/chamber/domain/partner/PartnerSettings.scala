@@ -96,7 +96,7 @@ case class PartnerSettings(
         hashTag,
         "",
         "",
-        new Date(0),
+        new Date,
         activeOn
     )
 
@@ -131,7 +131,7 @@ object PartnerSettings {
             hashTag = "",
             couponCode = "",
             couponDescription = "",
-            couponExpiresOn = new Date(),
+            couponExpiresOn = new Date,
             activeOn = new Date)
 
     }

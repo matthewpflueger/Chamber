@@ -12,6 +12,9 @@ Echoed = {
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
         var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({EvAg : EventAggregator});
+        var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
+        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-filter', Name: 'Filter', EvAg: EventAggregator});
+        //var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         Backbone.history.start();
     }
 };
@@ -23,7 +26,7 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
-        _.bindAll(this,'exhibit','friends','explore');
+        _.bindAll(this,'me','friends','explore');
         this.EvAg = options.EvAg;
         this.page=null;
     },
@@ -36,10 +39,13 @@ Echoed.Router = Backbone.Router.extend({
         "exploref/": "exploreFriends",
         "exploref" : "exploreFriends",
         "exploref/:filter": "exploreFriends",
-        "exhibit/": "exhibit",
-        "exhibit": "exhibit",
-        "exhibit/:filter": "exhibit",
-        "friends": "friends",
+        "echo/:partner/:product/:filter": "echo",
+        "echo/:partner/:product": "echo",
+        "me/friends": "friends",
+        "me/": "me",
+        "me": "me",
+        "me/:filter": "me",
+        "echo/:id": "echo",
         "friends/exhibit/:id": "friendsExhibit",
         "friends/exhibit/:id/": "friendsExhibit",
         "friends/exhibit/:id/:filter": "friendsExhibit",
@@ -47,11 +53,19 @@ Echoed.Router = Backbone.Router.extend({
         "partners/:name/": "partnerFeed",
         "partners/:name": "partnerFeed"
     },
+    echo: function(partner, product, filter) {
+        if(this.page != "Echo"){
+            this.page = "Echo";
+            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Partner: partner, Product: product, Filter: filter, Type: "echo"});
+        } else {
+            this.EvAg.trigger("filter/change", filter);
+        }
+        this.EvAg.trigger("page/change","echo");
+    },
     fix: function(){
         window.location.href = "#";
     },
     explore: function(filter){
-        _gaq.push(['_trackPageview', 'explore/' + filter]);
         if(this.page != "Explore"){
             this.page = "Explore";
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "explore"});
@@ -62,7 +76,6 @@ Echoed.Router = Backbone.Router.extend({
         this.EvAg.trigger("page/change","explore");
     },
     exploreFriends: function(filter){
-        _gaq.push(['_trackPageview', 'exploref/' + filter]);
         if(this.page != "Explore/Friends"){
             this.page = "Explore/Friends";
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "explore/friends"});
@@ -73,7 +86,6 @@ Echoed.Router = Backbone.Router.extend({
     },
     partnerFeed: function(name,filter) {
         var newPage = "Partner/" + name;
-        _gaq.push(['_trackPageview', newPage]);
         if(this.page != newPage){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "partners", Name: name});
             this.page = newPage
@@ -82,8 +94,7 @@ Echoed.Router = Backbone.Router.extend({
         }
         this.EvAg.trigger("page/change","partners");
     },
-    exhibit: function(filter) {
-        _gaq.push(['_trackPageview', 'exhibit/' + filter]);
+    me: function(filter) {
         if(this.page != "Exhibit"){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: filter, Type: "exhibit"});
             this.page = "Exhibit";
@@ -94,14 +105,13 @@ Echoed.Router = Backbone.Router.extend({
 
     },
     friends: function() {
-        _gaq.push(['_trackPageview', 'friends']);
         pageView = new Echoed.Views.Pages.Friends({EvAg: this.EvAg});
         this.EvAg.trigger("page/change","friends");
+        this.EvAg.trigger('filter/hide');
         this.page = "Friends";
     },
     friendsExhibit: function(id, filter){
         var newPage = "Friends/Exhibit/" + id;
-        _gaq.push(['_trackPageview', newPage]);
         if(this.page != newPage){
             pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: filter, Type: "friend", Id: id});
             this.page = newPage
@@ -111,6 +121,132 @@ Echoed.Router = Backbone.Router.extend({
         this.EvAg.trigger("page/change","friends");
     }
 
+});
+
+Echoed.Views.Components.Field = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'render', 'load', 'updateEndpoint', 'submit');
+        this.element = $(options.el);
+        this.EvAg = options.EvAg;
+        this.EvAg.bind("field/show", this.load);
+        this.EvAg.bind("focus/update", this.updateEndpoint);
+    },
+    events: {
+        "click .field-close": "close",
+        "click .field-button": "submit"
+    },
+    updateEndpoint: function(options){
+        var self = this;
+        self.endpointBase = Echoed.urls.api + '/api/partner/' + options.partner + '/' + options.product;
+    },
+    submit: function(){
+        var self = this;
+        var message = self.element.find('textarea').val();
+        if(self.sendingState != 1){
+            self.sendingState = 1;
+            $.ajax({
+                url: self.endpoint,
+                type: "POST",
+                data: {
+                    message: message
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                dataType: 'json',
+                success: function(data){
+                    self.element.fadeOut();
+                    self.fade.fadeOut();
+                    self.element.empty();
+                    self.EvAg.trigger("question/add",data)
+                    self.sendingState = 0;
+                }
+            })
+        }
+    },
+    load: function(action){
+        var self = this;
+        switch(action){
+            case 'testimonial':
+                self.type = action;
+                self.template = _.template($('#templates-components-testimonial').html());
+                self.endpoint = self.endpointBase + '/testimonial';
+                self.render();
+                break;
+            case 'ask':
+                self.type = action;
+                self.template = _.template($('#templates-components-ask').html());
+                self.endpoint = self.endpointBase + '/ask';
+                self.render();
+                break;
+            case 'photo':
+                self.type = action;
+                self.template = _.template($('#templates-components-photo').html());
+                self.endpoint = self.endpointBase + '/photo';
+                self.render();
+                break;
+        }
+    },
+    render: function(){
+        var self = this;
+        self.element.empty();
+
+        self.element.html(self.template);
+        var arrPageSizes = self.getPageSize();
+        self.fade = $('<div id="fade"></div>').appendTo($('body')).css({
+            width: arrPageSizes[0],
+            height: arrPageSizes[1]
+        });
+        self.element.fadeIn();
+    },
+    close: function(){
+        var self = this;
+        self.element.fadeOut();
+        self.element.empty();
+        self.fade.fadeOut();
+    },
+    getPageSize: function(){
+        var xScroll, yScroll;
+        if (window.innerHeight && window.scrollMaxY) {
+            xScroll = window.innerWidth + window.scrollMaxX;
+            yScroll = window.innerHeight + window.scrollMaxY;
+        } else if (document.body.scrollHeight > document.body.offsetHeight){ // all but Explorer Mac
+            xScroll = document.body.scrollWidth;
+            yScroll = document.body.scrollHeight;
+        } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
+            xScroll = document.body.offsetWidth;
+            yScroll = document.body.offsetHeight;
+        }
+        var windowWidth, windowHeight;
+        if (self.innerHeight) {	// all except Explorer
+            if(document.documentElement.clientWidth){
+                windowWidth = document.documentElement.clientWidth;
+            } else {
+                windowWidth = self.innerWidth;
+            }
+            windowHeight = self.innerHeight;
+        } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+            windowWidth = document.documentElement.clientWidth;
+            windowHeight = document.documentElement.clientHeight;
+        } else if (document.body) { // other Explorers
+            windowWidth = document.body.clientWidth;
+            windowHeight = document.body.clientHeight;
+        }
+        // for small pages with total height less then height of the viewport
+        if(yScroll < windowHeight){
+            pageHeight = windowHeight;
+        } else {
+            pageHeight = yScroll;
+        }
+        // for small pages with total width less then width of the viewport
+        if(xScroll < windowWidth){
+            pageWidth = xScroll;
+        } else {
+            pageWidth = windowWidth;
+        }
+        arrayPageSize = new Array(pageWidth,pageHeight,windowWidth,windowHeight);
+        return arrayPageSize;
+    }
 });
 
 Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
@@ -138,13 +274,12 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','addProduct','filterProducts','next','complete','relayout');
+        _.bindAll(this,'render','addProduct','filterProducts','next','complete','relayout','addQuestion');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
         this.EvAg.bind('exhibit/relayout', this.relayout);
-        this.productCount = 0;
-        this.productCount2 = 0;
+        this.EvAg.bind('question/add', this.addQuestion);
         this.element = $(this.el);
         if(!options.Filter)
             this.filter = '*';
@@ -152,22 +287,29 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             this.filter = "." + options.Filter;
 
         switch(options.Type){
+            case "echo":
+                this.jsonUrl = Echoed.urls.api + "/api/partner/" + options.Partner + "/" + options.Product;
+                this.baseUrl = "#echo/" + options.Partner + "/" + options.Product;
+                this.id = "echo";
+                this.nextInt = 1;
+                this.EvAg.trigger('focus/update', { partner: options.Partner , product: options.Product });
+                break;
             case "friend":
-                this.jsonUrl = Echoed.urls.api + "/user/exhibit/" + options.Id;
+                this.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
                 this.baseUrl = "#friends/exhibit/" + options.Id + "/";
                 this.contentTitle = "Your Friends";
                 this.id = "friends";
                 this.nextInt = 1;
                 break;
             case "partners":
-                this.jsonUrl = Echoed.urls.api + "/user/feed/partner/" + options.Name;
+                this.jsonUrl = Echoed.urls.api + "/api/partner/" + options.Name;
                 this.baseUrl = "#partners/" + options.Name + "/";
                 this.contentTitle = options.Name;
                 this.id = "partners";
                 this.nextInt = 1;
                 break;
             case "explore":
-                this.jsonUrl = Echoed.urls.api + "/user/feed/public";
+                this.jsonUrl = Echoed.urls.api + "/api/me/feed";
                 this.baseUrl = "#explore/";
                 this.contentTitle = "What People Are Buying";
                 this.feedSelector = "Everyone";
@@ -175,7 +317,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.nextInt = 1;
                 break;
             case "explore/friends":
-                this.jsonUrl = Echoed.urls.api + "/user/feed/friends";
+                this.jsonUrl = Echoed.urls.api + "/api/me/feed/friends";
                 this.baseUrl = "#exploref/";
                 this.contentTitle = "What Your Friends Are Sharing";
                 this.feedSelector = "Friends";
@@ -183,19 +325,15 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 this.nextInt = 1;
                 break;
             case "exhibit":
-                this.jsonUrl = Echoed.urls.api + "/user/exhibit";
-                this.baseUrl = "#exhibit/";
-                this.contentTitle = "My Exhibit";
+                this.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
+                this.baseUrl = "#me/";
+                this.contentTitle = "Me";
                 this.id = null;
                 this.nextInt = 1;
                 break;
         }
-        this.render();
-    },
-    render: function(){
-
+        this.EvAg.trigger('filter/init', this.baseUrl);
         var self = this;
-
         $.ajax({
             url: self.jsonUrl,
             xhrFields: {
@@ -203,53 +341,75 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             },
             dataType: 'json',
             success: function(data){
-
-                var template = _.template($('#templates-pages-exhibit').html());
-                self.element.html(template);
-                self.exhibit=$('#exhibit');
-
-                self.exhibit.isotope({
-                    masonry:{
-                        columnWidth: 5
-                    },
-                    itemSelector: '.item_wrap',
-                    filter: self.filter
-                });
-
-                var contentSelector = $('#content-selector');
-                contentSelector.html('');
-                var ul = $('<ul></ul>').addClass('dropdown-container').appendTo(contentSelector);
-                if(self.id == "explore" || self.id=="explore/friends"){
-                    var viewDropDownEl = $('<li class="dropdown"></li>');
-                    viewDropDownEl.appendTo(ul);
-                    var viewDropDown = new Echoed.Views.Components.FeedDropdown({ el: viewDropDownEl, EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Selected: self.feedSelector});
-                }
-                var dropDownEl = $('<li class="dropdown"></li>');
-                dropDownEl.appendTo(ul);
-                var brandDropDownEl = $('<li class="dropdown"></li>');
-                brandDropDownEl.appendTo(ul);
-                var categoryDropDown = new Echoed.Views.Components.Dropdown({el: dropDownEl,Name: 'Category', EvAg: self.EvAg, Id: self.id, BaseUrl: self.baseUrl, Filter: self.filter});
-                if(self.id == "friends")
-                    $('#content-title').html(data.echoedUserName + "'s Exhibit");
-                else
-                    $('#content-title').html(self.contentTitle);
-                if(data.echoes.length > 0){
-                    $.each(data.echoes, function(index,product){
-                        var productModel = new Echoed.Models.Product(product);
-                        self.addProduct(productModel,self.filter);
-                        self.EvAg.trigger('Category/add',product.echoCategory,product.echoCategory);
-                        self.EvAg.trigger('Brand/add',product.echoBrand, product.echoBrand);
-                    });
-                    self.productCount += data.echoes.length;
-                    self.EvAg.bind('infiniteScroll', self.next);
-                }
-                else{
-                    self.nextInt = null;
-                    var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
-                    noEchoDiv.appendTo(exhibit);
-                }
+                self.render(data);
             }
         });
+
+    },
+    render: function(data){
+        var self = this;
+        self.element.empty();
+        var template = _.template($('#templates-pages-exhibit').html());
+        self.element.html(template);
+        self.exhibit=$('#exhibit');
+
+        self.EvAg.trigger("filter/change",self.filter);
+
+        var exhibit = $('#exhibit');
+        if(self.id == "friends")
+            $('#content-title').html(data.echoedUserName + "'s Exhibit");
+        else
+            $('#content-title').html(self.contentTitle);
+        exhibit.isotope({
+            itemSelector: '.item_wrap,.no_filter',
+            masonry:{
+                columnWidth: 5
+            },
+            getSortData: {
+                date: function ($elem) {
+                    return $elem.attr("date");
+                }
+            },
+            sortBy: 'date',
+            sortAscending: false,
+            filter: self.filter
+        });
+        if(data.echoes){
+            if(data.echoes.length > 0){
+                $.each(data.echoes, function(index,product){
+                    var productModel = new Echoed.Models.Product(product);
+                    self.addProduct(productModel,self.filter);
+                    self.EvAg.trigger('Filter/add',product.echoCategory,product.echoCategory);
+                });
+                self.productCount += data.echoes.length;
+                self.EvAg.bind('infiniteScroll', self.next);
+            }
+            else{
+                self.nextInt = null;
+                var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
+                noEchoDiv.appendTo(exhibit);
+            }
+        }
+        if(data.product){
+            var productModel = new Echoed.Models.Product(data.product);
+            self.addProduct(productModel, self.filter);
+        }
+        if(data.questions){
+            $.each(data.questions, function(index, question){
+                self.addQuestion(question);
+            });
+        }
+        if(data.facebookPosts){
+            $.each(data.facebookPosts, function(index, facebookPost){
+                self.addFacebookPost(facebookPost)
+            });
+        }
+        if(data.echoedUsers){
+            $.each(data.echoedUsers, function(index,echoedUser){
+            });
+        }
+
+
 
     },
     relayout: function(e){
@@ -265,7 +425,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             selector = '*';
         else
             selector = "." + encodeURIComponent(filter);
-        self.exhibit.isotope({filter: '#exhibit .item_wrap' + selector});
+        self.exhibit.isotope({filter: '.no_filter,#exhibit .item_wrap' + selector});
     },
     next: function(){
         var self = this;
@@ -282,8 +442,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                         $.each(data.echoes, function(index,product){
                             var productModel = new Echoed.Models.Product(product);
                             self.addProduct(productModel,self.filter);
-                            self.EvAg.trigger('Category/add',product.echoCategory,product.echoCategory);
-                            self.EvAg.trigger('Brand/add',product.echoBrand,product.echoBrand);
+                            self.EvAg.trigger('Filter/add',product.echoCategory,product.echoCategory);
                         });
                         self.productCount += data.echoes.length;
                         self.EvAg.bind('infiniteScroll', self.next);
@@ -301,6 +460,24 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         self.EvAg.bind('infiniteScroll', self.next);
     },
+    addProfile: function(){
+        var self = this;
+        var profileDiv = $('<div></div>').addClass('profile').addClass('item_wrap');
+        var profileComponent = new Echoed.Views.Components.Profile({ el: profileDiv, EvAg: self.EvAg });
+        self.exhibit.isotope('insert', profileDiv);
+    },
+    addFacebookPost: function(facebookPost){
+        var self = this;
+        var fbDiv = $('<div></div>').addClass("item_wrap").addClass('fbp');
+        var fbComp = new Echoed.Views.Components.FacebookPost({ el: fbDiv, facebookPost: facebookPost, EvAg: self.EvAg});
+        self.exhibit.isotope('insert',fbDiv);
+    },
+    addQuestion: function(question){
+        var self = this;
+        var questionDiv = $('<div></div>').addClass("item_wrap").addClass('fbp');
+        var questionComp = new Echoed.Views.Components.Question({ el: questionDiv, question: question, EvAg: self.EvAg});
+        self.exhibit.isotope('insert', questionDiv);
+    },
     addProduct: function(productModel,filter){
         var self = this;
         var productDiv = $('<div></div>');
@@ -316,6 +493,110 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     }
 });
 
+Echoed.Views.Components.Partner = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.element = $(this.el);
+        this.partner = options.partner;
+    },
+    render: function(){
+        var self = this;
+        this.element.empty();
+        var template = _.template($('#templates-components-ptnr').html());
+        this.element.html(template);
+    }
+});
+
+Echoed.Views.Components.Actions = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.element = $(this.el);
+        this.render();
+    },
+    events: {
+        'click .action-button': 'click'
+    },
+    render: function(){
+        var self = this;
+        this.element.empty();
+        this.element.append($("<div act='ask' class='action-button'>Add a Story</div>"));
+        //this.element.append($("<div act='ask' class='action-button'>Ask a Question</div>"));
+        //this.element.append($("<div act='testimonial' class='action-button'>Write a Testimonial</div>"));
+        //this.element.append($("<div act='photo' class='action-button'>Post a Photo</div>"));
+    },
+    click: function(e){
+        var self = this;
+        var target = $(e.target);
+        var action = target.attr("act");
+        self.EvAg.trigger("field/show", action);
+    }
+});
+
+Echoed.Views.Components.Question = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.element = $(this.el);
+        this.question = options.question;
+        this.render();
+    },
+    render: function(){
+        var self = this;
+        self.element.empty();
+        var template = _.template($('#templates-components-fbp').html());
+        self.element.html(template);
+        self.element.attr("date", self.question.createdOn);
+        self.element.find(".message").html(self.question.message);
+    }
+});
+
+Echoed.Views.Components.FacebookPost = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.element = $(this.el);
+        this.facebookPost = options.facebookPost;
+        this.render();
+    },
+    render: function(){
+        var self = this;
+        this.element.empty();
+        var template = _.template($('#templates-components-fbp').html());
+        this.element.html(template);
+        this.element.attr("date", self.facebookPost.createdOn);
+        this.element.find(".message").html(self.facebookPost.message);
+    }
+});
+
+Echoed.Views.Components.Profile = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.element = $(this.el);
+        this.render();
+    },
+    render: function(){
+        var self = this;
+        this.element.empty();
+        var template = _.template($('#templates-components-profile').html());
+        this.element.html(template).addClass('no_filter');
+        $.ajax({
+            url: Echoed.urls.api + "/user/me",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            success: function(data){
+                var un = self.element.find('.profile_username').html(data.echoedUser.name);
+                var rew = self.element.find('.profile_reward').html("$" + data.totalCredit.toFixed(2));
+                var tc = self.element.find('.profile_referrers').html(data.totalVisits);
+            }
+        });
+    }
+});
+
 Echoed.Views.Pages.Friends = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
@@ -328,7 +609,8 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
         var template = _.template($('#templates-pages-exhibit').html());
         this.element.html(template);
         var ex = $('#exhibit');
-        jsonUrl = Echoed.urls.api + "/user/friends";
+        $('#content-title').html("Friends");
+        jsonUrl = Echoed.urls.api + "/api/me/friends";
         $.ajax({
             url: jsonUrl,
             xhrFields: {
@@ -368,7 +650,6 @@ Echoed.Views.Components.Logout = Backbone.View.extend({
         this.EvAg = options.EvAg;
         this.el = options.el;
         this.element = $(this.el);
-        //this.render();
     },
     events:{
         "click": "triggerClick"
@@ -377,68 +658,48 @@ Echoed.Views.Components.Logout = Backbone.View.extend({
     }
 });
 
-Echoed.Views.Components.FeedDropdown = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this);
-        this.EvAg = options.EvAg;
-        this.baseUrl = options.BaseUrl;
-        this.el = options.el
-        this.element = $(this.el);
-        if(options.Selected == "")
-            options.Selected = "Everyone";
-        this.selected = options.Selected;
-        this.render();
-    },
-    events: {
-        "mouseenter": "showList",
-        "mouseleave": "hideList"
-    },
-    render: function(){
-        this.element.html("<strong>View </strong>: " + this.selected + '<div></div>');
-        var ul = $('<ul></ul>');
-        ul.appendTo(this.element);
-        this.dropDown = ul;
-        var li = $('<li></li>').appendTo(ul);
-        var anc =$('<a></a>').attr("href", "#explore").html("Everyone").appendTo(li);
-        if(this.selected == "Everyone")
-            anc.addClass("current");
-        anc =$('<a></a>').attr("href", "#exploref").html("Friends").appendTo(li);
-        if(this.selected == "Friends")
-            anc.addClass("current");
-    },
-    showList: function(){
-        this.dropDown.show();
-    },
-    hideList: function(){
-        this.dropDown.hide();
-    },
-    triggerClick: function(e){
-        this.render();
-    }
-});
-
 Echoed.Views.Components.Dropdown = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'addSelector','triggerClick');
+        _.bindAll(this,'addSelector','triggerClick','updateLabel','init','hide');
 
         this.name = options.Name;
-
+        this.state = 0;
         this.EvAg = options.EvAg;
         this.categories = new Array();
         this.EvAg.bind(this.name + '/add', this.addSelector);
         this.EvAg.bind('filter/change',this.triggerClick);
-        this.baseUrl = options.BaseUrl;
+        this.EvAg.bind('filter/init', this.init);
+        this.EvAg.bind('filter/hide', this.hide);
         this.el = options.el;
         this.element = $(this.el);
-        this.triggerClick(options.Filter.substr(1));
+        this.body = this.element.find('.dd-body');
+        this.header = this.element.find('.dd-header');
+        this.list = {};
+    },
+    init: function(baseUrl){
+        var self = this;
+        self.baseUrl = baseUrl;
+        self.selected = "All";
+        self.body.empty();
+        self.list = {};
         this.render();
+        self.element.fadeIn();
+    },
+    hide: function(){
+        var self = this;
+        self.element.fadeOut();
     },
     events: {
-        "mouseenter": "showList",
-        "mouseleave": "hideList"
+        "click .dd-header": "click",
+        "click li": "highlight"
     },
     render: function(){
-        this.element.html('<strong>' + this.name + ': </strong>' + this.selected + "<div></div>");
+        var self = this;
+        self.header.html('<strong>' + this.name + ': </strong>' + this.selected);
+    },
+    updateList: function(){
+        var self = this;
+        self.body.empty();
         var sortedKeys = new Array();
         var sortedObj = {};
         for(var i in this.list){
@@ -451,42 +712,52 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         this.list = sortedObj;
 
         var ul = $('<ul></ul>');
-        ul.appendTo(this.element);
+        ul.appendTo(self.body);
         this.dropDown = ul;
         var li = $('<li></li>').appendTo(ul);
         var anc =$('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(li);
-        if(this.selected == "All")
-            anc.addClass("current");
         for(var id in this.list){
             anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + encodeURIComponent(this.name + "-" + id)).html(id).appendTo(li);
-            if(id == this.selected){
-                anc.addClass("current");
-            }
         }
+    },
+    highlight: function(e){
     },
     addSelector: function(selector,text){
         if(!this.list[text]){
             this.list[text] =  selector;
-            this.render();
+            this.updateList();
         }
     },
     showList: function(){
-        this.dropDown.show();
+        this.body.slideDown();
     },
     hideList: function(){
-        this.dropDown.hide();
+        this.body.slideUp();
+    },
+    click: function(e){
+        var self = this;
+        if(self.state === 0){
+            self.showList();
+            self.state = 1
+        } else {
+            self.hideList();
+            self.state = 0;
+        }
+    },
+    updateLabel: function(){
+        this.element.find('.dd-header').html('<strong>' + this.name + ': </strong>' + this.selected);
     },
     triggerClick: function(e){
         this.selected = "All";
         if(e){
             var selectorArray = e.split("_");
             for(var i=0;i<selectorArray.length;i++){
-                if(selectorArray[i].search(this.name,0)==0){
-                    this.selected = decodeURIComponent(selectorArray[i].substr(this.name.length + 1));
-                }
+                //if(selectorArray[i].search(this.name,0)==0){
+                    //this.selected = decodeURIComponent(selectorArray[i].substr(this.name.length + 1));
+                //}
             }
         }
-        this.render();
+        this.updateLabel();
     }
 });
 
@@ -549,26 +820,31 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var imageUrl =   this.model.get("image").preferredUrl;
         var imageWidth = this.model.get("image").preferredWidth;
         var imageHeight = this.model.get("image").preferredHeight;
-        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Category-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
+        this.el.attr("date", this.model.get("echoBoughtOn"));
+        this.el.attr("productId", this.model.get("echoProductId"));
+        this.el.attr("partnerId", this.model.get("partnerId"));
+        this.el.attr("id", this.model.get("echoId"));
+        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Filter-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
         var tooltipEl = this.el.find(".product-tooltip");
+        var item_name = this.el.find('.icl_in');
+        var partner_name = this.el.find(".icl_pn");
         self.toolTip = new Echoed.Views.Components.Tooltip({ el: tooltipEl, EvAg: self.EvAg });
         if(this.model.get("echoProductName")){
             hover.append(this.model.get("echoProductName") + '<br/>');
             text.prepend(this.model.get("echoProductName")+'<br/>');
+            item_name.append(this.model.get("echoProductName"));
         }
-        if(this.model.get("echoBrand"))
-            hover.append('by ' + this.model.get("echoBrand") + '<br/>');
-
         if(this.model.get("partnerName")){
             text.prepend('<strong>'+this.model.get("partnerName") + '</strong><br/>');
             hover.append('@ ' + this.model.get("partnerName") + '<br/>');
+            partner_name.append(this.model.get("partnerName"));
         }
         if(this.model.get("echoedUserName"))
             hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/>');
-        if(this.model.get("echoCredit")){
+        if(typeof(this.model.get("echoCredit")) == 'number'){
             hover.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
         }
         img.attr('src', imageUrl);
@@ -602,76 +878,64 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     enlarge: function(){
         var self = this;
+        self.el.css({
+            "z-index" : "99999"
+        });
         self.EvAg.trigger("item/enlarge");
-        this.el.css({
-            height: 720,
-            width: 720
-        });
         self.el.find('.item_content').fadeOut(function(){
-            self.el.find('.item_content_large').fadeIn()
+            self.el.find('.item_content_large').fadeIn(function(){
+                self.EvAg.bind("item/enlarge", self.shrink);
+                self.EvAg.trigger("exhibit/relayout",self.el);
+            });
         });
-
-        self.EvAg.bind("item/enlarge", self.shrink);
-        self.EvAg.trigger("exhibit/relayout",self.el);
         this.state = 1;
     },
     shrink: function(){
         var self= this;
         self.el.css({
-            height: "",
-            width: ""
+            height : "",
+            width : "",
+            "z-index" : ""
         });
         self.state = 0;
         self.el.find('.item_content').fadeIn();
         self.el.find('.item_content_large').hide();
 
     },
-    click: function(){
+    submitTestimonial: function(){
         var self = this;
-        var url = this.el.attr("href");
-        window.open(url);
-        //if(this.state == 0){
-        //    self.enlarge();
-        //} else{
-        //}
+        var textarea = self.el.find('.ta');
+        var id = self.el.attr("id");
+        $.ajax({
+            url: Echoed.urls.api + "/user/" + id + "/testimonial",
+            type: "POST",
+            data: {
+                message: textarea.val()
+            },
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            success: function(data){
+                //alert("success");
+            }
+        })
+    },
+    click: function(e){
+        var self = this;
+        /*
+        if(self.state === 0) {
+            self.enlarge();
+        } else {
+            var target = $(e.target);
+            switch(target.attr("class")){
+                case "submit":
+                    self.submitTestimonial();
+                    break;
+            }
+        } */
+        var partnerId = this.el.attr("partnerId");
+        var productId = this.el.attr("productId");
+        window.location.hash = "#echo/" + partnerId + "/" + productId;
     }
 });
-
-
-function drawPinIt(c) {
-    if (!(!c.className || c.className.indexOf("pin-it-button") < 0)) {
-        var d = c.getAttribute("href");
-        var b = {};
-        d = d.slice(d.indexOf("?") + 1).split("&");
-        for (var a = 0; a < d.length; a++) {
-            var g = d[a].split("=");
-            b[g[0]] = g[1]
-        }
-        b.layout = c.getAttribute("count-layout");
-        b.count = c.getAttribute("always-show-count");
-        a = "?";
-        d = window.location.protocol + "//d3io1k5o0zdpqr.cloudfront.net/pinit.html";
-        for (var f in b)if (b[f]) {
-            d +=
-                a + f + "=" + b[f];
-            a = "&"
-        }
-        a = document.createElement("iframe");
-        a.setAttribute("src", d);
-        a.setAttribute("scrolling", "no");
-        a.allowTransparency = true;
-        a.frameBorder = 0;
-        a.style.border = "none";
-        if (b.layout == "none") {
-            a.style.width = "43px";
-            a.style.height = "20px"
-        } else if (b.layout == "vertical") {
-            a.style.width = "43px";
-            a.style.height = "58px"
-        } else {
-            a.style.width = "90px";
-            a.style.height = "20px"
-        }
-        c.parentNode.replaceChild(a, c)
-    }
-}

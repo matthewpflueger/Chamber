@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 
 @Controller
-@RequestMapping(Array("/user"))
+@RequestMapping(Array("/api"))
 class UserController {
 
     private final val logger = LoggerFactory.getLogger(classOf[UserController])
@@ -46,7 +46,7 @@ class UserController {
     }
 
     
-    @RequestMapping(value = Array("/feed/public"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/me/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
     def publicFeed(
             @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
@@ -97,7 +97,7 @@ class UserController {
         result
     }
 
-    @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/me/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
     def exhibit(
             @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
@@ -123,7 +123,7 @@ class UserController {
         result
     }
 
-    @RequestMapping(value = Array("/friends"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/me/friends"), method = Array(RequestMethod.GET))
     @ResponseBody
     def friends(
             @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
@@ -171,7 +171,7 @@ class UserController {
         result
     }
 
-    @RequestMapping(value= Array("/exhibit/{id}"), method=Array(RequestMethod.GET))
+    @RequestMapping(value= Array("/user/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
             @PathVariable(value="id") echoedFriendId: String,

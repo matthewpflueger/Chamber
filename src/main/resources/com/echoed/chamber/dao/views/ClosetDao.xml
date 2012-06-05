@@ -64,7 +64,7 @@
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
             E.productName as echoProductName,
-            E.category as echoCategory,
+            P.category as echoCategory,
             E.brand as echoBrand,
             coalesce(E.price, 0)  as echoPrice,
             E.landingPageUrl as echoLandingPageUrl,
