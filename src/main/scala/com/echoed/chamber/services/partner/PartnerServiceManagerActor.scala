@@ -167,7 +167,7 @@ class PartnerServiceManagerActor extends Actor {
             val me = self
             val channel: Channel[LocateByEchoIdResponse] = self.channel
 
-            Option(echoDao.findById(echoId)).cata(
+            Option(echoDao.findByIdOrPostId(echoId)).cata(
                 echo => ((me ? Locate(echo.partnerId)).mapTo[LocateResponse]).onComplete(_.value.get.fold(
                     e => channel ! LocateByEchoIdResponse(msg, Left(PartnerException("Unexpected error", e))),
                     _ match {

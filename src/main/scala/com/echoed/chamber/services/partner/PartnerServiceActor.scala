@@ -152,7 +152,7 @@ class PartnerServiceActor(
             val channel: Channel[GetEchoResponse] = self.channel
             logger.debug("Processing {}", msg)
             Future {
-                echoDao.findById(echoId)
+                echoDao.findByIdOrPostId(echoId)
             }.onComplete(_.value.get.fold(
                 e => channel ! GetEchoResponse(msg, Left(PartnerException("Error retrieving echo %s" format echoId, e))),
                 ep => {
@@ -172,7 +172,7 @@ class PartnerServiceActor(
             logger.debug("Processing {}", msg)
 
             Future {
-                echoDao.findById(echoId)
+                echoDao.findByIdOrPostId(echoId)
             }.onComplete(_.value.get.fold(
                 e => channel ! RecordEchoStepResponse(msg, Left(PartnerException("Error retrieving echo %s" format echoId, e))),
                 ep => {
