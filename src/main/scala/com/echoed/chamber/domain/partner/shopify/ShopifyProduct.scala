@@ -15,7 +15,7 @@ case class ShopifyProduct(
             product.getId.toString,
             product.getTitle.toString,
             product.getProductType.toString,
-            product.getBodyHtml.toString,
+            Option(product.getBodyHtml).map(_.toString).getOrElse(""),
             if(product.getImages.size > 0) {
                 product.getImages.get(0).getSrc
             } else {
