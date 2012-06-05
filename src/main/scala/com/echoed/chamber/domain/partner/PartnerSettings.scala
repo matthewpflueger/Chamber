@@ -131,7 +131,7 @@ object PartnerSettings {
             hashTag = "",
             couponCode = "",
             couponDescription = "",
-            couponExpiresOn = new Date(0),
+            couponExpiresOn = new Date(),
             activeOn = new Date)
 
     }
