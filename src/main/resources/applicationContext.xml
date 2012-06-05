@@ -326,6 +326,7 @@
         <value>YandexBot</value>
         <value>Yepi</value>
         <value>Yeti</value>
+        <value>FlipboardProxy</value>
     </util:list>
 
     <akka:untyped-actor
