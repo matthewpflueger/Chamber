@@ -14,7 +14,7 @@ Echoed = {
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({EvAg : EventAggregator});
         var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
         var filter = new Echoed.Views.Components.Dropdown({ el: '#content-filter', Name: 'Filter', EvAg: EventAggregator});
-        //var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
+        var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         Backbone.history.start();
     }
 };
@@ -171,6 +171,12 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 self.type = action;
                 self.template = _.template($('#templates-components-testimonial').html());
                 self.endpoint = self.endpointBase + '/testimonial';
+                self.render();
+                break;
+            case 'story':
+                self.type = action;
+                self.template = _.template($('#templates-components-story').html());
+                self.endpoint = self.endpointBase + '/story';
                 self.render();
                 break;
             case 'ask':
@@ -521,7 +527,7 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
     render: function(){
         var self = this;
         this.element.empty();
-        this.element.append($("<div act='ask' class='action-button'>Add a Story</div>"));
+        this.element.append($("<div act='story' class='action-button'>Tell a Story</div>"));
         //this.element.append($("<div act='ask' class='action-button'>Ask a Question</div>"));
         //this.element.append($("<div act='testimonial' class='action-button'>Write a Testimonial</div>"));
         //this.element.append($("<div act='photo' class='action-button'>Post a Photo</div>"));

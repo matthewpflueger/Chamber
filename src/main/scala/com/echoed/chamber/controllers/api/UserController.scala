@@ -26,7 +26,7 @@ class UserController {
     @RequestMapping(value = Array("/me"), method = Array(RequestMethod.GET))
     @ResponseBody
     def me(
-        @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
+        @RequestParam(value="echoedUserId", required = false) echoedUserIdParam: String,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
