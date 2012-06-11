@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.partner.magentogo
 
 import org.slf4j.LoggerFactory
-import akka.actor.Channel
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
@@ -40,8 +39,6 @@ class MagentoGoPartnerServiceActor(
 
     private val logger = LoggerFactory.getLogger(classOf[MagentoGoPartnerServiceActor])
 
-    self.id = "MagentoGoPartnerService:%s" format magentoGoPartner.id
-
     override def receive = magentoGoPartnerReceive.orElse(super.receive)
 
     private def magentoGoPartnerReceive: Receive = {
@@ -56,7 +53,7 @@ class MagentoGoPartnerServiceActor(
                 echoClickId,
                 view) =>
 
-            val channel: Channel[RequestEchoResponse] = self.channel
+            val channel = context.sender
 
             logger.debug("Received {}", msg)
 
@@ -67,7 +64,7 @@ class MagentoGoPartnerServiceActor(
 
             try {
                 val orderId = java.lang.Long.parseLong(order)
-                magentoGoAccess.fetchOrder(magentoGoPartner.credentials, orderId).onComplete(_.value.get.fold(
+                magentoGoAccess.fetchOrder(magentoGoPartner.credentials, orderId).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)

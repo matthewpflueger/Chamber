@@ -4,20 +4,16 @@ import akka.actor.ActorRef
 import com.echoed.chamber.domain.views.{Closet,Feed}
 import com.echoed.chamber.services.ActorClient
 import reflect.BeanProperty
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 4/16/12
- * Time: 9:23 AM
- * To change this template use File | Settings | File Templates.
- */
 
-class FeedServiceActorClient extends FeedService with ActorClient {
+class FeedServiceActorClient extends FeedService with ActorClient with Serializable {
 
     @BeanProperty var feedServiceActor: ActorRef = _
 
-    //val id = feedServiceActor.id
+    private implicit val timeout = Timeout(20 seconds)
 
     def actorRef = feedServiceActor
 

@@ -106,6 +106,7 @@
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="echoController" class="com.echoed.chamber.controllers.EchoController">
+        <property name="actorSystem" ref="actorSystem" />
         <property name="echoService" ref="echoService" />
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="partnerServiceManager" ref="partnerServiceManager" />

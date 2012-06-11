@@ -63,7 +63,7 @@ class BigCommerceController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            bigCommercePartnerServiceManager.registerPartner(registerForm.createPartner).onComplete(_.value.get.fold(
+            bigCommercePartnerServiceManager.registerPartner(registerForm.createPartner).onComplete(_.fold(
                 e => error(registerView, Some(e)),
                 _ match {
                     case RegisterBigCommercePartnerResponse(_, Left(e)) => error(registerView, Some(e))

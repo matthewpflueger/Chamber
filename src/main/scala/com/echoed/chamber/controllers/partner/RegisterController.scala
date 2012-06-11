@@ -64,7 +64,7 @@ class RegisterController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            registerForm.createPartner(partnerServiceManager.registerPartner(_, _, _)).onComplete(_.value.get.fold(
+            registerForm.createPartner(partnerServiceManager.registerPartner(_, _, _)).onComplete(_.fold(
                 e => error(registerView, Some(e)),
                 _ match {
                     case RegisterPartnerResponse(_, Left(e)) => error(registerView, Some(e))

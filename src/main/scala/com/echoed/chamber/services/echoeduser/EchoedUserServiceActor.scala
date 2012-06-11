@@ -16,11 +16,13 @@ import akka.actor._
 import com.echoed.chamber.services.twitter._
 import com.echoed.chamber.services.echoeduser.{Logout => L, LogoutResponse => LR, EchoToFacebookResponse => ETFR, EchoToFacebook => ETF}
 import com.echoed.chamber.services.facebook._
-import akka.util.Duration
+import akka.util.duration._
 import scala.collection.JavaConversions
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.views.echoeduser.Profile
 import com.echoed.chamber.dao.partner.PartnerSettingsDao
+import akka.event.Logging
+import akka.actor.SupervisorStrategy.{Stop, Restart}
 
 
 class EchoedUserServiceActor(
@@ -35,9 +37,11 @@ class EchoedUserServiceActor(
         facebookServiceLocator: FacebookServiceLocator,
         twitterServiceLocator: TwitterServiceLocator) extends Actor {
 
-    private final val logger = LoggerFactory.getLogger(classOf[EchoedUserServiceActor])
+    private final val logger = Logging(context.system, this)
 
-    self.id = "EchoedUserService:%s" format echoedUser.id
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+        case _: Exception ⇒ Stop
+    }
 
     private def createEchoedFriends(echoedUsers: List[EchoedUser]) {
         logger.debug("Creating {} EchoedFriends for EchoedUser {}", echoedUsers.length, echoedUser.id)
@@ -58,18 +62,18 @@ class EchoedUserServiceActor(
 
     def receive = {
         case msg: GetEchoedUser =>
-            val channel: Channel[GetEchoedUserResponse] = self.channel
+            val channel = context.sender
             channel ! GetEchoedUserResponse(msg, Right(echoedUser))
 
 
         case msg: GetProfile =>
-            val channel: Channel[GetProfileResponse] = self.channel
+            val channel = context.sender
             val totalCredit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
             val totalVisits = closetDao.totalClicksByEchoedUserId(echoedUser.id)
             channel ! GetProfileResponse(msg, Right(new Profile(echoedUser, totalCredit, totalVisits)))
 
         case msg @ UpdateEchoedUserEmail(em) =>
-            val channel: Channel[UpdateEchoedUserEmailResponse] = self.channel
+            val channel = context.sender
             logger.debug("Updating Email for EchoedUser {} with {}", echoedUser, em )
             Option(echoedUserDao.findByEmail(em)).getOrElse(None) match {
                 case None =>
@@ -83,20 +87,20 @@ class EchoedUserServiceActor(
 
 
         case msg @ UpdateEchoedUser(eu) =>
-            val channel: Channel[UpdateEchoedUserResponse] = self.channel
+            val channel = context.sender
             echoedUser = eu
             echoedUserDao.update(echoedUser)
             channel ! UpdateEchoedUserResponse(msg, Right(echoedUser))
 
         //Logout
         case msg @ L(echoedUserId) =>
-            val channel: Channel[LR] = self.channel
+            val channel = context.sender
 
             try {
                 assert(echoedUser.id == echoedUserId)
                 Option(echoedUser.facebookUserId).foreach(facebookServiceLocator.logout(_))
                 Option(echoedUser.twitterUserId).foreach(twitterServiceLocator.logout(_))
-                self.stop()
+                self ! PoisonPill
                 logger.debug("Logged out Echoed user {}", echoedUser)
             } catch {
                 case e =>
@@ -108,7 +112,7 @@ class EchoedUserServiceActor(
             import com.echoed.chamber.services.twitter.{AssignEchoedUserResponse => AEUR}
 
             val me = self
-            val channel: Channel[AssignTwitterServiceResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Cannot assign Twitter account", e)))
@@ -117,7 +121,7 @@ class EchoedUserServiceActor(
 
             def assign() {
                 logger.debug("Assigning TwitterService to {}", echoedUser)
-                msg.twitterService.assignEchoedUser(echoedUser.id).onResult {
+                msg.twitterService.assignEchoedUser(echoedUser.id).onSuccess {
                     case AEUR(_, Left(e)) => error(e)
                     case AEUR(_, Right(twitterUser)) =>
                         echoedUser = echoedUser.assignTwitterUser(twitterUser)
@@ -125,12 +129,12 @@ class EchoedUserServiceActor(
                         echoedUserDao.update(echoedUser)
                         me ! FetchTwitterFollowers()
                         logger.debug("Assigned {} to {}", twitterUser, echoedUser)
-                }.onException { case e => error(e) }
+                }.onFailure { case e => error(e) }
             }
 
             try {
                 logger.debug("Attempting to TwitterService to EchoedUser {}", this.echoedUser.id)
-                msg.twitterService.getUser.onResult {
+                msg.twitterService.getUser.onSuccess {
                     case GetUserResponse(_, Left(e)) => error(e)
                     case GetUserResponse(_, Right(twitterUser)) => Option(twitterUser.echoedUserId).cata(
                         echoedUserId =>
@@ -147,7 +151,7 @@ class EchoedUserServiceActor(
                         {
                             assign()
                         })
-                }.onException { case e => error(e) }
+                }.onFailure { case e => error(e) }
             } catch { case e => error(e) }
 
 
@@ -155,7 +159,7 @@ class EchoedUserServiceActor(
             import com.echoed.chamber.services.facebook.{AssignEchoedUser => AEU, AssignEchoedUserResponse => AEUR}
 
             val me = self
-            val channel: Channel[AssignFacebookServiceResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! AssignFacebookServiceResponse(msg, Left(new EchoedUserException("Cannot assign Facebook account", e)))
@@ -163,7 +167,7 @@ class EchoedUserServiceActor(
             }
 
             def assign() {
-                msg.facebookService.assignEchoedUser(this.echoedUser).onComplete(_.value.get.fold(
+                msg.facebookService.assignEchoedUser(this.echoedUser).onComplete(_.fold(
                     error(_),
                     _ match {
                         case AEUR(_, Left(e)) => error(e)
@@ -179,7 +183,7 @@ class EchoedUserServiceActor(
 
             try {
                 logger.debug("Attempting to assign FacebookService to EchoedUser {}", echoedUser.id)
-                facebookService.getFacebookUser.onComplete(_.value.get.fold(
+                facebookService.getFacebookUser.onComplete(_.fold(
                     error(_),
                     _ match {
                         case GetFacebookUserResponse(_, Left(e)) => error(e)
@@ -205,7 +209,7 @@ class EchoedUserServiceActor(
 
         case msg @ EchoTo(_, echoPossibilityId, facebookMessage, echoToFacebook, twitterMessage, echoToTwitter) =>
             val me = self
-            val channel: Channel[EchoToResponse] = self.channel
+            val channel = context.sender
 
             try {
                 //TODO finding by either id is to support the old integration method - should just use findById...
@@ -232,11 +236,11 @@ class EchoedUserServiceActor(
                                     if (echoToFacebook) requestList += ((me, ETF(echo, facebookMessage)))
                                     if (echoToTwitter) requestList += ((me, EchoToTwitter(echo, twitterMessage, partnerSettings)))
 
-                                    val context = (channel, new EchoFull(echo, echoedUser, partnerSettings), msg)
-                                    Actor.actorOf(classOf[ScatterGather]).start() ! Scatter(
+                                    val ctx = (channel, new EchoFull(echo, echoedUser, partnerSettings), msg)
+                                    context.actorOf(Props(classOf[ScatterGather])) ! Scatter(
                                             requestList.toList,
-                                            Some(context),
-                                            Duration(20, "seconds"))
+                                            Some(ctx),
+                                            20 seconds)
 
                                 } catch {
                                     case e =>
@@ -246,7 +250,7 @@ class EchoedUserServiceActor(
                             },
                             {
                                 channel ! EchoToResponse(msg, Left(EchoedUserException("Invalid echo possibility")))
-                                logger.warn("Did not find PartnerSettings {} for Echo {}", ep.partnerSettingsId, ep.id)
+                                logger.warning("Did not find PartnerSettings {} for Echo {}", ep.partnerSettingsId, ep.id)
                             })
                     },
                     {
@@ -261,10 +265,10 @@ class EchoedUserServiceActor(
 
 
         case msg @ ScatterResponse(
-                Scatter(_, context: Some[Tuple3[Channel[EchoToResponse], EchoFull, EchoTo]], _, _),
+                Scatter(_, ctx: Some[Tuple3[ActorRef, EchoFull, EchoTo]], _, _),
                 either) =>
 
-            var (channel: Channel[EchoToResponse], echoFull: EchoFull, echoTo: EchoTo) = context.get
+            var (channel: ActorRef, echoFull: EchoFull, echoTo: EchoTo) = ctx.get
 
             def sendResponse(responses: List[Message]) {
                 logger.debug("Scatter response size {}", responses.size)
@@ -303,7 +307,7 @@ class EchoedUserServiceActor(
         //EchoToFacebook
         case msg @ ETF(echo, echoMessage) =>
             import com.echoed.chamber.services.facebook.{EchoToFacebookResponse => FETFR}
-            val channel: Channel[ETFR] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! ETFR(msg, Left(EchoedUserException("Error posting to Facebook", e)))
@@ -313,12 +317,12 @@ class EchoedUserServiceActor(
             try {
                 val em = echoMessage.getOrElse("Checkout my recent purchase of %s" format echo.productName)
                 Option(echoedUser.facebookUserId).cata(
-                    fui => facebookServiceLocator.locateById(fui).onComplete(_.value.get.fold(
+                    fui => facebookServiceLocator.locateById(fui).onComplete(_.fold(
                         error(_),
                         _ match {
                             case LocateByIdResponse(_, Left(e)) => error(e)
                             case LocateByIdResponse(_, Right(fs)) =>
-                                fs.echo(echo, em).onComplete(_.value.get.fold(
+                                fs.echo(echo, em).onComplete(_.fold(
                                     error(_),
                                     _ match {
                                         case FETFR(_, Left(e)) => error(e)
@@ -338,7 +342,7 @@ class EchoedUserServiceActor(
             }
 
         case msg @ PublishFacebookAction(action, obj, objUrl) =>
-            val channel: Channel[PublishFacebookActionResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! PublishFacebookActionResponse(msg, Left(EchoedUserException("Error publishin Facebook Action", e)))
@@ -347,12 +351,12 @@ class EchoedUserServiceActor(
 
             try {
                 Option(echoedUser.facebookUserId).cata(
-                    fui => facebookServiceLocator.locateById(fui).onComplete(_.value.get.fold(
+                    fui => facebookServiceLocator.locateById(fui).onComplete(_.fold(
                         error(_),
                         _ match {
                             case LocateByIdResponse(_, Left(e)) => error(e)
                             case LocateByIdResponse(_, Right(fs)) =>
-                                fs.publishAction(action, obj, objUrl).onComplete(_.value.get.fold(
+                                fs.publishAction(action, obj, objUrl).onComplete(_.fold(
                                     error(_),
                                     _ match {
                                         case PublishActionToFacebookResponse(_, Left(e)) => error(e)
@@ -370,7 +374,7 @@ class EchoedUserServiceActor(
 
 
         case msg @ EchoToTwitter(echo, echoMessage, partnerSettings) =>
-            val channel: Channel[EchoToTwitterResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! EchoToTwitterResponse(msg, Left(EchoedUserException("Error tweeting", e)))
@@ -382,11 +386,11 @@ class EchoedUserServiceActor(
                 if(em.indexOf(partnerSettings.hashTag) == -1)
                     em = "%s %s" format (em.take(115 - (partnerSettings.hashTag.length() + 1)), partnerSettings.hashTag)
                 Option(echoedUser.twitterUserId).cata( //facebookService.cata(
-                    tui => twitterServiceLocator.getTwitterServiceWithId(tui).onComplete(_.value.get.fold(
+                    tui => twitterServiceLocator.getTwitterServiceWithId(tui).onComplete(_.fold(
                         e => error(e),
                         _ match {
                             case GetTwitterServiceWithIdResponse(_, Left(e)) => error(e)
-                            case GetTwitterServiceWithIdResponse(_, Right(ts)) => ts.tweet(echo, em).onComplete(_.value.get.fold(
+                            case GetTwitterServiceWithIdResponse(_, Right(ts)) => ts.tweet(echo, em).onComplete(_.fold(
                                 e => error(e),
                                 _ match {
                                     case TweetResponse(_, Left(e)) => error(e)
@@ -411,7 +415,7 @@ class EchoedUserServiceActor(
 
 
         case msg @ GetFriendExhibit(echoedFriendUserId, page) =>
-            val channel: Channel[GetFriendExhibitResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val echoedFriend = echoedFriendDao.findFriendByEchoedUserId(echoedUser.id, echoedFriendUserId)
@@ -432,7 +436,7 @@ class EchoedUserServiceActor(
             }
 
         case msg: GetPublicFeed =>
-            val channel: Channel[GetPublicFeedResponse] = self.channel
+            val channel = context.sender
             val limit = 30;
             val start = msg.page * limit;
             try {
@@ -448,7 +452,7 @@ class EchoedUserServiceActor(
             }
 
         case msg: GetFeed =>
-            val channel: Channel[GetFeedResponse] = self.channel
+            val channel = context.sender
 
             try {
                 logger.debug("Attempting to retrieve Feed for EchoedUser {}", echoedUser.id)
@@ -468,7 +472,7 @@ class EchoedUserServiceActor(
 
         case msg: GetPartnerFeed =>
 
-            val channel: Channel[GetPartnerFeedResponse] = self.channel
+            val channel = context.sender
 
             try{
                 val partnerName = msg.partnerName
@@ -486,7 +490,7 @@ class EchoedUserServiceActor(
 
 
         case msg: GetExhibit =>
-            val channel: Channel[GetExhibitResponse] = self.channel
+            val channel = context.sender
 
             try {
                 logger.debug("Fetching exhibit for EchoedUser {}", echoedUser.id)
@@ -513,7 +517,7 @@ class EchoedUserServiceActor(
 
 
         case msg: GetEchoedFriends =>
-            val channel: Channel[GetEchoedFriendsResponse] = self.channel
+            val channel = context.sender
 
             try {
                 logger.debug("Loading EchoedFriends from database for EchoedUser {}", echoedUser.id)
@@ -544,7 +548,7 @@ class EchoedUserServiceActor(
         case msg: FetchFacebookFriends =>
             val me = self
             Option(echoedUser.facebookUserId).cata(
-                facebookServiceLocator.locateById(_).onComplete(_.value.get.fold(
+                facebookServiceLocator.locateById(_).onComplete(_.fold(
                     logger.error("Could not get FacebookService for %s" format echoedUser, _),
                     _ match {
                         case LocateByIdResponse(_, Left(e)) =>
@@ -574,13 +578,13 @@ class EchoedUserServiceActor(
         case msg: FetchTwitterFollowers =>
             val me = self
             Option(echoedUser.twitterUserId).cata(
-                twitterServiceLocator.getTwitterServiceWithId(_).onComplete(_.value.get.fold(
+                twitterServiceLocator.getTwitterServiceWithId(_).onComplete(_.fold(
                     logger.error("Could not get TwitterService for %s" format echoedUser, _),
                     _ match {
                         case GetTwitterServiceWithIdResponse(_, Left(e)) =>
                             logger.error("Could not get TwitterService for %s" format echoedUser, e)
                         case GetTwitterServiceWithIdResponse(_, Right(ac: ActorClient)) =>
-                            logger.debug("Got TwitterService {} for {}", ac.actorRef.id, echoedUser.id)
+                            logger.debug("Got TwitterService for {}", echoedUser.id)
                             ac.actorRef.!(GetFollowers())(me)
                     }
                 )),

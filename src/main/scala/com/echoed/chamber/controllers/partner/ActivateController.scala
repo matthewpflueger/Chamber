@@ -61,11 +61,11 @@ class ActivateController {
 
             logger.debug("Starting activation for {}", email)
 
-            partnerUserServiceLocator.login(email, password).onComplete(_.value.get.fold(
+            partnerUserServiceLocator.login(email, password).onComplete(_.fold(
                 e => error(activateView, Some(e)),
                 _ match {
                     case LoginResponse(_, Left(e)) => error(activateView, Some(e))
-                    case LoginResponse(_, Right(partnerUserService)) => partnerUserService.getPartnerUser.onComplete(_.value.get.fold(
+                    case LoginResponse(_, Right(partnerUserService)) => partnerUserService.getPartnerUser.onComplete(_.fold(
                         e => error(activateView, Some(e)),
                         _ match {
                             case GetPartnerUserResponse(_, Left(e)) => error(activateView, Some(e))
@@ -106,11 +106,11 @@ class ActivateController {
 
             logger.debug("Activating partner user {}", activateForm.partnerUserId)
 
-            partnerUserServiceLocator.locate(activateForm.partnerUserId).onComplete(_.value.get.fold(
+            partnerUserServiceLocator.locate(activateForm.partnerUserId).onComplete(_.fold(
                 e => error(activateView, Some(e)),
                 _ match {
                     case LocateResponse(_, Left(e)) => error(activateView, Some(e))
-                    case LocateResponse(_, Right(partnerUserService)) => partnerUserService.activate(activateForm.password).onComplete(_.value.get.fold(
+                    case LocateResponse(_, Right(partnerUserService)) => partnerUserService.activate(activateForm.password).onComplete(_.fold(
                         e => error(activateView, Some(e)),
                         _ match {
                             case ActivatePartnerUserResponse(_, Left(e: InvalidPassword)) =>

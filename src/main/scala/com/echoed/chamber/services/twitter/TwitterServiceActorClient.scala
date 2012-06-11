@@ -4,12 +4,17 @@ import akka.actor.ActorRef
 import twitter4j.auth.AccessToken
 import com.echoed.chamber.domain.Echo
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 class TwitterServiceActorClient(twitterServiceActor: ActorRef)
         extends TwitterService
         with ActorClient
         with Serializable {
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def getRequestToken =
             (twitterServiceActor ? GetRequestToken()).mapTo[GetRequestTokenResponse]
@@ -31,7 +36,7 @@ class TwitterServiceActorClient(twitterServiceActor: ActorRef)
 
     def actorRef = twitterServiceActor
 
-    val id = twitterServiceActor.id
+    val id = twitterServiceActor.toString
 
     def logout(twitterUserId: String) =
             (twitterServiceActor ? Logout(twitterUserId)).mapTo[LogoutResponse]

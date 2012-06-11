@@ -11,16 +11,17 @@ import Scalaz._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.eclipse.jetty.continuation.{Continuation, ContinuationSupport}
 import com.echoed.chamber.controllers.ControllerUtils._
-import akka.dispatch.{AlreadyCompletedFuture, Future}
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.domain.{EchoedUser, EchoClick}
+import com.echoed.chamber.domain.EchoClick
 import com.echoed.chamber.services.EchoedException
 import java.util.concurrent.atomic.AtomicLong
 import scala.collection.JavaConversions._
-import com.echoed.chamber.services.echo.{RecordEchoClickResponse, RecordEchoPossibilityResponse, EchoService, GetEchoByIdResponse, GetEchoByIdAndEchoedUserIdResponse}
+import com.echoed.chamber.services.echo.{RecordEchoPossibilityResponse, EchoService, GetEchoByIdAndEchoedUserIdResponse}
 import java.util.{Date, Map => JMap}
 import java.text.DateFormat
+import akka.dispatch.Promise
+import akka.actor.ActorSystem
 
 @Controller
 @RequestMapping(Array("/echo"))
@@ -65,6 +66,8 @@ class EchoController {
 
     @BeanProperty var networkControllers: JMap[String, NetworkController] = _
 
+    @BeanProperty var actorSystem: ActorSystem = _
+
     val counter: AtomicLong = new AtomicLong(0);
 
 
@@ -81,7 +84,7 @@ class EchoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
 
-            partnerServiceManager.getView(pid).onComplete(_.value.get.fold(
+            partnerServiceManager.getView(pid).onComplete(_.fold(
                 e => error(echoJsErrorView, Some(e)),
                 _ match {
                     case GetViewResponse(_, Left(e: PartnerNotActive)) =>
@@ -143,7 +146,7 @@ class EchoController {
                 referrerUrl = referrerUrl,
                 echoedUserId = eu,
                 echoClickId = ec,
-                view = Option(view)).onComplete(_.value.get.fold(
+                view = Option(view)).onComplete(_.fold(
                     e => resume(e),
                     _ match {
                         case RequestEchoResponse(_, Left(e)) => resume(e)
@@ -173,10 +176,13 @@ class EchoController {
             val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
             val ec = cookieManager.findEchoClickCookie(httpServletRequest)
 
+            implicit val dispatcher = actorSystem.dispatcher
+
+
             val echoedUserNotFound = LocateWithIdResponse(LocateWithId(eu.orNull), Left(EchoedUserNotFound(eu.orNull)))
             val echoedUserResponse = eu.cata(
                     echoedUserServiceLocator.getEchoedUserServiceWithId(_).recover { case e => echoedUserNotFound },
-                    new AlreadyCompletedFuture(Right(echoedUserNotFound)))
+                    Promise.successful(echoedUserNotFound))
 
             val recordEchoStepResponse  = partnerServiceManager.recordEchoStep(id, "login", eu, ec)
 
@@ -216,7 +222,7 @@ class EchoController {
                                 continuation.resume()
                             })
                 }
-            }).onException { case e => error(errorView, e) }
+            }).onFailure { case e => error(errorView, e) }
 
             continuation.undispatch()
         }
@@ -321,7 +327,7 @@ class EchoController {
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                     })
-            }).onException {case e=> error(errorView,e)}
+            }).onFailure {case e=> error(errorView,e)}
             continuation.undispatch()
         }
     }
@@ -390,7 +396,7 @@ class EchoController {
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                     })
-            }).onException { case e => error(errorView, e) }
+            }).onFailure { case e => error(errorView, e) }
 
             continuation.undispatch()
         }
@@ -412,12 +418,12 @@ class EchoController {
             cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoFinishParameters.echoedUserId = _)
             logger.debug("Echoing {}", echoFinishParameters)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onComplete(_.value.get.fold(
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onComplete(_.fold(
                 e => error(errorView, e),
                 _ match {
                     case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                        echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.value.get.fold(
+                        echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.fold(
                             e => error(errorView, e),
                             _ match {
                                 case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
@@ -452,12 +458,12 @@ class EchoController {
             cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoFinishParameters.echoedUserId = _)
 
             logger.debug("Echoing {}", echoFinishParameters)
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onComplete(_.value.get.fold(
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onComplete(_.fold(
                 e => error(errorView, e),
                 _ match {
                     case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                        echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.value.get.fold(
+                        echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.fold(
                             e => error(errorView, e),
                             _ match {
                                 case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
@@ -516,7 +522,7 @@ class EchoController {
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume()
                     case email =>
-                        echoService.getEchoByIdAndEchoedUserId(id, eu.get).onComplete(_.value.get.fold(
+                        echoService.getEchoByIdAndEchoedUserId(id, eu.get).onComplete(_.fold(
                             e => error(errorView, e),
                             _ match {
                                 case GetEchoByIdAndEchoedUserIdResponse(_, Left(e)) => error(errorView, e)
@@ -530,7 +536,7 @@ class EchoController {
                             }
                         ))
                 }
-            }).onException({
+            }).onFailure({
                 case e => error(errorView, e)
             })
             continuation.undispatch()
@@ -584,17 +590,17 @@ class EchoController {
         }
 
         def confirmEchoPossibility {
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).onResult {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).onSuccess {
                 case LocateWithIdResponse(_, Left(e)) =>
                     logger.debug("Error {} finding EchoedUserService for {}", e.getMessage, echoPossibilityParameters)
                     loginToEcho
                 case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                    echoedUserService.getEchoedUser.onResult {
+                    echoedUserService.getEchoedUser.onSuccess {
                         case GetEchoedUserResponse(_, Left(e)) => error(e)
                         case GetEchoedUserResponse(_, Right(echoedUser)) =>
                             val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
 
-                            echoService.recordEchoPossibility(echoPossibility).onResult {
+                            echoService.recordEchoPossibility(echoPossibility).onSuccess {
                                 case RecordEchoPossibilityResponse(_, Left(EchoExists(epv, message, _))) =>
                                     logger.debug("Echo possibility already echoed {}", epv.echo)
                                     val modelAndView = new ModelAndView(errorView)
@@ -634,13 +640,13 @@ class EchoController {
                                             URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
                                     continuation.setAttribute("modelAndView", modelAndView)
                                     continuation.resume
-                            }.onException { case e => error(e) }
-                    }.onException { case e => error(e) }
-            }.onException { case e => error(e) }
+                            }.onFailure { case e => error(e) }
+                    }.onFailure { case e => error(e) }
+            }.onFailure { case e => error(e) }
         }
 
         def loginToEcho {
-            echoService.recordEchoPossibility(echoPossibilityParameters.createLoginEchoPossibility).onComplete(_.value.get.fold(
+            echoService.recordEchoPossibility(echoPossibilityParameters.createLoginEchoPossibility).onComplete(_.fold(
                 error(_),
                 _ match {
                     case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
@@ -700,12 +706,12 @@ class EchoController {
             continuation.suspend(httpServletResponse)
 
             logger.debug("Echoing {}", echoItParameters)
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoItParameters.echoedUserId).onComplete(_.value.get.fold(
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoItParameters.echoedUserId).onComplete(_.fold(
                 e => error(errorView, e),
                 _ match {
                     case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                        echoedUserService.echoTo(echoItParameters.createEchoTo).onComplete(_.value.get.fold(
+                        echoedUserService.echoTo(echoItParameters.createEchoTo).onComplete(_.fold(
                             e => error(errorView, e),
                             _ match {
                                 case EchoToResponse(_, Left(DuplicateEcho(echo ,message, _))) =>
@@ -803,7 +809,7 @@ class EchoController {
                                 continuation.setAttribute("modelAndView", modelAndView)
                                 continuation.resume()
                             }
-                            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.value.get.fold(
+                            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.fold(
                                 e => logger.debug("Error"),
                                 _ match {
                                     case LocateWithIdResponse(_, Left(e)) =>

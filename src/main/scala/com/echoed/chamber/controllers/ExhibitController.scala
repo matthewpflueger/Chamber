@@ -57,7 +57,7 @@ class ExhibitController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse {
             continuation.suspend(httpServletResponse)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.value.get.fold(
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.fold(
                 e => error(Some(e)),
                 _ match {
                     case LocateWithIdResponse(_, Left(EchoedUserNotFound(id, _))) =>
@@ -66,7 +66,7 @@ class ExhibitController {
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
                         logger.debug("Found EchoedUserService {} ", echoedUserService);
 
-                        echoedUserService.getCloset.onComplete(_.value.get.fold(
+                        echoedUserService.getCloset.onComplete(_.fold(
                             e => error(Some(e)),
                             _ match {
                                 case GetExhibitResponse(_, Left(e)) => error(Some(e))

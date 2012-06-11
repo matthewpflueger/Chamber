@@ -20,20 +20,15 @@ import collection.mutable.{ConcurrentMap, ListBuffer => MList, HashMap => MMap}
 import xml.Node
 
 import akka.actor._
-import akka.dispatch.{PriorityExecutorBasedEventDrivenDispatcher, PriorityGenerator}
 import com.echoed.cache.CacheManager
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
+import akka.pattern.ask
+import org.springframework.beans.factory.FactoryBean
 
 
-class MagentoGoAccessActor extends Actor {
-
-    private final val logger = LoggerFactory.getLogger(classOf[MagentoGoAccessActor])
-
-    val priority = PriorityGenerator {
-        case Validate(_) => 100
-        case _ => 1
-    }
-
-    self.dispatcher = new PriorityExecutorBasedEventDrivenDispatcher(classOf[MagentoGoAccessActor].getSimpleName, priority)
+class MagentoGoAccessActor extends FactoryBean[ActorRef] {
 
     //example: 2012-05-21 02:05:05
     private final val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
@@ -47,6 +42,19 @@ class MagentoGoAccessActor extends Actor {
     private val encoding = "utf-8"
 
     private var cache: ConcurrentMap[String, String] = _
+
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart {
         require(client != null, "Required Http client is missing")
@@ -133,7 +141,7 @@ class MagentoGoAccessActor extends Actor {
 
     def receive = {
         case msg @ Validate(credentials) =>
-            val channel: Channel[ValidateResponse] = self.channel
+            val channel = context.sender
 
             client(login(credentials) <> { res =>
                 logger.debug("Login response for {}: {}", credentials, res)
@@ -144,7 +152,7 @@ class MagentoGoAccessActor extends Actor {
                         channel ! ValidateResponse(msg, Right(node.text))
                     },
                     {
-                        logger.warn("Received error response validating %s: %s" format(credentials, res))
+                        logger.warning("Received error response validating {}: {}", credentials, res)
                         channel ! ValidateResponse(msg, Left(MagentoGoPartnerException("Could not validate credentials")))
                     })
             } >! {
@@ -155,7 +163,8 @@ class MagentoGoAccessActor extends Actor {
 
 
         case msg @ FetchOrder(credentials, orderId) =>
-            val channel: Channel[FetchOrderResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
             def error(e: Throwable) {
                 logger.error("Error fetching order %s for %s" format(orderId, credentials), e)
@@ -219,7 +228,7 @@ class MagentoGoAccessActor extends Actor {
                 fetchOrder(_),
                 {
                     logger.debug("Creating session for {}", credentials)
-                    (self ? Validate(credentials)).mapTo[ValidateResponse].onComplete(_.value.get.fold(
+                    (me ? Validate(credentials)).mapTo[ValidateResponse].onComplete(_.fold(
                         e => error(e),
                         _ match {
                             case ValidateResponse(_, Left(e)) => error(e)
@@ -230,4 +239,5 @@ class MagentoGoAccessActor extends Actor {
                 })
     }
 
+    }), "MagentoGoAccess")
 }

@@ -10,19 +10,20 @@ import dispatch._
 import dispatch.nio.Http
 
 
-import java.util.Properties
 import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
-import xml.NodeSeq
 import java.io.InputStream
 import com.echoed.util.ScalaJson._
-import akka.actor.{Scheduler, PoisonPill, Channel, Actor}
-import java.util.concurrent.TimeUnit
-import akka.dispatch.{DefaultCompletableFuture, Future}
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
-import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
+import org.joda.time.format.DateTimeFormat
+import akka.actor._
+import org.springframework.beans.factory.FactoryBean
+import akka.util.Timeout
+import akka.event.Logging
+import akka.util.duration._
+import akka.actor.SupervisorStrategy.Stop
 
 
-class BigCommerceAccessActor extends Actor {
+class BigCommerceAccessActor extends FactoryBean[ActorRef] {
 
     private final val logger = LoggerFactory.getLogger(classOf[BigCommerceAccessActor])
 
@@ -35,10 +36,25 @@ class BigCommerceAccessActor extends Actor {
     private val encoding = "utf-8"
 
 
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+        case _: Exception ⇒ Stop
+    }
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
+
     override def preStart {
         require(client != null, "Required Http client is missing")
     }
-
 
 
     private def endpoint(c: BigCommerceCredentials, path: String) =
@@ -69,11 +85,12 @@ class BigCommerceAccessActor extends Actor {
             logger.error("Restarting Http client due to error", e)
             client.shutdown()
             client = new Http
+
         case msg @ ('error, e: Throwable) =>
             logger.error("Received error but not restarting Http client", e)
 
         case msg @ Validate(credentials) =>
-            val channel: Channel[ValidateResponse] = self.channel
+            val channel = context.sender
             requestAsMap(credentials, "time") { map =>
                 channel ! ValidateResponse(msg, Right(map.contains("time")))
             } {
@@ -85,10 +102,10 @@ class BigCommerceAccessActor extends Actor {
             }
 
         case msg @ FetchOrder(credentials, order) =>
-            val me = self
-            val channel: Channel[FetchOrderResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
-            val orderActor = Actor.actorOf(new Actor {
+            val orderActor = context.actorOf(Props(new Actor {
                 var expected = -1
                 var products = 0
                 var images = 0
@@ -100,12 +117,14 @@ class BigCommerceAccessActor extends Actor {
 
                 override def preStart {
                     //our lifespan is one minute...
-                    Scheduler.scheduleOnce(self, 'timetodie, 1, TimeUnit.MINUTES)
+                    context.system.scheduler.scheduleOnce(1 minutes, context.self, 'timetodie)
                 }
 
                 def complete {
-                    logger.debug("Checking if order %s fetch is complete: expected %s, products %s, images %s, and echoRequest %s" format(
-                        order, expected, products, images, echoRequest))
+                    logger.debug(
+                        "Checking if order {} fetch is complete: expected {}, products {}, images {}, and echoRequest {}",
+                        Array(order, expected, products, images, echoRequest))
+
                     if (!responseSent && expected == products && expected == images && echoRequest != null) {
                         logger.debug("Completed fetching order {} for {}", order, credentials)
                         channel ! FetchOrderResponse(msg, Right(echoRequest.copy(items = echoItems.map { i =>
@@ -142,31 +161,31 @@ class BigCommerceAccessActor extends Actor {
                     case 'timetodie =>
                         self ! PoisonPill
                         if (!responseSent) {
-                            logger.error("Fetch of BigCommerce order %s timed out with %s" format(order, credentials))
+                            logger.error("Fetch of BigCommerce order {} timed out with {}", order, credentials)
                             channel ! FetchOrderResponse(
                                 msg,
                                 Left(BigCommercePartnerException("Error fetching BigCommerce order %s" format order)))
                         }
 
                     case ('errorProduct, e: Throwable) =>
-                        logger.error("Error fetching product for order %s with %s" format(order, credentials), e)
+                        logger.error("Error fetching product for order {} with {}: {}", order, credentials, e)
                         products += 1
                         complete
                         me ! ('error, e)
                     case ('errorImage, productId: String, e: Throwable) =>
-                        logger.error("Error fetching image for product %s for order %s with %s" format(productId, order, credentials), e)
+                        logger.error("Error fetching image for product {} for order {} with {}: {}", productId, order, credentials, e)
                         images += 1
                         complete
                         me ! ('error, e)
-                    case ('error, message: String, e: Throwable) =>
-                        logger.error(message, e)
+                    case ('errorOrder, orderId: String, e: Throwable) =>
+                        logger.error("Error fetching order {} with {}: {}", orderId, credentials, e)
                         channel ! FetchOrderResponse(
                             msg,
                             Left(BigCommercePartnerException("Error fetching BigCommerce order %s" format order, e)))
                         responseSent = true
                         me ! ('error, e)
                 }
-            }).start
+            }))
 
 
             logger.debug("Fetching BigCommerce order {} with {}", order, credentials)
@@ -177,7 +196,7 @@ class BigCommerceAccessActor extends Actor {
                         map("customer_id").toString,
                         dateFormatter.parseDateTime(map("date_created").toString).toDate,
                         null)
-            } { case e => orderActor ! ('error, "Error fetching order %s with %s" format(order, credentials), e) }
+            } { case e => orderActor ! ('errorOrder, "Error fetching order %s with %s" format(order, credentials), e) }
 
             logger.debug("Fetching BigCommerce products for order {} with {}", order, credentials)
             requestAsArray(credentials, "orders/%s/products" format order) { products =>
@@ -214,4 +233,5 @@ class BigCommerceAccessActor extends Actor {
             } { case e => orderActor ! ('error, "Error fetching products for order %s with %s" format(order, credentials), e) }
     }
 
+    }), "BigCommerceAccess")
 }

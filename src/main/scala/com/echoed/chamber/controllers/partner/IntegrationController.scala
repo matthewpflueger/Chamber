@@ -39,11 +39,11 @@ class IntegrationController {
 
             logger.debug("Showing integration pages for PartnerUser {}", partnerUserId)
 
-            partnerUserServiceLocator.locate(partnerUserId.get).onComplete(_.value.get.fold(
+            partnerUserServiceLocator.locate(partnerUserId.get).onComplete(_.fold(
                 e => error(integrationView, Some(e)),
                 _ match {
                     case LocateResponse(_, Left(e)) => error(integrationView, Some(e))
-                    case LocateResponse(_, Right(partnerUserService)) => partnerUserService.getPartnerUser.onComplete(_.value.get.fold(
+                    case LocateResponse(_, Right(partnerUserService)) => partnerUserService.getPartnerUser.onComplete(_.fold(
                         e => error(integrationView, Some(e)),
                         _ match {
                             case GetPartnerUserResponse(_, Left(e)) => error(integrationView, Some(e))

@@ -58,7 +58,7 @@ class ShopifyController {
             continuation.suspend(httpServletResponse)
 
             logger.debug("Attempting to locate Shopify User Service: {} ", shop)
-            shopifyPartnerServiceManager.registerShopifyPartner(shop, signature, t, timeStamp).onComplete(_.value.get.fold(
+            shopifyPartnerServiceManager.registerShopifyPartner(shop, signature, t, timeStamp).onComplete(_.fold(
                 error(_),
                 _ match {
                     case RegisterShopifyPartnerResponse(_, Right(envelope)) => makeView(envelope)

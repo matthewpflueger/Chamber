@@ -3,12 +3,17 @@ package com.echoed.chamber.services.partner.networksolutions
 import reflect.BeanProperty
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 
 class NetworkSolutionsAccessActorClient extends NetworkSolutionsAccess with ActorClient with Serializable {
 
     @BeanProperty var networkSolutionsAccessActor: ActorRef = _
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def actorRef = networkSolutionsAccessActor
 

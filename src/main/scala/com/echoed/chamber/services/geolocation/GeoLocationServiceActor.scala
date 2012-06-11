@@ -1,32 +1,45 @@
 package com.echoed.chamber.services.geolocation
 
-import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
 import com.echoed.chamber.dao._
 import akka.actor._
 
 import scalaz._
 import Scalaz._
-import java.util.concurrent.TimeUnit
 import io.Source
 import java.util.{Properties, UUID, Date}
 import java.nio.charset.MalformedInputException
+import org.springframework.beans.factory.FactoryBean
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
+import java.net.SocketTimeoutException
 
 
-class GeoLocationServiceActor extends Actor {
-    private val logger = LoggerFactory.getLogger(classOf[GeoLocationServiceActor])
-
+class GeoLocationServiceActor extends FactoryBean[ActorRef] {
 
     @BeanProperty var geoLocationDao: GeoLocationDao = _
     @BeanProperty var geoLocationServiceUrl: String = _
 
-    @BeanProperty var lastUpdatedBeforeHours: Int = 24
+    @BeanProperty var lastUpdatedBeforeHours: Int = 72
     @BeanProperty var findForCrawlIntervalMinutes: Int = 1
 
     @BeanProperty var properties: Properties = _
 
     private var lastUpdatedBeforeMillis: Long = _
     private var findClick = true
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart() {
         //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
@@ -48,7 +61,7 @@ class GeoLocationServiceActor extends Actor {
     protected def receive = {
 
         case msg: FindForCrawl =>
-            val me = self
+            val me = context.self
             val lastUpdatedBefore = new Date
             lastUpdatedBefore.setTime(lastUpdatedBefore.getTime - lastUpdatedBeforeMillis)
             findClick = !findClick
@@ -61,15 +74,15 @@ class GeoLocationServiceActor extends Actor {
                         Option(geoLocationDao.findForCrawl(lastUpdatedBefore, findClick))
                     }.cata(
                         me ! GeoLocate(_),
-                        Scheduler.scheduleOnce(me, FindForCrawl(), findForCrawlIntervalMinutes, TimeUnit.MINUTES))
+                        context.system.scheduler.scheduleOnce(findForCrawlIntervalMinutes minutes, me, FindForCrawl()))
             } catch {
                 case e =>
-                    logger.error("Error finding ip to locate", e)
-                    Scheduler.scheduleOnce(me, FindForCrawl(), findForCrawlIntervalMinutes, TimeUnit.MINUTES)
+                    logger.error("Error finding ip to locate: {}", e)
+                    context.system.scheduler.scheduleOnce(findForCrawlIntervalMinutes minutes, me, FindForCrawl())
             }
 
         case msg @ GeoLocate(gl) =>
-            val channel = self.channel
+            val channel = context.sender
 
             var geoLocation = gl.copy(
                         id = Option(gl.id).getOrElse(UUID.randomUUID().toString),
@@ -113,6 +126,10 @@ class GeoLocationServiceActor extends Actor {
                     logger.error("Error in response", e)
                     channel ! GeoLocateResponse(msg, Left(MalformedResponse(gl.ipAddress, e)))
                     geoLocationDao.insertOrUpdate(geoLocation.copy(updateStatus = e.getMessage().take(254)))
+                case e: SocketTimeoutException =>
+                    logger.debug("Timeout occurred fetching IP address {}", gl.ipAddress)
+                    channel ! GeoLocateResponse(msg, Left(GeoLocationException(gl.ipAddress, e.getMessage, e)))
+                    geoLocationDao.insertOrUpdate(geoLocation.copy(updateStatus = e.getMessage().take(254)))
                 case e =>
                     logger.error("Unexpected error occurred", e)
                     channel ! GeoLocateResponse(msg, Left(GeoLocationException(gl.ipAddress, e.getMessage, e)))
@@ -122,6 +139,8 @@ class GeoLocationServiceActor extends Actor {
         case msg: GeoLocateResponse =>
             self ! FindForCrawl()
     }
+
+    }), "GeoLocationService")
 }
 
 

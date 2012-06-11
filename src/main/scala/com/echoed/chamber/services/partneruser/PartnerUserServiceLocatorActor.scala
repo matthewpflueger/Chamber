@@ -1,30 +1,50 @@
 package com.echoed.chamber.services.partneruser
 
 import reflect.BeanProperty
-import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import akka.actor._
 import scala.collection.mutable.ConcurrentMap
 import com.echoed.util.Encrypter
-import com.echoed.chamber.dao.partner.PartnerDao
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
+import com.echoed.chamber.dao.partner.{PartnerUserDao, PartnerDao}
+import com.echoed.chamber.dao.views.PartnerViewDao
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
+import akka.actor.SupervisorStrategy.Restart
+import akka.pattern.ask
+import org.springframework.beans.factory.FactoryBean
 
 
-class PartnerUserServiceLocatorActor extends Actor {
+class PartnerUserServiceLocatorActor extends FactoryBean[ActorRef] {
 
-    private val logger = LoggerFactory.getLogger(classOf[PartnerUserServiceLocatorActor])
-
-    @BeanProperty var partnerUserServiceCreator: PartnerUserServiceCreator = _
     @BeanProperty var cacheManager: CacheManager = _
     @BeanProperty var encrypter: Encrypter = _
     @BeanProperty var partnerDao: PartnerDao = _
+    @BeanProperty var partnerUserDao: PartnerUserDao = _
+    @BeanProperty var partnerViewDao: PartnerViewDao = _
 
     private val cache: ConcurrentMap[String, PartnerUserService] = new ConcurrentHashMap[String, PartnerUserService]()
     private var cacheById: ConcurrentMap[String, PartnerUserService] = null
 
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+        case _: Exception ⇒ Restart
+    }
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private val logger = Logging(context.system, this)
 
     override def preStart() {
         cacheById = cacheManager.getCache[PartnerUserService](
@@ -32,7 +52,7 @@ class PartnerUserServiceLocatorActor extends Actor {
                 Some(new CacheListenerActorClient(self)))
     }
 
-    def login(msg: Login, channel: Channel[LoginResponse]) {
+    def login(msg: Login, channel: ActorRef) {
         val email = msg.email
         val password = msg.password
         logger.debug("Locating PartnerService for {}", email)
@@ -40,7 +60,7 @@ class PartnerUserServiceLocatorActor extends Actor {
         cache.get(email) match {
             case Some(partnerUserService) =>
                 logger.debug("Cache hit for {}", email)
-                partnerUserService.getPartnerUser.onResult {
+                partnerUserService.getPartnerUser.onSuccess {
                     case GetPartnerUserResponse(_, Right(pu)) =>
                         if (pu.isPassword(password)) {
                             cacheById.put(pu.id, partnerUserService)
@@ -57,9 +77,8 @@ class PartnerUserServiceLocatorActor extends Actor {
 
             case None =>
                 logger.debug("Cache miss for {}", email)
-                partnerUserServiceCreator.createPartnerUserService(email).onResult {
+                (self ? CreatePartnerUserService(email)).onSuccess {
                     case CreatePartnerUserServiceResponse(_, Right(pus)) =>
-                        cache(email) = pus
                         logger.debug("Seeded cache for {}", email)
                         login(msg, channel)
                     case CreatePartnerUserServiceResponse(_, Left(e)) =>
@@ -72,6 +91,22 @@ class PartnerUserServiceLocatorActor extends Actor {
 
     def receive = {
 
+        case msg @ CreatePartnerUserService(email) =>
+            val channel = context.sender
+
+            logger.debug("Loading PartnerUser for {}", email)
+            Option(partnerUserDao.findByEmail(email)).cata(
+                pu => {
+                    val pus = new PartnerUserServiceActorClient(context.actorOf(Props().withCreator {
+                        val p = Option(partnerUserDao.findByEmail(email)).get
+                        new PartnerUserServiceActor(p, partnerUserDao, partnerViewDao)
+                    }))
+                    cache(email) = pus
+                    channel ! CreatePartnerUserServiceResponse(msg, Right(pus))
+                },
+                channel ! CreatePartnerUserServiceResponse(msg, Left(new PartnerUserException(
+                    "No user with email %s" format email))))
+
         case msg @ CacheEntryRemoved(partnerUserId: String, pus: PartnerUserService, cause: String) =>
             logger.debug("Received {}", msg)
             pus.logout(partnerUserId)
@@ -81,9 +116,9 @@ class PartnerUserServiceLocatorActor extends Actor {
             }
             logger.debug("Sent logout for {}", pus)
 
-        case msg: Login => login(msg, self.channel)
+        case msg: Login => login(msg, context.sender)
         case msg @ Logout(partnerUserId) =>
-            val channel = self.channel
+            val channel = context.sender
 
             try {
                 logger.debug("Processing {}", msg)
@@ -103,9 +138,10 @@ class PartnerUserServiceLocatorActor extends Actor {
             }
 
         case msg @ Locate(partnerUserId) =>
-            self.channel ! LocateResponse(msg, cacheById.get(partnerUserId).toRight(LoginError("No partner user")))
+            context.sender ! LocateResponse(msg, cacheById.get(partnerUserId).toRight(LoginError("No partner user")))
 
     }
 
+    }), "PartnerUserServiceManager")
 
 }

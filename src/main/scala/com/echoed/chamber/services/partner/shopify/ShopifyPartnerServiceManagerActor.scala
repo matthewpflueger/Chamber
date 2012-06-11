@@ -1,10 +1,9 @@
 package com.echoed.chamber.services.partner.shopify
 
 import reflect.BeanProperty
-import akka.actor.{Channel, Actor}
 import collection.mutable.ConcurrentMap
 import com.echoed.cache.CacheManager
-import org.slf4j.LoggerFactory
+
 
 import com.echoed.chamber.services.partner._
 import org.springframework.transaction.TransactionStatus
@@ -22,11 +21,17 @@ import akka.dispatch.Future
 import java.util.{Properties, HashMap, UUID}
 import com.echoed.chamber.domain.partner.shopify.ShopifyPartner
 import com.echoed.chamber.domain.partner.PartnerSettings
+import org.springframework.beans.factory.FactoryBean
+import akka.actor._
+import akka.util.Timeout
+import akka.pattern.ask
+import akka.util.duration._
+import akka.event.Logging
+import akka.actor.SupervisorStrategy.Restart
 
 
-class ShopifyPartnerServiceManagerActor extends Actor {
+class ShopifyPartnerServiceManagerActor extends FactoryBean[ActorRef] {
 
-    private val logger = LoggerFactory.getLogger(classOf[ShopifyPartnerServiceManagerActor])
 
     @BeanProperty var shopifyAccess: ShopifyAccess = _
     @BeanProperty var shopifyPartnerDao: ShopifyPartnerDao = _
@@ -53,10 +58,25 @@ class ShopifyPartnerServiceManagerActor extends Actor {
 
     @BeanProperty var properties: Properties = _
 
-
     //this will be replaced by the ActorRegistry eventually (I think)
     private var cache: ConcurrentMap[String, PartnerService] = null
 
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+        case _: Exception ⇒ Restart
+    }
+
+    private implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart() {
         //this is a shared cache with PartnerServiceManagerActor
@@ -72,8 +92,33 @@ class ShopifyPartnerServiceManagerActor extends Actor {
 
 
     def receive = {
+
+        case Create(msg @ Locate(partnerId), channel) =>
+            val partnerService = new ShopifyPartnerServiceActorClient(context.actorOf(Props().withCreator {
+                val sp = Option(shopifyPartnerDao.findByPartnerId(partnerId)).get
+                val p = Option(partnerDao.findById(partnerId)).get
+                logger.debug("Found Shopify partner {}", sp.name)
+                new ShopifyPartnerServiceActor(
+                    sp,
+                    p,
+                    shopifyAccess,
+                    shopifyPartnerDao,
+                    partnerDao,
+                    partnerSettingsDao,
+                    echoDao,
+                    echoMetricsDao,
+                    imageDao,
+                    imageService,
+                    transactionTemplate,
+                    encrypter)
+            }, partnerId))
+            cache.put(partnerId, partnerService)
+            channel ! LocateResponse(msg, Right(partnerService))
+
         case msg @ Locate(partnerId) =>
-            implicit val channel: Channel[LocateResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             cache.get(partnerId).cata(
                 partnerService => {
@@ -84,7 +129,7 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                     val sp = Option(shopifyPartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
                     val p = Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
                     (sp, p)
-                }.onComplete(_.value.get.fold(
+                }.onComplete(_.fold(
                     _ match {
                         case e: PartnerNotFound =>
                             logger.debug("Partner not found: {}", partnerId)
@@ -93,42 +138,28 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                         case e => channel ! LocateResponse(msg, Left(PartnerException("Error locating partner %s" format partnerId, e)))
                     },
                     {
-                        case (shopifyPartner, partner) =>
-                            logger.debug("Found Shopify partner {}", shopifyPartner.name)
-                            val partnerService = new ShopifyPartnerServiceActorClient(Actor.actorOf(new ShopifyPartnerServiceActor(
-                                shopifyPartner,
-                                partner,
-                                shopifyAccess,
-                                shopifyPartnerDao,
-                                partnerDao,
-                                partnerSettingsDao,
-                                echoDao,
-                                echoMetricsDao,
-                                imageDao,
-                                imageService,
-                                transactionTemplate,
-                                encrypter)).start())
-                            cache.put(partnerId, partnerService)
-                            channel ! LocateResponse(msg, Right(partnerService))
+                        case (shopifyPartner, partner) => me ! Create(msg, channel)
                     })))
 
 
         case msg @ RegisterShopifyPartner(shop, signature, t, timeStamp) =>
-            val channel: Channel[RegisterShopifyPartnerResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             def error(e: Throwable) {
                 channel ! RegisterShopifyPartnerResponse(msg, Left(ShopifyPartnerException("Could not register Shopify partner", e)))
-                logger.error("Error processing %s" format msg, e)
+                logger.error("Error processing {}: {}", msg, e)
             }
 
             try {
                 logger.debug("Creating Shopfiy partner service for shop {} from token: {}" , shop, t)
-                shopifyAccess.fetchShopFromToken(shop, signature, t, timeStamp).onComplete(_.value.get.fold(
+                shopifyAccess.fetchShopFromToken(shop, signature, t, timeStamp).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchShopFromTokenResponse(_, Left(e)) => error(e)
                         case FetchShopFromTokenResponse(_, Right(shopifyPartner)) =>
-                            partnerServiceManager.locatePartnerByDomain(shopifyPartner.domain).onComplete(_.value.get.fold(
+                            partnerServiceManager.locatePartnerByDomain(shopifyPartner.domain).onComplete(_.fold(
                                 error(_),
                                 _ match {
                                     case LocateByDomainResponse(_, Left(e: PartnerNotFound)) =>
@@ -151,6 +182,14 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                                             msg,
                                             Right(RegisterShopifyPartnerEnvelope(sp, p, pu)))
 
+                                        (me ? Locate(p.id)).onComplete(_.fold(
+                                            e => logger.error("Unexpected error creating Shopify partner after registration: {}", e),
+                                            _ match {
+                                                case LocateResponse(_, Left(e)) =>
+                                                    logger.error("Unexpected error creating Shopify partner after registration: {}", e)
+                                                case LocateResponse(_, Right(_)) =>
+                                                    logger.debug("Successfully registered and created Shopify partner: {}", sp.name)
+                                            }))
 
                                         val model = new HashMap[String, AnyRef]()
                                         model.put("code", code)
@@ -176,6 +215,7 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                                         sps.update(shopifyPartner)
 
                                         val sp = sps.getShopifyPartner
+                                        implicit val t = Timeout(20 seconds)
                                         val pu = Future { partnerUserDao.findByEmail(shopifyPartner.email) }
 
                                         (for {
@@ -187,7 +227,7 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                                                 Option(partnerDao.findById(sp.resultOrException.partnerId)).get,
                                                 pu,
                                                 Some(sps))
-                                        }).onComplete(_.value.get.fold(
+                                        }).onComplete(_.fold(
                                             _ match {
                                                 case e: PartnerException => channel ! RegisterShopifyPartnerResponse(msg, Left(e))
                                                 case e => channel ! RegisterShopifyPartnerResponse(
@@ -201,8 +241,9 @@ class ShopifyPartnerServiceManagerActor extends Actor {
                                 }))
                     }))
             } catch {
-                case e =>
-                    logger.debug("exception {}" , e)
+                case e => logger.error("Unexpected exception during registration of ShopifyPartner {}" , e)
             }
     }
+
+    }), "ShopifyPartnerServiceManager")
 }

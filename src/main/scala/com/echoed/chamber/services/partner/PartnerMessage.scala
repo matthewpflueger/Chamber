@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Mess
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
 import partner.{PartnerSettings, PartnerUser, Partner}
+import akka.actor.ActorRef
 
 
 trait PartnerMessage extends Message
@@ -25,6 +26,7 @@ import com.echoed.chamber.services.partner.{PartnerIdentifiable => PI}
 import com.echoed.chamber.services.partner.{EchoIdentifiable => EI}
 
 
+private[partner] case class Create(msg: Locate, channel: ActorRef)
 
 case class RegisterPartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM
 case class RegisterPartnerResponse(
@@ -53,7 +55,7 @@ case class LocateByEchoIdResponse(
         value: Either[PE, PartnerService]) extends PM with RM[PartnerService, LocateByEchoId, PE]
 
 
-case class LocateByDomain(domain: String) extends PM
+case class LocateByDomain(domain: String, context: Option[AnyRef] = None) extends PM
 case class LocateByDomainResponse(
         message: LocateByDomain,
         value: Either[PE, PartnerService]) extends PM with RM[PartnerService, LocateByDomain, PE]

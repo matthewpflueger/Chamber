@@ -50,9 +50,9 @@ class LoginController {
 
                 logger.debug("Received login request for {}", email)
 
-                partnerUserServiceLocator.login(email, password).onResult {
+                partnerUserServiceLocator.login(email, password).onSuccess {
                     case LoginResponse(_, Left(error)) => onError(error)
-                    case LoginResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
+                    case LoginResponse(_, Right(pus)) => pus.getPartnerUser.onSuccess {
                         case GetPartnerUserResponse(_, Left(error)) => onError(error)
                         case GetPartnerUserResponse(_, Right(pu)) =>
                             logger.debug("Successful login for {}", email)

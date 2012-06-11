@@ -87,11 +87,11 @@ class FacebookController extends NetworkController {
 
             val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.value.get.fold(
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.fold(
                 error(_),
                 _ match {
                     case LocateWithIdResponse(_, Left(e)) => error(e)
-                    case LocateWithIdResponse(_, Right(eus)) => eus.getEchoedUser.onComplete(_.value.get.fold(
+                    case LocateWithIdResponse(_, Right(eus)) => eus.getEchoedUser.onComplete(_.fold(
                         error(_),
                         _ match {
                             case GetEchoedUserResponse(_, Left(e)) => error(e)
@@ -116,12 +116,12 @@ class FacebookController extends NetworkController {
                                     }
 
                                     val futureFacebookService = facebookServiceLocator.locateByCode(code, queryString)
-                                    futureFacebookService.onComplete(_.value.get.fold(
+                                    futureFacebookService.onComplete(_.fold(
                                         error(_),
                                         _ match {
                                             case LocateByCodeResponse(_, Left(e)) => error(e)
                                             case LocateByCodeResponse(_, Right(facebookService)) =>
-                                                eus.assignFacebookService(facebookService).onComplete(_.value.get.fold(
+                                                eus.assignFacebookService(facebookService).onComplete(_.fold(
                                                     error(_),
                                                     _ match {
                                                         case AssignFacebookServiceResponse(_, Left(error)) =>
@@ -178,7 +178,7 @@ class FacebookController extends NetworkController {
                 (if (index > -1) "?" + httpServletRequest.getQueryString.substring(0, index) else "")
 
 
-            facebookServiceLocator.locateByCode(code, queryString).onComplete(_.value.get.fold(
+            facebookServiceLocator.locateByCode(code, queryString).onComplete(_.fold(
                 error(_),
                 _ match {
                     case LocateByCodeResponse(_, Left(e)) => error(e)
@@ -203,11 +203,11 @@ class FacebookController extends NetworkController {
             continuation: Continuation,
             facebookService: FacebookService,
             httpServletRequest: HttpServletRequest) = {
-        echoedUserServiceLocator.getEchoedUserServiceWithFacebookService(facebookService).onComplete(_.value.get.fold(
+        echoedUserServiceLocator.getEchoedUserServiceWithFacebookService(facebookService).onComplete(_.fold(
             error(_),
             _ match {
                 case LocateWithFacebookServiceResponse(_, Left(e)) => error(e)
-                case LocateWithFacebookServiceResponse(_, Right(s))=> s.getEchoedUser.onComplete(_.value.get.fold(
+                case LocateWithFacebookServiceResponse(_, Right(s))=> s.getEchoedUser.onComplete(_.fold(
                     error(_),
                     _ match {
                         case GetEchoedUserResponse(_, Left(e)) => error(e)
@@ -266,7 +266,7 @@ class FacebookController extends NetworkController {
             Option(payload.get("user_id")).map(_.asText()).cata(
                 facebookId => {
                     val accessToken = payload.get("oauth_token").asText()
-                    facebookServiceLocator.locateByFacebookId(facebookId, accessToken).onComplete(_.value.get.fold(
+                    facebookServiceLocator.locateByFacebookId(facebookId, accessToken).onComplete(_.fold(
                         error(_),
                         _ match {
                             case LocateByFacebookIdResponse(_, Left(e)) => error(e)

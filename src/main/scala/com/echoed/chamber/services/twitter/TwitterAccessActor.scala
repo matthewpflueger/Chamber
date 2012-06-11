@@ -3,22 +3,22 @@ package com.echoed.chamber.services.twitter
 import com.echoed.chamber.domain.{TwitterFollower, TwitterUser}
 import reflect.BeanProperty
 import java.util.Properties
-import org.slf4j.LoggerFactory
 import twitter4j.{TwitterFactory, Twitter}
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.User
 import scalaz._
 import Scalaz._
-import akka.actor.{Channel, Actor}
 import twitter4j.auth.RequestToken
-import java.util.concurrent.{ConcurrentHashMap => JConcurrentHashMap}
-import scala.collection.JavaConversions._
 import com.echoed.cache.CacheManager
+import akka.actor._
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
+import org.springframework.beans.factory.FactoryBean
 
 
-class TwitterAccessActor extends Actor {
+class TwitterAccessActor extends FactoryBean[ActorRef] {
 
-    private final val logger = LoggerFactory.getLogger(classOf[TwitterAccessActor])
 
     @BeanProperty var consumerKey: String = _ //Called Consumer Key for Twitter
     @BeanProperty var consumerSecret: String = _  //Called Consumer Secret for Twitter
@@ -31,6 +31,18 @@ class TwitterAccessActor extends Actor {
     import scala.collection.mutable.ConcurrentMap
 
     private var cache: ConcurrentMap[String, Twitter] = null
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
 
     override def preStart {
@@ -47,7 +59,7 @@ class TwitterAccessActor extends Actor {
 
     def receive = {
         case msg @ FetchRequestToken(callbackUrl) =>
-            val channel: Channel[FetchRequestTokenResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val twitterHandler = buildTwitter()
@@ -62,7 +74,7 @@ class TwitterAccessActor extends Actor {
 
 
         case msg @ GetAccessTokenForRequestToken(requestToken, oAuthVerifier) =>
-            val channel: Channel[GetAccessTokenForRequestTokenResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val requestTokenKey = makeRequestTokenKey(requestToken)
@@ -81,7 +93,7 @@ class TwitterAccessActor extends Actor {
 
 
         case msg @ FetchAccessToken(accessToken, accessTokenSecret) =>
-            val channel: Channel[FetchAccessTokenResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
@@ -94,7 +106,7 @@ class TwitterAccessActor extends Actor {
 
 
         case msg @ FetchUser(accessToken, accessTokenSecret, userId) =>
-            val channel: Channel[FetchUserResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
@@ -117,7 +129,7 @@ class TwitterAccessActor extends Actor {
 
 
         case msg @ FetchFollowers(accessToken, accessTokenSecret, twitterUserId, twitterId) =>
-            val channel: Channel[FetchFollowersResponse] = self.channel
+            val channel = context.sender
 
             try {
                 logger.debug("Attempting to get Twitter followers for {}", twitterId)
@@ -134,7 +146,7 @@ class TwitterAccessActor extends Actor {
 
 
         case msg @ UpdateStatus(accessToken, accessTokenSecret, twitterStatus) =>
-            val channel: Channel[UpdateStatusResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val twitterHandler = getTwitterHandler(accessToken, accessTokenSecret)
@@ -151,7 +163,7 @@ class TwitterAccessActor extends Actor {
             }
 
         case msg @ Logout(accessToken) =>
-            val channel: Channel[LogoutResponse] = self.channel
+            val channel = context.sender
 
             try {
                 removeTwitterHandler(accessToken).cata(
@@ -198,5 +210,7 @@ class TwitterAccessActor extends Actor {
 
         new TwitterFactory(configurationBuilder.build()).getInstance()
     }
+
+    }), "TwitterAccess")
 
 }

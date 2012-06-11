@@ -4,7 +4,6 @@ import reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import org.joda.time.format.ISODateTimeFormat
 
-import akka.actor.{Channel, Actor}
 
 import dispatch.nio.Http
 
@@ -13,11 +12,14 @@ import java.util.Properties
 import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
 import xml.NodeSeq
 import dispatch.{Request, url}
+import org.springframework.beans.factory.FactoryBean
+import akka.actor._
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
 
 
-class NetworkSolutionsDispatchAccessActor extends Actor {
-
-    private final val logger = LoggerFactory.getLogger(classOf[NetworkSolutionsDispatchAccessActor])
+class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
 
     private final val xmlDateTimeFormat = ISODateTimeFormat.dateTimeNoMillis
 
@@ -29,6 +31,19 @@ class NetworkSolutionsDispatchAccessActor extends Actor {
     val endpoint = url("https://ecomapi.networksolutions.com/SoapService.asmx")
 
     @BeanProperty var properties: Properties = _
+
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart {
         //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
@@ -120,7 +135,7 @@ class NetworkSolutionsDispatchAccessActor extends Actor {
     def receive = {
 
         case msg @ FetchUserKey(successUrl, failureUrl) =>
-            val channel: Channel[FetchUserKeyResponse] = self.channel
+            val channel = context.sender
 
             client(getUserKey(successUrl, failureUrl) <> { res =>
                 logger.debug("GetUserKey = {}", res)
@@ -141,7 +156,7 @@ class NetworkSolutionsDispatchAccessActor extends Actor {
 
 
         case msg @ FetchUserToken(userKey) =>
-            val channel: Channel[FetchUserTokenResponse] = self.channel
+            val channel = context.sender
 
             client(getUserToken(userKey) <> { res =>
                 logger.debug("GetUserToken = {}", res)
@@ -186,7 +201,7 @@ class NetworkSolutionsDispatchAccessActor extends Actor {
 
 
         case msg @ FetchOrder(userToken, orderNumber) =>
-            val channel: Channel[FetchOrderResponse] = self.channel
+            val channel = context.sender
 
             client(readOrder(orderNumber, userToken) <> { res =>
                 logger.debug("ReadOrder = {}", res)
@@ -236,4 +251,5 @@ class NetworkSolutionsDispatchAccessActor extends Actor {
             })
     }
 
+    }), "NetworkSolutionsAccess")
 }

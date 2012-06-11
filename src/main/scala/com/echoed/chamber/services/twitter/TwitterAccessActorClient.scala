@@ -5,28 +5,33 @@ import reflect.BeanProperty
 import akka.actor.ActorRef
 import twitter4j.auth.RequestToken
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 class TwitterAccessActorClient extends TwitterAccess with ActorClient with Serializable {
 
     @BeanProperty var twitterAccessActor: ActorRef = _
 
+    private implicit val timeout = Timeout(20 seconds)
+
     def getRequestToken(callbackUrl: String) =
-            (twitterAccessActor ? FetchRequestToken(callbackUrl)).mapTo[FetchRequestTokenResponse] //("requestToken", callbackUrl)).mapTo[RequestToken]
+            (twitterAccessActor ? FetchRequestToken(callbackUrl)).mapTo[FetchRequestTokenResponse]
 
     def getAccessToken(requestToken: RequestToken, oAuthVerifier: String) =
-            (twitterAccessActor ? GetAccessTokenForRequestToken(requestToken, oAuthVerifier)).mapTo[GetAccessTokenForRequestTokenResponse] //("accessToken", requestToken, oAuthVerifier)).mapTo[AccessToken]
+            (twitterAccessActor ? GetAccessTokenForRequestToken(requestToken, oAuthVerifier)).mapTo[GetAccessTokenForRequestTokenResponse]
 
     def getAccessToken(accessToken: String, accessTokenSecret: String) =
-            (twitterAccessActor ? FetchAccessToken(accessToken, accessTokenSecret)).mapTo[FetchAccessTokenResponse] //("accessToken", accessToken, accessTokenSecret)).mapTo[AccessToken]
+            (twitterAccessActor ? FetchAccessToken(accessToken, accessTokenSecret)).mapTo[FetchAccessTokenResponse]
 
     def getUser(accessToken: String, accessTokenSecret: String, userId: Long) =
-            (twitterAccessActor ? FetchUser(accessToken, accessTokenSecret, userId)).mapTo[FetchUserResponse] //("getUser", accessToken, accessTokenSecret, userId)).mapTo[TwitterUser]
+            (twitterAccessActor ? FetchUser(accessToken, accessTokenSecret, userId)).mapTo[FetchUserResponse]
 
     def getFollowers(accessToken: String, accessTokenSecret: String, twitterUserId: String, twitterId: Long) =
-            (twitterAccessActor ? FetchFollowers(accessToken, accessTokenSecret, twitterUserId, twitterId)).mapTo[FetchFollowersResponse] //("getFollowers", accessToken, accessTokenSecret, twitterUserId, twitterId)).mapTo[List[TwitterFollower]]
+            (twitterAccessActor ? FetchFollowers(accessToken, accessTokenSecret, twitterUserId, twitterId)).mapTo[FetchFollowersResponse]
 
     def updateStatus(accessToken: String, accessTokenSecret: String, status: TwitterStatus) =
-            (twitterAccessActor ? UpdateStatus(accessToken, accessTokenSecret, status)).mapTo[UpdateStatusResponse] //("updateStatus", accessToken, accessTokenSecret, status)).mapTo[TwitterStatus]
+            (twitterAccessActor ? UpdateStatus(accessToken, accessTokenSecret, status)).mapTo[UpdateStatusResponse]
 
     def actorRef = twitterAccessActor
 

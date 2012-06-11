@@ -3,6 +3,9 @@ package com.echoed.chamber.services.facebook
 import reflect.BeanProperty
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 class FacebookServiceLocatorActorClient
@@ -11,6 +14,8 @@ class FacebookServiceLocatorActorClient
         with Serializable {
 
     @BeanProperty var facebookServiceLocatorActor: ActorRef = _
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def locateByCode(code: String, queryString: String) =
             (facebookServiceLocatorActor ? LocateByCode(code, queryString)).mapTo[LocateByCodeResponse]

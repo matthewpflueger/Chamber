@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.partner
 
-import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
 import com.echoed.util.Encrypter
 import org.springframework.dao.DataIntegrityViolationException
@@ -18,12 +17,17 @@ import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManag
 import com.echoed.chamber.services.image.ImageService
 import com.echoed.chamber.services.ActorClient
 import java.util.{UUID, HashMap => JHashMap}
-import akka.actor.{ForwardableChannel, PoisonPill, Channel, Actor}
+import org.springframework.beans.factory.FactoryBean
+import akka.actor._
+import akka.event.Logging
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
+import akka.actor.SupervisorStrategy.Restart
 
 
-class PartnerServiceManagerActor extends Actor {
+class PartnerServiceManagerActor extends FactoryBean[ActorRef] {
 
-    private final val logger = LoggerFactory.getLogger(classOf[PartnerServiceManagerActor])
 
     @BeanProperty var partnerDao: PartnerDao = _
     @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
@@ -35,14 +39,30 @@ class PartnerServiceManagerActor extends Actor {
     @BeanProperty var encrypter: Encrypter = _
     @BeanProperty var transactionTemplate: TransactionTemplate = _
     @BeanProperty var emailService: EmailService = _
-
-    @BeanProperty var cloudPartners: JHashMap[String, ActorClient] = _
-
     @BeanProperty var cacheManager: CacheManager = _
 
 
+    @BeanProperty var cloudPartners: JHashMap[String, ActorClient] = _
+
     private var cache: ConcurrentMap[String, PartnerService] = null
 
+
+    @BeanProperty var actorSystem: ActorSystem = _
+    @BeanProperty var timeoutInSeconds = 20
+
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+        case _: Exception ⇒ Restart
+    }
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart() {
         cache = cacheManager.getCache[PartnerService]("PartnerServices", Some(new CacheListenerActorClient(self)))
@@ -53,13 +73,22 @@ class PartnerServiceManagerActor extends Actor {
 
         case msg @ CacheEntryRemoved(partnerId: String, partnerService: PartnerService, cause: String) =>
             logger.debug("Received {}", msg)
-            partnerService.asInstanceOf[ActorClient].actorRef tryTell PoisonPill
+            partnerService.asInstanceOf[ActorClient].actorRef ! PoisonPill
             logger.debug("Stopped {}", partnerService.id)
+
+        /* Below is an exploratory code block if we were to move away from futures - we would instead match on
+           the response message and the original request and sender - this has the downside of breaking up the code
+           (can't immediately see how we handle a response like in a future) but the upside of not accidentally
+           closing over state
+         */
+//        case msg @ LocateByDomainResponse(
+//                LocateByDomain(domain, Some((RegisterPartner(partner, partnerSettings, partnerUser), channel))),
+//                result: Either[PartnerException, PartnerService]) =>
 
 
         case msg @ RegisterPartner(partner, partnerSettings, partnerUser) =>
-            val me = self
-            val channel: Channel[RegisterPartnerResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
 
             def error(e: Throwable) {
@@ -75,7 +104,18 @@ class PartnerServiceManagerActor extends Actor {
             }
 
             try {
-                (me ? LocateByDomain(partner.domain)).onComplete(_.value.get.fold(
+                /* Below is an exploratory code block if we were to handle future responses using anonymous actors -
+                   this has the downside that we can easily still close over state making it not much different than
+                   using onComplete callbacks...
+                 */
+//                (me ? LocateByDomain(partner.domain)).pipeTo(context.actorOf(Props(new Actor with ActorLogging {
+//                    def receive = {
+//                        case _ =>
+//                    }
+//                })))
+//
+//                me ! LocateByDomain(partner.domain, Some((msg, channel)))
+                (me ? LocateByDomain(partner.domain)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case LocateByDomainResponse(_, Right(partnerService)) =>
@@ -108,7 +148,7 @@ class PartnerServiceManagerActor extends Actor {
                                     "partner_email_register",
                                     model)
 
-                            (me ? Locate(partner.id)).onComplete(_.value.get.fold(
+                            (me ? Locate(partner.id)).onComplete(_.fold(
                                 error(_),
                                 _ match {
                                     case LocateResponse(_, Left(e)) => error(e)
@@ -121,9 +161,28 @@ class PartnerServiceManagerActor extends Actor {
                 case e => error(e)
             }
 
+        case Create(msg @ Locate(partnerId), channel) =>
+            val partnerService = new PartnerServiceActorClient(context.actorOf(Props().withCreator {
+                //we do this to force the actor to reload its state from the database or die trying...
+                val p = Option(partnerDao.findById(partnerId)).get
+                new PartnerServiceActor(
+                    p,
+                    partnerDao,
+                    partnerSettingsDao,
+                    echoDao,
+                    echoMetricsDao,
+                    imageDao,
+                    imageService,
+                    transactionTemplate,
+                    encrypter)
+            }, partnerId))
+            cache.put(partnerId, partnerService)
+            channel ! LocateResponse(msg, Right(partnerService))
 
         case msg @ Locate(partnerId) =>
-            val channel = self.channel.asInstanceOf[ForwardableChannel]
+            val me = context.self
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             cache.get(partnerId) match {
                 case Some(partnerService) =>
@@ -133,7 +192,7 @@ class PartnerServiceManagerActor extends Actor {
                     logger.debug("Looking up partner {}", partnerId)
                     Future {
                         Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
-                    }.onComplete(_.value.get.fold(
+                    }.onComplete(_.fold(
                         _ match {
                             case e: PartnerNotFound =>
                                 logger.debug("Partner not found {}", partnerId)
@@ -142,33 +201,20 @@ class PartnerServiceManagerActor extends Actor {
                             case e => channel ! LocateResponse(msg, Left(PartnerException("Error locating partner %s" format partnerId, e)))
                         },
                         {
-                            case partner if (Option(partner.cloudPartnerId) == None) =>
-                                val partnerService = new PartnerServiceActorClient(Actor.actorOf(new PartnerServiceActor(
-                                    partner,
-                                    partnerDao,
-                                    partnerSettingsDao,
-                                    echoDao,
-                                    echoMetricsDao,
-                                    imageDao,
-                                    imageService,
-                                    transactionTemplate,
-                                    encrypter)).start())
-                                cache.put(partnerId, partnerService)
-                                channel ! LocateResponse(msg, Right(partnerService))
-
+                            case partner if (Option(partner.cloudPartnerId) == None) => me ! Create(msg, channel)
                             case partner =>
                                 logger.debug("Found {} partner {}", partner.cloudPartnerId, partner.name)
-                                cloudPartners.get(partner.cloudPartnerId).actorRef.forward(msg)(channel)
+                                cloudPartners.get(partner.cloudPartnerId).actorRef.tell(msg, channel)
                         }))
             }
 
 
         case msg @ LocateByEchoId(echoId) =>
-            val me = self
-            val channel: Channel[LocateByEchoIdResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
             Option(echoDao.findByIdOrPostId(echoId)).cata(
-                echo => ((me ? Locate(echo.partnerId)).mapTo[LocateResponse]).onComplete(_.value.get.fold(
+                echo => ((me ? Locate(echo.partnerId)).mapTo[LocateResponse]).onComplete(_.fold(
                     e => channel ! LocateByEchoIdResponse(msg, Left(PartnerException("Unexpected error", e))),
                     _ match {
                         case LocateResponse(_, Left(e)) => channel ! LocateByEchoIdResponse(msg, Left(e))
@@ -179,12 +225,12 @@ class PartnerServiceManagerActor extends Actor {
                 })
 
 
-        case msg @ LocateByDomain(domain) =>
-            val me = self
-            val channel: Channel[LocateByDomainResponse] = self.channel
+        case msg @ LocateByDomain(domain, _) =>
+            val me = context.self
+            val channel = context.sender
 
             Option(partnerDao.findByDomain(domain)).cata(
-                partner => (me ? Locate(partner.id)).mapTo[LocateResponse].onComplete(_.value.get.fold(
+                partner => (me ? Locate(partner.id)).mapTo[LocateResponse].onComplete(_.fold(
                     e => channel ! LocateByDomainResponse(msg, Left(PartnerException("Unexpected error", e))),
                     _ match {
                         case LocateResponse(_, Left(e)) => channel ! LocateByDomainResponse(msg, Left(e))
@@ -196,30 +242,30 @@ class PartnerServiceManagerActor extends Actor {
 
 
         case msg @ PartnerIdentifiable(partnerId) =>
-            val me = self
-            val channel = self.channel.asInstanceOf[ForwardableChannel]
+            val me = context.self
+            val channel = context.sender
 
             val constructor = findResponseConstructor(msg)
 
-            (me ? Locate(partnerId)).mapTo[LocateResponse].onComplete(_.value.get.fold(
+            (me ? Locate(partnerId)).mapTo[LocateResponse].onComplete(_.fold(
                 e => channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating partner %s" format partnerId, e))),
                 _ match {
-                    case LocateResponse(_, Left(e)) => channel ! constructor.newInstance(msg, Left(e))
-                    case LocateResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef.forward(msg)(channel)
+                    case LocateResponse(Locate(partnerId), Left(e)) => channel ! constructor.newInstance(msg, Left(e))
+                    case LocateResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
                 }))
 
 
         case msg @ EchoIdentifiable(echoId) =>
-            val me = self
-            val channel = self.channel.asInstanceOf[ForwardableChannel]
+            val me = context.self
+            val channel = context.sender
 
             val constructor = findResponseConstructor(msg)
 
-            (me ? LocateByEchoId(echoId)).mapTo[LocateByEchoIdResponse].onComplete(_.value.get.fold(
+            (me ? LocateByEchoId(echoId)).mapTo[LocateByEchoIdResponse].onComplete(_.fold(
                 e => channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating with echo id %s" format echoId, e))),
                 _ match {
                     case LocateByEchoIdResponse(_, Left(e)) => channel ! constructor.newInstance(msg, Left(e))
-                    case LocateByEchoIdResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef.forward(msg)(channel)
+                    case LocateByEchoIdResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
                 }))
     }
 
@@ -229,6 +275,8 @@ class PartnerServiceManagerActor extends Actor {
         val responseClass = Thread.currentThread.getContextClassLoader.loadClass(requestClass.getName + "Response")
         responseClass.getConstructor(requestClass, classOf[Either[_, _]])
     }
+
+    }), "PartnerServiceManager")
 }
 
 

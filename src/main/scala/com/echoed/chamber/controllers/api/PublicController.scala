@@ -38,7 +38,7 @@ class PublicController {
         } else Option(continuation.getAttribute("feed")).getOrElse({
 
             continuation.suspend(httpServletResponse)
-            feedService.getPublicFeed.onResult({
+            feedService.getPublicFeed.onSuccess({
                 case GetPublicFeedResponse(_, Left(error)) =>
                     logger.error("Error Getting Public Feed")
                     "Error"

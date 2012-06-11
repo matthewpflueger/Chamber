@@ -40,7 +40,7 @@ class FacebookGraphController {
             continuation.suspend(httpServletResponse)
 
             logger.debug("Retrieving Facebook Graph Product Page for Echo: {}", linkId)
-            echoService.getEchoById(linkId).onComplete(_.value.get.fold(
+            echoService.getEchoById(linkId).onComplete(_.fold(
                 e => error(errorView, Some(e)),
                 _ match {
                     case GetEchoByIdResponse(msg, Left(e)) => error(errorView, Some(e))

@@ -1,40 +1,51 @@
 package com.echoed.chamber.services.facebook
 
-import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.services.ActorClient
 import java.util.{Calendar, Date}
 import com.echoed.chamber.dao.{FacebookCommentDao, FacebookLikeDao, FacebookPostDao}
-import akka.actor.{Scheduler, Actor}
-import java.util.concurrent.{Future, TimeUnit}
-import akka.dispatch.CompletableFuture
 import com.echoed.chamber.domain.FacebookPost
+import org.springframework.beans.factory.FactoryBean
+import akka.dispatch.Promise
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
+import akka.actor._
 
 
-class FacebookPostCrawlerActor extends Actor {
-
-
-    private val logger = LoggerFactory.getLogger(classOf[FacebookPostCrawlerActor])
+class FacebookPostCrawlerActor extends FactoryBean[ActorRef] {
 
     @BeanProperty var facebookPostDao: FacebookPostDao = _
     @BeanProperty var facebookLikeDao: FacebookLikeDao = _
     @BeanProperty var facebookCommentDao: FacebookCommentDao = _
     @BeanProperty var facebookAccess: ActorClient = _
     @BeanProperty var interval: Long = 60000
-    @BeanProperty var future: Option[CompletableFuture[GetPostDataResponse]] = None
+    @BeanProperty var future: Option[Promise[GetPostDataResponse]] = None
     @BeanProperty var postedOnDaysBefore: Int = -8
     @BeanProperty var postedOnHoursBefore: Int = -1
 
-    private var scheduledMessage: Option[Future[AnyRef]] = None
+    private var scheduledMessage: Option[Cancellable] = None
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart() {
         next
     }
 
     def next(response: GetPostDataResponse) {
-        future.foreach(_.completeWithResult(response))
+        future.foreach(_.success(response))
         next
     }
 
@@ -69,8 +80,8 @@ class FacebookPostCrawlerActor extends Actor {
             crawlStatus: String,
             retries: Int)(f: Unit => Unit) {
         try {
-            logger.debug("Updating post %s for crawl status %s, retries %s" format (facebookPost.id, crawlStatus, retries))
-            scheduledMessage.foreach(_.cancel(false))
+            logger.debug("Updating post {} for crawl status {}, retries {}", facebookPost.id, crawlStatus, retries)
+            scheduledMessage.foreach(_.cancel)
             facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = crawlStatus, crawledOn = new Date, retries = retries))
             f()
         } finally {
@@ -90,7 +101,8 @@ class FacebookPostCrawlerActor extends Actor {
                 { logger.debug("No posts found for crawling") })
             } finally {
                 //always make sure we are looking for posts to crawl (less than one interval for testing)
-                if (interval > 0) scheduledMessage = Option(Scheduler.scheduleOnce(self, 'next, interval, TimeUnit.MILLISECONDS))
+                if (interval > 0) scheduledMessage =
+                    Option(context.system.scheduler.scheduleOnce(interval milliseconds, context.self, 'next))
             }
 
 
@@ -124,5 +136,7 @@ class FacebookPostCrawlerActor extends Actor {
                 logger.debug("Received bad response crawling FacebookPost {}: {}", facebookPostToCrawl.id, e.message)
             }
     }
+
+    }), "FacebookPostCrawler")
 }
 

@@ -70,7 +70,7 @@ class EchoRegisterController {
 
             logger.debug("Locating Partner By EchoId: {}", id)
 
-            partnerServiceManager.locatePartnerByEchoId(id).onComplete(_.value.get.fold(
+            partnerServiceManager.locatePartnerByEchoId(id).onComplete(_.fold(
                 e => error(errorView, e),
                 _ match {
                     case LocateByEchoIdResponse(_, Left(e)) => throw e
@@ -161,7 +161,7 @@ class EchoRegisterController {
                                     }
                             }
                         )
-                    }).onException { case e => error(errorView, e)}
+                    }).onFailure { case e => error(errorView, e)}
             }
             continuation.undispatch()
         }

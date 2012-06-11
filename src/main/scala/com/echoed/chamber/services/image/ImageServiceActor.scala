@@ -14,31 +14,24 @@ import java.security.MessageDigest
 import javax.imageio.ImageIO
 import org.imgscalr.Scalr
 import com.echoed.chamber.domain.Image
-import collection.mutable.{ListBuffer, Map => MMap}
+import collection.mutable.ListBuffer
 import java.util.{Calendar, Date}
-import akka.dispatch.{CompletableFuture, PriorityGenerator, PriorityExecutorBasedEventDrivenDispatcher}
 import java.io.{FileNotFoundException, ByteArrayOutputStream, ByteArrayInputStream}
 import org.jclouds.rest.AuthorizationException
 import java.util.concurrent.atomic.{AtomicLong}
-import java.util.concurrent.TimeUnit
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
+import org.springframework.beans.factory.FactoryBean
+import akka.dispatch.Promise
+import akka.util.duration._
+import akka.event.Logging
+import akka.util.Timeout
 
 
+class ImageServiceActor extends FactoryBean[ActorRef] {
 
-class ImageServiceActor extends Actor {
-    private val logger = LoggerFactory.getLogger(classOf[ImageServiceActor])
-
-
-    val priority = PriorityGenerator {
-        case FindUnprocessedImage() => 101
-        case ProcessLowPriorityImage(_) => 100
-        case _ => 1
-    }
-
-    self.dispatcher = new PriorityExecutorBasedEventDrivenDispatcher(classOf[ImageServiceActor].getSimpleName, priority)
-
+    @BeanProperty var actorSystem: ActorSystem = _
     @BeanProperty var imageDao: ImageDao = _
     @BeanProperty var blobStore: BlobStore = _
 
@@ -50,17 +43,28 @@ class ImageServiceActor extends Actor {
     @BeanProperty var findUnprocessedImagesInterval: Long = 60000
     @BeanProperty var reloadBlobStoreInterval: Long = 60000
     @BeanProperty var lastProcessedBeforeMinutes: Int = 5
+    @BeanProperty var timeoutInSeconds = 20
 
 
     //only for testing purposes
-    var future: Option[CompletableFuture[ProcessImageResponse]] = None
-    var unprocessedFuture: Option[CompletableFuture[Option[Image]]] = None
+    var future: Option[Promise[ProcessImageResponse]] = None
+    var unprocessedFuture: Option[Promise[Option[Image]]] = None
 
-    //responses is a concurrent map because the sendResponse call gets initiated post blobStore.store in a future...
-    private val responses: ConcurrentMap[String, ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]] =
-        new ConcurrentHashMap[String, ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]]()
+//    //responses is a concurrent map because the sendResponse call gets initiated post blobStore.store in a future...
+    private val responses: ConcurrentMap[String, ListBuffer[(ProcessImage, ActorRef)]] =
+        new ConcurrentHashMap[String, ListBuffer[(ProcessImage, ActorRef)]]()
 
     private val reloadBlobStore = new AtomicLong(System.currentTimeMillis())
+
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart() {
         val me = self
@@ -68,7 +72,7 @@ class ImageServiceActor extends Actor {
 
         //this is a hack to make sure we continue to process failed images as we have a bug (API-67) that causes the
         //original Scheduler call to never happen again if a low priority image bugs out :(
-        Scheduler.schedule(me, FindUnprocessedImage(), findUnprocessedImagesInterval, findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
+        actorSystem.scheduler.schedule(findUnprocessedImagesInterval milliseconds, findUnprocessedImagesInterval milliseconds, me, FindUnprocessedImage())
     }
 
 
@@ -164,11 +168,11 @@ class ImageServiceActor extends Actor {
             val message = tuple._1
             val channel = tuple._2
             logger.debug("Sending image processing response {}", response)
-            channel tryTell ProcessImageResponse(message, response)
+            channel ! ProcessImageResponse(message, response)
         })
 
         //only for testing purposes...
-        future.foreach(_.completeWithResult(ProcessImageResponse(ProcessImage(image), response)))
+        future.foreach(_.success(ProcessImageResponse(ProcessImage(image), response)))
     }
 
 
@@ -193,7 +197,7 @@ class ImageServiceActor extends Actor {
                 imageInfo.bytes,
                 imageInfo.fileName,
                 imageInfo.contentType,
-                imageInfo.metadata).onComplete(_.value.get.fold(
+                imageInfo.metadata).onComplete(_.fold(
             e => {
                 //ugly hack to get the blob store to re-authorize at a maximum rate of once a reloadBlobStoreInterval
                 //this was supposedly fixed in jclouds 1.3.0 but for the life of me I can't see to get it to work
@@ -225,13 +229,13 @@ class ImageServiceActor extends Actor {
 
 
         case msg @ ProcessImage(image) =>
-            val me = self
-            val channel: Channel[ProcessImageResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
             logger.debug("Starting to process {}", image.url)
             if (image.isProcessed) {
                 logger.debug("Image has already been processed {}", image)
-                future.foreach(_.completeWithResult(ProcessImageResponse(msg, Right(image))))
+                future.foreach(_.success(ProcessImageResponse(msg, Right(image))))
                 channel ! ProcessImageResponse(msg, Right(image))
             } else /* commenting this out as it is really buggy - we have a leak that causes the response list to grow
                       indefinitely - see API-67 this is part of that whole thing...
@@ -242,7 +246,7 @@ class ImageServiceActor extends Actor {
                     logger.debug("Already processing image {}, list of channels waiting for response {}", image.url, list)
                 },   */
                 {
-                    val list = responses.getOrElseUpdate(image.url, { ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]() })
+                    val list = responses.getOrElseUpdate(image.url, { ListBuffer[(ProcessImage, ActorRef)]() })
 
                     //we are not working on the image so lets see what we need to do...
                     logger.debug("Processing {}", image.url)
@@ -382,24 +386,27 @@ class ImageServiceActor extends Actor {
                 Option(imageDao.findUnprocessed(lastProcessedBeforeDate)).cata(
                     image => {
                         me ! ProcessLowPriorityImage(image)
-                        unprocessedFuture.foreach(_.completeWithResult(Some(image)))
+                        unprocessedFuture.foreach(_.success(Some(image)))
                     },
                     {
                         //Scheduler.scheduleOnce(me, FindUnprocessedImage(), findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
-                        unprocessedFuture.foreach(_.completeWithResult(None))
+                        unprocessedFuture.foreach(_.success(None))
                     })
             } else {
                 logger.info(
                     "Not finding unprocessed images because findUnprocessedImagesInterval {} or lastProcessWithinMinutes {} less than or equal to zero",
                     findUnprocessedImagesInterval,
                     lastProcessedBeforeMinutes)
-                unprocessedFuture.foreach(_.completeWithResult(None))
+                unprocessedFuture.foreach(_.success(None))
             }
 
 
         case msg @ ImageStoreError(image, e, message) => error(image, e, message)
 
     }
+
+    }), "ImageService")
+
 }
 
 

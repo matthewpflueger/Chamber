@@ -65,13 +65,13 @@ class AdminController {
 
             val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
                 case LocateAdminUserServiceResponse(_, Left(e)) =>
                     continuation.setAttribute("jsonResponse","error")
                     continuation.resume()
                 case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                     logger.debug("AdminUser Service Located")
-                    adminUserService.getEchoPossibilities.onResult({
+                    adminUserService.getEchoPossibilities.onSuccess({
                         case GetEchoPossibilitesResponse(_, Left(e)) =>
                             continuation.setAttribute("jsonResponse","error")
                             continuation.resume()
@@ -103,13 +103,13 @@ class AdminController {
 
             val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
                 case LocateAdminUserServiceResponse(_, Left(e)) =>
                     continuation.setAttribute("jsonResponse","error")
                     continuation.resume()
                 case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                     logger.debug("AdminUser Service Located")
-                    adminUserService.getPartners.onResult({
+                    adminUserService.getPartners.onSuccess({
                         case GetPartnersResponse(_, Left(e)) =>
                             continuation.setAttribute("jsonResponse", "error")
                             continuation.resume()
@@ -154,13 +154,13 @@ class AdminController {
 
             continuation.suspend(httpServletResponse)
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
                 case LocateAdminUserServiceResponse(_, Left(e)) =>
                     continuation.setAttribute("jsonResponse", "error")
                     continuation.resume()
                 case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                     logger.debug("AdminUser Service Located")
-                    adminUpdatePartnerSettingsForm.createPartnerSettings(adminUserService.updatePartnerSettings(_)).onComplete(_.value.get.fold(
+                    adminUpdatePartnerSettingsForm.createPartnerSettings(adminUserService.updatePartnerSettings(_)).onComplete(_.fold(
                         e => continuation.setAttribute("jsonResponse", e),
                         _ match {
                             case UpdatePartnerSettingsResponse(_, Left(e)) =>
@@ -195,13 +195,13 @@ class AdminController {
 
             val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
                 case LocateAdminUserServiceResponse(_, Left(e)) =>
                     continuation.setAttribute("jsonResponse","error")
                     continuation.resume()
                 case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                     logger.debug("AdminUser Service Located")
-                    adminUserService.getPartnerSettings(partnerId).onResult({
+                    adminUserService.getPartnerSettings(partnerId).onSuccess({
                         case GetPartnerSettingsResponse(_, Left(e)) =>
                             continuation.setAttribute("jsonResponse", "error")
                             continuation.resume()
@@ -235,13 +235,13 @@ class AdminController {
 
             val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult({
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
                 case LocateAdminUserServiceResponse(_, Left(e)) => 
                     continuation.setAttribute("jsonResponse","error")
                     continuation.resume()
                 case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                     logger.debug("AdminUser Service Located")
-                    adminUserService.getUsers.onResult({
+                    adminUserService.getUsers.onSuccess({
                         case GetUsersResponse(_, Left(e)) => 
                             continuation.setAttribute("jsonResponse", "error")
                             continuation.resume()

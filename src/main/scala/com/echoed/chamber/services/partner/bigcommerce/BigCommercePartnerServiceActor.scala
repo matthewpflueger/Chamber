@@ -1,7 +1,5 @@
 package com.echoed.chamber.services.partner.bigcommerce
 
-import org.slf4j.LoggerFactory
-import akka.actor.Channel
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
@@ -11,9 +9,10 @@ import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommercePartner
 import partner.bigcommerce.BigCommercePartnerDao
 import partner.{PartnerSettingsDao, PartnerDao}
+import akka.event.Logging
 
 
-class BigCommercePartnerServiceActor(
+class BigCommercePartnerServiceActor (
             var bigCommercePartner: BigCommercePartner,
             partner: Partner,
             bigCommerceAccess: BigCommerceAccess,
@@ -37,9 +36,7 @@ class BigCommercePartnerServiceActor(
         encrypter) {
 
 
-    private val logger = LoggerFactory.getLogger(classOf[BigCommercePartnerServiceActor])
-
-    self.id = "BigCommercePartnerService:%s" format bigCommercePartner.id
+    private val logger = Logging(context.system, this)
 
     override def receive = bigCommercePartnerReceive.orElse(super.receive)
 
@@ -55,7 +52,7 @@ class BigCommercePartnerServiceActor(
                 echoClickId,
                 view) =>
 
-            val channel: Channel[RequestEchoResponse] = self.channel
+            val channel = context.sender
 
             logger.debug("Received {}", msg)
 
@@ -66,7 +63,7 @@ class BigCommercePartnerServiceActor(
 
             try {
                 val orderId = java.lang.Long.parseLong(order)
-                bigCommerceAccess.fetchOrder(bigCommercePartner.credentials, orderId).onComplete(_.value.get.fold(
+                bigCommerceAccess.fetchOrder(bigCommercePartner.credentials, orderId).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)

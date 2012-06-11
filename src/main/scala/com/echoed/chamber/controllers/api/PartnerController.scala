@@ -39,12 +39,12 @@ class PartnerController {
 
             val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-            partnerUserServiceLocator.locate(partnerUserId.get).onResult({
+            partnerUserServiceLocator.locate(partnerUserId.get).onSuccess({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner USer SErvice With PartnerUserId: {}", partnerUserId)
                     error(e)
                 case LocateResponse(_, Right(pus)) =>
-                    pus.getPartnerSettings.onResult({
+                    pus.getPartnerSettings.onSuccess({
                         case GetPartnerSettingsResponse(_, Left(e)) =>
                             logger.error("Error Retrieving Partner Settings for PartnerUser {}", partnerUserId)
                             error(e)
@@ -81,7 +81,7 @@ class PartnerController {
 
             val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-            partnerUserServiceLocator.locate(partnerUserId.get).onResult({
+            partnerUserServiceLocator.locate(partnerUserId.get).onSuccess({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner USer SErvice With PartnerUserId: {}", partnerUserId)
                     error(e)
@@ -89,7 +89,7 @@ class PartnerController {
                     logger.debug("Partner User Service Located with PartnerUserId: {}", partnerUserId)
                     query match{
                         case "history" =>
-                            pus.getProductSocialActivityByDate(productId).onResult({
+                            pus.getProductSocialActivityByDate(productId).onSuccess({
                                 case GetProductSocialActivityByDateResponse(_, Left(e)) =>
                                     logger.error("Error getting Activity History for Product: {}", productId)
                                     error(e)
@@ -98,7 +98,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "summary" =>
-                            pus.getProductSocialSummary(productId).onResult({
+                            pus.getProductSocialSummary(productId).onSuccess({
                                 case GetProductSocialSummaryResponse(_, Left(e)) =>
                                     logger.error("Error getting Product Social Summary for Product: {}", productId)
                                     error(e)
@@ -107,7 +107,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "comments" =>
-                            pus.getCommentsByProductId(productId).onResult({
+                            pus.getCommentsByProductId(productId).onSuccess({
                                 case GetCommentsByProductIdResponse(_, Left(e)) =>
                                     logger.error("Error getting comments for Product: {}", productId)
                                     error(e)
@@ -147,7 +147,7 @@ class PartnerController {
 
             val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-            partnerUserServiceLocator.locate(partnerUserId.get).onResult({
+            partnerUserServiceLocator.locate(partnerUserId.get).onSuccess({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
                     error(e)
@@ -155,7 +155,7 @@ class PartnerController {
                     logger.debug("Getting Product Summary for customerId: {}", customerId)
                     query match {
                         case "summary" =>
-                            pus.getCustomerSocialSummary(customerId).onResult({
+                            pus.getCustomerSocialSummary(customerId).onSuccess({
                                 case GetCustomerSocialSummaryResponse(_, Left(e)) =>
                                     logger.error("Error getting Partner Top Products {}", e)
                                     error(e)
@@ -165,7 +165,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "history" =>
-                            pus.getCustomerSocialActivityByDate(customerId).onResult({
+                            pus.getCustomerSocialActivityByDate(customerId).onSuccess({
                                 case GetCustomerSocialActivityByDateResponse(_, Left(e)) =>
                                     error(e)
                                 case GetCustomerSocialActivityByDateResponse(_, Right(socialActivityHistory)) =>
@@ -206,14 +206,14 @@ class PartnerController {
 
             //temporary fix until locator/creator can be combined into manager and all calls go through manager...
             if (!partnerUserId.isDefined) error(new IllegalArgumentException("No partner user"))
-            else partnerUserServiceLocator.locate(partnerUserId.get).onResult({
+            else partnerUserServiceLocator.locate(partnerUserId.get).onSuccess({
                 case LocateResponse(_, Left(e)) =>
                     logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
                     error(e)
                 case LocateResponse(_, Right(pus)) =>
                     query match {
                         case "summary" =>
-                            pus.getPartnerSocialSummary.onResult({
+                            pus.getPartnerSocialSummary.onSuccess({
                                 case GetPartnerSocialSummaryResponse(_, Left(e)) =>
                                     logger.error("Error getting Partner Social Summary", e)
                                     error(e)
@@ -223,7 +223,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "echoes" =>
-                            pus.getEchoes.onResult({
+                            pus.getEchoes.onSuccess({
                                 case GetEchoesResponse(_, Left(e)) =>
                                     logger.error("Error getting Echoes", e)
                                     error(e)
@@ -232,7 +232,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "history" =>
-                            pus.getPartnerSocialActivityByDate.onResult({
+                            pus.getPartnerSocialActivityByDate.onSuccess({
                                 case GetPartnerSocialActivityByDateResponse(_, Left(e)) =>
                                     logger.error("Error getting Partner Social Activity History")
                                     error(e)
@@ -241,7 +241,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "comments" =>
-                            pus.getComments.onResult({
+                            pus.getComments.onSuccess({
                                 case GetCommentsResponse(_, Left(e)) =>
                                     error(e)
                                 case GetCommentsResponse(_, Right(comments)) =>
@@ -249,7 +249,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "customers" =>
-                            pus.getCustomers.onResult({
+                            pus.getCustomers.onSuccess({
                                 case GetCustomersResponse(_, Left(e))=>
                                     error(e)
                                 case GetCustomersResponse(_, Right(customers)) =>
@@ -257,7 +257,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "topcustomers" =>
-                            pus.getTopCustomers.onResult({
+                            pus.getTopCustomers.onSuccess({
                                 case GetTopCustomersResponse(_,Left(e))=>
                                     error(e)
                                 case GetTopCustomersResponse(_, Right(customers)) =>
@@ -265,7 +265,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "products" =>
-                            pus.getProducts.onResult({
+                            pus.getProducts.onSuccess({
                                 case GetProductsResponse(_, Left(e)) =>
                                     error(e)
                                 case GetProductsResponse(_, Right(products))=>
@@ -273,7 +273,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "topproducts" =>
-                            pus.getTopProducts.onResult({
+                            pus.getTopProducts.onSuccess({
                                 case GetTopProductsResponse(_, Left(e)) =>
                                     error(e)
                                 case GetTopProductsResponse(_, Right(products)) =>
@@ -281,7 +281,7 @@ class PartnerController {
                                     continuation.resume()
                             })
                         case "geolocation" =>
-                            pus.getEchoClickGeoLocation.onResult({
+                            pus.getEchoClickGeoLocation.onSuccess({
                                 case GetEchoClickGeoLocationResponse(_, Left(e)) =>
                                     error(e)
                                 case GetEchoClickGeoLocationResponse(_, Right(geolocation)) =>

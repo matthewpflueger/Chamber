@@ -67,7 +67,7 @@ class NetworkSolutionsController {
                     registerForm.name,
                     registerForm.email,
                     registerForm.phone,
-                    successUrl).onComplete(_.value.get.fold(
+                    successUrl).onComplete(_.fold(
                 e => error(registerView, Some(e)),
                 _ match {
                     case RegisterNetworkSolutionsPartnerResponse(_, Left(e)) => error(registerView, Some(e))
@@ -96,7 +96,7 @@ class NetworkSolutionsController {
             continuation.suspend(httpServletResponse)
 
             logger.debug("Attempting to authorize Network Solutions partner {}", userKey)
-            networkSolutionsPartnerServiceManager.authPartner(userKey).onComplete(_.value.get.fold(
+            networkSolutionsPartnerServiceManager.authPartner(userKey).onComplete(_.fold(
                 error(_),
                 _ match {
                     case AuthNetworkSolutionsPartnerResponse(_, Left(e)) => error(e)

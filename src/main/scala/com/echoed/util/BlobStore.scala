@@ -10,8 +10,10 @@ import org.jclouds.logging.slf4j.config.SLF4JLoggingModule
 import com.google.common.util.concurrent.{FutureCallback, Futures}
 import io.Source
 import scala.collection.JavaConversions._
-import akka.dispatch.{DefaultCompletableFuture, CompletableFuture}
-import akka.util.Duration
+import akka.util.duration._
+import akka.dispatch._
+import akka.actor.ActorSystem
+import akka.dispatch.{ ExecutionContext, Promise }
 
 
 class BlobStore {
@@ -25,8 +27,11 @@ class BlobStore {
     @BeanProperty var container: String = _
     @BeanProperty var containerUrl: String = _
 
+    @BeanProperty var actorSystem: ActorSystem = _
+
     var context: BlobStoreContext = _
     var asyncBlobStore: AsyncBlobStore = _
+
 
     def init() {
         val modules = new JSet[Module]()
@@ -53,19 +58,19 @@ class BlobStore {
                 .contentLength(bytes.length)
                 .calculateMD5().build();
 
-        val future = new DefaultCompletableFuture[String]()
+        val future = Promise[String]()(actorSystem.dispatcher)
 
         Futures.addCallback(asyncBlobStore.putBlob(container, blob),
             new FutureCallback[String]() {
                 def onSuccess(result: String) {
                     logger.debug("Received success result {} for upload of {}", result, fileName)
                     val url = "%s/%s" format(containerUrl, fileName)
-                    future.completeWithResult(url)
+                    future.success(url)
                 }
 
                 def onFailure(t: Throwable) {
                     logger.error("Received error result for upload of %s" format fileName, t)
-                    future.completeWithException(t)
+                    future.failure(t)
                 }
             },
             context.utils.userExecutor())
@@ -96,18 +101,18 @@ class BlobStore {
 
 
     def delete(fileName: String) = {
-        val future = new DefaultCompletableFuture[Boolean]()
+        val future = Promise[Boolean]()(actorSystem.dispatcher)
 
         Futures.addCallback(asyncBlobStore.removeBlob(container, fileName),
             new FutureCallback[Void]() {
                 def onSuccess(result: Void) {
                     logger.debug("Received success for deletion of {}", fileName)
-                    future.completeWithResult(true)
+                    future.success(true)
                 }
 
                 def onFailure(t: Throwable) {
                     logger.error("Received error result for deletion of %s" format fileName, t)
-                    future.completeWithException(t)
+                    future.failure(t)
                 }
             },
             context.utils.userExecutor())
@@ -117,18 +122,19 @@ class BlobStore {
 
 
     def exists(fileName: String) = {
-        val future = new DefaultCompletableFuture[Boolean]()
+
+        val future = Promise[Boolean]()(actorSystem.dispatcher)
 
         Futures.addCallback(asyncBlobStore.blobExists(container, fileName),
             new FutureCallback[java.lang.Boolean]() {
                 def onSuccess(result: java.lang.Boolean) {
                     logger.debug("Received success result of {} for exists of {}", result, fileName)
-                    future.completeWithResult(result)
+                    future.success(result)
                 }
 
                 def onFailure(t: Throwable) {
                     logger.error("Received error result for exists of %s" format fileName, t)
-                    future.completeWithException(t)
+                    future.failure(t)
                 }
             },
             context.utils.userExecutor())
@@ -154,10 +160,10 @@ object BlobStore extends App {
     val fileName = "Pic3.jpg"
     val filePath = "/home/mpflueger/workspace/chamber/src/main/webapp/images/%s" format fileName
 
-    blobStore
+    Await.result(blobStore
             .storeFile(filePath, contentType)
             .flatMap(blobStore.delete(_))
-            .onComplete(_ => blobStore.destroy)
-            .await(Duration(30, "seconds"))
+            .onComplete(_ => blobStore.destroy),
+            30 seconds)
 }
 

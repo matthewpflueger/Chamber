@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:akka="http://akka.io/schema/akka"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
             http://www.springframework.org/schema/beans
 	        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
             http://www.springframework.org/schema/util
-            http://www.springframework.org/schema/util/spring-util-3.0.xsd
-            http://akka.io/schema/akka
-            http://akka.io/akka-1.3.1.xsd"
+            http://www.springframework.org/schema/util/spring-util-3.0.xsd"
        default-init-method="init"
        default-destroy-method="destroy">
 
@@ -76,6 +73,7 @@
         <property name="credential" value="${blobstore.credential}" />
         <property name="container" value="${blobstore.container}" />
         <property name="containerUrl" value="${blobstore.containerUrl}" />
+        <property name="actorSystem" ref="actorSystem" />
     </bean>
 
 
@@ -99,10 +97,6 @@
         <property name="actorRef" ref="facebookAccessActor" />
     </bean>
 
-    <bean id="facebookServiceCreator" class="com.echoed.chamber.services.facebook.FacebookServiceCreatorActorClient">
-        <property name="facebookServiceCreatorActor" ref="facebookServiceCreatorActor" />
-    </bean>
-
     <bean id="facebookServiceLocator" class="com.echoed.chamber.services.facebook.FacebookServiceLocatorActorClient">
         <property name="facebookServiceLocatorActor" ref="facebookServiceLocatorActor" />
     </bean>
@@ -115,16 +109,8 @@
         <property name="twitterAccessActor" ref="twitterAccessActor" />
     </bean>
 
-    <bean id="twitterServiceCreator" class="com.echoed.chamber.services.twitter.TwitterServiceCreatorActorClient">
-        <property name="twitterServiceCreatorActor" ref="twitterServiceCreatorActor" />
-    </bean>
-
     <bean id="twitterServiceLocator" class="com.echoed.chamber.services.twitter.TwitterServiceLocatorActorClient">
         <property name="twitterServiceLocatorActor" ref="twitterServiceLocatorActor" />
-    </bean>
-
-    <bean id="echoedUserServiceCreator" class="com.echoed.chamber.services.echoeduser.EchoedUserServiceCreatorActorClient">
-        <property name="echoedUserServiceCreatorActor" ref="echoedUserServiceCreatorActor" />
     </bean>
 
     <bean id="echoedUserServiceLocator" class="com.echoed.chamber.services.echoeduser.EchoedUserServiceLocatorActorClient">
@@ -135,22 +121,13 @@
         <property name="actorRef" ref="partnerServiceManagerActor" />
     </bean>
 
-    <bean id="partnerUserServiceCreator" class="com.echoed.chamber.services.partneruser.PartnerUserServiceCreatorActorClient">
-        <property name="partnerUserServiceCreatorActor" ref="partnerUserServiceCreatorActor" />
-    </bean>
-
     <bean id="partnerUserServiceLocator" class="com.echoed.chamber.services.partneruser.PartnerUserServiceLocatorActorClient">
         <property name="partnerUserServiceLocatorActor" ref="partnerUserServiceLocatorActor" />
-    </bean>
-
-    <bean id="adminUserServiceCreator" class="com.echoed.chamber.services.adminuser.AdminUserServiceCreatorActorClient">
-        <property name="adminUserServiceCreatorActor" ref="adminUserServiceCreatorActor" />
     </bean>
 
     <bean id="adminUserServiceLocator" class="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActorClient">
         <property name="adminUserServiceLocatorActor"  ref="adminUserServiceLocatorActor" />
     </bean>
-
 
     <bean id="shopifyPartnerServiceManager" class="com.echoed.chamber.services.partner.shopify.ShopifyPartnerServiceManagerActorClient">
         <property name="actorRef" ref="shopifyPartnerServiceManagerActor" />
@@ -160,7 +137,6 @@
         <property name="shopifyAccessActor" ref="shopifyAccessActor"/>
     </bean>
 
-
     <bean id="networkSolutionsPartnerServiceManager" class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsPartnerServiceManagerActorClient">
         <property name="actorRef" ref="networkSolutionsPartnerServiceManagerActor" />
     </bean>
@@ -169,7 +145,6 @@
         <property name="networkSolutionsAccessActor" ref="networkSolutionsDispatchAccessActor"/>
     </bean>
 
-
     <bean id="bigCommercePartnerServiceManager" class="com.echoed.chamber.services.partner.bigcommerce.BigCommercePartnerServiceManagerActorClient">
         <property name="actorRef" ref="bigCommercePartnerServiceManagerActor" />
     </bean>
@@ -177,7 +152,6 @@
     <bean id="bigCommerceAccess" class="com.echoed.chamber.services.partner.bigcommerce.BigCommerceAccessActorClient">
         <property name="bigCommerceAccessActor" ref="bigCommerceAccessActor"/>
     </bean>
-
 
     <bean id="magentoGoPartnerServiceManager" class="com.echoed.chamber.services.partner.magentogo.MagentoGoPartnerServiceManagerActorClient">
         <property name="actorRef" ref="magentoGoPartnerServiceManagerActor" />
@@ -196,108 +170,65 @@
     </util:map>
 
 
-    <akka:untyped-actor
-            id="partnerServiceManagerActor"
-            implementation="com.echoed.chamber.services.partner.PartnerServiceManagerActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="partnerDao" ref="partnerDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerUserDao" ref="partnerUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoDao" ref="echoDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageDao" ref="imageDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageService" ref="imageService" />
-        <!--suppress SpringModelInspection -->
-        <property name="encrypter" ref="encrypter" />
-        <!--suppress SpringModelInspection -->
-        <property name="transactionTemplate" ref="transactionTemplate" />
-        <!--suppress SpringModelInspection -->
-        <property name="emailService" ref="emailService" />
-        <!--suppress SpringModelInspection -->
-        <property name="cacheManager" ref="cacheManager" />
-        <!--suppress SpringModelInspection -->
-        <property name="cloudPartners" ref="cloudPartners" />
-    </akka:untyped-actor>
+    <bean id="actorSystem" class="com.echoed.chamber.services.ChamberActorSystem" />
 
-    <akka:untyped-actor
+
+    <bean id="actorBean" abstract="true">
+        <property name="timeoutInSeconds" value="20" />
+        <property name="actorSystem" ref="actorSystem" />
+    </bean>
+
+
+    <bean
             id="imageServiceActor"
-            implementation="com.echoed.chamber.services.image.ImageServiceActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.image.ImageServiceActor"
+            parent="actorBean">
         <property name="imageDao" ref="imageDao" />
-        <!--suppress SpringModelInspection -->
         <property name="blobStore" ref="blobStore" />
-    </akka:untyped-actor>
+    </bean>
 
 
-    <akka:untyped-actor
+    <bean
             id="eventServiceActor"
-            implementation="com.echoed.chamber.services.event.EventServiceActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.event.EventServiceActor"
+            parent="actorBean">
         <property name="eventLogDao" ref="eventLogDao" />
-    </akka:untyped-actor>
+    </bean>
 
 
-    <akka:untyped-actor
+    <bean
             id="emailServiceActor"
-            implementation="com.echoed.chamber.services.email.EmailServiceActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.email.EmailServiceActor"
+            parent="actorBean">
         <property name="javaMailSender" ref="javaMailSender" />
-        <!--suppress SpringModelInspection -->
         <property name="mustacheEngine" ref="mustacheEngine" />
-        <!--suppress SpringModelInspection -->
         <property name="mailProperties" ref="mailProperties" />
-        <!--suppress SpringModelInspection -->
         <property name="globalsManager" ref="globalsManager" />
-    </akka:untyped-actor>
+    </bean>
 
 
-    <akka:untyped-actor
+    <bean
             id="facebookAccessActor"
-            implementation="com.echoed.chamber.services.facebook.FacebookAccessActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.facebook.FacebookAccessActor"
+            parent="actorBean">
         <property name="properties" ref="facebookAccessProperties" />
-    </akka:untyped-actor>
+    </bean>
 
-    <akka:untyped-actor
-            id="facebookServiceCreatorActor"
-            implementation="com.echoed.chamber.services.facebook.FacebookServiceCreatorActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="facebookAccess" ref="facebookAccess" />
-        <!--suppress SpringModelInspection -->
-        <property name="facebookUserDao" ref="facebookUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="facebookPostDao" ref="facebookPostDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="facebookFriendDao" ref="facebookFriendDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerDao" ref="partnerDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerSettingsDao" ref="partnerSettingsDao"/>
-        <!--suppress SpringModelInspection -->
-        <property name="urlsProperties" ref="urlsProperties" />
-    </akka:untyped-actor>
 
-    <akka:untyped-actor
+    <bean
             id="facebookServiceLocatorActor"
-            implementation="com.echoed.chamber.services.facebook.FacebookServiceLocatorActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="facebookServiceCreator" ref="facebookServiceCreator" />
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.facebook.FacebookServiceLocatorActor"
+            parent="actorBean">
         <property name="cacheManager" ref="cacheManager" />
-    </akka:untyped-actor>
+        <property name="facebookAccess" ref="facebookAccess" />
+        <property name="facebookUserDao" ref="facebookUserDao" />
+        <property name="facebookPostDao" ref="facebookPostDao" />
+        <property name="facebookFriendDao" ref="facebookFriendDao" />
+        <property name="partnerDao" ref="partnerDao" />
+        <property name="partnerSettingsDao" ref="partnerSettingsDao"/>
+        <property name="urlsProperties" ref="urlsProperties" />
+    </bean>
+
 
     <util:list id="filteredUserAgents">
         <value>AppEngine-Google</value>
@@ -329,358 +260,211 @@
         <value>FlipboardProxy</value>
     </util:list>
 
-    <akka:untyped-actor
+    <bean
             id="echoServiceActor"
-            implementation="com.echoed.chamber.services.echo.EchoServiceActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.echo.EchoServiceActor"
+            parent="actorBean">
         <property name="echoDao" ref="echoDao" />
-        <!--suppress SpringModelInspection -->
         <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <!--suppress SpringModelInspection -->
         <property name="partnerDao" ref="partnerDao" />
-        <!--suppress SpringModelInspection -->
         <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <!--suppress SpringModelInspection -->
         <property name="echoClickDao" ref="echoClickDao" />
-        <!--suppress SpringModelInspection -->
         <property name="imageDao" ref="imageDao" />
-        <!--suppress SpringModelInspection -->
         <property name="imageService" ref="imageService" />
-        <!--suppress SpringModelInspection -->
         <property name="transactionTemplate" ref="transactionTemplate" />
-        <!--suppress SpringModelInspection -->
         <property name="filteredUserAgents" ref="filteredUserAgents" />
-    </akka:untyped-actor>
+    </bean>
 
-    <akka:untyped-actor
+
+    <bean
            id="twitterAccessActor"
-           implementation="com.echoed.chamber.services.twitter.TwitterAccessActor"
-           autostart="true">
-        <!--suppress SpringModelInspection -->
+           class="com.echoed.chamber.services.twitter.TwitterAccessActor"
+           parent="actorBean">
         <property name="properties" ref="twitterAccessProperties"/>
-        <!--suppress SpringModelInspection -->
         <property name="cacheManager" ref="cacheManager" />
-    </akka:untyped-actor>
+    </bean>
 
-    <akka:untyped-actor
-           id="twitterServiceCreatorActor"
-           implementation="com.echoed.chamber.services.twitter.TwitterServiceCreatorActor"
-           autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="twitterAccess" ref="twitterAccess" />
-        <!--suppress SpringModelInspection -->
-        <property name="twitterUserDao" ref="twitterUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="twitterStatusDao" ref="twitterStatusDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="urlsProperties" ref="urlsProperties" />
-    </akka:untyped-actor>
 
-    <akka:untyped-actor
+    <bean
            id="twitterServiceLocatorActor"
-           implementation="com.echoed.chamber.services.twitter.TwitterServiceLocatorActor"
-           autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="twitterServiceCreator" ref="twitterServiceCreator"/>
-        <!--suppress SpringModelInspection -->
+           class="com.echoed.chamber.services.twitter.TwitterServiceLocatorActor"
+           parent="actorBean">
+        <property name="twitterAccess" ref="twitterAccess" />
+        <property name="twitterUserDao" ref="twitterUserDao" />
+        <property name="twitterStatusDao" ref="twitterStatusDao" />
+        <property name="urlsProperties" ref="urlsProperties" />
         <property name="cacheManager" ref="cacheManager" />
-    </akka:untyped-actor>
+    </bean>
 
-    <akka:untyped-actor
-            id="echoedUserServiceCreatorActor"
-            implementation="com.echoed.chamber.services.echoeduser.EchoedUserServiceCreatorActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="twitterServiceLocator" ref="twitterServiceLocator"/>
-        <!--suppress SpringModelInspection -->
-        <property name="facebookServiceLocator" ref="facebookServiceLocator"/>
-        <!--suppress SpringModelInspection -->
-        <property name="echoedUserDao" ref="echoedUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="closetDao" ref="closetDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoedFriendDao" ref="echoedFriendDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="feedDao" ref="feedDao"/>
-        <!--suppress SpringModelInspection -->
-        <property name="echoDao" ref="echoDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-    </akka:untyped-actor>
 
-    <akka:untyped-actor
+
+    <bean
             id="echoedUserServiceLocatorActor"
-            implementation="com.echoed.chamber.services.echoeduser.EchoedUserServiceLocatorActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="echoedUserServiceCreator" ref="echoedUserServiceCreator" />
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.echoeduser.EchoedUserServiceLocatorActor"
+            parent="actorBean">
+        <property name="twitterServiceLocator" ref="twitterServiceLocator"/>
+        <property name="facebookServiceLocator" ref="facebookServiceLocator"/>
+        <property name="echoedUserDao" ref="echoedUserDao" />
+        <property name="closetDao" ref="closetDao" />
+        <property name="echoedFriendDao" ref="echoedFriendDao" />
+        <property name="feedDao" ref="feedDao"/>
+        <property name="echoDao" ref="echoDao" />
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
         <property name="cacheManager" ref="cacheManager" />
-    </akka:untyped-actor>
-
-    <akka:untyped-actor
-            id="partnerUserServiceCreatorActor"
-            implementation="com.echoed.chamber.services.partneruser.PartnerUserServiceCreatorActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="partnerUserDao" ref="partnerUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerViewDao" ref="partnerViewDao"/>
-    </akka:untyped-actor>
+    </bean>
 
 
-    <akka:untyped-actor
+    <bean
             id="partnerUserServiceLocatorActor"
-            implementation="com.echoed.chamber.services.partneruser.PartnerUserServiceLocatorActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="partnerUserServiceCreator" ref="partnerUserServiceCreator" />
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partneruser.PartnerUserServiceLocatorActor"
+            parent="actorBean">
+        <property name="partnerUserDao" ref="partnerUserDao" />
+        <property name="partnerViewDao" ref="partnerViewDao"/>
         <property name="cacheManager" ref="cacheManager" />
-    </akka:untyped-actor>
+    </bean>
 
-    <akka:untyped-actor
-            id="adminUserServiceCreatorActor"
-            implementation="com.echoed.chamber.services.adminuser.AdminUserServiceCreatorActor"
-            autostart="true">
-            <!--suppress SpringModelInspection -->
-            <property name="adminUserDao" ref="adminUserDao" />
-            <!--suppress SpringModelInspection -->
-            <property name="adminViewDao" ref="adminViewDao" />
-            <!--suppress SpringModelInspection -->
-            <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-    </akka:untyped-actor>
 
-    <akka:untyped-actor
+    <bean
             id="adminUserServiceLocatorActor"
-            implementation="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActor"
-            autostart="true">
-            <!--suppress SpringModelInspection -->
-            <property name="adminUserServiceCreator" ref="adminUserServiceCreator" />
-            <!--suppress SpringModelInspection -->
-            <property name="cacheManager" ref="cacheManager" />
-    </akka:untyped-actor>
+            class="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActor"
+            parent="actorBean">
+        <property name="adminUserDao" ref="adminUserDao" />
+        <property name="adminViewDao" ref="adminViewDao" />
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <property name="cacheManager" ref="cacheManager" />
+    </bean>
     
 
-    <akka:untyped-actor
+    <bean
+            id="partnerServiceBean"
+            abstract="true"
+            parent="actorBean">
+        <property name="partnerDao" ref="partnerDao" />
+        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <property name="partnerUserDao" ref="partnerUserDao" />
+        <property name="echoDao" ref="echoDao" />
+        <property name="echoMetricsDao" ref="echoMetricsDao" />
+        <property name="imageDao" ref="imageDao" />
+        <property name="imageService" ref="imageService" />
+        <property name="encrypter" ref="encrypter" />
+        <property name="transactionTemplate" ref="transactionTemplate" />
+        <property name="emailService" ref="emailService" />
+        <property name="cacheManager" ref="cacheManager" />
+    </bean>
+
+
+    <bean
+            id="partnerServiceManagerActor"
+            class="com.echoed.chamber.services.partner.PartnerServiceManagerActor"
+            parent="partnerServiceBean">
+        <property name="cloudPartners" ref="cloudPartners" />
+    </bean>
+
+
+    <bean
             id="shopifyPartnerServiceManagerActor"
-            implementation="com.echoed.chamber.services.partner.shopify.ShopifyPartnerServiceManagerActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="partnerDao" ref="partnerDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerUserDao" ref="partnerUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoDao" ref="echoDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageDao" ref="imageDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageService" ref="imageService" />
-        <!--suppress SpringModelInspection -->
-        <property name="encrypter" ref="encrypter" />
-        <!--suppress SpringModelInspection -->
-        <property name="transactionTemplate" ref="transactionTemplate" />
-        <!--suppress SpringModelInspection -->
-        <property name="emailService" ref="emailService" />
-        <!--suppress SpringModelInspection -->
-        <property name="cacheManager" ref="cacheManager" />
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partner.shopify.ShopifyPartnerServiceManagerActor"
+            parent="partnerServiceBean">
         <property name="shopifyAccess" ref="shopifyAccess" />
-        <!--suppress SpringModelInspection -->
         <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <!--suppress SpringModelInspection -->
         <property name="shopifyPartnerDao" ref="shopifyPartnerDao" />
-        <!--suppress SpringModelInspection -->
         <property name="properties" ref="shopifyProperties" />
-    </akka:untyped-actor>
+    </bean>
 
 
-    <akka:untyped-actor
+    <bean
             id="shopifyAccessActor"
-            implementation="com.echoed.chamber.services.partner.shopify.ShopifyAccessActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partner.shopify.ShopifyAccessActor"
+            parent="actorBean">
         <property name="properties" ref="shopifyProperties" />
-    </akka:untyped-actor>
+    </bean>
 
     
-
-    <akka:untyped-actor
+    <bean
             id="networkSolutionsPartnerServiceManagerActor"
-            implementation="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsPartnerServiceManagerActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="partnerDao" ref="partnerDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerUserDao" ref="partnerUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoDao" ref="echoDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageDao" ref="imageDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageService" ref="imageService" />
-        <!--suppress SpringModelInspection -->
-        <property name="encrypter" ref="encrypter" />
-        <!--suppress SpringModelInspection -->
-        <property name="transactionTemplate" ref="transactionTemplate" />
-        <!--suppress SpringModelInspection -->
-        <property name="emailService" ref="emailService" />
-        <!--suppress SpringModelInspection -->
-        <property name="cacheManager" ref="cacheManager" />
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsPartnerServiceManagerActor"
+            parent="partnerServiceBean">
         <property name="networkSolutionsAccess" ref="networkSolutionsAccess" />
-        <!--suppress SpringModelInspection -->
         <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <!--suppress SpringModelInspection -->
         <property name="networkSolutionsPartnerDao" ref="networkSolutionsPartnerDao" />
-        <!--suppress SpringModelInspection -->
         <property name="properties" ref="networkSolutionsProperties" />
-    </akka:untyped-actor>
+    </bean>
 
-    <akka:untyped-actor
+
+    <bean
             id="networkSolutionsDispatchAccessActor"
-            implementation="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsDispatchAccessActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsDispatchAccessActor"
+            parent="actorBean">
         <property name="properties" ref="networkSolutionsProperties" />
-        <!--suppress SpringModelInspection -->
         <property name="client" ref="httpClient" />
-    </akka:untyped-actor>
+    </bean>
 
 
-    <akka:untyped-actor
+    <bean
             id="bigCommercePartnerServiceManagerActor"
-            implementation="com.echoed.chamber.services.partner.bigcommerce.BigCommercePartnerServiceManagerActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="partnerDao" ref="partnerDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerUserDao" ref="partnerUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoDao" ref="echoDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageDao" ref="imageDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageService" ref="imageService" />
-        <!--suppress SpringModelInspection -->
-        <property name="encrypter" ref="encrypter" />
-        <!--suppress SpringModelInspection -->
-        <property name="transactionTemplate" ref="transactionTemplate" />
-        <!--suppress SpringModelInspection -->
-        <property name="emailService" ref="emailService" />
-        <!--suppress SpringModelInspection -->
-        <property name="cacheManager" ref="cacheManager" />
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partner.bigcommerce.BigCommercePartnerServiceManagerActor"
+            parent="partnerServiceBean">
         <property name="bigCommerceAccess" ref="bigCommerceAccess" />
-        <!--suppress SpringModelInspection -->
         <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <!--suppress SpringModelInspection -->
         <property name="bigCommercePartnerDao" ref="bigCommercePartnerDao" />
-        <!--suppress SpringModelInspection -->
         <property name="properties" ref="bigCommerceProperties" />
-    </akka:untyped-actor>
+    </bean>
 
-    <akka:untyped-actor
+
+    <bean
             id="bigCommerceAccessActor"
-            implementation="com.echoed.chamber.services.partner.bigcommerce.BigCommerceAccessActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partner.bigcommerce.BigCommerceAccessActor"
+            parent="actorBean">
         <property name="client" ref="httpClient" />
-    </akka:untyped-actor>
+    </bean>
 
 
-    <akka:untyped-actor
+    <bean
             id="magentoGoPartnerServiceManagerActor"
-            implementation="com.echoed.chamber.services.partner.magentogo.MagentoGoPartnerServiceManagerActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
-        <property name="partnerDao" ref="partnerDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="partnerUserDao" ref="partnerUserDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoDao" ref="echoDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageDao" ref="imageDao" />
-        <!--suppress SpringModelInspection -->
-        <property name="imageService" ref="imageService" />
-        <!--suppress SpringModelInspection -->
-        <property name="encrypter" ref="encrypter" />
-        <!--suppress SpringModelInspection -->
-        <property name="transactionTemplate" ref="transactionTemplate" />
-        <!--suppress SpringModelInspection -->
-        <property name="emailService" ref="emailService" />
-        <!--suppress SpringModelInspection -->
-        <property name="cacheManager" ref="cacheManager" />
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partner.magentogo.MagentoGoPartnerServiceManagerActor"
+            parent="partnerServiceBean">
         <property name="magentoGoAccess" ref="magentoGoAccess" />
-        <!--suppress SpringModelInspection -->
         <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <!--suppress SpringModelInspection -->
         <property name="magentoGoPartnerDao" ref="magentoGoPartnerDao" />
-        <!--suppress SpringModelInspection -->
         <property name="properties" ref="magentoGoProperties" />
-    </akka:untyped-actor>
+    </bean>
 
-    <akka:untyped-actor
+
+    <bean
             id="magentoGoAccessActor"
-            implementation="com.echoed.chamber.services.partner.magentogo.MagentoGoAccessActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.partner.magentogo.MagentoGoAccessActor"
+            parent="actorBean">
         <property name="client" ref="httpClient" />
-        <!--suppress SpringModelInspection -->
         <property name="cacheManager" ref="cacheManager" />
-    </akka:untyped-actor>
+    </bean>
 
 
-    <akka:untyped-actor
+    <bean
             id="facebookPostCrawlerActor"
-            implementation="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor"
+            parent="actorBean">
         <property name="facebookPostDao" ref="facebookPostDao" />
-        <!--suppress SpringModelInspection -->
         <property name="facebookLikeDao" ref="facebookLikeDao" />
-        <!--suppress SpringModelInspection -->
         <property name="facebookCommentDao" ref="facebookCommentDao" />
-        <!--suppress SpringModelInspection -->
         <property name="facebookAccess" ref="facebookAccess" />
-    </akka:untyped-actor>
-    
-    <akka:untyped-actor
+    </bean>
+
+
+    <bean
             id="geoLocationServiceActor"
-            implementation="com.echoed.chamber.services.geolocation.GeoLocationServiceActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.geolocation.GeoLocationServiceActor"
+            parent="actorBean">
         <property name="geoLocationDao" ref="geoLocationDao" />
-        <!--suppress SpringModelInspection -->
         <property name="properties" ref="geoLocationProperties" />
-    </akka:untyped-actor>
-    
-    <akka:untyped-actor
+    </bean>
+
+
+    <bean
             id="feedServiceActor"
-            implementation="com.echoed.chamber.services.feed.FeedServiceActor"
-            autostart="true">
-        <!--suppress SpringModelInspection -->
+            class="com.echoed.chamber.services.feed.FeedServiceActor"
+            parent="actorBean">
         <property name="feedDao" ref="feedDao" />
-    </akka:untyped-actor>
+    </bean>
 
 </beans>

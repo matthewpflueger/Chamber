@@ -3,14 +3,16 @@ package com.echoed.chamber.services.echoeduser
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
-import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.views.{Closet,Feed}
 import com.echoed.chamber.services.ActorClient
-import akka.util.Duration
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends EchoedUserService with ActorClient {
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def getEchoedUser() =
             (echoedUserServiceActor ? GetEchoedUser()).mapTo[GetEchoedUserResponse]
@@ -30,21 +32,9 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     def assignTwitterService(twitterService:TwitterService) =
             (echoedUserServiceActor ? (AssignTwitterService(twitterService))).mapTo[AssignTwitterServiceResponse]
 
-//    def getTwitterFollowers() =
-//            (echoedUserServiceActor ? ("getTwitterFollowers")).mapTo[Array[TwitterFollower]]
-
     def echoTo(echoTo: EchoTo) =
         (echoedUserServiceActor ? echoTo).mapTo[EchoToResponse]
-        //NOTE: echo'ing may take a while so a long timeout should be specified but as the default timeout is
-        //set very high we will leave this unset for now...
-//        (echoedUserServiceActor.?(echoTo)(timeout = Duration(30, "seconds"))).mapTo[EchoToResponse]
 
-//    def echoToFacebook(echo:Echo, message: Option[String]) =
-//        (echoedUserServiceActor ? (EchoToFacebook(echo, message))).mapTo[EchoToFacebookResponse]
-
-    //def echoToTwitter(echo:Echo,  message: Option[String]) =
-//        (echoedUserServiceActor ? (EchoToTwitter(echo,message))).mapTo[EchoToTwitterResponse]
-    
     def publishFacebookAction(action: String, obj: String, objUrl: String) =
         (echoedUserServiceActor ? PublishFacebookAction(action, obj, objUrl)).mapTo[PublishFacebookActionResponse]
 
@@ -72,7 +62,7 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
 
     def actorRef = echoedUserServiceActor
 
-    val id = echoedUserServiceActor.id
+    val id = echoedUserServiceActor.toString
 
     def logout(echoedUserId: String) = (echoedUserServiceActor ? Logout(echoedUserId)).mapTo[LogoutResponse]
 

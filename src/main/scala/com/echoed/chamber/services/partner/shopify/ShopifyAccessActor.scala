@@ -2,7 +2,6 @@ package com.echoed.chamber.services.partner.shopify
 
 import reflect.BeanProperty
 import org.slf4j.LoggerFactory
-import akka.actor.{Channel, Actor}
 import java.util.Properties
 import java.util.HashMap
 
@@ -17,10 +16,14 @@ import com.echoed.chamber.domain.partner.shopify.ShopifyPartner
 import collection.JavaConversions._
 import java.util.concurrent.ConcurrentHashMap
 import collection.mutable.ConcurrentMap
+import org.springframework.beans.factory.FactoryBean
+import akka.actor._
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
 
-class ShopifyAccessActor extends Actor {
+class ShopifyAccessActor extends FactoryBean[ActorRef] {
 
-    private final val logger = LoggerFactory.getLogger(classOf[ShopifyAccessActor])
 
     private val cache: ConcurrentMap[String, ShopifyClient] = new ConcurrentHashMap[String, ShopifyClient]()
 
@@ -28,6 +31,19 @@ class ShopifyAccessActor extends Actor {
     @BeanProperty var shopifyApiKey: String = _
 
     @BeanProperty var properties: Properties = _
+
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart {
         //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
@@ -43,11 +59,11 @@ class ShopifyAccessActor extends Actor {
     def receive = {
 
         case msg @ FetchPassword(shop, signature, t, timeStamp) =>
-            val channel: Channel[FetchPasswordResponse] = self.channel
+            val channel = context.sender
             channel ! FetchPasswordResponse(msg, Right(getShopifyPassword(shop, signature, t, timeStamp)))
 
         case msg @ FetchProduct(shop, password, productId) =>
-            val channel: Channel[FetchProductResponse] = self.channel
+            val channel = context.sender
             try {
                 val shopifyClient = getShopifyClient(shop, password)
                 val productService: ProductsService = shopifyClient.constructService(classOf[ProductsService])
@@ -56,11 +72,11 @@ class ShopifyAccessActor extends Actor {
             } catch {
                 case e =>
                     channel ! FetchProductResponse(msg, Left(ShopifyPartnerException("Error retrieving product %s for shop %s" format(productId, shop), e)))
-                    logger.error("Error fetching product %s for shop %s" format(productId, shop), e)
+                    logger.error("Error fetching product {} for shop {}: {}", productId, shop, e)
             }
 
         case msg @ FetchProducts(shop, password) =>
-            val channel: Channel[FetchProductsResponse] = self.channel
+            val channel = context.sender
             try {
                 val shopifyClient = getShopifyClient(shop, password)
                 val productService: ProductsService = shopifyClient.constructService(classOf[ProductsService])
@@ -69,11 +85,11 @@ class ShopifyAccessActor extends Actor {
             } catch {
                 case e =>
                     channel ! FetchProductsResponse(msg, Left(ShopifyPartnerException("Error fetching products for shop %s" format(shop), e)))
-                    logger.error("Error fetching products for shop %s" format(shop), e)
+                    logger.error("Error fetching products for shop {}: {}", shop, e)
             }
 
         case msg @ FetchOrder(shop, password, orderId) =>
-            val channel: Channel[FetchOrderResponse] = self.channel
+            val channel = context.sender
             try {
                 logger.debug("Fetching order {}", orderId)
                 val shopifyClient = getShopifyClient(shop, password)
@@ -84,11 +100,11 @@ class ShopifyAccessActor extends Actor {
             } catch {
                 case e =>
                     channel ! FetchOrderResponse(msg, Left(ShopifyPartnerException("Error retrieving order %s for shop %s" format(orderId, shop), e)))
-                    logger.error("Error fetching order %s for shop %s" format(orderId, shop), e)
+                    logger.error("Error fetching order {} for shop {}: {}", orderId, shop, e)
             }
 
         case msg @ FetchShopFromToken(shop, signature, t, timeStamp) =>
-            val channel: Channel[FetchShopFromTokenResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val password = getShopifyPassword(shop, signature, t, timeStamp)
@@ -101,12 +117,12 @@ class ShopifyAccessActor extends Actor {
             } catch {
                 case e =>
                     channel ! FetchShopFromTokenResponse(msg, Left(ShopifyPartnerException("Error fetching shop %s" format shop, e)))
-                    logger.error("Error fetching shop %s" format shop, e)
+                    logger.error("Error fetching shop {}: {}", shop, e)
             }
 
 
         case msg @ FetchShop(shop, password) =>
-            val channel: Channel[FetchShopResponse] = self.channel
+            val channel = context.sender
             try {
                 logger.debug("Fetching shop {}", shop)
                 val shopifyClient = getShopifyClient(shop, password)
@@ -119,7 +135,7 @@ class ShopifyAccessActor extends Actor {
             catch {
                 case e =>
                     channel ! FetchShopResponse(msg, Left(ShopifyPartnerException("Error retrieving shop %s" format shop, e)))
-                    logger.error("Error retrieving shop %s" format shop, e)
+                    logger.error("Error retrieving shop {}: {}", shop, e)
             }
     }
 
@@ -149,4 +165,5 @@ class ShopifyAccessActor extends Actor {
         })
     }
 
+    }), "ShopifyAccess")
 }

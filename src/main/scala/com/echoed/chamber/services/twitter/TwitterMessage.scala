@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Mess
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.views._
 import twitter4j.auth.{AccessToken, RequestToken}
+import akka.actor.ActorRef
 
 
 sealed trait TwitterMessage extends Message

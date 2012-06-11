@@ -2,11 +2,16 @@ package com.echoed.chamber.services.partner
 
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 class PartnerServiceActorClient(val actorRef: ActorRef) extends PartnerService with ActorClient {
 
-    val id = actorRef.id
+    val id = actorRef.toString
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def getPartner =
         (actorRef ? GetPartner()).mapTo[GetPartnerResponse]

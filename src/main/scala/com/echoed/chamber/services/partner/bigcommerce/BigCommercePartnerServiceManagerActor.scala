@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.partner.bigcommerce
 
 import reflect.BeanProperty
-import akka.actor.{Channel, Actor}
 import collection.JavaConversions._
 import collection.mutable.ConcurrentMap
 import com.echoed.cache.CacheManager
@@ -21,11 +20,15 @@ import java.util.{Properties, HashMap, UUID}
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner, PartnerSettings}
 import com.echoed.util.{ObjectUtils, Encrypter}
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
+import org.springframework.beans.factory.FactoryBean
+import akka.actor._
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
+import akka.actor.SupervisorStrategy.Restart
 
 
-class BigCommercePartnerServiceManagerActor extends Actor {
-
-    private val logger = LoggerFactory.getLogger(classOf[BigCommercePartnerServiceManagerActor])
+class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
 
     @BeanProperty var bigCommerceAccess: BigCommerceAccess = _
     @BeanProperty var bigCommercePartnerDao: BigCommercePartnerDao = _
@@ -54,6 +57,23 @@ class BigCommercePartnerServiceManagerActor extends Actor {
     private var cache: ConcurrentMap[String, PartnerService] = null
 
 
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+        case _: Exception ⇒ Restart
+    }
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
+
+
     override def preStart() {
         //this is a shared cache with PartnerServiceManagerActor
         cache = cacheManager.getCache[PartnerService]("PartnerServices")
@@ -68,15 +88,38 @@ class BigCommercePartnerServiceManagerActor extends Actor {
 
 
     def receive = {
+        case Create(msg @ Locate(partnerId), channel) =>
+            val partnerService = new BigCommercePartnerServiceActorClient(context.actorOf(Props().withCreator {
+                val bcp = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).get
+                val p = Option(partnerDao.findById(partnerId)).get
+                logger.debug("Found BigCommerce partner {}", bcp.name)
+                new BigCommercePartnerServiceActor(
+                    bcp,
+                    p,
+                    bigCommerceAccess,
+                    bigCommercePartnerDao,
+                    partnerDao,
+                    partnerSettingsDao,
+                    echoDao,
+                    echoMetricsDao,
+                    imageDao,
+                    imageService,
+                    transactionTemplate,
+                    encrypter)
+            }, partnerId))
+            cache.put(partnerId, partnerService)
+            channel ! LocateResponse(msg, Right(partnerService))
+
         case msg @ Locate(partnerId) =>
-            implicit val channel: Channel[LocateResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
             def error(e: Throwable) = e match {
                 case pe: PartnerException => channel ! LocateResponse(msg, Left(pe))
                 case _ => channel ! LocateResponse(
                     msg,
                     Left(PartnerException("Could not locate BigCommerce partner", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    logger.error("Error processing {}: {}", msg, e)
             }
 
             try {
@@ -86,31 +129,16 @@ class BigCommercePartnerServiceManagerActor extends Actor {
                         logger.debug("Cache hit for {}", partnerService)
                     },
                     {
-                        val bcp = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
-                        val p = Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
-                        logger.debug("Found BigCommerce partner {}", bcp.name)
-                        val partnerService = new BigCommercePartnerServiceActorClient(Actor.actorOf(new BigCommercePartnerServiceActor(
-                            bcp,
-                            p,
-                            bigCommerceAccess,
-                            bigCommercePartnerDao,
-                            partnerDao,
-                            partnerSettingsDao,
-                            echoDao,
-                            echoMetricsDao,
-                            imageDao,
-                            imageService,
-                            transactionTemplate,
-                            encrypter)).start())
-                        cache.put(partnerId, partnerService)
-                        channel ! LocateResponse(msg, Right(partnerService))
+                        Option(bigCommercePartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+                        Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+                        me ! Create(msg, channel)
                     })
             } catch {
                 case e => error(e)
             }
 
         case msg @ RegisterBigCommercePartner(bc) =>
-            val channel: Channel[RegisterBigCommercePartnerResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) = {
                 e match {
@@ -130,7 +158,7 @@ class BigCommercePartnerServiceManagerActor extends Actor {
 
             try {
                 val bcc = BigCommerceCredentials(bc.apiPath, bc.apiUser, bc.apiToken)
-                bigCommerceAccess.validate(bcc).onComplete(_.value.get.fold(
+                bigCommerceAccess.validate(bcc).onComplete(_.fold(
                     error(_),
                     _ match {
                         case ValidateResponse(_, Left(e)) => error(e)
@@ -186,4 +214,6 @@ class BigCommercePartnerServiceManagerActor extends Actor {
                 case e => error(e)
             }
     }
+
+    }), "BigCommercePartnerServiceManager")
 }

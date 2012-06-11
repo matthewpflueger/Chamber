@@ -37,11 +37,11 @@ class UserController {
         } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
                 case LocateWithIdResponse(_, Left(error)) =>
                     logger.error("Error locating EchoedUserService for user %s " format echoedUserId, error)
                 case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                    echoedUserService.getProfile.onResult {
+                    echoedUserService.getProfile.onSuccess {
                         case GetProfileResponse(_, Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
                         case GetProfileResponse(_, Right(profile)) =>
                             logger.debug("Found Echoed User {}", profile)
@@ -80,11 +80,11 @@ class UserController {
                 case nfe:NumberFormatException =>
                     pageInt = 0;
             }
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
                 case LocateWithIdResponse(_,Left(error))=>
                     logger.error("Error locating EchoedUserService for user %s" format echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getPublicFeed(pageInt).onResult{
+                    echoedUserService.getPublicFeed(pageInt).onSuccess {
                         case GetPublicFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
                         case GetPublicFeedResponse(_,Right(feed)) =>
                             logger.debug("Found feed of size {}", feed.echoes.size)
@@ -92,8 +92,7 @@ class UserController {
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                     }
-            }
-                .onException{
+            }.onFailure {
                 case e =>
                     logger.error("Exception thrown Locating EchoedUserService for user %s" format echoedUserId, e)
             }
@@ -127,19 +126,18 @@ class UserController {
                     pageInt = 0;
             }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
                 case LocateWithIdResponse(_,Left(error))=>
                     logger.error("Error locating EchoedUserService: {}", error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getFeed(pageInt).onResult{
+                    echoedUserService.getFeed(pageInt).onSuccess{
                         case GetFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
                         case GetFeedResponse(_,Right(feed)) =>
                             continuation.setAttribute("feed", feed)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
                     }
-            }
-                .onException{
+            }.onFailure {
                 case e =>
                     logger.error("Exception thrown Locating EchoedUserService for %s" format echoedUserId, e)
             }
@@ -173,11 +171,11 @@ class UserController {
                     pageInt = 0;
             }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
                 case LocateWithIdResponse(_,Left(error)) =>
                     logger.error("Error Locating EchoedUserService With Id %s" format echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getCloset(pageInt).onResult {
+                    echoedUserService.getCloset(pageInt).onSuccess {
                         case GetExhibitResponse(_,Left(error)) =>
                             logger.error("Error Getting Closet for %s" format echoedUserId, error)
                             throw new RuntimeException("Unknown Response %s" format error)
@@ -186,13 +184,11 @@ class UserController {
                             continuation.setAttribute("exhibit", closet)
                             continuation.resume()
                         case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
-                    }
-                        .onException{
+                    }.onFailure {
                         case e =>
                             logger.error("Exception thrown Getting Exhibit %s" format echoedUserId, e)
                     }
-            }
-                .onException{
+            }.onFailure {
                 case e=>
                     logger.error("Exception thrown when Locating EchoedUserService %s" format echoedUserId, e)
             }
@@ -216,11 +212,11 @@ class UserController {
         } else Option(continuation.getAttribute("friends")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
                 case LocateWithIdResponse(_, Left(error)) =>
                     logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
                 case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                    echoedUserService.getFriends.onResult{
+                    echoedUserService.getFriends.onSuccess{
                         case GetEchoedFriendsResponse(_,Left(error)) =>
                             logger.error("Error Getting Friends for user %s" format echoedUserId, error)
                             continuation.setAttribute("friends", error);
@@ -232,15 +228,13 @@ class UserController {
                             continuation.setAttribute("friends", unknown)
                             continuation.resume()
                             throw new RuntimeException("Unknown Response %s" format unknown)
-                    }
-                        .onException{
+                    }.onFailure{
                         case e=>
                             logger.error("Exception Thrown Getting Friends for user %s" format echoedUserId, e)
                             continuation.setAttribute("friends", e)
                             continuation.resume()
                     }
-            }
-                .onException{
+            }.onFailure{
                 case e =>
                     logger.error("Exception thrown Locating EchoedUserService for user %s" format echoedUserId, e)
                     continuation.setAttribute("friends",e)
@@ -276,25 +270,23 @@ class UserController {
                     pageInt = 0;
             }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onResult{
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess{
                 case LocateWithIdResponse(_, Left(error)) =>
                     logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
                 case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                    echoedUserService.getPartnerFeed(partnerName, pageInt).onResult{
+                    echoedUserService.getPartnerFeed(partnerName, pageInt).onSuccess{
                         case GetPartnerFeedResponse(_, Left(error)) =>
                             logger.error("Error Getting Partner Feed for partne %s" format partnerName , error)
                         case GetPartnerFeedResponse(_, Right(partnerFeed)) =>
                             continuation.setAttribute("jsonResponse", partnerFeed)
                             continuation.resume()
-                    }
-                    .onException{
+                    }.onFailure{
                         case e =>
                             logger.error("Exception thrown getting partner feed for partner %s" format partnerName, e)
                             continuation.setAttribute("jsonResponse", e)
                             continuation.resume()
                     }
-            }
-            .onException{
+            }.onFailure{
                 case e =>
                     logger.error("Exception thrown when Locating EchoedUserService for user %s" format echoedUserId, e)
                     continuation.setAttribute("jsonResponse", e)
@@ -333,25 +325,25 @@ class UserController {
 
             val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onResult {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onSuccess {
                 case LocateWithIdResponse(_,Left(error)) =>
                     logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
                 case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getFriendCloset(echoedFriendId, pageInt).onResult{
+                    echoedUserService.getFriendCloset(echoedFriendId, pageInt).onSuccess{
                         case GetFriendExhibitResponse(_,Left(error)) =>
                             logger.error("Error Getting Friend's Closet for user %s" format echoedUserId, error)
                         case GetFriendExhibitResponse(_,Right(closet)) =>
                             continuation.setAttribute("closet",closet)
                             continuation.resume()
                     }
-                        .onException{
+                        .onFailure{
                         case e=>
                             logger.error("Exception thrown Getting Friend's Closet for user %s" format echoedUserId, e)
                             continuation.setAttribute("closet", e)
                             continuation.resume()
                     }
             }
-                .onException{
+                .onFailure{
                 case e =>
                     logger.error("Exception thrown when Locating EchoedUserService for user %s" format echoedUserId, e)
                     continuation.setAttribute("closet", e)

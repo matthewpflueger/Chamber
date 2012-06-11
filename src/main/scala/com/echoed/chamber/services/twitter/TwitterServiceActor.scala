@@ -2,11 +2,11 @@ package com.echoed.chamber.services.twitter
 
 import twitter4j.auth.RequestToken
 import com.echoed.chamber.dao.{TwitterStatusDao, TwitterUserDao}
-import org.slf4j.LoggerFactory
 import java.util.Date
 import com.echoed.chamber.domain._
-import akka.actor.{Scheduler, ActorRef, Channel, Actor}
-import java.util.concurrent.TimeUnit
+import akka.event.Logging
+import akka.util.duration._
+import akka.actor.{PoisonPill, ActorRef, Actor}
 
 
 class TwitterServiceActor(twitterAccess: TwitterAccess,
@@ -16,7 +16,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
                           echoClickUrl: String,
                           var twitterUser: TwitterUser) extends Actor {
 
-    private final val logger = LoggerFactory.getLogger(classOf[TwitterServiceActor])
+    private final val logger = Logging(context.system, this)
 
     def this(
             twitterAccess: TwitterAccess,
@@ -44,8 +44,6 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
         echoClickUrl,
         twitterUser)
 
-    //FIXME should not ever be null
-    self.id = "TwitterService:%s" format Option(twitterUser).map(_.id).getOrElse("NONE")
 
     val maxUpdateTwitterStatusRetries = 10
     val updateTwitterStatusRetryInterval = 60000
@@ -55,10 +53,10 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
         def scheduleRetry(e: Throwable) {
             if (retries >= maxUpdateTwitterStatusRetries) {
-                logger.error("Failed to update Twitter status %s, retries %s, last error was %s" format(ts, retries, e))
+                logger.error("Failed to update Twitter status {}, retries {}, last error was {}", ts, retries, e)
             } else {
                 logger.debug("Retrying {} due to error {}", ts, e)
-                Scheduler.scheduleOnce(me, RetryTweet(ts, retries + 1), updateTwitterStatusRetryInterval, TimeUnit.MILLISECONDS)
+                context.system.scheduler.scheduleOnce(updateTwitterStatusRetryInterval milliseconds, me, RetryTweet(ts, retries + 1))
             }
         }
 
@@ -66,7 +64,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
         twitterAccess.updateStatus(
                 twitterUser.accessToken,
                 twitterUser.accessTokenSecret,
-                ts).onComplete(_.value.get.fold(
+                ts).onComplete(_.fold(
             scheduleRetry(_),
             _ match {
                 case UpdateStatusResponse(_, Left(e)) => scheduleRetry(e)
@@ -79,11 +77,11 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
     def receive = {
         case msg: GetRequestToken =>
-            self.channel ! GetRequestTokenResponse(msg, Right(requestToken))
+            sender ! GetRequestTokenResponse(msg, Right(requestToken))
 
 
         case msg @ GetAccessToken(oAuthVerifier: String) =>
-            val channel: Channel[GetAccessTokenResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! GetAccessTokenResponse(msg, Left(TwitterException("Could not get access token", e)))
@@ -91,20 +89,20 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
             }
 
             try {
-                twitterAccess.getAccessToken(requestToken, oAuthVerifier).onResult {
+                twitterAccess.getAccessToken(requestToken, oAuthVerifier).onSuccess {
                     case GetAccessTokenForRequestTokenResponse(_, Left(e)) => error(e)
                     case GetAccessTokenForRequestTokenResponse(_, Right(accessToken)) =>
                         channel ! GetAccessTokenResponse(msg, Right(accessToken))
-                }.onException { case e => error(e) }
+                }.onFailure { case e => error(e) }
             } catch { case e => error(e) }
 
 
         case msg: GetUser =>
-            self.channel ! GetUserResponse(msg, Right(twitterUser))
+            sender ! GetUserResponse(msg, Right(twitterUser))
 
 
         case msg: GetFollowers =>
-            val channel: Channel[GetFollowersResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! GetFollowersResponse(msg, Left(TwitterException("Could not get Twitter followers", e)))
@@ -116,23 +114,23 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
                         twitterUser.accessToken,
                         twitterUser.accessTokenSecret,
                         twitterUser.id,
-                        twitterUser.twitterId.toLong).onResult {
+                        twitterUser.twitterId.toLong).onSuccess {
                     case FetchFollowersResponse(_, Left(e)) => error(e)
                     case FetchFollowersResponse(_, Right(twitterFollowers)) =>
                         channel ! GetFollowersResponse(msg, Right(twitterFollowers))
-                }.onException { case e => error(e) }
+                }.onFailure { case e => error(e) }
             } catch { case e => error(e) }
 
 
         case msg @ AssignEchoedUser(echoedUserId) =>
             twitterUser = twitterUser.copy(echoedUserId = echoedUserId)
-            self.channel ! AssignEchoedUserResponse(msg, Right(twitterUser))
+            sender ! AssignEchoedUserResponse(msg, Right(twitterUser))
             twitterUserDao.updateEchoedUser(twitterUser)
 
 
         case msg @ Tweet(echo, message) =>
             val me = self
-            val channel = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! TweetResponse(msg, Left(TwitterException("Could not tweet", e)))
@@ -149,7 +147,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
                 status = status + twitterStatus.id
                 twitterStatus = twitterStatus.copy(message = status)
                 twitterStatusDao.insert(twitterStatus)
-                channel tryTell TweetResponse(msg, Right(twitterStatus))
+                channel ! TweetResponse(msg, Right(twitterStatus))
                 updateTwitterStatus(twitterStatus, me)
             } catch { case e => error(e) }
 
@@ -157,13 +155,13 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
             updateTwitterStatus(tweet, self, retries + 1)
 
         case msg @ Logout(twitterUserId) =>
-            val channel: Channel[LogoutResponse] = self.channel
+            val channel = context.sender
 
             try {
                 assert(twitterUser.id == twitterUserId)
                 channel ! LogoutResponse(msg, Right(true))
                 twitterAccess.logout(twitterUser.accessToken)
-                self.stop
+                self ! PoisonPill
                 logger.debug("Logged out Twitter user {}", twitterUserId)
             } catch {
                 case e =>

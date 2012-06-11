@@ -48,9 +48,9 @@ class DashboardController {
             }
 
             logger.debug("Showing dashboard for PartnerUser {}", partnerUserId)
-            partnerUserServiceLocator.locate(partnerUserId.get).onResult {
+            partnerUserServiceLocator.locate(partnerUserId.get).onSuccess {
                 case LocateResponse(_, Left(error)) => onError(error)
-                case LocateResponse(_, Right(pus)) => pus.getPartnerUser.onResult {
+                case LocateResponse(_, Right(pus)) => pus.getPartnerUser.onSuccess {
                     case GetPartnerUserResponse(_, Left(error)) => onError(error)
                     case GetPartnerUserResponse(_, Right(pu)) =>
                         logger.debug("Got {}", pu)

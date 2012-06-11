@@ -55,9 +55,9 @@ class AdminDashboardController {
                 continuation.resume()
             }
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onResult {
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
                     case LocateAdminUserServiceResponse(_, Left(error)) => onError(error)
-                    case LocateAdminUserServiceResponse(_, Right(adminUserService)) => adminUserService.getAdminUser.onResult {
+                    case LocateAdminUserServiceResponse(_, Right(adminUserService)) => adminUserService.getAdminUser.onSuccess {
                         case GetAdminUserResponse(_, Left(error)) => onError(error)
                         case GetAdminUserResponse(_, Right(au)) =>
                             logger.debug("Got {}", au)

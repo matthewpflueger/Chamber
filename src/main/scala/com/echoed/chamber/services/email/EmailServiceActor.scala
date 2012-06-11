@@ -2,19 +2,21 @@ package com.echoed.chamber.services.email
 
 import reflect.BeanProperty
 
-import org.slf4j.LoggerFactory
 
-import akka.actor.{Channel, Actor}
 import javax.mail.internet.MimeMessage
 import org.springframework.mail.javamail.{MimeMessageHelper, MimeMessagePreparator, JavaMailSender}
 import java.util.Properties
 import com.echoed.util.mustache.MustacheEngine
 import com.echoed.chamber.services.GlobalsManager
+import org.springframework.beans.factory.FactoryBean
+import akka.actor.{Props, ActorSystem, ActorRef, Actor}
+import akka.util.duration._
+import akka.util.Timeout
+import akka.event.Logging
 
 
-class EmailServiceActor extends Actor {
+class EmailServiceActor extends FactoryBean[ActorRef] {
 
-    private final val logger = LoggerFactory.getLogger(classOf[EmailServiceActor])
 
     @BeanProperty var javaMailSender: JavaMailSender = _
     @BeanProperty var mustacheEngine: MustacheEngine = _
@@ -22,6 +24,18 @@ class EmailServiceActor extends Actor {
     @BeanProperty var from: String = _
 
     @BeanProperty var mailProperties: Properties = _
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart {
         {
@@ -32,7 +46,7 @@ class EmailServiceActor extends Actor {
 
     def receive = {
         case msg @ SendEmail(recipient, subject, templateName, model) =>
-            val channel: Channel[SendEmailResponse] = self.channel
+            val channel = context.sender
 
             try {
                 globalsManager.addGlobals(model)
@@ -59,4 +73,5 @@ class EmailServiceActor extends Actor {
 
     }
 
+    }), "EmailService")
 }

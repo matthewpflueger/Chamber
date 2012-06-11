@@ -4,11 +4,16 @@ import akka.actor.ActorRef
 import reflect.BeanProperty
 import com.echoed.chamber.domain._
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 class EchoServiceActorClient extends EchoService with ActorClient {
 
     @BeanProperty var echoServiceActor: ActorRef = _
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def recordEchoPossibility(echoPossibility: Echo) =
             (echoServiceActor ? RecordEchoPossibility(echoPossibility)).mapTo[RecordEchoPossibilityResponse]

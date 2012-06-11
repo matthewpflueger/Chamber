@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.partner.magentogo
 
 import reflect.BeanProperty
-import akka.actor.{Channel, Actor}
 import collection.JavaConversions._
 import collection.mutable.ConcurrentMap
 import com.echoed.cache.CacheManager
@@ -21,11 +20,15 @@ import java.util.{Properties, HashMap, UUID}
 import com.echoed.util.{ObjectUtils, Encrypter}
 import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
+import org.springframework.beans.factory.FactoryBean
+import akka.actor._
+import akka.actor.SupervisorStrategy.Restart
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.{LoggingAdapter, Logging}
 
 
-class MagentoGoPartnerServiceManagerActor extends Actor {
-
-    private val logger = LoggerFactory.getLogger(classOf[MagentoGoPartnerServiceManagerActor])
+class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
 
     @BeanProperty var magentoGoAccess: MagentoGoAccess = _
     @BeanProperty var magentoGoPartnerDao: MagentoGoPartnerDao = _
@@ -54,6 +57,22 @@ class MagentoGoPartnerServiceManagerActor extends Actor {
     private var cache: ConcurrentMap[String, PartnerService] = null
 
 
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+        case _: Exception ⇒ Restart
+    }
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
+
     override def preStart() {
         //this is a shared cache with PartnerServiceManagerActor
         cache = cacheManager.getCache[PartnerService]("PartnerServices")
@@ -68,8 +87,32 @@ class MagentoGoPartnerServiceManagerActor extends Actor {
 
 
     def receive = {
+
+        case Create(msg @ Locate(partnerId), channel) =>
+            val partnerService = new MagentoGoPartnerServiceActorClient(context.actorOf(Props().withCreator {
+                val mgp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).get
+                val p = Option(partnerDao.findById(partnerId)).get
+                logger.debug("Found MagentoGo partner {}", mgp.name)
+                new MagentoGoPartnerServiceActor(
+                    mgp,
+                    p,
+                    magentoGoAccess,
+                    magentoGoPartnerDao,
+                    partnerDao,
+                    partnerSettingsDao,
+                    echoDao,
+                    echoMetricsDao,
+                    imageDao,
+                    imageService,
+                    transactionTemplate,
+                    encrypter)
+            }, partnerId))
+            cache.put(partnerId, partnerService)
+            channel ! LocateResponse(msg, Right(partnerService))
+
         case msg @ Locate(partnerId) =>
-            implicit val channel: Channel[LocateResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
             def error(e: Throwable) = e match {
                 case pe: PartnerException => channel ! LocateResponse(msg, Left(pe))
@@ -86,31 +129,16 @@ class MagentoGoPartnerServiceManagerActor extends Actor {
                         logger.debug("Cache hit for {}", partnerService)
                     },
                     {
-                        val bcp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+                        val mgp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
                         val p = Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
-                        logger.debug("Found MagentoGo partner {}", bcp.name)
-                        val partnerService = new MagentoGoPartnerServiceActorClient(Actor.actorOf(new MagentoGoPartnerServiceActor(
-                            bcp,
-                            p,
-                            magentoGoAccess,
-                            magentoGoPartnerDao,
-                            partnerDao,
-                            partnerSettingsDao,
-                            echoDao,
-                            echoMetricsDao,
-                            imageDao,
-                            imageService,
-                            transactionTemplate,
-                            encrypter)).start())
-                        cache.put(partnerId, partnerService)
-                        channel ! LocateResponse(msg, Right(partnerService))
+                        me ! Create(msg, channel)
                     })
             } catch {
                 case e => error(e)
             }
 
         case msg @ RegisterMagentoGoPartner(mg) =>
-            val channel: Channel[RegisterMagentoGoPartnerResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) = {
                 e match {
@@ -130,7 +158,7 @@ class MagentoGoPartnerServiceManagerActor extends Actor {
 
             try {
                 val mgc = MagentoGoCredentials(mg.apiPath, mg.apiUser, mg.apiKey)
-                magentoGoAccess.validate(mgc).onComplete(_.value.get.fold(
+                magentoGoAccess.validate(mgc).onComplete(_.fold(
                     error(_),
                     _ match {
                         case ValidateResponse(_, Left(e)) => error(e)
@@ -184,4 +212,6 @@ class MagentoGoPartnerServiceManagerActor extends Actor {
                 case e => error(e)
             }
     }
+
+    }), "MagentoGoPartnerServiceManager")
 }

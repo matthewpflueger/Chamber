@@ -3,6 +3,9 @@ package com.echoed.chamber.services.facebook
 import akka.actor.ActorRef
 import com.echoed.chamber.domain._
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 class FacebookServiceActorClient(facebookServiceActor: ActorRef)
@@ -10,7 +13,9 @@ class FacebookServiceActorClient(facebookServiceActor: ActorRef)
         with ActorClient
         with Serializable {
 
-    val id = facebookServiceActor.id
+    val id = facebookServiceActor.toString
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def actorRef = facebookServiceActor
 

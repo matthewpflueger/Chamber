@@ -2,9 +2,15 @@ package com.echoed.chamber.services.partneruser
 
 import akka.actor.ActorRef
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
+
 
 
 class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends PartnerUserService with ActorClient {
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def activate(password: String) =
         (partnerUserServiceActor ? ActivatePartnerUser(password)).mapTo[ActivatePartnerUserResponse]
@@ -63,7 +69,7 @@ class PartnerUserServiceActorClient(partnerUserServiceActor: ActorRef) extends P
 
     def actorRef = partnerUserServiceActor
 
-    val id = actorRef.id
+    val id = actorRef.toString
 
     override def toString = id
 }

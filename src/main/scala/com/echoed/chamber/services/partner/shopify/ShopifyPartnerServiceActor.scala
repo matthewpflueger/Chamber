@@ -1,8 +1,6 @@
 package com.echoed.chamber.services.partner.shopify
 
-import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.partner.shopify._
-import akka.actor.Channel
 import collection.mutable.{Map => MMap}
 import collection.JavaConversions._
 import com.echoed.chamber.dao._
@@ -16,6 +14,10 @@ import akka.dispatch.Future
 import com.shopify.api.resources.LineItem
 import partner.shopify.ShopifyPartnerDao
 import partner.{PartnerSettingsDao, PartnerDao}
+import akka.event.Logging
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 class ShopifyPartnerServiceActor(
@@ -42,14 +44,14 @@ class ShopifyPartnerServiceActor(
             encrypter) {
 
 
-    private val logger = LoggerFactory.getLogger(classOf[ShopifyPartnerServiceActor])
+    private val logger = Logging(context.system, this)
 
-    self.id = "ShopifyPartnerService:%s" format shopifyPartner.id
+    private implicit val timeout = Timeout(20 seconds)
 
     override def receive = shopifyPartnerReceive.orElse(super.receive)
 
     private def shopifyPartnerReceive: Receive = {
-        case msg: GetShopifyPartner => self.channel ! GetShopifyPartnerResponse(msg, Right(shopifyPartner))
+        case msg: GetShopifyPartner => sender ! GetShopifyPartnerResponse(msg, Right(shopifyPartner))
 
         case msg @ RequestEcho(
                 partnerId,
@@ -63,7 +65,7 @@ class ShopifyPartnerServiceActor(
                 view) =>
 
             val me = self
-            val channel: Channel[RequestEchoResponse] = self.channel
+            val channel = context.sender
 
             logger.debug("Received {}", msg)
 
@@ -75,7 +77,7 @@ class ShopifyPartnerServiceActor(
             try {
                 val orderId = Integer.parseInt(order);
 
-                (me ? GetOrderFull(orderId)).mapTo[GetOrderFullResponse].onComplete(_.value.get.fold(
+                (me ? GetOrderFull(orderId)).mapTo[GetOrderFullResponse].onComplete(_.fold(
                     error(_),
                     _ match {
                         case GetOrderFullResponse(_, Left(e)) => error(e)
@@ -113,7 +115,7 @@ class ShopifyPartnerServiceActor(
 
 
         case msg @ GetOrder(orderId) =>
-            val channel: Channel[GetOrderResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! GetOrderResponse(msg, Left(ShopifyPartnerException("Error getting order")))
@@ -121,7 +123,7 @@ class ShopifyPartnerServiceActor(
 
             try {
                 logger.debug("Fetching order {} for Shopify partner {}", orderId, shopifyPartner.name)
-                shopifyAccess.fetchOrder(shopifyPartner.shopifyDomain, shopifyPartner.password, orderId).onComplete(_.value.get.fold(
+                shopifyAccess.fetchOrder(shopifyPartner.shopifyDomain, shopifyPartner.password, orderId).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)
@@ -135,7 +137,7 @@ class ShopifyPartnerServiceActor(
 
 
         case msg @ GetProducts() =>
-            val channel: Channel[GetProductsResponse] = self.channel
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! GetProductsResponse(msg, Left(ShopifyPartnerException("Error getting products")))
@@ -143,7 +145,7 @@ class ShopifyPartnerServiceActor(
 
             try {
                 logger.debug("Fetching products for Shopify partner %s", shopifyPartner.name)
-                shopifyAccess.fetchProducts(shopifyPartner.shopifyDomain, shopifyPartner.password).onComplete(_.value.get.fold(
+                shopifyAccess.fetchProducts(shopifyPartner.shopifyDomain, shopifyPartner.password).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchProductsResponse(_, Left(e)) => error(e)
@@ -158,7 +160,8 @@ class ShopifyPartnerServiceActor(
 
         case msg @ GetOrderFull(orderId) =>
             val me = self
-            val channel: Channel[GetOrderFullResponse] = self.channel
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             def error(e: Throwable) {
                 logger.error("Received error fetching Shopify order %s for %s" format(orderId, partner.name))
@@ -170,7 +173,7 @@ class ShopifyPartnerServiceActor(
                 }
             }
 
-            (me ? GetOrder(orderId)).onComplete(_.value.get.fold(
+            (me ? GetOrder(orderId)).onComplete(_.fold(
                 e => error(e),
                 _ match {
                     case GetOrderResponse(_, Left(e)) => error(e)
@@ -184,7 +187,7 @@ class ShopifyPartnerServiceActor(
                             shopifyAccess.fetchProduct(shopifyPartner.shopifyDomain, shopifyPartner.password, li.getProductId)
                         })
 
-                        productList.onComplete(_.value.get.fold(
+                        productList.onComplete(_.fold(
                             e => error(e),
                             resList => {
                                 val shopifyLineItems = resList

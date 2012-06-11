@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.partner.networksolutions
 
 import org.slf4j.LoggerFactory
-import akka.actor.Channel
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
@@ -11,6 +10,7 @@ import com.echoed.chamber.domain.partner.networksolutions.NetworkSolutionsPartne
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.dao.partner.networksolutions.NetworkSolutionsPartnerDao
 import com.echoed.chamber.dao.partner.{PartnerSettingsDao, PartnerDao}
+import akka.event.Logging
 
 
 class NetworkSolutionsPartnerServiceActor(
@@ -37,9 +37,7 @@ class NetworkSolutionsPartnerServiceActor(
             encrypter) {
 
 
-    private val logger = LoggerFactory.getLogger(classOf[NetworkSolutionsPartnerServiceActor])
-
-    self.id = "NetworkSolutionsPartnerService:%s" format networkSolutionsPartner.id
+    private val logger = Logging(context.system, this)
 
     override def receive = networkSolutionsPartnerReceive.orElse(super.receive)
 
@@ -55,7 +53,7 @@ class NetworkSolutionsPartnerServiceActor(
                 echoClickId,
                 view) =>
 
-            val channel: Channel[RequestEchoResponse] = self.channel
+            val channel = context.sender
 
             logger.debug("Received {}", msg)
 
@@ -67,7 +65,7 @@ class NetworkSolutionsPartnerServiceActor(
             try {
                 val orderNumber = java.lang.Long.parseLong(order)
 
-                networkSolutionsAccess.fetchOrder(networkSolutionsPartner.userToken, orderNumber).onComplete(_.value.get.fold(
+                networkSolutionsAccess.fetchOrder(networkSolutionsPartner.userToken, orderNumber).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)

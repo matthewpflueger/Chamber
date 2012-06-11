@@ -2,20 +2,15 @@ package com.echoed.chamber.services.echo
 
 import reflect.BeanProperty
 import akka.dispatch.Future
-import com.echoed.chamber.services.echoeduser.EchoedUserServiceLocator
 
-import org.slf4j.LoggerFactory
 import scala.Option
-import com.echoed.chamber.dao.views.PartnerViewDao
 import com.echoed.chamber.dao._
 import com.echoed.chamber.domain.views.EchoPossibilityView
 
 import partner.{PartnerSettingsDao, PartnerDao}
 import scalaz._
 import Scalaz._
-import akka.actor.{Channel, Actor}
 import com.echoed.chamber.domain.{EchoMetrics, EchoClick, Echo}
-import org.springframework.transaction.TransactionStatus
 import com.echoed.util.TransactionUtils._
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.TransactionTemplate
@@ -24,11 +19,14 @@ import java.util.{UUID, Date}
 import java.util.{List => JList, Collections}
 import scala.collection.JavaConversions._
 import com.echoed.chamber.services.EchoedException
+import akka.actor._
+import akka.util.Timeout
+import akka.util.duration._
+import org.springframework.beans.factory.FactoryBean
+import akka.event.{LoggingAdapter, Logging}
 
 
-class EchoServiceActor extends Actor {
-
-    private final val logger = LoggerFactory.getLogger(classOf[EchoServiceActor])
+class EchoServiceActor extends FactoryBean[ActorRef] {
 
     @BeanProperty var partnerDao: PartnerDao = _
     @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
@@ -41,12 +39,25 @@ class EchoServiceActor extends Actor {
 
     @BeanProperty var filteredUserAgents: JList[String] = _
 
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger: LoggingAdapter = Logging(context.system, this)
+
     def receive = {
         //TODO RecordEchoPossibility is deprecated and will be deleted asap!
         case msg @ RecordEchoPossibility(echoPossibility: Echo) =>
             import com.echoed.chamber.services.echo.{RecordEchoPossibilityResponse => REPR}
 
-            val channel: Channel[REPR] = self.channel
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             logger.debug("Processing {}", msg)
 
@@ -91,7 +102,7 @@ class EchoServiceActor extends Actor {
 
                                 val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
                                     imageDao.insert(ec.image)
-                                    imageService.processImage(ec.image).onComplete(_.value.get.fold(
+                                    imageService.processImage(ec.image).onComplete(_.fold(
                                         e => logger.error("Unexpected error processing image for echo %s" format ec.id, e),
                                         _ match {
                                             case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo %s" format ec.id, e)
@@ -114,63 +125,67 @@ class EchoServiceActor extends Actor {
                         channel ! REPR(msg, Left(EchoException("Invalid echo possibility", e)))
                         logger.debug("Invalid echo possibility: %s" format echoPossibility)
                 }
-            }).onException {
+            }).onFailure {
                 case e =>
                     channel ! REPR(msg, Left(EchoException("Unexpected error", e)))
                     logger.error("Error processing %s" format msg, e)
             }
 
         case msg @ GetEcho(echoPossibilityId) =>
-            val channel: Channel[GetEchoResponse] = self.channel
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             Future {
                 Option(echoDao.findByEchoPossibilityId(echoPossibilityId)).cata(
                     echo => channel ! GetEchoResponse(msg, Right(echo)),
                     channel ! GetEchoResponse(msg, Left(EchoNotFound(echoPossibilityId)))
                 )
-            }.onException {
+            }.onFailure {
                 case e =>
                     channel ! GetEchoResponse(msg, Left(EchoException("Could not get echo", e)))
                     logger.error("Error processing %s" format msg, e)
             }
 
         case msg @ GetEchoById(echoId) =>
-            val channel: Channel[GetEchoByIdResponse] = self.channel
-            
+            val channel = context.sender
+            implicit val ec = context.dispatcher
+
             Future {
                 Option(echoDao.findById(echoId)).cata(
                     echo => channel ! GetEchoByIdResponse(msg, Right(echo)),
                     channel ! GetEchoByIdResponse(msg, Left(EchoNotFound(echoId)))
                 )
-            }.onException{
+            }.onFailure {
                 case e =>
                     channel ! GetEchoByIdResponse(msg, Left(EchoException("Could not get echo", e)))
                     logger.error("Error processing %s" format msg, e)
             }
 
         case msg @ GetEchoByIdAndEchoedUserId(echoId, echoedUserId) =>
-            val channel: Channel[GetEchoByIdAndEchoedUserIdResponse] = self.channel
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             Future {
                 Option(echoDao.findByIdAndEchoedUserId(echoId, echoedUserId)).cata(
                     echo => channel ! GetEchoByIdAndEchoedUserIdResponse(msg, Right(echo)),
                     channel ! GetEchoByIdAndEchoedUserIdResponse(msg, Left(EchoNotFound(echoId)))
                 )
-            }.onException {
+            }.onFailure {
                 case e =>
                     channel ! GetEchoByIdAndEchoedUserIdResponse(msg, Left(EchoException("Could not get echo", e)))
                     logger.error("Error processing %s" format msg, e)
             }
 
         case msg @ GetEchoPossibility(echoPossibilityId) =>
-            val channel: Channel[GetEchoPossibilityResponse] = self.channel
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             Future {
                 Option(echoDao.findById(echoPossibilityId)).cata(
                     ep => channel ! GetEchoPossibilityResponse(msg, Right(ep)),
                     channel ! GetEchoPossibilityResponse(msg, Left(EchoPossibilityNotFound(echoPossibilityId)))
                 )
-            }.onException {
+            }.onFailure {
                 case e =>
                     channel ! GetEchoPossibilityResponse(msg, Left(EchoException("Could not get echo possibility", e)))
                     logger.error("Error processing %s" format msg, e)
@@ -179,7 +194,8 @@ class EchoServiceActor extends Actor {
 
 
         case msg @ RecordEchoClick(echoClick, linkId, postId) =>
-            val channel: Channel[RecordEchoClickResponse] = self.channel
+            val channel = context.sender
+            implicit val ec = context.dispatcher
 
             def error(e: Throwable) {
                 channel ! RecordEchoClickResponse(msg, Left(EchoException("Could not record echo click", e)))
@@ -200,7 +216,7 @@ class EchoServiceActor extends Actor {
                     echo => {
                         logger.debug("Found {}", echo);
                         logger.debug("Recording {}", echoClick);
-                        channel tryTell RecordEchoClickResponse(msg, Right(echo))
+                        channel ! RecordEchoClickResponse(msg, Right(echo))
 
                         //this really should be sent to another actor that has a durable mailbox...
                         Future {
@@ -243,7 +259,7 @@ class EchoServiceActor extends Actor {
                                 logger.error("Failed to save echo click metrics for %s" format echo)
                                 None
                             }
-                        }.onException {
+                        }.onFailure {
                             case e: FilteredException =>
                                 logger.debug(e.getMessage)
                                 echoClickDao.updateFiltered(e.echoClick)
@@ -265,12 +281,13 @@ class EchoServiceActor extends Actor {
             case Some(t) if echo.twitterStatusId == t => echoClick.copy(twitterStatusId = postId)
             case Some("1") => echoClick
             case Some(_) =>
-                logger.warn("Invalid post id {} for {}", id, echo)
+                logger.warning("Invalid post id {} for {}", id, echo)
                 echoClick
             case None =>
                 echoClick
         }
 
+    }), "EchoService")
 
 }
 

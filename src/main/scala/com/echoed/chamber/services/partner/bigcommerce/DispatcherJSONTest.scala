@@ -5,12 +5,7 @@ import dispatch._
 import dispatch.nio._
 import com.echoed.util.ScalaJson._
 import java.util.{Map => JMap}
-import collection.JavaConversions._
 
-import com.echoed.util.ScalaObjectMapper
-import org.codehaus.jackson.map.DeserializationConfig
-import akka.serialization.Serializer.ScalaJSON
-import org.codehaus.jackson.{JsonNode, JsonParser}
 import org.joda.time.format.DateTimeFormat
 
 

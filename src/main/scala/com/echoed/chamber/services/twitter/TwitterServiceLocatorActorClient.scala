@@ -4,10 +4,15 @@ import reflect.BeanProperty
 import akka.actor.ActorRef
 import twitter4j.auth.AccessToken
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
-class TwitterServiceLocatorActorClient extends TwitterServiceLocator with ActorClient {
+class TwitterServiceLocatorActorClient extends TwitterServiceLocator with ActorClient with Serializable {
 
     @BeanProperty var twitterServiceLocatorActor: ActorRef = _
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def getTwitterService(callbackUrl: String) =
             (twitterServiceLocatorActor ? GetTwitterService(callbackUrl)).mapTo[GetTwitterServiceResponse]

@@ -56,7 +56,7 @@ class AdminLoginController {
                     continuation.setAttribute("modelAndView", error)
                     continuation.resume()
                 }
-                adminUserServiceLocator.create(email,name,password).onResult({
+                adminUserServiceLocator.create(email,name,password).onSuccess({
                     case CreateAdminUserResponse(_, Left(error)) => onError(error)
                     case CreateAdminUserResponse(_, Right(adminUser)) =>
                         continuation.setAttribute("modelAndView", adminUser)
@@ -89,11 +89,11 @@ class AdminLoginController {
                     continuation.resume()
                 }
 
-                adminUserServiceLocator.login(email,password).onResult({
+                adminUserServiceLocator.login(email,password).onSuccess({
                     case LoginResponse(_, Left(error)) => onError(error)
                     case LoginResponse(_, Right(adminUserService)) =>
                         logger.debug("Redirecting to Admin Dashboard View {}", adminDashboardView)
-                        adminUserService.getAdminUser.onResult({
+                        adminUserService.getAdminUser.onSuccess({
                             case GetAdminUserResponse(_, Left(e)) =>
                             case GetAdminUserResponse(_, Right(adminUser)) =>
                                 cookieManager.addAdminUserCookie(

@@ -5,10 +5,16 @@ import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
+
 
 class EchoedUserServiceLocatorActorClient extends EchoedUserServiceLocator with ActorClient {
 
     @BeanProperty var echoedUserServiceLocatorActor: ActorRef = _
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def getEchoedUserServiceWithId(id: String) =
             (echoedUserServiceLocatorActor ? LocateWithId(id)).mapTo[LocateWithIdResponse]

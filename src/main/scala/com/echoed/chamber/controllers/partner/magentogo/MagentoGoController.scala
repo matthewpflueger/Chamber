@@ -64,7 +64,7 @@ class MagentoGoController {
         } else Option(continuation.getAttribute("modelAndView")).getOrElse({
             continuation.suspend(httpServletResponse)
 
-            magentoGoPartnerServiceManager.registerPartner(registerForm.createPartner).onComplete(_.value.get.fold(
+            magentoGoPartnerServiceManager.registerPartner(registerForm.createPartner).onComplete(_.fold(
                 e => error(registerView, Some(e)),
                 _ match {
                     case RegisterMagentoGoPartnerResponse(_, Left(e)) => error(registerView, Some(e))

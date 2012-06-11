@@ -66,16 +66,16 @@ class TwitterController extends NetworkController {
 
             logger.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl,"UTF-8"));
 
-            twitterServiceLocator.getTwitterService(callbackUrl).onResult {
+            twitterServiceLocator.getTwitterService(callbackUrl).onSuccess {
                 case GetTwitterServiceResponse(_, Left(e)) => error(e)
-                case GetTwitterServiceResponse(_, Right(twitterService)) => twitterService.getRequestToken.onResult {
+                case GetTwitterServiceResponse(_, Right(twitterService)) => twitterService.getRequestToken.onSuccess {
                     case GetRequestTokenResponse(_, Left(e)) => error(e)
                     case GetRequestTokenResponse(_, Right(requestToken)) =>
                         val modelAndView = new ModelAndView("redirect:" + requestToken.getAuthenticationURL)
                         continuation.setAttribute("modelAndView", modelAndView)
                         continuation.resume
-                    }.onException { case e => error(e) }
-            }.onException { case e => error(e) }
+                    }.onFailure { case e => error(e) }
+            }.onFailure { case e => error(e) }
 
             continuation.undispatch
         }
@@ -109,28 +109,28 @@ class TwitterController extends NetworkController {
 
             val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onResult {
+            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onSuccess {
                 case LocateWithIdResponse(_, Left(e)) => error(e)
-                case LocateWithIdResponse(_, Right(echoedUserService)) => echoedUserService.getEchoedUser.onResult {
+                case LocateWithIdResponse(_, Right(echoedUserService)) => echoedUserService.getEchoedUser.onSuccess {
                     case GetEchoedUserResponse(_, Left(e)) => error(e)
-                    case GetEchoedUserResponse(_, Right(echoedUser)) => twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).onResult {
+                    case GetEchoedUserResponse(_, Right(echoedUser)) => twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).onSuccess {
                         case GetTwitterServiceWithTokenResponse(_, Left(e)) => error(e)
-                        case GetTwitterServiceWithTokenResponse(_, Right(twitterService)) => twitterService.getAccessToken(oAuthVerifier).onResult {
+                        case GetTwitterServiceWithTokenResponse(_, Right(twitterService)) => twitterService.getAccessToken(oAuthVerifier).onSuccess {
                             case GetAccessTokenResponse(_, Left(e)) => error(e)
-                            case GetAccessTokenResponse(_, Right(aToken)) => twitterServiceLocator.getTwitterServiceWithAccessToken(aToken).onResult {
+                            case GetAccessTokenResponse(_, Right(aToken)) => twitterServiceLocator.getTwitterServiceWithAccessToken(aToken).onSuccess {
                                 case GetTwitterServiceWithAccessTokenResponse(_, Left(e)) => error(e)
-                                case GetTwitterServiceWithAccessTokenResponse(_, Right(ts)) => echoedUserService.assignTwitterService(ts).onResult {
+                                case GetTwitterServiceWithAccessTokenResponse(_, Right(ts)) => echoedUserService.assignTwitterService(ts).onSuccess {
                                     case AssignTwitterServiceResponse(_, Left(e)) => error(e)
                                     case AssignTwitterServiceResponse(_, Right(_)) =>
                                         val modelAndView = new ModelAndView(redirectView)
                                         continuation.setAttribute("modelAndView", modelAndView)
                                         continuation.resume
-                                }.onException { case e => error(e) }
-                            }.onException { case e => error(e) }
-                        }.onException { case e => error(e) }
-                    }.onException { case e => error(e) }
-                }.onException { case e => error(e) }
-            }.onException { case e => error(e) }
+                                }.onFailure { case e => error(e) }
+                            }.onFailure { case e => error(e) }
+                        }.onFailure { case e => error(e) }
+                    }.onFailure { case e => error(e) }
+                }.onFailure { case e => error(e) }
+            }.onFailure { case e => error(e) }
 
             continuation.undispatch()
         }
@@ -166,15 +166,15 @@ class TwitterController extends NetworkController {
             logger.debug("Twitter/Login/QueryString: {}", queryString)
             logger.debug("Twitter/Login/Redirect: {}", redirect)
 
-            twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).onResult {
+            twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).onSuccess {
                 case GetTwitterServiceWithTokenResponse(_, Left(e)) => error(e)
-                case GetTwitterServiceWithTokenResponse(_, Right(twitterService)) => twitterService.getAccessToken(oAuthVerifier).onResult {
+                case GetTwitterServiceWithTokenResponse(_, Right(twitterService)) => twitterService.getAccessToken(oAuthVerifier).onSuccess {
                     case GetAccessTokenResponse(_, Left(e)) => error(e)
-                    case GetAccessTokenResponse(_, Right(aToken)) => twitterServiceLocator.getTwitterServiceWithAccessToken(aToken).onResult {
+                    case GetAccessTokenResponse(_, Right(aToken)) => twitterServiceLocator.getTwitterServiceWithAccessToken(aToken).onSuccess {
                         case GetTwitterServiceWithAccessTokenResponse(_, Left(e)) => error(e)
-                        case GetTwitterServiceWithAccessTokenResponse(_, Right(ts)) => echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts).onResult {
+                        case GetTwitterServiceWithAccessTokenResponse(_, Right(ts)) => echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts).onSuccess {
                             case LocateWithTwitterServiceResponse(_, Left(e)) => error(e)
-                            case LocateWithTwitterServiceResponse(_, Right(es)) => es.getEchoedUser.onResult {
+                            case LocateWithTwitterServiceResponse(_, Right(es)) => es.getEchoedUser.onSuccess {
                                 case GetEchoedUserResponse(_, Left(e)) => error(e)
                                 case GetEchoedUserResponse(_, Right(echoedUser)) =>
                                     ts.assignEchoedUser(echoedUser.id)
@@ -186,11 +186,11 @@ class TwitterController extends NetworkController {
                                     logger.debug("Redirecting to View: {} ", redirectView)
                                     continuation.setAttribute("modelAndView", new ModelAndView(redirectView))
                                     continuation.resume
-                            }.onException { case e => error(e) }
-                        }.onException { case e => error(e) }
-                    }.onException { case e => error(e) }
-                }.onException { case e => error(e) }
-            }.onException { case e => error(e) }
+                            }.onFailure { case e => error(e) }
+                        }.onFailure { case e => error(e) }
+                    }.onFailure { case e => error(e) }
+                }.onFailure { case e => error(e) }
+            }.onFailure { case e => error(e) }
 
             continuation.undispatch()
         }

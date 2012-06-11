@@ -1,30 +1,85 @@
 package com.echoed.chamber.services.facebook
 
 import reflect.BeanProperty
-import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
-import akka.actor.{Channel, Actor}
 import com.echoed.cache.{CacheEntryRemoved, CacheManager, CacheListenerActorClient}
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
+import java.util.Properties
+import com.echoed.chamber.dao.partner.{PartnerSettingsDao, PartnerDao}
+import com.echoed.chamber.dao.{FacebookUserDao, FacebookPostDao, FacebookFriendDao}
+import org.springframework.beans.factory.FactoryBean
+import akka.util.duration._
+import akka.util.Timeout
+import akka.event.Logging
+import akka.pattern.ask
+import com.echoed.chamber.domain.FacebookUser
+import akka.actor._
+import akka.actor.SupervisorStrategy.Restart
 
 
-class FacebookServiceLocatorActor extends Actor {
+class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
 
-    private val logger = LoggerFactory.getLogger(classOf[FacebookServiceLocatorActor])
-
-    @BeanProperty var facebookServiceCreator: FacebookServiceCreator = _
     @BeanProperty var cacheManager: CacheManager = _
 
+    @BeanProperty var facebookAccess: FacebookAccess = _
+    @BeanProperty var facebookUserDao: FacebookUserDao = _
+    @BeanProperty var facebookPostDao: FacebookPostDao = _
+    @BeanProperty var facebookFriendDao: FacebookFriendDao = _
+    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
+    @BeanProperty var partnerDao: PartnerDao = _
+    @BeanProperty var urlsProperties: Properties = _
+
+    var echoClickUrl: String = _
 
     private var cache: ConcurrentMap[String, FacebookService] = null
     private val cacheByFacebookId: ConcurrentMap[String, FacebookService] = new ConcurrentHashMap[String, FacebookService]()
 
 
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
+
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+        case _: Exception ⇒ Restart
+    }
+
+    private def updateMe(me: FacebookUser) = {
+        val facebookUser = Option(facebookUserDao.findByFacebookId(me.facebookId)) match {
+            case Some(fu) =>
+                logger.debug("Found Facebook User {}", me.facebookId)
+                fu.copy(accessToken = me.accessToken,
+                        name = me.name,
+                        email = me.email,
+                        facebookId = me.facebookId,
+                        link = me.link,
+                        gender = me.gender,
+                        timezone = me.timezone,
+                        locale = me.locale)
+            case None =>
+                logger.debug("No Facebook User {}", me.facebookId)
+                me
+        }
+
+        logger.debug("Updating FacebookUser {} accessToken {}", facebookUser.id, facebookUser.accessToken)
+        facebookUserDao.insertOrUpdate(facebookUser)
+        facebookUser
+    }
+
     override def preStart() {
         cache = cacheManager.getCache[FacebookService]("FacebookServices", Some(new CacheListenerActorClient(self)))
+        echoClickUrl = urlsProperties.getProperty("echoClickUrl")
+        assert(echoClickUrl != null)
     }
 
     def receive = {
@@ -39,7 +94,8 @@ class FacebookServiceLocatorActor extends Actor {
 
 
         case msg @ LocateByCode(code, queryString) =>
-            val channel: Channel[LocateByCodeResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! LocateByCodeResponse(msg, Left(FacebookException("Could not locate Facebook user", e)))
@@ -48,13 +104,13 @@ class FacebookServiceLocatorActor extends Actor {
 
             try {
                 logger.debug("Locating FacebookService with code {}", code)
-                facebookServiceCreator.createFromCode(code, queryString).onComplete(_.value.get.fold(
+                (me ? CreateFromCode(code, queryString)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case CreateFromCodeResponse(_, Left(e)) => error(e)
                         case CreateFromCodeResponse(_, Right(facebookService)) =>
                             channel ! LocateByCodeResponse(msg, Right(facebookService))
-                            facebookService.getFacebookUser.onComplete(_.value.get.fold(
+                            facebookService.getFacebookUser.onComplete(_.fold(
                                 logger.error("Failed to cache FacebookService for code %s" format msg, _),
                                 _ match {
                                     case GetFacebookUserResponse(_, Left(e)) =>
@@ -68,7 +124,8 @@ class FacebookServiceLocatorActor extends Actor {
 
 
         case msg @ LocateByFacebookId(facebookId, accessToken) =>
-            val channel: Channel[LocateByFacebookIdResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! LocateByFacebookIdResponse(msg, Left(FacebookException("Could not locate Facebook service", e)))
@@ -76,7 +133,7 @@ class FacebookServiceLocatorActor extends Actor {
             }
 
             def updateCache(facebookService: FacebookService) {
-                facebookService.getFacebookUser.onComplete(_.value.get.fold(
+                facebookService.getFacebookUser.onComplete(_.fold(
                     logger.error("Unable to update FacebookService cache by id", _),
                     _ match {
                         case GetFacebookUserResponse(_, Left(e)) =>
@@ -96,7 +153,7 @@ class FacebookServiceLocatorActor extends Actor {
                         updateCache(facebookService)
                     case None =>
                         logger.debug("Cache miss for FacebookService with facebookId {}", facebookId)
-                        facebookServiceCreator.createFromFacebookId(facebookId, accessToken).onComplete(_.value.get.fold(
+                        (me ? CreateFromFacebookId(facebookId, accessToken)).onComplete(_.fold(
                             error(_),
                             _ match {
                                 case CreateFromFacebookIdResponse(_, Left(e)) => error(e)
@@ -110,7 +167,8 @@ class FacebookServiceLocatorActor extends Actor {
 
 
         case msg @ LocateById(facebookUserId) =>
-            val channel: Channel[LocateByIdResponse] = self.channel
+            val me = context.self
+            val channel = context.sender
 
             def error(e: Throwable) {
                 channel ! LocateByIdResponse(msg, Left(FacebookException("Could not locate Facebook user", e)))
@@ -124,7 +182,7 @@ class FacebookServiceLocatorActor extends Actor {
                         channel ! LocateByIdResponse(msg, Right(facebookService))
                     case None =>
                         logger.debug("Cache miss for FacebookService with facebookUserId {}", facebookUserId)
-                        facebookServiceCreator.createFromId(facebookUserId).onComplete(_.value.get.fold(
+                        (me ? CreateFromId(facebookUserId)).onComplete(_.fold(
                             error(_),
                             _ match {
                                 case CreateFromIdResponse(_, Left(e: FacebookUserNotFound)) =>
@@ -141,7 +199,7 @@ class FacebookServiceLocatorActor extends Actor {
 
 
         case msg @ Logout(facebookUserId) =>
-            val channel: Channel[LogoutResponse] = self.channel
+            val channel = context.sender
 
             try {
                 logger.debug("Processing {}", msg)
@@ -159,7 +217,96 @@ class FacebookServiceLocatorActor extends Actor {
                     channel ! LogoutResponse(msg, Left(FacebookException("Could not logout Facebook user", e)))
                     logger.error("Unexpected error processing %s" format msg, e)
             }
+
+
+        case msg @ CreateFromCode(code, queryString) =>
+            val me = context.self
+            val channel = context.sender
+
+            def error(e: Throwable) {
+                channel ! CreateFromCodeResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
+                logger.error("Error processing %s" format msg, e)
+            }
+
+            try {
+                logger.debug("Creating FacebookService using code {}", code)
+                facebookAccess.getMe(code, queryString).onComplete(_.fold(
+                    error(_),
+                    _ match {
+                        case GetMeResponse(_, Left(e)) => error(e)
+                        case GetMeResponse(_, Right(fu)) =>
+                            val facebookUser = updateMe(fu)
+                            (me ? CreateFromId(facebookUser.id)).onComplete(_.fold(
+                                error(_),
+                                _ match {
+                                    case CreateFromIdResponse(_, Left(e)) => error(e)
+                                    case CreateFromIdResponse(_, Right(facebookService)) =>
+                                        channel ! CreateFromCodeResponse(msg, Right(facebookService))
+                                        logger.debug("Created FacebookService with user {}", facebookUser)
+                                }))
+                    }))
+            } catch { case e => error(e) }
+
+
+        case msg @ CreateFromId(facebookUserId) =>
+            val channel = context.sender
+
+            try {
+                logger.debug("Creating FacebookService using facebookUserId {}", facebookUserId)
+                Option(facebookUserDao.findById(facebookUserId)) match {
+                    case Some(facebookUser) =>
+                        channel ! CreateFromIdResponse(msg, Right(
+                            new FacebookServiceActorClient(context.actorOf(Props().withCreator {
+                                val fu = Option(facebookUserDao.findById(facebookUserId)).get
+                                new FacebookServiceActor(
+                                    fu,
+                                    facebookAccess,
+                                    facebookUserDao,
+                                    facebookPostDao,
+                                    facebookFriendDao,
+                                    echoClickUrl)
+                            }, facebookUserId))))
+                        logger.debug("Created Facebook service {}", facebookUserId)
+                    case None =>
+                        channel ! CreateFromIdResponse(msg, Left(FacebookUserNotFound(facebookUserId)))
+                        logger.debug("Did not find FacebookUser with id {}", facebookUserId)
+                }
+            } catch {
+                case e =>
+                    channel ! CreateFromIdResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
+                    logger.error("Error processing %s" format msg, e)
+            }
+
+
+        case msg @ CreateFromFacebookId(facebookId, accessToken) =>
+            val me = context.self
+            val channel = context.sender
+
+            def error(e: Throwable) {
+                channel ! CreateFromFacebookIdResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
+                logger.error("Error processing %s" format msg, e)
+            }
+
+            try {
+                logger.debug("Creating FacebookService using facebookId {}", facebookId)
+                facebookAccess.fetchMe(accessToken).onComplete(_.fold(
+                    error(_),
+                    _ match {
+                        case FetchMeResponse(_, Left(e)) => error(e)
+                        case FetchMeResponse(_, Right(fu)) =>
+                            val facebookUser = updateMe(fu)
+                            (me ? CreateFromId(facebookUser.id)).onComplete(_.fold(
+                                error(_),
+                                _ match {
+                                    case CreateFromIdResponse(_, Left(e)) => error(e)
+                                    case CreateFromIdResponse(_, Right(facebookService)) =>
+                                        channel ! CreateFromFacebookIdResponse(msg, Right(facebookService))
+                                        logger.debug("Created FacebookService from Facebook id {}", facebookId)
+                                }))
+                    }))
+            } catch { case e => error(e) }
     }
 
+    }), "FacebookServiceManager")
 
 }

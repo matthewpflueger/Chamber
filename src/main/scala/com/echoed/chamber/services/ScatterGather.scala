@@ -3,12 +3,11 @@ package com.echoed.chamber.services
 import com.echoed.chamber.services.{ResponseMessage => RM}
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
-import akka.actor.{Channel, FSM, Actor, ActorRef}
+import akka.actor.{FSM, Actor, ActorRef}
 import scalaz._
-import Scalaz._
 import scala.collection.mutable.{ListBuffer => MList}
-import FSM._
 import org.slf4j.LoggerFactory
+import akka.event.Logging
 
 sealed trait ScatterGatherState
 case object Ready extends ScatterGatherState
@@ -42,24 +41,26 @@ private case class TimeoutTotalOccurred(timeoutTotal: Duration)
 
 
 case class ScatterGatherData()
-case class Gather(scatter: Scatter, channel: Channel[ScatterResponse], timeout: Duration) extends ScatterGatherData
+case class Gather(scatter: Scatter, channel: ActorRef, timeout: Duration) extends ScatterGatherData
 
 
 
 class ScatterGather extends Actor with FSM[ScatterGatherState, ScatterGatherData] {
 
-    private val logger = LoggerFactory.getLogger(classOf[ScatterGather])
+    private val logger = Logging(context.system, this)
 
     val responseList = MList[Message]()
 
     startWith(Ready, ScatterGatherData())
 
     when(Ready) {
-        case Ev(scatter @ Scatter(requestList, context, timeout, timeoutTotal)) if (requestList.isEmpty) =>
-            self.channel ! ScatterResponse(scatter, Right(List[Message]()))
+        case Event(scatter @ Scatter(requestList, context, timeout, timeoutTotal), _) if (requestList.isEmpty) =>
+            logger.warning("Empty request list received")
+            sender ! ScatterResponse(scatter, Right(List[Message]()))
             stop()
 
-        case Ev(scatter @ Scatter(requestList, context, timeout, timeoutTotal)) =>
+        case Event(scatter @ Scatter(requestList, context, timeout, timeoutTotal), _) =>
+            logger.debug("Recevied request list of size {}", requestList.size)
             requestList.foreach { tuple =>
                 val (actorRef, message) = tuple
                 actorRef ! message
@@ -67,7 +68,7 @@ class ScatterGather extends Actor with FSM[ScatterGatherState, ScatterGatherData
 
             val tt = timeoutTotal.getOrElse(timeout * requestList.size)
             setTimer(scatter.id, TimeoutTotalOccurred(tt), tt, false)
-            goto(Waiting) forMax(timeout) using Gather(scatter, self.channel, timeout)
+            goto(Waiting) forMax(timeout) using Gather(scatter, sender, timeout)
     }
 
     when(Waiting) {

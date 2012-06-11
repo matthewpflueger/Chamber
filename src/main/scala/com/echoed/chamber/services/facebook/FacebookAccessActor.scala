@@ -15,15 +15,18 @@ import com.echoed.util.ScalaObjectMapper
 import java.util.{Date, Properties}
 import java.net.{HttpURLConnection, URL}
 import com.google.common.io.ByteStreams
-import akka.actor.{Channel, Actor}
 import java.util.concurrent.ConcurrentHashMap
 import collection.mutable.ConcurrentMap
 import java.io.{OutputStreamWriter, InputStream}
+import org.springframework.beans.factory.FactoryBean
+import akka.actor.{Props, ActorSystem, ActorRef, Actor}
+import akka.util.Timeout
+import akka.util.duration._
+import akka.event.Logging
 
 
-class FacebookAccessActor extends Actor {
+class FacebookAccessActor extends FactoryBean[ActorRef] {
 
-    private final val logger = LoggerFactory.getLogger(classOf[FacebookAccessActor])
 
     @BeanProperty var clientId: String = _
     @BeanProperty var clientSecret: String = _
@@ -33,6 +36,18 @@ class FacebookAccessActor extends Actor {
     @BeanProperty var appNameSpace: String = _
 
     private val cache: ConcurrentMap[String, FacebookBatcher] = new ConcurrentHashMap[String, FacebookBatcher]()
+
+    @BeanProperty var timeoutInSeconds = 20
+    @BeanProperty var actorSystem: ActorSystem = _
+
+    def getObjectType = classOf[ActorRef]
+
+    def isSingleton = true
+
+    def getObject = actorSystem.actorOf(Props(new Actor {
+
+    implicit val timeout = Timeout(timeoutInSeconds seconds)
+    private final val logger = Logging(context.system, this)
 
     override def preStart {
         //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
@@ -48,7 +63,7 @@ class FacebookAccessActor extends Actor {
     }
 
 
-    def fetchMe(accessToken: String) = {
+    private def fetchMe(accessToken: String) = {
         getFacebookBatcher(accessToken)
                 .graph("me", new TypeReference[Me] {})
                 .get
@@ -57,7 +72,7 @@ class FacebookAccessActor extends Actor {
 
     def receive = {
         case msg @ FetchMe(accessToken) =>
-            val channel: Channel[FetchMeResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val facebookUser = fetchMe(accessToken)
@@ -70,7 +85,7 @@ class FacebookAccessActor extends Actor {
 
 
         case msg @ GetMe(code, queryString) =>
-            val channel: Channel[GetMeResponse] = self.channel
+            val channel = context.sender
 
             try {
                 val redirect = redirectUrl + queryString
@@ -88,7 +103,7 @@ class FacebookAccessActor extends Actor {
 
 
         case msg @ GetFriends(accessToken, facebookId, facebookUserId) =>
-            val channel: Channel[GetFriendsResponse] = self.channel
+            val channel = context.sender
 
             try {
                 logger.debug("Requesting friends for {} with access token {}", facebookId, accessToken)
@@ -109,7 +124,7 @@ class FacebookAccessActor extends Actor {
 
 
         case msg @ Post(accessToken, facebookId, facebookPost) =>
-            val channel: Channel[PostResponse] = self.channel
+            val channel = context.sender
 
             try {
                 logger.debug("Creating new post for {} with access token {}", facebookId, accessToken)
@@ -133,7 +148,6 @@ class FacebookAccessActor extends Actor {
             }
 
         case msg @ PublishAction(accessToken, action, obj, objUrl) =>
-            val channel: Channel[PublishActionResponse] = self.channel
 
             val url = new URL("https://graph.facebook.com/me/%s:%s?" format(appNameSpace, action))
             val urlParameters = "%s=%s&access_token=%s" format(obj, objUrl, accessToken)
@@ -166,7 +180,7 @@ class FacebookAccessActor extends Actor {
 
 
         case msg @ GetPostData(facebookPostData) =>
-            val channel: Channel[GetPostDataResponse] = self.channel
+            val channel = context.sender
 
             def deserializeFacebookPost(bytes: Array[Byte]) {
                 val resultOption = Option(new ScalaObjectMapper().readValue(bytes, classOf[PostData]))
@@ -290,7 +304,7 @@ class FacebookAccessActor extends Actor {
                 removeFacebookBatcher(accessToken).cata(
                     facebookBatcher => {
                         logger.debug("Removed FacebookBatcher from cache for accessToken {}", accessToken)
-                        self.channel ! LogoutResponse(msg, Right(true))
+                        context.sender ! LogoutResponse(msg, Right(true))
 
                         //this does not work - seems there is no way to actually logout of Facebook via the backend
 //                        val url = new URL("https://www.facebook.com/logout.php?next=%s&access_token=%s" format(redirectUrl, accessToken))
@@ -302,13 +316,13 @@ class FacebookAccessActor extends Actor {
 //                        logger.debug("Logout of {} returned {}", accessToken, logoutResponse)
                     },
                     {
-                        self.channel ! LogoutResponse(msg, Right(false))
+                        context.sender ! LogoutResponse(msg, Right(false))
                         logger.debug("Did not find FacebookBatcher for {}", accessToken)
                     }
                 )
             } catch {
                 case e =>
-                    self.channel ! LogoutResponse(msg, Left(FacebookException("Could not logout from Facebook")))
+                    context.sender ! LogoutResponse(msg, Left(FacebookException("Could not logout from Facebook")))
                     logger.error("Unexpected error processing %s" format msg, e)
             }
     }
@@ -326,6 +340,8 @@ class FacebookAccessActor extends Actor {
             facebookBatcher
         })
     }
+
+    }), "FacebookAccessActor")
 }
 
 

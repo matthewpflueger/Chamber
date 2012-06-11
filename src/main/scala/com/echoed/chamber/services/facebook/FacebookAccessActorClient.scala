@@ -4,6 +4,9 @@ import reflect.BeanProperty
 import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
 import akka.actor.{Actor, ActorRef}
 import com.echoed.chamber.services.ActorClient
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 
 class FacebookAccessActorClient
@@ -12,6 +15,8 @@ class FacebookAccessActorClient
         with Serializable {
 
     @BeanProperty var actorRef: ActorRef = _
+
+    private implicit val timeout = Timeout(20 seconds)
 
     def getMe(code: String, queryString: String) =
             (actorRef ? GetMe(code, queryString)).mapTo[GetMeResponse]
