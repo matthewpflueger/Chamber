@@ -9,13 +9,6 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.adminuser._
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 2/7/12
- * Time: 1:47 PM
- * To change this template use File | Settings | File Templates.
- */
 
 @Controller
 class AdminDashboardController {

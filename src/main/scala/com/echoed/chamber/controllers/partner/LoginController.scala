@@ -4,11 +4,11 @@ import org.springframework.stereotype.Controller
 import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
-import org.eclipse.jetty.continuation.ContinuationSupport
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.partneruser._
-import org.springframework.web.bind.annotation.{CookieValue, RequestParam, RequestMapping, RequestMethod, ResponseBody, PathVariable}
-import com.echoed.chamber.controllers.CookieManager
+import org.springframework.web.bind.annotation.{RequestParam, RequestMapping}
+import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.controllers.{Errors, CookieManager}
 
 
 @Controller
@@ -31,49 +31,34 @@ class LoginController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        val errorModelAndView = new ModelAndView(partnerLoginErrorView) with Errors
+        if (email == null || password == null) {
+            errorModelAndView
+        } else {
+            val result = new DeferredResult(errorModelAndView)
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired) {
-            logger.error("Request expired to login {}", email)
-            new ModelAndView(partnerLoginErrorView)
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
+            logger.debug("Received login request for {}", email)
 
-            if (email != null && password != null) {
-                def onError(error: PartnerUserException) {
-                    logger.debug("Got error during login for {}", email)
-                    continuation.setAttribute(
-                        "modelAndView",
-                        new ModelAndView(partnerLoginErrorView, "error", error))
-                    continuation.resume()
-                }
-
-                logger.debug("Received login request for {}", email)
-
-                partnerUserServiceLocator.login(email, password).onSuccess {
-                    case LoginResponse(_, Left(error)) => onError(error)
-                    case LoginResponse(_, Right(pus)) => pus.getPartnerUser.onSuccess {
-                        case GetPartnerUserResponse(_, Left(error)) => onError(error)
-                        case GetPartnerUserResponse(_, Right(pu)) =>
-                            logger.debug("Successful login for {}", email)
-                            cookieManager.addPartnerUserCookie(
-                                httpServletResponse,
-                                pu,
-                                httpServletRequest)
-                            continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
-                            continuation.resume()
-                        case unknown => throw new RuntimeException("Unknown response %s" format unknown)
-                    }
-                    case unknown => throw new RuntimeException("Unknown response %s" format unknown)
+            partnerUserServiceLocator.login(email, password).onSuccess {
+                case LoginResponse(_, Left(error)) =>
+                    errorModelAndView.addError(error)
+                    result.set(errorModelAndView)
+                case LoginResponse(_, Right(pus)) => pus.getPartnerUser.onSuccess {
+                    case GetPartnerUserResponse(_, Left(error)) =>
+                        errorModelAndView.addError(error)
+                        result.set(errorModelAndView)
+                    case GetPartnerUserResponse(_, Right(pu)) =>
+                        logger.debug("Successful login for {}", email)
+                        cookieManager.addPartnerUserCookie(
+                            httpServletResponse,
+                            pu,
+                            httpServletRequest)
+                        result.set(new ModelAndView(partnerLoginView))
                 }
             }
-            else {
-                continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginErrorView))
-                continuation.resume()
-            }
-            continuation.undispatch()
-        })
 
+            result
+        }
     }
 
 }

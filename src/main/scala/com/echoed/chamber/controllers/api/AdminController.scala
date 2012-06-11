@@ -10,22 +10,17 @@ import com.echoed.chamber.services.facebook.{FacebookService, FacebookServiceLoc
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserServiceLocator}
 import com.echoed.chamber.services.adminuser._
 import com.echoed.chamber.controllers.CookieManager
-import com.echoed.chamber.domain.partner.PartnerSettings
-import java.util.Date
 import org.springframework.web.bind.annotation._
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.validation.{Validator , BindingResult }
 import javax.validation.Valid
 import org.springframework.core.convert.ConversionService
 import com.echoed.chamber.controllers.ControllerUtils._
+import org.springframework.web.context.request.async.DeferredResult
+import java.util.{ArrayList, Date}
+import com.echoed.chamber.domain.Echo
+import com.echoed.chamber.domain.partner.{Partner, PartnerSettings}
 
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 2/7/12
- * Time: 3:24 PM
- * To change this template use File | Settings | File Templates.
- */
 @Controller
 @RequestMapping(Array("/admin"))
 class AdminController {
@@ -37,7 +32,6 @@ class AdminController {
     @BeanProperty var globalValidator: Validator = _
     @BeanProperty var formValidator: Validator = _
     @BeanProperty var conversionService: ConversionService = _
-
 
     @BeanProperty var cookieManager: CookieManager = _
 
@@ -54,36 +48,20 @@ class AdminController {
     def getEchoPossibilityJSON(
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
-        
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if(continuation.isExpired){
-            logger.error("Request expired getting echoPossibilities via admin api")
-            continuation.setAttribute("jsonResponse", "error")
-            continuation.resume()
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
 
-            val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+        val result = new DeferredResult(new ArrayList[Echo]())
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
-                case LocateAdminUserServiceResponse(_, Left(e)) =>
-                    continuation.setAttribute("jsonResponse","error")
-                    continuation.resume()
-                case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
-                    logger.debug("AdminUser Service Located")
-                    adminUserService.getEchoPossibilities.onSuccess({
-                        case GetEchoPossibilitesResponse(_, Left(e)) =>
-                            continuation.setAttribute("jsonResponse","error")
-                            continuation.resume()
-                        case GetEchoPossibilitesResponse(_, Right(echoPossibilities)) =>
-                            continuation.setAttribute("jsonResponse", echoPossibilities)
-                            continuation.resume()
-                    })
-            })
+        val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-            continuation.undispatch()
-            
-        })
+        adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
+            case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                logger.debug("AdminUser Service Located")
+                adminUserService.getEchoPossibilities.onSuccess {
+                    case GetEchoPossibilitesResponse(_, Right(echoPossibilities)) => result.set(echoPossibilities)
+                }
+        }
+
+        result
     }
 
     @RequestMapping(value = Array("/partners"), method = Array(RequestMethod.GET))
@@ -92,36 +70,21 @@ class AdminController {
                         httpServletRequest: HttpServletRequest,
                         httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ArrayList[Partner]())
 
-        if(continuation.isExpired){
-            logger.error("Request expired getting users via admin api")
-            continuation.setAttribute("jsonResponse","error")
-            continuation.resume()
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-            val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+        adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
+            case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                logger.debug("AdminUser Service Located")
+                adminUserService.getPartners.onSuccess {
+                    case GetPartnersResponse(_, Right(partners)) =>
+                        logger.debug("Received Json Response For Users: {}", partners)
+                        result.set(partners)
+                }
+        }
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
-                case LocateAdminUserServiceResponse(_, Left(e)) =>
-                    continuation.setAttribute("jsonResponse","error")
-                    continuation.resume()
-                case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
-                    logger.debug("AdminUser Service Located")
-                    adminUserService.getPartners.onSuccess({
-                        case GetPartnersResponse(_, Left(e)) =>
-                            continuation.setAttribute("jsonResponse", "error")
-                            continuation.resume()
-                        case GetPartnersResponse(_, Right(partners)) =>
-                            logger.debug("Received Json Response For Users: {}",partners)
-                            continuation.setAttribute("jsonResponse",partners)
-                            continuation.resume()
-                    })
-            })
-            continuation.undispatch()
-        })
-
+        result
     }
 
     @RequestMapping(value = Array("/partners/{id}/settings/update"), method = Array(RequestMethod.POST))
@@ -137,42 +100,24 @@ class AdminController {
             formValidator.validate(adminUpdatePartnerSettingsForm, bindingResult)
         }
 
-
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        logger.debug("Attempting to update partner settings for partner Id {}", adminUpdatePartnerSettingsForm)
-
-        if (continuation.isExpired) {
-            logger.error("Request expired updating Partner Setings via Admin Api")
-            continuation.setAttribute("jsonResponse", "error")
-            continuation.resume()
-        } else if (bindingResult.hasErrors) {
+        if (bindingResult.hasErrors) {
             "error"
-            //continuation.resume()
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+        } else {
+            logger.debug("Attempting to update partner settings for partner Id {}", adminUpdatePartnerSettingsForm)
 
+            val result = new DeferredResult("error")
             val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-            continuation.suspend(httpServletResponse)
-
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
-                case LocateAdminUserServiceResponse(_, Left(e)) =>
-                    continuation.setAttribute("jsonResponse", "error")
-                    continuation.resume()
+            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
                 case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                     logger.debug("AdminUser Service Located")
-                    adminUpdatePartnerSettingsForm.createPartnerSettings(adminUserService.updatePartnerSettings(_)).onComplete(_.fold(
-                        e => continuation.setAttribute("jsonResponse", e),
-                        _ match {
-                            case UpdatePartnerSettingsResponse(_, Left(e)) =>
-                                continuation.setAttribute("jsonResponse", e)
-                                continuation.resume()
-                            case UpdatePartnerSettingsResponse(_, Right(ps)) =>
-                                continuation.setAttribute("jsonResponse", ps)
-                                continuation.resume()
-                        }))
-            })
-            continuation.undispatch()
-        })
+                    adminUpdatePartnerSettingsForm.createPartnerSettings(adminUserService.updatePartnerSettings(_)).onSuccess {
+                        case UpdatePartnerSettingsResponse(_, Right(ps)) => result.set(ps)
+                    }
+            }
+
+            result
+        }
     }
 
 
@@ -183,37 +128,20 @@ class AdminController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult("error")
+        val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-        if (continuation.isExpired){
-            logger.error("Request expired getting users via admin api")
-            continuation.setAttribute("jsonResponse","error")
-            continuation.resume()
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
+        adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
+            case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                logger.debug("AdminUser Service Located")
+                adminUserService.getPartnerSettings(partnerId).onSuccess {
+                    case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
+                        logger.debug("Received Json Response For Partner Settings: {}",partnerSettings)
+                        result.set(partnerSettings)
+                }
+        }
 
-            continuation.suspend(httpServletResponse)
-
-            val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
-
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
-                case LocateAdminUserServiceResponse(_, Left(e)) =>
-                    continuation.setAttribute("jsonResponse","error")
-                    continuation.resume()
-                case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
-                    logger.debug("AdminUser Service Located")
-                    adminUserService.getPartnerSettings(partnerId).onSuccess({
-                        case GetPartnerSettingsResponse(_, Left(e)) =>
-                            continuation.setAttribute("jsonResponse", "error")
-                            continuation.resume()
-                        case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                            logger.debug("Received Json Response For Partner Settings: {}",partnerSettings)
-                            continuation.setAttribute("jsonResponse",partnerSettings)
-                            continuation.resume()
-                    })
-            })
-            continuation.undispatch()
-        })
-
+        result
     }
 
 
@@ -224,36 +152,20 @@ class AdminController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
         
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        
-        if(continuation.isExpired){
-            logger.error("Request expired getting users via admin api")
-            continuation.setAttribute("jsonResponse","error")
-            continuation.resume()
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        val result = new DeferredResult("error")
+        val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
-            val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+        adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
+            case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                logger.debug("AdminUser Service Located")
+                adminUserService.getUsers.onSuccess {
+                    case GetUsersResponse(_, Right(echoedUsers)) =>
+                        logger.debug("Received Json Response For Users: {}", echoedUsers)
+                        result.set(echoedUsers)
+                }
+        }
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess({
-                case LocateAdminUserServiceResponse(_, Left(e)) => 
-                    continuation.setAttribute("jsonResponse","error")
-                    continuation.resume()
-                case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
-                    logger.debug("AdminUser Service Located")
-                    adminUserService.getUsers.onSuccess({
-                        case GetUsersResponse(_, Left(e)) => 
-                            continuation.setAttribute("jsonResponse", "error")
-                            continuation.resume()
-                        case GetUsersResponse(_, Right(echoedUsers)) =>
-                            logger.debug("Received Json Response For Users: {}",echoedUsers)
-                            continuation.setAttribute("jsonResponse",echoedUsers)
-                            continuation.resume()
-                    })
-            })
-            continuation.undispatch()
-        })
-
+        result
     }
 
 }

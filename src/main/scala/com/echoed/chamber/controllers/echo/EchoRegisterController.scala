@@ -2,11 +2,9 @@ package com.echoed.chamber.controllers.echo
 
 import scala.Array
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.eclipse.jetty.continuation.ContinuationSupport
-import com.echoed.chamber.controllers.ControllerUtils._
 import reflect.BeanProperty
-import com.echoed.chamber.services.partner.{PartnerServiceManager, LocateByEchoIdResponse}
-import com.echoed.chamber.controllers.{CookieManager, RequestExpiredException}
+import com.echoed.chamber.services.partner.PartnerServiceManager
+import com.echoed.chamber.controllers.CookieManager
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import javax.validation.Valid
@@ -15,10 +13,9 @@ import org.springframework.web.bind.annotation.{InitBinder, RequestParam, Reques
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.core.convert.ConversionService
 import org.springframework.web.servlet.ModelAndView
-import com.echoed.chamber.services.echoeduser.{UpdateEchoedUserEmailResponse, LocateWithIdResponse, EchoedUserServiceLocator, EchoedUserNotFound, EmailAlreadyExists}
+import com.echoed.chamber.services.echoeduser.{EchoedUserServiceLocator, EmailAlreadyExists}
 
-import scalaz._
-import Scalaz._
+import org.springframework.web.context.request.async.DeferredResult
 
 
 @Controller
@@ -55,115 +52,57 @@ class EchoRegisterController {
                    httpServletRequest: HttpServletRequest,
                    httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val modelAndView = new ModelAndView(echoRegisterView)
+        modelAndView.addObject("id",id)
+        if (close == true) modelAndView.addObject("close", "true")
 
-        val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
-
-        if (eu.isEmpty){
-            error(errorView, EchoedUserNotFound(""))
-        } else if (continuation.isExpired){
-            error(errorView, RequestExpiredException())
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-
-            logger.debug("Locating Partner By EchoId: {}", id)
-
-            partnerServiceManager.locatePartnerByEchoId(id).onComplete(_.fold(
-                e => error(errorView, e),
-                _ match {
-                    case LocateByEchoIdResponse(_, Left(e)) => throw e
-                    case LocateByEchoIdResponse(_, Right(ps)) =>
-                        ps.recordEchoStep(id, "register", eu, ec)
-                        val modelAndView = new ModelAndView(echoRegisterView)
-                        modelAndView.addObject("id",id)
-                        if(close == true)
-                            modelAndView.addObject("close","true")
-                        continuation.setAttribute("modelAndView",modelAndView)
-                        continuation.resume()
-                }))
-            continuation.undispatch()
-        }
+        modelAndView
     }
 
     @RequestMapping(value = Array("echo/register"), method = Array(RequestMethod.POST))
     def detailsPost(
-            @RequestParam(value = "id", required= true) id: String,
+            @RequestParam(value = "id", required = true) id: String,
             @RequestParam(value= "close", required = false) close: Boolean,
             @Valid echoRegisterForm: EchoRegisterForm,
             bindingResult: BindingResult,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        val errorModelAndView = new ModelAndView(echoRegisterView)
+        if (close == true) errorModelAndView.addObject("close", "true")
+        errorModelAndView.addObject("id", id)
+
         if (!bindingResult.hasErrors) {
             formValidator.validate(echoRegisterForm, bindingResult)
         }
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (bindingResult.hasErrors){
+            errorModelAndView
+        } else {
 
-        val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
+            val result = new DeferredResult(errorModelAndView)
 
-        logger.debug("Echo Register Post: {} ", id)
+            val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
 
-        if (eu.isEmpty) {
-            error(errorView, EchoedUserNotFound("Echoed User Not Found"))
-        } else if (continuation.isExpired) {
-            error(errorView, RequestExpiredException("Request Expired"))
-        } else if (bindingResult.hasErrors){
-            val modelAndView = new ModelAndView(echoRegisterView)
-            if(close == true) modelAndView.addObject("close", "true")
-            modelAndView.addObject("id", id)
-            modelAndView
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
+            echoedUserServiceLocator.getEchoedUserServiceWithId(eu.get)
+                .flatMap(_.resultOrException.updateEchoedUserEmail(echoRegisterForm.getEmail))
+                .foreach(_.cata(
+                    _ match {
+                        case EmailAlreadyExists(em, _ , _) =>
+                            logger.debug("Email already exists: {}", em)
+                            val modelAndView = new ModelAndView(echoRegisterView)
+                            modelAndView.addObject("id", id)
+                            if (close == true) modelAndView.addObject("close", "true")
+                            modelAndView.addObject("error_email", "This Email Already Exists")
+                            result.set(modelAndView)
+                    },
+                    _ => {
+                        if (close) result.set(new ModelAndView(echoCloseViewUrl, "id", id))
+                        else result.set(new ModelAndView(echoEchoedViewUrl, "id", id))
+                    }))
 
-            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-
-            echoRegisterForm.getEmail match {
-                case email =>
-                    //Update the Email Address for EchoedUser
-                    val echoedUserResponse = echoedUserServiceLocator.getEchoedUserServiceWithId(eu.get).flatMap(_.resultOrException.updateEchoedUserEmail(email))
-
-                    //Record Register Success Step
-                    val recordEchoStepResponse = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
-                        case LocateByEchoIdResponse(_, Left(e)) => throw e
-                        case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "register-success", eu, ec)
-                    })
-
-                    (for {
-                        eur <- echoedUserResponse
-                        resr <- recordEchoStepResponse
-                    }  yield {
-                        //val es = resr.resultOrException
-                        eur.cata(
-                            _ match {
-                                case EmailAlreadyExists(em, _ , _) =>
-                                    logger.debug("Email Already Exists")
-                                    val modelAndView = new ModelAndView(echoRegisterView)
-                                    modelAndView.addObject("id", id)
-                                    if(close == true) modelAndView.addObject("close", "true")
-                                    modelAndView.addObject("error_email", "This Email Already Exists")
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
-                            },
-                            _ match {
-                                case e =>
-                                    close match {
-                                        case true =>
-                                            val modelAndView = new ModelAndView(echoCloseViewUrl, "id", id)
-                                            continuation.setAttribute("modelAndView", modelAndView)
-                                            continuation.resume()
-                                        case false =>
-                                            val modelAndView = new ModelAndView(echoEchoedViewUrl, "id", id)
-                                            continuation.setAttribute("modelAndView", modelAndView)
-                                            continuation.resume()
-                                    }
-                            }
-                        )
-                    }).onFailure { case e => error(errorView, e)}
-            }
-            continuation.undispatch()
+            result
         }
     }
+
 }

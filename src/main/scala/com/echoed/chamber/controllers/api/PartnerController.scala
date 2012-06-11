@@ -8,6 +8,7 @@ import org.eclipse.jetty.continuation.ContinuationSupport
 import com.echoed.chamber.services.partneruser._
 import org.springframework.web.bind.annotation.{CookieValue, RequestMapping, RequestMethod,ResponseBody,PathVariable}
 import com.echoed.chamber.controllers.CookieManager
+import org.springframework.web.context.request.async.DeferredResult
 
 
 @Controller
@@ -25,38 +26,19 @@ class PartnerController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult("error")
+        val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-        def error(e: Throwable) {
-            continuation.setAttribute("jsonResponse", e)
-            continuation.resume()
+        partnerUserServiceLocator.locate(partnerUserId.get).onSuccess {
+            case LocateResponse(_, Right(pus)) =>
+                pus.getPartnerSettings.onSuccess {
+                    case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
+                        logger.debug("Successfully received partnerSettings for PartnerUser {}", partnerUserId)
+                        result.set(partnerSettings)
+                }
         }
 
-        if(continuation.isExpired){
-
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
-
-            val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
-
-            partnerUserServiceLocator.locate(partnerUserId.get).onSuccess({
-                case LocateResponse(_, Left(e)) =>
-                    logger.error("Error Receiving Partner USer SErvice With PartnerUserId: {}", partnerUserId)
-                    error(e)
-                case LocateResponse(_, Right(pus)) =>
-                    pus.getPartnerSettings.onSuccess({
-                        case GetPartnerSettingsResponse(_, Left(e)) =>
-                            logger.error("Error Retrieving Partner Settings for PartnerUser {}", partnerUserId)
-                            error(e)
-                        case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                            logger.debug("Successfully received partnerSettings for PartnerUser {}", partnerUserId)
-                            continuation.setAttribute("jsonResponse", partnerSettings)
-                            continuation.resume()
-                    })
-            })
-            continuation.undispatch()
-        })
-
+        result
     }
 
     @RequestMapping(value = Array("/products/{id}/{query}"), method = Array(RequestMethod.GET))
@@ -67,60 +49,32 @@ class PartnerController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult("error")
+        val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-        def error(e: Throwable) {
-            continuation.setAttribute("jsonResponse", e)
-            continuation.resume()
+        partnerUserServiceLocator.locate(partnerUserId.get).onSuccess {
+            case LocateResponse(_, Right(pus)) =>
+                logger.debug("Partner User Service Located with PartnerUserId: {}", partnerUserId)
+                query match {
+                    case "history" =>
+                        pus.getProductSocialActivityByDate(productId).onSuccess {
+                            case GetProductSocialActivityByDateResponse(_, Right(socialActivityHistory)) =>
+                                result.set(socialActivityHistory)
+                        }
+                    case "summary" =>
+                        pus.getProductSocialSummary(productId).onSuccess {
+                            case GetProductSocialSummaryResponse(_, Right(productSocialSummary))=>
+                                result.set(productSocialSummary)
+                        }
+                    case "comments" =>
+                        pus.getCommentsByProductId(productId).onSuccess {
+                            case GetCommentsByProductIdResponse(_, Right(productComments)) =>
+                                result.set(productComments)
+                        }
+                }
         }
 
-        if(continuation.isExpired){
-            logger.error("Request expired getting Product Report: {} for Product Id: {}", query, productId)
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
-
-            val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
-
-            partnerUserServiceLocator.locate(partnerUserId.get).onSuccess({
-                case LocateResponse(_, Left(e)) =>
-                    logger.error("Error Receiving Partner USer SErvice With PartnerUserId: {}", partnerUserId)
-                    error(e)
-                case LocateResponse(_, Right(pus)) =>
-                    logger.debug("Partner User Service Located with PartnerUserId: {}", partnerUserId)
-                    query match{
-                        case "history" =>
-                            pus.getProductSocialActivityByDate(productId).onSuccess({
-                                case GetProductSocialActivityByDateResponse(_, Left(e)) =>
-                                    logger.error("Error getting Activity History for Product: {}", productId)
-                                    error(e)
-                                case GetProductSocialActivityByDateResponse(_, Right(socialActivityHistory)) =>
-                                    continuation.setAttribute("jsonResponse", socialActivityHistory)
-                                    continuation.resume()
-                            })
-                        case "summary" =>
-                            pus.getProductSocialSummary(productId).onSuccess({
-                                case GetProductSocialSummaryResponse(_, Left(e)) =>
-                                    logger.error("Error getting Product Social Summary for Product: {}", productId)
-                                    error(e)
-                                case GetProductSocialSummaryResponse(_, Right(productSocialSummary))=>
-                                    continuation.setAttribute("jsonResponse", productSocialSummary)
-                                    continuation.resume()
-                            })
-                        case "comments" =>
-                            pus.getCommentsByProductId(productId).onSuccess({
-                                case GetCommentsByProductIdResponse(_, Left(e)) =>
-                                    logger.error("Error getting comments for Product: {}", productId)
-                                    error(e)
-                                case GetCommentsByProductIdResponse(_, Right(productComments)) =>
-                                    continuation.setAttribute("jsonResponse", productComments)
-                                    continuation.resume()
-                            })
-                        case _ => error(new IllegalArgumentException("Invalid Request"))
-                    }
-            })
-            continuation.undispatch();
-
-        })
+        result
 
     }
 
@@ -132,53 +86,28 @@ class PartnerController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation((httpServletRequest))
+        val result = new DeferredResult("error")
+        val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-        def error(e: Throwable) {
-            continuation.setAttribute("jsonResponse", e)
-            continuation.resume()
+        partnerUserServiceLocator.locate(partnerUserId.get).onSuccess {
+            case LocateResponse(_, Right(pus)) =>
+                logger.debug("Getting Product Summary for customerId: {}", customerId)
+                query match {
+                    case "summary" =>
+                        pus.getCustomerSocialSummary(customerId).onSuccess {
+                            case GetCustomerSocialSummaryResponse(_, Right(customerSocialSummary)) =>
+                                logger.debug("Customer Social Summary: {}", customerSocialSummary)
+                                result.set(customerSocialSummary)
+                        }
+                    case "history" =>
+                        pus.getCustomerSocialActivityByDate(customerId).onSuccess {
+                            case GetCustomerSocialActivityByDateResponse(_, Right(socialActivityHistory)) =>
+                                result.set(socialActivityHistory)
+                        }
+                }
         }
 
-        if(continuation.isExpired){
-            logger.error("Request expired getting product social summary json")
-            continuation.setAttribute("jsonResponse", "Request Expired")
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
-
-            val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
-
-            partnerUserServiceLocator.locate(partnerUserId.get).onSuccess({
-                case LocateResponse(_, Left(e)) =>
-                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
-                    error(e)
-                case LocateResponse(_, Right(pus)) =>
-                    logger.debug("Getting Product Summary for customerId: {}", customerId)
-                    query match {
-                        case "summary" =>
-                            pus.getCustomerSocialSummary(customerId).onSuccess({
-                                case GetCustomerSocialSummaryResponse(_, Left(e)) =>
-                                    logger.error("Error getting Partner Top Products {}", e)
-                                    error(e)
-                                case GetCustomerSocialSummaryResponse(_, Right(customerSocialSummary)) =>
-                                    logger.debug("Customer Social Summary: {}", customerSocialSummary)
-                                    continuation.setAttribute("jsonResponse",customerSocialSummary)
-                                    continuation.resume()
-                            })
-                        case "history" =>
-                            pus.getCustomerSocialActivityByDate(customerId).onSuccess({
-                                case GetCustomerSocialActivityByDateResponse(_, Left(e)) =>
-                                    error(e)
-                                case GetCustomerSocialActivityByDateResponse(_, Right(socialActivityHistory)) =>
-                                    continuation.setAttribute("jsonResponse", socialActivityHistory)
-                                    continuation.resume()
-                            })
-                        case "comments" => error(new IllegalArgumentException("Invalid Request"))
-                        case _ => error(new IllegalArgumentException("Invalid Request"))
-                    }
-            })
-
-            continuation.undispatch()
-        })
+        result
     }
 
     @RequestMapping(value = Array("/reports/{query}"), method = Array(RequestMethod.GET))
@@ -188,113 +117,55 @@ class PartnerController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation((httpServletRequest))
+        val result = new DeferredResult("error")
+        val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
 
-        def error(e: Throwable) {
-            continuation.setAttribute("jsonResponse", e)
-            continuation.resume()
-        }
-
-        if(continuation.isExpired){
-            logger.error("Request expired getting product social summary json")
-            continuation.setAttribute("jsonResponse", "Request Expired")
-            continuation.resume()
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
-
-            val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
-
-            //temporary fix until locator/creator can be combined into manager and all calls go through manager...
-            if (!partnerUserId.isDefined) error(new IllegalArgumentException("No partner user"))
-            else partnerUserServiceLocator.locate(partnerUserId.get).onSuccess({
-                case LocateResponse(_, Left(e)) =>
-                    logger.error("Error Receiving Partner User Service with PartnerUserId: {}", partnerUserId)
-                    error(e)
+            partnerUserServiceLocator.locate(partnerUserId.get).onSuccess {
                 case LocateResponse(_, Right(pus)) =>
                     query match {
                         case "summary" =>
-                            pus.getPartnerSocialSummary.onSuccess({
-                                case GetPartnerSocialSummaryResponse(_, Left(e)) =>
-                                    logger.error("Error getting Partner Social Summary", e)
-                                    error(e)
+                            pus.getPartnerSocialSummary.onSuccess {
                                 case GetPartnerSocialSummaryResponse(_, Right(partnerSocialSummary)) =>
                                     logger.debug("Partner Social Summary: {}", partnerSocialSummary)
-                                    continuation.setAttribute("jsonResponse", partnerSocialSummary)
-                                    continuation.resume()
-                            })
+                                    result.set(partnerSocialSummary)
+                            }
                         case "echoes" =>
-                            pus.getEchoes.onSuccess({
-                                case GetEchoesResponse(_, Left(e)) =>
-                                    logger.error("Error getting Echoes", e)
-                                    error(e)
-                                case GetEchoesResponse(_, Right(echoes)) =>
-                                    continuation.setAttribute("jsonResponse", echoes)
-                                    continuation.resume()
-                            })
+                            pus.getEchoes.onSuccess {
+                                case GetEchoesResponse(_, Right(echoes)) => result.set(echoes)
+                            }
                         case "history" =>
-                            pus.getPartnerSocialActivityByDate.onSuccess({
-                                case GetPartnerSocialActivityByDateResponse(_, Left(e)) =>
-                                    logger.error("Error getting Partner Social Activity History")
-                                    error(e)
+                            pus.getPartnerSocialActivityByDate.onSuccess {
                                 case GetPartnerSocialActivityByDateResponse(_, Right(partnerSocialActivity)) =>
-                                    continuation.setAttribute("jsonResponse", partnerSocialActivity)
-                                    continuation.resume()
-                            })
+                                    result.set(partnerSocialActivity)
+                            }
                         case "comments" =>
-                            pus.getComments.onSuccess({
-                                case GetCommentsResponse(_, Left(e)) =>
-                                    error(e)
-                                case GetCommentsResponse(_, Right(comments)) =>
-                                    continuation.setAttribute("jsonResponse", comments)
-                                    continuation.resume()
-                            })
+                            pus.getComments.onSuccess{
+                                case GetCommentsResponse(_, Right(comments)) => result.set(comments)
+                            }
                         case "customers" =>
-                            pus.getCustomers.onSuccess({
-                                case GetCustomersResponse(_, Left(e))=>
-                                    error(e)
-                                case GetCustomersResponse(_, Right(customers)) =>
-                                    continuation.setAttribute("jsonResponse", customers )
-                                    continuation.resume()
-                            })
+                            pus.getCustomers.onSuccess {
+                                case GetCustomersResponse(_, Right(customers)) => result.set(customers)
+                            }
                         case "topcustomers" =>
-                            pus.getTopCustomers.onSuccess({
-                                case GetTopCustomersResponse(_,Left(e))=>
-                                    error(e)
-                                case GetTopCustomersResponse(_, Right(customers)) =>
-                                    continuation.setAttribute("jsonResponse", customers)
-                                    continuation.resume()
-                            })
+                            pus.getTopCustomers.onSuccess {
+                                case GetTopCustomersResponse(_, Right(customers)) => result.set(customers)
+                            }
                         case "products" =>
-                            pus.getProducts.onSuccess({
-                                case GetProductsResponse(_, Left(e)) =>
-                                    error(e)
-                                case GetProductsResponse(_, Right(products))=>
-                                    continuation.setAttribute("jsonResponse", products)
-                                    continuation.resume()
-                            })
+                            pus.getProducts.onSuccess {
+                                case GetProductsResponse(_, Right(products))=> result.set(products)
+                            }
                         case "topproducts" =>
-                            pus.getTopProducts.onSuccess({
-                                case GetTopProductsResponse(_, Left(e)) =>
-                                    error(e)
-                                case GetTopProductsResponse(_, Right(products)) =>
-                                    continuation.setAttribute("jsonResponse", products)
-                                    continuation.resume()
-                            })
+                            pus.getTopProducts.onSuccess {
+                                case GetTopProductsResponse(_, Right(products)) => result.set(products)
+                            }
                         case "geolocation" =>
-                            pus.getEchoClickGeoLocation.onSuccess({
-                                case GetEchoClickGeoLocationResponse(_, Left(e)) =>
-                                    error(e)
-                                case GetEchoClickGeoLocationResponse(_, Right(geolocation)) =>
-                                    continuation.setAttribute("jsonResponse",geolocation)
-                                    continuation.resume()
-                            })
-                        case _ => error(new IllegalArgumentException("Invalid Request"))
+                            pus.getEchoClickGeoLocation.onSuccess {
+                                case GetEchoClickGeoLocationResponse(_, Right(geolocation)) => result.set(geolocation)
+                            }
                     }
-            })
+            }
 
-            continuation.undispatch()
-        })
+        result
     }
-
 
 }

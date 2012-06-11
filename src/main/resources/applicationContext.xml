@@ -15,6 +15,11 @@
 
     <import resource="classpath:database.xml" />
 
+    <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="allowCoreThreadTimeOut" value="true" />
+        <property name="maxPoolSize" value="50" />
+        <property name="threadNamePrefix" value="Chamber-executor" />
+    </bean>
 
     <bean class="com.echoed.util.XTrustProvider" init-method="install" />
     <bean id="httpClient" class="dispatch.nio.Http" destroy-method="shutdown" />

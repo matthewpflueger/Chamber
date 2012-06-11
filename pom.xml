@@ -19,7 +19,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
 
-        <org.springframework.version>3.1.0.RELEASE</org.springframework.version>
+        <!--<org.springframework.version>3.2.0.M1</org.springframework.version>-->
+        <org.springframework.version>3.2.0.BUILD-SNAPSHOT</org.springframework.version>
         <scala.version>2.9.2</scala.version>
         <akka.version>2.0.2</akka.version>
     </properties>
@@ -139,7 +140,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>8.1.0.v20120127</version>
+            <version>8.1.4.v20120524</version>
         </dependency>
 
 
@@ -294,6 +295,15 @@
 
 
     <repositories>
+        <repository>
+            <id>repository.springsource.milestone</id>
+            <name>SpringSource Milestone Repository</name>
+            <url>http://repo.springsource.org/milestone</url>
+        </repository>
+        <repository>
+			<id>SpringSource repository</id>
+			<url>http://repo.springsource.org/snapshot</url>
+		</repository>
         <repository>
             <id>ScalaToolsMaven2Repository</id>
             <name>Scala-Tools Maven2 Repository</name>

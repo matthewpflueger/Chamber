@@ -13,6 +13,7 @@ import org.eclipse.jetty.continuation.ContinuationSupport
 import java.net.URLEncoder
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.twitter._
+import org.springframework.web.context.request.async.DeferredResult
 
 
 @Controller
@@ -36,49 +37,32 @@ class TwitterController extends NetworkController {
     def twitter(@RequestParam(value = "redirect", required = false) redirect: String,
                 httpServletRequest: HttpServletRequest,
                 httpServletResponse: HttpServletResponse) = {
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
-        def error(e: Throwable) = {
-            logger.error("Unexpected error", e)
-            val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
-            continuation.setAttribute("modelAndView", modelAndView)
-            continuation.resume
-            modelAndView
+        val result = new DeferredResult(new ModelAndView(errorView))
+
+        val queryString = "?" + httpServletRequest.getQueryString.substring(0)
+
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+
+        logger.debug("QueryString : {}", queryString)
+        logger.debug("Twitter / Redirect : {}", redirect)
+        logger.debug("EchoedUserId: {}", echoedUserId)
+
+        val callbackUrl = "%s/twitter/%s?redirect=%s" format(
+                siteUrl,
+                echoedUserId.map(_ => "add").getOrElse("login"),
+                URLEncoder.encode(redirect, "UTF-8"))
+
+        logger.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl,"UTF-8"));
+
+        twitterServiceLocator.getTwitterService(callbackUrl).onSuccess {
+            case GetTwitterServiceResponse(_, Right(twitterService)) => twitterService.getRequestToken.onSuccess {
+                case GetRequestTokenResponse(_, Right(requestToken)) =>
+                    result.set(new ModelAndView("redirect:" + requestToken.getAuthenticationURL))
+            }
         }
 
-        if (continuation.isExpired) {
-            error(RequestExpiredException("We encountered an while talking to Twitter"))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            val queryString = "?" + httpServletRequest.getQueryString.substring(0)
-
-            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
-
-            logger.debug("QueryString : {}", queryString)
-            logger.debug("Twitter / Redirect : {}", redirect)
-            logger.debug("EchoedUserId: {}", echoedUserId)
-
-            val callbackUrl = "%s/twitter/%s?redirect=%s" format(
-                    siteUrl,
-                    echoedUserId.map(_ => "add").getOrElse("login"),
-                    URLEncoder.encode(redirect, "UTF-8"))
-
-            logger.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl,"UTF-8"));
-
-            twitterServiceLocator.getTwitterService(callbackUrl).onSuccess {
-                case GetTwitterServiceResponse(_, Left(e)) => error(e)
-                case GetTwitterServiceResponse(_, Right(twitterService)) => twitterService.getRequestToken.onSuccess {
-                    case GetRequestTokenResponse(_, Left(e)) => error(e)
-                    case GetRequestTokenResponse(_, Right(requestToken)) =>
-                        val modelAndView = new ModelAndView("redirect:" + requestToken.getAuthenticationURL)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume
-                    }.onFailure { case e => error(e) }
-            }.onFailure { case e => error(e) }
-
-            continuation.undispatch
-        }
+        result
     }
 
 
@@ -89,51 +73,29 @@ class TwitterController extends NetworkController {
             httpServletRequest:HttpServletRequest,
             httpServletResponse:HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(errorView))
 
-        def error(e: Throwable) = {
-            logger.error("Unexpected error", e)
-            val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
-            continuation.setAttribute("modelAndView", modelAndView)
-            continuation.resume
-            modelAndView
+        logger.debug("Add/QueryString: {} ", redirect)
+        val redirectView = postAddView + redirect //"redirect:http://www.echoed.com/" + redirect
+
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onSuccess {
+            case LocateWithIdResponse(_, Right(echoedUserService)) => echoedUserService.getEchoedUser.onSuccess {
+                case GetEchoedUserResponse(_, Right(echoedUser)) => twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).onSuccess {
+                    case GetTwitterServiceWithTokenResponse(_, Right(twitterService)) => twitterService.getAccessToken(oAuthVerifier).onSuccess {
+                        case GetAccessTokenResponse(_, Right(aToken)) => twitterServiceLocator.getTwitterServiceWithAccessToken(aToken).onSuccess {
+                            case GetTwitterServiceWithAccessTokenResponse(_, Right(ts)) => echoedUserService.assignTwitterService(ts).onSuccess {
+                                case AssignTwitterServiceResponse(_, Right(_)) =>
+                                    result.set(new ModelAndView(redirectView))
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        if (continuation.isExpired) {
-            error(RequestExpiredException("We encountered an error adding your Twitter account to Echoed"))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            logger.debug("Add/QueryString: {} ", redirect)
-            val redirectView = postAddView + redirect //"redirect:http://www.echoed.com/" + redirect
-
-            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
-
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onSuccess {
-                case LocateWithIdResponse(_, Left(e)) => error(e)
-                case LocateWithIdResponse(_, Right(echoedUserService)) => echoedUserService.getEchoedUser.onSuccess {
-                    case GetEchoedUserResponse(_, Left(e)) => error(e)
-                    case GetEchoedUserResponse(_, Right(echoedUser)) => twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).onSuccess {
-                        case GetTwitterServiceWithTokenResponse(_, Left(e)) => error(e)
-                        case GetTwitterServiceWithTokenResponse(_, Right(twitterService)) => twitterService.getAccessToken(oAuthVerifier).onSuccess {
-                            case GetAccessTokenResponse(_, Left(e)) => error(e)
-                            case GetAccessTokenResponse(_, Right(aToken)) => twitterServiceLocator.getTwitterServiceWithAccessToken(aToken).onSuccess {
-                                case GetTwitterServiceWithAccessTokenResponse(_, Left(e)) => error(e)
-                                case GetTwitterServiceWithAccessTokenResponse(_, Right(ts)) => echoedUserService.assignTwitterService(ts).onSuccess {
-                                    case AssignTwitterServiceResponse(_, Left(e)) => error(e)
-                                    case AssignTwitterServiceResponse(_, Right(_)) =>
-                                        val modelAndView = new ModelAndView(redirectView)
-                                        continuation.setAttribute("modelAndView", modelAndView)
-                                        continuation.resume
-                                }.onFailure { case e => error(e) }
-                            }.onFailure { case e => error(e) }
-                        }.onFailure { case e => error(e) }
-                    }.onFailure { case e => error(e) }
-                }.onFailure { case e => error(e) }
-            }.onFailure { case e => error(e) }
-
-            continuation.undispatch()
-        }
+        result
     }
 
 
@@ -146,54 +108,34 @@ class TwitterController extends NetworkController {
               httpServletRequest: HttpServletRequest,
               httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(errorView))
 
-        def error(e: Throwable) = {
-            logger.error("Unexpected error", e)
-            val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
-            continuation.setAttribute("modelAndView", modelAndView)
-            continuation.resume
-            modelAndView
+        val queryString = httpServletRequest.getQueryString
+
+        logger.debug("Twitter/Login/QueryString: {}", queryString)
+        logger.debug("Twitter/Login/Redirect: {}", redirect)
+
+        twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).onSuccess {
+            case GetTwitterServiceWithTokenResponse(_, Right(twitterService)) => twitterService.getAccessToken(oAuthVerifier).onSuccess {
+                case GetAccessTokenResponse(_, Right(aToken)) => twitterServiceLocator.getTwitterServiceWithAccessToken(aToken).onSuccess {
+                    case GetTwitterServiceWithAccessTokenResponse(_, Right(ts)) => echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts).onSuccess {
+                        case LocateWithTwitterServiceResponse(_, Right(es)) => es.getEchoedUser.onSuccess {
+                            case GetEchoedUserResponse(_, Right(echoedUser)) =>
+                                ts.assignEchoedUser(echoedUser.id)
+                                cookieManager.addEchoedUserCookie(
+                                        httpServletResponse,
+                                        echoedUser,
+                                        httpServletRequest)
+                                val redirectView = postLoginView + redirect //"redirect:http://www.echoed.com/" + redirect
+                                logger.debug("Redirecting to View: {} ", redirectView)
+                                result.set(new ModelAndView(redirectView))
+                        }
+                    }
+                }
+            }
         }
 
-        if (Option(oAuthToken) == None || oAuthVerifier == None || continuation.isExpired) {
-            error(RequestExpiredException("We encountered an error logging you in via Twitter"))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            val queryString = httpServletRequest.getQueryString
-
-            logger.debug("Twitter/Login/QueryString: {}", queryString)
-            logger.debug("Twitter/Login/Redirect: {}", redirect)
-
-            twitterServiceLocator.getTwitterServiceWithToken(oAuthToken).onSuccess {
-                case GetTwitterServiceWithTokenResponse(_, Left(e)) => error(e)
-                case GetTwitterServiceWithTokenResponse(_, Right(twitterService)) => twitterService.getAccessToken(oAuthVerifier).onSuccess {
-                    case GetAccessTokenResponse(_, Left(e)) => error(e)
-                    case GetAccessTokenResponse(_, Right(aToken)) => twitterServiceLocator.getTwitterServiceWithAccessToken(aToken).onSuccess {
-                        case GetTwitterServiceWithAccessTokenResponse(_, Left(e)) => error(e)
-                        case GetTwitterServiceWithAccessTokenResponse(_, Right(ts)) => echoedUserServiceLocator.getEchoedUserServiceWithTwitterService(ts).onSuccess {
-                            case LocateWithTwitterServiceResponse(_, Left(e)) => error(e)
-                            case LocateWithTwitterServiceResponse(_, Right(es)) => es.getEchoedUser.onSuccess {
-                                case GetEchoedUserResponse(_, Left(e)) => error(e)
-                                case GetEchoedUserResponse(_, Right(echoedUser)) =>
-                                    ts.assignEchoedUser(echoedUser.id)
-                                    cookieManager.addEchoedUserCookie(
-                                            httpServletResponse,
-                                            echoedUser,
-                                            httpServletRequest)
-                                    val redirectView = postLoginView + redirect //"redirect:http://www.echoed.com/" + redirect
-                                    logger.debug("Redirecting to View: {} ", redirectView)
-                                    continuation.setAttribute("modelAndView", new ModelAndView(redirectView))
-                                    continuation.resume
-                            }.onFailure { case e => error(e) }
-                        }.onFailure { case e => error(e) }
-                    }.onFailure { case e => error(e) }
-                }.onFailure { case e => error(e) }
-            }.onFailure { case e => error(e) }
-
-            continuation.undispatch()
-        }
+        result
     }
 
     def makeAuthorizeUrl(postAuthorizeUrl: String, add: Boolean = false, useExtendedPermissions: Boolean = true) =

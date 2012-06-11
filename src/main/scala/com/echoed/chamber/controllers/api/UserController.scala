@@ -9,6 +9,7 @@ import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.context.request.async.DeferredResult
 
 @Controller
 @RequestMapping(Array("/user"))
@@ -29,30 +30,19 @@ class UserController {
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
+        val result = new DeferredResult("error")
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired){
-            new ModelAndView(errorView)
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
+            case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                echoedUserService.getProfile.onSuccess {
+                    case GetProfileResponse(_, Right(profile)) =>
+                        logger.debug("Found Echoed User {}", profile)
+                        result.set(profile)
+                }
+        }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-                case LocateWithIdResponse(_, Left(error)) =>
-                    logger.error("Error locating EchoedUserService for user %s " format echoedUserId, error)
-                case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                    echoedUserService.getProfile.onSuccess {
-                        case GetProfileResponse(_, Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
-                        case GetProfileResponse(_, Right(profile)) =>
-                            logger.debug("Found Echoed User {}", profile)
-                            continuation.setAttribute("jsonResponse", profile)
-                            continuation.resume()
-                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
-                    }
-            }
-
-            continuation.undispatch()
-        })
+        result
     }
 
     
@@ -62,43 +52,24 @@ class UserController {
             @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
             @RequestParam(value="page", required = false) page: String,
             httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            httpServletResponse: HttpServletResponse): DeferredResult = {
+
+        val result = new DeferredResult("error")
 
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired){
-            logger.error("Request expired to view exhibit for user{}", echoedUserId)
-            new ModelAndView(errorView)
-        } else Option(continuation.getAttribute("feed")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-            var pageInt: Int = 0;
-            try {
-                pageInt = Integer.parseInt(page);
-            } catch {
-                case nfe:NumberFormatException =>
-                    pageInt = 0;
-            }
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-                case LocateWithIdResponse(_,Left(error))=>
-                    logger.error("Error locating EchoedUserService for user %s" format echoedUserId, error)
-                case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getPublicFeed(pageInt).onSuccess {
-                        case GetPublicFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
-                        case GetPublicFeedResponse(_,Right(feed)) =>
-                            logger.debug("Found feed of size {}", feed.echoes.size)
-                            continuation.setAttribute("feed", feed)
-                            continuation.resume()
-                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
-                    }
-            }.onFailure {
-                case e =>
-                    logger.error("Exception thrown Locating EchoedUserService for user %s" format echoedUserId, e)
-            }
-            continuation.undispatch()
-        })
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
+            case LocateWithIdResponse(_,Right(echoedUserService)) =>
+                echoedUserService.getPublicFeed(pageInt).onSuccess {
+                    case GetPublicFeedResponse(_,Right(feed)) =>
+                        logger.debug("Found feed of size {}", feed.echoes.size)
+                        result.set(feed)
+                }
+        }
 
+        result
     }
     
     @RequestMapping(value = Array("/feed/friends"), method = Array(RequestMethod.GET))
@@ -109,41 +80,21 @@ class UserController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        val result = new DeferredResult("error")
+
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired){
-            logger.error("Request expired to view exhibit for user %s" format echoedUserId)
-            new ModelAndView(errorView)
-        } else Option(continuation.getAttribute("feed")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-            var pageInt: Int = 0;
-            try {
-                pageInt = Integer.parseInt(page);
-            } catch {
-                case nfe:NumberFormatException =>
-                    pageInt = 0;
-            }
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
+            case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                echoedUserService.getFeed(pageInt).onSuccess {
+                    case GetFeedResponse(_, Right(feed)) =>
+                        result.set(feed)
+                }
+        }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-                case LocateWithIdResponse(_,Left(error))=>
-                    logger.error("Error locating EchoedUserService: {}", error)
-                case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getFeed(pageInt).onSuccess{
-                        case GetFeedResponse(_,Left(error)) => throw new RuntimeException("Unknown Response %s" format error)
-                        case GetFeedResponse(_,Right(feed)) =>
-                            continuation.setAttribute("feed", feed)
-                            continuation.resume()
-                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
-                    }
-            }.onFailure {
-                case e =>
-                    logger.error("Exception thrown Locating EchoedUserService for %s" format echoedUserId, e)
-            }
-            continuation.undispatch()
-        })
-
+        result
     }
 
     @RequestMapping(value = Array("/exhibit"), method = Array(RequestMethod.GET))
@@ -154,46 +105,22 @@ class UserController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        val result = new DeferredResult("error")
+
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired) {
-            logger.error("Request expired to view exhibit for user %s" format echoedUserId)
-            new ModelAndView(errorView)
-        } else Option(continuation.getAttribute("exhibit")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-            var pageInt: Int = 0;
-            try {
-                pageInt = Integer.parseInt(page);
-            } catch {
-                case nfe:NumberFormatException =>
-                    pageInt = 0;
-            }
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
+            case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                echoedUserService.getCloset(pageInt).onSuccess {
+                    case GetExhibitResponse(_, Right(closet)) =>
+                        logger.debug("Received for {} exhibit of {} echoes", echoedUserId, closet.echoes.size)
+                        result.set(closet)
+                }
+        }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-                case LocateWithIdResponse(_,Left(error)) =>
-                    logger.error("Error Locating EchoedUserService With Id %s" format echoedUserId, error)
-                case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getCloset(pageInt).onSuccess {
-                        case GetExhibitResponse(_,Left(error)) =>
-                            logger.error("Error Getting Closet for %s" format echoedUserId, error)
-                            throw new RuntimeException("Unknown Response %s" format error)
-                        case GetExhibitResponse(_,Right(closet)) =>
-                            logger.debug("Received for {} exhibit of {} echoes", echoedUserId, closet.echoes.size)
-                            continuation.setAttribute("exhibit", closet)
-                            continuation.resume()
-                        case unknown => throw new RuntimeException("Unknown Response %s" format unknown)
-                    }.onFailure {
-                        case e =>
-                            logger.error("Exception thrown Getting Exhibit %s" format echoedUserId, e)
-                    }
-            }.onFailure {
-                case e=>
-                    logger.error("Exception thrown when Locating EchoedUserService %s" format echoedUserId, e)
-            }
-            continuation.undispatch()
-        })
+        result
     }
 
     @RequestMapping(value = Array("/friends"), method = Array(RequestMethod.GET))
@@ -203,45 +130,18 @@ class UserController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        val result = new DeferredResult("error")
+
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if (continuation.isExpired) {
-            logger.error("Request expired to view friends for user %s" format echoedUserId)
-            new ModelAndView(errorView)
-        } else Option(continuation.getAttribute("friends")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
+            case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                echoedUserService.getFriends.onSuccess{
+                    case GetEchoedFriendsResponse(_, Right(friends)) => result.set(friends)
+                }
+        }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-                case LocateWithIdResponse(_, Left(error)) =>
-                    logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
-                case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                    echoedUserService.getFriends.onSuccess{
-                        case GetEchoedFriendsResponse(_,Left(error)) =>
-                            logger.error("Error Getting Friends for user %s" format echoedUserId, error)
-                            continuation.setAttribute("friends", error);
-                            continuation.resume()
-                        case GetEchoedFriendsResponse(_,Right(friends)) =>
-                            continuation.setAttribute("friends", friends)
-                            continuation.resume()
-                        case unknown =>
-                            continuation.setAttribute("friends", unknown)
-                            continuation.resume()
-                            throw new RuntimeException("Unknown Response %s" format unknown)
-                    }.onFailure{
-                        case e=>
-                            logger.error("Exception Thrown Getting Friends for user %s" format echoedUserId, e)
-                            continuation.setAttribute("friends", e)
-                            continuation.resume()
-                    }
-            }.onFailure{
-                case e =>
-                    logger.error("Exception thrown Locating EchoedUserService for user %s" format echoedUserId, e)
-                    continuation.setAttribute("friends",e)
-                    continuation.resume()
-            }
-            continuation.undispatch()
-        })
+        result
     }
     
     @RequestMapping(value = Array("/feed/partner/{name}"), method=Array(RequestMethod.GET))
@@ -249,108 +149,51 @@ class UserController {
     def partnerFeed(
             @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
             @PathVariable(value="name") partnerName: String,
-            @RequestParam(value="page", required=false) page: String,
+            @RequestParam(value="page", required = false) page: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult("error")
 
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
         
         logger.debug("Requesting for Partner Feed for Partner {}", partnerName )
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
-        if(continuation.isExpired){
-        } else Option(continuation.getAttribute("jsonResponse")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-            var pageInt: Int = 0;
-            try {
-                pageInt = Integer.parseInt(page);
-            } catch {
-                case nfe:NumberFormatException =>
-                    pageInt = 0;
-            }
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
+            case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                echoedUserService.getPartnerFeed(partnerName, pageInt).onSuccess {
+                    case GetPartnerFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
+                }
+        }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess{
-                case LocateWithIdResponse(_, Left(error)) =>
-                    logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
-                case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                    echoedUserService.getPartnerFeed(partnerName, pageInt).onSuccess{
-                        case GetPartnerFeedResponse(_, Left(error)) =>
-                            logger.error("Error Getting Partner Feed for partne %s" format partnerName , error)
-                        case GetPartnerFeedResponse(_, Right(partnerFeed)) =>
-                            continuation.setAttribute("jsonResponse", partnerFeed)
-                            continuation.resume()
-                    }.onFailure{
-                        case e =>
-                            logger.error("Exception thrown getting partner feed for partner %s" format partnerName, e)
-                            continuation.setAttribute("jsonResponse", e)
-                            continuation.resume()
-                    }
-            }.onFailure{
-                case e =>
-                    logger.error("Exception thrown when Locating EchoedUserService for user %s" format echoedUserId, e)
-                    continuation.setAttribute("jsonResponse", e)
-                    continuation.resume()
-            }
-            
-            continuation.undispatch()
-        })
+        result
     }
 
     @RequestMapping(value= Array("/exhibit/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
             @PathVariable(value="id") echoedFriendId: String,
-            @RequestParam(value= "page", required= false) page: String,
+            @RequestParam(value= "page", required = false) page: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-
-
         logger.debug("echoedFriendId: {}", echoedFriendId)
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if(continuation.isExpired) {
 
-        } else Option(continuation.getAttribute("closet")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        val result = new DeferredResult("error")
 
-            var pageInt: Int = 0;
-            try {
-                pageInt = Integer.parseInt(page);
-            } catch {
-                case nfe:NumberFormatException =>
-                    pageInt = 0;
-            }
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
 
+        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onSuccess {
+            case LocateWithIdResponse(_,Right(echoedUserService)) =>
+                echoedUserService.getFriendCloset(echoedFriendId, pageInt).onSuccess {
+                    case GetFriendExhibitResponse(_, Right(closet)) => result.set(closet)
+                }
+        }
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onSuccess {
-                case LocateWithIdResponse(_,Left(error)) =>
-                    logger.error("Error Locating EchoedUserService for user %s" format echoedUserId, error)
-                case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                    echoedUserService.getFriendCloset(echoedFriendId, pageInt).onSuccess{
-                        case GetFriendExhibitResponse(_,Left(error)) =>
-                            logger.error("Error Getting Friend's Closet for user %s" format echoedUserId, error)
-                        case GetFriendExhibitResponse(_,Right(closet)) =>
-                            continuation.setAttribute("closet",closet)
-                            continuation.resume()
-                    }
-                        .onFailure{
-                        case e=>
-                            logger.error("Exception thrown Getting Friend's Closet for user %s" format echoedUserId, e)
-                            continuation.setAttribute("closet", e)
-                            continuation.resume()
-                    }
-            }
-                .onFailure{
-                case e =>
-                    logger.error("Exception thrown when Locating EchoedUserService for user %s" format echoedUserId, e)
-                    continuation.setAttribute("closet", e)
-                    continuation.resume();
-            }
-
-            continuation.undispatch()
-        })
+        result
     }
 }

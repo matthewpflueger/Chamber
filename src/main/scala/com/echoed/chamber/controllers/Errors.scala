@@ -2,9 +2,6 @@ package com.echoed.chamber.controllers
 
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.EchoedException
-import scala.collection.JavaConversions._
-import org.springframework.validation.{BeanPropertyBindingResult, BindingResult, MapBindingResult}
-import java.util.{HashMap => JHashMap}
 
 trait Errors { this: ModelAndView =>
 

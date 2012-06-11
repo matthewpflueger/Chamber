@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.controllers.CookieManager
 import com.echoed.chamber.services.partner.{PartnerNotActive, PartnerAlreadyExists}
 import com.echoed.chamber.services.partner.shopify.{RegisterShopifyPartnerEnvelope, RegisterShopifyPartnerResponse, ShopifyPartnerServiceManager}
+import org.springframework.web.context.request.async.DeferredResult
 
 
 @Controller
@@ -34,45 +35,21 @@ class ShopifyController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView("error"))
 
-        def error(e: Throwable) = {
-            val modelAndView = new ModelAndView("ERROR")
-            continuation.setAttribute("modelAndView", modelAndView)
-            continuation.resume()
-            modelAndView
+        logger.debug("Attempting to locate Shopify User Service: {} ", shop)
+        shopifyPartnerServiceManager.registerShopifyPartner(shop, signature, t, timeStamp).onSuccess {
+            case RegisterShopifyPartnerResponse(_, Right(envelope)) =>
+                val modelAndView = new ModelAndView(shopifyIntegrationView)
+                modelAndView.addObject("shopifyPartner", envelope.shopifyPartner)
+                modelAndView.addObject("partner", envelope.partner)
+                modelAndView.addObject("partnerUser", envelope.partnerUser)
+                result.set(modelAndView)
+            case RegisterShopifyPartnerResponse(_, Left(e: PartnerAlreadyExists)) =>
+                result.set(new ModelAndView(partnerLoginView))
         }
 
-        def makeView(envelope: RegisterShopifyPartnerEnvelope) {
-            val modelAndView = new ModelAndView(shopifyIntegrationView)
-            modelAndView.addObject("shopifyPartner", envelope.shopifyPartner)
-            modelAndView.addObject("partner", envelope.partner)
-            modelAndView.addObject("partnerUser", envelope.partnerUser)
-            continuation.setAttribute("modelAndView", modelAndView)
-            continuation.resume()
-        }
-
-        if (continuation.isExpired) {
-            logger.debug("Continuation is expired")
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            logger.debug("Attempting to locate Shopify User Service: {} ", shop)
-            shopifyPartnerServiceManager.registerShopifyPartner(shop, signature, t, timeStamp).onComplete(_.fold(
-                error(_),
-                _ match {
-                    case RegisterShopifyPartnerResponse(_, Right(envelope)) => makeView(envelope)
-                    case RegisterShopifyPartnerResponse(_, Left(e: PartnerNotActive)) => error(e)
-                    case RegisterShopifyPartnerResponse(_, Left(e: PartnerAlreadyExists)) =>
-                        continuation.setAttribute("modelAndView", new ModelAndView(partnerLoginView))
-                        continuation.resume()
-                    case RegisterShopifyPartnerResponse(_, Left(e)) => error(e)
-
-                }))
-
-            continuation.undispatch()
-        }
+        result
     }
-
 
 }

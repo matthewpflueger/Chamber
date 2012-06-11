@@ -6,19 +6,10 @@ import org.slf4j.LoggerFactory
 import org.eclipse.jetty.continuation.ContinuationSupport
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.web.bind.annotation._
-import com.echoed.chamber.domain.EchoClick
-import java.net.URLEncoder
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.adminuser._
+import org.springframework.web.context.request.async.DeferredResult
 
-
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 2/6/12
- * Time: 3:12 PM
- * To change this template use File | Settings | File Templates.
- */
 
 @Controller
 @RequestMapping(Array("/admin"))
@@ -37,80 +28,47 @@ class AdminLoginController {
     @RequestMapping(Array("/create"))
     @ResponseBody
     def create(
-        @RequestParam(value="email") email:String,
-        @RequestParam(value="password") password:String, 
-        @RequestParam(value="name") name: String,
-        @RequestParam(value="token") token: String,
-        httpServletRequest: HttpServletRequest,
-        httpServletResponse: HttpServletResponse) = {
+            @RequestParam(value="email", required = true) email:String,
+            @RequestParam(value="password", required = true) password:String,
+            @RequestParam(value="name", required = true) name: String,
+            @RequestParam(value="token", required = true) token: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if(continuation.isExpired){
-            logger.debug("Continuation Debug")
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
-            logger.debug("Creating Admin Account:")
-            if(email != null && password != null && name != null) {
-                def onError(error: AdminUserException){
-                    logger.debug("Error during admin creation")
-                    continuation.setAttribute("modelAndView", error)
-                    continuation.resume()
-                }
-                adminUserServiceLocator.create(email,name,password).onSuccess({
-                    case CreateAdminUserResponse(_, Left(error)) => onError(error)
-                    case CreateAdminUserResponse(_, Right(adminUser)) =>
-                        continuation.setAttribute("modelAndView", adminUser)
-                        continuation.resume()
-                })
-            }
-            continuation.undispatch()
-        })
-        
+        val result = new DeferredResult("error")
+
+        logger.debug("Creating Admin Account for {}, {}", name, email)
+        assert(token == "J0n1sR3tard3d")
+
+        adminUserServiceLocator.create(email,name,password).onSuccess {
+            case CreateAdminUserResponse(_, Right(adminUser)) => result.set(adminUser)
+        }
+
+        result
     }
     
     @RequestMapping(Array("/login"))
     def login(
-        @RequestParam(value="email", required=false) email:String,
-        @RequestParam(value="password", required=false) password: String,
-        httpServletRequest: HttpServletRequest,
-        httpServletResponse: HttpServletResponse) = {
+            @RequestParam(value="email", required = false) email:String,
+            @RequestParam(value="password", required = false) password: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if(continuation.isExpired){
-            
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        val result = new DeferredResult(new ModelAndView(adminLoginView))
 
-            if(email != null && password != null){
-
-                def onError(error: AdminUserException) {
-                    logger.debug("Got error during login for {}: {}", email, password)
-                    continuation.setAttribute("modelAndView", adminLoginView)
-                    continuation.resume()
+        adminUserServiceLocator.login(email,password).onSuccess {
+            case LoginResponse(_, Right(adminUserService)) =>
+                logger.debug("Redirecting to Admin Dashboard View {}", adminDashboardView)
+                adminUserService.getAdminUser.onSuccess {
+                    case GetAdminUserResponse(_, Right(adminUser)) =>
+                        cookieManager.addAdminUserCookie(
+                                httpServletResponse,
+                                adminUser,
+                                httpServletRequest)
+                        result.set(new ModelAndView(adminDashboardView))
                 }
+        }
 
-                adminUserServiceLocator.login(email,password).onSuccess({
-                    case LoginResponse(_, Left(error)) => onError(error)
-                    case LoginResponse(_, Right(adminUserService)) =>
-                        logger.debug("Redirecting to Admin Dashboard View {}", adminDashboardView)
-                        adminUserService.getAdminUser.onSuccess({
-                            case GetAdminUserResponse(_, Left(e)) =>
-                            case GetAdminUserResponse(_, Right(adminUser)) =>
-                                cookieManager.addAdminUserCookie(
-                                        httpServletResponse,
-                                        adminUser,
-                                        httpServletRequest)
-                                continuation.setAttribute("modelAndView", new ModelAndView(adminDashboardView))
-                                continuation.resume()
-                        })
-                })
-
-            } else{
-                continuation.setAttribute("modelAndView",adminLoginView)
-                continuation.resume()
-            }
-            continuation.undispatch()
-
-        })
+        result
     }
 }

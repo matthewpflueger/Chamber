@@ -4,16 +4,15 @@ import org.springframework.stereotype.Controller
 import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import reflect.BeanProperty
-import org.eclipse.jetty.continuation.ContinuationSupport
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, RequestMapping, RequestMethod}
 import com.echoed.chamber.services.partner.{RegisterPartnerResponse, PartnerServiceManager}
-import com.echoed.chamber.controllers.{RequestExpiredException, CookieManager}
 import javax.validation.Valid
 import org.springframework.validation.{Validator, BindingResult}
 import org.springframework.core.convert.ConversionService
-import com.echoed.chamber.controllers.ControllerUtils.error
+import com.echoed.chamber.controllers.{Errors, CookieManager}
+import org.springframework.web.context.request.async.DeferredResult
 
 
 @Controller
@@ -51,34 +50,34 @@ class RegisterController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
+        val errorModelAndView = new ModelAndView(registerView) with Errors
+
         if (!bindingResult.hasErrors) {
             formValidator.validate(registerForm, bindingResult)
         }
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        if (bindingResult.hasErrors) {
+            errorModelAndView
+        } else {
 
-        if (continuation.isExpired) {
-            error(registerView, Some(RequestExpiredException()))
-        } else if (bindingResult.hasErrors) {
-            error(registerView)
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
+            val result = new DeferredResult(errorModelAndView)
 
             registerForm.createPartner(partnerServiceManager.registerPartner(_, _, _)).onComplete(_.fold(
-                e => error(registerView, Some(e)),
+                e => {
+                    errorModelAndView.addError(e)
+                    result.set(errorModelAndView)
+                },
                 _ match {
-                    case RegisterPartnerResponse(_, Left(e)) => error(registerView, Some(e))
+                    case RegisterPartnerResponse(_, Left(e)) =>
+                        errorModelAndView.addError(e)
+                        result.set(errorModelAndView)
                     case RegisterPartnerResponse(_, Right(partner)) =>
                         logger.debug("Successfully registered partner {}", partner)
-                        //FIXME!!!
-                        continuation.setAttribute("modelAndView", new ModelAndView("redirect:http://www.echoed.com"))
-                        continuation.resume
-                }
-            ))
+                        result.set(new ModelAndView("redirect:http://www.echoed.com"))
+                }))
 
-            continuation.undispatch()
-        })
-
+            result
+        }
     }
 
 }

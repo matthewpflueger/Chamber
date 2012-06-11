@@ -22,6 +22,7 @@ import java.util.{Date, Map => JMap}
 import java.text.DateFormat
 import akka.dispatch.Promise
 import akka.actor.ActorSystem
+import org.springframework.web.context.request.async.DeferredResult
 
 @Controller
 @RequestMapping(Array("/echo"))
@@ -77,33 +78,21 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(echoJsErrorView))
 
-        if (continuation.isExpired) {
-            RequestExpiredException()
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
-
-            partnerServiceManager.getView(pid).onComplete(_.fold(
-                e => error(echoJsErrorView, Some(e)),
-                _ match {
-                    case GetViewResponse(_, Left(e: PartnerNotActive)) =>
-                        logger.debug("Partner Not Active: Serving Partner Not Active JS template")
-                        val modelAndView = new ModelAndView(echoJsNotActiveView)
-                        modelAndView.addObject("pid", pid)
-                        modelAndView.addObject("view", echoJsNotActiveView)
-                        continuation.setAttribute("modelAndView",modelAndView)
-                        continuation.resume()
-                    case GetViewResponse(_, Left(e)) => error(echoJsErrorView, Some(e))
-                    case GetViewResponse(_, Right(vd)) =>
-                        val modelAndView = new ModelAndView(vd.view, vd.model)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-
-                }
-            ))
-            continuation.undispatch()
+        partnerServiceManager.getView(pid).onSuccess {
+            case GetViewResponse(_, Left(e: PartnerNotActive)) =>
+                logger.debug("Partner Not Active: Serving Partner Not Active JS template")
+                val modelAndView = new ModelAndView(echoJsNotActiveView)
+                modelAndView.addObject("pid", pid)
+                modelAndView.addObject("view", echoJsNotActiveView)
+                result.set(modelAndView)
+            case GetViewResponse(_, Right(vd)) =>
+                val modelAndView = new ModelAndView(vd.view, vd.model)
+                result.set(modelAndView)
         }
+
+        result
     }
 
 
@@ -119,25 +108,15 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult("error")
 
-        if (continuation.isExpired) {
-            RequestExpiredException()
-        } else Option(continuation.getAttribute("json")).getOrElse {
-            continuation.suspend(httpServletResponse)
+        //browser id is required and should be set in the BrowserIdInterceptor...
+        val bi = cookieManager.findBrowserIdCookie(httpServletRequest).get
+        val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
+        val ec = cookieManager.findEchoClickCookie(httpServletRequest)
+        val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
 
-            def resume(json: AnyRef) {
-                continuation.setAttribute("json", json)
-                continuation.resume()
-            }
-
-            //browser id is required and should be set in the BrowserIdInterceptor...
-            val bi = cookieManager.findBrowserIdCookie(httpServletRequest).get
-            val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
-            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-            val ip = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
-
-            partnerServiceManager.requestEcho(
+        partnerServiceManager.requestEcho(
                 partnerId = pid,
                 request = data,
                 browserId = bi,
@@ -146,16 +125,12 @@ class EchoController {
                 referrerUrl = referrerUrl,
                 echoedUserId = eu,
                 echoClickId = ec,
-                view = Option(view)).onComplete(_.fold(
-                    e => resume(e),
-                    _ match {
-                        case RequestEchoResponse(_, Left(e)) => resume(e)
-                        case RequestEchoResponse(_, Right(echoPossibilityView)) =>
-                            resume(echoPossibilityView)
-                    }))
+                view = Option(view))
+            .onSuccess {
+                case RequestEchoResponse(_, Right(echoPossibilityView)) => result.set(echoPossibilityView)
+            }
 
-            continuation.undispatch()
-        }
+        result
     }
 
 
@@ -166,66 +141,58 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(errorView))
 
-        if (continuation.isExpired) {
-            error(errorView, RequestExpiredException())
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
+        val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
+        val ec = cookieManager.findEchoClickCookie(httpServletRequest)
 
-            val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
-            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-
-            implicit val dispatcher = actorSystem.dispatcher
+        implicit val dispatcher = actorSystem.dispatcher
 
 
-            val echoedUserNotFound = LocateWithIdResponse(LocateWithId(eu.orNull), Left(EchoedUserNotFound(eu.orNull)))
-            val echoedUserResponse = eu.cata(
-                    echoedUserServiceLocator.getEchoedUserServiceWithId(_).recover { case e => echoedUserNotFound },
-                    Promise.successful(echoedUserNotFound))
+        val echoedUserNotFound = LocateWithIdResponse(LocateWithId(eu.orNull), Left(EchoedUserNotFound(eu.orNull)))
+        val echoedUserResponse = eu.cata(
+                echoedUserServiceLocator.getEchoedUserServiceWithId(_).recover { case e => echoedUserNotFound },
+                Promise.successful(echoedUserNotFound))
 
-            val recordEchoStepResponse  = partnerServiceManager.recordEchoStep(id, "login", eu, ec)
+        val recordEchoStepResponse  = partnerServiceManager.recordEchoStep(id, "login", eu, ec)
 
-            (for {
-                eur <- echoedUserResponse
-                resr <- recordEchoStepResponse
-            } yield {
-                resr match {
-                    case RecordEchoStepResponse(_, Left(EchoExists(_, _ , _))) =>
-                        logger.debug("Product already echoed, Redirecting to echo/echoed")
-                        val modelAndView = new ModelAndView(echoEchoedUrl, "id", id)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-                    case RecordEchoStepResponse(_, Right(data)) =>
-                        eur.cata(
-                            e =>{
-                                logger.debug("Requesting login for echo {}", data.echoPossibility.id)
-                                val modelAndView = new ModelAndView(echoLoginView)
+        for {
+            eur <- echoedUserResponse
+            resr <- recordEchoStepResponse
+        } yield {
+            resr match {
+                case RecordEchoStepResponse(_, Left(EchoExists(_, _ , _))) =>
+                    logger.debug("Product already echoed, Redirecting to echo/echoed")
+                    val modelAndView = new ModelAndView(echoEchoedUrl, "id", id)
+                    result.set(modelAndView)
+                case RecordEchoStepResponse(_, Right(data)) =>
+                    eur.cata(
+                        e =>{
+                            logger.debug("Requesting login for echo {}", data.echoPossibility.id)
+                            val modelAndView = new ModelAndView(echoLoginView)
 
-                                modelAndView.addObject("echoPossibilityView", data)
-                                modelAndView.addObject("partnerLogo", data.partner.logo)
-                                modelAndView.addObject("maxPercentage", "%1.0f".format(data.partnerSettings.maxPercentage*100));
-                                //modelAndView.addObject("minPercentage", "%1.0f".format(data.partnerSettings.minPercentage*100));
+                            modelAndView.addObject("echoPossibilityView", data)
+                            modelAndView.addObject("partnerLogo", data.partner.logo)
+                            modelAndView.addObject("maxPercentage", "%1.0f".format(data.partnerSettings.maxPercentage*100));
+                            //modelAndView.addObject("minPercentage", "%1.0f".format(data.partnerSettings.minPercentage*100));
 
-                                if(data.partnerSettings.closetPercentage > 0)
-                                    modelAndView.addObject("closetPercentage", "%1.0f".format(data.partnerSettings.closetPercentage*100));
-                                modelAndView.addObject("numberDays", data.partnerSettings.creditWindow / 24)
-                                modelAndView.addObject("productPriceFormatted", "%.2f".format(data.echoPossibility.price));
-                                modelAndView.addObject("minClicks", data.partnerSettings.minClicks)
-                                continuation.setAttribute("modelAndView", modelAndView)
-                                continuation.resume()
-                            },
-                            eus => {
-                                logger.debug("Recognized user for echo login {}", eus.id)
-                                val modelAndView = new ModelAndView(echoLoginNotNeededView, "id", id)
-                                continuation.setAttribute("modelAndView", modelAndView)
-                                continuation.resume()
-                            })
-                }
-            }).onFailure { case e => error(errorView, e) }
+                            if(data.partnerSettings.closetPercentage > 0)
+                                modelAndView.addObject("closetPercentage", "%1.0f".format(data.partnerSettings.closetPercentage*100));
 
-            continuation.undispatch()
+                            modelAndView.addObject("numberDays", data.partnerSettings.creditWindow / 24)
+                            modelAndView.addObject("productPriceFormatted", "%.2f".format(data.echoPossibility.price));
+                            modelAndView.addObject("minClicks", data.partnerSettings.minClicks)
+                            result.set(modelAndView)
+                        },
+                        eus => {
+                            logger.debug("Recognized user for echo login {}", eus.id)
+                            val modelAndView = new ModelAndView(echoLoginNotNeededView, "id", id)
+                            result.set(modelAndView)
+                        })
+            }
         }
+
+        result
     }
 
 
@@ -238,14 +205,14 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation: Continuation = null //no need for continuation on this one...
-
         val networkController = networkControllers.get(network)
         val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
         val ec = cookieManager.findEchoClickCookie(httpServletRequest)
 
         if (networkController == null) {
-            error(errorView, EchoedException("Invalid network"))
+            val errorModelAndView = new ModelAndView(errorView) with Errors
+            errorModelAndView.addError(EchoedException("Invalid network"))
+            errorModelAndView
         } else {
             partnerServiceManager.recordEchoStep(id, "authorize-%s" format network, eu, ec)
             var authorizeUrl = ""
@@ -259,15 +226,12 @@ class EchoController {
         }
     }
 
+
     @RequestMapping(value = Array("iframe"), method = Array(RequestMethod.GET))
     def iframe(
             httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            httpServletResponse: HttpServletResponse) = new ModelAndView(echoIframe)
 
-        val modelAndView = new ModelAndView(echoIframe)
-        modelAndView
-
-    }
     
     @RequestMapping(value = Array("/close"), method = Array(RequestMethod.GET))
     def close(
@@ -275,62 +239,52 @@ class EchoController {
             @RequestParam(value = "network", required = true) network: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
-        
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+
+        val result = new DeferredResult(new ModelAndView(errorView))
 
         val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
 
-        if(continuation.isExpired) {
-            error(errorView, RequestExpiredException())
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse{
-            continuation.suspend(httpServletResponse)
+        val ec = cookieManager.findEchoClickCookie(httpServletRequest)
+        val echoedUserResponse = echoedUserServiceLocator
+            .getEchoedUserServiceWithId(eu.get)
+            .flatMap(_.resultOrException.getEchoedUser)
 
-            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-            val echoedUserResponse = echoedUserServiceLocator
-                .getEchoedUserServiceWithId(eu.get)
-                .flatMap(_.resultOrException.getEchoedUser)
+        val recordEchoStepResponse  = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
+            case LocateByEchoIdResponse(_, Left(e)) => throw e
+            case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "confirm", eu, ec)
+        })
 
-            val recordEchoStepResponse  = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
-                case LocateByEchoIdResponse(_, Left(e)) => throw e
-                case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "confirm", eu, ec)
-            })
+        for {
+            eur <- echoedUserResponse
+            resr <- recordEchoStepResponse
+        } yield {
 
-            (for {
-                eur <- echoedUserResponse
-                resr <- recordEchoStepResponse
-            } yield {
+            val eu = eur.resultOrException
 
-                val eu = eur.resultOrException
-
-                resr.cata(
-                    _ match {
-                        case EchoExists(epv, message, _) =>
-                            val modelAndView = new ModelAndView(echoAuthComplete)
-                            modelAndView.addObject("echoedUserName", eu.name)
-                            modelAndView.addObject("facebookUserId", eu.facebookUserId)
-                            modelAndView.addObject("twitterUserId", eu.twitterUserId)
-                            modelAndView.addObject("network", network.capitalize)
-                            continuation.setAttribute("modelAndView", modelAndView)
-                            continuation.resume()
-
-                        case e =>
-                            val modelAndView = new ModelAndView(echoAuthComplete)
-                            continuation.setAttribute("modelAndView", modelAndView)
-                            continuation.resume()
-                    },
-                    epv => {
+            resr.cata(
+                _ match {
+                    case EchoExists(epv, message, _) =>
                         val modelAndView = new ModelAndView(echoAuthComplete)
                         modelAndView.addObject("echoedUserName", eu.name)
                         modelAndView.addObject("facebookUserId", eu.facebookUserId)
                         modelAndView.addObject("twitterUserId", eu.twitterUserId)
                         modelAndView.addObject("network", network.capitalize)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-                    })
-            }).onFailure {case e=> error(errorView,e)}
-            continuation.undispatch()
+                        result.set(modelAndView)
+                    case e => result.set(new ModelAndView(echoAuthComplete))
+                },
+                epv => {
+                    val modelAndView = new ModelAndView(echoAuthComplete)
+                    modelAndView.addObject("echoedUserName", eu.name)
+                    modelAndView.addObject("facebookUserId", eu.facebookUserId)
+                    modelAndView.addObject("twitterUserId", eu.twitterUserId)
+                    modelAndView.addObject("network", network.capitalize)
+                    result.set(modelAndView)
+                })
         }
+
+        result
     }
+
 
     @RequestMapping(value = Array("/confirm"), method = Array(RequestMethod.GET))
     def confirm(
@@ -338,68 +292,58 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(errorView))
 
         val eu= cookieManager.findEchoedUserCookie(httpServletRequest)
 
-        if (eu.isEmpty) {
-            error(errorView, EchoedUserNotFound(""))
-        } else if (continuation.isExpired) {
-            error(errorView, RequestExpiredException())
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
+        val ec = cookieManager.findEchoClickCookie(httpServletRequest)
+        val echoedUserResponse = echoedUserServiceLocator
+                .getEchoedUserServiceWithId(eu.get)
+                .flatMap(_.resultOrException.getEchoedUser)
 
-            val ec = cookieManager.findEchoClickCookie(httpServletRequest)
-            val echoedUserResponse = echoedUserServiceLocator
-                    .getEchoedUserServiceWithId(eu.get)
-                    .flatMap(_.resultOrException.getEchoedUser)
+        val recordEchoStepResponse  = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
+            case LocateByEchoIdResponse(_, Left(e)) => throw e
+            case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "confirm", eu, ec)
+        })
 
-            val recordEchoStepResponse  = partnerServiceManager.locatePartnerByEchoId(id).flatMap(_ match {
-                case LocateByEchoIdResponse(_, Left(e)) => throw e
-                case LocateByEchoIdResponse(_, Right(ps)) => ps.recordEchoStep(id, "confirm", eu, ec)
-            })
+        for {
+            eur <- echoedUserResponse
+            resr <- recordEchoStepResponse
+        } yield {
+            val eu = eur.resultOrException
+            resr.cata(
+                _ match {
+                    case EchoExists(epv, message, _) =>
+                        logger.debug("Product already echoed {}, Redirecting to echo/echoed", epv.echo)
+                        val modelAndView = new ModelAndView(echoEchoedUrl, "id", id)
+                        result.set(modelAndView)
+                },
+                epv => {
+                    val echoPossibility = epv.echoPossibility
+                    val lu = "%s?redirect=%s" format(
+                            logoutUrl,
+                            URLEncoder.encode("echo/login?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
+                    val modelAndView = new ModelAndView(echoConfirmView)
+                    modelAndView.addObject("id", id)
+                    modelAndView.addObject("echoedUser", eu)
+                    modelAndView.addObject("echoPossibility", echoPossibility)
+                    modelAndView.addObject("partner", epv.partner)
+                    modelAndView.addObject("partnerSettings", epv.partnerSettings)
+                    modelAndView.addObject("logoutUrl", lu)
+                    modelAndView.addObject("partnerLogo", epv.partner.logo)
+                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
+                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
+                    if(epv.partnerSettings.closetPercentage > 0)
+                        modelAndView.addObject("closetPercentage", "%1.0f".format(epv.partnerSettings.closetPercentage*100))
+                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks)
+                    modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price))
+                    modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
 
-            (for {
-                eur <- echoedUserResponse
-                resr <- recordEchoStepResponse
-            } yield {
-                val eu = eur.resultOrException
-                resr.cata(
-                    _ match {
-                        case EchoExists(epv, message, _) =>
-                            logger.debug("Product already echoed {}, Redirecting to echo/echoed", epv.echo)
-                            val modelAndView = new ModelAndView(echoEchoedUrl, "id", id)
-                            continuation.setAttribute("modelAndView", modelAndView)
-                            continuation.resume()
-                        case e => error(errorView, e)
-                    },
-                    epv => {
-                        val echoPossibility = epv.echoPossibility
-                        val lu = "%s?redirect=%s" format(
-                                logoutUrl,
-                                URLEncoder.encode("echo/login?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
-                        val modelAndView = new ModelAndView(echoConfirmView)
-                        modelAndView.addObject("id", id)
-                        modelAndView.addObject("echoedUser", eu)
-                        modelAndView.addObject("echoPossibility", echoPossibility)
-                        modelAndView.addObject("partner", epv.partner)
-                        modelAndView.addObject("partnerSettings", epv.partnerSettings)
-                        modelAndView.addObject("logoutUrl", lu)
-                        modelAndView.addObject("partnerLogo", epv.partner.logo)
-                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
-                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
-                        if(epv.partnerSettings.closetPercentage > 0)
-                            modelAndView.addObject("closetPercentage", "%1.0f".format(epv.partnerSettings.closetPercentage*100))
-                        modelAndView.addObject("minClicks", epv.partnerSettings.minClicks)
-                        modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price))
-                        modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-                    })
-            }).onFailure { case e => error(errorView, e) }
-
-            continuation.undispatch()
+                    result.set(modelAndView)
+                })
         }
+
+        result
     }
 
     @RequestMapping(value = Array("/finishjson"), method = Array(RequestMethod.GET))
@@ -408,37 +352,26 @@ class EchoController {
             echoFinishParameters: EchoFinishParameters,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
-        
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
 
-        if(continuation.isExpired) {
-            error(errorView, RequestExpiredException("We encountered an error sharing your purchase"))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
-            cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoFinishParameters.echoedUserId = _)
-            logger.debug("Echoing {}", echoFinishParameters)
+        val result = new DeferredResult("error")
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onComplete(_.fold(
-                e => error(errorView, e),
-                _ match {
-                    case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
-                    case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                        echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.fold(
-                            e => error(errorView, e),
-                            _ match {
-                                case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
-                                    continuation.setAttribute("modelAndView", echo)
-                                    continuation.resume()
-                                case EchoToResponse(_, Left(e)) => error(errorView,e)
-                                case EchoToResponse(_, Right(echoFull)) =>
-                                    logger.debug("Received echo response {}", echoFull)
-                                    continuation.setAttribute("modelAndView", echoFull)
-                                    continuation.resume()
-                                    logger.debug("Successfully echoed {}", echoFull)
-                            }))
-                }))
-            continuation.undispatch()
-        })
+        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoFinishParameters.echoedUserId = _)
+
+        logger.debug("Echoing {}", echoFinishParameters)
+
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onSuccess {
+            case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                echoedUserService.echoTo(echoFinishParameters.createEchoTo).onSuccess {
+                    case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
+                        result.set(echo)
+                    case EchoToResponse(_, Right(echoFull)) =>
+                        logger.debug("Received echo response {}", echoFull)
+                        result.set(echoFull)
+                        logger.debug("Successfully echoed {}", echoFull)
+                }
+        }
+
+        result
     }
 
 
@@ -448,41 +381,27 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(errorView))
 
-        if (continuation.isExpired) {
-            error(errorView, RequestExpiredException("We encounted an error sharing your purchase"))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoFinishParameters.echoedUserId = _)
 
-            cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoFinishParameters.echoedUserId = _)
+        logger.debug("Echoing {}", echoFinishParameters)
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onSuccess {
+            case LocateWithIdResponse(_, Right(echoedUserService)) =>
+                echoedUserService.echoTo(echoFinishParameters.createEchoTo).onSuccess {
+                    case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
+                        logger.debug("Received duplicate echo response to echo", echo)
+                        result.set(new ModelAndView(echoEchoedUrl, "id", echoFinishParameters.getEchoId()))
+                    case EchoToResponse(_, Right(echoFull)) =>
+                        logger.debug("Received echo response {}", echoFull)
+                        result.set(new ModelAndView(echoEchoedUrl, "id", echoFinishParameters.getEchoId()))
+                        logger.debug("Successfully echoed {}", echoFull)
+                }
+        }
 
-            logger.debug("Echoing {}", echoFinishParameters)
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoFinishParameters.echoedUserId).onComplete(_.fold(
-                e => error(errorView, e),
-                _ match {
-                    case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
-                    case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                        echoedUserService.echoTo(echoFinishParameters.createEchoTo).onComplete(_.fold(
-                            e => error(errorView, e),
-                            _ match {
-                                case EchoToResponse(_, Left(DuplicateEcho(echo, message, _))) =>
-                                    logger.debug("Received duplicate echo response to echo", echo)
-                                    continuation.setAttribute("modelAndView", new ModelAndView(echoEchoedUrl, "id", echoFinishParameters.getEchoId()))
-                                    continuation.resume()
-                                case EchoToResponse(_, Left(e)) => error(errorView,e)
-                                case EchoToResponse(_, Right(echoFull)) =>
-                                    logger.debug("Received echo response {}", echoFull)
-                                    //continuation.setAttribute("modelAndView", new ModelAndView(echoFinishView, "echoFull", echoFull))
-                                    continuation.setAttribute("modelAndView", new ModelAndView(echoEchoedUrl, "id", echoFinishParameters.getEchoId()))
-                                    continuation.resume()
-                                    logger.debug("Successfully echoed {}", echoFull)
-                            }))
-                }))
-
-            continuation.undispatch()
-        })
+        result
     }
+
 
     @RequestMapping(value = Array("/echoed"), method=Array(RequestMethod.GET))
     def echoed(
@@ -490,243 +409,38 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(errorView))
 
         val eu = cookieManager.findEchoedUserCookie(httpServletRequest)
-        if (eu.isEmpty){
-            error(errorView, EchoedUserNotFound(""))
-        } else if (continuation.isExpired) {
-            error(errorView, RequestExpiredException("We encounted an error sharing your purchase"))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
 
+        val echoedUserResponse = echoedUserServiceLocator
+            .getEchoedUserServiceWithId(eu.get)
+            .flatMap(_.resultOrException.getEchoedUser)
 
+        val partnerServiceResponse  = partnerServiceManager
+            .locatePartnerByEchoId(id)
+            .flatMap(_.resultOrException.getPartner)
 
-            val echoedUserResponse = echoedUserServiceLocator
-                .getEchoedUserServiceWithId(eu.get)
-                .flatMap(_.resultOrException.getEchoedUser)
-
-            val partnerServiceResponse  = partnerServiceManager
-                .locatePartnerByEchoId(id)
-                .flatMap(_.resultOrException.getPartner)
-
-            (for {
-                eur <- echoedUserResponse
-                psr <- partnerServiceResponse
-            } yield {
-                val echoedUser = eur.resultOrException
-                val partner = psr.resultOrException
-                Option(echoedUser.email).getOrElse(None) match {
-                    case None =>
-                        val modelAndView = new ModelAndView(echoRegisterUrl + "?id=%s" format id)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-                    case email =>
-                        echoService.getEchoByIdAndEchoedUserId(id, eu.get).onComplete(_.fold(
-                            e => error(errorView, e),
-                            _ match {
-                                case GetEchoByIdAndEchoedUserIdResponse(_, Left(e)) => error(errorView, e)
-                                case GetEchoByIdAndEchoedUserIdResponse(_, Right(echo)) =>
-                                    val modelAndView = new ModelAndView(echoFinishView)
-                                    modelAndView.addObject("echo", echo)
-                                    modelAndView.addObject("partner", partner)
-                                    modelAndView.addObject("echoedUser", echoedUser)
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
-                            }
-                        ))
+        for {
+            eur <- echoedUserResponse
+            psr <- partnerServiceResponse
+        } yield {
+            val echoedUser = eur.resultOrException
+            val partner = psr.resultOrException
+            Option(echoedUser.email).getOrElse(None) match {
+                case None => result.set(new ModelAndView(echoRegisterUrl + "?id=%s" format id))
+                case email => echoService.getEchoByIdAndEchoedUserId(id, eu.get).onSuccess {
+                    case GetEchoByIdAndEchoedUserIdResponse(_, Right(echo)) =>
+                        val modelAndView = new ModelAndView(echoFinishView)
+                        modelAndView.addObject("echo", echo)
+                        modelAndView.addObject("partner", partner)
+                        modelAndView.addObject("echoedUser", echoedUser)
+                        result.set(modelAndView)
                 }
-            }).onFailure({
-                case e => error(errorView, e)
-            })
-            continuation.undispatch()
-        })
-    }
-
-    @Deprecated
-    @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
-    def button(
-            @RequestHeader(value = "Referer", required = false) referrerUrl: String,
-            @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
-            @RequestHeader(value = "User-Agent", required = true) userAgent: String,
-            echoPossibilityParameters: EchoPossibilityParameters,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
-        try {
-
-            cookieManager.findBrowserIdCookie(httpServletRequest).foreach(echoPossibilityParameters.browserId = _)
-            echoPossibilityParameters.ipAddress = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr)
-            echoPossibilityParameters.userAgent = userAgent
-            echoPossibilityParameters.referrerUrl = referrerUrl
-
-            cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoPossibilityParameters.echoedUserId = _)
-            cookieManager.findEchoClickCookie(httpServletRequest).foreach(echoPossibilityParameters.echoClickId = _)
-            echoService.recordEchoPossibility(echoPossibilityParameters.createButtonEchoPossibility)
-        } catch {
-            case e => logger.error("Error creating Echo at button step for %s" format echoPossibilityParameters, e)
-        }
-        new ModelAndView(buttonView)
-    }
-
-
-    @Deprecated
-    @RequestMapping(method = Array(RequestMethod.GET))
-    def echo(
-            echoPossibilityParameters: EchoPossibilityParameters,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
-
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-
-        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoPossibilityParameters.echoedUserId = _)
-        cookieManager.findEchoClickCookie(httpServletRequest).foreach(echoPossibilityParameters.echoClickId = _)
-
-        def error(e: Throwable) {
-            logger.error("Unexpected error encountered echoing %s" format echoPossibilityParameters, e)
-            val modelAndView = new ModelAndView(errorView, "errorMessage", e.getMessage)
-            continuation.setAttribute("modelAndView", modelAndView)
-            continuation.resume
-            modelAndView
+            }
         }
 
-        def confirmEchoPossibility {
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoPossibilityParameters.echoedUserId).onSuccess {
-                case LocateWithIdResponse(_, Left(e)) =>
-                    logger.debug("Error {} finding EchoedUserService for {}", e.getMessage, echoPossibilityParameters)
-                    loginToEcho
-                case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                    echoedUserService.getEchoedUser.onSuccess {
-                        case GetEchoedUserResponse(_, Left(e)) => error(e)
-                        case GetEchoedUserResponse(_, Right(echoedUser)) =>
-                            val echoPossibility = echoPossibilityParameters.createConfirmEchoPossibility
-
-                            echoService.recordEchoPossibility(echoPossibility).onSuccess {
-                                case RecordEchoPossibilityResponse(_, Left(EchoExists(epv, message, _))) =>
-                                    logger.debug("Echo possibility already echoed {}", epv.echo)
-                                    val modelAndView = new ModelAndView(errorView)
-                                    modelAndView.addObject("errorMessage", "This item has already been shared")
-                                    modelAndView.addObject("echoPossibilityView", epv)
-                                    modelAndView.addObject("partnerLogo", epv.partner.logo)
-                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
-                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
-                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks)
-                                    modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
-                                case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
-                                case RecordEchoPossibilityResponse(_, Right(epv)) =>
-                                    val lu = "%s?redirect=%s" format(
-                                            logoutUrl,
-                                            URLEncoder.encode("echo?" + httpServletRequest.getQueryString.substring(0), "UTF-8"))
-                                    val modelAndView = new ModelAndView(confirmView)
-                                    modelAndView.addObject("echoedUser", echoedUser)
-                                    modelAndView.addObject("echoPossibility", epv.echo)
-                                    modelAndView.addObject("partner", epv.partner)
-                                    modelAndView.addObject("partnerLogo", epv.partner.logo)
-                                    modelAndView.addObject("partnerSettings", epv.partnerSettings)
-                                    modelAndView.addObject("logoutUrl", lu)
-                                    modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
-                                    modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
-                                    modelAndView.addObject("minClicks", epv.partnerSettings.minClicks)
-                                    modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
-                                    modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price))
-                                    modelAndView.addObject(
-                                            "facebookAddUrl",
-                                            URLEncoder.encode(
-                                                    echoPossibility.asUrlParams("%s?redirect=echo?" format facebookAddRedirectUrl),
-                                                    "UTF-8"))
-                                    modelAndView.addObject(
-                                            "twitterAddUrl",
-                                            URLEncoder.encode(echoPossibility.asUrlParams("echo?"), "UTF-8"))
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume
-                            }.onFailure { case e => error(e) }
-                    }.onFailure { case e => error(e) }
-            }.onFailure { case e => error(e) }
-        }
-
-        def loginToEcho {
-            echoService.recordEchoPossibility(echoPossibilityParameters.createLoginEchoPossibility).onComplete(_.fold(
-                error(_),
-                _ match {
-                    case RecordEchoPossibilityResponse(_, Left(e)) => error(e)
-                    case RecordEchoPossibilityResponse(_, Right(epv)) =>
-                        val modelAndView = new ModelAndView(loginView)
-                        modelAndView.addObject(
-                            "twitterUrl",
-                            URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"))
-
-                        modelAndView.addObject("redirectUrl",
-                            URLEncoder.encode(facebookLoginRedirectUrl + "?redirect="
-                                + URLEncoder.encode(epv.echoPossibility.asUrlParams("echo?"), "UTF-8"), "UTF-8"))
-
-                        modelAndView.addObject("echoPossibilityView", epv)
-                        modelAndView.addObject("partnerLogo", epv.partner.logo)
-                        modelAndView.addObject("maxPercentage", "%1.0f".format(epv.partnerSettings.maxPercentage*100))
-                        modelAndView.addObject("minPercentage", "%1.0f".format(epv.partnerSettings.minPercentage*100))
-                        modelAndView.addObject("productPriceFormatted", "%.2f".format(epv.echoPossibility.price))
-                        modelAndView.addObject("minClicks",epv.partnerSettings.minClicks)
-                        modelAndView.addObject("numberDays", epv.partnerSettings.creditWindow / 24)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume()
-                }))
-        }
-
-
-        if (continuation.isExpired) {
-            error(RequestExpiredException("We encountered an error echoing your purchase"))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
-
-            Option(echoPossibilityParameters.echoedUserId).cata(
-                _ => confirmEchoPossibility,
-                loginToEcho)
-
-            continuation.undispatch()
-        })
-    }
-
-
-    @Deprecated
-    @RequestMapping(value = Array("/it"), method = Array(RequestMethod.GET))
-    def it(
-            echoItParameters: EchoItParameters,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
-
-
-        cookieManager.findEchoedUserCookie(httpServletRequest).foreach(echoItParameters.echoedUserId = _)
-
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-
-
-        if (continuation.isExpired) {
-            error(errorView, RequestExpiredException("We encounted an error echoing your purchase"))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
-
-            logger.debug("Echoing {}", echoItParameters)
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoItParameters.echoedUserId).onComplete(_.fold(
-                e => error(errorView, e),
-                _ match {
-                    case LocateWithIdResponse(_, Left(e)) => error(errorView, e)
-                    case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                        echoedUserService.echoTo(echoItParameters.createEchoTo).onComplete(_.fold(
-                            e => error(errorView, e),
-                            _ match {
-                                case EchoToResponse(_, Left(DuplicateEcho(echo ,message, _))) =>
-                                    logger.debug("Duplicate Echo!")
-                                    continuation.setAttribute("modelAndView", new ModelAndView(duplicateView,"echo", echo))
-                                    continuation.resume()
-                                case EchoToResponse(_, Right(echoFull)) =>
-                                    continuation.setAttribute("modelAndView", new ModelAndView(echoItView, "echoFull", echoFull))
-                                    continuation.resume()
-                                    logger.debug("Successfully echoed {}", echoFull)
-                            }))
-                }))
-
-            continuation.undispatch()
-        })
+        result
     }
 
 
@@ -753,74 +467,64 @@ class EchoController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(errorView))
 
-        if (continuation.isExpired) {
-            error(errorView, Some(RequestExpiredException()))
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        val echoClick = new EchoClick(
+                echoId = null, //we will determine what the echoId is in the service...
+                echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull,
+                browserId = cookieManager.findBrowserIdCookie(httpServletRequest).get,
+                referrerUrl = referrerUrl,
+                ipAddress = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
+                userAgent = userAgent)
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull
 
-            val echoClick = new EchoClick(
-                    echoId = null, //we will determine what the echoId is in the service...
-                    echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull,
-                    browserId = cookieManager.findBrowserIdCookie(httpServletRequest).get,
-                    referrerUrl = referrerUrl,
-                    ipAddress = Option(remoteIp).getOrElse(httpServletRequest.getRemoteAddr),
-                    userAgent = userAgent)
-            val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull
+        val partnerServiceManagerResponse = partnerServiceManager.getEcho(echoId)
+        val echoServiceResponse = echoService.recordEchoClick(echoClick, echoId, postId)
 
-            val partnerServiceManagerResponse = partnerServiceManager.getEcho(echoId)
-            val echoServiceResponse = echoService.recordEchoClick(echoClick, echoId, postId)
-            (for {
-                psmr <- partnerServiceManagerResponse
-                esr <- echoServiceResponse
-            } yield {
-                val ec = esr.resultOrException
-                psmr match {
-                        case GetEchoResponse(msg, Left(e)) =>
-                            error(errorView, e)
-                        case GetEchoResponse(msg, Right(epv)) =>
-                            cookieManager.findEchoClickCookie(httpServletRequest).getOrElse({
-                                cookieManager.addEchoClickCookie(
-                                    httpServletResponse,
-                                    echoClick,
-                                    httpServletRequest)
-                            })
-                            val echo = epv.echoPossibilities.head
-                            val partnerSettings = epv.partnerSettings
-                            val partner = epv.partner
-                            logger.debug("Returned Echo: {}", echo)
+        for {
+            psmr <- partnerServiceManagerResponse
+            esr <- echoServiceResponse
+        } yield {
+            esr.resultOrException
+            psmr match {
+                case GetEchoResponse(msg, Right(epv)) =>
+                    cookieManager.findEchoClickCookie(httpServletRequest).getOrElse({
+                        cookieManager.addEchoClickCookie(
+                            httpServletResponse,
+                            echoClick,
+                            httpServletRequest)
+                    })
 
-                            //continuation.setAttribute("modelAndView", new ModelAndView("redirect:%s" format echo.landingPageUrl))
-                            if (partnerSettings.couponCode != null && partnerSettings.couponExpiresOn.compareTo(new Date()) > 0){
-                                logger.debug("Coupon Code!")
-                                val modelAndView = new ModelAndView(echoCouponView)
-                                modelAndView.addObject("echo", echo)
-                                modelAndView.addObject("partnerSettings", partnerSettings)
-                                modelAndView.addObject("partner", partner)
-                                val df = DateFormat.getDateInstance(DateFormat.MEDIUM)
-                                modelAndView.addObject("couponExpiresOn", df.format(partnerSettings.couponExpiresOn))
-                                continuation.setAttribute("modelAndView", modelAndView)
-                                continuation.resume()
-                            } else {
-                                logger.debug("No Coupon Code!")
-                                val modelAndView = new ModelAndView(echoRedirectView)
-                                modelAndView.addObject("echo", echo)
-                                continuation.setAttribute("modelAndView", modelAndView)
-                                continuation.resume()
-                            }
-                            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onComplete(_.fold(
-                                e => logger.debug("Error"),
-                                _ match {
-                                    case LocateWithIdResponse(_, Left(e)) =>
-                                    case LocateWithIdResponse(_, Right(eus)) =>
-                                        logger.debug("Publishing Action: ")
-                                        eus.publishFacebookAction("browse","product", productGraphUrl + echoId)
-                            }))
-                }
-            })
-            continuation.undispatch()
-        })
+                    val echo = epv.echoPossibilities.head
+                    val partnerSettings = epv.partnerSettings
+                    val partner = epv.partner
+                    logger.debug("Returned Echo: {}", echo)
+
+                    if (partnerSettings.couponCode != null && partnerSettings.couponExpiresOn.after(new Date())) {
+                        logger.debug("Coupon Code!")
+                        val modelAndView = new ModelAndView(echoCouponView)
+                        modelAndView.addObject("echo", echo)
+                        modelAndView.addObject("partnerSettings", partnerSettings)
+                        modelAndView.addObject("partner", partner)
+                        val df = DateFormat.getDateInstance(DateFormat.MEDIUM)
+                        modelAndView.addObject("couponExpiresOn", df.format(partnerSettings.couponExpiresOn))
+                        result.set(modelAndView)
+                    } else {
+                        logger.debug("No Coupon Code!")
+                        val modelAndView = new ModelAndView(echoRedirectView)
+                        modelAndView.addObject("echo", echo)
+                        result.set(modelAndView)
+                    }
+
+                    echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
+                        case LocateWithIdResponse(_, Right(eus)) =>
+                            logger.debug("Publishing Action: ")
+                            eus.publishFacebookAction("browse","product", productGraphUrl + echoId)
+                    }
+            }
+        }
+
+        result
     }
 }
 

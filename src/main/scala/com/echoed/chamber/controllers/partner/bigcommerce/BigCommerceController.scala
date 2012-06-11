@@ -11,9 +11,10 @@ import org.springframework.web.bind.WebDataBinder
 import javax.validation.Valid
 import org.springframework.validation.{Validator, BindingResult}
 import org.springframework.core.convert.ConversionService
-import com.echoed.chamber.controllers.RequestExpiredException
 import com.echoed.chamber.controllers.ControllerUtils.error
 import com.echoed.chamber.services.partner.bigcommerce.{RegisterBigCommercePartnerResponse, BigCommercePartnerServiceManager}
+import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.controllers.{Errors, RequestExpiredException}
 
 
 @Controller
@@ -54,31 +55,33 @@ class BigCommerceController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        implicit val continuation = ContinuationSupport.getContinuation(httpServletRequest)
+        val errorModelAndView = new ModelAndView(registerView) with Errors
 
-        if (continuation.isExpired) {
-            error(registerView, Some(RequestExpiredException()))
-        } else if (bindingResult.hasErrors) {
-            error(registerView)
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
+        if (bindingResult.hasErrors) {
+            errorModelAndView
+        } else {
+            val result = new DeferredResult(errorModelAndView)
 
             bigCommercePartnerServiceManager.registerPartner(registerForm.createPartner).onComplete(_.fold(
-                e => error(registerView, Some(e)),
+                e => {
+                    errorModelAndView.addError(e)
+                    result.set(errorModelAndView)
+                },
                 _ match {
-                    case RegisterBigCommercePartnerResponse(_, Left(e)) => error(registerView, Some(e))
-                    case RegisterBigCommercePartnerResponse(_, Right(result)) =>
-                        logger.debug("Successfully registered BigCommerce partner {}", result.partner.name)
+                    case RegisterBigCommercePartnerResponse(_, Left(e)) =>
+                        errorModelAndView.addError(e)
+                        result.set(errorModelAndView)
+                    case RegisterBigCommercePartnerResponse(_, Right(r)) =>
+                        logger.debug("Successfully registered BigCommerce partner {}", r.partner.name)
                         val modelAndView = new ModelAndView(postRegisterView)
-                        modelAndView.addObject("partner", result.partner)
-                        modelAndView.addObject("partnerUser", result.partnerUser)
-                        modelAndView.addObject("bigCommercePartner", result.bigCommercePartner)
-                        continuation.setAttribute("modelAndView", modelAndView)
-                        continuation.resume
+                        modelAndView.addObject("partner", r.partner)
+                        modelAndView.addObject("partnerUser", r.partnerUser)
+                        modelAndView.addObject("bigCommercePartner", r.bigCommercePartner)
+                        result.set(modelAndView)
                 }))
 
-            continuation.undispatch
-        })
+            result
+        }
     }
 
 }

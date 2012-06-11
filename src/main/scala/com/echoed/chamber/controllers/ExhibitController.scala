@@ -5,11 +5,11 @@ import org.springframework.stereotype.Controller
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 import com.echoed.chamber.services.echoeduser._
-import org.eclipse.jetty.continuation.ContinuationSupport
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.event.EventService
+import org.springframework.web.context.request.async.DeferredResult
 
 
 @Controller
@@ -35,41 +35,27 @@ class ExhibitController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-
-        def error(e: Option[Throwable] = None) = {
-            e.foreach(logger.error("Error serving index page", _))
-            val modelAndView = new ModelAndView(indexView)
-            if (continuation.isSuspended) {
-                continuation.setAttribute("modelAndView", modelAndView)
-                continuation.resume
-            }
-            modelAndView
-        }
-
+        val errorModelAndView = new ModelAndView(indexView)
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
 
-
-        if (continuation.isExpired) {
-            error(Some(RequestExpiredException("Request expired to view exhibit for user %s" format echoedUserId)))
-        } else if (echoedUserId.isEmpty) {
-            error()
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse {
-            continuation.suspend(httpServletResponse)
+        if (echoedUserId.isEmpty) {
+            errorModelAndView
+        } else {
+            val result = new DeferredResult(errorModelAndView)
 
             echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.fold(
-                e => error(Some(e)),
+                e => result.set(errorModelAndView),
                 _ match {
                     case LocateWithIdResponse(_, Left(EchoedUserNotFound(id, _))) =>
                         logger.debug("Did not find an EchoedUser for {}", id)
-                        error()
+                        result.set(errorModelAndView)
                     case LocateWithIdResponse(_, Right(echoedUserService)) =>
                         logger.debug("Found EchoedUserService {} ", echoedUserService);
 
                         echoedUserService.getCloset.onComplete(_.fold(
-                            e => error(Some(e)),
+                            e => result.set(errorModelAndView),
                             _ match {
-                                case GetExhibitResponse(_, Left(e)) => error(Some(e))
+                                case GetExhibitResponse(_, Left(e)) => result.set(errorModelAndView)
                                 case GetExhibitResponse(_, Right(closet)) =>
                                     val view =
                                         if (appType == "facebook") {
@@ -84,13 +70,12 @@ class ExhibitController {
                                     val modelAndView = new ModelAndView(view)
                                     modelAndView.addObject("echoedUser", closet.echoedUser)
                                     modelAndView.addObject("totalCredit", "%.2f\n".format(closet.totalCredit))
-                                    continuation.setAttribute("modelAndView", modelAndView)
-                                    continuation.resume()
+                                    result.set(modelAndView)
                             }))
-                    case LocateWithIdResponse(_, Left(e)) => error(Some(e))
                 }))
 
-            continuation.undispatch()
+            result
         }
+
     }
 }

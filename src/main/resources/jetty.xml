@@ -2,15 +2,9 @@
 <beans  xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:p="http://www.springframework.org/schema/p"
-        xmlns:context="http://www.springframework.org/schema/context"
-        xmlns:util="http://www.springframework.org/schema/util"
         xsi:schemaLocation="
             http://www.springframework.org/schema/beans
-            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-            http://www.springframework.org/schema/context
-            http://www.springframework.org/schema/context/spring-context-3.0.xsd
-            http://www.springframework.org/schema/util
-            http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
     <!-- NOTE: the default-init-method and default-destroy-method is not defined here as it does something weird to Jetty -->
 
 
@@ -81,11 +75,6 @@
                                 </bean>
                             </property>
 
-                            <!--<property name="eventListeners">-->
-                                <!--<util:list>-->
-                                    <!--<bean class="com.echoed.chamber.Initializer" />-->
-                                <!--</util:list>-->
-                            <!--</property>-->
 
                             <property name="servletHandler">
                                 <bean class="org.eclipse.jetty.servlet.ServletHandler">
@@ -96,6 +85,7 @@
                                                 <property name="filter">
                                                     <bean class="com.echoed.chamber.filters.JsonpCallbackFilter" />
                                                 </property>
+                                                <property name="asyncSupported" value="true" />
                                             </bean>
                                         </list>
                                     </property>
@@ -103,7 +93,7 @@
                                         <list>
                                             <bean class="org.eclipse.jetty.servlet.FilterMapping"
                                                   p:filterName="jsonpCallbackFilter"
-                                                  p:pathSpec="/*" />
+                                                  p:pathSpec="/*"    />
                                         </list>
                                     </property>
 
@@ -112,7 +102,7 @@
                                             <bean class="org.eclipse.jetty.servlet.ServletHolder">
                                                 <property name="name" value="dispatcher" />
                                                 <property name="servlet">
-                                                    <bean class="org.springframework.web.servlet.ContinuationDispatcherServlet" />
+                                                    <bean class="org.springframework.web.servlet.DispatcherServlet" />
                                                 </property>
                                                 <property name="initParameters">
                                                     <map>
@@ -120,6 +110,7 @@
                                                                value="${springframework.servletContext}" />
                                                     </map>
                                                 </property>
+                                                <property name="asyncSupported" value="true" />
                                             </bean>
                                             <bean class="org.eclipse.jetty.servlet.ServletHolder">
                                                 <property name="name" value="default" />
@@ -133,6 +124,7 @@
                                                         <entry key="dirAllowed" value="false" />
                                                     </map>
                                                 </property>
+                                                <property name="asyncSupported" value="true" />
                                             </bean>
                                         </list>
                                     </property>

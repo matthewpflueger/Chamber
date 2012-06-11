@@ -1,8 +1,7 @@
 package com.echoed.chamber.filters
 
 import javax.servlet._
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.eclipse.jetty.continuation.{Continuation, ContinuationListener, ContinuationSupport}
+import javax.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 
 
@@ -21,26 +20,29 @@ class JsonpCallbackFilter extends Filter {
 
         logger.debug("Wrapping response for jsonp request with callback {}", callback)
 
-        val continuation = ContinuationSupport.getContinuation(request)
         var wrapper = new GenericResponseWrapper(response.asInstanceOf[HttpServletResponse])
 
         chain.doFilter(request, wrapper)
 
-        //if servlet is not using continuations or using undispatch then the isResponseWrapped will return false
-        //otherwise a continuation listener will be added...
-        if (!continuation.isResponseWrapped) {
+        if (!request.isAsyncStarted) {
             finishResponse(callback.get, wrapper, response)
         } else {
-            logger.debug("Adding continuation listener")
-            continuation.addContinuationListener(new ContinuationListener() {
-                def onComplete(continuation: Continuation) {
-                    finishResponse(callback.get, wrapper, continuation.getServletResponse)
+            logger.debug("Adding async listener")
+            request.getAsyncContext.addListener(new AsyncListener() {
+                def onComplete(event: AsyncEvent) {
+                    finishResponse(callback.get, wrapper, response)
                 }
 
-                def onTimeout(continuation: Continuation) {
+                def onTimeout(event: AsyncEvent) {
                     logger.error("Timeout occurred on wrapped response")
-                    finishResponse(callback.get, wrapper, continuation.getServletResponse)
+                    finishResponse(callback.get, wrapper, response)
                 }
+
+                def onError(event: AsyncEvent) {
+                    logger.error("Received error on wrapped response", event.getThrowable)
+                }
+
+                def onStartAsync(event: AsyncEvent) {}
             })
         }
     }

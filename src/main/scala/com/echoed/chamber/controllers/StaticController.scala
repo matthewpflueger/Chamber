@@ -2,16 +2,10 @@ package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
 
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 
-import com.echoed.chamber.services.echoeduser._
-import org.eclipse.jetty.continuation.ContinuationSupport
-import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
-import scalaz._
-import Scalaz._
 
 
 @Controller
