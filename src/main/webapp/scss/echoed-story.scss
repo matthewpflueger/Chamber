@@ -1,0 +1,188 @@
+//MIXINS
+$fontFamily: Lato, Arial, sans-serif;
+
+@mixin headerFont($size: 16px, $color: #333) {
+    font-family: $fontFamily;
+    font-size: $size;
+    font-weight: 300;
+    color: $color;
+}
+
+@mixin navFont($size: 16px, $color: #333) {
+    font-family: $fontFamily;
+    font-size: $size;
+    color: $color;
+}
+
+@mixin textFont($size: 14px, $color: #333) {
+    font-family: $fontFamily;
+    font-size: $size;
+    color: $color;
+}
+
+@mixin textFontBold($size: 14px, $color: #333) {
+    font-family: $fontFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: 700;
+}
+
+@mixin textFontLight($size: 16px, $color: #111){
+    font-family: $fontFamily;
+    font-weight: 300;
+    color: $color;
+    font-size: $size;
+}
+
+
+@mixin labelFont($size: 32px, $color: #333) {
+    font-family: $fontFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: 700;
+}
+
+@mixin inset-shadow{
+    -moz-box-shadow:    inset 0 1px 1px rgba(34,25,25,0.4);
+    -webkit-box-shadow: inset 0 1px 1px rgba(34,25,25,0.4);
+    box-shadow:         inset 0 1px 1px rgba(34,25,25,0.4);
+}
+
+@mixin drop-shadow{
+    box-shadow: 1px 1px 10px #000;
+    -moz-box-shadow: 1px 1px 10px #000;
+    -webkit-box-shadow: 1px 1px 10px #000;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
+}
+
+//RESET
+
+
+html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
+pre, form, fieldset, table, th, td{
+    margin:0;
+    padding: 0;
+    @include textFont;
+}
+
+body{
+    background-color: #222;
+}
+
+img{
+    margin:0;
+    padding:0;
+    border: 0;
+}
+
+.echo-story-container{
+    background-color: #FFF;
+    width: 870px;
+    border-radius: 10px;
+    padding-bottom: 10px;
+    margin: 10px auto;
+    .echo-story-header{
+        //background-color: #FFF;
+        padding: 10px;
+        border-bottom: 1px solid #FFF;
+        .echo-s-h-title{
+            @include textFont(16px);
+
+            .echo-s-h-t-t{
+                @include textFontBold(30px);
+            }
+            .echo-s-h-t-n{
+                @include textFontBold(16px);
+            }
+        }
+    }
+    .echo-story-body{
+        //margin: 10px;
+        padding: 5px;
+        //@include inset-shadow;
+        background-color: #CCC;
+        .echo-s-b-item{
+
+            width: 420px;
+            margin: 5px;
+            float: left;
+            background-color: #FFF;
+            .echo-s-b-i-c{
+
+                .echo-s-b-i-t{
+                    @include drop-shadow;
+                    padding: 5px;
+                    .echo-s-b-i-t-t{
+                        padding-bottom: 5px;
+                        margin-bottom: 5px;
+                        @include textFontBold(24px);
+                        border-bottom: 1px solid #CCC;
+                    }
+                    .echo-s-b-i-t-b{
+                        padding: 10px 0px;
+                        @include textFont(18px);
+                        line-height: 1.5em;
+                    }
+                    .echo-s-b-i-t-f{
+                        @include textFont(14px);
+                        padding: 5px 0px;
+                        border-top: 1px solid #CCC;
+                        text-align: center;
+
+                    }
+                }
+                img{
+                    @include drop-shadow;
+                    background-color: #FFF;
+                    padding: 5px;
+                    width: 410px;
+                }
+            }
+        }
+    }
+    .echo-story-footer{
+        padding: 5px 10px;
+        .echo-story-nav{
+            margin: 5px 0px 10px 0px;
+            .echo-s-n-s{
+                margin-right: 5px;
+                cursor: pointer;
+                float:left;
+                img {
+                    height: 70px;
+                }
+                .echo-s-n-s-tt {
+                    visibility: hidden;
+                    padding: 10px;
+                    border-radius: 5px;
+                    background-color: #000;
+                    color: #FFF;
+                    @include textFont(14px, #FFF);
+                    position:absolute;
+                }
+            }
+        }
+        .echo-story-comments{
+            border-top: 1px #CCC solid;
+            .echo-s-c-t{
+                padding: 10px 0px;
+                @include textFontBold(20px);
+            }
+        }
+
+    }
+
+}
+
+
+.clearfix {
+    zoom: 1;
+    &:before, &:after {
+        content: "";
+        display: table;
+    }
+    &:after {
+        clear: both;
+    }
+}
