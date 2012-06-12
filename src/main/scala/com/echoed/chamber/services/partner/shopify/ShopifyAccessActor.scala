@@ -157,12 +157,17 @@ class ShopifyAccessActor extends FactoryBean[ActorRef] {
 
 
     private def getShopifyClient(shop: String, password: String): ShopifyClient = {
-        cache.getOrElse(shop, {
+        val client = cache.getOrElse(shop, {
             val credential = new Credential(shopifyApiKey, shopifySecret, shop, password)
             val shopifyClient = new ShopifyClient(credential)
             cache(shop) = shopifyClient
             shopifyClient
         })
+        if (client.getCredential.getPassword != password) {
+            logger.debug("Shopify client {} has reset their password - constructing new client", client.getCredential.getShopName)
+            cache.remove(shop)
+            getShopifyClient(shop, password)
+        } else client
     }
 
     }), "ShopifyAccess")
