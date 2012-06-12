@@ -52,11 +52,7 @@
             </div>
         </div>
     </script>
-    <script type="text/templates" id="templates-components-tooltip">
-    </script>
     <script type="text/templates" id="templates-pages-exhibit">
-        <!--<div id="title"></div>-->
-        <div id="content-title"></div>
         <div id="exhibit" class="clearfix"></div>
     </script>
     <script type="text/templates" id="templates-components-story">
@@ -115,9 +111,9 @@
 </head>
 <body>
     <div id="container">
-        <div id="nav-container">
+        <div id="header-container">
             <div id="logo">
-                <img height="40px" src="{{urls.images}}/logo.png">
+                <a href="#"><img height="40px" src="{{urls.images}}/logo.png"></a>
             </div>
             <div id="user" class="clearfix">
                 <div id="user-image">
@@ -131,6 +127,9 @@
                     {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
                 </div>
             </div>
+        </div>
+        <div id="nav-container">
+            <div id="content-title"></div>
             <div id="actions"></div>
             <div id="header-nav" class="clearfix">
                 <div class="nav-label">

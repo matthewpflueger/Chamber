@@ -75,6 +75,7 @@ html{
 
 body{
     background-image: image-url("bk_noise.png");
+    height: 100%;
 }
 
 img{
@@ -118,7 +119,6 @@ h2{
 }
 
 #container{
-    min-width: 1000px;
     height: 100%;
     &.facebook{
         min-width: 740px;
@@ -132,47 +132,65 @@ h2{
         z-index: 99999;
         @include drop-shadow;
     }
-}
 
-    #nav-container{
-        position:fixed;
-        right:0px;
-        width: 250px;
-        padding: 10px;
-        height: 100%;
-    }
+    #header-container{
+        position: fixed;
+        z-index: 99999;
+        top: 0px;
+        width: 100%;
+        height: 40px;
+        background-color: #FFF;
+        @include drop-shadow;
 
-
-		#logo{
+        #logo{
             height: 40px;
             text-align:center;
             background-color: #FFF;
-            @include drop-shadow;
-            //margin-bottom: 10px;
-            border-bottom: 1px #CCC solid;
-		}
+
+            float:left;
+        }
 
         #user{
+            float:right;
+            width: 230px;
+            margin: 0px 10px;
+            padding: 3px 0px;
             background-color: #FFF;
-            margin-bottom: 10px;
-            padding: 5px 5px;
-            @include drop-shadow;
             //border-bottom: 1px #CCC solid;
             #user-text{
+                margin-left: 10px;
                 line-height:30px;
-                @include textFontNormal(12px);
+                @include textFontNormal(16px);
                 float:left;
                 text-align:left;
             }
 
             #user-image{
                 float:left;
-                margin: 0px 5px;
                 #u-i-i{
+                    height: 30px;
                     border: 2px #CCC solid;
                 }
             }
-		}
+        }
+
+
+    }
+}
+
+    #nav-container{
+        position:fixed;
+        right:0px;
+        top: 40px;
+        width: 250px;
+        padding: 10px;
+        height: 100%;
+        border-left: 1px solid #CCC;
+        box-shadow: -1px 0 0 #FFF;
+        -moz-box-shadow: -1px 0 0 #FFF;
+        -webkit-box-shadow: -1px 0 0 #FFF;
+    }
+
 
         #actions{
             background-color: #FFF;
@@ -180,6 +198,7 @@ h2{
             margin-bottom: 10px;
             text-align:center;
             padding: 5px;
+            display: none;
             .action-button{
                 cursor: pointer;
                 border-radius: 5px;
@@ -223,19 +242,16 @@ h2{
     }
 
     #content{
+        margin-top: 43px;
         margin-right: 270px;
-        border-right: 1px solid #CCC;
-        box-shadow: 1px 0 0 #FFF;
-        -moz-box-shadow: 1px 0 0 #FFF;
-        -webkit-box-shadow: 1px 0 0 #FFF;
-
+        height: 100%;
     }
 
     #content-title{
         @include navFont;
         color: $highlightColor;
         padding: 10px;
-        margin: 10px;
+        margin-bottom: 10px;
         background-color: #FFF;
         @include drop-shadow;
     }

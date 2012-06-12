@@ -12,7 +12,7 @@ Echoed = {
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
         var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({EvAg : EventAggregator});
-        var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
+        //var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
         var filter = new Echoed.Views.Components.Dropdown({ el: '#content-filter', Name: 'Filter', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         Backbone.history.start();
@@ -317,7 +317,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "explore":
                 this.jsonUrl = Echoed.urls.api + "/api/me/feed";
                 this.baseUrl = "#explore/";
-                this.contentTitle = "What People Are Buying";
+                this.contentTitle = "Everyone";
                 this.feedSelector = "Everyone";
                 this.id= "explore";
                 this.nextInt = 1;
@@ -519,6 +519,7 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
         _.bindAll(this);
         this.EvAg = options.EvAg;
         this.element = $(this.el);
+        this.element.show();
         this.render();
     },
     events: {
@@ -785,27 +786,6 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
     }
 });
 
-
-Echoed.Views.Components.Tooltip = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this);
-        this.el = options.el;
-        this.element = $(this.el);
-        this.posX = this.element.offset.left;
-        this.posY = this.element.offset.bottom;
-        this.render();
-    },
-    render: function(){
-        var template = _.template($('#templates-components-tooltip').html());
-    },
-    showTooltip: function(){
-        this.el.fadeIn();
-    },
-    hideTooltip: function(){
-        this.el.fadeOut();
-    }
-});
-
 Echoed.Views.Components.Product = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this,'showOverlay','hideOverlay','enlarge','shrink','click');
@@ -834,10 +814,8 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
-        var tooltipEl = this.el.find(".product-tooltip");
         var item_name = this.el.find('.icl_in');
         var partner_name = this.el.find(".icl_pn");
-        self.toolTip = new Echoed.Views.Components.Tooltip({ el: tooltipEl, EvAg: self.EvAg });
         if(this.model.get("echoProductName")){
             hover.append(this.model.get("echoProductName") + '<br/>');
             text.prepend(this.model.get("echoProductName")+'<br/>');
@@ -845,7 +823,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         }
         if(this.model.get("partnerName")){
             text.prepend('<strong>'+this.model.get("partnerName") + '</strong><br/>');
-            hover.append('@ ' + this.model.get("partnerName") + '<br/>');
+            hover.append(this.model.get("partnerName") + '<br/>');
             partner_name.append(this.model.get("partnerName"));
         }
         if(this.model.get("echoedUserName"))
@@ -940,8 +918,11 @@ Echoed.Views.Components.Product = Backbone.View.extend({
                     break;
             }
         } */
-        var partnerId = this.el.attr("partnerId");
-        var productId = this.el.attr("productId");
-        window.location.hash = "#echo/" + partnerId + "/" + productId;
+        //var partnerId = this.el.attr("partnerId");
+        //var productId = this.el.attr("productId");
+        //window.location.hash = "#echo/" + partnerId + "/" + productId;
+        var href = this.el.attr("href");
+        window.open(href);
+
     }
 });
