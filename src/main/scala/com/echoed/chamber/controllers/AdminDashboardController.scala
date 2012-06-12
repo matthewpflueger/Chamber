@@ -8,6 +8,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.adminuser._
+import org.springframework.web.context.request.async.DeferredResult
 
 
 @Controller
@@ -32,39 +33,17 @@ class AdminDashboardController {
         val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
 
         logger.debug("Admin User: {}", adminUserId)
-        
-        val continuation = ContinuationSupport.getContinuation(httpServletRequest)
-        if(continuation.isExpired){
-            new ModelAndView(adminDashboardErrorView)
-        } else if (adminUserId.isEmpty) {
-            new ModelAndView(adminDashboardErrorView)
-        } else Option(continuation.getAttribute("modelAndView")).getOrElse({
-            continuation.suspend(httpServletResponse)
 
-            def onError(error: AdminUserException){
-                continuation.setAttribute(
-                    "modelAndView",
-                    new ModelAndView(adminDashboardErrorView))
-                continuation.resume()
-            }
 
-            adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
-                    case LocateAdminUserServiceResponse(_, Left(error)) => onError(error)
-                    case LocateAdminUserServiceResponse(_, Right(adminUserService)) => adminUserService.getAdminUser.onSuccess {
-                        case GetAdminUserResponse(_, Left(error)) => onError(error)
-                        case GetAdminUserResponse(_, Right(au)) =>
-                            logger.debug("Got {}", au)
-                            continuation.setAttribute(
-                                "modelAndView",
-                                new ModelAndView(adminDashboardView, "adminUser", au))
-                            continuation.resume()
-                        case unknown => throw new RuntimeException("Unknown response %s" format unknown)
-                    }
-                    case unknown => throw new RuntimeException("Unknown response %s" format unknown)
-            }
+        val result = new DeferredResult(new ModelAndView(adminDashboardErrorView))
 
-            continuation.undispatch()
-
-        })
+        adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
+                case LocateAdminUserServiceResponse(_, Right(adminUserService)) => adminUserService.getAdminUser.onSuccess {
+                    case GetAdminUserResponse(_, Right(au)) =>
+                        logger.debug("Got {}", au)
+                        result.set(new ModelAndView(adminDashboardView, "adminUser", au))
+                }
+        }
+        result
     }
 }

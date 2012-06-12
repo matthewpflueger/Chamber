@@ -99,11 +99,11 @@ case class AdminUpdatePartnerSettingsForm(
     def getCouponDescription() = couponDescription
     def setCouponDescription(couponDescription: String) = { this.couponDescription = couponDescription}
 
-    @DateTimeFormat(iso=ISO.DATE_TIME)
+    @DateTimeFormat(pattern = "MM-dd-YYYY")
     def getCouponExpiresOn() = couponExpiresOn
     def setCouponExpiresOn(couponExpiresOn: Date) = { this.couponExpiresOn = couponExpiresOn }
 
-    @DateTimeFormat(iso=ISO.DATE_TIME)
+    @DateTimeFormat(pattern = "MM-dd-YYYY")
     def getActiveOn() = activeOn
     def setActiveOn(activeOn: Date) = { this.activeOn = activeOn }
 

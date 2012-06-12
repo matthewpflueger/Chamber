@@ -46,7 +46,7 @@ class AdminLoginController {
 
         result
     }
-    
+
     @RequestMapping(Array("/login"))
     def login(
             @RequestParam(value="email", required = false) email:String,
@@ -54,21 +54,28 @@ class AdminLoginController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val result = new DeferredResult(new ModelAndView(adminLoginView))
 
-        adminUserServiceLocator.login(email,password).onSuccess {
-            case LoginResponse(_, Right(adminUserService)) =>
-                logger.debug("Redirecting to Admin Dashboard View {}", adminDashboardView)
-                adminUserService.getAdminUser.onSuccess {
-                    case GetAdminUserResponse(_, Right(adminUser)) =>
-                        cookieManager.addAdminUserCookie(
-                                httpServletResponse,
-                                adminUser,
-                                httpServletRequest)
-                        result.set(new ModelAndView(adminDashboardView))
-                }
+        if(email == null || password == null){
+            new ModelAndView(adminLoginView)
+        } else {
+
+            val result = new DeferredResult(new ModelAndView(adminLoginView))
+
+            adminUserServiceLocator.login(email,password).onSuccess {
+                case LoginResponse(_, Right(adminUserService)) =>
+                    logger.debug("Redirecting to Admin Dashboard View {}", adminDashboardView)
+                    adminUserService.getAdminUser.onSuccess {
+                        case GetAdminUserResponse(_, Right(adminUser)) =>
+                            cookieManager.addAdminUserCookie(
+                                    httpServletResponse,
+                                    adminUser,
+                                    httpServletRequest)
+                            result.set(new ModelAndView(adminDashboardView))
+                    }
+            }
+
+            result
+
         }
-
-        result
     }
 }
