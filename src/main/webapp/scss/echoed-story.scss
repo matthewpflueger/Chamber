@@ -84,8 +84,8 @@ img{
     margin: 10px auto;
     .echo-story-header{
         //background-color: #FFF;
-        padding: 10px;
-        border-bottom: 1px solid #FFF;
+        padding: 5px 10px;
+        //border-bottom: 1px solid #FFF;
         .echo-s-h-title{
             @include textFont(16px);
 
@@ -99,9 +99,9 @@ img{
     }
     .echo-story-body{
         //margin: 10px;
-        padding: 5px;
+        padding: 0px 5px;
         //@include inset-shadow;
-        background-color: #CCC;
+        //background-color: #CCC;
         .echo-s-b-item{
             border: 1px solid #CCC;
             width: 300px;
@@ -110,7 +110,6 @@ img{
             background-color: #FFF;
             .echo-s-b-i-c{
                 .echo-s-b-i-t{
-                    @include drop-shadow;
                     padding: 5px;
                     .echo-s-b-i-t-t{
                         padding-bottom: 5px;
@@ -118,8 +117,8 @@ img{
                         border-bottom: 1px solid #CCC;
                     }
                     .echo-s-b-i-t-b{
-                        padding: 10px 0px;
-                        @include textFont(18px);
+                        padding: 15x 0px;
+                        @include textFont(14px);
                         line-height: 1.5em;
                     }
                     .echo-s-b-i-t-f{
@@ -131,7 +130,6 @@ img{
                     }
                 }
                 img{
-                    @include drop-shadow;
                     background-color: #FFF;
                     padding: 5px;
                     width: 290px;
@@ -140,7 +138,7 @@ img{
         }
     }
     .echo-story-footer{
-        padding: 5px 10px;
+        padding: 0px 10px;
         .echo-story-nav{
             margin: 5px 0px 10px 0px;
             .echo-s-n-s{
@@ -163,7 +161,7 @@ img{
             }
         }
         .echo-story-comments{
-            border-top: 1px #CCC solid;
+            border-top: 1px #AAA solid;
             .echo-s-c-t{
                 padding: 10px 0px;
                 @include textFontBold(20px);

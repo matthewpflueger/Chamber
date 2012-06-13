@@ -14,8 +14,8 @@ Echoed = {
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#infiniteScroll', EvAg : EventAggregator});
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#content', EvAg: EventAggregator });
         var friends = new Echoed.Views.Pages.Friends({ el: '#content', EvAg: EventAggregator });
-        //var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
-        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Browse', EvAg: EventAggregator});
+        var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
+        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Filter', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         Backbone.history.start();
     }
@@ -157,14 +157,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     load: function(action){
         var self = this;
-        switch(action){
-            case 'story':
-                self.type = action;
-                self.template = _.template($('#templates-components-story').html());
-                self.endpoint = self.endpointBase + '/story';
-                self.render();
-                break;
-        }
+        self.type = action;
+        self.template = _.template($('#templates-components-story').html());
+        self.endpoint = self.endpointBase + '/story';
+        self.render();
     },
     render: function(){
         var self = this;
