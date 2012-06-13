@@ -252,25 +252,29 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
             val channel = context.sender
 
             try {
-                logger.debug("Creating FacebookService using facebookUserId {}", facebookUserId)
-                Option(facebookUserDao.findById(facebookUserId)) match {
-                    case Some(facebookUser) =>
-                        channel ! CreateFromIdResponse(msg, Right(
-                            new FacebookServiceActorClient(context.actorOf(Props().withCreator {
-                                val fu = Option(facebookUserDao.findById(facebookUserId)).get
-                                new FacebookServiceActor(
-                                    fu,
-                                    facebookAccess,
-                                    facebookUserDao,
-                                    facebookPostDao,
-                                    facebookFriendDao,
-                                    echoClickUrl)
-                            }, facebookUserId))))
-                        logger.debug("Created Facebook service {}", facebookUserId)
-                    case None =>
-                        channel ! CreateFromIdResponse(msg, Left(FacebookUserNotFound(facebookUserId)))
-                        logger.debug("Did not find FacebookUser with id {}", facebookUserId)
-                }
+                cache.get(facebookUserId).cata(
+                    fs => channel ! CreateFromIdResponse(msg, Right(fs)),
+                    {
+                        logger.debug("Creating FacebookService using facebookUserId {}", facebookUserId)
+                        Option(facebookUserDao.findById(facebookUserId)) match {
+                            case Some(facebookUser) =>
+                                channel ! CreateFromIdResponse(msg, Right(
+                                    new FacebookServiceActorClient(context.actorOf(Props().withCreator {
+                                        val fu = Option(facebookUserDao.findById(facebookUserId)).get
+                                        new FacebookServiceActor(
+                                            fu,
+                                            facebookAccess,
+                                            facebookUserDao,
+                                            facebookPostDao,
+                                            facebookFriendDao,
+                                            echoClickUrl)
+                                    }, facebookUserId))))
+                                logger.debug("Created Facebook service {}", facebookUserId)
+                            case None =>
+                                channel ! CreateFromIdResponse(msg, Left(FacebookUserNotFound(facebookUserId)))
+                                logger.debug("Did not find FacebookUser with id {}", facebookUserId)
+                        }
+                })
             } catch {
                 case e =>
                     channel ! CreateFromIdResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
