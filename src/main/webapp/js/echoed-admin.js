@@ -128,7 +128,7 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                 $('#echoedMaxPercentage').val(data.echoedMaxPercentage);
                 $('#creditWindow').val(data.creditWindow);
                 $('#views').val(data.views);
-                $('#hashtag').val(data.hashTag);
+                $('#hashTag').val(data.hashTag);
                 $('#couponCode').val(data.couponCode);
                 $('#couponDescription').val(data.couponDescription);
                 var utcString = new Date(data.couponExpiresOn).toISOString();
