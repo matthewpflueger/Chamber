@@ -205,7 +205,8 @@ body {
 #left {
     float: left;
     margin: 10px;
-    @include drop-shadow;
+    //@include drop-shadow;
+    border: 1px solid #CCC;
     background-color: #FFF;
     height: 270px;
     #product {
@@ -237,7 +238,8 @@ body {
     margin: 10px;
     float: left;
     background-color: #FFF;
-    @include drop-shadow;
+    //@include drop-shadow;
+    border: 1px solid #CCC;
     width: 525px;
     #right-content {
         padding: 10px;
