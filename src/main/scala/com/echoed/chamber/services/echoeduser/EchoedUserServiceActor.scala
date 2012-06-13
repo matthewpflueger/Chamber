@@ -105,7 +105,7 @@ class EchoedUserServiceActor(
             } catch {
                 case e =>
                     channel ! LR(msg, Left(EchoedUserException("Could not logout", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}, {}", msg, e)
             }
 
         case msg: AssignTwitterService =>
@@ -116,7 +116,7 @@ class EchoedUserServiceActor(
 
             def error(e: Throwable) {
                 channel ! AssignTwitterServiceResponse(msg, Left(new EchoedUserException("Cannot assign Twitter account", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}, {}", msg, e)
             }
 
             def assign() {
@@ -163,7 +163,7 @@ class EchoedUserServiceActor(
 
             def error(e: Throwable) {
                 channel ! AssignFacebookServiceResponse(msg, Left(new EchoedUserException("Cannot assign Facebook account", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}, {}", msg, e)
             }
 
             def assign() {
@@ -260,7 +260,7 @@ class EchoedUserServiceActor(
             } catch {
                 case e =>
                     channel ! EchoToResponse(msg, Left(EchoedUserException("Unexpected error processing %s" format msg, e)))
-                    logger.error("Error processing %s" format msg, e)
+                    logger.error("Error processing {}, {}", msg, e)
             }
 
 
@@ -292,7 +292,7 @@ class EchoedUserServiceActor(
                 either.fold(
                     error => {
                         sendResponse(error.responses)
-                        logger.error("Received error response: %s" format error, error)
+                        logger.error("Received error response: {}, {}", error, error)
                     },
                     responses => sendResponse(responses))
             } catch {
@@ -300,7 +300,7 @@ class EchoedUserServiceActor(
                     channel ! EchoToResponse(
                             echoTo,
                             Left(EchoedUserException("Could not echo", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}, {}", msg, e)
                 }
             }
 
@@ -311,7 +311,7 @@ class EchoedUserServiceActor(
 
             def error(e: Throwable) {
                 channel ! ETFR(msg, Left(EchoedUserException("Error posting to Facebook", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}, {}", msg, e)
             }
 
             try {
@@ -432,7 +432,7 @@ class EchoedUserServiceActor(
             } catch {
                 case e =>
                     channel ! GetFriendExhibitResponse(msg, Left(EchoedUserException("Cannot get friend exhibit", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}, {}", msg, e)
             }
 
         case msg: GetPublicFeed =>
@@ -448,7 +448,7 @@ class EchoedUserServiceActor(
             } catch {
                 case e=>
                     channel ! GetPublicFeedResponse(msg, Left(new EchoedUserException("Cannot get public feed", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}, {}", msg, e)
             }
 
         case msg: GetFeed =>
@@ -467,7 +467,7 @@ class EchoedUserServiceActor(
             } catch {
                 case e =>
                     channel ! GetFeedResponse(msg, Left(new EchoedUserException("Cannot get feed", e)))
-                    logger.error("Unexpected error when fetching feed for EchoedUser %s" format echoedUser.id, e)
+                    logger.error("Unexpected error when fetching feed for EchoedUser {}, {}", echoedUser.id, e)
             }
 
         case msg: GetPartnerFeed =>
@@ -485,7 +485,7 @@ class EchoedUserServiceActor(
             } catch {
                 case e =>
                     channel ! GetPartnerFeedResponse(msg, Left(new EchoedUserException("Canont get partner feed", e)))
-                    logger.error("Unexpected erorr when fetching partner feed for EchoedUser %s" format echoedUser.id, e)
+                    logger.error("Unexpected erorr when fetching partner feed for EchoedUser {}, {}", echoedUser.id, e)
             }
 
 
@@ -512,7 +512,7 @@ class EchoedUserServiceActor(
             } catch {
                 case e =>
                     channel ! GetExhibitResponse(msg, Left(new EchoedUserException("Cannot get exhibit", e)))
-                    logger.error("Unexpected error when fetching exhibit for EchoedUser %s" format echoedUser.id, e)
+                    logger.error("Unexpected error when fetching exhibit for EchoedUser {}, {}", echoedUser.id, e)
             }
 
 
@@ -527,7 +527,7 @@ class EchoedUserServiceActor(
             } catch {
                 case e =>
                     channel ! GetEchoedFriendsResponse(msg, Left(EchoedUserException("Cannot get friends", e)))
-                    logger.error("Unexpected error fetching friends for EchoedUser %s" format echoedUser.id, e)
+                    logger.error("Unexpected error fetching friends for EchoedUser {}, {}", echoedUser.id, e)
             }
 
 
@@ -552,7 +552,7 @@ class EchoedUserServiceActor(
                     logger.error("Could not get FacebookService for %s" format echoedUser, _),
                     _ match {
                         case LocateByIdResponse(_, Left(e)) =>
-                            logger.error("Could not get FacebookService for %s" format echoedUser, e)
+                            logger.error("Could not get FacebookService for {}, {}", echoedUser, e)
                         case LocateByIdResponse(_, Right(ac: ActorClient)) =>
                             ac.actorRef.!('_fetchFacebookFriends)(me)
                     }
@@ -562,7 +562,7 @@ class EchoedUserServiceActor(
 
 
         case GetFollowersResponse(_, Left(e)) =>
-            logger.error("Received error fetching followers for EchoedUser %s" format echoedUser.id, e)
+            logger.error("Received error fetching followers for EchoedUser {}, {}", echoedUser.id, e)
 
 
         case GetFollowersResponse(_, Right(twitterFollowers)) =>
@@ -579,7 +579,7 @@ class EchoedUserServiceActor(
             val me = self
             Option(echoedUser.twitterUserId).cata(
                 twitterServiceLocator.getTwitterServiceWithId(_).onComplete(_.fold(
-                    logger.error("Could not get TwitterService for %s" format echoedUser, _),
+                    logger.error("Could not get TwitterService for {}, {}", echoedUser, _),
                     _ match {
                         case GetTwitterServiceWithIdResponse(_, Left(e)) =>
                             logger.error("Could not get TwitterService for %s" format echoedUser, e)

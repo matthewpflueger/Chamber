@@ -42,7 +42,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             } catch {
                 case e=>
                     channel ! GetPublicFeedResponse(msg, Left(new FeedException("Cannot get public feed", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {} , {}", msg, e)
             }
     }
 
