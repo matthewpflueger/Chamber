@@ -69,7 +69,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! FetchRequestTokenResponse(msg, Left(TwitterException("Cannot get request token", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -88,7 +88,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
                     channel ! GetAccessTokenForRequestTokenResponse(
                             msg,
                             Left(TwitterException("Cannot get access token", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -101,7 +101,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! FetchAccessTokenResponse(msg, Left(TwitterException("Cannot get access token", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -124,7 +124,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! FetchUserResponse(msg, Left(TwitterException("Cannot get user", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -141,7 +141,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! FetchFollowersResponse(msg, Left(TwitterException("Cannot get Twitter followers", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -159,7 +159,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! UpdateStatusResponse(msg, Left(TwitterException("Cannot update Twitter status", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
         case msg @ Logout(accessToken) =>
@@ -179,7 +179,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(TwitterException("Cannot end Twitter session", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
     }
 

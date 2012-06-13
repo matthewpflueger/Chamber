@@ -85,7 +85,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
             def error(e: Throwable) {
                 channel ! GetAccessTokenResponse(msg, Left(TwitterException("Could not get access token", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -106,7 +106,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
             def error(e: Throwable) {
                 channel ! GetFollowersResponse(msg, Left(TwitterException("Could not get Twitter followers", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -134,7 +134,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
 
             def error(e: Throwable) {
                 channel ! TweetResponse(msg, Left(TwitterException("Could not tweet", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -166,7 +166,7 @@ class TwitterServiceActor(twitterAccess: TwitterAccess,
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(TwitterException("Could not logout of Twitter", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
     }
 }

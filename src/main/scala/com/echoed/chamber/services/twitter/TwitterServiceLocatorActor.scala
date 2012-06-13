@@ -76,7 +76,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! GetTwitterServiceResponse(msg, Left(TwitterException("Cannot get Twitter service", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -92,7 +92,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
                                 logger.debug("Caching TwitterService with token {}", requestToken.getToken)
                                 cache.put("requestToken:" + requestToken.getToken, twitterService)
                         }.onFailure {
-                            case e => logger.error("Unexpected error when trying to cache TwitterService with request token", e)
+                            case e => logger.error("Unexpected error when trying to cache TwitterService with request token: {}", e)
                         }
                 }.onFailure { case e => error(e) }
             } catch { case e => error(e) }
@@ -115,7 +115,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! GetTwitterServiceWithTokenResponse(msg, Left(TwitterException("Error getting Twitter service", e)))
-                    logger.error("Unexpected error processing %s", msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -125,7 +125,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! GetTwitterServiceWithAccessTokenResponse(msg, Left(TwitterException("Cannot get Twitter service", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -150,7 +150,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
                                     case GetUserResponse(_, Right(twitterUser)) =>
                                         idCache += (twitterUser.id -> twitterService)
                                 }.onFailure {
-                                    case e => logger.error("Unexpected error when trying to cache TwitterService %s" format msg, e)
+                                    case e => logger.error("Unexpected error when trying to cache TwitterService {}: {}", msg, e)
                                 }
                         }.onFailure { case e => error(e) }
                     })
@@ -163,7 +163,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! GetTwitterServiceWithIdResponse(msg, Left(TwitterException("Cannot get Twitter service", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -204,14 +204,14 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(TwitterException("Could not logout Twitter user", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
         case ('requestToken, requestToken: RequestToken, msg: CreateTwitterService, channel: ActorRef) =>
             channel ! CreateTwitterServiceResponse(msg, Right(new TwitterServiceActorClient(context.actorOf(Props(
                 new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, requestToken, echoClickUrl)),
-                requestToken.getAuthorizationURL))))
+                requestToken.getToken))))
 
         case msg @ CreateTwitterService(callbackUrl) =>
             val me = context.self
@@ -219,7 +219,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! CreateTwitterServiceResponse(msg, Left(TwitterException("Unexpected error creating Twitter service", e)))
-                logger.error("Error creating Twitter service %s" format msg, e)
+                logger.error("Error creating Twitter service {}: {}", msg, e)
             }
 
             try {
@@ -240,7 +240,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! CreateTwitterServiceWithAccessTokenResponse(msg, Left(TwitterException("Unexpected error creating Twitter service", e)))
-                logger.error("Error creating Twitter service %s" format msg, e)
+                logger.error("Error creating Twitter service {}: {}", msg, e)
             }
 
             try {
@@ -287,7 +287,7 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! CreateTwitterServiceWithIdResponse(msg, Left(TwitterException("Unexpected error creating Twitter service", e)))
-                logger.error("Error creating Twitter service %s" format msg, e)
+                logger.error("Error creating Twitter service {}: {}", msg, e)
             }
 
             try {
