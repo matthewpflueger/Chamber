@@ -13,7 +13,7 @@ Echoed = {
         var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({EvAg : EventAggregator});
         //var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
-        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-filter', Name: 'Filter', EvAg: EventAggregator});
+        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Filter', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         Backbone.history.start();
     }
