@@ -433,6 +433,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             selector = "." + encodeURIComponent(filter);
         self.exhibit.isotope({filter: '.no_filter,#exhibit .item_wrap' + selector});
     },
+    updateTitle: function(filter){
+
+    },
     next: function(){
         var self = this;
         if(self.nextInt != null){
@@ -755,15 +758,10 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
         this.element.find('.dd-header').html('<strong>' + this.name + ': </strong>' + this.selected);
     },
     triggerClick: function(e){
-        this.selected = "All";
-        if(e){
-            var selectorArray = e.split("_");
-            for(var i=0;i<selectorArray.length;i++){
-                //if(selectorArray[i].search(this.name,0)==0){
-                    //this.selected = decodeURIComponent(selectorArray[i].substr(this.name.length + 1));
-                //}
-            }
-        }
+        if(e === "*" || e === "undefined" || typeof(e) === "undefined")
+            this.selected = "All";
+        else
+            this.selected = e.split("-")[1];
         this.updateLabel();
     }
 });
