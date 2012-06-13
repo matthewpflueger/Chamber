@@ -99,7 +99,7 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! LocateByCodeResponse(msg, Left(FacebookException("Could not locate Facebook user", e)))
-                logger.error("Error processing %s" format msg, e)
+                logger.error("Error processing {}, {}", msg, e)
             }
 
             try {
@@ -111,10 +111,10 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
                         case CreateFromCodeResponse(_, Right(facebookService)) =>
                             channel ! LocateByCodeResponse(msg, Right(facebookService))
                             facebookService.getFacebookUser.onComplete(_.fold(
-                                logger.error("Failed to cache FacebookService for code %s" format msg, _),
+                                logger.error("Failed to cache FacebookService for code {}, {}", msg, _),
                                 _ match {
                                     case GetFacebookUserResponse(_, Left(e)) =>
-                                        logger.error("Failed to cache FacebookService for code %s" format msg, e)
+                                        logger.error("Failed to cache FacebookService for code {}, {}", msg, e)
                                     case GetFacebookUserResponse(_, Right(facebookUser)) =>
                                         cache.put(facebookUser.id, facebookService)
                                         logger.debug("Seeded cache with FacebookService key {}", code)
@@ -129,7 +129,7 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! LocateByFacebookIdResponse(msg, Left(FacebookException("Could not locate Facebook service", e)))
-                logger.error("Error processing %s" format msg, e)
+                logger.error("Error processing {}, {}", msg, e)
             }
 
             def updateCache(facebookService: FacebookService) {
@@ -172,7 +172,7 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! LocateByIdResponse(msg, Left(FacebookException("Could not locate Facebook user", e)))
-                logger.error("Error processing %s" format msg, e)
+                logger.error("Error processing {}, {}", msg, e)
             }
 
             try {
@@ -215,7 +215,7 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(FacebookException("Could not logout Facebook user", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}, {}", msg, e)
             }
 
 
@@ -225,7 +225,7 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! CreateFromCodeResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
-                logger.error("Error processing %s" format msg, e)
+                logger.error("Error processing {}, {}", msg, e)
             }
 
             try {
@@ -274,7 +274,7 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! CreateFromIdResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    logger.error("Error processing {}, {}", msg, e)
             }
 
 
@@ -284,7 +284,7 @@ class FacebookServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! CreateFromFacebookIdResponse(msg, Left(FacebookException("Could not create Facebook service", e)))
-                logger.error("Error processing %s" format msg, e)
+                logger.error("Error processing {}, {}", msg, e)
             }
 
             try {
