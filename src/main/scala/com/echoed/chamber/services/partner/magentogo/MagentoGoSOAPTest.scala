@@ -1,15 +1,8 @@
 package com.echoed.chamber.services.partner.magentogo
 
-import dispatch.nio.Http
-import dispatch.{Request, url}
-import scala.Some
-import collection.JavaConversions._
-import collection.mutable.ConcurrentMap
-import com.echoed.chamber.services.partner.PartnerService
-import java.util.concurrent.ConcurrentHashMap
-import com.echoed.chamber.services.facebook.FacebookService
-import akka.actor.{Actor, ActorRef}
-import xml.{Node, Text, NodeSeq}
+import dispatch._
+import xml._
+import com.ning.http.client.RequestBuilder
 
 
 object MagentoGoSOAPTest extends App {
@@ -114,7 +107,7 @@ English</value></item><item><key xsi:type="xsd:string">x_forwarded_for</key><val
             </call>)
 
 
-    def wrap(body: NodeSeq, userToken: Option[String] = None): Request = {
+    def wrap(body: NodeSeq, userToken: Option[String] = None): RequestBuilder = {
         val content =
             <env:Envelope
                     xmlns="http://schemas.xmlsoap.org/wsdl/"
@@ -130,15 +123,27 @@ English</value></item><item><key xsi:type="xsd:string">x_forwarded_for</key><val
                 </env:Body>
             </env:Envelope>
 
-        endpoint.<<(content.toString, "application/soap+xml; charset=utf-8")
+        endpoint
+            .addHeader("Accept", "application/soap+xml; charset=utf-8")
+            .setMethod("POST")
+            .setBody(content.toString)
     }
 
+    def asXml(request: RequestBuilder)
+            (callback: Elem => Unit)
+            (error: PartialFunction[Throwable, Unit]) {
+        h(request OK As.string).onSuccess {
+            case s => callback(XML.loadString(s))
+        }.onFailure {
+            case e => error(e)
+        }
+    }
 
-    h(login(username, apiKey) <> { res =>
+    asXml(login(username, apiKey)) { res =>
         println("login: %s" format res)
-    } >! {
+    } {
         case e => println("Received login error!: %s" format e)
-    })
+    }
 
 //    h(order("854649a5e644fdd6ad84872f0967067a", "100000004") <> { res =>
 //        println("order: %s" format res)
@@ -193,7 +198,7 @@ English</value></item><item><key xsi:type="xsd:string">x_forwarded_for</key><val
         map.toMap
     }
 
-    h(multi("033acd1206a104b2dffc9f3b9f33ae3a", "100000004", "166") <> { res =>
+    asXml(multi("5f968f3cbdc018509e4e70b7ab53ca8f", "100000004", "166")) { res =>
         val list = asList((res \\ "multiCallReturn").head)
         println("Converted multiCall into list %s" format list)
 //        (res \\ "multiCallReturn" \ "item").foreach { i =>
@@ -202,9 +207,9 @@ English</value></item><item><key xsi:type="xsd:string">x_forwarded_for</key><val
 ////            println("Attribute type is %s" format i.attributes.foreach("_.key"%s"))
 //            //of type %s and length %s\n\n%s\n\n\n\n" format(i \ "@xsi:type", i.length, i)))
 //        }
-    } >! {
+    } {
         case e => println("Received mulit error!: %s" format e)
-    })
+    }
 
 
 //    var nodeTest = <test>test</test>

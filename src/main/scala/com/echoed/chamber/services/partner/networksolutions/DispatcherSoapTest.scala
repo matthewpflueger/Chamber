@@ -1,9 +1,10 @@
 package com.echoed.chamber.services.partner.networksolutions
 
-import dispatch.nio.Http
-import xml.{NodeSeq, Elem}
-import dispatch.{Request, url}
+import dispatch._
+import xml._
+
 import scala.Some
+import com.ning.http.client.RequestBuilder
 
 object DispatcherSoapTest extends App {
 
@@ -73,7 +74,7 @@ object DispatcherSoapTest extends App {
                     </UserKey>
                 </GetUserKeyRequest>)
 
-    def wrap(body: NodeSeq, userToken: Option[String] = None): Request = {
+    def wrap(body: NodeSeq, userToken: Option[String] = None): RequestBuilder = {
         val content =
             <soap12:Envelope
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -89,12 +90,27 @@ object DispatcherSoapTest extends App {
                 <soap12:Body>{body}</soap12:Body>
             </soap12:Envelope>
 
-        endpoint.<<(content.toString, "application/soap+xml; charset=utf-8")
+//        endpoint.<<(content.toString, "application/soap+xml; charset=utf-8")
+        endpoint
+            .addHeader("Accept", "application/soap+xml; charset=utf-8")
+            .setMethod("POST")
+            .setBody(content.toString)
+    }
+
+
+    def asXml(request: RequestBuilder)
+            (callback: Elem => Unit)
+            (error: PartialFunction[Throwable, Unit]) {
+        h(request OK As.string).onSuccess {
+            case s => callback(XML.loadString(s))
+        }.onFailure {
+            case e => error(e)
+        }
     }
 
 
 
-    h(getUserToken(successUrl) <> { res =>
+    asXml(getUserToken(successUrl)) { res =>
         println("getUserKey: %s" format res)
         (res \\ "Status").head.text match {
             case "Success" =>
@@ -103,9 +119,11 @@ object DispatcherSoapTest extends App {
             case "Failure" => println("FAILURE")
 
         }
-    })
+    } {
+        case e => println("Error! %s" format e)
+    }
 
-    h(getOrder(1L, userToken) <> { res =>
+    asXml(getOrder(1L, userToken)) { res =>
         println("getOrder: %s" format res)
         (res \\ "Status").head.text match {
             case "Success" =>
@@ -113,9 +131,11 @@ object DispatcherSoapTest extends App {
             case "Failure" => println("FAILURE")
             case other => println("What the?!?! %s" format other)
         }
-    })
+    } {
+        case e => println("Error! %s" format e)
+    }
 
-    h(getProducts(1L :: Nil, userToken) <> { res =>
+    asXml(getProducts(1L :: Nil, userToken)) { res =>
         println("getProducts: %s" format res)
         (res \\ "Status").head.text match {
             case "Success" =>
@@ -123,9 +143,11 @@ object DispatcherSoapTest extends App {
             case "Failure" => println("FAILURE")
             case other => println("What the?!?! %s" format other)
         }
-    })
+    } {
+        case e => println("Error! %s" format e)
+    }
 
-    h(getSiteSettings(userToken) <> { res =>
+    asXml(getSiteSettings(userToken)) { res =>
         println("getSiteSettings: %s" format res)
         (res \\ "Status").head.text match {
             case "Success" =>
@@ -134,7 +156,9 @@ object DispatcherSoapTest extends App {
             case "Failure" => println("FAILURE")
             case other => println("What the?!?! %s" format other)
         }
-    })
+    } {
+        case e => println("Error! %s" format e)
+    }
 
     println("Sleeping for 5 seconds")
     Thread.sleep(5000)

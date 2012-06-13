@@ -1,23 +1,19 @@
 package com.echoed.chamber.services.partner.magentogo
 
 import reflect.BeanProperty
-import org.slf4j.LoggerFactory
 
 import dispatch._
-import dispatch.nio.Http
 
 import scalaz._
 import Scalaz._
 
 
 import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
-import xml.NodeSeq
 
 
 import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
 import org.joda.time.format.DateTimeFormat
 import collection.mutable.{ConcurrentMap, ListBuffer => MList, HashMap => MMap}
-import xml.Node
 
 import akka.actor._
 import com.echoed.cache.CacheManager
@@ -26,6 +22,8 @@ import akka.util.duration._
 import akka.event.Logging
 import akka.pattern.ask
 import org.springframework.beans.factory.FactoryBean
+import com.ning.http.client.RequestBuilder
+import xml._
 
 
 class MagentoGoAccessActor extends FactoryBean[ActorRef] {
@@ -38,8 +36,6 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
 
 
     val urn = "urn:Magento"
-    private val contentType = Map("Accept" -> "application/soap+xml")
-    private val encoding = "utf-8"
 
     private var cache: ConcurrentMap[String, String] = _
 
@@ -62,7 +58,7 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
     }
 
 
-    def value(node: Node) = {
+    def value(node: xml.Node) = {
         val valueType = node.attributes.value.toString
 
         if (valueType.endsWith("Map")) asMap(node)
@@ -70,7 +66,7 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
         else node.text
     }
 
-    def asList(node: Node): List[Any] = {
+    def asList(node: xml.Node): List[Any] = {
         val list = MList[Any]()
         node.child.foreach { i =>
             list.append(value(i))
@@ -78,7 +74,7 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
         list.toList
     }
 
-    def asMap(node: Node): Map[String, Any] = {
+    def asMap(node: xml.Node): Map[String, Any] = {
         val map = MMap[String, Any]()
         node.child.foreach { i =>
             val key = (i \ "key").head.text
@@ -87,7 +83,7 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
         map.toMap
     }
 
-    def wrap(c: MagentoGoCredentials, body: NodeSeq): Request = {
+    def wrap(c: MagentoGoCredentials, body: NodeSeq): RequestBuilder = {
         val content =
             <env:Envelope
                     xmlns="http://schemas.xmlsoap.org/wsdl/"
@@ -104,9 +100,9 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
             </env:Envelope>
 
         url(c.apiPath)
-            .<:<(contentType)
-            .>\(encoding)
-            .<<(content.toString)
+            .addHeader("Accept", "application/soap+xml; charset=utf-8")
+            .setMethod("POST")
+            .setBody(content.toString)
     }
 
 
@@ -139,11 +135,21 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
             </login>)
 
 
+    def asXml(request: RequestBuilder)
+            (callback: Elem => Unit)
+            (error: PartialFunction[Throwable, Unit]) {
+        client(request OK As.string).onSuccess {
+            case s => callback(XML.loadString(s))
+        }.onFailure {
+            case e => error(e)
+        }
+    }
+
     def receive = {
         case msg @ Validate(credentials) =>
             val channel = context.sender
 
-            client(login(credentials) <> { res =>
+            asXml(login(credentials)) { res =>
                 logger.debug("Login response for {}: {}", credentials, res)
                 (res \\ "loginReturn").headOption.cata(
                     node => {
@@ -155,11 +161,11 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
                         logger.warning("Received error response validating {}: {}", credentials, res)
                         channel ! ValidateResponse(msg, Left(MagentoGoPartnerException("Could not validate credentials")))
                     })
-            } >! {
+            } {
                 case e =>
                     logger.error("Error validating %s" format credentials, e)
                     channel ! ValidateResponse(msg, Left(MagentoGoPartnerException("Error during login of %s" format credentials, e)))
-            })
+            }
 
 
         case msg @ FetchOrder(credentials, orderId) =>
@@ -178,13 +184,13 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
 
             def fetchOrder(sessionId: String) {
                 logger.debug("Fetching order {} for {}", orderId, credentials)
-                client(order(credentials, sessionId, orderId) <> { res =>
+                asXml(order(credentials, sessionId, orderId)) { res =>
                     logger.debug("Received order {} for {}", orderId, credentials)
                     val orderResult = asMap((res \\ "callReturn").head)
                     val productIds = orderResult("items").asInstanceOf[List[Map[String, String]]].map(_("product_id"))
 
                     logger.debug("Fetching products {} for {}", productIds, credentials)
-                    client(products(credentials, sessionId, productIds) <> { res =>
+                    asXml(products(credentials, sessionId, productIds)) { res =>
                         logger.debug("Received products {} for {}", productIds, credentials)
                         var index = 0
                         val echoItems = (asList((res \\ "multiCallReturn").head).partition { _ =>
@@ -216,12 +222,12 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
                             echoItems)
                         channel ! FetchOrderResponse(msg, Right(echoRequest))
                         logger.debug("Finished fetching order {} for {}", orderId, credentials)
-                    } >! {
+                    } {
                         case e => error(e)
-                    })
-                } >! {
+                    }
+                } {
                     case e => error(e)
-                })
+                }
             }
 
             cache.get(credentials.apiPath).cata(

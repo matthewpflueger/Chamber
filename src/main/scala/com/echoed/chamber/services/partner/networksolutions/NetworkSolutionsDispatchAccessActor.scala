@@ -1,22 +1,21 @@
 package com.echoed.chamber.services.partner.networksolutions
 
 import reflect.BeanProperty
-import org.slf4j.LoggerFactory
 import org.joda.time.format.ISODateTimeFormat
 
 
-import dispatch.nio.Http
+import dispatch._
 
 
 import java.util.Properties
 import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
-import xml.NodeSeq
-import dispatch.{Request, url}
 import org.springframework.beans.factory.FactoryBean
 import akka.actor._
 import akka.util.Timeout
 import akka.util.duration._
 import akka.event.Logging
+import com.ning.http.client.RequestBuilder
+import xml._
 
 
 class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
@@ -98,6 +97,7 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
             </ReadOrderRequest>,
             Some(userToken))
 
+
     private def readProducts(productIds: List[Long], userToken: String) = {
         val prods = productIds.map { i => <ValueList>{i}</ValueList> }
         wrap(
@@ -112,7 +112,8 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
             Some(userToken))
     }
 
-    private def wrap(body: NodeSeq, userToken: Option[String] = None): Request = {
+
+    private def wrap(body: NodeSeq, userToken: Option[String] = None): RequestBuilder = {
         val content =
             <soap12:Envelope
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -128,7 +129,21 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                 <soap12:Body>{body}</soap12:Body>
             </soap12:Envelope>
 
-        endpoint.<<(content.toString, "application/soap+xml; charset=utf-8")
+        endpoint
+            .addHeader("Accept", "application/soap+xml; charset=utf-8")
+            .setMethod("POST")
+            .setBody(content.toString)
+    }
+
+
+    def asXml(request: RequestBuilder)
+            (callback: Elem => Unit)
+            (error: PartialFunction[Throwable, Unit]) {
+        client(request OK As.string).onSuccess {
+            case s => callback(XML.loadString(s))
+        }.onFailure {
+            case e => error(e)
+        }
     }
 
 
@@ -137,7 +152,8 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
         case msg @ FetchUserKey(successUrl, failureUrl) =>
             val channel = context.sender
 
-            client(getUserKey(successUrl, failureUrl) <> { res =>
+            asXml(getUserKey(successUrl, failureUrl)) { res =>
+//            client(getUserKey(successUrl, failureUrl) <> { res =>
                 logger.debug("GetUserKey = {}", res)
                 (res \\ "Status").head.text match {
                     case "Success" =>
@@ -147,18 +163,21 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                         channel ! FetchUserKeyResponse(msg, Right(FetchUserKeyEnvelope(loginUrl, userKey)))
 
                     case "Failure" =>
-                        logger.error("Error fetching user key %s" format res)
+                        logger.error("Error fetching user key {}", res)
                         channel ! FetchUserKeyResponse(
                             msg,
                             Left(NetworkSolutionsPartnerException("Error fetching user key")))
                 }
-            })
+            } {
+                case e => logger.error("Unexpected error fetching user key {}", e)
+            }//)
 
 
         case msg @ FetchUserToken(userKey) =>
             val channel = context.sender
 
-            client(getUserToken(userKey) <> { res =>
+            asXml(getUserToken(userKey)) { res =>
+//            client(getUserToken(userKey) <> { res =>
                 logger.debug("GetUserToken = {}", res)
                 (res \\ "Status").head.text match {
                     case "Success" =>
@@ -166,7 +185,8 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                         val expiresOn = xmlDateTimeFormat.parseDateTime((res \\ "Expiration").text).toDate
                         logger.debug("Successfully fetched UserToken {}, ExpiresOn {}", userToken, expiresOn)
 
-                        client(readSiteSettings(userToken) <> { res =>
+                        asXml(readSiteSettings(userToken)) { res =>
+//                        client(readSiteSettings(userToken) <> { res =>
                             (res \\ "Status").head.text match {
                                 case "Success" =>
                                     val companyName = (res \\ "CompanyName").text
@@ -183,27 +203,32 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                                             storeSecureUrl)))
 
                                 case "Failure" =>
-                                    logger.error("Error fetching site settings with user token %s: %s" format(userToken, res))
+                                    logger.error("Error fetching site settings with user token {}: {}", userToken, res)
                                     channel ! FetchUserTokenResponse(
                                         msg,
                                         Left(NetworkSolutionsPartnerException("Error fetching site settings")))
                             }
-                        })
+                        } {
+                            case e => logger.error("Unexpected error fetching site settings with user token {}: {}", userToken, e)
+                        }
 
                     case "Failure" =>
-                        logger.error("Error fetching user token for user key %s: %s" format(userKey, res))
+                        logger.error("Error fetching user token for user key {}: {}", userKey, res)
                         channel ! FetchUserTokenResponse(
                             msg,
                             Left(NetworkSolutionsPartnerException("Error fetching user token for user key")))
                 }
-            })
+            } {
+                case e => logger.error("Unexpected error fetching user token for user key {}: {}", userKey, e)
+            }
 
 
 
         case msg @ FetchOrder(userToken, orderNumber) =>
             val channel = context.sender
 
-            client(readOrder(orderNumber, userToken) <> { res =>
+            asXml(readOrder(orderNumber, userToken)) { res =>
+//            client(readOrder(orderNumber, userToken) <> { res =>
                 logger.debug("ReadOrder = {}", res)
                 (res \\ "Status").head.text match {
                     case "Success" =>
@@ -212,7 +237,7 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                         val createDate = xmlDateTimeFormat.parseDateTime((res \\ "CreateDate").head.text).toDate
                         logger.debug("ReadOrder {} with ProductIds {}", orderNumber, productIds)
 
-                        client(readProducts(productIds, userToken) <> { res =>
+                        asXml(readProducts(productIds, userToken)) { res =>
                             (res \\ "Status").head.text match {
                                 case "Success" =>
                                     val products = (res \\ "ProductList")
@@ -235,20 +260,24 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                                             }.toList)))
 
                                 case "Failure" =>
-                                    logger.error("Error fetching products for order %s with user token %s: %s".format(orderNumber, userToken, res))
+                                    logger.error("Error fetching products for order {} with user token {}: {}", orderNumber, userToken, res)
                                     channel ! FetchOrderResponse(
                                         msg,
                                         Left(NetworkSolutionsPartnerException("Error fetching products for order %s" format orderNumber)))
                             }
-                        })
+                        } {
+                            case e => logger.error("Unexpected error fetching products for order{} with user token{}: {}", orderNumber, userToken, e)
+                        }
 
                     case "Failure" =>
-                        logger.error("Error fetching order %s for user token %s: %s" format(orderNumber, userToken, res))
+                        logger.error("Error fetching order {} for user token {}: {}", orderNumber, userToken, res)
                         channel ! FetchOrderResponse(
                             msg,
                             Left(NetworkSolutionsPartnerException("Error fetching order %s" format orderNumber)))
                 }
-            })
+            } {
+                case e => logger.error("Unexpected error fetching order {} for user token {}: {}", orderNumber, userToken, e)
+            }
     }
 
     }), "NetworkSolutionsAccess")

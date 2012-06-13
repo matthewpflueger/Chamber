@@ -2,7 +2,8 @@ package com.echoed.chamber.services.partner.bigcommerce
 
 
 import dispatch._
-import dispatch.nio._
+
+import scala.collection.JavaConversions._
 import com.echoed.util.ScalaJson._
 import java.util.{Map => JMap}
 
@@ -222,14 +223,15 @@ object DispatcherJSONTest extends App {
 
     h(endpoint
             .as_!(apiUser, apiToken)
-            / "orders/107/products"
-            <:< Map("Accept" -> "application/json")
-            >\ "utf-8"
-            >>  { res =>
-        val node = parse[Array[JMap[String, AnyRef]]](res)
-//        val node = parse[JsonNode](res)
+            .addHeader("Accept", "application/json; charset=utf-8")
+            / "orders/107/products" OK As.string).onSuccess { case res =>
+        val node = parse[Array[JMap[String, AnyRef]]](res).apply(0)//.asInstanceOf[java.util.Map[String, AnyRef]]
         println("Json is %s" format node)
-
+        for ( k <- node.keySet()) {
+            println("Key %s is %s" format(k, node.get(k)))
+        }
+//        val node = parse[JsonNode](res)
+//        println("Json is %s" format node)
 //        val node = parse[Array[JMap[String, AnyRef]]](res)
 //        println("Json is %s" format node)
         //val id = node("id") //findValue("time")
@@ -243,9 +245,10 @@ object DispatcherJSONTest extends App {
 //        val time = node.findValue("time")
 //        println("Time is: %s" format time)
 //        node
-    } >! {
+    }.onFailure {
         case e => println("Received error!: %s" format e)
-    })
+    }
+
 
 
 

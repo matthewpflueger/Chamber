@@ -1,17 +1,13 @@
 package com.echoed.chamber.services.partner.bigcommerce
 
 import reflect.BeanProperty
-import org.slf4j.LoggerFactory
 import java.util.{Map => JMap}
 import collection.JavaConversions._
 import collection.mutable.{ListBuffer => MList, HashMap => MMap}
 
 import dispatch._
-import dispatch.nio.Http
-
 
 import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
-import java.io.InputStream
 import com.echoed.util.ScalaJson._
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
 import org.joda.time.format.DateTimeFormat
@@ -25,16 +21,10 @@ import akka.actor.SupervisorStrategy.Stop
 
 class BigCommerceAccessActor extends FactoryBean[ActorRef] {
 
-    private final val logger = LoggerFactory.getLogger(classOf[BigCommerceAccessActor])
-
     //example: Mon, 14 May 2012 18:11:26 +0000
     private final val dateFormatter = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss Z")
 
     @BeanProperty var client: Http = _
-
-    private val contentType = Map("Accept" -> "application/json")
-    private val encoding = "utf-8"
-
 
     @BeanProperty var timeoutInSeconds = 20
     @BeanProperty var actorSystem: ActorSystem = _
@@ -61,30 +51,35 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
         url(c.apiPath)
             .as_!(c.apiUser, c.apiToken)
             ./(path)
-            .<:<(contentType)
-            .>\(encoding)
+            .addHeader("Accept", "application/json; charset=utf-8")
+
 
     private def request(c: BigCommerceCredentials, path: String)
-            (callback: InputStream => Unit)
-            (error: ExceptionListener) = client(endpoint(c, path).>>(callback).>!(error))
+            (callback: String => Unit)
+            (error: PartialFunction[Throwable, Unit]) =
+        client(endpoint(c, path) OK As.string).onSuccess {
+            case s => callback(s)
+        }.onFailure {
+            case e => error(e)
+        }
 
 
     private def requestAsMap(c: BigCommerceCredentials, path: String)
             (callback: Map[String, AnyRef] => Unit)
-            (error: ExceptionListener) =
+            (error: PartialFunction[Throwable, Unit]) =
         request(c, path) { in => callback(parse[Map[String, AnyRef]](in).withDefaultValue("")) } (error)
 
     private def requestAsArray(c: BigCommerceCredentials, path: String)
             (callback: Array[JMap[String, AnyRef]] => Unit)
-            (error: ExceptionListener) =
+            (error: PartialFunction[Throwable, Unit]) =
         request(c, path) { in => callback(parse[Array[JMap[String, AnyRef]]](in)) } (error)
 
 
     def receive = {
-        case msg @ ('error, e: IllegalStateException) =>
+        /*case msg @ ('error, e: IllegalStateException) =>
             logger.error("Restarting Http client due to error", e)
             client.shutdown()
-            client = new Http
+            client = new Http*/
 
         case msg @ ('error, e: Throwable) =>
             logger.error("Received error but not restarting Http client", e)
