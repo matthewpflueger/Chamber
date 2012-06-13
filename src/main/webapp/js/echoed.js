@@ -266,7 +266,7 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
         this.locked = false;
         var self = this;
         $(window).scroll(function(){
-            if($(window).scrollTop() + 250 >= $(document).height() - $(window).height() && self.locked == false){
+            if($(window).scrollTop() + 600 >= $(document).height() - $(window).height() && self.locked == false){
                 self.EvAg.trigger("infiniteScroll");
             }
         });
@@ -294,7 +294,7 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','addProduct','filterProducts','next','complete','relayout','addQuestion');
+        _.bindAll(this,'render','addProduct','filterProducts','next','complete','relayout','addQuestion', 'addProducts');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
@@ -396,11 +396,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         });
         if(data.echoes){
             if(data.echoes.length > 0){
-                $.each(data.echoes, function(index,product){
-                    var productModel = new Echoed.Models.Product(product);
-                    self.addProduct(productModel,self.filter);
-                    self.EvAg.trigger('Filter/add',product.echoCategory,product.echoCategory);
-                });
+                self.addProducts(data);
                 self.productCount += data.echoes.length;
                 self.EvAg.bind('infiniteScroll', self.next);
             }
@@ -462,13 +458,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 dataType: 'json',
                 success: function(data){
                     if(data.echoes.length > 0){
-                        $.each(data.echoes, function(index,product){
-                            var productModel = new Echoed.Models.Product(product);
-                            self.addProduct(productModel,self.filter);
-                            self.EvAg.trigger('Filter/add',product.echoCategory,product.echoCategory);
-                        });
-                        self.productCount += data.echoes.length;
-                        self.EvAg.trigger('infiniteScroll/unlock');
+                        self.addProducts(data);
                         self.nextInt++;
 
                     }
@@ -500,6 +490,22 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var questionDiv = $('<div></div>').addClass("item_wrap").addClass('fbp');
         var questionComp = new Echoed.Views.Components.Question({ el: questionDiv, question: question, EvAg: self.EvAg});
         self.exhibit.isotope('insert', questionDiv);
+    },
+    addProducts: function(data){
+        var self = this;
+        var productsFragment = $('<div></div>');
+        var lastDiv;
+        $.each(data.echoes, function(index, product){
+
+            var productDiv = $('<div></div>');
+            var productModel = new Echoed.Models.Product(product);
+            var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg });
+            self.EvAg.trigger('Filter/add',product.echoCategory,product.echoCategory);
+            productsFragment.append(productDiv);
+        });
+        self.exhibit.isotope('insert',productsFragment.children(), function(){
+            self.EvAg.trigger('infiniteScroll/unlock');
+        });
     },
     addProduct: function(productModel,filter){
         var self = this;
