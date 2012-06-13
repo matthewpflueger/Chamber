@@ -42,6 +42,12 @@ case class GetPartnerSettingsResponse(
                 value: Either[AUE, JList[PartnerSettings]])
                 extends AUM with RM[JList[PartnerSettings], GetPartnerSettings, AUE]
 
+case class GetCurrentPartnerSettings(partnerId: String) extends AUM
+case class GetCurrentPartnerSettingsResponse(
+                message: GetCurrentPartnerSettings,
+                value: Either[AUE, PartnerSettings])
+                extends AUM with RM[PartnerSettings, GetCurrentPartnerSettings, AUE]
+
 case class GetUsers() extends AUM
 case class GetUsersResponse(
                 message: GetUsers, 

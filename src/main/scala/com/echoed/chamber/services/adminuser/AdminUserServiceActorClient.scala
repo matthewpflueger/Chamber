@@ -24,6 +24,9 @@ class AdminUserServiceActorClient(adminUserServiceActor: ActorRef)
 
     def getPartnerSettings(partnerId: String) =
         (adminUserServiceActor ? GetPartnerSettings(partnerId)).mapTo[GetPartnerSettingsResponse]
+
+    def getCurrentPartnerSetting(partnerId: String) =
+        (adminUserServiceActor ? GetCurrentPartnerSettings(partnerId)).mapTo[GetCurrentPartnerSettingsResponse]
     
     def getEchoPossibilities =
         (adminUserServiceActor ? GetEchoPossibilities()).mapTo[GetEchoPossibilitesResponse]

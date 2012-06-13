@@ -105,6 +105,31 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
     },
     renderPartnerSettings: function(t, v){
         $.ajax({
+            url: Echoed.urls.api + "/admin/partners/" + v + "/settings/current",
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data) {
+                var form = $('#partner-settings-add');
+                $('#closetPercentage').val(data.closetPercentage);
+                $('#minClicks').val(data.minClicks);
+                $('#minPercentage').val(data.minPercentage);
+                $('#maxClicks').val(data.maxClicks);
+                $('#maxPercentage').val(data.maxPercentage);
+                $('#echoedMatchPercentage').val(data.echoedMatchPercentage);
+                $('#echoedMaxPercentage').val(data.echoedMaxPercentage);
+                $('#creditWindow').val(data.creditWindow);
+                $('#views').val(data.views);
+                $('#hashtag').val(data.hashTag);
+                $('#couponCode').val(data.couponCode);
+                $('#couponDescription').val(data.couponDescription);
+                var utcString = new Date(data.couponExpiresOn).toISOString();
+                var expiresString = utcString.substr(5, 2) + "-" + utcString.substr(8, 2) + "-" +  utcString.substr(0, 4);
+                $('#couponExpiresOn').val(expiresString);
+            }
+        });
+        $.ajax({
             url: Echoed.urls.api + "/admin/partners/" + v + "/settings",
             dataType: 'json',
             xhrFields: {
@@ -139,7 +164,7 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                     row.cells.push({"text" : partnerSettings.maxClicks });
                     row.cells.push({"text" : partnerSettings.maxPercentage });
                     row.cells.push({"text" : partnerSettings.views });
-                    row.cells.push({"text" : partnerSettings.hashtag ? partnerSettings.hashtag: ""});
+                    row.cells.push({"text" : partnerSettings.hashTag ? partnerSettings.hashTag: ""});
                     row.cells.push({"text" : partnerSettings.couponCode });
                     row.cells.push({"text" : partnerSettings.couponDescription });
                     row.cells.push({"text" : expiresDate.toDateString() });

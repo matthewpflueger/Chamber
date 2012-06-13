@@ -144,6 +144,31 @@ class AdminController {
         result
     }
 
+    @RequestMapping(value = Array("/partners/{id}/settings/current"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getLastPartnerSettingsJSON(
+            @PathVariable(value = "id") partnerId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult("error")
+        val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+
+        adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
+            case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                logger.debug("AdminUser Service Located")
+                adminUserService.getCurrentPartnerSetting(partnerId).onSuccess {
+                    case GetCurrentPartnerSettingsResponse(_, Right(partnerSettings)) =>
+                        logger.debug("Received Json Response for Partner Settings: {}", partnerSettings)
+                        result.set(partnerSettings)
+                }
+
+        }
+
+        result
+
+    }
+
 
 
     @RequestMapping(value = Array("/users"), method = Array(RequestMethod.GET))

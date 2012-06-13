@@ -60,6 +60,19 @@
         order by activeOn desc
     </select>
 
+    <select id="getCurrentPartnerSettings" resultMap="com.echoed.chamber.dao.partner.PartnerSettingsDao.partnerSettingsResult">
+        select
+            *
+        from
+            PartnerSettings
+        where
+            partnerId = #{partnerId}
+            and
+            activeOn &lt;= NOW()
+        order by activeOn desc
+        limit 0, 1
+    </select>
+
     <select id="getUsers" resultMap="echoedUserResult">
         select
             id,

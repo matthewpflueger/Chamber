@@ -15,6 +15,9 @@ trait AdminViewDao {
     def getPartnerSettings(
         @Param("partnerId") partnerId: String): JList[PartnerSettings]
 
+    def getCurrentPartnerSettings(
+        @Param("partnerId") partnerId: String): PartnerSettings
+
     def getEchoPossibilities: JList[Echo]
 
 }
