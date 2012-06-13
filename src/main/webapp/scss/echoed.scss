@@ -308,6 +308,20 @@ h2{
                 }
             }
 
+        #infiniteScroll{
+            position: fixed;
+            z-index: 99999;
+            bottom: 0px;
+            left: 50%;
+            width: 250px;
+            height: 50px;
+            line-height: 50px;
+            background-image: image-url("bg-blackPx90.png");
+            margin-left: -75px;
+            @include textFontBold(16px, #FFF);
+            text-align: center;
+        }
+
         #field{
             position:absolute;
             top: 50px;

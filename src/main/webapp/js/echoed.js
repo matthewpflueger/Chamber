@@ -11,8 +11,13 @@ Echoed = {
         var router = new Echoed.Router({EvAg: EventAggregator});
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
         var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
+<<<<<<< Updated upstream
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({EvAg : EventAggregator});
         //var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
+=======
+        var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#infiniteScroll', EvAg : EventAggregator});
+        var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
+>>>>>>> Stashed changes
         var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Filter', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         Backbone.history.start();
@@ -257,15 +262,29 @@ Echoed.Views.Components.Field = Backbone.View.extend({
 
 Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'triggerScroll');
+        _.bindAll(this,'triggerScroll', 'lock', 'unlock');
         this.EvAg = options.EvAg;
-        this.EvAg.bind("triggerInfiniteScroll",this.triggerScroll);
+        this.EvAg.bind("triggerInfiniteScroll", this.triggerScroll);
+        this.EvAg.bind("infiniteScroll/lock", this.lock);
+        this.EvAg.bind("infiniteScroll/unlock", this.unlock);
+        this.element = $(options.el);
+        this.locked = false;
         var self = this;
         $(window).scroll(function(){
-            if($(window).scrollTop() +50 >= $(document).height() - $(window).height()){
+            if($(window).scrollTop() + 250 >= $(document).height() - $(window).height() && self.locked == false){
                 self.EvAg.trigger("infiniteScroll");
             }
         });
+    },
+    lock: function(){
+        var self = this;
+        self.element.show();
+        self.locked = true
+    },
+    unlock: function(){
+        var self = this;
+        self.element.hide();
+        self.locked = false;
     },
     triggerScroll: function(){
         var self = this;
@@ -439,7 +458,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     next: function(){
         var self = this;
         if(self.nextInt != null){
-            self.EvAg.unbind('infiniteScroll');
+            self.EvAg.trigger('infiniteScroll/lock');
             $.ajax({
                 url: self.jsonUrl + "?page=" + self.nextInt,
                 xhrFields: {
@@ -454,7 +473,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                             self.EvAg.trigger('Filter/add',product.echoCategory,product.echoCategory);
                         });
                         self.productCount += data.echoes.length;
-                        self.EvAg.bind('infiniteScroll', self.next);
+                        self.EvAg.trigger('infiniteScroll/unlock');
                         self.nextInt++;
 
                     }
@@ -467,7 +486,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     complete: function(){
         var self = this;
-        self.EvAg.bind('infiniteScroll', self.next);
+        //self.EvAg.bind('infiniteScroll', self.next);
     },
     addProfile: function(){
         var self = this;
