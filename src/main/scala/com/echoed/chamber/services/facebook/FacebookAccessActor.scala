@@ -4,7 +4,6 @@ import org.codehaus.jackson.`type`.TypeReference
 import com.googlecode.batchfb.`type`.Paged
 import reflect.BeanProperty
 import com.codahale.jerkson.ScalaModule
-import org.slf4j.LoggerFactory
 import com.googlecode.batchfb.{Param, FacebookBatcher}
 import com.googlecode.batchfb.err.{FacebookException => BFE}
 import scala.collection.JavaConversions._
@@ -80,7 +79,7 @@ class FacebookAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! FetchMeResponse(msg, Left(FacebookException("Could not get Facebook user", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    logger.error("Error processing {}: {}", msg, e)
             }
 
 
@@ -98,7 +97,7 @@ class FacebookAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! GetMeResponse(msg, Left(FacebookException("Could not get Facebook user", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    logger.error("Error processing {}: {}", msg, e)
             }
 
 
@@ -119,7 +118,7 @@ class FacebookAccessActor extends FactoryBean[ActorRef] {
                     channel ! GetFriendsResponse(
                         msg,
                         Left(FacebookException("Error fetching Facebook friends", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    logger.error("Error processing {}: {}", msg, e)
             }
 
 
@@ -144,7 +143,7 @@ class FacebookAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! PostResponse(msg, Left(FacebookException("Could not post to Facebook", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    logger.error("Error processing {}: {}", msg, e)
             }
 
         case msg @ PublishAction(accessToken, action, obj, objUrl) =>
@@ -174,8 +173,7 @@ class FacebookAccessActor extends FactoryBean[ActorRef] {
                     logger.debug("Received Publish Action Response %s" format new String(bytes, "UTF-8"))
                 }
             } catch {
-                case e =>
-                    logger.debug("Error processing %s" format e)
+                case e => logger.debug("Error processing {}: {}", msg, e)
             }
 
 
@@ -323,7 +321,7 @@ class FacebookAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     context.sender ! LogoutResponse(msg, Left(FacebookException("Could not logout from Facebook")))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
     }
 
