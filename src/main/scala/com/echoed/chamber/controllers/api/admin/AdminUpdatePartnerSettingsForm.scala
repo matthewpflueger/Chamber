@@ -72,7 +72,7 @@ case class AdminUpdatePartnerSettingsForm(
 
     @NumberFormat(style=Style.PERCENT)
     def getMaxPercentage() = maxPercentage
-    def setMaxPercentage(msgPercentage: Float) = { this.maxPercentage = maxPercentage }
+    def setMaxPercentage(maxPercentage: Float) = { this.maxPercentage = maxPercentage }
 
     @NumberFormat(style=Style.PERCENT)
     def getEchoedMatchPercentage() = echoedMatchPercentage

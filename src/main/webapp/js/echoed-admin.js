@@ -55,7 +55,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
 Echoed.Views.Pages.Partners = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this);
+        _.bindAll(this, 'updatePartnerSettings', 'renderPartnerSettings');
         this.EvAg = options.EvAg;
         this.element = $(this.el);
         this.EvAg.bind('select/change', this.renderPartnerSettings);
@@ -87,9 +87,13 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
         })
     },
     updatePartnerSettings: function(){
+        var self = this;
         var form = $('#partner-settings-add');
         var serializedString = form.serialize();
+
+        //alert(serializedString);
         var v = $('#partnerId').val();
+        var t = $('#partnerName').val();
         $.ajax({
             url: Echoed.urls.api + "/admin/partners/" + v + "/settings/update",
             data: form.serialize(),
@@ -99,7 +103,10 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                alert(JSON.stringify(data));
+                //alert(JSON.stringify(data));
+                alert("Successfully Updated Partner Setting");
+                $("html, body").animate({scrollTop: 0 }, 300);
+                self.renderPartnerSettings(t, v);
             }
         })
     },
