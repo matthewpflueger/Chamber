@@ -153,7 +153,7 @@ h2{
 
         #user{
             float:right;
-            width: 180px;
+            //width: 180px;
 
             margin: 0px 10px;
             padding: 3px 0px;
@@ -163,12 +163,12 @@ h2{
                 margin-left: 10px;
                 line-height:30px;
                 @include textFontNormal(12px);
-                float:left;
+                float:right;
                 text-align:left;
             }
 
             #user-image{
-                float:left;
+                float:right;
                 #u-i-i{
                     height: 30px;
                     border: 2px #CCC solid;
