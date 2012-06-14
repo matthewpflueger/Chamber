@@ -1,0 +1,111 @@
+//MIXINS
+$textFontFamily: Lato, Tahoma, Arial,sans-serif;
+
+//DROP SHADOW
+@mixin drop-shadow{
+    box-shadow: 0 1px 2px rgba(34,25,25,0.4);
+    -moz-box-shadow: 0px 1px 2px rgba(34,25,25,0.4);
+    -webkit-box-shadow: 0px 1px 2px rgba(34,25,25,0.4);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
+}
+@mixin navFont($size: 12px, $color: #333){
+    font-family: $textFontFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: normal;
+}
+
+@mixin textFontBold($size: 12px, $color: #333) {
+    font-family: $textFontFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: 700;
+}
+
+@mixin textFontLight($size: 12px, $color: #333){
+    font-family: $textFontFamily;
+    font-weight: 300;
+    color: $color;
+    font-size: $size;
+}
+
+@mixin textFontNormal($size: 12px, $color: #333){
+    font-family: $textFontFamily;
+    font-weight: normal;
+    color: $color;
+    font-size: $size;
+}
+
+//RESET
+html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
+pre, form, fieldset, table, th, td{
+    margin:0;
+    padding: 0;
+    @include textFontNormal;
+}
+
+html, body{
+    height: 100%;
+}
+
+.echoed-container{
+    width: 100%;
+    height: 100%;
+    background-color: #4C4C4C;
+    padding-top: 40px;
+    .echoed-email{
+        width: 660px;
+        margin: auto;
+        background-color: #FFF;
+        border-radius: 5px;
+        .echoed-email-header{
+            padding: 5px;
+            height: 50px;
+            .echoed-email-header-subject{
+                float:left;
+                @include textFontNormal(20px, #000)
+            }
+            .echoed-email-header-date{
+                float:right;
+                @include textFontNormal(20px, #000);
+            }
+        }
+        .echoed-email-body{
+            padding: 10px;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            background-color: #ECECEC;
+            min-height: 600px;
+            .echoed-email-body-title{
+                @include textFontNormal(48px, #333);
+                border-bottom: 2px groove #FFF;
+                text-shadow: -1px 1px #FFF;
+                padding-bottom: 10px;
+            }
+            .echoed-email-body-content{
+                margin-top: 20px;
+                width: 400px;
+                line-height: 1.5em;
+                @include textFontNormal(14px, #111);
+            }
+        }
+        .echoed-email-footer{
+            height: 50px;
+            .echoed-logo{
+                float:right;
+                margin: 5px;
+            }
+        }
+    }
+    .echoed-footer{
+        width: 660px;
+        margin: 10px auto;
+        p {
+            margin: 10px 0px;
+            @include textFontNormal(11px, #FFF);
+        }
+
+    }
+
+}
