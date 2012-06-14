@@ -60,7 +60,7 @@ class ExhibitController {
                                     val view =
                                         if (appType == "facebook") {
                                             eventService.facebookCanvasViewed(closet.echoedUser)
-                                            closetViewFacebook
+                                            closetView
                                         } else {
                                             eventService.exhibitViewed(closet.echoedUser)
                                             closetView
