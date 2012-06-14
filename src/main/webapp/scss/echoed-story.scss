@@ -103,15 +103,9 @@ img{
         //@include inset-shadow;
         background-color: #CCC;
         .echo-s-b-item{
-<<<<<<< Updated upstream
-
-            width: 420px;
-            margin: 5px;
-=======
             border: 1px solid #CCC;
             width: 300px;
             margin: 2px;
->>>>>>> Stashed changes
             float: left;
             background-color: #FFF;
             .echo-s-b-i-c{
@@ -120,12 +114,7 @@ img{
                     padding: 5px;
                     .echo-s-b-i-t-t{
                         padding-bottom: 5px;
-<<<<<<< Updated upstream
-                        margin-bottom: 5px;
-                        @include textFontBold(24px);
-=======
                         @include textFont(20px);
->>>>>>> Stashed changes
                         border-bottom: 1px solid #CCC;
                     }
                     .echo-s-b-i-t-b{
