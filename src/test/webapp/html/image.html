@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="http://localhost.com:8080/css/echoed-lightbox.css" />
+    <link rel="stylesheet" href="http://localhost.com:8080/js/fileuploader.css" />
+    <title>Image Upload Test</title>
+    <script type='text/javascript' src="http://localhost.com:8080/js/jquery-1.6.2.min.js"></script>
+    <script type='text/javascript' src="http://localhost.com:8080/js/fileuploader.js"></script>
+</head>
+<body>
+<div id="container">
+    <div id="upload-area">
+        <div id="preview">
+            <img width="100px" height="100px" src="http://localhost.com:8080/images/icon_echoed.png" id="thumb">
+        </div>
+
+        <div id="fileUpload">
+		    <noscript>
+			    <!--<p>Please enable JavaScript to use file uploader.</p>-->
+			    <!-- or put a simple form for upload here -->
+                <form action="/image" id="imageUploadForm">
+                    <label>Upload a picture for your story!</label>
+                    <input type="file" size="20" id="imageUpload" class=" ">
+                    <button class="button" type="submit">Save</button>
+                </form>
+		    </noscript>
+	    </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //Ripped from:
+    //http://css-tricks.com/ajax-image-uploading/
+    //https://github.com/valums/ajax-upload
+    //http://valums.com/ajax-upload/
+
+    $(document).ready(function(){
+
+	var thumb = $('#thumb');
+
+    var uploader = new qq.FileUploader({
+        element: document.getElementById('fileUpload'),
+        action: '/image',
+        debug: true,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+        onSubmit: function(id, fileName) {
+            //missing the loading.gif...
+            $('#preview').addClass('loading');
+        },
+        onComplete: function(id, fileName, response) {
+            thumb.load(function(){
+                $('#preview').removeClass('loading');
+                thumb.unbind();
+            });
+            thumb.attr('src', response.url);
+        }
+    });
+
+});
+</script>
+</body>
+</html>

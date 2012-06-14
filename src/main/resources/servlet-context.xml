@@ -19,6 +19,7 @@
 
     <import resource="classpath:chamber-properties.xml" />
 
+    <bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver" />
 
     <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager" />
 
@@ -81,6 +82,13 @@
                 <bean class="org.springframework.format.datetime.DateFormatter" />
             </set>
         </property>
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="imageUploadController" class="com.echoed.chamber.controllers.ImageUploadController">
+        <property name="cookieManager" ref="cookieManager" />
+        <property name="blobStore" ref="blobStore" />
+        <property name="imageService" ref="imageService" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

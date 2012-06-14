@@ -254,17 +254,22 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                     list += ((msg, channel))
 //                    responses.put(image.url, list)
 
-                    if (!image.hasOriginal) {
+                    val img = Option(imageDao.findByUrl(image.url)).orElse {
+                        imageDao.insert(image)
+                        Some(image)
+                    }.get
+
+                    if (!img.hasOriginal) {
                         me ! ProcessOriginalImage(image)
-                    } else if (!image.hasSized) {
+                    } else if (!img.hasSized) {
                         me ! ProcessSizedImage(image)
-                    } else if (!image.hasThumbnail) {
+                    } else if (!img.hasThumbnail) {
                         me ! ProcessThumbnailImage(image)
                     } else {
                         //sanity check...
-                        logger.error("Image already processed!?!? %s" format image.url, new RuntimeException())
-                        responses.remove(image.url)
-                        channel ! ProcessImageResponse(msg, Right(image))
+                        logger.error("Image already processed!?!? %s" format img.url, new RuntimeException())
+                        responses.remove(img.url)
+                        channel ! ProcessImageResponse(msg, Right(img))
                     }
                 } //)
 

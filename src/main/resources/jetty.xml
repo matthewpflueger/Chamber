@@ -111,6 +111,14 @@
                                                     </map>
                                                 </property>
                                                 <property name="asyncSupported" value="true" />
+                                                <property name="registration.multipartConfig">
+                                                    <bean class="javax.servlet.MultipartConfigElement">
+                                                        <constructor-arg name="location" value="/tmp" />
+                                                        <constructor-arg name="maxFileSize" value="20971520" /> <!-- 20MB -->
+                                                        <constructor-arg name="maxRequestSize" value="41943040" /> <!-- 40MB -->
+                                                        <constructor-arg name="fileSizeThreshold" value="102400" /> <!-- 100K -->
+                                                    </bean>
+                                                </property>
                                             </bean>
                                             <bean class="org.eclipse.jetty.servlet.ServletHolder">
                                                 <property name="name" value="default" />
