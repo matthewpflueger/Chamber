@@ -291,21 +291,25 @@ class TwitterServiceLocatorActor extends FactoryBean[ActorRef] {
             }
 
             try {
-                logger.debug("Creating new TwitterService With id {}", id)
-                Option(twitterUserDao.findById(id)).cata(
-                    twitterUser => {
-                        channel ! CreateTwitterServiceWithIdResponse(msg, Right(
-                            new TwitterServiceActorClient(context.actorOf(Props().withCreator {
-                                val tu = Option(twitterUserDao.findById(id)).get
-                                new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, echoClickUrl, tu)
-                            }, id))))
-                        logger.debug("Created TwitterService with id {}", id)
-                    },
+                idCache.get(id).cata(
+                    ts => channel ! CreateTwitterServiceWithIdResponse(msg, Right(ts)),
                     {
-                        channel ! CreateTwitterServiceWithIdResponse(
-                                msg,
-                                Left(TwitterUserNotFound(id)))
-                        logger.debug("Twitter user with id {} not found", id)
+                        logger.debug("Creating new TwitterService With id {}", id)
+                        Option(twitterUserDao.findById(id)).cata(
+                            twitterUser => {
+                                channel ! CreateTwitterServiceWithIdResponse(msg, Right(
+                                    new TwitterServiceActorClient(context.actorOf(Props().withCreator {
+                                        val tu = Option(twitterUserDao.findById(id)).get
+                                        new TwitterServiceActor(twitterAccess, twitterUserDao, twitterStatusDao, echoClickUrl, tu)
+                                    }, id))))
+                                logger.debug("Created TwitterService with id {}", id)
+                            },
+                            {
+                                channel ! CreateTwitterServiceWithIdResponse(
+                                        msg,
+                                        Left(TwitterUserNotFound(id)))
+                                logger.debug("Twitter user with id {} not found", id)
+                            })
                     })
             } catch { case e => error(e) }
     }
