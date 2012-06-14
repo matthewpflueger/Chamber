@@ -475,11 +475,11 @@ class EchoedUserServiceActor(
             val channel = context.sender
 
             try{
-                val partnerName = msg.partnerName
-                logger.debug("Attempting to retrieve Partner Feed for Partner {} as EchoedUser {} ", partnerName, echoedUser.id)
+                val partnerId = msg.partnerId
+                logger.debug("Attempting to retrieve Partner Feed for Partner {} as EchoedUser {} ", partnerId, echoedUser.id)
                 val limit = 30;
                 val start = msg.page * limit;
-                val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerName,start, limit)).toList
+                val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, limit)).toList
                 val partnerFeed = new PublicFeed(echoes)
                 channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
             } catch {

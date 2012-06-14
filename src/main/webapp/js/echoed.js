@@ -404,6 +404,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.nextInt = null;
                 var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
                 noEchoDiv.appendTo(exhibit);
+                self.EvAg.trigger("infiniteScroll/unlock");
             }
         }
         if(data.product){
@@ -806,7 +807,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Product = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'showOverlay','hideOverlay','enlarge','shrink','click');
+        _.bindAll(this,'showOverlay','hideOverlay','enlarge','shrink','click','clickPartner');
         this.el = options.el;
         this.EvAg = options.EvAg;
         this.state =0;
@@ -815,7 +816,8 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     events:{
         "mouseenter": "showOverlay",
         "mouseleave": "hideOverlay",
-        "click": "click"
+        "click .icl_pn" : "clickPartner",
+        "click .exhibit_image": "click"
     },
     render: function(){
         var template = _.template($('#templates-components-product').html());
@@ -832,17 +834,13 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
-        var item_name = this.el.find('.icl_in');
-        var partner_name = this.el.find(".icl_pn");
         if(this.model.get("echoProductName")){
             hover.append(this.model.get("echoProductName") + '<br/>');
             text.prepend(this.model.get("echoProductName")+'<br/>');
-            item_name.append(this.model.get("echoProductName"));
         }
         if(this.model.get("partnerName")){
-            text.prepend('<strong>'+this.model.get("partnerName") + '</strong><br/>');
+            text.prepend('<span class="icl_pn"><strong>'+this.model.get("partnerName") + '</strong></span><br/>');
             hover.append(this.model.get("partnerName") + '<br/>');
-            partner_name.append(this.model.get("partnerName"));
         }
         if(this.model.get("echoedUserName"))
             hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/>');
@@ -873,10 +871,10 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         return this;
     },
     showOverlay: function(){
-        this.el.find('.item_hover').slideDown('fast');
+        //this.el.find('.item_hover').slideDown('fast');
     },
     hideOverlay: function(){
-        this.el.find('.item_hover').slideUp('fast');
+        //this.el.find('.item_hover').slideUp('fast');
     },
     enlarge: function(){
         var self = this;
@@ -904,43 +902,13 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         self.el.find('.item_content_large').hide();
 
     },
-    submitTestimonial: function(){
+    clickPartner: function(e){
         var self = this;
-        var textarea = self.el.find('.ta');
-        var id = self.el.attr("id");
-        $.ajax({
-            url: Echoed.urls.api + "/user/" + id + "/testimonial",
-            type: "POST",
-            data: {
-                message: textarea.val()
-            },
-            xhrFields: {
-                withCredentials: true
-            },
-            dataType: 'json',
-            success: function(data){
-                //alert("success");
-            }
-        })
+        window.location.hash = "#partners/" + this.el.attr('partnerId');
     },
     click: function(e){
         var self = this;
-        /*
-        if(self.state === 0) {
-            self.enlarge();
-        } else {
-            var target = $(e.target);
-            switch(target.attr("class")){
-                case "submit":
-                    self.submitTestimonial();
-                    break;
-            }
-        } */
-        //var partnerId = this.el.attr("partnerId");
-        //var productId = this.el.attr("productId");
-        //window.location.hash = "#echo/" + partnerId + "/" + productId;
         var href = this.el.attr("href");
         window.open(href);
-
     }
 });

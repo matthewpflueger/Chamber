@@ -53,7 +53,7 @@ trait EchoedUserService {
 
     def getFriends: Future[GetEchoedFriendsResponse]
     
-    def getPartnerFeed(partnerName: String, page: Int): Future[GetPartnerFeedResponse]
+    def getPartnerFeed(partnerId: String, page: Int): Future[GetPartnerFeedResponse]
 
     def logout(echoedUserId: String): Future[LogoutResponse]
 }

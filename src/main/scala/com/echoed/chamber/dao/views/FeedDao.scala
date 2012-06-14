@@ -24,7 +24,7 @@ trait FeedDao {
                             @Param("limit") limit: Int): JList[EchoViewPublic]
     
     def getPartnerFeed(
-                            @Param("partnerName") partnerName:String, 
+                            @Param("partnerId") partnerId: String,
                             @Param("start")  start: Int, 
                             @Param("limit") limit : Int) : JList[EchoViewPublic]
 }

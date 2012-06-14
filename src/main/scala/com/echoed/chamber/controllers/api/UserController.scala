@@ -144,11 +144,11 @@ class UserController {
         result
     }
     
-    @RequestMapping(value = Array("/feed/partner/{name}"), method=Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/partner/{partnerId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def partnerFeed(
             @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
-            @PathVariable(value="name") partnerName: String,
+            @PathVariable(value="partnerId") partnerId: String,
             @RequestParam(value="page", required = false) page: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
@@ -157,13 +157,13 @@ class UserController {
 
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
         
-        logger.debug("Requesting for Partner Feed for Partner {}", partnerName )
+        logger.debug("Requesting for Partner Feed for Partner {}", partnerId )
 
         var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
         echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
             case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                echoedUserService.getPartnerFeed(partnerName, pageInt).onSuccess {
+                echoedUserService.getPartnerFeed(partnerId, pageInt).onSuccess {
                     case GetPartnerFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
                 }
         }

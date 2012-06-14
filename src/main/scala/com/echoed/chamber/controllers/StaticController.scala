@@ -34,4 +34,7 @@ class StaticController {
 
     @RequestMapping(value = Array("/story"), method = Array(RequestMethod.GET))
     def story = new ModelAndView("story")
+
+    @RequestMapping(value = Array("/email"), method = Array(RequestMethod.GET))
+    def email = new ModelAndView("email_template")
 }

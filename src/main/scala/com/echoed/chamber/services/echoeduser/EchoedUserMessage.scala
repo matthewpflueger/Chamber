@@ -87,7 +87,7 @@ case class GetFeed(page: Int) extends EUM
 case class GetFeedResponse(message: GetFeed, value: Either[EUE, Feed])
     extends EUM with RM[Feed, GetFeed, EUE]
 
-case class GetPartnerFeed(partnerName: String, page: Int) extends EUM
+case class GetPartnerFeed(partnerId: String, page: Int) extends EUM
 case class GetPartnerFeedResponse(message: GetPartnerFeed,  value: Either[EUE, PublicFeed])
     extends EUM with RM[PublicFeed, GetPartnerFeed, EUE]
 

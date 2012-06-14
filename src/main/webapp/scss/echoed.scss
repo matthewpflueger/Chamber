@@ -515,6 +515,13 @@ h2{
     	            }
     	        }
 
+                .icl_pn{
+                    cursor: pointer;
+                    &:hover{
+                        text-decoration: underline;
+                    }
+                }
+
     	        .item_content_large{
                     background-image: image-url("bk_noise.png");
                     width: 690px;
@@ -529,6 +536,9 @@ h2{
                         @include textFontNormal(24px);
                         border-bottom: 1px solid #CCC;
                         box-shadow: 1px 1px 0px #FFF;
+                        &:hover{
+                            text-decoration:underline;
+                        }
                     }
                     .icl_top{
                         padding: 10px;

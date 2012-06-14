@@ -46,7 +46,7 @@ class EchoedUserServiceActorClient(echoedUserServiceActor: ActorRef) extends Ech
     
     def getFeed(page: Int) = (echoedUserServiceActor ? GetFeed(page)).mapTo[GetFeedResponse]
 
-    def getPartnerFeed(partnerName: String, page: Int) = (echoedUserServiceActor ? GetPartnerFeed(partnerName, page)).mapTo[GetPartnerFeedResponse]
+    def getPartnerFeed(partnerId: String, page: Int) = (echoedUserServiceActor ? GetPartnerFeed(partnerId, page)).mapTo[GetPartnerFeedResponse]
 
     def getPublicFeed = (echoedUserServiceActor ? GetPublicFeed(0)).mapTo[GetPublicFeedResponse]
     

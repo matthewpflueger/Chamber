@@ -49,6 +49,7 @@
             <arg column="echoBrand" javaType="String"/>
             <arg column="echoLandingPageUrl" javaType="String"/>
             <arg column="partnerName" javaType="String"/>
+            <arg column="partnerId" javaType="String" />
             <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
         </constructor>
     </resultMap>
@@ -61,6 +62,7 @@
             E.brand as echoBrand,
             E.landingPageUrl as echoLandingPageUrl,
             P.name as partnerName,
+            P.id as partnerId,
             I.id as imageId,
             I.updatedOn as imageUpdatedOn,
             I.createdOn as imageCreatedOn,
@@ -138,13 +140,16 @@
             E.brand as echoBrand,
             E.landingPageUrl as echoLandingPageUrl,
             P.name as partnerName,
+            P.id as partnerId,
             <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
         from
             Echo E
             join Image I on E.imageId = I.id
             join Partner P on E.partnerId = P.id
         where
-            P.name = #{partnerName}
+            P.name = #{partnerId}
+            or
+            P.id = #{partnerId}
         order by
             E.createdOn desc, E.id DESC
         Limit
