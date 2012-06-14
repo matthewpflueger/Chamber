@@ -234,7 +234,7 @@ function echoedPrompt() {
 
         body.appendChild(popupNode);
 
-        $('#echoed-hiw-tt').append("<strong>Share your purchases with your friends!<br/></strong><br/><br/><span class='echoed-highlight'>1.</span> Customize your message <span class='echoed-highlight'> 2. </span> Select your network(s) <span class='echoed-highlight'> 3. </span> Click the share button<br/>Your savings are automatically applied back to your credit card.");
+        $('#echoed-hiw-tt').append("<strong>Share your purchases with your friends!<br/></strong><span class='echoed-highlight'>1.</span> Customize your message <span class='echoed-highlight'> 2. </span> Select your network(s) <span class='echoed-highlight'> 3. </span> Click the share button");
 
         var container = $('#echoed-p-c');
         var table = $('<table><thead><tr><th align="left" colspan="1" width="100px"><img align="absmiddle" src="{{urls.images}}/bk_shopping_cart.png"/>Your Cart</th><th colspan="3" valign="bottom"><div id="echoed-l-i-c"></div></th></tr></thead></table>');
@@ -296,7 +296,7 @@ function echoedPrompt() {
                             row.find('.echoed-td4').remove();
                             row.find('.echoed-td2').css("font-size", "14px").attr("colspan", "3");
                             row.find(".echoed-td-t").remove();
-                            tac.append("<strong>You've successfully shared with Echoed!</strong> Check out what you and others have shared at <a target='_blank' href='{{urls.site}}/#exhibit' class='echoed-highlight'>Echoed.com</a>");
+                            tac.append("<strong>You've successfully shared with Echoed!</strong> Check out what you and others have shared at <a target='_blank' href='{{urls.site}}/#me' class='echoed-highlight'>Echoed.com</a>");
                         }
                     });
                 } else {
