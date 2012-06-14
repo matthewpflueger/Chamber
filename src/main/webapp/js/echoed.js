@@ -219,18 +219,14 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this,'render','filterProducts','next','init','complete','relayout', 'addProducts','addTitle');
         this.EvAg = options.EvAg;
-        this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
         this.EvAg.bind('exhibit/relayout', this.relayout);
-        this.EvAg.bind('question/add', this.addQuestion);
         this.EvAg.bind('exhibit/init', this.init);
+        this.EvAg.bind('infiniteScroll', this.next);
         this.element = $(this.el);
         this.template = _.template($('#templates-pages-exhibit').html());
         this.element.html(this.template);
         this.exhibit = $('#exhibit');
-        this.exhibit.isotope({
-            itemSelector: '.item_wrap, .no_filter'
-        });
     },
     init: function(options){
         var self = this;
@@ -320,7 +316,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         if(data.echoes){
             if(data.echoes.length > 0){
                 self.addProducts(data);
-                self.EvAg.bind('infiniteScroll', self.next);
+
             }
             else{
                 self.nextInt = null;
