@@ -13,12 +13,12 @@ import akka.util.duration._
 import akka.pattern.ask
 import akka.event.Logging
 import com.echoed.chamber.dao.views.{FeedDao, ClosetDao}
-import com.echoed.chamber.dao.partner.PartnerSettingsDao
 import com.echoed.chamber.dao.{EchoMetricsDao, EchoedFriendDao, EchoDao, EchoedUserDao}
 import com.echoed.chamber.services.facebook.{FacebookServiceLocator, GetFacebookUserResponse}
 import com.echoed.chamber.services.twitter.{TwitterServiceLocator, GetUserResponse}
 import com.echoed.chamber.domain.EchoedUser
 import akka.actor.SupervisorStrategy.Restart
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 
 class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
 
@@ -30,6 +30,7 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
     @BeanProperty var echoDao: EchoDao = _
     @BeanProperty var echoedFriendDao: EchoedFriendDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
+    @BeanProperty var partnerDao: PartnerDao = _
 
     @BeanProperty var facebookServiceLocator: FacebookServiceLocator = _
     @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
@@ -210,6 +211,7 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
                                     feedDao = feedDao,
                                     partnerSettingsDao = partnerSettingsDao,
                                     echoDao = echoDao,
+                                    partnerDao = partnerDao,
                                     echoMetricsDao = echoMetricsDao,
                                     facebookServiceLocator = facebookServiceLocator,
                                     twitterServiceLocator = twitterServiceLocator)

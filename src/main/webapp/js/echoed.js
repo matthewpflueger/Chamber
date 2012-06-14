@@ -125,7 +125,7 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'load', 'updateEndpoint', 'submit');
+        _.bindAll(this, 'render', 'load', 'updateEndpoint','openPhotoDialog');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
@@ -133,36 +133,14 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     events: {
         "click .field-close": "close",
-        "click .field-button": "submit"
+        "click .field-photo": "openPhotoDialog"
     },
     updateEndpoint: function(options){
         var self = this;
         self.endpointBase = Echoed.urls.api + '/api/partner/' + options.partner + '/' + options.product;
     },
-    submit: function(){
+    openPhotoDialog: function(options){
         var self = this;
-        var message = self.element.find('textarea').val();
-        if(self.sendingState != 1){
-            self.sendingState = 1;
-            $.ajax({
-                url: self.endpoint,
-                type: "POST",
-                data: {
-                    message: message
-                },
-                xhrFields: {
-                    withCredentials: true
-                },
-                dataType: 'json',
-                success: function(data){
-                    self.element.fadeOut();
-                    self.fade.fadeOut();
-                    self.element.empty();
-                    self.EvAg.trigger("question/add",data)
-                    self.sendingState = 0;
-                }
-            })
-        }
     },
     load: function(action){
         var self = this;
@@ -196,62 +174,14 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     render: function(){
         var self = this;
         self.element.empty();
-
         self.element.html(self.template);
-        var arrPageSizes = self.getPageSize();
-        self.fade = $('<div id="fade"></div>').appendTo($('body')).css({
-            width: arrPageSizes[0],
-            height: arrPageSizes[1]
-        });
         self.element.fadeIn();
     },
     close: function(){
         var self = this;
         self.element.fadeOut();
         self.element.empty();
-        self.fade.fadeOut();
-    },
-    getPageSize: function(){
-        var xScroll, yScroll;
-        if (window.innerHeight && window.scrollMaxY) {
-            xScroll = window.innerWidth + window.scrollMaxX;
-            yScroll = window.innerHeight + window.scrollMaxY;
-        } else if (document.body.scrollHeight > document.body.offsetHeight){ // all but Explorer Mac
-            xScroll = document.body.scrollWidth;
-            yScroll = document.body.scrollHeight;
-        } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
-            xScroll = document.body.offsetWidth;
-            yScroll = document.body.offsetHeight;
-        }
-        var windowWidth, windowHeight;
-        if (self.innerHeight) {	// all except Explorer
-            if(document.documentElement.clientWidth){
-                windowWidth = document.documentElement.clientWidth;
-            } else {
-                windowWidth = self.innerWidth;
-            }
-            windowHeight = self.innerHeight;
-        } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
-            windowWidth = document.documentElement.clientWidth;
-            windowHeight = document.documentElement.clientHeight;
-        } else if (document.body) { // other Explorers
-            windowWidth = document.body.clientWidth;
-            windowHeight = document.body.clientHeight;
-        }
-        // for small pages with total height less then height of the viewport
-        if(yScroll < windowHeight){
-            pageHeight = windowHeight;
-        } else {
-            pageHeight = yScroll;
-        }
-        // for small pages with total width less then width of the viewport
-        if(xScroll < windowWidth){
-            pageWidth = xScroll;
-        } else {
-            pageWidth = windowWidth;
-        }
-        arrayPageSize = new Array(pageWidth,pageHeight,windowWidth,windowHeight);
-        return arrayPageSize;
+        self.element.fadeOut();
     }
 });
 
@@ -294,7 +224,7 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','addProduct','filterProducts','next','complete','relayout','addQuestion', 'addProducts');
+        _.bindAll(this,'render','addProduct','filterProducts','next','complete','relayout','addQuestion', 'addProducts','addTitle');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
@@ -369,18 +299,14 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     render: function(data){
         var self = this;
         self.element.empty();
+        if(typeof(self.exhibit) != "undefined") self.exhibit.isotope('destroy');
         var template = _.template($('#templates-pages-exhibit').html());
         self.element.html(template);
         self.exhibit=$('#exhibit');
 
         self.EvAg.trigger("filter/change",self.filter);
 
-        var exhibit = $('#exhibit');
-        if(self.id == "friends")
-            $('#content-title').html(data.echoedUserName + "'s Exhibit");
-        else
-            $('#content-title').html(self.contentTitle);
-        exhibit.isotope({
+        self.exhibit.isotope({
             itemSelector: '.item_wrap,.no_filter',
             masonry:{
                 columnWidth: 5
@@ -390,10 +316,17 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     return $elem.attr("date");
                 }
             },
-            sortBy: 'date',
-            sortAscending: false,
             filter: self.filter
         });
+
+        if(data.partner){
+            self.addTitle(data.partner.name, data.partner.logo);
+        } else if (self.id == "friends") {
+            self.addTitle(data.echoedUserName);
+        } else {
+            self.addTitle(self.contentTitle);
+        }
+
         if(data.echoes){
             if(data.echoes.length > 0){
                 self.addProducts(data);
@@ -425,9 +358,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             $.each(data.echoedUsers, function(index,echoedUser){
             });
         }
-
-
-
     },
     relayout: function(e){
         var self = this;
@@ -443,9 +373,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         else
             selector = "." + encodeURIComponent(filter);
         self.exhibit.isotope({filter: '.no_filter,#exhibit .item_wrap' + selector});
-    },
-    updateTitle: function(filter){
-
     },
     next: function(){
         var self = this;
@@ -469,6 +396,14 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 }
             });
         }
+    },
+    addTitle: function(title, image){
+        var self = this;
+        var titleDiv = $('<div></div>').addClass('item_wrap').addClass('no_filter').attr("id","title");
+        //if(image) titleDiv.append($('<img />').attr("src", image).attr("height", "40px"));
+        titleDiv.append(title);
+
+        self.exhibit.isotope('insert', titleDiv);
     },
     complete: function(){
         var self = this;
@@ -553,9 +488,6 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
         var self = this;
         this.element.empty();
         this.element.append($("<div act='story' class='action-button'>Tell a Story</div>"));
-        //this.element.append($("<div act='ask' class='action-button'>Ask a Question</div>"));
-        //this.element.append($("<div act='testimonial' class='action-button'>Write a Testimonial</div>"));
-        //this.element.append($("<div act='photo' class='action-button'>Post a Photo</div>"));
     },
     click: function(e){
         var self = this;
@@ -900,7 +832,6 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         self.state = 0;
         self.el.find('.item_content').fadeIn();
         self.el.find('.item_content_large').hide();
-
     },
     clickPartner: function(e){
         var self = this;

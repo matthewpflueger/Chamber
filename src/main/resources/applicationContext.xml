@@ -314,6 +314,7 @@
         <property name="echoedFriendDao" ref="echoedFriendDao" />
         <property name="feedDao" ref="feedDao"/>
         <property name="echoDao" ref="echoDao" />
+        <property name="partnerDao" ref="partnerDao" />
         <property name="echoMetricsDao" ref="echoMetricsDao" />
         <property name="partnerSettingsDao" ref="partnerSettingsDao" />
         <property name="cacheManager" ref="cacheManager" />

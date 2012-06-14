@@ -20,9 +20,9 @@ import akka.util.duration._
 import scala.collection.JavaConversions
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.views.echoeduser.Profile
-import com.echoed.chamber.dao.partner.PartnerSettingsDao
 import akka.event.Logging
 import akka.actor.SupervisorStrategy.{Stop, Restart}
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 
 
 class EchoedUserServiceActor(
@@ -34,6 +34,7 @@ class EchoedUserServiceActor(
         partnerSettingsDao: PartnerSettingsDao,
         echoDao: EchoDao,
         echoMetricsDao: EchoMetricsDao,
+        partnerDao: PartnerDao,
         facebookServiceLocator: FacebookServiceLocator,
         twitterServiceLocator: TwitterServiceLocator) extends Actor {
 
@@ -480,7 +481,8 @@ class EchoedUserServiceActor(
                 val limit = 30;
                 val start = msg.page * limit;
                 val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, limit)).toList
-                val partnerFeed = new PublicFeed(echoes)
+                val partner = partnerDao.findById(partnerId)
+                val partnerFeed = new PartnerFeed(partner, echoes)
                 channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
             } catch {
                 case e =>
