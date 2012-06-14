@@ -170,19 +170,29 @@ Echoed.Views.Components.Field = Backbone.View.extend({
 
 Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'triggerScroll', 'lock', 'unlock');
+        _.bindAll(this,'triggerScroll', 'lock', 'unlock', 'on', 'off');
         this.EvAg = options.EvAg;
         this.EvAg.bind("triggerInfiniteScroll", this.triggerScroll);
         this.EvAg.bind("infiniteScroll/lock", this.lock);
         this.EvAg.bind("infiniteScroll/unlock", this.unlock);
+        this.EvAg.bind("infiniteScroll/on", this.on);
+        this.EvAg.bind("infiniteScroll/off", this.off);
         this.element = $(options.el);
         this.locked = false;
         var self = this;
         $(window).scroll(function(){
-            if($(window).scrollTop() + 600 >= $(document).height() - $(window).height() && self.locked == false){
+            if($(window).scrollTop() + 600 >= $(document).height() - $(window).height() && self.locked == false && self.status == true){
                 self.EvAg.trigger("infiniteScroll");
             }
         });
+    },
+    on: function(){
+        var self = this;
+        self.status = true;
+    },
+    off: function(){
+        var self = this;
+        self.status = false;
     },
     lock: function(){
         var self = this;
@@ -224,8 +234,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     init: function(options){
         var self = this;
-        self.exhibit.isotope();
-        self.exhibit.isotope("destroy");
+        self.EvAg.trigger('infiniteScroll/on');
+        if (self.exhibit.isotope){
+            self.exhibit.isotope("destroy");
+        }
         self.exhibit.empty();
         self.exhibit.isotope({
             itemSelector: '.item_wrap,.no_filter',
@@ -281,6 +293,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 break;
         }
         self.EvAg.trigger('filter/init', self.baseUrl);
+        self.EvAg.trigger('infiniteScroll/lock');
         $.ajax({
             url: self.jsonUrl,
             xhrFields: {
@@ -346,6 +359,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     }
                     else{
                         self.nextInt = null;
+                        self.EvAg.trigger("infiniteScroll/unlock");
                     }
                 }
             });
@@ -427,6 +441,7 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
     },
     init: function(){
         var self = this;
+        this.EvAg.trigger('infiniteScroll/off');
         self.exhibit.empty();
         self.exhibit.isotope("destroy");
         var jsonUrl = Echoed.urls.api + "/api/me/friends";
