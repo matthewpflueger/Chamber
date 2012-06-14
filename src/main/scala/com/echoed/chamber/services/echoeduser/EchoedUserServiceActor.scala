@@ -346,7 +346,7 @@ class EchoedUserServiceActor(
 
             def error(e: Throwable) {
                 channel ! PublishFacebookActionResponse(msg, Left(EchoedUserException("Error publishin Facebook Action", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -378,7 +378,7 @@ class EchoedUserServiceActor(
 
             def error(e: Throwable) {
                 channel ! EchoToTwitterResponse(msg, Left(EchoedUserException("Error tweeting", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -532,7 +532,7 @@ class EchoedUserServiceActor(
 
 
         case GetFriendsResponse(_, Left(e)) =>
-            logger.error("Received error finding friends for EchoedUser %s" format echoedUser.id, e)
+            logger.error("Received error finding friends for EchoedUser {}: {}", echoedUser.id, e)
 
 
         case GetFriendsResponse(_, Right(ffs)) =>
@@ -549,7 +549,7 @@ class EchoedUserServiceActor(
             val me = self
             Option(echoedUser.facebookUserId).cata(
                 facebookServiceLocator.locateById(_).onComplete(_.fold(
-                    logger.error("Could not get FacebookService for %s" format echoedUser, _),
+                    logger.error("Could not get FacebookService for {}: {}", echoedUser, _),
                     _ match {
                         case LocateByIdResponse(_, Left(e)) =>
                             logger.error("Could not get FacebookService for {}, {}", echoedUser, e)
@@ -582,7 +582,7 @@ class EchoedUserServiceActor(
                     logger.error("Could not get TwitterService for {}, {}", echoedUser, _),
                     _ match {
                         case GetTwitterServiceWithIdResponse(_, Left(e)) =>
-                            logger.error("Could not get TwitterService for %s" format echoedUser, e)
+                            logger.error("Could not get TwitterService for {}: {}", echoedUser, e)
                         case GetTwitterServiceWithIdResponse(_, Right(ac: ActorClient)) =>
                             logger.debug("Got TwitterService for {}", echoedUser.id)
                             ac.actorRef.!(GetFollowers())(me)
