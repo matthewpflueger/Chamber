@@ -12,6 +12,8 @@ Echoed = {
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
         var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#infiniteScroll', EvAg : EventAggregator});
+        var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#content', EvAg: EventAggregator });
+        var friends = new Echoed.Views.Pages.Friends({ el: '#content', EvAg: EventAggregator });
         //var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
         var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Filter', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
@@ -56,7 +58,7 @@ Echoed.Router = Backbone.Router.extend({
     echo: function(partner, product, filter) {
         if(this.page != "Echo"){
             this.page = "Echo";
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Partner: partner, Product: product, Filter: filter, Type: "echo"});
+            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "echo"});
         } else {
             this.EvAg.trigger("filter/change", filter);
         }
@@ -68,7 +70,7 @@ Echoed.Router = Backbone.Router.extend({
     explore: function(filter){
         if(this.page != "Explore"){
             this.page = "Explore";
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "explore"});
+            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "explore"});
         }
         else{
             this.EvAg.trigger('filter/change',filter);
@@ -78,16 +80,16 @@ Echoed.Router = Backbone.Router.extend({
     exploreFriends: function(filter){
         if(this.page != "Explore/Friends"){
             this.page = "Explore/Friends";
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "explore/friends"});
+            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "explore/friends"});
         }
         else
             this.EvAg.trigger('filter/change',filter);
         this.EvAg.trigger("page/change","explore");
     },
-    partnerFeed: function(name,filter) {
+    partnerFeed: function(partnerId,filter) {
         var newPage = "Partner/" + name;
         if(this.page != newPage){
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg:this.EvAg, Filter: filter, Type: "partners", Name: name});
+            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "partners", partnerId: partnerId });
             this.page = newPage
         } else{
             this.EvAg.trigger("filter/change", filter);
@@ -96,7 +98,7 @@ Echoed.Router = Backbone.Router.extend({
     },
     me: function(filter) {
         if(this.page != "Exhibit"){
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: filter, Type: "exhibit"});
+            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "exhibit"});
             this.page = "Exhibit";
         } else{
             this.EvAg.trigger('filter/change',filter);
@@ -105,7 +107,7 @@ Echoed.Router = Backbone.Router.extend({
 
     },
     friends: function() {
-        pageView = new Echoed.Views.Pages.Friends({EvAg: this.EvAg});
+        this.EvAg.trigger('friends/init');
         this.EvAg.trigger("page/change","friends");
         this.EvAg.trigger('filter/hide');
         this.page = "Friends";
@@ -113,14 +115,13 @@ Echoed.Router = Backbone.Router.extend({
     friendsExhibit: function(id, filter){
         var newPage = "Friends/Exhibit/" + id;
         if(this.page != newPage){
-            pageView = new Echoed.Views.Pages.Exhibit({EvAg: this.EvAg, Filter: filter, Type: "friend", Id: id});
+            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: 'friend', Id: id});
             this.page = newPage
         } else {
             this.EvAg.trigger("filter/change",filter);
         }
         this.EvAg.trigger("page/change","friends");
     }
-
 });
 
 Echoed.Views.Components.Field = Backbone.View.extend({
@@ -145,28 +146,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     load: function(action){
         var self = this;
         switch(action){
-            case 'testimonial':
-                self.type = action;
-                self.template = _.template($('#templates-components-testimonial').html());
-                self.endpoint = self.endpointBase + '/testimonial';
-                self.render();
-                break;
             case 'story':
                 self.type = action;
                 self.template = _.template($('#templates-components-story').html());
                 self.endpoint = self.endpointBase + '/story';
-                self.render();
-                break;
-            case 'ask':
-                self.type = action;
-                self.template = _.template($('#templates-components-ask').html());
-                self.endpoint = self.endpointBase + '/ask';
-                self.render();
-                break;
-            case 'photo':
-                self.type = action;
-                self.template = _.template($('#templates-components-photo').html());
-                self.endpoint = self.endpointBase + '/photo';
                 self.render();
                 break;
         }
@@ -224,66 +207,80 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','addProduct','filterProducts','next','complete','relayout','addQuestion', 'addProducts','addTitle');
+        _.bindAll(this,'render','filterProducts','next','init','complete','relayout', 'addProducts','addTitle');
         this.EvAg = options.EvAg;
         this.EvAg.bind('products/add', this.addProduct);
         this.EvAg.bind('filter/change', this.filterProducts);
         this.EvAg.bind('exhibit/relayout', this.relayout);
         this.EvAg.bind('question/add', this.addQuestion);
+        this.EvAg.bind('exhibit/init', this.init);
         this.element = $(this.el);
-        if(!options.Filter)
-            this.filter = '*';
-        else
-            this.filter = "." + options.Filter;
+        this.template = _.template($('#templates-pages-exhibit').html());
+        this.element.html(this.template);
+        this.exhibit = $('#exhibit');
+        this.exhibit.isotope({
+            itemSelector: '.item_wrap, .no_filter'
+        });
+    },
+    init: function(options){
+        var self = this;
+        self.exhibit.isotope();
+        self.exhibit.isotope("destroy");
+        self.exhibit.empty();
+        self.exhibit.isotope({
+            itemSelector: '.item_wrap,.no_filter',
+            masonry:{
+                columnWidth: 5
+            }
+        });
+
+        if(!options.Filter) self.filter = '*';
+        else self.filter = "." + options.Filter;
 
         switch(options.Type){
             case "echo":
-                this.jsonUrl = Echoed.urls.api + "/api/partner/" + options.Partner + "/" + options.Product;
-                this.baseUrl = "#echo/" + options.Partner + "/" + options.Product;
-                this.id = "echo";
-                this.nextInt = 1;
-                this.EvAg.trigger('focus/update', { partner: options.Partner , product: options.Product });
+                self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.Partner + "/" + options.Product;
+                self.baseUrl = "#echo/" + options.Partner + "/" + options.Product;
+                self.id = "echo";
+                self.nextInt = 1;
+                self.EvAg.trigger('focus/update', { partner: options.Partner , product: options.Product });
                 break;
             case "friend":
-                this.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
-                this.baseUrl = "#friends/exhibit/" + options.Id + "/";
-                this.contentTitle = "Your Friends";
-                this.id = "friends";
-                this.nextInt = 1;
+                self.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
+                self.baseUrl = "#friends/exhibit/" + options.Id + "/";
+                self.contentTitle = "Your Friends";
+                self.id = "friends";
+                self.nextInt = 1;
                 break;
             case "partners":
-                this.jsonUrl = Echoed.urls.api + "/api/partner/" + options.Name;
-                this.baseUrl = "#partners/" + options.Name + "/";
-                this.contentTitle = options.Name;
-                this.id = "partners";
-                this.nextInt = 1;
+                self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.partnerId;
+                self.baseUrl = "#partners/" + options.Name + "/";
+                self.contentTitle = options.Name;
+                self.id = "partners";
+                self.nextInt = 1;
                 break;
             case "explore":
-                this.jsonUrl = Echoed.urls.api + "/api/me/feed";
-                this.baseUrl = "#explore/";
-                this.contentTitle = "Everyone";
-                this.feedSelector = "Everyone";
-                this.id= "explore";
-                this.nextInt = 1;
+                self.jsonUrl = Echoed.urls.api + "/api/me/feed";
+                self.baseUrl = "#explore/";
+                self.contentTitle = "Everyone";
+                self.id= "explore";
+                self.nextInt = 1;
                 break;
             case "explore/friends":
-                this.jsonUrl = Echoed.urls.api + "/api/me/feed/friends";
-                this.baseUrl = "#exploref/";
-                this.contentTitle = "What Your Friends Are Sharing";
-                this.feedSelector = "Friends";
-                this.id = "explore/friends";
-                this.nextInt = 1;
+                self.jsonUrl = Echoed.urls.api + "/api/me/feed/friends";
+                self.baseUrl = "#exploref/";
+                self.id = "explore/friends";
+                self.nextInt = 1;
                 break;
             case "exhibit":
-                this.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
-                this.baseUrl = "#me/";
-                this.contentTitle = "Me";
-                this.id = null;
-                this.nextInt = 1;
+                self.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
+                self.baseUrl = "#me/";
+                self.contentTitle = "Me";
+                self.id = null;
+                self.nextInt = 1;
                 break;
         }
-        this.EvAg.trigger('filter/init', this.baseUrl);
-        var self = this;
+        self.EvAg.trigger('filter/init', self.baseUrl);
         $.ajax({
             url: self.jsonUrl,
             xhrFields: {
@@ -294,30 +291,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.render(data);
             }
         });
-
     },
     render: function(data){
         var self = this;
-        self.element.empty();
-        if(typeof(self.exhibit) != "undefined") self.exhibit.isotope('destroy');
-        var template = _.template($('#templates-pages-exhibit').html());
-        self.element.html(template);
-        self.exhibit=$('#exhibit');
 
         self.EvAg.trigger("filter/change",self.filter);
-
-        self.exhibit.isotope({
-            itemSelector: '.item_wrap,.no_filter',
-            masonry:{
-                columnWidth: 5
-            },
-            getSortData: {
-                date: function ($elem) {
-                    return $elem.attr("date");
-                }
-            },
-            filter: self.filter
-        });
 
         if(data.partner){
             self.addTitle(data.partner.name, data.partner.logo);
@@ -326,37 +304,17 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         } else {
             self.addTitle(self.contentTitle);
         }
-
         if(data.echoes){
             if(data.echoes.length > 0){
                 self.addProducts(data);
-                self.productCount += data.echoes.length;
                 self.EvAg.bind('infiniteScroll', self.next);
             }
             else{
                 self.nextInt = null;
                 var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
-                noEchoDiv.appendTo(exhibit);
+                noEchoDiv.appendTo(self.exhibit);
                 self.EvAg.trigger("infiniteScroll/unlock");
             }
-        }
-        if(data.product){
-            var productModel = new Echoed.Models.Product(data.product);
-            self.addProduct(productModel, self.filter);
-        }
-        if(data.questions){
-            $.each(data.questions, function(index, question){
-                self.addQuestion(question);
-            });
-        }
-        if(data.facebookPosts){
-            $.each(data.facebookPosts, function(index, facebookPost){
-                self.addFacebookPost(facebookPost)
-            });
-        }
-        if(data.echoedUsers){
-            $.each(data.echoedUsers, function(index,echoedUser){
-            });
         }
     },
     relayout: function(e){
@@ -367,11 +325,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     filterProducts: function(filter){
         var self = this;
-
-        if(!filter)
-            selector = '*';
-        else
-            selector = "." + encodeURIComponent(filter);
+        if(!filter) selector = '*';
+        else selector = "." + encodeURIComponent(filter);
         self.exhibit.isotope({filter: '.no_filter,#exhibit .item_wrap' + selector});
     },
     next: function(){
@@ -388,7 +343,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     if(data.echoes.length > 0){
                         self.addProducts(data);
                         self.nextInt++;
-
                     }
                     else{
                         self.nextInt = null;
@@ -400,39 +354,17 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     addTitle: function(title, image){
         var self = this;
         var titleDiv = $('<div></div>').addClass('item_wrap').addClass('no_filter').attr("id","title");
-        //if(image) titleDiv.append($('<img />').attr("src", image).attr("height", "40px"));
         titleDiv.append(title);
 
         self.exhibit.isotope('insert', titleDiv);
     },
     complete: function(){
         var self = this;
-        //self.EvAg.bind('infiniteScroll', self.next);
-    },
-    addProfile: function(){
-        var self = this;
-        var profileDiv = $('<div></div>').addClass('profile').addClass('item_wrap');
-        var profileComponent = new Echoed.Views.Components.Profile({ el: profileDiv, EvAg: self.EvAg });
-        self.exhibit.isotope('insert', profileDiv);
-    },
-    addFacebookPost: function(facebookPost){
-        var self = this;
-        var fbDiv = $('<div></div>').addClass("item_wrap").addClass('fbp');
-        var fbComp = new Echoed.Views.Components.FacebookPost({ el: fbDiv, facebookPost: facebookPost, EvAg: self.EvAg});
-        self.exhibit.isotope('insert',fbDiv);
-    },
-    addQuestion: function(question){
-        var self = this;
-        var questionDiv = $('<div></div>').addClass("item_wrap").addClass('fbp');
-        var questionComp = new Echoed.Views.Components.Question({ el: questionDiv, question: question, EvAg: self.EvAg});
-        self.exhibit.isotope('insert', questionDiv);
     },
     addProducts: function(data){
         var self = this;
         var productsFragment = $('<div></div>');
-        var lastDiv;
         $.each(data.echoes, function(index, product){
-
             var productDiv = $('<div></div>');
             var productModel = new Echoed.Models.Product(product);
             var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg });
@@ -442,19 +374,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.exhibit.isotope('insert',productsFragment.children(), function(){
             self.EvAg.trigger('infiniteScroll/unlock');
         });
-    },
-    addProduct: function(productModel,filter){
-        var self = this;
-        var productDiv = $('<div></div>');
-        var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg });
-        var imageHeight = productModel.get("image").preferredHeight;
-        if(imageHeight) {
-            self.exhibit.isotope('insert',productDiv);
-        } else {
-            productDiv.imagesLoaded(function(){
-                self.exhibit.isotope('insert',productDiv);
-            });
-        }
     }
 });
 
@@ -497,83 +416,20 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
     }
 });
 
-Echoed.Views.Components.Question = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this);
-        this.EvAg = options.EvAg;
-        this.element = $(this.el);
-        this.question = options.question;
-        this.render();
-    },
-    render: function(){
-        var self = this;
-        self.element.empty();
-        var template = _.template($('#templates-components-fbp').html());
-        self.element.html(template);
-        self.element.attr("date", self.question.createdOn);
-        self.element.find(".message").html(self.question.message);
-    }
-});
-
-Echoed.Views.Components.FacebookPost = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this);
-        this.EvAg = options.EvAg;
-        this.element = $(this.el);
-        this.facebookPost = options.facebookPost;
-        this.render();
-    },
-    render: function(){
-        var self = this;
-        this.element.empty();
-        var template = _.template($('#templates-components-fbp').html());
-        this.element.html(template);
-        this.element.attr("date", self.facebookPost.createdOn);
-        this.element.find(".message").html(self.facebookPost.message);
-    }
-});
-
-Echoed.Views.Components.Profile = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this);
-        this.EvAg = options.EvAg;
-        this.element = $(this.el);
-        this.render();
-    },
-    render: function(){
-        var self = this;
-        this.element.empty();
-        var template = _.template($('#templates-components-profile').html());
-        this.element.html(template).addClass('no_filter');
-        $.ajax({
-            url: Echoed.urls.api + "/user/me",
-            xhrFields: {
-                withCredentials: true
-            },
-            dataType: 'json',
-            success: function(data){
-                var un = self.element.find('.profile_username').html(data.echoedUser.name);
-                var rew = self.element.find('.profile_reward').html("$" + data.totalCredit.toFixed(2));
-                var tc = self.element.find('.profile_referrers').html(data.totalVisits);
-            }
-        });
-    }
-});
-
 Echoed.Views.Pages.Friends = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this);
+        _.bindAll(this, 'init');
         this.EvAg = options.EvAg;
+        this.EvAg.bind('friends/init', this.init);
         this.element = $(this.el);
-        this.render();
+        this.exhibit = $('#exhibit');
     },
-    render: function(){
-        var template = _.template($('#templates-pages-exhibit').html());
-        this.element.html(template);
-        var ex = $('#exhibit');
-        $('#content-title').html("Friends");
-        jsonUrl = Echoed.urls.api + "/api/me/friends";
+    init: function(){
+        var self = this;
+        self.exhibit.empty();
+        self.exhibit.isotope("destroy");
+        var jsonUrl = Echoed.urls.api + "/api/me/friends";
         $.ajax({
             url: jsonUrl,
             xhrFields: {
@@ -593,15 +449,13 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
                             img = $('<img />').attr("src", "http://api.twitter.com/1/users/profile_image/" + friend.twitterId);
                         friendImage.append(img);
                         var friendDiv = $('<div></div>').addClass("friend").append(friendImage).append(friendText).appendTo(a);
-                        a.appendTo(ex);
+                        a.appendTo(self.exhibit);
                     });
                 }
                 else{
                     var noEchoDiv = $('<div></div>').addClass("no-echoes").html("You have no friends on Echoed. Get your friends to join!");
-                    noEchoDiv.appendTo(ex);
+                    noEchoDiv.appendTo(self.exhibit);
                 }
-            },
-            error:function (xhr, ajaxOptions, thrownError){
             }
         });
     }
