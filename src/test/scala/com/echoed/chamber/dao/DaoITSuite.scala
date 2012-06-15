@@ -24,6 +24,10 @@ class DaoITSuite extends Suites(
     new TwitterFollowerDaoIT,
     new TwitterStatusDaoIT,
     new TwitterUserDaoIT,
-    new ClosetDaoIT)
+    new ClosetDaoIT,
+    new StoryDaoIT,
+    new ChapterDaoIT,
+    new ChapterImageDaoIT,
+    new CommentDaoIT)
 
 

@@ -10,6 +10,7 @@ import java.io.{InputStreamReader, BufferedReader}
 import scala.collection.mutable.Buffer
 import com.echoed.chamber.dao._
 import com.echoed.util.ScalaObjectMapper
+import com.echoed.util.DateUtils._
 import com.echoed.chamber.domain._
 import java.util.{Properties, Random, Calendar, Date, UUID}
 import com.google.common.io.ByteStreams
@@ -363,15 +364,15 @@ class DataCreator {
         c
     }
 
-    val echoedUserId = UUID.randomUUID.toString
+    val echoedUserId = "39454773-ba33-11e1-8fd0-0090f5bf0f7b"
     val fromEchoedUserId = echoedUserId
-    val toEchoedUserId = UUID.randomUUID.toString
-    val partnerUserId = UUID.randomUUID.toString
-    val twitterUserId = UUID.randomUUID.toString
-    val facebookUserId = UUID.randomUUID.toString
-    val facebookTestUserId = UUID.randomUUID.toString
-    val partnerId = "e0142506-7d92-4222-b55e-6dd2bca08c93" //UUID.randomUUID.toString
-    val adminUserId = UUID.randomUUID.toString
+    val toEchoedUserId = "51089413-ba33-11e1-8fd0-0090f5bf0f7b"
+    val partnerUserId = "5af5fdde-ba33-11e1-8fd0-0090f5bf0f7b"
+    val twitterUserId = "65c69d58-ba33-11e1-8fd0-0090f5bf0f7b"
+    val facebookUserId = "70f88f22-ba33-11e1-8fd0-0090f5bf0f7b"
+    val facebookTestUserId = "7bae24b1-ba33-11e1-8fd0-0090f5bf0f7b"
+    val partnerId = "e0142506-7d92-4222-b55e-6dd2bca08c93"
+    val adminUserId = "85b1d0e2-ba33-11e1-8fd0-0090f5bf0f7b"
 
     val landingPageUrl = siteUrl
     val echoImageFileName_1 = "Pic1.jpg"
@@ -404,7 +405,7 @@ class DataCreator {
     val partner = partners(0)
     val creditWindow = 168
     val partnerSettingsFuture = PartnerSettings(
-            id = UUID.randomUUID.toString,
+            id = "150b9e98-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             partnerId = partnerId,
@@ -421,7 +422,7 @@ class DataCreator {
             hashTag = "@test",
             couponCode = null,
             couponDescription = null,
-            couponExpiresOn = new Date(0))
+            couponExpiresOn = new Date)
 
     val partnerSettingsList = partnerSettingsFuture :: partners.map { r =>
             new PartnerSettings(
@@ -596,12 +597,12 @@ class DataCreator {
             twitterUser.twitterId)
     )
 
-    val facebookPostId_1 = UUID.randomUUID.toString
-    val facebookPostId_2 = UUID.randomUUID.toString
-    val twitterStatusId_1 = UUID.randomUUID.toString
-    val twitterStatusId_2 = UUID.randomUUID.toString
-    val echoId_1 = UUID.randomUUID.toString
-    val echoId_2 = UUID.randomUUID.toString
+    val facebookPostId_1 = "23658a11-ba34-11e1-8fd0-0090f5bf0f7b"
+    val facebookPostId_2 = "2f588b89-ba34-11e1-8fd0-0090f5bf0f7b"
+    val twitterStatusId_1 = "38b39db0-ba34-11e1-8fd0-0090f5bf0f7b"
+    val twitterStatusId_2 = "40bbb721-ba34-11e1-8fd0-0090f5bf0f7b"
+    val echoId_1 = "49096a14-ba34-11e1-8fd0-0090f5bf0f7b"
+    val echoId_2 = "526e9de7-ba34-11e1-8fd0-0090f5bf0f7b"
 
     val ipAddress_1 = "66.202.133.170"
     val orderId_1 = "orderId_1"
@@ -740,7 +741,7 @@ class DataCreator {
 
     val facebookLikes = List(
         FacebookLike(
-            id = UUID.randomUUID().toString,
+            id = "610b8e23-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             facebookPostId = facebookPostId_1,
@@ -749,7 +750,7 @@ class DataCreator {
             facebookId = facebookId,
             name = facebookUser.name),
         FacebookLike(
-            id = UUID.randomUUID().toString,
+            id = "695db369-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             facebookPostId = facebookPostId_1,
@@ -760,7 +761,7 @@ class DataCreator {
 
     val facebookComments = List(
         FacebookComment(
-            id = UUID.randomUUID().toString,
+            id = "71cce77e-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             facebookPostId = facebookPostId_1,
@@ -772,7 +773,7 @@ class DataCreator {
             message = "message",
             createdAt = on),
         FacebookComment(
-            id = UUID.randomUUID().toString,
+            id = "7a63bf21-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             facebookPostId = facebookPostId_1,
@@ -786,7 +787,7 @@ class DataCreator {
 
     val echoClicks_1 = List(
         EchoClick(
-            id = UUID.randomUUID.toString,
+            id = "a134e3de-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             echoId = echoId_1,
@@ -794,19 +795,19 @@ class DataCreator {
             twitterStatusId = null,
             echoedUserId = echoedUserId,
             referrerUrl = "http://facebook.com",
-            browserId = UUID.randomUUID().toString,
+            browserId = "a7e4a4a7-ba34-11e1-8fd0-0090f5bf0f7b",
             ipAddress = ipAddress_3,
             userAgent = "testUserAgent",
             filtered = false),
         EchoClick(
-            id = UUID.randomUUID.toString,
+            id = "b163f548-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             echoId = echoId_1,
             facebookPostId = null,
             twitterStatusId = twitterStatusId_1,
             echoedUserId = echoedUserId,
-            browserId = UUID.randomUUID().toString,
+            browserId = "b93acaf5-ba34-11e1-8fd0-0090f5bf0f7b",
             referrerUrl = "http://twitter.com",
             ipAddress = ipAddress_3,
             userAgent = "testUserAgent",
@@ -815,27 +816,27 @@ class DataCreator {
 
     val echoClicks_2 = List(
         EchoClick(
-            id = UUID.randomUUID.toString,
+            id = "c10a7da9-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             echoId = echoId_2,
             facebookPostId = facebookPostId_2,
             twitterStatusId = null,
             echoedUserId = echoedUserId,
-            browserId = UUID.randomUUID().toString,
+            browserId = "c76bcdef-ba34-11e1-8fd0-0090f5bf0f7b",
             referrerUrl = "http://facebook.com",
             ipAddress = ipAddress_4,
             userAgent = "testUserAgent",
             filtered = false),
         EchoClick(
-            id = UUID.randomUUID.toString,
+            id = "d4d3de42-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             echoId = echoId_2,
             facebookPostId = null,
             twitterStatusId = twitterStatusId_2,
             echoedUserId = echoedUserId,
-            browserId = UUID.randomUUID().toString,
+            browserId = "dd9f3bd4-ba34-11e1-8fd0-0090f5bf0f7b",
             referrerUrl = "http://twitter.com",
             ipAddress = ipAddress_4,
             userAgent = "testUserAgent",
@@ -875,7 +876,7 @@ class DataCreator {
 
     val geoLocations = List(
         GeoLocation(
-            id = UUID.randomUUID().toString,
+            id = "e91ad54d-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             ipAddress = ipAddress_1,
@@ -891,7 +892,7 @@ class DataCreator {
             organization = "organization",
             updateStatus = "updateStatus"),
         GeoLocation(
-            id = UUID.randomUUID().toString,
+            id = "f26e82ac-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             ipAddress = ipAddress_2,
@@ -907,7 +908,7 @@ class DataCreator {
             organization = "organization",
             updateStatus = "updateStatus"),
         GeoLocation(
-            id = UUID.randomUUID().toString,
+            id = "f9fe99da-ba34-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             ipAddress = ipAddress_3,
@@ -923,7 +924,7 @@ class DataCreator {
             organization = "organization",
             updateStatus = "updateStatus"),
         GeoLocation(
-            id = UUID.randomUUID().toString,
+            id = "435cbc17-ba35-11e1-8fd0-0090f5bf0f7b",
             updatedOn = on,
             createdOn = on,
             ipAddress = ipAddress_4,
@@ -990,4 +991,26 @@ class DataCreator {
         val (em, e) = tuple
         e.copy(echoMetricsId = em.id)
     }
+
+    val story = new Story(
+            echoedUser,
+            partner,
+            partnerSettings,
+            images(0),
+            "Test Story Title",
+            Some(echoes(0))).copy(id = "e71f322c-bb02-11e1-8fd0-0090f5bf0f7b")
+
+    val chapter = new Chapter(
+            story,
+            "Test Chapter Title",
+            "Test chapter text").copy(id = "68c46422-bb03-11e1-8fd0-0090f5bf0f7b")
+
+    val chapterImage = new ChapterImage(
+            chapter,
+            images(0)).copy(id = "450eefcb-bb04-11e1-8fd0-0090f5bf0f7b")
+
+    val comment = new Comment(
+            chapter,
+            echoedUser,
+            "Test comment").copy(id = "4bf75251-bb04-11e1-8fd0-0090f5bf0f7b")
 }

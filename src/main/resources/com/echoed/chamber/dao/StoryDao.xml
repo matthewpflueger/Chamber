@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.StoryDao">
+
+    <resultMap id="storyResult" type="com.echoed.chamber.domain.Story">
+        <constructor>
+            <idArg column="storyId" javaType="String" />
+            <arg column="storyUpdatedOn" javaType="_long" />
+			<arg column="storyCreatedOn" javaType="_long" />
+            <arg column="storyEchoedUserId" javaType="String" />
+            <arg column="storyPartnerId" javaType="String" />
+            <arg column="storyPartnerSettingsId" javaType="String" />
+            <arg column="storyImageId" javaType="String" />
+            <arg column="storyTitle" javaType="String" />
+            <arg column="storyEchoId" javaType="String" />
+            <arg column="storyProductId" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <sql id="storyColumns">
+        S.id as storyId,
+        S.updatedOn as storyUpdatedOn,
+        S.createdOn as storyCreatedOn,
+        S.echoedUserId as storyEchoedUserId,
+        S.partnerId as storyPartnerId,
+        S.partnerSettingsId as storyPartnerSettingsId,
+        S.imageId as storyImageId,
+        S.title as storyTitle,
+        S.echoId as storyEchoId,
+        S.productId as storyProductId
+    </sql>
+
+    <select id="findByEchoedUserId" resultMap="storyResult">
+        select <include refid="storyColumns" />
+        from Story S
+        where S.echoedUserId = #{echoedUserId}
+    </select>
+    
+    <insert id="insert" parameterType="com.echoed.chamber.domain.Story">
+        insert into Story(
+            id,
+            updatedOn,
+            createdOn,
+            echoedUserId,
+            partnerId,
+            partnerSettingsId,
+            imageId,
+            title,
+            echoId,
+            productId
+        ) values (
+            #{id},
+            #{createdOn},
+            #{updatedOn},
+            #{echoedUserId},
+            #{partnerId},
+            #{partnerSettingsId},
+            #{imageId},
+            #{title},
+            #{echoId},
+            #{productId})
+    </insert>
+
+    <delete id="deleteByEchoedUserId">
+        delete from Story where echoedUserId = #{echoedUserId}
+    </delete>
+</mapper>
+

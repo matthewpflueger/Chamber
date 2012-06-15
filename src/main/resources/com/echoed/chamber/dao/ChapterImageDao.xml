@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.ChapterImageDao">
+
+
+    <resultMap id="chapterImageResult" type="com.echoed.chamber.domain.ChapterImage">
+        <constructor>
+            <idArg column="chapterImageId" javaType="String" />
+            <arg column="chapterImageUpdatedOn" javaType="_long" />
+			<arg column="chapterImageCreatedOn" javaType="_long" />
+			<arg column="chapterImageStoryId" javaType="String" />
+            <arg column="chapterImageEchoedUserId" javaType="String" />
+            <arg column="chapterImagePartnerId" javaType="String" />
+            <arg column="chapterImagePartnerSettingsId" javaType="String" />
+            <arg column="chapterImageEchoId" javaType="String" />
+            <arg column="chapterImageChapterId" javaType="String" />
+            <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
+        </constructor>
+    </resultMap>
+
+    <sql id="chapterImageColumns">
+        CI.id as chapterImageId,
+        CI.updatedOn as chapterImageUpdatedOn,
+        CI.createdOn as chapterImageCreatedOn,
+        CI.storyId as chapterImageStoryId,
+        CI.echoedUserId as chapterImageEchoedUserId,
+        CI.partnerId as chapterImagePartnerId,
+        CI.partnerSettingsId as chapterImagePartnerSettingsId,
+        CI.echoId as chapterImageEchoId,
+        CI.chapterId as chapterImageChapterId,
+        <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
+    </sql>
+
+    <select id="findByChapterId" resultMap="chapterImageResult">
+        select <include refid="chapterImageColumns" />
+        from ChapterImage CI
+        join Image I on CI.imageId = I.id
+        where CI.chapterId = #{chapterId}
+    </select>
+
+    <delete id="deleteById">
+        delete from ChapterImage where id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.ChapterImage">
+        insert into ChapterImage(
+            id,
+            updatedOn,
+            createdOn,
+            storyId,
+            echoedUserId,
+            partnerId,
+            partnerSettingsId,
+            echoId,
+            chapterId,
+            imageId
+        ) values (
+            #{id},
+            #{createdOn},
+            #{updatedOn},
+            #{storyId},
+            #{echoedUserId},
+            #{partnerId},
+            #{partnerSettingsId},
+            #{echoId},
+            #{chapterId},
+            #{image.id})
+    </insert>
+
+
+</mapper>
+

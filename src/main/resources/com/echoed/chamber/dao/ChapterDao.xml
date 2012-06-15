@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echoed.chamber.dao.ChapterDao">
+
+    <resultMap id="chapterResult" type="com.echoed.chamber.domain.Chapter">
+        <constructor>
+            <idArg column="chapterId" javaType="String" />
+            <arg column="chapterUpdatedOn" javaType="_long" />
+			<arg column="chapterCreatedOn" javaType="_long" />
+			<arg column="chapterStoryId" javaType="String" />
+            <arg column="chapterEchoedUserId" javaType="String" />
+            <arg column="chapterPartnerId" javaType="String" />
+            <arg column="chapterPartnerSettingsId" javaType="String" />
+            <arg column="chapterEchoId" javaType="String" />
+            <arg column="chapterTitle" javaType="String" />
+            <arg column="chapterText" javaType="String" />
+            <arg column="chapterPublishedOn" javaType="_long" />
+        </constructor>
+    </resultMap>
+
+    <sql id="chapterColumns">
+        C.id as chapterId,
+        C.updatedOn as chapterUpdatedOn,
+        C.createdOn as chapterCreatedOn,
+        C.storyId as chapterStoryId,
+        C.echoedUserId as chapterEchoedUserId,
+        C.partnerId as chapterPartnerId,
+        C.partnerSettingsId as chapterPartnerSettingsId,
+        C.echoId as chapterEchoId,
+        C.title as chapterTitle,
+        C.text as chapterText,
+        C.publishedOn as chapterPublishedOn
+    </sql>
+
+    <select id="findById" resultMap="chapterResult">
+        select <include refid="chapterColumns" />
+        from Chapter C where C.id = #{id}
+    </select>
+
+    <select id="findByStoryId" resultMap="chapterResult">
+        select <include refid="chapterColumns" />
+        from Chapter C where C.storyId = #{storyId}
+    </select>
+
+    <insert id="insert" parameterType="com.echoed.chamber.domain.Chapter">
+        insert into Chapter(
+            id,
+            updatedOn,
+            createdOn,
+            storyId,
+            echoedUserId,
+            partnerId,
+            partnerSettingsId,
+            echoId,
+            title,
+            text,
+            publishedOn
+        ) values (
+            #{id},
+            #{createdOn},
+            #{updatedOn},
+            #{storyId},
+            #{echoedUserId},
+            #{partnerId},
+            #{partnerSettingsId},
+            #{echoId},
+            #{title},
+            #{text},
+            #{publishedOn})
+    </insert>
+
+    <delete id="deleteByStoryId">
+        delete from Chapter where storyId = #{storyId}
+    </delete>
+</mapper>
+
