@@ -362,6 +362,7 @@ class EchoedUserServiceActor(
                                     _ match {
                                         case PublishActionToFacebookResponse(_, Left(e)) => error(e)
                                         case PublishActionToFacebookResponse(_, Right(fa)) =>
+                                            channel ! PublishFacebookActionResponse(msg, Right(fa))
                                             logger.debug("Successfully published Action")
                                     }))
                         })),
