@@ -27,7 +27,7 @@ class EventServiceActor extends FactoryBean[ActorRef] {
     private final val logger = Logging(context.system, this)
 
     def receive = {
-        case msg @ Event(ref, refId, name) =>
+        case msg @ Event(name, ref, refId) =>
             logger.debug("Received {}", msg)
             eventLogDao.insert(new EventLog(name, ref, refId))
     }
