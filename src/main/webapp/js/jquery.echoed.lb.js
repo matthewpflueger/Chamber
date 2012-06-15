@@ -3,31 +3,27 @@ popup.parentNode.removeChild(popup);
 
 window.onload = function(){
     var _body = document.getElementsByTagName('body')[0];
-    loadJSInclude('https://crypto-js.googlecode.com/files/2.5.3-crypto-sha1-hmac-pbkdf2-blockmodes-aes.js',function(){
-        loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/rawdeflate.js', function(){
-            loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/jquery-1.6.2.min.js', function(){
-                var string = getEchoedJsonString();
-                $('link[href^="https://c779203.ssl.cf2.rackcdn.com/echoed-lightbox.css"]').remove();
-                var secret = Crypto.util.base64ToBytes("yNE5MCWCZDXsLU3rGAqfRg");
-                var iv = Crypto.charenc.Binary.stringToBytes("1234567890123456");
+    loadJSInclude('https://c779203.ssl.cf2.rackcdn.com/echoed.trixie.lib.js', function(){
+            var string = getEchoedJsonString();
+            $('link[href^="https://c779203.ssl.cf2.rackcdn.com/echoed-lightbox.css"]').remove();
+            var secret = Crypto.util.base64ToBytes("yNE5MCWCZDXsLU3rGAqfRg");
+            var iv = Crypto.charenc.Binary.stringToBytes("1234567890123456");
 
-                var content = Crypto.util.bytesToBase64(Crypto.charenc.Binary.stringToBytes(RawDeflate.deflate(string)));
+            var content = Crypto.util.bytesToBase64(Crypto.charenc.Binary.stringToBytes(RawDeflate.deflate(string)));
 
-                var crypted = Crypto.AES.encrypt(content ,secret,{ mode: new Crypto.mode.CBC(Crypto.pad.NoPadding), iv: iv });
-                crypted = crypted.replace(/\+/g,"-");
-                crypted = crypted.replace(/\//g,"_");
-                console.log("Encrypted: " + crypted);
+            var crypted = Crypto.AES.encrypt(content ,secret,{ mode: new Crypto.mode.CBC(Crypto.pad.NoPadding), iv: iv });
+            crypted = crypted.replace(/\+/g,"-");
+            crypted = crypted.replace(/\//g,"_");
+            console.log("Encrypted: " + crypted);
 
-                var script = document.createElement("script");
-                script.type = "text/javascript";
-                script.innerHTML = 'echoData = "' + crypted + '"';
-                _body.appendChild(script);
-                var requestScript = document.createElement("script");
-                requestScript.type = "text/javascript";
-                requestScript.src = 'https://www.echoed.com/echo/js?pid=476776f8-5685-11e1-8e6a-4040a0bd5958';
-                _body.appendChild(requestScript);
-            })
-        })
+            var script = document.createElement("script");
+            script.type = "text/javascript";
+            script.innerHTML = 'echoData = "' + crypted + '"';
+            _body.appendChild(script);
+            var requestScript = document.createElement("script");
+            requestScript.type = "text/javascript";
+            requestScript.src = 'https://www.echoed.com/echo/js?pid=476776f8-5685-11e1-8e6a-4040a0bd5958';
+            _body.appendChild(requestScript);
     });
 }
 
