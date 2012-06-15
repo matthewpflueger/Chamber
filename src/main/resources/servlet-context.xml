@@ -33,6 +33,10 @@
                 <bean class="com.echoed.chamber.interceptors.AccessControlInterceptor">
                     <property name="domain" value="${domain}" />
                 </bean>
+                <bean class="com.echoed.chamber.interceptors.AuthorizationControlInterceptor">
+                    <property name="cookieManager" ref="cookieManager" />
+                    <property name="httpsUrl" value="${https.urls.site}" />
+                </bean>
                 <bean class="com.echoed.chamber.interceptors.GlobalsInterceptor">
                     <property name="globalsManager" ref="globalsManager" />
                 </bean>
