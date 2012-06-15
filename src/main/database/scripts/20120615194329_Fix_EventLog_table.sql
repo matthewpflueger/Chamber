@@ -16,9 +16,9 @@ select id, updatedOn, createdOn, ref, refId, name from EventLog;
 drop table EventLog;
 rename table TempEventLog to EventLog;
 
-create index name on Echoed.EventLog (name);
-create index ref on Echoed.EventLog (ref);
-create index refId on Echoed.EventLog (refId);
+create index name on EventLog (name);
+create index ref on EventLog (ref);
+create index refId on EventLog (refId);
 
 --//@UNDO
 -- SQL to undo the change goes here.
