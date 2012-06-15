@@ -109,7 +109,7 @@ class ShopifyPartnerServiceActor(
                 case e: InvalidEchoRequest => channel ! RequestEchoResponse(msg, Left(e))
                 case e: PartnerNotActive => channel ! RequestEchoResponse(msg, Left(e))
                 case e =>
-                    logger.error("Error processing %s" format e, msg)
+                    logger.error("Error processing {}: {}", e, msg)
                     channel ! RequestEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
             }
 
@@ -164,7 +164,7 @@ class ShopifyPartnerServiceActor(
             implicit val ec = context.dispatcher
 
             def error(e: Throwable) {
-                logger.error("Received error fetching Shopify order %s for %s" format(orderId, partner.name))
+                logger.error("Received error fetching Shopify order {} for {}", orderId, partner.name)
                  e match {
                     case spe: ShopifyPartnerException => channel ! GetOrderFullResponse(msg, Left(spe))
                     case _ => channel ! GetOrderFullResponse(

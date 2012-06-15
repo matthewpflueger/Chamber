@@ -149,7 +149,7 @@ class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
                     case _ => channel ! RegisterBigCommercePartnerResponse(
                         msg,
                         Left(BigCommercePartnerException("Could not register BigCommerce partner", e)))
-                        logger.error("Error processing %s" format msg, e)
+                        logger.error("Error processing {}: {}", msg, e)
                 }
 
                 emailService.sendEmail(
