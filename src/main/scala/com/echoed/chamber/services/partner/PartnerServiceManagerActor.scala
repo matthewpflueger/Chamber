@@ -162,21 +162,24 @@ class PartnerServiceManagerActor extends FactoryBean[ActorRef] {
             }
 
         case Create(msg @ Locate(partnerId), channel) =>
-            val partnerService = new PartnerServiceActorClient(context.actorOf(Props().withCreator {
-                //we do this to force the actor to reload its state from the database or die trying...
-                val p = Option(partnerDao.findById(partnerId)).get
-                new PartnerServiceActor(
-                    p,
-                    partnerDao,
-                    partnerSettingsDao,
-                    echoDao,
-                    echoMetricsDao,
-                    imageDao,
-                    imageService,
-                    transactionTemplate,
-                    encrypter)
-            }, partnerId))
-            cache.put(partnerId, partnerService)
+            val partnerService = cache.get(partnerId).getOrElse {
+                val ps = new PartnerServiceActorClient(context.actorOf(Props().withCreator {
+                    //we do this to force the actor to reload its state from the database or die trying...
+                    val p = Option(partnerDao.findById(partnerId)).get
+                    new PartnerServiceActor(
+                        p,
+                        partnerDao,
+                        partnerSettingsDao,
+                        echoDao,
+                        echoMetricsDao,
+                        imageDao,
+                        imageService,
+                        transactionTemplate,
+                        encrypter)
+                }, partnerId))
+                cache.put(partnerId, ps)
+                ps
+            }
             channel ! LocateResponse(msg, Right(partnerService))
 
         case msg @ Locate(partnerId) =>

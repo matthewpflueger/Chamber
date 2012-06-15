@@ -94,25 +94,28 @@ class ShopifyPartnerServiceManagerActor extends FactoryBean[ActorRef] {
     def receive = {
 
         case Create(msg @ Locate(partnerId), channel) =>
-            val partnerService = new ShopifyPartnerServiceActorClient(context.actorOf(Props().withCreator {
-                val sp = Option(shopifyPartnerDao.findByPartnerId(partnerId)).get
-                val p = Option(partnerDao.findById(partnerId)).get
-                logger.debug("Found Shopify partner {}", sp.name)
-                new ShopifyPartnerServiceActor(
-                    sp,
-                    p,
-                    shopifyAccess,
-                    shopifyPartnerDao,
-                    partnerDao,
-                    partnerSettingsDao,
-                    echoDao,
-                    echoMetricsDao,
-                    imageDao,
-                    imageService,
-                    transactionTemplate,
-                    encrypter)
-            }, partnerId))
-            cache.put(partnerId, partnerService)
+            val partnerService = cache.get(partnerId).getOrElse {
+                val ps = new ShopifyPartnerServiceActorClient(context.actorOf(Props().withCreator {
+                    val sp = Option(shopifyPartnerDao.findByPartnerId(partnerId)).get
+                    val p = Option(partnerDao.findById(partnerId)).get
+                    logger.debug("Found Shopify partner {}", sp.name)
+                    new ShopifyPartnerServiceActor(
+                        sp,
+                        p,
+                        shopifyAccess,
+                        shopifyPartnerDao,
+                        partnerDao,
+                        partnerSettingsDao,
+                        echoDao,
+                        echoMetricsDao,
+                        imageDao,
+                        imageService,
+                        transactionTemplate,
+                        encrypter)
+                }, partnerId))
+                cache.put(partnerId, ps)
+                ps
+            }
             channel ! LocateResponse(msg, Right(partnerService))
 
         case msg @ Locate(partnerId) =>

@@ -89,25 +89,28 @@ class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
 
     def receive = {
         case Create(msg @ Locate(partnerId), channel) =>
-            val partnerService = new BigCommercePartnerServiceActorClient(context.actorOf(Props().withCreator {
-                val bcp = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).get
-                val p = Option(partnerDao.findById(partnerId)).get
-                logger.debug("Found BigCommerce partner {}", bcp.name)
-                new BigCommercePartnerServiceActor(
-                    bcp,
-                    p,
-                    bigCommerceAccess,
-                    bigCommercePartnerDao,
-                    partnerDao,
-                    partnerSettingsDao,
-                    echoDao,
-                    echoMetricsDao,
-                    imageDao,
-                    imageService,
-                    transactionTemplate,
-                    encrypter)
-            }, partnerId))
-            cache.put(partnerId, partnerService)
+            val partnerService = cache.get(partnerId).getOrElse {
+                val ps = new BigCommercePartnerServiceActorClient(context.actorOf(Props().withCreator {
+                    val bcp = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).get
+                    val p = Option(partnerDao.findById(partnerId)).get
+                    logger.debug("Found BigCommerce partner {}", bcp.name)
+                    new BigCommercePartnerServiceActor(
+                        bcp,
+                        p,
+                        bigCommerceAccess,
+                        bigCommercePartnerDao,
+                        partnerDao,
+                        partnerSettingsDao,
+                        echoDao,
+                        echoMetricsDao,
+                        imageDao,
+                        imageService,
+                        transactionTemplate,
+                        encrypter)
+                }, partnerId))
+                cache.put(partnerId, ps)
+                ps
+            }
             channel ! LocateResponse(msg, Right(partnerService))
 
         case msg @ Locate(partnerId) =>

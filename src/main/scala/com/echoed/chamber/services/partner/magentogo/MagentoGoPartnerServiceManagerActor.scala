@@ -89,25 +89,28 @@ class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
     def receive = {
 
         case Create(msg @ Locate(partnerId), channel) =>
-            val partnerService = new MagentoGoPartnerServiceActorClient(context.actorOf(Props().withCreator {
-                val mgp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).get
-                val p = Option(partnerDao.findById(partnerId)).get
-                logger.debug("Found MagentoGo partner {}", mgp.name)
-                new MagentoGoPartnerServiceActor(
-                    mgp,
-                    p,
-                    magentoGoAccess,
-                    magentoGoPartnerDao,
-                    partnerDao,
-                    partnerSettingsDao,
-                    echoDao,
-                    echoMetricsDao,
-                    imageDao,
-                    imageService,
-                    transactionTemplate,
-                    encrypter)
-            }, partnerId))
-            cache.put(partnerId, partnerService)
+            val partnerService = cache.get(partnerId).getOrElse {
+                val ps = new MagentoGoPartnerServiceActorClient(context.actorOf(Props().withCreator {
+                    val mgp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).get
+                    val p = Option(partnerDao.findById(partnerId)).get
+                    logger.debug("Found MagentoGo partner {}", mgp.name)
+                    new MagentoGoPartnerServiceActor(
+                        mgp,
+                        p,
+                        magentoGoAccess,
+                        magentoGoPartnerDao,
+                        partnerDao,
+                        partnerSettingsDao,
+                        echoDao,
+                        echoMetricsDao,
+                        imageDao,
+                        imageService,
+                        transactionTemplate,
+                        encrypter)
+                }, partnerId))
+                cache.put(partnerId, ps)
+                ps
+            }
             channel ! LocateResponse(msg, Right(partnerService))
 
         case msg @ Locate(partnerId) =>

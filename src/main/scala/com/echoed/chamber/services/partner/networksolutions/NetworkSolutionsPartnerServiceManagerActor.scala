@@ -94,25 +94,28 @@ class NetworkSolutionsPartnerServiceManagerActor extends FactoryBean[ActorRef] {
     def receive = {
 
         case Create(msg @ Locate(partnerId), channel) =>
-            val partnerService = new NetworkSolutionsPartnerServiceActorClient(context.actorOf(Props().withCreator {
-                val nsp = Option(networkSolutionsPartnerDao.findByPartnerId(partnerId)).get
-                val p = Option(partnerDao.findById(partnerId)).get
-                logger.debug("Found NetworkSolutions partner {}", nsp.name)
-                new NetworkSolutionsPartnerServiceActor(
-                    nsp,
-                    p,
-                    networkSolutionsAccess,
-                    networkSolutionsPartnerDao,
-                    partnerDao,
-                    partnerSettingsDao,
-                    echoDao,
-                    echoMetricsDao,
-                    imageDao,
-                    imageService,
-                    transactionTemplate,
-                    encrypter)
-            }, partnerId))
-            cache.put(partnerId, partnerService)
+            val partnerService = cache.get(partnerId).getOrElse {
+                val ps = new NetworkSolutionsPartnerServiceActorClient(context.actorOf(Props().withCreator {
+                    val nsp = Option(networkSolutionsPartnerDao.findByPartnerId(partnerId)).get
+                    val p = Option(partnerDao.findById(partnerId)).get
+                    logger.debug("Found NetworkSolutions partner {}", nsp.name)
+                    new NetworkSolutionsPartnerServiceActor(
+                        nsp,
+                        p,
+                        networkSolutionsAccess,
+                        networkSolutionsPartnerDao,
+                        partnerDao,
+                        partnerSettingsDao,
+                        echoDao,
+                        echoMetricsDao,
+                        imageDao,
+                        imageService,
+                        transactionTemplate,
+                        encrypter)
+                }, partnerId))
+                cache.put(partnerId, ps)
+                ps
+            }
             channel ! LocateResponse(msg, Right(partnerService))
 
         case msg @ Locate(partnerId) =>
