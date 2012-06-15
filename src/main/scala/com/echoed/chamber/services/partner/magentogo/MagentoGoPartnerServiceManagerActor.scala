@@ -172,7 +172,7 @@ class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
                                         phone = mg.phone,
                                         logo = null,
                                         category = "Other",
-                                        hashTag = null).copy(cloudPartnerId = "MagentoGo")
+                                        handle = null).copy(cloudPartnerId = "MagentoGo")
                             val mgp = mg.copy(partnerId = p.id)
 
                             val password = UUID.randomUUID().toString

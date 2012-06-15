@@ -206,7 +206,7 @@ class NetworkSolutionsPartnerServiceManagerActor extends FactoryBean[ActorRef] {
                                                 name = companyName,
                                                 domain = storeUrl,
                                                 phone = ns.phone,
-                                                hashTag = null,
+                                                handle = null,
                                                 logo = null,
                                                 category = "Other").copy(cloudPartnerId = "Network Solutions")
 

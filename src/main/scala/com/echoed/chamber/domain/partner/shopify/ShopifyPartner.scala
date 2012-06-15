@@ -48,7 +48,7 @@ object ShopifyPartner {
             name = shopifyPartner.name,
             domain = shopifyPartner.domain,
             phone = shopifyPartner.phone,
-            hashTag = null,
+            handle = null,
             logo = null,
             category = "Other").copy(cloudPartnerId = "Shopify")
 

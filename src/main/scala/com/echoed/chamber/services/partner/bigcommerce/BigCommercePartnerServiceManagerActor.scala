@@ -174,7 +174,7 @@ class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
                                         phone = bc.phone,
                                         logo = null,
                                         category = "Other",
-                                        hashTag = null).copy(cloudPartnerId = "BigCommerce")
+                                        handle = null).copy(cloudPartnerId = "BigCommerce")
                             val bcp = bc.copy(partnerId = p.id)
 
                             val password = UUID.randomUUID().toString

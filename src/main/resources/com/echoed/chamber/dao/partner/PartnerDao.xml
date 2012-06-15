@@ -12,7 +12,7 @@
             <arg column="name" javaType="String" />
             <arg column="domain" javaType="String" />
             <arg column="phone" javaType="String" />
-            <arg column="hashTag" javaType="String" />
+            <arg column="handle" javaType="String" />
             <arg column="logo" javaType="String" />
             <arg column="secret" javaType="String" />
             <arg column="category" javaType="String" />
@@ -35,7 +35,7 @@
                 name,
                 domain,
                 phone,
-                hashTag,
+                handle,
                 logo,
                 secret,
                 category,
@@ -46,7 +46,7 @@
                 #{name},
                 #{domain},
                 #{phone},
-                #{hashTag},
+                #{handle},
                 #{logo},
                 #{secret},
                 #{category},
