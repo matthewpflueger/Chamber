@@ -76,7 +76,7 @@ class CookieManager {
         adminUser: AdminUser = null,
         request: HttpServletRequest= null) = {
         
-        val cookie = makeCookie(adminUserCookieName, Option(adminUser).map(_.id), Option(request), Option(sessionAge), true)
+        val cookie = makeCookie(adminUserCookieName, Option(adminUser).map(_.id), Option(request), None,/* Option(sessionAge),*/ true)
         Option(response).foreach(_.addCookie(cookie))
         cookie
         
@@ -90,7 +90,7 @@ class CookieManager {
             response: HttpServletResponse = null,
             partnerUser: PartnerUser = null,
             request: HttpServletRequest = null) = {
-        val cookie = makeCookie(partnerUserCookieName, Option(partnerUser).map(_.id), Option(request), Option(sessionAge), true)
+        val cookie = makeCookie(partnerUserCookieName, Option(partnerUser).map(_.id), Option(request), None, /* Option(sessionAge), */ true)
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }
