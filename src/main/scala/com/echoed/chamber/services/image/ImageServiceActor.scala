@@ -254,8 +254,12 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                     list += ((msg, channel))
 //                    responses.put(image.url, list)
 
-                    val img = Option(imageDao.findByUrl(image.url)).orElse {
-                        imageDao.insert(image)
+                    val img = Option(imageDao.findById(image.id)).orElse {
+                        try {
+                            imageDao.insert(image)
+                        } catch {
+                            case e => logger.debug("Error inserting image {}: {}", image, e)
+                        }
                         Some(image)
                     }.get
 
