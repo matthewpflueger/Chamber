@@ -37,7 +37,10 @@ class AuthorizationControlInterceptor extends HandlerInterceptor {
                     logger.debug("Redirecting to /admin/login due to non-ssl request {}", path)
                 }
                 false
-            } else if (path.startsWith("/partner/login") || path.startsWith("/admin/login")) {
+            } else if (
+                    path.startsWith("/partner/login") ||
+                    path.startsWith("/partner/activate") ||
+                    path.startsWith("/admin/login")) {
                 true
             } else {
                 val pu = cookieManager.findPartnerUserCookie(request)
