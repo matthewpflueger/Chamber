@@ -19,9 +19,12 @@ class AuthorizationControlInterceptor extends HandlerInterceptor {
         if (path == null || (!path.startsWith("/partner") && !path.startsWith("/admin"))) {
             true
         } else {
+            val isHttps =
+                request.getScheme.equals("https") ||
+                Option(request.getHeader("X-Scheme")).filter(_.equals("https")).isDefined
             val isPartner = path.startsWith("/partner")
             val isJson = request.getHeader("Accept").contains("application/json")
-            if (!"https".equals(request.getScheme)) {
+            if (!isHttps) {
                 if (isJson) {
                     response.setStatus(401)
                 } else if (isPartner) {
@@ -30,9 +33,7 @@ class AuthorizationControlInterceptor extends HandlerInterceptor {
                     response.sendRedirect("%s/admin/login" format httpsUrl)
                 }
                 false
-            } else if (path.startsWith("/partner/login")) {
-                true
-            } else if (path.startsWith("/admin/login")) {
+            } else if (path.startsWith("/partner/login") || path.startsWith("/admin/login")) {
                 true
             } else {
                 val pu = cookieManager.findPartnerUserCookie(request)
