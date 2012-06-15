@@ -25,12 +25,16 @@ class AuthorizationControlInterceptor extends HandlerInterceptor {
             val isPartner = path.startsWith("/partner")
             val isJson = request.getHeader("Accept").contains("application/json")
             if (!isHttps) {
+                logger.debug("Not using ssl for protected page {}", path)
                 if (isJson) {
                     response.setStatus(401)
+                    logger.debug("Sending 401 response for non-ssl json request {}", path)
                 } else if (isPartner) {
                     response.sendRedirect("%s/partner/login" format httpsUrl)
+                    logger.debug("Redirecting to /partner/login due to non-ssl request {}", path)
                 } else {
                     response.sendRedirect("%s/admin/login" format httpsUrl)
+                    logger.debug("Redirecting to /admin/login due to non-ssl request {}", path)
                 }
                 false
             } else if (path.startsWith("/partner/login") || path.startsWith("/admin/login")) {
@@ -43,6 +47,7 @@ class AuthorizationControlInterceptor extends HandlerInterceptor {
                     else {
                         if (isJson) response.setStatus(401)
                         else response.sendRedirect("%s/partner/login" format httpsUrl)
+                        logger.debug("Did not find partner user cookie for protected request {}", path)
                         false
                     }
                 } else {
@@ -50,6 +55,7 @@ class AuthorizationControlInterceptor extends HandlerInterceptor {
                     else {
                         if (isJson) response.setStatus(401)
                         else response.sendRedirect("%s/admin/login" format httpsUrl)
+                        logger.debug("Did not find admin user cookie for protected request {}", path)
                         false
                     }
                 }
