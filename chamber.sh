@@ -79,7 +79,7 @@ function service_cmd() {
             fi
 
             if [[ "$1" == "-d" ]]; then
-                ARGS="$ARGS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000"
+                ARGS="$ARGS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8085"
                 shift
             fi
 
