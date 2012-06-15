@@ -21,21 +21,12 @@
                             "contents": [
                                 {
                                     "type" : "image",
-                                    "url" : "http://farm8.staticflickr.com/7087/7269959254_e50387b579_z.jpg"
-                                },
-                                {
-                                    "type" : "image",
-                                    "url" : "http://cache.krop.com/dimitri-4fa243a51099382.jpg"
-                                },
-                                {
-                                    "type" : "image",
-                                    "url" : "http://cache.krop.com/dimitri-4fa243a51099382.jpg"
+                                    "url" : "http://sphotos.xx.fbcdn.net/hphotos-ash3/550583_210860229034870_1299281129_n.jpg"
                                 }
-
                             ]
                         },
                         {
-                            "title": "WHY I LOVE IT",
+                            "title": "Why I Love It",
                             "text" : "This is for our beautiful dog Stella. Forget about all the bones and other stuff she tears right through, we're going high class with a Chewy Vuitton. Only the best in French fashion for our little Frenchie!",
                             "contents": [
                                 {
@@ -71,7 +62,7 @@
 
         //GOOGLE WEBFONTS
         WebFontConfig = {
-            google: { families: ['Lato:300,400,700,900','Open+Sans+Condensed:300,400,700','Open+Sans:400'] }
+            google: { families: ['Lato:300,400,700,900','Open+Sans+Condensed:300,400,700','Open+Sans:400italic,400'] }
         };
         (function(){
             var wf= document.createElement('script');
@@ -207,26 +198,36 @@
             }
 
             function loadTitles(){
-
+                for(i in Echoed.item.segments) {
+                    var title = document.createElement('div');
+                    title.className = "echo-s-b-s-t";
+                    title.innerHTML = Echoed.item.segments[i].title;
+                    Echoed.titleNode.appendChild(title);
+                }
             }
 
             function loadSegment(segmentNumber){
                 var segment = Echoed.item.segments[segmentNumber];
                 Echoed.bodyNode.innerHTML = '';
+
                 var textNode = document.createElement('div');
                 textNode.className = "echo-s-b-text";
                 var textTitleNode = document.createElement('div');
                 textTitleNode.className = "echo-s-b-t-t";
                 textTitleNode.innerHTML = segment.title;
                 textNode.appendChild(textTitleNode);
+
                 var textBodyNode = document.createElement('div');
                 textBodyNode.className = "echo-s-b-t-b";
-                textBodyNode.innerHTML = segment.text;
+                textBodyNode.innerHTML = "&quot;" + segment.text + "&quot;";
                 textNode.appendChild(textBodyNode);
 
                 Echoed.galleryNode = document.createElement('div');
                 Echoed.galleryNode.className = "echo-s-b-gallery";
                 Echoed.bodyNode.appendChild(textNode);
+                Echoed.titleNode = document.createElement('div');
+                Echoed.titleNode.className = "echo-s-b-segment";
+                Echoed.bodyNode.appendChild(Echoed.titleNode);
                 Echoed.bodyNode.appendChild(Echoed.galleryNode);
                 for (i in segment.contents){
                     var content = segment.contents[i];
@@ -246,6 +247,7 @@
                     Echoed.galleryNode.appendChild(itemNode);
                     //masonry();
                 }
+                loadTitles();
             }
         })()
     </script>

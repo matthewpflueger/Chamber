@@ -66,7 +66,7 @@ html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
 pre, form, fieldset, table, th, td{
     margin:0;
     padding: 0;
-    @include textFont;
+    //@include textFont;
 }
 
 body{
@@ -80,10 +80,11 @@ img{
 }
 
 .echo-story-container{
+    position:relative;
     background-color: #E3E3E3;
     background-image: image-url("bk_story_gradient.jpg");
     background-repeat: repeat-x;
-    width: 790px;
+    width: 680px;
     border-radius: 5px;
     padding-bottom: 10px;
     border: 8px solid #FFF;
@@ -95,7 +96,7 @@ img{
             @include textFont(16px);
 
             .echo-s-h-t-t{
-                @include headerFont(30px);
+                @include headerFont(36px);
             }
             .echo-s-h-t-n{
                 @include textFont(16px);
@@ -103,14 +104,16 @@ img{
         }
     }
     .echo-story-body{
+        position: relative;
         //margin: 10px;
-        margin: 10px;
+        margin: 5px 10px;
+        padding-bottom: 10px;
         //@include inset-shadow;
         border-bottom: 1px solid #CCC;
         box-shadow: 0px 1px 0px #FFF;
         .echo-s-b-text{
             float:left;
-            width: 200px;
+            width: 230px;
             padding: 0px 0px 0px 5px;
             .echo-s-b-t-t{
                 padding-bottom: 5px;
@@ -118,26 +121,42 @@ img{
             }
             .echo-s-b-t-b{
                 padding: 10px 0px;
-                @include textFont(13px);
-                line-height: 1.5em;
+                @include textFont(14px, #333);
+                font-style: italic;
+                line-height: 1.3em;
 
+            }
+        }
+        .echo-s-b-segment{
+            position: absolute;
+            left: 0px;
+            bottom: 10px;
+            padding: 10px 0px;
+            background-color: #CCC;
+            .echo-s-b-s-t{
+                padding: 0px 10px;
+                @include textFontBold(14px);
             }
         }
         .echo-s-b-gallery{
             float: left;
-            width: 545px;
-            margin-left: 10px;
+            //width: 410px;
+            width: 412px;
+            height: 312px;
+            margin-left: 12px;
+            text-align:center;
             .echo-s-b-item{
-                border: 1px solid #CCC;
-                margin: 2px;
-                float: left;
-                background-color: #FFF;
+                //border: 1px solid #CCC;
+                //background-color: #999;
+                text-align: center;
                 .echo-s-b-i-c{
+                    border: 1px solid #CCC;
+                    background-color: #FFF;
+                    padding: 5px;
                     img{
                         //@include drop-shadow;
-                        background-color: #FFF;
-                        padding: 5px;
-                        width: 535px;
+                        max-height: 300px;
+                        //width: 535px;
                     }
                 }
             }
@@ -173,7 +192,6 @@ img{
         .echo-story-comments{
             //border-top: 1px #CCC solid;
             .echo-s-c-t{
-                padding: 10px 0px;
                 @include headerFont(24px);
             }
         }
