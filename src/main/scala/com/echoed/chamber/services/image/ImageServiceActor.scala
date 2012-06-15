@@ -271,7 +271,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                         me ! ProcessThumbnailImage(image)
                     } else {
                         //sanity check...
-                        logger.error("Image already processed!?!? %s" format img.url, new RuntimeException())
+                        logger.error("Image already processed!?!? {}", img.url)
                         responses.remove(img.url)
                         channel ! ProcessImageResponse(msg, Right(img))
                     }
