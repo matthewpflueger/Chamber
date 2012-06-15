@@ -344,6 +344,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.nextInt = null;
                 //var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
                 //noEchoDiv.appendTo(self.exhibit);
+                //noEchoDiv.appendTo(self.element);
                 self.EvAg.trigger("infiniteScroll/unlock");
             }
         }
