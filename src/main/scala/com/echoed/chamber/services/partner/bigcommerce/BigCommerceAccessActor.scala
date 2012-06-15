@@ -82,7 +82,7 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
             client = new Http*/
 
         case msg @ ('error, e: Throwable) =>
-            logger.error("Received error but not restarting Http client", e)
+            logger.error("Received error but not restarting Http client: {}", e)
 
         case msg @ Validate(credentials) =>
             val channel = context.sender
@@ -90,7 +90,7 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
                 channel ! ValidateResponse(msg, Right(map.contains("time")))
             } {
                 case e =>
-                    logger.error("Error validating %s" format credentials)
+                    logger.error("Error validating {}", credentials)
                     channel ! ValidateResponse(
                         msg,
                         Left(BigCommercePartnerException("Error validating BigCommerce api connection", e)))
