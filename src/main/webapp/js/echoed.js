@@ -166,6 +166,25 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         self.element.empty();
         self.element.html(self.template);
+        var thumb = $('#thumb');
+
+        var uploader = new qq.FileUploader({
+            element: document.getElementById('field-fileupload'),
+            action: '/image',
+            debug: true,
+            allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+            onSubmit: function(id, fileName) {
+                //missing the loading.gif...
+                $('#preview').addClass('loading');
+            },
+            onComplete: function(id, fileName, response) {
+                thumb.load(function(){
+                    $('#preview').removeClass('loading');
+                    thumb.unbind();
+                });
+                thumb.attr('src', response.url);
+            }
+        });
         self.element.fadeIn();
     },
     close: function(){

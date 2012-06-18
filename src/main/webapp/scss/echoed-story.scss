@@ -94,12 +94,13 @@ img{
         padding: 10px;
         .echo-s-h-title{
             @include textFont(16px);
-
             .echo-s-h-t-t{
                 @include headerFont(36px);
+                float:left;
             }
             .echo-s-h-t-n{
                 @include textFont(16px);
+                float:right;
             }
         }
     }

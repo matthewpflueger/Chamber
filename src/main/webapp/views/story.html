@@ -106,7 +106,7 @@
                 Echoed.containerNode.className = "echo-story-container";
 
                 Echoed.headerNode = document.createElement('div');
-                Echoed.headerNode.className = "echo-story-header";
+                Echoed.headerNode.className = "echo-story-header clearfix";
 
                 Echoed.bodyNode = document.createElement('div');
                 Echoed.bodyNode.className = "echo-story-body clearfix";
@@ -123,8 +123,17 @@
 
             function loadHeader(title, author){
                 var headerTitle = document.createElement('div');
-                headerTitle.className='echo-s-h-title';
-                headerTitle.innerHTML = '<span class="echo-s-h-t-t">' + title + '</span> Story by <span class="echo-s-h-t-n">' + author + '</span>';
+                headerTitle.className='echo-s-h-title clearfix';
+                var titleNode = document.createElement('div');
+                titleNode.className = "echo-s-h-t-t";
+                titleNode.innerHTML = title;
+
+                var nameNode = document.createElement('div');
+                nameNode.className = "echo-s-h-t-n";
+                nameNode.innerHTML = "Story by " + author;
+
+                headerTitle.appendChild(titleNode);
+                headerTitle.appendChild(nameNode);
                 Echoed.headerNode.appendChild(headerTitle);
             }
 

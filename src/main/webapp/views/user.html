@@ -1,6 +1,7 @@
 {{<user_super}}
 
 {{$header}}
+    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-fileuploader.css"/>
     <script type="text/template" id="templates-components-product">
         <div class="item_content">
             <div class="item_hover" style="display:none;">
@@ -51,11 +52,12 @@
                 <div class="field-input-label">Add Product Photo</div>
                 <div class="field-indent clearfix">
                     <div class="field-photo-container">
-                        <div class="field-photo">
-                            Photo
+                        <div id="preview">
+                            <img height="100px" src="{{urls.images}}/bk_photo.png" id="thumb">
                         </div>
                     </div>
-                    <div>Upload a Photo</div>
+                    <div id="field-fileupload"></div>
+                    <!-- <div>Upload a Photo</div> -->
                 </div>
                 <div class="field-input-label">Where did you buy it from?</div>
                 <div class="field-indent">
@@ -135,12 +137,7 @@
         </div>
 
         <div id="nav-container">
-<<<<<<< HEAD
-            <!-- <div id="actions"></div>-->
-            {{#echoedUser}}
-=======
             <div id="actions"></div>
->>>>>>> Started work on adding storyboard
             <div id="header-nav" class="clearfix">
                 <div class="nav-label">
                     Explore
