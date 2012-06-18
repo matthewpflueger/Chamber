@@ -58,6 +58,7 @@ Echoed.Router = Backbone.Router.extend({
     echo: function(partner, product, filter) {
         if(this.page != "Echo"){
             this.page = "Echo";
+            _gaq.push(['_trackPageview', this.page]);
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "echo"});
         } else {
             this.EvAg.trigger("filter/change", filter);
@@ -70,6 +71,7 @@ Echoed.Router = Backbone.Router.extend({
     explore: function(filter){
         if(this.page != "Explore"){
             this.page = "Explore";
+            _gaq.push(['_trackPageview', this.page]);
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "explore"});
         }
         else{
@@ -80,6 +82,7 @@ Echoed.Router = Backbone.Router.extend({
     exploreFriends: function(filter){
         if(this.page != "Explore/Friends"){
             this.page = "Explore/Friends";
+            _gaq.push(['_trackPageview', this.page]);
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "explore/friends"});
         }
         else
@@ -90,7 +93,10 @@ Echoed.Router = Backbone.Router.extend({
         var newPage = "Partner/" + name;
         if(this.page != newPage){
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "partners", partnerId: partnerId });
-            this.page = newPage
+            this.page = newPage;
+            _gaq.push(['_trackPageview', this.page]);
+
+
         } else{
             this.EvAg.trigger("filter/change", filter);
         }
@@ -100,6 +106,8 @@ Echoed.Router = Backbone.Router.extend({
         if(this.page != "Exhibit"){
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "exhibit"});
             this.page = "Exhibit";
+            _gaq.push(['_trackPageview', this.page]);
+
         } else{
             this.EvAg.trigger('filter/change',filter);
         }
@@ -111,12 +119,16 @@ Echoed.Router = Backbone.Router.extend({
         this.EvAg.trigger("page/change","friends");
         this.EvAg.trigger('filter/hide');
         this.page = "Friends";
+        _gaq.push(['_trackPageview', this.page]);
+
     },
     friendsExhibit: function(id, filter){
         var newPage = "Friends/Exhibit/" + id;
         if(this.page != newPage){
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: 'friend', Id: id});
             this.page = newPage
+            _gaq.push(['_trackPageview', this.page]);
+
         } else {
             this.EvAg.trigger("filter/change",filter);
         }
