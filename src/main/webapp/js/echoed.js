@@ -256,6 +256,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
         if(!options.Filter) self.filter = '*';
         else self.filter = "." + options.Filter;
+        self.contentDescription = "";
 
         switch(options.Type){
             case "echo":
@@ -274,7 +275,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 break;
             case "partners":
                 self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.partnerId;
-                self.baseUrl = "#partners/" + options.Name + "/";
+                self.baseUrl = "#partners/" + options.partnerId + "/";
                 self.contentTitle = options.Name;
                 self.id = "partners";
                 self.nextInt = 1;
@@ -283,6 +284,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed";
                 self.baseUrl = "#explore/";
                 self.contentTitle = "Just Purchased";
+                self.contentDescription = "See all the purchased products at our partners as they're bought ";
                 self.id= "explore";
                 self.nextInt = 1;
                 break;
@@ -296,6 +298,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
                 self.baseUrl = "#me/";
                 self.contentTitle = "Me";
+                self.contentDescription = "All the products you've shared and the rewards you've earned";
                 self.id = null;
                 self.nextInt = 1;
                 break;
@@ -319,6 +322,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.EvAg.trigger("filter/change",self.filter);
 
         if(data.partner){
+            self.contentDescription = "The recent products purchased at " + data.partner.name;
             self.addTitle(data.partner.name, data.partner.logo);
         } else if (self.id == "friends") {
             self.addTitle(data.echoedUserName);
@@ -332,8 +336,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             }
             else{
                 self.nextInt = null;
-                var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
-                noEchoDiv.appendTo(self.exhibit);
+                //var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
+                //noEchoDiv.appendTo(self.exhibit);
                 self.EvAg.trigger("infiniteScroll/unlock");
             }
         }
@@ -377,7 +381,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         var titleDiv = $('<div></div>').addClass('item_wrap').addClass('no_filter').attr("id","title");
         titleDiv.append(title);
-
+        titleDiv.append($('<div></div>').addClass('title-description').append(self.contentDescription));
         self.exhibit.isotope('insert', titleDiv);
     },
     complete: function(){
@@ -476,8 +480,8 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
                     });
                 }
                 else{
-                    var noEchoDiv = $('<div></div>').addClass("no-echoes").html("You have no friends on Echoed. Get your friends to join!");
-                    noEchoDiv.appendTo(self.exhibit);
+                    //var noEchoDiv = $('<div></div>').addClass("no-echoes").html("You have no friends on Echoed. Get your friends to join!");
+                    //noEchoDiv.appendTo(self.exhibit);
                 }
             }
         });

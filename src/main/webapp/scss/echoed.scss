@@ -266,7 +266,9 @@ h2{
         //padding: 10px 10px;
         @include textFontNormal(24px, #FFF);
         background-color: #333 !important;
-
+        .title-description{
+            @include textFontNormal(14px, #FFF);
+        }
         //border: 1px solid #CCC;
         //text-shadow: #fff 1px 1px 0;
         img {
