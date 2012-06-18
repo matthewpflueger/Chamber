@@ -1,53 +1,52 @@
 {{> partial_header}}
 <title>Echoed | BigCommerce Partner Register</title>
-<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css"/>
+<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
 </head>
 <body>
 <div id="container">
-    {{> partial_staticNavBar }}
-    <section>
-        <div class="center">
-            <div class="title">
-                <h2>BigCommerce Integration <img align="absmiddle" src="{{urls.images}}/bk_partner_bigcom.png"/></h2>
-            </div>
-            <div class="roundbox integration">
-                <div class="subtitle">Success! You Have Registered As An Echoed BigCommerce Partner</div>
-                Thank you, {{partnerUser.name}} for choosing Echoed to help {{partner.name}} increase its
-                brand awareness and sales.<br/><br/>
-                An account manager will be reaching out to you to answer any questions you may have but please do not
-                hesitate to email accountmanager@echoed.com or call 917-267-4591.<br/><br/>
-                You'll receive an email confirmation that details next steps for the integration.
-                <div style="text-align: center;">
-                    <img src="{{urls.images}}/bk_bigcommerce_4.png"/>
+    {{ > partial_public_header }}
+    {{ > partial_public_nav}}
+    <div id="content">
+        <section>
+            <div class="center">
+                <div class="title">
+                    <h2>BigCommerce Integration <img align="absmiddle" src="{{urls.images}}/bk_partner_bigcom.png"/></h2>
                 </div>
-                <div class="subtitle">Finalize The Integration</div>
-                Head back over to your BigCommerce store, you're almost done!
-                <ol>
-                    <li>Login to Your BigCommerce Store's control panel</li>
-                    <li>Click on <strong>Settings</strong> and then select <strong>Conversions</strong> from the drop down menu</li>
+                <div class="roundbox integration">
+                    <div class="subtitle">Success! You Have Registered As An Echoed BigCommerce Partner</div>
+                    Thank you, {{partnerUser.name}} for choosing Echoed to help {{partner.name}} increase its
+                    brand awareness and sales.<br/><br/>
+                    An account manager will be reaching out to you to answer any questions you may have but please do not
+                    hesitate to email accountmanager@echoed.com or call 917-267-4591.<br/><br/>
+                    You'll receive an email confirmation that details next steps for the integration.
                     <div style="text-align: center;">
-                        <img src="{{urls.images}}/bk_bigcommerce_5.png"/>
+                        <img src="{{urls.images}}/bk_bigcommerce_4.png"/>
                     </div>
-                    <li>In the <strong>Conversion Tracking Code Box</strong>, enter the code from your <strong>email confirmation</strong></li>
-                    <div style="text-align: center;">
-                        <img src="{{urls.images}}/bk_bigcommerce_6.png"/>
-                    </div>
-                    <li>Click <strong>Save</strong></li>
-                    <li>You'll receive the popup below:</li>
-                    <div style="text-align: center;">
-                        <img src="{{urls.images}}/bk_bigcommerce_7.png"/>
-                    </div>
-                    <li>Click <strong>OK</strong>, your work is done</li>
-                </ol>
-                <div class="subtitle">Activation</div>
-                <br/>
-                Your account manager will reach out to activate your account and ask you to place a test order
+                    <div class="subtitle">Finalize The Integration</div>
+                    Head back over to your BigCommerce store, you're almost done!
+                    <ol>
+                        <li>Login to Your BigCommerce Store's control panel</li>
+                        <li>Click on <strong>Settings</strong> and then select <strong>Conversions</strong> from the drop down menu</li>
+                        <div style="text-align: center;">
+                            <img src="{{urls.images}}/bk_bigcommerce_5.png"/>
+                        </div>
+                        <li>In the <strong>Conversion Tracking Code Box</strong>, enter the code from your <strong>email confirmation</strong></li>
+                        <div style="text-align: center;">
+                            <img src="{{urls.images}}/bk_bigcommerce_6.png"/>
+                        </div>
+                        <li>Click <strong>Save</strong></li>
+                        <li>You'll receive the popup below:</li>
+                        <div style="text-align: center;">
+                            <img src="{{urls.images}}/bk_bigcommerce_7.png"/>
+                        </div>
+                        <li>Click <strong>OK</strong>, your work is done</li>
+                    </ol>
+                    <div class="subtitle">Activation</div>
+                    <br/>
+                    Your account manager will reach out to activate your account and ask you to place a test order
+                </div>
             </div>
-        </div>
-    </section>
-    <div id="gap"></div>
-    <div id="footer" class="float">
-        {{> partial_footerNav}}
+        </section>
     </div>
 </div>
 </body>

@@ -437,22 +437,6 @@ class EchoedUserServiceActor(
                     logger.error("Unexpected error processing {}, {}", msg, e)
             }
 
-        case msg: GetPublicFeed =>
-            val channel = context.sender
-            val limit = 30;
-            val start = msg.page * limit;
-            try {
-                logger.debug("Attempting to retrieve Public Feed for EchoedUser {}", echoedUser.id)
-                //val echoes = JavaConversions.asJavaCollection(JavaConversions.asScalaBuffer(feedDao.getPublicFeed).map { new EchoViewPublic(_) })
-                val echoes = asScalaBuffer(feedDao.getPublicFeed(start,limit)).toList
-                val feed = new PublicFeed(echoes)
-                channel ! GetPublicFeedResponse(msg, Right(feed))
-            } catch {
-                case e=>
-                    channel ! GetPublicFeedResponse(msg, Left(new EchoedUserException("Cannot get public feed", e)))
-                    logger.error("Unexpected error processing {}, {}", msg, e)
-            }
-
         case msg: GetFeed =>
             val channel = context.sender
 
@@ -471,26 +455,6 @@ class EchoedUserServiceActor(
                     channel ! GetFeedResponse(msg, Left(new EchoedUserException("Cannot get feed", e)))
                     logger.error("Unexpected error when fetching feed for EchoedUser {}, {}", echoedUser.id, e)
             }
-
-        case msg: GetPartnerFeed =>
-
-            val channel = context.sender
-
-            try{
-                val partnerId = msg.partnerId
-                logger.debug("Attempting to retrieve Partner Feed for Partner {} as EchoedUser {} ", partnerId, echoedUser.id)
-                val limit = 30;
-                val start = msg.page * limit;
-                val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, limit)).toList
-                val partner = partnerDao.findById(partnerId)
-                val partnerFeed = new PartnerFeed(partner, echoes)
-                channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
-            } catch {
-                case e =>
-                    channel ! GetPartnerFeedResponse(msg, Left(new EchoedUserException("Canont get partner feed", e)))
-                    logger.error("Unexpected erorr when fetching partner feed for EchoedUser {}, {}", echoedUser.id, e)
-            }
-
 
         case msg: GetExhibit =>
             val channel = context.sender

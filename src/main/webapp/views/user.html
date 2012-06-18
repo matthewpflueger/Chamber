@@ -119,32 +119,35 @@
             <div id="logo">
                 <a href="#"><img height="40px" src="{{urls.images}}/logo.png"></a>
             </div>
+
             <div id="user" class="clearfix">
+                {{#echoedUser}}
                 <div id="user-image">
-                    {{#echoedUser}}
                     {{#facebookId}}
                     <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{this}}/picture" />
                     {{/facebookId}}
-                    {{/echoedUser}}
                 </div>
                 <div id="user-text">
-                    {{#echoedUser}}{{name}}{{/echoedUser}} ( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> )<br />
+                    {{name}}( <span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span> ) <br />
                 </div>
+                {{/echoedUser}}
             </div>
         </div>
 
         <div id="nav-container">
             <!-- <div id="actions"></div>-->
+            {{#echoedUser}}
             <div id="header-nav" class="clearfix">
                 <div class="nav-label">
                     Explore
                 </div>
                 <ul>
                     <li id="explore_nav">
-                        <a href="#explore">
-                            Everyone
+                        <a href="#">
+                            Just Purchased
                         </a>
                     </li>
+
                     <li id="friends_nav">
                         <a href="#me/friends">
                             My Friends
@@ -157,6 +160,7 @@
                     </li>
                 </ul>
             </div>
+            {{/echoedUser}}
             <!--<div id="networks">
                 {{#echoedUser}}
                     {{#facebookUserId}}
@@ -177,6 +181,18 @@
                     {{/twitterUserId}}
                 {{/echoedUser}}
             </div> -->
+            {{^echoedUser}}
+                <div id="login-container">
+                    <ul>
+                        <li>
+                            <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
+                        </li>
+                        <li>
+                            <a id="twitterLogin" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
+                        </li>
+                    </ul>
+                </div>
+            {{/echoedUser}}
             <div id="content-selector-container">
                 <div id="content-selector" class="dropdown">
                     <div id="content-filter">
@@ -185,6 +201,14 @@
                     </div>
                     <div id="content-sort"></div>
                 </div>
+            </div>
+            <div id="footer-nav">
+                <ul>
+                    <li><a href="{{urls.site}}/whatisechoed">About Us</a></li>
+                    <li><a href="{{urls.site}}/business">For Business</a></li>
+                    <li><a href="{{urls.site}}/privacy">Privacy Policy</a></li>
+                    <li><a href="{{urls.site}}/terms">Terms of Service</a></li>
+                </ul>
             </div>
         </div>
         <div id="content" class="clearfix"></div>

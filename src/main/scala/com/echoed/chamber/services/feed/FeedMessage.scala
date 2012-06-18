@@ -22,4 +22,13 @@ case class GetPublicFeedResponse(
             message: GetPublicFeed, 
             value: Either[FE, PublicFeed]) extends FM with RM[PublicFeed, GetPublicFeed, FE]
 
+case class GetUserPublicFeed(echoedUserId: String, page: Int) extends FM
+case class GetUserPublicFeedResponse(
+            message: GetUserPublicFeed,
+            value: Either[FE, PublicFeed]) extends FM with RM[PublicFeed, GetUserPublicFeed, FE]
+
+case class GetPartnerFeed(partnerId: String, page: Int) extends FM
+case class GetPartnerFeedResponse(
+            message: GetPartnerFeed,
+            value: Either[FE, PartnerFeed]) extends FM with RM[PartnerFeed, GetPartnerFeed, FE]
 

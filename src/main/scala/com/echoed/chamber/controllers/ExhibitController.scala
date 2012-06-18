@@ -35,7 +35,8 @@ class ExhibitController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val errorModelAndView = new ModelAndView(indexView)
+        //val errorModelAndView = new ModelAndView(indexView)
+        val errorModelAndView = new ModelAndView(closetView)
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
 
         if (echoedUserId.isEmpty) {

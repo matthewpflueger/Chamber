@@ -15,7 +15,7 @@ Echoed = {
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#content', EvAg: EventAggregator });
         var friends = new Echoed.Views.Pages.Friends({ el: '#content', EvAg: EventAggregator });
         //var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
-        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Filter', EvAg: EventAggregator});
+        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Browse', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         Backbone.history.start();
     }
@@ -270,7 +270,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "explore":
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed";
                 self.baseUrl = "#explore/";
-                self.contentTitle = "Everyone";
+                self.contentTitle = "Just Purchased";
                 self.id= "explore";
                 self.nextInt = 1;
                 break;
@@ -378,7 +378,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             var productDiv = $('<div></div>');
             var productModel = new Echoed.Models.Product(product);
             var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg });
-            self.EvAg.trigger('Filter/add',product.echoCategory,product.echoCategory);
+            self.EvAg.trigger('Browse/add',product.echoCategory,product.echoCategory);
             productsFragment.append(productDiv);
         });
         self.exhibit.isotope('insert',productsFragment.children(), function(){
@@ -627,7 +627,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         this.el.attr("productId", this.model.get("echoProductId"));
         this.el.attr("partnerId", this.model.get("partnerId"));
         this.el.attr("id", this.model.get("echoId"));
-        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Filter-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
+        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Browse-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
@@ -642,7 +642,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         if(this.model.get("echoedUserName"))
             hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/>');
         if(typeof(this.model.get("echoCredit")) == 'number'){
-            hover.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
+            text.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
         }
         img.attr('src', imageUrl);
         if (imageWidth > 0) {

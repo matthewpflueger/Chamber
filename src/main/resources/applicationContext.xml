@@ -471,6 +471,7 @@
             class="com.echoed.chamber.services.feed.FeedServiceActor"
             parent="actorBean">
         <property name="feedDao" ref="feedDao" />
+        <property name="partnerDao" ref="partnerDao" />
     </bean>
 
 </beans>

@@ -79,17 +79,9 @@ case class GetExhibit(page: Int) extends EUM
 case class GetExhibitResponse(message: GetExhibit, value: Either[EUE, ClosetPersonal])
     extends EUM with RM[ClosetPersonal, GetExhibit, EUE]
 
-case class GetPublicFeed(page: Int) extends EUM
-case class GetPublicFeedResponse(message: GetPublicFeed, value: Either[EUE, PublicFeed])
-    extends EUM with RM[PublicFeed, GetPublicFeed, EUE]
-
 case class GetFeed(page: Int) extends EUM
 case class GetFeedResponse(message: GetFeed, value: Either[EUE, Feed])
     extends EUM with RM[Feed, GetFeed, EUE]
-
-case class GetPartnerFeed(partnerId: String, page: Int) extends EUM
-case class GetPartnerFeedResponse(message: GetPartnerFeed,  value: Either[EUE, PartnerFeed])
-    extends EUM with RM[PartnerFeed, GetPartnerFeed, EUE]
 
 case class GetEchoedFriends() extends EUM
 case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, List[EchoedFriend]])

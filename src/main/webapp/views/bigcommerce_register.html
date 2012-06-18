@@ -1,138 +1,137 @@
     {{> partial_header}}
     <title>Echoed | BigCommerce Partner Register</title>
-    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css"/>
+    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
 </head>
 <body>
 <div id="container">
-    {{> partial_staticNavBar }}
-    <section>
-        <div class="center">
-            <div class="title">
-                <h2>BigCommerce Integration <img align="absmiddle" src="{{urls.images}}/bk_partner_bigcom.png"/></h2>
-            </div>
-            <div class="roundbox integration">
-                <div class="subtitle">Enable API Access</div>
-                To grant a user access to the API, go to your store's control panel and follow these steps:<br/>
-                    <ol>
-                        <li>Login To Your BigCommerce Store
-                        </li>
-                        <div style="text-align: center;">
-                            <img src="{{urls.images}}/bk_bigcommerce_1.png"/>
+    {{ > partial_public_header }}
+    {{ > partial_public_nav}}
+    <div id="content">
+        <section>
+            <div class="center">
+                <div class="title">
+                    <h2>BigCommerce Integration <img align="absmiddle" src="{{urls.images}}/bk_partner_bigcom.png"/></h2>
+                </div>
+                <div class="roundbox integration">
+                    <div class="subtitle">Enable API Access</div>
+                    To grant a user access to the API, go to your store's control panel and follow these steps:<br/>
+                        <ol>
+                            <li>Login To Your BigCommerce Store
+                            </li>
+                            <div style="text-align: center;">
+                                <img src="{{urls.images}}/bk_bigcommerce_1.png"/>
+                            </div>
+                            <li>Navigate to the Users area.</li>
+                            <div style="text-align: center;">
+                                <img src="{{urls.images}}/bk_bigcommerce_2.png"/>
+                            </div>
+                            <li><strong>Edit</strong> or <strong>Create</strong> the user you want to allow access to the API.</li>
+                            <li>Scroll down to the Enable the API setting and check the <strong>Yes, allow this user to use the API check box</strong></li>
+                            <li>An access token will be generated and shown below</li>
+                            <li>Copy the <strong>API Path</strong> and the <strong>API Token</strong></li>
+                            <li>Click the Save button</li>
+                            <div style="text-align: center;">
+                                <img src="{{urls.images}}/bk_bigcommerce_3.png"/>
+                            </div>
+                        </ol>
+                    <div class="subtitle">Register As An Echoed BigCommerce Partner</div>
+                    1. Fill in the following information: You'll need the <strong>API User</strong>, <strong>API Path</strong> and <strong>API Token</strong> from earlier.
+                    <div class="register_form_container">
+                        <div class="register_form">
+                            <h2>Registration Form</h2>
+                            <form action="{{urls.site}}/bigcommerce" method="POST">
+                                <fieldset>
+                                    <legend>Contact details</legend>
+                                    <label  for="registerForm.name">Name<em> * </em><span class="error">{{errors.registerForm.name}}</span></label>
+                                    <input  id="registerForm.name"
+                                            name="registerForm.name"
+                                            type="text"
+                                            placeholder="What is your name?"
+                                            value="{{registerForm.name}}" />
+                                    <label  for="registerForm.email">Email<em> * </em><span class="error">{{errors.registerForm.email}}</span></label>
+                                    <input  id="registerForm.email"
+                                            name="registerForm.email"
+                                            type="text"
+                                            placeholder="What is your email?"
+                                            value="{{registerForm.email}}" />
+                                    <label  for="registerForm.phone">Phone<em> * </em><span class="error">{{errors.registerForm.phone}}</span></label>
+                                    <input  id="registerForm.phone"
+                                            name="registerForm.phone"
+                                            type="text"
+                                            placeholder="What is the business phone number?"
+                                            value="{{registerForm.phone}}" />
+                                    <label  for="registerForm.businessName">Business Name<em> * </em><span class="error">{{errors.registerForm.businessName}}</span></label>
+                                    <input  id="registerForm.businessName"
+                                            name="registerForm.businessName"
+                                            type="text"
+                                            placeholder="What is the name of the business?"
+                                            value="{{registerForm.businessName}}" />
+                                    <label  for="registerForm.website">Website<em> * </em><span class="error">{{errors.registerForm.website}}</span></label>
+                                    <input  id="registerForm.website"
+                                            name="registerForm.website"
+                                            type="text"
+                                            placeholder="What is the home page of the eCommerce website?"
+                                            value="{{registerForm.website}}" />
+                                </fieldset>
+                                <fieldset>
+                                    <legend>API details</legend>
+                                    <label  for="registerForm.apiUser">API User<em> * </em><span class="error">{{errors.registerForm.apiUser}}</span></label>
+                                    <input  id="registerForm.apiUser"
+                                            name="registerForm.apiUser"
+                                            type="text"
+                                            placeholder="What is the login name of the user with API access?"
+                                            value="{{registerForm.apiUser}}" />
+                                    <label  for="registerForm.apiPath">API Path<em> * </em><span class="error">{{errors.registerForm.apiPath}}</span></label>
+                                    <input  id="registerForm.apiPath"
+                                            name="registerForm.apiPath"
+                                            type="text"
+                                            placeholder="What is the path to the API?"
+                                            value="{{registerForm.apiPath}}" />
+                                    <label  for="registerForm.apiToken">API Token<em> * </em><span class="error">{{errors.registerForm.apiToken}}</span></label>
+                                    <input  id="registerForm.apiToken"
+                                            name="registerForm.apiToken"
+                                            type="text"
+                                            placeholder="What is the token for API access?"
+                                            value="{{registerForm.apiToken}}" />
+                                </fieldset>
+                                <br/>
+                                <input  id="registerForm.register"
+                                        name="registerForm.register"
+                                        type="submit"
+                                        value="Add The Echoed App"/>
+                            </form>
                         </div>
-                        <li>Navigate to the Users area.</li>
-                        <div style="text-align: center;">
-                            <img src="{{urls.images}}/bk_bigcommerce_2.png"/>
-                        </div>
-                        <li><strong>Edit</strong> or <strong>Create</strong> the user you want to allow access to the API.</li>
-                        <li>Scroll down to the Enable the API setting and check the <strong>Yes, allow this user to use the API check box</strong></li>
-                        <li>An access token will be generated and shown below</li>
-                        <li>Copy the <strong>API Path</strong> and the <strong>API Token</strong></li>
-                        <li>Click the Save button</li>
-                        <div style="text-align: center;">
-                            <img src="{{urls.images}}/bk_bigcommerce_3.png"/>
-                        </div>
-                    </ol>
-                <div class="subtitle">Register As An Echoed BigCommerce Partner</div>
-                1. Fill in the following information: You'll need the <strong>API User</strong>, <strong>API Path</strong> and <strong>API Token</strong> from earlier.
-                <div class="register_form_container">
-                    <div class="register_form">
-                        <h2>Registration Form</h2>
-                        <form action="{{urls.site}}/bigcommerce" method="POST">
-                            <fieldset>
-                                <legend>Contact details</legend>
-                                <label  for="registerForm.name">Name<em> * </em><span class="error">{{errors.registerForm.name}}</span></label>
-                                <input  id="registerForm.name"
-                                        name="registerForm.name"
-                                        type="text"
-                                        placeholder="What is your name?"
-                                        value="{{registerForm.name}}" />
-                                <label  for="registerForm.email">Email<em> * </em><span class="error">{{errors.registerForm.email}}</span></label>
-                                <input  id="registerForm.email"
-                                        name="registerForm.email"
-                                        type="text"
-                                        placeholder="What is your email?"
-                                        value="{{registerForm.email}}" />
-                                <label  for="registerForm.phone">Phone<em> * </em><span class="error">{{errors.registerForm.phone}}</span></label>
-                                <input  id="registerForm.phone"
-                                        name="registerForm.phone"
-                                        type="text"
-                                        placeholder="What is the business phone number?"
-                                        value="{{registerForm.phone}}" />
-                                <label  for="registerForm.businessName">Business Name<em> * </em><span class="error">{{errors.registerForm.businessName}}</span></label>
-                                <input  id="registerForm.businessName"
-                                        name="registerForm.businessName"
-                                        type="text"
-                                        placeholder="What is the name of the business?"
-                                        value="{{registerForm.businessName}}" />
-                                <label  for="registerForm.website">Website<em> * </em><span class="error">{{errors.registerForm.website}}</span></label>
-                                <input  id="registerForm.website"
-                                        name="registerForm.website"
-                                        type="text"
-                                        placeholder="What is the home page of the eCommerce website?"
-                                        value="{{registerForm.website}}" />
-                            </fieldset>
-                            <fieldset>
-                                <legend>API details</legend>
-                                <label  for="registerForm.apiUser">API User<em> * </em><span class="error">{{errors.registerForm.apiUser}}</span></label>
-                                <input  id="registerForm.apiUser"
-                                        name="registerForm.apiUser"
-                                        type="text"
-                                        placeholder="What is the login name of the user with API access?"
-                                        value="{{registerForm.apiUser}}" />
-                                <label  for="registerForm.apiPath">API Path<em> * </em><span class="error">{{errors.registerForm.apiPath}}</span></label>
-                                <input  id="registerForm.apiPath"
-                                        name="registerForm.apiPath"
-                                        type="text"
-                                        placeholder="What is the path to the API?"
-                                        value="{{registerForm.apiPath}}" />
-                                <label  for="registerForm.apiToken">API Token<em> * </em><span class="error">{{errors.registerForm.apiToken}}</span></label>
-                                <input  id="registerForm.apiToken"
-                                        name="registerForm.apiToken"
-                                        type="text"
-                                        placeholder="What is the token for API access?"
-                                        value="{{registerForm.apiToken}}" />
-                            </fieldset>
-                            <br/>
-                            <input  id="registerForm.register"
-                                    name="registerForm.register"
-                                    type="submit"
-                                    value="Add The Echoed App"/>
-                        </form>
                     </div>
+                    2. Don't forget to fill in the form above and hit <strong>Add The Echoed App</strong><br/><br/>
+                    You'll receive an email confirmation that details next steps for the integration.
+                    <div style="text-align: center;">
+                        <img src="{{urls.images}}/bk_bigcommerce_4.png"/>
+                    </div>
+                    <div class="subtitle">Finalize The Integration</div>
+                    Head back over to your BigCommerce store, you're almost done!
+                        <ol>
+                            <li>Login to Your BigCommerce Store's control panel</li>
+                            <li>Click on <strong>Settings</strong> and then select <strong>Conversions</strong> from the drop down menu</li>
+                            <div style="text-align: center;">
+                                <img src="{{urls.images}}/bk_bigcommerce_5.png"/>
+                            </div>
+                            <li>In the <strong>Conversion Tracking Code Box</strong>, enter the code from your <strong>email confirmation</strong></li>
+                            <div style="text-align: center;">
+                                <img src="{{urls.images}}/bk_bigcommerce_6.png"/>
+                            </div>
+                            <li>Click <strong>Save</strong></li>
+                            <li>You'll receive the popup below:</li>
+                            <div style="text-align: center;">
+                                <img src="{{urls.images}}/bk_bigcommerce_7.png"/>
+                            </div>
+                            <li>Click <strong>OK</strong>, your work is done</li>
+                        </ol>
+                    <div class="subtitle">Activation</div>
+                    <br/>
+                    Your account manager will reach out to activate your account and ask you to place a test order
                 </div>
-                2. Don't forget to fill in the form above and hit <strong>Add The Echoed App</strong><br/><br/>
-                You'll receive an email confirmation that details next steps for the integration.
-                <div style="text-align: center;">
-                    <img src="{{urls.images}}/bk_bigcommerce_4.png"/>
-                </div>
-                <div class="subtitle">Finalize The Integration</div>
-                Head back over to your BigCommerce store, you're almost done!
-                    <ol>
-                        <li>Login to Your BigCommerce Store's control panel</li>
-                        <li>Click on <strong>Settings</strong> and then select <strong>Conversions</strong> from the drop down menu</li>
-                        <div style="text-align: center;">
-                            <img src="{{urls.images}}/bk_bigcommerce_5.png"/>
-                        </div>
-                        <li>In the <strong>Conversion Tracking Code Box</strong>, enter the code from your <strong>email confirmation</strong></li>
-                        <div style="text-align: center;">
-                            <img src="{{urls.images}}/bk_bigcommerce_6.png"/>
-                        </div>
-                        <li>Click <strong>Save</strong></li>
-                        <li>You'll receive the popup below:</li>
-                        <div style="text-align: center;">
-                            <img src="{{urls.images}}/bk_bigcommerce_7.png"/>
-                        </div>
-                        <li>Click <strong>OK</strong>, your work is done</li>
-                    </ol>
-                <div class="subtitle">Activation</div>
-                <br/>
-                Your account manager will reach out to activate your account and ask you to place a test order
             </div>
-        </div>
-    </section>
-    <div id="gap"></div>
-    <div id="footer" class="float">
-            {{> partial_footerNav}}
+        </section>
     </div>
 </div>
 </body>

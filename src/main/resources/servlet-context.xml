@@ -101,6 +101,8 @@
         <property name="partnerServiceManager" ref="partnerServiceManager" />
         <property name="cookieManager" ref="cookieManager" />
 
+
+
         <property name="errorView" value="error" />
 
         <property name="globalValidator" ref="validator" />
@@ -208,6 +210,7 @@
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="userController" class="com.echoed.chamber.controllers.api.UserController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="feedService" ref="feedService" />
         <property name="cookieManager" ref="cookieManager" />
     </bean>
 

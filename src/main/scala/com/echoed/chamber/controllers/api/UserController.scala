@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.services.feed._
 
 @Controller
 @RequestMapping(Array("/api"))
@@ -18,6 +19,7 @@ class UserController {
     private final val logger = LoggerFactory.getLogger(classOf[UserController])
 
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
+    @BeanProperty var feedService: FeedService = _
 
     @BeanProperty var cookieManager: CookieManager = _
     @BeanProperty var closetView: String = _
@@ -49,26 +51,19 @@ class UserController {
     @RequestMapping(value = Array("/me/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
     def publicFeed(
-            @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
             @RequestParam(value="page", required = false) page: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse): DeferredResult = {
 
         val result = new DeferredResult("error")
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
+        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
-
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-            case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                echoedUserService.getPublicFeed(pageInt).onSuccess {
-                    case GetPublicFeedResponse(_,Right(feed)) =>
-                        logger.debug("Found feed of size {}", feed.echoes.size)
-                        result.set(feed)
-                }
-        }
-
+        feedService.getPublicFeed(pageInt).onSuccess {
+            case GetPublicFeedResponse(_,Right(feed)) =>
+                logger.debug("Found feed of size {}", feed.echoes.size)
+                result.set(feed)
+            }
         result
     }
     
@@ -84,7 +79,7 @@ class UserController {
 
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
-        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
+        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
         echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
             case LocateWithIdResponse(_, Right(echoedUserService)) =>
@@ -109,7 +104,7 @@ class UserController {
 
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
 
-        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
+        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
         echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
             case LocateWithIdResponse(_, Right(echoedUserService)) =>
@@ -147,7 +142,6 @@ class UserController {
     @RequestMapping(value = Array("/partner/{partnerId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def partnerFeed(
-            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
             @PathVariable(value="partnerId") partnerId: String,
             @RequestParam(value="page", required = false) page: String,
             httpServletRequest: HttpServletRequest,
@@ -155,19 +149,13 @@ class UserController {
 
         val result = new DeferredResult("error")
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
-        
         logger.debug("Requesting for Partner Feed for Partner {}", partnerId )
 
-        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
+        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-            case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                echoedUserService.getPartnerFeed(partnerId, pageInt).onSuccess {
-                    case GetPartnerFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
-                }
+        feedService.getPartnerFeed(partnerId, pageInt).onSuccess {
+            case GetPartnerFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
         }
-
         result
     }
 
