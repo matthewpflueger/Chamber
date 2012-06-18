@@ -325,6 +325,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             self.contentDescription = "The recent products purchased at " + data.partner.name;
             self.addTitle(data.partner.name, data.partner.logo);
         } else if (self.id == "friends") {
+            self.contentDescription = "Products purchased and shared by " + data.echoedUserName;
             self.addTitle(data.echoedUserName);
         } else {
             self.addTitle(self.contentTitle);
@@ -674,7 +675,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             var diff = then - now;
             var daysleft = parseInt(diff/(24*60*60*1000));
             if(daysleft >= 0){
-                hover.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/>");
+                text.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/>");
                 self.showOverlay();
                 var t = setTimeout(self.hideOverlay, 3000);
                 img.addClass("open-echo");
