@@ -182,13 +182,14 @@ Echoed.Views.Components.Field = Backbone.View.extend({
 
 Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'triggerScroll', 'lock', 'unlock', 'on', 'off');
+        _.bindAll(this,'triggerScroll', 'lock', 'unlock', 'on', 'off','scrollUp');
         this.EvAg = options.EvAg;
         this.EvAg.bind("triggerInfiniteScroll", this.triggerScroll);
         this.EvAg.bind("infiniteScroll/lock", this.lock);
         this.EvAg.bind("infiniteScroll/unlock", this.unlock);
         this.EvAg.bind("infiniteScroll/on", this.on);
         this.EvAg.bind("infiniteScroll/off", this.off);
+        this.EvAg.bind('page/change', this.scrollUp);
         this.element = $(options.el);
         this.locked = false;
         var self = this;
@@ -197,6 +198,9 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
                 self.EvAg.trigger("infiniteScroll");
             }
         });
+    },
+    scrollUp: function(){
+        $("html, body").animate({scrollTop: 0 }, 300);
     },
     on: function(){
         var self = this;
