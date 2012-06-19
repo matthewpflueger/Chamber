@@ -69,7 +69,7 @@ function ___getPageSize() {
         height: arrPageSizes[1]
     });
 
-    var popup = $('<div id="echoed-popup"><img src="http://images.echoed.com/btn_closewin.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}" />{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
+    var popup = $('<div id="echoed-popup"><img src="{{urls.images}}/btn_closewin.png" id="echoed-close"/><div id="echoed-header">{{#partner}}<img id="echoed-h-l" src="{{logo}}" />{{/partner}}</div><div id="echoed-container"><div id="echoed-hiw-t"></div><div id="echoed-pcc"><div id="echoed-p-c" class="clearfix"></div></div><div id="echoed-hiw-tt"></div></div></div>');
     popup.appendTo($('body')).fadeIn();
     $('#echoed-hiw-t').html('SHARE YOUR PURCHASE AND EARN UP TO <span class="echoed-highlight">{{maxPercentage}}% CASH BACK</span>');
     $('#echoed-hiw-tt').html("Share this on <img src='{{urls.images}}/logo_facebook.png'> or <img src='{{urls.images}}/logo_twitter.png'> and we'll give you cash back every time someone clicks through your link.");
