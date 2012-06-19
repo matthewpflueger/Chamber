@@ -1,5 +1,5 @@
 WebFontConfig = {
-    google: { families: ['Lato:300,400,700,900'] },
+    google: { families: ['Lato:300,400,700,900'] }
 };
 (function(){
     var wf= document.createElement('script');
