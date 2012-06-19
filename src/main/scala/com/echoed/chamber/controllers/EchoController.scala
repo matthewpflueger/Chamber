@@ -444,6 +444,13 @@ class EchoController {
     }
 
 
+    /*
+        This is here because two old integrations (Trixie & Peanut and Redhawk Brigade) paint the share button by
+        calling /echo/button
+     */
+    @RequestMapping(value = Array("/button"), method = Array(RequestMethod.GET))
+    def button = "error"
+
     @RequestMapping(value = Array("/{linkId}"), method = Array(RequestMethod.GET))
     def click(
             @PathVariable(value = "linkId") linkId: String,
