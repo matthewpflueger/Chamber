@@ -216,14 +216,24 @@ class PartnerServiceManagerActor extends FactoryBean[ActorRef] {
             val me = context.self
             val channel = context.sender
 
+            logger.debug("Locating partner for echo {}", echoId)
+
             Option(echoDao.findByIdOrPostId(echoId)).cata(
                 echo => ((me ? Locate(echo.partnerId)).mapTo[LocateResponse]).onComplete(_.fold(
-                    e => channel ! LocateByEchoIdResponse(msg, Left(PartnerException("Unexpected error", e))),
+                    e => {
+                        logger.error("Unexpected error in locating partner for echo {}: {}", echoId, e)
+                        channel ! LocateByEchoIdResponse(msg, Left(PartnerException("Unexpected error", e)))
+                    },
                     _ match {
-                        case LocateResponse(_, Left(e)) => channel ! LocateByEchoIdResponse(msg, Left(e))
-                        case LocateResponse(_, Right(partnerService)) => channel ! LocateByEchoIdResponse(msg, Right(partnerService))
+                        case LocateResponse(_, Left(e)) =>
+                            logger.error("Error in locating partner for echo {}: {}", echoId, e)
+                            channel ! LocateByEchoIdResponse(msg, Left(e))
+                        case LocateResponse(_, Right(partnerService)) =>
+                            logger.debug("Found parnter for echo {}", echoId)
+                            channel ! LocateByEchoIdResponse(msg, Right(partnerService))
                     })),
                 {
+                    logger.error("Did not find partner for echo {}", echoId)
                     channel ! LocateByEchoIdResponse(msg, Left(EchoNotFound(echoId)))
                 })
 
@@ -262,13 +272,22 @@ class PartnerServiceManagerActor extends FactoryBean[ActorRef] {
             val me = context.self
             val channel = context.sender
 
+            logger.debug("Starting to locate partner for echo {}", echoId)
+
             val constructor = findResponseConstructor(msg)
 
             (me ? LocateByEchoId(echoId)).mapTo[LocateByEchoIdResponse].onComplete(_.fold(
-                e => channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating with echo id %s" format echoId, e))),
+                e => {
+                    logger.error("Unexpected error in locating partner for echo {}: {}", echoId, e)
+                    channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating with echo id %s" format echoId, e)))
+                },
                 _ match {
-                    case LocateByEchoIdResponse(_, Left(e)) => channel ! constructor.newInstance(msg, Left(e))
-                    case LocateByEchoIdResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
+                    case LocateByEchoIdResponse(_, Left(e)) =>
+                        logger.error("Error in locating partner for echo {}: {}", echoId, e)
+                        channel ! constructor.newInstance(msg, Left(e))
+                    case LocateByEchoIdResponse(_, Right(ps)) =>
+                        logger.debug("Located partner for echo {}, forwarding on message {}", echoId, msg)
+                        ps.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
                 }))
     }
 

@@ -481,13 +481,16 @@ class EchoController {
         val partnerServiceManagerResponse = partnerServiceManager.getEcho(echoId)
         val echoServiceResponse = echoService.recordEchoClick(echoClick, echoId, postId)
 
-        for {
+        (for {
             psmr <- partnerServiceManagerResponse
             esr <- echoServiceResponse
         } yield {
+            logger.debug("In yield of echo click")
             esr.resultOrException
+            logger.debug("Successful echo service response")
             psmr match {
                 case GetEchoResponse(msg, Right(epv)) =>
+                    logger.debug("Got echo possibility view for echo {}", echoId)
                     cookieManager.findEchoClickCookie(httpServletRequest).getOrElse({
                         cookieManager.addEchoClickCookie(
                             httpServletResponse,
@@ -522,6 +525,10 @@ class EchoController {
                             eus.publishFacebookAction("browse","product", productGraphUrl + echoId)
                     }
             }
+        }).onSuccess {
+            case _ => logger.debug("Successfully completed echo click {}", echoId)
+        }.onFailure {
+            case e => logger.error("Error during recording of echo click %s" format echoId, e)
         }
 
         result
