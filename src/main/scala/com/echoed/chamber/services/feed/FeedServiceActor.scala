@@ -10,6 +10,7 @@ import akka.util.Timeout
 import akka.util.duration._
 import akka.event.Logging
 import com.echoed.chamber.dao.partner.PartnerDao
+import com.echoed.chamber.domain.public.PartnerPublic
 
 
 class FeedServiceActor extends FactoryBean[ActorRef] {
@@ -70,7 +71,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
                 val start = msg.page * limit
                 val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, limit)).toList
                 val partner = partnerDao.findById(partnerId)
-                val partnerFeed = new PartnerFeed(partner, echoes)
+                val partnerFeed = new PartnerFeed(new PartnerPublic(partner), echoes)
                 channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
             } catch {
                 case e =>

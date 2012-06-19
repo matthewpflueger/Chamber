@@ -1,12 +1,12 @@
 package com.echoed.chamber.domain.views
 import java.util.{ArrayList, List => JList}
 
-import com.echoed.chamber.domain.partner.Partner
+import com.echoed.chamber.domain.public.PartnerPublic
 
 case class PartnerFeed(
-    partner: Partner,
+    partner: PartnerPublic,
     echoes: JList[EchoViewPublic]) {
 
-    def this(partner: Partner)= this(partner, new ArrayList[EchoViewPublic])
+    def this(partner: PartnerPublic)= this(partner, new ArrayList[EchoViewPublic])
 
 }
