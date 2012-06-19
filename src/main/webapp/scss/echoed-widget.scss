@@ -1,0 +1,196 @@
+//RESET
+$navFontFamily: Lato, Tahoma, Arial,sans-serif;
+$textFontFamily: Lato, Tahoma, Arial,sans-serif;
+
+@mixin textFontNormal($size: 12px, $color: #333){
+    font-family: $textFontFamily;
+    font-weight: normal;
+    color: $color;
+    font-size: $size;
+    font-weight: 300;
+}
+
+@mixin drop-shadow{
+    box-shadow: 1px 1px 2px rgba(34,25,25,0.4);
+    -moz-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);
+    -webkit-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
+}
+
+#echoed-fade { /*--Transparent background layer--*/
+    position: absolute;
+    z-index: 9999;
+    background-image: image-url("bk_greyPx.png");
+    top: 0px;
+    left: 0px;
+}
+
+
+#echoed-opener{
+    position:absolute;
+    left: 0px;
+    top: 50%;
+    margin-top: -150px;
+    background-image: image-url("btn_echoed_opener.jpg");
+    @include drop-shadow;
+    width: 30px;
+    height: 300px;
+    border-top: 1px solid #CCC;
+    cursor: pointer;
+
+}
+
+#echoed-infiniteScroll{
+    position: absolute;
+    z-index: 99999;
+    bottom: 10px;
+    left: 50%;
+    width: 250px;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 5px;
+    background-image: image-url("bg-blackpx90.png");
+    margin-left: -125px;
+    @include textFontNormal(16px, #FFF);
+    text-align: center;
+}
+
+
+#echoed-exhibit-container{
+    position:relative;
+    width: 754px;
+    padding: 10px;
+    border-radius: 10px;
+    margin:auto;
+    background-color: #FFF;
+    z-index: 10000;
+    #echoed-close{
+        text-align:right;
+        img{
+            cursor: pointer;
+        }
+    }
+    #echoed-e-c-b{
+        border: 1px solid #CCC;
+        height: 600px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        padding-right: 30px;
+        #echoed-exhibit{
+            width: 740px;
+            background-color: #FFF;
+        }
+    }
+
+    #echoed-title{
+        width: 210px;
+        padding: 10px;
+        text-align:center;
+        @include textFontNormal(24px, #FFF);
+        background-color: #333 !important;
+        .title-description{
+            @include textFontNormal(18px, #FFF);
+            //font-weight: bold;
+        }
+        img {
+            width: 230px;
+            padding: 0px;
+            margin: 0px;
+        }
+    }
+
+
+    .item_wrap{
+        border: 1px solid #CCC;
+        z-index :1;
+        float:left;
+        margin:5px;
+        position:relative;
+        cursor:pointer;
+        background-color: #FFF;
+        &:hover{
+            border: 1px solid #000000;
+        }
+
+        img {
+            width: 230px;
+            display:block;
+        }
+
+        .icl_pn{
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .item_text{
+            border-top: 1px solid #CCC;
+            padding: 5px;
+            line-height: 1.5em;
+            text-overflow: ellipsis;
+            width: 220px;
+            @include textFontNormal(12px, #000);
+        }
+    }
+
+
+/* Start: Recommended Isotope styles */
+
+/**** Isotope Filtering ****/
+
+    .isotope-item {
+        z-index: 2;
+    }
+
+    .isotope-hidden.isotope-item {
+        pointer-events: none;
+        z-index: 1;
+    }
+
+/**** Isotope CSS3 transitions ****/
+
+    .isotope,
+    .isotope .isotope-item {
+        -webkit-transition-duration: 0.5s;
+        -moz-transition-duration: 0.5s;
+        -o-transition-duration: 0.5s;
+        transition-duration: 0.5s;
+    }
+
+    .isotope {
+        -webkit-transition-property: height, width;
+        -moz-transition-property: height, width;
+        -o-transition-property: height, width;
+        transition-property: height, width;
+    }
+
+    .isotope .isotope-item {
+        -webkit-transition-property: -webkit-transform, opacity;
+        -moz-transition-property:    -moz-transform, opacity;
+        -o-transition-property:         top, left, opacity;
+        transition-property:         transform, opacity;
+    }
+
+/**** disabling Isotope CSS3 transitions ****/
+
+    .isotope.no-transition,
+    .isotope.no-transition .isotope-item,
+    .isotope .isotope-item.no-transition {
+        -webkit-transition-duration: 0s;
+        -moz-transition-duration: 0s;
+        -o-transition-duration: 0s;
+        transition-duration: 0s;
+    }
+
+/* End: Recommended Isotope styles */
+
+/* disable CSS transitions for containers with infinite scrolling*/
+    .isotope.infinite-scrolling {
+        -webkit-transition: none;
+        -moz-transition: none;
+        -o-transition: none;
+        transition: none;
+    }
+
+}
+
