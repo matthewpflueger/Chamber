@@ -31,11 +31,11 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
     position:absolute;
     left: 0px;
     top: 50%;
-    margin-top: -150px;
+    margin-top: -125px;
     background-image: image-url("btn_echoed_opener.jpg");
     @include drop-shadow;
     width: 30px;
-    height: 300px;
+    height: 250px;
     border-top: 1px solid #CCC;
     cursor: pointer;
 
@@ -58,17 +58,58 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
 
 
 #echoed-exhibit-container{
-    position:relative;
+    position:absolute;
+    top: 50px;
     width: 754px;
+    left: 50%;
+    margin-left: -377px;
     padding: 10px;
     border-radius: 10px;
-    margin:auto;
     background-color: #FFF;
     z-index: 10000;
-    #echoed-close{
-        text-align:right;
-        img{
-            cursor: pointer;
+
+    .clearfix{
+        zoom:1;
+        &:before,&:after{
+            content:"";
+            display:table;
+        }
+        &:after{
+            clear:both;
+        }
+    }
+
+    #echoed-head{
+        position:relative;
+
+
+        #echoed-selector{
+            padding: 6px 25px 6px 6px;
+            position:absolute;
+            left:0px;
+            bottom:2px;
+            background: -moz-linear-gradient(top,white 0%, #F3F3F3 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+            background: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background: linear-gradient(top, white 0%, #F3F3F3 100%);
+            border-radius: 3px;
+            -moz-border-radius: 3px;
+            -webkit-border-radius: 3px;
+            border: 1px solid #CECECE;
+            border-bottom-color: #A0A0A0;
+            background-repeat: no-repeat;
+            background-position: 90% 50%;
+            @include textFontNormal(14px, #000);
+            font-weight: 400;
+        }
+
+        #echoed-close{
+            float:right;
+            img{
+                cursor: pointer;
+            }
         }
     }
     #echoed-e-c-b{
@@ -130,13 +171,12 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
             text-overflow: ellipsis;
             width: 220px;
             @include textFontNormal(12px, #000);
+            text-align: left;
         }
     }
 
 
 /* Start: Recommended Isotope styles */
-
-/**** Isotope Filtering ****/
 
     .isotope-item {
         z-index: 2;
@@ -146,8 +186,6 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
         pointer-events: none;
         z-index: 1;
     }
-
-/**** Isotope CSS3 transitions ****/
 
     .isotope,
     .isotope .isotope-item {
@@ -171,8 +209,6 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
         transition-property:         transform, opacity;
     }
 
-/**** disabling Isotope CSS3 transitions ****/
-
     .isotope.no-transition,
     .isotope.no-transition .isotope-item,
     .isotope .isotope-item.no-transition {
@@ -182,9 +218,6 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
         transition-duration: 0s;
     }
 
-/* End: Recommended Isotope styles */
-
-/* disable CSS transitions for containers with infinite scrolling*/
     .isotope.infinite-scrolling {
         -webkit-transition: none;
         -moz-transition: none;
@@ -193,4 +226,5 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
     }
 
 }
+
 
