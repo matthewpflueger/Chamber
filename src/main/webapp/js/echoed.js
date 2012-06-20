@@ -195,6 +195,25 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     }
 });
 
+Echoed.Views.Components.Transition = Backbone.View.extend({
+    el: '#transition',
+    initialize: function(options){
+        _.bindAll(this,'render');
+        this.EvAg = options.EvAg;
+        this.element = $(this.el);
+        this.bind('transition/show', this.render);
+    },
+    render: function(options){
+        var self = this;
+        var top = options.top;
+        var left = options.left;
+        var height = options.height;
+        var width = options.width;
+        self.element.css({
+        });
+    }
+});
+
 Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this,'triggerScroll', 'lock', 'unlock', 'on', 'off','scrollUp');
