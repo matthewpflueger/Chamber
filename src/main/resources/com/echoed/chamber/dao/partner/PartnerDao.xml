@@ -61,4 +61,14 @@
         delete from Partner where name=#{name}
     </delete>
 
+    <update id="update" parameterType="com.echoed.chamber.domain.partner.Partner">
+        update Partner set
+            name = #{name},
+            domain = #{domain},
+            phone = #{phone},
+            handle = #{handle},
+            logo = #{logo},
+            category = #{category}
+        where id = #{id}
+    </update>
 </mapper>

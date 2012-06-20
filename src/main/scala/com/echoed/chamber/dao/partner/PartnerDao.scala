@@ -14,4 +14,6 @@ trait PartnerDao {
     def deleteById(id: String): Int
 
     def deleteByName(name: String): Int
+
+    def update(partner: Partner): Int
 }

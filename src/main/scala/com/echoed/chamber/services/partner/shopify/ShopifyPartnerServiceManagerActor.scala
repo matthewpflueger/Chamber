@@ -162,86 +162,90 @@ class ShopifyPartnerServiceManagerActor extends FactoryBean[ActorRef] {
                     _ match {
                         case FetchShopFromTokenResponse(_, Left(e)) => error(e)
                         case FetchShopFromTokenResponse(_, Right(shopifyPartner)) =>
-                            partnerServiceManager.locatePartnerByDomain(shopifyPartner.domain).onComplete(_.fold(
-                                error(_),
-                                _ match {
-                                    case LocateByDomainResponse(_, Left(e: PartnerNotFound)) =>
-                                        val (p, sp) = ShopifyPartner.createPartner(shopifyPartner)
-                                        val password = UUID.randomUUID().toString
-                                        val pu = ShopifyPartner.createPartnerUser(sp).createPassword(password)
-                                        val ps = PartnerSettings.createPartnerSettings(p.id)
+                            Option(shopifyPartnerDao.findByShopifyId(shopifyPartner.shopifyId)).cata(sp => {
+                                (me ? Locate(sp.partnerId)).onComplete(_.fold(
+                                    e => logger.error("Unexpected error fetching Shopify partner: {}", e),
+                                    _ match {
+                                        case LocateResponse(_, Left(e)) => logger.error("Error fetching Shopify partner: {}", e)
+                                        case LocateResponse(_, Right(partnerService)) =>
+                                            logger.debug("Successfully fetched Shopify partner: {}", shopifyPartner.name)
 
-                                        val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (pu.email, password))
+                                            val sps = partnerService.asInstanceOf[ShopifyPartnerService]
+                                            sps.update(shopifyPartner)
 
-                                        transactionTemplate.execute({status: TransactionStatus =>
-                                            partnerDao.insert(p)
-                                            partnerSettingsDao.insert(ps)
-                                            partnerUserDao.insert(pu)
-                                            shopifyPartnerDao.insert(sp)
-                                        })
+                                            val sp = sps.getShopifyPartner
+                                            implicit val t = Timeout(20 seconds)
+                                            val pu = Future { partnerUserDao.findByEmail(shopifyPartner.email) }
+
+                                            (for {
+                                                sp <- sp
+                                                pu <- pu
+                                            } yield {
+                                                RegisterShopifyPartnerEnvelope(
+                                                    sp.resultOrException,
+                                                    Option(partnerDao.findById(sp.resultOrException.partnerId)).get,
+                                                    pu,
+                                                    Some(sps))
+                                            }).onComplete(_.fold(
+                                                _ match {
+                                                    case e: PartnerException => channel ! RegisterShopifyPartnerResponse(msg, Left(e))
+                                                    case e => channel ! RegisterShopifyPartnerResponse(
+                                                                    msg,
+                                                                    Left(PartnerAlreadyExists(partnerService, _cause = e)))
+                                                },
+                                                envelope => channel ! RegisterShopifyPartnerResponse(
+                                                                    msg,
+                                                                    Left(ShopifyPartnerAlreadyExists(envelope)))
+                                            ))
+                                    }))
+                                },
+                                {
+                                    val (p, sp) = ShopifyPartner.createPartner(shopifyPartner)
+                                    val password = UUID.randomUUID().toString
+                                    val pu = ShopifyPartner.createPartnerUser(sp).createPassword(password)
+                                    val ps = PartnerSettings.createPartnerSettings(p.id)
+
+                                    val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (pu.email, password))
+
+                                    transactionTemplate.execute({status: TransactionStatus =>
+                                        partnerDao.insert(p)
+                                        partnerSettingsDao.insert(ps)
+                                        partnerUserDao.insert(pu)
+                                        shopifyPartnerDao.insert(sp)
+                                    })
 
 
-                                        channel ! RegisterShopifyPartnerResponse(
-                                            msg,
-                                            Right(RegisterShopifyPartnerEnvelope(sp, p, pu)))
+                                    channel ! RegisterShopifyPartnerResponse(
+                                        msg,
+                                        Right(RegisterShopifyPartnerEnvelope(sp, p, pu)))
 
-                                        (me ? Locate(p.id)).onComplete(_.fold(
-                                            e => logger.error("Unexpected error creating Shopify partner after registration: {}", e),
-                                            _ match {
-                                                case LocateResponse(_, Left(e)) =>
-                                                    logger.error("Unexpected error creating Shopify partner after registration: {}", e)
-                                                case LocateResponse(_, Right(_)) =>
-                                                    logger.debug("Successfully registered and created Shopify partner: {}", sp.name)
-                                            }))
+                                    (me ? Locate(p.id)).onComplete(_.fold(
+                                        e => logger.error("Unexpected error creating Shopify partner after registration: {}", e),
+                                        _ match {
+                                            case LocateResponse(_, Left(e)) =>
+                                                logger.error("Unexpected error creating Shopify partner after registration: {}", e)
+                                            case LocateResponse(_, Right(_)) =>
+                                                logger.debug("Successfully registered and created Shopify partner: {}", sp.name)
+                                        }))
 
-                                        val model = new HashMap[String, AnyRef]()
-                                        model.put("code", code)
-                                        model.put("shopifyPartner", sp)
-                                        model.put("partnerUser", pu)
-                                        model.put("partner", p)
+                                    val model = new HashMap[String, AnyRef]()
+                                    model.put("code", code)
+                                    model.put("shopifyPartner", sp)
+                                    model.put("partnerUser", pu)
+                                    model.put("partner", p)
 
-                                        emailService.sendEmail(
-                                            pu.email,
-                                            "Thank you for choosing Echoed",
-                                            partnerEmailTemplate,
-                                            model)
+                                    emailService.sendEmail(
+                                        pu.email,
+                                        "Thank you for choosing Echoed",
+                                        partnerEmailTemplate,
+                                        model)
 
-                                        emailService.sendEmail(
-                                            accountManagerEmail,
-                                            "New Shopify partner %s" format sp.name,
-                                            accountManagerEmailTemplate,
-                                            model)
-
-                                    case LocateByDomainResponse(_, Left(e)) => error(e)
-                                    case LocateByDomainResponse(_, Right(partnerService)) =>
-                                        val sps = partnerService.asInstanceOf[ShopifyPartnerService]
-                                        sps.update(shopifyPartner)
-
-                                        val sp = sps.getShopifyPartner
-                                        implicit val t = Timeout(20 seconds)
-                                        val pu = Future { partnerUserDao.findByEmail(shopifyPartner.email) }
-
-                                        (for {
-                                            sp <- sp
-                                            pu <- pu
-                                        } yield {
-                                            RegisterShopifyPartnerEnvelope(
-                                                sp.resultOrException,
-                                                Option(partnerDao.findById(sp.resultOrException.partnerId)).get,
-                                                pu,
-                                                Some(sps))
-                                        }).onComplete(_.fold(
-                                            _ match {
-                                                case e: PartnerException => channel ! RegisterShopifyPartnerResponse(msg, Left(e))
-                                                case e => channel ! RegisterShopifyPartnerResponse(
-                                                                msg,
-                                                                Left(PartnerAlreadyExists(partnerService, _cause = e)))
-                                            },
-                                            envelope => channel ! RegisterShopifyPartnerResponse(
-                                                                msg,
-                                                                Left(ShopifyPartnerAlreadyExists(envelope)))
-                                        ))
-                                }))
+                                    emailService.sendEmail(
+                                        accountManagerEmail,
+                                        "New Shopify partner %s" format sp.name,
+                                        accountManagerEmailTemplate,
+                                        model)
+                                })
                     }))
             } catch {
                 case e => logger.error("Unexpected exception during registration of ShopifyPartner {}" , e)

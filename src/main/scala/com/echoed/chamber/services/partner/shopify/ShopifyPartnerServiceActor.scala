@@ -1,5 +1,6 @@
 package com.echoed.chamber.services.partner.shopify
 
+import com.echoed.util.TransactionUtils._
 import com.echoed.chamber.domain.partner.shopify._
 import collection.mutable.{Map => MMap}
 import collection.JavaConversions._
@@ -18,11 +19,12 @@ import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import akka.util.duration._
+import org.springframework.transaction.TransactionStatus
 
 
 class ShopifyPartnerServiceActor(
         var shopifyPartner: ShopifyPartner,
-        partner: Partner,
+        var partner: Partner,
         shopifyAccess: ShopifyAccess,
         shopifyPartnerDao: ShopifyPartnerDao,
         partnerDao: PartnerDao,
@@ -205,7 +207,8 @@ class ShopifyPartnerServiceActor(
 
 
         case msg @ Update(sp) =>
-            require(sp.domain == this.shopifyPartner.domain, "Trying to update Shopify partner %s with wrong data %s" format(shopifyPartner, sp))
+            logger.debug("Updating Shopify partner {}", sp.name)
+            require(sp.shopifyDomain == this.shopifyPartner.shopifyDomain, "Trying to update Shopify partner %s with wrong data %s" format(shopifyPartner, sp))
             shopifyPartner = shopifyPartner.copy(
                 name = sp.name,
                 email = sp.email,
@@ -213,8 +216,19 @@ class ShopifyPartnerServiceActor(
                 city = sp.city,
                 country = sp.country,
                 zip = sp.zip,
-                password = sp.password)
-            shopifyPartnerDao.update(shopifyPartner)
+                password = sp.password,
+                domain = sp.domain)
+            partner = partner.copy(
+                name = sp.name,
+                domain = sp.domain,
+                phone = sp.phone)
+
+            transactionTemplate.execute({status: TransactionStatus =>
+                partnerDao.update(partner)
+                shopifyPartnerDao.update(shopifyPartner)
+            })
+            logger.debug("Successfully updated Shopify partner {}", sp.name)
+
     }
 
 }

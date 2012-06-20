@@ -76,6 +76,7 @@
     <update id="update" parameterType="com.echoed.chamber.domain.partner.shopify.ShopifyPartner">
         update ShopifyPartner set
             name = #{name},
+            domain = #{domain},
             email = #{email},
             phone = #{phone},
             city = #{city},
