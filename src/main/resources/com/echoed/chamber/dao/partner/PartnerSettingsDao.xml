@@ -24,6 +24,7 @@
             <arg column="couponDescription" javaType="String" />
             <arg column="couponExpiresOn" javaType="Date" />
             <arg column="activeOn" javaType="Date" />
+            <arg column="storyPrompts" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -33,6 +34,16 @@
 
     <select id="findByPartnerId" resultMap="partnerSettingsResult">
         select * from PartnerSettings where partnerId=#{partnerId}
+    </select>
+
+    <select id="findByIdOrPartnerHandle" resultMap="partnerSettingsResult">
+        select PS.*
+        from PartnerSettings PS
+            join Partner P on PS.partnerId = P.id
+        where PS.id = #{id}
+            or (P.handle = #{id} and PS.activeOn &lt;= now())
+        order by PS.activeOn desc
+        limit 1
     </select>
 
     <select id="findByActiveOn" resultMap="partnerSettingsResult" >
@@ -71,7 +82,8 @@
                 couponCode,
                 couponDescription,
                 couponExpiresOn,
-                activeOn)
+                activeOn,
+                storyPrompts)
     	values (
     			#{id},
     			#{createdOn},
@@ -89,7 +101,8 @@
                 #{couponCode},
                 #{couponDescription},
                 #{couponExpiresOn},
-                #{activeOn})
+                #{activeOn},
+                #{storyPrompts})
     </insert>
 
     <delete id="deleteByPartnerId">

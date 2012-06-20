@@ -10,10 +10,11 @@
             <arg column="storyEchoedUserId" javaType="String" />
             <arg column="storyPartnerId" javaType="String" />
             <arg column="storyPartnerSettingsId" javaType="String" />
-            <arg column="storyImageId" javaType="String" />
+            <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
             <arg column="storyTitle" javaType="String" />
             <arg column="storyEchoId" javaType="String" />
             <arg column="storyProductId" javaType="String" />
+            <arg column="storyProductInfo" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -24,18 +25,27 @@
         S.echoedUserId as storyEchoedUserId,
         S.partnerId as storyPartnerId,
         S.partnerSettingsId as storyPartnerSettingsId,
-        S.imageId as storyImageId,
         S.title as storyTitle,
         S.echoId as storyEchoId,
-        S.productId as storyProductId
+        S.productId as storyProductId,
+        S.productInfo as storyProductInfo,
+        <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
     </sql>
 
     <select id="findByEchoedUserId" resultMap="storyResult">
         select <include refid="storyColumns" />
         from Story S
+        join Image I on S.imageId = I.id
         where S.echoedUserId = #{echoedUserId}
     </select>
-    
+
+    <select id="findByIdAndEchoedUserId" resultMap="storyResult">
+        select <include refid="storyColumns" />
+        from Story S
+        join Image I on S.imageId = I.id
+        where S.id = #{id} and S.echoedUserId = #{echoedUserId}
+    </select>
+
     <insert id="insert" parameterType="com.echoed.chamber.domain.Story">
         insert into Story(
             id,
@@ -55,11 +65,18 @@
             #{echoedUserId},
             #{partnerId},
             #{partnerSettingsId},
-            #{imageId},
+            #{image.id},
             #{title},
             #{echoId},
             #{productId})
     </insert>
+
+    <update id="update">
+        update Story set
+            imageId = #{image.id},
+            title = #{title},
+            updatedOn = utc_timestamp() + 0
+    </update>
 
     <delete id="deleteByEchoedUserId">
         delete from Story where echoedUserId = #{echoedUserId}

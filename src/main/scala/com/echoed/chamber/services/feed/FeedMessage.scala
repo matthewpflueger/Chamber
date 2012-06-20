@@ -17,6 +17,10 @@ sealed case class FeedException(
 import com.echoed.chamber.services.feed.{FeedMessage => FM}
 import com.echoed.chamber.services.feed.{FeedException => FE}
 
+case class GetStory(storyId: String) extends FM
+case class GetStoryResponse(message: GetStory, value: Either[FE, Option[StoryFull]])
+        extends FM with RM[Option[StoryFull], GetStory, FE]
+
 case class GetPublicFeed(page: Int) extends FM
 case class GetPublicFeedResponse(
             message: GetPublicFeed, 

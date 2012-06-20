@@ -12,13 +12,14 @@ create table Story (
     title varchar(255) not null,
     echoId varchar(36) null,
     productId varchar(255) null,
+    productInfo varchar(1024) null,
     primary key (id)
 );
 
 create index echoedUserId on Story (echoedUserId);
 create index partnerId on Story (partnerId);
 create index partnerSettingsId on Story (partnerSettingsId);
-create index echoId on Story (echoId);
+create unique index echoId on Story (echoId);
 
 
 create table Chapter (

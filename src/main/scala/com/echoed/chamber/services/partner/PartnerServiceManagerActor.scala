@@ -258,13 +258,22 @@ class PartnerServiceManagerActor extends FactoryBean[ActorRef] {
             val me = context.self
             val channel = context.sender
 
+            logger.debug("Starting to locate partner {}", partnerId)
+
             val constructor = findResponseConstructor(msg)
 
             (me ? Locate(partnerId)).mapTo[LocateResponse].onComplete(_.fold(
-                e => channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating partner %s" format partnerId, e))),
+                e => {
+                    logger.error("Unexpected error in locating partner {}: {}", partnerId, e)
+                    channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating partner %s" format partnerId, e)))
+                },
                 _ match {
-                    case LocateResponse(Locate(partnerId), Left(e)) => channel ! constructor.newInstance(msg, Left(e))
-                    case LocateResponse(_, Right(ps)) => ps.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
+                    case LocateResponse(Locate(partnerId), Left(e)) =>
+                        logger.error("Error locating partner {}: {}", partnerId, e)
+                        channel ! constructor.newInstance(msg, Left(e))
+                    case LocateResponse(_, Right(ps)) =>
+                        logger.debug("Located partner {}, forwarding on message {}", partnerId, msg)
+                        ps.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
                 }))
 
 

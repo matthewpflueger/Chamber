@@ -37,10 +37,22 @@
         from Chapter C where C.id = #{id}
     </select>
 
+    <select id="findByIdAndEchoedUserId" resultMap="chapterResult">
+        select <include refid="chapterColumns" />
+        from Chapter C where C.id = #{id} and C.echoedUserId = #{echoedUserId}
+    </select>
+
     <select id="findByStoryId" resultMap="chapterResult">
         select <include refid="chapterColumns" />
         from Chapter C where C.storyId = #{storyId}
     </select>
+
+    <select id="findByIdAndStoryId" resultMap="chapterResult">
+        select <include refid="chapterColumns" />
+        from Chapter C
+        where C.id = #{id} and C.storyId = #{storyId}
+    </select>
+
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.Chapter">
         insert into Chapter(
@@ -69,8 +81,18 @@
             #{publishedOn})
     </insert>
 
+    <update id="update">
+        update Chapter set
+            title = #{title},
+            text = #{text},
+            publishedOn = #{publishedOn},
+            updatedOn = utc_timestamp() + 0
+        where id = #{id}
+    </update>
+
     <delete id="deleteByStoryId">
         delete from Chapter where storyId = #{storyId}
     </delete>
+
 </mapper>
 

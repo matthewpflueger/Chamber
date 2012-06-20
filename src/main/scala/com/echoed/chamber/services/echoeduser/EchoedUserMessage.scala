@@ -9,6 +9,7 @@ import partner.PartnerSettings
 import com.echoed.chamber.domain.views._
 
 
+
 sealed trait EchoedUserMessage extends Message
 sealed case class EchoedUserException(message: String = "", cause: Throwable = null) extends EchoedException(message,cause)
 
@@ -25,6 +26,74 @@ case class EmailAlreadyExists(
         email: String,
         m: String = "Email already in Use",
         c: Throwable = null) extends EchoedUserException(m, c)
+
+abstract case class EchoedUserIdentifiable(echoedUserId: String) extends EUM
+
+import com.echoed.chamber.services.echoeduser.{EchoedUserIdentifiable => EUI}
+
+
+case class InitStory(
+        _echoedUserId: String,
+        echoId: Option[String] = None,
+        partnerId: Option[String] = None) extends EUI(_echoedUserId)
+
+case class InitStoryResponse(message: InitStory, value: Either[EUE, StoryInfo])
+        extends EUM with RM[StoryInfo, InitStory, EUE]
+
+
+case class CreateStory(
+        _echoedUserId: String,
+        title: String,
+        imageId: String,
+        echoId: Option[String] = None,
+        productInfo: Option[String] = None) extends EUI(_echoedUserId)
+
+case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
+        extends EUM with RM[Story, CreateStory, EUE]
+
+
+case class UpdateStory(
+        _echoedUserId: String,
+        storyId: String,
+        title: String,
+        imageId: String) extends EUI(_echoedUserId)
+
+case class UpdateStoryResponse(message: UpdateStory, value: Either[EUE, Story])
+        extends EUM with RM[Story, UpdateStory, EUE]
+
+
+case class CreateChapter(
+        _echoedUserId: String,
+        storyId: String,
+        title: String,
+        text: String,
+        imageIds: Option[Array[String]]) extends EUI(_echoedUserId)
+
+case class CreateChapterResponse(message: CreateChapter, value: Either[EUE, ChapterInfo])
+        extends EUM with RM[ChapterInfo, CreateChapter, EUE]
+
+
+case class UpdateChapter(
+        _echoedUserId: String,
+        chapterId: String,
+        title: String,
+        text: String,
+        imageIds: Option[Array[String]] = None) extends EUI(_echoedUserId)
+
+case class UpdateChapterResponse(message: UpdateChapter, value: Either[EUE, ChapterInfo])
+        extends EUM with RM[ChapterInfo, UpdateChapter, EUE]
+
+
+case class CreateComment(
+        _echoedUserId: String,
+        storyId: String,
+        chapterId: String,
+        text: String,
+        parentCommentId: Option[String]) extends EUI(_echoedUserId)
+
+case class CreateCommentResponse(message: CreateComment, value: Either[EUE, Comment])
+        extends EUM with RM[Comment, CreateComment, EUE]
+
 
 case class AssignFacebookService(facebookService: FacebookService) extends EUM
 case class AssignFacebookServiceResponse(message: AssignFacebookService, value: Either[EUE, FacebookService])

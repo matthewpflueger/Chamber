@@ -12,4 +12,5 @@ trait ChapterImageDao {
 
     def deleteById(id: String): Int
 
+    def deleteByChapterId(chapterId: String): Int
 }

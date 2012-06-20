@@ -96,7 +96,7 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
-        _.bindAll(this,'me','friends','explore');
+        _.bindAll(this,'me','friends','explore', 'story');
         this.EvAg = options.EvAg;
         this.page=null;
     },
@@ -122,6 +122,7 @@ Echoed.Router = Backbone.Router.extend({
         "partners/:name/": "partnerFeed",
         "partners/:name": "partnerFeed",
         "story/:id/edit": "editStory"
+        "story/:id": "story"
     },
     editStory: function(){
         this.page = "editStory";
@@ -177,19 +178,172 @@ Echoed.Router = Backbone.Router.extend({
     },
     story: function(id) {
         this.me();
-        $.ajax({
-            url: Echoed.urls.api + "/story?echoId=" + id,
-            type: "GET",
-            xhrFields: {
-                withCredentials: true
+        var storyTest = {
+            initStory: function(id) {
+                alert("initStory: id = " + id);
+                $.ajax({
+                    url: Echoed.urls.api + "/story?echoId=" + id,
+                    type: "GET",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    success: function(initStoryData){
+                        var title = initStoryData.storyPrompts.prompts[0];
+                        var imageId = initStoryData.echo.image.id;
+                        var echoId = initStoryData.echo.id
+                        var storyFull = initStoryData.storyFull;
+                        storyTest.initStoryData = initStoryData;
+                        if (storyFull) {
+                            alert("Story already created, skipping straight to updateStory");
+                            storyTest.updateStory(storyFull.id, storyFull.story.image.id);
+                        } else {
+                            storyTest.createStory(title, imageId, echoId);
+                        }
+                    }
+                });
             },
-            dataType: 'json',
-                success: function(initStoryData){
-                alert("Successfully initialized story, grabbing data");
-                var title = initStoryData.storyPrompts.prompts[0];
-                var imageId = initStoryData.echo.image.id;
-                var echoId = initStoryData.echo.id
-                alert("Data for initialized story: title = " + title + ", imageId = " + imageId + ", echoId = " + echoId);
+
+            createStory: function(title, imageId, echoId) {
+                alert("createStory: title = " + title + ", imageId = " + imageId + ", echoId = " + echoId);
+                $.ajax({
+                    url: Echoed.urls.api + "/story",
+                    type: "POST",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    data: {
+                        title: title,
+                        imageId: imageId,
+                        echoId: echoId
+                    },
+                    success: function(createStoryData) {
+                        var storyId = createStoryData.id;
+                        var imageId = createStoryData.image.id;
+                        storyTest.createStoryData = createStoryData;
+                        storyTest.updateStory(storyId, imageId);
+                    }
+                });
+            },
+
+            updateStory: function(storyId, imageId) {
+                alert("updateStory: storyId = " + storyId + ", imageId = " + imageId);
+                $.ajax({
+                    url: Echoed.urls.api + "/story/" + storyId,
+                    type: "PUT",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    data: {
+                        title: "My awesome updated story title",
+                        imageId: imageId
+                    },
+                    success: function(updatedStoryData) {
+                        var storyId = updatedStoryData.id;
+                        var chapterTitle = storyTest.initStoryData.storyPrompts.prompts[1];
+                        storyTest.updatedStoryData = updatedStoryData;
+                        storyTest.createChapter(storyId, chapterTitle);
+                    }
+                });
+            },
+
+            createChapter: function(storyId, chapterTitle) {
+                alert("createChapter: storyId = " + storyId + ", chapterTitle = " + chapterTitle);
+                $.ajax({
+                    url: Echoed.urls.api + "/story/" + storyId + "/chapter",
+                    type: "POST",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    processData: false,
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                            title: chapterTitle,
+                            text: "My awesome chapter text",
+                            imageIds: ["01636a85-dd6a-452d-86ce-8c0b62a80708", "ce057ad4-4c01-4470-8823-987c08028746"]
+                    }),
+                    success: function(createChapterData) {
+                        var storyId = createChapterData.chapter.storyId;
+                        var chapterId = createChapterData.chapter.id;
+                        var imageId = createChapterData.chapterImages[0].image.id
+                        storyTest.createChapterData = createChapterData;
+                        storyTest.updateChapter(storyId, chapterId, imageId);
+                    }
+                });
+            },
+
+            updateChapter: function(storyId, chapterId, imageId) {
+                alert("updateChapter: storyId = " + storyId + ", chapterId = " + chapterId + ", imageId = " + imageId);
+                $.ajax({
+                    url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId,
+                    type: "PUT",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    processData: false,
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                            title: "My awesome updated chapter title",
+                            text: "My awesome updated chapter text",
+                            imageIds: [imageId, "01636a85-dd6a-452d-86ce-8c0b62a80708", "ce057ad4-4c01-4470-8823-987c08028746"]
+                    }),
+                    success: function(updatedChapterData) {
+                        var storyId = updatedChapterData.chapter.storyId;
+                        var chapterId = updatedChapterData.chapter.id;
+                        storyTest.updatedChapterData = updatedChapterData;
+                        storyTest.createComment(storyId, chapterId);
+                    }
+                });
+            },
+
+            createComment: function(storyId, chapterId) {
+                alert("createComment: storyId = " + storyId + ", chapterId = " + chapterId);
+                $.ajax({
+                    url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
+                    type: "POST",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    data: {
+                        text: "My awesome comment"
+                    },
+                    success: function(createCommentData) {
+                        var storyId = createCommentData.storyId;
+                        var chapterId = createCommentData.chapterId;
+                        var parentCommentId = createCommentData.id;
+                        storyTest.createCommentData = createCommentData;
+                        storyTest.replyComment(storyId, chapterId, parentCommentId);
+                    }
+                });
+
+            },
+
+            replyComment: function(storyId, chapterId, parentCommentId) {
+                alert("replyComment: storyId = " + storyId + ", chapterId = " + chapterId + ", parentCommentId = " + parentCommentId);
+                $.ajax({
+                    url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
+                    type: "POST",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    data: {
+                        parentCommentId: parentCommentId,
+                        text: "My awesome reply comment"
+                    },
+                    success: function(replyCommentData) {
+                        alert("CONGRATS!!!! You've completed the tests successfully - last response is: " + JSON.stringify(replyCommentData));
+                        storyTest.replyCommentData = replyCommentData;
+                    }
+                });
+            }
+        };
+        storyTest.initStory(id);
     },
     friends: function() {
         this.EvAg.trigger('friends/init');

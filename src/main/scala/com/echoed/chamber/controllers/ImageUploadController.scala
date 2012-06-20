@@ -4,16 +4,13 @@ import org.springframework.stereotype.Controller
 
 
 import org.springframework.web.bind.annotation._
-import org.springframework.web.multipart.MultipartFile
 import reflect.BeanProperty
 import com.echoed.util.BlobStore
 import javax.servlet.http.HttpServletRequest
-import java.util.UUID
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.Image
 import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 import org.springframework.web.context.request.async.DeferredResult
-import org.springframework.web.servlet.ModelAndView
 import io.Source
 import java.util.Date
 import java.text.SimpleDateFormat

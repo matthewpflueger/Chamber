@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link id="stylecsss" rel="stylesheet" href="http://localhost.local:8080/css/echoed-lightbox.css" />
+    <title>Chapter post</title>
+    <script type='text/javascript' src="http://localhost.local:8080/js/jquery-1.6.2.min.js"></script>
+    <script type='text/javascript' src="http://localhost.local:8080/js/json2.js"></script>
+</head>
+<body>
+    Running...
+
+<script type="text/javascript" language="Javascript">
+
+    $.ajax({
+        url: "http://localhost.com:8080/story/chapter",
+        type: "POST",
+        dataType: "json",
+        processData: false,
+        contentType: "application/json",
+        data: JSON.stringify({ storyId: "test", imageUrls: ["imageUrl1", "imageUrl2"] })
+    }).done(function(response) {
+        alert("Received result " + JSON.stringify(response));
+    });
+</script>
+</body>
+</html>

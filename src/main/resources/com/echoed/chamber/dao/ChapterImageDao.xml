@@ -42,6 +42,10 @@
         delete from ChapterImage where id = #{id}
     </delete>
 
+    <delete id="deleteByChapterId">
+        delete from ChapterImage where chapterId = #{chapterId}
+    </delete>
+
     <insert id="insert" parameterType="com.echoed.chamber.domain.ChapterImage">
         insert into ChapterImage(
             id,

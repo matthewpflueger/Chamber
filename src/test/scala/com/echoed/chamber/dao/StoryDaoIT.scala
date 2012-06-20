@@ -18,6 +18,7 @@ import scala.collection.JavaConversions._
 class StoryDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
     @Autowired @BeanProperty var storyDao: StoryDao = _
+    @Autowired @BeanProperty var imageDao: ImageDao = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
 
     new TestContextManager(this.getClass()).prepareTestInstance(this)
@@ -25,6 +26,7 @@ class StoryDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with
     val story = dataCreator.story
 
     def cleanup() {
+        imageDao.deleteByUrl(story.image.url)
         storyDao.deleteByEchoedUserId(story.echoedUserId)
         storyDao.findByEchoedUserId(story.echoedUserId) should have size(0)
     }
@@ -36,10 +38,11 @@ class StoryDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with
     feature("A developer can manipulate Story data") {
 
         scenario("new Story is inserted", IntegrationTest) {
+            imageDao.insert(story.image)
             storyDao.insert(story)
             val stories = storyDao.findByEchoedUserId(story.echoedUserId)
             stories should have size(1)
-            story should equal(stories(0))
+            story.copy(image = null) should equal(stories(0).copy(image = null))
         }
 
 

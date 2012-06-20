@@ -1,11 +1,10 @@
 package com.echoed.chamber.services.echoeduser
 
 import reflect.BeanProperty
-import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
 import akka.actor._
-import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
+import com.echoed.cache.{CacheListenerActorClient, CacheManager}
 import scala.collection.mutable.ConcurrentMap
 import org.springframework.beans.factory.FactoryBean
 import akka.util.Timeout
@@ -13,12 +12,21 @@ import akka.util.duration._
 import akka.pattern.ask
 import akka.event.Logging
 import com.echoed.chamber.dao.views.{FeedDao, ClosetDao}
-import com.echoed.chamber.dao.{EchoMetricsDao, EchoedFriendDao, EchoDao, EchoedUserDao}
-import com.echoed.chamber.services.facebook.{FacebookServiceLocator, GetFacebookUserResponse}
-import com.echoed.chamber.services.twitter.{TwitterServiceLocator, GetUserResponse}
-import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.dao._
+import com.echoed.chamber.services.facebook.FacebookServiceLocator
+import com.echoed.chamber.services.twitter.TwitterServiceLocator
 import akka.actor.SupervisorStrategy.Restart
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
+import com.echoed.chamber.services.ActorClient
+import com.echoed.chamber.domain.EchoedUser
+import scala.Right
+import com.echoed.chamber.services.twitter.GetUserResponse
+import akka.actor.OneForOneStrategy
+import scala.Some
+import com.echoed.cache.CacheEntryRemoved
+import com.echoed.chamber.services.facebook.GetFacebookUserResponse
+import scala.Left
+import org.springframework.transaction.support.TransactionTemplate
 
 class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
 
@@ -31,6 +39,12 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
     @BeanProperty var echoedFriendDao: EchoedFriendDao = _
     @BeanProperty var echoMetricsDao: EchoMetricsDao = _
     @BeanProperty var partnerDao: PartnerDao = _
+    @BeanProperty var storyDao: StoryDao = _
+    @BeanProperty var chapterDao: ChapterDao = _
+    @BeanProperty var chapterImageDao: ChapterImageDao = _
+    @BeanProperty var imageDao: ImageDao = _
+    @BeanProperty var commentDao: CommentDao = _
+    @BeanProperty var transactionTemplate: TransactionTemplate = _
 
     @BeanProperty var facebookServiceLocator: FacebookServiceLocator = _
     @BeanProperty var twitterServiceLocator: TwitterServiceLocator = _
@@ -75,7 +89,7 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! LocateWithIdResponse(msg, Left(EchoedUserException("Could not locate Echoed user service", e)))
-                logger.error("Error processing %s" format msg, e)
+                logger.error("Error processing {}: {}", msg, e)
             }
 
             try {
@@ -107,7 +121,7 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 LocateWithFacebookServiceResponse(msg, Left(EchoedUserException("Could not locate Echoed user service", e)))
-                logger.error("Error processing %s" format msg, e)
+                logger.error("Error processing {}: {}", msg, e)
             }
 
             try {
@@ -140,7 +154,7 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! LocateWithTwitterServiceResponse(msg, Left(EchoedUserException("Could not locate Echoed user service", e)))
-                logger.error("Error processing %s", msg, e)
+                logger.error("Error processing {}: {}", msg, e)
             }
 
             try {
@@ -185,7 +199,7 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(EchoedUserException("Could not logout Echoed user", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
         case msg @ CreateEchoedUserServiceWithId(echoedUserId) =>
@@ -193,37 +207,49 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! CreateEchoedUserServiceWithIdResponse(msg, Left(EchoedUserException("Cannot get Echoed user service", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
                 logger.debug("Creating EchoedUserService with id {}", echoedUserId)
-                Option(echoedUserDao.findById(echoedUserId)).cata(
-                    echoedUser => {
-                        val echoedUserService = new EchoedUserServiceActorClient(
-                            context.actorOf(Props().withCreator {
-                                val eu = echoedUserDao.findById(echoedUserId)
-                                new EchoedUserServiceActor(
-                                    echoedUser = eu,
-                                    echoedUserDao = echoedUserDao,
-                                    closetDao = closetDao,
-                                    echoedFriendDao = echoedFriendDao,
-                                    feedDao = feedDao,
-                                    partnerSettingsDao = partnerSettingsDao,
-                                    echoDao = echoDao,
-                                    partnerDao = partnerDao,
-                                    echoMetricsDao = echoMetricsDao,
-                                    facebookServiceLocator = facebookServiceLocator,
-                                    twitterServiceLocator = twitterServiceLocator)
-                            }, echoedUserId))
+                cache.get(echoedUserId) match {
+                    case Some(echoedUserService) =>
                         channel ! CreateEchoedUserServiceWithIdResponse(msg, Right(echoedUserService))
-                        cache.put(echoedUserId, echoedUserService)
-                        logger.debug("Created EchoedUserService with id {}", echoedUserId)
-                    },
-                    {
-                        channel ! CreateEchoedUserServiceWithIdResponse(msg, Left(EchoedUserNotFound(echoedUserId)))
-                        logger.debug("Did not find an EchoedUser with id {}", echoedUserId)
-                    })
+                        logger.debug("Cache hit for EchoedUserService key {}", echoedUserId)
+                    case _ =>
+                        Option(echoedUserDao.findById(echoedUserId)).cata(
+                            echoedUser => {
+                                val echoedUserService = new EchoedUserServiceActorClient(
+                                    context.actorOf(Props().withCreator {
+                                        val eu = echoedUserDao.findById(echoedUserId)
+                                        new EchoedUserServiceActor(
+                                            echoedUser = eu,
+                                            echoedUserDao = echoedUserDao,
+                                            closetDao = closetDao,
+                                            echoedFriendDao = echoedFriendDao,
+                                            feedDao = feedDao,
+                                            partnerSettingsDao = partnerSettingsDao,
+                                            echoDao = echoDao,
+                                            partnerDao = partnerDao,
+                                            echoMetricsDao = echoMetricsDao,
+                                            storyDao = storyDao,
+                                            chapterDao = chapterDao,
+                                            chapterImageDao = chapterImageDao,
+                                            commentDao = commentDao,
+                                            imageDao = imageDao,
+                                            transactionTemplate = transactionTemplate,
+                                            facebookServiceLocator = facebookServiceLocator,
+                                            twitterServiceLocator = twitterServiceLocator)
+                                    }, echoedUserId))
+                                channel ! CreateEchoedUserServiceWithIdResponse(msg, Right(echoedUserService))
+                                cache.put(echoedUserId, echoedUserService)
+                                logger.debug("Created EchoedUserService with id {}", echoedUserId)
+                            },
+                            {
+                                channel ! CreateEchoedUserServiceWithIdResponse(msg, Left(EchoedUserNotFound(echoedUserId)))
+                                logger.debug("Did not find an EchoedUser with id {}", echoedUserId)
+                            })
+                }
             } catch { case e => error(e) }
 
 
@@ -235,7 +261,7 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
                 channel ! CreateEchoedUserServiceWithFacebookServiceResponse(
                         msg,
                         Left(new EchoedUserException("Cannot get Echoed user service", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -276,7 +302,7 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
                 channel ! CreateEchoedUserServiceWithTwitterServiceResponse(
                         msg,
                         Left(EchoedUserException("Could not create Echoed user service", e)))
-                logger.error("Unexpected error processing %s" format msg, e)
+                logger.error("Unexpected error processing {}: {}", msg, e)
             }
 
             try {
@@ -307,6 +333,35 @@ class EchoedUserServiceLocatorActor extends FactoryBean[ActorRef] {
                 ))
             } catch { case e => error(e) }
 
+        case msg @ EchoedUserIdentifiable(echoedUserId) =>
+            val me = context.self
+            val channel = context.sender
+
+            logger.debug("Starting to locate EchoedUser {}", echoedUserId)
+
+            val constructor = findResponseConstructor(msg)
+
+            (me ? LocateWithId(echoedUserId)).mapTo[LocateWithIdResponse].onComplete(_.fold(
+                e => {
+                    logger.error("Unexpected error in locating EchoedUser {}: {}", echoedUserId, e)
+                    channel ! constructor.newInstance(msg, Left(new EchoedUserException("Error locating echoed user %s" format echoedUserId, e)))
+                },
+                _ match {
+                    case LocateWithIdResponse(LocateWithId(echoedUserId), Left(e)) =>
+                        logger.error("Error locating EchoedUser {}: {}", echoedUserId, e)
+                        channel ! constructor.newInstance(msg, Left(e))
+                    case LocateWithIdResponse(_, Right(eus)) =>
+                        logger.debug("Located EchoedUser {}, forwarding on message {}", echoedUserId, msg)
+                        eus.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
+                }))
+
+
+    }
+
+    private def findResponseConstructor(msg: EchoedUserMessage) = {
+        val requestClass = msg.getClass
+        val responseClass = Thread.currentThread.getContextClassLoader.loadClass(requestClass.getName + "Response")
+        responseClass.getConstructor(requestClass, classOf[Either[_, _]])
     }
 
 

@@ -1,14 +1,12 @@
 package com.echoed.chamber.services.echoeduser
 
 import com.echoed.chamber.dao.views.{ClosetDao,FeedDao}
-import org.slf4j.LoggerFactory
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.EchoedFriend
 import scala.collection.JavaConversions._
-import akka.dispatch.Future
-import java.util.{Date, ArrayList}
+import java.util.ArrayList
 import com.echoed.chamber.dao._
 import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
@@ -17,12 +15,17 @@ import com.echoed.chamber.services.twitter._
 import com.echoed.chamber.services.echoeduser.{Logout => L, LogoutResponse => LR, EchoToFacebookResponse => ETFR, EchoToFacebook => ETF}
 import com.echoed.chamber.services.facebook._
 import akka.util.duration._
-import scala.collection.JavaConversions
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.views.echoeduser.Profile
 import akka.event.Logging
-import akka.actor.SupervisorStrategy.{Stop, Restart}
+import akka.actor.SupervisorStrategy.Stop
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
+import org.springframework.transaction.support.TransactionTemplate
+import com.echoed.util.TransactionUtils._
+import org.springframework.transaction.TransactionStatus
+import java.util.Date
+import com.echoed.util.ScalaObjectMapper
+import com.echoed.chamber.domain.partner.StoryPrompts
 
 
 class EchoedUserServiceActor(
@@ -35,6 +38,12 @@ class EchoedUserServiceActor(
         echoDao: EchoDao,
         echoMetricsDao: EchoMetricsDao,
         partnerDao: PartnerDao,
+        storyDao: StoryDao,
+        chapterDao: ChapterDao,
+        chapterImageDao: ChapterImageDao,
+        commentDao: CommentDao,
+        imageDao: ImageDao,
+        transactionTemplate: TransactionTemplate,
         facebookServiceLocator: FacebookServiceLocator,
         twitterServiceLocator: TwitterServiceLocator) extends Actor {
 
@@ -557,6 +566,113 @@ class EchoedUserServiceActor(
                 )),
                 logger.debug("No TwitterService for EchoedUser {}", echoedUser.id)
             )
+
+        case msg @ CreateStory(_, title, imageId, echoId, productInfo) =>
+            sanityCheck(msg)
+
+            val channel = context.sender
+
+            val echo = echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id))
+            val partner = partnerDao.findByIdOrHandle(echo.map(_.partnerId).getOrElse("Echoed"))
+            val partnerSettings = partnerSettingsDao.findByIdOrPartnerHandle(echo.map(_.partnerSettingsId).getOrElse("Echoed"))
+            val image = imageDao.findById(imageId)
+
+            val story = new Story(echoedUser, partner, partnerSettings, image, title, echo, productInfo)
+            storyDao.insert(story)
+            channel ! CreateStoryResponse(msg, Right(story))
+
+
+        case msg @ UpdateStory(_, storyId, title, imageId) =>
+            sanityCheck(msg)
+
+            val channel  = context.sender
+
+            val story = storyDao
+                    .findByIdAndEchoedUserId(storyId, echoedUser.id)
+                    .copy(title = title, image = imageDao.findById(imageId))
+            storyDao.update(story)
+            channel ! UpdateStoryResponse(msg, Right(story))
+
+
+        case msg @ CreateChapter(_, storyId, title, text, imageIds) =>
+            sanityCheck(msg)
+
+            val channel = context.sender
+
+            val story = storyDao.findByIdAndEchoedUserId(storyId, echoedUser.id)
+            val chapter = new Chapter(story, title, text)
+            val chapterImages = imageIds.cata(
+                ids => ids.map(id => new ChapterImage(chapter, imageDao.findById(id))),
+                Array[ChapterImage]())
+
+            transactionTemplate.execute { status: TransactionStatus =>
+                chapterDao.insert(chapter)
+                chapterImages.foreach(chapterImageDao.insert(_))
+            }
+
+            channel ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
+
+        case msg @ UpdateChapter(_, chapterId, title, text, imageIds) =>
+            sanityCheck(msg)
+
+            val channel = context.sender
+
+            val chapter = chapterDao
+                    .findByIdAndEchoedUserId(chapterId, echoedUser.id)
+                    .copy(title = title, text = text)
+
+            val chapterImages = imageIds.cata(
+                ids => ids.map(id => new ChapterImage(chapter, imageDao.findById(id))),
+                Array[ChapterImage]())
+
+            transactionTemplate.execute { status: TransactionStatus =>
+                chapterDao.update(chapter)
+                chapterImageDao.deleteByChapterId(chapter.id)
+                chapterImages.foreach(chapterImageDao.insert(_))
+            }
+
+            channel ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
+
+        case msg @ CreateComment(_, storyId, chapterId, text, parentCommentId) =>
+            sanityCheck(msg)
+
+            val channel = context.sender
+
+            val comment = new com.echoed.chamber.domain.Comment(
+                chapterDao.findByIdAndStoryId(chapterId, storyId),
+                echoedUser,
+                text,
+                parentCommentId.map(commentDao.findByIdAndChapterId(_, chapterId)))
+            commentDao.insert(comment)
+
+            channel ! CreateCommentResponse(msg, Right(comment))
+
+        case msg @ InitStory(_, echoId, partnerId) =>
+            sanityCheck(msg)
+
+            val channel = context.sender
+
+            val echo = echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id))
+            val storyFull = echo.map(e => feedDao.findStoryByEchoId(e.id))
+            val partner = echo
+                    .map(e => partnerDao.findById(e.partnerId))
+                    .orElse(partnerId.map(partnerDao.findByIdOrHandle(_)))
+                    .orElse(Option(partnerDao.findByIdOrHandle("Echoed")))
+                    .get
+
+            val storyPrompts = new ScalaObjectMapper().readValue(
+                    Option(partnerSettingsDao.findByActiveOn(partner.id, new Date()).storyPrompts)
+                        .getOrElse(partnerSettingsDao.findByIdOrPartnerHandle("Echoed").storyPrompts),
+                    classOf[StoryPrompts])
+
+            channel ! InitStoryResponse(
+                    msg,
+                    Right(StoryInfo(echoedUser, echo.orNull, partner, storyPrompts, storyFull.orNull)))
     }
+
+    private def sanityCheck(msg: EchoedUserIdentifiable) =
+            require(msg.echoedUserId == echoedUser.id, "Sanity check failed %s" format msg)
 }
+
+
 

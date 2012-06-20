@@ -7,22 +7,9 @@
     <resultMap id="feedResult" type="com.echoed.chamber.domain.views.Feed">
         <constructor>
             <idArg column="echoedUserId" javaType="String"/>
-            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult"/>
+            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="com.echoed.chamber.dao.EchoedUserDao.echoedUserResult"/>
         </constructor>
         <collection property="echoes" ofType="com.echoed.chamber.domain.views.EchoViewDetail" javaType="ArrayList" resultMap="echoViewResult" />
-    </resultMap>
-
-    <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
-        <constructor>
-            <idArg column="echoedUserId" javaType="String" />
-            <arg column="echoedUserName" javaType="String" />
-            <arg column="echoedUserEmail" javaType="String" />
-            <arg column="echoedUserScreenName" javaType="String" />
-            <arg column="echoedUserFacebookUserId" javaType="String" />
-            <arg column="echoedUserFacebookId" javaType="String" />
-            <arg column="echoedUserTwitterUserId" javaType="String" />
-            <arg column="echoedUserTwitterId" javaType="String" />
-        </constructor>
     </resultMap>
 
     <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoViewDetail">
@@ -167,14 +154,7 @@
 
     <select id="findByEchoedUserId" resultMap="feedResult">
         select
-            EU.id as echoedUserId,
-            EU.email as echoedUserEmail,
-            EU.name as echoedUserName,
-            EU.screenName as echoedUserScreenName,
-            EU.facebookUserId as echoedUserFacebookUserId,
-            EU.facebookId as echoedUserFacebookId,
-            EU.twitterUserId as echoedUserTwitterUserId,
-            EU.twitterId as echoedUserTwitterId,
+            <include refid="com.echoed.chamber.dao.EchoedUserDao.echoedUserColumns" />
             EU2.id as echoedFriendId,
             EU2.name as echoedFriendName,
             EU2.screenName as echoedFriendScreenName,
@@ -217,10 +197,11 @@
             #{start},#{limit}
     </select>
 
-    <resultMap id="storyResult" type="com.echoed.chamber.domain.views.StoryFull">
+    <resultMap id="storyFullResult" type="com.echoed.chamber.domain.views.StoryFull">
         <constructor>
             <idArg column="id" javaType="String"/>
-            <arg javaType="com.echoed.chamber.domain.Story" resultMap="com.echoed.chamber.dao.StoryDao.storyResult"/>
+            <arg javaType="com.echoed.chamber.domain.Story" resultMap="com.echoed.chamber.dao.StoryDao.storyResult" />
+            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="com.echoed.chamber.dao.EchoedUserDao.echoedUserResult" />
         </constructor>
         <collection
                 property="chapters"
@@ -239,22 +220,30 @@
                 resultMap="com.echoed.chamber.dao.CommentDao.commentResult" />
     </resultMap>
 
-    <!--
-
-    -->
-    <select id="getStory" resultMap="storyResult">
+    <sql id="storyFullSelect">
         select
             S.id as id,
             <include refid="com.echoed.chamber.dao.StoryDao.storyColumns" />,
+            <include refid="com.echoed.chamber.dao.EchoedUserDao.echoedUserColumns" />,
             <include refid="com.echoed.chamber.dao.ChapterDao.chapterColumns" />,
             <include refid="com.echoed.chamber.dao.ChapterImageDao.chapterImageColumns" />,
             <include refid="com.echoed.chamber.dao.CommentDao.commentColumns" />
             from Story S
+                join EchoedUser EU on S.echoedUserId = EU.id
                 left outer join Chapter C on S.id = C.storyId
                 left outer join ChapterImage CI on S.id = CI.storyId
                 left outer join Image I on CI.imageId = I.id
                 left outer join Comment CMT on S.id = CMT.storyId
-            where S.id = #{storyId}
+    </sql>
+
+    <select id="findStoryById" resultMap="storyFullResult">
+        <include refid="storyFullSelect" />
+        where S.id = #{storyId}
+    </select>
+
+    <select id="findStoryByEchoId" resultMap="storyFullResult">
+        <include refid="storyFullSelect" />
+        where S.echoId = #{echoId}
     </select>
 
 </mapper>

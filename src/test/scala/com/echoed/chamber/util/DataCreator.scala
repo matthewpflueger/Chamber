@@ -422,7 +422,8 @@ class DataCreator {
             hashTag = "@test",
             couponCode = null,
             couponDescription = null,
-            couponExpiresOn = new Date)
+            couponExpiresOn = new Date,
+            storyPrompts = null)
 
     val partnerSettingsList = partnerSettingsFuture :: partners.map { r =>
             new PartnerSettings(

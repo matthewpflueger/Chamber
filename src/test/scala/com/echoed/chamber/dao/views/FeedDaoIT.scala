@@ -56,8 +56,8 @@ class FeedDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with 
     feature("A developer can view Story data") {
 
         scenario("Story data is queried", IntegrationTest) {
-            val storyFull = feedDao.getStory(story.id)
-            storyFull.story should equal(story)
+            val storyFull = feedDao.findStoryById(story.id)
+            storyFull.story.copy(image = null) should equal(story.copy(image = null))
             storyFull.chapters(0) should equal(chapter)
             storyFull.chapterImages(0).copy(image = null) should equal(chapterImage.copy(image = null))
             storyFull.comments(0) should equal(comment)

@@ -6,42 +6,67 @@
 
     <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
         <constructor>
-            <idArg column="id" javaType="String" />
-            <arg column="updatedOn" javaType="Date" />
-			<arg column="createdOn" javaType="Date" />
-            <arg column="name" javaType="String" />
-			<arg column="email" javaType="String" />
-            <arg column="screenName" javaType="String" />
-            <arg column="facebookUserId" javaType="String" />
-            <arg column="facebookId" javaType="String" />
-			<arg column="twitterUserId" javaType="String" />
-			<arg column="twitterId" javaType="String" />
+            <idArg column="echoedUserId" javaType="String" />
+            <arg column="echoedUserUpdatedOn" javaType="Date" />
+            <arg column="echoedUserCreatedOn" javaType="Date" />
+            <arg column="echoedUserName" javaType="String" />
+            <arg column="echoedUserEmail" javaType="String" />
+            <arg column="echoedUserScreenName" javaType="String" />
+            <arg column="echoedUserFacebookUserId" javaType="String" />
+            <arg column="echoedUserFacebookId" javaType="String" />
+            <arg column="echoedUserTwitterUserId" javaType="String" />
+            <arg column="echoedUserTwitterId" javaType="String" />
         </constructor>
     </resultMap>
 
+    <sql id="echoedUserColumns">
+        EU.id as echoedUserId,
+        EU.updatedOn as echoedUserUpdatedOn,
+        EU.createdOn as echoedUserCreatedOn,
+        EU.email as echoedUserEmail,
+        EU.name as echoedUserName,
+        EU.screenName as echoedUserScreenName,
+        EU.facebookUserId as echoedUserFacebookUserId,
+        EU.facebookId as echoedUserFacebookId,
+        EU.twitterUserId as echoedUserTwitterUserId,
+        EU.twitterId as echoedUserTwitterId
+    </sql>
+
 
     <select id="findById" resultMap="echoedUserResult">
-    	select * from EchoedUser where id = #{id}
+    	select <include refid="echoedUserColumns" />
+    	from EchoedUser EU
+    	where EU.id = #{id}
     </select>
 
     <select id="findByFacebookUserId" resultMap="echoedUserResult">
-    	select * from EchoedUser where facebookUserId = #{facebookUserId}
+    	select <include refid="echoedUserColumns" />
+    	from EchoedUser EU
+    	where EU.facebookUserId = #{facebookUserId}
     </select>
 
     <select id="findByTwitterUserId" resultMap="echoedUserResult">
-        select * from EchoedUser where twitterUserId = #{twitterUserId}
+    	select <include refid="echoedUserColumns" />
+    	from EchoedUser EU
+        where EU.twitterUserId = #{twitterUserId}
     </select>
 
     <select id="findByFacebookId" resultMap="echoedUserResult">
-        select * from EchoedUser where facebookId = #{facebookId}
+    	select <include refid="echoedUserColumns" />
+    	from EchoedUser EU
+        where EU.facebookId = #{facebookId}
     </select>
 
     <select id="findByTwitterId" resultMap="echoedUserResult">
-        select * from EchoedUser where twitterId = #{twitterId}
+    	select <include refid="echoedUserColumns" />
+    	from EchoedUser EU
+        where EU.twitterId = #{twitterId}
     </select>
 
     <select id="findByEmail" resultMap="echoedUserResult">
-        select * from EchoedUser where email = #{email}
+    	select <include refid="echoedUserColumns" />
+    	from EchoedUser EU
+        where EU.email = #{email}
     </select>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.EchoedUser">

@@ -7,22 +7,9 @@
     <resultMap id="closetResult" type="com.echoed.chamber.domain.views.Closet">
         <constructor>
             <idArg column="echoedUserId" javaType="String" />
-            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="echoedUserResult" />
+            <arg javaType="com.echoed.chamber.domain.EchoedUser" resultMap="com.echoed.chamber.dao.EchoedUserDao.echoedUserResult" />
         </constructor>
         <collection property="echoes" ofType="com.echoed.chamber.domain.views.EchoView" javaType="ArrayList" resultMap="echoViewResult" />
-    </resultMap>
-
-    <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
-        <constructor>
-            <idArg column="echoedUserId" javaType="String" />
-            <arg column="echoedUserName" javaType="String" />
-			<arg column="echoedUserEmail" javaType="String" />
-            <arg column="echoedUserScreenName" javaType="String" />
-            <arg column="echoedUserFacebookUserId" javaType="String" />
-            <arg column="echoedUserFacebookId" javaType="String" />
-            <arg column="echoedUserTwitterUserId" javaType="String" />
-            <arg column="echoedUserTwitterId" javaType="String" />
-        </constructor>
     </resultMap>
 
     <resultMap id="echoViewResult" type="com.echoed.chamber.domain.views.EchoView">
@@ -54,14 +41,7 @@
 
     <select id="findByEchoedUserId" resultMap="closetResult" useCache="false" >
         select
-            EU.id as echoedUserId,
-            EU.email as echoedUserEmail,
-            EU.name as echoedUserName,
-            EU.screenName as echoedUserScreenName,
-            EU.facebookUserId as echoedUserFacebookUserId,
-            EU.facebookId as echoedUserFacebookId,
-            EU.twitterUserId as echoedUserTwitterUserId,
-            EU.twitterId as echoedUserTwitterId,
+            <include refid="com.echoed.chamber.dao.EchoedUserDao.echoedUserColumns" />,
             E.id as echoId,
             E.boughtOn as echoBoughtOn,
             E.productName as echoProductName,

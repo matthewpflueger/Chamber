@@ -12,6 +12,8 @@ trait PartnerSettingsDao {
 
     def findByPartnerId(partnerId: String): JList[PartnerSettings]
 
+    def findByIdOrPartnerHandle(id: String): PartnerSettings
+
     def findByActiveOn(
         @Param("partnerId") partnerId: String,
         @Param("activeOn") activeOn: Date): PartnerSettings

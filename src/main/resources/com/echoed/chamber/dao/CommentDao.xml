@@ -70,6 +70,12 @@
         where CMT.storyId = #{storyId}
     </select>
 
+    <select id="findByIdAndChapterId" resultMap="commentResult">
+        select <include refid="commentColumns" />
+        from Comment CMT
+        where CMT.id = #{id} and CMT.chapterId = #{chapterId}
+    </select>
+
     <delete id="deleteById">
         delete from Comment where id = #{id}
     </delete>

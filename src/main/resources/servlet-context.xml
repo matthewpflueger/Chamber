@@ -93,6 +93,14 @@
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="storyController" class="com.echoed.chamber.controllers.StoryController">
+        <property name="cookieManager" ref="cookieManager" />
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="encrypter" ref="encrypter" />
+        <property name="siteUrl" value="${http.urls.site}" />
+    </bean>
+
+    <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="imageUploadController" class="com.echoed.chamber.controllers.ImageUploadController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="blobStore" ref="blobStore" />

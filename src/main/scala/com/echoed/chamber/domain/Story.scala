@@ -12,10 +12,11 @@ case class Story(
         echoedUserId: String,
         partnerId: String,
         partnerSettingsId: String,
-        imageId: String,
+        image: Image,
         title: String,
         echoId: String,
-        productId: String) {
+        productId: String,
+        productInfo: String) {
 
     def this(
             echoedUser: EchoedUser,
@@ -24,15 +25,17 @@ case class Story(
             image: Image,
             title: String,
             echo: Option[Echo] = None,
-            productId: Option[String] = None) = this(
+            productInfo: Option[String] = None) = this(
         UUID.randomUUID.toString,
         new Date,
         new Date,
         echoedUser.id,
         partner.id,
         partnerSettings.id,
-        image.id,
+        image,
         title,
         echo.map(_.id).orNull,
-        echo.map(_.productId).orElse(productId).orNull)
+        echo.map(_.productId).orNull,
+        productInfo.orNull)
+
 }

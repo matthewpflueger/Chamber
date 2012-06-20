@@ -205,4 +205,22 @@ class UserController {
 
         result
     }
+
+    @RequestMapping(value = Array("/story/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def get(
+            @PathVariable(value = "id") id: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult("error")
+
+        logger.debug("Requesting Story {}", id )
+
+        feedService.getStory(id).onSuccess {
+            case GetStoryResponse(_, Right(story)) => result.set(story)
+        }
+
+        result
+    }
 }

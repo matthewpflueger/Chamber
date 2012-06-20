@@ -14,6 +14,8 @@ class EchoedUserServiceLocatorActorClient extends EchoedUserServiceLocator with 
 
     @BeanProperty var echoedUserServiceLocatorActor: ActorRef = _
 
+    def actorRef = echoedUserServiceLocatorActor
+
     private implicit val timeout = Timeout(20 seconds)
 
     def getEchoedUserServiceWithId(id: String) =
@@ -28,5 +30,66 @@ class EchoedUserServiceLocatorActorClient extends EchoedUserServiceLocator with 
     def logout(id: String) =
             (echoedUserServiceLocatorActor ? Logout(id)).mapTo[LogoutResponse]
 
-    def actorRef = echoedUserServiceLocatorActor
+    def createStory(
+            echoedUserId: String,
+            title: String,
+            imageId: String,
+            echoId: Option[String],
+            storyId: Option[String]) =
+        (echoedUserServiceLocatorActor ? CreateStory(echoedUserId, title, imageId, echoId, storyId)).mapTo[CreateStoryResponse]
+
+    def updateStory(
+            echoedUserId: String,
+            storyId: String,
+            title: String,
+            imageId: String) =
+        (echoedUserServiceLocatorActor ? UpdateStory(echoedUserId, storyId, title, imageId)).mapTo[UpdateStoryResponse]
+
+    def createChapter(
+            echoedUserId: String,
+            storyId: String,
+            title: String,
+            text: String,
+            imageIds: Option[Array[String]] = None) =
+        (echoedUserServiceLocatorActor ? CreateChapter(
+                echoedUserId,
+                storyId,
+                title,
+                text,
+                imageIds)).mapTo[CreateChapterResponse]
+
+    def updateChapter(
+            echoedUserId: String,
+            chapterId: String,
+            title: String,
+            text: String,
+            imageIds: Option[Array[String]] = None) =
+        (echoedUserServiceLocatorActor ? UpdateChapter(
+                echoedUserId,
+                chapterId,
+                title,
+                text,
+                imageIds)).mapTo[UpdateChapterResponse]
+
+    def createComment(
+            echoedUserId: String,
+            storyId: String,
+            chapterId: String,
+            text: String,
+            parentCommentId: Option[String] = None) =
+        (echoedUserServiceLocatorActor ? CreateComment(
+                echoedUserId,
+                storyId,
+                chapterId,
+                text,
+                parentCommentId)).mapTo[CreateCommentResponse]
+
+    def initStory(
+            echoedUserId: String,
+            echoId: Option[String],
+            partnerId: Option[String]) =
+        (echoedUserServiceLocatorActor ? InitStory(
+                echoedUserId,
+                echoId,
+                partnerId)).mapTo[InitStoryResponse]
 }

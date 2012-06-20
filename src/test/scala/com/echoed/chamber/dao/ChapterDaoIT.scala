@@ -35,11 +35,22 @@ class ChapterDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
 
     feature("A developer can manipulate Chapter data") {
 
-        scenario("new Chapter is inserted", IntegrationTest) {
+        scenario("Chapter is inserted/updated", IntegrationTest) {
             chapterDao.insert(chapter)
             val chapters = chapterDao.findByStoryId(chapter.storyId)
             chapters should have size(1)
             chapter should equal(chapters(0))
+
+
+            val updatedOn = chapters(0).updatedOn
+            Thread.sleep(1000)
+
+            chapterDao.update(chapters(0))
+            val chapters2 = chapterDao.findByStoryId(chapter.storyId)
+            chapters2 should have size(1)
+            chapter should not equal(chapters2(0))
+            updatedOn should not equal(chapters2(0).updatedOn)
+            updatedOn should be < chapters2(0).updatedOn
         }
 
 

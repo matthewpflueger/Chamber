@@ -13,4 +13,43 @@ trait EchoedUserServiceLocator {
     def getEchoedUserServiceWithTwitterService(twitterService: TwitterService): Future[LocateWithTwitterServiceResponse]
 
     def logout(id: String): Future[LogoutResponse]
+
+    def initStory(
+            echoedUserId: String,
+            echoId: Option[String] = None,
+            partnerId: Option[String] = None): Future[InitStoryResponse]
+
+    def createStory(
+            echoedUserId: String,
+            title: String,
+            imageId: String,
+            echoId: Option[String] = None,
+            productInfo: Option[String] = None): Future[CreateStoryResponse]
+
+    def updateStory(
+            echoedUserId: String,
+            storyId: String,
+            title: String,
+            imageIds: String): Future[UpdateStoryResponse]
+
+    def createChapter(
+            echoedUserId: String,
+            storyId: String,
+            title: String,
+            text: String,
+            imageIds: Option[Array[String]] = None): Future[CreateChapterResponse]
+
+    def updateChapter(
+            echoedUserId: String,
+            chapterId: String,
+            title: String,
+            text: String,
+            imageIds: Option[Array[String]] = None): Future[UpdateChapterResponse]
+
+    def createComment(
+            echoedUserId: String,
+            storyId: String,
+            chapterId: String,
+            text: String,
+            parentCommentId: Option[String] = None): Future[CreateCommentResponse]
 }

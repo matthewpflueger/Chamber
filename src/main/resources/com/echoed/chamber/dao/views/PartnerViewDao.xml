@@ -4,20 +4,6 @@
 
     <cache-ref namespace="com.echoed.chamber.dao.cache.Flushing30" />
 
-    <resultMap id="echoedUser" type="com.echoed.chamber.domain.EchoedUser">
-        <constructor>
-            <idArg column="id" javaType="String"/>
-            <arg column="updatedOn" javaType = "Date"/>
-            <arg column="createdOn" javaType = "Date"/>
-            <arg column="name" javaType="String"/>
-            <arg column="email" javaType="String"/>
-            <arg column="screenName" javaType="String"/>
-            <arg column="facebookUserId" javaType="String"/>
-            <arg column="facebookId" javaType="String"/>
-            <arg column="twitterUserId" javaType="String"/>
-            <arg column="facebookUserId" javaType="String"/>
-        </constructor>
-    </resultMap>
 
     <resultMap id="partnerSocialSummaryResult" type="com.echoed.chamber.domain.views.PartnerSocialSummary">
         <constructor>
@@ -380,18 +366,8 @@
             P.id, P.name
     </select>
     
-    <select id="getEchoedUserByPartnerUser" resultMap="echoedUser">
-        SELECT
-            EU.id as id,
-            EU.updatedOn as updatedOn,
-            EU.createdOn as createdOn,
-            EU.name as name,
-            EU.email as email,
-            EU.screenName as screenName,
-            EU.facebookUserId as facebookUserId,
-            EU.facebookId as facebookId,
-            EU.twitterUserId as twitterUserId,
-            EU.twitterId as twitterId
+    <select id="getEchoedUserByPartnerUser" resultMap="com.echoed.chamber.dao.EchoedUserDao.echoedUserResult">
+        SELECT <include refid="com.echoed.chamber.dao.EchoedUserDao.echoedUserColumns" />
         FROM
             EchoedUser EU
             INNER JOIN

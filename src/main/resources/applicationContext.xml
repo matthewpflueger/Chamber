@@ -320,6 +320,12 @@
         <property name="partnerDao" ref="partnerDao" />
         <property name="echoMetricsDao" ref="echoMetricsDao" />
         <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <property name="storyDao" ref="storyDao" />
+        <property name="chapterDao" ref="chapterDao" />
+        <property name="chapterImageDao" ref="chapterImageDao" />
+        <property name="commentDao" ref="commentDao" />
+        <property name="imageDao" ref="imageDao" />
+        <property name="transactionTemplate" ref="transactionTemplate" />
         <property name="cacheManager" ref="cacheManager" />
     </bean>
 

@@ -21,7 +21,8 @@ case class PartnerSettings(
         couponCode: String,
         couponDescription: String,
         couponExpiresOn: Date,
-        activeOn: Date) {
+        activeOn: Date,
+        storyPrompts: String) {
 
     require(closetPercentage >= 0, "Closet percentage is less than 0")
     require(echoedMaxPercentage >= 0, "Echoed max percentage is less than 0")
@@ -68,7 +69,8 @@ case class PartnerSettings(
         couponCode: String,
         couponDescription: String,
         couponExpiresOn: Date,
-        activeOn)
+        activeOn,
+        null)
 
     def this(
                 partnerId: String,
@@ -132,7 +134,8 @@ object PartnerSettings {
             couponCode = "",
             couponDescription = "",
             couponExpiresOn = new Date,
-            activeOn = new Date)
+            activeOn = new Date,
+            storyPrompts = null)
 
     }
 

@@ -95,6 +95,17 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
                     channel ! GetPartnerFeedResponse(msg, Left(new FeedException("Cannot get partner feed", e)))
                     logger.error("Unexpected error processesing {}, {}", msg, e)
             }
+
+        case msg @ GetStory(storyId) =>
+            val channel = context.sender
+
+            try {
+                channel ! GetStoryResponse(msg, Right(Option(feedDao.findStoryById(storyId))))
+            } catch {
+                case e =>
+                    channel ! GetStoryResponse(msg, Left(new FeedException("Cannot get story %s" format storyId, e)))
+                    logger.error("Unexpected error processing {}: {}", msg, e)
+            }
     }
 
     }), "FeedService")
