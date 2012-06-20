@@ -4,7 +4,7 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.dao.AdminUserDao
 import com.echoed.chamber.dao.views.AdminViewDao
 import scala.collection.JavaConversions._
-import com.echoed.chamber.dao.partner.PartnerSettingsDao
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 
 import scalaz._
 import Scalaz._
@@ -16,7 +16,8 @@ class AdminUserServiceActor(
         adminUser: AdminUser,
         adminUserDao: AdminUserDao,
         adminViewDao: AdminViewDao,
-        partnerSettingsDao: PartnerSettingsDao) extends Actor {
+        partnerSettingsDao: PartnerSettingsDao,
+        partnerDao: PartnerDao) extends Actor {
 
     private final val logger = Logging(context.system, this)
 
@@ -27,6 +28,31 @@ class AdminUserServiceActor(
         case msg: GetPartners =>
             logger.debug("Retrieving Partners")
             sender ! GetPartnersResponse(msg, Right(asScalaBuffer(adminViewDao.getPartners).toList))
+        case msg @ GetPartner(partnerId) =>
+            val channel = sender
+            logger.debug("Retrieving Partner {}", partnerId)
+            Option(partnerDao.findById(partnerId)).cata(
+                partner => {
+                    logger.debug("Successfully Retrieved Partner {} with PartnerId {}", partner, partnerId)
+                    channel ! GetPartnerResponse(msg, Right(partner))
+                },
+                {
+                    logger.error("Error Retrieving Partner {}", partnerId)
+                    channel ! GetPartnerResponse(msg, Left(new AdminUserException("Error Retrieving Partner")))
+                })
+
+        case msg @ UpdatePartnerHandle(partnerId, partnerHandle) =>
+            val channel = sender
+            logger.debug("Updating Partner {}", partnerId)
+            Option(partnerDao.updateHandle(partnerId, partnerHandle)).cata(
+                resultSet => {
+                    logger.debug("Successfully updated Partner Handle for Partner{}", partnerId)
+                    channel ! UpdatePartnerHandleResponse(msg, Right(partnerHandle))
+                },
+                {
+                    logger.error("Error Updating Partner Handle for Partner {}", partnerId)
+                    channel ! UpdatePartnerHandleResponse(msg, Left(new AdminUserException("Error updating Partner Handle")))
+                })
         case msg @ GetPartnerSettings(partnerId) =>
             logger.debug("Retrieving Partner Settings for partner: {}", partnerId)
             sender ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(adminViewDao.getPartnerSettings(partnerId)).toList))

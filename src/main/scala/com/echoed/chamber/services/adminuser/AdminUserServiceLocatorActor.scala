@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 import com.echoed.chamber.dao.AdminUserDao
 import com.echoed.chamber.dao.views.AdminViewDao
-import com.echoed.chamber.dao.partner.PartnerSettingsDao
+import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import akka.util.Timeout
 import akka.pattern.ask
 import akka.util.duration._
@@ -26,6 +26,7 @@ class AdminUserServiceLocatorActor extends FactoryBean[ActorRef] {
     @BeanProperty var adminUserDao: AdminUserDao = _
     @BeanProperty var adminViewDao: AdminViewDao = _
     @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
+    @BeanProperty var partnerDao: PartnerDao = _
 
     private val cache: ConcurrentMap[String, AdminUserService] = new ConcurrentHashMap[String, AdminUserService]()
     private var cacheById: ConcurrentMap[String, AdminUserService] = null
@@ -93,7 +94,7 @@ class AdminUserServiceLocatorActor extends FactoryBean[ActorRef] {
                 au => {
                     val aus = new AdminUserServiceActorClient(context.actorOf(Props().withCreator {
                         val a = Option(adminUserDao.findByEmail(email)).get
-                        new AdminUserServiceActor(a, adminUserDao, adminViewDao, partnerSettingsDao)
+                        new AdminUserServiceActor(a, adminUserDao, adminViewDao, partnerSettingsDao, partnerDao)
                     }))
                     cache(email) = aus
                     channel ! CreateAdminUserServiceResponse(msg, Right(aus))

@@ -338,6 +338,7 @@
         <property name="adminUserDao" ref="adminUserDao" />
         <property name="adminViewDao" ref="adminViewDao" />
         <property name="partnerSettingsDao" ref="partnerSettingsDao" />
+        <property name="partnerDao" ref="partnerDao" />
         <property name="cacheManager" ref="cacheManager" />
     </bean>
     

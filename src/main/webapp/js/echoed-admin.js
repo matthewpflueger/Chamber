@@ -59,10 +59,12 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
         this.EvAg = options.EvAg;
         this.element = $(this.el);
         this.EvAg.bind('select/change', this.renderPartnerSettings);
+        this.EvAg.bind('select/change', this.renderPartnerDetails);
         this.render();
     },
     events: {
-        "click .partner-setting-submit" : "updatePartnerSettings"
+        "click .partner-setting-submit" : "updatePartnerSettings",
+        "click .partner-details-submit" : "updatePartnerHandle"
     },
     render: function(){
         var self = this;
@@ -109,6 +111,42 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                 self.renderPartnerSettings(t, v);
             }
         })
+    },
+    renderPartnerDetails: function(t,v){
+        $.ajax({
+            url: Echoed.urls.api + "/admin/partner/" + v,
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+                $('#pd-partnerId').val(data.id);
+                $('#pd-partnerName').val(data.name);
+                $('#pd-partnerHandle').val(data.handle);
+            }
+        })
+    },
+    updatePartnerHandle: function(){
+        var id = $('#pd-partnerId').val();
+        var name = $('#pd-partnerName').val();
+        var handle = $('#pd-partnerHandle').val();
+        $.ajax({
+            url: Echoed.urls.api + "/admin/partner/" + id + "/updateHandle",
+            data: {
+                partnerHandle: handle
+            },
+            type: 'POST',
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+                alert("Sucessfully Updated Partner Handle");
+                $("html, body").animate({scrollTop: 0 }, 300);
+                self.renderPartnerDetails(name,id);
+            }
+        })
+
     },
     renderPartnerSettings: function(t, v){
         $.ajax({

@@ -22,9 +22,13 @@ trait AdminUserService {
 
     def getPartners: Future[GetPartnersResponse]
 
+    def getPartner(partnerId: String): Future[GetPartnerResponse]
+
     def getPartnerSettings(partnerId: String): Future[GetPartnerSettingsResponse]
 
     def getCurrentPartnerSetting(partnerId: String): Future[GetCurrentPartnerSettingsResponse]
+
+    def updatePartnerHandle(partnerId: String, partnerHandle: String): Future[UpdatePartnerHandleResponse]
 
     def updatePartnerSettings(partnerSettings: PartnerSettings): Future[UpdatePartnerSettingsResponse]
     

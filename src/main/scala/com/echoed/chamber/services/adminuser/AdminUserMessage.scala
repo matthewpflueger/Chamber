@@ -48,6 +48,12 @@ case class GetCurrentPartnerSettingsResponse(
                 value: Either[AUE, PartnerSettings])
                 extends AUM with RM[PartnerSettings, GetCurrentPartnerSettings, AUE]
 
+case class GetPartner(partnerId: String) extends AUM
+case class GetPartnerResponse(
+                message: GetPartner,
+                value: Either[AUE, Partner])
+                extends AUM with RM[Partner, GetPartner, AUE]
+
 case class GetUsers() extends AUM
 case class GetUsersResponse(
                 message: GetUsers, 
@@ -80,3 +86,7 @@ case class LogoutResponse(message: Logout, value: Either[AUE, Boolean])
 case class UpdatePartnerSettings(partnerSettings: PartnerSettings) extends AUM
 case class UpdatePartnerSettingsResponse(message: UpdatePartnerSettings, value: Either[AUE, PartnerSettings])
     extends AUM with RM[PartnerSettings, UpdatePartnerSettings, AUE]
+
+case class UpdatePartnerHandle(partnerId: String, partnerHandle: String) extends AUM
+case class UpdatePartnerHandleResponse(message: UpdatePartnerHandle, value: Either[AUE, String])
+    extends AUM with RM[String, UpdatePartnerHandle, AUE]

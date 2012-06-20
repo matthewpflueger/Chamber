@@ -22,6 +22,9 @@ class AdminUserServiceActorClient(adminUserServiceActor: ActorRef)
     def getPartners =
         (adminUserServiceActor ? GetPartners()).mapTo[GetPartnersResponse]
 
+    def getPartner(partnerId: String) =
+        (adminUserServiceActor ? GetPartner(partnerId)).mapTo[GetPartnerResponse]
+
     def getPartnerSettings(partnerId: String) =
         (adminUserServiceActor ? GetPartnerSettings(partnerId)).mapTo[GetPartnerSettingsResponse]
 
@@ -36,6 +39,9 @@ class AdminUserServiceActorClient(adminUserServiceActor: ActorRef)
 
     def updatePartnerSettings(partnerSettings: PartnerSettings) =
         (adminUserServiceActor ? UpdatePartnerSettings(partnerSettings)).mapTo[UpdatePartnerSettingsResponse]
+
+    def updatePartnerHandle(partnerId: String, partnerHandle: String) =
+        (adminUserServiceActor ? UpdatePartnerHandle(partnerId, partnerHandle)).mapTo[UpdatePartnerHandleResponse]
 
     def logout(adminUserId: String) =
         (adminUserServiceActor ? Logout(adminUserId)).mapTo[LogoutResponse]

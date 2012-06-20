@@ -1,6 +1,7 @@
 package com.echoed.chamber.dao.partner
 
 import com.echoed.chamber.domain.partner.Partner
+import org.apache.ibatis.annotations.Param
 
 
 trait PartnerDao {
@@ -16,4 +17,9 @@ trait PartnerDao {
     def deleteByName(name: String): Int
 
     def update(partner: Partner): Int
+
+    def updateHandle(
+        @Param("partnerId") partnerId: String,
+        @Param("partnerHandle") partnerHandle: String): Int
+
 }

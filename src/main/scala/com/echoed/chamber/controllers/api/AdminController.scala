@@ -28,7 +28,6 @@ class AdminController {
     private val logger = LoggerFactory.getLogger(classOf[AdminController])
     
     @BeanProperty var adminUserServiceLocator: AdminUserServiceLocator = _
-
     @BeanProperty var globalValidator: Validator = _
     @BeanProperty var formValidator: Validator = _
     @BeanProperty var conversionService: ConversionService = _
@@ -83,7 +82,55 @@ class AdminController {
                         result.set(partners)
                 }
         }
+        result
+    }
 
+    @RequestMapping(value = Array("/partner/{partnerId}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getPartnerJSON(
+                        @PathVariable(value = "partnerId") partnerId: String,
+                        httpServletRequest: HttpServletRequest,
+                        httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult("error")
+
+        val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+
+        adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
+            case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                logger.debug("AdminUser Service Located")
+                adminUserService.getPartner(partnerId).onSuccess {
+                    case GetPartnerResponse(_, Right(partner)) =>
+                        logger.debug("Received Json REsponse for Partners: {}", partner)
+                        result.set(partner)
+                }
+        }
+
+        result
+
+    }
+
+    @RequestMapping(value = Array("/partner/{partnerId}/updateHandle"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def updatePartnerHandleJSON(
+            @PathVariable(value = "partnerId") partnerId: String,
+            @RequestParam("partnerHandle") partnerHandle: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult("error")
+
+        val adminUserId = cookieManager.findAdminUserCookie(httpServletRequest)
+
+        adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
+            case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
+                logger.debug("AdminUser Service Located")
+                adminUserService.updatePartnerHandle(partnerId, partnerHandle).onSuccess {
+                    case UpdatePartnerHandleResponse(_, Right(ph)) =>
+                        logger.debug("Successfully Update Partner Handle for PartnerId {} with handle {}", partnerId, ph)
+                        result.set(ph)
+                }
+        }
         result
     }
 

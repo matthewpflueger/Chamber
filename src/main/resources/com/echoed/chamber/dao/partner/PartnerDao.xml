@@ -61,6 +61,12 @@
         delete from Partner where name=#{name}
     </delete>
 
+    <update id="updateHandle">
+        update Partner
+        set handle = #{partnerHandle}
+        where id = #{partnerId}
+    </update>
+
     <update id="update" parameterType="com.echoed.chamber.domain.partner.Partner">
         update Partner set
             name = #{name},
