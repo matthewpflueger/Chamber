@@ -898,7 +898,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     click: function(e){
         var self = this;
         var href = this.el.attr("href");
-        window.open(href);
+        window.location = href;
     }
 });
 
