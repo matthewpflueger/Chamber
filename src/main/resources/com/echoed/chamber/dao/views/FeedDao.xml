@@ -134,7 +134,7 @@
     <select id="getPartnerFeed"  resultMap="echoViewPublicResult">
         select
             E.id as echoId,
-            E.boughtOn as echoBoughtOn,
+            E.createdOn as echoBoughtOn,
             E.productName as echoProductName,
             coalesce(P.category,"Other") as echoCategory,
             E.brand as echoBrand,
