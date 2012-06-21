@@ -144,7 +144,7 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                alert("Sucessfully Updated Partner Handle");
+                alert("Sucessfully Updated Partner Handle and Category");
                 $("html, body").animate({scrollTop: 0 }, 300);
                 self.renderPartnerDetails(name,id);
             }

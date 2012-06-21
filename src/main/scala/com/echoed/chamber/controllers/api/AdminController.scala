@@ -126,7 +126,7 @@ class AdminController {
         adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
             case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                 logger.debug("AdminUser Service Located")
-                adminUserService.updatePartnerHandleAndCategory(partnerId, partnerHandle, partnerCategory).onSuccess {
+                adminUserService.updatePartnerHandleAndCategory(partnerId, if( partnerHandle == "" ) null else partnerHandle, partnerCategory).onSuccess {
                     case UpdatePartnerHandleAndCategoryResponse(_, Right(ph)) =>
                         logger.debug("Successfully Update Partner Handle for PartnerId {} with handle {}", partnerId, ph)
                         result.set(ph)

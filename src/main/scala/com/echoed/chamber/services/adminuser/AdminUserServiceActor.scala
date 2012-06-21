@@ -46,11 +46,11 @@ class AdminUserServiceActor(
             logger.debug("Updating Partner {}", partnerId)
             Option(partnerDao.updateHandleAndCategory(partnerId, partnerHandle, partnerCategory)).cata(
                 resultSet => {
-                    logger.debug("Successfully updated Partner Handle for Partner{}", partnerId)
+                    logger.debug("Successfully updated Partner Handle and Category for Partner{}", partnerId)
                     channel ! UpdatePartnerHandleAndCategoryResponse(msg, Right(partnerHandle))
                 },
                 {
-                    logger.error("Error Updating Partner Handle for Partner {}", partnerId)
+                    logger.error("Error Updating Partner Handle and Category for Partner {}", partnerId)
                     channel ! UpdatePartnerHandleAndCategoryResponse(msg, Left(new AdminUserException("Error updating Partner Handle")))
                 })
         case msg @ GetPartnerSettings(partnerId) =>
