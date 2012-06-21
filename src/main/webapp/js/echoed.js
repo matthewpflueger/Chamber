@@ -666,11 +666,11 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var hourDiff = Math.floor((dateDiff)/(1000*60*60));
         var minDiff = Math.floor((dateDiff)/(1000*60));
         if(dayDiff >= 1 ){
-            text.append(dayDiff + " days ago");
+            text.append(dayDiff + " day(s) ago");
         } else if (hourDiff >= 1) {
-            text.append(hourDiff + " hours ago");
+            text.append(hourDiff + " hour(s) ago");
         } else {
-            text.append(minDiff + " minutes ago");
+            text.append(minDiff + " minute(s) ago");
         }
 
         if(this.model.get("echoProductName")){
