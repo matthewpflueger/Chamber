@@ -32,14 +32,14 @@ case class EchoToFacebookResponse(message: EchoToFacebook, value: Either[FE, Fac
 case class RetryEchoToFacebook(facebookPost: FacebookPost, retries: Int = 1) extends FM
 
 case class PublishActionToFacebook(action: String, obj: String, objUrl: String) extends FM
-case class PublishActionToFacebookResponse(message: PublishActionToFacebook, value: Either[FE, FacebookAction])
+case class PublishActionToFacebookResponse(message: PublishActionToFacebook, value: Either[FE, Boolean])
         extends FM
-        with RM[FacebookAction, PublishActionToFacebook, FE]
+        with RM[Boolean, PublishActionToFacebook, FE]
 
 case class PublishAction(accessToken: String, action: String, obj: String, objUrl: String) extends FM
-case class PublishActionResponse(message: PublishAction, value: Either[FE , FacebookAction])
+case class PublishActionResponse(message: PublishAction, value: Either[FE , Boolean])
     extends FM
-    with RM[FacebookAction, PublishAction, FE]
+    with RM[Boolean, PublishAction, FE]
 
 case class Post(accessToken: String, facebookId: String, facebookPost: FacebookPost) extends FM
 case class PostResponse(message: Post, value: Either[FE, FacebookPost])

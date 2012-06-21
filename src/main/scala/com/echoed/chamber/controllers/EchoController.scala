@@ -535,7 +535,7 @@ class EchoController {
         }).onSuccess {
             case _ => logger.debug("Successfully completed echo click {}", echoId)
         }.onFailure {
-            case e => logger.error("Error during recording of echo click %s" format echoId, e)
+            case e => logger.error("Error during recording of echo click for echo %s" format echoId, e)
         }
 
         result

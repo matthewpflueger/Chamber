@@ -147,6 +147,7 @@ class FacebookAccessActor extends FactoryBean[ActorRef] {
             }
 
         case msg @ PublishAction(accessToken, action, obj, objUrl) =>
+            val channel = context.sender
 
             val url = new URL("https://graph.facebook.com/me/%s:%s?" format(appNameSpace, action))
             val urlParameters = "%s=%s&access_token=%s" format(obj, objUrl, accessToken)
@@ -163,17 +164,21 @@ class FacebookAccessActor extends FactoryBean[ActorRef] {
                 wr.write(urlParameters)
                 wr.flush()
 
-                if(connection.get.getResponseCode >= 400){
+                if (connection.get.getResponseCode >= 400) {
                     inputStream = Option(connection.get.getErrorStream)
-                    val bytes = ByteStreams.toByteArray(inputStream.get)
-                    logger.debug("Server returned HTTP response Code 400:  Publishing Action Response %s" format new String(bytes, "UTF-8") )
+                    val res = new String(ByteStreams.toByteArray(inputStream.get), "UTF-8")
+                    logger.debug("Server returned HTTP response Code 400:  Publishing Action Response %s" format res)
+                    channel ! PublishActionResponse(msg, Right(false))
                 } else {
                     inputStream = Option(connection.get.getInputStream)
-                    val bytes = ByteStreams.toByteArray(inputStream.get)
-                    logger.debug("Received Publish Action Response %s" format new String(bytes, "UTF-8"))
+                    val res = new String(ByteStreams.toByteArray(inputStream.get), "UTF-8")
+                    logger.debug("Received Publish Action Response %s" format res)
+                    channel ! PublishActionResponse(msg, Right(true))
                 }
             } catch {
-                case e => logger.debug("Error processing {}: {}", msg, e)
+                case e =>
+                    logger.debug("Error processing {}: {}", msg, e)
+                    channel ! PublishActionResponse(msg, Left(FacebookException("Unexpected error publishing action", e)))
             }
 
 

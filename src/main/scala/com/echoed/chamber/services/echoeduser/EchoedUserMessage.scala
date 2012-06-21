@@ -52,8 +52,8 @@ case class EchoToTwitterResponse(message:EchoToTwitter,  value: Either[EUE, Twit
     extends EUM with RM[TwitterStatus, EchoToTwitter,  EUE]
 
 case class PublishFacebookAction(action: String,  obj: String,  objUrl: String) extends EUM
-case class PublishFacebookActionResponse(message: PublishFacebookAction, value: Either[EUE, FacebookAction])
-    extends EUM with RM[FacebookAction, PublishFacebookAction, EUE]
+case class PublishFacebookActionResponse(message: PublishFacebookAction, value: Either[EUE, Boolean])
+    extends EUM with RM[Boolean, PublishFacebookAction, EUE]
 
 case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
