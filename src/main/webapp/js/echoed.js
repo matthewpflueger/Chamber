@@ -115,23 +115,17 @@ Echoed.Router = Backbone.Router.extend({
         "me/": "me",
         "me": "me",
         "me/:filter": "me",
-        "echo/:id": "echo",
         "friends/exhibit/:id": "friendsExhibit",
         "friends/exhibit/:id/": "friendsExhibit",
         "friends/exhibit/:id/:filter": "friendsExhibit",
         "partners/:name/:filter": "partnerFeed",
         "partners/:name/": "partnerFeed",
-        "partners/:name": "partnerFeed"
+        "partners/:name": "partnerFeed",
+        "story/:id/edit": "editStory"
     },
-    echo: function(partner, product, filter) {
-        if(this.page != "Echo"){
-            this.page = "Echo";
-            _gaq.push(['_trackPageview', this.page]);
-            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "echo"});
-        } else {
-            this.EvAg.trigger("filter/change", filter);
-        }
-        this.EvAg.trigger("page/change","echo");
+    editStory: function(){
+        this.page = "editStory";
+        this.EvAg.trigger("exhibit/init", { Type: "editStory"});
     },
     fix: function(){
         window.location.href = "#";
@@ -206,7 +200,7 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'load','addPrompt','updateEndpoint','openPhotoDialog');
+        _.bindAll(this, 'render', 'load','updateEndpoint','openPhotoDialog');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
@@ -231,12 +225,6 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.endpoint = self.endpointBase + '/story';
         self.render();
         //self.addPrompt();
-    },
-    addPrompt: function(){
-        var self = this;
-        var promptDiv = $('<div id="prompt" class="field-question-button"></div>');
-        self.element.main.append(promptDiv);
-        var prompt = new Echoed.Views.Components.Select({ el: "#prompt" });
     },
     render: function(){
         var self = this;
@@ -378,12 +366,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.contentDescription = "";
         self.showDate = false;
         switch(options.Type){
-            case "echo":
-                self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.Partner + "/" + options.Product;
-                self.baseUrl = "#echo/" + options.Partner + "/" + options.Product;
-                self.id = "echo";
-                self.nextInt = 1;
-                self.EvAg.trigger('focus/update', { partner: options.Partner , product: options.Product });
+            case "editStory":
+                alert('test');
+                self.nextInt = 0;
                 break;
             case "friend":
                 self.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
@@ -607,8 +592,6 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
                     });
                 }
                 else{
-                    //var noEchoDiv = $('<div></div>').addClass("no-echoes").html("You have no friends on Echoed. Get your friends to join!");
-                    //noEchoDiv.appendTo(self.exhibit);
                 }
             }
         });
@@ -812,7 +795,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render','hideOverlay','showOverlay');
+        _.bindAll(this,'render','addPrompt','showChapterHelper','hideChapterHelper');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -820,23 +803,30 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         this.render();
     },
     events: {
-        "mouseenter" : "hideOverlay",
-        "mouseleave" : "showOverlay"
+        "focus input[type=text]": "showChapterHelper",
+        "blur input[type=text]": "hideChapterHelper"
+    },
+    showChapterHelper: function(){
+        var self = this;
+        self.element.find('.chapter-title-helper').fadeIn();
+    },
+    hideChapterHelper: function(){
+        var self = this;
+        self.element.find('.chapter-title-helper').fadeOut();
+    },
+    addPrompt: function(){
+        var self = this;
+        //var promptDiv = $('<div id="prompt" class="field-question-button"></div>');
+        //self.body.append(promptDiv);
+        //var prompt = new Echoed.Views.Components.Select({ el: promptDiv });
     },
     render: function(){
-        var template = _.template($('#templates-components-story').html());
+        var template = _.template($('#templates-components-story-edit').html());
         var self = this;
         self.element.addClass("item_wrap");
         this.element.html(template);
-        self.overlay = self.element.find('.story_overlay');
-    },
-    hideOverlay: function(){
-        var self = this;
-        self.overlay.fadeOut();
-    },
-    showOverlay: function(){
-        var self = this;
-        self.overlay.fadeIn();
+        self.body = this.element.find('.story-edit-body-left');
+        self.addPrompt();
     }
 });
 

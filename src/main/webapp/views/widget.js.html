@@ -882,6 +882,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         if(this.model.get("echoProductName")){
             text.prepend('<span class="icl_pn"><strong>'+this.model.get("echoProductName") + '</strong></span><br/>');
         }
+
         var dateDiff = todayDate - boughtOnDate;
         var dayDiff = Math.floor((dateDiff)/(1000*60*60*24));
         var hourDiff = Math.floor((dateDiff)/(1000*60*60));
@@ -904,8 +905,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     click: function(e){
         var self = this;
-        var href = this.el.attr("href");
-        window.location = href;
+        window.location = this.el.attr("href");
     }
 });
 
