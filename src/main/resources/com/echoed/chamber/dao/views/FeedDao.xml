@@ -50,6 +50,7 @@
             <arg column="echoLandingPageUrl" javaType="String"/>
             <arg column="partnerName" javaType="String"/>
             <arg column="partnerId" javaType="String" />
+            <arg column="partnerHandle" javaType="String"/>
             <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
         </constructor>
     </resultMap>
@@ -62,6 +63,7 @@
             E.brand as echoBrand,
             E.landingPageUrl as echoLandingPageUrl,
             P.name as partnerName,
+            P.handle as partnerHandle,
             P.id as partnerId,
             I.id as imageId,
             I.updatedOn as imageUpdatedOn,
@@ -110,27 +112,6 @@
             #{start}, #{limit}
     </select>
 
-    <select id="getPublicFeedOld" resultMap="echoViewPublicResult">
-        select
-            E.id as echoId,
-            E.boughtOn as echoBoughtOn,
-            E.productName as echoProductName,
-            coalesce(P.category,"Other") as echoCategory,
-            E.brand as echoBrand,
-            E.landingPageUrl as echoLandingPageUrl,
-            P.name as partnerName,
-            <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
-        from
-            Echo E
-            join Image I on E.imageId = I.id
-            join Partner P on E.partnerId = P.id
-        where I.sizedWidth > 0
-        order by
-            E.createdOn desc, E.id DESC
-        Limit
-            #{start}, #{limit}
-    </select>
-
     <select id="getPartnerFeed"  resultMap="echoViewPublicResult">
         select
             E.id as echoId,
@@ -141,13 +122,14 @@
             E.landingPageUrl as echoLandingPageUrl,
             P.name as partnerName,
             P.id as partnerId,
+            P.handle as partnerHandle,
             <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
         from
             Echo E
             join Image I on E.imageId = I.id
             join Partner P on E.partnerId = P.id
         where
-            P.name = #{partnerId}
+            P.handle = #{partnerId}
             or
             P.id = #{partnerId}
         order by

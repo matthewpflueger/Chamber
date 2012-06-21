@@ -14,6 +14,7 @@ case class EchoViewPublic(
         echoLandingPageUrl: String,
         partnerName: String,
         partnerId: String,
+        partnerHandle: String,
         image: Image){
     
     def this(echoView: EchoView) = this(
@@ -25,6 +26,7 @@ case class EchoViewPublic(
             echoView.echoLandingPageUrl,
             echoView.partnerName,
             echoView.partnerId,
+            echoView.partnerHandle,
             echoView.image)
 }
 

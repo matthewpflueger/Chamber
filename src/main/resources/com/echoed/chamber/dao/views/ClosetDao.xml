@@ -39,6 +39,7 @@
             <arg column="echoCreditWindowEndsAt" javaType="Date"/>
             <arg column="partnerId" javaType="String" />
             <arg column="partnerName" javaType="String" />
+            <arg column="partnerHandle" javaType="String" />
             <arg column="partnerSettingsId" javaType="String" />
             <arg column="partnerSettingsMinClicks" javaType="_int" />
             <arg column="partnerSettingsMinPercentage" javaType="_float" />
@@ -73,6 +74,7 @@
             EM.creditWindowEndsAt as echoCreditWindowEndsAt,
             P.id as partnerId,
             P.name as partnerName,
+            P.handle as partnerHandle,
             PS.id as partnerSettingsId,
             coalesce(PS.minClicks, 0) as partnerSettingsMinClicks,
             coalesce(PS.minPercentage, 0) as partnerSettingsMinPercentage,

@@ -650,6 +650,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var imageHeight = this.model.get("image").preferredHeight;
         this.el.attr("date", this.model.get("echoBoughtOn"));
         this.el.attr("productId", this.model.get("echoProductId"));
+        this.el.attr("partnerHandle", this.model.get("partnerHandle"));
         this.el.attr("partnerId", this.model.get("partnerId"));
         this.el.attr("id", this.model.get("echoId"));
         this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Browse-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
@@ -725,7 +726,10 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     clickPartner: function(e){
         var self = this;
-        window.location.hash = "#partners/" + this.el.attr('partnerId');
+        if(this.el.attr("partnerHandle"))
+            window.location.hash = "#partners/" + this.el.attr('partnerHandle');
+        else
+            window.location.hash = "#partners/" + this.el.attr('partnerId');
     },
     click: function(e){
         var self = this;

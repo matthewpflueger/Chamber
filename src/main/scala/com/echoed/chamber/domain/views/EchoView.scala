@@ -17,6 +17,7 @@ case class EchoView(
         echoCreditWindowEndsAt: Date,
         partnerId: String,
         partnerName: String,
+        partnerHandle: String,
         partnerSettingsId: String,
         partnerSettingsMinClicks: Int,
         partnerSettingsMinPercentage: Float,

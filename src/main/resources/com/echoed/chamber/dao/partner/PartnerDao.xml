@@ -24,6 +24,14 @@
         select * from Partner where id = #{id}
     </select>
 
+    <select id="findByIdOrHandle" resultMap="partnerResult">
+        select * from Partner
+        where
+            id = #{id}
+            or
+            handle = #{id}
+    </select>
+
     <select id="findByDomain" resultMap="partnerResult">
         select * from Partner where domain = #{domain}
     </select>

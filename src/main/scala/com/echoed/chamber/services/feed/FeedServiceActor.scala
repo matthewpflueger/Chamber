@@ -70,7 +70,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
                 val limit = 30
                 val start = msg.page * limit
                 val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, limit)).toList
-                val partner = partnerDao.findById(partnerId)
+                val partner = partnerDao.findByIdOrHandle(partnerId)
                 val partnerFeed = new PartnerFeed(new PartnerPublic(partner), echoes)
                 channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
             } catch {

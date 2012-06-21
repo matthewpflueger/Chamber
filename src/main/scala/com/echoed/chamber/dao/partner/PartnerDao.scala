@@ -8,6 +8,8 @@ trait PartnerDao {
 
     def findById(id: String): Partner
 
+    def findByIdOrHandle(id: String): Partner
+
     def findByDomain(domain: String): Partner
 
     def insert(partner: Partner): Int
