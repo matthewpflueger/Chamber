@@ -657,6 +657,9 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
         var self = this;
         self.element.hide();
         self.locked = false;
+        if(EchoedjQuery('#echoed-e-c-b').scrollTop() >= EchoedjQuery('#echoed-exhibit').height() - EchoedjQuery('#echoed-e-c-b').height() && self.locked == false && self.status == true){
+            self.EvAg.trigger("infiniteScroll");
+        }
     },
     triggerScroll: function(){
         var self = this;
@@ -682,7 +685,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.EvAg.bind('exhibit/open', this.init);
         this.EvAg.bind('infiniteScroll', this.next);
         this.element = EchoedjQuery(this.el);
-        this.element.append(EchoedjQuery("<div id='echoed-head'><div id='echoed-selector'></div><div id='echoed-close'><img src='http://{{urls.images}}/images/btn_close_x.png' /></div></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div>"));
+        this.element.append(EchoedjQuery("<div id='echoed-head'><div id='echoed-selector'></div><div id='echoed-close'><img src='{{urls.images}}/btn_close_x.png' /></div></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div>"));
         this.selector=EchoedjQuery('#echoed-selector');
         EchoedjQuery('#echoed-head').addClass('clearfix');
         this.selector.append('Most Recent');

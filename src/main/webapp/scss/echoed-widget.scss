@@ -45,6 +45,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
     position: absolute;
     z-index: 99999;
     bottom: 10px;
+    margin-bottom: 10px;
     left: 50%;
     width: 250px;
     height: 50px;
@@ -111,7 +112,6 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
     }
     #echoed-e-c-b{
         border: 1px solid #CCC;
-        position:relative;
         height: 600px;
         overflow-y: scroll;
         overflow-x: hidden;
