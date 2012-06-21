@@ -40,7 +40,6 @@ class LocalCacheManager extends CacheManager {
             val builder = CacheBuilder
                     .newBuilder()
                     .concurrencyLevel(4)
-                    .softValues
                     .removalListener(new RemovalListenerProxy(cacheListener.getOrElse(NoOpCacheListener)))
 
             val expires =
