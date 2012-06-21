@@ -40,8 +40,8 @@ class AdminUserServiceActorClient(adminUserServiceActor: ActorRef)
     def updatePartnerSettings(partnerSettings: PartnerSettings) =
         (adminUserServiceActor ? UpdatePartnerSettings(partnerSettings)).mapTo[UpdatePartnerSettingsResponse]
 
-    def updatePartnerHandle(partnerId: String, partnerHandle: String) =
-        (adminUserServiceActor ? UpdatePartnerHandle(partnerId, partnerHandle)).mapTo[UpdatePartnerHandleResponse]
+    def updatePartnerHandleAndCategory(partnerId: String, partnerHandle: String, partnerCategory: String) =
+        (adminUserServiceActor ? UpdatePartnerHandleAndCategory(partnerId, partnerHandle, partnerCategory)).mapTo[UpdatePartnerHandleAndCategoryResponse]
 
     def logout(adminUserId: String) =
         (adminUserServiceActor ? Logout(adminUserId)).mapTo[LogoutResponse]

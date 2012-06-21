@@ -122,6 +122,7 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
             success: function(data){
                 $('#pd-partnerId').val(data.id);
                 $('#pd-partnerName').val(data.name);
+                $('#pd-partnerCategory').val(data.category);
                 $('#pd-partnerHandle').val(data.handle);
             }
         })
@@ -130,10 +131,12 @@ Echoed.Views.Pages.Partners = Backbone.View.extend({
         var id = $('#pd-partnerId').val();
         var name = $('#pd-partnerName').val();
         var handle = $('#pd-partnerHandle').val();
+        var category = $('#pd-partnerCategory').val();
         $.ajax({
-            url: Echoed.urls.api + "/admin/partner/" + id + "/updateHandle",
+            url: Echoed.urls.api + "/admin/partner/" + id + "/updateHandleAndCategory",
             data: {
-                partnerHandle: handle
+                partnerHandle: handle,
+                partnerCategory: category
             },
             type: 'POST',
             dataType: 'json',

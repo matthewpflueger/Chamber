@@ -18,8 +18,9 @@ trait PartnerDao {
 
     def update(partner: Partner): Int
 
-    def updateHandle(
+    def updateHandleAndCategory(
         @Param("partnerId") partnerId: String,
-        @Param("partnerHandle") partnerHandle: String): Int
+        @Param("partnerHandle") partnerHandle: String,
+        @Param("partnerCategory") partnerCategory: String): Int
 
 }

@@ -87,6 +87,6 @@ case class UpdatePartnerSettings(partnerSettings: PartnerSettings) extends AUM
 case class UpdatePartnerSettingsResponse(message: UpdatePartnerSettings, value: Either[AUE, PartnerSettings])
     extends AUM with RM[PartnerSettings, UpdatePartnerSettings, AUE]
 
-case class UpdatePartnerHandle(partnerId: String, partnerHandle: String) extends AUM
-case class UpdatePartnerHandleResponse(message: UpdatePartnerHandle, value: Either[AUE, String])
-    extends AUM with RM[String, UpdatePartnerHandle, AUE]
+case class UpdatePartnerHandleAndCategory(partnerId: String, partnerHandle: String, partnerCategory: String) extends AUM
+case class UpdatePartnerHandleAndCategoryResponse(message: UpdatePartnerHandleAndCategory, value: Either[AUE, String])
+    extends AUM with RM[String, UpdatePartnerHandleAndCategory, AUE]

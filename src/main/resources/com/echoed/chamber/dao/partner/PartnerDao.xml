@@ -61,9 +61,10 @@
         delete from Partner where name=#{name}
     </delete>
 
-    <update id="updateHandle">
-        update Partner
-        set handle = #{partnerHandle}
+    <update id="updateHandleAndCategory">
+        update Partner set
+            handle = #{partnerHandle},
+            category = #{partnerCategory}
         where id = #{partnerId}
     </update>
 

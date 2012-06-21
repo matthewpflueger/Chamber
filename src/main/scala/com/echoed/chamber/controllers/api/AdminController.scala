@@ -110,11 +110,12 @@ class AdminController {
 
     }
 
-    @RequestMapping(value = Array("/partner/{partnerId}/updateHandle"), method = Array(RequestMethod.POST))
+    @RequestMapping(value = Array("/partner/{partnerId}/updateHandleAndCategory"), method = Array(RequestMethod.POST))
     @ResponseBody
     def updatePartnerHandleJSON(
             @PathVariable(value = "partnerId") partnerId: String,
             @RequestParam("partnerHandle") partnerHandle: String,
+            @RequestParam("partnerCategory") partnerCategory: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -125,8 +126,8 @@ class AdminController {
         adminUserServiceLocator.locateAdminUserService(adminUserId.get).onSuccess {
             case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                 logger.debug("AdminUser Service Located")
-                adminUserService.updatePartnerHandle(partnerId, partnerHandle).onSuccess {
-                    case UpdatePartnerHandleResponse(_, Right(ph)) =>
+                adminUserService.updatePartnerHandleAndCategory(partnerId, partnerHandle, partnerCategory).onSuccess {
+                    case UpdatePartnerHandleAndCategoryResponse(_, Right(ph)) =>
                         logger.debug("Successfully Update Partner Handle for PartnerId {} with handle {}", partnerId, ph)
                         result.set(ph)
                 }

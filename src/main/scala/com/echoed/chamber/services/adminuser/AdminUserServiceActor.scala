@@ -41,17 +41,17 @@ class AdminUserServiceActor(
                     channel ! GetPartnerResponse(msg, Left(new AdminUserException("Error Retrieving Partner")))
                 })
 
-        case msg @ UpdatePartnerHandle(partnerId, partnerHandle) =>
+        case msg @ UpdatePartnerHandleAndCategory(partnerId, partnerHandle, partnerCategory) =>
             val channel = sender
             logger.debug("Updating Partner {}", partnerId)
-            Option(partnerDao.updateHandle(partnerId, partnerHandle)).cata(
+            Option(partnerDao.updateHandleAndCategory(partnerId, partnerHandle, partnerCategory)).cata(
                 resultSet => {
                     logger.debug("Successfully updated Partner Handle for Partner{}", partnerId)
-                    channel ! UpdatePartnerHandleResponse(msg, Right(partnerHandle))
+                    channel ! UpdatePartnerHandleAndCategoryResponse(msg, Right(partnerHandle))
                 },
                 {
                     logger.error("Error Updating Partner Handle for Partner {}", partnerId)
-                    channel ! UpdatePartnerHandleResponse(msg, Left(new AdminUserException("Error updating Partner Handle")))
+                    channel ! UpdatePartnerHandleAndCategoryResponse(msg, Left(new AdminUserException("Error updating Partner Handle")))
                 })
         case msg @ GetPartnerSettings(partnerId) =>
             logger.debug("Retrieving Partner Settings for partner: {}", partnerId)
