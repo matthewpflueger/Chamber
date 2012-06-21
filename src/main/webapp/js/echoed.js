@@ -17,14 +17,75 @@ Echoed = {
         var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
         var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Browse', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
-        //var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
+        var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
         Backbone.history.start();
     }
 };
 
 Echoed.Views.Components.Fade = Backbone.View.extend({
-    initialize: function(){
+    initialize: function(options){
+        _.bindAll(this,'show','hide');
+        this.EvAg = options.EvAg;
+        this.el = options.el;
+        this.element = $(this.el);
+        this.EvAg.bind("fade/show", this.show);
+        this.EvAg.bind("fade/hide", this.hide);
+    },
+    show: function(){
+        var self = this;
+        var arrPageSizes = self.___getPageSize();
+        self.element.css({
+            "height": arrPageSizes[1],
+            "width": arrPageSizes[2]
+        });
 
+        self.element.fadeIn();
+    },
+    hide: function(){
+        var self = this;
+        self.element.fadeOut();
+    },
+    ___getPageSize: function() {
+        var xScroll, yScroll;
+        if (window.innerHeight && window.scrollMaxY) {
+            xScroll = window.innerWidth + window.scrollMaxX;
+            yScroll = window.innerHeight + window.scrollMaxY;
+        } else if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac
+            xScroll = document.body.scrollWidth;
+            yScroll = document.body.scrollHeight;
+        } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
+            xScroll = document.body.offsetWidth;
+            yScroll = document.body.offsetHeight;
+        }
+        var windowWidth, windowHeight;
+        if (self.innerHeight) {    // all except Explorer
+            if (document.documentElement.clientWidth) {
+                windowWidth = document.documentElement.clientWidth;
+            } else {
+                windowWidth = self.innerWidth;
+            }
+            windowHeight = self.innerHeight;
+        } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+            windowWidth = document.documentElement.clientWidth;
+            windowHeight = document.documentElement.clientHeight;
+        } else if (document.body) { // other Explorers
+            windowWidth = document.body.clientWidth;
+            windowHeight = document.body.clientHeight;
+        }
+        // for small pages with total height less then height of the viewport
+        if (yScroll < windowHeight) {
+            pageHeight = windowHeight;
+        } else {
+            pageHeight = yScroll;
+        }
+        // for small pages with total width less then width of the viewport
+        if (xScroll < windowWidth) {
+            pageWidth = xScroll;
+        } else {
+            pageWidth = windowWidth;
+        }
+        arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
+        return arrayPageSize;
     }
 });
 
@@ -202,12 +263,13 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             }
         });*/
         self.element.fadeIn();
+        self.EvAg.trigger('fade/show');
     },
     close: function(){
         var self = this;
         self.element.fadeOut();
         self.element.empty();
-        self.element.fadeOut();
+        self.EvAg.trigger('fade/hide');
     }
 });
 
