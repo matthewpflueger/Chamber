@@ -56,7 +56,9 @@ class AdminController {
             case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                 logger.debug("AdminUser Service Located")
                 adminUserService.getEchoPossibilities.onSuccess {
-                    case GetEchoPossibilitesResponse(_, Right(echoPossibilities)) => result.set(echoPossibilities)
+                    case GetEchoPossibilitesResponse(_, Right(echoPossibilities)) =>
+                        logger.debug("Successfully received Json Response for EchoPossibilities")
+                        result.set(echoPossibilities)
                 }
         }
 
@@ -160,7 +162,9 @@ class AdminController {
                 case LocateAdminUserServiceResponse(_, Right(adminUserService)) =>
                     logger.debug("AdminUser Service Located")
                     adminUpdatePartnerSettingsForm.createPartnerSettings(adminUserService.updatePartnerSettings(_)).onSuccess {
-                        case UpdatePartnerSettingsResponse(_, Right(ps)) => result.set(ps)
+                        case UpdatePartnerSettingsResponse(_, Right(ps)) =>
+                            logger.debug("Successfully updated partner settings for partnerId {}", ps.partnerId)
+                            result.set(ps)
                     }
             }
 
@@ -184,7 +188,7 @@ class AdminController {
                 logger.debug("AdminUser Service Located")
                 adminUserService.getPartnerSettings(partnerId).onSuccess {
                     case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                        logger.debug("Received Json Response For Partner Settings: {}",partnerSettings)
+                        logger.debug("Successfully Received Json Response for Partner Settings for Partner Id {}", partnerId)
                         result.set(partnerSettings)
                 }
         }
@@ -207,7 +211,7 @@ class AdminController {
                 logger.debug("AdminUser Service Located")
                 adminUserService.getCurrentPartnerSetting(partnerId).onSuccess {
                     case GetCurrentPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                        logger.debug("Received Json Response for Partner Settings: {}", partnerSettings)
+                        logger.debug("Successfully received Json Response for Partner Settings")
                         result.set(partnerSettings)
                 }
 
@@ -233,7 +237,7 @@ class AdminController {
                 logger.debug("AdminUser Service Located")
                 adminUserService.getUsers.onSuccess {
                     case GetUsersResponse(_, Right(echoedUsers)) =>
-                        logger.debug("Received Json Response For Users: {}", echoedUsers)
+                        logger.debug("Successfully received Json Response For Users")
                         result.set(echoedUsers)
                 }
         }

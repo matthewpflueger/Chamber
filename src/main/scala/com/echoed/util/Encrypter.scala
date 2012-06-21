@@ -74,7 +74,6 @@ class Encrypter {
             ivParameterSpec)
 
         val decrypted = cipher.doFinal(Base64.decodeBase64(text))
-        logger.debug("Decrypted String: {}", decrypted)
         if (gunzip) {
             try{
                 new String(Source.fromInputStream(new GZIPInputStream(new ByteArrayInputStream(decrypted)), "UTF-8").toArray)
