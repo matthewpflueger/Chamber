@@ -13,8 +13,18 @@
             </div>
         </div>
     </script>
-    <script type="text/templates" id="templates-components-fbp">
-        <div class="message">
+    <script type="text/template" id="templates-components-story">
+        <div class="item_content">
+            <img class="exhibit_image" width="230px" height="288px" src="http://c10415403.r3.cf2.rackcdn.com/3dTpjByI877wv4xHmvw1PQ-230x288-sized.jpg"/>
+            <div class="story_overlay">
+                <div class="story_title">
+                    My Skinny Ring Story<br/>
+                    by Evan's Hair<br/>
+                </div>
+                <div class="story_text">
+                    "This is the best product I've ever bought"
+                </div>
+            </div>
         </div>
     </script>
     <script type="text/templates" id="templates-components-profile">
@@ -44,73 +54,33 @@
         <div id="exhibit" class="clearfix">
         </div>
     </script>
-    <script type="text/templates" id="templates-components-story">
+    <script type="text/templates" id="templates-components-story-input">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
         <div class="field-title">Tell A Story</div>
         <div class="clearfix">
             <div class="field-main-col clearfix">
-                <div class="field-input-label">Add Product Photo</div>
+                <div class="field-input-label">Name Your Story</div>
+                <div class="field-indent">
+                    <input type="text">
+                </div>
+                <div class="field-input-label">Where did you buy it from?</div>
+                <div class="field-indent">
+                    <input type="text">
+                </div>
+                <div class="field-submit">Save and Continue</div>
+            </div>
+            <div class="field-side-col">
                 <div class="field-indent clearfix">
+                    <div class="field-input-label">Add Product Photo</div>
                     <div class="field-photo-container">
                         <div id="preview">
-                            <img height="100px" src="{{urls.images}}/bk_photo.png" id="thumb">
+                            <img height="100px" src="" id="thumb">
                         </div>
                     </div>
                     <div id="field-fileupload"></div>
                     <!-- <div>Upload a Photo</div> -->
                 </div>
-                <div class="field-input-label">Where did you buy it from?</div>
-                <div class="field-indent">
-                    <textarea></textarea>
-                </div>
-
-                <div class="field-input-label">Prompts: (Answer as many as you want)</div>
-                <div class="field-question-button">Why did you buy this?</div>
-                <div class="field-question-button">Who did you buy it for?</div>
-                <div class="field-question-button">Where are you going to wear it?</div>
-                <div class="field-question-button">Create Your Own</div>
             </div>
-            <div class="field-side-col">
-
-            </div>
-        </div>
-    </script>
-    <script type="text/templates" id="templates-components-photo">
-        <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
-        <div class="field-title">Post a Photo</div>
-        <div class="field-body">
-
-        </div>
-    </script>
-    <script type="text/templates" id="templates-components-ask">
-        <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
-        <div class="field-title">Ask a Question</div>
-        <div class="field-body">
-            <form name="">
-                <div class=""></div>
-                <div>
-                    <textarea placeholder="Ask a Question"></textarea>
-                </div>
-                <div class="field-button">
-                    Ask Question
-                </div>
-            </form>
-        </div>
-    </script>
-    <script type="text/templates" id="templates-components-testimonial">
-        <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
-        <div class="field-title">Write a Testimonial</div>
-        <div class="field-body">
-            <form name="">
-                <input id="" type="hidden">
-                <div class=""></div>
-                <div>
-                    <textarea placeholder="Write a Testimonial"></textarea>
-                </div>
-                <div class="field-button">
-                    Submit Testimonial
-                </div>
-            </form>
         </div>
     </script>
 {{/header}}

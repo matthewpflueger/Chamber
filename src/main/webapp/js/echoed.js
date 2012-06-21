@@ -15,11 +15,18 @@ Echoed = {
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#content', EvAg: EventAggregator });
         var friends = new Echoed.Views.Pages.Friends({ el: '#content', EvAg: EventAggregator });
         var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
-        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Filter', EvAg: EventAggregator});
+        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Browse', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
+        //var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
         Backbone.history.start();
     }
 };
+
+Echoed.Views.Components.Fade = Backbone.View.extend({
+    initialize: function(){
+
+    }
+});
 
 Echoed.Models.Product = Backbone.Model.extend({
     initialize: function(){
@@ -138,11 +145,12 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'load', 'updateEndpoint','openPhotoDialog');
+        _.bindAll(this, 'render', 'load','addPrompt','updateEndpoint','openPhotoDialog');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
         this.EvAg.bind("focus/update", this.updateEndpoint);
+        this.prompts = [];
     },
     events: {
         "click .field-close": "close",
@@ -158,17 +166,25 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     load: function(action){
         var self = this;
         self.type = action;
-        self.template = _.template($('#templates-components-story').html());
+        self.template = _.template($('#templates-components-story-input').html());
         self.endpoint = self.endpointBase + '/story';
         self.render();
+        //self.addPrompt();
+    },
+    addPrompt: function(){
+        var self = this;
+        var promptDiv = $('<div id="prompt" class="field-question-button"></div>');
+        self.element.main.append(promptDiv);
+        var prompt = new Echoed.Views.Components.Select({ el: "#prompt" });
     },
     render: function(){
         var self = this;
         self.element.empty();
         self.element.html(self.template);
+        self.element.main = self.element.find('.field-main-col');
         var thumb = $('#thumb');
 
-        var uploader = new qq.FileUploader({
+        /*var uploader = new qq.FileUploader({
             element: document.getElementById('field-fileupload'),
             action: '/image',
             debug: true,
@@ -184,7 +200,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 });
                 thumb.attr('src', response.url);
             }
-        });
+        });*/
         self.element.fadeIn();
     },
     close: function(){
@@ -256,7 +272,6 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
         if($(window).scrollTop() + 600 >= $(document).height() - $(window).height() && self.locked == false && self.status == true){
             self.EvAg.trigger("infiniteScroll");
         }
-
     },
     triggerScroll: function(){
         var self = this;
@@ -364,6 +379,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
         self.EvAg.trigger("filter/change",self.filter);
 
+
         if(data.partner){
             self.contentDescription = "The recent products purchased at " + data.partner.name;
             self.addTitle(data.partner.name, data.partner.logo);
@@ -373,6 +389,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         } else {
             self.addTitle(self.contentTitle);
         }
+        self.addStory();
         if(data.echoes){
             if(data.echoes.length > 0){
                 self.addProducts(data);
@@ -380,9 +397,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             }
             else{
                 self.nextInt = null;
-                //var noEchoDiv = $('<div></div>').addClass("no-echoes").html("There are currently no Echoes.");
-                //noEchoDiv.appendTo(self.exhibit);
-                //noEchoDiv.appendTo(self.element);
                 self.EvAg.trigger("infiniteScroll/unlock");
             }
         }
@@ -431,6 +445,12 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     complete: function(){
         var self = this;
+    },
+    addStory: function(){
+        var self = this;
+        var storyDiv = $('<div></div>');
+        var storyComponent = new Echoed.Views.Components.Story({el : storyDiv});
+        self.exhibit.isotope('insert',storyDiv);
     },
     addProducts: function(data){
         var self = this;
@@ -547,6 +567,71 @@ Echoed.Views.Components.Logout = Backbone.View.extend({
     }
 });
 
+Echoed.Views.Components.Select = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'render','click','open','selectOption','close');
+        this.el = options.el;
+        this.element = $(options.el);
+        this.optionsList = options.optionsList;
+        this.openState = false;
+        this.default = "Select a Prompt Or Write Your Own";
+        this.render();
+    },
+    events: {
+        "click .field-question-label" : "click",
+        "click .field-question-option" : "selectOption",
+        "keyup :input": "keyPress"
+    },
+    render: function(){
+        var self = this;
+        self.input = $("<input type='text'>");
+        self.input.val(self.default);
+        self.label = $("<div class='field-question-label'></div>");
+        self.label.append(self.input);
+        self.element.append(self.label);
+        self.options[0] = $("<div class='field-question-option'>Why I Bought This</div>").css({"display": "none"});
+        self.element.append(self.options[0]);
+        self.options[1] = $("<div class='field-question-option'>This Is For Alex</div>").css({"display": "none"});
+        self.element.append(self.options[1]);
+    },
+    keyPress: function(e){
+        switch(e.keyCode){
+            case 13:
+                this.close();
+        }
+    },
+    click: function(){
+        var self = this;
+        if(self.openState == false )
+            self.open();
+        else
+            self.openState = false
+    },
+    selectOption: function(e){
+        var self = this;
+        var target = $(e.target);
+        self.input.val(target.html());
+        self.close();
+
+    },
+    close: function(){
+        var self = this;
+        self.openState = false;
+        self.element.find(".field-question-option").hide();
+        if(self.input.val() == "")
+            self.input.val(self.default);
+    },
+    open: function(){
+        var self = this;
+        self.openState = true;
+        self.input.focus();
+        self.input.select();
+        if(self.input.val() == self.default)
+            self.input.val("");
+        self.element.find(".field-question-option").show();
+    }
+});
+
 Echoed.Views.Components.Dropdown = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this,'addSelector','triggerClick','updateLabel','init','hide');
@@ -660,6 +745,36 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
     highlight: function(page){
         this.element.find(".current").removeClass("current");
         $("#" + page + "_nav").addClass("current");
+    }
+});
+
+Echoed.Views.Components.Story = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'render','hideOverlay','showOverlay');
+        this.el = options.el;
+        this.element = $(this.el);
+        this.EvAg = options.EvAg;
+        this.state = 0;
+        this.render();
+    },
+    events: {
+        "mouseenter" : "hideOverlay",
+        "mouseleave" : "showOverlay"
+    },
+    render: function(){
+        var template = _.template($('#templates-components-story').html());
+        var self = this;
+        self.element.addClass("item_wrap");
+        this.element.html(template);
+        self.overlay = self.element.find('.story_overlay');
+    },
+    hideOverlay: function(){
+        var self = this;
+        self.overlay.fadeOut();
+    },
+    showOverlay: function(){
+        var self = this;
+        self.overlay.fadeIn();
     }
 });
 

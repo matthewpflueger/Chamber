@@ -16,6 +16,11 @@ $headerHeight: 40px;
 $navFontFamily: Lato, Tahoma, Arial,sans-serif;
 $textFontFamily: Lato, Tahoma, Arial,sans-serif;
 
+
+
+
+
+
 //MIXINS
 
 
@@ -185,7 +190,7 @@ h2{
         right:0px;
         top: 40px;
         width: 180px;
-        padding: 10px;
+        padding: 5px;
         height: 100%;
         background-color: #CDCDCD;
         //border-left: 1px solid #CCC;
@@ -363,9 +368,11 @@ h2{
             left: 50%;
             margin-left: -350px;
             width: 700px;
-            min-height: 700px;
+            //min-height: 700px;
             z-index: 99999;
-            background-color: rgba(40, 40, 40, 0.9);
+            background-color: #FFF;
+            @include drop-shadow;
+            //background-color: rgba(40, 40, 40, 0.9);
             //background-image: image-url("bg-blackpx90.png");
             border-radius: 3px;
             .field-close{
@@ -375,92 +382,111 @@ h2{
                 cursor: pointer;
             }
             .field-photo-container{
-                border: 1px solid #CCC;
+                //border: 1px solid #CCC;
                 float:left;
                 .field-photo{
                     cursor: pointer;
-                    border: 10px #FFF solid;
+                    border: 5px #FFF solid;
                     background-color: #EFEFEF;
                     height: 50px;
                     width: 50px;
                     line-height: 50px;
-                    @include textFontBold(12px, #000);
+                    @include textFontBold(12px);
                     text-align: center;
                 }
             }
             .field-title{
                 padding: 10px;
-                @include textFontBold(24px, #FFF);
+                @include textFontBold(24px);
                 text-shadow: inset 0 -1px 0 rgba(0, 0, 0, .42);
                 text-align:left;
             }
             .field-main-col{
                 float:left;
-                width: 450px;
+                width: 300px;
                 padding: 10px;
                 .field-input-label{
-                    @include textFontBold(16px, #FFF);
+                    @include textFontBold(16px);
                 }
                 .field-indent{
                     margin-left: 40px;
                     min-height: 40px;
                     margin: 10px 0px;
-                    textarea{
-                        width: 400px;
+                    textarea, input[type=text]{
+                        width: 280px;
                         height: 20px;
                         resize: none;
+                        outline: 0px;
+                        padding: 10px 12px;
                         border-radius: 5px;
                         border: 1px solid #CCC;
                         -webkit-appearance:none;
                         @include textFontNormal(16px);
                     }
                 }
+                .field-submit{
+                    cursor: pointer;
+                    border-radius: 5px;
+                    padding: 7px 10px;
+                    display: block-inline;
+                    width: 150px;
+                    text-align: center;
+                    @include textFontBold(14px, #FFF);
+                    background-color: #00CC00;
+                    text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
+                }
                 .field-question-button{
-                    background:
-                        white;
-                    background: -moz-linear-gradient(top,
-                    white 0%,
-                    #F3F3F3 100%);
-                    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,
-                    white), color-stop(100%,
-                    #F3F3F3));
-                    background: -webkit-linear-gradient(top,
-                    white 0%,
-                    #F3F3F3 100%);
-                    background: -o-linear-gradient(top,
-                    white 0%,
-                    #F3F3F3 100%);
-                    background: -ms-linear-gradient(top,
-                    white 0%,
-                    #F3F3F3 100%);
-                    background: linear-gradient(top,
-                    white 0%,
-                    #F3F3F3 100%);
-                    border-radius: 3px;
-                    -moz-border-radius: 3px;
-                    -webkit-border-radius: 3px;
-                    border: 1px solid
-                    #CECECE;
-                    border-bottom-color:
-                        #A0A0A0;
+                    width: 300px;
+                    background-color: white !important;
+                    background: -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+                    background: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background: linear-gradient(top, white 0%, #F3F3F3 100%);
+                    border-radius: 5px;
+                    -moz-border-radius: 5px;
+                    -webkit-border-radius: 5px;
+                    border: 1px solid #CECECE;
+                    border-bottom-color: #A0A0A0;
                     cursor: pointer;
                     display: block;
-                    font-weight: bold;
-                    margin-top: 6px;
-                    max-width: 220px;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    padding: 6px;
-                    position: relative;
-                    text-decoration: none;
-                    text-overflow: ellipsis;
+                    .field-question-label{
+                        input[type=text]{
+                            width: 300px;
+                            outline: 0px;
+                            border: none;
+                            background-color: transparent;
+                            margin: 0px;
+                            padding: 0px;
+                            @include textFontNormal(14px);
+                        }
+                        @include textFontNormal(14px);
+                        background-image: image-url("bk_downarrow.png");
+                        background-position: right;
+                        background-repeat: no-repeat;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        padding: 10px 12px;
+                        position: relative;
+                        text-decoration: none;
+                        text-overflow: ellipsis;
+                    }
+                    .field-question-option{
+                        @include textFontNormal(14px);
+                        background-color: #FFF;
+                        padding: 10px 12px;
+                        &:hover{
+                            background-color: #CCC;
+                        }
+                    }
                 }
             }
 
             .field-side-col{
                 float: left;
                 width: 200px;
-                padding: 5px 5px 5px 0px;
+                padding: 10px;
                 .field-input-label{
                     @include textFontBold(16px);
                 }
@@ -542,6 +568,26 @@ h2{
                 &.hover{
                     width: 460px;
 
+                }
+                .item_content{
+                    .story_overlay{
+                        position: absolute;
+                        height: 100%;
+                        width: 100%;
+                        top:0px;
+                        left:0px;
+                        //background-image: image-url("bg-blackpx90.png");
+                        background-color: rgba(0, 0, 0, 0.95);
+                        .story_title{
+                            padding: 10px;
+                            @include textFontNormal(16px, #FFF);
+                        }
+                        .story_text{
+                            padding: 10px;
+                            @include textFontNormal(12px, #FFF);
+                            font-style: italic;
+                        }
+                    }
                 }
 
 	            img{
