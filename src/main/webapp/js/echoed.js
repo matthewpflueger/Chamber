@@ -265,7 +265,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         if(!options.Filter) self.filter = '*';
         else self.filter = "." + options.Filter;
         self.contentDescription = "";
-
+        self.showDate = false;
         switch(options.Type){
             case "echo":
                 self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.Partner + "/" + options.Product;
@@ -286,6 +286,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.baseUrl = "#partners/" + options.partnerId + "/";
                 self.contentTitle = options.Name;
                 self.id = "partners";
+                self.showDate = 1;
                 self.nextInt = 1;
                 break;
             case "explore":
@@ -657,6 +658,18 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
+
+        var boughtOnDate = new Date(this.model.get("echoBoughtOn"));
+        var todayDate = new Date();
+        var dayDiff = Math.floor((todayDate - boughtOnDate)/(1000*60*60*24));
+
+        if(dayDiff < 1){
+            var hourDiff = Math.floor((todayDate - boughtOnDate)/(1000*60*60));
+            text.append(hourDiff + " hours ago");
+        } else {
+            text.append(dayDiff + " days ago");
+        }
+
         if(this.model.get("echoProductName")){
             hover.append(this.model.get("echoProductName") + '<br/>');
             text.prepend(this.model.get("echoProductName")+'<br/>');
