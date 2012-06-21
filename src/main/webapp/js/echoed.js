@@ -90,7 +90,7 @@ Echoed.Router = Backbone.Router.extend({
         this.EvAg.trigger("page/change","explore");
     },
     partnerFeed: function(partnerId,filter) {
-        var newPage = "Partner/" + name;
+        var newPage = "Partner/" + partnerId;
         if(this.page != newPage){
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "partners", partnerId: partnerId });
             this.page = newPage;
