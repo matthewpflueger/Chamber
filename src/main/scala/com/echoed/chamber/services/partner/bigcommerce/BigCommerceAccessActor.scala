@@ -48,7 +48,7 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
 
 
     private def endpoint(c: BigCommerceCredentials, path: String) =
-        url(c.apiPath)
+        url(c.apiPath.trim)
             .as_!(c.apiUser, c.apiToken)
             ./(path)
             .addHeader("Accept", "application/json; charset=utf-8")
