@@ -112,6 +112,32 @@
             #{start}, #{limit}
     </select>
 
+
+    <select id="getCategoryFeed"  resultMap="echoViewPublicResult">
+        select
+        E.id as echoId,
+        E.createdOn as echoBoughtOn,
+        E.productName as echoProductName,
+        coalesce(P.category,"Other") as echoCategory,
+        E.brand as echoBrand,
+        E.landingPageUrl as echoLandingPageUrl,
+        P.name as partnerName,
+        P.id as partnerId,
+        P.handle as partnerHandle,
+        <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
+        from
+        Echo E
+        join Image I on E.imageId = I.id
+        join Partner P on E.partnerId = P.id
+        where
+        P.category = #{categoryId}
+        order by
+        E.createdOn desc, E.id DESC
+        Limit
+        #{start}, #{limit}
+    </select>
+
+
     <select id="getPartnerFeed"  resultMap="echoViewPublicResult">
         select
             E.id as echoId,

@@ -138,7 +138,28 @@ class UserController {
 
         result
     }
-    
+
+    @RequestMapping(value = Array("/category/{categoryId}"), method=Array(RequestMethod.GET))
+    @ResponseBody
+    def categoryFeed(
+                       @PathVariable(value="categoryId") categoryId: String,
+                       @RequestParam(value="page", required = false) page: String,
+                       httpServletRequest: HttpServletRequest,
+                       httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult("error")
+
+        logger.debug("Requesting for Category Feed for Category {}", categoryId )
+
+        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
+
+        feedService.getPublicCategoryFeed(categoryId, pageInt).onSuccess {
+            case GetPublicCategoryFeedResponse(_, Right(feed)) => result.set(feed)
+        }
+        result
+    }
+
+
     @RequestMapping(value = Array("/partner/{partnerId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def partnerFeed(

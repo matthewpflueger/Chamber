@@ -22,6 +22,11 @@ case class GetPublicFeedResponse(
             message: GetPublicFeed, 
             value: Either[FE, PublicFeed]) extends FM with RM[PublicFeed, GetPublicFeed, FE]
 
+case class GetPublicCategoryFeed(categoryId: String, page: Int) extends FM
+case class GetPublicCategoryFeedResponse(
+            message: GetPublicCategoryFeed,
+            value: Either[FE, PublicFeed]) extends FM with RM [PublicFeed, GetPublicCategoryFeed, FE]
+
 case class GetUserPublicFeed(echoedUserId: String, page: Int) extends FM
 case class GetUserPublicFeedResponse(
             message: GetUserPublicFeed,

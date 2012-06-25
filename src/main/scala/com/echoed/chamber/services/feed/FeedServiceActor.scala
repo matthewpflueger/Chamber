@@ -33,8 +33,8 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
     def receive = {
         case msg @ GetPublicFeed(page: Int) =>
             val channel = context.sender
-            val limit = 30;
-            val start = msg.page * limit;
+            val limit = 30
+            val start = msg.page * limit
 
             try {
                 logger.debug("Attempting to retrieve Public Feed ")
@@ -46,6 +46,23 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
                     channel ! GetPublicFeedResponse(msg, Left(new FeedException("Cannot get public feed", e)))
                     logger.error("Unexpected error processing {} , {}", msg, e)
             }
+
+        case msg @ GetPublicCategoryFeed(categoryId: String, page: Int) =>
+            val channel = context.sender
+            val limit = 30
+            val start = msg.page * limit
+
+            try{
+                logger.debug("Attempting to retrive Category Feed")
+                val echoes = asScalaBuffer(feedDao.getCategoryFeed(categoryId, start, limit))
+                val feed = new PublicFeed(echoes)
+                channel ! GetPublicCategoryFeedResponse(msg, Right(feed))
+            } catch {
+                case e =>
+                    channel ! GetPublicCategoryFeedResponse(msg, Left(new FeedException("Cannot get public category feed", e)))
+                    logger.error("Unpexected Error processing {}, {}", msg, e)
+            }
+
 
         case msg @ GetUserPublicFeed(echoedUserId: String, page:Int) =>
             val channel = context.sender
