@@ -188,7 +188,7 @@ Echoed.Router = Backbone.Router.extend({
         var newPage = "Friends/Exhibit/" + id;
         if(this.page != newPage){
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: 'friend', Id: id});
-            this.page = newPage
+            this.page = newPage;
             _gaq.push(['_trackPageview', this.page]);
 
         } else {
@@ -200,7 +200,7 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'load','updateEndpoint','openPhotoDialog');
+        _.bindAll(this, 'render', 'load','updateEndpoint','openPhotoDialog','loadChapterTemplate','loadChapterHelper');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
@@ -208,8 +208,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         this.prompts = [];
     },
     events: {
-        "click .field-close": "close",
-        "click .field-photo": "openPhotoDialog"
+        "click .field-close" : "close",
+        "click .field-photo" : "openPhotoDialog",
+        "click .field-submit" : "loadChapterTemplate",
+        "focus input[type=text]" : "loadChapterHelper"
     },
     updateEndpoint: function(options){
         var self = this;
@@ -225,6 +227,15 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.endpoint = self.endpointBase + '/story';
         self.render();
         //self.addPrompt();
+    },
+    loadChapterHelper: function(){
+        var self = this;
+        self.element.find('.chapter-title-helper').fadeIn();
+    },
+    loadChapterTemplate: function(){
+        var self = this;
+        self.template = _.template($('#templates-components-story-edit').html());
+        self.element.html(self.template);
     },
     render: function(){
         var self = this;
@@ -330,7 +341,6 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
             self.EvAg.trigger('infiniteScroll');
         }
     }
-
 });
 
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
@@ -366,10 +376,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.contentDescription = "";
         self.showDate = false;
         switch(options.Type){
-            case "editStory":
-                alert('test');
-                self.nextInt = 0;
-                break;
             case "friend":
                 self.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
                 self.baseUrl = "#friends/exhibit/" + options.Id + "/";
@@ -436,7 +442,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         } else {
             self.addTitle(self.contentTitle);
         }
-        self.addStory();
         if(data.echoes){
             if(data.echoes.length > 0){
                 self.addProducts(data);
@@ -816,9 +821,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     addPrompt: function(){
         var self = this;
-        //var promptDiv = $('<div id="prompt" class="field-question-button"></div>');
-        //self.body.append(promptDiv);
-        //var prompt = new Echoed.Views.Components.Select({ el: promptDiv });
     },
     render: function(){
         var template = _.template($('#templates-components-story-edit').html());
@@ -835,7 +837,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         _.bindAll(this,'showOverlay','hideOverlay','enlarge','shrink','click','clickPartner');
         this.el = options.el;
         this.EvAg = options.EvAg;
-        this.state =0;
+        this.state = 0;
         this.render();
     },
     events:{
@@ -889,6 +891,10 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             text.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
         }
         img.attr('src', imageUrl);
+        if (imageWidth > 230) {
+            imageHeight = 230 / imageWidth * imageHeight;
+            imageWidth = 230;
+        }
         if (imageWidth > 0) {
             img.attr('width', imageWidth)
         }

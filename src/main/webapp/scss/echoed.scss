@@ -16,11 +16,6 @@ $headerHeight: 40px;
 $navFontFamily: Lato, Tahoma, Arial,sans-serif;
 $textFontFamily: Lato, Tahoma, Arial,sans-serif;
 
-
-
-
-
-
 //MIXINS
 
 
@@ -158,12 +153,9 @@ h2{
 
         #user{
             float:right;
-            //width: 180px;
-
             margin: 0px 10px;
             padding: 3px 0px;
             background-color: #FFF;
-            //border-bottom: 1px #CCC solid;
             #user-text{
                 margin-left: 10px;
                 line-height:30px;
@@ -228,7 +220,6 @@ h2{
 
         #login-container{
             background-color: #FFF;
-            //@include drop-shadow;
             border: 1px solid #CCC;
             margin-bottom: 10px;
             .login{
@@ -245,10 +236,7 @@ h2{
 
 
 		#header-nav, #footer-nav{
-			//margin-left: 100px;
-			//float:left;
             background-color: #FFF;
-            //@include drop-shadow;
             border: 1px solid #CCC;
             margin-bottom: 10px;
 
@@ -570,59 +558,7 @@ h2{
 
                 }
                 .item_content{
-                    .story-edit{
-                        //width: 700px;
-                        width: 800px;
-                        padding: 5px;
 
-                        .story-title{
-                            @include textFontNormal(16px);
-                            padding: 5px;
-
-                        }
-
-                        .story-edit-body{
-                            padding-bottom: 25px;
-                            .story-edit-body-left{
-                                float:left;
-                                width: 600px;
-                                input[type=text]{
-                                    outline: 0px;
-                                    border: 1px solid #CCC;
-                                    border-radius: 5px;
-                                    width: 300px;
-                                    @include textFontNormal(14px);
-                                    padding: 10px 12px;
-                                }
-                                textarea{
-                                    @include textFontNormal(14px);
-                                    width: 300px;
-                                    height: 300px;
-                                    padding: 10px 12px;
-                                    resize: none;
-                                    outline: 0px;
-                                    border: 1px solid #CCC;
-                                    border-radius: 5px;
-                                }
-                            }
-                            .story-edit-body-right{
-                                width: 300px;
-                                float: left;
-                                .chapter-title-helper{
-                                    //display:none;
-                                    .s-e-b-r-h{
-                                        padding: 4px 12px;
-                                        @include textFontNormal(20px);
-                                    }
-                                    .s-e-b-r-i{
-                                        padding: 2px 12px;
-                                        margin-left: 25px;
-                                        @include textFontNormal(16px);
-                                    }
-                                }
-                            }
-                        }
-                    }
                     .story_overlay{
                         position: absolute;
                         height: 100%;
@@ -987,4 +923,69 @@ h3{
 
 #transition{
     background-color: #FFF;
+}
+
+.story-edit{
+    width: 700px;
+    padding: 5px;
+
+    .story-title{
+        @include textFontNormal(16px);
+        padding: 5px;
+
+    }
+
+    .story-edit-body{
+        padding-bottom: 25px;
+        .story-edit-body-left{
+            float:left;
+            //width: 350px;
+            .story-edit-body-row{
+                vertical-align: top;
+                display: table;
+                margin: 5px 0px;
+                label{
+                    vertical-align: top;
+                    text-align: right;
+                    margin-right: 5px;
+                    display: inline-block;
+                    width: 100px;
+                }
+                input[type=text]{
+                    display: inline-block;
+                    outline: 0px;
+                    border: 1px solid #CCC;
+                    border-radius: 5px;
+                    width: 300px;
+                    @include textFontNormal(14px);
+                    padding: 10px 12px;
+                }
+                textarea{
+                    @include textFontNormal(14px);
+                    width: 300px;
+                    padding: 10px 12px;
+                    resize: none;
+                    outline: 0px;
+                    border: 1px solid #CCC;
+                    border-radius: 5px;
+                }
+            }
+        }
+        .story-edit-body-right{
+            width: 300px;
+            float: left;
+            .chapter-title-helper{
+                display:none;
+                .s-e-b-r-h{
+                    padding: 4px 12px;
+                    @include textFontNormal(20px);
+                }
+                .s-e-b-r-i{
+                    padding: 2px 12px;
+                    margin-left: 25px;
+                    @include textFontNormal(16px);
+                }
+            }
+        }
+    }
 }
