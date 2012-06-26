@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Story Name</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost.com:8080/css/echoed-story.css" />
+</head>
+<body>
+
+</body>
+<script type='text/javascript'>
+//GOOGLE WEBFONTS
+WebFontConfig = {
+    google: { families: ['Lato:300,400,700,900','Open+Sans+Condensed:300,400,700','Open+Sans:400italic,400'] }
+};
+(function(){
+    var wf= document.createElement('script');
+    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+            '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+})();
+
+//Echoed
+(function(){
+
+    var Echoed = {};
+
+    start();
+
+    function start(){
+        loadData();
+    }
+
+    function loadData(){
+        var xmlhttp;
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+        } else {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange = function(){
+            if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                Echoed.data = JSON.parse(xmlhttp.responseText);
+                loadFrame();
+                loadItem(0);
+            }
+        };
+        xmlhttp.open("GET","http://localhost.com:8080/api/story/7e21e801-63fb-4e49-9d00-43923ad83065",true);
+        xmlhttp.send();
+    }
+
+    function loadItem(itemNum){
+        Echoed.story = Echoed.data.story;
+        loadHeader(Echoed.story.title, Echoed.story.echoedUserId);
+        loadSegment(0);
+        //loadNav();
+        loadComments();
+    }
+
+    function loadFrame(){
+
+        Echoed.htmlBody = document.getElementsByTagName('body')[0];
+        Echoed.containerNode = document.createElement('div');
+        Echoed.containerNode.className = "echo-story-container";
+
+        Echoed.headerNode = document.createElement('div');
+        Echoed.headerNode.className = "echo-story-header clearfix";
+
+        Echoed.bodyNode = document.createElement('div');
+        Echoed.bodyNode.className = "echo-story-body clearfix";
+
+        Echoed.footerNode = document.createElement('div');
+        Echoed.footerNode.className = "echo-story-footer clearfix";
+
+        Echoed.containerNode.appendChild(Echoed.headerNode);
+        Echoed.containerNode.appendChild(Echoed.bodyNode);
+        Echoed.containerNode.appendChild(Echoed.footerNode);
+
+        Echoed.htmlBody.appendChild(Echoed.containerNode);
+    }
+
+    function loadHeader(title, author){
+        var headerTitle = document.createElement('div');
+        headerTitle.className='echo-s-h-title clearfix';
+        var titleNode = document.createElement('div');
+        titleNode.className = "echo-s-h-t-t";
+        titleNode.innerHTML = title;
+
+        var nameNode = document.createElement('div');
+        nameNode.className = "echo-s-h-t-n";
+        nameNode.innerHTML = "Story by " + author;
+
+        headerTitle.appendChild(titleNode);
+        headerTitle.appendChild(nameNode);
+        Echoed.headerNode.appendChild(headerTitle);
+    }
+
+    function loadNav(){
+        Echoed.navNode = document.createElement('div');
+        Echoed.navNode.className = "echo-story-nav clearfix";
+        Echoed.footerNode.appendChild(Echoed.navNode);
+
+        for(i in Echoed.item.nav){
+            var navIconNode = document.createElement('div');
+            navIconNode.className = "echo-s-n-s";
+            navIconNode.setAttribute("segmentId", i);
+            navIconNode.setAttribute("title", Echoed.item.segments[i].title);
+
+            var navImage = document.createElement('img');
+            navImage.src = Echoed.item.nav[i].img;
+            navIconNode.appendChild(navImage);
+
+            var toolTipNode = document.createElement('div');
+            toolTipNode.className = "echo-s-n-s-tt";
+            toolTipNode.innerHTML = Echoed.item.segments[i].title;
+            navIconNode.appendChild(toolTipNode);
+
+            navIconNode.addEventListener('click', function(e){
+                loadSegment(this.getAttribute("segmentId"));
+                hideToolTip(this);
+            });
+
+            navIconNode.addEventListener('mouseover', function(e){
+                showToolTip(this);
+            });
+
+            navIconNode.addEventListener('mouseout', function(e){
+                hideToolTip(this);
+            });
+            Echoed.navNode.appendChild(navIconNode);
+        }
+    }
+
+    function showToolTip(e){
+        var tt = e.getElementsByClassName("echo-s-n-s-tt")[0];
+        var h = tt.clientHeight;
+        var w = tt.clientWidth;
+        var offsetTop = e.offsetTop - (h + 10) ;
+        var offsetLeft = e.offsetLeft + (e.clientWidth / 2 ) - (w / 2);
+        tt.style.top = offsetTop.toString() + "px";
+        tt.style.left = offsetLeft.toString() + "px";
+        tt.style.visibility = "visible";
+    }
+
+    function hideToolTip(e){
+        var tt = e.getElementsByClassName("echo-s-n-s-tt")[0];
+        tt.style.visibility = "hidden";
+    }
+
+    function loadComments(){
+        Echoed.commentsNode = document.createElement('div');
+        Echoed.commentsNode.className = "echo-story-comments";
+        Echoed.commentsNode.innerHTML = '<div class="echo-s-c-t">Comments:</div>';
+        Echoed.footerNode.appendChild(Echoed.commentsNode);
+    }
+
+    function masonry(){
+        if(typeof(Echoed.masonry) != "undefined") {
+            Echoed.masonry.destroy();
+            Echoed.masonry = new Masonry(Echoed.galleryNode);
+        }
+        window.onload = function(){
+            Echoed.masonry = new Masonry(Echoed.galleryNode);
+        }
+    }
+
+    function loadTitles(){
+        for(i in Echoed.story.chapters) {
+            var title = document.createElement('div');
+            title.className = "echo-s-b-s-t";
+            title.innerHTML = Echoed.story.chapters[i].title;
+            Echoed.titleNode.appendChild(title);
+        }
+    }
+
+    function loadSegment(segmentNumber){
+        var chapter = Echoed.data.chapters[segmentNumber];
+        var chapterImages = Echoed.data.chapterImages;
+        Echoed.bodyNode.innerHTML = '';
+
+        var textNode = document.createElement('div');
+        textNode.className = "echo-s-b-text";
+        var textTitleNode = document.createElement('div');
+        textTitleNode.className = "echo-s-b-t-t";
+        textTitleNode.innerHTML = chapter.title;
+        textNode.appendChild(textTitleNode);
+
+        var textBodyNode = document.createElement('div');
+        textBodyNode.className = "echo-s-b-t-b";
+        textBodyNode.innerHTML = "&quot;" + chapter.text + "&quot;";
+        textNode.appendChild(textBodyNode);
+
+        Echoed.galleryNode = document.createElement('div');
+        Echoed.galleryNode.className = "echo-s-b-gallery clearfix";
+        Echoed.bodyNode.appendChild(textNode);
+        Echoed.titleNode = document.createElement('div');
+        Echoed.titleNode.className = "echo-s-b-segment";
+        Echoed.bodyNode.appendChild(Echoed.titleNode);
+        Echoed.bodyNode.appendChild(Echoed.galleryNode);
+        for (i in chapterImages){
+            var image = chapterImages[i];
+            var itemNode = document.createElement('div');
+            itemNode.className = "echo-s-b-item";
+            var icNode = document.createElement('div');
+            icNode.className = "echo-s-b-i-c";
+            itemNode.appendChild(icNode);
+            var img = document.createElement('img');
+            img.src = image.image.url;
+            icNode.appendChild(img);
+            Echoed.galleryNode.appendChild(itemNode);
+            //masonry();
+        }
+        loadTitles();
+    }
+})()
+</script>
+</html>

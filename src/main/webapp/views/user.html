@@ -16,26 +16,40 @@
     <script type="text/template" id="templates-components-story-edit">
         <div class="item_content">
             <div class="story-edit">
-                <div class="story-title">
-                    My Skinny Ring Story
+                <div id="story-title"></div>
+                <div id="story-partner"></div>
+                <div id="story-title-photo-container">
+                    <img id="story-title-photo" height="50px" src=""/>
                 </div>
-                <div class="story-edit-body clearfix">
-                    <div class="story-edit-body-left">
-                        <div class="story-edit-body-row">
+                <div class="chapter-edit-body clearfix">
+                    <div class="chapter-edit-body-left">
+                        <div class="chapter-edit-body-row">
                             <label for="chapter-title">Chapter Title:</label>
                             <input id="chapter-title" type="text" name="chapter-title" value="Who is this for?"/>
                         </div>
-                        <div class="story-edit-body-row">
+                        <div class="chapter-edit-body-row">
                             <label>Description:</label>
-                            <textarea></textarea>
+                            <textarea id="chapter-text"></textarea>
+                        </div>
+                        <div class="chapter-edit-body-row">
+                            <label>Photos:</label>
+                            <div class="chapter-edit-photos">
+                                <div class="thumbnails">
+                                    <div class="thumb">
+
+                                    </div>
+                                    <img class="thumb" height="100px" width="100px  " src="" />
+                                </div>
+                                <div class="photo-upload"></div>
+                            </div>
+                        </div>
+                        <div class="chapter-edit-body-row">
+                            <label></label>
+                            <div class="chapter-submit">Save Chapter and Continue</div>
                         </div>
                     </div>
-                    <div class="story-edit-body-right">
-                        <div class="chapter-title-helper">
-                            <div class="story-title">Things to talk about</div>
-                            <div class="s-e-b-r-i">Who this is for</div>
-                            <div class="s-e-b-r-i">Where you're going to use it</div>
-                        </div>
+                    <div class="chapter-edit-body-right">
+                        <div class="chapter-title-helper"></div>
                     </div>
                 </div>
 
@@ -44,15 +58,29 @@
     </script>
     <script type="text/template" id="templates-components-story">
         <div class="item_content">
-            <img class="exhibit_image" width="230px" height="288px" src="http://c10415403.r3.cf2.rackcdn.com/3dTpjByI877wv4xHmvw1PQ-230x288-sized.jpg"/>
-            <div class="story_overlay">
-                <div class="story_title">
-                    My Skinny Ring Story<br/>
-                    by Evan's Hair<br/>
+            <div class="echo-story-container">
+                <div class="echo-story-header clearfix">
+                    <div class="echo-s-h-title clearfix">
+                        <div class="echo-s-h-t-t">
+                        </div>
+                        <div class="echo-s-h-t-n">
+                        </div>
+                    </div>
                 </div>
-                <div class="story_text">
-                    "This is the best product I've ever bought"
+                <div class="echo-story-body clearfix">
+                    <div class="echo-s-b-text">
+                        <div class="echo-s-b-t-t"></div>
+                        <div class="echo-s-h-t-n"></div>
+                    </div>
+                    <div class="echo-s-b-segment"></div>
+                    <div class="echo-s-b-gallery clearfix">
+                        <div class="echo-s-b-item">
+                            <div class="echo-s-b-i-c">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <div class="echo-story-footer clearfix"></div>
             </div>
         </div>
     </script>
@@ -90,17 +118,17 @@
             <div class="field-main-col clearfix">
                 <div class="field-input-label">Name Your Story</div>
                 <div class="field-indent">
-                    <input type="text">
+                    <input id="story-name" type="text">
                 </div>
                 <div class="field-input-label">Where did you buy it from?</div>
                 <div class="field-indent">
-                    <input type="text">
+                    <input id="partner-name" type="text">
                 </div>
                 <div class="field-submit">Save and Continue</div>
             </div>
             <div class="field-side-col">
                 <div class="field-indent clearfix">
-                    <div class="field-input-label">Add Product Photo</div>
+                    <div class="field-input-label">Product Photo</div>
                     <div class="field-photo-container">
                         <div id="preview">
                             <img height="100px" src="" id="thumb">

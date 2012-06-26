@@ -11,12 +11,11 @@
 
 .qq-upload-button {
     display:block; /* or inline-block */
-    width: 100px; padding: 7px 0; text-align:center;
-    background:#880000;
-    color:#fff;
-    border-radius: 5px;
+    color: #FF0000;
+    text-decoration: underline;
+    margin-left: 10px;
 }
-.qq-upload-button-hover {background:#cc0000;}
+.qq-upload-button-hover {}
 .qq-upload-button-focus {outline:1px dotted black;}
 
 .qq-upload-drop-area {
@@ -40,7 +39,7 @@
     color: #FFF;
 }
 
-.qq-upload-file {}
+.qq-upload-file, .qq-upload-size { display: none !important;}
 .qq-upload-spinner {display:inline-block; background: image-url("bk_loading.gif"); width:15px; height:15px; vertical-align:text-bottom;}
 .qq-upload-size,.qq-upload-cancel {font-size:11px;}
 

@@ -153,7 +153,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
             val img = image.copy(processedOn = new Date, processedStatus = image.processedStatus.take(510))
             imageDao.update(img)
         } catch {
-            case e => logger.error("Error persisting %s" format image, e)
+            case e => logger.error("Error persisting {}, {}", image, e)
         }
     }
 
@@ -176,7 +176,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
 
 
     private def error(image: Image, e: Throwable, processedStatus: Option[String] = None) {
-        logger.info("Error processing %s" format image, e)
+        logger.info("Error processing {}, {}", image, e)
 
         val imageException =
                 if (e.isInstanceOf[ImageException]) {

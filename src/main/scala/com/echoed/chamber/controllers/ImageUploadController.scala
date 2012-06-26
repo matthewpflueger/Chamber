@@ -15,6 +15,8 @@ import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.ModelAndView
 import io.Source
+import java.util.Date
+import java.text.SimpleDateFormat
 
 
 @Controller
@@ -40,18 +42,19 @@ class ImageUploadController {
 
 
         val result = new DeferredResult(ImageUploadStatus())
+        val dateString = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
 
         logger.debug("Image %s of type %s being uploaded for EchoedUser %s" format(fileName, contentType, eu))
         blobStore.store(
                 bytes,
-                eu + fileName,
+                eu + "_" + dateString + "_" + fileName ,
                 contentType).onSuccess {
             case url =>
                 logger.debug("Successfully stored %s of type %s for EchoedUser %s" format(fileName, contentType, eu))
                 imageService.processImage(new Image(url)).onSuccess {
                     case ProcessImageResponse(_, Right(image)) =>
                         logger.debug("Successfully processed {} for EchoedUser {}", fileName, eu)
-                        result.set(ImageUploadStatus(true, image.sizedUrl))
+                        result.set(ImageUploadStatus(true, image.sizedUrl, image.id))
             }
         }
 
@@ -89,4 +92,4 @@ class ImageUploadController {
 
 }
 
-case class ImageUploadStatus(success: Boolean = false, url: String = "")
+case class ImageUploadStatus(success: Boolean = false, url: String = "", id: String = "")

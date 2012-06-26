@@ -174,7 +174,22 @@ Echoed.Router = Backbone.Router.extend({
             this.EvAg.trigger('filter/change',filter);
         }
         this.EvAg.trigger("page/change","exhibit");
-
+    },
+    story: function(id) {
+        this.me();
+        $.ajax({
+            url: Echoed.urls.api + "/story?echoId=" + id,
+            type: "GET",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+                success: function(initStoryData){
+                alert("Successfully initialized story, grabbing data");
+                var title = initStoryData.storyPrompts.prompts[0];
+                var imageId = initStoryData.echo.image.id;
+                var echoId = initStoryData.echo.id
+                alert("Data for initialized story: title = " + title + ", imageId = " + imageId + ", echoId = " + echoId);
     },
     friends: function() {
         this.EvAg.trigger('friends/init');
@@ -200,7 +215,7 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'load','updateEndpoint','openPhotoDialog','loadChapterTemplate','loadChapterHelper');
+        _.bindAll(this, 'render', 'load','updateEndpoint','openPhotoDialog','submitInitStory','loadChapterTemplate','loadChapterHelper','submitChapter');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
@@ -210,8 +225,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     events: {
         "click .field-close" : "close",
         "click .field-photo" : "openPhotoDialog",
-        "click .field-submit" : "loadChapterTemplate",
-        "focus input[type=text]" : "loadChapterHelper"
+        "click .field-submit" : "submitInitStory",
+        "click input[type=text]" : "loadChapterHelper",
+        "click .chapter-submit": "submitChapter"
     },
     updateEndpoint: function(options){
         var self = this;
@@ -220,47 +236,119 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     openPhotoDialog: function(options){
         var self = this;
     },
-    load: function(action){
+    load: function(id){
         var self = this;
-        self.type = action;
-        self.template = _.template($('#templates-components-story-input').html());
-        self.endpoint = self.endpointBase + '/story';
-        self.render();
-        //self.addPrompt();
+        $.ajax({
+            url: Echoed.urls.api + "/story?echoId=" + id,
+            type: "GET",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            success: function(initStoryData){
+                self.template = _.template($('#templates-components-story-input').html());
+                self.titleImage = initStoryData.echo.image.sizedUrl;
+                self.imageId = initStoryData.echo.image.id;
+                self.storyPrompts = initStoryData.storyPrompts.prompts;
+                self.partnerName = initStoryData.partner.name;
+                self.partnerId = initStoryData.partner.partnerId;
+                self.productName = initStoryData.echo.productName;
+                self.echoId = initStoryData.echo.id;
+                self.render();
+            }
+        });
+    },
+    submitInitStory: function(){
+        var self = this;
+        self.title = self.element.find("#story-name").val();
+        var imageId = self.imageId;
+        $.ajax({
+            url: Echoed.urls.api + "/story",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            data: {
+                title: self.title,
+                echoId: self.echoId,
+                imageId: imageId
+            },
+            success: function(data){
+                self.storyId = data.id;
+                self.loadChapterTemplate();
+            }
+        });
     },
     loadChapterHelper: function(){
         var self = this;
-        self.element.find('.chapter-title-helper').fadeIn();
+        self.chapterHelper.fadeIn();
     },
     loadChapterTemplate: function(){
         var self = this;
         self.template = _.template($('#templates-components-story-edit').html());
         self.element.html(self.template);
+        self.chapterHelper = self.element.find(".chapter-title-helper");
+        self.chapterHelper.append($("<div class='story-title'>Things to talk about</div>"));
+        $.each(self.storyPrompts, function(index, prompt){
+            self.chapterHelper.append($("<div class='s-e-b-r-i'></div>").append(prompt))
+        });
+        $("#story-title").html(self.title);
+        $("#story-partner").html(self.partnerName);
+        $("#chapter-title").val(self.storyPrompts[0]);
+        $("#story-title-photo").attr("src", self.titleImage);
+        var chapterPhotos = self.element.find(".thumbnails");
+        self.chapterImages = [];
+        self.chapterTitle = "";
+        self.chapterText = "";
+        var uploader = new qq.FileUploader({
+            element: document.getElementsByClassName('photo-upload')[0],
+            action: '/image',
+            debug: true,
+            allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+            onSubmit: function(id, fileName) {
+
+            },
+            onComplete: function(id, fileName, response) {
+                var thumbDiv = $('<div></div>').addClass("thumb");
+                var photo = $('<img height="100px" />').attr('src', response.url);
+                thumbDiv.append(photo).prependTo(chapterPhotos);
+                self.chapterImages.push(response.id);
+            }
+        });
+        self.chapterHelper.fadeIn();
+    },
+    submitChapter: function(){
+        var self = this;
+        self.chapterTitle = $('#chapter-title').val();
+        self.chapterText = $('#chapter-text').val();
+        $.ajax({
+            url: Echoed.urls.api + "/story/" + self.storyId + "/chapter",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            processData: false,
+            contentType: "application/json",
+            data: JSON.stringify({
+                title: self.chapterTitle,
+                text: self.chapterText,
+                imageIds: self.chapterImages
+            }),
+            success: function(createChapterData) {
+                alert("Successfully created chapter, response is: " + JSON.stringify(createChapterData))
+            }
+        });
+
     },
     render: function(){
         var self = this;
         self.element.empty();
         self.element.html(self.template);
-        self.element.main = self.element.find('.field-main-col');
-        var thumb = $('#thumb');
-
-        /*var uploader = new qq.FileUploader({
-            element: document.getElementById('field-fileupload'),
-            action: '/image',
-            debug: true,
-            allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-            onSubmit: function(id, fileName) {
-                //missing the loading.gif...
-                $('#preview').addClass('loading');
-            },
-            onComplete: function(id, fileName, response) {
-                thumb.load(function(){
-                    $('#preview').removeClass('loading');
-                    thumb.unbind();
-                });
-                thumb.attr('src', response.url);
-            }
-        });*/
+        self.element.find("#thumb").attr("src", self.titleImage);
+        self.element.find("#partner-name").val(self.partnerName);
+        self.element.find("#story-name").val(self.productName);
         self.element.fadeIn();
         self.EvAg.trigger('fade/show');
     },
@@ -413,6 +501,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.id = null;
                 self.nextInt = 1;
                 break;
+            case "story":
+                self.jsonUrl = Echoed.urls.api + "/api/story/" + options.storyId;
+                self.id = "story";
+                break;
         }
         self.EvAg.trigger('filter/init', self.baseUrl);
         self.EvAg.trigger('infiniteScroll/lock');
@@ -439,13 +531,12 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         } else if (self.id == "friends") {
             self.contentDescription = "Products purchased and shared by " + data.echoedUserName;
             self.addTitle(data.echoedUserName);
-        } else {
+        } else if (self.id != "story"){
             self.addTitle(self.contentTitle);
         }
         if(data.echoes){
             if(data.echoes.length > 0){
                 self.addProducts(data);
-
             }
             else{
                 self.nextInt = null;
@@ -498,10 +589,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     complete: function(){
         var self = this;
     },
-    addStory: function(){
+    addStory: function(data){
         var self = this;
         var storyDiv = $('<div></div>');
-        var storyComponent = new Echoed.Views.Components.Story({el : storyDiv});
+        var storyComponent = new Echoed.Views.Components.Story({el : storyDiv, data: data});
         self.exhibit.isotope('insert',storyDiv);
     },
     addProducts: function(data){
@@ -549,13 +640,13 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
     render: function(){
         var self = this;
         this.element.empty();
-        this.element.append($("<div act='story' class='action-button'>Tell a Story</div>"));
+        this.element.append($("<div echoId='9b6c4353-72ea-4595-bb18-e979c0c0a721' class='action-button'>Tell a Story</div>"));
     },
     click: function(e){
         var self = this;
         var target = $(e.target);
-        var action = target.attr("act");
-        self.EvAg.trigger("field/show", action);
+        var echoId = target.attr("echoId");
+        self.EvAg.trigger("field/show", echoId);
     }
 });
 
@@ -800,35 +891,18 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render','addPrompt','showChapterHelper','hideChapterHelper');
+        _.bindAll(this,'render');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.state = 0;
-        this.render();
-    },
-    events: {
-        "focus input[type=text]": "showChapterHelper",
-        "blur input[type=text]": "hideChapterHelper"
-    },
-    showChapterHelper: function(){
-        var self = this;
-        self.element.find('.chapter-title-helper').fadeIn();
-    },
-    hideChapterHelper: function(){
-        var self = this;
-        self.element.find('.chapter-title-helper').fadeOut();
-    },
-    addPrompt: function(){
-        var self = this;
+        this.render(options.data);
     },
     render: function(){
-        var template = _.template($('#templates-components-story-edit').html());
+        var template = _.template($('#templates-components-story').html());
         var self = this;
         self.element.addClass("item_wrap");
         this.element.html(template);
-        self.body = this.element.find('.story-edit-body-left');
-        self.addPrompt();
     }
 });
 

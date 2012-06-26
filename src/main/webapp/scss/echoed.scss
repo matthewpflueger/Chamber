@@ -416,7 +416,7 @@ h2{
                     cursor: pointer;
                     border-radius: 5px;
                     padding: 7px 10px;
-                    display: block-inline;
+                    display: inline-block;
                     width: 150px;
                     text-align: center;
                     @include textFontBold(14px, #FFF);
@@ -887,7 +887,6 @@ h3{
     font-size: 20px;
     ol{
         li{
-            //margin-left: 40px;
             @include textFontNormal(14px);
             margin: 10px 0px 10px 40px;
         }
@@ -926,7 +925,7 @@ h3{
 }
 
 .story-edit{
-    width: 700px;
+    width: 750px;
     padding: 5px;
 
     .story-title{
@@ -935,21 +934,45 @@ h3{
 
     }
 
-    .story-edit-body{
+    .chapter-edit-body{
         padding-bottom: 25px;
-        .story-edit-body-left{
+        .chapter-edit-body-left{
             float:left;
-            //width: 350px;
-            .story-edit-body-row{
+            .chapter-edit-body-row{
                 vertical-align: top;
                 display: table;
                 margin: 5px 0px;
+                .chapter-edit-photos{
+                    display: inline-block;
+                    .thumbnails{
+                        float:left;
+                        .thumb{
+                            position: relative;
+                            img {
+                                height: 100px;
+                            }
+                            border: 1px solid #CCC;
+                            margin-right: 5px;
+                            .thumb-cancel{
+                                position: absolute;
+                                top: 5px;
+                                right: 5px;
+                            }
+                        }
+
+                    }
+                    .photo-upload{
+                        float:left;
+                        position: relative;
+                    }
+                }
                 label{
                     vertical-align: top;
                     text-align: right;
                     margin-right: 5px;
                     display: inline-block;
                     width: 100px;
+                    min-height: 20px;
                 }
                 input[type=text]{
                     display: inline-block;
@@ -957,21 +980,33 @@ h3{
                     border: 1px solid #CCC;
                     border-radius: 5px;
                     width: 300px;
-                    @include textFontNormal(14px);
-                    padding: 10px 12px;
+                    @include textFontNormal(12px);
+                    padding: 5px 6px;
                 }
                 textarea{
-                    @include textFontNormal(14px);
+                    @include textFontNormal(12px);
                     width: 300px;
-                    padding: 10px 12px;
+                    padding: 5px 6px;
                     resize: none;
                     outline: 0px;
+                    height: 200px;
                     border: 1px solid #CCC;
                     border-radius: 5px;
                 }
+                .chapter-submit{
+                    cursor: pointer;
+                    border-radius: 5px;
+                    padding: 7px 10px;
+                    display: inline-block;
+                    width: 150px;
+                    text-align: center;
+                    @include textFontBold(14px, #FFF);
+                    background-color: #00CC00;
+                    text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
+                }
             }
         }
-        .story-edit-body-right{
+        .chapter-edit-body-right{
             width: 300px;
             float: left;
             .chapter-title-helper{
