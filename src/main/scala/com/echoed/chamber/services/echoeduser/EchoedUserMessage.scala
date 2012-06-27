@@ -34,6 +34,7 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserIdentifiable => EUI}
 
 case class InitStory(
         _echoedUserId: String,
+        storyId: Option[String] = None,
         echoId: Option[String] = None,
         partnerId: Option[String] = None) extends EUI(_echoedUserId)
 

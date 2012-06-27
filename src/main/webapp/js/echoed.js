@@ -17,6 +17,7 @@ Echoed = {
         var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
         var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Browse', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
+        var story = new Echoed.Views.Components.Story({ el: '#story', EvAg: EventAggregator});
         var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
         Backbone.history.start();
     }
@@ -115,13 +116,12 @@ Echoed.Router = Backbone.Router.extend({
         "me/": "me",
         "me": "me",
         "me/:filter": "me",
-        "friends/exhibit/:id": "friendsExhibit",
-        "friends/exhibit/:id/": "friendsExhibit",
-        "friends/exhibit/:id/:filter": "friendsExhibit",
+        "user/:id": "user",
+        "user/:id/:filter": "user",
         "partners/:name/:filter": "partnerFeed",
         "partners/:name/": "partnerFeed",
         "partners/:name": "partnerFeed",
-        "story/:id/edit": "editStory"
+        "story/:id/edit": "editStory",
         "story/:id": "story"
     },
     editStory: function(){
@@ -176,7 +176,12 @@ Echoed.Router = Backbone.Router.extend({
         }
         this.EvAg.trigger("page/change","exhibit");
     },
-    story: function(id) {
+    story: function(id){
+        if(!this.page) this.explore();
+        this.EvAg.trigger("story/show", id);
+        this.EvAg.trigger("page/change", "story");
+    },
+    storyOld: function(id) {
         this.me();
         var storyTest = {
             initStory: function(id) {
@@ -353,7 +358,7 @@ Echoed.Router = Backbone.Router.extend({
         _gaq.push(['_trackPageview', this.page]);
 
     },
-    friendsExhibit: function(id, filter){
+    user: function(id, filter){
         var newPage = "Friends/Exhibit/" + id;
         if(this.page != newPage){
             this.EvAg.trigger('exhibit/init', { Filter: filter, Type: 'friend', Id: id});
@@ -369,92 +374,139 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'load','updateEndpoint','openPhotoDialog','submitInitStory','loadChapterTemplate','loadChapterHelper','submitChapter');
+        _.bindAll(this, 'render','unload','load','loadStoryTemplate','submitInitStory','loadChapterTemplate','loadChapterHelper','submitChapter');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
-        this.EvAg.bind("focus/update", this.updateEndpoint);
         this.prompts = [];
     },
     events: {
         "click .field-close" : "close",
-        "click .field-photo" : "openPhotoDialog",
         "click .field-submit" : "submitInitStory",
         "click input[type=text]" : "loadChapterHelper",
         "click .chapter-submit": "submitChapter"
     },
-    updateEndpoint: function(options){
+    load: function(id, type){
         var self = this;
-        self.endpointBase = Echoed.urls.api + '/api/partner/' + options.partner + '/' + options.product;
-    },
-    openPhotoDialog: function(options){
-        var self = this;
-    },
-    load: function(id){
-        var self = this;
+        var jsonUrl =  Echoed.urls.api + "/story";
+        var loadData = {};
+        self.data = {};
+
+        switch(type){
+            case "story":
+                loadData.storyId = id;
+                break;
+            case "echo":
+                loadData.echoId = id;
+                break;
+            case "partner":
+                loadData.partnerId = id;
+                break;
+        }
+
         $.ajax({
-            url: Echoed.urls.api + "/story?echoId=" + id,
+            url: jsonUrl,
             type: "GET",
             xhrFields: {
                 withCredentials: true
             },
+            data: loadData,
             dataType: 'json',
             success: function(initStoryData){
-                self.template = _.template($('#templates-components-story-input').html());
-                self.titleImage = initStoryData.echo.image.sizedUrl;
-                self.imageId = initStoryData.echo.image.id;
-                self.storyPrompts = initStoryData.storyPrompts.prompts;
-                self.partnerName = initStoryData.partner.name;
-                self.partnerId = initStoryData.partner.partnerId;
-                self.productName = initStoryData.echo.productName;
-                self.echoId = initStoryData.echo.id;
+                self.data = initStoryData;
                 self.render();
             }
         });
     },
     submitInitStory: function(){
         var self = this;
-        self.title = self.element.find("#story-name").val();
-        var imageId = self.imageId;
-        $.ajax({
-            url: Echoed.urls.api + "/story",
-            type: "POST",
-            xhrFields: {
-                withCredentials: true
-            },
-            dataType: 'json',
-            data: {
-                title: self.title,
-                echoId: self.echoId,
-                imageId: imageId
-            },
-            success: function(data){
-                self.storyId = data.id;
-                self.loadChapterTemplate();
-            }
-        });
+        var title = $.trim(self.element.find("#story-name").val());
+        var productFrom = $.trim($('#story-from').val());
+        var echoId = null;
+        var storyData = {};
+        if(self.data.echo)
+            storyData = {
+                title: title,
+                echoId : self.data.echo.id,
+                imageId : self.data.imageId,
+                productInfo: productFrom
+            };
+        else
+            storyData = {
+                title: title,
+                imageId : self.data.imageId,
+                productInfo: productFrom
+            };
+
+        if(!self.data.imageId){
+            alert("Please select a photo for the product");
+        } else if(self.data.title == ""){
+            alert("Please title your product story");
+        } else if(self.data.productFrom == "") {
+            alert("Please enter where the product is from");
+        } else {
+            $.ajax({
+                url: Echoed.urls.api + "/story",
+                type: "POST",
+                xhrFields: {
+                    withCredentials: true
+                },
+                dataType: 'json',
+                data: storyData,
+                success: function(createStoryResponse){
+                    self.load(createStoryResponse.id, "story");
+                }
+            });
+        }
     },
     loadChapterHelper: function(){
         var self = this;
         self.chapterHelper.fadeIn();
     },
+    addCompletedChapter: function(){
+        var self = this;
+    },
     loadChapterTemplate: function(){
         var self = this;
         self.template = _.template($('#templates-components-story-edit').html());
         self.element.html(self.template);
-        self.chapterHelper = self.element.find(".chapter-title-helper");
-        self.chapterHelper.append($("<div class='story-title'>Things to talk about</div>"));
-        $.each(self.storyPrompts, function(index, prompt){
-            self.chapterHelper.append($("<div class='s-e-b-r-i'></div>").append(prompt))
+        self.element.chapterList = $('#chapter-list');
+        self.element.chapterHelper = self.element.find(".chapter-title-helper");
+        self.element.chapterHelper.append($("<div class='s-e-b-r-h'>Chapter Ideas</div>"));
+        $.each(self.data.storyPrompts.prompts, function(index, prompt){
+            self.element.chapterHelper.append($("<div class='s-e-b-r-i'></div>").append(prompt))
         });
-        $("#story-title").html(self.title);
-        $("#story-partner").html(self.partnerName);
-        $("#chapter-title").val(self.storyPrompts[0]);
-        $("#story-title-photo").attr("src", self.titleImage);
+        $("#story-title").html(self.data.storyFull.story.title);
+        $("#story-from").html(self.data.storyFull.story.productInfo);
+        $("#chapter-title").val(self.data.storyPrompts.prompts[0]);
+        $("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+        var count = 0;
+        $.each(self.data.storyFull.chapters, function(index, chapter){
+            count = count + 1;
+            var chapterDiv = $('<div class="chapter"></div>').addClass("clearfix");
+            chapterDiv.append($('<div class="chapter-number"></div>').append(count));
+            var chapterTextContainer = $('<div class="chapter-text-container"></div>');
+            chapterTextContainer.append($('<div class="chapter-title"></div>').append(chapter.title));
+            chapterTextContainer.append($('<div class="chapter-text"></div>').append(chapter.text));
+            chapterDiv.append(chapterTextContainer);
+
+            var chapterPhotos = $('<div class="chapter-photos"></div>');
+            $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
+                if(chapterImage.chapterId == chapter.id){
+                    var chapterImg = $('<div class="chapter-photo"></div>')
+                    chapterImg.append($('<img />').attr("height", 50).attr("src",chapterImage.image.preferredUrl));
+                    chapterPhotos.append(chapterImg);
+                }
+            });
+            chapterDiv.append(chapterPhotos);
+            self.element.chapterList.append(chapterDiv);
+        });
+
         var chapterPhotos = self.element.find(".thumbnails");
-        self.chapterImages = [];
-        self.chapterTitle = "";
-        self.chapterText = "";
+        self.currentChapter = {};
+        self.currentChapter.images = [];
+        self.currentChapter.title = "";
+        self.currentChapter.text = "";
         var uploader = new qq.FileUploader({
             element: document.getElementsByClassName('photo-upload')[0],
             action: '/image',
@@ -465,45 +517,104 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             },
             onComplete: function(id, fileName, response) {
                 var thumbDiv = $('<div></div>').addClass("thumb");
-                var photo = $('<img height="100px" />').attr('src', response.url);
-                thumbDiv.append(photo).prependTo(chapterPhotos);
-                self.chapterImages.push(response.id);
+                var photo = $('<img />').attr('src', response.url);
+                thumbDiv.append(photo).hide().appendTo(chapterPhotos).fadeIn();
+                self.currentChapter.images.push(response.id);
             }
         });
-        self.chapterHelper.fadeIn();
+        self.element.css({
+            "margin-left" : -(self.element.width()/2)
+        });
+        self.element.fadeIn();
+        self.EvAg.trigger('fade/show');
     },
-    submitChapter: function(){
+    submitChapter: function(e){
         var self = this;
-        self.chapterTitle = $('#chapter-title').val();
-        self.chapterText = $('#chapter-text').val();
-        $.ajax({
-            url: Echoed.urls.api + "/story/" + self.storyId + "/chapter",
-            type: "POST",
-            xhrFields: {
-                withCredentials: true
-            },
-            dataType: 'json',
-            processData: false,
-            contentType: "application/json",
-            data: JSON.stringify({
-                title: self.chapterTitle,
-                text: self.chapterText,
-                imageIds: self.chapterImages
-            }),
-            success: function(createChapterData) {
-                alert("Successfully created chapter, response is: " + JSON.stringify(createChapterData))
-            }
-        });
+        self.currentChapter.title = $.trim($('#chapter-title').val());
+        self.currentChapter.text = $.trim($('#chapter-text').val());
 
+        if(self.currentChapter.title == ""){
+            alert("You must have a title for your chapter");
+        } else if(self.currentChapter.text == ""){
+            alert("You must have some text for your chapter. Even a single sentence is enough!");
+        } else {
+            var nextAction = $(e.target).attr('act');
+            $.ajax({
+                url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
+                type: "POST",
+                xhrFields: {
+                    withCredentials: true
+                },
+                dataType: 'json',
+                processData: false,
+                contentType: "application/json",
+                data: JSON.stringify({
+                    title: self.currentChapter.title,
+                    text: self.currentChapter.text,
+                    imageIds: self.currentChapter.images
+                }),
+                success: function(chapterSubmitResponse) {
+                    switch(nextAction){
+                        case 'continue':
+                            self.load(self.data.storyFull.story.id, "story");
+                            break;
+                        case 'finish':
+                            window.location.hash = "#story/" + self.data.storyFull.story.id;
+                            self.unload();
+                            break;
+                    }
+                }
+            });
+        }
+    },
+    unload: function(){
+        var self = this;
+        self.EvAg.trigger('fade/hide');
+        self.element.fadeOut();
+        self.element.empty();
+        self.data = {};
     },
     render: function(){
         var self = this;
         self.element.empty();
+        if(self.data.storyFull)
+            self.loadChapterTemplate();
+        else
+            self.loadStoryTemplate();
+    },
+    loadStoryTemplate: function(){
+        var self = this;
+        self.template = _.template($('#templates-components-story-input').html());
         self.element.html(self.template);
-        self.element.find("#thumb").attr("src", self.titleImage);
-        self.element.find("#partner-name").val(self.partnerName);
-        self.element.find("#story-name").val(self.productName);
+        self.data.imageId = null;
+        if(self.data.echo){
+            $("#field-photo").attr("src", self.data.echo.image.sizedUrl);
+            self.data.imageId = self.data.echo.image.id;
+            $("#story-from").val(self.data.partner.name).attr("readonly",true);
+            $("#story-name").val(self.data.echo.productName);
+        } else {
+            $("#field-photo-upload").show();
+            var uploader = new qq.FileUploader({
+                element: document.getElementById('field-photo-upload'),
+                action: '/image',
+                debug: true,
+                allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+                onSubmit: function(id, fileName) {
+
+                },
+                onComplete: function(id, fileName, response) {
+                    $("#field-photo").attr("src", response.url);
+                    self.data.imageId = response.id;
+
+                }
+            });
+        }
+        self.element.css({
+           "margin-left" : -(self.element.width()/2)
+        });
         self.element.fadeIn();
+        $("#story-name").focus();
+
         self.EvAg.trigger('fade/show');
     },
     close: function(){
@@ -658,6 +769,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "story":
                 self.jsonUrl = Echoed.urls.api + "/api/story/" + options.storyId;
                 self.id = "story";
+                self.nextInt = 0;
                 break;
         }
         self.EvAg.trigger('filter/init', self.baseUrl);
@@ -688,14 +800,15 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         } else if (self.id != "story"){
             self.addTitle(self.contentTitle);
         }
-        if(data.echoes){
-            if(data.echoes.length > 0){
-                self.addProducts(data);
-            }
-            else{
-                self.nextInt = null;
-                self.EvAg.trigger("infiniteScroll/unlock");
-            }
+
+        if(data.echoes.length > 0){
+            self.addProducts(data);
+        }   else{
+            self.nextInt = null;
+            self.EvAg.trigger("infiniteScroll/unlock");
+        }
+        if(data.stories.length > 0){
+            self.addStories(data);
         }
     },
     relayout: function(e){
@@ -743,11 +856,13 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     complete: function(){
         var self = this;
     },
-    addStory: function(data){
+    addStories: function(data){
         var self = this;
-        var storyDiv = $('<div></div>');
-        var storyComponent = new Echoed.Views.Components.Story({el : storyDiv, data: data});
-        self.exhibit.isotope('insert',storyDiv);
+        $.each(data.stories, function(index, story){
+            var storyDiv = $('<div></div>').addClass('item_wrap');
+            var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg});
+            self.exhibit.isotope('insert',storyDiv);
+        });
     },
     addProducts: function(data){
         var self = this;
@@ -794,13 +909,11 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
     render: function(){
         var self = this;
         this.element.empty();
-        this.element.append($("<div echoId='9b6c4353-72ea-4595-bb18-e979c0c0a721' class='action-button'>Tell a Story</div>"));
+        this.element.append($("<div class='action-button'>Tell a Story</div>"));
     },
     click: function(e){
         var self = this;
-        var target = $(e.target);
-        var echoId = target.attr("echoId");
-        self.EvAg.trigger("field/show", echoId);
+        self.EvAg.trigger("field/show");
     }
 });
 
@@ -831,7 +944,7 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
                         var img = "";
                         var friendImage = $('<div class="friend-img"></div>');
                         var friendText = $('<div class="friend-text"></div>').html(friend.name);
-                        var  a = $('<a></a>').attr("href","#friends/exhibit/" + friend.toEchoedUserId);
+                        var  a = $('<a></a>').attr("href","#user/" + friend.toEchoedUserId);
                         if(friend.facebookId != null)
                             img = $('<img />').attr("height","50px").attr("src","http://graph.facebook.com/" + friend.facebookId + "/picture");
                         else
@@ -1045,19 +1158,126 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render');
+        _.bindAll(this,'render','renderChapterImage','load','click');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
-        this.state = 0;
-        this.render(options.data);
+        this.EvAg.bind('story/show', this.load);
+    },
+    events: {
+        "click .echo-s-b-i-c": "click",
+        "click .echo-s-h-close" : "close"
+    },
+    load: function(id){
+        var self = this;
+        $.ajax({
+            url: Echoed.urls.api + "/api/story/" + id,
+            type: "GET",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+                console.log(data);
+                self.data = data;
+                self.render();
+            }
+        });
     },
     render: function(){
         var template = _.template($('#templates-components-story').html());
         var self = this;
-        self.element.addClass("item_wrap");
-        this.element.html(template);
+        self.element.html(template);
+        self.gallery = self.element.find('.echo-s-b-gallery');
+        self.element.find('.echo-s-h-t-t').html(self.data.story.title + " From " + self.data.story.productInfo);
+        self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
+        var userLink = '<a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
+        self.element.find('.echo-s-h-t-n').html("by " + userLink);
+        var itemNode = $("<div class='echo-s-b-item'></div>");
+        var itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
+        self.img = $("<img />");
+        itemNode.append(itemImageContainer.append(self.img)).appendTo(self.gallery);
+        self.currentImageNum = 0;
+        self.currentChapterNum = 0;
+        self.renderChapter();
+        self.renderChapterImage();
+        self.element.css({
+           "margin-left": -(self.element.width() / 2)
+        });
+        self.element.fadeIn();
+
+        self.EvAg.trigger('fade/show');
+
+    },
+    renderChapter: function(){
+        var self = this;
+        self.currentChapterId = self.data.chapters[self.currentChapterNum].id;
+        self.element.find('.echo-s-b-t-t').html(self.data.chapters[self.currentChapterNum].title);
+        self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[self.currentChapterNum].text + '"');
+    },
+    renderChapterImage: function(){
+        var self = this;
+        self.img.attr("src", self.data.chapterImages[self.currentImageNum].image.originalUrl);
+    },
+    close: function(){
+        var self = this;
+        self.element.fadeOut();
+        self.EvAg.trigger("fade/hide");
+    },
+    click: function(){
+        var self = this;
+        self.currentImageNum = self.currentImageNum + 1;
+        if(self.currentImageNum >= self.data.chapterImages.length){
+            self.currentImageNum = 0;
+        }
+        self.renderChapterImage();
+        if(self.data.chapterImages[self.currentImageNum].chapterId != self.currentChapterId){
+            self.currentChapterNum = self.currentChapterNum + 1;
+            if(self.currentChapterNum >= self.data.chapters.length){
+                self.currentChapterNum = 0;
+            }
+            self.renderChapter();
+        }
     }
+});
+
+Echoed.Views.Components.StoryBrief = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'render','click');
+        this.el = options.el;
+        this.element = $(this.el);
+        this.EvAg = options.EvAg;
+        this.data = options.data;
+        this.render();
+    },
+    events: {
+        "click" : "click"
+    },
+    render: function(){
+        var self = this;
+        var template = _.template($('#templates-components-story-brief').html());
+        self.element.html(template);
+        var imageNode = self.element.find(".story-brief-image");
+        var textNode = self.element.find(".story-brief-text");
+        var image = null;
+        if(self.data.chapterImages.length > 0){
+            image = self.data.chapterImages[0].image
+        } else {
+            image = self.data.story.image;
+        }
+        imageNode.attr("src", image.originalUrl).css({
+            "height" : image.preferredHeight,
+            "width" : image.preferredWidth
+        });
+        textNode.append(self.data.story.title + "<br/>");
+        textNode.append(self.data.story.productInfo);
+        self.element.attr("id", self.data.story.id);
+    },
+    click: function(){
+        var self = this;
+        var id = self.element.attr("id");
+        window.location.hash = "#story/" + self.data.story.id;
+    }
+
 });
 
 Echoed.Views.Components.Product = Backbone.View.extend({
@@ -1078,7 +1298,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var template = _.template($('#templates-components-product').html());
         var self = this;
         var landingUrl = Echoed.urls.api + "/echo/" + this.model.get("echoId");
-        var imageUrl =   this.model.get("image").preferredUrl;
+        var imageUrl =   this.model.get("image").originalUrl;
         var imageWidth = this.model.get("image").preferredWidth;
         var imageHeight = this.model.get("image").preferredHeight;
         this.el.attr("date", this.model.get("echoBoughtOn"));
@@ -1086,7 +1306,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         this.el.attr("partnerHandle", this.model.get("partnerHandle"));
         this.el.attr("partnerId", this.model.get("partnerId"));
         this.el.attr("id", this.model.get("echoId"));
-        this.el.addClass("item_wrap").addClass('Brand-' + encodeURIComponent(this.model.get("echoBrand"))).addClass('Browse-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
+        this.el.addClass("item_wrap").addClass('Browse-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
@@ -1117,6 +1337,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/>');
         if(typeof(this.model.get("echoCredit")) == 'number'){
             text.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
+            this.el.attr("action","story");
         }
         img.attr('src', imageUrl);
         if (imageWidth > 230) {
@@ -1185,7 +1406,13 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     click: function(e){
         var self = this;
-        var href = this.el.attr("href");
-        window.open(href);
+        if(this.el.attr("action") == "story"){
+            this.EvAg.trigger('field/show',this.el.attr("id"),"echo");
+        } else {
+            var href = this.el.attr("href");
+            window.open(href);
+        }
+
+
     }
 });

@@ -451,9 +451,9 @@ class EchoedUserServiceActor(
 
             try {
                 logger.debug("Attempting to retrieve Feed for EchoedUser {}", echoedUser.id)
-                val limit = 30;
-                val start = msg.page * limit;
-                val feed = Option(feedDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(Feed(echoedUser.id, echoedUser, null))
+                val limit = 30
+                val start = msg.page * limit
+                val feed = Option(feedDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(Feed(echoedUser.id, echoedUser, null, null))
                 if (feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
                     channel ! GetFeedResponse(msg, Right(feed.copy(echoes = new ArrayList[EchoViewDetail])))
                 } else {
@@ -473,9 +473,10 @@ class EchoedUserServiceActor(
                 val credit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
 
                 val limit = 30;
-                val start = msg.page * limit;
+                val start = msg.page * limit
 
                 val closet = Option(closetDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new Closet(echoedUser.id, echoedUser))
+
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     logger.debug("Echoed user {} has zero echoes", echoedUser.id)
                     channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(
@@ -573,6 +574,7 @@ class EchoedUserServiceActor(
             val channel = context.sender
 
             val echo = echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id))
+
             val partner = partnerDao.findByIdOrHandle(echo.map(_.partnerId).getOrElse("Echoed"))
             val partnerSettings = partnerSettingsDao.findByIdOrPartnerHandle(echo.map(_.partnerSettingsId).getOrElse("Echoed"))
             val image = imageDao.findById(imageId)
@@ -647,15 +649,24 @@ class EchoedUserServiceActor(
 
             channel ! CreateCommentResponse(msg, Right(comment))
 
-        case msg @ InitStory(_, echoId, partnerId) =>
+        case msg @ InitStory(_, storyId, echoId, partnerId) =>
             sanityCheck(msg)
 
             val channel = context.sender
+            val story = storyId.map(storyDao.findByIdAndEchoedUserId(_, echoedUser.id))
 
-            val echo = echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id))
-            val storyFull = echo.map(e => feedDao.findStoryByEchoId(e.id))
-            val partner = echo
-                    .map(e => partnerDao.findById(e.partnerId))
+            val echo = story
+                    .map(s => s.echoId)
+                    .map(e => echoDao.findByIdAndEchoedUserId(e , echoedUser.id))
+                    .orElse(echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id)))
+
+            val storyFull = story
+                    .map(s => feedDao.findStoryById(s.id))
+                    .orElse(echo.map(e => feedDao.findStoryByEchoId(e.id)))
+
+            val partner = story
+                    .map(s => partnerDao.findById(s.partnerId))
+                    .orElse(echo.map(e => partnerDao.findById(e.partnerId)))
                     .orElse(partnerId.map(partnerDao.findByIdOrHandle(_)))
                     .orElse(Option(partnerDao.findByIdOrHandle("Echoed")))
                     .get

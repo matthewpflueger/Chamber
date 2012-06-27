@@ -16,6 +16,7 @@ trait EchoedUserServiceLocator {
 
     def initStory(
             echoedUserId: String,
+            storyId: Option[String] = None,
             echoId: Option[String] = None,
             partnerId: Option[String] = None): Future[InitStoryResponse]
 

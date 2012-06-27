@@ -313,7 +313,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                     },
                     bi => {
                         if (bi.getWidth == sizedImageTargetWidth) None
-                        else Some(Scalr.resize(bi, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, sizedImageTargetWidth, bi.getHeight))
+                        else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_WIDTH, sizedImageTargetWidth, bi.getHeight))
                     }) {
 
                 case Left(e) => error(image, e, Some("Error processing sized image: %s" format e.getMessage))
@@ -345,7 +345,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                     },
                     bi => {
                         if (bi.getWidth == thumbImageTargetWidth && bi.getHeight == thumbImageTargetHeight) None
-                        else Some(Scalr.resize(bi, Scalr.Method.BALANCED, Scalr.Mode.FIT_EXACT, thumbImageTargetWidth, thumbImageTargetHeight))
+                        else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, thumbImageTargetWidth, thumbImageTargetHeight))
                     }) {
 
                 case Left(e) => error(image, e, Some("Error processing thumbnamil image: %s" format e.getMessage))

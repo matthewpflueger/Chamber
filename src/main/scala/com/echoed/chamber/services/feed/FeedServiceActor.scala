@@ -70,8 +70,9 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             val start = msg.page * limit
             try {
                 logger.debug("Attempting to retrieve feed for user: ")
-                val echoes = asScalaBuffer(feedDao.getPublicFeed(start, limit)).toList
-                val feed = new PublicFeed(echoes)
+                val echoes = asScalaBuffer(feedDao.getEchoedUserFeed(echoedUserId, start, limit)).toList
+                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUserId)).toList
+                val feed = new PublicFeed(echoes, stories)
                 channel ! GetUserPublicFeedResponse(msg, Right(feed))
             } catch {
                 case e =>

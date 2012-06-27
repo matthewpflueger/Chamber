@@ -100,7 +100,6 @@
             #{start}, #{limit}
     </select>
 
-
     <select id="getCategoryFeed"  resultMap="echoViewPublicResult">
         select
         E.id as echoId,
@@ -150,6 +149,30 @@
             E.createdOn desc, E.id DESC
         Limit
             #{start}, #{limit}
+    </select>
+
+    <select id="getEchoedUserFeed"  resultMap="echoViewPublicResult">
+        select
+        E.id as echoId,
+        E.createdOn as echoBoughtOn,
+        E.productName as echoProductName,
+        coalesce(P.category,"Other") as echoCategory,
+        E.brand as echoBrand,
+        E.landingPageUrl as echoLandingPageUrl,
+        P.name as partnerName,
+        P.id as partnerId,
+        P.handle as partnerHandle,
+        <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
+        from
+        Echo E
+        join Image I on E.imageId = I.id
+        join Partner P on E.partnerId = P.id
+        where
+        E.echoedUserId = #{echoedUserId}
+        order by
+        E.createdOn desc, E.id DESC
+        Limit
+        #{start}, #{limit}
     </select>
 
     <select id="findByEchoedUserId" resultMap="feedResult">
@@ -230,20 +253,35 @@
             <include refid="com.echoed.chamber.dao.CommentDao.commentColumns" />
             from Story S
                 join EchoedUser EU on S.echoedUserId = EU.id
+                join Image I on S.imageId = I.id
                 left outer join Chapter C on S.id = C.storyId
                 left outer join ChapterImage CI on S.id = CI.storyId
-                left outer join Image I on CI.imageId = I.id
+                left outer join Image CIMG on CI.imageId = CIMG.id
                 left outer join Comment CMT on S.id = CMT.storyId
     </sql>
 
-    <select id="findStoryById" resultMap="storyFullResult">
+    <select id="findStoryByEchoedUserId" resultMap="storyFullResult" useCache = "false">
         <include refid="storyFullSelect" />
-        where S.id = #{storyId}
+        where EU.id=#{echoedUserId}
+        order by
+            C.createdOn,
+            CIMG.createdOn
     </select>
 
-    <select id="findStoryByEchoId" resultMap="storyFullResult">
+    <select id="findStoryById" resultMap="storyFullResult" useCache = "false">
+        <include refid="storyFullSelect" />
+        where S.id = #{storyId}
+        order by
+            C.createdOn,
+            CIMG.createdOn
+    </select>
+
+    <select id="findStoryByEchoId" resultMap="storyFullResult" useCache="false">
         <include refid="storyFullSelect" />
         where S.echoId = #{echoId}
+        order by
+            C.createdOn,
+            CIMG.createdOn
     </select>
 
 </mapper>

@@ -57,7 +57,8 @@
             imageId,
             title,
             echoId,
-            productId
+            productId,
+            productInfo
         ) values (
             #{id},
             #{createdOn},
@@ -68,7 +69,8 @@
             #{image.id},
             #{title},
             #{echoId},
-            #{productId})
+            #{productId},
+            #{productInfo})
     </insert>
 
     <update id="update">

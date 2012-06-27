@@ -60,6 +60,7 @@ class StoryController {
     @RequestMapping(method = Array(RequestMethod.GET))
     @ResponseBody
     def initStory(
+            @RequestParam(value = "storyId", required = false) storyId: String,
             @RequestParam(value = "echoId", required = false) echoId: String,
             @RequestParam(value = "partnerId", required = false) partnerId: String,
             httpServletRequest: HttpServletRequest,
@@ -71,7 +72,7 @@ class StoryController {
 
         val result = new DeferredResult("error")
 
-        echoedUserServiceLocator.initStory(echoedUserId, Option(echoId), Option(partnerId)).onSuccess {
+        echoedUserServiceLocator.initStory(echoedUserId, Option(storyId), Option(echoId), Option(partnerId)).onSuccess {
             case InitStoryResponse(_, Right(storyInfo)) =>
                 logger.debug("Successfully initialized story for {}", echoedUserId)
                 result.set(storyInfo)

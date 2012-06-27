@@ -194,15 +194,12 @@ class UserController {
 
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
 
-        var pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
+        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onSuccess {
-            case LocateWithIdResponse(_,Right(echoedUserService)) =>
-                echoedUserService.getFriendCloset(echoedFriendId, pageInt).onSuccess {
-                    case GetFriendExhibitResponse(_, Right(closet)) => result.set(closet)
-                }
+        feedService.getUserPublicFeed(echoedFriendId, pageInt).onSuccess{
+            case GetUserPublicFeedResponse(_, Right(feed)) =>
+                result.set(feed)
         }
-
         result
     }
 

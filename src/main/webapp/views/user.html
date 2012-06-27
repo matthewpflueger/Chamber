@@ -13,54 +13,82 @@
             </div>
         </div>
     </script>
-    <script type="text/template" id="templates-components-story-edit">
+    <script type="text/template" id="templates-components-story-brief">
         <div class="item_content">
-            <div class="story-edit">
-                <div id="story-title"></div>
-                <div id="story-partner"></div>
-                <div id="story-title-photo-container">
-                    <img id="story-title-photo" height="50px" src=""/>
-                </div>
-                <div class="chapter-edit-body clearfix">
-                    <div class="chapter-edit-body-left">
-                        <div class="chapter-edit-body-row">
-                            <label for="chapter-title">Chapter Title:</label>
-                            <input id="chapter-title" type="text" name="chapter-title" value="Who is this for?"/>
-                        </div>
-                        <div class="chapter-edit-body-row">
-                            <label>Description:</label>
-                            <textarea id="chapter-text"></textarea>
-                        </div>
-                        <div class="chapter-edit-body-row">
-                            <label>Photos:</label>
-                            <div class="chapter-edit-photos">
-                                <div class="thumbnails">
-                                    <div class="thumb">
-
-                                    </div>
-                                    <img class="thumb" height="100px" width="100px  " src="" />
-                                </div>
-                                <div class="photo-upload"></div>
-                            </div>
-                        </div>
-                        <div class="chapter-edit-body-row">
-                            <label></label>
-                            <div class="chapter-submit">Save Chapter and Continue</div>
-                        </div>
-                    </div>
-                    <div class="chapter-edit-body-right">
-                        <div class="chapter-title-helper"></div>
-                    </div>
-                </div>
-
+            <div class="story-brief">
+                <img class="story-brief-image" src= ""/>
+                <div class="story-brief-text"></div>
             </div>
+        </div>
+    </script>
+    <script type="text/template" id="templates-components-story-edit">
+        <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
+        <div class="field-title">Tell Your Product Story</div>
+        <div class="story-edit">
+            <div id="story-edit-header" class="clearfix">
+                <div id="story-title-photo-container">
+                    <img id="story-title-photo" src=""/>
+                </div>
+                <div id="story-title-text-container">
+                    <div id="story-title"></div>
+                    <div id="story-from"></div>
+                </div>
+            </div>
+            <div class="story-edit-label">Chapters</div>
+            <div id="chapter-list">
+            </div>
+            <div class="chapter-edit-body clearfix">
+                <div class="story-edit-label">Add Chapter</div>
+                <div class="chapter-edit-body-left">
+                    <div class="chapter-edit-body-row">
+                        <label for="chapter-title">
+                            <strong>Chapter Title:</strong><br/>
+                        </label>
+                        <input id="chapter-title" type="text" name="chapter-title" value="Who is this for?"/>
+                    </div>
+                    <div class="chapter-edit-body-row">
+                        <label>
+                            <strong>Description:</strong><br/>
+                            Tell us more about this topic.
+                        </label>
+                        <textarea id="chapter-text"></textarea>
+                    </div>
+                    <div class="chapter-edit-body-row">
+                        <label>
+                            <strong>Photos:</strong><br/>
+                            Attach one or more photos.
+                        </label>
+                        <div class="chapter-edit-photos">
+                            <div class="thumbnails">
+                            </div>
+                            <div class="thumbnail-placeholder">
+                                <img class="thumb" src="{{urls.images}}/bk_img_upload_ph.jpg" />
+                            </div>
+                            <div class="photo-upload"></div>
+                        </div>
+                    </div>
+                    <div class="chapter-edit-body-row">
+                        <label></label>
+                        <span class="chapter-submit" act="continue">Save and Continue</span>
+                        <span class="chapter-submit" act="finish">Save and Finish</span>
+                    </div>
+                </div>
+                <div class="chapter-edit-body-right">
+                    <div class="chapter-title-helper"></div>
+                </div>
+            </div>
+
         </div>
     </script>
     <script type="text/template" id="templates-components-story">
         <div class="item_content">
             <div class="echo-story-container">
                 <div class="echo-story-header clearfix">
+                    <div class="echo-s-h-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
                     <div class="echo-s-h-title clearfix">
+                        <div class="echo-s-h-i-c">
+                            <img class="echo-s-h-i-i" src="" />
+                        </div>
                         <div class="echo-s-h-t-t">
                         </div>
                         <div class="echo-s-h-t-n">
@@ -70,17 +98,20 @@
                 <div class="echo-story-body clearfix">
                     <div class="echo-s-b-text">
                         <div class="echo-s-b-t-t"></div>
-                        <div class="echo-s-h-t-n"></div>
+                        <div class="echo-s-b-t-b"></div>
                     </div>
                     <div class="echo-s-b-segment"></div>
                     <div class="echo-s-b-gallery clearfix">
-                        <div class="echo-s-b-item">
-                            <div class="echo-s-b-i-c">
-                            </div>
-                        </div>
                     </div>
                 </div>
-                <div class="echo-story-footer clearfix"></div>
+                <div class="echo-story-footer clearfix">
+                    <div class="echo-story-comments">
+                        <div class="echo-s-c-t">
+                            Comments
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </script>
@@ -113,29 +144,41 @@
     </script>
     <script type="text/templates" id="templates-components-story-input">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
-        <div class="field-title">Tell A Story</div>
-        <div class="clearfix">
-            <div class="field-main-col clearfix">
-                <div class="field-input-label">Name Your Story</div>
+        <div class="field-title">Tell Your Product Story</div>
+        <div class="field-main-col clearfix">
+            <div class="field-row">
+                <label>
+                    <strong>Title Your Product Story</strong><br/>
+                </label>
                 <div class="field-indent">
                     <input id="story-name" type="text">
                 </div>
-                <div class="field-input-label">Where did you buy it from?</div>
-                <div class="field-indent">
-                    <input id="partner-name" type="text">
-                </div>
-                <div class="field-submit">Save and Continue</div>
             </div>
-            <div class="field-side-col">
-                <div class="field-indent clearfix">
-                    <div class="field-input-label">Product Photo</div>
-                    <div class="field-photo-container">
-                        <div id="preview">
-                            <img height="100px" src="" id="thumb">
-                        </div>
+            <div class="field-row">
+                <label>
+                    <strong>Where The Product Is From</strong><br/>
+                </label>
+                <div class="field-indent">
+                    <input id="story-from" type="text">
+                </div>
+            </div>
+            <div class="field-row">
+            <label>
+                <strong>Product Photo</strong><br/>
+            </label>
+            <div class="field-indent clearfix">
+                <div class="field-photo-container">
+                    <div id="preview">
+                        <img height="150px" src="{{urls.images}}/bk_img_upload_ph.jpg" id="field-photo">
                     </div>
-                    <div id="field-fileupload"></div>
-                    <!-- <div>Upload a Photo</div> -->
+                </div>
+                <div id="field-photo-upload"></div>
+            </div>
+            </div>
+            <div class="field-row">
+                <label></label>
+                <div class="field-indent">
+                    <div class="field-submit">Save and Continue</div>
                 </div>
             </div>
         </div>
@@ -243,6 +286,7 @@
             {{/echoedUser}}
         </div>
         <div id="content" class="clearfix"></div>
+        <div id="story" style="display:none"></div>
         <div id="field" style="display:none;"></div>
         <div id="transition" stype="display:none"></div>
         <div id="infiniteScroll" style="display:none;">

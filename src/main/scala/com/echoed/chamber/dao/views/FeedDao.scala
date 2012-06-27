@@ -12,6 +12,11 @@ trait FeedDao {
             @Param("start") start: Int,
             @Param("limit") limit: Int): Feed
 
+    def getEchoedUserFeed(
+            @Param("echoedUserId") echoedUserId: String,
+            @Param("start") start: Int,
+            @Param("limit") limit: Int): JList[EchoViewPublic]
+
     def getPublicFeed(
             @Param("start")  start: Int,
             @Param("limit") limit: Int): JList[EchoViewPublic]
@@ -29,4 +34,6 @@ trait FeedDao {
     def findStoryById(storyId: String): StoryFull
 
     def findStoryByEchoId(echoId: String): StoryFull
+
+    def findStoryByEchoedUserId(echoedUserId: String): JList[StoryFull]
 }
