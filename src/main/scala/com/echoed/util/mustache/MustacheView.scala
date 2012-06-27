@@ -2,16 +2,13 @@ package com.echoed.util.mustache
 
 import org.springframework.web.servlet.view.AbstractTemplateView
 import scala.reflect.BeanProperty
-import com.samskivert.mustache.Template
+import com.github.mustachejava.Mustache
 import java.util.{Map => JMap}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 class MustacheView extends AbstractTemplateView {
 
-    @BeanProperty var template: Template = null
-
-
-    def renderMergedTemplateToString(model: JMap[String, Object]) = template.execute(model)
+    @BeanProperty var template: Mustache = null
 
 
     protected override def renderMergedTemplateModel(
@@ -22,15 +19,17 @@ class MustacheView extends AbstractTemplateView {
         response.setContentType(getContentType())
         val writer = response.getWriter()
         try {
-            template.execute(model, writer);
+            template.execute(writer, model)
         } finally {
-            writer.flush();
+            writer.flush()
         }
     }
 
     override def getContentType() = {
         if (getBeanName.endsWith(".js")) "application/x-javascript"
         else if (getBeanName.endsWith(".json")) "application/json"
+        else if (getBeanName.endsWith(".txt")) "text/plain"
+        else if (getBeanName.endsWith(".xml")) "application/xml"
         else super.getContentType
     }
 

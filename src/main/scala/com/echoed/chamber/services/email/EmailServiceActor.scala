@@ -51,7 +51,7 @@ class EmailServiceActor extends FactoryBean[ActorRef] {
             try {
                 globalsManager.addGlobals(model)
 
-                val renderedTemplate = mustacheEngine.compile(templateName).execute(model)
+                val renderedTemplate = mustacheEngine.execute(templateName, model) //compile(templateName).execute(model)
 
                 javaMailSender.send(new MimeMessagePreparator() {
                     override def prepare(mimeMessage: MimeMessage) {

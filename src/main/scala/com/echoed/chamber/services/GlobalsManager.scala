@@ -6,6 +6,8 @@ import java.util.{Map => JMap, HashMap => JHashMap}
 import scala.collection.JavaConversions._
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.interceptors.GlobalsInterceptor
+import org.springframework.context.MessageSource
+import java.util.Locale
 
 
 class GlobalsManager {
@@ -27,6 +29,8 @@ class GlobalsManager {
     @BeanProperty var version = ""
     @BeanProperty var facebookClientId = ""
 
+    @BeanProperty var i18nKey = "i18n"
+    @BeanProperty var messageSource: MessageSource = _
 
     def init() {
         urlsProperties.filterKeys(_.toString.startsWith("http.urls.")).foreach {
@@ -61,6 +65,10 @@ class GlobalsManager {
     }
 
     def addGlobals(model: JMap[String, AnyRef], urls: JMap[String, String]) {
+        addGlobals(model, urls, null)
+    }
+
+    def addGlobals(model: JMap[String, AnyRef], urls: JMap[String, String], locale: Locale) {
         model.put(versionAttributeName, version)
         model.put(facebookClientIdAttributeName, facebookClientId)
 
@@ -68,5 +76,10 @@ class GlobalsManager {
         model.put(httpsUrlsAttributeName, httpsUrls)
 
         model.put(urlsAttributeName, urls)
+
+        model.put(i18nKey, new Function[String, String]() {
+            def apply(input: String) = messageSource.getMessage(input, null, locale)
+        })
     }
+
 }

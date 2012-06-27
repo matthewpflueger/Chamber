@@ -6,10 +6,10 @@ import org.springframework.web.servlet.{ModelAndView, HandlerInterceptor}
 import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
 import scala.collection.JavaConversions._
-import java.util.{HashSet => JHashSet, HashMap => JHashMap, ArrayList => JArrayList}
+import java.util.{HashMap => JHashMap, ArrayList => JArrayList}
 import org.springframework.web.servlet.support.RequestContextUtils
 import org.springframework.context.MessageSource
-import org.springframework.validation.{FieldError, Errors}
+import org.springframework.validation.Errors
 
 class ErrorsInterceptor extends HandlerInterceptor {
 

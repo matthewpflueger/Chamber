@@ -21,6 +21,10 @@
 
     <bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver" />
 
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+        <property name="defaultLocale" value="en"/>
+    </bean>
+
     <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager" />
 
     <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">

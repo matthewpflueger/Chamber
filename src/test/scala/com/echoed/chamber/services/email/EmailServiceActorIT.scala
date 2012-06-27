@@ -3,17 +3,15 @@ package com.echoed.chamber.services.email
 import org.scalatest.matchers.ShouldMatchers
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import akka.testkit.TestActorRef
 import org.scalatest.{BeforeAndAfterAll, FeatureSpec, GivenWhenThen}
 import com.echoed.util.IntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
-import java.util.{UUID, Properties, HashMap => JHashMap}
+import java.util.{Properties, HashMap => JHashMap}
 import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
-import com.samskivert.mustache.Template
-import com.echoed.util.mustache.MustacheEngine
+
 import com.echoed.chamber.services.GlobalsManager
 
 @RunWith(classOf[JUnitRunner])

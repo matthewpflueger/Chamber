@@ -1,6 +1,6 @@
-    {{> partial_header}}
-    <title>Echoed</title>
-    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
+{{<user_super}}
+
+{{$header}}
     <script type="text/template" id="templates-components-product">
         <div class="item_content">
             <div class="item_hover" style="display:none;">
@@ -72,7 +72,6 @@
 
             </div>
         </div>
-
     </script>
     <script type="text/templates" id="templates-components-photo">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
@@ -112,8 +111,9 @@
             </form>
         </div>
     </script>
-</head>
-<body>
+{{/header}}
+
+{{$content}}
     <div id="container">
         <div id="header-container">
             <div id="logo">
@@ -124,7 +124,7 @@
                 {{#echoedUser}}
                 <div id="user-image">
                     {{#facebookId}}
-                    <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{this}}/picture" />
+                    <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{.}}/picture" />
                     {{/facebookId}}
                 </div>
                 <div id="user-text">
@@ -219,70 +219,71 @@
             Loading More Products <img align="absmiddle" src="{{urls.images}}/bk_loader_circle.gif" />
         </div>
     </div>
-</body>
-</html>
-<script type="text/javascript">
-    $(document).ready(function() {
-        Echoed.init();
-    });
-</script>
-<script type="text/javascript">
-    $.Isotope.prototype._getCenteredMasonryColumns = function() {
-        this.width = this.element.width();
 
-        var parentWidth = this.element.parent().width();
+    <script type="text/javascript">
+        $(document).ready(function() {
+            Echoed.init();
+        });
+    </script>
+    <script type="text/javascript">
+        $.Isotope.prototype._getCenteredMasonryColumns = function() {
+            this.width = this.element.width();
 
-        // i.e. options.masonry && options.masonry.columnWidth
-        var colW = this.options.masonry && this.options.masonry.columnWidth ||
-            // or use the size of the first item
-                this.$filteredAtoms.outerWidth(true) ||
-            // if there's no items, use size of container
-                parentWidth;
+            var parentWidth = this.element.parent().width();
 
-        var cols = Math.floor( parentWidth / colW );
-        cols = Math.max( cols, 1 );
+            // i.e. options.masonry && options.masonry.columnWidth
+            var colW = this.options.masonry && this.options.masonry.columnWidth ||
+                // or use the size of the first item
+                    this.$filteredAtoms.outerWidth(true) ||
+                // if there's no items, use size of container
+                    parentWidth;
 
-        // i.e. this.masonry.cols = ....
-        this.masonry.cols = cols;
-        // i.e. this.masonry.columnWidth = ...
-        this.masonry.columnWidth = colW;
-    };
+            var cols = Math.floor( parentWidth / colW );
+            cols = Math.max( cols, 1 );
 
-    $.Isotope.prototype._masonryReset = function() {
-        // layout-specific props
-        this.masonry = {};
-        // FIXME shouldn't have to call this again
-        this._getCenteredMasonryColumns();
-        var i = this.masonry.cols;
-        this.masonry.colYs = [];
-        while (i--) {
-            this.masonry.colYs.push( 0 );
-        }
-    };
-
-    $.Isotope.prototype._masonryResizeChanged = function() {
-        var prevColCount = this.masonry.cols;
-        // get updated colCount
-        this._getCenteredMasonryColumns();
-        return ( this.masonry.cols !== prevColCount );
-    };
-
-    $.Isotope.prototype._masonryGetContainerSize = function() {
-        var unusedCols = 0,
-                i = this.masonry.cols;
-        // count unused columns
-        while ( --i ) {
-            if ( this.masonry.colYs[i] !== 0 ) {
-                break;
-            }
-            unusedCols++;
-        }
-
-        return {
-            height : Math.max.apply( Math, this.masonry.colYs ),
-            // fit container to columns that have been used;
-            width : (this.masonry.cols - unusedCols) * this.masonry.columnWidth
+            // i.e. this.masonry.cols = ....
+            this.masonry.cols = cols;
+            // i.e. this.masonry.columnWidth = ...
+            this.masonry.columnWidth = colW;
         };
-    };
-</script>
-{{> partial_google}}
+
+        $.Isotope.prototype._masonryReset = function() {
+            // layout-specific props
+            this.masonry = {};
+            // FIXME shouldn't have to call this again
+            this._getCenteredMasonryColumns();
+            var i = this.masonry.cols;
+            this.masonry.colYs = [];
+            while (i--) {
+                this.masonry.colYs.push( 0 );
+            }
+        };
+
+        $.Isotope.prototype._masonryResizeChanged = function() {
+            var prevColCount = this.masonry.cols;
+            // get updated colCount
+            this._getCenteredMasonryColumns();
+            return ( this.masonry.cols !== prevColCount );
+        };
+
+        $.Isotope.prototype._masonryGetContainerSize = function() {
+            var unusedCols = 0,
+                    i = this.masonry.cols;
+            // count unused columns
+            while ( --i ) {
+                if ( this.masonry.colYs[i] !== 0 ) {
+                    break;
+                }
+                unusedCols++;
+            }
+
+            return {
+                height : Math.max.apply( Math, this.masonry.colYs ),
+                // fit container to columns that have been used;
+                width : (this.masonry.cols - unusedCols) * this.masonry.columnWidth
+            };
+        };
+    </script>
+{{/content}}
+
+{{/user_super}}

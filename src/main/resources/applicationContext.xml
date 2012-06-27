@@ -43,6 +43,7 @@
         <property name="gitProperties" ref="gitProperties" />
         <property name="facebookClientId" value="${facebook.clientId}" />
         <property name="version" value="${version}" />
+        <property name="messageSource" ref="messageSource" />
     </bean>
 
     <bean id="encrypter" class="com.echoed.util.Encrypter" >
@@ -62,7 +63,8 @@
     <bean id="mustacheEngine" class="com.echoed.util.mustache.MustacheEngine">
         <property name="prefix" value="${mustache.prefix}" />
         <property name="suffix" value="${mustache.suffix}" />
-        <property name="defaultValue" value="${mustache.defaultValue}" />
+        <property name="cache" value="${mustache.cache}" />
+        <property name="executorService" value="#{ executor.threadPoolExecutor }" />
     </bean>
 
 

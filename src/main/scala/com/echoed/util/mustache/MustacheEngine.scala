@@ -1,35 +1,53 @@
 package com.echoed.util.mustache
 
-import com.samskivert.mustache.Mustache
-import org.springframework.beans.factory.InitializingBean
+import com.github.mustachejava.{MustacheException, DefaultMustacheFactory}
 import scala.reflect.BeanProperty
 import org.springframework.context.ResourceLoaderAware
 import org.springframework.core.io.ResourceLoader
+import java.io.{StringWriter, InputStreamReader, Reader}
+import java.util.{Map => JMap}
+import com.github.mustachejava.reflect.ReflectionObjectHandler
+import java.lang.reflect.{Method, Field}
+import org.slf4j.LoggerFactory
 
-class MustacheEngine extends InitializingBean with ResourceLoaderAware {
+class MustacheEngine(
+            @BeanProperty var prefix: String = "",
+            @BeanProperty var suffix: String = "",
+            @BeanProperty var cache: Boolean = true,
+            var resourceLoader: ResourceLoader = null)
+        extends DefaultMustacheFactory
+        with ResourceLoaderAware {
 
-    @BeanProperty var templateLoader: MustacheTemplateLoader = null
-    @BeanProperty var standardsMode: Boolean = false
-    @BeanProperty var escapeHTML: Boolean = true
-    @BeanProperty var defaultValue: String = null
-    @BeanProperty var prefix: String = ""
-    @BeanProperty var suffix: String = ""
+    private final val logger = LoggerFactory.getLogger(classOf[MustacheEngine])
 
-    private var compiler: Mustache.Compiler = null
-    private var resourceLoader: ResourceLoader = null
+    def this() = this("", "", true, null)
 
+    setObjectHandler(new ReflectionObjectHandler {
+        /* allow access to private fields and methods */
+        override def checkField(member: Field) {}
+        override def checkMethod(member: Method) {}
+    })
 
-    def compile(templateName: String) = compiler.compile(templateLoader.getTemplate(templateName))
+    override def getReader(resourceName: String): Reader = {
+        var rn = resourceName
+        rn = if (!rn.startsWith(prefix)) prefix + rn else rn
+        rn = if (!rn.endsWith(suffix)) rn + suffix else rn
 
-    def compileTemplateString(templateString: String) = compiler.compile(templateString)
+        val resource = resourceLoader.getResource(rn)
+        if (!resource.exists) throw new MustacheException("No template exists named: " + rn)
+        logger.debug("Found template {}", rn)
+        new InputStreamReader(resource.getInputStream)
+    }
 
-    def afterPropertiesSet() {
-        templateLoader = Option(templateLoader).getOrElse(new MustacheTemplateLoader(prefix, suffix, resourceLoader))
-        compiler = Mustache.compiler
-                .escapeHTML(escapeHTML)
-                .standardsMode(standardsMode)
-                .withLoader(templateLoader)
-        compiler = if (defaultValue != null && defaultValue != "null") compiler.defaultValue(defaultValue) else compiler
+    override def compile(templateName: String) = {
+        if (cache) super.compile(templateName)
+        else super.compile(getReader(templateName), templateName)
+    }
+
+    def execute(templateName: String, model: JMap[String, AnyRef]) = {
+        val writer = new StringWriter()
+        compile(templateName).execute(writer, model)
+        writer.toString
     }
 
     def setResourceLoader(loader: ResourceLoader) {

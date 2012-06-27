@@ -6,11 +6,11 @@ import org.springframework.web.servlet.{ModelAndView, HandlerInterceptor}
 import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
 import com.echoed.chamber.services.GlobalsManager
-import scala.collection.JavaConversions._
+import org.springframework.web.servlet.support.RequestContextUtils
 
 class GlobalsInterceptor extends HandlerInterceptor {
 
-    val logger = LoggerFactory.getLogger(classOf[GlobalsInterceptor])
+    private val logger = LoggerFactory.getLogger(classOf[GlobalsInterceptor])
 
     @BeanProperty var globalsManager: GlobalsManager = _
 
@@ -21,9 +21,9 @@ class GlobalsInterceptor extends HandlerInterceptor {
     def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Object, mv: ModelAndView) {
         if (mv != null && mv.getViewName != null && !mv.getViewName.startsWith("redirect:")) {
             if (request.getScheme == "https" || Option(request.getHeader("X-Scheme")).getOrElse("").equals("https")) {
-                globalsManager.addGlobals(mv.getModel, globalsManager.getHttpsUrls())
+                globalsManager.addGlobals(mv.getModel, globalsManager.getHttpsUrls(), RequestContextUtils.getLocale(request))
             } else {
-                globalsManager.addGlobals(mv.getModel, globalsManager.getHttpUrls())
+                globalsManager.addGlobals(mv.getModel, globalsManager.getHttpUrls(), RequestContextUtils.getLocale(request))
             }
         }
     }

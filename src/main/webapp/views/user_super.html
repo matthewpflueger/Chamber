@@ -14,30 +14,24 @@
 
     <script type="text/javascript">
         Echoed.errors = {};
-        Echoed.errors.global = new Array(); //{{#errors.global}}
-
+        Echoed.errors.global = new Array();
+        //{{#errors.global}}//
         Echoed.errors.global.push("{{this}}");
-        /*{{/errors.global}} // */
+        //{{/errors.global}}//
 
-        //{{#errors.fieldErrors}}
-
+        //{{#errors.fieldErrors}}//
         Echoed.errors["{{object}}"] = {}
+        //{{/errors.fieldErrors}}//
 
-        //{{/errors.fieldErrors}}
-
-
-        //{{#errors.fieldErrors}}
-
+        //{{#errors.fieldErrors}}//
         Echoed.errors["{{object}}"]["{{field}}"] = "{{message}}"
-
-        //{{/errors.fieldErrors}}
+        //{{/errors.fieldErrors}}//
 
         Echoed.messages = {};
-        Echoed.messages.global = new Array(); //{{#messages.global}}
-
+        Echoed.messages.global = new Array();
+        //{{#messages.global}}//
         Echoed.messages.global.push("{{this}}");
-
-        /*{{/messages.global}} // */
+        ///{{/messages.global}}//
 
         Echoed.urls = {};
         //{{#urls}}//
@@ -50,3 +44,24 @@
         Echoed.urls.site = "{{site}}";
         //{{/urls}}//
     </script>
+    <title>{{$title}}Echoed{{/title}}</title>
+    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
+    {{$header}} {{/header}}
+</head>
+<body>
+    {{$content}} {{/content}}
+
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-28093745-1']);
+        _gaq.push(['_setDomainName', 'echoed.com']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>
