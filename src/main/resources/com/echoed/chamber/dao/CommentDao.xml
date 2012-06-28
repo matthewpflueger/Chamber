@@ -13,12 +13,26 @@
             <arg column="commentPartnerSettingsId" javaType="String" />
             <arg column="commentEchoId" javaType="String" />
             <arg column="commentChapterId" javaType="String" />
-            <arg column="commentByEchoedUserId" javaType="String" />
+            <arg resultMap="CMTEchoedUserResult" javaType="com.echoed.chamber.domain.EchoedUser"/>
             <arg column="commentParentCommentId" javaType="String" />
             <arg column="commentText" javaType="String" />
         </constructor>
     </resultMap>
 
+    <resultMap id="CMTEchoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
+        <constructor>
+            <idArg column="CMTEchoedUserId" javaType="String" />
+            <arg column="CMTEchoedUserUpdatedOn" javaType="Date" />
+            <arg column="CMTEchoedUserCreatedOn" javaType="Date" />
+            <arg column="CMTEchoedUserName" javaType="String" />
+            <arg column="CMTEchoedUserEmail" javaType="String" />
+            <arg column="CMTEchoedUserScreenName" javaType="String" />
+            <arg column="CMTEchoedUserFacebookUserId" javaType="String" />
+            <arg column="CMTEchoedUserFacebookId" javaType="String" />
+            <arg column="CMTEchoedUserTwitterUserId" javaType="String" />
+            <arg column="CMTEchoedUserTwitterId" javaType="String" />
+        </constructor>
+    </resultMap>
 
     <sql id="commentColumns">
         CMT.id as commentId,
@@ -30,9 +44,22 @@
         CMT.partnerSettingsId as commentPartnerSettingsId,
         CMT.echoId as commentEchoId,
         CMT.chapterId as commentChapterId,
-        CMT.byEchoedUserId as commentByEchoedUserId,
         CMT.parentCommentId as commentParentCommentId,
-        CMT.text as commentText
+        CMT.text as commentText,
+        <include refid="com.echoed.chamber.dao.CommentDao.CMTEchoedUserColumns"/>
+    </sql>
+
+    <sql id="CMTEchoedUserColumns">
+        CMTEU.id as CMTEchoedUserId,
+        CMTEU.updatedOn as CMTEchoedUserUpdatedOn,
+        CMTEU.createdOn as CMTEchoedUserCreatedOn,
+        CMTEU.email as CMTEchoedUserEmail,
+        CMTEU.name as CMTEchoedUserName,
+        CMTEU.screenName as CMTEchoedUserScreenName,
+        CMTEU.facebookUserId as CMTEchoedUserFacebookUserId,
+        CMTEU.facebookId as CMTEchoedUserFacebookId,
+        CMTEU.twitterUserId as CMTEchoedUserTwitterUserId,
+        CMTEU.twitterId as CMTEchoedUserTwitterId
     </sql>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.Comment">
@@ -59,7 +86,7 @@
             #{partnerSettingsId},
             #{echoId},
             #{chapterId},
-            #{byEchoedUserId},
+            #{echoedUser.id},
             #{parentCommentId},
             #{text})
     </insert>
@@ -67,12 +94,14 @@
     <select id="findByStoryId" resultMap="commentResult">
         select <include refid="commentColumns" />
         from Comment CMT
+        join EchoedUser CMTEU on CMTEU.id = CMT.byEchoedUserId
         where CMT.storyId = #{storyId}
     </select>
 
     <select id="findByIdAndChapterId" resultMap="commentResult">
         select <include refid="commentColumns" />
         from Comment CMT
+        join EchoedUser CMTEU on CMTEU.id = CMT.byEchoedUserId
         where CMT.id = #{id} and CMT.chapterId = #{chapterId}
     </select>
 

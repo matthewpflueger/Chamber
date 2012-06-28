@@ -14,7 +14,7 @@ case class Comment(
         partnerSettingsId: String,
         echoId: String,
         chapterId: String,
-        byEchoedUserId: String,
+        echoedUser: EchoedUser,
         parentCommentId: String,
         text: String) {
 
@@ -32,7 +32,7 @@ case class Comment(
         partnerSettingsId = chapter.partnerSettingsId,
         echoId = chapter.echoId,
         chapterId = chapter.id,
-        byEchoedUserId = byEchoedUser.id,
+        echoedUser = byEchoedUser,
         parentCommentId = parentComment.map(_.id).orNull,
         text = _text)
 

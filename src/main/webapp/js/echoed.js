@@ -15,7 +15,6 @@ Echoed = {
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#content', EvAg: EventAggregator });
         var friends = new Echoed.Views.Pages.Friends({ el: '#content', EvAg: EventAggregator });
         var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
-        var filter = new Echoed.Views.Components.Dropdown({ el: '#content-selector', Name: 'Browse', EvAg: EventAggregator});
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         var story = new Echoed.Views.Components.Story({ el: '#story', EvAg: EventAggregator});
         var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
@@ -35,16 +34,13 @@ Echoed.Views.Components.Fade = Backbone.View.extend({
     show: function(){
         var self = this;
         var arrPageSizes = self.___getPageSize();
-        self.element.css({
-            "height": arrPageSizes[1],
-            "width": arrPageSizes[2]
-        });
-
+        $("html,body").addClass("noScroll");
         self.element.fadeIn();
     },
     hide: function(){
         var self = this;
         self.element.fadeOut();
+        $("html,body").removeClass("noScroll");
     },
     ___getPageSize: function() {
         var xScroll, yScroll;
@@ -85,6 +81,8 @@ Echoed.Views.Components.Fade = Backbone.View.extend({
         } else {
             pageWidth = windowWidth;
         }
+        pageHeight= windowHeight;
+        pageWidth = windowWidth;
         arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
         return arrayPageSize;
     }
@@ -97,8 +95,9 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
-        _.bindAll(this,'me','friends','explore', 'story');
+        _.bindAll(this,'me','friends','explore', 'story','resetHash');
         this.EvAg = options.EvAg;
+        this.EvAg.bind("hash/reset", this.resetHash);
         this.page=null;
     },
     routes:{
@@ -106,269 +105,71 @@ Echoed.Router = Backbone.Router.extend({
         "": "explore",
         "explore": "explore",
         "explore/": "explore",
-        "explore/:filter": "explore",
-        "exploref/": "exploreFriends",
-        "exploref" : "exploreFriends",
-        "exploref/:filter": "exploreFriends",
-        "echo/:partner/:product/:filter": "echo",
-        "echo/:partner/:product": "echo",
         "me/friends": "friends",
         "me/": "me",
         "me": "me",
-        "me/:filter": "me",
         "user/:id": "user",
-        "user/:id/:filter": "user",
-        "partners/:name/:filter": "partnerFeed",
         "partners/:name/": "partnerFeed",
         "partners/:name": "partnerFeed",
         "story/:id/edit": "editStory",
         "story/:id": "story"
     },
     editStory: function(){
-        this.page = "editStory";
-        this.EvAg.trigger("exhibit/init", { Type: "editStory"});
+        if(this.page != window.location.hash) {
+            this.page = window.location.hash;
+            this.EvAg.trigger("exhibit/init", { Type: "editStory"});
+        }
     },
     fix: function(){
         window.location.href = "#";
     },
-    explore: function(filter){
-        if(this.page != "Explore"){
-            this.page = "Explore";
+    explore: function(){
+        if(this.page != window.location.hash){
+            this.page = "";
             _gaq.push(['_trackPageview', this.page]);
-            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "explore"});
+            this.EvAg.trigger('exhibit/init', { Type: "explore"});
+            this.EvAg.trigger("page/change","explore");
         }
-        else{
-            this.EvAg.trigger('filter/change',filter);
-        }
-        this.EvAg.trigger("page/change","explore");
     },
-    exploreFriends: function(filter){
-        if(this.page != "Explore/Friends"){
-            this.page = "Explore/Friends";
+    partnerFeed: function(partnerId) {
+        if(this.page != window.location.hash){
+            this.page = window.location.hash;
+            this.EvAg.trigger('exhibit/init', { Type: "partners", partnerId: partnerId });
             _gaq.push(['_trackPageview', this.page]);
-            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "explore/friends"});
+            this.EvAg.trigger("page/change","partners");
         }
-        else
-            this.EvAg.trigger('filter/change',filter);
-        this.EvAg.trigger("page/change","explore");
     },
-    partnerFeed: function(partnerId,filter) {
-        var newPage = "Partner/" + partnerId;
-        if(this.page != newPage){
-            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "partners", partnerId: partnerId });
-            this.page = newPage;
+    me: function() {
+        if(this.page != window.location.hash){
+            this.page= window.location.hash;
+            this.EvAg.trigger('exhibit/init', { Type: "exhibit"});
             _gaq.push(['_trackPageview', this.page]);
-
-
-        } else{
-            this.EvAg.trigger("filter/change", filter);
+            this.EvAg.trigger("page/change","exhibit");
         }
-        this.EvAg.trigger("page/change","partners");
-    },
-    me: function(filter) {
-        if(this.page != "Exhibit"){
-            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: "exhibit"});
-            this.page = "Exhibit";
-            _gaq.push(['_trackPageview', this.page]);
-
-        } else{
-            this.EvAg.trigger('filter/change',filter);
-        }
-        this.EvAg.trigger("page/change","exhibit");
     },
     story: function(id){
         if(!this.page) this.explore();
+        this.oldPage = this.page;
         this.EvAg.trigger("story/show", id);
         this.EvAg.trigger("page/change", "story");
     },
-    storyOld: function(id) {
-        this.me();
-        var storyTest = {
-            initStory: function(id) {
-                alert("initStory: id = " + id);
-                $.ajax({
-                    url: Echoed.urls.api + "/story?echoId=" + id,
-                    type: "GET",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
-                    success: function(initStoryData){
-                        var title = initStoryData.storyPrompts.prompts[0];
-                        var imageId = initStoryData.echo.image.id;
-                        var echoId = initStoryData.echo.id
-                        var storyFull = initStoryData.storyFull;
-                        storyTest.initStoryData = initStoryData;
-                        if (storyFull) {
-                            alert("Story already created, skipping straight to updateStory");
-                            storyTest.updateStory(storyFull.id, storyFull.story.image.id);
-                        } else {
-                            storyTest.createStory(title, imageId, echoId);
-                        }
-                    }
-                });
-            },
-
-            createStory: function(title, imageId, echoId) {
-                alert("createStory: title = " + title + ", imageId = " + imageId + ", echoId = " + echoId);
-                $.ajax({
-                    url: Echoed.urls.api + "/story",
-                    type: "POST",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
-                    data: {
-                        title: title,
-                        imageId: imageId,
-                        echoId: echoId
-                    },
-                    success: function(createStoryData) {
-                        var storyId = createStoryData.id;
-                        var imageId = createStoryData.image.id;
-                        storyTest.createStoryData = createStoryData;
-                        storyTest.updateStory(storyId, imageId);
-                    }
-                });
-            },
-
-            updateStory: function(storyId, imageId) {
-                alert("updateStory: storyId = " + storyId + ", imageId = " + imageId);
-                $.ajax({
-                    url: Echoed.urls.api + "/story/" + storyId,
-                    type: "PUT",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
-                    data: {
-                        title: "My awesome updated story title",
-                        imageId: imageId
-                    },
-                    success: function(updatedStoryData) {
-                        var storyId = updatedStoryData.id;
-                        var chapterTitle = storyTest.initStoryData.storyPrompts.prompts[1];
-                        storyTest.updatedStoryData = updatedStoryData;
-                        storyTest.createChapter(storyId, chapterTitle);
-                    }
-                });
-            },
-
-            createChapter: function(storyId, chapterTitle) {
-                alert("createChapter: storyId = " + storyId + ", chapterTitle = " + chapterTitle);
-                $.ajax({
-                    url: Echoed.urls.api + "/story/" + storyId + "/chapter",
-                    type: "POST",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
-                    processData: false,
-                    contentType: "application/json",
-                    data: JSON.stringify({
-                            title: chapterTitle,
-                            text: "My awesome chapter text",
-                            imageIds: ["01636a85-dd6a-452d-86ce-8c0b62a80708", "ce057ad4-4c01-4470-8823-987c08028746"]
-                    }),
-                    success: function(createChapterData) {
-                        var storyId = createChapterData.chapter.storyId;
-                        var chapterId = createChapterData.chapter.id;
-                        var imageId = createChapterData.chapterImages[0].image.id
-                        storyTest.createChapterData = createChapterData;
-                        storyTest.updateChapter(storyId, chapterId, imageId);
-                    }
-                });
-            },
-
-            updateChapter: function(storyId, chapterId, imageId) {
-                alert("updateChapter: storyId = " + storyId + ", chapterId = " + chapterId + ", imageId = " + imageId);
-                $.ajax({
-                    url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId,
-                    type: "PUT",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
-                    processData: false,
-                    contentType: "application/json",
-                    data: JSON.stringify({
-                            title: "My awesome updated chapter title",
-                            text: "My awesome updated chapter text",
-                            imageIds: [imageId, "01636a85-dd6a-452d-86ce-8c0b62a80708", "ce057ad4-4c01-4470-8823-987c08028746"]
-                    }),
-                    success: function(updatedChapterData) {
-                        var storyId = updatedChapterData.chapter.storyId;
-                        var chapterId = updatedChapterData.chapter.id;
-                        storyTest.updatedChapterData = updatedChapterData;
-                        storyTest.createComment(storyId, chapterId);
-                    }
-                });
-            },
-
-            createComment: function(storyId, chapterId) {
-                alert("createComment: storyId = " + storyId + ", chapterId = " + chapterId);
-                $.ajax({
-                    url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
-                    type: "POST",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
-                    data: {
-                        text: "My awesome comment"
-                    },
-                    success: function(createCommentData) {
-                        var storyId = createCommentData.storyId;
-                        var chapterId = createCommentData.chapterId;
-                        var parentCommentId = createCommentData.id;
-                        storyTest.createCommentData = createCommentData;
-                        storyTest.replyComment(storyId, chapterId, parentCommentId);
-                    }
-                });
-
-            },
-
-            replyComment: function(storyId, chapterId, parentCommentId) {
-                alert("replyComment: storyId = " + storyId + ", chapterId = " + chapterId + ", parentCommentId = " + parentCommentId);
-                $.ajax({
-                    url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
-                    type: "POST",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
-                    data: {
-                        parentCommentId: parentCommentId,
-                        text: "My awesome reply comment"
-                    },
-                    success: function(replyCommentData) {
-                        alert("CONGRATS!!!! You've completed the tests successfully - last response is: " + JSON.stringify(replyCommentData));
-                        storyTest.replyCommentData = replyCommentData;
-                    }
-                });
-            }
-        };
-        storyTest.initStory(id);
+    resetHash: function(){
+        window.location.hash = this.oldPage;
     },
     friends: function() {
-        this.EvAg.trigger('friends/init');
-        this.EvAg.trigger("page/change","friends");
-        this.EvAg.trigger('filter/hide');
-        this.page = "Friends";
-        _gaq.push(['_trackPageview', this.page]);
-
-    },
-    user: function(id, filter){
-        var newPage = "Friends/Exhibit/" + id;
-        if(this.page != newPage){
-            this.EvAg.trigger('exhibit/init', { Filter: filter, Type: 'friend', Id: id});
-            this.page = newPage;
+        if(this.page != window.location.hash){
+            this.page = window.location.hash;
+            this.EvAg.trigger('friends/init');
+            this.EvAg.trigger("page/change","friends");
             _gaq.push(['_trackPageview', this.page]);
-
-        } else {
-            this.EvAg.trigger("filter/change",filter);
         }
-        this.EvAg.trigger("page/change","friends");
+    },
+    user: function(id){
+        if(this.page != window.location.hash){
+            this.page = window.location.hash;
+            this.EvAg.trigger('exhibit/init', { Type: 'friend', Id: id});
+            _gaq.push(['_trackPageview', this.page]);
+        }
     }
 });
 
@@ -463,9 +264,6 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         self.chapterHelper.fadeIn();
     },
-    addCompletedChapter: function(){
-        var self = this;
-    },
     loadChapterTemplate: function(){
         var self = this;
         self.template = _.template($('#templates-components-story-edit').html());
@@ -522,11 +320,12 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 self.currentChapter.images.push(response.id);
             }
         });
+        self.EvAg.trigger('fade/show');
         self.element.css({
             "margin-left" : -(self.element.width()/2)
         });
         self.element.fadeIn();
-        self.EvAg.trigger('fade/show');
+
     },
     submitChapter: function(e){
         var self = this;
@@ -609,13 +408,14 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 }
             });
         }
+        self.EvAg.trigger('fade/show');
         self.element.css({
            "margin-left" : -(self.element.width()/2)
         });
         self.element.fadeIn();
         $("#story-name").focus();
 
-        self.EvAg.trigger('fade/show');
+
     },
     close: function(){
         var self = this;
@@ -651,6 +451,8 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
         this.EvAg.bind("triggerInfiniteScroll", this.triggerScroll);
         this.EvAg.bind("infiniteScroll/lock", this.lock);
         this.EvAg.bind("infiniteScroll/unlock", this.unlock);
+        this.EvAg.bind("fade/show", this.off);
+        this.EvAg.bind("fade/hide", this.on);
         this.EvAg.bind("infiniteScroll/on", this.on);
         this.EvAg.bind("infiniteScroll/off", this.off);
         this.EvAg.bind('page/change', this.scrollUp);
@@ -699,9 +501,8 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','filterProducts','next','init','complete','relayout', 'addProducts','addTitle');
+        _.bindAll(this,'render','next','init','relayout', 'addProducts','addTitle');
         this.EvAg = options.EvAg;
-        this.EvAg.bind('filter/change', this.filterProducts);
         this.EvAg.bind('exhibit/relayout', this.relayout);
         this.EvAg.bind('exhibit/init', this.init);
         this.EvAg.bind('infiniteScroll', this.next);
@@ -724,21 +525,17 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             }
         });
 
-        if(!options.Filter) self.filter = '*';
-        else self.filter = "." + options.Filter;
         self.contentDescription = "";
         self.showDate = false;
         switch(options.Type){
             case "friend":
                 self.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
-                self.baseUrl = "#friends/exhibit/" + options.Id + "/";
                 self.contentTitle = "Your Friends";
                 self.id = "friends";
                 self.nextInt = 1;
                 break;
             case "partners":
                 self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.partnerId;
-                self.baseUrl = "#partners/" + options.partnerId + "/";
                 self.contentTitle = options.Name;
                 self.id = "partners";
                 self.showDate = 1;
@@ -746,7 +543,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 break;
             case "explore":
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed";
-                self.baseUrl = "#explore/";
                 self.contentTitle = "Just Purchased";
                 self.contentDescription = "See all the purchased products at our partners as they're bought ";
                 self.id= "explore";
@@ -754,25 +550,17 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 break;
             case "explore/friends":
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed/friends";
-                self.baseUrl = "#exploref/";
                 self.id = "explore/friends";
                 self.nextInt = 1;
                 break;
             case "exhibit":
                 self.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
-                self.baseUrl = "#me/";
                 self.contentTitle = "Me";
                 self.contentDescription = "All the products you've shared and the rewards you've earned";
                 self.id = null;
                 self.nextInt = 1;
                 break;
-            case "story":
-                self.jsonUrl = Echoed.urls.api + "/api/story/" + options.storyId;
-                self.id = "story";
-                self.nextInt = 0;
-                break;
         }
-        self.EvAg.trigger('filter/init', self.baseUrl);
         self.EvAg.trigger('infiniteScroll/lock');
         $.ajax({
             url: self.jsonUrl,
@@ -787,10 +575,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     render: function(data){
         var self = this;
-
-        self.EvAg.trigger("filter/change",self.filter);
-
-
         if(data.partner){
             self.contentDescription = "The recent products purchased at " + data.partner.name;
             self.addTitle(data.partner.name, data.partner.logo);
@@ -800,7 +584,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         } else if (self.id != "story"){
             self.addTitle(self.contentTitle);
         }
-
+        self.addLogin();
         if(data.echoes.length > 0){
             self.addProducts(data);
         }   else{
@@ -816,12 +600,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.exhibit.isotope('reLayout', function(){
             $("html, body").animate({scrollTop: e.offset().top - 90 }, 300);
         });
-    },
-    filterProducts: function(filter){
-        var self = this;
-        if(!filter) selector = '*';
-        else selector = "." + encodeURIComponent(filter);
-        self.exhibit.isotope({filter: '.no_filter,#exhibit .item_wrap' + selector});
     },
     next: function(){
         var self = this;
@@ -849,12 +627,18 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     addTitle: function(title, image){
         var self = this;
         var titleDiv = $('<div></div>').addClass('item_wrap').addClass('no_filter').attr("id","title");
-        titleDiv.append(title);
-        titleDiv.append($('<div></div>').addClass('title-description').append(self.contentDescription));
+        var titleContainer = $('<div></div>').addClass("title-container");
+        titleDiv.append(titleContainer);
+        titleContainer.append($('<div></div>').addClass('title-text').append(title));
+        titleContainer.append($('<div></div>').addClass('title-description').append(self.contentDescription));
         self.exhibit.isotope('insert', titleDiv);
     },
-    complete: function(){
+    addLogin: function(){
         var self = this;
+        var loginDiv = $('<div></div>').addClass('item_wrap');
+        var template = _.template($("#templates-components-login").html());
+        loginDiv.html(template);
+        self.exhibit.isotope('insert', loginDiv)
     },
     addStories: function(data){
         var self = this;
@@ -877,21 +661,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.exhibit.isotope('insert',productsFragment.children(), function(){
             self.EvAg.trigger('infiniteScroll/unlock');
         });
-    }
-});
-
-Echoed.Views.Components.Partner = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this);
-        this.EvAg = options.EvAg;
-        this.element = $(this.el);
-        this.partner = options.partner;
-    },
-    render: function(){
-        var self = this;
-        this.element.empty();
-        var template = _.template($('#templates-components-ptnr').html());
-        this.element.html(template);
     }
 });
 
@@ -1158,7 +927,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render','renderChapterImage','load','click');
+        _.bindAll(this,'render','renderChapterImage','load','click','createComment');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -1166,7 +935,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     events: {
         "click .echo-s-b-i-c": "click",
-        "click .echo-s-h-close" : "close"
+        "click .echo-s-h-close" : "close",
+        "click .comment-submit": "createComment",
+        "click a": "close"
     },
     load: function(id){
         var self = this;
@@ -1177,7 +948,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 withCredentials: true
             },
             success: function(data){
-                console.log(data);
                 self.data = data;
                 self.render();
             }
@@ -1196,32 +966,88 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
         self.img = $("<img />");
         itemNode.append(itemImageContainer.append(self.img)).appendTo(self.gallery);
+        self.thumbnails = $("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
+
         self.currentImageNum = 0;
         self.currentChapterNum = 0;
         self.renderChapter();
         self.renderChapterImage();
+        self.renderComments();
+        self.EvAg.trigger('fade/show');
         self.element.css({
            "margin-left": -(self.element.width() / 2)
         });
         self.element.fadeIn();
-
-        self.EvAg.trigger('fade/show');
-
     },
     renderChapter: function(){
         var self = this;
-        self.currentChapterId = self.data.chapters[self.currentChapterNum].id;
-        self.element.find('.echo-s-b-t-t').html(self.data.chapters[self.currentChapterNum].title);
-        self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[self.currentChapterNum].text + '"');
+        if(self.data.chapters.length>0){
+            self.currentChapterId = self.data.chapters[self.currentChapterNum].id;
+            self.element.find('.echo-s-b-t-t').html(self.data.chapters[self.currentChapterNum].title);
+            self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[self.currentChapterNum].text + '"');
+        }
     },
     renderChapterImage: function(){
         var self = this;
-        self.img.attr("src", self.data.chapterImages[self.currentImageNum].image.originalUrl);
+        if(self.data.chapterImages.length > 0){
+            self.img.attr("src", self.data.chapterImages[self.currentImageNum].image.originalUrl);
+        }
+    },
+    renderComments: function(){
+        var self = this;
+        var commentListNode = self.element.find('.echo-s-c-l');
+        var comments = {
+            children: []
+        };
+        $.each(self.data.comments, function(index, comment){
+            var parentId = comment.parentCommentId;
+            if(parentId == null){
+                comments.children.push(comment);
+            } else {
+                if(comments[parentId] == null){
+                    comments[parentId] = {
+                        children: []
+                    }
+                }
+                comments[parentId].children.push(comment);
+            }
+        });
+        commentListNode.empty();
+        $("#echo-story-comment-ta").val("");
+        if(self.data.comments.length > 0) $("#echo-s-c-t-count").html("(" + self.data.comments.length + ")");
+        $.each(self.data.comments, function(index,comment){
+            var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a></a>").append(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id));
+            var commentText = $('<div class="echo-s-c-l-c-t"></div>').append(comment.text);
+            var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
+            commentListNode.append(commentNode);
+        });
+    },
+    createComment: function(){
+        var self = this;
+        var storyId = self.data.story.id;
+        var chapterId = self.data.chapters[self.currentChapterNum].id;
+        var text = $("#echo-story-comment-ta").val();
+        $.ajax({
+            url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            data: {
+                text: text
+            },
+            success: function(createCommentData) {
+                self.data.comments.push(createCommentData);
+                self.renderComments();
+            }
+        });
     },
     close: function(){
         var self = this;
         self.element.fadeOut();
         self.EvAg.trigger("fade/hide");
+        self.EvAg.trigger("hash/reset");
     },
     click: function(){
         var self = this;
@@ -1242,7 +1068,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
 Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render','click');
+        _.bindAll(this,'render','click','hideOverlay','showOverlay');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -1250,7 +1076,9 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         this.render();
     },
     events: {
-        "click" : "click"
+        "click" : "click",
+        "mouseenter .story-brief-image-container": "showOverlay",
+        "mouseleave .story-brief-image-container": "hideOverlay"
     },
     render: function(){
         var self = this;
@@ -1258,19 +1086,34 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         self.element.html(template);
         var imageNode = self.element.find(".story-brief-image");
         var textNode = self.element.find(".story-brief-text");
+        var overlayNode = self.element.find(".story-brief-overlay-wrap");
         var image = null;
-        if(self.data.chapterImages.length > 0){
+        if(self.data.chapterImages.length > 0)
             image = self.data.chapterImages[0].image
-        } else {
+        else
             image = self.data.story.image;
-        }
+
+        var hToWidthRatio = image.preferredHeight / image.preferredWidth;
+        var width = 260;
         imageNode.attr("src", image.originalUrl).css({
-            "height" : image.preferredHeight,
-            "width" : image.preferredWidth
+            "height" : width * hToWidthRatio,
+            "width" : width
         });
-        textNode.append(self.data.story.title + "<br/>");
-        textNode.append(self.data.story.productInfo);
+        overlayNode.html(self.data.story.title);
+        var photoSrc;
+        if(self.data.echoedUser.facebookId)
+            photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
+        textNode.append($("<img height='40px' width='40px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
+        textNode.append("Story By " + self.data.echoedUser.name);
         self.element.attr("id", self.data.story.id);
+    },
+    showOverlay: function(){
+        var self = this;
+        self.element.find(".story-brief-overlay").fadeIn();
+    },
+    hideOverlay: function(){
+        var self = this;
+        self.element.find(".story-brief-overlay").fadeOut();
     },
     click: function(){
         var self = this;
@@ -1339,17 +1182,13 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             text.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
             this.el.attr("action","story");
         }
+        var heightToWidthRatio = imageHeight / imageWidth;
+        imageWidth = 260;
+        imageHeight = imageWidth * heightToWidthRatio;
         img.attr('src', imageUrl);
-        if (imageWidth > 230) {
-            imageHeight = 230 / imageWidth * imageHeight;
-            imageWidth = 230;
-        }
-        if (imageWidth > 0) {
-            img.attr('width', imageWidth)
-        }
-        if (imageHeight > 0) {
-            img.attr('height', imageHeight)
-        }
+        img.attr('width', imageWidth);
+        img.attr('height', imageHeight);
+
         if(this.model.get("echoCreditWindowEndsAt")){
             var then = this.model.get("echoCreditWindowEndsAt");
             var a = new Date();
@@ -1367,10 +1206,11 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         return this;
     },
     showOverlay: function(){
-        //this.el.find('.item_hover').slideDown('fast');
+        var img = this.el.find("img")
+        img.addClass("highlight");
     },
     hideOverlay: function(){
-        //this.el.find('.item_hover').slideUp('fast');
+        this.el.find("img").removeClass("highlight");
     },
     enlarge: function(){
         var self = this;
@@ -1412,7 +1252,5 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             var href = this.el.attr("href");
             window.open(href);
         }
-
-
     }
 });

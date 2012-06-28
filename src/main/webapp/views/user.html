@@ -2,6 +2,18 @@
 
 {{$header}}
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-fileuploader.css"/>
+    <script type="text/template" id="templates-components-login">
+        <div class="item_content">
+            <div id="login-container">
+                <div id="login-title">Join Echoed Now</div>
+                <div id="login-description">Share Product Stories with your friends</div>
+                <div id="login-buttons">
+                    <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
+                    <a id="twitterLogin" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
+                </div>
+            </div>
+        </div>
+    </script>
     <script type="text/template" id="templates-components-product">
         <div class="item_content">
             <div class="item_hover" style="display:none;">
@@ -16,7 +28,14 @@
     <script type="text/template" id="templates-components-story-brief">
         <div class="item_content">
             <div class="story-brief">
-                <img class="story-brief-image" src= ""/>
+                <div class="story-brief-image-container">
+                    <div class="story-brief-overlay" style="display:none;">
+                        <div class="story-brief-overlay-wrap">
+
+                        </div>
+                    </div>
+                    <img class="story-brief-image" src= ""/>
+                </div>
                 <div class="story-brief-text"></div>
             </div>
         </div>
@@ -35,8 +54,7 @@
                 </div>
             </div>
             <div class="story-edit-label">Chapters</div>
-            <div id="chapter-list">
-            </div>
+            <div id="chapter-list"></div>
             <div class="chapter-edit-body clearfix">
                 <div class="story-edit-label">Add Chapter</div>
                 <div class="chapter-edit-body-left">
@@ -81,36 +99,41 @@
         </div>
     </script>
     <script type="text/template" id="templates-components-story">
-        <div class="item_content">
-            <div class="echo-story-container">
-                <div class="echo-story-header clearfix">
-                    <div class="echo-s-h-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
-                    <div class="echo-s-h-title clearfix">
-                        <div class="echo-s-h-i-c">
-                            <img class="echo-s-h-i-i" src="" />
-                        </div>
-                        <div class="echo-s-h-t-t">
-                        </div>
-                        <div class="echo-s-h-t-n">
-                        </div>
+        <div class="echo-story-container">
+            <div class="echo-story-header clearfix">
+                <div class="echo-s-h-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
+                <div class="echo-s-h-title clearfix">
+                    <div class="echo-s-h-i-c">
+                        <img class="echo-s-h-i-i" src="" />
+                    </div>
+                    <div class="echo-s-h-t-t">
+                    </div>
+                    <div class="echo-s-h-t-n">
                     </div>
                 </div>
-                <div class="echo-story-body clearfix">
-                    <div class="echo-s-b-text">
-                        <div class="echo-s-b-t-t"></div>
-                        <div class="echo-s-b-t-b"></div>
-                    </div>
-                    <div class="echo-s-b-segment"></div>
-                    <div class="echo-s-b-gallery clearfix">
-                    </div>
+            </div>
+            <div class="echo-chapter"></div>
+            <div class="echo-story-body clearfix">
+                <div class="echo-s-b-text">
+                    <div class="echo-s-b-t-t"></div>
+                    <div class="echo-s-b-t-b"></div>
                 </div>
-                <div class="echo-story-footer clearfix">
-                    <div class="echo-story-comments">
-                        <div class="echo-s-c-t">
-                            Comments
-                        </div>
+                <div class="echo-s-b-segment"></div>
+                <div class="echo-s-b-gallery clearfix">
+                </div>
+            </div>
+            <div class="echo-story-footer clearfix">
+                <div class="echo-story-comments">
+                    <div class="echo-s-c-t">
+                        Comments <span id="echo-s-c-t-count"></span>
                     </div>
-
+                    <div class="echo-s-c-ta">
+                        <textarea id="echo-story-comment-ta"></textarea>
+                    </div>
+                    <span class="comment-submit">Submit Comment</span>
+                    <div class="echo-s-c-l">
+                        <!-- Comment List -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -231,6 +254,9 @@
                         </a>
                     </li>
                 </ul>
+                <div class="nav-label">
+                    Categories
+                </div>
             </div>
             {{/echoedUser}}
             <!--<div id="networks">
@@ -254,7 +280,7 @@
                 {{/echoedUser}}
             </div> -->
             {{^echoedUser}}
-                <div id="login-container">
+                <!--<div id="login-container">
                     <ul>
                         <li>
                             <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
@@ -263,7 +289,7 @@
                             <a id="twitterLogin" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
                         </li>
                     </ul>
-                </div>
+                </div>-->
             {{/echoedUser}}
             <div id="content-selector-container">
                 <div id="content-selector" class="dropdown">
@@ -286,13 +312,13 @@
             {{/echoedUser}}
         </div>
         <div id="content" class="clearfix"></div>
-        <div id="story" style="display:none"></div>
-        <div id="field" style="display:none;"></div>
-        <div id="transition" stype="display:none"></div>
         <div id="infiniteScroll" style="display:none;">
             Loading More Products <img align="absmiddle" src="{{urls.images}}/bk_loader_circle.gif" />
         </div>
-        <div id="fade" style="display:none;"></div>
+        <div id="fade" style="display:none;">
+            <div id="story" style="display:none"></div>
+            <div id="field" style="display:none;"></div>
+        </div>
     </div>
 
     <script type="text/javascript">

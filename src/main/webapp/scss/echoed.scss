@@ -69,13 +69,23 @@ table{
 
 //STANDARD HTML ELEMENTS DEFINITION
 html{
-    height: 100%;
     overflow-y: scroll;
+    height: 100%;
+    &.noScroll{
+        overflow-y: hidden;
+    }
 }
 
+
 body{
+    background-color: rgba(200,225, 255, 1);
     background-image: image-url("bk_noise.jpg");
     height: 100%;
+    &.noScroll{
+        overflow-y: hidden;
+    }
+
+
 }
 
 img{
@@ -105,17 +115,22 @@ h2{
 
 .nav-label{
     padding: 7px 0px;
-    border-bottom: 1px #CCC solid;
-    @include navFont;
+    border-bottom: 1px #000 dotted;
+    @include textFontBold(24px);
+    text-shadow: 0px 1px 0px #FFF;
     text-align:center;
 }
 
 #fade { /*--Transparent background layer--*/
     position: absolute;
     z-index: 9999;
-    background-image: image_url("bk_greyPx.png");
+    //background-image: image_url("bk_greyPx.png");
+    background-color: rgba(0,0,0,0.7);
     top: 0px;
     left: 0px;
+    bottom: 0px;
+    right: 0px;
+    overflow-y: scroll;
 }
 
 #container{
@@ -135,9 +150,10 @@ h2{
 
     #header-container{
         position: fixed;
-        z-index: 99999;
+        z-index: 1000;
         top: 0px;
-        width: 100%;
+        left: 0px;
+        right: 0px;
         height: 40px;
         background-color: #FFF;
         @include drop-shadow;
@@ -182,19 +198,19 @@ h2{
         right:0px;
         top: 40px;
         width: 180px;
-        padding: 5px;
+        //padding: 5px;
         height: 100%;
-        //background-color: #F7F7F7;
-        border-left: 1px solid #CCC;
-        box-shadow: -1px 0 0 #FFF;
-        //-moz-box-shadow: -1px 0 0 #FFF;
-        //-webkit-box-shadow: -1px 0 0 #FFF;
+        background-color: rgba(0,0,0,0.15);
+        border-left: 1px solid #999;
+        //box-shadow: -1px 0 0 #CCC;
+        //-moz-box-shadow: -1px 0 0 #CCC;
+        //-webkit-box-shadow: -1px 0 0 #CCC;
     }
 
         #actions{
-            background-color: #FFF;
+            //background-color: #FFF;
             //@include drop-shadow;
-            border: 1px solid #CCC;
+            //border: 1px solid #CCC;
             margin-bottom: 10px;
             text-align:center;
             padding: 5px;
@@ -203,10 +219,10 @@ h2{
                 cursor: pointer;
                 border-radius: 5px;
                 margin: 5px 10px;
-                padding: 7px 0px;
-                @include textFontBold(14px, #FFF);
+                padding: 5px 0px;
+                @include textFontBold(16px, #FFF);
                 background-color: #00CC00;
-                text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
+                //text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
             }
         }
 
@@ -219,31 +235,42 @@ h2{
         }
 
         #login-container{
-            background-color: #FFF;
-            border: 1px solid #CCC;
-            margin-bottom: 10px;
-            .login{
-                padding: 7px 10px;
+            background-color: rgba(200,225,255, 0.5);
+            width: 572px;
+            height: 200px;
+            #login-title{
+                padding: 10px 20px;
+                @include textFontBold(34px);
                 text-align: center;
-                border-bottom: 1px solid #CCC;
             }
-            li{
-                padding: 4px 10px 0px 10px;
-                list-style:none;
-                @include textFontNormal(12px);
+            #login-description{
+                padding: 0px 10px;
+                @include textFontNormal(24px);
+                text-align: center;
             }
+            #login-buttons{
+                margin-top: 20px;
+                text-align: center;
+                .login{
+                    padding: 7px 10px;
+                    text-align: center;
+                    border-bottom: 1px solid #CCC;
+                }
+            }
+
         }
 
 
 		#header-nav, #footer-nav{
-            background-color: #FFF;
-            border: 1px solid #CCC;
+            //background-color: #FFF;
+            border-bottom: 1px dotted #000;
             margin-bottom: 10px;
-
+            margin-top: 20px;
             li{
                 padding: 7px 10px;
                 list-style:none;
-                @include textFontNormal(12px);
+                @include textFontNormal(14px);
+                text-shadow: 0px 1px 0px #FFF;
                 //float:left;
             }
             li:hover, .current{
@@ -252,20 +279,25 @@ h2{
 		}
 
     #title{
-        width: 210px;
-        padding: 10px;
-        text-align:center;
-        //padding: 10px 10px;
-        @include textFontNormal(24px, #FFF);
-        background-color: #333 !important;
-        .title-description{
-            @include textFontNormal(14px, #FFF);
+        float:left;
+        .title-container{
+            width: 272px;
+            background-color: #333;
+            border-radius: 3px;
+            .title-text{
+                padding: 10px;
+                text-align: center;
+                @include textFontNormal(24px, #FFF);
+            }
+            .title-description{
+                //padding: px;
+
+                padding-bottom: 20px;
+                @include textFontNormal(16px, #FFF);
+                text-align: center;
+            }
         }
-        //border: 1px solid #CCC;
-        //text-shadow: #fff 1px 1px 0;
-        img {
-           width: 230px;
-        }
+
     }
 
     #content-title{
@@ -288,6 +320,7 @@ h2{
     }
 
     #content-selector-container{
+        display:none;
 		#content-selector{
             position:relative;
 			margin: 0px auto 0px;
@@ -307,18 +340,20 @@ h2{
         .dropdown{
             position:relative;
             cursor: pointer;
-            background-color: #FFF;
+            //background-color: #FFF;
             margin-bottom: 10px;
             //@include drop-shadow;
             border: 1px solid #CCC;
             white-space: nowrap;
                 .dd-header{
                     padding: 7px 10px;
+                    @include textFontNormal(18px);
+                    text-shadow: 0px 1px 0px #FFF;
                 }
                 .dd-body{
                     //display:none;
                     ul{
-                        background-color: #FFF;
+                        //background-color: #FFF;
                         position:relative;
                         z-index: 10;
                         border-top: 1px solid #CCC;
@@ -352,7 +387,7 @@ h2{
 
         #field{
             position:absolute;
-            top: 50px;
+            top: 100px;
             left: 50%;
             //margin-left: -350px;
             //width: 640px;
@@ -362,8 +397,9 @@ h2{
             border-radius: 3px;
             .field-close{
                 position:absolute;
-                right: 0px;
-                float:right;
+                right: -25px;
+                top: -25px;
+                //float:right;
                 cursor: pointer;
             }
             .field-photo-container{
@@ -505,6 +541,7 @@ h2{
                         .chapter-photos{
                             float:left;
                             .chapter-photo{
+                                float:left;
                                 margin: 2px;
                                 border: 1px solid #CCC;
                                 img {
@@ -685,42 +722,69 @@ h2{
 			}
 
 	        .item_wrap{
-                border: 1px solid #FFF;
+                border: 1px solid rgba(155,155,155, 0.5);
                 z-index :1;
                 float:left;
                 margin:5px;
+                padding: 7px;
+                background-color: #FFF;
                 position:relative;
-                &:hover{
-                    border: 1px solid #000000;
-                }
-                &.hover{
-                    width: 460px;
-
-                }
                 .item_content{
                     .story-brief{
                         cursor: pointer;
                         .story-brief-text{
-                            border-top: 1px solid #CCC;
-                            padding: 5px;
+                            padding: 7px 5px 2px 5px;
                             line-height: 1.5em;
-                            text-overflow: ellipsis;
-                            width: 220px;
-                            @include textFontNormal(12px, #333);
+                            @include textFontNormal(14px, #333);
                             background-color: rgba(255,255,255, 0.8);
+                            width: 250px;
                         }
-                        .story-brief-image{
+                        .story-brief-image-container{
+                            position:relative;
+                            border: 6px solid #F0F0F0;
+                            border-radius: 3px;
+                            cursor: pointer;
+                            -webkit-transition: all 0.2s ease-in-out;
+                            -moz-transition: all 0.2s ease-in-out;
+                            -o-transition: all 0.2s ease-in-out;
+                            -ms-transition: all 0.2s ease-in-out;
+                            transition: all 0.2s ease-in-out;
+                            &.highlight{
+                                border-color: #CCC;
+                            }
+                            .story-brief-overlay{
+                                background-color: rgba(0,0,0, 0.8);
+                                width: 100%;
+                                height: 100%;
+                                position: absolute;
+                                top:0px;
+                                left:0px;
+                                right:0px;
+                                .story-brief-overlay-wrap{
+                                    margin: 20px;
+                                    @include textFontBold(24px, #FFF);
+                                    text-align: center;
+                                }
+                            }
+                            .story-brief-image{
+                            }
                         }
+
                     }
                 }
 
-	            img{
-	                //width: 230px;
+	            .exhibit_image{
+                    border: 6px solid #F0F0F0;
+                    border-radius: 3px;
                     cursor: pointer;
-	                border: 0px;
-	                &.open-echo{
-    	                //border-color: $highlightColor;
-    	            }
+                    -webkit-transition: all 0.2s ease-in-out;
+                    -moz-transition: all 0.2s ease-in-out;
+                    -o-transition: all 0.2s ease-in-out;
+                    -ms-transition: all 0.2s ease-in-out;
+                    transition: all 0.2s ease-in-out;
+                    &.highlight{
+                        border-color: #CCC;
+                    }
     	        }
 
                 .icl_pn{
@@ -774,11 +838,12 @@ h2{
     	        }
 	        }
 	        .item_text{
-	            border-top: 1px solid #CCC;
 	            padding: 5px;
 	            line-height: 1.5em;
                 text-overflow: ellipsis;
-                width: 220px;
+                white-space: nowrap;
+                overflow: hidden;
+                width: 250px;
                 @include textFontNormal(12px, #333);
                 background-color: #FFF;
 
@@ -1063,22 +1128,22 @@ h3{
 
 #story{
     position: absolute;
-    top: 75px;
+    display: inline-block;
     left: 50%;
     z-index: 99999;
 }
 .echo-story-container{
     position:relative;
-    background-color: #E3E3E3;
-    background-image: image-url("bk_story_gradient.jpg");
-    background-repeat: repeat-x;
-    width: 680px;
+    background-image: image-url("bk_noise.jpg");
     padding-bottom: 10px;
     border: 8px solid #FFF;
+    border-radius: 3px;
+    margin: 50px 0px;
     .echo-s-h-close{
         position:absolute;
         right: -25px;
         top: -25px;
+        cursor: pointer;
     }
     .echo-story-header{
         padding: 10px;
@@ -1086,14 +1151,16 @@ h3{
             @include textFontNormal(16px);
             .echo-s-h-t-t{
                 @include textFontBold(24px);
-                float:left;
+                margin: 0px 30px;
+                text-align: center;
             }
             .echo-s-h-t-n{
                 @include textFontNormal(16px);
-                float:right;
+                text-align: center;
             }
             .echo-s-h-i-c{
                 float:left;
+                display: none;
                 margin-right: 10px;
                 .echo-s-h-i-i {
                     height: 50px;
@@ -1101,21 +1168,24 @@ h3{
             }
         }
     }
+    .echo-chapter{
+        height: 30px;
+    }
     .echo-story-body{
         position: relative;
         //margin: 10px;
         margin: 5px 10px;
         padding-bottom: 10px;
         //@include inset-shadow;
-        border-bottom: 1px solid #CCC;
-        box-shadow: 0px 1px 0px #FFF;
+        //border-bottom: 1px solid #CCC;
+        //box-shadow: 0px 1px 0px #FFF;
         .echo-s-b-text{
             float:left;
-            width: 230px;
+            width: 300px;
             padding: 0px 0px 0px 5px;
             .echo-s-b-t-t{
                 padding-bottom: 5px;
-                @include textFontBold(16px);
+                @include textFontBold(24px);
             }
             .echo-s-b-t-b{
                 padding: 10px 0px;
@@ -1192,9 +1262,54 @@ h3{
             //border-top: 1px #CCC solid;
             .echo-s-c-t{
                 @include textFontBold(24px);
+                margin-bottom: 10px;
+                #echo-s-c-t-count{
+
+                }
+            }
+            .echo-s-c-ta{
+                margin: 10px 0px;
+                textarea{
+                    width: 705px;
+                    padding: 10px;
+                    border-radius: 5px;
+                    resize: none;
+                    height: 50px;
+                    border: 1px solid #CCC;
+                    @include textFontNormal(14px);
+                }
+
+            }
+            .comment-submit{
+                cursor: pointer;
+                border-radius: 5px;
+                padding: 7px 10px;
+                display: inline-block;
+                width: 150px;
+                text-align: center;
+                @include textFontBold(14px, #FFF);
+                background-color: #00CC00;
+                text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
+            }
+            .echo-s-c-l{
+                margin-top: 10px;
+                border-top: 1px dotted #999;
+                padding: 10px 0px;
+                .echo-s-c-l-c{
+                    padding: 10px 0px 10px 10px;
+                    .echo-s-c-l-c-u{
+                        @include textFontBold(14px, #FF0000);
+                    }
+                    .echo-s-c-l-c-t{
+                        padding: 5px 0px;
+                        @include textFontNormal(14px, #000);
+                        border-bottom: 1px dotted #999;
+                    }
+
+                }
+
             }
         }
 
     }
-
 }

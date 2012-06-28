@@ -258,6 +258,7 @@
                 left outer join ChapterImage CI on S.id = CI.storyId
                 left outer join Image CIMG on CI.imageId = CIMG.id
                 left outer join Comment CMT on S.id = CMT.storyId
+                left outer join EchoedUser CMTEU on CMT.byEchoedUserId = CMTEU.id
     </sql>
 
     <select id="findStoryByEchoedUserId" resultMap="storyFullResult" useCache = "false">
