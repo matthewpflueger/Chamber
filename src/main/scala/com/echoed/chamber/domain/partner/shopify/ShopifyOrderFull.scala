@@ -1,7 +1,6 @@
 package com.echoed.chamber.domain.partner.shopify
 
-
-import com.shopify.api.resources.Order
+import com.echoed.chamber.services.partner.shopify.order
 
 
 case class ShopifyOrderFull(
@@ -12,12 +11,12 @@ case class ShopifyOrderFull(
         lineItems: List[ShopifyLineItem]) {
     
     def this(
-            o: Order,
+            o: order,
             su: ShopifyPartner,
             lineItems: List[ShopifyLineItem] ) = this(
-        o.getId.toString,
-        o.getOrderNumber.toString,
-        if (o.getCustomer == null) "Guest" else o.getCustomer.getId.toString,
+        o.id.toString,
+        o.orderNumber,
+        if (o.customer == null) "Guest" else o.customer.id.toString,
         su,
         lineItems)
     

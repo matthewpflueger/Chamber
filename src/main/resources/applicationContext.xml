@@ -216,9 +216,10 @@
 
     <bean
             id="facebookAccessActor"
-            class="com.echoed.chamber.services.facebook.FacebookAccessActor"
+            class="com.echoed.chamber.services.facebook.FacebookAccessDispatchActor"
             parent="actorBean">
         <property name="properties" ref="facebookAccessProperties" />
+        <property name="httpClient" ref="httpClient" />
     </bean>
 
 
@@ -381,15 +382,16 @@
         <property name="properties" ref="shopifyProperties" />
     </bean>
 
-
+            <!--class="com.echoed.chamber.services.partner.shopify.ShopifyAccessDispatchActor"-->
     <bean
             id="shopifyAccessActor"
-            class="com.echoed.chamber.services.partner.shopify.ShopifyAccessActor"
+            class="com.echoed.chamber.services.partner.shopify.ShopifyAccessDispatchActor"
             parent="actorBean">
         <property name="properties" ref="shopifyProperties" />
+        <property name="httpClient" ref="httpClient" />
     </bean>
 
-    
+
     <bean
             id="networkSolutionsPartnerServiceManagerActor"
             class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsPartnerServiceManagerActor"
@@ -452,7 +454,8 @@
     <bean
             id="facebookPostCrawlerActor"
             class="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor"
-            parent="actorBean">
+            parent="actorBean"
+            lazy-init="false">
         <property name="facebookPostDao" ref="facebookPostDao" />
         <property name="facebookLikeDao" ref="facebookLikeDao" />
         <property name="facebookCommentDao" ref="facebookCommentDao" />

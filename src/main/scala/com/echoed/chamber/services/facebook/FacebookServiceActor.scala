@@ -9,6 +9,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import akka.util.duration._
 import akka.actor.{PoisonPill, ActorRef, Actor}
+import com.echoed.chamber.services.ActorClient
 
 
 class FacebookServiceActor(
@@ -144,37 +145,22 @@ class FacebookServiceActor(
                     channel ! GetFriendsResponse(msg, Left(FacebookException("Cannot get Facebook friends", e)))
             }
 
+
         case '_fetchFacebookFriends =>
-            val channel = context.sender
+            facebookAccess.asInstanceOf[ActorClient].actorRef ! GetFriends(
+                    facebookUser.accessToken,
+                    facebookUser.facebookId,
+                    facebookUser.id,
+                    context.sender)
 
-            def error(e: Throwable) {
-                channel ! GetFriendsResponse(
-                        GetFriends(facebookUser.accessToken, facebookUser.facebookId, facebookUser.id),
-                        Left(FacebookException("Could not fetch friends", e)))
-                logger.error("Error fetching Facebook friends for {}: {}", facebookUser.id, e)
-            }
+        case msg @ GetFriendsResponse(GetFriends(_, _, _, context), Right(facebookFriends)) =>
+            logger.debug("Received from FacebookAccessActor {} FacebookFriends for FacebookUser {}",
+                    facebookFriends.length,
+                    facebookUser.id)
+            context ! msg
+            facebookFriends.foreach(facebookFriendDao.insertOrUpdate(_))
+            logger.debug("Successfully saved list of {} FacebookFriends for {}", facebookFriends.length, facebookUser.id)
 
-            try {
-                logger.debug("Fetching friends for FacebookUser {}", facebookUser.id)
-                facebookAccess.getFriends(facebookUser.accessToken, facebookUser.facebookId, facebookUser.id).onComplete(_.fold(
-                    error(_),
-                    _ match {
-                        case msg @ GetFriendsResponse(_, Right(facebookFriends)) =>
-                            logger.debug("Received from FacebookAccessActor {} FacebookFriends for FacebookUser {}",
-                                    facebookFriends.length,
-                                    facebookUser.id)
-                            channel ! msg
-                            facebookFriends.foreach(facebookFriendDao.insertOrUpdate(_))
-                            logger.debug("Successfully saved list of {} FacebookFriends for {}", facebookFriends.length, facebookUser.id)
-                            facebookFriends
-
-                        case msg @ GetFriendsResponse(_, Left(e)) =>
-                            logger.debug("Received error response for fetching friends for FacebookUser {}", facebookUser.id)
-                            channel ! msg
-                }))
-            } catch {
-                case e => error(e)
-            }
 
         case msg @ Logout(facebookUserId) =>
             val channel = context.sender

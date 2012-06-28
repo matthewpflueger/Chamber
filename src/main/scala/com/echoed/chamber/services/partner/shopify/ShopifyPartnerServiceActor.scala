@@ -3,7 +3,6 @@ package com.echoed.chamber.services.partner.shopify
 import com.echoed.util.TransactionUtils._
 import com.echoed.chamber.domain.partner.shopify._
 import collection.mutable.{Map => MMap}
-import collection.JavaConversions._
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
@@ -12,7 +11,6 @@ import com.echoed.chamber.services.partner._
 import java.util.Date
 import com.echoed.chamber.domain.partner.Partner
 import akka.dispatch.Future
-import com.shopify.api.resources.LineItem
 import partner.shopify.ShopifyPartnerDao
 import partner.{PartnerSettingsDao, PartnerDao}
 import akka.event.Logging
@@ -180,13 +178,13 @@ class ShopifyPartnerServiceActor(
                 _ match {
                     case GetOrderResponse(_, Left(e)) => error(e)
                     case GetOrderResponse(_, Right(o)) =>
-                        logger.debug("Successfully fetched Shopify order {} for {}", o.getId, partner.name)
+                        logger.debug("Successfully fetched Shopify order {} for {}", o.id, partner.name)
 
                         val liMap = MMap[String, LineItem]()
-                        val productList = Future.sequence(o.getLineItems.map { li =>
-                            logger.debug("Fetching Shopify product {} for order {}", li.getProductId, o.getId)
-                            liMap(li.getProductId.toString) = li
-                            shopifyAccess.fetchProduct(shopifyPartner.shopifyDomain, shopifyPartner.password, li.getProductId)
+                        val productList = Future.sequence(o.lineItems.toList.map { li =>
+                            logger.debug("Fetching Shopify product {} for order {}", li.productId, o.id)
+                            liMap(li.productId) = li
+                            shopifyAccess.fetchProduct(shopifyPartner.shopifyDomain, shopifyPartner.password, li.productId)
                         })
 
                         productList.onComplete(_.fold(
@@ -197,7 +195,7 @@ class ShopifyPartnerServiceActor(
                                     .map(res => new ShopifyProduct(res.resultOrException))
                                     .map(p => new ShopifyLineItem(liMap(p.id), p))
                                     .toList
-                                logger.debug("Successfully fetched {} products for order {}", shopifyLineItems.length, o.getId)
+                                logger.debug("Successfully fetched {} products for order {}", shopifyLineItems.length, o.id)
                                 channel ! GetOrderFullResponse(msg, Right(new ShopifyOrderFull(
                                             o,
                                             shopifyPartner,

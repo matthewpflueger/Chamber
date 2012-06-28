@@ -8,7 +8,6 @@ import collection.mutable.{ListBuffer => MList, HashMap => MMap}
 import dispatch._
 
 import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
-import com.echoed.util.ScalaJson._
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
 import org.joda.time.format.DateTimeFormat
 import akka.actor._
@@ -17,6 +16,7 @@ import akka.util.Timeout
 import akka.event.Logging
 import akka.util.duration._
 import akka.actor.SupervisorStrategy.Stop
+import com.echoed.util.ScalaObjectMapper
 
 
 class BigCommerceAccessActor extends FactoryBean[ActorRef] {
@@ -64,15 +64,17 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
         }
 
 
+    private def parse[T](value: String, valueType: Class[T]) = ScalaObjectMapper(value, valueType)
+
     private def requestAsMap(c: BigCommerceCredentials, path: String)
             (callback: Map[String, AnyRef] => Unit)
             (error: PartialFunction[Throwable, Unit]) =
-        request(c, path) { in => callback(parse[Map[String, AnyRef]](in).withDefaultValue("")) } (error)
+        request(c, path) { in => callback(parse(in, classOf[Map[String, AnyRef]]).withDefaultValue("")) } (error)
 
     private def requestAsArray(c: BigCommerceCredentials, path: String)
             (callback: Array[JMap[String, AnyRef]] => Unit)
             (error: PartialFunction[Throwable, Unit]) =
-        request(c, path) { in => callback(parse[Array[JMap[String, AnyRef]]](in)) } (error)
+        request(c, path) { in => callback(parse(in, classOf[Array[JMap[String, AnyRef]]])) } (error)
 
 
     def receive = {

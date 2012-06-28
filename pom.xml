@@ -92,11 +92,6 @@
             <version>5.1.17</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.5</version>
-        </dependency>
-        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>2.2</version>
@@ -107,10 +102,12 @@
             <version>2.3</version>
         </dependency>
         <dependency>
-            <groupId>com.googlecode.batchfb</groupId>
-            <artifactId>batchfb</artifactId>
-            <version>2.1.2</version>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.4</version>
         </dependency>
+
+
         <dependency>
             <groupId>com.github.spullara.mustache.java</groupId>
             <artifactId>compiler</artifactId>
@@ -122,9 +119,9 @@
             <version>12.0</version>
         </dependency>
         <dependency>
-            <groupId>com.codahale</groupId>
-            <artifactId>jerkson_2.9.1</artifactId>
-            <version>0.5.0</version>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-scala</artifactId>
+            <version>2.0.2</version>
         </dependency>
 
 
@@ -207,47 +204,6 @@
         </dependency>
 
 
-        <!-- Codehaus Jackson Dependency Used for Shopify4j-->
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mrbean</artifactId>
-            <version>1.9.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codegist.crest</groupId>
-            <artifactId>codegist-crest-sample</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-       <dependency>
-           <groupId>org.json</groupId>
-           <artifactId>org.json</artifactId>
-           <version>chargebee-1.0</version>
-       </dependency>
-
-
-        <!-- Apache used for Shopify -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>4.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.1.2</version>
-        </dependency>
-
-
         <!-- Cloud server and files dependencies -->
         <dependency>
             <groupId>org.jclouds.provider</groupId>
@@ -325,11 +281,6 @@
             <url>http://repo.typesafe.com/typesafe/releases/</url>
         </repository>
 
-        <!-- Jerkson for Scala JSON parsing repository -->
-        <repository>
-            <id>repo.codahale.com</id>
-            <url>http://repo.codahale.com</url>
-        </repository>
         <repository>
             <id>twitter4j.org</id>
             <name>twitter4j.org Repository</name>

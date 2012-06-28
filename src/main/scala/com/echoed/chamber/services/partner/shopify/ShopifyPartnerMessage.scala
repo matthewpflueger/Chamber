@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.partner.shopify
 
 import com.echoed.chamber.services.{ResponseMessage => RM}
-import com.shopify.api.resources.{Order => SO, Product => SP}
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
 import com.echoed.chamber.domain.partner.shopify.{ShopifyOrderFull, ShopifyPartner}
 import com.echoed.chamber.services.partner.{PartnerAlreadyExists, PartnerException => PE, PartnerMessage => PM}
@@ -13,6 +12,7 @@ sealed case class ShopifyPartnerException(_message: String = "", _cause: Throwab
 import com.echoed.chamber.services.partner.shopify.{ShopifyPartnerMessage => SPM}
 import com.echoed.chamber.services.partner.shopify.{ShopifyPartnerException => SPE}
 
+import com.echoed.chamber.services.partner.shopify.{order => SO, product => SP}
 
 case class RegisterShopifyPartnerEnvelope(
         shopifyPartner: ShopifyPartner,
@@ -86,7 +86,7 @@ private[shopify] case class FetchOrderResponse(message: FetchOrder, value: Eithe
         extends SPM
         with RM[SO, FetchOrder, SPE]
 
-private[shopify] case class FetchProduct(shop: String, password: String, productId: Int) extends SPM
+private[shopify] case class FetchProduct(shop: String, password: String, productId: String) extends SPM
 private[shopify] case class FetchProductResponse(message: FetchProduct, value: Either[SPE, SP])
         extends SPM
         with RM[SP, FetchProduct, SPE]
@@ -96,7 +96,8 @@ private[shopify] case class FetchProductsResponse(message: FetchProducts, value:
         extends SPM
         with RM[List[SP], FetchProducts, SPE]
 
-private[shopify] case class FetchShopFromToken(shop: String,  signature: String, t: String,  timeStamp: String) extends SPM
+private[shopify] case class FetchShopFromToken(shop: String,  signature: String, t: String,  timeStamp: String)
+        extends SPM
 private[shopify] case class FetchShopFromTokenResponse(message: FetchShopFromToken, value: Either[SPE, ShopifyPartner])
         extends SPM
         with RM[ShopifyPartner, FetchShopFromToken, SPE]

@@ -4,10 +4,10 @@ package com.echoed.chamber.services.partner.bigcommerce
 import dispatch._
 
 import scala.collection.JavaConversions._
-import com.echoed.util.ScalaJson._
 import java.util.{Map => JMap}
 
 import org.joda.time.format.DateTimeFormat
+import com.echoed.util.ScalaObjectMapper
 
 
 object DispatcherJSONTest extends App {
@@ -221,11 +221,13 @@ object DispatcherJSONTest extends App {
     val date = formatter.parseDateTime("Mon, 14 May 2012 18:11:26 +0000").toDate
     println("Date is %s" format date)
 
+    def parse[T](value: String, valueType: Class[T]) = ScalaObjectMapper(value, valueType)
+
     h(endpoint
             .as_!(apiUser, apiToken)
             .addHeader("Accept", "application/json; charset=utf-8")
             / "orders/107/products" OK As.string).onSuccess { case res =>
-        val node = parse[Array[JMap[String, AnyRef]]](res).apply(0)//.asInstanceOf[java.util.Map[String, AnyRef]]
+        val node = parse(res, classOf[Array[JMap[String, AnyRef]]]).apply(0)//.asInstanceOf[java.util.Map[String, AnyRef]]
         println("Json is %s" format node)
         for ( k <- node.keySet()) {
             println("Key %s is %s" format(k, node.get(k)))

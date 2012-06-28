@@ -27,7 +27,7 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
     @BeanProperty var client: Http = _
 
     val urn = "urn:networksolutions:apis"
-    val endpoint = url("https://ecomapi.networksolutions.com/SoapService.asmx")
+    val endpoint = "https://ecomapi.networksolutions.com/SoapService.asmx"
 
     @BeanProperty var properties: Properties = _
 
@@ -129,7 +129,7 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                 <soap12:Body>{body}</soap12:Body>
             </soap12:Envelope>
 
-        endpoint
+        url(endpoint)
             .addHeader("Accept", "application/soap+xml; charset=utf-8")
             .setMethod("POST")
             .setBody(content.toString)

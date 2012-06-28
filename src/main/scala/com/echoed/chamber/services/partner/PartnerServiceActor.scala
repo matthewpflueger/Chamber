@@ -2,7 +2,6 @@ package com.echoed.chamber.services.partner
 
 import akka.actor.Actor
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
-import org.codehaus.jackson.`type`.TypeReference
 import com.echoed.chamber.domain.views.EchoPossibilityView
 import java.util.Date
 import akka.dispatch.Future
@@ -95,7 +94,7 @@ class PartnerServiceActor(
                         echo
                     })
                 }
-            } catch { case e => logger.error("Could not save %s" format ec, e); e }
+            } catch { case e => logger.error("Could not save {}: {}", ec, e) }
         }.filter(_.isInstanceOf[Echo]).map(_.asInstanceOf[Echo])
 
         if (echoes.isEmpty) throw new InvalidEchoRequest()
@@ -128,7 +127,7 @@ class PartnerServiceActor(
 
                 val echoRequest: EchoRequest = new ScalaObjectMapper().readValue(
                         decryptedRequest,
-                        new TypeReference[EchoRequest]() {})
+                        classOf[EchoRequest]) //new TypeReference[EchoRequest]() {})
 
                 channel ! RequestEchoResponse(msg, Right(requestEcho(
                         echoRequest,

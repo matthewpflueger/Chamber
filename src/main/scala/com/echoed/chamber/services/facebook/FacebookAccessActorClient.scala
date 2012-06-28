@@ -21,8 +21,8 @@ class FacebookAccessActorClient
     def getMe(code: String, queryString: String) =
             (actorRef ? GetMe(code, queryString)).mapTo[GetMeResponse]
 
-    def getFriends(accessToken: String, facebookId: String, facebookUserId: String) =
-            (actorRef ? GetFriends(accessToken, facebookId, facebookUserId)).mapTo[GetFriendsResponse]
+    def getFriends(accessToken: String, facebookId: String, facebookUserId: String, context: ActorRef) =
+            (actorRef ? GetFriends(accessToken, facebookId, facebookUserId, context)).mapTo[GetFriendsResponse]
 
     def post(accessToken: String, facebookId: String, facebookPost: FacebookPost) =
             (actorRef ? Post(accessToken, facebookId, facebookPost)).mapTo[PostResponse]

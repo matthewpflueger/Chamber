@@ -3,12 +3,10 @@ package com.echoed.chamber.util
 import com.echoed.chamber.controllers.EchoPossibilityParameters
 import scala.reflect.BeanProperty
 import scala.collection.JavaConversions.asScalaBuffer
-import org.codehaus.jackson.`type`.TypeReference
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.facebook.Me
 import java.net.{HttpURLConnection, URL}
 import java.io.{InputStreamReader, BufferedReader}
-import org.codehaus.jackson.map.ObjectMapper
 import scala.collection.mutable.Buffer
 import com.echoed.chamber.dao._
 import com.echoed.util.ScalaObjectMapper
@@ -17,6 +15,7 @@ import java.util.{Properties, Random, Calendar, Date, UUID}
 import com.google.common.io.ByteStreams
 import com.echoed.chamber.dao.partner.{PartnerUserDao, PartnerSettingsDao, PartnerDao}
 import com.echoed.chamber.domain.partner.{PartnerUser, PartnerSettings, Partner}
+import com.fasterxml.jackson.databind.ObjectMapper
 
 
 class DataCreator {
@@ -114,7 +113,7 @@ class DataCreator {
             try {
                 total = total + 1
                 logger.debug("Working on {}: {}", total, simpleTestUser)
-                val me: Me = objectMapper.readValue(new URL(meUrl format(simpleTestUser.access_token)), new TypeReference[Me]() {})
+                val me: Me = objectMapper.readValue(new URL(meUrl format(simpleTestUser.access_token)), classOf[Me])
                 logger.debug("Got me {}: {}", total, me)
                 val testUser = me.createFacebookTestUser(simpleTestUser.login_url, simpleTestUser.access_token)
                 val tu = preImport(testUser, total)
@@ -133,7 +132,7 @@ class DataCreator {
             objectMapper: ObjectMapper,
             totalImportedUsers: Int)(preImport: (FacebookTestUser, Int) => FacebookTestUser): Int = {
 
-        val allTestUsers: FacebookAllTestUsers = objectMapper.readValue(url, new TypeReference[FacebookAllTestUsers]() {})
+        val allTestUsers: FacebookAllTestUsers = objectMapper.readValue(url, classOf[FacebookAllTestUsers])
 
 
         val total = importFacebookTestUsers(

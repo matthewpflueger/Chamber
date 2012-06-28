@@ -11,11 +11,9 @@ import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.net.URL
 import com.echoed.util.ScalaObjectMapper
 import com.echoed.chamber.util.DataCreator
-import org.codehaus.jackson.`type`.TypeReference
 import scala.collection.JavaConversions._
-import collection.mutable.Buffer
-import java.util.{UUID, Properties, List => JList}
-import com.echoed.chamber.domain.views.{ClosetPersonal, EchoView}
+import java.util.{UUID, Properties}
+import com.echoed.chamber.domain.views.ClosetPersonal
 import com.echoed.chamber.dao.{EchoMetricsDao, EchoDao, EchoedUserDao}
 
 
@@ -84,7 +82,7 @@ class ClosetExhibitIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             then("grant the request")
             and("the returned data can be parsed into a domain object")
             val url = new URL(exhibitUrl + "?echoedUserId=" + echoedUser.id)
-            val closetPersonal: ClosetPersonal = new ScalaObjectMapper().readValue(url, new TypeReference[ClosetPersonal]() {})
+            val closetPersonal: ClosetPersonal = new ScalaObjectMapper().readValue(url, classOf[ClosetPersonal])
             val echoList = closetPersonal.echoes
 
             for (echo <- echoes) echoList.find(_.echoId == echo.id) should not be (None)

@@ -2,6 +2,7 @@ package com.echoed.chamber.services.facebook
 
 import akka.dispatch.Future
 import com.echoed.chamber.domain.{FacebookPost, FacebookFriend, FacebookUser}
+import akka.actor.ActorRef
 
 
 trait FacebookAccess {
@@ -10,7 +11,7 @@ trait FacebookAccess {
 
     def getMe(code: String, queryString: String): Future[GetMeResponse]
 
-    def getFriends(accessToken: String, facebookId: String, facebookUserId: String): Future[GetFriendsResponse]
+    def getFriends(accessToken: String, facebookId: String, facebookUserId: String, context: ActorRef): Future[GetFriendsResponse]
     
     def publishAction(accessToken: String, action: String, obj: String,  objUrl: String): Future[PublishActionResponse]
 

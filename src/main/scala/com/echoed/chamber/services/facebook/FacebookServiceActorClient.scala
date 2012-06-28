@@ -32,7 +32,7 @@ class FacebookServiceActorClient(facebookServiceActor: ActorRef)
             (facebookServiceActor ? PublishActionToFacebook(action, obj, objUrl)).mapTo[PublishActionToFacebookResponse]
 
     def getFacebookFriends() =
-            (facebookServiceActor ? GetFriends(null, null, null)).mapTo[GetFriendsResponse]
+            (facebookServiceActor ? GetFriends(null, null, null, null)).mapTo[GetFriendsResponse]
 
     private[services] def fetchFacebookFriends() =
             (facebookServiceActor ? '_fetchFacebookFriends).mapTo[GetFriendsResponse]

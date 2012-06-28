@@ -35,6 +35,11 @@ class FacebookPostCrawlerActor extends FactoryBean[ActorRef] {
 
     def isSingleton = true
 
+    def init() {
+        //Force the call to getObject because Spring will not until somebody needs the object...
+        getObject
+    }
+
     def getObject = actorSystem.actorOf(Props(new Actor {
 
     implicit val timeout = Timeout(timeoutInSeconds seconds)
@@ -126,7 +131,7 @@ class FacebookPostCrawlerActor extends FactoryBean[ActorRef] {
             }
 
         case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e @ GetPostDataError(_, _, _, _))) => //facebookPost, t, c, m))) =>
-            val message = "%s, type %s, code %s" format(e.m, e.`type`, e.code)
+            val message = "%s, type %s, code %s" format(e.m, e.errorType, e.code)
             updateForCrawl(msg, e.facebookPost, message, retries = facebookPostToCrawl.facebookPost.retries + 1) { _ =>
                 logger.debug("Received error response {} crawling FacebookPost {}", message, e.facebookPost.id)
             }

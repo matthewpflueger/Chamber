@@ -59,16 +59,7 @@ function ___getPageSize() {
         fontNode.href= "https://fonts.googleapis.com/css?family=Lato:400,700";
         document.getElementsByTagName('HEAD')[0].appendChild(fontNode);
 
-        Echoed = {};
-        Echoed.urls = {}; //{{#urls}}
-        Echoed.urls.api = "{{api}}";
-        Echoed.urls.cdn = "{{cdn}}";
-        Echoed.urls.js = "{{js}}";
-        Echoed.urls.css = "{{css}}";
-        Echoed.urls.images = "{{images}}";
-        Echoed.urls.views = "{{views}}";
-        Echoed.urls.site = "{{site}}";
-        /*{{/urls}} // */
+        {{>partial_urls}}
 
 
         var arrPageSizes = ___getPageSize();

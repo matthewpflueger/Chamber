@@ -1,6 +1,5 @@
 package com.echoed.chamber.controllers
 
-import com.echoed.chamber.domain.views.EchoView
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -12,13 +11,12 @@ import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
 import java.net.URL
 import com.echoed.util.ScalaObjectMapper
 import com.echoed.chamber.util.DataCreator
-import org.codehaus.jackson.`type`.TypeReference
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
 import org.slf4j.LoggerFactory
-import com.echoed.chamber.dao.{FacebookUserDao, EchoedFriendDao, EchoDao, EchoedUserDao}
+import com.echoed.chamber.dao.{FacebookUserDao, EchoedFriendDao, EchoedUserDao}
 import com.echoed.chamber.domain.{FacebookUser, EchoedUser, EchoedFriend}
-import java.util.{UUID, Properties, List => JList}
+import java.util.{Properties, List => JList}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -92,7 +90,7 @@ class ClosetFriendsIT extends FeatureSpec with GivenWhenThen with ShouldMatchers
             val objectMapper = new ScalaObjectMapper()
 
 
-            def fetchFriendList = asScalaBuffer(objectMapper.readValue(url, new TypeReference[JList[EchoedFriend]]() {}))
+            def fetchFriendList = asScalaBuffer(objectMapper.readValue(url, classOf[JList[EchoedFriend]]))
 
             logger.debug("Requesting friends at {}", url)
             var friendList = fetchFriendList

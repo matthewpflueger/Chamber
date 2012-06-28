@@ -1,6 +1,6 @@
 package com.echoed.chamber.domain.partner.shopify
 
-import com.shopify.api.resources.Product
+import com.echoed.chamber.services.partner.shopify.product
 
 case class ShopifyProduct(
         id: String,
@@ -11,15 +11,15 @@ case class ShopifyProduct(
         handle: String) {
 
     
-    def this(product:Product) = this(
-            product.getId.toString,
-            product.getTitle.toString,
-            product.getProductType.toString,
-            Option(product.getBodyHtml).map(_.toString).getOrElse(""),
-            if(product.getImages.size > 0) {
-                product.getImages.get(0).getSrc
+    def this(product: product) = this(
+            product.id.toString,
+            product.title,
+            product.productType.toString,
+            Option(product.bodyHtml).map(_.toString).getOrElse(""),
+            if(product.images.length > 0) {
+                product.images(0).src
             } else {
                 ""
             },
-            product.getHandle)
+            product.handle)
 }

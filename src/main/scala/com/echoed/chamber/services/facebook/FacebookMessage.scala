@@ -3,11 +3,27 @@ package com.echoed.chamber.services.facebook
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
 import com.echoed.chamber.domain.views.FacebookPostData
 import com.echoed.chamber.domain._
+import akka.actor.ActorRef
 
 
 sealed trait FacebookMessage extends Message
 
-sealed case class FacebookException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)
+sealed case class FacebookException(
+        message: String = "",
+        cause: Throwable = null,
+        errorType: String = null,
+        code: Int = 0,
+        subCode: Int = 0) extends EchoedException(message, cause) {
+    val oauthError = code == 190
+    val unauthorized = code == 190 && subCode == 458
+}
+
+case class OAuthFacebookException(
+        _message: String,
+        _cause: Throwable = null,
+        _errorType: String = null,
+        _code: Int,
+        _subCode: Int) extends FacebookException(_message, _cause, _errorType, _code, _subCode)
 
 
 import com.echoed.chamber.services.facebook.{FacebookMessage => FM}
@@ -53,8 +69,8 @@ case class GetPostDataResponse(message: GetPostData, value: Either[FE, FacebookP
 
 case class GetPostDataError(
         facebookPost: FacebookPost,
-        `type`: String,
-        code: Int,
+        _errorType: String,
+        _cde: Int,
         m: String) extends FE(m)
 
 case class GetPostDataOAuthError(
@@ -65,7 +81,7 @@ case class GetPostDataOAuthError(
 
 case class GetPostDataFalse(m: String = "Facebook returned false for post", facebookPost: FacebookPost) extends FE(m)
 
-case class GetFriends(accessToken: String, facebookId: String, facebookUserId: String) extends FM
+case class GetFriends(accessToken: String, facebookId: String, facebookUserId: String, context: ActorRef) extends FM
 case class GetFriendsResponse(message: GetFriends, value: Either[FE, List[FacebookFriend]])
         extends FM
         with RM[List[FacebookFriend], GetFriends, FE]

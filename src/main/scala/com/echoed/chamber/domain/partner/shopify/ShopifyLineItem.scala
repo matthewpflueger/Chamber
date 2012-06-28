@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain.partner.shopify
 
-import com.shopify.api.resources.LineItem
+import com.echoed.chamber.services.partner.shopify.LineItem
+
 
 case class ShopifyLineItem(
         productId: String,
@@ -8,7 +9,7 @@ case class ShopifyLineItem(
         product: ShopifyProduct) {
     
     def this(l: LineItem, p: ShopifyProduct) = this(
-            l.getProductId.toString,
-            l.getPrice,
+            l.productId,
+            l.price,
             p)
 }
