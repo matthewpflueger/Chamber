@@ -84,13 +84,14 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
     }
 
     #echoed-e-c-b{
+        position:relative;
         border: 1px solid #CCC;
-        height: 600px;
+        height: 400px;
         overflow-y: scroll;
         overflow-x: hidden;
         #echoed-exhibit{
             background-image: image-url("bk_noise.jpg");
-            width: 900px;
+            width: 720px;
             background-color: #FFF;
         }
     }
@@ -130,7 +131,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
             -o-transition: all 0.2s ease-in-out;
             -ms-transition: all 0.2s ease-in-out;
             transition: all 0.2s ease-in-out;
-            width: 260px;
+            //width: 260px;
             display: block;
             &.highlight{
                 border-color: #CCC;
@@ -146,7 +147,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
             padding: 5px;
             line-height: 1.5em;
             text-overflow: ellipsis;
-            width: 250px;
+            width: 200px;
             @include textFontNormal(12px, #000);
             text-align: left;
         }
@@ -159,7 +160,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
                 line-height: 1.5em;
                 @include textFontNormal(14px, #333);
                 background-color: rgba(255,255,255, 0.8);
-                width: 250px;
+                width: 200px;
             }
             .story-brief-image-container{
                 position:relative;
@@ -805,16 +806,6 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
 .echoed-head{
     height: 40px;
     position:relative;
-    .echoed-share{
-        text-align: center;
-        a{
-            text-decoration: none;
-            @include textFontNormal(18px, #FFF);
-            background-color: #FF0000;
-            padding: 7px 5px;
-            border-radius: 3px;
-        }
-    }
     #echoed-selector{
         padding: 6px 25px 6px 6px;
         float:left;
@@ -845,6 +836,38 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
 
         img{
             cursor: pointer;
+        }
+    }
+}
+
+.echoed-footer{
+    height: 80px;
+    padding-top: 10px;
+    .echoed-footer-left{
+        width: 400px;
+        height: 100px;
+        float:left;
+        .echoed-footer-left-title{
+            text-align: center;
+            @include textFontNormal(24px);
+        }
+        .echoed-footer-left-text{
+            text-align: center;
+            @include textFontNormal(14px);
+        }
+    }
+    .echoed-footer-right{
+        float:left;
+        width: 300px;
+        height: 100px;
+        text-align: center;
+        .echoed-share{
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 3px;
+            background-color: #FF0000;
+            @include textFontNormal(16px, #FFF);
+            text-decoration: none;
         }
     }
 }

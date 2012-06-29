@@ -2004,6 +2004,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.element = EchoedjQuery(this.el);
         this.exhibit = EchoedjQuery('#echoed-exhibit');
         this.jsonUrl = Echoed.Urls.Api + "/api/partner/" + Echoed.partnerId;
+        this.element.find('.echoed-footer-left').append(EchoedjQuery('<div class="echoed-footer-left-title"></div>').html("Got a great story to tell?"));
+        this.element.find('.echoed-footer-left').append(EchoedjQuery('<div class="echoed-footer-left-text"></div>').html("Let us know aobut your experience and we'll publish your story right here for everyone to see!"));
         this.nextInt = 1;
     },
     events: {
@@ -2055,19 +2057,13 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
         if(data.partner){
             self.contentDescription = "Products recently purchased at " + data.partner.name;
-            //self.addTitle(data.partner.name, data.partner.logo);
         }
         if(data.stories){
             self.addStories(data);
         }
         if(data.echoes){
-            if(data.echoes.length > 0){
-                self.addProducts(data);
-            }
-            else{
-                self.nextInt = null;
-                self.EvAg.trigger("infiniteScroll/unlock");
-            }
+            self.addProducts(data);
+            self.EvAg.trigger("infiniteScroll/unlock");
         }
         self.element.css({
             "margin-left" : -(self.element.width() / 2)
@@ -2170,7 +2166,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             image = self.data.story.image;
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
-        var width = 260;
+        var width = 200;
         imageNode.attr("src", image.originalUrl).css({
             "height" : width * hToWidthRatio,
             "width" : width
@@ -2250,7 +2246,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             text.append(minDiff + " minute(s) ago <br/>");
         }
         img.attr('src', imageUrl);
-        imageWidth = 260;
+        imageWidth = 200;
         if (imageWidth > 0) {
             img.attr('width', imageWidth)
         }
@@ -2307,7 +2303,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-head"><div class="echoed-share">Share Your Story</div><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapters clearfix"></div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t"> Comments <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea> </div> <span class="comment-submit">Submit Comment</span> <div class="echo-s-c-l"> </div> </div> </div> </div>';
+        var template = '<div class="echoed-head"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapters clearfix"></div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t"> Comments <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea> </div> <span class="comment-submit">Submit Comment</span> <div class="echo-s-c-l"> </div> </div> </div> </div>';
         var self = this;
         self.element.html(template);
         self.images = {};
@@ -2492,7 +2488,7 @@ EchoedjQuery(document).ready(function(){
     var echoedContainer = document.createElement('div');
     echoedContainer.id = "echoed-exhibit-container";
     echoedContainer.style.display = "none";
-    echoedContainer.innerHTML = "<div class='echoed-head'><div class='echoed-share'><a target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a></div><div class='echoed-close'><img src='{{urls.images}}/btn_close_x.png'/></div></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div>";
+    echoedContainer.innerHTML = "<div class='echoed-head'><div class='echoed-close'><img src='{{urls.images}}/btn_close_x.png'/></div></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div><div class='echoed-footer'><div class='echoed-footer-left'></div><div class='echoed-footer-right'><a class='echoed-share' target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a></div></div></div>";
 
     var echoedField = document.createElement('div');
     echoedField.id = "echoed-field";
