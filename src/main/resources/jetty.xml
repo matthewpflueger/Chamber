@@ -61,6 +61,14 @@
                   class="org.eclipse.jetty.server.handler.HandlerCollection">
                 <property name="handlers">
                     <list>
+                        <bean class="org.eclipse.jetty.server.handler.RequestLogHandler">
+                            <property name="requestLog">
+                                <bean class="ch.qos.logback.access.jetty.RequestLogImpl">
+                                    <property name="resource" value="/logback-access.xml" />
+                                </bean>
+                            </property>
+                        </bean>
+
                         <bean class="org.eclipse.jetty.servlet.ServletContextHandler"
                               p:contextPath="/${context}">
                             <property name="attributes">

@@ -49,6 +49,12 @@
         </encoder>
     </appender>
 
+    <appender name="async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="all" />
+        <!-- See http://logback.qos.ch/manual/appenders.html#AsyncAppender -->
+        <discardingThreshold>20</discardingThreshold>
+    </appender>
+
     <!-- below just clutter the logs -->
     <logger name="org.springframework.web.servlet.PageNotFound" level="error" />
 
@@ -61,7 +67,7 @@
 
 
     <root level="warn">
-        <appender-ref ref="all" />
+        <appender-ref ref="async" />
         <appender-ref ref="errors" />
     </root>
 </configuration>

@@ -1,0 +1,22 @@
+<configuration scan="true" scanPeriod="30 seconds" debug="true">
+
+    <!-- See http://logback.qos.ch/access.html -->
+    <!-- See http://logback.qos.ch/manual/layouts.html#AccessPatternLayout -->
+    <appender name="access" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>access.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>access.%i.log.gz</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>3</maxIndex>
+        </rollingPolicy>
+
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>50MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>combined</pattern>
+        </encoder>
+    </appender>
+
+    <appender-ref ref="access" />
+</configuration>
