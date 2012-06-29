@@ -250,7 +250,21 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             });
         } else {
             self.data = {};
-            self.renderLogin();
+            if(type == "partner"){
+                $.ajax({
+                    url: Echoed.urls.api + "/api/partner/" + id,
+                    type: "GET",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    success: function(data){
+                    self.renderLogin(data);
+                    }
+                });
+            } else {
+                self.renderLogin();
+            }
         }
     },
     submitInitStory: function(){
@@ -402,10 +416,23 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.element.empty();
         self.data = {};
     },
-    renderLogin: function(){
+    renderLogin: function(data){
         var self = this;
         self.template = _.template($('#templates-components-story-login').html());
         self.element.html(self.template);
+        var facebookLoginUrl = Echoed.facebookLogin.head +
+            encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(window.location.hash)) +
+            Echoed.facebookLogin.tail;
+        var twitterLoginUrl = Echoed.twitterUrl + encodeURIComponent(window.location.hash);
+        self.element.find("#field-fb-login").attr("href", facebookLoginUrl);
+        self.element.find("#field-tw-login").attr("href", twitterLoginUrl);
+        var body = self.element.find(".field-login-body");
+        if(data.partner){
+            var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page. (click here to see other stories from " + data.partner.name + ")"  ;
+            var bodyTextNode = $('<div class="field-login-body-text"></div>').append(bodyText);
+            body.append(bodyTextNode);
+        }
+
         self.show();
     },
     render: function(){
@@ -659,9 +686,16 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     addLogin: function(){
         var self = this;
+        var facebookLoginUrl = Echoed.facebookLogin.head +
+                               encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(window.location.hash)) +
+                               Echoed.facebookLogin.tail;
+        var twitterLoginUrl = Echoed.twitterUrl + encodeURIComponent(window.location.hash);
+
         var loginDiv = $('<div></div>').addClass('item_wrap');
         var template = _.template($("#templates-components-login").html());
         loginDiv.html(template);
+        loginDiv.find("#facebookLogin").attr("href",facebookLoginUrl);
+        loginDiv.find("#twitterLogin").attr("href", twitterLoginUrl);
         self.exhibit.isotope('insert', loginDiv)
     },
     addStories: function(data){
@@ -954,16 +988,17 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render','renderChapterImage','load','click','createComment', 'renderCover');
+        _.bindAll(this,'render', 'load','createComment', 'renderCover', 'renderImage');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind('story/show', this.load);
     },
     events: {
-        "click .echo-s-b-i-c": "click",
         "click .echo-s-h-close" : "close",
         "click .comment-submit": "createComment",
+        "click .echo-chapters" : "tabClick",
+        "click .echo-s-b-thumbnail": "renderImage",
         "click a": "close"
     },
     load: function(id){
@@ -984,59 +1019,83 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var template = _.template($('#templates-components-story').html());
         var self = this;
         self.element.html(template);
+        self.images = {};
+        self.images.cover = [self.data.story.image];
+        $.each(self.data.chapterImages, function(index, chapterImage){
+            if(!self.images[chapterImage.chapterId])
+                self.images[chapterImage.chapterId] = [];
+            self.images[chapterImage.chapterId].push(chapterImage.image);
+        });
+
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
+
         var userLink = '<a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
+
+        self.itemNode = $("<div class='echo-s-b-item'></div>");
+        self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
         self.element.find('.echo-s-h-t-n').html("by " + userLink);
-        var itemNode = $("<div class='echo-s-b-item'></div>");
-        var itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
         self.img = $("<img />");
-        itemNode.append(itemImageContainer.append(self.img)).appendTo(self.gallery);
+        self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.thumbnails = $("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
 
-        self.currentImageNum = 0;
-        self.currentChapterNum = 0;
-        self.renderChapterTabs();
-        self.renderCover();
-        self.renderChapterImage();
+        self.renderTabs();
         self.renderComments();
+        self.renderCover();
         self.EvAg.trigger('fade/show');
         self.element.css({
            "margin-left": -(self.element.width() / 2)
         });
         self.element.fadeIn();
     },
-    renderChapterTabs: function(){
+    renderTabs: function(){
         var self = this;
-        var chapterTabs = self.element.find('.echo-chapters');
-        chapterTabs.append($('<div class="echo-chapter"></div>').append('Cover').addClass("on"));
+        self.chapterTabs = self.element.find('.echo-chapters');
+        self.chapterTabs.append($('<div class="echo-chapter"></div>').append('Cover').addClass("on").attr("tab-id","cover"));
         $.each(self.data.chapters, function(index, chapter){
-            chapterTabs.append($('<div class="echo-chapter"></div>').append(chapter.title));
+            self.chapterTabs.append($('<div class="echo-chapter"></div>').append(chapter.title).attr("tab-id",index));
         });
     },
     renderCover: function(){
         var self = this;
-        console.log(self.data);
         if(self.data.echo){
             self.element.find('.echo-s-b-t-t').html(self.data.echo.productName + "<br/>");
         } else {
             self.element.find('.echo-s-b-t-t').html(self.data.story.productInfo);
+            self.element.find('.echo-s-b-t-b').html("");
+            self.img.attr('src', self.images['cover'][0].originalUrl);
         }
     },
-    renderChapter: function(){
+    tabClick: function(e){
         var self = this;
-        if(self.data.chapters.length>0){
-            self.currentChapterId = self.data.chapters[self.currentChapterNum].id;
-            self.element.find('.echo-s-b-t-t').html(self.data.chapters[self.currentChapterNum].title);
-            self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[self.currentChapterNum].text + '"');
+        var index = $(e.target).attr('tab-id');
+        self.chapterTabs.children().removeClass("on");
+        $(e.target).addClass("on");
+        if(index =="cover"){
+            self.thumbnails.empty();
+            self.renderCover();
+        } else {
+            self.thumbnails.empty();
+            self.renderChapter(index);
         }
     },
-    renderChapterImage: function(){
+    renderChapter: function(index){
         var self = this;
-        if(self.data.chapterImages.length > 0){
-            self.img.attr("src", self.data.chapterImages[self.currentImageNum].image.originalUrl);
-        }
+        console.log(self.data);
+        self.currentChapterId = self.data.chapters[index].id;
+        self.element.find('.echo-s-b-t-t').html(self.data.chapters[index].title);
+        self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[index].text + '"');
+        self.img.attr('src', self.images[self.currentChapterId][0].originalUrl);
+        $.each(self.images[self.currentChapterId], function(index, image){
+            self.thumbnails.append($("<img />").addClass("echo-s-b-thumbnail").attr("index",index).attr("src", image.originalUrl));
+        });
+    },
+    renderImage: function(e){
+        var self = this;
+        $('.echo-s-b-thumbnail').removeClass('highlight');
+        $(e.target).addClass('highlight');
+        self.img.attr('src', self.images[self.currentChapterId][$(e.target).attr("index")].originalUrl);
     },
     renderComments: function(){
         var self = this;
@@ -1093,21 +1152,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.element.fadeOut();
         self.EvAg.trigger("fade/hide");
         self.EvAg.trigger("hash/reset");
-    },
-    click: function(){
-        var self = this;
-        self.currentImageNum = self.currentImageNum + 1;
-        if(self.currentImageNum >= self.data.chapterImages.length){
-            self.currentImageNum = 0;
-        }
-        self.renderChapterImage();
-        if(self.data.chapterImages[self.currentImageNum].chapterId != self.currentChapterId){
-            self.currentChapterNum = self.currentChapterNum + 1;
-            if(self.currentChapterNum >= self.data.chapters.length){
-                self.currentChapterNum = 0;
-            }
-            self.renderChapter();
-        }
     }
 });
 
@@ -1293,7 +1337,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     click: function(e){
         var self = this;
         if(this.el.attr("action") == "story"){
-            window.location.hash = "#add/echo/" + this.el.attr("id");
+            window.location.hash = "#write/echo/" + this.el.attr("id");
         } else {
             var href = this.el.attr("href");
             window.open(href);

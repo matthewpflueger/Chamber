@@ -1,7 +1,6 @@
 {{<user_super}}
 
 {{$header}}
-    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-fileuploader.css"/>
     <script type="text/template" id="templates-components-login">
         <div class="item_content">
             <div id="login-container">
@@ -43,12 +42,14 @@
         <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
         <div class="story-login">
             <div class="field-logo"><img src="{{urls.images}}/logo.png" /></div>
-            <div class="field-title">Share stories about the products you love.<br/>Login to begin sharing your story.</div>
-            <div class="field-login-button">
-                <a href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
+            <div class="field-login-title">Share stories about the products you love.<br/>Login to begin sharing your story.</div>
+            <div class="field-login-body">
             </div>
             <div class="field-login-button">
-                <a href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
+                <a id="field-fb-login" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
+            </div>
+            <div class="field-login-button">
+                <a id="field-tw-login" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
             </div>
         </div>
     </script>
@@ -71,17 +72,17 @@
                 <div class="story-edit-label">Add Chapter</div>
                 <div class="chapter-edit-body-left">
                     <div class="chapter-edit-body-row">
-                        <label for="chapter-title">
-                            <strong>Chapter Title:</strong><br/>
-                        </label>
-                        <input id="chapter-title" type="text" name="chapter-title" value="Who is this for?"/>
-                    </div>
-                    <div class="chapter-edit-body-row">
                         <label>
                             <strong>Description:</strong><br/>
-                            Tell us more about this topic.
+                            Share your story
                         </label>
                         <textarea id="chapter-text"></textarea>
+                    </div>
+                    <div class="chapter-edit-body-row">
+                        <label for="chapter-title">
+                            <strong>Chapter Title:</strong><br/>(Optional)
+                        </label>
+                        <input id="chapter-title" type="text" name="chapter-title" />
                     </div>
                     <div class="chapter-edit-body-row">
                         <label>
@@ -334,12 +335,18 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function() {
-            Echoed.init();
             {{#echoedUser}}
             Echoed.echoedUser = {};
             Echoed.echoedUser.id = '{{id}}';
             {{/echoedUser}}
-
+            {{^echoedUser}}
+                Echoed.facebookLogin ={};
+                Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
+                Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
+                Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
+                Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
+            {{/echoedUser}}
+            Echoed.init();
         });
     </script>
     <script type="text/javascript">

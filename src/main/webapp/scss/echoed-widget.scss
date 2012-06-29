@@ -760,6 +760,16 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
 .echoed-head{
     height: 40px;
     position:relative;
+    .echoed-share{
+        text-align: center;
+        a{
+            text-decoration: none;
+            @include textFontNormal(18px, #FFF);
+            background-color: #FF0000;
+            padding: 7px 5px;
+            border-radius: 3px;
+        }
+    }
     #echoed-selector{
         padding: 6px 25px 6px 6px;
         float:left;
