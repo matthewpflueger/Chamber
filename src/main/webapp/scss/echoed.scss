@@ -134,6 +134,7 @@ h2{
 }
 
 #container{
+    top: 0px;
     height: 100%;
     &.facebook{
         min-width: 740px;
@@ -203,7 +204,7 @@ h2{
         background-color: rgba(0,0,0,0.15);
         border-left: 1px solid #999;
         //box-shadow: -1px 0 0 #CCC;
-        //-moz-box-shadow: -1px 0 0 #CCC;
+        //-moz-box-shxadow: -1px 0 0 #CCC;
         //-webkit-box-shadow: -1px 0 0 #CCC;
     }
 
@@ -262,8 +263,6 @@ h2{
 
 
 		#header-nav, #footer-nav{
-            //background-color: #FFF;
-            border-bottom: 1px dotted #000;
             margin-bottom: 10px;
             margin-top: 20px;
             li{
@@ -277,6 +276,18 @@ h2{
             	color: $highlightColor;
             }
 		}
+
+        #footer-nav{
+            li{
+                padding: 7px 10px;
+                list-style:none;
+                @include textFontNormal(16px);
+                text-shadow: 0px 1px 0px #FFF;
+            }
+            li:hover, .current{
+                color: $highlightColor;
+            }
+        }
 
     #title{
         float:left;
@@ -305,9 +316,9 @@ h2{
     }
 
     #content{
-        margin-top: 43px;
+        padding-top: 43px;
         margin-right: 200px;
-        height: 100%;
+        //height: 100%;
     }
 
     #content-title{
@@ -762,7 +773,7 @@ h2{
                                 right:0px;
                                 .story-brief-overlay-wrap{
                                     margin: 20px;
-                                    @include textFontBold(24px, #FFF);
+                                    @include textFontNormal(24px, #FFF);
                                     text-align: center;
                                 }
                             }
@@ -1135,6 +1146,7 @@ h3{
 .echo-story-container{
     position:relative;
     background-image: image-url("bk_noise.jpg");
+    background-color: #F7F7F7;
     padding-bottom: 10px;
     border: 8px solid #FFF;
     border-radius: 3px;
@@ -1168,8 +1180,26 @@ h3{
             }
         }
     }
-    .echo-chapter{
-        height: 30px;
+    .echo-chapters{
+        margin: 0px 10px;
+        //height: 30px;
+        border-bottom: 1px solid #CCC;
+        box-shadow: 0px 1px 0px #FFF;
+        .echo-chapter{
+            float:left;
+            padding: 5px 15px;
+            @include textFontNormal(16px);
+            border: 1px solid #AAA;
+            background-color: #D0D0D0;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            border-bottom: none;
+            margin-right: 2px;
+            cursor: pointer;
+            &.on{
+                background-color: #FFF;
+            }
+        }
     }
     .echo-story-body{
         position: relative;
@@ -1298,7 +1328,7 @@ h3{
                 .echo-s-c-l-c{
                     padding: 10px 0px 10px 10px;
                     .echo-s-c-l-c-u{
-                        @include textFontBold(14px, #FF0000);
+                        @include textFontBold(14px, $mainColor);
                     }
                     .echo-s-c-l-c-t{
                         padding: 5px 0px;

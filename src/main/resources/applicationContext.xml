@@ -483,6 +483,7 @@
             parent="actorBean">
         <property name="feedDao" ref="feedDao" />
         <property name="partnerDao" ref="partnerDao" />
+        <property name="echoedUserDao" ref="echoedUserDao"/>
     </bean>
 
 </beans>

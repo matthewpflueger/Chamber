@@ -36,4 +36,10 @@ trait FeedDao {
     def findStoryByEchoId(echoId: String): StoryFull
 
     def findStoryByEchoedUserId(echoedUserId: String): JList[StoryFull]
+
+    def findStoryByPartnerId(partnerId: String): JList[StoryFull]
+
+    def getStories(
+            @Param("start") start: Int,
+            @Param("limit") limit: Int): JList[StoryFull]
 }

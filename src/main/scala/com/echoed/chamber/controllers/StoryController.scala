@@ -87,6 +87,7 @@ class StoryController {
     def createStory(
             @RequestParam(value = "title", required = true) title: String,
             @RequestParam(value = "imageId", required = true) imageId: String,
+            @RequestParam(value = "partnerId", required = false) partnerId: String,
             @RequestParam(value = "echoId", required = false) echoId: String,
             @RequestParam(value = "productInfo", required = false) productInfo: String,
             httpServletRequest: HttpServletRequest,
@@ -102,6 +103,7 @@ class StoryController {
                 echoedUserId,
                 title,
                 imageId,
+                Option(partnerId),
                 Option(echoId),
                 Option(productInfo)).onSuccess {
             case CreateStoryResponse(_, Right(story)) =>

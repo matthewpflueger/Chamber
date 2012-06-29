@@ -216,7 +216,7 @@
             EU.id = #{id} and I.sizedWidth > 0
         order by
             E.createdOn desc, E.id DESC
-        Limit
+        limit
             #{start},#{limit}
     </select>
 
@@ -269,6 +269,15 @@
             CIMG.createdOn
     </select>
 
+    <select id="findStoryByPartnerId" resultMap="storyFullResult">
+        <include refid="storyFullSelect" />
+        where
+            S.partnerId=#{partnerId}
+        order by
+            C.createdOn,
+            CIMG.createdOn
+    </select>
+
     <select id="findStoryById" resultMap="storyFullResult" useCache = "false">
         <include refid="storyFullSelect" />
         where S.id = #{storyId}
@@ -283,6 +292,15 @@
         order by
             C.createdOn,
             CIMG.createdOn
+    </select>
+
+    <select id="getStories" resultMap="storyFullResult" useCache="false">
+        <include refid="storyFullSelect" />
+        order by
+            C.createdOn,
+            CIMG.createdOn
+        limit
+        #{start},#{limit}
     </select>
 
 </mapper>

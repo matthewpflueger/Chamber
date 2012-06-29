@@ -112,7 +112,7 @@
                     </div>
                 </div>
             </div>
-            <div class="echo-chapter"></div>
+            <div class="echo-chapters clearfix"></div>
             <div class="echo-story-body clearfix">
                 <div class="echo-s-b-text">
                     <div class="echo-s-b-t-t"></div>
@@ -228,7 +228,6 @@
                 {{/echoedUser}}
             </div>
         </div>
-
         <div id="nav-container">
             {{#echoedUser}}
             <div id="actions"></div>
@@ -320,7 +319,17 @@
             <div id="field" style="display:none;"></div>
         </div>
     </div>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            Echoed.init();
+            {{ #echoedUser }}
+            Echoed.echoedUser = {};
+            Echoed.echoedUser.id = '{{id}}';
 
+            {{ /echoedUser }}
+
+        });
+    </script>
     <script type="text/javascript">
         $(document).ready(function() {
             Echoed.init();

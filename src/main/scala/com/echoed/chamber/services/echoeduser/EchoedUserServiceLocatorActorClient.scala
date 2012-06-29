@@ -34,9 +34,10 @@ class EchoedUserServiceLocatorActorClient extends EchoedUserServiceLocator with 
             echoedUserId: String,
             title: String,
             imageId: String,
+            partnerId: Option[String] = None,
             echoId: Option[String] = None,
             storyId: Option[String] = None) =
-        (echoedUserServiceLocatorActor ? CreateStory(echoedUserId, title, imageId, echoId, storyId)).mapTo[CreateStoryResponse]
+        (echoedUserServiceLocatorActor ? CreateStory(echoedUserId, title, imageId, partnerId, echoId, storyId)).mapTo[CreateStoryResponse]
 
     def updateStory(
             echoedUserId: String,

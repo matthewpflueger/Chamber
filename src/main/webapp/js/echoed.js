@@ -124,6 +124,7 @@ Echoed.Router = Backbone.Router.extend({
         window.location.href = "#";
     },
     explore: function(){
+        console.log(this.page + " " + window.location.hash);
         if(this.page != window.location.hash){
             this.page = "";
             _gaq.push(['_trackPageview', this.page]);
@@ -148,13 +149,21 @@ Echoed.Router = Backbone.Router.extend({
         }
     },
     story: function(id){
-        if(!this.page) this.explore();
         this.oldPage = this.page;
+        if(!this.page) this.explore();
+        this.page = window.location.hash;
+
+        this.page = this.oldPage;
         this.EvAg.trigger("story/show", id);
         this.EvAg.trigger("page/change", "story");
     },
     resetHash: function(){
-        window.location.hash = this.oldPage;
+        if(this.oldPage){
+            window.location.hash = this.oldPage;
+        } else {
+            window.location.hash = "#";
+        }
+
     },
     friends: function() {
         if(this.page != window.location.hash){
@@ -276,7 +285,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         });
         $("#story-title").html(self.data.storyFull.story.title);
         $("#story-from").html(self.data.storyFull.story.productInfo);
-        $("#chapter-title").val(self.data.storyPrompts.prompts[0]);
+        //$("#chapter-title").val(self.data.storyPrompts.prompts[0]);
         $("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
         var count = 0;
         $.each(self.data.storyFull.chapters, function(index, chapter){
@@ -579,21 +588,22 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             self.contentDescription = "The recent products purchased at " + data.partner.name;
             self.addTitle(data.partner.name, data.partner.logo);
         } else if (self.id == "friends") {
-            self.contentDescription = "Products purchased and shared by " + data.echoedUserName;
-            self.addTitle(data.echoedUserName);
+            self.contentDescription = "Products purchased and shared by " + data.echoedUser.name;
+            self.addTitle(data.echoedUser.name);
         } else if (self.id != "story"){
             self.addTitle(self.contentTitle);
         }
-        self.addLogin();
-        if(data.echoes.length > 0){
+        if(!Echoed.echoedUser) self.addLogin();
+        if(data.stories){
+            self.addStories(data);
+        }
+        if(data.echoes){
             self.addProducts(data);
-        }   else{
+        } else {
             self.nextInt = null;
             self.EvAg.trigger("infiniteScroll/unlock");
         }
-        if(data.stories.length > 0){
-            self.addStories(data);
-        }
+
     },
     relayout: function(e){
         var self = this;
@@ -642,11 +652,15 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     addStories: function(data){
         var self = this;
+        var storiesFragment = $('<div></div>');
+        console.log("Success");
         $.each(data.stories, function(index, story){
             var storyDiv = $('<div></div>').addClass('item_wrap');
             var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg});
-            self.exhibit.isotope('insert',storyDiv);
+            storiesFragment.append(storyDiv);
+
         });
+        self.exhibit.isotope('insert', storiesFragment.children());
     },
     addProducts: function(data){
         var self = this;
@@ -970,6 +984,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         self.currentImageNum = 0;
         self.currentChapterNum = 0;
+        self.renderChapterTabs();
         self.renderChapter();
         self.renderChapterImage();
         self.renderComments();
@@ -978,6 +993,14 @@ Echoed.Views.Components.Story = Backbone.View.extend({
            "margin-left": -(self.element.width() / 2)
         });
         self.element.fadeIn();
+    },
+    renderChapterTabs: function(){
+        var self = this;
+        var chapterTabs = self.element.find('.echo-chapters');
+        chapterTabs.append($('<div class="echo-chapter"></div>').append('Cover').addClass("on"));
+        $.each(self.data.chapters, function(index, chapter){
+            chapterTabs.append($('<div class="echo-chapter"></div>').append(chapter.title));
+        });
     },
     renderChapter: function(){
         var self = this;
@@ -1153,6 +1176,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var hover = this.el.find(".item_hover_wrap");
         var img = this.el.find("img");
         var text = this.el.find(".item_text");
+
 
         var boughtOnDate = new Date(this.model.get("echoBoughtOn"));
         var todayDate = new Date();

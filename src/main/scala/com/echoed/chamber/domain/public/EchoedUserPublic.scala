@@ -5,12 +5,14 @@ import com.echoed.chamber.domain.EchoedUser
 case class EchoedUserPublic(
         id: String,
         name: String,
-        screenName: String) {
+        screenName: String,
+        facebookId: String) {
 
     def this(echoedUser: EchoedUser) = this(
         echoedUser.id,
         echoedUser.name,
-        echoedUser.screenName
+        echoedUser.screenName,
+        echoedUser.facebookId
     )
 
 }

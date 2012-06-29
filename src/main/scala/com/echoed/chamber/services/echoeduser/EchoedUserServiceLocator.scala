@@ -24,6 +24,7 @@ trait EchoedUserServiceLocator {
             echoedUserId: String,
             title: String,
             imageId: String,
+            partnerId: Option[String] =None,
             echoId: Option[String] = None,
             productInfo: Option[String] = None): Future[CreateStoryResponse]
 

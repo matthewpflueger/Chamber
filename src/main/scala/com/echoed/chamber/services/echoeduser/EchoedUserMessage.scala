@@ -46,6 +46,7 @@ case class CreateStory(
         _echoedUserId: String,
         title: String,
         imageId: String,
+        partnerId: Option[String] = None,
         echoId: Option[String] = None,
         productInfo: Option[String] = None) extends EUI(_echoedUserId)
 

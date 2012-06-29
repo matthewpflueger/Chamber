@@ -434,7 +434,7 @@ class EchoedUserServiceActor(
                 val start = msg.page * limit;
 
                 val closet = Option(closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId, start, limit))
-                                .getOrElse(Closet(echoedFriend.toEchoedUserId, echoedUserDao.findById(echoedFriend.toEchoedUserId), null, 0))
+                                .getOrElse(Closet(echoedFriend.toEchoedUserId, echoedUserDao.findById(echoedFriend.toEchoedUserId), null, null, 0))
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet.copy(echoes = new ArrayList[EchoView]))))
                 } else {
@@ -476,14 +476,15 @@ class EchoedUserServiceActor(
                 val start = msg.page * limit
 
                 val closet = Option(closetDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new Closet(echoedUser.id, echoedUser))
+                val stories = Option(feedDao.findStoryByEchoedUserId(echoedUser.id)).getOrElse(new ArrayList[StoryFull])
 
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     logger.debug("Echoed user {} has zero echoes", echoedUser.id)
                     channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(
-                            totalCredit = credit, echoes = new ArrayList[EchoView]))))
+                            totalCredit = credit, stories = stories, echoes = new ArrayList[EchoView]))))
                 } else {
                     logger.debug("Echoed user {} has {} echoes", echoedUser.id, closet.echoes.size)
-                    channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(totalCredit = credit))))
+                    channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(totalCredit = credit, stories = stories))))
                 }
                 logger.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
             } catch {
@@ -568,14 +569,14 @@ class EchoedUserServiceActor(
                 logger.debug("No TwitterService for EchoedUser {}", echoedUser.id)
             )
 
-        case msg @ CreateStory(_, title, imageId, echoId, productInfo) =>
+        case msg @ CreateStory(_, title, imageId, partnerId, echoId, productInfo) =>
             sanityCheck(msg)
 
             val channel = context.sender
 
             val echo = echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id))
 
-            val partner = partnerDao.findByIdOrHandle(echo.map(_.partnerId).getOrElse("Echoed"))
+            val partner = partnerDao.findByIdOrHandle(partnerId.getOrElse(echo.map(_.partnerId).getOrElse("Echoed")))
             val partnerSettings = partnerSettingsDao.findByIdOrPartnerHandle(echo.map(_.partnerSettingsId).getOrElse("Echoed"))
             val image = imageDao.findById(imageId)
 
