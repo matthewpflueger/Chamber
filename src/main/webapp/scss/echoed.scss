@@ -232,7 +232,7 @@ h2{
         }
 
         .login-button{
-            width: 160px;
+            height: 40px;
         }
 
         #login-container{
@@ -490,6 +490,24 @@ h2{
                     @include textFontBold(14px);
                 }
 
+            }
+
+            .story-login{
+                width: 460px;
+                padding: 20px 0px;
+                .field-logo{
+                    padding-top: 5px;
+                    text-align:center;
+                }
+                .field-title{
+                    margin: 0px 20px 15px 20px;
+                    text-align: center;
+                    @include textFontNormal(18px);
+                }
+                .field-login-button{
+                    text-align:center;
+                    margin: 5px auto;
+                }
             }
 
             .story-edit{

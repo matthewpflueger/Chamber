@@ -109,10 +109,13 @@ Echoed.Router = Backbone.Router.extend({
         "me/": "me",
         "me": "me",
         "user/:id": "user",
-        "partners/:name/": "partnerFeed",
-        "partners/:name": "partnerFeed",
+        "partner/:name/": "partnerFeed",
+        "partner/:name": "partnerFeed",
         "story/:id/edit": "editStory",
-        "story/:id": "story"
+        "story/:id": "story",
+        "write/:type/:id" : "writeStory",
+        "write/" : "writeStory",
+        "write": "writeStory"
     },
     editStory: function(){
         if(this.page != window.location.hash) {
@@ -134,18 +137,36 @@ Echoed.Router = Backbone.Router.extend({
     partnerFeed: function(partnerId) {
         if(this.page != window.location.hash){
             this.page = window.location.hash;
-            this.EvAg.trigger('exhibit/init', { Type: "partners", partnerId: partnerId });
+            this.EvAg.trigger('exhibit/init', { Type: "partner", partnerId: partnerId });
             _gaq.push(['_trackPageview', this.page]);
-            this.EvAg.trigger("page/change","partners");
+            this.EvAg.trigger("page/change","partner");
         }
     },
     me: function() {
         if(this.page != window.location.hash){
-            this.page= window.location.hash;
+
+            //this.page= window.location.hash;
+            this.page = "#me";
             this.EvAg.trigger('exhibit/init', { Type: "exhibit"});
             _gaq.push(['_trackPageview', this.page]);
             this.EvAg.trigger("page/change","exhibit");
         }
+    },
+    writeStory: function(type, id){
+        if(this.page === null){
+            switch(type){
+                case "partner":
+                    this.partnerFeed(id);
+                    this.page = "#partner/" + id;
+                    break;
+                default:
+                    this.explore();
+                    this.page = "";
+                    break;
+            }
+        }
+        this.oldPage = this.page;
+        this.EvAg.trigger("field/show",id , type);
     },
     story: function(id){
         if(this.page === null) {
@@ -153,9 +174,7 @@ Echoed.Router = Backbone.Router.extend({
             this.page = "";
         }
         this.oldPage = this.page;
-        this.page = window.location.hash;
 
-        this.page = this.oldPage;
         this.EvAg.trigger("story/show", id);
         this.EvAg.trigger("page/change", "story");
     },
@@ -215,20 +234,24 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 loadData.partnerId = id;
                 break;
         }
-
-        $.ajax({
-            url: jsonUrl,
-            type: "GET",
-            xhrFields: {
-                withCredentials: true
-            },
-            data: loadData,
-            dataType: 'json',
-            success: function(initStoryData){
-                self.data = initStoryData;
-                self.render();
-            }
-        });
+        if(Echoed.echoedUser){
+            $.ajax({
+                url: jsonUrl,
+                type: "GET",
+                xhrFields: {
+                    withCredentials: true
+                },
+                data: loadData,
+                dataType: 'json',
+                success: function(initStoryData){
+                    self.data = initStoryData;
+                    self.render();
+                }
+            });
+        } else {
+            self.data = {};
+            self.renderLogin();
+        }
     },
     submitInitStory: function(){
         var self = this;
@@ -287,7 +310,6 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         });
         $("#story-title").html(self.data.storyFull.story.title);
         $("#story-from").html(self.data.storyFull.story.productInfo);
-        //$("#chapter-title").val(self.data.storyPrompts.prompts[0]);
         $("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
         var count = 0;
         $.each(self.data.storyFull.chapters, function(index, chapter){
@@ -331,12 +353,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 self.currentChapter.images.push(response.id);
             }
         });
-        self.EvAg.trigger('fade/show');
-        self.element.css({
-            "margin-left" : -(self.element.width()/2)
-        });
-        self.element.fadeIn();
-
+        self.show();
     },
     submitChapter: function(e){
         var self = this;
@@ -380,9 +397,16 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     unload: function(){
         var self = this;
         self.EvAg.trigger('fade/hide');
+        self.EvAg.trigger('hash/reset');
         self.element.fadeOut();
         self.element.empty();
         self.data = {};
+    },
+    renderLogin: function(){
+        var self = this;
+        self.template = _.template($('#templates-components-story-login').html());
+        self.element.html(self.template);
+        self.show();
     },
     render: function(){
         var self = this;
@@ -397,6 +421,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.template = _.template($('#templates-components-story-input').html());
         self.element.html(self.template);
         self.data.imageId = null;
+        if (self.data.partner){
+            $("#story-from").val(self.data.partner.name).attr("readonly",true);
+            self.element.find('.field-title').html("Share Your " + self.data.partner.name + " Story");
+        }
         if(self.data.echo){
             $("#field-photo").attr("src", self.data.echo.image.sizedUrl);
             self.data.imageId = self.data.echo.image.id;
@@ -419,39 +447,23 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 }
             });
         }
+        self.show();
+    },
+    show: function(){
+        var self = this;
         self.EvAg.trigger('fade/show');
         self.element.css({
-           "margin-left" : -(self.element.width()/2)
+            "margin-left" : -(self.element.width()/2)
         });
         self.element.fadeIn();
         $("#story-name").focus();
-
-
     },
     close: function(){
         var self = this;
         self.element.fadeOut();
         self.element.empty();
         self.EvAg.trigger('fade/hide');
-    }
-});
-
-Echoed.Views.Components.Transition = Backbone.View.extend({
-    el: '#transition',
-    initialize: function(options){
-        _.bindAll(this,'render');
-        this.EvAg = options.EvAg;
-        this.element = $(this.el);
-        this.bind('transition/show', this.render);
-    },
-    render: function(options){
-        var self = this;
-        var top = options.top;
-        var left = options.left;
-        var height = options.height;
-        var width = options.width;
-        self.element.css({
-        });
+        self.EvAg.trigger('hash/reset');
     }
 });
 
@@ -545,10 +557,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.id = "friends";
                 self.nextInt = 1;
                 break;
-            case "partners":
+            case "partner":
                 self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.partnerId;
                 self.contentTitle = options.Name;
-                self.id = "partners";
+                self.id = "partner";
                 self.showDate = 1;
                 self.nextInt = 1;
                 break;
@@ -693,11 +705,11 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
     render: function(){
         var self = this;
         this.element.empty();
-        this.element.append($("<div class='action-button'>Tell a Story</div>"));
+        this.element.append($("<div class='action-button'>Share a Story</div>"));
     },
     click: function(e){
         var self = this;
-        self.EvAg.trigger("field/show");
+        window.location.hash = "#write/";
     }
 });
 
@@ -942,7 +954,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render','renderChapterImage','load','click','createComment');
+        _.bindAll(this,'render','renderChapterImage','load','click','createComment', 'renderCover');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -973,7 +985,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         self.element.html(template);
         self.gallery = self.element.find('.echo-s-b-gallery');
-        self.element.find('.echo-s-h-t-t').html(self.data.story.title + " From " + self.data.story.productInfo);
+        self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
         var userLink = '<a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
         self.element.find('.echo-s-h-t-n').html("by " + userLink);
@@ -986,7 +998,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.currentImageNum = 0;
         self.currentChapterNum = 0;
         self.renderChapterTabs();
-        self.renderChapter();
+        self.renderCover();
         self.renderChapterImage();
         self.renderComments();
         self.EvAg.trigger('fade/show');
@@ -1002,6 +1014,15 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         $.each(self.data.chapters, function(index, chapter){
             chapterTabs.append($('<div class="echo-chapter"></div>').append(chapter.title));
         });
+    },
+    renderCover: function(){
+        var self = this;
+        console.log(self.data);
+        if(self.data.echo){
+            self.element.find('.echo-s-b-t-t').html(self.data.echo.productName + "<br/>");
+        } else {
+            self.element.find('.echo-s-b-t-t').html(self.data.story.productInfo);
+        }
     },
     renderChapter: function(){
         var self = this;
@@ -1265,14 +1286,14 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     clickPartner: function(e){
         var self = this;
         if(this.el.attr("partnerHandle"))
-            window.location.hash = "#partners/" + this.el.attr('partnerHandle');
+            window.location.hash = "#partner/" + this.el.attr('partnerHandle');
         else
-            window.location.hash = "#partners/" + this.el.attr('partnerId');
+            window.location.hash = "#partner/" + this.el.attr('partnerId');
     },
     click: function(e){
         var self = this;
         if(this.el.attr("action") == "story"){
-            this.EvAg.trigger('field/show',this.el.attr("id"),"echo");
+            window.location.hash = "#add/echo/" + this.el.attr("id");
         } else {
             var href = this.el.attr("href");
             window.open(href);

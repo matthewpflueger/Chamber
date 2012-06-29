@@ -1851,7 +1851,6 @@ Echoed = {
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#echoed-exhibit-container', EvAg: EventAggregator });
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#echoed-infiniteScroll', EvAg : EventAggregator});
         var story = new Echoed.Views.Components.Story({ el: '#echoed-story', EvAg: EventAggregator });
-        var input = new Echoed.Views.Components.Field({ el: '#echoed-field', EvAg: EventAggregator });
         var fade = new Echoed.Views.Components.Fade({ el: '#echoed-fade', EvAg: EventAggregator });
     }
 };
@@ -2308,7 +2307,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-head"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapter"></div> <div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t"> Comments <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea> </div> <span class="comment-submit">Submit Comment</span> <div class="echo-s-c-l"> </div> </div> </div> </div>';
+        var template = '<div class="echoed-head"><div class="echoed-share">Share Your Story</div><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapter"></div> <div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t"> Comments <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea> </div> <span class="comment-submit">Submit Comment</span> <div class="echo-s-c-l"> </div> </div> </div> </div>';
         var self = this;
         self.element.html(template);
         self.gallery = self.element.find('.echo-s-b-gallery');
@@ -2421,254 +2420,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     }
 });
 
-Echoed.Views.Components.Field = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this, 'render','unload','load','loadStoryTemplate','submitInitStory','loadChapterTemplate','loadChapterHelper','submitChapter');
-        this.element = EchoedjQuery(options.el);
-        this.EvAg = options.EvAg;
-        this.EvAg.bind("field/show", this.load);
-        this.prompts = [];
-    },
-    events: {
-        "click .field-close" : "close",
-        "click .field-submit" : "submitInitStory",
-        //"click input[type=text]" : "loadChapterHelper",
-        "click .chapter-submit": "submitChapter"
-    },
-    load: function(id, type){
-        var self = this;
-        var jsonUrl =  Echoed.Urls.Api + "/story";
-        var loadData = {};
-        self.data = {};
-
-        switch(type){
-            case "story":
-                loadData.storyId = id;
-                break;
-            case "partner":
-                loadData.partnerId = id;
-                break;
-        }
-        EchoedjQuery.ajax({
-            url: jsonUrl,
-            type: "GET",
-            xhrFields: {
-                withCredentials: true
-            },
-            data: loadData,
-            dataType: 'json',
-            success: function(initStoryData){
-                self.data = initStoryData;
-                self.render();
-            }
-        });
-    },
-    submitInitStory: function(){
-        var self = this;
-        var title = EchoedjQuery.trim(self.element.find("#story-name").val());
-        var productFrom = EchoedjQuery.trim(EchoedjQuery('#story-from').val());
-        var partnerId = self.data.partner.id;
-        var echoId = null;
-        var storyData = {};
-        if(self.data.echo)
-            storyData = {
-                title: title,
-                echoId : self.data.echo.id,
-                imageId : self.data.imageId,
-                productInfo: productFrom
-            };
-        else if(self.data.partner)
-            storyData = {
-                title: title,
-                partnerId: self.data.partner.id,
-                imageId: self.data.imageId,
-                productInfo: productFrom
-            }
-        else
-            storyData = {
-                title: title,
-                imageId : self.data.imageId,
-                productInfo: productFrom
-            };
-
-        if(!self.data.imageId){
-            alert("Please select a photo for the product");
-        } else if(self.data.title == ""){
-            alert("Please title your product story");
-        } else if(self.data.productFrom == "") {
-            alert("Please enter where the product is from");
-        } else {
-            EchoedjQuery.ajax({
-                url: Echoed.Urls.Api + "/story",
-                type: "POST",
-                xhrFields: {
-                    withCredentials: true
-                },
-                dataType: 'json',
-                data: storyData,
-                success: function(createStoryResponse){
-                    self.load(createStoryResponse.id, "story");
-                }
-            });
-        }
-    },
-    loadChapterHelper: function(){
-        var self = this;
-        self.chapterHelper.fadeIn();
-    },
-    loadChapterTemplate: function(){
-        var self = this;
-        var template = '<div class="echoed-head"><div class="echoed-close"><img src=""{{urls.images}}/btn_close_x.png"/></div></div><div class="field-title">Tell Your Product Story</div><div class="story-edit"><div id = "story-edit-header" class="clearfix"><div id = "story-title-photo-container"><img id = "story-title-photo" src=""/></div><div id="story-title-text-container"> <div id="story-title"></div><div id = "story-from"></div></div ></div> <div class="story-edit-label">Chapters</div><div id = "chapter-list"></div><div class="chapter-edit-body clearfix"><div class="story-edit-label">Add Chapter</div><div class="chapter-edit-body-left"><div class = "chapter-edit-body-row"><label for= "chapter-title"><strong>Chapter Title:</strong><br/></label><input id="chapter-title" type="text" name="chapter-title" /></div><div class="chapter-edit-body-row"><label><strong>Description:</strong><br/>Tell us more about this topic.</label><textarea id="chapter-text"></textarea></div><div class="chapter-edit-body-row"><label><strong>Photos:</strong><br/>Attach one or more photos.</label><div class="chapter-edit-photos"> <div class="thumbnails"></div><div class="thumbnail-placeholder"><img class = "thumb" src="{{urls.images}}/bk_img_upload_ph.jpg" /></div><div class="photo-upload"></div></div></div><div class="chapter-edit-body-row"><label ></label> <span class="chapter-submit" act="continue">Save and Continue</span><span class="chapter-submit" act="finish">Save and Finish</span></div ></div> <div class="chapter-edit-body-right"> <div class="chapter-title-helper"></div></div></div></div>';
-        self.element.html(template);
-        self.element.chapterList = EchoedjQuery('#chapter-list');
-        self.element.chapterHelper = self.element.find(".chapter-title-helper");
-        self.element.chapterHelper.append(EchoedjQuery("<div class='s-e-b-r-h'>Chapter Ideas</div>"));
-        EchoedjQuery.each(self.data.storyPrompts.prompts, function(index, prompt){
-            self.element.chapterHelper.append(EchoedjQuery("<div class='s-e-b-r-i'></div>").append(prompt))
-        });
-        EchoedjQuery("#story-title").html(self.data.storyFull.story.title);
-        EchoedjQuery("#story-from").html(self.data.storyFull.story.productInfo);
-        EchoedjQuery("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
-
-        var count = 0;
-        EchoedjQuery.each(self.data.storyFull.chapters, function(index, chapter){
-            count = count + 1;
-            var chapterDiv = EchoedjQuery('<div class="chapter"></div>').addClass("clearfix");
-            chapterDiv.append(EchoedjQuery('<div class="chapter-number"></div>').append(count));
-            var chapterTextContainer = EchoedjQuery('<div class="chapter-text-container"></div>');
-            chapterTextContainer.append(EchoedjQuery('<div class="chapter-title"></div>').append(chapter.title));
-            chapterTextContainer.append(EchoedjQuery('<div class="chapter-text"></div>').append(chapter.text));
-            chapterDiv.append(chapterTextContainer);
-
-            var chapterPhotos = EchoedjQuery('<div class="chapter-photos"></div>');
-            EchoedjQuery.each(self.data.storyFull.chapterImages, function(index, chapterImage){
-                if(chapterImage.chapterId == chapter.id){
-                    var chapterImg = EchoedjQuery('<div class="chapter-photo"></div>');
-                    chapterImg.append(EchoedjQuery('<img />').attr("height", 50).attr("src",chapterImage.image.preferredUrl));
-                    chapterPhotos.append(chapterImg);
-                }
-            });
-            chapterDiv.append(chapterPhotos);
-            self.element.chapterList.append(chapterDiv);
-        });
-
-        var chapterPhotos = self.element.find(".thumbnails");
-        self.currentChapter = {};
-        self.currentChapter.images = [];
-        self.currentChapter.title = "";
-        self.currentChapter.text = "";
-        var uploader = new qq.FileUploader({
-            element: document.getElementsByClassName('photo-upload')[0],
-            action: '/image',
-            debug: true,
-            allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-            onSubmit: function(id, fileName) {
-
-            },
-            onComplete: function(id, fileName, response) {
-                var thumbDiv = EchoedjQuery('<div></div>').addClass("thumb");
-                var photo = EchoedjQuery('<img />').attr('src', response.url);
-                thumbDiv.append(photo).hide().appendTo(chapterPhotos).fadeIn();
-                self.currentChapter.images.push(response.id);
-            }
-        });
-        self.EvAg.trigger('fade/show');
-        self.element.fadeIn();
-        self.EvAg.trigger('container/resize');
-    },
-    submitChapter: function(e){
-        var self = this;
-        self.currentChapter.title = EchoedjQuery.trim(EchoedjQuery('#chapter-title').val());
-        self.currentChapter.text = EchoedjQuery.trim(EchoedjQuery('#chapter-text').val());
-
-        if(self.currentChapter.title == ""){
-            alert("You must have a title for your chapter");
-        } else if(self.currentChapter.text == ""){
-            alert("You must have some text for your chapter. Even a single sentence is enough!");
-        } else {
-            var nextAction = EchoedjQuery(e.target).attr('act');
-            EchoedjQuery.ajax({
-                url: Echoed.Urls.Api + "/story/" + self.data.storyFull.story.id + "/chapter",
-                type: "POST",
-                xhrFields: {
-                    withCredentials: true
-                },
-                dataType: 'json',
-                processData: false,
-                contentType: "application/json",
-                data: JSON.stringify({
-                    title: self.currentChapter.title,
-                    text: self.currentChapter.text,
-                    imageIds: self.currentChapter.images
-                }),
-                success: function(chapterSubmitResponse) {
-                    switch(nextAction){
-                        case 'continue':
-                            self.load(self.data.storyFull.story.id, "story");
-                            break;
-                        case 'finish':
-                            window.location.hash = "#story/" + self.data.storyFull.story.id;
-                            self.unload();
-                            break;
-                    }
-                }
-            });
-        }
-    },
-    unload: function(){
-        var self = this;
-        self.EvAg.trigger('fade/hide');
-        self.element.fadeOut();
-        self.element.empty();
-        self.data = {};
-    },
-    render: function(){
-        var self = this;
-        self.element.empty();
-        if(self.data.storyFull)
-            self.loadChapterTemplate();
-        else
-            self.loadStoryTemplate();
-    },
-    loadStoryTemplate: function(){
-        var self = this;
-        var template = '<div class="field-title">Tell Your Product Story</div><div class="field-main-col clearfix"><div class = "field-row"><label><strong>Title Your Product Story</strong><br/></label><div class="field-indent"> <input id="story-name" type="text"></div></div><div class="field-row"> <label> <strong>Where The Product Is From</strong><br/></label><div class="field-indent"><input id="story-from" type="text"></div ></div> <div class="field-row"><label><strong>Product Photo</strong><br/></label><div class="field-indent clearfix"> <div class="field-photo-container"><div id="preview"><img height="150px" src="{{urls.images}}/bk_img_upload_ph.jpg" id="field-photo"></div></div><div id="field-photo-upload"></div></div></div><div class="field-row"><label></label> <div class=" field-indent"> <div class=" field-submit">Save and Continue</div> </div> </div></div>'
-        self.element.html(template);
-        self.data.imageId = null;
-        if (self.data.partner) EchoedjQuery("#story-from").val(self.data.partner.name).attr("readonly",true);
-        if(self.data.echo){
-            EchoedjQuery("#field-photo").attr("src", self.data.echo.image.sizedUrl);
-            self.data.imageId = self.data.echo.image.id;
-            EchoedjQuery("#story-name").val(self.data.echo.productName);
-        } else {
-            EchoedjQuery("#field-photo-upload").show();
-            var uploader = new qq.FileUploader({
-                element: document.getElementById('field-photo-upload'),
-                action: '/image',
-                debug: true,
-                allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-                onSubmit: function(id, fileName) {
-                },
-                onComplete: function(id, fileName, response) {
-                    EchoedjQuery("#field-photo").attr("src", response.url);
-                    self.data.imageId = response.id;
-
-                }
-            });
-        }
-        self.EvAg.trigger('fade/show');
-        EchoedjQuery("#story-name").focus();
-
-    },
-    close: function(){
-        var self = this;
-        self.element.fadeOut();
-        self.element.empty();
-        self.EvAg.trigger('fade/hide');
-    }
-});
-
-
 EchoedjQuery(document).ready(function(){
     var cssNode = document.createElement("link");
     cssNode.type="text/css";
@@ -2698,7 +2449,7 @@ EchoedjQuery(document).ready(function(){
     var echoedContainer = document.createElement('div');
     echoedContainer.id = "echoed-exhibit-container";
     echoedContainer.style.display = "none";
-    echoedContainer.innerHTML = "<div class='echoed-head'><div class='echoed-close'><img src='{{urls.images}}/btn_close_x.png'/></div></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div>";
+    echoedContainer.innerHTML = "<div class='echoed-head'><div class='echoed-share'><a target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a></div><div class='echoed-close'><img src='{{urls.images}}/btn_close_x.png'/></div></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div>";
 
     var echoedField = document.createElement('div');
     echoedField.id = "echoed-field";
@@ -2708,6 +2459,6 @@ EchoedjQuery(document).ready(function(){
     body.appendChild(echoedContainer);
 
 
-    Echoed.init({ partnerId : "{{ partnerId }}"});
+    Echoed.init({ partnerId : "{{partnerId}}"});
 
 });
