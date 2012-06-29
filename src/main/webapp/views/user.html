@@ -271,49 +271,6 @@
                     Categories
                 </div>
             </div>
-            {{/echoedUser}}
-            <!--<div id="networks">
-                {{#echoedUser}}
-                    {{#facebookUserId}}
-                    <img id="facebookAccount" src="{{urls.images}}/btn_sq_clr_fb.png" alt="facebook"/>
-                    {{/facebookUserId}}
-                    {{^facebookUserId}}
-                    <a id="addFacebookLink" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{http.site}}/facebook/add&scope=email,publish_stream,read_stream,offline_access">
-                        <img src="{{urls.images}}/btn_sq_grey_fb.png" alt="facebook"/>
-                    </a>
-                    {{/facebookUserId}}
-                    {{#twitterUserId}}
-                    <img id="twitterAccount" src="{{urls.images}}/btn_sq_clr_tw.png" alt="twitter"/>
-                    {{/twitterUserId}}
-                    {{^twitterUserId}}
-                    <a id="addTwitterLink" href="{{urls.site}}/twitter?redirect="/>
-                        <img src="{{urls.images}}/btn_sq_grey_tw.png" alt="twitter"/>
-                    </a>
-                    {{/twitterUserId}}
-                {{/echoedUser}}
-            </div> -->
-            {{^echoedUser}}
-                <!--<div id="login-container">
-                    <ul>
-                        <li>
-                            <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
-                        </li>
-                        <li>
-                            <a id="twitterLogin" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
-                        </li>
-                    </ul>
-                </div>-->
-            {{/echoedUser}}
-            <div id="content-selector-container">
-                <div id="content-selector" class="dropdown">
-                    <div id="content-filter">
-                        <div class="dd-header"></div>
-                        <div class="dd-body"></div>
-                    </div>
-                    <div id="content-sort"></div>
-                </div>
-            </div>
-            {{^echoedUser}}
             <div id="footer-nav">
                 <ul>
                     <li><a href="{{urls.site}}/whatisechoed">About Us</a></li>

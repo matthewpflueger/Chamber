@@ -2375,7 +2375,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     renderChapter: function(index){
         var self = this;
-        console.log(self.data);
         self.currentChapterId = self.data.chapters[index].id;
         self.element.find('.echo-s-b-t-t').html(self.data.chapters[index].title);
         self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[index].text + '"');

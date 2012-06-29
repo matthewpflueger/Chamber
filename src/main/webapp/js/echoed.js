@@ -226,12 +226,15 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         switch(type){
             case "story":
                 loadData.storyId = id;
+                self.storyId =id;
                 break;
             case "echo":
                 loadData.echoId = id;
+                self.echoId = id;
                 break;
             case "partner":
                 loadData.partnerId = id;
+                self.partnerId = id;
                 break;
         }
         if(Echoed.echoedUser){
@@ -272,6 +275,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var title = $.trim(self.element.find("#story-name").val());
         var productFrom = $.trim($('#story-from').val());
         var echoId = null;
+        var partnerId = self.partnerId;
         var storyData = {};
         if(self.data.echo)
             storyData = {
@@ -280,6 +284,13 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 imageId : self.data.imageId,
                 productInfo: productFrom
             };
+        else if(self.partnerId)
+            storyData = {
+                title: title,
+                partnerId: self.partnerId,
+                imageId: self.data.imageId,
+                productInfo: productFrom
+            }
         else
             storyData = {
                 title: title,
@@ -448,7 +459,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.template = _.template($('#templates-components-story-input').html());
         self.element.html(self.template);
         self.data.imageId = null;
-        if (self.data.partner){
+        if (self.data.partner && self.data.partner.name != "Echoed"){
             $("#story-from").val(self.data.partner.name).attr("readonly",true);
             self.element.find('.field-title').html("Share Your " + self.data.partner.name + " Story");
         }
@@ -1085,7 +1096,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     renderChapter: function(index){
         var self = this;
-        console.log(self.data);
         self.currentChapterId = self.data.chapters[index].id;
         self.element.find('.echo-s-b-t-t').html(self.data.chapters[index].title);
         self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[index].text + '"');
