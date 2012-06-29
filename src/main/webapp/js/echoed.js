@@ -1042,7 +1042,10 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         self.renderTabs();
         self.renderComments();
-        self.renderCover();
+        if(self.data.chapters.length > 0)
+            self.renderChapter(0);
+        else
+            self.renderCover();
         self.EvAg.trigger('fade/show');
         self.element.css({
            "margin-left": -(self.element.width() / 2)

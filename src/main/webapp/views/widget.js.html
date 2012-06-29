@@ -2275,7 +2275,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render','renderChapterImage','load','click','createComment', 'unload');
+        _.bindAll(this,'render', 'load','createComment', 'renderCover', 'renderImage');
         this.el = options.el;
         this.element = EchoedjQuery(this.el);
         this.EvAg = options.EvAg;
@@ -2283,10 +2283,10 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         this.EvAg.bind('story/hide', this.unload);
     },
     events: {
-        "click .echo-s-b-i-c": "click",
-        "click .echo-s-h-close" : "close",
+        "click .echoed-close" : "close",
         "click .comment-submit": "createComment",
-        "click .echoed-close": "close"
+        "click .echo-chapters" : "tabClick",
+        "click .echo-s-b-thumbnail": "renderImage",
     },
     unload: function(){
         var self = this;
@@ -2307,9 +2307,18 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-head"><div class="echoed-share">Share Your Story</div><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapter"></div> <div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t"> Comments <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea> </div> <span class="comment-submit">Submit Comment</span> <div class="echo-s-c-l"> </div> </div> </div> </div>';
+        var template = '<div class="echoed-head"><div class="echoed-share">Share Your Story</div><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapters clearfix"></div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t"> Comments <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea> </div> <span class="comment-submit">Submit Comment</span> <div class="echo-s-c-l"> </div> </div> </div> </div>';
         var self = this;
         self.element.html(template);
+        self.images = {};
+        self.images.cover = [self.data.story.image];
+
+        EchoedjQuery.each(self.data.chapterImages, function(index, chapterImage){
+            if(!self.images[chapterImage.chapterId])
+                self.images[chapterImage.chapterId] = [];
+            self.images[chapterImage.chapterId].push(chapterImage.image);
+        });
+
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title + " From " + self.data.story.productInfo);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
@@ -2321,30 +2330,65 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         itemNode.append(itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.thumbnails = EchoedjQuery("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
 
-        self.currentImageNum = 0;
-        self.currentChapterNum = 0;
-        self.renderChapter();
-        self.renderChapterImage();
+        self.renderTabs();
         self.renderComments();
+        if(self.data.chapters.length > 0)
+            self.renderChapter(0);
+        else
+            self.renderCover();
         self.EvAg.trigger('fade/show');
         self.element.fadeIn();
         self.element.css({
            'margin-left': -(self.element.width() / 2)
         });
     },
-    renderChapter: function(){
+    renderTabs: function(){
         var self = this;
-        if(self.data.chapters.length>0){
-            self.currentChapterId = self.data.chapters[self.currentChapterNum].id;
-            self.element.find('.echo-s-b-t-t').html(self.data.chapters[self.currentChapterNum].title);
-            self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[self.currentChapterNum].text + '"');
+        self.chapterTabs = self.element.find('.echo-chapters');
+        self.chapterTabs.append(EchoedjQuery('<div class="echo-chapter"></div>').append('Cover').addClass("on").attr("tab-id","cover"));
+        EchoedjQuery.each(self.data.chapters, function(index, chapter){
+            self.chapterTabs.append(EchoedjQuery('<div class="echo-chapter"></div>').append(chapter.title).attr("tab-id",index));
+        });
+    },
+    renderCover: function(){
+        var self = this;
+        if(self.data.echo){
+            self.element.find('.echo-s-b-t-t').html(self.data.echo.productName + "<br/>");
+        } else {
+            self.element.find('.echo-s-b-t-t').html(self.data.story.productInfo);
+            self.element.find('.echo-s-b-t-b').html("");
+            self.img.attr('src', self.images['cover'][0].originalUrl);
         }
     },
-    renderChapterImage: function(){
+    tabClick: function(e){
         var self = this;
-        if(self.data.chapterImages.length > 0){
-            self.img.attr("src", self.data.chapterImages[self.currentImageNum].image.originalUrl);
+        var index = EchoedjQuery(e.target).attr('tab-id');
+        self.chapterTabs.children().removeClass("on");
+        EchoedjQuery(e.target).addClass("on");
+        if(index =="cover"){
+            self.thumbnails.empty();
+            self.renderCover();
+        } else {
+            self.thumbnails.empty();
+            self.renderChapter(index);
         }
+    },
+    renderChapter: function(index){
+        var self = this;
+        console.log(self.data);
+        self.currentChapterId = self.data.chapters[index].id;
+        self.element.find('.echo-s-b-t-t').html(self.data.chapters[index].title);
+        self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[index].text + '"');
+        self.img.attr('src', self.images[self.currentChapterId][0].originalUrl);
+        EchoedjQuery.each(self.images[self.currentChapterId], function(index, image){
+            self.thumbnails.append(EchoedjQuery("<img />").addClass("echo-s-b-thumbnail").attr("index",index).attr("src", image.originalUrl));
+        });
+    },
+    renderImage: function(e){
+        var self = this;
+        EchoedjQuery('.echo-s-b-thumbnail').removeClass('highlight');
+        EchoedjQuery(e.target).addClass('highlight');
+        self.img.attr('src', self.images[self.currentChapterId][EchoedjQuery(e.target).attr("index")].originalUrl);
     },
     renderComments: function(){
         var self = this;

@@ -257,6 +257,16 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
     border-radius: 10px;
     background-color: #FFF;
     z-index: 10000;
+    .clearfix{
+        zoom:1;
+        &:before,&:after{
+            content:"";
+            display:table;
+        }
+        &:after{
+            clear:both;
+        }
+    }
     .echo-story-container{
         position:relative;
         background-image: image-url("bk_noise.jpg");
@@ -285,8 +295,30 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
                 }
             }
         }
-        .echo-chapter{
-            height: 30px;
+        .echo-chapters{
+            margin: 0px 10px;
+            //height: 30px;
+            border-bottom: 1px solid #CCC;
+            box-shadow: 0px 1px 0px #FFF;
+            .echo-chapter{
+                float:left;
+                padding: 5px 15px;
+                @include textFontNormal(16px);
+                border: 1px solid #AAA;
+                background-color: #D0D0D0;
+                border-top-left-radius: 3px;
+                border-top-right-radius: 3px;
+                border-bottom: none;
+                margin-right: 2px;
+                cursor: pointer;
+                max-width: 150px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                &.on{
+                    background-color: #FFF;
+                }
+            }
         }
         .echo-story-body{
             position: relative;
@@ -343,6 +375,19 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
                             //@include drop-shadow;
                             height: 300px;
                             //width: 535px;
+                        }
+                    }
+                }
+                .echo-s-b-thumbnails{
+                    text-align: left;
+                    margin-top: 3px;
+                    .echo-s-b-thumbnail{
+                        height: 60px;
+                        border: 2px solid #CCC;
+                        margin-right: 3px;
+                        cursor: pointer;
+                        &.highlight{
+                            border-color: #FFF;
                         }
                     }
                 }
