@@ -154,7 +154,7 @@ $twitterColor: #4099FF;
 }
 
 #echoed-container{
-    background-image: image-url("bk_noise.png");
+    background-image: image-url("bk_noise.jpg");
     padding: 10px;
     border: 1px #000 solid;
 }
@@ -171,7 +171,7 @@ $twitterColor: #4099FF;
     @include TextFontNormal(16px);
     margin: 10px 0px;
     color: #111;
-    background-image: image-url("bk_noise.png");
+    background-image: image-url("bk_noise.jpg");
     padding: 10px;
     border: 1px #000 solid;
 }
