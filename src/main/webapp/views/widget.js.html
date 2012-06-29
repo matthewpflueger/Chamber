@@ -2015,9 +2015,13 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.EvAg.trigger('fade/hide');
     },
     show: function(callback){
-        this.element.fadeIn();
+        var self = this;
+        this.element.fadeIn(function(){
+            self.EvAg.trigger('infiniteScroll/on');
+        });
     },
     hide: function(callback){
+        this.EvAg.trigger('infiniteScroll/off');
         this.element.fadeOut(function(){
             callback();
         });

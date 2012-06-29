@@ -98,7 +98,7 @@ Echoed.Router = Backbone.Router.extend({
         _.bindAll(this,'me','friends','explore', 'story','resetHash');
         this.EvAg = options.EvAg;
         this.EvAg.bind("hash/reset", this.resetHash);
-        this.page=null;
+        this.page = null;
     },
     routes:{
         "_=_" : "fix",
@@ -124,7 +124,6 @@ Echoed.Router = Backbone.Router.extend({
         window.location.href = "#";
     },
     explore: function(){
-        console.log(this.page + " " + window.location.hash);
         if(this.page != window.location.hash){
             this.page = "";
             _gaq.push(['_trackPageview', this.page]);
@@ -149,8 +148,11 @@ Echoed.Router = Backbone.Router.extend({
         }
     },
     story: function(id){
+        if(this.page === null) {
+            this.explore();
+            this.page = "";
+        }
         this.oldPage = this.page;
-        if(!this.page) this.explore();
         this.page = window.location.hash;
 
         this.page = this.oldPage;
@@ -653,7 +655,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     addStories: function(data){
         var self = this;
         var storiesFragment = $('<div></div>');
-        console.log("Success");
         $.each(data.stories, function(index, story){
             var storyDiv = $('<div></div>').addClass('item_wrap');
             var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg});
