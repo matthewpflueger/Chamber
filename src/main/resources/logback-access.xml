@@ -1,7 +1,6 @@
 <configuration scan="true" scanPeriod="30 seconds" debug="true">
 
     <!-- See http://logback.qos.ch/access.html -->
-    <!-- See http://logback.qos.ch/manual/layouts.html#AccessPatternLayout -->
     <appender name="access" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>access.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
@@ -14,7 +13,8 @@
             <maxFileSize>50MB</maxFileSize>
         </triggeringPolicy>
         <encoder>
-            <pattern>combined</pattern>
+            <!-- See http://logback.qos.ch/manual/layouts.html#AccessPatternLayout -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %i{X-Real-IP} "%r" %s "%i{Referer}" "%i{User-Agent}"</pattern>
         </encoder>
     </appender>
 
