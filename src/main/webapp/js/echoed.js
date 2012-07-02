@@ -983,6 +983,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind('story/show', this.load);
+        this.locked = false;
     },
     events: {
         "click .echo-s-h-close" : "close",
@@ -1127,23 +1128,29 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         var storyId = self.data.story.id;
         var chapterId = self.currentChapterId;
-        console.log(chapterId);
-        var text = $("#echo-story-comment-ta").val();
-        $.ajax({
-            url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
-            type: "POST",
-            xhrFields: {
-                withCredentials: true
-            },
-            dataType: 'json',
-            data: {
-                text: text
-            },
-            success: function(createCommentData) {
-                self.data.comments.push(createCommentData);
-                self.renderComments();
-            }
-        });
+        var text = $.trim($("#echo-story-comment-ta").val());
+        console.log(text);
+        if(text === ""){
+            alert("Please enter in a comment");
+        } else if(self.locked !== true){
+            self.locked = true;
+            $.ajax({
+                url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
+                type: "POST",
+                xhrFields: {
+                    withCredentials: true
+                },
+                dataType: 'json',
+                data: {
+                    text: text
+                },
+                success: function(createCommentData) {
+                    self.locked = false;
+                    self.data.comments.push(createCommentData);
+                    self.renderComments();
+                }
+            });
+        }
     },
     close: function(){
         var self = this;

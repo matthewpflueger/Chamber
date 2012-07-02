@@ -267,7 +267,8 @@
         order by
             S.createdOn desc,
             C.createdOn,
-            CIMG.createdOn
+            CIMG.createdOn,
+            CMT.createdOn desc
     </select>
 
     <select id="findStoryByPartnerId" resultMap="storyFullResult">
@@ -277,7 +278,8 @@
         order by
             S.createdOn desc,
             C.createdOn,
-            CIMG.createdOn
+            CIMG.createdOn,
+            CMT.createdOn desc
     </select>
 
     <select id="findStoryById" resultMap="storyFullResult" useCache = "false">
@@ -285,7 +287,8 @@
         where S.id = #{storyId}
         order by
             C.createdOn,
-            CIMG.createdOn
+            CIMG.createdOn,
+            CMT.createdOn desc
     </select>
 
     <select id="findStoryByEchoId" resultMap="storyFullResult" useCache="false">
@@ -293,7 +296,8 @@
         where S.echoId = #{echoId}
         order by
             C.createdOn,
-            CIMG.createdOn
+            CIMG.createdOn,
+            CMT.createdOn desc
     </select>
 
     <select id="getStories" resultMap="storyFullResult" useCache="false">
@@ -301,7 +305,8 @@
         order by
             S.createdOn desc,
             C.createdOn,
-            CIMG.createdOn
+            CIMG.createdOn,
+            CMT.createdOn desc
         limit
         #{start},#{limit}
     </select>
