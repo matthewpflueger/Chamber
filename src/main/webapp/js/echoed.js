@@ -33,7 +33,6 @@ Echoed.Views.Components.Fade = Backbone.View.extend({
     },
     show: function(){
         var self = this;
-        var arrPageSizes = self.___getPageSize();
         $("html,body").addClass("noScroll");
         self.element.fadeIn();
     },
@@ -41,50 +40,6 @@ Echoed.Views.Components.Fade = Backbone.View.extend({
         var self = this;
         self.element.fadeOut();
         $("html,body").removeClass("noScroll");
-    },
-    ___getPageSize: function() {
-        var xScroll, yScroll;
-        if (window.innerHeight && window.scrollMaxY) {
-            xScroll = window.innerWidth + window.scrollMaxX;
-            yScroll = window.innerHeight + window.scrollMaxY;
-        } else if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac
-            xScroll = document.body.scrollWidth;
-            yScroll = document.body.scrollHeight;
-        } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
-            xScroll = document.body.offsetWidth;
-            yScroll = document.body.offsetHeight;
-        }
-        var windowWidth, windowHeight;
-        if (self.innerHeight) {    // all except Explorer
-            if (document.documentElement.clientWidth) {
-                windowWidth = document.documentElement.clientWidth;
-            } else {
-                windowWidth = self.innerWidth;
-            }
-            windowHeight = self.innerHeight;
-        } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
-            windowWidth = document.documentElement.clientWidth;
-            windowHeight = document.documentElement.clientHeight;
-        } else if (document.body) { // other Explorers
-            windowWidth = document.body.clientWidth;
-            windowHeight = document.body.clientHeight;
-        }
-        // for small pages with total height less then height of the viewport
-        if (yScroll < windowHeight) {
-            pageHeight = windowHeight;
-        } else {
-            pageHeight = yScroll;
-        }
-        // for small pages with total width less then width of the viewport
-        if (xScroll < windowWidth) {
-            pageWidth = xScroll;
-        } else {
-            pageWidth = windowWidth;
-        }
-        pageHeight= windowHeight;
-        pageWidth = windowWidth;
-        arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
-        return arrayPageSize;
     }
 });
 
@@ -205,17 +160,18 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render','unload','load','loadStoryTemplate','submitInitStory','loadChapterTemplate','loadChapterHelper','submitChapter');
+        _.bindAll(this, 'render','unload','load','loadStoryTemplate','submitInitStory','loadChapterTemplate','submitChapter');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
+        this.locked = false;
         this.prompts = [];
     },
     events: {
         "click .field-close" : "close",
         "click .field-submit" : "submitInitStory",
-        "click input[type=text]" : "loadChapterHelper",
-        "click .chapter-submit": "submitChapter"
+        "click .chapter-submit": "submitChapter",
+        "click .story-summary-submit": "storySummarySubmit"
     },
     load: function(id, type){
         var self = this;
@@ -272,91 +228,110 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     submitInitStory: function(){
         var self = this;
-        var title = $.trim(self.element.find("#story-name").val());
-        var productFrom = $.trim($('#story-from').val());
-        var echoId = null;
-        var partnerId = self.partnerId;
-        var storyData = {};
-        if(self.data.echo)
-            storyData = {
-                title: title,
-                echoId : self.data.echo.id,
-                imageId : self.data.imageId,
-                productInfo: productFrom
-            };
-        else if(self.partnerId)
-            storyData = {
-                title: title,
-                partnerId: self.partnerId,
-                imageId: self.data.imageId,
-                productInfo: productFrom
-            }
-        else
-            storyData = {
-                title: title,
-                imageId : self.data.imageId,
-                productInfo: productFrom
-            };
+        if(self.locked === false) {
+            var title = $.trim(self.element.find("#story-name").val());
+            var productFrom = $.trim($('#story-from').val());
+            var storyData = {};
 
-        if(!self.data.imageId){
-            alert("Please select a photo for the product");
-        } else if(self.data.title == ""){
-            alert("Please title your product story");
-        } else if(self.data.productFrom == "") {
-            alert("Please enter where the product is from");
-        } else {
-            $.ajax({
-                url: Echoed.urls.api + "/story",
-                type: "POST",
-                xhrFields: {
-                    withCredentials: true
-                },
-                dataType: 'json',
-                data: storyData,
-                success: function(createStoryResponse){
-                    self.load(createStoryResponse.id, "story");
+            self.locked = true;
+
+            if(self.data.echo){
+                storyData = {
+                    title: title,
+                    echoId : self.data.echo.id,
+                    imageId : self.data.imageId,
+                    productInfo: productFrom
+                };
+            }
+            else if(self.partnerId) {
+                storyData = {
+                    title: title,
+                    partnerId: self.partnerId,
+                    imageId: self.data.imageId,
+                    productInfo: productFrom
                 }
-            });
+            }
+            else {
+                storyData = {
+                    title: title,
+                    imageId : self.data.imageId,
+                    productInfo: productFrom
+                };
+            }
+
+            if(!self.data.imageId){
+                alert("Please select a photo for the product");
+            } else if(self.data.title == ""){
+                alert("Please title your product story");
+            } else if(self.data.productFrom === "") {
+                alert("Please enter where the product is from");
+            } else {
+                $.ajax({
+                    url: Echoed.urls.api + "/story",
+                    type: "POST",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    data: storyData,
+                    success: function(createStoryResponse){
+                        self.load(createStoryResponse.id, "story");
+                        self.locked = false;
+                    }
+                });
+            }
         }
     },
-    loadChapterHelper: function(){
+    loadStorySummary: function(){
         var self = this;
-        self.chapterHelper.fadeIn();
+        var template = _.template($('#templates-components-story-summary').html());
+        self.element.html(template);
+        $("#story-summary-title").html(self.data.storyFull.story.title);
+        $("#story-summary-from").html(self.data.storyFull.story.productInfo);
+        $("#story-summary-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+        var count = 0;
+        self.element.chapters = self.element.find('.story-summary-body');
+        $.each(self.data.storyFull.chapters, function(index, chapter){
+            count = count + 1;
+            var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
+            var chapterLabel = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-label"></div>').html("Chapter " + count));
+            var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong>Title: </strong>" + chapter.title));
+            var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong>Description: </strong>" +chapter.text));
+            var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
+            var chapterPhotosRow = $("<div class='story-summary-chapter-row'></div>").append($('<label>Photos: </label>')).append(chapterPhotos);
+            $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
+                if(chapterImage.chapterId === chapter.id){
+                    var chapterImg = $('<img class="story-summary-chapter-photo"/>').attr("height", 50).attr("src",chapterImage.image.preferredUrl);
+                    chapterPhotos.append(chapterImg);
+                }
+            });
+            chapterDiv.append(chapterLabel).append(chapterTitle).append(chapterDescription).append(chapterPhotosRow);
+            self.element.chapters.append(chapterDiv);
+        });
+        self.show();
+    },
+    storySummarySubmit: function(e){
+        var self = this;
+        var target = $(e.target);
+        var nextAction = target.attr("act");
+        switch(nextAction){
+            case "finish":
+                self.unload(function(){
+                    window.location.hash = "#story/" + self.data.storyFull.story.id;
+                });
+                break;
+            case "add":
+                self.loadChapterTemplate();
+                break;
+        }
     },
     loadChapterTemplate: function(){
         var self = this;
         self.template = _.template($('#templates-components-story-edit').html());
         self.element.html(self.template);
-        self.element.chapterList = $('#chapter-list');
-        self.element.chapterHelper = self.element.find(".chapter-title-helper");
-        self.element.chapterHelper.append($("<div class='s-e-b-r-h'>Chapter Ideas</div>"));
-        $.each(self.data.storyPrompts.prompts, function(index, prompt){
-            self.element.chapterHelper.append($("<div class='s-e-b-r-i'></div>").append(prompt))
-        });
-        $("#story-title").html(self.data.storyFull.story.title);
-        $("#story-from").html(self.data.storyFull.story.productInfo);
-        $("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
-        var count = 0;
-        $.each(self.data.storyFull.chapters, function(index, chapter){
-            count = count + 1;
-            var chapterDiv = $('<div class="chapter"></div>').addClass("clearfix");
-            chapterDiv.append($('<div class="chapter-number"></div>').append(count));
-            var chapterTextContainer = $('<div class="chapter-text-container"></div>');
-            chapterTextContainer.append($('<div class="chapter-title"></div>').append(chapter.title));
-            chapterTextContainer.append($('<div class="chapter-text"></div>').append(chapter.text));
-            chapterDiv.append(chapterTextContainer);
 
-            var chapterPhotos = $('<div class="chapter-photos"></div>');
-            $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
-                if(chapterImage.chapterId == chapter.id){
-                    var chapterImg = $('<div class="chapter-photo"></div>')
-                    chapterImg.append($('<img />').attr("height", 50).attr("src",chapterImage.image.preferredUrl));
-                    chapterPhotos.append(chapterImg);
-                }
-            });
-            chapterDiv.append(chapterPhotos);
-            self.element.chapterList.append(chapterDiv);
-        });
+        $("#story-title").html("Story Title: " + self.data.storyFull.story.title);
+        $("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
 
         var chapterPhotos = self.element.find(".thumbnails");
         self.currentChapter = {};
@@ -390,42 +365,39 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         } else if(self.currentChapter.text == ""){
             alert("You must have some text for your chapter. Even a single sentence is enough!");
         } else {
-            var nextAction = $(e.target).attr('act');
-            $.ajax({
-                url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
-                type: "POST",
-                xhrFields: {
-                    withCredentials: true
-                },
-                dataType: 'json',
-                processData: false,
-                contentType: "application/json",
-                data: JSON.stringify({
-                    title: self.currentChapter.title,
-                    text: self.currentChapter.text,
-                    imageIds: self.currentChapter.images
-                }),
-                success: function(chapterSubmitResponse) {
-                    switch(nextAction){
-                        case 'continue':
-                            self.load(self.data.storyFull.story.id, "story");
-                            break;
-                        case 'finish':
-                            window.location.hash = "#story/" + self.data.storyFull.story.id;
-                            self.unload();
-                            break;
+            if(self.locked === false) {
+                self.locked = true;
+                var nextAction = $(e.target).attr('act');
+                $.ajax({
+                    url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
+                    type: "POST",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    processData: false,
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        title: self.currentChapter.title,
+                        text: self.currentChapter.text,
+                        imageIds: self.currentChapter.images
+                    }),
+                    success: function(chapterSubmitResponse) {
+                        self.locked = false;
+                        self.load(self.data.storyFull.story.id, "story");
                     }
-                }
-            });
+                });
+            }
         }
     },
-    unload: function(){
+    unload: function(callback){
         var self = this;
         self.EvAg.trigger('fade/hide');
-        self.EvAg.trigger('hash/reset');
-        self.element.fadeOut();
-        self.element.empty();
-        self.data = {};
+        self.element.fadeOut(function(){
+            callback();
+            self.element.empty();
+            self.data = {};
+        });
     },
     renderLogin: function(data){
         var self = this;
@@ -450,7 +422,8 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         self.element.empty();
         if(self.data.storyFull)
-            self.loadChapterTemplate();
+            //self.loadChapterTemplate();
+            self.loadStorySummary();
         else
             self.loadStoryTemplate();
     },
@@ -715,7 +688,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var storiesFragment = $('<div></div>');
         $.each(data.stories, function(index, story){
             if(story.chapters.length > 0 || self.personal == true){
-                console.log(story);
                 var storyDiv = $('<div></div>').addClass('item_wrap');
                 var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal});
                 storiesFragment.append(storyDiv);
@@ -1011,7 +983,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     events: {
         "click .echo-s-h-close" : "close",
         "click .comment-submit": "createComment",
-        "click .echo-chapters" : "tabClick",
+        "click .echo-chapter" : "tabClick",
         "click .echo-s-b-thumbnail": "renderImage",
         "click a": "close"
     },
@@ -1101,10 +1073,15 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.currentChapterId = self.data.chapters[index].id;
         self.element.find('.echo-s-b-t-t').html(self.data.chapters[index].title);
         self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[index].text.replace(/\n/g, '<br />') + '"');
-        self.img.attr('src', self.images[self.currentChapterId][0].originalUrl);
-        $.each(self.images[self.currentChapterId], function(index, image){
-            self.thumbnails.append($("<img />").addClass("echo-s-b-thumbnail").attr("index",index).attr("src", image.originalUrl));
-        });
+        if(self.images[self.currentChapterId] !== undefined){
+            self.img.attr('src', self.images[self.currentChapterId][0].originalUrl);
+            $.each(self.images[self.currentChapterId], function(index, image){
+                self.thumbnails.append($("<img />").addClass("echo-s-b-thumbnail").attr("index",index).attr("src", image.originalUrl));
+            });
+        }
+        else {
+            self.img.attr('src', self.images["cover"][0].originalUrl);
+        }
     },
     renderImage: function(e){
         var self = this;
@@ -1140,6 +1117,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
             commentListNode.append(commentNode);
         });
+        if(Echoed.echoedUser) self.element.find('.comment-submit').fadeIn();
     },
     createComment: function(){
         var self = this;
@@ -1205,12 +1183,24 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             "height" : width * hToWidthRatio,
             "width" : width
         });
-        overlayNode.html(self.data.story.title);
+        if(self.personal === true ) {
+            var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");
+            overlayNode.append(editButton);
+            textNode.append("Story Title: "+ self.data.story.title);
+
+        } else {
+            if(self.data.echoedUser.facebookId) {
+                photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
+                textNode.append($("<img height='40px' width='40px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
+                textNode.append("Story By " + self.data.echoedUser.name);
+                overlayNode.html(self.data.story.title);
+            }
+        }
+
         var photoSrc;
-        if(self.data.echoedUser.facebookId)
-            photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
-        textNode.append($("<img height='40px' width='40px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
-        textNode.append("Story By " + self.data.echoedUser.name);
+
+
+
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
@@ -1229,10 +1219,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             var id = self.element.attr("id");
             window.location.hash = "#story/" + self.data.story.id;
         }
-
-
     }
-
 });
 
 Echoed.Views.Components.Product = Backbone.View.extend({

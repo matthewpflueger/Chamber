@@ -19,7 +19,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
 }
 
 #echoed-fade { /*--Transparent background layer--*/
-    position: absolute;
+    //position: absolute;
     z-index: 9999;
     //background-image: image-url("bk_greyPx.png");
     background-color: rgba(0,0,0,0.7);
@@ -27,6 +27,9 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
     left: 0px;
     bottom: 0px;
     right: 0px;
+    height: 100%;
+    position: fixed;
+    width: 100%;
     display: none;
     overflow-y: scroll;
 }

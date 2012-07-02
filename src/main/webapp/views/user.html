@@ -53,36 +53,77 @@
             </div>
         </div>
     </script>
+    <script type="text/template" id="templates-components-story-summary">
+        <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
+        <div class="field-title">Share Your Product Story</div>
+        <div class="story-summary">
+            <div class="story-summary-header">
+
+                <div class="story-summary-header-row">
+                    <label>Story Title:</label>
+                    <div id="story-summary-title">
+                    </div>
+                </div>
+                <div class="story-summary-header-row">
+                    <label>From:</label>
+                    <div id="story-summary-from">
+                    </div>
+                </div>
+                <div class="story-summary-header-row">
+                    <label>Story Cover Photo:</label>
+                    <div id="story-summary-photo-container">
+                        <img id="story-summary-photo" src="">
+                    </div>
+                </div>
+            </div>
+            <div class="story-summary-body">
+            </div>
+            <div class="story-summary-buttons">
+                <span class="story-summary-submit" act="add">Add Another Chapter</span>
+                <span class="story-summary-submit" act="finish">I'm Done!</span>
+            </div>
+        </div>
+
+    </script>
     <script type="text/template" id="templates-components-story-edit">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
         <div class="field-title">Share Your Product Story</div>
         <div class="story-edit">
             <div id="story-edit-header" class="clearfix">
                 <div id="story-title-photo-container">
-                    <img id="story-title-photo" src=""/>
+                    <img id="story-title-photo" src="">
                 </div>
                 <div id="story-title-text-container">
-                    <div id="story-title"></div>
-                    <div id="story-from"></div>
+                    <div id="story-title">
+                    </div>
                 </div>
             </div>
-            <div class="story-edit-label">Chapters</div>
-            <div id="chapter-list"></div>
             <div class="chapter-edit-body clearfix">
-                <div class="story-edit-label">Add Chapter</div>
-                <div class="chapter-edit-body-left">
+                <div class="chapter-edit-body-top">
+                    <div class="chapter-edit-body-top-title">
+                        Looking Great!
+                    </div>
+                    <div class="chapter-edit-body-top-subtitle">
+                        Now let's add a chapter to your story:
+                    </div>
+                    <div class="chapter-edit-body-top-tips">
+                        <strong>Chapter Tips:</strong> There's no right or wrong way to tell your story. Keep it simple! If you only want to write a sentence that's 100% fine. If you're looking for ideas, think about why you bought it, what you are doing with it, who it was for, etc.
+                    </div>
+
+                </div>
+                <div class="chapter-edit-body-main">
+                    <div class="chapter-edit-body-row">
+                        <label for="chapter-title">
+                            <strong>Chapter Title:</strong>
+                        </label>
+                        <input id="chapter-title" type="text" name="chapter-title" />
+                    </div>
                     <div class="chapter-edit-body-row">
                         <label>
                             <strong>Description:</strong><br/>
-                            Share your story
+                            Tell us a little more about your experience
                         </label>
                         <textarea id="chapter-text"></textarea>
-                    </div>
-                    <div class="chapter-edit-body-row">
-                        <label for="chapter-title">
-                            <strong>Chapter Title:</strong><br/>(Optional)
-                        </label>
-                        <input id="chapter-title" type="text" name="chapter-title" />
                     </div>
                     <div class="chapter-edit-body-row">
                         <label>
@@ -104,11 +145,7 @@
                         <span class="chapter-submit" act="finish">Save and Finish</span>
                     </div>
                 </div>
-                <div class="chapter-edit-body-right">
-                    <div class="chapter-title-helper"></div>
-                </div>
             </div>
-
         </div>
     </script>
     <script type="text/template" id="templates-components-story">
@@ -143,7 +180,8 @@
                     <div class="echo-s-c-ta">
                         <textarea id="echo-story-comment-ta"></textarea>
                     </div>
-                    <span class="comment-submit">Submit Comment</span>
+                    <span class="comment-submit" style="display: none;">Submit Comment</span>
+                    <span class="comment-login" style="display: none;"></span>
                     <div class="echo-s-c-l">
                         <!-- Comment List -->
                     </div>

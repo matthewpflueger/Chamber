@@ -55,6 +55,29 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
         font-size: $size;
     }
 
+    @mixin overlayBackground(){
+        background-color: rgba(0, 0 ,0 , 0.4);
+    }
+
+    @mixin button(){
+        margin: 3px;
+        display: inline-block;
+        padding: 7px 10px;
+        background: -moz-linear-gradient(top, #eb1a24 0%, #b41b25);
+        background: -webkit-gradient(linear, left top, left bottom, from(#eb1a24), to(#b41b25));
+        border-radius: 3px;
+            -moz-border-radius: 3px;
+            -webkit-border-radius: 3px;
+        border: 1px solid #591b24;
+        -moz-box-shadow:
+            inset 0px 1px 0px rgba(255,255,255,0.5);
+        -webkit-box-shadow:
+            inset 0px 1px 0px rgba(255,255,255,0.5);
+        text-shadow:
+            0px -1px 1px rgba(000,000,000,1),
+            0px 0px 0px rgba(255,255,255,0.3);
+    }
+
 //RESET
 html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
 pre, form, fieldset, table, th, td{
@@ -218,12 +241,14 @@ h2{
             display: none;
             .action-button{
                 cursor: pointer;
-                border-radius: 5px;
+                /*border-radius: 5px;
                 margin: 5px 10px;
                 padding: 5px 0px;
-                @include textFontBold(16px, #FFF);
-                background-color: #00CC00;
+
+                background-color: #00CC00;*/
                 //text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
+                @include textFontBold(16px, #FFF);
+                @include button();
             }
         }
 
@@ -351,9 +376,7 @@ h2{
         .dropdown{
             position:relative;
             cursor: pointer;
-            //background-color: #FFF;
             margin-bottom: 10px;
-            //@include drop-shadow;
             border: 1px solid #CCC;
             white-space: nowrap;
                 .dd-header{
@@ -398,10 +421,8 @@ h2{
 
         #field{
             position:absolute;
-            top: 100px;
+            top: 75px;
             left: 50%;
-            //margin-left: -350px;
-            //width: 640px;
             z-index: 99999;
             background-color: #FFF;
             @include drop-shadow;
@@ -436,9 +457,9 @@ h2{
             }
             .field-title{
                 padding: 10px;
-                @include textFontBold(24px);
+                @include textFontNormal(24px);
                 text-shadow: inset 0 -1px 0 rgba(0, 0, 0, .42);
-                text-align:left;
+                text-align: center;
             }
             .field-main-col{
                 background-image: image-url("bk_noise.jpg");
@@ -454,6 +475,8 @@ h2{
                         display: inline-block;
                         width: 180px;
                         text-align: right;
+                        @include textFontNormal(14px);
+                        margin-top: 3px;
                     }
                     .field-indent{
                         margin-left: 10px;
@@ -462,7 +485,6 @@ h2{
                             width: 290px;
                             resize: none;
                             //outline: 0px;
-                            border-radius: 5px;
                             padding: 8px 5px;
                             border: 1px solid #CCC;
                             -webkit-appearance:none;
@@ -472,14 +494,8 @@ h2{
                 }
                 .field-submit{
                     cursor: pointer;
-                    border-radius: 5px;
-                    padding: 7px 10px;
-                    display: inline-block;
-                    width: 150px;
-                    text-align: center;
                     @include textFontBold(14px, #FFF);
-                    background-color: #00CC00;
-                    text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
+                    @include button();
                 }
             }
 
@@ -519,6 +535,90 @@ h2{
                 }
             }
 
+            .story-summary{
+                margin: 5px;
+                width: 600px;
+                background-image: image-url("bk_noise.jpg");
+                padding: 20px;
+                .story-summary-header{
+                    border: 1px solid #CCC;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin-bottom: 10px;
+                    .story-summary-header-row{
+                        @include textFontNormal(14px);
+                        margin-bottom: 10px;
+
+                        label{
+                            vertical-align: top;
+                            font-weight: bold;
+                        }
+                        #story-summary-title{
+                            @include textFontNormal(14px);
+                            display: inline-block;
+                        }
+                        #story-summary-from{
+                            @include textFontNormal(14px);
+                            display: inline-block;
+                        }
+                        #story-summary-photo-container{
+                            @include textFontNormal(14px);
+                            display: inline-block;
+                            #story-summary-photo{
+                                height: 50px;
+                                border: 2px solid #CCC;
+                            }
+                        }
+                    }
+
+                }
+                .story-summary-body{
+
+                    .story-summary-chapter{
+                        border: 1px solid #CCC;
+                        padding: 10px;
+                        border-radius: 5px;
+                        margin-bottom: 10px;
+                        .story-summary-chapter-row{
+                            margin-bottom: 10px;
+                            label{
+                                vertical-align: top;
+                                @include textFontBold(14px);
+                                margin-right: 10px;
+                            }
+                            .story-summary-chapter-label{
+                                text-align: center;
+                                @include textFontBold(16px);
+                            }
+                            .story-summary-chapter-title{
+                                @include textFontNormal(14px);
+                                display: inline-block;
+                            }
+                            .story-summary-chapter-description{
+                                @include textFontNormal(14px);
+                                display: inline-block;
+                            }
+                            .story-summary-chapter-photo-container{
+                                @include textFontNormal(14px);
+                                display: inline-block;
+                                .story-summary-chapter-photo{
+                                    border: 2px solid #CCC;
+                                    margin-right: 3px;
+                                }
+                            }
+
+                        }
+                    }
+                }
+                .story-summary-buttons{
+                    .story-summary-submit{
+                        cursor: pointer;
+                        @include button;
+                        @include textFontNormal(16px, #FFF);
+                    }
+                }
+            }
+
             .story-edit{
                 padding: 5px;
                 .story-edit-label{
@@ -527,19 +627,19 @@ h2{
                     margin-bottom: 10px;
                 }
                 #story-edit-header{
-                    margin-left: 20px;
                     margin-bottom: 10px;
                     #story-title-photo-container{
                         float:left;
-                        img{
+                        #story-title-photo{
                             height: 50px;
+                            border: 2px solid #CCC;
                         }
                     }
                     #story-title-text-container{
                         float:left;
 
                         #story-title{
-                            @include textFontNormal(16px);
+                            @include textFontNormal(14px);
                             padding: 0px 5px 5px 5px;
                         }
                         #story-from{
@@ -594,14 +694,54 @@ h2{
                     margin-top: 5px;
                     padding: 5px;
                     border: 1px solid #CCC;
-
+                    width: 600px;
                     background-image: image-url("bk_noise.jpg");
-                    .chapter-edit-body-left{
-                        float:left;
+                    .chapter-edit-body-head{
+                        margin-left: 10px;
+                        padding: 5px;
+                        float: left;
+                        .chapter-title-helper{
+                            .s-e-b-r-h{
+                                padding: 2px 12px;
+                                @include textFontNormal(14px);
+                                text-decoration: underline;
+                            }
+                            .s-e-b-r-i{
+                                padding: 2px 12px;
+                                @include textFontNormal(12px);
+                                &:hover{
+                                    color: #FF0000;
+                                    cursor: pointer;
+                                }
+                            }
+                        }
+                    }
+                    .chapter-edit-body-top{
+                        text-align: center;
+                        .chapter-edit-body-top-title{
+                            @include textFontNormal(24px);
+                            margin-bottom: 5px;
+                        }
+                        .chapter-edit-body-top-subtitle{
+                            @include textFontNormal(18px);
+                            margin-bottom: 20px;
+                        }
+                        .chapter-edit-body-top-tips{
+                            @include textFontNormal(14px);
+                            background-color: #F7F7F7;
+                            margin:  5px 20px;
+                            border: 1px solid #CCC;
+                            text-align: left;
+                            padding: 5px;
+                            font-style: italic;
+                        }
+                    }
+                    .chapter-edit-body-main{
+                        margin-top: 20px;
                         .chapter-edit-body-row{
+                            margin-bottom: 10px;
                             vertical-align: top;
                             display: table;
-                            margin: 5px 0px;
                             .chapter-edit-photos{
                                 display: inline-block;
                                 .thumbnails{
@@ -637,64 +777,40 @@ h2{
                             label{
                                 vertical-align: top;
                                 text-align: right;
-                                margin-right: 5px;
+                                margin-right: 20px;
+                                margin-top: 3px;
                                 display: inline-block;
-                                width: 120px;
+                                width: 250px;
                                 min-height: 20px;
+                                @include textFontNormal(14px);
                             }
                             input[type=text]{
                                 display: inline-block;
                                 outline: 0px;
+                                margin: 0px;
                                 border: 1px solid #CCC;
-                                border-radius: 5px;
+                                //border-radius: 5px;
                                 width: 300px;
-                                @include textFontNormal(12px);
+                                @include textFontNormal(14px);
                                 padding: 5px 6px;
                             }
                             textarea{
-                                @include textFontNormal(12px);
+                                @include textFontNormal(14px);
                                 width: 300px;
                                 padding: 5px 6px;
                                 resize: none;
                                 outline: 0px;
                                 height: 100px;
                                 border: 1px solid #CCC;
-                                border-radius: 5px;
+                                //border-radius: 5px;
                             }
                             .chapter-submit{
-                                margin: 4px;
-                                cursor: pointer;
-                                border-radius: 5px;
-                                padding: 7px 10px;
-                                display: inline-block;
-                                text-align: center;
                                 @include textFontBold(14px, #FFF);
-                                background-color: #00CC00;
-                                text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
+                                @include button();
                             }
                         }
                     }
-                    .chapter-edit-body-right{
-                        width: 250px;
-                        margin-left: 10px;
-                        padding: 5px;
-                        float: left;
-                        .chapter-title-helper{
-                            .s-e-b-r-h{
-                                padding: 2px 12px;
-                                @include textFontNormal(14px);
-                                text-decoration: underline;
-                            }
-                            .s-e-b-r-i{
-                                padding: 2px 12px;
-                                @include textFontNormal(12px);
-                                &:hover{
-                                    color: #FF0000;
-                                    cursor: pointer;
-                                }
-                            }
-                        }
-                    }
+
                 }
             }
         }
@@ -802,6 +918,10 @@ h2{
                                     margin: 20px;
                                     @include textFontNormal(24px, #FFF);
                                     text-align: center;
+                                    .story-brief-overlay-edit-button{
+                                        @include button;
+                                        @include textFontNormal(16px, #FFF);
+                                    }
                                 }
                             }
                             .story-brief-image{
@@ -1166,7 +1286,7 @@ h3{
 
 #story{
     position: absolute;
-    display: inline-block;
+    top: 75px;
     left: 50%;
     z-index: 99999;
 }
@@ -1177,7 +1297,6 @@ h3{
     padding-bottom: 10px;
     border: 8px solid #FFF;
     border-radius: 3px;
-    margin: 50px 0px;
     .echo-s-h-close{
         position:absolute;
         right: -25px;
@@ -1357,14 +1476,8 @@ h3{
             }
             .comment-submit{
                 cursor: pointer;
-                border-radius: 5px;
-                padding: 7px 10px;
-                display: inline-block;
-                width: 150px;
-                text-align: center;
+                @include button();
                 @include textFontBold(14px, #FFF);
-                background-color: #00CC00;
-                text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
             }
             .echo-s-c-l{
                 margin-top: 10px;

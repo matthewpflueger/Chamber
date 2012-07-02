@@ -265,6 +265,7 @@
         <include refid="storyFullSelect" />
         where EU.id=#{echoedUserId}
         order by
+            S.createdOn desc,
             C.createdOn,
             CIMG.createdOn
     </select>
@@ -274,6 +275,7 @@
         where
             S.partnerId=#{partnerId}
         order by
+            S.createdOn desc,
             C.createdOn,
             CIMG.createdOn
     </select>
@@ -297,6 +299,7 @@
     <select id="getStories" resultMap="storyFullResult" useCache="false">
         <include refid="storyFullSelect" />
         order by
+            S.createdOn desc,
             C.createdOn,
             CIMG.createdOn
         limit

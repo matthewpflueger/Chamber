@@ -2493,6 +2493,14 @@ EchoedjQuery(document).ready(function(){
     var echoedField = document.createElement('div');
     echoedField.id = "echoed-field";
 
+    var iFrameNode = document.createElement('iframe');
+    iFrameNode.height = "0px";
+    iFrameNode.width = "0px";
+    iFrameNode.style.border = "none";
+    iFrameNode.id = "echoed-iframe";
+    iFrameNode.src = "{{urls.site}}/echo/iframe";
+
+    body.appendChild(iFrameNode);
     body.appendChild(echoedField);
     body.appendChild(echoedStory);
     body.appendChild(echoedContainer);

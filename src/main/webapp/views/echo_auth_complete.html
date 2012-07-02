@@ -5,7 +5,7 @@
             window.setTimeout( function(){
                 var data = {};
                 {{#echoedUserName}}
-                    data.name = '{{this}}';
+                    data.name = '{{.}}';
                 {{/echoedUserName}}
                 {{#facebookUserId}}
                     data.facebook = true;
@@ -44,7 +44,7 @@
                 <img src="{{urls.images}}/logo.png" /><br/>
                 <img src="{{urls.images}}/bar-loader.gif" /><br/>
                 {{#network}}
-                    Logging into Echoed with {{this}}
+                    Logging into Echoed with {{.}}
                 {{/network}}
                 {{^network}}
                     Error logging you into Echoed
