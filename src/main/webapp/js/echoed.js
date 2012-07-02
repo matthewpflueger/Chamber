@@ -233,8 +233,6 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             var productFrom = $.trim($('#story-from').val());
             var storyData = {};
 
-            self.locked = true;
-
             if(self.data.echo){
                 storyData = {
                     title: title,
@@ -266,6 +264,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             } else if(productFrom === "") {
                 alert("Please enter where the product is from");
             } else {
+                self.locked = true;
                 $.ajax({
                     url: Echoed.urls.api + "/story",
                     type: "POST",
@@ -1184,7 +1183,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
         var overlay = self.element.find(".story-brief-overlay");
         var image = null;
-        if(self.data.chapterImages.length > 0 && self.data.echoId !== null) {
+        if(self.data.chapterImages.length > 0 && self.data.echoId === null) {
             image = self.data.chapterImages[0].image
         } else {
             image = self.data.story.image;
