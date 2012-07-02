@@ -261,9 +261,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
 
             if(!self.data.imageId){
                 alert("Please select a photo for the product");
-            } else if(self.data.title == ""){
+            } else if(title === ""){
                 alert("Please title your product story");
-            } else if(self.data.productFrom === "") {
+            } else if(productFrom === "") {
                 alert("Please enter where the product is from");
             } else {
                 $.ajax({
