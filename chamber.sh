@@ -46,7 +46,7 @@ function service_cmd() {
     case $service_args in
         clean)
             rm -Rf out
-            CLEAN="mvn -DskipTests clean"
+            CLEAN="mvn -Dmaven.test.skip=true clean"
             echo "Running ${CLEAN}"
             $CLEAN
             result=$?
@@ -56,7 +56,7 @@ function service_cmd() {
             ;;
 
         package)
-            PACKAGE="mvn -DskipTests -Dsun.net.client.defaultConnectTimeout=1000 -Dsun.net.client.defaultReadTimeout=1000 -Pallinone package"
+            PACKAGE="mvn -Dmaven.test.skip=true -Dsun.net.client.defaultConnectTimeout=1000 -Dsun.net.client.defaultReadTimeout=1000 -Pallinone package"
             echo "Running ${PACKAGE}"
             $PACKAGE
             result=$?
@@ -160,7 +160,7 @@ function service_cmd() {
         targz)
             rm chamber.tar.gz
             rm target/chamber-0.1-SNAPSHOT-allinone.jar
-            mvn -DskipTests -Pallinone clean package
+            mvn -Dmaven.test.skip=true -Pallinone clean package
             tar -cvzf chamber.tar.gz --exclude chamber.pid --exclude chamber.iml --exclude std.out --exclude out --exclude-vcs --exclude-backups *
             ;;
 
