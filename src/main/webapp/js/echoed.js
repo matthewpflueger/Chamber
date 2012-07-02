@@ -421,11 +421,15 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     render: function(){
         var self = this;
         self.element.empty();
-        if(self.data.storyFull)
-            //self.loadChapterTemplate();
-            self.loadStorySummary();
-        else
+        if(self.data.storyFull) {
+            if(self.data.storyFull.chapters.length > 0) {
+                self.loadStorySummary();
+            } else {
+                self.loadChapterTemplate();
+            }
+        } else {
             self.loadStoryTemplate();
+        }
     },
     loadStoryTemplate: function(){
         var self = this;
@@ -1171,6 +1175,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var imageNode = self.element.find(".story-brief-image");
         var textNode = self.element.find(".story-brief-text");
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
+        var overlay = self.element.find(".story-brief-overlay");
         var image = null;
         if(self.data.chapterImages.length > 0)
             image = self.data.chapterImages[0].image
@@ -1185,12 +1190,19 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         });
         if(self.personal === true ) {
             //LOGIC FOR ON "ME" tab
-            var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");
-            overlayNode.append(editButton);
-            textNode.append("<strong>Story Title: </strong>"+ self.data.story.title);
+            textNode.append("<strong>Story Title: </strong>"+ self.data.story.title + "<br/>");
+            textNode.append("<strong># Chapters: </strong>" + self.data.chapters.length + "<br/>");
+            textNode.append("<strong># Images: </strong>" + self.data.chapterImages.length + "<br/>");
             if(self.data.chapters.length === 0 ){
-                textNode.append("<br/><strong>Finish your story by adding a chapter</strong>");
+                var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Complete Story");
+                overlayNode.append(editButton);
+                overlayNode.append("<br/><strong>Complete your story by adding a chapter</strong>");
+                overlay.fadeIn();
+            } else {
+                var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");
+                overlayNode.append(editButton);
             }
+
 
         } else {
             if(self.data.echoedUser.facebookId) {
@@ -1200,11 +1212,6 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
                 overlayNode.html(self.data.story.title);
             }
         }
-
-        var photoSrc;
-
-
-
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
