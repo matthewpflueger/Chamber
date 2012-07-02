@@ -18,4 +18,7 @@ class ImageServiceActorClient extends ImageService with ActorClient {
     def processImage(image: Image) =
         (actorRef ? ProcessImage(image)).mapTo[ProcessImageResponse]
 
+    def startProcessImage(image: Image) =
+        (actorRef ? StartProcessImage(image)).mapTo[StartProcessImageResponse]
+
 }

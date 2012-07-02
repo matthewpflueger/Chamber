@@ -26,6 +26,7 @@ import akka.dispatch.Promise
 import akka.util.duration._
 import akka.event.Logging
 import akka.util.Timeout
+import akka.pattern.ask
 
 
 class ImageServiceActor extends FactoryBean[ActorRef] {
@@ -227,6 +228,22 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
             store(image, imageInfo)(success)
 
 
+        case msg @ StartProcessImage(image) =>
+            val me = context.self
+            val channel = context.sender
+
+            try {
+                imageDao.insert(image)
+                channel ! StartProcessImageResponse(msg, Right(image))
+                (me ? ProcessImage(image)).onComplete(_.fold(
+                    e => logger.error("Error processing image {}: {}", image.url, e),
+                    _ => logger.debug("Successfully processed image {}", image.url)))
+            } catch {
+                case e =>
+                    logger.error("Error inserting image {}: {}", image, e)
+                    channel ! StartProcessImageResponse(msg, Left(ImageException(image, "Error inserting image", e)))
+            }
+
         case msg @ ProcessImage(image) =>
             val me = context.self
             val channel = context.sender
@@ -253,26 +270,18 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                     list += ((msg, channel))
 //                    responses.put(image.url, list)
 
-                    val img = Option(imageDao.findById(image.id)).orElse {
-                        try {
-                            imageDao.insert(image)
-                        } catch {
-                            case e => logger.debug("Error inserting image {}: {}", image, e)
-                        }
-                        Some(image)
-                    }.get
 
-                    if (!img.hasOriginal) {
+                    if (!image.hasOriginal) {
                         me ! ProcessOriginalImage(image)
-                    } else if (!img.hasSized) {
+                    } else if (!image.hasSized) {
                         me ! ProcessSizedImage(image)
-                    } else if (!img.hasThumbnail) {
+                    } else if (!image.hasThumbnail) {
                         me ! ProcessThumbnailImage(image)
                     } else {
                         //sanity check...
-                        logger.error("Image already processed!?!? {}", img.url)
-                        responses.remove(img.url)
-                        channel ! ProcessImageResponse(msg, Right(img))
+                        logger.error("Image already processed!?!? {}", image.url)
+                        responses.remove(image.url)
+                        channel ! ProcessImageResponse(msg, Right(image))
                     }
                 } //)
 

@@ -8,4 +8,5 @@ trait ImageService {
 
     def processImage(image: Image): Future[ProcessImageResponse]
 
+    def startProcessImage(image: Image): Future[StartProcessImageResponse]
 }
