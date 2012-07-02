@@ -1184,9 +1184,13 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             "width" : width
         });
         if(self.personal === true ) {
+            //LOGIC FOR ON "ME" tab
             var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");
             overlayNode.append(editButton);
             textNode.append("Story Title: "+ self.data.story.title);
+            if(self.data.chapters.length === 0 ){
+                textNode.append("<br/><strong>Finish your story by adding a chapter</strong>");
+            }
 
         } else {
             if(self.data.echoedUser.facebookId) {
