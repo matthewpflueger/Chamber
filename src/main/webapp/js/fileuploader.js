@@ -1126,7 +1126,6 @@ qq.UploadHandlerXhr = function(o){
 
 // static method
 qq.UploadHandlerXhr.isSupported = function(){
-    return false;
     var input = document.createElement('input');
     input.type = 'file';        
     
