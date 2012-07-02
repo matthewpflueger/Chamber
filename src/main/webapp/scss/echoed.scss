@@ -63,7 +63,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
 
         margin: 3px;
         display: inline-block;
-        padding: 7px 10px;
+        padding: 10px 10px;
         background: -moz-linear-gradient(
             top,
             #eb1a24 0%,
@@ -81,6 +81,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
         -webkit-box-shadow:
             inset 0px 1px 1px rgba(255,255,255,0.5);
         text-shadow:
+            0px -1px 1px rgba(089,027,036,1),
             0px -1px 0px rgba(255,255,255,0.3);
     }
 
