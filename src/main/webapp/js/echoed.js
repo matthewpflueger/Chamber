@@ -330,7 +330,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.template = _.template($('#templates-components-story-edit').html());
         self.element.html(self.template);
 
-        $("#story-title").html("Story Title: " + self.data.storyFull.story.title);
+        $("#story-title").html("<strong>Story Title: </strong>" + self.data.storyFull.story.title);
         $("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
 
         var chapterPhotos = self.element.find(".thumbnails");
@@ -1187,7 +1187,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             //LOGIC FOR ON "ME" tab
             var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");
             overlayNode.append(editButton);
-            textNode.append("Story Title: "+ self.data.story.title);
+            textNode.append("<strong>Story Title: </strong>"+ self.data.story.title);
             if(self.data.chapters.length === 0 ){
                 textNode.append("<br/><strong>Finish your story by adding a chapter</strong>");
             }
