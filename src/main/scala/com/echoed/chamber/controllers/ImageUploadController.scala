@@ -14,6 +14,7 @@ import org.springframework.web.context.request.async.DeferredResult
 import io.Source
 import java.util.Date
 import java.text.SimpleDateFormat
+import java.net.URLDecoder
 
 
 @Controller
@@ -32,7 +33,8 @@ class ImageUploadController {
     @ResponseBody
     def upload(request: HttpServletRequest) = {
         val eu = cookieManager.findEchoedUserCookie(request).get
-        val fileName = Option(request.getHeader("X-File-Name")).get
+        //we url decode because the image service will again encode :(  really the image service should not be encoding anything...
+        val fileName = URLDecoder.decode(Option(request.getHeader("X-File-Name")).get, "UTF-8")
         val i = new Image(fileName)
         val contentType = "image/%s" format i.ext
         val bytes = Source.fromInputStream(request.getInputStream)(scala.io.Codec.ISO8859).map(_.toByte).toArray
