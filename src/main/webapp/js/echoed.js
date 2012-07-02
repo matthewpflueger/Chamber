@@ -1177,10 +1177,11 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
         var overlay = self.element.find(".story-brief-overlay");
         var image = null;
-        if(self.data.chapterImages.length > 0)
+        if(self.data.chapterImages.length > 0 && self.data.echoId !== null) {
             image = self.data.chapterImages[0].image
-        else
+        } else {
             image = self.data.story.image;
+        }
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 260;

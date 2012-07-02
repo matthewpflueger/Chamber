@@ -1398,15 +1398,14 @@ h3{
                 //border: 1px solid #CCC;
                 //background-color: #999;
                 text-align: center;
-                background-color: #FFF;
-                padding: 5px;
                 .echo-s-b-i-c{
+                    display: inline-block;
                     max-width: 400px;
+                    border: 5px solid #FFF;
                     overflow:hidden;
                     img{
-                        //@include drop-shadow;
+
                         height: 300px;
-                        //width: 535px;
                     }
                 }
             }
