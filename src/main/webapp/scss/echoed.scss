@@ -543,7 +543,7 @@ h2{
             }
 
             .story-summary{
-                margin: 5px;
+                margin: 0 5px 5px 5px;
                 width: 600px;
                 background-image: image-url("bk_noise.jpg");
                 padding: 20px;
@@ -599,11 +599,10 @@ h2{
                             }
                             .story-summary-chapter-title{
                                 @include textFontNormal(14px);
-                                display: inline-block;
                             }
                             .story-summary-chapter-description{
                                 @include textFontNormal(14px);
-                                display: inline-block;
+                                word-wrap: break-word;
                             }
                             .story-summary-chapter-photo-container{
                                 @include textFontNormal(14px);
@@ -1336,7 +1335,7 @@ h3{
     .echo-chapters{
         margin: 0px 10px;
         //height: 30px;
-        border-bottom: 1px solid #CCC;
+        border-bottom: 1px solid CCC;
         box-shadow: 0px 1px 0px #FFF;
         .echo-chapter{
             float:left;
@@ -1374,12 +1373,14 @@ h3{
             .echo-s-b-t-t{
                 padding-bottom: 5px;
                 @include textFontBold(24px);
+                word-wrap: break-word;
             }
             .echo-s-b-t-b{
                 padding: 10px 0px;
                 @include textFontNormal(14px, #333);
                 font-style: italic;
                 line-height: 1.3em;
+                word-wrap: break-word;
 
             }
         }
@@ -1396,15 +1397,11 @@ h3{
         }
         .echo-s-b-gallery{
             float: left;
-            //width: 410px;
             width: 412px;
-            //height: 312px;
             margin-left: 12px;
             text-align:center;
             .echo-s-b-item{
-                //border: 1px solid #CCC;
-                //background-color: #999;
-                text-align: center;
+                text-align: left;
                 .echo-s-b-i-c{
                     display: inline-block;
                     max-width: 400px;
@@ -1460,6 +1457,7 @@ h3{
         }
         .echo-story-comments{
             //border-top: 1px #CCC solid;
+            width: 715px;
             .echo-s-c-t{
                 @include textFontBold(24px);
                 margin-bottom: 10px;
@@ -1498,6 +1496,7 @@ h3{
                         padding: 5px 0px;
                         @include textFontNormal(14px, #000);
                         border-bottom: 1px dotted #999;
+                        word-wrap: break-word;
                     }
 
                 }

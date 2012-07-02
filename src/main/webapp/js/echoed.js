@@ -1196,7 +1196,6 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             "width" : width
         });
         if(self.personal === true ) {
-            //LOGIC FOR ON "ME" tab
             textNode.append("<strong>Story Title: </strong>"+ self.data.story.title + "<br/>");
             textNode.append("<strong># Chapters: </strong>" + self.data.chapters.length + "<br/>");
             textNode.append("<strong># Images: </strong>" + self.data.chapterImages.length + "<br/>");
