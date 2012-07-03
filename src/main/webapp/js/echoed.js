@@ -1208,7 +1208,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             if(self.data.chapters.length === 0 ){
                 var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Complete Story");
                 overlayNode.append(editButton);
-                overlayNode.append("<br/><strong>Complete your story by adding a chapter</strong>");
+                overlayNode.append("<br/>Complete your story by adding a chapter");
                 overlay.fadeIn();
             } else {
                 var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");

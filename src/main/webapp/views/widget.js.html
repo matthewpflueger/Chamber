@@ -931,9 +931,8 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     click: function(){
         var self = this;
         var id = self.element.attr("id");
-        this.EvAg.trigger('exhibit/hide', function(){
-            self.EvAg.trigger('story/show', id)
-        });
+        self.EvAg.trigger('story/show', id);
+        this.EvAg.trigger('exhibit/hide');
     }
 });
 
