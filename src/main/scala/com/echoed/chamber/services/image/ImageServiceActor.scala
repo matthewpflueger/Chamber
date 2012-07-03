@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.image
 
-import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
 import scalaz._
 import Scalaz._
@@ -369,7 +368,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
             val me = self
 
             resp.cata(
-                logger.info("Error processing low priority image %s" format msg.image.url, _),
+                logger.error("Error processing low priority image {}: {}", msg.image.url, _),
                 logger.debug("Successfully processed low priority image {}", _))
             me ! FindUnprocessedImage()
 
