@@ -885,7 +885,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         this.render();
     },
     events: {
-        "click" : "click",
+        "click .story-brief-overlay" : "click",
         "mouseenter .story-brief-image-container": "showOverlay",
         "mouseleave .story-brief-image-container": "hideOverlay"
     },
@@ -1057,7 +1057,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
 
         self.gallery = self.element.find('.echo-s-b-gallery');
-        self.element.find('.echo-s-h-t-t').html(self.data.story.title + " From " + self.data.story.productInfo);
+        self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
 
 
