@@ -1517,13 +1517,13 @@ h3{
             width: 715px;
             .echo-s-c-t{
                 @include textFontBold(24px);
-                margin-bottom: 10px;
+                text-shadow: 0px 1px 0px #FFF;
                 #echo-s-c-t-count{
 
                 }
             }
             .echo-s-c-ta{
-                margin: 10px 0px;
+                margin: 5px 0px;
                 textarea{
                     width: 705px;
                     padding: 10px;

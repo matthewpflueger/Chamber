@@ -846,13 +846,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             });
         }
     },
-    addTitle: function(title, image){
-        var self = this;
-        var titleDiv = EchoedjQuery('<div></div>').addClass('item_wrap').addClass('no_filter').attr("id","echoed-title");
-        //titleDiv.append(title);
-        titleDiv.append(EchoedjQuery('<div></div>').addClass('title-description').append(self.contentDescription));
-        self.exhibit.isotope('insert', titleDiv);
-    },
     addStories: function(data){
         var self = this;
         var storiesFragment = EchoedjQuery('<div></div>');
@@ -914,8 +907,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var imageNode = self.element.find(".story-brief-image");
         var textNode = self.element.find(".story-brief-text");
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
-        var image = null;
-        image = self.data.story.image;
+        var image = self.data.story.image;
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 228;
@@ -925,7 +917,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         });
         overlayNode.html(self.data.story.title);
         textNode.append(self.data.story.title +"<br/>");
-        textNode.append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>");
+        textNode.append("Story By <a class='story-brief-text-user' target='_blank' href='" + Echoed.Urls.Site + "#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>");
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
@@ -1014,7 +1006,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     click: function(e){
         var self = this;
-        window.location = this.el.attr("href");
+        window.open(this.el.attr("href"));
     }
 });
 
@@ -1052,7 +1044,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-head"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapters clearfix"></div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"> </div> </div> </div> </div>';
+        var template = '<div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapters clearfix"></div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"> </div> </div> </div> </div>';
         var self = this;
         self.element.html(template);
         self.images = {};
