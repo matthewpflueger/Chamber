@@ -312,7 +312,7 @@
     </select>
 
     <select id="getStoryIds" resultType="String">
-        select id from Story order by createdOn desc
+        select S.id from Story S join Chapter C on S.id = C.storyId order by C.createdOn desc
     </select>
 
     <select id="getPartnerIds" resultType="String">
