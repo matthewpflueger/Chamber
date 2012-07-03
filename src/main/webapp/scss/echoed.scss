@@ -58,7 +58,6 @@ $headerFontFamily: 'Arvo', serif;
 
     @mixin headerFontBold($size: 16px, $color: #333){
         font-family: $headerFontFamily;
-        //font-weight: bold;
         color: $color;
         font-size: $size;
 
@@ -973,6 +972,7 @@ h2{
                                 top:0px;
                                 left:0px;
                                 right:0px;
+                                overflow: hidden;
                                 .story-brief-overlay-wrap{
                                     margin: 20px;
                                     @include headerFontBold(24px, #FFF);

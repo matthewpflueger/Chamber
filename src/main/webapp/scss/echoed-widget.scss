@@ -1,13 +1,29 @@
 //RESET
-$navFontFamily: Lato, Tahoma, Arial,sans-serif;
-$textFontFamily: Lato, Tahoma, Arial,sans-serif;
+$mainColor: #E31B23;
+$navFontFamily: "Open Sans", Tahoma, Arial,sans-serif;
+$textFontFamily: "Open Sans", Tahoma, Arial,sans-serif;
+$headerFontFamily: 'Arvo', serif;
 
-    @mixin textFontNormal($size: 12px, $color: #333){
+@mixin textFontNormal($size: 12px, $color: #333){
         font-family: $textFontFamily;
         font-weight: normal;
         color: $color;
         font-size: $size;
     }
+
+    @mixin textFontBold($size: 12px, $color: #333){
+        font-family: $textFontFamily;
+        font-weight: bold;
+        color: $color;
+        font-size: $size;
+    }
+
+    @mixin headerFont($size: 16px, $color: #333){
+        font-family: $headerFontFamily;
+        color: $color;
+        font-size: $size;
+    }
+
 
     @mixin drop-shadow{
         box-shadow: 1px 1px 2px rgba(34,25,25,0.4);
@@ -189,9 +205,17 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
             .story-brief-text{
                 padding: 7px 5px 2px 5px;
                 line-height: 1.5em;
-                @include textFontNormal(14px, #333);
+                @include textFontNormal(12px, #333);
                 background-color: rgba(255,255,255, 0.8);
                 width: 200px;
+                .story-brief-text-user{
+                    @include textFontBold(12px);
+                    text-decoration: none;
+                    //@include textFpmt(12px);
+                    &:hover{
+                        color: $mainColor;
+                    }
+                }
             }
             .story-brief-image-container{
                 position:relative;
@@ -216,11 +240,12 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
                     right:0px;
                     .story-brief-overlay-wrap{
                         margin: 20px;
-                        @include textFontNormal(24px, #FFF);
+                        @include headerFont(24px, #FFF);
                         text-align: center;
                     }
                 }
                 .story-brief-image{
+                    display: block;
                 }
             }
 
@@ -309,13 +334,20 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
             .echo-s-h-title{
                 @include textFontNormal(16px);
                 .echo-s-h-t-t{
-                    @include textFontNormal(24px);
+                    @include headerFont(24px);
                     margin: 0px 30px;
                     text-align: center;
                 }
                 .echo-s-h-t-n{
                     @include textFontNormal(16px);
                     text-align: center;
+                    .echo-s-h-t-n-u{
+                        @include textFontNormal(16px);
+                        text-decoration: none;
+                        &:hover{
+                            color: $mainColor;
+                        }
+                    }
                 }
                 .echo-s-h-i-c{
                     float:left;
@@ -366,14 +398,15 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
                 padding: 0px 0px 0px 5px;
                 .echo-s-b-t-t{
                     padding-bottom: 5px;
-                    @include textFontNormal(24px);
+                    @include textFontBold(24px);
+                    text-align: left;
                 }
                 .echo-s-b-t-b{
                     padding: 10px 0px;
                     @include textFontNormal(14px, #333);
                     font-style: italic;
                     line-height: 1.3em;
-
+                    text-align: left;
                 }
             }
             .echo-s-b-segment{
@@ -389,24 +422,20 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
             }
             .echo-s-b-gallery{
                 float: left;
-                //width: 410px;
                 width: 412px;
-                //height: 312px;
                 margin-left: 12px;
                 text-align:center;
                 .echo-s-b-item{
-                    //border: 1px solid #CCC;
-                    //background-color: #999;
-                    text-align: center;
-                    background-color: #FFF;
-                    padding: 5px;
+                    text-align: left;
                     .echo-s-b-i-c{
+                        display: inline-block;
                         max-width: 400px;
+                        border: 5px solid #FFF;
                         overflow:hidden;
                         img{
-                            //@include drop-shadow;
-                            height: 300px;
-                            //width: 535px;
+                            display: block;
+                            max-height: 300px;
+                            max-width: 400px;
                         }
                     }
                 }
@@ -454,14 +483,14 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
             }
             .echo-story-comments{
                 .echo-s-c-t{
-                    @include textFontNormal(24px);
-                    margin-bottom: 10px;
+                    @include textFontBold(24px);
+                    margin-bottom: 5px;
                     #echo-s-c-t-count{
 
                     }
                 }
                 .echo-s-c-ta{
-                    margin: 10px 0px;
+                    margin: 5px 0px;
                     textarea{
                         width: 705px;
                         padding: 10px;
@@ -475,7 +504,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
                 }
                 .comment-submit{
                     cursor: pointer;
-                    @include textFontNormal(14px, #FFF);
+                    @include textFontBold(14px, #FFF);
                     @include button;
 
                 }
@@ -564,7 +593,7 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
         height: 100px;
         text-align: center;
         .echoed-share{
-            @include textFontNormal(16px, #FFF);
+            @include textFontBold(14px, #FFF);
             @include button;
             text-decoration: none;
         }

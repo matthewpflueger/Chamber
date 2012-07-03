@@ -338,6 +338,11 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.currentChapter.images = [];
         self.currentChapter.title = "";
         self.currentChapter.text = "";
+        self.tips = self.element.find(".chapter-edit-body-top-tips");
+        self.tips.append("<br/>");
+        $.each(self.data.storyPrompts.prompts, function(index, prompt){
+            self.tips.append("<br/>" + prompt);
+        });
         var uploader = new qq.FileUploader({
             element: document.getElementsByClassName('photo-upload')[0],
             action: '/image',
@@ -1187,11 +1192,8 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
         var overlay = self.element.find(".story-brief-overlay");
         var image = null;
-        if(self.data.chapterImages.length > 0 || self.data.echoId === null) {
-            image = self.data.chapterImages[0].image
-        } else {
-            image = self.data.story.image;
-        }
+        image = self.data.story.image;
+
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 260;
