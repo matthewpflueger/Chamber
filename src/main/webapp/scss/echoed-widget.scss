@@ -118,7 +118,7 @@ $headerFontFamily: 'Arvo', serif;
     border-radius: 10px;
     background-color: #FFF;
     z-index: 10000;
-
+    text-align: left;
     .clearfix{
         zoom:1;
         &:before,&:after{
@@ -138,7 +138,7 @@ $headerFontFamily: 'Arvo', serif;
         overflow-x: hidden;
         #echoed-exhibit{
             background-image: image-url("bk_noise.jpg");
-            width: 720px;
+            width: 780px;
             background-color: #FFF;
         }
     }
@@ -166,11 +166,11 @@ $headerFontFamily: 'Arvo', serif;
         z-index :1;
         float:left;
         margin:5px;
-        padding: 7px;
+        padding: 6px;
         background-color: #FFF;
 
         .exhibit_image{
-            border: 6px solid #F0F0F0;
+            border: 4px solid #F0F0F0;
             border-radius: 3px;
             cursor: pointer;
             -webkit-transition: all 0.2s ease-in-out;
@@ -219,7 +219,7 @@ $headerFontFamily: 'Arvo', serif;
             }
             .story-brief-image-container{
                 position:relative;
-                border: 6px solid #F0F0F0;
+                border: 4px solid #F0F0F0;
                 border-radius: 3px;
                 cursor: pointer;
                 -webkit-transition: all 0.2s ease-in-out;
@@ -238,6 +238,7 @@ $headerFontFamily: 'Arvo', serif;
                     top:0px;
                     left:0px;
                     right:0px;
+                    overflow: hidden;
                     .story-brief-overlay-wrap{
                         margin: 20px;
                         @include headerFont(24px, #FFF);
@@ -308,7 +309,8 @@ $headerFontFamily: 'Arvo', serif;
 #echoed-story{
     position:absolute;
     top: 50px;
-    //width: 920px;
+    text-align: left;
+    width: 765px;
     left: 50%;
     padding: 10px;
     border-radius: 10px;
@@ -367,7 +369,7 @@ $headerFontFamily: 'Arvo', serif;
             .echo-chapter{
                 float:left;
                 padding: 5px 15px;
-                @include textFontNormal(16px);
+                @include textFontNormal(14px);
                 border: 1px solid #AAA;
                 background-color: #D0D0D0;
                 border-top-left-radius: 3px;
@@ -386,12 +388,8 @@ $headerFontFamily: 'Arvo', serif;
         }
         .echo-story-body{
             position: relative;
-            //margin: 10px;
             margin: 5px 10px;
             padding-bottom: 10px;
-            //@include inset-shadow;
-            //border-bottom: 1px solid #CCC;
-            //box-shadow: 0px 1px 0px #FFF;
             .echo-s-b-text{
                 float:left;
                 width: 300px;
@@ -407,6 +405,7 @@ $headerFontFamily: 'Arvo', serif;
                     font-style: italic;
                     line-height: 1.3em;
                     text-align: left;
+                    word-wrap: break-word;
                 }
             }
             .echo-s-b-segment{
@@ -502,12 +501,17 @@ $headerFontFamily: 'Arvo', serif;
                     }
 
                 }
-                .comment-submit{
-                    cursor: pointer;
-                    @include textFontBold(14px, #FFF);
-                    @include button;
 
+                .echo-s-c-tb{
+                    padding: 10px 0px;
+                    .comment-submit{
+                        cursor: pointer;
+                        @include textFontBold(14px, #FFF);
+                        @include button;
+                        display: none;
+                    }
                 }
+
                 .echo-s-c-l{
                     margin-top: 10px;
                     border-top: 1px dotted #999;
@@ -580,7 +584,7 @@ $headerFontFamily: 'Arvo', serif;
         float:left;
         .echoed-footer-left-title{
             text-align: center;
-            @include textFontNormal(24px);
+            @include headerFont(24px);
         }
         .echoed-footer-left-text{
             text-align: center;

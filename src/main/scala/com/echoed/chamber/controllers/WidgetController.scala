@@ -20,6 +20,7 @@ class WidgetController {
 
     @BeanProperty var partnerServiceManager: PartnerServiceManager = _
     @BeanProperty var widgetJsView: String = _
+    @BeanProperty var cookieManager: CookieManager = _
 
     @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
     def js(
@@ -28,13 +29,14 @@ class WidgetController {
         httpServletResponse: HttpServletResponse) = {
 
         val result = new DeferredResult(new ModelAndView("error"))
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse("")
 
         logger.debug("Retrieving Javascript Widget for PartnerId: {}", pid)
-
         partnerServiceManager.locatePartnerService(pid).onSuccess {
             case LocateResponse(_, Right(partnerService)) =>
                 val modelAndView = new ModelAndView(widgetJsView)
                 modelAndView.addObject("partnerId", pid)
+                modelAndView.addObject("echoedUserId", echoedUserId)
                 result.set(modelAndView)
         }
         result

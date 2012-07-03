@@ -599,6 +599,7 @@ Echoed = {
     Collections:{},
     init: function(options) {
         this.partnerId = options.partnerId;
+        this.echoedUserId = options.echoedUserId;
         var opener = new Echoed.Views.Components.Opener({ el: '#echoed-opener', EvAg: EventAggregator });
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#echoed-exhibit-container', EvAg: EventAggregator });
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#echoed-infiniteScroll', EvAg : EventAggregator});
@@ -856,9 +857,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         var storiesFragment = EchoedjQuery('<div></div>');
         EchoedjQuery.each(data.stories, function(index, story){
-            var storyDiv = EchoedjQuery('<div></div>').addClass('item_wrap');
-            var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg});
-            storiesFragment.append(storyDiv);
+            if(story.chapters.length > 0){
+                var storyDiv = EchoedjQuery('<div></div>').addClass('item_wrap');
+                var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg});
+                storiesFragment.append(storyDiv);
+            }
         });
         self.exhibit.isotope('insert', storiesFragment.children());
     },
@@ -912,13 +915,10 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var textNode = self.element.find(".story-brief-text");
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
         var image = null;
-        if(self.data.chapterImages.length > 0)
-            image = self.data.chapterImages[0].image
-        else
-            image = self.data.story.image;
+        image = self.data.story.image;
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
-        var width = 200;
+        var width = 228;
         imageNode.attr("src", image.originalUrl).css({
             "height" : width * hToWidthRatio,
             "width" : width
@@ -995,7 +995,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             text.append(minDiff + " minute(s) ago <br/>");
         }
         img.attr('src', imageUrl);
-        imageWidth = 200;
+        imageWidth = 228;
         if (imageWidth > 0) {
             img.attr('width', imageWidth)
         }
@@ -1052,7 +1052,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-head"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapters clearfix"></div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea> </div> <span class="comment-submit">Submit Comment</span> <div class="echo-s-c-l"> </div> </div> </div> </div>';
+        var template = '<div class="echoed-head"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x.png"/></div></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div> <div class="echo-chapters clearfix"></div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div> </div> <div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"> </div> </div> </div> </div>';
         var self = this;
         self.element.html(template);
         self.images = {};
@@ -1082,6 +1082,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.renderComments();
         if(self.data.chapters.length > 0) {
             self.renderChapter(0);
+        }
+        if(Echoed.echoedUserId !== "") {
+            self.element.find(".comment-submit").show();
         }
         self.EvAg.trigger('fade/show');
         self.element.fadeIn();
@@ -1255,6 +1258,9 @@ EchoedjQuery(document).ready(function(){
     body.appendChild(echoedContainer);
 
 
-    Echoed.init({ partnerId : "{{partnerId}}"});
+    Echoed.init({
+        partnerId : "{{partnerId}}",
+        echoedUserId: "{{echoedUserId}}"
+    });
 
 });

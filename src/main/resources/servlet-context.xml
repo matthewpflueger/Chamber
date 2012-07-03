@@ -372,6 +372,7 @@
 
     <!-- suppress DuplicatedBeanNamesInspection -->
     <bean id="widgetController" class="com.echoed.chamber.controllers.WidgetController">
+        <property name="cookieManager" ref="cookieManager" />
         <property name="partnerServiceManager" ref="partnerServiceManager"/>
         <property name="widgetJsView" value="widget.js"/>
     </bean>
