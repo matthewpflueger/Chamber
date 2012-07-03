@@ -776,9 +776,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     hide: function(callback){
         this.EvAg.trigger('infiniteScroll/off');
-        this.element.fadeOut(function(){
-            callback();
-        });
+        this.element.fadeOut();
     },
     init: function(){
         var self = this;
@@ -1174,9 +1172,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     close: function(){
         var self = this;
-        self.element.fadeOut(function(){
-            self.EvAg.trigger("exhibit/show");
-        });
+        self.EvAg.trigger("exhibit/show");
+        self.element.fadeOut();
 
     },
     click: function(){
@@ -1231,7 +1228,7 @@ EchoedjQuery(document).ready(function(){
     var echoedContainer = document.createElement('div');
     echoedContainer.id = "echoed-exhibit-container";
     echoedContainer.style.display = "none";
-    echoedContainer.innerHTML = "<div class='echoed-head'><div class='echoed-close'><img src='{{urls.images}}/btn_close_x.png'/></div></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div><div class='echoed-footer'><div class='echoed-footer-left'></div><div class='echoed-footer-right'><a class='echoed-share' target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a></div></div></div>";
+    echoedContainer.innerHTML = "<div class='echoed-close'><img src='{{urls.images}}/btn_close_x.png'/></div><div class='echoed-head'></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div><div class='echoed-footer'><div class='echoed-footer-left'></div><div class='echoed-footer-right'><a class='echoed-share' target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a></div></div></div>";
 
     var echoedField = document.createElement('div');
     echoedField.id = "echoed-field";

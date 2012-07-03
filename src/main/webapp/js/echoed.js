@@ -1218,7 +1218,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             if(self.data.echoedUser.facebookId) {
                 photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
                 //textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
-                textNode.append(self.data.story.title +"<br/>");
+                //textNode.append(self.data.story.title +"<br/>");
                 if(self.data.story.partnerId !== "Echoed") {
                     textNode.append("from <a class='story-brief-text-partner' href='#partner/" + self.data.story.partnerId + "'>" + self.data.story.productInfo + "</a><br/>");
                 } else {
