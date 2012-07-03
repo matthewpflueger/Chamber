@@ -4,7 +4,7 @@
     <script type="text/template" id="templates-components-login">
         <div class="item_content">
             <div id="login-container">
-                <div id="login-title"><img src="{{urls.images}}/logo.png"/></div>
+                <div id="login-title">Join Echoed</div>
                 <div id="login-description">Share stories about the products you love.<br/>Login to begin sharing your story.</div>
                 <div id="login-buttons">
                     <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
@@ -211,10 +211,6 @@
             </div>
         </div>
     </script>
-    <script type="text/templates" id="templates-pages-exhibit">
-        <div id="exhibit" class="clearfix">
-        </div>
-    </script>
     <script type="text/templates" id="templates-components-story-input">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x.png" /></div>
         <div class="field-title">Share Your Product Story</div>
@@ -284,29 +280,19 @@
 
             <div id="header-nav" class="clearfix">
                 <div class="nav-label">
-                    Explore
+                    Browse:
                 </div>
                 <ul>
-                    <li id="explore_nav">
-                        <a href="#">
-                            Just Purchased
-                        </a>
+                    <li class="icon_world" href="#" id="explore_nav">
+                        Everyone
                     </li>
-
-                    <li id="friends_nav">
-                        <a href="#me/friends">
-                            My Friends
-                        </a>
+                    <li class="icon_friends" href="#me/friends" id="friends_nav">
+                        My Friends
                     </li>
-                    <li id="exhibit_nav">
-                        <a href="#me">
-                            Me
-                        </a>
+                    <li class="icon_me" href="#me" id="exhibit_nav">
+                        Me
                     </li>
                 </ul>
-                <div class="nav-label">
-                    Categories
-                </div>
             </div>
             {{/echoedUser}}
             {{^echoedUser}}
@@ -320,7 +306,18 @@
             </div>
             {{/echoedUser}}
         </div>
-        <div id="content" class="clearfix"></div>
+        <div id="content" class="clearfix">
+            <div id="title-container">
+                <div id="title">
+                    <div id="title-text">
+                    </div>
+                    <div id="title-description">
+                    </div>
+                </div>
+            </div>
+            <div id="exhibit" class="clearfix">
+            </div>
+        </div>
         <div id="infiniteScroll" style="display:none;">
             Loading More Products <img align="absmiddle" src="{{urls.images}}/bk_loader_circle.gif" />
         </div>

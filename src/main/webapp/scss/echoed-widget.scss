@@ -18,22 +18,30 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
     }
 
     @mixin button(){
+
         margin: 3px;
         display: inline-block;
-        padding: 7px 10px;
-        background: -moz-linear-gradient(top, #eb1a24 0%, #b41b25);
-        background: -webkit-gradient(linear, left top, left bottom, from(#eb1a24), to(#b41b25));
+        padding: 10px 10px;
+        background-color: #eb1a24;
+        background: -moz-linear-gradient(
+            top,
+            #eb1a24 0%,
+            #b41b25);
+        background: -webkit-gradient(
+            linear, left top, left bottom,
+            from(#eb1a24),
+            to(#b41b25));
         border-radius: 3px;
         -moz-border-radius: 3px;
         -webkit-border-radius: 3px;
         border: 1px solid #591b24;
         -moz-box-shadow:
-            inset 0px 1px 0px rgba(255,255,255,0.5);
+            inset 0px 1px 1px rgba(255,255,255,0.5);
         -webkit-box-shadow:
-            inset 0px 1px 0px rgba(255,255,255,0.5);
+            inset 0px 1px 1px rgba(255,255,255,0.5);
         text-shadow:
-            0px -1px 1px rgba(000,000,000,1),
-            0px 0px 0px rgba(255,255,255,0.3);
+            0px -1px 1px rgba(089,027,036,1),
+            0px -1px 0px rgba(255,255,255,0.3);
     }
 
 
@@ -467,14 +475,9 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
                 }
                 .comment-submit{
                     cursor: pointer;
-                    border-radius: 5px;
-                    padding: 7px 10px;
-                    display: inline-block;
-                    width: 150px;
-                    text-align: center;
                     @include textFontNormal(14px, #FFF);
-                    background-color: #00CC00;
-                    text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
+                    @include button;
+
                 }
                 .echo-s-c-l{
                     margin-top: 10px;
@@ -561,11 +564,8 @@ $textFontFamily: Lato, Tahoma, Arial,sans-serif;
         height: 100px;
         text-align: center;
         .echoed-share{
-            display: inline-block;
-            padding: 7px 12px;
-            border-radius: 3px;
-            background-color: #FF0000;
             @include textFontNormal(16px, #FFF);
+            @include button;
             text-decoration: none;
         }
     }

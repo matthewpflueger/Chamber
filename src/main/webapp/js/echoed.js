@@ -18,6 +18,7 @@ Echoed = {
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         var story = new Echoed.Views.Components.Story({ el: '#story', EvAg: EventAggregator});
         var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
+        var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
         Backbone.history.start();
     }
 };
@@ -544,8 +545,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.EvAg.bind('exhibit/init', this.init);
         this.EvAg.bind('infiniteScroll', this.next);
         this.element = $(this.el);
-        this.template = _.template($('#templates-pages-exhibit').html());
-        this.element.html(this.template);
         this.exhibit = $('#exhibit');
     },
     init: function(options){
@@ -575,14 +574,14 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "partner":
                 self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.partnerId;
                 self.contentTitle = options.Name;
-                self.id = "partner";
+                self.id = "partner/" + options.partnerId;
                 self.showDate = 1;
                 self.nextInt = 1;
                 break;
             case "explore":
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed";
-                self.contentTitle = "Just Purchased";
-                self.contentDescription = "See all the purchased products at our partners as they're bought ";
+                self.contentTitle = "Everyone";
+                self.contentDescription = "All the stories and products at our partners as they're bought and shared";
                 self.id= "explore";
                 self.nextInt = 1;
                 break;
@@ -594,7 +593,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "exhibit":
                 self.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
                 self.contentTitle = "Me";
-                self.contentDescription = "All the products you've shared and the rewards you've earned";
+                self.contentDescription = "All stories and products you've shared and the rewards you've earned";
                 self.personal = true;
                 self.nextInt = 1;
                 break;
@@ -614,13 +613,13 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     render: function(data){
         var self = this;
         if(data.partner){
-            self.contentDescription = "The recent products purchased at " + data.partner.name;
-            self.addTitle(data.partner.name, data.partner.logo);
+            self.contentDescription = "Recent stories and products purchased at " + data.partner.name;
+            self.EvAg.trigger("title/update", { title: data.partner.name, description: self.contentDescription });
         } else if (self.id == "friends") {
             self.contentDescription = "Products purchased and shared by " + data.echoedUser.name;
-            self.addTitle(data.echoedUser.name);
+            self.EvAg.trigger("title/update", { title: data.echoedUser.name, description: self.contentDescription });
         } else if (self.id != "story"){
-            self.addTitle(self.contentTitle);
+            self.EvAg.trigger("title/update", { title: self.contentTitle, description: self.contentDescription });
         }
         if(!Echoed.echoedUser) self.addLogin();
         if(data.stories){
@@ -748,6 +747,7 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
     init: function(){
         var self = this;
         this.EvAg.trigger('infiniteScroll/off');
+        self.EvAg.trigger('title/update', { title: "My Friends", description: "All Your Friends On Echoed" });
         self.exhibit.empty();
         self.exhibit.isotope("destroy");
         var jsonUrl = Echoed.urls.api + "/api/me/friends";
@@ -960,18 +960,19 @@ Echoed.Views.Components.Dropdown = Backbone.View.extend({
 Echoed.Views.Components.Nav = Backbone.View.extend({
     el: "#header-nav",
     initialize: function(options){
-        _.bindAll(this);
+        _.bindAll(this, 'click');
         this.element = $(this.el);
         this.EvAg = options.EvAg;
-        this.EvAg.bind("page/change",this.highlight);
-        this.render();
+        this.li = this.element.find('li');
     },
-    render: function(){
-
+    events:{
+        "click li": "click"
     },
-    highlight: function(page){
-        this.element.find(".current").removeClass("current");
-        $("#" + page + "_nav").addClass("current");
+    click: function(e){
+        var self = this;
+        this.li.removeClass("current");
+        $(e.target).addClass("current");
+        window.location.hash = $(e.target).attr("href");
     }
 });
 
@@ -1042,7 +1043,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     renderTabs: function(){
         var self = this;
         self.chapterTabs = self.element.find('.echo-chapters');
-        //self.chapterTabs.append($('<div class="echo-chapter"></div>').append('Cover').addClass("on").attr("tab-id","cover"));
         $.each(self.data.chapters, function(index, chapter){
             var ch = $('<div class="echo-chapter"></div>').append(chapter.title).attr("tab-id",index);
             self.chapterTabs.append(ch);
@@ -1080,7 +1080,11 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         if(self.images[self.currentChapterId] !== undefined){
             self.img.attr('src', self.images[self.currentChapterId][0].originalUrl);
             $.each(self.images[self.currentChapterId], function(index, image){
-                self.thumbnails.append($("<img />").addClass("echo-s-b-thumbnail").attr("index",index).attr("src", image.originalUrl));
+                var thumbnail = $("<img />").addClass("echo-s-b-thumbnail").attr("index",index).attr("src", image.originalUrl)
+                self.thumbnails.append(thumbnail);
+                if(index === 0){
+                    thumbnail.addClass("highlight");
+                }
             });
         }
         else {
@@ -1170,7 +1174,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         this.render();
     },
     events: {
-        "click" : "click",
+        "click .story-brief-overlay" : "click",
         "mouseenter .story-brief-image-container": "showOverlay",
         "mouseleave .story-brief-image-container": "hideOverlay"
     },
@@ -1183,7 +1187,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
         var overlay = self.element.find(".story-brief-overlay");
         var image = null;
-        if(self.data.chapterImages.length > 0 && self.data.echoId === null) {
+        if(self.data.chapterImages.length > 0 || self.data.echoId === null) {
             image = self.data.chapterImages[0].image
         } else {
             image = self.data.story.image;
@@ -1208,13 +1212,23 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
                 var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");
                 overlayNode.append(editButton);
             }
-
-
         } else {
             if(self.data.echoedUser.facebookId) {
                 photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
-                textNode.append($("<img height='40px' width='40px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
-                textNode.append("Story By " + self.data.echoedUser.name);
+                //textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
+                textNode.append(self.data.story.title +"<br/>");
+                if(self.data.story.partnerId !== "Echoed") {
+                    textNode.append("from <a class='story-brief-text-partner' href='#partner/" + self.data.story.partnerId + "'>" + self.data.story.productInfo + "</a><br/>");
+                } else {
+                    textNode.append("from " + self.data.story.productInfo + "<br/>");
+                }
+                //textNode.append($("<img height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
+                textNode.append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>");
+                var chapterText = self.data.chapters[0].text.substr(0,100);
+                if(self.data.chapters[0].text.length > 100){
+                    chapterText += "...";
+                }
+                textNode.append($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
                 overlayNode.html(self.data.story.title);
             }
         }
@@ -1239,12 +1253,28 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     }
 });
 
+Echoed.Views.Components.Title = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'update');
+        this.el = options.el;
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('title/update', this.update);
+        this.element = $(this.el);
+        this.titleText = $('#title-text');
+        this.titleDescription = $('#title-description');
+    },
+    update: function(options){
+        this.titleText.html(options.title);
+        this.titleDescription.html(options.description);
+    }
+});
+
 Echoed.Views.Components.Product = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this,'showOverlay','hideOverlay','enlarge','shrink','click','clickPartner');
         this.el = options.el;
         this.EvAg = options.EvAg;
-        this.personal = options.Personal
+        this.personal = options.Personal;
         this.state = 0;
         this.render();
     },
@@ -1372,3 +1402,5 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         }
     }
 });
+
+

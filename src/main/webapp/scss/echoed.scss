@@ -69,10 +69,11 @@ $headerFontFamily: 'Arvo', serif;
     }
 
     @mixin button(){
-
+        cursor: pointer;
         margin: 3px;
         display: inline-block;
         padding: 10px 10px;
+        background-color: #eb1a24;
         background: -moz-linear-gradient(
             top,
             #eb1a24 0%,
@@ -153,11 +154,12 @@ h2{
 }
 
 .nav-label{
+    margin: 5px 10px 0px 10px;
     padding: 7px 0px;
     border-bottom: 1px #000 dotted;
-    @include textFontBold(24px);
+    @include textFontBold(16px);
     text-shadow: 0px 1px 0px #FFF;
-    text-align:center;
+    text-align: left;
 }
 
 #fade { /*--Transparent background layer--*/
@@ -202,7 +204,6 @@ h2{
             margin-left: 10px;
             height: 40px;
             text-align:center;
-            background-color: #FFF;
 
             float:left;
         }
@@ -238,33 +239,23 @@ h2{
         right:0px;
         top: 40px;
         width: 180px;
-        //padding: 5px;
         height: 100%;
-        background-color: rgba(0,0,0,0.15);
+        background-color: #F0F0F0;
         border-left: 1px solid #999;
-        //box-shadow: -1px 0 0 #CCC;
-        //-moz-box-shxadow: -1px 0 0 #CCC;
-        //-webkit-box-shadow: -1px 0 0 #CCC;
     }
 
         #actions{
-            //background-color: #FFF;
-            //@include drop-shadow;
-            //border: 1px solid #CCC;
+            background-color: #DDD;
             margin-bottom: 10px;
+            margin: 10px 5px;
             text-align:center;
             padding: 5px;
             display: none;
             .action-button{
                 cursor: pointer;
-                /*border-radius: 5px;
-                margin: 5px 10px;
-                padding: 5px 0px;
-
-                background-color: #00CC00;*/
-                //text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
                 @include textFontBold(16px, #FFF);
                 @include button();
+                display: block;
             }
         }
 
@@ -277,17 +268,20 @@ h2{
         }
 
         #login-container{
-            background-color: rgba(200,225,255, 0.5);
+            //background-color: rgba(200,225,255, 0.5);
+            background-color: rgb(100,110,125);
             width: 572px;
             height: 200px;
             #login-title{
                 padding: 10px 20px;
-                @include textFontBold(34px);
+                @include headerFontBold(36px, #FFF);
+                text-shadow: 0px 1px 1px #000;
                 text-align: center;
             }
             #login-description{
                 padding: 0px 10px;
-                @include textFontNormal(24px);
+                @include textFontNormal(20px,#FFF);
+                text-shadow: 0px 1px 1px #000;
                 text-align: center;
             }
             #login-buttons{
@@ -306,12 +300,29 @@ h2{
 		#header-nav, #footer-nav{
             margin-bottom: 10px;
             margin-top: 20px;
+            .icon_world{
+                background-image: image-url("bk_icon_world.png");
+                background-position: left;
+                background-repeat: no-repeat;
+            }
+            .icon_me{
+                background-image: image-url("bk_icon_me.png");
+                background-position: left;
+                background-repeat: no-repeat;
+            }
+            .icon_friends{
+                background-image: image-url("bk_icon_friends.png");
+                background-position: left;
+                background-repeat: no-repeat;
+            }
+
             li{
-                padding: 7px 10px;
+                margin-left: 10px;
+                padding: 7px 10px 7px 30px;
                 list-style:none;
+                cursor: pointer;
                 @include textFontNormal(14px);
                 text-shadow: 0px 1px 0px #FFF;
-                //float:left;
             }
             li:hover, .current{
             	color: $highlightColor;
@@ -329,23 +340,22 @@ h2{
                 color: $highlightColor;
             }
         }
-
-    #title{
-        float:left;
-        .title-container{
-            width: 272px;
-            background-color: #333;
-            border-radius: 3px;
-            .title-text{
-                padding: 10px;
+    #title-container{
+        text-align: center;
+        #title{
+            width: 600px;
+            margin: 5px auto;
+            padding: 10px;
+            border: 1px solid #CCC;
+            border-radius: 5px;
+            #title-text{
                 text-align: center;
-                @include headerFontBold(24px, #FFF);
+                @include headerFontBold(36px);
+                text-shadow: 0px 1px 0px #FFF;
             }
-            .title-description{
-                //padding: px;
-
-                padding-bottom: 20px;
-                @include textFontNormal(16px, #FFF);
+            #title-description{
+                @include textFontNormal(16px);
+                text-shadow: 0px 1px 0px #FFF;
                 text-align: center;
             }
         }
@@ -483,13 +493,14 @@ h2{
                 float:left;
                 margin: 0px 10px 10px 10px;
                 padding: 10px;
-                display:table;
+                width: 600px;
+
                 .field-row{
                     margin-bottom: 10px;
                     label{
                         vertical-align: top;
                         display: inline-block;
-                        width: 180px;
+                        width: 250px;
                         text-align: right;
                         @include textFontNormal(14px);
                         margin-top: 3px;
@@ -561,6 +572,7 @@ h2{
                     padding: 10px;
                     border-radius: 5px;
                     margin-bottom: 10px;
+                    overflow-x: auto;
                     .story-summary-header-row{
                         @include textFontNormal(14px);
                         margin-bottom: 10px;
@@ -591,6 +603,7 @@ h2{
                 .story-summary-body{
 
                     .story-summary-chapter{
+                        overflow-x: auto;
                         border: 1px solid #CCC;
                         padding: 10px;
                         border-radius: 5px;
@@ -629,7 +642,7 @@ h2{
                     .story-summary-submit{
                         cursor: pointer;
                         @include button;
-                        @include textFontNormal(16px, #FFF);
+                        @include textFontBold(16px, #FFF);
                     }
                 }
             }
@@ -901,12 +914,43 @@ h2{
                 .item_content{
                     .story-brief{
                         cursor: pointer;
+
                         .story-brief-text{
+                            position: relative;
                             padding: 7px 5px 2px 5px;
                             line-height: 1.5em;
-                            @include textFontNormal(14px, #333);
+                            @include textFontNormal(12px, #333);
                             background-color: rgba(255,255,255, 0.8);
-                            width: 250px;
+                            width: 260px;
+
+                            .story-brief-text-quote{
+                                overflow: hidden;
+                                margin-top: 10px;
+                                font-style: italic;
+                                word-wrap: break-word;
+                                text-overflow: ellipsis;
+
+                            }
+                            .story-brief-text-user{
+                                font-weight:bold;
+                                &:hover{
+                                    color: $mainColor;
+                                }
+                            }
+                            .story-brief-text-partner{
+                                font-weight: bold;
+                                &:hover{
+                                    color: $mainColor;
+                                }
+                            }
+                            .story-brief-text-user-image{
+                                display: block;
+                                position: absolute;
+                                top: 10px;
+                                left: 10px;
+                                height: 35px;
+                                width: 35px;
+                            }
                         }
                         .story-brief-image-container{
                             position:relative;
@@ -931,11 +975,11 @@ h2{
                                 right:0px;
                                 .story-brief-overlay-wrap{
                                     margin: 20px;
-                                    @include textFontNormal(24px, #FFF);
+                                    @include headerFontBold(24px, #FFF);
                                     text-align: center;
                                     .story-brief-overlay-edit-button{
                                         @include button;
-                                        @include textFontNormal(16px, #FFF);
+                                        @include textFontBold(16px, #FFF);
                                     }
                                 }
                             }
@@ -1304,6 +1348,7 @@ h3{
     top: 75px;
     left: 50%;
     z-index: 99999;
+    width: 765px;
 }
 .echo-story-container{
     position:relative;
@@ -1324,8 +1369,10 @@ h3{
             @include textFontNormal(16px);
             .echo-s-h-t-t{
                 @include headerFontBold(36px, #111);
+                text-shadow: 0px 1px 0px #FFF;
                 margin: 0px 30px;
                 text-align: center;
+                word-wrap: break-word;
             }
             .echo-s-h-t-n{
                 @include textFontNormal(16px);
@@ -1349,12 +1396,12 @@ h3{
     .echo-chapters{
         margin: 0px 10px;
         //height: 30px;
-        border-bottom: 1px solid CCC;
+        border-bottom: 1px solid #CCC;
         box-shadow: 0px 1px 0px #FFF;
         .echo-chapter{
             float:left;
             padding: 5px 15px;
-            @include textFontNormal(16px);
+            @include textFontNormal(14px);
             border: 1px solid #AAA;
             background-color: #D0D0D0;
             border-top-left-radius: 3px;
@@ -1373,12 +1420,8 @@ h3{
     }
     .echo-story-body{
         position: relative;
-        //margin: 10px;
         margin: 5px 10px;
         padding-bottom: 10px;
-        //@include inset-shadow;
-        //border-bottom: 1px solid #CCC;
-        //box-shadow: 0px 1px 0px #FFF;
         .echo-s-b-text{
             float:left;
             width: 300px;
