@@ -42,4 +42,9 @@ trait FeedDao {
     def getStories(
             @Param("start") start: Int,
             @Param("limit") limit: Int): JList[StoryFull]
+
+    def getStoryIds: Array[String]
+
+    def getPartnerIds: Array[String]
+
 }

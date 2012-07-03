@@ -32,4 +32,6 @@ class StaticController {
     @RequestMapping(value = Array("/terms*"), method = Array(RequestMethod.GET))
     def terms = new ModelAndView(termsView)
 
+    @RequestMapping(value = Array("/robots.txt"), method = Array(RequestMethod.GET))
+    def robots = new ModelAndView("robots.txt")
 }

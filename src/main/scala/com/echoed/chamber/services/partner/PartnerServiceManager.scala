@@ -5,7 +5,7 @@ import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 
 
 trait PartnerServiceManager {
-    
+
     def registerPartner(
             partner: Partner,
             partnerSettings: PartnerSettings,

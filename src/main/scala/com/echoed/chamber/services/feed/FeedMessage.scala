@@ -1,21 +1,28 @@
 package com.echoed.chamber.services.feed
 
 import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
-import com.echoed.chamber.domain.partner.shopify.ShopifyOrderFull
 import com.echoed.chamber.domain.views._
-import com.echoed.chamber.domain._
 
 
 sealed trait FeedMessage extends Message
 
 sealed case class FeedException(
-                                message: String = "",
-                                cause: Throwable = null,
-                                code: Option[String] = None,
-                                arguments: Option[Array[AnyRef]] = None) extends EchoedException(message, cause, code, arguments)
+        message: String = "",
+        cause: Throwable = null,
+        code: Option[String] = None,
+        arguments: Option[Array[AnyRef]] = None) extends EchoedException(message, cause, code, arguments)
 
 import com.echoed.chamber.services.feed.{FeedMessage => FM}
 import com.echoed.chamber.services.feed.{FeedException => FE}
+
+case class GetPartnerIds() extends FM
+case class GetPartnerIdsResponse(
+        message: GetPartnerIds,
+        value: Either[FE, Array[String]]) extends FM with RM[Array[String], GetPartnerIds, FE]
+
+case class GetStoryIds() extends FM
+case class GetStoryIdsResponse(message: GetStoryIds, value: Either[FE, Array[String]])
+        extends FM with RM[Array[String], GetStoryIds, FE]
 
 case class GetStory(storyId: String) extends FM
 case class GetStoryResponse(message: GetStory, value: Either[FE, Option[StoryFull]])

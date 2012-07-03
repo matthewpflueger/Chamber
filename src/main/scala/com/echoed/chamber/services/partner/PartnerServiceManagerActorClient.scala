@@ -9,7 +9,7 @@ import akka.util.Timeout
 import akka.util.duration._
 
 
-class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorClient {
+final class PartnerServiceManagerActorClient extends PartnerServiceManager with ActorClient {
 
     @BeanProperty var actorRef: ActorRef = _
 

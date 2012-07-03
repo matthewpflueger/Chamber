@@ -311,4 +311,12 @@
         #{start},#{limit}
     </select>
 
+    <select id="getStoryIds" resultType="String">
+        select id from Story order by createdOn desc
+    </select>
+
+    <select id="getPartnerIds" resultType="String">
+        select coalesce(handle, id) from Partner order by createdOn desc
+    </select>
+
 </mapper>

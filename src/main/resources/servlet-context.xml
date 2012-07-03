@@ -349,7 +349,12 @@
 
     <!-- suppress DuplicatedBeanNamesInspection -->
     <bean id="publicController" class="com.echoed.chamber.controllers.api.PublicController">
-        <property name="feedService"  ref="feedService"/>
+        <property name="feedService" ref="feedService" />
+    </bean>
+
+    <!-- suppress DuplicatedBeanNamesInspection -->
+    <bean id="sitemapController" class="com.echoed.chamber.controllers.SitemapController">
+        <property name="feedService" ref="feedService" />
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->

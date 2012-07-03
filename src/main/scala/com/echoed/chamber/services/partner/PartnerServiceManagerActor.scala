@@ -253,7 +253,6 @@ class PartnerServiceManagerActor extends FactoryBean[ActorRef] {
                     channel ! LocateByDomainResponse(msg, Left(PartnerNotFound(domain)))
                 })
 
-
         case msg @ PartnerIdentifiable(partnerId) =>
             val me = context.self
             val channel = context.sender

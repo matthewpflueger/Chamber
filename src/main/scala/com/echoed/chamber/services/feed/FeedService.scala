@@ -17,4 +17,7 @@ trait FeedService {
 
     def getStory(storyId: String): Future[GetStoryResponse]
 
+    def getStoryIds: Future[GetStoryIdsResponse]
+
+    def getPartnerIds: Future[GetPartnerIdsResponse]
 }
