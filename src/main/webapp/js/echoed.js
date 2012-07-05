@@ -1067,6 +1067,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.renderComments();
         self.renderTabs();
         self.renderChapter(0);
+
         self.EvAg.trigger('fade/show');
         self.element.css({
            "margin-left": -(self.element.width() / 2)
@@ -1098,7 +1099,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         var index = $(e.target).attr('tab-id');
         self.renderChapter(index);
-        console.log(self.images);
         if (self.images.hash[self.chapters.array[index].id] !== undefined){
             self.renderImage(self.images.hash[self.chapters.array[index].id]);
         } else {

@@ -362,28 +362,29 @@ $headerFontFamily: 'Arvo', serif;
                 }
             }
         }
+
         .echo-chapters{
-            margin: 0px 10px;
-            //height: 30px;
-            border-bottom: 1px solid #CCC;
-            box-shadow: 0px 1px 0px #FFF;
+            width: 300px;
+            background-color: #F0F0F0;
+            box-shadow:         inset 0 0 1px #000000;
+            -moz-box-shadow:    inset 0 0 1px #000000;
+            -webkit-box-shadow: inset 0 0 1px #000000;
+
+            .echo-chapters-title{
+                padding: 3px 5px;
+                @include textFontBold(14px);
+            }
             .echo-chapter{
-                float:left;
-                padding: 5px 15px;
-                @include textFontNormal(14px);
-                border: 1px solid #AAA;
-                background-color: #D0D0D0;
-                border-top-left-radius: 3px;
-                border-top-right-radius: 3px;
-                border-bottom: none;
-                margin-right: 2px;
-                cursor: pointer;
-                max-width: 150px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
-                &.on{
-                    background-color: #FFF;
+                padding: 3px 20px;
+                cursor:pointer;
+                @include textFontNormal(12px);
+
+                &.on, &:hover{
+                    //background-color: #FFF;
+                    @include textFontBold(12px);
                 }
             }
         }
