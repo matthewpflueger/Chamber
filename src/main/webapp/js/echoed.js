@@ -294,7 +294,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         $.each(self.data.storyFull.chapters, function(index, chapter){
             count = count + 1;
             var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
-            var chapterLabel = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-label"></div>').html("Chapter " + count));
+            var chapterLabel = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-label"></div>').html("Story " + count));
             var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong>Title: </strong>" + chapter.title));
             var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong>Description: </strong>" +chapter.text));
             var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
@@ -1058,6 +1058,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         self.renderImages();
         self.renderComments();
+        self.renderTabs();
         self.renderChapter(0);
         self.EvAg.trigger('fade/show');
         self.element.css({
@@ -1090,13 +1091,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var index = $(e.target).attr('tab-id');
         self.chapterTabs.children().removeClass("on");
         $(e.target).addClass("on");
-        if(index =="cover"){
-            self.thumbnails.empty();
-            self.renderCover();
-        } else {
-            self.thumbnails.empty();
-            self.renderChapter(index);
-        }
+        self.renderChapter(index);
+
     },
     renderChapter: function(index){
         var self = this;
