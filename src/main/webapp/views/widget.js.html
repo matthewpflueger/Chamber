@@ -1,7 +1,6 @@
 var jQueryBackup = null;
 if(typeof(jQuery) != "undefined") {
     jQueryBackup = jQuery.noConflict();
-    console.log("jQuery Exists!");
 }
 
 /*! jQuery v1.7 jquery.com | jquery.org/license */
@@ -1031,6 +1030,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         EchoedjQuery.ajax({
             url: Echoed.Urls.Api + "/api/story/" + id,
             type: "GET",
+            dataType: 'jsonp',
             xhrFields: {
                 withCredentials: true
             },
@@ -1152,23 +1152,29 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     createComment: function(){
         var self = this;
         var storyId = self.data.story.id;
-        var chapterId = self.data.chapters[self.currentChapterNum].id;
+        var chapterId = self.currentChapterId;
         var text = EchoedjQuery("#echo-story-comment-ta").val();
-        EchoedjQuery.ajax({
-            url: Echoed.Urls.Api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
-            type: "POST",
-            xhrFields: {
-                withCredentials: true
-            },
-            dataType: 'json',
-            data: {
-                text: text
-            },
-            success: function(createCommentData) {
-                self.data.comments.push(createCommentData);
-                self.renderComments();
-            }
-        });
+        if(text === ""){
+            alert("Please enter in a comment");
+        } else if(self.locked !== true){
+            self.locked = true;
+            EchoedjQuery.ajax({
+                url: Echoed.Urls.Api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
+                type: "POST",
+                xhrFields: {
+                    withCredentials: true
+                },
+                dataType: 'json',
+                data: {
+                    text: text
+                },
+                success: function(createCommentData) {
+                    self.locked = false;
+                    self.data.comments.push(createCommentData);
+                    self.renderComments();
+                }
+            });
+        }
     },
     close: function(){
         var self = this;

@@ -983,7 +983,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderCover', 'renderImage');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImages');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -1015,13 +1015,33 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var template = _.template($('#templates-components-story').html());
         var self = this;
         self.element.html(template);
+
         self.images = {};
-        self.images.cover = [self.data.story.image];
-        $.each(self.data.chapterImages, function(index, chapterImage){
-            if(!self.images[chapterImage.chapterId])
-                self.images[chapterImage.chapterId] = [];
-            self.images[chapterImage.chapterId].push(chapterImage.image);
+        self.chapters = {
+            array : [],
+            hash: {}
+        };
+
+        self.images.array = [];
+
+        self.images.array.push({
+            chapterId: 'cover',
+            image: self.data.story.image
         });
+
+        $.each(self.data.chapterImages, function(index, chapterImage){
+            self.images.array.push({
+                chapterId: chapterImage.chapterId,
+                image: chapterImage.image
+            });
+        });
+
+        self.chapters.hash['cover'] = 0;
+        $.each(self.data.chapters, function(index, chapter){
+            self.chapters.array.push(chapter);
+            self.chapters.hash[chapter.id] = index;
+        });
+
 
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
@@ -1036,7 +1056,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.thumbnails = $("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
 
-        self.renderTabs();
+        self.renderImages();
         self.renderComments();
         self.renderChapter(0);
         self.EvAg.trigger('fade/show');
@@ -1054,15 +1074,16 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             if(index == 0 ) ch.addClass("on");
         });
     },
-    renderCover: function(){
+    renderImages: function(){
         var self = this;
-        if(self.data.echo){
-            self.element.find('.echo-s-b-t-t').html(self.data.echo.productName + "<br/>");
-        } else {
-            self.element.find('.echo-s-b-t-t').html(self.data.story.productInfo);
-            self.element.find('.echo-s-b-t-b').html("");
-            self.img.attr('src', self.images['cover'][0].originalUrl);
-        }
+        $.each(self.images.array, function(index, image){
+            var thumbnail = $('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl);
+            self.thumbnails.append(thumbnail);
+            if(index === 0){
+                thumbnail.addClass("highlight");
+                self.img.attr("src", image.image.originalUrl);
+            }
+        });
     },
     tabClick: function(e){
         var self = this;
@@ -1079,28 +1100,16 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     renderChapter: function(index){
         var self = this;
-        self.currentChapterId = self.data.chapters[index].id;
-        self.element.find('.echo-s-b-t-t').html(self.data.chapters[index].title);
-        self.element.find('.echo-s-b-t-b').html('"' + self.data.chapters[index].text.replace(/\n/g, '<br />') + '"');
-        if(self.images[self.currentChapterId] !== undefined){
-            self.img.attr('src', self.images[self.currentChapterId][0].originalUrl);
-            $.each(self.images[self.currentChapterId], function(index, image){
-                var thumbnail = $("<img />").addClass("echo-s-b-thumbnail").attr("index",index).attr("src", image.originalUrl)
-                self.thumbnails.append(thumbnail);
-                if(index === 0){
-                    thumbnail.addClass("highlight");
-                }
-            });
-        }
-        else {
-            self.img.attr('src', self.images["cover"][0].originalUrl);
-        }
+        self.element.find('.echo-s-b-t-t').html(self.chapters.array[index].title);
+        self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[index].text.replace(/\n/g, '<br />') + '"');
     },
     renderImage: function(e){
         var self = this;
+        var index = $(e.target).attr("index");
         $('.echo-s-b-thumbnail').removeClass('highlight');
         $(e.target).addClass('highlight');
-        self.img.attr('src', self.images[self.currentChapterId][$(e.target).attr("index")].originalUrl);
+        self.img.attr('src', self.images.array[index].image.originalUrl);
+        self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
     },
     renderComments: function(){
         var self = this;
@@ -1130,7 +1139,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
             commentListNode.append(commentNode);
         });
-        if(Echoed.echoedUser) self.element.find('.comment-submit').fadeIn();
+        if(Echoed.echoedUser) {
+            self.element.find('.comment-submit').fadeIn();
+        }
     },
     createComment: function(){
         var self = this;

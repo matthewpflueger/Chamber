@@ -521,7 +521,10 @@ $headerFontFamily: 'Arvo', serif;
                     .echo-s-c-l-c{
                         padding: 10px 0px 10px 10px;
                         .echo-s-c-l-c-u{
-                            @include textFontNormal(14px, #FF0000);
+                            a{
+                                @include textFontBold(14px, $mainColor);
+                                text-decoration: none;
+                            }
                         }
                         .echo-s-c-l-c-t{
                             padding: 5px 0px;
