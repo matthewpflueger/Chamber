@@ -1099,7 +1099,12 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var index = $(e.target).attr('tab-id');
         self.renderChapter(index);
         console.log(self.images);
-        self.renderImage(self.images.hash[self.chapters.array[index].id]);
+        if (self.images.hash[self.chapters.array[index].id] !== undefined){
+            self.renderImage(self.images.hash[self.chapters.array[index].id]);
+        } else {
+            self.renderImage(0);
+        }
+
     },
     imageClick: function(e){
         var self = this;
