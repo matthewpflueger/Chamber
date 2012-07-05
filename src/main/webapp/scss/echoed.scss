@@ -1460,9 +1460,11 @@ h3{
             margin-left: 12px;
             text-align:center;
             .echo-s-b-item{
+                height: 320px;
                 text-align: left;
                 .echo-s-b-i-c{
                     display: inline-block;
+                    margin: auto;
                     max-width: 400px;
                     border: 5px solid #FFF;
                     overflow:hidden;
