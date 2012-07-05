@@ -1068,7 +1068,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 image: chapterImage.image
             });
             if(self.images.hash[chapterImage.chapterId] === undefined){
-                self.images.hash[chapterImage.chapterId] = index;
+                self.images.hash[chapterImage.chapterId] = index + 1;
             }
         });
 

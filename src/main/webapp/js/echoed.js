@@ -1039,7 +1039,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 image: chapterImage.image
             });
             if(self.images.hash[chapterImage.chapterId] === undefined){
-                self.images.hash[chapterImage.chapterId] = index;
+                self.images.hash[chapterImage.chapterId] = index + 1;
             }
         });
 
@@ -1098,12 +1098,12 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     tabClick: function(e){
         var self = this;
         var index = $(e.target).attr('tab-id');
-        self.renderChapter(index);
         if (self.images.hash[self.chapters.array[index].id] !== undefined){
             self.renderImage(self.images.hash[self.chapters.array[index].id]);
         } else {
             self.renderImage(0);
         }
+        self.renderChapter(index);
 
     },
     imageClick: function(e){
