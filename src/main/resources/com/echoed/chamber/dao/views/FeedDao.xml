@@ -307,8 +307,6 @@
             C.createdOn,
             CIMG.createdOn,
             CMT.createdOn desc
-        limit
-        #{start},#{limit}
     </select>
 
     <select id="getStoryIds" resultType="String">
