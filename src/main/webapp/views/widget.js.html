@@ -1259,6 +1259,9 @@ EchoedjQuery(document).ready(function(){
     var body = document.getElementsByTagName('body')[0];
     var echoedOpener = document.createElement('div');
     echoedOpener.id = "echoed-opener";
+    var openImage = document.createElement('img');
+    openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
+    echoedOpener.appendChild(openImage);
     body.appendChild(echoedOpener);
 
     var echoedStory = document.createElement('div');

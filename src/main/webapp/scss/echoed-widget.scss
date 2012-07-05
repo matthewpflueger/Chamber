@@ -83,13 +83,19 @@ $headerFontFamily: 'Arvo', serif;
     position:absolute;
     left: 0px;
     top: 50%;
-    margin-top: -125px;
-    background-image: image-url("btn_echoed_opener.jpg");
+    margin-top: -260px;
+    //background-image: image-url("btn_echoed_opener.jpg");
     @include drop-shadow;
-    width: 30px;
-    height: 250px;
-    border-top: 1px solid #CCC;
+    //width: 30px;
+    //height: 250px;
+    //border-top: 1px solid #CCC;
     cursor: pointer;
+    img{
+        display: block;
+        border: 0px;
+        margin: 0px;
+        padding:0px;
+    }
 
 }
 
