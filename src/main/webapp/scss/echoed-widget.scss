@@ -433,6 +433,9 @@ $headerFontFamily: 'Arvo', serif;
                 margin-left: 12px;
                 text-align:center;
                 .echo-s-b-item{
+                    height: 320px;
+                    display: table-cell;
+                    vertical-align: middle;
                     text-align: left;
                     .echo-s-b-i-c{
                         display: inline-block;
