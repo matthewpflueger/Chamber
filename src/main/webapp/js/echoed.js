@@ -983,7 +983,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImages');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImageGallery', 'imageClick');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -994,7 +994,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         "click .echo-s-h-close" : "close",
         "click .comment-submit": "createComment",
         "click .echo-chapter" : "tabClick",
-        "click .echo-s-b-thumbnail": "renderImage",
+        "click .echo-s-b-thumbnail": "imageClick",
         "click a": "close"
     },
     load: function(id){
@@ -1016,7 +1016,10 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         self.element.html(template);
 
-        self.images = {};
+        self.images = {
+            array: [],
+            hash: {}
+        };
         self.chapters = {
             array : [],
             hash: {}
@@ -1025,15 +1028,19 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.images.array = [];
 
         self.images.array.push({
-            chapterId: 'cover',
+            chapterId: self.data.chapters[0].id,
             image: self.data.story.image
         });
+        self.images.hash[self.data.chapters[0].id] = 0;
 
         $.each(self.data.chapterImages, function(index, chapterImage){
             self.images.array.push({
                 chapterId: chapterImage.chapterId,
                 image: chapterImage.image
             });
+            if(self.images.hash[chapterImage.chapterId] === undefined){
+                self.images.hash[chapterImage.chapterId] = index;
+            }
         });
 
         self.chapters.hash['cover'] = 0;
@@ -1054,9 +1061,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.element.find('.echo-s-h-t-n').html("by " + userLink);
         self.img = $("<img />");
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
-        self.thumbnails = $("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
+        self.thumbnailContainer = $("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
 
-        self.renderImages();
+        self.renderImageGallery();
         self.renderComments();
         self.renderTabs();
         self.renderChapter(0);
@@ -1068,20 +1075,21 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     renderTabs: function(){
         var self = this;
-        self.chapterTabs = self.element.find('.echo-chapters');
+        self.chapterTabs = [];
+        self.tabContainer = self.element.find('.echo-chapters');
         $.each(self.data.chapters, function(index, chapter){
-            var ch = $('<div class="echo-chapter"></div>').append(chapter.title).attr("tab-id",index);
-            self.chapterTabs.append(ch);
-            if(index == 0 ) ch.addClass("on");
+            self.chapterTabs[index] = $('<div class="echo-chapter"></div>').append(chapter.title).attr("tab-id",index);
+            self.tabContainer.append(self.chapterTabs[index]);
         });
     },
-    renderImages: function(){
+    renderImageGallery: function(){
         var self = this;
+        self.thumbnails = [];
         $.each(self.images.array, function(index, image){
-            var thumbnail = $('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl);
-            self.thumbnails.append(thumbnail);
+            self.thumbnails[index] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl);
+            self.thumbnailContainer.append(self.thumbnails[index]);
             if(index === 0){
-                thumbnail.addClass("highlight");
+                self.thumbnails[index].addClass("highlight");
                 self.img.attr("src", image.image.originalUrl);
             }
         });
@@ -1089,23 +1097,28 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     tabClick: function(e){
         var self = this;
         var index = $(e.target).attr('tab-id');
-        self.chapterTabs.children().removeClass("on");
-        $(e.target).addClass("on");
         self.renderChapter(index);
-
+        console.log(self.images);
+        self.renderImage(self.images.hash[self.chapters.array[index].id]);
+    },
+    imageClick: function(e){
+        var self = this;
+        var index = $(e.target).attr("index");
+        self.renderImage(index);
+        self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
     },
     renderChapter: function(index){
         var self = this;
         self.element.find('.echo-s-b-t-t').html(self.chapters.array[index].title);
         self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[index].text.replace(/\n/g, '<br />') + '"');
+        self.tabContainer.children().removeClass("on");
+        self.chapterTabs[index].addClass("on");
     },
-    renderImage: function(e){
+    renderImage: function(index){
         var self = this;
-        var index = $(e.target).attr("index");
-        $('.echo-s-b-thumbnail').removeClass('highlight');
-        $(e.target).addClass('highlight');
         self.img.attr('src', self.images.array[index].image.originalUrl);
-        self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
+        self.thumbnailContainer.children().removeClass("highlight");
+        self.thumbnails[index].addClass("highlight");
     },
     renderComments: function(){
         var self = this;
