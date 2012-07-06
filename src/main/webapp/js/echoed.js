@@ -1337,8 +1337,15 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
                 photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
                 textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
             }
-            if(self.data.story.partnerId !== "Echoed") {
-                textNode.append("from <a class='story-brief-text-partner' href='#partner/" + self.data.story.partnerId + "'>" + self.data.story.productInfo + "</a><br/>");
+            console.log(self.data.story);
+            if(self.data.story.partnerHandle !== "Echoed") {
+                var pId = "";
+                if(self.data.story.partnerHandle !== null){
+                    pId = self.data.story.partnerHandle;
+                } else {
+                    pId = self.data.story.partnerId
+                }
+                textNode.append("from <a class='story-brief-text-partner' href='#partner/" + pId + "'>" + self.data.story.productInfo + "</a><br/>");
             } else {
                 textNode.append("from " + self.data.story.productInfo + "<br/>");
             }
