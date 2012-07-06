@@ -622,7 +622,7 @@ $headerFontFamily: 'Arvo', serif;
         text-align: center;
         @include textFontNormal(14px);
         width: 400px;
-        margin: 0px auto 5px aut;
+        margin: 0px auto 5px auto;
     }
     .echoed-share{
         @include textFontBold(14px, #FFF);
