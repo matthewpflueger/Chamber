@@ -521,6 +521,7 @@ h2{
                 @include headerFontBold(36px);
                 text-shadow: inset 0 -1px 0 rgba(0, 0, 0, .42);
                 text-align: center;
+                width: 600px;
             }
             .field-main-col{
                 background-image: image-url("bk_noise.jpg");
