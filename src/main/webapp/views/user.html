@@ -80,7 +80,7 @@
             <div class="story-summary-body">
             </div>
             <div class="story-summary-buttons">
-                <span class="story-summary-submit" act="add">Add Another Story</span>
+                <span class="story-summary-submit" act="add">Tell Us More</span>
                 <span class="story-summary-submit" act="finish">I'm Done!</span>
             </div>
         </div>
@@ -107,29 +107,28 @@
                     <div class="chapter-edit-body-top-subtitle">
                         Now tell us something about the product.
                     </div>
-                    <div class="chapter-edit-body-top-tips">
-                        <strong>Tips:</strong> There's no right or wrong way to tell your story. Keep it simple! If you only want to write a sentence that's 100% fine. Some ideas:
-                    </div>
-
                 </div>
                 <div class="chapter-edit-body-main">
                     <div class="chapter-edit-body-row">
                         <label for="chapter-title">
-                            <strong>Story Title:</strong>
+                            <strong>Choose a topic:</strong><br/>
+                            <span class="chapter-italics" >If you're feeling creative, you can write your own!</span>
                         </label>
-                        <input id="chapter-title" type="text" name="chapter-title" />
+                        <!--<input id="chapter-title" type="text" name="chapter-title" />-->
+                        <div id="chapter-title" class="field-select"></div>
                     </div>
                     <div class="chapter-edit-body-row">
                         <label>
-                            <strong>Description:</strong><br/>
-                            Tell us a little more about your experience
+                            <strong>Write Something:</strong><br/>
+                            <span class="chapter-italics">There's no right or wrong way to to do this. Keep it simple! If you only want to write a sentence that's fine.</span>
+
                         </label>
                         <textarea id="chapter-text"></textarea>
                     </div>
                     <div class="chapter-edit-body-row">
                         <label>
-                            <strong>Photos:</strong><br/>
-                            Attach one or more photos.
+                            <strong>Add More Photos:</strong><br/>
+                            <div class="photo-upload"></div>
                         </label>
                         <div class="chapter-edit-photos">
                             <div class="thumbnails">
@@ -137,12 +136,12 @@
                             <div class="thumbnail-placeholder">
                                 <img class="thumb" src="{{urls.images}}/bk_img_upload_ph.jpg" />
                             </div>
-                            <div class="photo-upload"></div>
+
                         </div>
                     </div>
                     <div class="chapter-edit-body-row">
                         <label></label>
-                        <span class="chapter-submit">Save Story</span>
+                        <span class="chapter-submit">Save</span>
                         <span class="chapter-cancel">Cancel</span>
                     </div>
                 </div>
@@ -224,7 +223,7 @@
         <div class="field-main-col clearfix">
             <div class="field-row">
                 <label>
-                    <strong>Product Name or Title</strong><br/>
+                    <strong>Product Name</strong><br/>
                 </label>
                 <div class="field-indent">
                     <input id="story-name" type="text">

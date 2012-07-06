@@ -297,9 +297,8 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         $.each(self.data.storyFull.chapters, function(index, chapter){
             count = count + 1;
             var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
-            var chapterLabel = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-label"></div>').html("Story " + count));
             var chapterEdit = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-edit"></div>').html("Edit").attr("chapterId", index));
-            var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong>Title: </strong>" + chapter.title));
+            var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong>Topic: </strong>" + chapter.title));
             var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong>Description: </strong>" +chapter.text));
             var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
             var chapterPhotosRow = $("<div class='story-summary-chapter-row'></div>").append($('<label>Photos: </label>')).append(chapterPhotos);
@@ -309,7 +308,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                     chapterPhotos.append(chapterImg);
                 }
             });
-            chapterDiv.append(chapterLabel).append(chapterEdit).append(chapterTitle).append(chapterDescription).append(chapterPhotosRow);
+            chapterDiv.append(chapterEdit).append(chapterTitle).append(chapterDescription).append(chapterPhotosRow);
             self.element.chapters.append(chapterDiv);
         });
         self.show();
@@ -337,11 +336,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     loadChapterTemplate: function(chapterIndex){
         var self = this;
-        var chapterId = self.data.storyFull.chapters[chapterIndex].id;
         self.template = _.template($('#templates-components-story-edit').html());
         self.element.html(self.template);
 
-        $("#story-title").html("<strong>Story Title: </strong>" + self.data.storyFull.story.title);
+        $("#story-title").html(self.data.storyFull.story.title);
         $("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
 
         var chapterPhotos = self.element.find(".thumbnails");
@@ -349,12 +347,8 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.currentChapter.images = [];
         self.currentChapter.title = "";
         self.currentChapter.text = "";
-        self.tips = self.element.find(".chapter-edit-body-top-tips");
-        self.tips.append("<br/>");
-        $.each(self.data.storyPrompts.prompts, function(index, prompt){
-            self.tips.append("<br/>" + prompt);
-        });
-        if(chapterId !== undefined){
+        if(chapterIndex !== undefined){
+            var chapterId = self.data.storyFull.chapters[chapterIndex].id;
             self.currentChapter.title = self.data.storyFull.chapters[chapterIndex].title;
             self.currentChapter.text = self.data.storyFull.chapters[chapterIndex].text;
             self.currentChapter.id = chapterId;
@@ -370,6 +364,16 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 }
             });
         }
+        var selectOptions = {
+            optionsArray : [],
+            el : "#chapter-title"
+        };
+
+        $.each(self.data.storyPrompts.prompts, function(index, prompt){
+            selectOptions.optionsArray.push(prompt)
+        });
+
+        var select = new Echoed.Views.Components.Select(selectOptions);
         var uploader = new qq.FileUploader({
             element: document.getElementsByClassName('photo-upload')[0],
             action: '/image',
@@ -856,9 +860,9 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         _.bindAll(this,'render','click','open','selectOption','close');
         this.el = options.el;
         this.element = $(options.el);
-        this.optionsList = options.optionsList;
+        this.optionsArray = options.optionsArray;
         this.openState = false;
-        this.default = "Select a Prompt Or Write Your Own";
+        this.default = "(Write Your Own Topic)";
         this.render();
     },
     events: {
@@ -873,10 +877,15 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         self.label = $("<div class='field-question-label'></div>");
         self.label.append(self.input);
         self.element.append(self.label);
-        self.options[0] = $("<div class='field-question-option'>Why I Bought This</div>").css({"display": "none"});
-        self.element.append(self.options[0]);
-        self.options[1] = $("<div class='field-question-option'>This Is For Alex</div>").css({"display": "none"});
-        self.element.append(self.options[1]);
+        self.optionsList = $("<div class='field-question-options-list'></div>");
+        self.element.append(self.optionsList);
+        $.each(self.optionsArray, function(index, option){
+            self.options[index] = $("<div class='field-question-option'></div>").append(option).css({"display": "none"});
+            self.optionsList.append(self.options[index]);
+        });
+        self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.default).css({"display": "none"});
+        self.optionsList.append(self.options[self.optionsArray.length]);
+        self.input.val(self.options[0].html());
     },
     keyPress: function(e){
         switch(e.keyCode){
@@ -896,22 +905,21 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         var target = $(e.target);
         self.input.val(target.html());
         self.close();
-
     },
     close: function(){
         var self = this;
         self.openState = false;
         self.element.find(".field-question-option").hide();
-        if(self.input.val() == "")
-            self.input.val(self.default);
+        if(self.input.val() == self.default){
+            self.input.val("");
+            self.input.select();
+        }
     },
     open: function(){
         var self = this;
         self.openState = true;
         self.input.focus();
         self.input.select();
-        if(self.input.val() == self.default)
-            self.input.val("");
         self.element.find(".field-question-option").show();
     }
 });
@@ -1294,22 +1302,21 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         } else {
             if(self.data.echoedUser.facebookId) {
                 photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
-                //textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
-                //textNode.append(self.data.story.title +"<br/>");
-                if(self.data.story.partnerId !== "Echoed") {
-                    textNode.append("from <a class='story-brief-text-partner' href='#partner/" + self.data.story.partnerId + "'>" + self.data.story.productInfo + "</a><br/>");
-                } else {
-                    textNode.append("from " + self.data.story.productInfo + "<br/>");
-                }
-                //textNode.append($("<img height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
-                textNode.append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>");
-                var chapterText = self.data.chapters[0].text.substr(0,100);
-                if(self.data.chapters[0].text.length > 100){
-                    chapterText += "...";
-                }
-                textNode.append($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
-                overlayNode.html(self.data.story.title);
+                textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
             }
+            if(self.data.story.partnerId !== "Echoed") {
+                textNode.append("from <a class='story-brief-text-partner' href='#partner/" + self.data.story.partnerId + "'>" + self.data.story.productInfo + "</a><br/>");
+            } else {
+                textNode.append("from " + self.data.story.productInfo + "<br/>");
+            }
+            textNode.append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>");
+
+            var chapterText = self.data.chapters[0].text.substr(0,100);
+            if(self.data.chapters[0].text.length > 100){
+                chapterText += "...";
+            }
+            textNode.append($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
+            overlayNode.html(self.data.story.title);
         }
         self.element.attr("id", self.data.story.id);
     },

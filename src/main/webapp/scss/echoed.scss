@@ -71,6 +71,8 @@ $headerFontFamily: 'Arvo', serif;
         cursor: pointer;
         margin: 3px;
         display: inline-block;
+        min-width: 100px;
+        text-align: center;
         padding: 10px 10px;
         background-color: #eb1a24;
         background: -moz-linear-gradient(
@@ -452,6 +454,40 @@ h2{
             background-color: #FFF;
             @include drop-shadow;
             border-radius: 3px;
+            .field-select{
+                display: inline-block;
+                position:relative;
+                input[type=text]{
+                    background-image: image-url("bk_downarrow.png");
+                    @include textFontNormal(16px);
+                    background-position: right;
+                    background-repeat: no-repeat;
+                    cursor: pointer;
+                }
+                .field-question-label{
+                    cursor: pointer;
+                }
+                .field-question-options-list{
+                    position: absolute;
+                    top: 30px;
+                    left: 0px;
+                    border: 1px solid #CCC;
+                    .field-question-option{
+                        position:relative;
+                        background-color: #FFF;
+                        padding: 5px 6px;
+                        width: 300px;
+                        @include textFontNormal(14px);
+                        cursor: pointer;
+                        &:hover{
+                            font-weight: bold;
+                            background-color: #F0F0F0;
+                        }
+                    }
+                }
+
+            }
+
             .field-close{
                 position:absolute;
                 right: -15px;
@@ -809,12 +845,16 @@ h2{
                             label{
                                 vertical-align: top;
                                 text-align: right;
-                                margin-right: 20px;
+                                margin-right: 10px;
                                 margin-top: 3px;
                                 display: inline-block;
-                                width: 250px;
+                                width: 200px;
                                 min-height: 20px;
                                 @include textFontNormal(14px);
+                                .chapter-italics{
+                                    @include textFontNormal(12px);
+                                    font-style: italic;
+                                }
                             }
                             input[type=text]{
                                 display: inline-block;
@@ -837,7 +877,7 @@ h2{
                                 //border-radius: 5px;
                             }
                             .chapter-submit, .chapter-cancel{
-                                @include textFontBold(14px, #FFF);
+                                @include textFontBold(16px, #FFF);
                                 @include button();
                             }
                         }
@@ -950,8 +990,9 @@ h2{
                             .story-brief-text-user-image{
                                 display: block;
                                 position: absolute;
-                                top: 10px;
-                                left: 10px;
+                                top: 0px;
+                                border: 2px solid #CCC;
+                                right: 0px;
                                 height: 35px;
                                 width: 35px;
                             }
