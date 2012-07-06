@@ -1469,7 +1469,9 @@ h3{
     .echo-story-body{
         position: relative;
         margin: 5px 10px;
-        padding-bottom: 10px;
+        padding: 10px 0px;
+        border-top: 1px solid #FFF;
+        box-shadow: 0px -1px 0px #CCC;
         .echo-s-b-text{
             float:left;
             width: 300px;
@@ -1477,16 +1479,16 @@ h3{
 
             .echo-s-b-t-t{
                 padding-bottom: 5px;
-                @include textFontBold(24px);
+                @include textFontBold(20px);
+                text-shadow: 0px 1px 0px #FFF;
                 word-wrap: break-word;
             }
             .echo-s-b-t-b{
-                padding: 10px 0px;
+                padding-bottom: 20px;
                 @include textFontNormal(14px, #333);
                 font-style: italic;
                 line-height: 1.3em;
                 word-wrap: break-word;
-
             }
         }
         .echo-s-b-segment{

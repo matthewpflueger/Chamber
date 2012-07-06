@@ -1041,7 +1041,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"> <div class="echo-s-b-t-t"></div> <div class="echo-s-b-t-b"></div><div class="echo-chapters clearfix"><div class="echo-chapters-title">Stories</div></div></div><div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"> </div> </div> </div> </div>';
+        var template = '<div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"> </div> </div> </div> </div>';
         var self = this;
         self.element.html(template);
 
@@ -1078,6 +1078,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             self.chapters.hash[chapter.id] = index;
         });
 
+        self.text = self.element.find('.echo-s-b-text');
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
@@ -1092,11 +1093,14 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.thumbnailContainer = EchoedjQuery("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
 
+        EchoedjQuery.each(self.data.chapters, function(index, chapter){
+            var chapterTitle = EchoedjQuery("<div class='echo-s-b-t-t'></div>").append(chapter.title);
+            var chapterText = EchoedjQuery("<div class='echo-s-b-t-b'></div>").append(chapter.text);
+            self.text.append(chapterTitle).append(chapterText);
+        });
+
         self.renderImageGallery();
         self.renderComments();
-        self.renderTabs();
-        self.renderChapter(0);
-
 
         if(Echoed.echoedUserId !== "") {
             self.element.find(".comment-submit").show();
@@ -1143,7 +1147,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         var index = EchoedjQuery(e.target).attr("index");
         self.renderImage(index);
-        self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
+        //self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
     },
     renderChapter: function(index){
         var self = this;

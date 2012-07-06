@@ -1111,6 +1111,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
 
         self.gallery = self.element.find('.echo-s-b-gallery');
+        self.text = self.element.find('.echo-s-b-text');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
 
@@ -1123,10 +1124,15 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.thumbnailContainer = $("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
 
+        $.each(self.data.chapters, function(index, chapter){
+            var chapterTitle = $("<div class='echo-s-b-t-t'></div>").append(chapter.title);
+            var chapterText = $("<div class='echo-s-b-t-b'></div>").append(chapter.text);
+            self.text.append(chapterTitle).append(chapterText);
+        });
         self.renderImageGallery();
         self.renderComments();
-        self.renderTabs();
-        self.renderChapter(0);
+        //self.renderTabs();
+        //self.renderChapter(0);
 
         self.EvAg.trigger('fade/show');
         self.element.css({
@@ -1170,7 +1176,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         var index = $(e.target).attr("index");
         self.renderImage(index);
-        self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
+        //self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
     },
     renderChapter: function(index){
         var self = this;
