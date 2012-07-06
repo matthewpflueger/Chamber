@@ -161,7 +161,7 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render','unload','load','loadStoryTemplate','submitInitStory','loadChapterTemplate','submitChapter');
+        _.bindAll(this, 'render', 'unload', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
@@ -172,7 +172,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         "click .field-close" : "close",
         "click .field-submit" : "submitInitStory",
         "click .chapter-submit": "submitChapter",
-        "click .story-summary-submit": "storySummarySubmit"
+        "click .chapter-cancel": "cancelChapter",
+        "click .story-summary-submit": "storySummarySubmit",
+        "click .story-summary-chapter-edit": "storyEditClick"
+
     },
     load: function(id, type){
         var self = this;
@@ -295,6 +298,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             count = count + 1;
             var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
             var chapterLabel = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-label"></div>').html("Story " + count));
+            var chapterEdit = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-edit"></div>').html("Edit").attr("chapterId", index));
             var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong>Title: </strong>" + chapter.title));
             var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong>Description: </strong>" +chapter.text));
             var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
@@ -305,7 +309,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                     chapterPhotos.append(chapterImg);
                 }
             });
-            chapterDiv.append(chapterLabel).append(chapterTitle).append(chapterDescription).append(chapterPhotosRow);
+            chapterDiv.append(chapterLabel).append(chapterEdit).append(chapterTitle).append(chapterDescription).append(chapterPhotosRow);
             self.element.chapters.append(chapterDiv);
         });
         self.show();
@@ -325,8 +329,15 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 break;
         }
     },
-    loadChapterTemplate: function(){
+    storyEditClick: function(e){
         var self = this;
+        var domNode = $(e.target);
+        var chapterId = domNode.attr("chapterId");
+        self.loadChapterTemplate(chapterId);
+    },
+    loadChapterTemplate: function(chapterIndex){
+        var self = this;
+        var chapterId = self.data.storyFull.chapters[chapterIndex].id;
         self.template = _.template($('#templates-components-story-edit').html());
         self.element.html(self.template);
 
@@ -343,6 +354,22 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         $.each(self.data.storyPrompts.prompts, function(index, prompt){
             self.tips.append("<br/>" + prompt);
         });
+        if(chapterId !== undefined){
+            self.currentChapter.title = self.data.storyFull.chapters[chapterIndex].title;
+            self.currentChapter.text = self.data.storyFull.chapters[chapterIndex].text;
+            self.currentChapter.id = chapterId;
+            $("#chapter-title").val(self.data.storyFull.chapters[chapterIndex].title);
+            $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text);
+
+            $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
+                if(chapterImage.chapterId === chapterId){
+                    var thumbDiv = $('<div></div>').addClass("thumb");
+                    var photo = $('<img />').attr('src', chapterImage.image.originalUrl);
+                    thumbDiv.append(photo).appendTo(chapterPhotos).fadeIn();
+                    self.currentChapter.images.push(chapterImage.image.id);
+                }
+            });
+        }
         var uploader = new qq.FileUploader({
             element: document.getElementsByClassName('photo-upload')[0],
             action: '/image',
@@ -364,36 +391,61 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         self.currentChapter.title = $.trim($('#chapter-title').val());
         self.currentChapter.text = $.trim($('#chapter-text').val());
-
-        if(self.currentChapter.title == ""){
+        if(self.currentChapter.title === ""){
             alert("You must have a title for your chapter");
-        } else if(self.currentChapter.text == ""){
+        } else if(self.currentChapter.text === ""){
             alert("You must have some text for your chapter. Even a single sentence is enough!");
         } else {
             if(self.locked === false) {
                 self.locked = true;
-                var nextAction = $(e.target).attr('act');
-                $.ajax({
-                    url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
-                    type: "POST",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
-                    processData: false,
-                    contentType: "application/json",
-                    data: JSON.stringify({
-                        title: self.currentChapter.title,
-                        text: self.currentChapter.text,
-                        imageIds: self.currentChapter.images
-                    }),
-                    success: function(chapterSubmitResponse) {
-                        self.locked = false;
-                        self.load(self.data.storyFull.story.id, "story");
-                    }
-                });
+                console.log(self.currentChapter.id);
+                if(self.currentChapter.id !== undefined){
+                    $.ajax({
+                        url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter/" + self.currentChapter.id,
+                        type: "PUT",
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        dataType: 'json',
+                        processData: false,
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            title: self.currentChapter.title,
+                            text: self.currentChapter.text,
+                            imageIds: self.currentChapter.images
+                        }),
+                        success: function(chapterSubmitResponse) {
+                            self.locked = false;
+                            self.load(self.data.storyFull.story.id, "story");
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
+                        type: "POST",
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        dataType: 'json',
+                        processData: false,
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            title: self.currentChapter.title,
+                            text: self.currentChapter.text,
+                            imageIds: self.currentChapter.images
+                        }),
+                        success: function(chapterSubmitResponse) {
+                            self.locked = false;
+                            self.load(self.data.storyFull.story.id, "story");
+                        }
+                    });
+                }
             }
         }
+    },
+    cancelChapter: function(){
+        var self = this;
+        self.load(self.data.storyFull.story.id, "story");
     },
     unload: function(callback){
         var self = this;
@@ -1039,7 +1091,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 image: chapterImage.image
             });
             if(self.images.hash[chapterImage.chapterId] === undefined){
-                self.images.hash[chapterImage.chapterId] = index + 1;
+                self.images.hash[chapterImage.chapterId] = index;
             }
         });
 

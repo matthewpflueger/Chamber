@@ -756,8 +756,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.element = EchoedjQuery(this.el);
         this.exhibit = EchoedjQuery('#echoed-exhibit');
         this.jsonUrl = Echoed.Urls.Api + "/api/partner/" + Echoed.partnerId;
-        this.element.find('.echoed-footer-left').append(EchoedjQuery('<div class="echoed-footer-left-title"></div>').html("Got a great story to tell?"));
-        this.element.find('.echoed-footer-left').append(EchoedjQuery('<div class="echoed-footer-left-text"></div>').html("Let us know aobut your experience and we'll publish your story right here for everyone to see!"));
+        this.element.find('.echoed-footer').prepend(EchoedjQuery('<div class="echoed-footer-left-text"></div>').html("Let us know about your experience and we'll publish your story right here for everyone to see!"));
+        this.element.find('.echoed-footer').prepend(EchoedjQuery('<div class="echoed-footer-left-title"></div>').html("Got a great story to tell?"));
         this.nextInt = 1;
     },
     events: {
@@ -1275,7 +1275,7 @@ EchoedjQuery(document).ready(function(){
     var echoedContainer = document.createElement('div');
     echoedContainer.id = "echoed-exhibit-container";
     echoedContainer.style.display = "none";
-    echoedContainer.innerHTML = "<div class='echoed-close'><img src='{{urls.images}}/btn_close_x_black.png'/></div><div class='echoed-head'></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div><div class='echoed-footer'><div class='echoed-footer-left'></div><div class='echoed-footer-right'><a class='echoed-share' target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a></div></div></div>";
+    echoedContainer.innerHTML = "<div class='echoed-close'><img src='{{urls.images}}/btn_close_x_black.png'/></div><div class='echoed-head'></div><div id='echoed-e-c-b'><div id='echoed-exhibit'></div></div><div class='echoed-footer'><a class='echoed-share' target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a></div></div>";
 
     var echoedField = document.createElement('div');
     echoedField.id = "echoed-field";

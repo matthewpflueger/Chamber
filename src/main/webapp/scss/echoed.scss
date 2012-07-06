@@ -332,7 +332,7 @@ h2{
             li{
                 padding: 7px 10px;
                 list-style:none;
-                @include textFontNormal(16px);
+                @include textFontNormal(14px);
                 text-shadow: 0px 1px 0px #FFF;
             }
             li:hover, .current{
@@ -614,6 +614,11 @@ h2{
                                 @include textFontBold(14px);
                                 margin-right: 10px;
                             }
+                            .story-summary-chapter-edit{
+                                @include textFontNormal(14px, $mainColor);
+                                text-decoration: underline;
+                                cursor: pointer;
+                            }
                             .story-summary-chapter-label{
                                 text-align: center;
                                 @include textFontBold(16px);
@@ -831,7 +836,7 @@ h2{
                                 border: 1px solid #CCC;
                                 //border-radius: 5px;
                             }
-                            .chapter-submit{
+                            .chapter-submit, .chapter-cancel{
                                 @include textFontBold(14px, #FFF);
                                 @include button();
                             }

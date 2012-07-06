@@ -591,30 +591,21 @@ $headerFontFamily: 'Arvo', serif;
 }
 
 .echoed-footer{
-    height: 80px;
     padding-top: 10px;
-    .echoed-footer-left{
-        width: 400px;
-        height: 100px;
-        float:left;
-        .echoed-footer-left-title{
-            text-align: center;
-            @include headerFont(24px);
-        }
-        .echoed-footer-left-text{
-            text-align: center;
-            @include textFontNormal(14px);
-        }
-    }
-    .echoed-footer-right{
-        float:left;
-        width: 300px;
-        height: 100px;
+    text-align: center;
+    .echoed-footer-left-title{
         text-align: center;
-        .echoed-share{
-            @include textFontBold(14px, #FFF);
-            @include button;
-            text-decoration: none;
-        }
+        @include headerFont(24px);
+    }
+    .echoed-footer-left-text{
+        text-align: center;
+        @include textFontNormal(14px);
+        width: 400px;
+        margin: 0px auto 10px auto;
+    }
+    .echoed-share{
+        @include textFontBold(14px, #FFF);
+        @include button;
+        text-decoration: none;
     }
 }
