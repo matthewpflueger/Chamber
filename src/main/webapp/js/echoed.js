@@ -1062,7 +1062,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImageGallery', 'imageClick');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImageGallery', 'imageClick', 'nextImage');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -1074,6 +1074,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         "click .comment-submit": "createComment",
         "click .echo-chapter" : "tabClick",
         "click .echo-s-b-thumbnail": "imageClick",
+        "click .echo-s-b-item": "nextImage",
         "click a": "close"
     },
     load: function(id){
@@ -1121,7 +1122,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 self.images.hash[chapterImage.chapterId] = index;
             }
         });
-
+        self.currentImageIndex = 0;
         self.chapters.hash['cover'] = 0;
         $.each(self.data.chapters, function(index, chapter){
             self.chapters.array.push(chapter);
@@ -1150,8 +1151,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
         self.renderImageGallery();
         self.renderComments();
-        //self.renderTabs();
-        //self.renderChapter(0);
 
         self.EvAg.trigger('fade/show');
         self.element.css({
@@ -1180,6 +1179,14 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             }
         });
     },
+    nextImage: function(){
+        var self = this;
+        self.currentImageIndex++;
+        if(self.currentImageIndex >= self.images.array.length){
+            self.currentImageIndex = 0;
+        }
+        self.renderImage(self.currentImageIndex);
+    },
     tabClick: function(e){
         var self = this;
         var index = $(e.target).attr('tab-id');
@@ -1194,6 +1201,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     imageClick: function(e){
         var self = this;
         var index = $(e.target).attr("index");
+        self.currentImageIndex = index;
         self.renderImage(index);
         //self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
     },

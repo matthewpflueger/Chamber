@@ -454,19 +454,25 @@ $headerFontFamily: 'Arvo', serif;
                 margin-left: 12px;
                 text-align:center;
                 .echo-s-b-item{
-                    height: 320px;
+                    cursor: pointer;
+                    height: 310px;
                     display: table-cell;
                     vertical-align: middle;
                     text-align: left;
+                    background-color: rgba(0, 0, 0, 0.1);
+                    height: 310px;
                     .echo-s-b-i-c{
-                        display: inline-block;
-                        max-width: 400px;
-                        border: 5px solid #FFF;
+                        margin: auto;
+                        width: 410px;
                         overflow:hidden;
+                        text-align: center;
+
                         img{
-                            display: block;
-                            max-height: 300px;
+                            border: 5px solid #FFF;
                             max-width: 400px;
+                            max-height: 300px;
+                            display: block;
+                            margin: auto;
                         }
                     }
                 }

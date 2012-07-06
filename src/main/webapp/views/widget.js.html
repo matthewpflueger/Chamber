@@ -1017,7 +1017,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImageGallery', 'imageClick');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImageGallery', 'imageClick', 'nextImage');
         this.el = options.el;
         this.element = EchoedjQuery(this.el);
         this.EvAg = options.EvAg;
@@ -1028,7 +1028,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         "click .echoed-close" : "close",
         "click .comment-submit": "createComment",
         "click .echo-chapters" : "tabClick",
-        "click .echo-s-b-thumbnail": "imageClick"
+        "click .echo-s-b-thumbnail": "imageClick",
+        "click .echo-s-b-item": "nextImage"
     },
     unload: function(){
         var self = this;
@@ -1091,7 +1092,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
-
+        self.currentImageIndex = 0;
 
         var userLink = '<a class="echo-s-h-t-n-u" target="_blank" href="' + Echoed.Urls.Site +'#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
         self.element.find('.echo-s-h-t-n').html("by " + userLink);
@@ -1157,6 +1158,14 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var index = EchoedjQuery(e.target).attr("index");
         self.renderImage(index);
         //self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
+    },
+    nextImage: function(){
+        var self = this;
+        self.currentImageIndex++;
+        if(self.currentImageIndex >= self.images.array.length){
+            self.currentImageIndex = 0;
+        }
+        self.renderImage(self.currentImageIndex);
     },
     renderChapter: function(index){
         var self = this;
