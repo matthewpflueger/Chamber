@@ -915,6 +915,15 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         overlayNode.html(self.data.story.title);
         textNode.append(self.data.story.title +"<br/>");
         textNode.append("Story By <a class='story-brief-text-user' target='_blank' href='" + Echoed.Urls.Site + "#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>");
+        if(self.data.echoedUser.facebookId) {
+            photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
+            textNode.append(EchoedjQuery("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
+        }
+        var chapterText = self.data.chapters[0].text.substr(0,100);
+        if(self.data.chapters[0].text.length > 100){
+            chapterText += "...";
+        }
+        textNode.append(EchoedjQuery("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){

@@ -209,11 +209,12 @@ $headerFontFamily: 'Arvo', serif;
         .story-brief{
             cursor: pointer;
             .story-brief-text{
+                position:relative;
                 padding: 7px 5px 2px 5px;
                 line-height: 1.5em;
                 @include textFontNormal(12px, #333);
                 background-color: rgba(255,255,255, 0.8);
-                width: 200px;
+                width: 226px;
                 .story-brief-text-user{
                     @include textFontBold(12px);
                     text-decoration: none;
@@ -221,6 +222,23 @@ $headerFontFamily: 'Arvo', serif;
                     &:hover{
                         color: $mainColor;
                     }
+                }
+                .story-brief-text-user-image{
+                    display: block;
+                    position: absolute;
+                    top: 0px;
+                    border: 2px solid #CCC;
+                    right: 0px;
+                    height: 35px;
+                    width: 35px;
+                }
+                .story-brief-text-quote{
+                    overflow: hidden;
+                    margin-top: 10px;
+                    font-style: italic;
+                    word-wrap: break-word;
+                    text-overflow: ellipsis;
+
                 }
             }
             .story-brief-image-container{
