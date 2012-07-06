@@ -11,12 +11,13 @@ case class Comment(
         storyId: String,
         echoedUserId: String,
         partnerId: String,
+        partnerHandle: String,
         partnerSettingsId: String,
         echoId: String,
         chapterId: String,
         echoedUser: EchoedUser,
         parentCommentId: String,
-        text: String) {
+        text: String) extends DomainObject {
 
     def this(
             chapter: Chapter,
@@ -29,6 +30,7 @@ case class Comment(
         storyId = chapter.storyId,
         echoedUserId = chapter.echoedUserId,
         partnerId = chapter.partnerId,
+        partnerHandle = chapter.partnerHandle,
         partnerSettingsId = chapter.partnerSettingsId,
         echoId = chapter.echoId,
         chapterId = chapter.id,

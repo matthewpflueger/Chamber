@@ -10,6 +10,7 @@
 			<arg column="chapterStoryId" javaType="String" />
             <arg column="chapterEchoedUserId" javaType="String" />
             <arg column="chapterPartnerId" javaType="String" />
+            <arg column="chapterPartnerHandle" javaType="String" />
             <arg column="chapterPartnerSettingsId" javaType="String" />
             <arg column="chapterEchoId" javaType="String" />
             <arg column="chapterTitle" javaType="String" />
@@ -25,6 +26,7 @@
         C.storyId as chapterStoryId,
         C.echoedUserId as chapterEchoedUserId,
         C.partnerId as chapterPartnerId,
+        C.partnerHandle as chapterPartnerHandle,
         C.partnerSettingsId as chapterPartnerSettingsId,
         C.echoId as chapterEchoId,
         C.title as chapterTitle,
@@ -62,6 +64,7 @@
             storyId,
             echoedUserId,
             partnerId,
+            partnerHandle,
             partnerSettingsId,
             echoId,
             title,
@@ -74,6 +77,7 @@
             #{storyId},
             #{echoedUserId},
             #{partnerId},
+            #{partnerHandle},
             #{partnerSettingsId},
             #{echoId},
             #{title},

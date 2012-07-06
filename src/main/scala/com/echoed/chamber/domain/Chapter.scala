@@ -11,11 +11,12 @@ case class Chapter(
         storyId: String,
         echoedUserId: String,
         partnerId: String,
+        partnerHandle: String,
         partnerSettingsId: String,
         echoId: String,
         title: String,
         text: String,
-        publishedOn: Long) {
+        publishedOn: Long) extends DomainObject {
 
     def this(
             story: Story,
@@ -26,6 +27,7 @@ case class Chapter(
         createdOn = new Date,
         storyId = story.id,
         echoedUserId = story.echoedUserId,
+        partnerHandle = story.partnerHandle,
         partnerId = story.partnerId,
         partnerSettingsId = story.partnerSettingsId,
         echoId = story.echoId,

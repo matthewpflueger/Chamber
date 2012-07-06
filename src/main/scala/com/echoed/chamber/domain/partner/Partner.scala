@@ -44,5 +44,6 @@ case class Partner(
         UUID.randomUUID.toString)
 
 
+    val isEchoed = "Echoed" == handle
 }
 

@@ -11,6 +11,7 @@
 			<arg column="chapterImageStoryId" javaType="String" />
             <arg column="chapterImageEchoedUserId" javaType="String" />
             <arg column="chapterImagePartnerId" javaType="String" />
+            <arg column="chapterImagePartnerHandle" javaType="String" />
             <arg column="chapterImagePartnerSettingsId" javaType="String" />
             <arg column="chapterImageEchoId" javaType="String" />
             <arg column="chapterImageChapterId" javaType="String" />
@@ -47,6 +48,7 @@
         CI.storyId as chapterImageStoryId,
         CI.echoedUserId as chapterImageEchoedUserId,
         CI.partnerId as chapterImagePartnerId,
+        CI.partnerHandle as chapterImagePartnerHandle,
         CI.partnerSettingsId as chapterImagePartnerSettingsId,
         CI.echoId as chapterImageEchoId,
         CI.chapterId as chapterImageChapterId,
@@ -95,6 +97,7 @@
             storyId,
             echoedUserId,
             partnerId,
+            partnerHandle,
             partnerSettingsId,
             echoId,
             chapterId,
@@ -106,6 +109,7 @@
             #{storyId},
             #{echoedUserId},
             #{partnerId},
+            #{partnerHandle},
             #{partnerSettingsId},
             #{echoId},
             #{chapterId},

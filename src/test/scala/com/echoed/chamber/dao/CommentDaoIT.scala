@@ -17,6 +17,7 @@ import scala.collection.JavaConversions._
 @ContextConfiguration(locations = Array("classpath:databaseIT.xml"))
 class CommentDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
+    @Autowired @BeanProperty var echoedUserDao: EchoedUserDao = _
     @Autowired @BeanProperty var commentDao: CommentDao = _
     @Autowired @BeanProperty var dataCreator: DataCreator = _
 
@@ -25,6 +26,7 @@ class CommentDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
     val comment = dataCreator.comment
 
     def cleanup() {
+        echoedUserDao.deleteByEmail(comment.echoedUser.email)
         commentDao.deleteById(comment.id)
         commentDao.findByStoryId(comment.storyId) should have size(0)
     }
@@ -36,10 +38,11 @@ class CommentDaoIT extends FeatureSpec with GivenWhenThen with ShouldMatchers wi
     feature("A developer can manipulate Comment data") {
 
         scenario("new Comment is inserted", IntegrationTest) {
+            echoedUserDao.insert(comment.echoedUser)
             commentDao.insert(comment)
             val comments = commentDao.findByStoryId(comment.storyId)
             comments should have size(1)
-            comment should equal(comments(0))
+            comment.copy(echoedUser = null) should equal(comments(0).copy(echoedUser = null))
         }
 
 

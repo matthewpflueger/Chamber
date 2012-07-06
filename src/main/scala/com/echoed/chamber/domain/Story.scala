@@ -11,31 +11,37 @@ case class Story(
         createdOn: Long,
         echoedUserId: String,
         partnerId: String,
+        partnerHandle: String,
         partnerSettingsId: String,
         image: Image,
         title: String,
         echoId: String,
         productId: String,
-        productInfo: String) {
+        productInfo: String,
+        views: Int,
+        comments: Int) extends DomainObject {
 
     def this(
             echoedUser: EchoedUser,
             partner: Partner,
             partnerSettings: PartnerSettings,
-            image: Image,
-            title: String,
+            _image: Image,
+            _title: String,
             echo: Option[Echo] = None,
-            productInfo: Option[String] = None) = this(
-        UUID.randomUUID.toString,
-        new Date,
-        new Date,
-        echoedUser.id,
-        partner.id,
-        partnerSettings.id,
-        image,
-        title,
-        echo.map(_.id).orNull,
-        echo.map(_.productId).orNull,
-        productInfo.orNull)
+            _productInfo: Option[String] = None) = this(
+        id = UUID.randomUUID.toString,
+        updatedOn = new Date,
+        createdOn = new Date,
+        echoedUserId = echoedUser.id,
+        partnerId = partner.id,
+        partnerHandle = partner.handle,
+        partnerSettingsId = partnerSettings.id,
+        image = _image,
+        title = _title,
+        echoId = echo.map(_.id).orNull,
+        productId = echo.map(_.productId).orNull,
+        productInfo = _productInfo.orNull,
+        views = 0,
+        comments = 0)
 
 }

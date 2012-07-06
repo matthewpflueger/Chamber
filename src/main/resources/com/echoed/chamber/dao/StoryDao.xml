@@ -9,12 +9,15 @@
 			<arg column="storyCreatedOn" javaType="_long" />
             <arg column="storyEchoedUserId" javaType="String" />
             <arg column="storyPartnerId" javaType="String" />
+            <arg column="storyPartnerHandle" javaType="String" />
             <arg column="storyPartnerSettingsId" javaType="String" />
             <arg resultMap="com.echoed.chamber.dao.ImageDao.imageResult" javaType="com.echoed.chamber.domain.Image" />
             <arg column="storyTitle" javaType="String" />
             <arg column="storyEchoId" javaType="String" />
             <arg column="storyProductId" javaType="String" />
             <arg column="storyProductInfo" javaType="String" />
+            <arg column="storyViews" javaType="_int" />
+            <arg column="storyComments" javaType="_int" />
         </constructor>
     </resultMap>
 
@@ -24,11 +27,14 @@
         S.createdOn as storyCreatedOn,
         S.echoedUserId as storyEchoedUserId,
         S.partnerId as storyPartnerId,
+        S.partnerHandle as storyPartnerHandle,
         S.partnerSettingsId as storyPartnerSettingsId,
         S.title as storyTitle,
         S.echoId as storyEchoId,
         S.productId as storyProductId,
         S.productInfo as storyProductInfo,
+        S.views as storyViews,
+        S.comments as storyComments,
         <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
     </sql>
 
@@ -53,6 +59,7 @@
             createdOn,
             echoedUserId,
             partnerId,
+            partnerHandle,
             partnerSettingsId,
             imageId,
             title,
@@ -65,6 +72,7 @@
             #{updatedOn},
             #{echoedUserId},
             #{partnerId},
+            #{partnerHandle},
             #{partnerSettingsId},
             #{image.id},
             #{title},
@@ -77,7 +85,9 @@
         update Story set
             imageId = #{image.id},
             title = #{title},
-            updatedOn = utc_timestamp() + 0
+            updatedOn = utc_timestamp() + 0,
+            views = #{views},
+            comments = #{comments}
     </update>
 
     <delete id="deleteByEchoedUserId">

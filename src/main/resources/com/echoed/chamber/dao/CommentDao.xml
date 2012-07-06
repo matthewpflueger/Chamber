@@ -10,6 +10,7 @@
 			<arg column="commentStoryId" javaType="String" />
             <arg column="commentEchoedUserId" javaType="String" />
             <arg column="commentPartnerId" javaType="String" />
+            <arg column="commentPartnerHandle" javaType="String" />
             <arg column="commentPartnerSettingsId" javaType="String" />
             <arg column="commentEchoId" javaType="String" />
             <arg column="commentChapterId" javaType="String" />
@@ -41,6 +42,7 @@
         CMT.storyId as commentStoryId,
         CMT.echoedUserId as commentEchoedUserId,
         CMT.partnerId as commentPartnerId,
+        CMT.partnerHandle as commentPartnerHandle,
         CMT.partnerSettingsId as commentPartnerSettingsId,
         CMT.echoId as commentEchoId,
         CMT.chapterId as commentChapterId,
@@ -70,6 +72,7 @@
             storyId,
             echoedUserId,
             partnerId,
+            partnerHandle,
             partnerSettingsId,
             echoId,
             chapterId,
@@ -83,6 +86,7 @@
             #{storyId},
             #{echoedUserId},
             #{partnerId},
+            #{partnerHandle},
             #{partnerSettingsId},
             #{echoId},
             #{chapterId},
