@@ -347,9 +347,15 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.currentChapter.images = [];
         self.currentChapter.title = "";
         self.currentChapter.text = "";
+        var selectOptions = {
+            optionsArray : [],
+            el : "#chapter-title"
+        };
+
         if(chapterIndex !== undefined){
             var chapterId = self.data.storyFull.chapters[chapterIndex].id;
             self.currentChapter.title = self.data.storyFull.chapters[chapterIndex].title;
+            selectOptions.currentTitle = self.currentChapter.title;
             self.currentChapter.text = self.data.storyFull.chapters[chapterIndex].text;
             self.currentChapter.id = chapterId;
             $("#chapter-title").val(self.data.storyFull.chapters[chapterIndex].title);
@@ -364,16 +370,11 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 }
             });
         }
-        var selectOptions = {
-            optionsArray : [],
-            el : "#chapter-title"
-        };
-
         $.each(self.data.storyPrompts.prompts, function(index, prompt){
             selectOptions.optionsArray.push(prompt)
         });
 
-        var select = new Echoed.Views.Components.Select(selectOptions);
+        self.select = new Echoed.Views.Components.Select(selectOptions);
         var uploader = new qq.FileUploader({
             element: document.getElementsByClassName('photo-upload')[0],
             action: '/image',
@@ -393,7 +394,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     submitChapter: function(e){
         var self = this;
-        self.currentChapter.title = $.trim($('#chapter-title').val());
+        self.currentChapter.title = $.trim(self.select.val());
         self.currentChapter.text = $.trim($('#chapter-text').val());
         if(self.currentChapter.title === ""){
             alert("You must have a title for your chapter");
@@ -861,8 +862,12 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         this.el = options.el;
         this.element = $(options.el);
         this.optionsArray = options.optionsArray;
+        this.currentTitle = options.currentTitle;
         this.openState = false;
         this.default = "(Write Your Own Topic)";
+        if(this.currentTitle !== undefined){
+            this.locked = true;
+        }
         this.render();
     },
     events: {
@@ -870,10 +875,14 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         "click .field-question-option" : "selectOption",
         "keyup :input": "keyPress"
     },
+    val: function(){
+        var self = this;
+        return self.input.val();
+    },
     render: function(){
         var self = this;
         self.input = $("<input type='text'>");
-        self.input.val(self.default);
+
         self.label = $("<div class='field-question-label'></div>");
         self.label.append(self.input);
         self.element.append(self.label);
@@ -885,7 +894,15 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         });
         self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.default).css({"display": "none"});
         self.optionsList.append(self.options[self.optionsArray.length]);
-        self.input.val(self.options[0].html());
+        if(self.currentTitle !== undefined){
+            self.options[self.optionsArray.length + 1] = $("<div class='field-question-option'></div>").append(self.currentTitle).css({"display": "none"});
+            self.optionsList.append(self.options[self.optionsArray.length + 1]);
+            self.input.val(self.currentTitle)
+            self.input.attr("readonly", true);
+        } else {
+            self.input.val(self.options[0].html());
+        }
+
     },
     keyPress: function(e){
         switch(e.keyCode){
@@ -895,10 +912,12 @@ Echoed.Views.Components.Select = Backbone.View.extend({
     },
     click: function(){
         var self = this;
-        if(self.openState == false )
-            self.open();
-        else
-            self.openState = false
+        if(self.locked !== true){
+            if(self.openState == false )
+                self.open();
+            else
+                self.openState = false
+        }
     },
     selectOption: function(e){
         var self = this;
