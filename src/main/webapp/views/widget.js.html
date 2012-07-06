@@ -1105,7 +1105,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         EchoedjQuery.each(self.data.chapters, function(index, chapter){
             var chapterTitle = EchoedjQuery("<div class='echo-s-b-t-t'></div>").append(chapter.title);
-            var chapterText = EchoedjQuery("<div class='echo-s-b-t-b'></div>").append(chapter.text);
+            var chapterText = EchoedjQuery("<div class='echo-s-b-t-b'></div>").append(chapter.text.replace(/\n/g, '<br />'));
             self.text.append(chapterTitle).append(chapterText);
         });
 

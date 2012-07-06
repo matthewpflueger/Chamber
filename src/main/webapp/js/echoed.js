@@ -1146,7 +1146,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         $.each(self.data.chapters, function(index, chapter){
             var chapterTitle = $("<div class='echo-s-b-t-t'></div>").append(chapter.title);
-            var chapterText = $("<div class='echo-s-b-t-b'></div>").append(chapter.text);
+            var chapterText = $("<div class='echo-s-b-t-b'></div>").append(chapter.text.replace(/\n/g, '<br />'));
             self.text.append(chapterTitle).append(chapterText);
         });
         self.renderImageGallery();
