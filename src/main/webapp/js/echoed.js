@@ -1245,7 +1245,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     createComment: function(){
         var self = this;
         var storyId = self.data.story.id;
-        var chapterId = self.currentChapterId;
+        var chapterId = self.data.chapters[0].id;
         var text = $.trim($("#echo-story-comment-ta").val());
         console.log(text);
         if(text === ""){
