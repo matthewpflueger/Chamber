@@ -32,6 +32,11 @@ class GeoLocationServiceActor extends FactoryBean[ActorRef] {
     @BeanProperty var timeoutInSeconds = 20
     @BeanProperty var actorSystem: ActorSystem = _
 
+    def init() {
+        //Force the call to getObject because Spring will not until somebody needs the object...
+        getObject
+    }
+
     def getObjectType = classOf[ActorRef]
 
     def isSingleton = true

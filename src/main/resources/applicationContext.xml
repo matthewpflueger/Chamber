@@ -454,8 +454,7 @@
     <bean
             id="facebookPostCrawlerActor"
             class="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor"
-            parent="actorBean"
-            lazy-init="false">
+            parent="actorBean">
         <property name="facebookPostDao" ref="facebookPostDao" />
         <property name="facebookLikeDao" ref="facebookLikeDao" />
         <property name="facebookCommentDao" ref="facebookCommentDao" />
