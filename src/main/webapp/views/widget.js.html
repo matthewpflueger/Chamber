@@ -1114,6 +1114,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         if(Echoed.echoedUserId !== "") {
             self.element.find(".comment-submit").show();
+            EchoedjQuery('#echo-story-comment-ta').show();
+
         }
 
         self.EvAg.trigger('fade/show');

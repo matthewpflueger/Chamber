@@ -546,6 +546,7 @@ $headerFontFamily: 'Arvo', serif;
                         height: 50px;
                         border: 1px solid #CCC;
                         @include textFontNormal(14px);
+                        display: none;
                     }
 
                 }
