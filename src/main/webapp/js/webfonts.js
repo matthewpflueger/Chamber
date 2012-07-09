@@ -1,5 +1,5 @@
 WebFontConfig = {
-    google: { families: ['Lato:300,400,700,900','Open+Sans:300italic,400italic,700italic,400,300,700','Arvo:400,700'] }
+    google: { families: ['Open+Sans:300italic,400italic,700italic,400,300,700','Arvo:400,700'] }
 };
 (function(){
     var wf= document.createElement('script');

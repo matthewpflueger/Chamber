@@ -30,6 +30,7 @@ $headerFontFamily: 'Arvo', serif;
     }
 
     @mixin black-gradient{
+        background-color: rgb(77, 77 , 77);
         background-image: linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
         background-image: -o-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
         background-image: -moz-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
@@ -141,6 +142,7 @@ body{
 
 img{
     border: none;
+    -ms-interpolation-mode: bicubic;
 }
 
 th{
@@ -461,7 +463,7 @@ h2{
             top: 75px;
             left: 50%;
             z-index: 99999;
-            width: 660px;
+            //width: 660px;
             background-color: #FFF;
             @include drop-shadow;
             border-radius: 3px;
@@ -532,6 +534,7 @@ h2{
                 @include headerFontBold(24px,#FFF);
                 @include black-gradient;
                 text-align: center;
+                width: 620px;
                 margin: 10px 10px 0px 10px;
             }
             .field-main-col{

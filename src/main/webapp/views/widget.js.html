@@ -696,7 +696,7 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
         this.EvAg.bind("infiniteScroll/unlock", this.unlock);
         this.EvAg.bind("infiniteScroll/on", this.on);
         this.EvAg.bind("infiniteScroll/off", this.off);
-        this.element = EchoedjQuery('<div id="echoed-infiniteScroll">Loading More Products</div>');
+        this.element = EchoedjQuery('<div id="echoed-infiniteScroll">Loading </div>');
         EchoedjQuery('#echoed-e-c-b').append(this.element);
         this.locked = false;
         var self = this;

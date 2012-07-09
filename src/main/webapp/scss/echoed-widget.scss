@@ -631,8 +631,9 @@ $headerFontFamily: 'Arvo', serif;
 }
 
 .echoed-footer{
-    padding-top: 10px;
+    padding: 10px 0px;
     text-align: center;
+    background-color: #F0F0F0;
     .echoed-footer-left-title{
         text-align: center;
         @include headerFont(24px);
