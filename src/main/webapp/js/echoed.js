@@ -364,7 +364,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                 if(chapterImage.chapterId === chapterId){
                     var thumbDiv = $('<div></div>').addClass("thumb");
-                    var photo = $('<img />').attr('src', chapterImage.image.originalUrl);
+                    var photo = $('<img />').attr('src', chapterImage.image.originalUrl).css({
+                        "height" :  60,
+                        "width" : (60 * chapterImage.image.preferredWidth / chapterImage.image.preferredHeight)
+                    });
                     thumbDiv.append(photo).appendTo(chapterPhotos).fadeIn();
                     self.currentChapter.images.push(chapterImage.image.id);
                 }
@@ -1177,11 +1180,13 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         self.thumbnails = [];
         $.each(self.images.array, function(index, image){
-            self.thumbnails[index] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl);
+            self.thumbnails[index] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl).css({
+                "height" : 60,
+                "width" : (60 * image.image.preferredWidth / image.image.preferredHeight)
+            });
             self.thumbnailContainer.append(self.thumbnails[index]);
             if(index === 0){
                 self.thumbnails[index].addClass("highlight");
-                self.img.attr("src", image.image.originalUrl);
             }
         });
     },
