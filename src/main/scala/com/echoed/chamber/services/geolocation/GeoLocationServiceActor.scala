@@ -1,64 +1,33 @@
 package com.echoed.chamber.services.geolocation
 
-import scala.reflect.BeanProperty
 import com.echoed.chamber.dao._
 import akka.actor._
 
 import scalaz._
 import Scalaz._
 import io.Source
-import java.util.{Properties, UUID, Date}
+import java.util.{UUID, Date}
 import java.nio.charset.MalformedInputException
-import org.springframework.beans.factory.FactoryBean
-import akka.util.Timeout
 import akka.util.duration._
 import akka.event.Logging
 import java.net.SocketTimeoutException
 
 
-class GeoLocationServiceActor extends FactoryBean[ActorRef] {
+class GeoLocationServiceActor(
+        geoLocationDao: GeoLocationDao,
+        geoLocationServiceUrl: String,
+        lastUpdatedBeforeHours: Int = 72,
+        findForCrawlIntervalMinutes: Int = 1) extends Actor {
 
-    @BeanProperty var geoLocationDao: GeoLocationDao = _
-    @BeanProperty var geoLocationServiceUrl: String = _
+    require(geoLocationServiceUrl != null, "geoLocationServiceUrl cannot be null")
 
-    @BeanProperty var lastUpdatedBeforeHours: Int = 72
-    @BeanProperty var findForCrawlIntervalMinutes: Int = 1
-
-    @BeanProperty var properties: Properties = _
-
-    private var lastUpdatedBeforeMillis: Long = _
-    private var findClick = true
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def init() {
-        //Force the call to getObject because Spring will not until somebody needs the object...
-        getObject
-    }
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
     private final val logger = Logging(context.system, this)
 
+    val lastUpdatedBeforeMillis: Long = lastUpdatedBeforeHours.toLong * 60 * 60 * 1000
+    private var findClick = true
+
+
     override def preStart() {
-        //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
-        //where placeholder values were not being resolved
-        {
-            if (geoLocationServiceUrl == null) geoLocationServiceUrl = properties.getProperty("geoLocationServiceUrl")
-            if (properties.getProperty("lastUpdatedBeforeHours") != null)
-                lastUpdatedBeforeHours = Integer.parseInt(properties.getProperty("lastUpdatedBeforeHours"))
-
-            geoLocationServiceUrl != null
-        } ensuring (_ == true, "Missing parameters")
-
-        lastUpdatedBeforeMillis = lastUpdatedBeforeHours.toLong * 60 * 60 * 1000
-
         self ! FindForCrawl()
     }
 
@@ -144,8 +113,6 @@ class GeoLocationServiceActor extends FactoryBean[ActorRef] {
         case msg: GeoLocateResponse =>
             self ! FindForCrawl()
     }
-
-    }), "GeoLocationService")
 }
 
 

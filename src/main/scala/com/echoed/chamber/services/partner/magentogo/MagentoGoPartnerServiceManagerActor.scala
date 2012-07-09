@@ -28,63 +28,29 @@ import akka.util.duration._
 import akka.event.{LoggingAdapter, Logging}
 
 
-class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
-
-    @BeanProperty var magentoGoAccess: MagentoGoAccess = _
-    @BeanProperty var magentoGoPartnerDao: MagentoGoPartnerDao = _
-
-    @BeanProperty var partnerDao: PartnerDao = _
-    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
-    @BeanProperty var partnerUserDao: PartnerUserDao = _
-    @BeanProperty var echoDao: EchoDao = _
-    @BeanProperty var echoMetricsDao: EchoMetricsDao = _
-    @BeanProperty var imageDao: ImageDao = _
-    @BeanProperty var imageService: ImageService = _
-    @BeanProperty var encrypter: Encrypter = _
-    @BeanProperty var transactionTemplate: TransactionTemplate = _
-    @BeanProperty var emailService: EmailService = _
-    @BeanProperty var accountManagerEmail: String = _
-
-    @BeanProperty var cacheManager: CacheManager = _
-
-    //represents the parent in Akka 2.0 router setup
-    @BeanProperty var partnerServiceManager: PartnerServiceManager = _
-
-    @BeanProperty var properties: Properties = _
-
+class MagentoGoPartnerServiceManagerActor(
+        magentoGoAccess: MagentoGoAccess,
+        magentoGoPartnerDao: MagentoGoPartnerDao,
+        partnerDao: PartnerDao,
+        partnerSettingsDao: PartnerSettingsDao,
+        partnerUserDao: PartnerUserDao,
+        echoDao: EchoDao,
+        echoMetricsDao: EchoMetricsDao,
+        imageDao: ImageDao,
+        imageService: ImageService,
+        encrypter: Encrypter,
+        transactionTemplate: TransactionTemplate,
+        emailService: EmailService,
+        accountManagerEmail: String,
+        cacheManager: CacheManager,
+        partnerServiceManager: PartnerServiceManager) extends Actor with ActorLogging {
 
     //this will be replaced by the ActorRegistry eventually (I think)
-    private var cache: ConcurrentMap[String, PartnerService] = null
-
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
+    private var cache: ConcurrentMap[String, PartnerService] = cacheManager.getCache[PartnerService]("PartnerServices")
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
         case _: Exception ⇒ Restart
     }
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
-
-    override def preStart() {
-        //this is a shared cache with PartnerServiceManagerActor
-        cache = cacheManager.getCache[PartnerService]("PartnerServices")
-
-        {
-                //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
-                //where placeholder values were not being resolved {
-            accountManagerEmail = properties.getProperty("accountManagerEmail")
-            accountManagerEmail != null
-        } ensuring(_ == true, "Missing parameters")
-    }
-
 
     def receive = {
 
@@ -93,7 +59,7 @@ class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
                 val ps = new MagentoGoPartnerServiceActorClient(context.actorOf(Props().withCreator {
                     val mgp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).get
                     val p = Option(partnerDao.findById(partnerId)).get
-                    logger.debug("Found MagentoGo partner {}", mgp.name)
+                    log.debug("Found MagentoGo partner {}", mgp.name)
                     new MagentoGoPartnerServiceActor(
                         mgp,
                         p,
@@ -122,14 +88,14 @@ class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
                 case _ => channel ! LocateResponse(
                     msg,
                     Left(PartnerException("Could not locate MagentoGo partner", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    log.error("Error processing %s" format msg, e)
             }
 
             try {
                 cache.get(partnerId).cata(
                     partnerService => {
                         channel ! LocateResponse(msg, Right(partnerService))
-                        logger.debug("Cache hit for {}", partnerService)
+                        log.debug("Cache hit for {}", partnerService)
                     },
                     {
                         val mgp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
@@ -149,7 +115,7 @@ class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
                     case _ => channel ! RegisterMagentoGoPartnerResponse(
                         msg,
                         Left(MagentoGoPartnerException("Could not register MagentoGo partner", e)))
-                        logger.error("Error processing %s" format msg, e)
+                        log.error("Error processing %s" format msg, e)
                 }
 
                 emailService.sendEmail(
@@ -180,7 +146,7 @@ class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
                             val ps = PartnerSettings.createPartnerSettings(p.id)
                             val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format(pu.email, password))
 
-                            logger.debug("Creating MagentoGo partner service for {}, {}", p.name, pu.email)
+                            log.debug("Creating MagentoGo partner service for {}, {}", p.name, pu.email)
                             transactionTemplate.execute({ status: TransactionStatus =>
                                 partnerDao.insert(p)
                                 partnerSettingsDao.insert(ps)
@@ -216,5 +182,4 @@ class MagentoGoPartnerServiceManagerActor extends FactoryBean[ActorRef] {
             }
     }
 
-    }), "MagentoGoPartnerServiceManager")
 }

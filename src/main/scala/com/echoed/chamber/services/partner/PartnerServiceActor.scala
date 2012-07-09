@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.partner
 
-import akka.actor.Actor
+import akka.actor.{ActorLogging, Actor}
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
 import com.echoed.chamber.domain.views.EchoPossibilityView
 import java.util.Date
@@ -28,12 +28,9 @@ class PartnerServiceActor(
         imageDao: ImageDao,
         imageService: ImageService,
         transactionTemplate: TransactionTemplate,
-        encrypter: Encrypter) extends Actor {
-
-    private final val logger = Logging(context.system, this)
+        encrypter: Encrypter) extends Actor with ActorLogging {
 
     val viewCounter: AtomicInteger = new AtomicInteger(0)
-
 
     protected def requestEcho(
             echoRequest: EchoRequest,
@@ -77,13 +74,13 @@ class PartnerServiceActor(
                     transactionTemplate.execute({status: TransactionStatus =>
                         val echoMetrics = new EchoMetrics(ec, partnerSettings)
                         val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
-                            logger.debug("New image for processing {}", ec.image.url)
+                            log.debug("New image for processing {}", ec.image.url)
                             imageDao.insert(ec.image)
                             imageService.processImage(ec.image).onComplete(_.fold(
-                                e => logger.error("Unexpected error processing image for echo {}: {}", ec.id, e),
+                                e => log.error("Unexpected error processing image for echo {}: {}", ec.id, e),
                                 _ match {
-                                    case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo {}: {}", ec.id, e)
-                                    case ProcessImageResponse(_, Right(image)) => logger.debug("Successfully processed image for echo {}", ec.id)
+                                    case ProcessImageResponse(_, Left(e)) => log.error("Error processing image for echo {}: {}", ec.id, e)
+                                    case ProcessImageResponse(_, Right(image)) => log.debug("Successfully processed image for echo {}", ec.id)
                                 }
                             ))
                             ec.image
@@ -94,7 +91,7 @@ class PartnerServiceActor(
                         echo
                     })
                 }
-            } catch { case e => logger.error("Could not save {}: {}", ec, e) }
+            } catch { case e => log.error("Could not save {}: {}", ec, e) }
         }.filter(_.isInstanceOf[Echo]).map(_.asInstanceOf[Echo])
 
         if (echoes.isEmpty) throw new InvalidEchoRequest()
@@ -120,10 +117,10 @@ class PartnerServiceActor(
                 view) =>
             val channel = context.sender
 
-            logger.debug("Received {}", msg)
+            log.debug("Received {}", msg)
             try {
                 val decryptedRequest = encrypter.decrypt(request, partner.secret)
-                logger.debug("Partner {} received echo request {}", partner.name, decryptedRequest)
+                log.debug("Partner {} received echo request {}", partner.name, decryptedRequest)
 
                 val echoRequest: EchoRequest = new ScalaObjectMapper().readValue(
                         decryptedRequest,
@@ -141,7 +138,7 @@ class PartnerServiceActor(
                 case e: InvalidEchoRequest => channel ! RequestEchoResponse(msg, Left(e))
                 case e: PartnerNotActive => channel ! RequestEchoResponse(msg, Left(e))
                 case e =>
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
                     channel ! RequestEchoResponse(msg, Left(PartnerException("Error during echo request", e)))
             }
 
@@ -149,7 +146,7 @@ class PartnerServiceActor(
             val channel = context.sender
             implicit val ec = context.dispatcher
 
-            logger.debug("Processing {}", msg)
+            log.debug("Processing {}", msg)
             Future {
                 echoDao.findByIdOrPostId(echoId)
             }.onComplete(_.fold(
@@ -158,18 +155,18 @@ class PartnerServiceActor(
                     val partnerSettings = partnerSettingsDao.findById(ep.partnerSettingsId)
                     val epv = new EchoPossibilityView(ep, partner, partnerSettings)
                     channel ! GetEchoResponse(msg, Right(epv))
-                    logger.debug("Returned EchoPossibility View: {}", epv)
+                    log.debug("Returned EchoPossibility View: {}", epv)
             })).onFailure {
                 case e =>
                     channel ! GetEchoResponse(msg, Left(PartnerException("Unexpected error", e)))
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
             }
 
         case msg @ RecordEchoStep(echoId, step, echoedUserId, echoClickId) =>
             val channel = context.sender
             implicit val ec = context.dispatcher
 
-            logger.debug("Processing {}", msg)
+            log.debug("Processing {}", msg)
 
             Future {
                 echoDao.findByIdOrPostId(echoId)
@@ -183,12 +180,12 @@ class PartnerServiceActor(
                     } else {
                         channel ! RecordEchoStepResponse(msg, Right(epv))
                         echoDao.updateForStep(ep.copy(step = ("%s,%s" format(ep.step, step)).takeRight(254)))
-                        logger.debug("Recorded step {} for echo {}", step, ep.id)
+                        log.debug("Recorded step {} for echo {}", step, ep.id)
                     }
             })).onFailure {
                 case e =>
                     channel ! RecordEchoStepResponse(msg, Left(PartnerException("Unexpected error", e)))
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
             }
 
 
@@ -214,7 +211,7 @@ class PartnerServiceActor(
             ))).onFailure {
                 case e =>
                     channel ! GetViewResponse(msg, Left(PartnerException("Unexpected error", e)))
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
             }
     }
 }

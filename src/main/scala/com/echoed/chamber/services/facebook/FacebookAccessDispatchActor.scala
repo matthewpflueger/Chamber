@@ -1,13 +1,8 @@
 package com.echoed.chamber.services.facebook
 
-import reflect.BeanProperty
 import com.echoed.util.ScalaObjectMapper
-import java.util.Properties
-import org.springframework.beans.factory.FactoryBean
 import akka.actor._
-import akka.util.Timeout
 import akka.util.duration._
-import akka.event.Logging
 import dispatch._
 import com.ning.http.client.RequestBuilder
 import collection.mutable
@@ -22,45 +17,16 @@ import com.echoed.chamber.domain.views.FacebookPostData
 import java.util.Date
 
 
-class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
+class FacebookAccessDispatchActor(
+        clientId: String,
+        clientSecret: String,
+        redirectUrl: String,
+        canvasApp: String,
+        appNameSpace: String,
+        httpClient: Http) extends Actor with ActorLogging {
 
-
-    @BeanProperty var clientId: String = _
-    @BeanProperty var clientSecret: String = _
-    @BeanProperty var redirectUrl: String = _
-    @BeanProperty var canvasApp: String = _
-    @BeanProperty var properties: Properties = _
-    @BeanProperty var appNameSpace: String = _
-
-    @BeanProperty var httpClient: Http = _
 
     private val facebook = "https://graph.facebook.com"
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
-
-    override def preStart {
-        //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
-        //where placeholder values were not being resolved
-        {
-            if (clientId == null) clientId = properties.getProperty("clientId")
-            if (clientSecret == null) clientSecret = properties.getProperty("clientSecret")
-            if (redirectUrl == null) redirectUrl = properties.getProperty("redirectUrl")
-            if (canvasApp == null) canvasApp = properties.getProperty("canvasApp")
-            if (appNameSpace == null) appNameSpace = properties.getProperty("appNameSpace")
-            clientId != null && clientSecret != null && redirectUrl != null && canvasApp != null && appNameSpace != null
-        } ensuring (_ == true, "Missing parameters")
-    }
-
 
     private def path(path: String) = url(facebook) / path
 
@@ -70,11 +36,11 @@ class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
         httpClient(request > { res =>
             val status = res.getStatusCode
             val body = res.getResponseBody
-            logger.debug("{} {} from Facebook: {}", status, res.getStatusText, body)
+            log.debug("{} {} from Facebook: {}", status, res.getStatusText, body)
             if (status >= 200 && status < 300) callback(body)
             else errorCallback(ScalaObjectMapper(body, classOf[error], true).asFacebookException)
         }).onFailure {
-            case e => logger.error("Error executing {}: {}", request.subject.build().getUrl, e)
+            case e => log.error("Error executing {}: {}", request.subject.build().getUrl, e)
         }
     }
 
@@ -124,12 +90,12 @@ class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
 
             def fetchFriends(request: RequestBuilder) {
                 graph(request, accessToken, classOf[Friends]) { friends =>
-                    logger.debug("Received {} friends for FacebookUser {}", friends.data.length, facebookUserId)
+                    log.debug("Received {} friends for FacebookUser {}", friends.data.length, facebookUserId)
                     val facebookFriends = friends.data.map(_.createFacebookFriend(facebookUserId)).toList
                     if (facebookFriends.nonEmpty) channel ! GetFriendsResponse(msg, Right(facebookFriends))
 
                     Option(friends.paging).flatMap(p => Option(p.next)).foreach { url =>
-                        logger.debug("Fetching next page of friends for FacebookUser {}: {}", facebookUserId, url)
+                        log.debug("Fetching next page of friends for FacebookUser {}: {}", facebookUserId, url)
                         fetchFriends(new RequestBuilder().setUrl(url))
                     }
                 } { e => channel ! GetFriendsResponse(msg, Left(e)) }
@@ -150,7 +116,7 @@ class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
                     "actions" -> ("""[{ "name": "View Echoed Exhibit", "link": "%s" }]""" format canvasApp))
 
             graph(path("/%s/feed" format facebookId) << params, accessToken, classOf[Id]) { res =>
-                logger.debug("Successfully posted FacebookPost {}, facebookId {}", facebookPost.id, res)
+                log.debug("Successfully posted FacebookPost {}, facebookId {}", facebookPost.id, res)
                 channel ! PostResponse(msg, Right(facebookPost.copy(facebookId = res.id)))
             } { e => channel ! PostResponse(msg, Left(e)) }
 
@@ -159,7 +125,7 @@ class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
             val channel = context.sender
 
             graph(path("/me/%s:%s" format(appNameSpace, action)) << Map(obj -> objUrl), accessToken) { res =>
-                logger.debug("Published action: {}", res)
+                log.debug("Published action: {}", res)
                 channel ! PublishActionResponse(msg, Right(true))
             } { e => channel ! PublishActionResponse(msg, Left(e)) }
 
@@ -189,7 +155,7 @@ class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
                         facebookPostData.likes = likes.toList
                         channel ! GetPostDataResponse(msg, Right(facebookPostData))
                         context.self ! 'timetodie
-                        logger.debug(
+                        log.debug(
                             "Successfully fetched comments {} and likes {} for FacebookPost {}",
                             facebookPostData.comments.size,
                             facebookPostData.likes.size,
@@ -209,7 +175,7 @@ class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
                     case 'timetodie =>
                         self ! PoisonPill
                         if (!commentsDone || !likesDone) {
-                            logger.error(
+                            log.error(
                                     "Fetch of post data timed out with comments done = {} and likes done = {}",
                                     commentsDone,
                                     likesDone)
@@ -219,34 +185,34 @@ class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
 
             def fetchComments(request: RequestBuilder) {
                 graph(request, accessToken, classOf[Comments]) { comments =>
-                    logger.debug("Received {} comments for FacebookPost {}", comments.data.length, facebookPostData.id)
+                    log.debug("Received {} comments for FacebookPost {}", comments.data.length, facebookPostData.id)
                     postActor ! ('comments, comments.data.map(_.createFacebookComment(facebookPostData)).toList)
 
                     Option(comments.paging).flatMap(p => Option(p.next)).map { url =>
-                        logger.debug("Fetching next page of comments for FacebookPost {}: {}", facebookPostData.id, url)
+                        log.debug("Fetching next page of comments for FacebookPost {}: {}", facebookPostData.id, url)
                         fetchComments(new RequestBuilder().setUrl(url))
                         true
                     }.orElse {
                         postActor ! 'commentsDone
                         Option(false)
                     }
-                } { e => logger.error("Error fetching comments for FacebookPost {}: {}", facebookPostData.id, e) }
+                } { e => log.error("Error fetching comments for FacebookPost {}: {}", facebookPostData.id, e) }
             }
 
             def fetchLikes(request: RequestBuilder) {
                 graph(request, accessToken, classOf[Likes]) { likes =>
-                    logger.debug("Received {} likes for FacebookPost {}", likes.data.length, facebookPostData.id)
+                    log.debug("Received {} likes for FacebookPost {}", likes.data.length, facebookPostData.id)
                     postActor ! ('likes, likes.data.map(_.createFacebookLike(facebookPostData)).toList)
 
                     Option(likes.paging).flatMap(p => Option(p.next)).map { url =>
-                        logger.debug("Fetching next page of likes for FacebookPost {}: {}", facebookPostData.id, url)
+                        log.debug("Fetching next page of likes for FacebookPost {}: {}", facebookPostData.id, url)
                         fetchLikes(new RequestBuilder().setUrl(url))
                         true
                     }.orElse {
                         postActor ! 'likesDone
                         Option(false)
                     }
-                } { e => logger.error("Error fetching likes for FacebookPost {}: {}", facebookPostData.id, e) }
+                } { e => log.error("Error fetching likes for FacebookPost {}: {}", facebookPostData.id, e) }
             }
 
             fetchComments(path("%s/comments" format facebookId))
@@ -255,7 +221,7 @@ class FacebookAccessDispatchActor extends FactoryBean[ActorRef] {
         case msg @ Logout(accessToken) => context.sender ! LogoutResponse(msg, Right(true))
     }
 
-    }), "FacebookAccessActor")
+//    }), "FacebookAccessActor")
 }
 
 object FacebookAccessTest extends App {

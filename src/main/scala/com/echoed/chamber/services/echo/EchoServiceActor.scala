@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.echo
 
-import reflect.BeanProperty
 import akka.dispatch.Future
 
 import scala.Option
@@ -20,36 +19,18 @@ import java.util.{List => JList, Collections}
 import scala.collection.JavaConversions._
 import com.echoed.chamber.services.EchoedException
 import akka.actor._
-import akka.util.Timeout
-import akka.util.duration._
-import org.springframework.beans.factory.FactoryBean
-import akka.event.{LoggingAdapter, Logging}
 
 
-class EchoServiceActor extends FactoryBean[ActorRef] {
-
-    @BeanProperty var partnerDao: PartnerDao = _
-    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
-    @BeanProperty var echoDao: EchoDao = _
-    @BeanProperty var echoMetricsDao: EchoMetricsDao = _
-    @BeanProperty var echoClickDao: EchoClickDao = _
-    @BeanProperty var imageDao: ImageDao = _
-    @BeanProperty var imageService: ImageService = _
-    @BeanProperty var transactionTemplate: TransactionTemplate = _
-
-    @BeanProperty var filteredUserAgents: JList[String] = _
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger: LoggingAdapter = Logging(context.system, this)
+class EchoServiceActor(
+        partnerDao: PartnerDao,
+        partnerSettingsDao: PartnerSettingsDao,
+        echoDao: EchoDao,
+        echoMetricsDao: EchoMetricsDao,
+        echoClickDao: EchoClickDao,
+        imageDao: ImageDao,
+        imageService: ImageService,
+        transactionTemplate: TransactionTemplate,
+        filteredUserAgents: JList[String] = Collections.emptyList[String]()) extends Actor with ActorLogging {
 
     def receive = {
         //TODO RecordEchoPossibility is deprecated and will be deleted asap!
@@ -59,7 +40,7 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
             val channel = context.sender
             implicit val ec = context.dispatcher
 
-            logger.debug("Processing {}", msg)
+            log.debug("Processing {}", msg)
 
             val partnerFuture = Future {
                 Option(partnerDao.findById(echoPossibility.partnerId))
@@ -76,7 +57,7 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
                 partnerSettings <- partnerSettingsFuture
                 echo <- echoFuture
             } yield {
-                logger.debug("Recording {}", echoPossibility)
+                log.debug("Recording {}", echoPossibility)
 
                 try {
                     //this checks to see if we have the minimum info for recording an echo possibility...
@@ -103,10 +84,10 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
                                 val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
                                     imageDao.insert(ec.image)
                                     imageService.processImage(ec.image).onComplete(_.fold(
-                                        e => logger.error("Unexpected error processing image for echo %s" format ec.id, e),
+                                        e => log.error("Unexpected error processing image for echo %s" format ec.id, e),
                                         _ match {
-                                            case ProcessImageResponse(_, Left(e)) => logger.error("Error processing image for echo %s" format ec.id, e)
-                                            case ProcessImageResponse(_, Right(image)) => logger.debug("Successfully processed image for echo {}", ec.id)
+                                            case ProcessImageResponse(_, Left(e)) => log.error("Error processing image for echo %s" format ec.id, e)
+                                            case ProcessImageResponse(_, Right(image)) => log.debug("Successfully processed image for echo {}", ec.id)
                                         }
                                     ))
                                     ec.image
@@ -118,17 +99,17 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
                             })
 
                             channel ! REPR(msg, Right(epv.copy(echo = ec)))
-                            logger.debug("Recorded {}", ec)
+                            log.debug("Recorded {}", ec)
                         })
                 } catch {
                     case e: NoSuchElementException =>
                         channel ! REPR(msg, Left(EchoException("Invalid echo possibility", e)))
-                        logger.debug("Invalid echo possibility: %s" format echoPossibility)
+                        log.debug("Invalid echo possibility: %s" format echoPossibility)
                 }
             }).onFailure {
                 case e =>
                     channel ! REPR(msg, Left(EchoException("Unexpected error", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    log.error("Error processing %s" format msg, e)
             }
 
         case msg @ GetEcho(echoPossibilityId) =>
@@ -143,7 +124,7 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
             }.onFailure {
                 case e =>
                     channel ! GetEchoResponse(msg, Left(EchoException("Could not get echo", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    log.error("Error processing %s" format msg, e)
             }
 
         case msg @ GetEchoById(echoId) =>
@@ -158,7 +139,7 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
             }.onFailure {
                 case e =>
                     channel ! GetEchoByIdResponse(msg, Left(EchoException("Could not get echo", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    log.error("Error processing %s" format msg, e)
             }
 
         case msg @ GetEchoByIdAndEchoedUserId(echoId, echoedUserId) =>
@@ -173,7 +154,7 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
             }.onFailure {
                 case e =>
                     channel ! GetEchoByIdAndEchoedUserIdResponse(msg, Left(EchoException("Could not get echo", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    log.error("Error processing %s" format msg, e)
             }
 
         case msg @ GetEchoPossibility(echoPossibilityId) =>
@@ -188,7 +169,7 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
             }.onFailure {
                 case e =>
                     channel ! GetEchoPossibilityResponse(msg, Left(EchoException("Could not get echo possibility", e)))
-                    logger.error("Error processing %s" format msg, e)
+                    log.error("Error processing %s" format msg, e)
             }
 
 
@@ -199,7 +180,7 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
 
             def error(e: Throwable) {
                 channel ! RecordEchoClickResponse(msg, Left(EchoException("Could not record echo click", e)))
-                logger.error("Error processing %s" format msg, e)
+                log.error("Error processing %s" format msg, e)
             }
 
             //only use the postId if it looks like a valid uuid
@@ -214,15 +195,15 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
             try {
                 Option(echoDao.findByIdOrPostId(id)).cata(
                     echo => {
-                        logger.debug("Found {}", echo);
-                        logger.debug("Recording {}", echoClick);
+                        log.debug("Found {}", echo);
+                        log.debug("Recording {}", echoClick);
                         channel ! RecordEchoClickResponse(msg, Right(echo))
 
                         //this really should be sent to another actor that has a durable mailbox...
                         Future {
                             val ec = determinePostId(echo, echoClick.copy(echoId = echo.id), if (linkId == echo.id) postId else linkId)
                             echoClickDao.insert(ec.copy(userAgent = Option(ec.userAgent).map(_.take(254)).orNull))
-                            logger.debug("Successfully recorded EchoClick {}", ec.id)
+                            log.debug("Successfully recorded EchoClick {}", ec.id)
 
 
                             //start of really bad hack to filter some obviously bad clicks...
@@ -253,22 +234,22 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
                             } yield {
                                 val clickedEcho = echoMetrics.clicked(partnerSettings)
                                 echoMetricsDao.updateForClick(clickedEcho)
-                                logger.debug("Successfully updated click metrics for {}", clickedEcho.echoId)
+                                log.debug("Successfully updated click metrics for {}", clickedEcho.echoId)
                                 true
                             }).orElse {
-                                logger.error("Failed to save echo click metrics for %s" format echo)
+                                log.error("Failed to save echo click metrics for %s" format echo)
                                 None
                             }
                         }.onFailure {
                             case e: FilteredException =>
-                                logger.debug(e.getMessage)
+                                log.debug(e.getMessage)
                                 echoClickDao.updateFiltered(e.echoClick)
-                            case e => logger.error("Failed to save echo click %s for %s" format(echoClick, echo), e)
+                            case e => log.error("Failed to save echo click %s for %s" format(echoClick, echo), e)
                         }
                     },
                     {
                         channel ! RecordEchoClickResponse(msg, Left(EchoNotFound(id)))
-                        logger.error("Did not find echo to record click - id {}, {}", id, echoClick)
+                        log.error("Did not find echo to record click - id {}, {}", id, echoClick)
                     })
             } catch {
                 case e => error(e)
@@ -281,13 +262,11 @@ class EchoServiceActor extends FactoryBean[ActorRef] {
             case Some(t) if echo.twitterStatusId == t => echoClick.copy(twitterStatusId = postId)
             case Some("1") => echoClick
             case Some(_) =>
-                logger.warning("Invalid post id {} for {}", id, echo)
+                log.warning("Invalid post id {} for {}", id, echo)
                 echoClick
             case None =>
                 echoClick
         }
-
-    }), "EchoService")
 
 }
 

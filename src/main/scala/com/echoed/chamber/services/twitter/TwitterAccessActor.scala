@@ -1,8 +1,6 @@
 package com.echoed.chamber.services.twitter
 
 import com.echoed.chamber.domain.{TwitterFollower, TwitterUser}
-import reflect.BeanProperty
-import java.util.Properties
 import twitter4j.{TwitterFactory, Twitter}
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.User
@@ -11,50 +9,21 @@ import Scalaz._
 import twitter4j.auth.RequestToken
 import com.echoed.cache.CacheManager
 import akka.actor._
-import akka.util.Timeout
-import akka.util.duration._
-import akka.event.Logging
-import org.springframework.beans.factory.FactoryBean
+import scala.collection.mutable.ConcurrentMap
 
 
-class TwitterAccessActor extends FactoryBean[ActorRef] {
-
-
-    @BeanProperty var consumerKey: String = _ //Called Consumer Key for Twitter
-    @BeanProperty var consumerSecret: String = _  //Called Consumer Secret for Twitter
-    @BeanProperty var callbackUrl: String = _  //Callback Url
-
-    @BeanProperty var cacheManager: CacheManager = _
-
-    @BeanProperty var properties: Properties = _
-
-    import scala.collection.mutable.ConcurrentMap
+class TwitterAccessActor(
+        consumerKey: String,
+        consumerSecret: String,
+        callbackUrl: String,
+        cacheManager: CacheManager) extends Actor with ActorLogging {
 
     private var cache: ConcurrentMap[String, Twitter] = null
 
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
 
 
     override def preStart {
-        //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
-        // where placeholder values were not being resolved
-        {
-            cache = cacheManager.getCache[Twitter]("Twitters") //, Some(new CacheListenerActorClient(self)))
-            consumerKey = properties.getProperty("consumerKey")
-            consumerSecret = properties.getProperty("consumerSecret")
-            //callbackUrl = properties.getProperty("callbackUrl")
-            consumerKey != null && consumerSecret != null //&& callbackUrl != null
-        } ensuring(_ == true, "Missing parameters")
+        cache = cacheManager.getCache[Twitter]("Twitters") //, Some(new CacheListenerActorClient(self))
     }
 
     def receive = {
@@ -69,7 +38,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! FetchRequestTokenResponse(msg, Left(TwitterException("Cannot get request token", e)))
-                    logger.error("Unexpected error processing {}: {}", msg, e)
+                    log.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -88,7 +57,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
                     channel ! GetAccessTokenForRequestTokenResponse(
                             msg,
                             Left(TwitterException("Cannot get access token", e)))
-                    logger.error("Unexpected error processing {}: {}", msg, e)
+                    log.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -101,7 +70,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! FetchAccessTokenResponse(msg, Left(TwitterException("Cannot get access token", e)))
-                    logger.error("Unexpected error processing {}: {}", msg, e)
+                    log.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -124,7 +93,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! FetchUserResponse(msg, Left(TwitterException("Cannot get user", e)))
-                    logger.error("Unexpected error processing {}: {}", msg, e)
+                    log.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -132,16 +101,16 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             val channel = context.sender
 
             try {
-                logger.debug("Attempting to get Twitter followers for {}", twitterId)
+                log.debug("Attempting to get Twitter followers for {}", twitterId)
                 val ids = getTwitterHandler(accessToken, accessTokenSecret).getFollowersIDs(twitterId, -1).getIDs
-                logger.debug("Twitter user {} has {} followers", twitterUserId, ids.length)
+                log.debug("Twitter user {} has {} followers", twitterUserId, ids.length)
                 val twitterFollowers = ids.map( id => new TwitterFollower(twitterUserId, id.toString, null)).toList
-                logger.debug("Successfully created {} TwitterFollwers", twitterFollowers.size)
+                log.debug("Successfully created {} TwitterFollwers", twitterFollowers.size)
                 channel ! FetchFollowersResponse(msg, Right(twitterFollowers))
             } catch {
                 case e =>
                     channel ! FetchFollowersResponse(msg, Left(TwitterException("Cannot get Twitter followers", e)))
-                    logger.error("Unexpected error processing {}: {}", msg, e)
+                    log.error("Unexpected error processing {}: {}", msg, e)
             }
 
 
@@ -159,7 +128,7 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! UpdateStatusResponse(msg, Left(TwitterException("Cannot update Twitter status", e)))
-                    logger.error("Unexpected error processing {}: {}", msg, e)
+                    log.error("Unexpected error processing {}: {}", msg, e)
             }
 
         case msg @ Logout(accessToken) =>
@@ -170,16 +139,16 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
                     twitterHandler => {
                         twitterHandler.shutdown()
                         channel ! LogoutResponse(msg, Right(true))
-                        logger.debug("Successfully shutdown Twitter handler for accessToken {}", accessToken)
+                        log.debug("Successfully shutdown Twitter handler for accessToken {}", accessToken)
                     },
                     {
                         channel ! LogoutResponse(msg, Right(false))
-                        logger.debug("Did not find Twitter handler for accessToken {}", accessToken)
+                        log.debug("Did not find Twitter handler for accessToken {}", accessToken)
                     })
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(TwitterException("Cannot end Twitter session", e)))
-                    logger.error("Unexpected error processing {}: {}", msg, e)
+                    log.error("Unexpected error processing {}: {}", msg, e)
             }
     }
 
@@ -210,7 +179,5 @@ class TwitterAccessActor extends FactoryBean[ActorRef] {
 
         new TwitterFactory(configurationBuilder.build()).getInstance()
     }
-
-    }), "TwitterAccess")
 
 }

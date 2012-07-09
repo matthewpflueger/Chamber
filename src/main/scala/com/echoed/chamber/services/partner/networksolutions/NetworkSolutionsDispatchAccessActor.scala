@@ -1,62 +1,25 @@
 package com.echoed.chamber.services.partner.networksolutions
 
-import reflect.BeanProperty
 import org.joda.time.format.ISODateTimeFormat
-
 
 import dispatch._
 
-
-import java.util.Properties
 import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
-import org.springframework.beans.factory.FactoryBean
 import akka.actor._
-import akka.util.Timeout
-import akka.util.duration._
-import akka.event.Logging
 import com.ning.http.client.RequestBuilder
 import xml._
 
 
-class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
+class NetworkSolutionsDispatchAccessActor(
+        application: String,
+        certificate: String,
+        client: Http) extends Actor with ActorLogging {
+
 
     private final val xmlDateTimeFormat = ISODateTimeFormat.dateTimeNoMillis
 
-    @BeanProperty var application: String = _
-    @BeanProperty var certificate: String = _
-    @BeanProperty var client: Http = _
-
     val urn = "urn:networksolutions:apis"
     val endpoint = "https://ecomapi.networksolutions.com/SoapService.asmx"
-
-    @BeanProperty var properties: Properties = _
-
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
-
-    override def preStart {
-        //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
-        //where placeholder values were not being resolved
-        {
-            application = properties.getProperty("application")
-            certificate = properties.getProperty("certificate")
-
-            application != null && certificate != null
-        } ensuring(_ == true, "Missing parameters")
-
-        require(client != null, "Missing required http client")
-    }
-
 
     private def getUserKey(successUrl: String, failureUrl: Option[String] = None) =
             wrap(
@@ -154,22 +117,22 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
 
             asXml(getUserKey(successUrl, failureUrl)) { res =>
 //            client(getUserKey(successUrl, failureUrl) <> { res =>
-                logger.debug("GetUserKey = {}", res)
+                log.debug("GetUserKey = {}", res)
                 (res \\ "Status").head.text match {
                     case "Success" =>
                         val loginUrl = (res \\ "LoginUrl").text
                         val userKey = (res \\ "UserKey").text
-                        logger.debug("Successfully fetched LoginUrl {} and UserKey {}", loginUrl, userKey)
+                        log.debug("Successfully fetched LoginUrl {} and UserKey {}", loginUrl, userKey)
                         channel ! FetchUserKeyResponse(msg, Right(FetchUserKeyEnvelope(loginUrl, userKey)))
 
                     case "Failure" =>
-                        logger.error("Error fetching user key {}", res)
+                        log.error("Error fetching user key {}", res)
                         channel ! FetchUserKeyResponse(
                             msg,
                             Left(NetworkSolutionsPartnerException("Error fetching user key")))
                 }
             } {
-                case e => logger.error("Unexpected error fetching user key {}", e)
+                case e => log.error("Unexpected error fetching user key {}", e)
             }//)
 
 
@@ -178,12 +141,12 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
 
             asXml(getUserToken(userKey)) { res =>
 //            client(getUserToken(userKey) <> { res =>
-                logger.debug("GetUserToken = {}", res)
+                log.debug("GetUserToken = {}", res)
                 (res \\ "Status").head.text match {
                     case "Success" =>
                         val userToken = (res \\ "UserToken").last.text
                         val expiresOn = xmlDateTimeFormat.parseDateTime((res \\ "Expiration").text).toDate
-                        logger.debug("Successfully fetched UserToken {}, ExpiresOn {}", userToken, expiresOn)
+                        log.debug("Successfully fetched UserToken {}, ExpiresOn {}", userToken, expiresOn)
 
                         asXml(readSiteSettings(userToken)) { res =>
 //                        client(readSiteSettings(userToken) <> { res =>
@@ -192,7 +155,7 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                                     val companyName = (res \\ "CompanyName").text
                                     val storeUrl = (res \\ "StoreUrl").last.text
                                     val storeSecureUrl = (res \\ "StoreSecureUrl").text
-                                    logger.debug("Successfully fetched StoreUrl {} for CompanyName {}", storeUrl, companyName)
+                                    log.debug("Successfully fetched StoreUrl {} for CompanyName {}", storeUrl, companyName)
                                     channel ! FetchUserTokenResponse(
                                         msg,
                                         Right(FetchUserTokenEnvelope(
@@ -203,23 +166,23 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                                             storeSecureUrl)))
 
                                 case "Failure" =>
-                                    logger.error("Error fetching site settings with user token {}: {}", userToken, res)
+                                    log.error("Error fetching site settings with user token {}: {}", userToken, res)
                                     channel ! FetchUserTokenResponse(
                                         msg,
                                         Left(NetworkSolutionsPartnerException("Error fetching site settings")))
                             }
                         } {
-                            case e => logger.error("Unexpected error fetching site settings with user token {}: {}", userToken, e)
+                            case e => log.error("Unexpected error fetching site settings with user token {}: {}", userToken, e)
                         }
 
                     case "Failure" =>
-                        logger.error("Error fetching user token for user key {}: {}", userKey, res)
+                        log.error("Error fetching user token for user key {}: {}", userKey, res)
                         channel ! FetchUserTokenResponse(
                             msg,
                             Left(NetworkSolutionsPartnerException("Error fetching user token for user key")))
                 }
             } {
-                case e => logger.error("Unexpected error fetching user token for user key {}: {}", userKey, e)
+                case e => log.error("Unexpected error fetching user token for user key {}: {}", userKey, e)
             }
 
 
@@ -229,13 +192,13 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
 
             asXml(readOrder(orderNumber, userToken)) { res =>
 //            client(readOrder(orderNumber, userToken) <> { res =>
-                logger.debug("ReadOrder = {}", res)
+                log.debug("ReadOrder = {}", res)
                 (res \\ "Status").head.text match {
                     case "Success" =>
                         val productIds = (res \\ "ProductId").map(_.text).map(java.lang.Long.parseLong(_)).toList
                         val customerNumber = (res \\ "Customer").head.attribute("CustomerNumber").get.head.text
                         val createDate = xmlDateTimeFormat.parseDateTime((res \\ "CreateDate").head.text).toDate
-                        logger.debug("ReadOrder {} with ProductIds {}", orderNumber, productIds)
+                        log.debug("ReadOrder {} with ProductIds {}", orderNumber, productIds)
 
                         asXml(readProducts(productIds, userToken)) { res =>
                             (res \\ "Status").head.text match {
@@ -260,25 +223,24 @@ class NetworkSolutionsDispatchAccessActor extends FactoryBean[ActorRef] {
                                             }.toList)))
 
                                 case "Failure" =>
-                                    logger.error("Error fetching products for order {} with user token {}: {}", orderNumber, userToken, res)
+                                    log.error("Error fetching products for order {} with user token {}: {}", orderNumber, userToken, res)
                                     channel ! FetchOrderResponse(
                                         msg,
                                         Left(NetworkSolutionsPartnerException("Error fetching products for order %s" format orderNumber)))
                             }
                         } {
-                            case e => logger.error("Unexpected error fetching products for order{} with user token{}: {}", orderNumber, userToken, e)
+                            case e => log.error("Unexpected error fetching products for order{} with user token{}: {}", orderNumber, userToken, e)
                         }
 
                     case "Failure" =>
-                        logger.error("Error fetching order {} for user token {}: {}", orderNumber, userToken, res)
+                        log.error("Error fetching order {} for user token {}: {}", orderNumber, userToken, res)
                         channel ! FetchOrderResponse(
                             msg,
                             Left(NetworkSolutionsPartnerException("Error fetching order %s" format orderNumber)))
                 }
             } {
-                case e => logger.error("Unexpected error fetching order {} for user token {}: {}", orderNumber, userToken, e)
+                case e => log.error("Unexpected error fetching order {} for user token {}: {}", orderNumber, userToken, e)
             }
     }
 
-    }), "NetworkSolutionsAccess")
 }

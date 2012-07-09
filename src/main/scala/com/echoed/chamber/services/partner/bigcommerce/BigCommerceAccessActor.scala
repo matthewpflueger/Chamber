@@ -19,28 +19,15 @@ import akka.actor.SupervisorStrategy.Stop
 import com.echoed.util.ScalaObjectMapper
 
 
-class BigCommerceAccessActor extends FactoryBean[ActorRef] {
+class BigCommerceAccessActor(client: Http) extends Actor with ActorLogging {
 
     //example: Mon, 14 May 2012 18:11:26 +0000
     private final val dateFormatter = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss Z")
-
-    @BeanProperty var client: Http = _
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
         case _: Exception ⇒ Stop
     }
 
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
 
     override def preStart {
         require(client != null, "Required Http client is missing")
@@ -84,7 +71,7 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
             client = new Http*/
 
         case msg @ ('error, e: Throwable) =>
-            logger.error("Received error but not restarting Http client: {}", e)
+            log.error("Received error but not restarting Http client: {}", e)
 
         case msg @ Validate(credentials) =>
             val channel = context.sender
@@ -92,7 +79,7 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
                 channel ! ValidateResponse(msg, Right(map.contains("time")))
             } {
                 case e =>
-                    logger.error("Error validating {}", credentials)
+                    log.error("Error validating {}", credentials)
                     channel ! ValidateResponse(
                         msg,
                         Left(BigCommercePartnerException("Error validating BigCommerce api connection", e)))
@@ -118,39 +105,39 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
                 }
 
                 def complete {
-                    logger.debug(
+                    log.debug(
                         "Checking if order {} fetch is complete: expected {}, products {}, images {}, and echoRequest {}",
                         Array(order, expected, products, images, echoRequest))
 
                     if (!responseSent && expected == products && expected == images && echoRequest != null) {
-                        logger.debug("Completed fetching order {} for {}", order, credentials)
+                        log.debug("Completed fetching order {} for {}", order, credentials)
                         channel ! FetchOrderResponse(msg, Right(echoRequest.copy(items = echoItems.map { i =>
                                 i.copy(imageUrl = imageMap.get(i.productId).orNull)
                             }.filter(_.isValid).toList)))
                         responseSent = true
                     } else if (responseSent) {
-                        logger.debug("Response for order {} already sent", order)
+                        log.debug("Response for order {} already sent", order)
                     } else {
-                        logger.debug("Order {} not complete - still waiting for {} responses", order, (expected * 2 - products - images))
+                        log.debug("Order {} not complete - still waiting for {} responses", order, (expected * 2 - products - images))
                     }
                 }
 
                 def receive = {
                     case ('forCompletion, num: Int) =>
-                        logger.debug("Order actor for {} received 'forCompletion {}", order, num)
+                        log.debug("Order actor for {} received 'forCompletion {}", order, num)
                         expected = num
                         complete
                     case er: EchoRequest =>
-                        logger.debug("Order actor for {} received {}", order, er)
+                        log.debug("Order actor for {} received {}", order, er)
                         echoRequest = er
                         complete
                     case echoItem: EchoItem =>
-                        logger.debug("Order actor for {} received {}", order, echoItem)
+                        log.debug("Order actor for {} received {}", order, echoItem)
                         products += 1
                         echoItems += echoItem
                         complete
                     case ('image, productId: String, imageUrl: String) =>
-                        logger.debug("Order actor for {} received {}", order, imageUrl)
+                        log.debug("Order actor for {} received {}", order, imageUrl)
                         images += 1
                         imageMap(productId) = imageUrl
                         complete
@@ -158,24 +145,24 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
                     case 'timetodie =>
                         self ! PoisonPill
                         if (!responseSent) {
-                            logger.error("Fetch of BigCommerce order {} timed out with {}", order, credentials)
+                            log.error("Fetch of BigCommerce order {} timed out with {}", order, credentials)
                             channel ! FetchOrderResponse(
                                 msg,
                                 Left(BigCommercePartnerException("Error fetching BigCommerce order %s" format order)))
                         }
 
                     case ('errorProduct, e: Throwable) =>
-                        logger.error("Error fetching product for order {} with {}: {}", order, credentials, e)
+                        log.error("Error fetching product for order {} with {}: {}", order, credentials, e)
                         products += 1
                         complete
                         me ! ('error, e)
                     case ('errorImage, productId: String, e: Throwable) =>
-                        logger.error("Error fetching image for product {} for order {} with {}: {}", productId, order, credentials, e)
+                        log.error("Error fetching image for product {} for order {} with {}: {}", productId, order, credentials, e)
                         images += 1
                         complete
                         me ! ('error, e)
                     case ('errorOrder, orderId: String, e: Throwable) =>
-                        logger.error("Error fetching order {} with {}: {}", orderId, credentials, e)
+                        log.error("Error fetching order {} with {}: {}", orderId, credentials, e)
                         channel ! FetchOrderResponse(
                             msg,
                             Left(BigCommercePartnerException("Error fetching BigCommerce order %s" format order, e)))
@@ -185,9 +172,9 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
             }))
 
 
-            logger.debug("Fetching BigCommerce order {} with {}", order, credentials)
+            log.debug("Fetching BigCommerce order {} with {}", order, credentials)
             requestAsMap(credentials, "orders/%s" format order) { map =>
-                logger.debug("Received info for order {} with {}", order, credentials)
+                log.debug("Received info for order {} with {}", order, credentials)
                 orderActor ! EchoRequest(
                         order.toString,
                         map("customer_id").toString,
@@ -195,17 +182,17 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
                         null)
             } { case e => orderActor ! ('errorOrder, "Error fetching order %s with %s" format(order, credentials), e) }
 
-            logger.debug("Fetching BigCommerce products for order {} with {}", order, credentials)
+            log.debug("Fetching BigCommerce products for order {} with {}", order, credentials)
             requestAsArray(credentials, "orders/%s/products" format order) { products =>
-                logger.debug("Received list of {} products for order {}", products.length, order)
+                log.debug("Received list of {} products for order {}", products.length, order)
                 orderActor ! ('forCompletion, products.length)
 
                 products.foreach { product =>
                     val productId = product("product_id").toString
-                    logger.debug("Fetching info for product {} with {}", productId, credentials)
+                    log.debug("Fetching info for product {} with {}", productId, credentials)
 
                     requestAsMap(credentials, "products/%s" format productId) { p =>
-                        logger.debug("Received info for product {} with {}", productId, credentials)
+                        log.debug("Received info for product {} with {}", productId, credentials)
                         orderActor ! EchoItem(
                                 p("id").toString,
                                 p("name").toString,
@@ -219,7 +206,7 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
                     } { case e => orderActor ! ('errorProduct, e) }
 
                     requestAsArray(credentials, "products/%s/images" format productId) { images =>
-                        logger.debug("Received image info for product {} with {}", productId, credentials)
+                        log.debug("Received image info for product {} with {}", productId, credentials)
                         images.filter(_("is_thumbnail").toString == "true").headOption.orElse {
                             throw BigCommercePartnerException("No image specified for product %s for order %s" format(productId, order))
                         }.foreach { image =>
@@ -230,5 +217,4 @@ class BigCommerceAccessActor extends FactoryBean[ActorRef] {
             } { case e => orderActor ! ('error, "Error fetching products for order %s with %s" format(order, credentials), e) }
     }
 
-    }), "BigCommerceAccess")
 }

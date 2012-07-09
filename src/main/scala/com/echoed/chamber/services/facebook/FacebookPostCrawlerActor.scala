@@ -1,49 +1,28 @@
 package com.echoed.chamber.services.facebook
 
-import scala.reflect.BeanProperty
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.services.ActorClient
 import java.util.{Calendar, Date}
 import com.echoed.chamber.dao.{FacebookCommentDao, FacebookLikeDao, FacebookPostDao}
 import com.echoed.chamber.domain.FacebookPost
-import org.springframework.beans.factory.FactoryBean
 import akka.dispatch.Promise
-import akka.util.Timeout
 import akka.util.duration._
-import akka.event.Logging
 import akka.actor._
 
 
-class FacebookPostCrawlerActor extends FactoryBean[ActorRef] {
+class FacebookPostCrawlerActor(
+        facebookPostDao: FacebookPostDao,
+        facebookLikeDao: FacebookLikeDao,
+        facebookCommentDao: FacebookCommentDao,
+        facebookAccess: ActorRef,
+        interval: Long = 60000,
+        postedOnDaysBefore: Int = -8,
+        postedOnHoursBefore: Int = -1,
+        future: Option[Promise[GetPostDataResponse]] = None) extends Actor with ActorLogging {
 
-    @BeanProperty var facebookPostDao: FacebookPostDao = _
-    @BeanProperty var facebookLikeDao: FacebookLikeDao = _
-    @BeanProperty var facebookCommentDao: FacebookCommentDao = _
-    @BeanProperty var facebookAccess: ActorClient = _
-    @BeanProperty var interval: Long = 60000
-    @BeanProperty var future: Option[Promise[GetPostDataResponse]] = None
-    @BeanProperty var postedOnDaysBefore: Int = -8
-    @BeanProperty var postedOnHoursBefore: Int = -1
 
     private var scheduledMessage: Option[Cancellable] = None
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def init() {
-        //Force the call to getObject because Spring will not until somebody needs the object...
-        getObject
-    }
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
 
     override def preStart() {
         next
@@ -85,7 +64,7 @@ class FacebookPostCrawlerActor extends FactoryBean[ActorRef] {
             crawlStatus: String,
             retries: Int)(f: Unit => Unit) {
         try {
-            logger.debug("Updating post {} for crawl status {}, retries {}", facebookPost.id, crawlStatus, retries)
+            log.debug("Updating post {} for crawl status {}, retries {}", facebookPost.id, crawlStatus, retries)
             scheduledMessage.foreach(_.cancel)
             facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = crawlStatus, crawledOn = new Date, retries = retries))
             f()
@@ -98,12 +77,12 @@ class FacebookPostCrawlerActor extends FactoryBean[ActorRef] {
         case 'next =>
             try {
                 Option(findFacebookPostToCrawl).cata({ facebookPostToCrawl =>
-                    logger.debug("Found for crawling {}", facebookPostToCrawl)
-                    facebookAccess.actorRef ! GetPostData(facebookPostToCrawl)
+                    log.debug("Found for crawling {}", facebookPostToCrawl)
+                    facebookAccess ! GetPostData(facebookPostToCrawl)
                     facebookPostDao.updatePostForCrawl(facebookPostToCrawl.facebookPost.copy(
                             crawledStatus = "started", crawledOn = new Date))
                 },
-                { logger.debug("No posts found for crawling") })
+                { log.debug("No posts found for crawling") })
             } finally {
                 //always make sure we are looking for posts to crawl (less than one interval for testing)
                 if (interval > 0) scheduledMessage =
@@ -115,33 +94,32 @@ class FacebookPostCrawlerActor extends FactoryBean[ActorRef] {
             updateForCrawl(msg, facebookPostToCrawl.facebookPost, "crawled", 0) { _ =>
                 facebookPostData.likes.foreach { facebookLikeDao.insertOrUpdate(_) }
                 facebookPostData.comments.foreach { fc => facebookCommentDao.insertOrUpdate(fc.copy(message = fc.message.take(1024))) }
-                logger.debug("Received good response for FacebookPost {}", facebookPostData.facebookPost.id)
+                log.debug("Received good response for FacebookPost {}", facebookPostData.facebookPost.id)
             }
 
         case msg @ GetPostDataResponse(_, Left(GetPostDataOAuthError(facebookPost, _, _, message))) =>
             //don't bother retrying this crawl
             updateForCrawl(msg, facebookPost, message, retries = 1000) { _ =>
-                logger.debug("Received auth error crawling FacebookPost {}", facebookPost.id)
+                log.debug("Received auth error crawling FacebookPost {}", facebookPost.id)
             }
 
         case msg @ GetPostDataResponse(_, Left(GetPostDataFalse(_, facebookPost))) =>
             //don't bother retrying this crawl
             updateForCrawl(msg, facebookPost, "false", retries = 1000) { _ =>
-                logger.debug("Received false response crawling FacebookPost {}", facebookPost.id)
+                log.debug("Received false response crawling FacebookPost {}", facebookPost.id)
             }
 
         case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e @ GetPostDataError(_, _, _, _))) => //facebookPost, t, c, m))) =>
             val message = "%s, type %s, code %s" format(e.m, e.errorType, e.code)
             updateForCrawl(msg, e.facebookPost, message, retries = facebookPostToCrawl.facebookPost.retries + 1) { _ =>
-                logger.debug("Received error response {} crawling FacebookPost {}", message, e.facebookPost.id)
+                log.debug("Received error response {} crawling FacebookPost {}", message, e.facebookPost.id)
             }
 
         case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e)) =>
             updateForCrawl(msg, facebookPostToCrawl.facebookPost, e.message.take(254), facebookPostToCrawl.facebookPost.retries + 1) { _ =>
-                logger.debug("Received bad response crawling FacebookPost {}: {}", facebookPostToCrawl.id, e.message)
+                log.debug("Received bad response crawling FacebookPost {}: {}", facebookPostToCrawl.id, e.message)
             }
     }
 
-    }), "FacebookPostCrawler")
 }
 

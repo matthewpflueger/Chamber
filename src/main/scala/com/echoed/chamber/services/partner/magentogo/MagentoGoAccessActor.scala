@@ -1,15 +1,11 @@
 package com.echoed.chamber.services.partner.magentogo
 
-import reflect.BeanProperty
-
 import dispatch._
 
 import scalaz._
 import Scalaz._
 
-
 import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
-
 
 import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
 import org.joda.time.format.DateTimeFormat
@@ -18,39 +14,22 @@ import collection.mutable.{ConcurrentMap, ListBuffer => MList, HashMap => MMap}
 import akka.actor._
 import com.echoed.cache.CacheManager
 import akka.util.Timeout
-import akka.util.duration._
-import akka.event.Logging
 import akka.pattern.ask
-import org.springframework.beans.factory.FactoryBean
 import com.ning.http.client.RequestBuilder
 import xml._
 
 
-class MagentoGoAccessActor extends FactoryBean[ActorRef] {
+class MagentoGoAccessActor(
+        client: Http,
+        cacheManager: CacheManager,
+        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
 
     //example: 2012-05-21 02:05:05
     private final val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
-    @BeanProperty var client: Http = _
-    @BeanProperty var cacheManager: CacheManager = _
-
-
     val urn = "urn:Magento"
 
     private var cache: ConcurrentMap[String, String] = _
-
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
 
     override def preStart {
         require(client != null, "Required Http client is missing")
@@ -150,20 +129,20 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
             val channel = context.sender
 
             asXml(login(credentials)) { res =>
-                logger.debug("Login response for {}: {}", credentials, res)
+                log.debug("Login response for {}: {}", credentials, res)
                 (res \\ "loginReturn").headOption.cata(
                     node => {
-                        logger.debug("Received session {} identifier for {}", node.text, credentials)
+                        log.debug("Received session {} identifier for {}", node.text, credentials)
                         cache(credentials.apiPath) = node.text
                         channel ! ValidateResponse(msg, Right(node.text))
                     },
                     {
-                        logger.warning("Received error response validating {}: {}", credentials, res)
+                        log.warning("Received error response validating {}: {}", credentials, res)
                         channel ! ValidateResponse(msg, Left(MagentoGoPartnerException("Could not validate credentials")))
                     })
             } {
                 case e =>
-                    logger.error("Error validating %s" format credentials, e)
+                    log.error("Error validating %s" format credentials, e)
                     channel ! ValidateResponse(msg, Left(MagentoGoPartnerException("Error during login of %s" format credentials, e)))
             }
 
@@ -173,7 +152,7 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
             val channel = context.sender
 
             def error(e: Throwable) {
-                logger.error("Error fetching order %s for %s" format(orderId, credentials), e)
+                log.error("Error fetching order %s for %s" format(orderId, credentials), e)
                 e match {
                     case mgpe: MagentoGoPartnerException => channel ! FetchOrderResponse(msg, Left(mgpe))
                     case _ => channel ! FetchOrderResponse(
@@ -183,15 +162,15 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
             }
 
             def fetchOrder(sessionId: String) {
-                logger.debug("Fetching order {} for {}", orderId, credentials)
+                log.debug("Fetching order {} for {}", orderId, credentials)
                 asXml(order(credentials, sessionId, orderId)) { res =>
-                    logger.debug("Received order {} for {}", orderId, credentials)
+                    log.debug("Received order {} for {}", orderId, credentials)
                     val orderResult = asMap((res \\ "callReturn").head)
                     val productIds = orderResult("items").asInstanceOf[List[Map[String, String]]].map(_("product_id"))
 
-                    logger.debug("Fetching products {} for {}", productIds, credentials)
+                    log.debug("Fetching products {} for {}", productIds, credentials)
                     asXml(products(credentials, sessionId, productIds)) { res =>
-                        logger.debug("Received products {} for {}", productIds, credentials)
+                        log.debug("Received products {} for {}", productIds, credentials)
                         var index = 0
                         val echoItems = (asList((res \\ "multiCallReturn").head).partition { _ =>
                             val even = index % 2 == 0
@@ -211,7 +190,7 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
                                 product.get("url_path").map(_.toString).orNull,
                                 product.get("short_description").map(_.toString).orNull)
                         }.filter { i =>
-                            if (!i.isValid) logger.debug("Filtered invalid EchoItem {}", i)
+                            if (!i.isValid) log.debug("Filtered invalid EchoItem {}", i)
                             i.isValid
                         }.toList
 
@@ -221,7 +200,7 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
                             dateFormatter.parseDateTime(orderResult("created_at").toString).toDate,
                             echoItems)
                         channel ! FetchOrderResponse(msg, Right(echoRequest))
-                        logger.debug("Finished fetching order {} for {}", orderId, credentials)
+                        log.debug("Finished fetching order {} for {}", orderId, credentials)
                     } {
                         case e => error(e)
                     }
@@ -233,17 +212,16 @@ class MagentoGoAccessActor extends FactoryBean[ActorRef] {
             cache.get(credentials.apiPath).cata(
                 fetchOrder(_),
                 {
-                    logger.debug("Creating session for {}", credentials)
+                    log.debug("Creating session for {}", credentials)
                     (me ? Validate(credentials)).mapTo[ValidateResponse].onComplete(_.fold(
                         e => error(e),
                         _ match {
                             case ValidateResponse(_, Left(e)) => error(e)
                             case ValidateResponse(_, Right(sessionId)) =>
-                                logger.debug("Successfully created session for {}", credentials)
+                                log.debug("Successfully created session for {}", credentials)
                                 fetchOrder(sessionId)
                         }))
                 })
     }
 
-    }), "MagentoGoAccess")
 }

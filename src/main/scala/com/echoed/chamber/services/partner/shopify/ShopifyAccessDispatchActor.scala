@@ -17,122 +17,93 @@ import dispatch._
 import com.echoed.util.ScalaObjectMapper
 
 
-class ShopifyAccessDispatchActor extends FactoryBean[ActorRef] {
+class ShopifyAccessDispatchActor(
+        shopifyApiKey: String,
+        shopifySecret: String,
+        httpClient: Http) extends Actor with ActorLogging {
 
 
-    @BeanProperty var shopifySecret: String = _
-    @BeanProperty var shopifyApiKey: String = _
-
-    @BeanProperty var properties: Properties = _
-
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    @BeanProperty var httpClient: Http = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-        implicit val timeout = Timeout(timeoutInSeconds seconds)
-        private final val logger = Logging(context.system, this)
-
-        override def preStart {
-            //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
-            //where placeholder values were not being resolved
-            {
-                shopifySecret = properties.getProperty("shopifySecret")
-                shopifyApiKey = properties.getProperty("shopifyApiKey")
-
-                shopifySecret != null && shopifyApiKey != null
-            } ensuring(_ == true, "Missing parameters")
+    private def fetch[T](path: String, shop: String, password: String, valueType: Class[T])(callback: T => Unit) {
+        val resourceUrl = (host(shop).secure / path).subject.build().getUrl
+        httpClient(url(resourceUrl) as_! (shopifyApiKey, password) OK As.string).onSuccess {
+            case s =>
+                log.debug("Fetched Shopify resource {}", resourceUrl)
+                callback(ScalaObjectMapper(s, valueType, true))
+        }.onFailure {
+            case e => log.error("Error executing {}: {}", resourceUrl, e)
         }
+    }
 
-        private def fetch[T](path: String, shop: String, password: String, valueType: Class[T])(callback: T => Unit) {
-            val resourceUrl = (host(shop).secure / path).subject.build().getUrl
-            httpClient(url(resourceUrl) as_! (shopifyApiKey, password) OK As.string).onSuccess {
-                case s =>
-                    logger.debug("Fetched Shopify resource {}", resourceUrl)
-                    callback(ScalaObjectMapper(s, valueType, true))
-            }.onFailure {
-                case e => logger.error("Error executing {}: {}", resourceUrl, e)
+    private def fetchShop(shop: String, password: String)(callback: ShopifyPartner => Unit) {
+        fetch("/admin/shop.json", shop, password, classOf[shop]) { s =>
+            callback(s.asShopifyPartner(password))
+        }
+    }
+
+    def receive = {
+
+        case msg @ FetchPassword(shop, signature, t, timeStamp) =>
+            val channel = context.sender
+            channel ! FetchPasswordResponse(msg, Right(getShopifyPassword(shop, signature, t, timeStamp)))
+
+
+        case msg @ FetchProduct(shop, password, productId) =>
+            val channel = context.sender
+            fetch("/admin/products/%s.json" format productId, shop, password, classOf[product]) { p =>
+                channel ! FetchProductResponse(msg, Right(p))
             }
-        }
 
-        private def fetchShop(shop: String, password: String)(callback: ShopifyPartner => Unit) {
-            fetch("/admin/shop.json", shop, password, classOf[shop]) { s =>
-                callback(s.asShopifyPartner(password))
+
+        case msg @ FetchOrder(shop, password, orderId) =>
+            val channel = context.sender
+            fetch("/admin/orders/%s.json" format orderId, shop, password, classOf[order]) { o =>
+                channel ! FetchOrderResponse(msg, Right(o))
             }
-        }
-
-        def receive = {
-
-            case msg @ FetchPassword(shop, signature, t, timeStamp) =>
-                val channel = context.sender
-                channel ! FetchPasswordResponse(msg, Right(getShopifyPassword(shop, signature, t, timeStamp)))
 
 
-            case msg @ FetchProduct(shop, password, productId) =>
-                val channel = context.sender
-                fetch("/admin/products/%s.json" format productId, shop, password, classOf[product]) { p =>
-                    channel ! FetchProductResponse(msg, Right(p))
-                }
-
-
-            case msg @ FetchOrder(shop, password, orderId) =>
-                val channel = context.sender
-                fetch("/admin/orders/%s.json" format orderId, shop, password, classOf[order]) { o =>
-                    channel ! FetchOrderResponse(msg, Right(o))
-                }
-
-
-            case msg @ FetchShopFromToken(shop, signature, t, timeStamp) =>
-                val channel = context.sender
-                fetchShop(shop, getShopifyPassword(shop, signature, t, timeStamp)) { sp =>
-                    channel ! FetchShopFromTokenResponse(msg, Right(sp))
-                }
-
-
-            case msg @ FetchShop(shop, password) =>
-                val channel = context.sender
-                fetchShop(shop, password)(sp => channel ! FetchShopResponse(msg, Right(sp)))
-        }
-
-
-        private def getShopifyPassword(shop: String, signature: String, t: String, timeStamp: String) =
-                computeAPIPassword(signature, Map(
-                    "shop" -> shop,
-                    "t" -> t,
-                    "timestamp" -> timeStamp))
-
-	    private def computeAPIPassword(signature: String, params: Map[String, String]) =
-                if (isValidShopifyResponse(signature, params)) toMD5Hex(shopifySecret + params("t"))
-                else ""
-
-	    private def isValidShopifyResponse(signature: String, params: Map[String, String]) =
-	            signature == toMD5Hex(generatePreDigest(params))
-
-    	private def generatePreDigest(params: Map[String, String]) = {
-		    val sortedKeys = new ArrayList[String](params.keySet);
-		    Collections.sort(sortedKeys)
-
-		    val preDigest = new StringBuilder(shopifySecret)
-		    sortedKeys.foreach { sk =>
-		        preDigest
-		            .append(sk)
-		            .append("=")
-		            .append(params(sk))
+        case msg @ FetchShopFromToken(shop, signature, t, timeStamp) =>
+            val channel = context.sender
+            fetchShop(shop, getShopifyPassword(shop, signature, t, timeStamp)) { sp =>
+                channel ! FetchShopFromTokenResponse(msg, Right(sp))
             }
-		    preDigest.toString()
-	    }
 
-	    private def toMD5Hex(message: String) =
-	            Hex.encodeHexString(MessageDigest.getInstance("MD5").digest(message.getBytes))
 
-    }), "ShopifyAccess")
+        case msg @ FetchShop(shop, password) =>
+            val channel = context.sender
+            fetchShop(shop, password)(sp => channel ! FetchShopResponse(msg, Right(sp)))
+    }
+
+
+    private def getShopifyPassword(shop: String, signature: String, t: String, timeStamp: String) =
+            computeAPIPassword(signature, Map(
+                "shop" -> shop,
+                "t" -> t,
+                "timestamp" -> timeStamp))
+
+    private def computeAPIPassword(signature: String, params: Map[String, String]) =
+            if (isValidShopifyResponse(signature, params)) toMD5Hex(shopifySecret + params("t"))
+            else ""
+
+    private def isValidShopifyResponse(signature: String, params: Map[String, String]) =
+            signature == toMD5Hex(generatePreDigest(params))
+
+    private def generatePreDigest(params: Map[String, String]) = {
+        val sortedKeys = new ArrayList[String](params.keySet);
+        Collections.sort(sortedKeys)
+
+        val preDigest = new StringBuilder(shopifySecret)
+        sortedKeys.foreach { sk =>
+            preDigest
+                .append(sk)
+                .append("=")
+                .append(params(sk))
+        }
+        preDigest.toString()
+    }
+
+    private def toMD5Hex(message: String) =
+            Hex.encodeHexString(MessageDigest.getInstance("MD5").digest(message.getBytes))
+
 }
 
 

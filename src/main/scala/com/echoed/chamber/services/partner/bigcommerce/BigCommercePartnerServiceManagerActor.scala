@@ -1,10 +1,8 @@
 package com.echoed.chamber.services.partner.bigcommerce
 
-import reflect.BeanProperty
 import collection.JavaConversions._
 import collection.mutable.ConcurrentMap
 import com.echoed.cache.CacheManager
-import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.partner._
 import org.springframework.transaction.TransactionStatus
 import com.echoed.chamber.dao._
@@ -16,74 +14,38 @@ import partner.bigcommerce.BigCommercePartnerDao
 import partner.{PartnerDao, PartnerUserDao, PartnerSettingsDao}
 import scalaz._
 import Scalaz._
-import java.util.{Properties, HashMap, UUID}
+import java.util.{HashMap, UUID}
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner, PartnerSettings}
 import com.echoed.util.{ObjectUtils, Encrypter}
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
-import org.springframework.beans.factory.FactoryBean
 import akka.actor._
-import akka.util.Timeout
 import akka.util.duration._
 import akka.event.Logging
 import akka.actor.SupervisorStrategy.Restart
 
 
-class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
-
-    @BeanProperty var bigCommerceAccess: BigCommerceAccess = _
-    @BeanProperty var bigCommercePartnerDao: BigCommercePartnerDao = _
-
-    @BeanProperty var partnerDao: PartnerDao = _
-    @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
-    @BeanProperty var partnerUserDao: PartnerUserDao = _
-    @BeanProperty var echoDao: EchoDao = _
-    @BeanProperty var echoMetricsDao: EchoMetricsDao = _
-    @BeanProperty var imageDao: ImageDao = _
-    @BeanProperty var imageService: ImageService = _
-    @BeanProperty var encrypter: Encrypter = _
-    @BeanProperty var transactionTemplate: TransactionTemplate = _
-    @BeanProperty var emailService: EmailService = _
-    @BeanProperty var accountManagerEmail: String = _
-
-    @BeanProperty var cacheManager: CacheManager = _
-
-    //represents the parent in Akka 2.0 router setup
-    @BeanProperty var partnerServiceManager: PartnerServiceManager = _
-
-    @BeanProperty var properties: Properties = _
-
+class BigCommercePartnerServiceManagerActor(
+        bigCommerceAccess: BigCommerceAccess,
+        bigCommercePartnerDao: BigCommercePartnerDao,
+        partnerDao: PartnerDao,
+        partnerSettingsDao: PartnerSettingsDao,
+        partnerUserDao: PartnerUserDao,
+        echoDao: EchoDao,
+        echoMetricsDao: EchoMetricsDao,
+        imageDao: ImageDao,
+        imageService: ImageService,
+        encrypter: Encrypter,
+        transactionTemplate: TransactionTemplate,
+        emailService: EmailService,
+        accountManagerEmail: String,
+        cacheManager: CacheManager,
+        partnerServiceManager: PartnerServiceManager) extends Actor with ActorLogging {
 
     //this will be replaced by the ActorRegistry eventually (I think)
-    private var cache: ConcurrentMap[String, PartnerService] = null
-
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
+    private var cache: ConcurrentMap[String, PartnerService] = cacheManager.getCache[PartnerService]("PartnerServices")
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
         case _: Exception ⇒ Restart
-    }
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
-
-
-    override def preStart() {
-        //this is a shared cache with PartnerServiceManagerActor
-        cache = cacheManager.getCache[PartnerService]("PartnerServices")
-
-        {
-                //NOTE: getting the properties like this is necessary due to a bug in Akka's Spring integration
-                //where placeholder values were not being resolved {
-            accountManagerEmail = properties.getProperty("accountManagerEmail")
-            accountManagerEmail != null
-        } ensuring(_ == true, "Missing parameters")
     }
 
 
@@ -93,7 +55,7 @@ class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
                 val ps = new BigCommercePartnerServiceActorClient(context.actorOf(Props().withCreator {
                     val bcp = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).get
                     val p = Option(partnerDao.findById(partnerId)).get
-                    logger.debug("Found BigCommerce partner {}", bcp.name)
+                    log.debug("Found BigCommerce partner {}", bcp.name)
                     new BigCommercePartnerServiceActor(
                         bcp,
                         p,
@@ -122,14 +84,14 @@ class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
                 case _ => channel ! LocateResponse(
                     msg,
                     Left(PartnerException("Could not locate BigCommerce partner", e)))
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
             }
 
             try {
                 cache.get(partnerId).cata(
                     partnerService => {
                         channel ! LocateResponse(msg, Right(partnerService))
-                        logger.debug("Cache hit for {}", partnerService)
+                        log.debug("Cache hit for {}", partnerService)
                     },
                     {
                         Option(bigCommercePartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
@@ -149,7 +111,7 @@ class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
                     case _ => channel ! RegisterBigCommercePartnerResponse(
                         msg,
                         Left(BigCommercePartnerException("Could not register BigCommerce partner", e)))
-                        logger.error("Error processing {}: {}", msg, e)
+                        log.error("Error processing {}: {}", msg, e)
                 }
 
                 emailService.sendEmail(
@@ -182,7 +144,7 @@ class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
                             val ps = PartnerSettings.createPartnerSettings(p.id)
                             val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format(pu.email, password))
 
-                            logger.debug("Creating BigCommerce partner service for {}, {}", p.name, pu.email)
+                            log.debug("Creating BigCommerce partner service for {}, {}", p.name, pu.email)
                             transactionTemplate.execute({ status: TransactionStatus =>
                                 partnerDao.insert(p)
                                 partnerSettingsDao.insert(ps)
@@ -218,5 +180,5 @@ class BigCommercePartnerServiceManagerActor extends FactoryBean[ActorRef] {
             }
     }
 
-    }), "BigCommercePartnerServiceManager")
+
 }

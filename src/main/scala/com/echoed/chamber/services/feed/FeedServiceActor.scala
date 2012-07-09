@@ -1,36 +1,23 @@
 package com.echoed.chamber.services.feed
 
-import reflect.BeanProperty
 import scala.collection.JavaConversions._
 import com.echoed.chamber.dao.views._
-import com.echoed.chamber.domain.views.{EchoedUserFeed, PartnerFeed, PublicFeed}
-import org.springframework.beans.factory.FactoryBean
-import akka.actor.{ActorSystem, Props, ActorRef, Actor}
-import akka.util.Timeout
-import akka.util.duration._
-import akka.event.Logging
+import akka.actor._
 import com.echoed.chamber.dao.partner.PartnerDao
-import com.echoed.chamber.domain.public.{EchoedUserPublic, PartnerPublic}
 import com.echoed.chamber.dao.EchoedUserDao
+import com.echoed.chamber.domain.public.EchoedUserPublic
+import com.echoed.chamber.domain.public.PartnerPublic
+import scala.Right
+import com.echoed.chamber.domain.views.PartnerFeed
+import com.echoed.chamber.domain.views.EchoedUserFeed
+import scala.Left
+import com.echoed.chamber.domain.views.PublicFeed
 
 
-class FeedServiceActor extends FactoryBean[ActorRef] {
-    
-    @BeanProperty var feedDao: FeedDao = _
-    @BeanProperty var partnerDao: PartnerDao = _
-    @BeanProperty var echoedUserDao: EchoedUserDao = _
-
-    @BeanProperty var timeoutInSeconds = 20
-    @BeanProperty var actorSystem: ActorSystem = _
-
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
+class FeedServiceActor(
+        feedDao: FeedDao,
+        partnerDao: PartnerDao,
+        echoedUserDao: EchoedUserDao) extends Actor with ActorLogging {
 
     def receive = {
         case msg @ GetPublicFeed(page: Int) =>
@@ -39,7 +26,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             val start = msg.page * limit
 
             try {
-                logger.debug("Attempting to retrieve Public Feed ")
+                log.debug("Attempting to retrieve Public Feed ")
                 val echoes = asScalaBuffer(feedDao.getPublicFeed(start,limit)).toList
                 val stories = asScalaBuffer(feedDao.getStories(start,limit))
                 val feed = new PublicFeed(echoes, stories)
@@ -47,7 +34,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             } catch {
                 case e=>
                     channel ! GetPublicFeedResponse(msg, Left(new FeedException("Cannot get public feed", e)))
-                    logger.error("Unexpected error processing {} , {}", msg, e)
+                    log.error("Unexpected error processing {} , {}", msg, e)
             }
 
         case msg @ GetPublicCategoryFeed(categoryId: String, page: Int) =>
@@ -56,7 +43,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             val start = msg.page * limit
 
             try{
-                logger.debug("Attempting to retrive Category Feed")
+                log.debug("Attempting to retrive Category Feed")
                 val echoes = asScalaBuffer(feedDao.getCategoryFeed(categoryId, start, limit))
                 val stories = asScalaBuffer(feedDao.getStories(start,limit))
                 val feed = new PublicFeed(echoes)
@@ -64,7 +51,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! GetPublicCategoryFeedResponse(msg, Left(new FeedException("Cannot get public category feed", e)))
-                    logger.error("Unpexected Error processing {}, {}", msg, e)
+                    log.error("Unpexected Error processing {}, {}", msg, e)
             }
 
 
@@ -73,7 +60,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             val limit = 30
             val start = msg.page * limit
             try {
-                logger.debug("Attempting to retrieve feed for user: ")
+                log.debug("Attempting to retrieve feed for user: ")
                 val echoedUser = echoedUserDao.findById(echoedUserId)
                 val echoes = asScalaBuffer(feedDao.getEchoedUserFeed(echoedUser.id, start, limit)).toList
                 val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id)).toList
@@ -82,7 +69,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! GetUserPublicFeedResponse(msg, Left(new FeedException("Cannot get user public feed", e)))
-                    logger.error("Unexpected error processesing {}, {}", msg, e)
+                    log.error("Unexpected error processesing {}, {}", msg, e)
             }
 
         case msg @ GetPartnerFeed(partnerId: String, page: Int) =>
@@ -99,7 +86,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! GetPartnerFeedResponse(msg, Left(new FeedException("Cannot get partner feed", e)))
-                    logger.error("Unexpected error processesing {}, {}", msg, e)
+                    log.error("Unexpected error processesing {}, {}", msg, e)
             }
 
         case msg @ GetStory(storyId) =>
@@ -110,7 +97,7 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
             } catch {
                 case e =>
                     channel ! GetStoryResponse(msg, Left(new FeedException("Cannot get story %s" format storyId, e)))
-                    logger.error("Unexpected error processing {}: {}", msg, e)
+                    log.error("Unexpected error processing {}: {}", msg, e)
             }
 
         case msg: GetStoryIds =>
@@ -123,5 +110,4 @@ class FeedServiceActor extends FactoryBean[ActorRef] {
 
     }
 
-    }), "FeedService")
 }

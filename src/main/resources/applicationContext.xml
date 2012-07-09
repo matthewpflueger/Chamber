@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
             http://www.springframework.org/schema/beans
 	        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/context
+	        http://www.springframework.org/schema/context/spring-context-3.0.xsd
             http://www.springframework.org/schema/util
             http://www.springframework.org/schema/util/spring-util-3.0.xsd"
        default-init-method="init"
@@ -14,6 +17,10 @@
     <import resource="classpath:chamber-properties.xml" />
 
     <import resource="classpath:database.xml" />
+
+    <!-- enable processing of annotations such as @Autowired and @Configuration -->
+    <!--<context:annotation-config/>-->
+    <context:component-scan base-package="com.echoed.chamber.config" />
 
     <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="allowCoreThreadTimeOut" value="true" />
@@ -149,7 +156,7 @@
     </bean>
 
     <bean id="networkSolutionsAccess" class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActorClient">
-        <property name="networkSolutionsAccessActor" ref="networkSolutionsDispatchAccessActor"/>
+        <property name="networkSolutionsAccessActor" ref="networkSolutionsAccessActor"/>
     </bean>
 
     <bean id="bigCommercePartnerServiceManager" class="com.echoed.chamber.services.partner.bigcommerce.BigCommercePartnerServiceManagerActorClient">
@@ -166,75 +173,6 @@
 
     <bean id="magentoGoAccess" class="com.echoed.chamber.services.partner.magentogo.MagentoGoAccessActorClient">
         <property name="magentoGoAccessActor" ref="magentoGoAccessActor"/>
-    </bean>
-
-
-    <util:map id="cloudPartners">
-        <entry key="Shopify" value-ref="shopifyPartnerServiceManager" />
-        <entry key="Network Solutions" value-ref="networkSolutionsPartnerServiceManager" />
-        <entry key="BigCommerce" value-ref="bigCommercePartnerServiceManager" />
-        <entry key="MagentoGo" value-ref="magentoGoPartnerServiceManager" />
-    </util:map>
-
-
-    <bean id="actorSystem" class="com.echoed.chamber.services.ChamberActorSystem" />
-
-
-    <bean id="actorBean" abstract="true">
-        <property name="timeoutInSeconds" value="20" />
-        <property name="actorSystem" ref="actorSystem" />
-    </bean>
-
-
-    <bean
-            id="imageServiceActor"
-            class="com.echoed.chamber.services.image.ImageServiceActor"
-            parent="actorBean">
-        <property name="imageDao" ref="imageDao" />
-        <property name="blobStore" ref="blobStore" />
-    </bean>
-
-
-    <bean
-            id="eventServiceActor"
-            class="com.echoed.chamber.services.event.EventServiceActor"
-            parent="actorBean">
-        <property name="eventLogDao" ref="eventLogDao" />
-    </bean>
-
-
-    <bean
-            id="emailServiceActor"
-            class="com.echoed.chamber.services.email.EmailServiceActor"
-            parent="actorBean">
-        <property name="javaMailSender" ref="javaMailSender" />
-        <property name="mustacheEngine" ref="mustacheEngine" />
-        <property name="mailProperties" ref="mailProperties" />
-        <property name="globalsManager" ref="globalsManager" />
-    </bean>
-
-
-    <bean
-            id="facebookAccessActor"
-            class="com.echoed.chamber.services.facebook.FacebookAccessDispatchActor"
-            parent="actorBean">
-        <property name="properties" ref="facebookAccessProperties" />
-        <property name="httpClient" ref="httpClient" />
-    </bean>
-
-
-    <bean
-            id="facebookServiceLocatorActor"
-            class="com.echoed.chamber.services.facebook.FacebookServiceLocatorActor"
-            parent="actorBean">
-        <property name="cacheManager" ref="cacheManager" />
-        <property name="facebookAccess" ref="facebookAccess" />
-        <property name="facebookUserDao" ref="facebookUserDao" />
-        <property name="facebookPostDao" ref="facebookPostDao" />
-        <property name="facebookFriendDao" ref="facebookFriendDao" />
-        <property name="partnerDao" ref="partnerDao" />
-        <property name="partnerSettingsDao" ref="partnerSettingsDao"/>
-        <property name="urlsProperties" ref="urlsProperties" />
     </bean>
 
 
@@ -268,222 +206,6 @@
         <value>FlipboardProxy</value>
     </util:list>
 
-    <bean
-            id="echoServiceActor"
-            class="com.echoed.chamber.services.echo.EchoServiceActor"
-            parent="actorBean">
-        <property name="echoDao" ref="echoDao" />
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <property name="partnerDao" ref="partnerDao" />
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <property name="echoClickDao" ref="echoClickDao" />
-        <property name="imageDao" ref="imageDao" />
-        <property name="imageService" ref="imageService" />
-        <property name="transactionTemplate" ref="transactionTemplate" />
-        <property name="filteredUserAgents" ref="filteredUserAgents" />
-    </bean>
 
-
-    <bean
-           id="twitterAccessActor"
-           class="com.echoed.chamber.services.twitter.TwitterAccessActor"
-           parent="actorBean">
-        <property name="properties" ref="twitterAccessProperties"/>
-        <property name="cacheManager" ref="cacheManager" />
-    </bean>
-
-
-    <bean
-           id="twitterServiceLocatorActor"
-           class="com.echoed.chamber.services.twitter.TwitterServiceLocatorActor"
-           parent="actorBean">
-        <property name="twitterAccess" ref="twitterAccess" />
-        <property name="twitterUserDao" ref="twitterUserDao" />
-        <property name="twitterStatusDao" ref="twitterStatusDao" />
-        <property name="urlsProperties" ref="urlsProperties" />
-        <property name="cacheManager" ref="cacheManager" />
-    </bean>
-
-
-
-    <bean
-            id="echoedUserServiceLocatorActor"
-            class="com.echoed.chamber.services.echoeduser.EchoedUserServiceLocatorActor"
-            parent="actorBean">
-        <property name="twitterServiceLocator" ref="twitterServiceLocator"/>
-        <property name="facebookServiceLocator" ref="facebookServiceLocator"/>
-        <property name="echoedUserDao" ref="echoedUserDao" />
-        <property name="closetDao" ref="closetDao" />
-        <property name="echoedFriendDao" ref="echoedFriendDao" />
-        <property name="feedDao" ref="feedDao"/>
-        <property name="echoDao" ref="echoDao" />
-        <property name="partnerDao" ref="partnerDao" />
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <property name="storyDao" ref="storyDao" />
-        <property name="chapterDao" ref="chapterDao" />
-        <property name="chapterImageDao" ref="chapterImageDao" />
-        <property name="commentDao" ref="commentDao" />
-        <property name="imageDao" ref="imageDao" />
-        <property name="transactionTemplate" ref="transactionTemplate" />
-        <property name="cacheManager" ref="cacheManager" />
-    </bean>
-
-
-    <bean
-            id="partnerUserServiceLocatorActor"
-            class="com.echoed.chamber.services.partneruser.PartnerUserServiceLocatorActor"
-            parent="actorBean">
-        <property name="partnerUserDao" ref="partnerUserDao" />
-        <property name="partnerViewDao" ref="partnerViewDao"/>
-        <property name="cacheManager" ref="cacheManager" />
-    </bean>
-
-
-    <bean
-            id="adminUserServiceLocatorActor"
-            class="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActor"
-            parent="actorBean">
-        <property name="adminUserDao" ref="adminUserDao" />
-        <property name="adminViewDao" ref="adminViewDao" />
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <property name="partnerDao" ref="partnerDao" />
-        <property name="cacheManager" ref="cacheManager" />
-    </bean>
-    
-
-    <bean
-            id="partnerServiceBean"
-            abstract="true"
-            parent="actorBean">
-        <property name="partnerDao" ref="partnerDao" />
-        <property name="partnerSettingsDao" ref="partnerSettingsDao" />
-        <property name="partnerUserDao" ref="partnerUserDao" />
-        <property name="echoDao" ref="echoDao" />
-        <property name="echoMetricsDao" ref="echoMetricsDao" />
-        <property name="imageDao" ref="imageDao" />
-        <property name="imageService" ref="imageService" />
-        <property name="encrypter" ref="encrypter" />
-        <property name="transactionTemplate" ref="transactionTemplate" />
-        <property name="emailService" ref="emailService" />
-        <property name="cacheManager" ref="cacheManager" />
-    </bean>
-
-
-    <bean
-            id="partnerServiceManagerActor"
-            class="com.echoed.chamber.services.partner.PartnerServiceManagerActor"
-            parent="partnerServiceBean">
-        <property name="cloudPartners" ref="cloudPartners" />
-    </bean>
-
-
-    <bean
-            id="shopifyPartnerServiceManagerActor"
-            class="com.echoed.chamber.services.partner.shopify.ShopifyPartnerServiceManagerActor"
-            parent="partnerServiceBean">
-        <property name="shopifyAccess" ref="shopifyAccess" />
-        <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <property name="shopifyPartnerDao" ref="shopifyPartnerDao" />
-        <property name="properties" ref="shopifyProperties" />
-    </bean>
-
-            <!--class="com.echoed.chamber.services.partner.shopify.ShopifyAccessDispatchActor"-->
-    <bean
-            id="shopifyAccessActor"
-            class="com.echoed.chamber.services.partner.shopify.ShopifyAccessDispatchActor"
-            parent="actorBean">
-        <property name="properties" ref="shopifyProperties" />
-        <property name="httpClient" ref="httpClient" />
-    </bean>
-
-
-    <bean
-            id="networkSolutionsPartnerServiceManagerActor"
-            class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsPartnerServiceManagerActor"
-            parent="partnerServiceBean">
-        <property name="networkSolutionsAccess" ref="networkSolutionsAccess" />
-        <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <property name="networkSolutionsPartnerDao" ref="networkSolutionsPartnerDao" />
-        <property name="properties" ref="networkSolutionsProperties" />
-    </bean>
-
-
-    <bean
-            id="networkSolutionsDispatchAccessActor"
-            class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsDispatchAccessActor"
-            parent="actorBean">
-        <property name="properties" ref="networkSolutionsProperties" />
-        <property name="client" ref="httpClient" />
-    </bean>
-
-
-    <bean
-            id="bigCommercePartnerServiceManagerActor"
-            class="com.echoed.chamber.services.partner.bigcommerce.BigCommercePartnerServiceManagerActor"
-            parent="partnerServiceBean">
-        <property name="bigCommerceAccess" ref="bigCommerceAccess" />
-        <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <property name="bigCommercePartnerDao" ref="bigCommercePartnerDao" />
-        <property name="properties" ref="bigCommerceProperties" />
-    </bean>
-
-
-    <bean
-            id="bigCommerceAccessActor"
-            class="com.echoed.chamber.services.partner.bigcommerce.BigCommerceAccessActor"
-            parent="actorBean">
-        <property name="client" ref="httpClient" />
-    </bean>
-
-
-    <bean
-            id="magentoGoPartnerServiceManagerActor"
-            class="com.echoed.chamber.services.partner.magentogo.MagentoGoPartnerServiceManagerActor"
-            parent="partnerServiceBean">
-        <property name="magentoGoAccess" ref="magentoGoAccess" />
-        <property name="partnerServiceManager" ref="partnerServiceManager" />
-        <property name="magentoGoPartnerDao" ref="magentoGoPartnerDao" />
-        <property name="properties" ref="magentoGoProperties" />
-    </bean>
-
-
-    <bean
-            id="magentoGoAccessActor"
-            class="com.echoed.chamber.services.partner.magentogo.MagentoGoAccessActor"
-            parent="actorBean">
-        <property name="client" ref="httpClient" />
-        <property name="cacheManager" ref="cacheManager" />
-    </bean>
-
-
-    <bean
-            id="facebookPostCrawlerActor"
-            class="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor"
-            parent="actorBean">
-        <property name="facebookPostDao" ref="facebookPostDao" />
-        <property name="facebookLikeDao" ref="facebookLikeDao" />
-        <property name="facebookCommentDao" ref="facebookCommentDao" />
-        <property name="facebookAccess" ref="facebookAccess" />
-    </bean>
-
-
-    <bean
-            id="geoLocationServiceActor"
-            class="com.echoed.chamber.services.geolocation.GeoLocationServiceActor"
-            parent="actorBean">
-        <property name="geoLocationDao" ref="geoLocationDao" />
-        <property name="properties" ref="geoLocationProperties" />
-    </bean>
-
-
-    <bean
-            id="feedServiceActor"
-            class="com.echoed.chamber.services.feed.FeedServiceActor"
-            parent="actorBean">
-        <property name="feedDao" ref="feedDao" />
-        <property name="partnerDao" ref="partnerDao" />
-        <property name="echoedUserDao" ref="echoedUserDao"/>
-    </bean>
 
 </beans>

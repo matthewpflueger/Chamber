@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.image
 
-import scala.reflect.BeanProperty
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.dao._
@@ -17,54 +16,40 @@ import collection.mutable.ListBuffer
 import java.util.{Calendar, Date}
 import java.io.{FileNotFoundException, ByteArrayOutputStream, ByteArrayInputStream}
 import org.jclouds.rest.AuthorizationException
-import java.util.concurrent.atomic.{AtomicLong}
+import java.util.concurrent.atomic.AtomicLong
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
-import org.springframework.beans.factory.FactoryBean
 import akka.dispatch.Promise
 import akka.util.duration._
-import akka.event.Logging
 import akka.util.Timeout
 import akka.pattern.ask
 
 
-class ImageServiceActor extends FactoryBean[ActorRef] {
-
-    @BeanProperty var actorSystem: ActorSystem = _
-    @BeanProperty var imageDao: ImageDao = _
-    @BeanProperty var blobStore: BlobStore = _
-
-    @BeanProperty var minimumValidImageWidth = 120
-    @BeanProperty var sizedImageTargetWidth = 230
-    @BeanProperty var thumbImageTargetWidth = 120
-    @BeanProperty var thumbImageTargetHeight = 120
-
-    @BeanProperty var findUnprocessedImagesInterval: Long = 60000
-    @BeanProperty var reloadBlobStoreInterval: Long = 60000
-    @BeanProperty var lastProcessedBeforeMinutes: Int = 5
-    @BeanProperty var timeoutInSeconds = 20
+class ImageServiceActor(
+        blobStore: BlobStore,
+        imageDao: ImageDao,
+        minimumValidImageWidth: Int = 120,
+        sizedImageTargetWidth: Int = 230,
+        thumbImageTargetWidth: Int = 120,
+        thumbImageTargetHeight: Int = 120,
+        findUnprocessedImagesInterval: Long = 60000,
+        reloadBlobStoreInterval: Long = 60000,
+        lastProcessedBeforeMinutes: Int = 5,
+        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
 
 
     //only for testing purposes
     var future: Option[Promise[ProcessImageResponse]] = None
     var unprocessedFuture: Option[Promise[Option[Image]]] = None
 
-//    //responses is a concurrent map because the sendResponse call gets initiated post blobStore.store in a future...
+    //responses is a concurrent map because the sendResponse call gets initiated post blobStore.store in a future...
     private val responses: ConcurrentMap[String, ListBuffer[(ProcessImage, ActorRef)]] =
         new ConcurrentHashMap[String, ListBuffer[(ProcessImage, ActorRef)]]()
 
     private val reloadBlobStore = new AtomicLong(System.currentTimeMillis())
 
 
-    def getObjectType = classOf[ActorRef]
-
-    def isSingleton = true
-
-    def getObject = actorSystem.actorOf(Props(new Actor {
-
-    implicit val timeout = Timeout(timeoutInSeconds seconds)
-    private final val logger = Logging(context.system, this)
 
     override def preStart() {
         val me = self
@@ -72,13 +57,17 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
 
         //this is a hack to make sure we continue to process failed images as we have a bug (API-67) that causes the
         //original Scheduler call to never happen again if a low priority image bugs out :(
-        actorSystem.scheduler.schedule(findUnprocessedImagesInterval milliseconds, findUnprocessedImagesInterval milliseconds, me, FindUnprocessedImage())
+        context.system.scheduler.schedule(
+                findUnprocessedImagesInterval milliseconds,
+                findUnprocessedImagesInterval milliseconds,
+                me,
+                FindUnprocessedImage())
     }
 
 
 
     private def download(url: String) = {
-        logger.debug("Downloading image {}", url)
+        log.debug("Downloading image {}", url)
         Source.fromURL(url)(scala.io.Codec.ISO8859).map(_.toByte).toArray
     }
 
@@ -99,17 +88,17 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
             var bytes = downloader(url)
             val md5 = Base64.encodeBase64URLSafeString(MessageDigest.getInstance("MD5").digest(bytes))
 
-            logger.debug("Reading image {} from {}", descriptor, url)
+            log.debug("Reading image {} from {}", descriptor, url)
             bufferedImage = Some(ImageIO.read(new ByteArrayInputStream(bytes)))
-            logger.debug("Read image {} from {}", descriptor, url)
+            log.debug("Read image {} from {}", descriptor, url)
 
             if (bufferedImage.get.getWidth < minimumValidImageWidth) {
                 throw InvalidImageWidth(image, bufferedImage.get.getWidth)
             }
 
-            logger.debug("Sizing image {} from {}", descriptor, url)
+            log.debug("Sizing image {} from {}", descriptor, url)
             sizedBufferedImage = sizer(bufferedImage.get)
-            logger.debug("Sized image {} from {}", descriptor, url)
+            log.debug("Sized image {} from {}", descriptor, url)
 
             bytes = sizedBufferedImage.map { bi =>
                 val os = new ByteArrayOutputStream(bi.getWidth * bi.getHeight * 4)
@@ -154,7 +143,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
             val img = image.copy(processedOn = new Date, processedStatus = image.processedStatus.take(510))
             imageDao.update(img)
         } catch {
-            case e => logger.error("Error persisting {}, {}", image, e)
+            case e => log.error("Error persisting {}, {}", image, e)
         }
     }
 
@@ -162,12 +151,12 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
         update(image)
 
         responses.remove(image.url).orElse {
-            logger.debug("Nobody waiting for image processing response {}", response)
+            log.debug("Nobody waiting for image processing response {}", response)
             None
         }.foreach(_.foreach { tuple =>
             val message = tuple._1
             val channel = tuple._2
-            logger.debug("Sending image processing response {}", response)
+            log.debug("Sending image processing response {}", response)
             channel ! ProcessImageResponse(message, response)
         })
 
@@ -177,7 +166,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
 
 
     private def error(image: Image, e: Throwable, processedStatus: Option[String] = None) {
-        logger.info("Error processing {}, {}", image, e)
+        log.info("Error processing {}, {}", image, e)
 
         val imageException =
                 if (e.isInstanceOf[ImageException]) {
@@ -203,12 +192,12 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                 //this was supposedly fixed in jclouds 1.3.0 but for the life of me I can't see to get it to work
                 //http://code.google.com/p/jclouds/issues/detail?id=731&can=1&q=Authorization&sort=-milestone
                 if (e.isInstanceOf[AuthorizationException]) {
-                    logger.debug("Received authorization error - will try to reload blob store")
+                    log.debug("Received authorization error - will try to reload blob store")
                     val now = System.currentTimeMillis()
                     val previousReloadBlobStore = reloadBlobStore.get()
                     val nextReloadBlobStore = now + reloadBlobStoreInterval
                     if (now > previousReloadBlobStore && reloadBlobStore.compareAndSet(previousReloadBlobStore, nextReloadBlobStore)) {
-                        logger.debug("Sending ReloadBlobStore message")
+                        log.debug("Sending ReloadBlobStore message")
                         me ! ReloadBlobStore(image, imageInfo, success)
                         return
                     }
@@ -222,7 +211,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
     protected def receive = {
 
         case msg @ ReloadBlobStore(image, imageInfo, success) =>
-            logger.debug("Reloading blob store")
+            log.debug("Reloading blob store")
             blobStore.destroy()
             blobStore.init()
             store(image, imageInfo)(success)
@@ -236,11 +225,11 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                 imageDao.insert(image)
                 channel ! StartProcessImageResponse(msg, Right(image))
                 (me ? ProcessImage(image)).onComplete(_.fold(
-                    e => logger.error("Error processing image {}: {}", image.url, e),
-                    _ => logger.debug("Successfully processed image {}", image.url)))
+                    e => log.error("Error processing image {}: {}", image.url, e),
+                    _ => log.debug("Successfully processed image {}", image.url)))
             } catch {
                 case e =>
-                    logger.error("Error inserting image {}: {}", image, e)
+                    log.error("Error inserting image {}: {}", image, e)
                     channel ! StartProcessImageResponse(msg, Left(ImageException(image, "Error inserting image", e)))
             }
 
@@ -248,9 +237,9 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
             val me = context.self
             val channel = context.sender
 
-            logger.debug("Starting to process {}", image.url)
+            log.debug("Starting to process {}", image.url)
             if (image.isProcessed) {
-                logger.debug("Image has already been processed {}", image)
+                log.debug("Image has already been processed {}", image)
                 future.foreach(_.success(ProcessImageResponse(msg, Right(image))))
                 channel ! ProcessImageResponse(msg, Right(image))
             } else /* commenting this out as it is really buggy - we have a leak that causes the response list to grow
@@ -265,7 +254,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                     val list = responses.getOrElseUpdate(image.url, { ListBuffer[(ProcessImage, ActorRef)]() })
 
                     //we are not working on the image so lets see what we need to do...
-                    logger.debug("Processing {}", image.url)
+                    log.debug("Processing {}", image.url)
 //                    val list = ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]()
                     list += ((msg, channel))
 //                    responses.put(image.url, list)
@@ -279,7 +268,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                         me ! ProcessThumbnailImage(image)
                     } else {
                         //sanity check...
-                        logger.error("Image already processed!?!? {}", image.url)
+                        log.error("Image already processed!?!? {}", image.url)
                         responses.remove(image.url)
                         channel ! ProcessImageResponse(msg, Right(image))
                     }
@@ -289,13 +278,13 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
         case msg @ ProcessOriginalImage(image) =>
             val me = self
 
-            logger.debug("Processing original image from {}", image.url)
+            log.debug("Processing original image from {}", image.url)
             processImage(image, image.urlWithEncodedFileName, "original") {
                 case Left(e) => error(image, e, Some("Error processing original image: %s" format e.getMessage))
                 case Right(imageInfo) =>
-                    logger.debug("Storing original image {}", imageInfo.fileName)
+                    log.debug("Storing original image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
-                        logger.debug("Successfully stored original of {} at {}", image.url, storedUrl)
+                        log.debug("Successfully stored original of {} at {}", image.url, storedUrl)
                         me ! ProcessSizedImage(image.copy(
                                 originalUrl = storedUrl,
                                 originalWidth = imageInfo.width,
@@ -309,7 +298,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
         case msg @ ProcessSizedImage(image) =>
             val me = self
 
-            logger.debug("Processing sized image from {}", image.originalUrl)
+            log.debug("Processing sized image from {}", image.originalUrl)
             processImage(
                     image,
                     image.originalUrl,
@@ -327,9 +316,9 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
 
                 case Left(e) => error(image, e, Some("Error processing sized image: %s" format e.getMessage))
                 case Right(imageInfo) =>
-                    logger.debug("Storing sized image {}", imageInfo.fileName)
+                    log.debug("Storing sized image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
-                        logger.debug("Successfully stored sized of {} at {}", image.originalUrl, storedUrl)
+                        log.debug("Successfully stored sized of {} at {}", image.originalUrl, storedUrl)
                         me ! ProcessThumbnailImage(image.copy(
                                 sizedUrl = storedUrl,
                                 sizedWidth = imageInfo.width,
@@ -341,7 +330,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
 
 
         case msg @ ProcessThumbnailImage(image) =>
-            logger.debug("Processing thumbnail image from {}", image.sizedUrl)
+            log.debug("Processing thumbnail image from {}", image.sizedUrl)
             processImage(
                     image,
                     image.sizedUrl,
@@ -359,9 +348,9 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
 
                 case Left(e) => error(image, e, Some("Error processing thumbnamil image: %s" format e.getMessage))
                 case Right(imageInfo) =>
-                    logger.debug("Storing thumbnail image {}", imageInfo.fileName)
+                    log.debug("Storing thumbnail image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
-                        logger.debug("Successfully stored thumbnail of {} at {}", image.sizedUrl, storedUrl)
+                        log.debug("Successfully stored thumbnail of {} at {}", image.sizedUrl, storedUrl)
                         val img = image.copy(
                             thumbnailUrl = storedUrl,
                             thumbnailWidth = imageInfo.width,
@@ -377,15 +366,15 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
             val me = self
 
             resp.cata(
-                logger.error("Error processing low priority image {}: {}", msg.image.url, _),
-                logger.debug("Successfully processed low priority image {}", _))
+                log.error("Error processing low priority image {}: {}", msg.image.url, _),
+                log.debug("Successfully processed low priority image {}", _))
             me ! FindUnprocessedImage()
 
 
         case msg @ ProcessLowPriorityImage(image) =>
             val me = self
 
-            logger.debug("Starting to process low priority image {}", image.url)
+            log.debug("Starting to process low priority image {}", image.url)
             me ! ProcessImage(image)
 
 
@@ -399,7 +388,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                     cal.getTime
                 }
 
-                logger.debug("Looking for unprocessed images last processed before {}", lastProcessedBeforeDate)
+                log.debug("Looking for unprocessed images last processed before {}", lastProcessedBeforeDate)
                 Option(imageDao.findUnprocessed(lastProcessedBeforeDate)).cata(
                     image => {
                         me ! ProcessLowPriorityImage(image)
@@ -410,7 +399,7 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
                         unprocessedFuture.foreach(_.success(None))
                     })
             } else {
-                logger.info(
+                log.info(
                     "Not finding unprocessed images because findUnprocessedImagesInterval {} or lastProcessWithinMinutes {} less than or equal to zero",
                     findUnprocessedImagesInterval,
                     lastProcessedBeforeMinutes)
@@ -421,8 +410,6 @@ class ImageServiceActor extends FactoryBean[ActorRef] {
         case msg @ ImageStoreError(image, e, message) => error(image, e, message)
 
     }
-
-    }), "ImageService")
 
 }
 
