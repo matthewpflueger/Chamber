@@ -224,6 +224,12 @@ $headerFontFamily: 'Arvo', serif;
                 @include textFontNormal(12px, #333);
                 background-color: rgba(255,255,255, 0.8);
                 width: 226px;
+                .story-brief-text-from{
+                    width: 180px;
+                }
+                .story-brief-text-by{
+                    width: 180px;
+                }
                 .story-brief-text-user{
                     @include textFontBold(12px);
                     text-decoration: none;

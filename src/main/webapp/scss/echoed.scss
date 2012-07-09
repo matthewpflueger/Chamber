@@ -980,6 +980,18 @@ h2{
                             @include textFontNormal(12px, #333);
                             background-color: rgba(255,255,255, 0.8);
                             width: 260px;
+                            .story-brief-text-from{
+                                width: 220px;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+                            .story-brief-text-by{
+                                width: 220px;
+                                width: 220px;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+
 
                             .story-brief-text-quote{
                                 overflow: hidden;
