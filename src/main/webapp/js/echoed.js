@@ -1187,6 +1187,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             self.thumbnailContainer.append(self.thumbnails[index]);
             if(index === 0){
                 self.thumbnails[index].addClass("highlight");
+                self.img.attr("src", image.image.originalUrl);
             }
         });
     },
