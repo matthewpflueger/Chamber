@@ -1135,7 +1135,10 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         self.thumbnails = [];
         EchoedjQuery.each(self.images.array, function(index, image){
-            self.thumbnails[index] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl);
+            self.thumbnails[index] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl).css({
+                "height" : 60,
+                "width" : (60 * image.image.preferredWidth / image.image.preferredHeight)
+            });;
             self.thumbnailContainer.append(self.thumbnails[index]);
             if(index === 0){
                 self.thumbnails[index].addClass("highlight");
