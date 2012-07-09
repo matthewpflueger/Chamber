@@ -1212,7 +1212,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     createComment: function(){
         var self = this;
         var storyId = self.data.story.id;
-        var chapterId = self.currentChapterId;
+        var chapterId = self.data.chapters[0].id;
         var text = EchoedjQuery("#echo-story-comment-ta").val();
         if(text === ""){
             alert("Please enter in a comment");

@@ -754,7 +754,13 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             if(story.chapters.length > 0 || self.personal == true){
                 var storyDiv = $('<div></div>').addClass('item_wrap');
                 var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal});
-                storiesFragment.append(storyDiv);
+                if(story.story.image.originalUrl !== null){
+                    storiesFragment.append(storyDiv);
+                } else {
+                    storyDiv.imagesLoaded(function(){
+                        self.exhibit.isotope('insert', storyDiv);
+                    });
+                }
             }
         });
         self.exhibit.isotope('insert', storiesFragment.children());
@@ -1315,10 +1321,15 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 260;
-        imageNode.attr("src", image.originalUrl).css({
-            "height" : width * hToWidthRatio,
-            "width" : width
-        });
+        if(image.originalUrl !== null){
+            imageNode.attr("src", image.originalUrl).css({
+                "height" : width * hToWidthRatio,
+                "width" : width
+            });
+        } else {
+            imageNode.attr("src", image.url)
+        }
+
         if(self.personal === true ) {
             textNode.append("<strong>Story Title: </strong>"+ self.data.story.title + "<br/>");
             textNode.append("<strong># Chapters: </strong>" + self.data.chapters.length + "<br/>");
@@ -1337,7 +1348,6 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
                 photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
                 textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
             }
-            console.log(self.data.story);
             if(self.data.story.partnerHandle !== "Echoed") {
                 var pId = "";
                 if(self.data.story.partnerHandle !== null){
