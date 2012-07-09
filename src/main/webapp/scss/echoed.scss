@@ -28,6 +28,15 @@ $headerFontFamily: 'Arvo', serif;
         -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
        	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
     }
+
+    @mixin black-gradient{
+        background-image: linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+        background-image: -o-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+        background-image: -moz-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+        background-image: -webkit-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+        background-image: -ms-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+    }
+
     @mixin navFont($size: 12px, $color: #333){
         font-family: $navFontFamily;
         font-size: $size;
@@ -83,9 +92,10 @@ $headerFontFamily: 'Arvo', serif;
             linear, left top, left bottom,
             from(#eb1a24),
             to(#b41b25));
+
         border-radius: 3px;
-        -moz-border-radius: 3px;
-        -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            -webkit-border-radius: 3px;
         border: 1px solid #591b24;
         -moz-box-shadow:
             inset 0px 1px 1px rgba(255,255,255,0.5);
@@ -451,6 +461,7 @@ h2{
             top: 75px;
             left: 50%;
             z-index: 99999;
+            width: 660px;
             background-color: #FFF;
             @include drop-shadow;
             border-radius: 3px;
@@ -518,18 +529,17 @@ h2{
             }
             .field-title{
                 padding: 10px;
-                @include headerFontBold(36px);
-                text-shadow: inset 0 -1px 0 rgba(0, 0, 0, .42);
+                @include headerFontBold(24px,#FFF);
+                @include black-gradient;
                 text-align: center;
-                width: 600px;
+                margin: 10px 10px 0px 10px;
             }
             .field-main-col{
                 background-image: image-url("bk_noise.jpg");
-                border: 1px solid #CCC;
                 float:left;
                 margin: 0px 10px 10px 10px;
+                width: 620px;
                 padding: 10px;
-                width: 600px;
 
                 .field-row{
                     margin-bottom: 10px;
@@ -599,7 +609,7 @@ h2{
             }
 
             .story-summary{
-                margin: 0 5px 5px 5px;
+                margin: 0 10px 10px 10px;
                 width: 600px;
                 background-image: image-url("bk_noise.jpg");
                 padding: 20px;
@@ -689,7 +699,7 @@ h2{
             }
 
             .story-edit{
-                padding: 5px;
+                margin: 10px;
                 .story-edit-label{
                     @include textFontNormal(20px);
                     text-shadow: 0px 2px 0px white;
@@ -763,7 +773,7 @@ h2{
                     margin-top: 5px;
                     padding: 5px;
                     border: 1px solid #CCC;
-                    width: 600px;
+                    width: 628px;
                     background-image: image-url("bk_noise.jpg");
                     .chapter-edit-body-head{
                         margin-left: 10px;
@@ -849,7 +859,7 @@ h2{
                                 margin-right: 10px;
                                 margin-top: 3px;
                                 display: inline-block;
-                                width: 200px;
+                                width: 250px;
                                 min-height: 20px;
                                 @include textFontNormal(14px);
                                 .chapter-italics{

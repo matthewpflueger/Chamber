@@ -33,6 +33,14 @@ $headerFontFamily: 'Arvo', serif;
         filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
     }
 
+    @mixin black-gradient{
+        background-image: linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+        background-image: -o-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+        background-image: -moz-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+        background-image: -webkit-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+        background-image: -ms-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
+    }
+
     @mixin button(){
 
         margin: 3px;
@@ -139,6 +147,7 @@ $headerFontFamily: 'Arvo', serif;
     #echoed-e-c-b{
         position:relative;
         border: 1px solid #CCC;
+        border-top: none;
         height: 400px;
         overflow-y: scroll;
         overflow-x: hidden;
@@ -581,7 +590,11 @@ $headerFontFamily: 'Arvo', serif;
 
 
 .echoed-head{
-    height: 40px;
+    padding: 10px;
+    @include headerFont(20px, #FFF);
+    @include black-gradient;
+    text-shadow: 0px 1px 0px #000;
+    text-align: center;
     position:relative;
     #echoed-selector{
         padding: 6px 25px 6px 6px;
