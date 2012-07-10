@@ -100,7 +100,6 @@ Echoed.Router = Backbone.Router.extend({
     },
     me: function() {
         if(this.page != window.location.hash){
-
             //this.page= window.location.hash;
             this.page = "#me";
             this.EvAg.trigger('exhibit/init', { Type: "exhibit"});
@@ -657,6 +656,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 break;
             case "exhibit":
                 self.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
+                self.id = "exhibit";
                 self.contentTitle = "Me";
                 self.contentDescription = "All stories and products you've shared and the rewards you've earned";
                 self.personal = true;

@@ -169,7 +169,8 @@ h2{
 .nav-label{
     margin: 5px 10px 0px 10px;
     padding: 7px 0px;
-    border-bottom: 1px #000 dotted;
+    border-bottom: 1px #CCC solid;
+    box-shadow: 0px 1px 0px #FFF;
     @include textFontBold(16px);
     text-shadow: 0px 1px 0px #FFF;
     text-align: left;
