@@ -203,7 +203,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                     withCredentials: true
                 },
                 data: loadData,
-                dataType: 'json',
+                dataType: 'jsonp',
                 success: function(initStoryData){
                     self.data = initStoryData;
                     self.render();
@@ -218,9 +218,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                     xhrFields: {
                         withCredentials: true
                     },
-                    dataType: 'json',
+                    dataType: 'jsonp',
                     success: function(data){
-                    self.renderLogin(data);
+                        self.renderLogin(data);
                     }
                 });
             } else {
@@ -1332,7 +1332,6 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         } else {
             imageNode.attr("src", image.url)
         }
-
         if(self.personal === true ) {
             textNode.append("<strong>Story Title: </strong>"+ self.data.story.title + "<br/>");
             textNode.append("<strong># Chapters: </strong>" + self.data.chapters.length + "<br/>");
