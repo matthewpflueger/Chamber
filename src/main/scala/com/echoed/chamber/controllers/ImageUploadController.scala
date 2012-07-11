@@ -15,6 +15,8 @@ import io.Source
 import java.util.Date
 import java.text.SimpleDateFormat
 import java.net.URLDecoder
+import org.springframework.web.multipart.MultipartFile
+import java.io.InputStream
 
 
 @Controller
@@ -32,12 +34,29 @@ class ImageUploadController {
             headers = Array("content-type=application/octet-stream"))
     @ResponseBody
     def upload(request: HttpServletRequest) = {
+        handleUpload(request, request.getHeader("X-File-Name"), request.getInputStream)
+
+    }
+
+    @RequestMapping(method = Array(RequestMethod.POST))
+    @ResponseBody
+    def uploadIE(
+            request: HttpServletRequest,
+            @RequestParam("file") file: MultipartFile) = {
+        handleUpload(request, file.getOriginalFilename, file.getInputStream)
+    }
+
+    private def handleUpload(
+            request: HttpServletRequest,
+            name: String,
+            inputStream: InputStream) = {
+
         val eu = cookieManager.findEchoedUserCookie(request).get
         //we url decode because the image service will again encode :(  really the image service should not be encoding anything...
-        val fileName = URLDecoder.decode(Option(request.getHeader("X-File-Name")).get, "UTF-8")
+        val fileName = URLDecoder.decode(Option(name).get, "UTF-8")
         val i = new Image(fileName)
         val contentType = "image/%s" format i.ext
-        val bytes = Source.fromInputStream(request.getInputStream)(scala.io.Codec.ISO8859).map(_.toByte).toArray
+        val bytes = Source.fromInputStream(inputStream)(scala.io.Codec.ISO8859).map(_.toByte).toArray
 
 
         val result = new DeferredResult(ImageUploadStatus())
@@ -59,7 +78,6 @@ class ImageUploadController {
 
         result
     }
-
 }
 
 case class ImageUploadStatus(success: Boolean = false, url: String = "", id: String = "")

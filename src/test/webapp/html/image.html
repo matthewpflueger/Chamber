@@ -19,13 +19,13 @@
 		    <noscript>
 			    <!--<p>Please enable JavaScript to use file uploader.</p>-->
 			    <!-- or put a simple form for upload here -->
-                <form action="/image" id="imageUploadForm">
-                    <label>Upload a picture for your story!</label>
-                    <input type="file" size="20" id="imageUpload" class=" ">
-                    <button class="button" type="submit">Save</button>
+			    <form method="post" action="/image" enctype="multipart/form-data">
+                    <input type="file" name="file"/>
+                    <input type="submit"/>
                 </form>
 		    </noscript>
 	    </div>
+
     </div>
 </div>
 
