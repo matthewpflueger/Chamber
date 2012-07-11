@@ -100,7 +100,6 @@ Echoed.Router = Backbone.Router.extend({
     },
     me: function() {
         if(this.page != window.location.hash){
-            //this.page= window.location.hash;
             this.page = "#me";
             this.EvAg.trigger('exhibit/init', { Type: "exhibit"});
             _gaq.push(['_trackPageview', this.page]);
@@ -405,7 +404,6 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         } else {
             if(self.locked === false) {
                 self.locked = true;
-                console.log(self.currentChapter.id);
                 if(self.currentChapter.id !== undefined){
                     $.ajax({
                         url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter/" + self.currentChapter.id,
@@ -633,7 +631,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
                 self.contentTitle = "Your Friends";
                 self.id = "friends";
-                self.nextInt = 1;
+                    self.nextInt = 1;
                 break;
             case "partner":
                 self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.partnerId;
@@ -1267,7 +1265,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var storyId = self.data.story.id;
         var chapterId = self.data.chapters[0].id;
         var text = $.trim($("#echo-story-comment-ta").val());
-        console.log(text);
         if(text === ""){
             alert("Please enter in a comment");
         } else if(self.locked !== true){
@@ -1323,7 +1320,6 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var overlay = self.element.find(".story-brief-overlay");
         var image = null;
         image = self.data.story.image;
-
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 260;

@@ -641,16 +641,21 @@ $headerFontFamily: 'Arvo', serif;
     padding: 10px 0px;
     text-align: center;
     background-color: #F0F0F0;
-    .echoed-footer-left-title{
-        text-align: center;
-        @include headerFont(24px);
+    .echoed-footer-left{
+        float:left;
+        .echoed-footer-left-title{
+            text-align: center;
+            @include headerFont(24px);
+        }
+        .echoed-footer-left-text{
+            text-align: center;
+            @include textFontNormal(14px);
+            width: 400px;
+            margin: 0px auto 5px auto;
+        }
+
     }
-    .echoed-footer-left-text{
-        text-align: center;
-        @include textFontNormal(14px);
-        width: 400px;
-        margin: 0px auto 5px auto;
-    }
+
     .echoed-share{
         @include textFontBold(14px, #FFF);
         @include button;
