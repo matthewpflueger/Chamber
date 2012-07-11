@@ -58,6 +58,18 @@
                     <property name="objectMapper">
                         <bean class="com.echoed.util.ScalaObjectMapper" />
                     </property>
+                    <property name="supportedMediaTypes">
+                        <util:list>
+                            <bean class="org.springframework.http.MediaType">
+                                <constructor-arg value="application" />
+                                <constructor-arg value="json" />
+                            </bean>
+                            <bean class="org.springframework.http.MediaType">
+                                <constructor-arg value="text" />
+                                <constructor-arg value="html" />
+                            </bean>
+                        </util:list>
+                    </property>
                 </bean>
                 <bean class = "org.springframework.http.converter.StringHttpMessageConverter">
                     <property name="writeAcceptCharset" value="false" />

@@ -42,7 +42,7 @@ class ImageUploadController {
     @ResponseBody
     def uploadIE(
             request: HttpServletRequest,
-            @RequestParam("file") file: MultipartFile) = {
+            @RequestParam("qqfile") file: MultipartFile) = {
         handleUpload(request, file.getOriginalFilename, file.getInputStream)
     }
 
