@@ -1324,7 +1324,8 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 260;
         if(image.originalUrl !== null){
-            imageNode.attr("src", image.originalUrl).css({
+            //imageNode.attr("src", image.originalUrl).css({
+            imageNode.attr("src", image.sizedUrl).css({
                 "height" : width * hToWidthRatio,
                 "width" : width
             });

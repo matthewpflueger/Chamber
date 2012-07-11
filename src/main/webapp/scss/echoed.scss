@@ -365,8 +365,6 @@ h2{
             width: 600px;
             margin: 5px auto;
             padding: 10px;
-            border: 1px solid #CCC;
-            border-radius: 5px;
             #title-text{
                 text-align: center;
                 @include headerFontBold(36px);
@@ -597,12 +595,13 @@ h2{
                 padding: 20px 0px;
                 .field-logo{
                     padding-top: 5px;
+                    padding-bottom: 20px;
                     text-align:center;
                 }
                 .field-login-title{
                     margin: 0px 20px 15px 20px;
                     text-align: center;
-                    @include textFontNormal(18px);
+                    @include textFontNormal(20px);
                 }
                 .field-login-button{
                     text-align:center;

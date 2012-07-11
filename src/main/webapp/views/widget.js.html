@@ -800,6 +800,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             }
         });
         self.element.fadeIn();
+        self.element.css({
+            "margin-left" : -(self.element.width() / 2)
+        });
         self.EvAg.trigger('fade/show');
     },
     render: function(data){
@@ -815,9 +818,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             self.addProducts(data);
             self.EvAg.trigger("infiniteScroll/unlock");
         }
-        self.element.css({
-            "margin-left" : -(self.element.width() / 2)
-        });
     },
     next: function(){
         var self = this;
@@ -908,7 +908,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 228;
-        imageNode.attr("src", image.originalUrl).css({
+        imageNode.attr("src", image.sizedUrl).css({
             "height" : width * hToWidthRatio,
             "width" : width
         });
@@ -959,7 +959,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         this.template = '<div class="item_content"><img class="exhibit_image" width="230px" src=""/><div class="item_text"></div></div>';
 
         var self = this;
-        var imageUrl =   this.model.get("image").originalUrl;
+        var imageUrl =   this.model.get("image").sizedUrl;
         var imageWidth = this.model.get("image").preferredWidth;
         var imageHeight = this.model.get("image").preferredHeight;
         var ratio = imageHeight / imageWidth;
@@ -1091,7 +1091,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.text = self.element.find('.echo-s-b-text');
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
-        self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
+        self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.sizedUrl);
         self.currentImageIndex = 0;
 
         var userLink = '<a class="echo-s-h-t-n-u" target="_blank" href="' + Echoed.Urls.Site +'#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
@@ -1137,7 +1137,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         self.thumbnails = [];
         EchoedjQuery.each(self.images.array, function(index, image){
-            self.thumbnails[index] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl).css({
+            self.thumbnails[index] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.sizedUrl).css({
                 "height" : 60,
                 "width" : (60 * image.image.preferredWidth / image.image.preferredHeight)
             });;
