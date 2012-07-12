@@ -23,7 +23,6 @@
             <div class="item_text">
             </div>
         </div>
-        </div>
     </script>
     <script type="text/template" id="templates-components-story-brief">
         <div class="item_content">
@@ -42,7 +41,7 @@
     <script type="text/template" id="templates-components-story-login">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
         <div class="story-login">
-            <div class="field-logo"><img src="{{urls.images}}/logo_large.png" height="50px" /></div>
+            <div class="field-logo"><img src="{{urls.images}}/logo.png" /></div>
             <div class="field-login-title">Share stories about the products you love.<br/>Login to begin sharing your story.</div>
             <div class="field-login-body">
             </div>
@@ -57,92 +56,95 @@
     <script type="text/template" id="templates-components-story-summary">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
         <div class="field-title">Share Your Product Story</div>
-        <div class="story-summary">
-            <div class="story-summary-header">
-
-                <div class="story-summary-header-row">
-                    <label>Story Title:</label>
-                    <div id="story-summary-title">
-                    </div>
+        <div class="field-body clearfix">
+            <div class="field-preview">
+                <div class="field-preview-title">
+                    Your Cover
                 </div>
-                <div class="story-summary-header-row">
-                    <label>From:</label>
-                    <div id="story-summary-from">
+                <div class="story-preview">
+                    <div class="story-preview-image-container">
+                        <img id="story-preview-photo" src="{{urls.images}}/bk_cover_default.jpg" />
                     </div>
-                </div>
-                <div class="story-summary-header-row">
-                    <label>Story Cover Photo:</label>
-                    <div id="story-summary-photo-container">
-                        <img id="story-summary-photo" src="">
+                    <div class="story-preview-text">
+                        <div class="story-preview-title"></div>
+                        <div class="story-preview-from"></div>
+                        <div class="story-preview-by"></div>
                     </div>
                 </div>
             </div>
-            <div class="story-summary-body">
-            </div>
-            <div class="story-summary-buttons">
-                <span class="story-summary-submit" act="add">Tell Us More</span>
-                <span class="story-summary-submit" act="finish">I'm Done!</span>
+            <div class="story-summary">
+                <div class="story-summary-body">
+                    <div class="field-main-title">Your Topics</div>
+                </div>
+                <div class="story-summary-buttons">
+                    <span class="story-summary-submit" act="add">Tell Us More</span>
+                    <span class="story-summary-submit" act="finish">I'm Done!</span>
+                </div>
             </div>
         </div>
-
     </script>
     <script type="text/template" id="templates-components-story-edit">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
         <div class="field-title">Share Your Product Story</div>
-        <div class="story-edit">
-            <div id="story-edit-header" class="clearfix">
-                <div id="story-title-photo-container">
-                    <img id="story-title-photo" src="">
+        <div class="field-body">
+            <div class="field-preview">
+                <div class="field-preview-title">
+                    Your Cover
                 </div>
-                <div id="story-title-text-container">
-                    <div id="story-title">
+                <div class="story-preview">
+                    <div class="story-preview-image-container">
+                        <img id="story-preview-photo" src="{{urls.images}}/bk_cover_default.jpg" />
+                    </div>
+                    <div class="story-preview-text">
+                        <div class="story-preview-title">(Title)</div>
+                        <div class="story-preview-from">(Where You Bought It)</div>
+                        <div class="story-preview-by">(Your Name)</div>
                     </div>
                 </div>
             </div>
-            <div class="chapter-edit-body clearfix">
-                <div class="chapter-edit-body-top">
-                    <div class="chapter-edit-body-top-title">
-                        Looking Great!
-                    </div>
-                    <div class="chapter-edit-body-top-subtitle">
-                        Now tell us something about the product.
-                    </div>
-                </div>
-                <div class="chapter-edit-body-main">
-                    <div class="chapter-edit-body-row">
-                        <label for="chapter-title">
-                            <strong>Choose a topic:</strong><br/>
-                            <span class="chapter-italics" >If you're feeling creative, you can write your own!</span>
-                        </label>
-                        <!--<input id="chapter-title" type="text" name="chapter-title" />-->
-                        <div id="chapter-title" class="field-select"></div>
-                    </div>
-                    <div class="chapter-edit-body-row">
-                        <label>
-                            <strong>Write Something:</strong><br/>
-                            <span class="chapter-italics">There's no right or wrong way to to do this. Keep it simple! If you only want to write a sentence that's fine.</span>
-
-                        </label>
-                        <textarea id="chapter-text"></textarea>
-                    </div>
-                    <div class="chapter-edit-body-row">
-                        <label>
-                            <strong>Have More Photos?</strong><br/>
-                            <div class="photo-upload"></div>
-                        </label>
-                        <div class="chapter-edit-photos">
-                            <div class="thumbnails">
-                            </div>
-                            <div class="thumbnail-placeholder">
-                                <img class="thumb" src="{{urls.images}}/bk_img_upload_ph.jpg" />
-                            </div>
-
+            <div class="story-edit">
+                <div class="chapter-edit-body clearfix">
+                    <div class="chapter-edit-body-top">
+                        <div class="chapter-edit-body-top-title">
+                            Now tell us something about the product
                         </div>
                     </div>
-                    <div class="chapter-edit-body-row">
-                        <label></label>
-                        <span class="chapter-submit">Save</span>
-                        <span class="chapter-cancel">Cancel</span>
+                    <div class="chapter-edit-body-main">
+                        <div class="chapter-edit-body-row">
+                            <label for="chapter-title">
+                                <strong>Choose a topic:</strong><br/>
+                                <span class="chapter-italics" >If you're feeling creative, you can write your own!</span>
+                            </label>
+                            <!--<input id="chapter-title" type="text" name="chapter-title" />-->
+                            <div id="chapter-title" class="field-select"></div>
+                        </div>
+                        <div class="chapter-edit-body-row">
+                            <label>
+                                <strong>Write Something:</strong><br/>
+                                <span class="chapter-italics">There's no right or wrong way to to do this. Keep it simple! If you only want to write a sentence that's fine.</span>
+
+                            </label>
+                            <textarea id="chapter-text"></textarea>
+                        </div>
+                        <div class="chapter-edit-body-row">
+                            <label>
+                                <strong>Have More Photos?</strong><br/>
+                                <div class="photo-upload"></div>
+                            </label>
+                            <div class="chapter-edit-photos">
+                                <div class="thumbnails">
+                                </div>
+                                <div class="thumbnail-placeholder">
+                                    <img class="thumb" src="{{urls.images}}/bk_img_upload_ph.png" />
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="chapter-edit-body-row">
+                            <label></label>
+                            <span class="chapter-submit">Save</span>
+                            <span class="chapter-cancel">Cancel</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -220,41 +222,64 @@
     <script type="text/templates" id="templates-components-story-input">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
         <div class="field-title">Share Your Product Story</div>
-        <div class="field-main-col clearfix">
-            <div class="field-row">
-                <label>
-                    <strong>Product Name</strong><br/>
-                </label>
-                <div class="field-indent">
-                    <input id="story-name" type="text">
+        <div class="field-body clearfix">
+            <div class="field-preview">
+                <div class="field-preview-title">
+                    Example:
                 </div>
-            </div>
-            <div class="field-row">
-                <label>
-                    <strong>Where Is The Product From?</strong><br/>
-                    (Store Name or Url)
-                </label>
-                <div class="field-indent">
-                    <input id="story-from" type="text">
-                </div>
-            </div>
-            <div class="field-row">
-            <label>
-                <strong>Product Photo</strong><br/>
-            </label>
-            <div class="field-indent clearfix">
-                <div class="field-photo-container">
-                    <div id="preview">
-                        <img height="150px" src="{{urls.images}}/bk_img_upload_ph.jpg" id="field-photo">
+                <div class="story-preview">
+                    <div class="story-preview-image-container">
+                        <img id="story-preview-photo" src="{{urls.images}}/bk_cover_default.jpg" />
+                        <div id="story-preview-overlay">
+                            Your Photo
+                        </div>
+                    </div>
+                    <div class="story-preview-text">
+                        <div class="story-preview-title">(Your Story Title)</div>
+                        <div class="story-preview-from">(Where The Product Is From)</div>
+                        <div class="story-preview-by">(Your Name)</div>
                     </div>
                 </div>
-                <div id="field-photo-upload"></div>
             </div>
-            </div>
-            <div class="field-row">
-                <label></label>
-                <div class="field-indent">
-                    <div class="field-submit">Save and Continue</div>
+            <div class="field-main-col clearfix">
+                <div class="field-row">
+                    <label>
+                        <strong>Give Your Story A Title:</strong><br/>
+                        Name your experience or the item
+                    </label>
+                    <div class="field-indent">
+                        <input id="story-name" type="text">
+                    </div>
+                </div>
+                <div class="field-row">
+                    <label>
+                        <strong>Where Is The Product From?</strong><br/>
+                        Name or URL of the store
+                    </label>
+                    <div class="field-indent">
+                        <input id="story-from" type="text">
+                    </div>
+                </div>
+                <div class="field-row">
+                    <label>
+                        <strong>Your Photo</strong><br/>
+                        Show us your picture of the item
+                        <div id="field-photo-upload"></div>
+                    </label>
+                    <div class="field-indent clearfix">
+                        <div class="field-photo-container">
+                            <div id="preview">
+                                <img height="150px" src="{{urls.images}}/bk_img_upload_ph.png" id="field-photo">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="field-row">
+                    <label></label>
+                    <div class="field-indent">
+                        <div class="field-submit">Save and Continue</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -346,6 +371,7 @@
                 Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
                 Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
             {{/echoedUser}}
+
             Echoed.init();
         });
     </script>

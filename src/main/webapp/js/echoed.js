@@ -204,6 +204,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 },
                 data: loadData,
                 dataType: 'jsonp',
+                cache: false,
                 success: function(initStoryData){
                     self.data = initStoryData;
                     self.render();
@@ -219,6 +220,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                         withCredentials: true
                     },
                     dataType: 'jsonp',
+                    cache: false,
                     success: function(data){
                         self.renderLogin(data);
                     }
@@ -287,9 +289,12 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         var template = _.template($('#templates-components-story-summary').html());
         self.element.html(template);
-        $("#story-summary-title").html(self.data.storyFull.story.title);
-        $("#story-summary-from").html(self.data.storyFull.story.productInfo);
-        $("#story-summary-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+
+        self.element.find(".story-preview-title").html(self.data.storyFull.story.title);
+        self.element.find(".story-preview-from").html(self.data.storyFull.story.productInfo);
+        self.element.find(".story-preview-by").html(self.data.storyFull.echoedUser.name);
+        $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+
         var count = 0;
         self.element.chapters = self.element.find('.story-summary-body');
         $.each(self.data.storyFull.chapters, function(index, chapter){
@@ -336,10 +341,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         self.template = _.template($('#templates-components-story-edit').html());
         self.element.html(self.template);
-
-        $("#story-title").html(self.data.storyFull.story.title);
-        $("#story-title-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
-
+        self.element.find(".story-preview-title").html(self.data.storyFull.story.title);
+        self.element.find(".story-preview-from").html(self.data.storyFull.story.productInfo);
+        self.element.find(".story-preview-by").html(self.data.storyFull.echoedUser.name);
+        $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
         var chapterPhotos = self.element.find(".thumbnails");
         self.currentChapter = {};
         self.currentChapter.images = [];
@@ -450,7 +455,12 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     cancelChapter: function(){
         var self = this;
-        self.load(self.data.storyFull.story.id, "story");
+        if(self.data.storyFull.chapters.length > 0){
+            self.load(self.data.storyFull.story.id, "story");
+        } else{
+            self.close();
+        }
+
     },
     unload: function(callback){
         var self = this;
@@ -529,10 +539,11 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     show: function(){
         var self = this;
         self.EvAg.trigger('fade/show');
+        self.element.fadeIn();
         self.element.css({
             "margin-left" : -(self.element.width()/2)
         });
-        self.element.fadeIn();
+
         $("#story-name").focus();
     },
     close: function(){
@@ -712,6 +723,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     withCredentials: true
                 },
                 dataType: 'json',
+                cache: false,
                 success: function(data){
                     if(data.echoes.length > 0){
                         self.addProducts(data);
@@ -873,7 +885,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         this.openState = false;
         this.default = "(Write Your Own Topic)";
         if(this.currentTitle !== undefined){
-            this.locked = true;
+            //this.locked = true;
         }
         this.render();
     },
