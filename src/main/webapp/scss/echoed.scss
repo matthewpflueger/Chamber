@@ -288,7 +288,18 @@ h2{
 
         #login-container{
             //background-color: rgba(200,225,255, 0.5);
-            background-color: rgb(100,110,125);
+            background: #646e7d; /* Old browsers */
+        /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NDZlN2QiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI3NCUiIHN0b3AtY29sb3I9IiMzZDQzNGMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+            background: -moz-radial-gradient(center, ellipse cover,  #646e7d 0%, #3d434c 74%); /* FF3.6+ */
+            background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#646e7d), color-stop(74%,#3d434c)); /* Chrome,Safari4+ */
+            background: -webkit-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* Chrome10+,Safari5.1+ */
+            background: -o-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* Opera 12+ */
+            background: -ms-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* IE10+ */
+            background: radial-gradient(ellipse at center,  #646e7d 0%,#3d434c 74%); /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#646e7d', endColorstr='#3d434c',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+
+
             width: 572px;
             height: 200px;
             #login-title{
@@ -470,7 +481,7 @@ h2{
             width: 871px;
             background-color: #FFF;
             @include drop-shadow;
-            border-radius: 3px;
+            border-radius: 5px;
             &.small{
                 width: 460px;
             }
@@ -646,6 +657,17 @@ h2{
             }
             .story-login{
                 width: 460px;
+                background: #ffffff; /* Old browsers */
+                /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMzclIiBzdG9wLWNvbG9yPSIjZmZmZmZmIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VkZWRlZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9yYWRpYWxHcmFkaWVudD4KICA8cmVjdCB4PSItNTAiIHk9Ii01MCIgd2lkdGg9IjEwMSIgaGVpZ2h0PSIxMDEiIGZpbGw9InVybCgjZ3JhZC11Y2dnLWdlbmVyYXRlZCkiIC8+Cjwvc3ZnPg==);
+                background: -moz-radial-gradient(center, ellipse cover,  #ffffff 37%, #ededed 100%); /* FF3.6+ */
+                background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(37%,#ffffff), color-stop(100%,#ededed)); /* Chrome,Safari4+ */
+                background: -webkit-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* Chrome10+,Safari5.1+ */
+                background: -o-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* Opera 12+ */
+                background: -ms-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* IE10+ */
+                background: radial-gradient(ellipse at center,  #ffffff 37%,#ededed 100%); /* W3C */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+                border-radius: 5px;
                 padding: 20px 0px;
                 .field-logo{
                     padding-top: 5px;
@@ -1727,4 +1749,8 @@ h3{
 #field-photo-upload{
     position: relative;
     float:right;
+}
+
+.italic{
+    font-style: italic;
 }

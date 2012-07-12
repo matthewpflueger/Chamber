@@ -933,10 +933,12 @@ Echoed.Views.Components.Select = Backbone.View.extend({
     click: function(){
         var self = this;
         if(self.locked !== true){
-            if(self.openState == false )
+            if(self.openState == false ){
                 self.open();
-            else
-                self.openState = false
+            } else {
+                self.openState = false;
+                self.close();
+            }
         }
     },
     selectOption: function(e){

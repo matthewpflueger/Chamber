@@ -41,7 +41,7 @@
     <script type="text/template" id="templates-components-story-login">
         <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
         <div class="story-login">
-            <div class="field-logo"><img src="{{urls.images}}/logo.png" /></div>
+            <div class="field-logo"><img src="{{urls.images}}/logo_large.png" height="50px" /></div>
             <div class="field-login-title">Share stories about the products you love.<br/>Login to begin sharing your story.</div>
             <div class="field-login-body">
             </div>
@@ -74,7 +74,7 @@
             </div>
             <div class="story-summary">
                 <div class="story-summary-body">
-                    <div class="field-main-title">Your Topics</div>
+                    <div class="field-main-title">Your Story, So Far</div>
                 </div>
                 <div class="story-summary-buttons">
                     <span class="story-summary-submit" act="add">Tell Us More</span>
@@ -106,7 +106,7 @@
                 <div class="chapter-edit-body clearfix">
                     <div class="chapter-edit-body-top">
                         <div class="chapter-edit-body-top-title">
-                            Now tell us something about the product
+                            Now tell us a little more about the product
                         </div>
                     </div>
                     <div class="chapter-edit-body-main">
@@ -242,10 +242,11 @@
                 </div>
             </div>
             <div class="field-main-col clearfix">
+                <div class="field-main-title">Let's Create The Cover For Your Story</div>
                 <div class="field-row">
                     <label>
                         <strong>Give Your Story A Title:</strong><br/>
-                        Name your experience or the item
+                        <span class="italic">Name your experience or the item</span>
                     </label>
                     <div class="field-indent">
                         <input id="story-name" type="text">
@@ -254,7 +255,7 @@
                 <div class="field-row">
                     <label>
                         <strong>Where Is The Product From?</strong><br/>
-                        Name or URL of the store
+                        <span class="italic">Name or URL of the store</span>
                     </label>
                     <div class="field-indent">
                         <input id="story-from" type="text">
@@ -263,7 +264,7 @@
                 <div class="field-row">
                     <label>
                         <strong>Your Photo</strong><br/>
-                        Show us your picture of the item
+                        <span class="italic">Show us your picture of the item</span>
                         <div id="field-photo-upload"></div>
                     </label>
                     <div class="field-indent clearfix">
