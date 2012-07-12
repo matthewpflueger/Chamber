@@ -275,8 +275,15 @@ function service_cmd() {
             fi
             ;;
 
+        cloud_clean)
+            echo
+            echo "Enter the following on the command line:"
+            echo
+            echo "mvn -Dclean.dryRun=true -Dclean.deleteVersion=xxxxxx -Dclean.verbose=true com.echoed:cloud-maven-plugin:clean"
+            ;;
+
         *)
-            echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass|compass_compile|migrate_status|migrate_up|migrate_down|dump}" >&2
+            echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass|compass_compile|migrate_status|migrate_up|migrate_down|dump|cloud_clean}" >&2
             exit 1
             ;;
     esac
