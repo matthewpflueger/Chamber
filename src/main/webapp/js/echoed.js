@@ -918,7 +918,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
             self.options[self.optionsArray.length + 1] = $("<div class='field-question-option'></div>").append(self.currentTitle).css({"display": "none"});
             self.optionsList.append(self.options[self.optionsArray.length + 1]);
             self.input.val(self.currentTitle)
-            self.input.attr("readonly", true);
+            //self.input.attr("readonly", true);
         } else {
             self.input.val(self.options[0].html());
         }
