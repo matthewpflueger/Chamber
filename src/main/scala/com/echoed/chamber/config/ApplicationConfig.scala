@@ -3,7 +3,7 @@ package com.echoed.chamber.config
 import org.springframework.context.annotation.{Bean, Configuration}
 import akka.actor.{Props, ActorSystem}
 import javax.annotation.Resource
-import com.echoed.chamber.services.{ActorClient, GlobalsManager, EventProcessor}
+import com.echoed.chamber.services.{ActorClient, GlobalsManager}
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.geolocation.GeoLocationServiceActor
 import org.springframework.beans.factory.annotation.{Value, Autowired}
