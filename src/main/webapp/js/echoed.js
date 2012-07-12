@@ -475,6 +475,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         self.template = _.template($('#templates-components-story-login').html());
         self.element.html(self.template);
+        self.element.addClass("small");
         var facebookLoginUrl = Echoed.facebookLogin.head +
             encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(window.location.hash)) +
             Echoed.facebookLogin.tail;

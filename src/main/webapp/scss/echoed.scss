@@ -468,11 +468,12 @@ h2{
             left: 50%;
             z-index: 99999;
             width: 871px;
-
-
             background-color: #FFF;
             @include drop-shadow;
             border-radius: 3px;
+            &.small{
+                width: 460px;
+            }
 
             .story-preview{
                 border: 1px solid rgba(155,155,155, 0.5);
@@ -568,6 +569,8 @@ h2{
 
             }
 
+
+
             .field-title{
                 padding: 10px;
                 @include headerFontBold(24px,#FFF);
@@ -652,7 +655,7 @@ h2{
                 .field-login-title{
                     margin: 0px 20px 15px 20px;
                     text-align: center;
-                    @include textFontNormal(px);
+                    @include textFontNormal(20px);
                 }
                 .field-login-button{
                     text-align:center;
@@ -1720,3 +1723,8 @@ h3{
 
 .qq-upload-failed-text {display:none;}
 .qq-upload-fail .qq-upload-failed-text {display:inline;}
+
+#field-photo-upload{
+    position: relative;
+    float:right;
+}
