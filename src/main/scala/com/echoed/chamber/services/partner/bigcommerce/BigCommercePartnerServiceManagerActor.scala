@@ -20,8 +20,8 @@ import com.echoed.util.{ObjectUtils, Encrypter}
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
 import akka.actor._
 import akka.util.duration._
-import akka.event.Logging
 import akka.actor.SupervisorStrategy.Restart
+import com.echoed.chamber.services.EchoedActor
 
 
 class BigCommercePartnerServiceManagerActor(
@@ -38,8 +38,7 @@ class BigCommercePartnerServiceManagerActor(
         transactionTemplate: TransactionTemplate,
         emailService: EmailService,
         accountManagerEmail: String,
-        cacheManager: CacheManager,
-        partnerServiceManager: PartnerServiceManager) extends Actor with ActorLogging {
+        cacheManager: CacheManager) extends EchoedActor {
 
     //this will be replaced by the ActorRegistry eventually (I think)
     private var cache: ConcurrentMap[String, PartnerService] = cacheManager.getCache[PartnerService]("PartnerServices")
@@ -49,7 +48,7 @@ class BigCommercePartnerServiceManagerActor(
     }
 
 
-    def receive = {
+    def handle = {
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {
                 val ps = new BigCommercePartnerServiceActorClient(context.actorOf(Props().withCreator {
@@ -124,6 +123,7 @@ class BigCommercePartnerServiceManagerActor(
             try {
                 val bcc = BigCommerceCredentials(bc.apiPath, bc.apiUser, bc.apiToken)
                 bigCommerceAccess.validate(bcc).onComplete(_.fold(
+//                (bigCommerceAccess ? Validate(bcc)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case ValidateResponse(_, Left(e)) => error(e)

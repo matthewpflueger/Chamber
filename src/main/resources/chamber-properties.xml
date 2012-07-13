@@ -69,7 +69,6 @@
         <prop key="blobstore.containerUrl">${http.urls.products}</prop>
 
 
-
         <prop key="facebook.clientId">177687295582534</prop>
         <prop key="facebook.clientSecret">32dc29f669ce9f97bc9bade3bdf1ca79</prop>
         <prop key="facebook.appAccessToken">177687295582534|zXC5wmZqodeHhTpUVXThov7zKrA</prop>
@@ -87,7 +86,6 @@
         <prop key="twitter.callbackUrl">${http.urls.site}/twitter/login</prop>
 
         <prop key="cache.expireInMinutes">30</prop>
-
 
 
         <prop key="git.branch"></prop>
@@ -230,6 +228,7 @@
         <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
         <prop key="mail.smtp.socketFactory.port">${mail.smtp.socketFactory.port}</prop>
         <prop key="mail.smtp.socketFactory.class">${mail.smtp.socketFactory.class}</prop>
+        <prop key="accountManagerEmail">${accountManagerEmail}</prop>
     </util:properties>
 
     <util:properties id="urlsProperties">

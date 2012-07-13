@@ -13,6 +13,7 @@ import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import akka.pattern.ask
 import com.echoed.chamber.domain.AdminUser
 import akka.util.Timeout
+import akka.event.LoggingReceive
 
 
 class AdminUserServiceLocatorActor(
@@ -62,7 +63,7 @@ class AdminUserServiceLocatorActor(
         }
     }
 
-    def receive = {
+    def receive = LoggingReceive {
         case msg @ CreateAdminUserService(email) =>
             val channel = context.sender
 

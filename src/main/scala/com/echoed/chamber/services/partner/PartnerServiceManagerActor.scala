@@ -34,7 +34,6 @@ class PartnerServiceManagerActor(
         transactionTemplate: TransactionTemplate,
         emailService: EmailService,
         cacheManager: CacheManager,
-        cloudPartners: Map[String, ActorRef],
         implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
 
 
@@ -158,6 +157,7 @@ class PartnerServiceManagerActor(
             channel ! LocateResponse(msg, Right(partnerService))
 
         case msg @ Locate(partnerId) =>
+            val ctx = context
             val me = context.self
             val channel = context.sender
             implicit val ec = context.dispatcher
@@ -182,7 +182,8 @@ class PartnerServiceManagerActor(
                             case partner if (Option(partner.cloudPartnerId) == None) => me ! Create(msg, channel)
                             case partner =>
                                 log.debug("Found {} partner {}", partner.cloudPartnerId, partner.name)
-                                cloudPartners(partner.cloudPartnerId).tell(msg, channel)
+                                context.actorFor("../%sPartnerServiceManager" format partner.cloudPartnerId).tell(msg, channel)
+//                                cloudPartners(partner.cloudPartnerId).tell(msg, channel)
 //                                cloudPartners.get(partner.cloudPartnerId).actorRef.tell(msg, channel)
                         }))
             }

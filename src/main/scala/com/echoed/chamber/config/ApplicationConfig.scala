@@ -3,11 +3,10 @@ package com.echoed.chamber.config
 import org.springframework.context.annotation.{Bean, Configuration}
 import akka.actor.{Props, ActorSystem}
 import javax.annotation.Resource
-import com.echoed.chamber.services.{ActorClient, GlobalsManager}
+import com.echoed.chamber.services.GlobalsManager
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.geolocation.GeoLocationServiceActor
-import org.springframework.beans.factory.annotation.{Value, Autowired}
-import com.echoed.util.{Encrypter, BlobStore}
+import com.echoed.util.{ApplicationContextRef, Encrypter, BlobStore}
 import com.echoed.chamber.services.image.{ImageService, ImageServiceActor}
 import com.echoed.chamber.services.event.EventServiceActor
 import com.echoed.chamber.services.email.{EmailService, EmailServiceActor}
@@ -20,7 +19,7 @@ import dispatch.Http
 import com.echoed.chamber.services.facebook._
 import com.echoed.cache.CacheManager
 import com.echoed.chamber.services.partner.magentogo.{MagentoGoAccess, MagentoGoPartnerServiceManagerActor, MagentoGoPartnerServiceManager, MagentoGoAccessActor}
-import com.echoed.chamber.services.partner.bigcommerce.{BigCommercePartnerServiceManagerActor, BigCommerceAccess, BigCommercePartnerServiceManager, BigCommerceAccessActor}
+import com.echoed.chamber.services.partner.bigcommerce._
 import com.echoed.chamber.services.partner.networksolutions._
 import com.echoed.chamber.services.partner.shopify.{ShopifyAccess, ShopifyPartnerServiceManagerActor, ShopifyPartnerServiceManager, ShopifyAccessDispatchActor}
 import com.echoed.chamber.services.echo.EchoServiceActor
@@ -34,118 +33,107 @@ import com.echoed.chamber.dao.partner.shopify.ShopifyPartnerDao
 import com.echoed.chamber.dao.partner.networksolutions.NetworkSolutionsPartnerDao
 import com.echoed.chamber.dao.partner.bigcommerce.BigCommercePartnerDao
 import com.echoed.chamber.dao.partner.magentogo.MagentoGoPartnerDao
+import java.util.Properties
+import scala.collection.JavaConversions._
 
 @Configuration
 class ApplicationConfig {
 
-    @Autowired var geoLocationDao: GeoLocationDao = _
-    @Value("${geolocation.serviceUrl}") var geoLocationServiceUrl: String = _
-    @Value("${geolocation.lastUpdatedBeforeHours}") var geoLocationLastUpdatedBeforeHours: Int = _
+    private val ctx = ApplicationContextRef.applicationContext
 
-    @Autowired var blobStore: BlobStore = _
-    @Autowired var imageDao: ImageDao = _
+    @Resource(name = "geoLocationDao") var geoLocationDao: GeoLocationDao = _
+    @Resource(name = "geoLocationProperties") var geoLocationProperties: Properties = _
 
-    @Autowired var eventLogDao: EventLogDao = _
+    @Resource(name = "blobStore") var blobStore: BlobStore = _
+    @Resource(name = "imageDao") var imageDao: ImageDao = _
 
-    @Autowired var javaMailSender: JavaMailSender = _
-    @Autowired var globalsManager: GlobalsManager = _
-    @Autowired var mustacheEngine: MustacheEngine = _
-    @Value("${mail.from}") var mailFrom: String = _
+    @Resource(name = "eventLogDao") var eventLogDao: EventLogDao = _
 
-    @Autowired var feedDao: FeedDao = _
-    @Autowired var partnerDao: PartnerDao = _
-    @Autowired var echoedUserDao: EchoedUserDao = _
+    @Resource(name = "javaMailSender") var javaMailSender: JavaMailSender = _
+    @Resource(name = "globalsManager") var globalsManager: GlobalsManager = _
+    @Resource(name = "mustacheEngine") var mustacheEngine: MustacheEngine = _
 
-    @Value("${facebook.clientId}") var facebookClientId: String = _
-    @Value("${facebook.clientSecret}") var facebookClientSecret: String = _
-    @Value("${facebook.redirectUrl}") var facebookRedirectUrl: String = _
-    @Value("${facebook.canvasApp}") var facebookCanvasApp: String = _
-    @Value("${facebook.appNameSpace}") var facebookAppNameSpace: String = _
+    @Resource(name = "mailProperties") var mailProperties: Properties = _
 
-    @Autowired var httpClient: Http = _
+    @Resource(name = "feedDao") var feedDao: FeedDao = _
+    @Resource(name = "partnerDao") var partnerDao: PartnerDao = _
+    @Resource(name = "echoedUserDao") var echoedUserDao: EchoedUserDao = _
 
-    @Autowired var facebookPostDao: FacebookPostDao = _
-    @Autowired var facebookLikeDao: FacebookLikeDao = _
-    @Autowired var facebookCommentDao: FacebookCommentDao = _
+    @Resource(name = "facebookAccessProperties") var facebookAccessProperties: Properties = _
+
+    @Resource(name = "httpClient") var httpClient: Http = _
+
+    @Resource(name = "facebookPostDao") var facebookPostDao: FacebookPostDao = _
+    @Resource(name = "facebookLikeDao") var facebookLikeDao: FacebookLikeDao = _
+    @Resource(name = "facebookCommentDao") var facebookCommentDao: FacebookCommentDao = _
     @Resource(name = "facebookAccess") var facebookAccess: FacebookAccess = _
 
-    @Autowired var cacheManager: CacheManager = _
-    @Autowired var facebookUserDao: FacebookUserDao = _
-    @Autowired var facebookFriendDao: FacebookFriendDao = _
-    @Autowired var partnerSettingsDao: PartnerSettingsDao = _
-    @Value("${http.urls.site}/echo") var echoClickUrl: String = _
+    @Resource(name = "cacheManager") var cacheManager: CacheManager = _
+    @Resource(name = "facebookUserDao") var facebookUserDao: FacebookUserDao = _
+    @Resource(name = "facebookFriendDao") var facebookFriendDao: FacebookFriendDao = _
+    @Resource(name = "partnerSettingsDao") var partnerSettingsDao: PartnerSettingsDao = _
+    @Resource(name = "urlsProperties") var urlsProperties: Properties = _
 
-    @Value("${networksolutions.application}") var networkSolutionsApplication: String = _
-    @Value("${networksolutions.certificate}") var networkSolutionsCertificate: String = _
+    @Resource(name = "networkSolutionsProperties") var networkSolutionsProperties: Properties = _
 
-    @Value("${shopify.apiKey}") var shopifyApiKey: String = _
-    @Value("${shopify.sharedSecret}") var shopifySharedSecret: String = _
+    @Resource(name = "shopifyProperties") var shopifyProperties: Properties = _
 
-    @Autowired var echoDao: EchoDao = _
-    @Autowired var echoMetricsDao: EchoMetricsDao = _
-    @Autowired var echoClickDao: EchoClickDao = _
-    @Autowired var imageService: ImageService = _
-    @Autowired var transactionTemplate: TransactionTemplate = _
+    @Resource(name = "echoDao") var echoDao: EchoDao = _
+    @Resource(name = "echoMetricsDao") var echoMetricsDao: EchoMetricsDao = _
+    @Resource(name = "echoClickDao") var echoClickDao: EchoClickDao = _
+    @Resource(name = "imageService") var imageService: ImageService = _
+    @Resource(name = "transactionTemplate") var transactionTemplate: TransactionTemplate = _
 
-    @Value("${twitter.consumerKey}") var twitterConsumerKey: String = _
-    @Value("${twitter.consumerSecret}") var twitterConsumerSecret: String = _
-    @Value("${twitter.callbackUrl}") var twitterCallbackUrl: String = _
+    @Resource(name = "twitterAccessProperties") var twitterProperties: Properties = _
 
-    @Autowired var twitterAccess: TwitterAccess = _
-    @Autowired var twitterUserDao: TwitterUserDao = _
-    @Autowired var twitterStatusDao: TwitterStatusDao = _
+    @Resource(name = "twitterAccess") var twitterAccess: TwitterAccess = _
+    @Resource(name = "twitterUserDao") var twitterUserDao: TwitterUserDao = _
+    @Resource(name = "twitterStatusDao") var twitterStatusDao: TwitterStatusDao = _
 
-    @Autowired var closetDao: ClosetDao = _
-    @Autowired var echoedFriendDao: EchoedFriendDao = _
-    @Autowired var storyDao: StoryDao = _
-    @Autowired var chapterDao: ChapterDao = _
-    @Autowired var chapterImageDao: ChapterImageDao = _
-    @Autowired var commentDao: CommentDao = _
-    @Autowired var facebookServiceLocator: FacebookServiceLocator = _
-    @Autowired var twitterServiceLocator: TwitterServiceLocator = _
+    @Resource(name = "closetDao") var closetDao: ClosetDao = _
+    @Resource(name = "echoedFriendDao") var echoedFriendDao: EchoedFriendDao = _
+    @Resource(name = "storyDao") var storyDao: StoryDao = _
+    @Resource(name = "chapterDao") var chapterDao: ChapterDao = _
+    @Resource(name = "chapterImageDao") var chapterImageDao: ChapterImageDao = _
+    @Resource(name = "commentDao") var commentDao: CommentDao = _
+    @Resource(name = "facebookServiceLocator") var facebookServiceLocator: FacebookServiceLocator = _
+    @Resource(name = "twitterServiceLocator") var twitterServiceLocator: TwitterServiceLocator = _
 
-    @Autowired var encrypter: Encrypter = _
-    @Autowired var partnerUserDao: PartnerUserDao = _
-    @Autowired var partnerViewDao: PartnerViewDao = _
+    @Resource(name = "encrypter") var encrypter: Encrypter = _
+    @Resource(name = "partnerUserDao") var partnerUserDao: PartnerUserDao = _
+    @Resource(name = "partnerViewDao") var partnerViewDao: PartnerViewDao = _
 
-    @Autowired var adminUserDao: AdminUserDao = _
-    @Autowired var adminViewDao: AdminViewDao = _
+    @Resource(name = "adminUserDao") var adminUserDao: AdminUserDao = _
+    @Resource(name = "adminViewDao") var adminViewDao: AdminViewDao = _
 
-    @Autowired var emailService: EmailService = _
+    @Resource(name = "emailService") var emailService: EmailService = _
 
-    @Autowired var shopifyPartnerServiceManager: ShopifyPartnerServiceManager = _
-    @Autowired var networkSolutionsPartnerServiceManager: NetworkSolutionsPartnerServiceManager = _
-    @Autowired var bigCommercePartnerServiceManager: BigCommercePartnerServiceManager = _
-    @Autowired var magentoGoPartnerServiceManager: MagentoGoPartnerServiceManager = _
+    @Resource(name = "shopifyPartnerServiceManager") var shopifyPartnerServiceManager: ShopifyPartnerServiceManager = _
+    @Resource(name = "networkSolutionsPartnerServiceManager") var networkSolutionsPartnerServiceManager: NetworkSolutionsPartnerServiceManager = _
+    @Resource(name = "bigCommercePartnerServiceManager") var bigCommercePartnerServiceManager: BigCommercePartnerServiceManager = _
+    @Resource(name = "magentoGoPartnerServiceManager") var magentoGoPartnerServiceManager: MagentoGoPartnerServiceManager = _
 
-    @Autowired var shopifyAccess: ShopifyAccess = _
-    @Autowired var shopifyPartnerDao: ShopifyPartnerDao = _
-    @Value("${accountManagerEmail}") var accountManagerEmail: String = _
-    @Autowired var partnerServiceManager: PartnerServiceManager = _
+    @Resource(name = "shopifyAccess") var shopifyAccess: ShopifyAccess = _
+    @Resource(name = "shopifyPartnerDao") var shopifyPartnerDao: ShopifyPartnerDao = _
+    @Resource(name = "partnerServiceManager") var partnerServiceManager: PartnerServiceManager = _
 
-    @Autowired var networkSolutionsAccess: NetworkSolutionsAccess = _
-    @Autowired var networkSolutionsPartnerDao: NetworkSolutionsPartnerDao = _
+    @Resource(name = "networkSolutionsAccess") var networkSolutionsAccess: NetworkSolutionsAccess = _
+    @Resource(name = "networkSolutionsPartnerDao") var networkSolutionsPartnerDao: NetworkSolutionsPartnerDao = _
 
-    @Autowired var bigCommerceAccess: BigCommerceAccess = _
-    @Autowired var bigCommercePartnerDao: BigCommercePartnerDao = _
-
-    @Autowired var magentoGoAccess: MagentoGoAccess = _
-    @Autowired var magentoGoPartnerDao: MagentoGoPartnerDao = _
+    @Resource(name = "bigCommerceAccess") var bigCommerceAccess: BigCommerceAccess = _
+    @Resource(name = "bigCommercePartnerDao") var bigCommercePartnerDao: BigCommercePartnerDao = _
 
 
-    @Bean def cloudPartners = Map(
-            "Shopify" -> shopifyPartnerServiceManagerActor,
-            "Network Solutions" -> networkSolutionsPartnerServiceManagerActor,
-            "BigCommerce" -> bigCommercePartnerServiceManagerActor,
-            "MagentoGo" -> magentoGoPartnerServiceManagerActor)
+    @Resource(name = "magentoGoAccess") var magentoGoAccess: MagentoGoAccess = _
+    @Resource(name = "magentoGoPartnerDao") var magentoGoPartnerDao: MagentoGoPartnerDao = _
 
 
     @Bean(destroyMethod = "shutdown") def actorSystem = ActorSystem("Chamber")
 
     @Bean def geoLocationService = actorSystem.actorOf(Props(new GeoLocationServiceActor(
             geoLocationDao,
-            geoLocationServiceUrl,
-            geoLocationLastUpdatedBeforeHours)), "GeoLocationService")
+            geoLocationProperties("geoLocationServiceUrl"),
+            Integer.parseInt(geoLocationProperties("lastUpdatedBeforeHours")))), "GeoLocationService")
 
     @Bean def imageServiceActor = actorSystem.actorOf(Props(new ImageServiceActor(
             blobStore,
@@ -154,23 +142,24 @@ class ApplicationConfig {
     @Bean def eventServiceActor() = actorSystem.actorOf(Props(new EventServiceActor(eventLogDao)), "EventService")
 
     @Bean def emailServiceActor() = actorSystem.actorOf(Props(new EmailServiceActor(
-            javaMailSender,
-            mustacheEngine,
-            globalsManager,
-            mailFrom)), "EmailService")
+            javaMailSender = javaMailSender,
+            mustacheEngine = mustacheEngine,
+            globalsManager = globalsManager,
+            from = mailProperties("mail.from"))), "EmailService")
 
     @Bean def feedServiceActor = actorSystem.actorOf(Props(new FeedServiceActor(
             feedDao,
             partnerDao,
             echoedUserDao)), "FeedService")
 
-    @Bean def facebookAccessActor = actorSystem.actorOf(Props(new FacebookAccessDispatchActor(
-            facebookClientId,
-            facebookClientSecret,
-            facebookRedirectUrl,
-            facebookCanvasApp,
-            facebookAppNameSpace,
-            httpClient)), "FacebookAccess")
+    @Bean
+    def facebookAccessActor = actorSystem.actorOf(Props(new FacebookAccessDispatchActor(
+            clientId = facebookAccessProperties("clientId"),
+            clientSecret = facebookAccessProperties("clientSecret"),
+            redirectUrl = facebookAccessProperties("redirectUrl"),
+            canvasApp = facebookAccessProperties("canvasApp"),
+            appNameSpace = facebookAccessProperties("appNameSpace"),
+            httpClient = httpClient)), "FacebookAccess")
 
     @Bean def facebookPostCrawlerActor = actorSystem.actorOf(Props(new FacebookPostCrawlerActor(
             facebookPostDao,
@@ -186,7 +175,7 @@ class ApplicationConfig {
             facebookFriendDao,
             partnerSettingsDao,
             partnerDao,
-            echoClickUrl)), "FacebookServiceManager")
+            urlsProperties("echoClickUrl"))), "FacebookServiceManager")
 
     @Bean def magentoGoAccessActor = actorSystem.actorOf(Props(new MagentoGoAccessActor(
             httpClient,
@@ -195,13 +184,13 @@ class ApplicationConfig {
     @Bean def bigCommerceAccessActor = actorSystem.actorOf(Props(new BigCommerceAccessActor(httpClient)), "BigCommerceAccess")
 
     @Bean def networkSolutionsAccessActor = actorSystem.actorOf(Props(new NetworkSolutionsDispatchAccessActor(
-            networkSolutionsApplication,
-            networkSolutionsCertificate,
+            networkSolutionsProperties("application"),
+            networkSolutionsProperties("certificate"),
             httpClient)), "NetworkSolutionsAccess")
 
     @Bean def shopifyAccessActor = actorSystem.actorOf(Props(new ShopifyAccessDispatchActor(
-            shopifyApiKey,
-            shopifySharedSecret,
+            shopifyProperties("shopifyApiKey"),
+            shopifyProperties("shopifySecret"),
             httpClient)), "ShopifyAccess")
 
     @Bean def echoServiceActor = actorSystem.actorOf(Props(new EchoServiceActor(
@@ -215,9 +204,9 @@ class ApplicationConfig {
             transactionTemplate = transactionTemplate)), "EchoService")
 
     @Bean def twitterAccessActor = actorSystem.actorOf(Props(new TwitterAccessActor(
-            consumerKey = twitterConsumerKey,
-            consumerSecret = twitterConsumerSecret,
-            callbackUrl = twitterCallbackUrl,
+            twitterProperties("consumerKey"),
+            twitterProperties("consumerSecret"),
+            twitterProperties("callbackUrl"),
             cacheManager = cacheManager)), "TwitterAccess")
 
     @Bean def twitterServiceLocatorActor = actorSystem.actorOf(Props(new TwitterServiceLocatorActor(
@@ -225,7 +214,7 @@ class ApplicationConfig {
             twitterAccess = twitterAccess,
             twitterUserDao = twitterUserDao,
             twitterStatusDao = twitterStatusDao,
-            echoClickUrl = echoClickUrl)), "TwitterServiceManager")
+            echoClickUrl = urlsProperties("echoClickUrl"))), "TwitterServiceManager")
 
     @Bean def echoedUserServiceLocatorActor = actorSystem.actorOf(Props(new EchoedUserServiceLocatorActor(
             echoedUserDao = echoedUserDao,
@@ -271,10 +260,12 @@ class ApplicationConfig {
             encrypter = encrypter,
             transactionTemplate = transactionTemplate,
             emailService = emailService,
-            cacheManager = cacheManager,
-            cloudPartners = cloudPartners)), "PartnerServiceManager")
+            cacheManager = cacheManager)), "PartnerServiceManager")
 
-    @Bean def shopifyPartnerServiceManagerActor = actorSystem.actorOf(Props(new ShopifyPartnerServiceManagerActor(
+    @Bean def shopifyPartnerServiceManagerActor = {
+        val sa = Option(shopifyAccess).getOrElse(ctx.getBean("shopifyAccess", classOf[ShopifyAccess]))
+        val spd = Option(shopifyPartnerDao).getOrElse(ctx.getBean("shopifyPartnerDao", classOf[ShopifyPartnerDao]))
+        actorSystem.actorOf(Props(new ShopifyPartnerServiceManagerActor(
             partnerDao = partnerDao,
             partnerSettingsDao = partnerSettingsDao,
             partnerUserDao = partnerUserDao,
@@ -286,10 +277,10 @@ class ApplicationConfig {
             transactionTemplate = transactionTemplate,
             emailService = emailService,
             cacheManager = cacheManager,
-            shopifyAccess = shopifyAccess,
-            shopifyPartnerDao = shopifyPartnerDao,
-            accountManagerEmail = accountManagerEmail,
-            partnerServiceManager = partnerServiceManager)), "ShopifyPartnerServiceManager")
+            shopifyAccess = sa,
+            shopifyPartnerDao = spd,
+            accountManagerEmail = mailProperties("accountManagerEmail"))), "ShopifyPartnerServiceManager")
+    }
 
     @Bean def networkSolutionsPartnerServiceManagerActor = actorSystem.actorOf(Props(new NetworkSolutionsPartnerServiceManagerActor(
             partnerDao = partnerDao,
@@ -303,12 +294,16 @@ class ApplicationConfig {
             transactionTemplate = transactionTemplate,
             emailService = emailService,
             cacheManager = cacheManager,
-            accountManagerEmail = accountManagerEmail,
+            accountManagerEmail = mailProperties("accountManagerEmail"),
             networkSolutionsAccess = networkSolutionsAccess,
-            networkSolutionsPartnerDao = networkSolutionsPartnerDao,
-            partnerServiceManager = partnerServiceManager)), "NetworkSolutionsPartnerServiceManager")
+            networkSolutionsPartnerDao = networkSolutionsPartnerDao)), "NetworkSolutionsPartnerServiceManager")
 
-    @Bean def bigCommercePartnerServiceManagerActor = actorSystem.actorOf(Props(new BigCommercePartnerServiceManagerActor(
+    @Bean def bigCommercePartnerServiceManagerActor = {
+        val ba = Option(bigCommerceAccess).getOrElse(ctx.getBean("bigCommerceAccess", classOf[BigCommerceAccess]))
+        val bcpd = Option(bigCommercePartnerDao).getOrElse(ctx.getBean("bigCommercePartnerDao", classOf[BigCommercePartnerDao]))
+        actorSystem.actorOf(Props(new BigCommercePartnerServiceManagerActor(
+            bigCommerceAccess = ba,
+            bigCommercePartnerDao = bcpd,
             partnerDao = partnerDao,
             partnerSettingsDao = partnerSettingsDao,
             partnerUserDao = partnerUserDao,
@@ -320,11 +315,9 @@ class ApplicationConfig {
             transactionTemplate = transactionTemplate,
             emailService = emailService,
             cacheManager = cacheManager,
-            accountManagerEmail = accountManagerEmail,
-            bigCommerceAccess = bigCommerceAccess,
-            bigCommercePartnerDao = bigCommercePartnerDao,
-            partnerServiceManager = partnerServiceManager)), "BigCommercePartnerServiceManager")
-            
+            accountManagerEmail = mailProperties("accountManagerEmail"))), "BigCommercePartnerServiceManager")
+    }
+
     @Bean def magentoGoPartnerServiceManagerActor = actorSystem.actorOf(Props(new MagentoGoPartnerServiceManagerActor(
             partnerDao = partnerDao,
             partnerSettingsDao = partnerSettingsDao,
@@ -337,7 +330,7 @@ class ApplicationConfig {
             transactionTemplate = transactionTemplate,
             emailService = emailService,
             cacheManager = cacheManager,
-            accountManagerEmail = accountManagerEmail,
+            accountManagerEmail = mailProperties("accountManagerEmail"),
             magentoGoAccess = magentoGoAccess,
             magentoGoPartnerDao = magentoGoPartnerDao,
             partnerServiceManager = partnerServiceManager)), "MagentoGoPartnerServiceManager")

@@ -17,7 +17,7 @@ import com.echoed.chamber.services.facebook._
 import akka.util.duration._
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.views.echoeduser.Profile
-import akka.event.Logging
+import akka.event.{LoggingReceive, Logging}
 import akka.actor.SupervisorStrategy.Stop
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import org.springframework.transaction.support.TransactionTemplate
@@ -70,7 +70,7 @@ class EchoedUserServiceActor(
     }
 
 
-    def receive = {
+    def receive = LoggingReceive {
         case msg: GetEchoedUser =>
             val channel = context.sender
             channel ! GetEchoedUserResponse(msg, Right(echoedUser))

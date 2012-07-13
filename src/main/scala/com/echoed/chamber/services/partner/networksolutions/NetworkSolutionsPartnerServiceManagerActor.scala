@@ -1,9 +1,7 @@
 package com.echoed.chamber.services.partner.networksolutions
 
-import reflect.BeanProperty
 import collection.mutable.ConcurrentMap
 import com.echoed.cache.CacheManager
-import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.partner._
 import org.springframework.transaction.TransactionStatus
 import com.echoed.util.Encrypter
@@ -17,14 +15,11 @@ import partner.{PartnerSettingsDao, PartnerUserDao, PartnerDao}
 import scalaz._
 import Scalaz._
 import akka.dispatch.Future
-import java.util.{Properties, HashMap, UUID}
+import java.util.{HashMap, UUID}
 import com.echoed.chamber.domain.partner.networksolutions.NetworkSolutionsPartner
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
-import org.springframework.beans.factory.FactoryBean
 import akka.actor._
-import akka.util.Timeout
 import akka.util.duration._
-import akka.event.Logging
 import akka.actor.SupervisorStrategy.Restart
 
 
@@ -45,8 +40,7 @@ class NetworkSolutionsPartnerServiceManagerActor(
         accountManagerRegisterEmailTemplate: String = "networksolutions_accountManager_register_email",
         accountManagerEmailTemplate: String = "networksolutions_accountManager_email",
         partnerEmailTemplate: String = "networksolutions_partner_email_register",
-        cacheManager: CacheManager,
-        partnerServiceManager: PartnerServiceManager) extends Actor with ActorLogging {
+        cacheManager: CacheManager) extends Actor with ActorLogging {
 
 
     //this will be replaced by the ActorRegistry eventually (I think)
@@ -173,7 +167,7 @@ class NetworkSolutionsPartnerServiceManagerActor(
                                                 phone = ns.phone,
                                                 handle = null,
                                                 logo = null,
-                                                category = "Other").copy(cloudPartnerId = "Network Solutions")
+                                                category = "Other").copy(cloudPartnerId = "NetworkSolutions")
 
                                         val nsp = ns.copy(
                                                 userToken = userToken,

@@ -47,7 +47,6 @@ class ShopifyPartnerServiceManagerActor(
         accountManagerEmailTemplate: String = "shopify_partner_accountManager_email",
         partnerEmailTemplate: String = "shopify_partner_email_register",
         cacheManager: CacheManager,
-        partnerServiceManager: PartnerServiceManager,
         implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
 
     //this will be replaced by the ActorRegistry eventually (I think)

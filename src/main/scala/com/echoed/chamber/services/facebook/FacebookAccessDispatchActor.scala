@@ -14,17 +14,18 @@ import com.echoed.chamber.domain.FacebookTestUser
 import com.echoed.chamber.domain.FacebookComment
 import scala.Left
 import com.echoed.chamber.domain.views.FacebookPostData
-import java.util.Date
+import java.util.{Properties, Date}
+import com.echoed.chamber.services.EchoedActor
 
 
 class FacebookAccessDispatchActor(
+//        props: Properties,
         clientId: String,
         clientSecret: String,
         redirectUrl: String,
         canvasApp: String,
         appNameSpace: String,
-        httpClient: Http) extends Actor with ActorLogging {
-
+        httpClient: Http) extends EchoedActor {
 
     private val facebook = "https://graph.facebook.com"
 
@@ -59,7 +60,7 @@ class FacebookAccessDispatchActor(
     }
 
 
-    def receive = {
+    def handle = {
         case msg @ FetchMe(accessToken) =>
             val channel = context.sender
 

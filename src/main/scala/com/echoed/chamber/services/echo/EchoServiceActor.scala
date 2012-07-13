@@ -17,8 +17,9 @@ import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 import java.util.{UUID, Date}
 import java.util.{List => JList, Collections}
 import scala.collection.JavaConversions._
-import com.echoed.chamber.services.EchoedException
+import com.echoed.chamber.services.{EchoedActor, EchoedException}
 import akka.actor._
+import akka.event.LoggingReceive
 
 
 class EchoServiceActor(
@@ -30,9 +31,9 @@ class EchoServiceActor(
         imageDao: ImageDao,
         imageService: ImageService,
         transactionTemplate: TransactionTemplate,
-        filteredUserAgents: JList[String] = Collections.emptyList[String]()) extends Actor with ActorLogging {
+        filteredUserAgents: JList[String] = Collections.emptyList[String]()) extends EchoedActor {
 
-    def receive = {
+    def handle = {
         //TODO RecordEchoPossibility is deprecated and will be deleted asap!
         case msg @ RecordEchoPossibility(echoPossibility: Echo) =>
             import com.echoed.chamber.services.echo.{RecordEchoPossibilityResponse => REPR}

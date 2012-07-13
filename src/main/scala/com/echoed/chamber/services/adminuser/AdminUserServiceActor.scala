@@ -8,7 +8,7 @@ import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 
 import scalaz._
 import Scalaz._
-import akka.event.Logging
+import akka.event.{LoggingReceive, Logging}
 import akka.actor.{PoisonPill, Actor}
 
 
@@ -21,7 +21,7 @@ class AdminUserServiceActor(
 
     private final val logger = Logging(context.system, this)
 
-    def receive = {
+    def receive = LoggingReceive {
         case msg: GetUsers =>
             logger.debug("Retrieving EchoedUsers")
             sender ! GetUsersResponse(msg,Right(asScalaBuffer(adminViewDao.getUsers).toList))
