@@ -350,11 +350,11 @@ class ImageServiceActor(
                     else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_WIDTH, exhibitImageTargetWidth, bi.getHeight))
                 }) {
 
-                case Left(e) => error(image, e, Some("Error processing sized image: %s" format e.getMessage))
+                case Left(e) => error(image, e, Some("Error processing exhibit image: %s" format e.getMessage))
                 case Right(imageInfo) =>
-                    log.debug("Storing sized image {}", imageInfo.fileName)
+                    log.debug("Storing exhibit image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
-                        log.debug("Successfully stored sized of {} at {}", image.originalUrl, storedUrl)
+                        log.debug("Successfully stored exhibit of {} at {}", image.originalUrl, storedUrl)
                         me ! ProcessThumbnailImage(image.copy(
                             exhibitUrl = storedUrl,
                             exhibitWidth = imageInfo.width,
