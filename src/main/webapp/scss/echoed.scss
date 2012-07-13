@@ -1084,7 +1084,9 @@ h2{
                                 top:0px;
                                 left:0px;
                                 right:0px;
+                                word-wrap: break-word;
                                 overflow: hidden;
+
                                 .story-brief-overlay-wrap{
                                     margin: 20px;
                                     @include headerFontBold(24px, #FFF);
@@ -1783,6 +1785,5 @@ h3{
         resize: none;
         outline: 0px;
         border: 1px solid #CCC;
-
     }
 }
