@@ -33,6 +33,11 @@ case class GetPublicFeedResponse(
             message: GetPublicFeed, 
             value: Either[FE, PublicFeed]) extends FM with RM[PublicFeed, GetPublicFeed, FE]
 
+case class GetPublicStoryFeed(page: Int) extends FM
+case class GetPublicStoryFeedResponse(
+            message: GetPublicStoryFeed,
+            value: Either[FE, PublicStoryFeed]) extends FM with RM[PublicStoryFeed, GetPublicStoryFeed, FE]
+
 case class GetPublicCategoryFeed(categoryId: String, page: Int) extends FM
 case class GetPublicCategoryFeedResponse(
             message: GetPublicCategoryFeed,
@@ -43,8 +48,17 @@ case class GetUserPublicFeedResponse(
             message: GetUserPublicFeed,
             value: Either[FE, EchoedUserFeed]) extends FM with RM[EchoedUserFeed, GetUserPublicFeed, FE]
 
+case class GetUserPublicStoryFeed(echoedUserId: String, page: Int) extends FM
+case class GetUserPublicStoryFeedResponse(
+            message: GetUserPublicStoryFeed,
+            value: Either[FE, EchoedUserStoryFeed]) extends FM with RM[EchoedUserStoryFeed, GetUserPublicStoryFeed, FE]
+
 case class GetPartnerFeed(partnerId: String, page: Int) extends FM
 case class GetPartnerFeedResponse(
             message: GetPartnerFeed,
             value: Either[FE, PartnerFeed]) extends FM with RM[PartnerFeed, GetPartnerFeed, FE]
 
+case class GetPartnerStoryFeed(partnerId: String, page: Int) extends FM
+case class GetPartnerStoryFeedResponse(
+            message: GetPartnerStoryFeed,
+            value: Either[FE, PartnerStoryFeed]) extends FM with RM[PartnerStoryFeed, GetPartnerStoryFeed, FE]

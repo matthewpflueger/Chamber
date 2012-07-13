@@ -3,13 +3,12 @@ package com.echoed.chamber.services.feed
 import scala.collection.JavaConversions._
 import com.echoed.chamber.dao.views._
 import akka.actor._
+import akka.actor.{ActorSystem, Props, ActorRef, Actor}
 import com.echoed.chamber.dao.partner.PartnerDao
 import com.echoed.chamber.dao.EchoedUserDao
-import com.echoed.chamber.domain.public.EchoedUserPublic
-import com.echoed.chamber.domain.public.PartnerPublic
+import com.echoed.chamber.domain.public._
 import scala.Right
-import com.echoed.chamber.domain.views.PartnerFeed
-import com.echoed.chamber.domain.views.EchoedUserFeed
+import com.echoed.chamber.domain.views._
 import scala.Left
 import com.echoed.chamber.domain.views.PublicFeed
 import com.echoed.chamber.services.EchoedActor
@@ -36,6 +35,21 @@ class FeedServiceActor(
                 case e=>
                     channel ! GetPublicFeedResponse(msg, Left(new FeedException("Cannot get public feed", e)))
                     log.error("Unexpected error processing {} , {}", msg, e)
+            }
+
+        case msg @ GetPublicStoryFeed(page: Int) =>
+            val channel = context.sender
+            val limit = 30
+            val start = msg.page * limit
+            try {
+                log.debug("Attempting to retrieve Public Story Feed")
+                val stories = asScalaBuffer(feedDao.getStories(start, limit))
+                val feed = new PublicStoryFeed(stories)
+                channel ! GetPublicStoryFeedResponse(msg, Right(feed))
+            } catch {
+                case e =>
+                    channel ! GetPublicStoryFeedResponse(msg, Left(new FeedException("Cannot get public story feed", e)))
+                    log.error("Unexpected error processing {}, {}", msg, e)
             }
 
         case msg @ GetPublicCategoryFeed(categoryId: String, page: Int) =>
@@ -73,6 +87,22 @@ class FeedServiceActor(
                     log.error("Unexpected error processesing {}, {}", msg, e)
             }
 
+        case msg @ GetUserPublicStoryFeed(echoedUserId: String, page: Int) =>
+            val channel = context.sender
+            val limit = 30
+            val start = msg.page * limit
+            try {
+                log.debug("Attempting to retrieve story feed for user: {}", echoedUserId)
+                val echoedUser = echoedUserDao.findById(echoedUserId)
+                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id)).toList
+                val feed = new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), stories)
+                channel ! GetUserPublicStoryFeedResponse(msg, Right(feed))
+            } catch {
+                case e =>
+                    channel ! GetUserPublicStoryFeedResponse(msg, Left(new FeedException("Cannot get user public story feed", e)))
+                    log.error("Unexpected error processesiong {}, {}", msg, e)
+            }
+
         case msg @ GetPartnerFeed(partnerId: String, page: Int) =>
             val channel = context.sender
             try{
@@ -88,6 +118,22 @@ class FeedServiceActor(
                 case e =>
                     channel ! GetPartnerFeedResponse(msg, Left(new FeedException("Cannot get partner feed", e)))
                     log.error("Unexpected error processesing {}, {}", msg, e)
+            }
+
+        case msg @ GetPartnerStoryFeed(partnerId: String, page: Int) =>
+            val channel = context.sender
+            try {
+                val partnerId = msg.partnerId
+                val limit = 30
+                val start = msg.page * limit
+                val partner = partnerDao.findByIdOrHandle(partnerId)
+                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id)).toList
+                val partnerFeed = new PartnerStoryFeed(new PartnerPublic(partner), stories)
+                channel ! GetPartnerStoryFeedResponse(msg, Right(partnerFeed))
+            } catch {
+                case e =>
+                    channel ! GetPartnerStoryFeedResponse(msg, Left(new FeedException("Cannot get partner story feed", e)))
+                    log.error("Unexpected error processing {} , {}", msg, e)
             }
 
         case msg @ GetStory(storyId) =>
