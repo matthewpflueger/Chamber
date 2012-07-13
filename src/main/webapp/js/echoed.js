@@ -362,7 +362,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             self.currentChapter.text = self.data.storyFull.chapters[chapterIndex].text;
             self.currentChapter.id = chapterId;
             $("#chapter-title").val(self.data.storyFull.chapters[chapterIndex].title);
-            $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text).expandingTextarea();
+            $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text)
             $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                 if(chapterImage.chapterId === chapterId){
                     var thumbDiv = $('<div></div>').addClass("thumb");
@@ -378,6 +378,8 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         $.each(self.data.storyPrompts.prompts, function(index, prompt){
             selectOptions.optionsArray.push(prompt)
         });
+
+        $("#chapter-text").expandingTextarea();
 
         self.select = new Echoed.Views.Components.Select(selectOptions);
         var uploader = new qq.FileUploader({
@@ -513,7 +515,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             self.element.find('.field-title').html("Share Your " + self.data.partner.name + " Story");
         }
         if(self.data.echo){
-            $("#field-photo").attr("src", self.data.echo.image.sizedUrl);
+            $("#field-photo").attr("src", self.data.echo.image.preferredUrl);
             self.data.imageId = self.data.echo.image.id;
             $("#story-from").val(self.data.partner.name).attr("readonly",true);
             $("#story-name").val(self.data.echo.productName);
@@ -1327,7 +1329,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var width = 260;
         if(image.originalUrl !== null){
             //imageNode.attr("src", image.originalUrl).css({
-            imageNode.attr("src", image.sizedUrl).css({
+            imageNode.attr("src", image.preferredUrl).css({
                 "height" : width * hToWidthRatio,
                 "width" : width
             });

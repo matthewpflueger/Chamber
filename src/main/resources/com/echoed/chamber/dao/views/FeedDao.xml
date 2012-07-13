@@ -53,22 +53,7 @@
             P.name as partnerName,
             P.handle as partnerHandle,
             P.id as partnerId,
-            I.id as imageId,
-            I.updatedOn as imageUpdatedOn,
-            I.createdOn as imageCreatedOn,
-            I.url as imageUrl,
-            I.originalUrl as imageOriginalUrl,
-            I.originalWidth as imageOriginalWidth,
-            I.originalHeight as imageOriginalHeight,
-            I.sizedUrl as imageSizedUrl,
-            I.sizedWidth as imageSizedWidth,
-            I.sizedHeight as imageSizedHeight,
-            I.thumbnailUrl as imageThumbnailUrl,
-            I.thumbnailWidth as imageThumbnailWidth,
-            I.thumbnailHeight as imageThumbnailHeight,
-            I.processedOn as imageProcessedOn,
-            I.processedStatus as imageProcessedStatus,
-            I.retries as imageRetries
+            <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
         from
             Echo E
             join Image I on E.imageId = I.id

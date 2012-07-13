@@ -15,6 +15,9 @@ case class Image(
         sizedUrl: String,
         sizedWidth: Int,
         sizedHeight: Int,
+        exhibitUrl: String,
+        exhibitWidth: Int,
+        exhibitHeight: Int,
         thumbnailUrl: String,
         thumbnailWidth: Int,
         thumbnailHeight: Int,
@@ -28,6 +31,9 @@ case class Image(
         new Date,
         new Date,
         url,
+        null,
+        0,
+        0,
         null,
         0,
         0,
@@ -65,16 +71,18 @@ case class Image(
     val originalFileName = findFileName(originalUrl)
     val sizedFileName = findFileName(sizedUrl)
     val thumbnailFileName = findFileName(thumbnailUrl)
+    val exhibitFileName = findFileName(exhibitUrl)
 
     val hasOriginal = originalUrl != null && originalWidth > 0 && originalHeight > 0
     val hasSized = sizedUrl != null && sizedWidth > 0 && sizedHeight > 0
     val hasThumbnail = thumbnailUrl != null && thumbnailWidth > 0 && thumbnailHeight > 0
+    val hasExhibit = exhibitUrl != null && exhibitWidth > 0 && exhibitHeight > 0
 
-    val isProcessed = processedOn != null && hasOriginal && hasSized && hasThumbnail
+    val isProcessed = processedOn != null && hasOriginal && hasSized && hasThumbnail && hasExhibit
     
-    val preferredUrl = if (hasSized) sizedUrl else if (hasOriginal) originalUrl else url
-    val preferredWidth = if (hasSized) sizedWidth else if (hasOriginal) originalWidth else 0
-    val preferredHeight = if (hasSized) sizedHeight else if (hasOriginal) originalHeight else 0
+    val preferredUrl = if (hasExhibit) exhibitUrl else if (hasSized) sizedUrl else if (hasOriginal) originalUrl else url
+    val preferredWidth = if (hasExhibit) exhibitWidth else if (hasSized) sizedWidth else if (hasOriginal) originalWidth else 0
+    val preferredHeight = if (hasExhibit) exhibitHeight else if (hasSized) sizedHeight else if (hasOriginal) originalHeight else 0
 
 }
 

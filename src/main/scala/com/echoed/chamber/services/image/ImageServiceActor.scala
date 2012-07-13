@@ -32,6 +32,7 @@ class ImageServiceActor(
         imageDao: ImageDao,
         minimumValidImageWidth: Int = 120,
         sizedImageTargetWidth: Int = 230,
+        exhibitImageTargetWidth: Int= 260,
         thumbImageTargetWidth: Int = 120,
         thumbImageTargetHeight: Int = 120,
         findUnprocessedImagesInterval: Long = 60000,
@@ -320,12 +321,46 @@ class ImageServiceActor(
                     log.debug("Storing sized image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
                         log.debug("Successfully stored sized of {} at {}", image.originalUrl, storedUrl)
-                        me ! ProcessThumbnailImage(image.copy(
+                        me ! ProcessExhibitImage(image.copy(
                                 sizedUrl = storedUrl,
                                 sizedWidth = imageInfo.width,
                                 sizedHeight = imageInfo.height,
                                 processedOn = new Date,
                                 processedStatus = "processed"))
+                    }
+            }
+
+
+        case msg @ ProcessExhibitImage(image) =>
+            val me = self
+
+            log.debug("Processing exhibit image from {}", image.originalUrl)
+            processImage(
+                image,
+                image.originalUrl,
+                "exhibit",
+                url => {
+                    val bytes = download(url)
+                    //we've successfully tested that our sized image is there so let's update to prevent starting from scratch...
+                    update(image)
+                    bytes
+                },
+                bi => {
+                    if (bi.getWidth == exhibitImageTargetWidth) None
+                    else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_WIDTH, exhibitImageTargetWidth, bi.getHeight))
+                }) {
+
+                case Left(e) => error(image, e, Some("Error processing sized image: %s" format e.getMessage))
+                case Right(imageInfo) =>
+                    log.debug("Storing sized image {}", imageInfo.fileName)
+                    store(image, imageInfo) { storedUrl =>
+                        log.debug("Successfully stored sized of {} at {}", image.originalUrl, storedUrl)
+                        me ! ProcessThumbnailImage(image.copy(
+                            exhibitUrl = storedUrl,
+                            exhibitWidth = imageInfo.width,
+                            exhibitHeight = imageInfo.height,
+                            processedOn = new Date,
+                            processedStatus = "processed"))
                     }
             }
 

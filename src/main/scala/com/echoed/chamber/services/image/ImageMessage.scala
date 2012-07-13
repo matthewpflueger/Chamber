@@ -62,6 +62,7 @@ case class ProcessLowPriorityImageResponse(
 private[image] case class ProcessOriginalImage(image: Image) extends IM
 private[image] case class ProcessSizedImage(image: Image) extends IM
 private[image] case class ProcessThumbnailImage(image: Image) extends IM
+private[image] case class ProcessExhibitImage(image: Image) extends IM
 
 private[image] case class FindUnprocessedImage() extends IM
 
