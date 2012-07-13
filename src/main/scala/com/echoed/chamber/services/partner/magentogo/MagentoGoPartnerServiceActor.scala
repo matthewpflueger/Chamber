@@ -37,9 +37,9 @@ class MagentoGoPartnerServiceActor(
         encrypter) {
 
 
-    override def receive = magentoGoPartnerReceive.orElse(super.receive)
+    override def handle = magentoGoPartnerHandle.orElse(super.handle)
 
-    private def magentoGoPartnerReceive: Receive = {
+    private def magentoGoPartnerHandle: Receive = {
         case msg @ RequestEcho(
                 partnerId,
                 order,
