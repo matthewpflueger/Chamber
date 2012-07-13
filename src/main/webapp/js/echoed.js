@@ -1558,9 +1558,9 @@ function timeElapsedString(date){
     if(dayDiff >= 1 ){
         responseString = dayDiff + " day" + pluralize(dayDiff);
     } else if (hourDiff >= 1) {
-        responseString = dayDiff + " hour" + pluralize(hourDiff);
-    } else {
-        responseString = dayDiff + " minute" + pluralize(minDiff);
+        responseString = hourDiff + " hour" + pluralize(hourDiff);
+    } else if (minDiff >= 1){
+        responseString = minDiff + " minute" + pluralize(minDiff);
     }
     responseString = responseString + " ago";
     return responseString;
