@@ -200,15 +200,6 @@ h2{
         min-width: 740px;
     }
 
-    #header{
-        height: 40px;
-        background-color: #FFF;
-        width: 100%;
-        position: fixed;
-        z-index: 99999;
-        //@include drop-shadow;
-    }
-
     #header-container{
         position: fixed;
         z-index: 1000;
@@ -216,7 +207,18 @@ h2{
         left: 0px;
         right: 0px;
         height: 40px;
-        background-color: #FFF;
+        background: #ffffff; /* Old browsers */
+        /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2YzZjNmMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUxJSIgc3RvcC1jb2xvcj0iI2VkZWRlZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZmZmZmYiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+        background: -moz-linear-gradient(top,  #ffffff 0%, #f3f3f3 50%, #ededed 51%, #ffffff 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(50%,#f3f3f3), color-stop(51%,#ededed), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* IE10+ */
+        background: linear-gradient(to bottom,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-8 */
+        //background-color: #FFF;
+        //background-image: image-url("bk_header.png");
         @include drop-shadow;
 
         #logo{
@@ -231,7 +233,6 @@ h2{
             float:right;
             margin: 0px 10px;
             padding: 3px 0px;
-            background-color: #FFF;
             #user-text{
                 margin-left: 10px;
                 line-height:30px;
@@ -497,6 +498,8 @@ h2{
                     position: relative;
                     border: 6px solid #F0F0F0;
                     border-radius: 3px;
+                    max-height: 250px;
+                    overflow:hidden;
                     #story-preview-photo{
                         width: 200px;
                     }
@@ -517,9 +520,17 @@ h2{
                 }
                 .story-preview-from{
                     font-weight: bold;
+                    width: 200px;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow:hidden;
                 }
                 .story-preview-by{
                     font-weight: bold;
+                    width: 200px;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow:hidden;
                 }
             }
 
@@ -929,7 +940,7 @@ h2{
                             textarea{
                                 @include textFontNormal(14px);
                                 width: 300px;
-                                padding: 5px 6px;
+                                //padding: 5px 6px;
                                 resize: none;
                                 outline: 0px;
                                 height: 100px;
@@ -1030,15 +1041,15 @@ h2{
                                 width: 220px;
                                 white-space: nowrap;
                                 text-overflow: ellipsis;
+                                overflow:hidden;
                             }
                             .story-brief-text-by{
                                 width: 220px;
                                 width: 220px;
                                 white-space: nowrap;
                                 text-overflow: ellipsis;
+                                overflow:hidden;
                             }
-
-
                             .story-brief-text-quote{
                                 overflow: hidden;
                                 margin-top: 10px;
@@ -1465,7 +1476,46 @@ h3{
     top: 75px;
     left: 50%;
     z-index: 99999;
-    width: 765px;
+    width: 876px;
+}
+
+.echo-story-main{
+    float:left;
+    border-right: 1px solid #CCC;
+}
+.echo-story-gallery{
+    width: 104px;
+    height: 100px;
+    float:left;
+    padding: 10px 5px;
+    text-align: center;
+    .echo-gallery-header{
+        @include textFontBold(14px);
+        text-shadow: 0px 1px #FFF;
+        margin-bottom: 5px;
+    }
+    .echo-gallery-chapter{
+        padding: 5px;
+        margin-bottom: 5px;
+        background-color: rgba(0,0,0,0.1);
+        cursor: pointer;
+        &:hover, &.highlight{
+            background-color: #F0F0F0;
+        }
+    }
+    .echo-gallery-title{
+        @include textFontBold(12px);
+        text-shadow: 0px 1px #FFF;
+        margin-bottom: 5px;
+    }
+    .echo-s-b-thumbnail{
+        margin: 5px 0px;
+        border: 2px solid #666;
+        cursor: pointer;
+        &:hover, &.highlight{
+            border-color: #FFF;
+        }
+    }
 }
 .echo-story-container{
     position:relative;
@@ -1482,6 +1532,8 @@ h3{
     }
     .echo-story-header{
         padding: 10px;
+        border-bottom: 1px solid #CCC;
+        box-shadow: 0px 1px 0px #FFF;
         .echo-s-h-title{
             @include textFontNormal(16px);
             .echo-s-h-t-t{
@@ -1539,10 +1591,8 @@ h3{
     }
     .echo-story-body{
         position: relative;
-        margin: 5px 10px;
+        margin: 0px 10px;
         padding: 10px 0px;
-        border-top: 1px solid #FFF;
-        box-shadow: 0px -1px 0px #CCC;
         .echo-s-b-text{
             float:left;
             width: 300px;
@@ -1575,42 +1625,26 @@ h3{
         }
         .echo-s-b-gallery{
             float: left;
-            width: 412px;
-            margin-left: 12px;
+            width: 410px;
+            margin-left: 10px;
             text-align:center;
             .echo-s-b-item{
                 cursor: pointer;
                 display: table-cell;
                 vertical-align: middle;
                 text-align: left;
-                background-color: rgba(0, 0, 0, 0.1);
-                height: 310px;
+                border: 5px solid #FFF;
                 .echo-s-b-i-c{
                     margin: auto;
-                    width: 410px;
+                    width: 400px;
                     overflow:hidden;
                     text-align: center;
 
                     img{
-                        border: 5px solid #FFF;
-                        max-width: 400px;
-                        max-height: 300px;
+                        width: 400px;
                         display: block;
                         margin: auto;
 
-                    }
-                }
-            }
-            .echo-s-b-thumbnails{
-                text-align: left;
-                margin-top: 3px;
-                .echo-s-b-thumbnail{
-                    height: 60px;
-                    border: 2px solid #CCC;
-                    margin-right: 3px;
-                    cursor: pointer;
-                    &.highlight{
-                        border-color: #FFF;
                     }
                 }
             }
@@ -1755,3 +1789,11 @@ h3{
     font-style: italic;
 }
 
+.expandingText{
+    display: inline-block;
+    margin-bottom: 10px;
+    textarea, .textareaClone{
+        min-height: 5em;
+        padding: 5px 6px;
+    }
+}

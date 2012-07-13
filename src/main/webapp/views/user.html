@@ -124,7 +124,7 @@
                                 <span class="chapter-italics">There's no right or wrong way to to do this. Keep it simple! If you only want to write a sentence that's fine.</span>
 
                             </label>
-                            <textarea id="chapter-text"></textarea>
+                            <textarea id="chapter-text" class="expanding"></textarea>
                         </div>
                         <div class="chapter-edit-body-row">
                             <label>
@@ -151,7 +151,7 @@
         </div>
     </script>
     <script type="text/template" id="templates-components-story">
-        <div class="echo-story-container">
+        <div class="echo-story-container clearfix">
             <div class="echo-story-header clearfix">
                 <div class="echo-s-h-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
                 <div class="echo-s-h-title clearfix">
@@ -164,35 +164,39 @@
                     </div>
                 </div>
             </div>
-
-            <div class="echo-story-body clearfix">
-                <div class="echo-s-b-text">
-                    <!--<div class="echo-s-b-t-t"></div>
-                    <div class="echo-s-b-t-b"></div>
-                    <div class="echo-chapters clearfix">
-                        <div class="echo-chapters-title">
-                            Stories
-                        </div>
-                    </div>-->
+            <div class="echo-story-main">
+                <div class="echo-story-body clearfix">
+                    <div class="echo-s-b-text">
+                        <!--<div class="echo-s-b-t-t"></div>
+                        <div class="echo-s-b-t-b"></div>
+                        <div class="echo-chapters clearfix">
+                            <div class="echo-chapters-title">
+                                Stories
+                            </div>
+                        </div>-->
+                    </div>
+                    <div class="echo-s-b-segment"></div>
+                    <div class="echo-s-b-gallery clearfix">
+                    </div>
                 </div>
-                <div class="echo-s-b-segment"></div>
-                <div class="echo-s-b-gallery clearfix">
+                <div class="echo-story-footer clearfix">
+                    <div class="echo-story-comments">
+                        <div class="echo-s-c-t">
+                            Discussion <span id="echo-s-c-t-count"></span>
+                        </div>
+                        <div class="echo-s-c-ta">
+                            <textarea id="echo-story-comment-ta"></textarea>
+                        </div>
+                        <span class="comment-submit" style="display: none;">Submit Comment</span>
+                        <span class="comment-login" style="display: none;"></span>
+                        <div class="echo-s-c-l">
+                            <!-- Comment List -->
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="echo-story-footer clearfix">
-                <div class="echo-story-comments">
-                    <div class="echo-s-c-t">
-                        Discussion <span id="echo-s-c-t-count"></span>
-                    </div>
-                    <div class="echo-s-c-ta">
-                        <textarea id="echo-story-comment-ta"></textarea>
-                    </div>
-                    <span class="comment-submit" style="display: none;">Submit Comment</span>
-                    <span class="comment-login" style="display: none;"></span>
-                    <div class="echo-s-c-l">
-                        <!-- Comment List -->
-                    </div>
-                </div>
+            <div id="echo-story-gallery" class="echo-story-gallery">
+                <div class="echo-gallery-header">Topics:</div>
             </div>
         </div>
     </script>

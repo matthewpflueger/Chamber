@@ -362,8 +362,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             self.currentChapter.text = self.data.storyFull.chapters[chapterIndex].text;
             self.currentChapter.id = chapterId;
             $("#chapter-title").val(self.data.storyFull.chapters[chapterIndex].title);
-            $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text);
-
+            $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text).expandingTextarea();
             $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                 if(chapterImage.chapterId === chapterId){
                     var thumbDiv = $('<div></div>').addClass("thumb");
@@ -1084,7 +1083,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImageGallery', 'imageClick', 'nextImage');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -1094,7 +1093,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     events: {
         "click .echo-s-h-close" : "close",
         "click .comment-submit": "createComment",
-        "click .echo-chapter" : "tabClick",
         "click .echo-s-b-thumbnail": "imageClick",
         "click .echo-s-b-item": "nextImage",
         "click a": "close"
@@ -1117,45 +1115,37 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var template = _.template($('#templates-components-story').html());
         var self = this;
         self.element.html(template);
-
-        self.images = {
+        self.chapters = {
             array: [],
             hash: {}
         };
-        self.chapters = {
-            array : [],
-            hash: {}
-        };
 
-        self.images.array = [];
-
-        self.images.array.push({
-            chapterId: self.data.chapters[0].id,
-            image: self.data.story.image
-        });
-        self.images.hash[self.data.chapters[0].id] = 0;
-
-        $.each(self.data.chapterImages, function(index, chapterImage){
-            self.images.array.push({
-                chapterId: chapterImage.chapterId,
-                image: chapterImage.image
-            });
-            if(self.images.hash[chapterImage.chapterId] === undefined){
-                self.images.hash[chapterImage.chapterId] = index;
+        $.each(self.data.chapters, function(index,chapter){
+            var hash = {
+                chapter: chapter,
+                images: []
+            };
+            if(index === 0){
+                hash.images.push(self.data.story.image);
             }
-        });
-        self.currentImageIndex = 0;
-        self.chapters.hash['cover'] = 0;
-        $.each(self.data.chapters, function(index, chapter){
-            self.chapters.array.push(chapter);
+            $.each(self.data.chapterImages, function(index, chapterImage){
+                if(chapterImage.chapterId === chapter.id) {
+                    hash.images.push(chapterImage.image);
+                }
+            });
+            if(hash.images.length === 0){
+                hash.images.push(self.data.story.image);
+            }
+            self.chapters.array.push(hash);
             self.chapters.hash[chapter.id] = index;
         });
+        self.currentChapterIndex = 0;
+        self.currentImageIndex = 0;
 
-
-        self.gallery = self.element.find('.echo-s-b-gallery');
         self.text = self.element.find('.echo-s-b-text');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
+        self.gallery = self.element.find('.echo-s-b-gallery');
 
         var userLink = '<a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
 
@@ -1164,15 +1154,13 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.element.find('.echo-s-h-t-n').html("by " + userLink);
         self.img = $("<img />");
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
-        self.thumbnailContainer = $("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
-
-        $.each(self.data.chapters, function(index, chapter){
-            var chapterTitle = $("<div class='echo-s-b-t-t'></div>").append(chapter.title);
-            var chapterText = $("<div class='echo-s-b-t-b'></div>").append(chapter.text.replace(/\n/g, '<br />'));
-            self.text.append(chapterTitle).append(chapterText);
-        });
-        self.renderImageGallery();
+        self.galleryNode = $("#echo-story-gallery");
+        var chapterTitle = $("<div class='echo-s-b-t-t'></div>").append(self.data.chapters[0].title);
+        var chapterText = $("<div class='echo-s-b-t-b'></div>").append(self.data.chapters[0].text.replace(/\n/g, '<br />'));
+        self.text.append(chapterTitle).append(chapterText);
+        self.renderGalleryNav();
         self.renderComments();
+        self.renderChapter();
 
         self.EvAg.trigger('fade/show');
         self.element.css({
@@ -1180,68 +1168,67 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
         self.element.fadeIn();
     },
-    renderTabs: function(){
+    renderGalleryNav: function(){
         var self = this;
-        self.chapterTabs = [];
-        self.tabContainer = self.element.find('.echo-chapters');
-        $.each(self.data.chapters, function(index, chapter){
-            self.chapterTabs[index] = $('<div class="echo-chapter"></div>').append(chapter.title).attr("tab-id",index);
-            self.tabContainer.append(self.chapterTabs[index]);
-        });
-    },
-    renderImageGallery: function(){
-        var self = this;
-        self.thumbnails = [];
-        $.each(self.images.array, function(index, image){
-            self.thumbnails[index] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.originalUrl).css({
-                "height" : 60,
-                "width" : (60 * image.image.preferredWidth / image.image.preferredHeight)
+        self.thumbnails = {};
+        self.titles = [];
+        self.galleryChapters = [];
+        $.each(self.chapters.array, function(index, chapter){
+            self.galleryChapters[index]=  $('<div></div>').addClass('echo-gallery-chapter');
+            var title = $('<div></div>').addClass('echo-gallery-title').html(chapter.chapter.title);
+            self.galleryChapters[index].append(title);
+            self.galleryNode.append(self.galleryChapters[index]);
+            $.each(chapter.images, function(index2, image){
+                var thumbNailHash = index + "-" + index2;
+                self.thumbnails[thumbNailHash] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.originalUrl).css({
+                    "height" :(90  * image.preferredHeight / image.preferredWidth),
+                    "width" : 90
+                });
+                self.galleryChapters[index].append(self.thumbnails[thumbNailHash]);
             });
-            self.thumbnailContainer.append(self.thumbnails[index]);
-            if(index === 0){
-                self.thumbnails[index].addClass("highlight");
-                self.img.attr("src", image.image.originalUrl);
-            }
         });
     },
     nextImage: function(){
         var self = this;
         self.currentImageIndex++;
-        if(self.currentImageIndex >= self.images.array.length){
-            self.currentImageIndex = 0;
-        }
-        self.renderImage(self.currentImageIndex);
-    },
-    tabClick: function(e){
-        var self = this;
-        var index = $(e.target).attr('tab-id');
-        if (self.images.hash[self.chapters.array[index].id] !== undefined){
-            self.renderImage(self.images.hash[self.chapters.array[index].id]);
+        if(self.currentImageIndex >= self.chapters.array[self.currentChapterIndex].images.length){
+            console.log("Next Chapter");
+            self.nextChapter();
         } else {
-            self.renderImage(0);
+            console.log("Next Image");
+            self.renderImage(self.currentImageIndex);
         }
-        self.renderChapter(index);
-
+    },
+    nextChapter: function(){
+        var self = this;
+        self.currentChapterIndex++;
+        self.currentImageIndex = 0;
+        if(self.currentChapterIndex >= self.chapters.array.length){
+            self.currentChapterIndex = 0;
+        }
+        self.renderChapter(self.currentChapterIndex);
     },
     imageClick: function(e){
         var self = this;
         var index = $(e.target).attr("index");
-        self.currentImageIndex = index;
-        self.renderImage(index);
-        //self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
+        self.currentChapterIndex = index.split("-")[0];
+        self.currentImageIndex = index.split("-")[1];
+        self.renderChapter();
     },
-    renderChapter: function(index){
+    renderChapter: function(){
         var self = this;
-        self.element.find('.echo-s-b-t-t').html(self.chapters.array[index].title);
-        self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[index].text.replace(/\n/g, '<br />') + '"');
-        self.tabContainer.children().removeClass("on");
-        self.chapterTabs[index].addClass("on");
+        self.element.find('.echo-s-b-t-t').html(self.chapters.array[self.currentChapterIndex].chapter.title);
+        self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />') + '"');
+        self.galleryNode.find('.echo-gallery-chapter').removeClass("highlight");
+        self.galleryChapters[self.currentChapterIndex].addClass("highlight");
+        self.renderImage();
     },
-    renderImage: function(index){
+    renderImage: function(){
         var self = this;
-        self.img.attr('src', self.images.array[index].image.originalUrl);
-        self.thumbnailContainer.children().removeClass("highlight");
-        self.thumbnails[index].addClass("highlight");
+        console.log(self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex].originalUrl);
+        self.img.attr('src', self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex].originalUrl);
+        self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
+        self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
     },
     renderComments: function(){
         var self = this;
@@ -1386,6 +1373,9 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             textNode.append($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
             overlayNode.html(self.data.story.title);
         }
+        var dateString = self.data.story.createdOn.toString();
+        var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
+        textNode.append(elapsedString);
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
@@ -1457,18 +1447,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 
 
         var boughtOnDate = new Date(this.model.get("echoBoughtOn"));
-        var todayDate = new Date();
-        var dateDiff = todayDate - boughtOnDate;
-        var dayDiff = Math.floor((dateDiff)/(1000*60*60*24));
-        var hourDiff = Math.floor((dateDiff)/(1000*60*60));
-        var minDiff = Math.floor((dateDiff)/(1000*60));
-        if(dayDiff >= 1 ){
-            text.append(dayDiff + " day(s) ago <br/>");
-        } else if (hourDiff >= 1) {
-            text.append(hourDiff + " hour(s) ago <br/>");
-        } else {
-            text.append(minDiff + " minute(s) ago <br/>");
-        }
+        text.append(timeElapsedString(boughtOnDate) + "<br/>");
 
         if(this.model.get("echoProductName")){
             hover.append(this.model.get("echoProductName") + '<br/>');
@@ -1558,3 +1537,39 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 });
 
 
+function timeStampStringToDate(timestampString){
+    var year = timestampString.substr(0,4);
+    var month = timestampString.substr(4,2);
+    var day = timestampString.substr(6,2);
+    var hour = timestampString.substr(8,2);
+    var minute = timestampString.substr(10,2);
+    var second = timestampString.substr(12,2);
+    var date = new Date(year, month - 1, day, hour, minute, second, 0);
+    return date;
+}
+
+function timeElapsedString(date){
+    var responseString = "";
+    var todayDate = new Date();
+    var dateDiff = todayDate - date;
+    var dayDiff = Math.floor((dateDiff)/(1000*60*60*24));
+    var hourDiff = Math.floor((dateDiff)/(1000*60*60));
+    var minDiff = Math.floor((dateDiff)/(1000*60));
+    if(dayDiff >= 1 ){
+        responseString = dayDiff + " day" + pluralize(dayDiff);
+    } else if (hourDiff >= 1) {
+        responseString = dayDiff + " hour" + pluralize(hourDiff);
+    } else {
+        responseString = dayDiff + " minute" + pluralize(minDiff);
+    }
+    responseString = responseString + " ago";
+    return responseString;
+}
+
+function pluralize(integer){
+    if(integer >= 2){
+        return "s";
+    } else {
+        return "";
+    }
+}
