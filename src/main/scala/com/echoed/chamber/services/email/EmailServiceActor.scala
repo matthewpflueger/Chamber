@@ -4,7 +4,7 @@ package com.echoed.chamber.services.email
 import javax.mail.internet.MimeMessage
 import org.springframework.mail.javamail.{MimeMessageHelper, MimeMessagePreparator, JavaMailSender}
 import com.echoed.util.mustache.MustacheEngine
-import com.echoed.chamber.services.GlobalsManager
+import com.echoed.chamber.services.{EchoedActor, GlobalsManager}
 import akka.actor._
 import scala.Right
 import scala.Left
@@ -14,11 +14,11 @@ class EmailServiceActor(
         javaMailSender: JavaMailSender,
         mustacheEngine: MustacheEngine,
         globalsManager: GlobalsManager,
-        from: String) extends Actor with ActorLogging {
+        from: String) extends EchoedActor {
 
     require(from != null, "Missing from")
 
-    def receive = {
+    def handle = {
         case msg @ SendEmail(recipient, subject, templateName, model) =>
             val channel = context.sender
 

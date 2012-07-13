@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.partner.bigcommerce
 
-import reflect.BeanProperty
 import java.util.{Map => JMap}
 import collection.JavaConversions._
 import collection.mutable.{ListBuffer => MList, HashMap => MMap}
@@ -11,15 +10,13 @@ import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
 import org.joda.time.format.DateTimeFormat
 import akka.actor._
-import org.springframework.beans.factory.FactoryBean
-import akka.util.Timeout
-import akka.event.Logging
 import akka.util.duration._
 import akka.actor.SupervisorStrategy.Stop
 import com.echoed.util.ScalaObjectMapper
+import com.echoed.chamber.services.EchoedActor
 
 
-class BigCommerceAccessActor(client: Http) extends Actor with ActorLogging {
+class BigCommerceAccessActor(client: Http) extends EchoedActor {
 
     //example: Mon, 14 May 2012 18:11:26 +0000
     private final val dateFormatter = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss Z")
@@ -64,7 +61,7 @@ class BigCommerceAccessActor(client: Http) extends Actor with ActorLogging {
         request(c, path) { in => callback(parse(in, classOf[Array[JMap[String, AnyRef]]])) } (error)
 
 
-    def receive = {
+    def handle = {
         /*case msg @ ('error, e: IllegalStateException) =>
             logger.error("Restarting Http client due to error", e)
             client.shutdown()

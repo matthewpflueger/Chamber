@@ -14,6 +14,7 @@ import akka.util.duration._
 import akka.actor.SupervisorStrategy.Restart
 import akka.pattern.ask
 import akka.util.Timeout
+import com.echoed.chamber.services.EchoedActor
 
 
 class PartnerUserServiceLocatorActor(
@@ -22,7 +23,7 @@ class PartnerUserServiceLocatorActor(
         partnerDao: PartnerDao,
         partnerUserDao: PartnerUserDao,
         partnerViewDao: PartnerViewDao,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
     private val cache: ConcurrentMap[String, PartnerUserService] = new ConcurrentHashMap[String, PartnerUserService]()
     private var cacheById = cacheManager.getCache[PartnerUserService]("PartnerUserServices", Some(new CacheListenerActorClient(self)))
@@ -68,7 +69,7 @@ class PartnerUserServiceLocatorActor(
     }
 
 
-    def receive = {
+    def handle = {
 
         case msg @ CreatePartnerUserService(email) =>
             val channel = context.sender

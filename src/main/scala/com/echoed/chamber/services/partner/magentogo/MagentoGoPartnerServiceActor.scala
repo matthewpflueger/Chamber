@@ -37,8 +37,6 @@ class MagentoGoPartnerServiceActor(
         encrypter) {
 
 
-    private val logger = LoggerFactory.getLogger(classOf[MagentoGoPartnerServiceActor])
-
     override def receive = magentoGoPartnerReceive.orElse(super.receive)
 
     private def magentoGoPartnerReceive: Receive = {
@@ -55,7 +53,7 @@ class MagentoGoPartnerServiceActor(
 
             val channel = context.sender
 
-            logger.debug("Received {}", msg)
+            log.debug("Received {}", msg)
 
             def error(e: Throwable) = e match {
                 case pe: PartnerException => channel ! RequestEchoResponse(msg, Left(pe))
@@ -69,7 +67,7 @@ class MagentoGoPartnerServiceActor(
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)
                         case FetchOrderResponse(_, Right(echoRequest)) =>
-                            logger.debug("Received MagentoGo echo request {}", echoRequest)
+                            log.debug("Received MagentoGo echo request {}", echoRequest)
                             channel ! RequestEchoResponse(msg, Right(requestEcho(
                                 echoRequest.copy(items = echoRequest.items.map { i => i.copy(
                                     landingPageUrl = "%s/%s" format(magentoGoPartner.storeUrl, i.landingPageUrl)

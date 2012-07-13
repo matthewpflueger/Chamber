@@ -13,7 +13,7 @@ import com.echoed.chamber.dao._
 import partner.{PartnerDao, PartnerSettingsDao, PartnerUserDao}
 import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
 import com.echoed.chamber.services.image.ImageService
-import com.echoed.chamber.services.ActorClient
+import com.echoed.chamber.services.{EchoedActor, ActorClient}
 import java.util.{UUID, HashMap => JHashMap}
 import akka.actor._
 import akka.pattern.ask
@@ -34,7 +34,7 @@ class PartnerServiceManagerActor(
         transactionTemplate: TransactionTemplate,
         emailService: EmailService,
         cacheManager: CacheManager,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
 
     private val cache = cacheManager.getCache[PartnerService]("PartnerServices", Some(new CacheListenerActorClient(self)))
@@ -43,7 +43,7 @@ class PartnerServiceManagerActor(
         case _: Exception ⇒ Restart
     }
 
-    def receive = {
+    def handle = {
 
         case msg @ CacheEntryRemoved(partnerId: String, partnerService: PartnerService, cause: String) =>
             log.debug("Received {}", msg)

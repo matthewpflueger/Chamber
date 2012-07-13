@@ -18,6 +18,7 @@ import akka.pattern.ask
 import com.echoed.chamber.domain.FacebookUser
 import akka.actor._
 import akka.actor.SupervisorStrategy.Restart
+import com.echoed.chamber.services.EchoedActor
 
 
 class FacebookServiceLocatorActor(
@@ -29,12 +30,9 @@ class FacebookServiceLocatorActor(
         partnerSettingsDao: PartnerSettingsDao,
         partnerDao: PartnerDao,
         echoClickUrl: String,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
-//        urlsProperties: Properties) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
-//    var echoClickUrl: String = _
-
-    private var cache: ConcurrentMap[String, FacebookService] = null
+    private var cache = cacheManager.getCache[FacebookService]("FacebookServices", Some(new CacheListenerActorClient(self)))
     private val cacheByFacebookId: ConcurrentMap[String, FacebookService] = new ConcurrentHashMap[String, FacebookService]()
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -63,13 +61,7 @@ class FacebookServiceLocatorActor(
         facebookUser
     }
 
-    override def preStart() {
-        cache = cacheManager.getCache[FacebookService]("FacebookServices", Some(new CacheListenerActorClient(self)))
-//        echoClickUrl = urlsProperties.getProperty("echoClickUrl")
-        assert(echoClickUrl != null)
-    }
-
-    def receive = {
+    def handle = {
         case msg @ CacheEntryRemoved(facebookUserId: String, facebookService: FacebookService, cause: String) =>
             log.debug("Received {}", msg)
             facebookService.logout(facebookUserId)
@@ -297,7 +289,5 @@ class FacebookServiceLocatorActor(
                     }))
             } catch { case e => error(e) }
     }
-
-//    }), "FacebookServiceManager")
 
 }

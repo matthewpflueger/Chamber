@@ -21,6 +21,7 @@ import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor._
 import akka.util.duration._
 import akka.actor.SupervisorStrategy.Restart
+import com.echoed.chamber.services.EchoedActor
 
 
 class NetworkSolutionsPartnerServiceManagerActor(
@@ -40,7 +41,7 @@ class NetworkSolutionsPartnerServiceManagerActor(
         accountManagerRegisterEmailTemplate: String = "networksolutions_accountManager_register_email",
         accountManagerEmailTemplate: String = "networksolutions_accountManager_email",
         partnerEmailTemplate: String = "networksolutions_partner_email_register",
-        cacheManager: CacheManager) extends Actor with ActorLogging {
+        cacheManager: CacheManager) extends EchoedActor {
 
 
     //this will be replaced by the ActorRegistry eventually (I think)
@@ -50,7 +51,7 @@ class NetworkSolutionsPartnerServiceManagerActor(
         case _: Exception ⇒ Restart
     }
 
-    def receive = {
+    def handle = {
 
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {

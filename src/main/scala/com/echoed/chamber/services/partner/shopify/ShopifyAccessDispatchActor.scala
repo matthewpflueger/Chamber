@@ -1,26 +1,22 @@
 package com.echoed.chamber.services.partner.shopify
 
-import reflect.BeanProperty
-import java.util.{Collections, Properties, ArrayList}
+import java.util.{Collections, ArrayList}
 
 
 import com.echoed.chamber.domain.partner.shopify.ShopifyPartner
 import collection.JavaConversions._
-import org.springframework.beans.factory.FactoryBean
 import akka.actor._
-import akka.util.Timeout
-import akka.util.duration._
-import akka.event.Logging
 import java.security.MessageDigest
 import org.apache.commons.codec.binary.Hex
 import dispatch._
 import com.echoed.util.ScalaObjectMapper
+import com.echoed.chamber.services.EchoedActor
 
 
 class ShopifyAccessDispatchActor(
         shopifyApiKey: String,
         shopifySecret: String,
-        httpClient: Http) extends Actor with ActorLogging {
+        httpClient: Http) extends EchoedActor {
 
 
     private def fetch[T](path: String, shop: String, password: String, valueType: Class[T])(callback: T => Unit) {
@@ -40,7 +36,7 @@ class ShopifyAccessDispatchActor(
         }
     }
 
-    def receive = {
+    def handle = {
 
         case msg @ FetchPassword(shop, signature, t, timeStamp) =>
             val channel = context.sender

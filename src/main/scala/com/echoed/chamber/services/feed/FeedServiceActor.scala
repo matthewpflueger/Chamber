@@ -12,14 +12,15 @@ import com.echoed.chamber.domain.views.PartnerFeed
 import com.echoed.chamber.domain.views.EchoedUserFeed
 import scala.Left
 import com.echoed.chamber.domain.views.PublicFeed
+import com.echoed.chamber.services.EchoedActor
 
 
 class FeedServiceActor(
         feedDao: FeedDao,
         partnerDao: PartnerDao,
-        echoedUserDao: EchoedUserDao) extends Actor with ActorLogging {
+        echoedUserDao: EchoedUserDao) extends EchoedActor {
 
-    def receive = {
+    def handle = {
         case msg @ GetPublicFeed(page: Int) =>
             val channel = context.sender
             val limit = 30

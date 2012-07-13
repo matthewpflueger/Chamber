@@ -11,17 +11,16 @@ import java.nio.charset.MalformedInputException
 import akka.util.duration._
 import akka.event.Logging
 import java.net.SocketTimeoutException
+import com.echoed.chamber.services.EchoedActor
 
 
 class GeoLocationServiceActor(
         geoLocationDao: GeoLocationDao,
         geoLocationServiceUrl: String,
         lastUpdatedBeforeHours: Int = 72,
-        findForCrawlIntervalMinutes: Int = 1) extends Actor {
+        findForCrawlIntervalMinutes: Int = 1) extends EchoedActor {
 
     require(geoLocationServiceUrl != null, "geoLocationServiceUrl cannot be null")
-
-    private final val logger = Logging(context.system, this)
 
     val lastUpdatedBeforeMillis: Long = lastUpdatedBeforeHours.toLong * 60 * 60 * 1000
     private var findClick = true
@@ -32,7 +31,7 @@ class GeoLocationServiceActor(
     }
 
 
-    protected def receive = {
+    def handle = {
 
         case msg: FindForCrawl =>
             val me = context.self
@@ -41,7 +40,7 @@ class GeoLocationServiceActor(
             findClick = !findClick
 
             try {
-                logger.debug("Looking for IP addresses to geo locate last located before {}", lastUpdatedBefore)
+                log.debug("Looking for IP addresses to geo locate last located before {}", lastUpdatedBefore)
                 Option(geoLocationDao.findForCrawl(lastUpdatedBefore, findClick))
                     .orElse {
                         findClick = !findClick
@@ -51,7 +50,7 @@ class GeoLocationServiceActor(
                         context.system.scheduler.scheduleOnce(findForCrawlIntervalMinutes minutes, me, FindForCrawl()))
             } catch {
                 case e =>
-                    logger.error("Error finding ip to locate: {}", e)
+                    log.error("Error finding ip to locate: {}", e)
                     context.system.scheduler.scheduleOnce(findForCrawlIntervalMinutes minutes, me, FindForCrawl())
             }
 
@@ -64,10 +63,10 @@ class GeoLocationServiceActor(
 
             try {
                 val url = geoLocationServiceUrl + gl.ipAddress
-                logger.debug("Calling geolocation service: {}", url)
+                log.debug("Calling geolocation service: {}", url)
                 val response = new String(Source.fromURL(url).toArray)
                 //"66.202.133.170","66.202.133.170","US","United States","NY","New York","New York","","40.761900","-73.976300","Regus Business Center","Regus Business Center"
-                logger.debug("Response from {}: {}", url, response)
+                log.debug("Response from {}: {}", url, response)
                 val split = response.split(",\"").map(_.replace("\"", ""))
 
                 //sanity check
@@ -87,25 +86,25 @@ class GeoLocationServiceActor(
                     organization = split(11),
                     updateStatus = "crawled")
 
-                logger.debug("Found {}", geoLocation)
+                log.debug("Found {}", geoLocation)
                 geoLocationDao.insertOrUpdate(geoLocation)
                 channel ! GeoLocateResponse(msg, Right(geoLocation))
 
             } catch {
                 case e: MalformedInputException =>
-                    logger.debug("MalformedInputException occurred fetching IP address {}", gl.ipAddress)
+                    log.debug("MalformedInputException occurred fetching IP address {}", gl.ipAddress)
                     channel ! GeoLocateResponse(msg, Left(MalformedResponse(gl.ipAddress, e)))
                     geoLocationDao.insertOrUpdate(geoLocation.copy(updateStatus = e.getMessage().take(254)))
                 case e: IllegalArgumentException =>
-                    logger.error("Error in response", e)
+                    log.error("Error in response", e)
                     channel ! GeoLocateResponse(msg, Left(MalformedResponse(gl.ipAddress, e)))
                     geoLocationDao.insertOrUpdate(geoLocation.copy(updateStatus = e.getMessage().take(254)))
                 case e: SocketTimeoutException =>
-                    logger.debug("Timeout occurred fetching IP address {}", gl.ipAddress)
+                    log.debug("Timeout occurred fetching IP address {}", gl.ipAddress)
                     channel ! GeoLocateResponse(msg, Left(GeoLocationException(gl.ipAddress, e.getMessage, e)))
                     geoLocationDao.insertOrUpdate(geoLocation.copy(updateStatus = e.getMessage().take(254)))
                 case e =>
-                    logger.error("Unexpected error occurred", e)
+                    log.error("Unexpected error occurred", e)
                     channel ! GeoLocateResponse(msg, Left(GeoLocationException(gl.ipAddress, e.getMessage, e)))
                     geoLocationDao.insertOrUpdate(geoLocation.copy(updateStatus = e.getMessage().take(254)))
             }

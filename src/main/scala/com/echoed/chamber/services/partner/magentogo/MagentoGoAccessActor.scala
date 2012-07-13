@@ -17,12 +17,13 @@ import akka.util.Timeout
 import akka.pattern.ask
 import com.ning.http.client.RequestBuilder
 import xml._
+import com.echoed.chamber.services.EchoedActor
 
 
 class MagentoGoAccessActor(
         client: Http,
         cacheManager: CacheManager,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
     //example: 2012-05-21 02:05:05
     private final val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
@@ -124,7 +125,7 @@ class MagentoGoAccessActor(
         }
     }
 
-    def receive = {
+    def handle = {
         case msg @ Validate(credentials) =>
             val channel = context.sender
 

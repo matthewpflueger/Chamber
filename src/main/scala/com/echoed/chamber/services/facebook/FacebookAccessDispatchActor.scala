@@ -19,7 +19,6 @@ import com.echoed.chamber.services.EchoedActor
 
 
 class FacebookAccessDispatchActor(
-//        props: Properties,
         clientId: String,
         clientSecret: String,
         redirectUrl: String,

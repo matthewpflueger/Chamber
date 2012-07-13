@@ -4,10 +4,7 @@ import com.echoed.chamber.services.{ResponseMessage => RM}
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import akka.actor.{FSM, Actor, ActorRef}
-import scalaz._
 import scala.collection.mutable.{ListBuffer => MList}
-import org.slf4j.LoggerFactory
-import akka.event.Logging
 
 sealed trait ScatterGatherState
 case object Ready extends ScatterGatherState
@@ -47,20 +44,18 @@ case class Gather(scatter: Scatter, channel: ActorRef, timeout: Duration) extend
 
 class ScatterGather extends Actor with FSM[ScatterGatherState, ScatterGatherData] {
 
-    private val logger = Logging(context.system, this)
-
     val responseList = MList[Message]()
 
     startWith(Ready, ScatterGatherData())
 
     when(Ready) {
         case Event(scatter @ Scatter(requestList, context, timeout, timeoutTotal), _) if (requestList.isEmpty) =>
-            logger.warning("Empty request list received")
+            log.warning("Empty request list received")
             sender ! ScatterResponse(scatter, Right(List[Message]()))
             stop()
 
         case Event(scatter @ Scatter(requestList, context, timeout, timeoutTotal), _) =>
-            logger.debug("Recevied request list of size {}", requestList.size)
+            log.debug("Recevied request list of size {}", requestList.size)
             requestList.foreach { tuple =>
                 val (actorRef, message) = tuple
                 actorRef ! message

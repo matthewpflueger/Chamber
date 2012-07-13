@@ -10,23 +10,18 @@ import twitter4j.auth.RequestToken
 import com.echoed.cache.CacheManager
 import akka.actor._
 import scala.collection.mutable.ConcurrentMap
+import com.echoed.chamber.services.EchoedActor
 
 
 class TwitterAccessActor(
         consumerKey: String,
         consumerSecret: String,
         callbackUrl: String,
-        cacheManager: CacheManager) extends Actor with ActorLogging {
+        cacheManager: CacheManager) extends EchoedActor {
 
-    private var cache: ConcurrentMap[String, Twitter] = null
+    private var cache: ConcurrentMap[String, Twitter] = cacheManager.getCache[Twitter]("Twitters") //, Some(new CacheListenerActorClient(self))
 
-
-
-    override def preStart {
-        cache = cacheManager.getCache[Twitter]("Twitters") //, Some(new CacheListenerActorClient(self))
-    }
-
-    def receive = {
+    def handle = {
         case msg @ FetchRequestToken(callbackUrl) =>
             val channel = context.sender
 

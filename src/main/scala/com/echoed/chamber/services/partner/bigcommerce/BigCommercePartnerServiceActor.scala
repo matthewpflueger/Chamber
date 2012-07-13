@@ -36,11 +36,9 @@ class BigCommercePartnerServiceActor (
         encrypter) {
 
 
-    private val logger = Logging(context.system, this)
+    override def handle = bigCommercePartnerHandle.orElse(super.handle)
 
-    override def receive = bigCommercePartnerReceive.orElse(super.receive)
-
-    private def bigCommercePartnerReceive: Receive = {
+    private def bigCommercePartnerHandle: Receive = {
         case msg @ RequestEcho(
                 partnerId,
                 order,
@@ -54,7 +52,7 @@ class BigCommercePartnerServiceActor (
 
             val channel = context.sender
 
-            logger.debug("Received {}", msg)
+            log.debug("Received {}", msg)
 
             def error(e: Throwable) = e match {
                 case pe: PartnerException => channel ! RequestEchoResponse(msg, Left(pe))
@@ -68,7 +66,7 @@ class BigCommercePartnerServiceActor (
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)
                         case FetchOrderResponse(_, Right(echoRequest)) =>
-                            logger.debug("Received BigCommerce echo request {}", echoRequest)
+                            log.debug("Received BigCommerce echo request {}", echoRequest)
                             channel ! RequestEchoResponse(msg, Right(requestEcho(
                                 echoRequest.copy(items = echoRequest.items.map { i => i.copy(
                                     brand = Option(i.brand).getOrElse(partner.name),

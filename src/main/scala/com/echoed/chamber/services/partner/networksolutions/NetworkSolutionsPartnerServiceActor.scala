@@ -37,11 +37,9 @@ class NetworkSolutionsPartnerServiceActor(
             encrypter) {
 
 
-    private val logger = Logging(context.system, this)
+    override def handle = networkSolutionsPartnerHandle.orElse(super.handle)
 
-    override def receive = networkSolutionsPartnerReceive.orElse(super.receive)
-
-    private def networkSolutionsPartnerReceive: Receive = {
+    private def networkSolutionsPartnerHandle: Receive = {
         case msg @ RequestEcho(
                 partnerId,
                 order,
@@ -55,7 +53,7 @@ class NetworkSolutionsPartnerServiceActor(
 
             val channel = context.sender
 
-            logger.debug("Received {}", msg)
+            log.debug("Received {}", msg)
 
             def error(e: Throwable) = e match {
                 case pe: PartnerException => channel ! RequestEchoResponse(msg, Left(pe))

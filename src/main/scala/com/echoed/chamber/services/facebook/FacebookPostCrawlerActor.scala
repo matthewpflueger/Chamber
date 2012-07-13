@@ -2,7 +2,7 @@ package com.echoed.chamber.services.facebook
 
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.services.ActorClient
+import com.echoed.chamber.services.{EchoedActor, ActorClient}
 import java.util.{Calendar, Date}
 import com.echoed.chamber.dao.{FacebookCommentDao, FacebookLikeDao, FacebookPostDao}
 import com.echoed.chamber.domain.FacebookPost
@@ -19,7 +19,7 @@ class FacebookPostCrawlerActor(
         interval: Long = 60000,
         postedOnDaysBefore: Int = -8,
         postedOnHoursBefore: Int = -1,
-        future: Option[Promise[GetPostDataResponse]] = None) extends Actor with ActorLogging {
+        future: Option[Promise[GetPostDataResponse]] = None) extends EchoedActor {
 
 
     private var scheduledMessage: Option[Cancellable] = None
@@ -73,7 +73,7 @@ class FacebookPostCrawlerActor(
         }
     }
 
-    protected def receive = {
+    def handle = {
         case 'next =>
             try {
                 Option(findFacebookPostToCrawl).cata({ facebookPostToCrawl =>

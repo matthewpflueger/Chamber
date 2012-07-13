@@ -1,10 +1,8 @@
 package com.echoed.chamber.services.partner.magentogo
 
-import reflect.BeanProperty
 import collection.JavaConversions._
 import collection.mutable.ConcurrentMap
 import com.echoed.cache.CacheManager
-import org.slf4j.LoggerFactory
 import com.echoed.chamber.services.partner._
 import org.springframework.transaction.TransactionStatus
 import com.echoed.chamber.dao._
@@ -16,16 +14,14 @@ import partner.magentogo.MagentoGoPartnerDao
 import partner.{PartnerSettingsDao, PartnerDao, PartnerUserDao}
 import scalaz._
 import Scalaz._
-import java.util.{Properties, HashMap, UUID}
+import java.util.{HashMap, UUID}
 import com.echoed.util.{ObjectUtils, Encrypter}
 import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
-import org.springframework.beans.factory.FactoryBean
 import akka.actor._
 import akka.actor.SupervisorStrategy.Restart
-import akka.util.Timeout
 import akka.util.duration._
-import akka.event.{LoggingAdapter, Logging}
+import com.echoed.chamber.services.EchoedActor
 
 
 class MagentoGoPartnerServiceManagerActor(
@@ -43,7 +39,7 @@ class MagentoGoPartnerServiceManagerActor(
         emailService: EmailService,
         accountManagerEmail: String,
         cacheManager: CacheManager,
-        partnerServiceManager: PartnerServiceManager) extends Actor with ActorLogging {
+        partnerServiceManager: PartnerServiceManager) extends EchoedActor {
 
     //this will be replaced by the ActorRegistry eventually (I think)
     private var cache: ConcurrentMap[String, PartnerService] = cacheManager.getCache[PartnerService]("PartnerServices")
@@ -52,7 +48,7 @@ class MagentoGoPartnerServiceManagerActor(
         case _: Exception ⇒ Restart
     }
 
-    def receive = {
+    def handle = {
 
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {

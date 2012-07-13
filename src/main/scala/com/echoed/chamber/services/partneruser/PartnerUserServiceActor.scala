@@ -11,19 +11,16 @@ import views.{PartnerProductSocialActivityByDate,PartnerSocialActivityByDate,Par
 
 import scalaz._
 import Scalaz._
-import akka.event.Logging
-import akka.actor.{PoisonPill, Actor}
+import akka.actor.PoisonPill
+import com.echoed.chamber.services.EchoedActor
 
 
 class PartnerUserServiceActor(
         var partnerUser: PartnerUser,
         partnerUserDao: PartnerUserDao,
-        partnerViewDao: PartnerViewDao) extends Actor {
+        partnerViewDao: PartnerViewDao) extends EchoedActor {
 
-    private final val logger = Logging(context.system, this)
-
-
-    def receive = {
+    def handle = {
         case msg @ ActivatePartnerUser(password) =>
             val channel = context.sender
 
@@ -47,11 +44,11 @@ class PartnerUserServiceActor(
                 assert(partnerUser.id == partnerUserId)
                 channel ! LogoutResponse(msg, Right(true))
                 self ! PoisonPill
-                logger.debug("Logged out {}", partnerUser)
+                log.debug("Logged out {}", partnerUser)
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(PartnerUserException("Could not logout", e)))
-                    logger.error("Unexpected error processing %s" format msg, e)
+                    log.error("Unexpected error processing %s" format msg, e)
             }
 
         case msg: GetPartnerUser =>
@@ -124,7 +121,7 @@ class PartnerUserServiceActor(
 
         case msg: GetProductSocialActivityByDate =>
             var series = new ArrayList[SocialActivityHistory]
-            logger.debug("Getting Product Social Actvity By Date {}", msg productId)
+            log.debug("Getting Product Social Actvity By Date {}", msg productId)
             val comments = partnerViewDao.getFacebookCommentsHistory(partnerUser.partnerId,null, msg.productId)
             series.add(new SocialActivityHistory("comments",comments))
             val likes = partnerViewDao.getFacebookLikesHistory(partnerUser.partnerId,null, msg.productId)

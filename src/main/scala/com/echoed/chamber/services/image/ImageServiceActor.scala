@@ -24,6 +24,7 @@ import akka.dispatch.Promise
 import akka.util.duration._
 import akka.util.Timeout
 import akka.pattern.ask
+import com.echoed.chamber.services.EchoedActor
 
 
 class ImageServiceActor(
@@ -36,7 +37,7 @@ class ImageServiceActor(
         findUnprocessedImagesInterval: Long = 60000,
         reloadBlobStoreInterval: Long = 60000,
         lastProcessedBeforeMinutes: Int = 5,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
 
     //only for testing purposes
@@ -208,7 +209,7 @@ class ImageServiceActor(
     }
 
 
-    protected def receive = {
+    def handle = {
 
         case msg @ ReloadBlobStore(image, imageInfo, success) =>
             log.debug("Reloading blob store")

@@ -13,7 +13,7 @@ import com.echoed.chamber.services.facebook.FacebookServiceLocator
 import com.echoed.chamber.services.twitter.TwitterServiceLocator
 import akka.actor.SupervisorStrategy.Restart
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
-import com.echoed.chamber.services.ActorClient
+import com.echoed.chamber.services.{EchoedActor, ActorClient}
 import com.echoed.chamber.domain.EchoedUser
 import scala.Right
 import com.echoed.chamber.services.twitter.GetUserResponse
@@ -43,7 +43,7 @@ class EchoedUserServiceLocatorActor(
         facebookServiceLocator: FacebookServiceLocator,
         twitterServiceLocator: TwitterServiceLocator,
         cacheManager: CacheManager,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
 
     private var cache: ConcurrentMap[String, EchoedUserService] =
@@ -54,7 +54,7 @@ class EchoedUserServiceLocatorActor(
         case _: Exception ⇒ Restart
     }
 
-    def receive = {
+    def handle = {
 
         case msg @ CacheEntryRemoved(echoedUserId: String, echoedUserService: EchoedUserService, cause: String) =>
             log.debug("Received {}", msg)

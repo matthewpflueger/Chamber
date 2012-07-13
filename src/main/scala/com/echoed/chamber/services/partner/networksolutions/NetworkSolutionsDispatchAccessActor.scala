@@ -8,12 +8,13 @@ import com.echoed.chamber.services.partner.{EchoItem, EchoRequest}
 import akka.actor._
 import com.ning.http.client.RequestBuilder
 import xml._
+import com.echoed.chamber.services.EchoedActor
 
 
 class NetworkSolutionsDispatchAccessActor(
         application: String,
         certificate: String,
-        client: Http) extends Actor with ActorLogging {
+        client: Http) extends EchoedActor {
 
 
     private final val xmlDateTimeFormat = ISODateTimeFormat.dateTimeNoMillis
@@ -110,7 +111,7 @@ class NetworkSolutionsDispatchAccessActor(
     }
 
 
-    def receive = {
+    def handle = {
 
         case msg @ FetchUserKey(successUrl, failureUrl) =>
             val channel = context.sender

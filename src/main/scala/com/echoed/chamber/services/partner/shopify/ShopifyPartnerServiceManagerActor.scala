@@ -1,7 +1,5 @@
 package com.echoed.chamber.services.partner.shopify
 
-import reflect.BeanProperty
-import collection.mutable.ConcurrentMap
 import com.echoed.cache.CacheManager
 
 
@@ -18,16 +16,15 @@ import partner.{PartnerDao, PartnerSettingsDao, PartnerUserDao}
 import scalaz._
 import Scalaz._
 import akka.dispatch.Future
-import java.util.{Properties, HashMap, UUID}
+import java.util.{HashMap, UUID}
 import com.echoed.chamber.domain.partner.shopify.ShopifyPartner
 import com.echoed.chamber.domain.partner.PartnerSettings
-import org.springframework.beans.factory.FactoryBean
 import akka.actor._
 import akka.util.Timeout
 import akka.pattern.ask
 import akka.util.duration._
-import akka.event.Logging
 import akka.actor.SupervisorStrategy.Restart
+import com.echoed.chamber.services.EchoedActor
 
 
 class ShopifyPartnerServiceManagerActor(
@@ -47,7 +44,7 @@ class ShopifyPartnerServiceManagerActor(
         accountManagerEmailTemplate: String = "shopify_partner_accountManager_email",
         partnerEmailTemplate: String = "shopify_partner_email_register",
         cacheManager: CacheManager,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
     //this will be replaced by the ActorRegistry eventually (I think)
     private val cache = cacheManager.getCache[PartnerService]("PartnerServices")
@@ -56,7 +53,7 @@ class ShopifyPartnerServiceManagerActor(
         case _: Exception ⇒ Restart
     }
 
-    def receive = {
+    def handle = {
 
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {

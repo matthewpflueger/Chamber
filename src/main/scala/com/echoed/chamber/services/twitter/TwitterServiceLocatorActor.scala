@@ -6,7 +6,7 @@ import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManag
 import akka.actor._
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.{ConcurrentHashMap => JConcurrentHashMap}
-import com.echoed.chamber.services.ActorClient
+import com.echoed.chamber.services.{EchoedActor, ActorClient}
 import com.echoed.chamber.dao.{TwitterStatusDao, TwitterUserDao}
 import akka.util.duration._
 import akka.pattern.ask
@@ -22,7 +22,7 @@ class TwitterServiceLocatorActor(
         twitterUserDao: TwitterUserDao,
         twitterStatusDao: TwitterStatusDao,
         echoClickUrl: String,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
     private val cache: ConcurrentMap[String, TwitterService] = new JConcurrentHashMap[String, TwitterService]()
     private val idCache: ConcurrentMap[String, TwitterService] =
@@ -32,7 +32,7 @@ class TwitterServiceLocatorActor(
         case _: Exception ⇒ Restart
     }
 
-    def receive = {
+    def handle = {
         case msg @ CacheEntryRemoved(twitterUserId: String, twitterService: TwitterService, cause: String) =>
             log.debug("Received {}", msg)
             twitterService.logout(twitterUserId)

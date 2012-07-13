@@ -9,7 +9,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import akka.util.duration._
 import akka.actor.{PoisonPill, ActorRef, Actor}
-import com.echoed.chamber.services.ActorClient
+import com.echoed.chamber.services.{EchoedActor, ActorClient}
 
 
 class FacebookServiceActor(
@@ -18,9 +18,7 @@ class FacebookServiceActor(
         facebookUserDao: FacebookUserDao,
         facebookPostDao: FacebookPostDao,
         facebookFriendDao: FacebookFriendDao,
-        echoClickUrl: String) extends Actor {
-
-    private final val logger = Logging(context.system, this)
+        echoClickUrl: String) extends EchoedActor {
 
     val maxPostToFacebookRetries = 10
     val facebookPostRetryInterval = 60000
@@ -36,26 +34,26 @@ class FacebookServiceActor(
 
         def scheduleRetry(e: Throwable) {
             if (retries >= maxPostToFacebookRetries) {
-                logger.error("Failed to post {}, retries {}, last error was {}", fp, retries, e)
+                log.error("Failed to post {}, retries {}, last error was {}", fp, retries, e)
             } else {
-                logger.debug("Retrying {} due to error {}", fp, e)
+                log.debug("Retrying {} due to error {}", fp, e)
                 context.system.scheduler.scheduleOnce(facebookPostRetryInterval milliseconds, me, RetryEchoToFacebook(fp, retries + 1))
             }
         }
 
-        logger.debug("Trying to post {}, retries {}", fp, retries)
+        log.debug("Trying to post {}, retries {}", fp, retries)
         facebookAccess.post(facebookUser.accessToken, facebookUser.facebookId, fp).onComplete(_.fold(
             scheduleRetry(_),
             _ match {
                 case PostResponse(_, Left(e)) => scheduleRetry(e)
                 case PostResponse(_, Right(fp)) =>
-                    logger.debug("Successful post {}, retries {}", fp, retries)
+                    log.debug("Successful post {}, retries {}", fp, retries)
                     facebookPostDao.updatePostedOn(fp.copy(postedOn = new Date))
             }))
     }
 
 
-    def receive = {
+    def handle = {
         case msg: GetFacebookUser =>
             val channel = context.sender
             channel ! GetFacebookUserResponse(msg, Right(facebookUser))
@@ -64,14 +62,14 @@ class FacebookServiceActor(
             val channel = context.sender
 
             try {
-                logger.debug("Assigning {} to {}", echoedUser, facebookUser)
+                log.debug("Assigning {} to {}", echoedUser, facebookUser)
                 facebookUser = facebookUser.copy(echoedUserId = echoedUser.id)
                 facebookUserDao.updateEchoedUser(facebookUser)
                 channel ! AssignEchoedUserResponse(msg, Right(facebookUser))
             } catch {
                 case e =>
                     channel ! AssignEchoedUserResponse(msg, Left(FacebookException("Could not assign Echoed user", e)))
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
             }
 
 
@@ -81,11 +79,11 @@ class FacebookServiceActor(
 
             def error(e: Throwable) {
                 channel ! EchoToFacebookResponse(msg, Left(FacebookException("Could not post to Facebook", e)))
-                logger.error("Error processing {}: {}", msg, e)
+                log.error("Error processing {}: {}", msg, e)
             }
 
             try {
-                logger.debug("Creating new FacebookPost with message {} for {}", echo, message)
+                log.debug("Creating new FacebookPost with message {} for {}", echo, message)
                 val name: String = echo.productName + " from " + echo.brand + "<center></center>"
                 val caption: String = echo.brand + "<center></center>" + echo.productName
                 var fp = new FacebookPost(
@@ -108,23 +106,23 @@ class FacebookServiceActor(
             val channel = context.sender
             def error(e: Throwable) {
                 channel ! PublishActionToFacebookResponse(msg, Left(FacebookException("Could not publish action to Facebook", e)))
-                logger.error("Error processing {}: {}", msg, e)
+                log.error("Error processing {}: {}", msg, e)
             }
             
             try {
-                logger.debug("Publishing Action %s?%s=%s for facebookUser: {}" format (action, obj, objUrl) , facebookUser)
+                log.debug("Publishing Action %s?%s=%s for facebookUser: {}" format (action, obj, objUrl) , facebookUser)
                 facebookAccess.publishAction(facebookUser.accessToken, action, obj, objUrl ).onComplete(_.fold(
                     error(_),
                     _ match {
                         case PublishActionResponse(_, Left(e)) => error(e)
                         case PublishActionResponse(_, Right(facebookAction)) => 
                             channel ! PublishActionToFacebookResponse(msg, Right(facebookAction))
-                            logger.debug("Successfully published action to Facebook")
+                            log.debug("Successfully published action to Facebook")
                     }))
                 
             } catch {
                 case e =>
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
                     error(e)
             }
 
@@ -141,7 +139,7 @@ class FacebookServiceActor(
                         Right(asScalaBuffer(facebookFriendDao.findByFacebookUserId(facebookUser.id)).toList))
             } catch {
                 case e =>
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
                     channel ! GetFriendsResponse(msg, Left(FacebookException("Cannot get Facebook friends", e)))
             }
 
@@ -154,12 +152,12 @@ class FacebookServiceActor(
                     context.sender)
 
         case msg @ GetFriendsResponse(GetFriends(_, _, _, context), Right(facebookFriends)) =>
-            logger.debug("Received from FacebookAccessActor {} FacebookFriends for FacebookUser {}",
+            log.debug("Received from FacebookAccessActor {} FacebookFriends for FacebookUser {}",
                     facebookFriends.length,
                     facebookUser.id)
             context ! msg
             facebookFriends.foreach(facebookFriendDao.insertOrUpdate(_))
-            logger.debug("Successfully saved list of {} FacebookFriends for {}", facebookFriends.length, facebookUser.id)
+            log.debug("Successfully saved list of {} FacebookFriends for {}", facebookFriends.length, facebookUser.id)
 
 
         case msg @ Logout(facebookUserId) =>
@@ -170,11 +168,11 @@ class FacebookServiceActor(
                 facebookAccess.logout(facebookUser.accessToken)
                 channel ! LogoutResponse(msg, Right(true))
                 self ! PoisonPill
-                logger.debug("Logged out {}", facebookUser)
+                log.debug("Logged out {}", facebookUser)
             } catch {
                 case e =>
                     channel ! LogoutResponse(msg, Left(FacebookException("Could not logout of Facebook", e)))
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
             }
 
         case msg @ UpdateAccessToken(accessToken) =>
@@ -187,7 +185,7 @@ class FacebookServiceActor(
             } catch {
                 case e =>
                     channel ! UpdateAccessTokenResponse(msg, Left(FacebookException("Could not update access token", e)))
-                    logger.error("Error processing {}: {}", msg, e)
+                    log.error("Error processing {}: {}", msg, e)
             }
     }
 

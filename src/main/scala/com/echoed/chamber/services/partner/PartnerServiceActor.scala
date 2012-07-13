@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.partner
 
-import akka.actor.{ActorLogging, Actor}
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
 import com.echoed.chamber.domain.views.EchoPossibilityView
 import java.util.Date
@@ -16,7 +15,7 @@ import com.echoed.chamber.services.image.{ProcessImageResponse, ImageService}
 import java.util.concurrent.atomic.AtomicInteger
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
-import akka.event.Logging
+import com.echoed.chamber.services.EchoedActor
 
 
 class PartnerServiceActor(
@@ -28,7 +27,7 @@ class PartnerServiceActor(
         imageDao: ImageDao,
         imageService: ImageService,
         transactionTemplate: TransactionTemplate,
-        encrypter: Encrypter) extends Actor with ActorLogging {
+        encrypter: Encrypter) extends EchoedActor {
 
     val viewCounter: AtomicInteger = new AtomicInteger(0)
 
@@ -99,7 +98,7 @@ class PartnerServiceActor(
     }
 
 
-    def receive = {
+    def handle = {
 
         case msg: GetPartner =>
             val channel = context.sender
