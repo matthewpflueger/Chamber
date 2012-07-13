@@ -129,6 +129,7 @@ html{
     overflow-y: scroll;
     height: 100%;
     &.noScroll{
+        //overflow-y: hidden;
         overflow-y: hidden;
     }
 }
@@ -553,6 +554,7 @@ h2{
                     top: 30px;
                     left: 0px;
                     border: 1px solid #CCC;
+                    z-index: 100;
                     .field-question-option{
                         position:relative;
                         background-color: #FFF;

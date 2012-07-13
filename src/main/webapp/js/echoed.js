@@ -1546,13 +1546,15 @@ function timeStampStringToDate(timestampString){
     var hour = timestampString.substr(8,2);
     var minute = timestampString.substr(10,2);
     var second = timestampString.substr(12,2);
-    var date = new Date(year, month - 1, day, hour, minute, second, 0);
+    var date = new Date(Date.UTC(year, month - 1, day, hour, minute, second, 0));
     return date;
 }
 
 function timeElapsedString(date){
     var responseString = "";
     var todayDate = new Date();
+    console.log(todayDate);
+    console.log(date);
     var dateDiff = todayDate - date;
     var dayDiff = Math.floor((dateDiff)/(1000*60*60*24));
     var hourDiff = Math.floor((dateDiff)/(1000*60*60));
