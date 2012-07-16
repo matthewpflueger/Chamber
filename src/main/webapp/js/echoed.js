@@ -1227,11 +1227,19 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     renderImage: function(){
         var self = this;
         var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
-        if(currentImage.storyUrl !== null){
-            self.img.attr('src', currentImage.storyUrl);
-        } else {
-            self.img.attr('src', currentImage.originalUrl);
-        }
+        self.img.fadeOut();
+        self.itemImageContainer.animate({
+            height: 400 * currentImage.preferredHeight / currentImage.preferredWidth,
+            width: 400
+        }, function(){
+            if(currentImage.storyUrl !== null){
+                self.img.attr('src', currentImage.storyUrl);
+            } else {
+                self.img.attr('src', currentImage.originalUrl);
+            }
+            self.img.fadeIn();
+        });
+
         self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
         self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
     },
