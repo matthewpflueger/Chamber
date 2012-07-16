@@ -1311,8 +1311,8 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     },
     events: {
         "click .story-brief-overlay" : "click",
-        "mouseenter .story-brief-image-container": "showOverlay",
-        "mouseleave .story-brief-image-container": "hideOverlay"
+        "mouseenter": "showOverlay",
+        "mouseleave": "hideOverlay"
     },
     render: function(){
         var self = this;
