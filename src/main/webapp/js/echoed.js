@@ -362,11 +362,11 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             self.currentChapter.text = self.data.storyFull.chapters[chapterIndex].text;
             self.currentChapter.id = chapterId;
             $("#chapter-title").val(self.data.storyFull.chapters[chapterIndex].title);
-            $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text)
+            $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text);
             $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                 if(chapterImage.chapterId === chapterId){
                     var thumbDiv = $('<div></div>').addClass("thumb");
-                    var photo = $('<img />').attr('src', chapterImage.image.originalUrl).css({
+                    var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css({
                         "height" :  60,
                         "width" : (60 * chapterImage.image.preferredWidth / chapterImage.image.preferredHeight)
                     });
@@ -1146,7 +1146,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         self.text = self.element.find('.echo-s-b-text');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
-        self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.originalUrl);
+        self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.storyUrl);
         self.gallery = self.element.find('.echo-s-b-gallery');
 
         var userLink = '<a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
@@ -1227,8 +1227,12 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     renderImage: function(){
         var self = this;
-        console.log(self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex].originalUrl);
-        self.img.attr('src', self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex].originalUrl);
+        var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
+        if(currentImage.storyUrl !== null){
+            self.img.attr('src', currentImage.storyUrl);
+        } else {
+            self.img.attr('src', currentImage.originalUrl);
+        }
         self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
         self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
     },
@@ -1327,8 +1331,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
 
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 260;
-        if(image.originalUrl !== null){
-            //imageNode.attr("src", image.originalUrl).css({
+        if(image.preferredUrl !== null){
             imageNode.attr("src", image.preferredUrl).css({
                 "height" : width * hToWidthRatio,
                 "width" : width
@@ -1434,7 +1437,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var template = _.template($('#templates-components-product').html());
         var self = this;
         var landingUrl = Echoed.urls.api + "/echo/" + this.model.get("echoId");
-        var imageUrl =   this.model.get("image").originalUrl;
+        var imageUrl =   this.model.get("image").preferredUrl;
         var imageWidth = this.model.get("image").preferredWidth;
         var imageHeight = this.model.get("image").preferredHeight;
         this.el.attr("date", this.model.get("echoBoughtOn"));

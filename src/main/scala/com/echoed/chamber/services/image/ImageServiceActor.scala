@@ -33,6 +33,7 @@ class ImageServiceActor(
         minimumValidImageWidth: Int = 120,
         sizedImageTargetWidth: Int = 230,
         exhibitImageTargetWidth: Int= 260,
+        storyImageTargetWidth: Int = 600,
         thumbImageTargetWidth: Int = 120,
         thumbImageTargetHeight: Int = 120,
         findUnprocessedImagesInterval: Long = 60000,
@@ -287,7 +288,7 @@ class ImageServiceActor(
                     log.debug("Storing original image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
                         log.debug("Successfully stored original of {} at {}", image.url, storedUrl)
-                        me ! ProcessSizedImage(image.copy(
+                        me ! ProcessStoryImage(image.copy(
                                 originalUrl = storedUrl,
                                 originalWidth = imageInfo.width,
                                 originalHeight = imageInfo.height,
@@ -321,12 +322,45 @@ class ImageServiceActor(
                     log.debug("Storing sized image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
                         log.debug("Successfully stored sized of {} at {}", image.originalUrl, storedUrl)
-                        me ! ProcessExhibitImage(image.copy(
+                        me ! ProcessThumbnailImage(image.copy(
                                 sizedUrl = storedUrl,
                                 sizedWidth = imageInfo.width,
                                 sizedHeight = imageInfo.height,
                                 processedOn = new Date,
                                 processedStatus = "processed"))
+                    }
+            }
+
+        case msg @ ProcessStoryImage(image) =>
+            val me = self
+
+            log.debug("Processing story image from {}", image.originalUrl)
+            processImage(
+                image,
+                image.originalUrl,
+                "story",
+                url => {
+                    val bytes = download(url)
+                    //we've successfully tested that our sized image is there so let's update to prevent starting from scratch...
+                    update(image)
+                    bytes
+                },
+                bi => {
+                    if (bi.getWidth == storyImageTargetWidth) None
+                    else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_WIDTH, storyImageTargetWidth, bi.getHeight))
+                }) {
+
+                case Left(e) => error(image, e, Some("Error processing story image: %s" format e.getMessage))
+                case Right(imageInfo) =>
+                    log.debug("Storing story image {}", imageInfo.fileName)
+                    store(image, imageInfo) { storedUrl =>
+                        log.debug("Successfully stored exhibit of {} at {}", image.originalUrl, storedUrl)
+                        me ! ProcessExhibitImage(image.copy(
+                            storyUrl = storedUrl,
+                            storyWidth = imageInfo.width,
+                            storyHeight = imageInfo.height,
+                            processedOn = new Date,
+                            processedStatus = "processed"))
                     }
             }
 
@@ -355,7 +389,7 @@ class ImageServiceActor(
                     log.debug("Storing exhibit image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
                         log.debug("Successfully stored exhibit of {} at {}", image.originalUrl, storedUrl)
-                        me ! ProcessThumbnailImage(image.copy(
+                        me ! ProcessSizedImage(image.copy(
                             exhibitUrl = storedUrl,
                             exhibitWidth = imageInfo.width,
                             exhibitHeight = imageInfo.height,

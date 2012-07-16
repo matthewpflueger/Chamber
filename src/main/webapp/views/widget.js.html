@@ -1129,7 +1129,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             self.galleryNode.append(self.galleryChapters[index]);
             EchoedjQuery.each(chapter.images, function(index2, image){
                 var thumbNailHash = index + "-" + index2;
-                self.thumbnails[thumbNailHash] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.originalUrl).css({
+                self.thumbnails[thumbNailHash] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css({
                     "height" :(90  * image.preferredHeight / image.preferredWidth),
                     "width" : 90
                 });
@@ -1172,7 +1172,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     renderImage: function(){
         var self = this;
-        self.img.attr('src', self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex].originalUrl);
+        self.img.attr('src', self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex].storyUrl);
         self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
         self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
     },

@@ -34,6 +34,9 @@
             <arg column="CIMGimageExhibitUrl" javaType="String" />
             <arg column="CIMGimageExhibitWidth" javaType="_int" />
             <arg column="CIMGimageExhibitHeight" javaType="_int" />
+            <arg column="CIMGimageStoryUrl" javaType="String" />
+            <arg column="CIMGimageStoryWidth" javaType="_int" />
+            <arg column="CIMGimageStoryHeight" javaType="_int" />
             <arg column="CIMGimageThumbnailUrl" javaType="String" />
             <arg column="CIMGimageThumbnailWidth" javaType="_int" />
             <arg column="CIMGimageThumbnailHeight" javaType="_int" />
@@ -72,6 +75,9 @@
         CIMG.exhibitUrl as CIMGimageExhibitUrl,
         CIMG.exhibitWidth as CIMGimageExhibitWidth,
         CIMG.exhibitHeight as CIMGimageExhibitHeight,
+        CIMG.storyUrl as CIMGimageStoryUrl,
+        CIMG.storyWidth as CIMGimageStoryWidth,
+        CIMG.storyHeight as CIMGimageStoryHeight,
         CIMG.thumbnailUrl as CIMGimageThumbnailUrl,
         CIMG.thumbnailWidth as CIMGimageThumbnailWidth,
         CIMG.thumbnailHeight as CIMGimageThumbnailHeight,

@@ -19,6 +19,9 @@
             <arg column="imageExhibitUrl" javaType="String" />
             <arg column="imageExhibitWidth" javaType="_int" />
             <arg column="imageExhibitHeight" javaType="_int" />
+            <arg column="imageStoryUrl" javaType="String" />
+            <arg column="imageStoryWidth" javaType="_int" />
+            <arg column="imageStoryHeight" javaType="_int" />
             <arg column="imageThumbnailUrl" javaType="String" />
             <arg column="imageThumbnailWidth" javaType="_int" />
             <arg column="imageThumbnailHeight" javaType="_int" />
@@ -42,6 +45,9 @@
         I.exhibitUrl as imageExhibitUrl,
         I.exhibitWidth as imageExhibitWidth,
         I.exhibitHeight as imageExhibitHeight,
+        I.storyUrl as imageStoryUrl,
+        I.storyWidth as imageStoryWidth,
+        I.storyHeight as imageStoryHeight,
         I.thumbnailUrl as imageThumbnailUrl,
         I.thumbnailWidth as imageThumbnailWidth,
         I.thumbnailHeight as imageThumbnailHeight,
@@ -92,6 +98,9 @@
             exhibitUrl = #{exhibitUrl},
             exhibitWidth = #{exhibitWidth},
             exhibitHeight = #{exhibitHeight},
+            storyUrl = #{storyUrl},
+            storyWidth = #{storyWidth},
+            storyHeight = #{storyHeight},
             thumbnailUrl = #{thumbnailUrl},
             thumbnailWidth = #{thumbnailWidth},
             thumbnailHeight = #{thumbnailHeight},
