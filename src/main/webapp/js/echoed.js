@@ -1182,7 +1182,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             self.galleryNode.append(self.galleryChapters[index]);
             $.each(chapter.images, function(index2, image){
                 var thumbNailHash = index + "-" + index2;
-                self.thumbnails[thumbNailHash] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.exhibitUrl).css({
+                self.thumbnails[thumbNailHash] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css({
                     "height" :(90  * image.preferredHeight / image.preferredWidth),
                     "width" : 90
                 });
