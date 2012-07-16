@@ -140,19 +140,10 @@ function ___getPageSize() {
             window.attachEvent('onmessage', receiveMessageResponse);
         }
 
-        Echoed = {};
-        Echoed.urls = {}; //{{#urls}}
-        Echoed.urls.api = "{{api}}";
-        Echoed.urls.cdn = "{{cdn}}";
-        Echoed.urls.js = "{{js}}";
-        Echoed.urls.css = "{{css}}";
-        Echoed.urls.images = "{{images}}";
-        Echoed.urls.views = "{{views}}";
-        Echoed.urls.site = "{{site}}";
+        {{>partial_urls}}
         Echoed.facebook = false;
         Echoed.twitter = false;
         Echoed.name = "";
-        /*{{/urls}} // */
 
         var arrPageSizes = ___getPageSize();
 
