@@ -614,14 +614,16 @@ h2{
             }
 
             .field-body{
+                display: table;
                 background-image: image-url("bk_noise.jpg");
                 margin: 0px 10px 10px 10px;
                 position: relative;
                 min-height: 350px;
                 .field-preview{
-                    position: absolute;
+                    /*position: absolute;
                     top: 0px;
-                    bottom:0px;
+                    bottom:0px;*/
+                    display: table-cell;
                     border-right: 1px solid #CCC;
                     box-shadow: 1px 0px #FFF;
                     padding: 10px;
@@ -636,7 +638,7 @@ h2{
                 .field-main-col{
                     padding: 10px;
                     width: 560px;
-                    margin-left: 270px;
+                    display: table-cell;
                     .field-row{
                         margin-bottom: 10px;
                         label{
@@ -708,8 +710,8 @@ h2{
 
             .story-summary{
                 margin: 0 10px 10px 10px;
-                width: 540px;
-                margin-left: 270px;
+                width: 558px;
+                display: table-cell;
                 padding: 10px;
                 .story-summary-header{
                     border: 1px solid #CCC;
@@ -797,6 +799,8 @@ h2{
             }
 
             .story-edit{
+                vertical-align: top;
+                display: table-cell;
                 .story-edit-label{
                     @include textFontNormal(20px);
                     text-shadow: 0px 2px 0px white;
@@ -870,7 +874,7 @@ h2{
                 .chapter-edit-body{
                     padding: 10px;
                     width: 560px;
-                    margin-left: 270px;
+                    //margin-left: 270px;
                     .chapter-edit-body-top{
                         text-align: center;
                         .chapter-edit-body-top-title{
