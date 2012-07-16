@@ -387,6 +387,8 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             action: '/image',
             debug: true,
             allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+            onProgress: function(id, fileName, loaded, total){
+            },
             onSubmit: function(id, fileName) {
 
             },
@@ -1194,10 +1196,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         self.currentImageIndex++;
         if(self.currentImageIndex >= self.chapters.array[self.currentChapterIndex].images.length){
-            console.log("Next Chapter");
             self.nextChapter();
         } else {
-            console.log("Next Image");
             self.renderImage(self.currentImageIndex);
         }
     },
@@ -1556,8 +1556,6 @@ function timeStampStringToDate(timestampString){
 function timeElapsedString(date){
     var responseString = "";
     var todayDate = new Date();
-    console.log(todayDate);
-    console.log(date);
     var dateDiff = todayDate - date;
     var dayDiff = Math.floor((dateDiff)/(1000*60*60*24));
     var hourDiff = Math.floor((dateDiff)/(1000*60*60));
