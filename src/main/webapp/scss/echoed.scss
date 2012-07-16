@@ -519,14 +519,7 @@ h2{
                 }
                 .story-preview-text{
                 }
-                .story-preview-from{
-                    font-weight: bold;
-                    width: 200px;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    overflow:hidden;
-                }
-                .story-preview-by{
+                .story-preview-from,.story-preview-by,.story-preview-title{
                     font-weight: bold;
                     width: 200px;
                     white-space: nowrap;
