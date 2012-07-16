@@ -1218,8 +1218,13 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     renderChapter: function(){
         var self = this;
-        self.element.find('.echo-s-b-t-t').html(self.chapters.array[self.currentChapterIndex].chapter.title);
-        self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />') + '"');
+        var textArea = self.element.find('.echo-s-b-text');
+        textArea.fadeOut(function(){
+            self.element.find('.echo-s-b-t-t').html(self.chapters.array[self.currentChapterIndex].chapter.title);
+            self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />') + '"');
+            textArea.fadeIn();
+        });
+
         self.galleryNode.find('.echo-gallery-chapter').removeClass("highlight");
         self.galleryChapters[self.currentChapterIndex].addClass("highlight");
         self.renderImage();
