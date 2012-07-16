@@ -390,7 +390,6 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             onProgress: function(id, fileName, loaded, total){
             },
             onSubmit: function(id, fileName) {
-
             },
             onComplete: function(id, fileName, response) {
                 var thumbDiv = $('<div></div>').addClass("thumb");
