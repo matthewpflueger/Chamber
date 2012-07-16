@@ -49,16 +49,7 @@ function ___getPageSize() {
 
     $('body').append('<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-lightbox.0.css" />');
 
-    Echoed = {};
-    Echoed.urls = {}; //{{#urls}}
-    Echoed.urls.api = "{{api}}";
-    Echoed.urls.cdn = "{{cdn}}";
-    Echoed.urls.js = "{{js}}";
-    Echoed.urls.css = "{{css}}";
-    Echoed.urls.images = "{{images}}";
-    Echoed.urls.views = "{{views}}";
-    Echoed.urls.site = "{{site}}";
-    /*{{/urls}} // */
+    {{>partial_urls}}
 
     var arrPageSizes = ___getPageSize();
 
