@@ -1368,8 +1368,8 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             }
             textNode.append($("<div class='story-brief-text-by'></div>").append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
 
-            var chapterText = self.data.chapters[0].text.substr(0,100);
-            if(self.data.chapters[0].text.length > 100){
+            var chapterText = self.data.chapters[0].text.substr(0,80);
+            if(self.data.chapters[0].text.length > 80){
                 chapterText += "...";
             }
             textNode.append($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
