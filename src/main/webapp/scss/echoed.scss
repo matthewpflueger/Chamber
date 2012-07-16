@@ -1037,7 +1037,8 @@ h2{
                             }
                             .story-brief-text-quote{
                                 overflow: hidden;
-                                margin-top: 10px;
+                                margin-bottom: 10px;
+                                font-size: 14px;
                                 font-style: italic;
                                 word-wrap: break-word;
                                 text-overflow: ellipsis;
@@ -1058,7 +1059,7 @@ h2{
                             .story-brief-text-user-image{
                                 display: block;
                                 position: absolute;
-                                top: 0px;
+                                bottom: 0px;
                                 border: 2px solid #CCC;
                                 right: 0px;
                                 height: 35px;

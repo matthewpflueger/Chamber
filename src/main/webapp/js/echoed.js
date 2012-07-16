@@ -1372,12 +1372,12 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             if(self.data.chapters[0].text.length > 80){
                 chapterText += "...";
             }
-            textNode.append($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
+            textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
             overlayNode.html(self.data.story.title);
         }
         var dateString = self.data.story.createdOn.toString();
         var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
-        textNode.append(elapsedString);
+        //textNode.append(elapsedString);
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
