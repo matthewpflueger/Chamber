@@ -349,9 +349,8 @@ $headerFontFamily: 'Arvo', serif;
     position:absolute;
     top: 50px;
     text-align: left;
-    width: 765px;
+    width: 876px;
     left: 50%;
-    padding: 10px;
     border-radius: 10px;
     background-color: #FFF;
     z-index: 10000;
@@ -368,10 +367,15 @@ $headerFontFamily: 'Arvo', serif;
     .echo-story-container{
         position:relative;
         background-image: image-url("bk_noise.jpg");
+        background-color: #F7F7F7;
         padding-bottom: 10px;
+        border: 8px solid #FFF;
         border-radius: 3px;
+
         .echo-story-header{
             padding: 10px;
+            border-bottom: 1px solid #CCC;
+            box-shadow: 0px 1px #FFF;
             .echo-s-h-title{
                 @include textFontNormal(16px);
                 .echo-s-h-t-t{
@@ -429,10 +433,7 @@ $headerFontFamily: 'Arvo', serif;
         }
         .echo-story-body{
             position: relative;
-            margin: 5px 10px;
-            padding: 10px 0px;
-            border-top: 1px solid #FFF;
-            box-shadow: 0px -1px 0px #CCC;
+            padding: 5px;
             .echo-s-b-text{
                 float:left;
                 width: 300px;
@@ -465,42 +466,26 @@ $headerFontFamily: 'Arvo', serif;
             }
             .echo-s-b-gallery{
                 float: left;
-                width: 412px;
-                margin-left: 12px;
+                width: 410px;
+                margin-left: 10px;
                 text-align:center;
                 .echo-s-b-item{
                     cursor: pointer;
-                    height: 310px;
                     display: table-cell;
                     vertical-align: middle;
                     text-align: left;
-                    background-color: rgba(0, 0, 0, 0.1);
-                    height: 310px;
+                    border: 5px solid #FFF;
                     .echo-s-b-i-c{
                         margin: auto;
-                        width: 410px;
+                        width: 400px;
                         overflow:hidden;
                         text-align: center;
 
                         img{
-                            border: 5px solid #FFF;
-                            max-width: 400px;
-                            max-height: 300px;
+                            width: 400px;
                             display: block;
                             margin: auto;
-                        }
-                    }
-                }
-                .echo-s-b-thumbnails{
-                    text-align: left;
-                    margin-top: 3px;
-                    .echo-s-b-thumbnail{
-                        height: 60px;
-                        border: 2px solid #CCC;
-                        margin-right: 3px;
-                        cursor: pointer;
-                        &.highlight{
-                            border-color: #FFF;
+
                         }
                     }
                 }
@@ -661,4 +646,44 @@ $headerFontFamily: 'Arvo', serif;
         @include button;
         text-decoration: none;
     }
+}
+
+.echo-story-gallery{
+    width: 104px;
+    float:left;
+    padding: 10px 5px;
+    text-align: center;
+    .echo-gallery-header{
+        @include textFontBold(14px);
+        text-shadow: 0px 1px #FFF;
+        margin-bottom: 5px;
+        text-align: left;
+    }
+    .echo-gallery-chapter{
+        padding: 5px;
+        margin-bottom: 5px;
+        background-color: #F0F0F0;
+        cursor: pointer;
+        &.highlight{
+            background-color: rgba(0,0,0,0.2);
+        }
+    }
+    .echo-gallery-title{
+        @include textFontBold(12px);
+        text-shadow: 0px 1px #FFF;
+        margin-bottom: 5px;
+    }
+    .echo-s-b-thumbnail{
+        margin: 5px 0px;
+        border: 2px solid #FFF;
+        cursor: pointer;
+        &:hover, &.highlight{
+            border-color: #333;
+        }
+    }
+}
+
+.echo-story-main{
+    float:left;
+    border-right: 1px solid #CCC;
 }

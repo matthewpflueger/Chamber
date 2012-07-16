@@ -1017,7 +1017,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'renderImageGallery', 'imageClick', 'nextImage');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage');
         this.el = options.el;
         this.element = EchoedjQuery(this.el);
         this.EvAg = options.EvAg;
@@ -1027,7 +1027,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     events: {
         "click .echoed-close" : "close",
         "click .comment-submit": "createComment",
-        "click .echo-chapters" : "tabClick",
         "click .echo-s-b-thumbnail": "imageClick",
         "click .echo-s-b-item": "nextImage"
     },
@@ -1051,66 +1050,60 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-container"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"> </div> </div> </div><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-segment"></div> <div class="echo-s-b-gallery clearfix"> </div> </div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"></div></div></div></div>';
+        var template = '<div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-container clearfix"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"><div class="echo-gallery-header">Topics:</div></div></div>';
         var self = this;
         self.element.html(template);
 
-        self.images = {
+        self.chapters = {
             array: [],
             hash: {}
         };
-        self.chapters = {
-            array : [],
-            hash: {}
-        };
 
-        self.images.array = [];
-
-        self.images.array.push({
-            chapterId: self.data.chapters[0].id,
-            image: self.data.story.image
-        });
-        self.images.hash[self.data.chapters[0].id] = 0;
-
-        EchoedjQuery.each(self.data.chapterImages, function(index, chapterImage){
-            self.images.array.push({
-                chapterId: chapterImage.chapterId,
-                image: chapterImage.image
-            });
-            if(self.images.hash[chapterImage.chapterId] === undefined){
-                self.images.hash[chapterImage.chapterId] = index + 1;
+        EchoedjQuery.each(self.data.chapters, function(index,chapter){
+            var hash = {
+                chapter: chapter,
+                images: []
+            };
+            if(index === 0){
+                hash.images.push(self.data.story.image);
             }
-        });
-
-        self.chapters.hash['cover'] = 0;
-        EchoedjQuery.each(self.data.chapters, function(index, chapter){
-            self.chapters.array.push(chapter);
+            EchoedjQuery.each(self.data.chapterImages, function(index, chapterImage){
+                if(chapterImage.chapterId === chapter.id) {
+                    hash.images.push(chapterImage.image);
+                }
+            });
+            if(hash.images.length === 0){
+                hash.images.push(self.data.story.image);
+            }
+            self.chapters.array.push(hash);
             self.chapters.hash[chapter.id] = index;
         });
+        self.currentChapterIndex = 0;
+        self.currentImageIndex = 0;
 
         self.text = self.element.find('.echo-s-b-text');
-        self.gallery = self.element.find('.echo-s-b-gallery');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.sizedUrl);
-        self.currentImageIndex = 0;
 
         var userLink = '<a class="echo-s-h-t-n-u" target="_blank" href="' + Echoed.Urls.Site +'#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
         self.element.find('.echo-s-h-t-n').html("by " + userLink);
+        self.galleryNode = EchoedjQuery("#echo-story-gallery");
+
         self.itemNode = EchoedjQuery("<div class='echo-s-b-item'></div>");
         self.itemImageContainer = EchoedjQuery("<div class='echo-s-b-i-c'></div>");
+        self.gallery = self.element.find('.echo-s-b-gallery');
 
         self.img = EchoedjQuery("<img />");
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.thumbnailContainer = EchoedjQuery("<div class='echo-s-b-thumbnails'></div>").appendTo(self.gallery);
 
-        EchoedjQuery.each(self.data.chapters, function(index, chapter){
-            var chapterTitle = EchoedjQuery("<div class='echo-s-b-t-t'></div>").append(chapter.title);
-            var chapterText = EchoedjQuery("<div class='echo-s-b-t-b'></div>").append(chapter.text.replace(/\n/g, '<br />'));
-            self.text.append(chapterTitle).append(chapterText);
-        });
+        var chapterTitle = EchoedjQuery("<div class='echo-s-b-t-t'></div>").append(self.data.chapters[0].title);
+        var chapterText = EchoedjQuery("<div class='echo-s-b-t-b'></div>").append(self.data.chapters[0].text.replace(/\n/g, '<br />'));
+        self.text.append(chapterTitle).append(chapterText);
 
-        self.renderImageGallery();
+        self.renderGalleryNav();
         self.renderComments();
+        self.renderChapter();
 
         if(Echoed.echoedUserId !== "") {
             self.element.find(".comment-submit").show();
@@ -1124,66 +1117,64 @@ Echoed.Views.Components.Story = Backbone.View.extend({
            'margin-left': -(self.element.width() / 2)
         });
     },
-    renderTabs: function(){
+    renderGalleryNav: function(){
         var self = this;
-        self.chapterTabs = [];
-        self.tabContainer = self.element.find('.echo-chapters');
-        EchoedjQuery.each(self.data.chapters, function(index, chapter){
-            self.chapterTabs[index] = EchoedjQuery('<div class="echo-chapter"></div>').append(chapter.title).attr("tab-id",index);
-            self.tabContainer.append(self.chapterTabs[index]);
+        self.thumbnails = {};
+        self.titles = [];
+        self.galleryChapters = [];
+        EchoedjQuery.each(self.chapters.array, function(index, chapter){
+            self.galleryChapters[index]=  EchoedjQuery('<div></div>').addClass('echo-gallery-chapter');
+            var title = EchoedjQuery('<div></div>').addClass('echo-gallery-title').html(chapter.chapter.title);
+            self.galleryChapters[index].append(title);
+            self.galleryNode.append(self.galleryChapters[index]);
+            EchoedjQuery.each(chapter.images, function(index2, image){
+                var thumbNailHash = index + "-" + index2;
+                self.thumbnails[thumbNailHash] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.originalUrl).css({
+                    "height" :(90  * image.preferredHeight / image.preferredWidth),
+                    "width" : 90
+                });
+                self.galleryChapters[index].append(self.thumbnails[thumbNailHash]);
+            });
         });
-    },
-    renderImageGallery: function(){
-        var self = this;
-        self.thumbnails = [];
-        EchoedjQuery.each(self.images.array, function(index, image){
-            self.thumbnails[index] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", index).attr("src", image.image.sizedUrl).css({
-                "height" : 60,
-                "width" : (60 * image.image.preferredWidth / image.image.preferredHeight)
-            });;
-            self.thumbnailContainer.append(self.thumbnails[index]);
-            if(index === 0){
-                self.thumbnails[index].addClass("highlight");
-                self.img.attr("src", image.image.originalUrl);
-            }
-        });
-    },
-    tabClick: function(e){
-        var self = this;
-        var index = EchoedjQuery(e.target).attr('tab-id');
-        self.renderChapter(index);
-        if (self.images.hash[self.chapters.array[index].id] !== undefined){
-            self.renderImage(self.images.hash[self.chapters.array[index].id]);
-        } else {
-            self.renderImage(0);
-        }
-    },
-    imageClick: function(e){
-        var self = this;
-        var index = EchoedjQuery(e.target).attr("index");
-        self.renderImage(index);
-        //self.renderChapter(self.chapters.hash[self.images.array[index].chapterId]);
     },
     nextImage: function(){
         var self = this;
         self.currentImageIndex++;
-        if(self.currentImageIndex >= self.images.array.length){
-            self.currentImageIndex = 0;
+        if(self.currentImageIndex >= self.chapters.array[self.currentChapterIndex].images.length){
+            self.nextChapter();
+        } else {
+            self.renderImage(self.currentImageIndex);
         }
-        self.renderImage(self.currentImageIndex);
     },
-    renderChapter: function(index){
+    nextChapter: function(){
         var self = this;
-        self.element.find('.echo-s-b-t-t').html(self.chapters.array[index].title);
-        self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[index].text.replace(/\n/g, '<br />') + '"');
-        self.tabContainer.children().removeClass("on");
-        self.chapterTabs[index].addClass("on");
+        self.currentChapterIndex++;
+        self.currentImageIndex = 0;
+        if(self.currentChapterIndex >= self.chapters.array.length){
+            self.currentChapterIndex = 0;
+        }
+        self.renderChapter(self.currentChapterIndex);
     },
-    renderImage: function(index){
+    imageClick: function(e){
         var self = this;
-        self.img.attr('src', self.images.array[index].image.originalUrl);
-        self.thumbnailContainer.children().removeClass("highlight");
-        self.thumbnails[index].addClass("highlight");
+        var index = EchoedjQuery(e.target).attr("index");
+        self.currentChapterIndex = index.split("-")[0];
+        self.currentImageIndex = index.split("-")[1];
+        self.renderChapter();
+    },
+    renderChapter: function(){
+        var self = this;
+        self.element.find('.echo-s-b-t-t').html(self.chapters.array[self.currentChapterIndex].chapter.title);
+        self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />') + '"');
+        self.galleryNode.find('.echo-gallery-chapter').removeClass("highlight");
+        self.galleryChapters[self.currentChapterIndex].addClass("highlight");
+        self.renderImage();
+    },
+    renderImage: function(){
+        var self = this;
+        self.img.attr('src', self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex].originalUrl);
+        self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
+        self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
     },
     renderComments: function(){
         var self = this;
