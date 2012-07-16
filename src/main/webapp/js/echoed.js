@@ -199,9 +199,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             $.ajax({
                 url: jsonUrl,
                 type: "GET",
-                xhrFields: {
-                    withCredentials: true
-                },
+//                xhrFields: {
+//                    withCredentials: true
+//                },
                 data: loadData,
                 dataType: 'jsonp',
                 cache: false,
@@ -216,9 +216,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 $.ajax({
                     url: Echoed.urls.api + "/api/partner/" + id,
                     type: "GET",
-                    xhrFields: {
-                        withCredentials: true
-                    },
+//                    xhrFields: {
+//                        withCredentials: true
+//                    },
                     dataType: 'jsonp',
                     cache: false,
                     success: function(data){
@@ -272,9 +272,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 $.ajax({
                     url: Echoed.urls.api + "/story",
                     type: "POST",
-                    xhrFields: {
-                        withCredentials: true
-                    },
+//                    xhrFields: {
+//                        withCredentials: true
+//                    },
                     dataType: 'json',
                     data: storyData,
                     success: function(createStoryResponse){
@@ -415,9 +415,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                     $.ajax({
                         url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter/" + self.currentChapter.id,
                         type: "PUT",
-                        xhrFields: {
+                        /*xhrFields: {
                             withCredentials: true
-                        },
+                        },*/
                         dataType: 'json',
                         processData: false,
                         contentType: "application/json",
@@ -435,9 +435,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                     $.ajax({
                         url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
                         type: "POST",
-                        xhrFields: {
+                        /*xhrFields: {
                             withCredentials: true
-                        },
+                        },*/
                         dataType: 'json',
                         processData: false,
                         contentType: "application/json",
@@ -678,9 +678,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.EvAg.trigger('infiniteScroll/lock');
         $.ajax({
             url: self.jsonUrl,
-            xhrFields: {
+            /*xhrFields: {
                 withCredentials: true
-            },
+            },*/
             dataType: 'json',
             success: function(data){
                 self.render(data);
@@ -722,9 +722,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             self.EvAg.trigger('infiniteScroll/lock');
             $.ajax({
                 url: self.jsonUrl + "?page=" + self.nextInt,
-                xhrFields: {
+                /*xhrFields: {
                     withCredentials: true
-                },
+                },*/
                 dataType: 'json',
                 cache: false,
                 success: function(data){
@@ -837,9 +837,9 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
         var jsonUrl = Echoed.urls.api + "/api/me/friends";
         $.ajax({
             url: jsonUrl,
-            xhrFields: {
+            /*xhrFields: {
                 withCredentials: true
-            },
+            },*/
             dataType: 'json',
             success: function(data){
                 if(data.length > 0 ){
@@ -1105,9 +1105,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         $.ajax({
             url: Echoed.urls.api + "/api/story/" + id,
             type: "GET",
-            xhrFields: {
+            /*xhrFields: {
                 withCredentials: true
-            },
+            },*/
             success: function(data){
                 self.data = data;
                 self.render();
@@ -1279,9 +1279,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             $.ajax({
                 url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
                 type: "POST",
-                xhrFields: {
+                /*xhrFields: {
                     withCredentials: true
-                },
+                },*/
                 dataType: 'json',
                 data: {
                     text: text
