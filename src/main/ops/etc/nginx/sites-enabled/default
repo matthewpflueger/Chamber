@@ -9,6 +9,11 @@
 ##
 
 server {
+    server_name www.echoed.com;
+    return 301 $scheme://echoed.com$request_uri;
+}
+
+server {
     listen       80;
     server_name  v1-cdn.echoed.com;
 
