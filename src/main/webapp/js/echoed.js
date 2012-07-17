@@ -636,11 +636,13 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','next','init','relayout', 'addProducts','addTitle');
+        _.bindAll(this,'render','next','init','relayout', 'addProducts','addTitle', 'nextStory', 'previousStory');
         this.EvAg = options.EvAg;
         this.EvAg.bind('exhibit/relayout', this.relayout);
         this.EvAg.bind('exhibit/init', this.init);
         this.EvAg.bind('infiniteScroll', this.next);
+        this.EvAg.bind('exhibit/story/next', this.nextStory);
+        this.EvAg.bind('exhibit/story/previous', this.previousStory);
         this.element = $(this.el);
         this.exhibit = $('#exhibit');
     },
@@ -708,8 +710,29 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             }
         });
     },
+    nextStory: function(storyId){
+        var self = this;
+        var index = self.stories.hash[storyId];
+        if((index + 1)>= self.stories.array.length){
+            self.next();
+        }
+        if((index +1) < self.stories.array.length){
+            window.location.hash = "#story/" + self.stories.array[index + 1];
+        }
+    },
+    previousStory: function(storyId){
+        var self = this;
+        var index = self.stories.hash[storyId];
+        if(index> 0){
+            window.location.hash = "#story/" + self.stories.array[index - 1];
+        }
+    },
     render: function(data){
         var self = this;
+        self.stories = {
+            array: [],
+            hash: {}
+        };
         if(data.partner){
             self.contentDescription = "Recent stories and products purchased at " + data.partner.name;
             self.EvAg.trigger("title/update", { title: data.partner.name, description: self.contentDescription });
@@ -799,6 +822,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var storiesFragment = $('<div></div>');
         $.each(data.stories, function(index, story){
             if(story.chapters.length > 0 || self.personal == true){
+                self.stories.hash[story.id] = self.stories.array.length;
+                self.stories.array.push(story.id);
                 var storyDiv = $('<div></div>').addClass('item_wrap');
                 var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal});
                 if(story.story.image.originalUrl !== null){
@@ -1109,7 +1134,7 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage','navClick');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
@@ -1121,7 +1146,14 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         "click .comment-submit": "createComment",
         "click .echo-s-b-thumbnail": "imageClick",
         "click .echo-s-b-item": "nextImage",
+        "click .story-nav-button": "navClick",
         "click a": "close"
+    },
+    navClick: function(ev){
+        var self = this;
+        var target = $(ev.currentTarget);
+        var action = target.attr("act");
+        self.EvAg.trigger('exhibit/story/'+ action, self.data.story.id);
     },
     load: function(id){
         var self = this;

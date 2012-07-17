@@ -1460,7 +1460,7 @@ h3{
 
 #story{
     position: absolute;
-    top: 75px;
+    //top: 75px;
     left: 50%;
     z-index: 99999;
     width: 876px;
@@ -1803,5 +1803,16 @@ h3{
         top: -10px;
         left: -10px;
         cursor: pointer;
+    }
+}
+
+#story-nav{
+    .story-nav-button{
+        padding: 20px 0px;
+        @include textFontNormal(16px, #CCC);
+        cursor: pointer;
+        &:hover{
+            color: #FFF;
+        }
     }
 }
