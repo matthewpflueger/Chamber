@@ -1,0 +1,28 @@
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head prefix="og: http://ogp.me/ns# {{facebookAppNameSpace}}:
+                  http://ogp.me/ns/apps/{{facebookAppNameSpace}}#">
+    {{#storyFull}}
+
+    <title>{{ title }}</title>
+    <meta property="fb:app_id" content="{{facebookClientId}}" />
+    <meta property="og:type" content="{{facebookAppNameSpace}}:product" />
+    {{#chapters}}
+    <meta property="og:description" content="{{text}}" />
+    {{/chapters}}
+    {{#story}}
+    <meta property="og:title" content="{{title}}" />
+    <meta property="og:url" content="{{urls.site}}/graph/story/{{id}}">
+    {{#image}}
+    <meta property="og:image" content="{{preferredUrl}}" />
+    {{/image}}
+    {{/story}}
+
+</head>
+<body>
+<script type="text/javascript">
+    window.location = "{{urls.site}}#story/{{id}}";
+</script>
+</body>
+</html>
+{{/storyFull}}

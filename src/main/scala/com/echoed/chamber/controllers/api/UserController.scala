@@ -25,6 +25,8 @@ class UserController {
     @BeanProperty var closetView: String = _
     @BeanProperty var errorView: String = _
 
+    @BeanProperty var storyGraphUrl: String = _
+
     @RequestMapping(value = Array("/me"), method = Array(RequestMethod.GET))
     @ResponseBody
     def me(
@@ -211,11 +213,17 @@ class UserController {
             httpServletResponse: HttpServletResponse) = {
 
         val result = new DeferredResult("error")
-
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull
         logger.debug("Requesting Story {}", id )
 
         feedService.getStory(id).onSuccess {
             case GetStoryResponse(_, Right(story)) => result.set(story)
+        }
+
+        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess{
+            case LocateWithIdResponse(_, Right(eus)) =>
+                logger.debug("Publishing Action")
+                eus.publishFacebookAction("browse", "story", storyGraphUrl + id)
         }
 
         result

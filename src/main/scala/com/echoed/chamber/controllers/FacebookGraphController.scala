@@ -8,19 +8,44 @@ import org.springframework.web.servlet.ModelAndView
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.echoed.chamber.services.echo.{EchoService, GetEchoByIdResponse}
 import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.services.feed.{GetStoryResponse, FeedService}
 
 @Controller
 @RequestMapping(Array("/graph"))
 class FacebookGraphController {
 
     @BeanProperty var echoService: EchoService = _
+    @BeanProperty var feedService: FeedService = _
     @BeanProperty var facebookClientId: String = _
     @BeanProperty var facebookAppNameSpace: String = _
     @BeanProperty var errorView: String = _
 
     @BeanProperty var facebookGraphProductView: String = _
+    @BeanProperty var facebookGraphStoryView: String = _
 
     private final val logger = LoggerFactory.getLogger(classOf[FacebookGraphController])
+
+    @RequestMapping(value = Array("/story/{storyId}"), method = Array(RequestMethod.GET))
+    def story(
+                @PathVariable(value = "storyId") storyId: String,
+                httpServletRequest: HttpServletRequest,
+                httpServletResponse: HttpServletResponse ) = {
+
+        val result = new DeferredResult(new ModelAndView(errorView))
+
+        logger.debug("Retrieving Story Graph Story Page for Echo: {}", storyId)
+        feedService.getStory(storyId).onSuccess {
+            case GetStoryResponse(msg, Right(storyFull)) =>
+                logger.debug("Successfully Retrived Story {} , Responding With Facebook Graph Story View", storyFull)
+                val modelAndView = new ModelAndView(facebookGraphStoryView)
+                modelAndView.addObject("storyFull", storyFull.get)
+                modelAndView.addObject("facebookClientId", facebookClientId)
+                modelAndView.addObject("facebookAppNameSpace", facebookAppNameSpace)
+                result.set(modelAndView)
+        }
+
+        result
+    }
 
     @RequestMapping(value = Array("/product/{linkId}"), method = Array(RequestMethod.GET))
     def product(

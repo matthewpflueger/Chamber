@@ -236,6 +236,7 @@
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="feedService" ref="feedService" />
         <property name="cookieManager" ref="cookieManager" />
+        <property name="storyGraphUrl" value="${https.urls.site}/graph/story/" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
@@ -381,10 +382,12 @@
     <!-- suppress DuplicatedBeanNamesInspection -->
     <bean id="facebookGraphController" class="com.echoed.chamber.controllers.FacebookGraphController">
         <property name="echoService" ref="echoService"/>
+        <property name="feedService" ref="feedService" />
         <property name="facebookAppNameSpace" value="${facebook.appNameSpace}" />
         <property name="facebookClientId" value="${facebook.clientId}" />
         <property name="errorView" value="error" />
         <property name="facebookGraphProductView" value="facebook_graph_product" />
+        <property name="facebookGraphStoryView" value="facebook_graph_story" />
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->
