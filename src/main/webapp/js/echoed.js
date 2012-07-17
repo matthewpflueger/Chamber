@@ -368,6 +368,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             self.currentChapter.title = self.data.storyFull.chapters[chapterIndex].title;
             selectOptions.currentTitle = self.currentChapter.title;
             self.currentChapter.text = self.data.storyFull.chapters[chapterIndex].text;
+            selectOptions.optionsArray.push(self.currentChapter.title);
             self.currentChapter.id = chapterId;
             $("#chapter-title").val(self.data.storyFull.chapters[chapterIndex].title);
             $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text);
@@ -389,9 +390,17 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             });
         }
         $.each(self.data.storyPrompts.prompts, function(index, prompt){
-            selectOptions.optionsArray.push(prompt)
+            var inChapters = false;
+            $.each(self.data.storyFull.chapters, function(index, chapter){
+                if(prompt === chapter.title){
+                    inChapters = true;
+                }
+            });
+            if(inChapters === false){
+                selectOptions.optionsArray.push(prompt)
+            }
         });
-
+        alert('test');
         $("#chapter-text").expandingTextarea();
 
         self.select = new Echoed.Views.Components.Select(selectOptions);
@@ -939,15 +948,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         });
         self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.default).css({"display": "none"});
         self.optionsList.append(self.options[self.optionsArray.length]);
-        if(self.currentTitle !== undefined){
-            self.options[self.optionsArray.length + 1] = $("<div class='field-question-option'></div>").append(self.currentTitle).css({"display": "none"});
-            self.optionsList.append(self.options[self.optionsArray.length + 1]);
-            self.input.val(self.currentTitle)
-            //self.input.attr("readonly", true);
-        } else {
-            self.input.val(self.options[0].html());
-        }
-
+        self.input.val(self.options[0].html());
     },
     keyPress: function(e){
         switch(e.keyCode){
