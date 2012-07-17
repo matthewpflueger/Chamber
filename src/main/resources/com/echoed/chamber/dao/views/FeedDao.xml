@@ -286,6 +286,8 @@
         <include refid="storyFullLimitSelect" />
         where
             S.partnerId=#{partnerId}
+            AND
+            S.adminFilter = 0
         order by
             S.createdOn desc,
             C.createdOn,
@@ -295,7 +297,8 @@
 
     <select id="findStoryById" resultMap="storyFullResult" useCache = "false">
         <include refid="storyFullSelect" />
-        where S.id = #{storyId}
+        where
+            S.id = #{storyId}
         order by
             C.createdOn,
             CIMG.createdOn,
@@ -304,7 +307,8 @@
 
     <select id="findStoryByEchoId" resultMap="storyFullResult" useCache="false">
         <include refid="storyFullSelect" />
-        where S.echoId = #{echoId}
+        where
+            S.echoId = #{echoId}
         order by
             C.createdOn,
             CIMG.createdOn,
@@ -313,6 +317,8 @@
 
     <select id="getStories" resultMap="storyFullResult" useCache="false">
         <include refid="storyFullLimitSelect" />
+        where
+            S.adminFilter = 0
         order by
             S.createdOn desc,
             C.createdOn,
