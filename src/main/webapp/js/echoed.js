@@ -1172,12 +1172,19 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.storyUrl);
         self.gallery = self.element.find('.echo-s-b-gallery');
-
+        self.userNode = self.element.find('.echo-s-h-t-n');
         var userLink = '<a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
+        if(self.data.echoedUser !== null){
+            if(self.data.echoedUser.facebookId !== null) {
+                var userImage = $('<img />').attr("src", "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture").addClass("echo-s-h-t-n-i").attr("align","absmiddle");
+                self.userNode.append(userImage);
+            }
+        }
 
         self.itemNode = $("<div class='echo-s-b-item'></div>");
         self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
-        self.element.find('.echo-s-h-t-n').html("by " + userLink);
+
+        self.userNode.append("by " + userLink);
         self.img = $("<img />");
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.galleryNode = $("#echo-story-gallery");

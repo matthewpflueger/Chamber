@@ -1531,6 +1531,12 @@ h3{
                 word-wrap: break-word;
             }
             .echo-s-h-t-n{
+                .echo-s-h-t-n-i{
+                    height: 30px;
+                    width: 30px;
+                    margin-right: 5px;
+                    border: 2px solid #FFF;
+                }
                 @include textFontNormal(16px);
                 text-align: center;
                 a{
