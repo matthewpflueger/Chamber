@@ -15,17 +15,8 @@
         Echoed.errors.push("{{this}}");
         /*{{/errors}} // */
 
-        Echoed.urls = {}; //{{#urls}}
-        Echoed.urls.api = "{{api}}";
-        Echoed.urls.cdn = "{{cdn}}";
-        Echoed.urls.js = "{{js}}";
-        Echoed.urls.css = "{{css}}";
-        Echoed.urls.images = "{{images}}";
-        Echoed.urls.views = "{{views}}";
-        Echoed.urls.site = "{{site}}";
-        /*{{/urls}} // */
+        Echoed.urls = {};
+        {{>partial_urls}}
     </script>
-
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-admin.css"/>
-
 </head>
