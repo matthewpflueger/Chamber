@@ -400,7 +400,6 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 selectOptions.optionsArray.push(prompt)
             }
         });
-        alert('test');
         $("#chapter-text").expandingTextarea();
 
         self.select = new Echoed.Views.Components.Select(selectOptions);
