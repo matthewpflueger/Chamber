@@ -236,7 +236,14 @@
             <include refid="com.echoed.chamber.dao.ChapterDao.chapterColumns" />,
             <include refid="com.echoed.chamber.dao.ChapterImageDao.chapterImageColumns" />,
             <include refid="com.echoed.chamber.dao.CommentDao.commentColumns" />
-            from Story S
+            from
+                (
+                select
+                    *
+                from Story
+                order by updatedOn desc
+                limit #{start}, #{limit}
+                ) as S
                 join EchoedUser EU on S.echoedUserId = EU.id
                 join Image I on S.imageId = I.id
                 left outer join Chapter C on S.id = C.storyId

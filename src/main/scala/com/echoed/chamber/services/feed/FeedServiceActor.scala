@@ -78,7 +78,7 @@ class FeedServiceActor(
                 log.debug("Attempting to retrieve feed for user: ")
                 val echoedUser = echoedUserDao.findById(echoedUserId)
                 val echoes = asScalaBuffer(feedDao.getEchoedUserFeed(echoedUser.id, start, limit)).toList
-                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id)).toList
+                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id, start, limit)).toList
                 val feed = new EchoedUserFeed(new EchoedUserPublic(echoedUser), echoes, stories)
                 channel ! GetUserPublicFeedResponse(msg, Right(feed))
             } catch {
@@ -94,7 +94,7 @@ class FeedServiceActor(
             try {
                 log.debug("Attempting to retrieve story feed for user: {}", echoedUserId)
                 val echoedUser = echoedUserDao.findById(echoedUserId)
-                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id)).toList
+                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id, start, limit)).toList
                 val feed = new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), stories)
                 channel ! GetUserPublicStoryFeedResponse(msg, Right(feed))
             } catch {
@@ -111,7 +111,7 @@ class FeedServiceActor(
                 val start = msg.page * limit
                 val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, limit)).toList
                 val partner = partnerDao.findByIdOrHandle(partnerId)
-                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id)).toList
+                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id, start, limit)).toList
                 val partnerFeed = new PartnerFeed(new PartnerPublic(partner), echoes, stories)
                 channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
             } catch {
@@ -127,7 +127,7 @@ class FeedServiceActor(
                 val limit = 30
                 val start = msg.page * limit
                 val partner = partnerDao.findByIdOrHandle(partnerId)
-                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id)).toList
+                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id, start, limit)).toList
                 val partnerFeed = new PartnerStoryFeed(new PartnerPublic(partner), stories)
                 channel ! GetPartnerStoryFeedResponse(msg, Right(partnerFeed))
             } catch {

@@ -474,7 +474,7 @@ class EchoedUserServiceActor(
                 val start = msg.page * limit
 
                 val closet = Option(closetDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new Closet(echoedUser.id, echoedUser))
-                val stories = Option(feedDao.findStoryByEchoedUserId(echoedUser.id)).getOrElse(new ArrayList[StoryFull])
+                val stories = Option(feedDao.findStoryByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new ArrayList[StoryFull])
 
                 if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                     log.debug("Echoed user {} has zero echoes", echoedUser.id)

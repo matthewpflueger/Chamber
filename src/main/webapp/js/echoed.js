@@ -704,7 +704,11 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         }
         if(data.echoes){
             self.addProducts(data);
-        } else {
+        }
+
+        if(data.stories || data.echoes ){
+            self.nextInt++;
+        }else {
             self.nextInt = null;
             self.EvAg.trigger("infiniteScroll/unlock");
         }
@@ -730,12 +734,18 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 success: function(data){
                     if(data.echoes.length > 0){
                         self.addProducts(data);
-                        self.nextInt++;
                     }
-                    else{
+                    console.log(data);
+                    if(data.stories.length > 0){
+                        self.addStories(data);
+                    }
+                    if(data.stories.length > 0 || data.echoes.length > 0){
+                        self.nextInt++;
+                    } else{
                         self.nextInt = null;
                         self.EvAg.trigger("infiniteScroll/unlock");
                     }
+
                 }
             });
         }
