@@ -159,7 +159,7 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'unload', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick');
+        _.bindAll(this, 'render', 'unload', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
@@ -171,6 +171,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         "click .field-submit" : "submitInitStory",
         "click .chapter-submit": "submitChapter",
         "click .chapter-cancel": "cancelChapter",
+        "click .chapter-thumb-x": "removeChapterThumb",
         "click .story-summary-submit": "storySummarySubmit",
         "click .story-summary-chapter-edit": "storyEditClick"
 
@@ -337,6 +338,13 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var chapterId = domNode.attr("chapterId");
         self.loadChapterTemplate(chapterId);
     },
+    removeChapterThumb: function(e){
+        var self = this;
+        var target = $(e.currentTarget).parent();
+        var index = target.attr("index");
+        self.currentChapter.images.splice(index, 1);
+        target.remove();
+    },
     loadChapterTemplate: function(chapterIndex){
         var self = this;
         self.template = _.template($('#templates-components-story-edit').html());
@@ -365,10 +373,15 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text);
             $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                 if(chapterImage.chapterId === chapterId){
-                    var thumbDiv = $('<div></div>').addClass("thumb");
+                    var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
+                    var thumbX = $('<img />').addClass('chapter-thumb-x').attr('src', Echoed.urls.images + "/btn_close_x_black.png").css({
+                        "height" : 20,
+                        "width" : 20
+                    });
+                    thumbDiv.append(thumbX);
                     var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css({
-                        "height" :  60,
-                        "width" : (60 * chapterImage.image.preferredWidth / chapterImage.image.preferredHeight)
+                        "height" :  75,
+                        "width" : (75 * chapterImage.image.preferredWidth / chapterImage.image.preferredHeight)
                     });
                     thumbDiv.append(photo).appendTo(chapterPhotos).fadeIn();
                     self.currentChapter.images.push(chapterImage.image.id);

@@ -1789,3 +1789,13 @@ h3{
         border: 1px solid #CCC;
     }
 }
+
+.chapter-thumb{
+    position: relative;
+    .chapter-thumb-x{
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        cursor: pointer;
+    }
+}

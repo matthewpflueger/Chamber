@@ -9,6 +9,7 @@
     <meta property="og:type" content="{{facebookAppNameSpace}}:product" />
     {{#chapters}}
     <meta property="og:description" content="{{text}}" />
+    <meta property="echoedapp:chapters" content="{{title}}"/>
     {{/chapters}}
     {{#story}}
     <meta property="og:title" content="{{title}}" />
@@ -16,6 +17,14 @@
     {{#image}}
     <meta property="og:image" content="{{preferredUrl}}" />
     {{/image}}
+    {{#echoedUser}}
+    <meta property="echoedapp:author" content="{{name}}" />
+    {{/echoedUser}}
+    {{#chapterImages}}
+        {{#image}}
+        <meta property="og:image" content="{{preferredUrl}}" />
+        {{/image}}
+    {{/chapterImages}}
     {{/story}}
 
 </head>
