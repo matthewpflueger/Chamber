@@ -611,6 +611,7 @@ class EchoedUserServiceActor(
             transactionTemplate.execute { status: TransactionStatus =>
                 chapterDao.insert(chapter)
                 chapterImages.foreach(chapterImageDao.insert(_))
+                storyDao.update(story) //Update the story to get new timestamp
             }
             me ! PublishFacebookAction("update", "story", storyGraphUrl + storyId )
             channel ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))

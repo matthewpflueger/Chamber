@@ -276,7 +276,7 @@
         <include refid="storyFullLimitSelect" />
         where EU.id=#{echoedUserId}
         order by
-            S.createdOn desc,
+            S.updatedOn desc,
             C.createdOn,
             CIMG.createdOn,
             CMT.createdOn desc
@@ -289,7 +289,7 @@
             AND
             S.adminFilter = 0
         order by
-            S.createdOn desc,
+            S.updatedOn desc,
             C.createdOn,
             CIMG.createdOn,
             CMT.createdOn desc
@@ -320,7 +320,7 @@
         where
             S.adminFilter = 0
         order by
-            S.createdOn desc,
+            S.updatedOn desc,
             C.createdOn,
             CIMG.createdOn,
             CMT.createdOn desc

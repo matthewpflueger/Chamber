@@ -88,6 +88,8 @@
             updatedOn = utc_timestamp() + 0,
             views = #{views},
             comments = #{comments}
+        where
+            id = #{id}
     </update>
 
     <delete id="deleteByEchoedUserId">
