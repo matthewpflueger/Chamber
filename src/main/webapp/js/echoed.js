@@ -679,9 +679,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 break;
             case "explore":
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed";
-//                self.contentTitle = "Everyone";
+                self.contentTitle = "Community";
 //                self.contentDescription = "All the stories and products at our partners as they're bought and shared";
-                self.contentTitle = "";
+//                self.contentTitle = "";
                 self.contentDescription ="";
                 self.id= "explore";
                 self.nextInt = 1;
@@ -1404,7 +1404,6 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var overlay = self.element.find(".story-brief-overlay");
         var image = null;
         image = self.data.story.image;
-
         var hToWidthRatio = image.preferredHeight / image.preferredWidth;
         var width = 260;
         if(image.preferredUrl !== null){
@@ -1431,7 +1430,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         } else {
             if(self.data.echoedUser.facebookId) {
                 photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
-                textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
+                textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc));
             }
             textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
             if(self.data.story.partnerHandle !== "Echoed") {
@@ -1456,7 +1455,17 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         }
         var dateString = self.data.story.createdOn.toString();
         var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
-        //textNode.append(elapsedString);
+
+        var indicators = $("<div class='story-brief-indicator'></div>");
+
+        indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
+        indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.comments.length));
+        indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
+        indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.chapterImages.length + 1));
+        indicators.append($("<span class='s-b-i-c'></span>").append(elapsedString));
+
+        textNode.append(indicators);
+
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
