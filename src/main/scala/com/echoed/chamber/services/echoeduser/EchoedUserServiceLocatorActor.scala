@@ -43,6 +43,7 @@ class EchoedUserServiceLocatorActor(
         facebookServiceLocator: FacebookServiceLocator,
         twitterServiceLocator: TwitterServiceLocator,
         cacheManager: CacheManager,
+        storyGraphUrl: String,
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
 
@@ -218,7 +219,8 @@ class EchoedUserServiceLocatorActor(
                                             imageDao = imageDao,
                                             transactionTemplate = transactionTemplate,
                                             facebookServiceLocator = facebookServiceLocator,
-                                            twitterServiceLocator = twitterServiceLocator)
+                                            twitterServiceLocator = twitterServiceLocator,
+                                            storyGraphUrl = storyGraphUrl)
                                     }, echoedUserId))
                                 channel ! CreateEchoedUserServiceWithIdResponse(msg, Right(echoedUserService))
                                 cache.put(echoedUserId, echoedUserService)

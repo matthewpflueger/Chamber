@@ -249,6 +249,7 @@
         <prop key="https.urls.views">${https.urls.views}</prop>
 
         <prop key="echoClickUrl">${http.urls.site}/echo</prop>
+        <prop key="storyGraphUrl">${http.urls.site}/graph/story/</prop>
     </util:properties>
 
 

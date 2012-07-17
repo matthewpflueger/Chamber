@@ -45,7 +45,8 @@ class EchoedUserServiceActor(
         imageDao: ImageDao,
         transactionTemplate: TransactionTemplate,
         facebookServiceLocator: FacebookServiceLocator,
-        twitterServiceLocator: TwitterServiceLocator) extends EchoedActor {
+        twitterServiceLocator: TwitterServiceLocator,
+        storyGraphUrl: String) extends EchoedActor {
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
         case _: Exception ⇒ Stop
@@ -599,6 +600,7 @@ class EchoedUserServiceActor(
             sanityCheck(msg)
 
             val channel = context.sender
+            val me = self
 
             val story = storyDao.findByIdAndEchoedUserId(storyId, echoedUser.id)
             val chapter = new Chapter(story, title, text)
@@ -610,7 +612,7 @@ class EchoedUserServiceActor(
                 chapterDao.insert(chapter)
                 chapterImages.foreach(chapterImageDao.insert(_))
             }
-
+            me ! PublishFacebookAction("update", "story", storyGraphUrl + storyId )
             channel ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
 
         case msg @ UpdateChapter(_, chapterId, title, text, imageIds) =>

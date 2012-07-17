@@ -233,7 +233,8 @@ class ApplicationConfig {
             transactionTemplate = transactionTemplate,
             facebookServiceLocator = facebookServiceLocator,
             twitterServiceLocator  = twitterServiceLocator,
-            cacheManager = cacheManager)), "EchoedUserService")
+            cacheManager = cacheManager,
+            storyGraphUrl = urlsProperties("storyGraphUrl"))), "EchoedUserService")
 
     @Bean def partnerUserServiceLocatorActor = actorSystem.actorOf(Props(new PartnerUserServiceLocatorActor(
             cacheManager = cacheManager,
