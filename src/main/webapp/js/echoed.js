@@ -679,8 +679,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 break;
             case "explore":
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed";
-                self.contentTitle = "Everyone";
-                self.contentDescription = "All the stories and products at our partners as they're bought and shared";
+//                self.contentTitle = "Everyone";
+//                self.contentDescription = "All the stories and products at our partners as they're bought and shared";
+                self.contentTitle = "";
+                self.contentDescription ="";
                 self.id= "explore";
                 self.nextInt = 1;
                 break;
@@ -692,8 +694,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "exhibit":
                 self.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
                 self.id = "exhibit";
-                self.contentTitle = "Me";
-                self.contentDescription = "All stories and products you've shared and the rewards you've earned";
+                self.contentTitle = "My Stories";
+                //self.contentDescription = "All stories and products you've shared and the rewards you've earned";
                 self.personal = true;
                 self.nextInt = 1;
                 break;
@@ -1488,7 +1490,7 @@ Echoed.Views.Components.Title = Backbone.View.extend({
     },
     update: function(options){
         this.titleText.html(options.title);
-        this.titleDescription.html(options.description);
+        //this.titleDescription.html(options.description);
     }
 });
 
