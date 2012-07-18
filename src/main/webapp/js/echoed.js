@@ -752,9 +752,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             self.addProducts(data);
         }
 
-        if(data.stories || data.echoes ){
+        if(data.stories.length > 0 || data.echoes.length > 0 ){
             self.nextInt++;
-        }else {
+        } else {
             self.nextInt = null;
             self.EvAg.trigger("infiniteScroll/unlock");
         }
@@ -781,7 +781,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     if(data.echoes.length > 0){
                         self.addProducts(data);
                     }
-                    console.log(data);
                     if(data.stories.length > 0){
                         self.addStories(data);
                     }
@@ -1448,8 +1447,8 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             }
             textNode.append($("<div class='story-brief-text-by'></div>").append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
 
-            var chapterText = self.data.chapters[0].text.substr(0,80);
-            if(self.data.chapters[0].text.length > 80){
+            var chapterText = self.data.chapters[0].text.substr(0,100);
+            if(self.data.chapters[0].text.length > 100){
                 chapterText += "...";
             }
             textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
