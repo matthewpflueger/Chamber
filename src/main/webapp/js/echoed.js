@@ -681,8 +681,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             case "explore":
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed";
                 self.contentTitle = "Community";
-//                self.contentDescription = "All the stories and products at our partners as they're bought and shared";
-//                self.contentTitle = "";
                 self.contentDescription ="";
                 self.id= "explore";
                 self.nextInt = 1;
@@ -696,7 +694,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
                 self.id = "exhibit";
                 self.contentTitle = "My Stories";
-                //self.contentDescription = "All stories and products you've shared and the rewards you've earned";
                 self.personal = true;
                 self.nextInt = 1;
                 break;
@@ -1669,3 +1666,4 @@ function pluralize(integer){
         return "";
     }
 }
+

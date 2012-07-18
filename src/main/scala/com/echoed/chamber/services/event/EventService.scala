@@ -7,4 +7,8 @@ trait EventService {
     def facebookCanvasViewed(echoedUser: EchoedUser): Unit
 
     def exhibitViewed(echoedUser: EchoedUser): Unit
+
+    def widgetOpened(partnerId: String): Unit
+
+    def widgetStoryOpened(storyId: String): Unit
 }

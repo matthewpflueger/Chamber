@@ -823,9 +823,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         if(self.nextInt != null){
             self.EvAg.trigger('infiniteScroll/lock');
-
             EchoedjQuery.ajax({
-                url: self.jsonUrl + "?page=" + self.nextInt,
+                url: self.jsonUrl + "?page=" + self.nextInt + "&origin=widget",
                 xhrFields: {
                     withCredentials: true
                 },
@@ -1037,7 +1036,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     load: function(id){
         var self = this;
         EchoedjQuery.ajax({
-            url: Echoed.Urls.Api + "/api/story/" + id,
+            url: Echoed.Urls.Api + "/api/story/" + id + "?origin=widget",
             type: "GET",
             dataType: 'jsonp',
             xhrFields: {

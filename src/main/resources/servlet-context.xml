@@ -235,6 +235,7 @@
     <bean id="userController" class="com.echoed.chamber.controllers.api.UserController">
         <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
         <property name="feedService" ref="feedService" />
+        <property name="eventService"  ref="eventService" />
         <property name="cookieManager" ref="cookieManager" />
         <property name="storyGraphUrl" value="${https.urls.site}/graph/story/" />
     </bean>
