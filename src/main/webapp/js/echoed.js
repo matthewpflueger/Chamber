@@ -951,6 +951,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         this.render();
     },
     events: {
+        "mouseenter .field-question-label" : "open",
         "click .field-question-label" : "click",
         "click .field-question-option" : "selectOption",
         "keyup :input": "keyPress"

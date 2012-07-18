@@ -374,9 +374,10 @@
     <bean id="staticController" class="com.echoed.chamber.controllers.StaticController">
         <property name="businessView"  value="public_business" />
         <property name="contactUsView"  value="public_contactus" />
-        <property name="whatIsEchoedView" value="public_whatisechoed" />
+        <property name="whatIsEchoedView" value="public_about" />
         <property name="privacyView" value="public_privacy" />
         <property name="termsView" value="public_terms" />
+        <property name="guidelinesView" value="public_guidelines" />
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->

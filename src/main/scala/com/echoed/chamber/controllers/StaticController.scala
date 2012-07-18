@@ -16,9 +16,13 @@ class StaticController {
     @BeanProperty var businessView: String = _
     @BeanProperty var privacyView: String = _
     @BeanProperty var termsView: String = _
+    @BeanProperty var guidelinesView: String = _
 
-    @RequestMapping(value = Array("/whatisechoed*"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/about*"), method = Array(RequestMethod.GET))
     def howItWorks = new ModelAndView(whatIsEchoedView)
+
+    @RequestMapping(value = Array("/guidelines"), method = Array(RequestMethod.GET))
+    def about = new ModelAndView(guidelinesView)
 
     @RequestMapping(value = Array("/contactus*"), method = Array(RequestMethod.GET))
     def contactUs = new ModelAndView(contactUsView)
@@ -31,6 +35,8 @@ class StaticController {
 
     @RequestMapping(value = Array("/terms*"), method = Array(RequestMethod.GET))
     def terms = new ModelAndView(termsView)
+
+
 
     @RequestMapping(value = Array("/robots.txt"), method = Array(RequestMethod.GET))
     def robots = new ModelAndView("robots.txt")

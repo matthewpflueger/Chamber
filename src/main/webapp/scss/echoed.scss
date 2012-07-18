@@ -164,10 +164,6 @@ a{
     }
 }
 
-h2{
-    @include navFont($labelColor);
-}
-
 .highlight{
     color: $highlightColor;
 }
@@ -535,10 +531,17 @@ h2{
                 display: inline-block;
                 position:relative;
                 input[type=text]{
-                    background-image: image-url("bk_downarrow.png");
                     @include textFontNormal(16px);
                     background-position: right;
                     background-repeat: no-repeat;
+                    background-color: #F3F3F3;
+                    //border: 1px solid $mainColor !important;
+                    background-image: image-url("bk_downarrow.png"), -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: image-url("bk_downarrow.png"), -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+                    background-image: image-url("bk_downarrow.png"), -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: image-url("bk_downarrow.png"), -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: image-url("bk_downarrow.png"), -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: image-url("bk_downarrow.png"), linear-gradient(top, white 0%, #F3F3F3 100%);
                     cursor: pointer;
                 }
                 .field-question-label{
@@ -1249,8 +1252,20 @@ h2{
 }
 
 .center{
-    width:960px;
+    width: 960px;
     margin:auto;
+}
+
+.center-static{
+    width: 720px;
+    margin: auto;
+    .center-section{
+        margin-top:20px;
+    }
+    p{
+        margin-bottom: 20px;
+        @include textFontNormal(16px);
+    }
 }
 
 .orange{
@@ -1338,18 +1353,6 @@ h2{
     border-radius: 5px;
     padding: 20px;
     @include drop-shadow;
-    &.bk_biz{
-        background-image: image-url("bk_biz.png");
-        background-position: right;
-        background-repeat: no-repeat;
-        height: 275px;
-        .p-text{
-            width:450px;
-            height:250px;
-            font-size: 18px;
-            line-height: 1.5em;
-        }
-    }
 
     .register_form_container{
         margin: 20px 0px;
@@ -1379,28 +1382,15 @@ h2{
         }
     }
 
-    &.bk_hiw{
-        background-image: image-url("bk_hiw.png");
-        background-position: right;
-        background-repeat: no-repeat;
-        height: 275px;
-        .p-text{
-            width:450px;
-            height:250px;
-            margin-top: 45px;
-            font-size: 24px;
-            line-height: 1.5em;
-        }
-    }
 }
 
 h1{
-    @include textFontLight(48px);
+    @include headerFontBold(48px);
     text-shadow: #fff 1px 1px 0;
 }
 
 h2{
-    @include textFontLight(48px);
+    @include textFontNormal(36px);
     text-shadow: #fff 1px 1px 0;
 }
 
@@ -1844,3 +1834,10 @@ h3{
     }
 }
 
+.title{
+    text-align: center;
+    padding: 20px 0px;
+}
+.highlight{
+    color: $mainColor !important;
+}
