@@ -286,8 +286,6 @@
         <include refid="storyFullLimitSelect" />
         where
             S.partnerId=#{partnerId}
-            AND
-            S.adminFilter = 0
         order by
             S.updatedOn desc,
             C.createdOn,
@@ -317,8 +315,6 @@
 
     <select id="getStories" resultMap="storyFullResult" useCache="false">
         <include refid="storyFullLimitSelect" />
-        where
-            S.adminFilter = 0
         order by
             S.updatedOn desc,
             C.createdOn,
