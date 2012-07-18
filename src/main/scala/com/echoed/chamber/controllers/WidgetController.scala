@@ -25,7 +25,7 @@ class WidgetController {
     @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
     def js(
         @RequestParam(value = "pid", required = true) pid: String,
-        @RequestParam(value = "style", required = false) style: String,
+        @RequestParam(value = "style", required = false, defaultValue = "black") style: String,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
