@@ -426,9 +426,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.currentChapter.title = $.trim(self.select.val());
         self.currentChapter.text = $.trim($('#chapter-text').val());
         if(self.currentChapter.title === ""){
-            alert("You must have a title for your chapter");
+            alert("Please select or write a topic.");
         } else if(self.currentChapter.text === ""){
-            alert("You must have some text for your chapter. Even a single sentence is enough!");
+            alert("You must have some text for your topic. Even a single sentence is enough!");
         } else {
             if(self.locked === false) {
                 self.locked = true;
@@ -951,7 +951,8 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         this.render();
     },
     events: {
-        "mouseenter .field-question-label" : "open",
+        "mouseenter" : "open",
+        "mouseleave" : "close",
         "click .field-question-label" : "click",
         "click .field-question-option" : "selectOption",
         "keyup :input": "keyPress"
@@ -970,10 +971,10 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         self.optionsList = $("<div class='field-question-options-list'></div>");
         self.element.append(self.optionsList);
         $.each(self.optionsArray, function(index, option){
-            self.options[index] = $("<div class='field-question-option'></div>").append(option).css({"display": "none"});
+            self.options[index] = $("<div class='field-question-option'></div>").append(option);
             self.optionsList.append(self.options[index]);
         });
-        self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.default).css({"display": "none"});
+        self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.default);
         self.optionsList.append(self.options[self.optionsArray.length]);
         self.input.val(self.options[0].html());
     },
@@ -1003,7 +1004,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
     close: function(){
         var self = this;
         self.openState = false;
-        self.element.find(".field-question-option").hide();
+        self.optionsList.hide();
         if(self.input.val() == self.default){
             self.input.val("");
             self.input.select();
@@ -1014,7 +1015,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         self.openState = true;
         self.input.focus();
         self.input.select();
-        self.element.find(".field-question-option").show();
+        self.optionsList.show();
     }
 });
 
