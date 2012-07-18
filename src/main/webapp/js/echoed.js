@@ -128,6 +128,7 @@ Echoed.Router = Backbone.Router.extend({
             this.page = "";
         }
         this.oldPage = this.page;
+        _gaq.push(['_trackPageview', window.location.hash]);
 
         this.EvAg.trigger("story/show", id);
         this.EvAg.trigger("page/change", "story");
@@ -1337,6 +1338,10 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         if(self.data.comments.length > 0) $("#echo-s-c-t-count").html("(" + self.data.comments.length + ")");
         $.each(self.data.comments, function(index,comment){
             var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a></a>").append(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id));
+            if(comment.echoedUser.facebookId !== null){
+                var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", "http://graph.facebook.com/" + comment.echoedUser.facebookId + "/picture").attr("align", "absmiddle");
+                img.prependTo(commentUserNode);
+            }
             var commentText = $('<div class="echo-s-c-l-c-t"></div>').append(comment.text.replace(/\n/g, '<br />'));
             var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
             commentListNode.append(commentNode);

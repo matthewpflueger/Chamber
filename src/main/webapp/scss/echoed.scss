@@ -1392,6 +1392,7 @@ h1{
 h2{
     @include textFontNormal(36px);
     text-shadow: #fff 1px 1px 0;
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 h3{
@@ -1718,14 +1719,19 @@ h3{
             .echo-s-c-l{
                 margin-top: 10px;
                 border-top: 1px dotted #999;
-                padding: 10px 0px;
                 .echo-s-c-l-c{
                     padding: 10px 0px 10px 10px;
                     .echo-s-c-l-c-u{
                         @include textFontBold(14px, $mainColor);
                     }
+                    .echo-s-c-l-c-u-i{
+                        height: 25px;
+                        width: 25px;
+                        margin-right: 10px;
+                        border: 2px solid #FFF;
+                    }
                     .echo-s-c-l-c-t{
-                        padding: 5px 0px;
+                        padding: 5px 37px;
                         @include textFontNormal(14px, #000);
                         border-bottom: 1px dotted #999;
                         word-wrap: break-word;
