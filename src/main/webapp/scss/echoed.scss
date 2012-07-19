@@ -1024,10 +1024,12 @@ a{
                     .story-brief{
                         cursor: pointer;
                         .story-brief-indicator{
-                            margin-top:5px;
+                            border-top: #CCC 1px dotted;
+                            padding-top:3px;
                             height: 12px;
                             font-size: 11px;
                             .s-b-i-c{
+                                //margin-left: 5px;
                                 float:right;
                                 font-size: 11px;
                                 font-style: italic;
@@ -1067,7 +1069,7 @@ a{
                             .story-brief-text-quote{
                                 overflow: hidden;
                                 margin-bottom: 10px;
-                                font-size: 14px;
+                                font-size: 13px;
                                 font-style: italic;
                                 word-wrap: break-word;
                                 text-overflow: ellipsis;
@@ -1088,7 +1090,7 @@ a{
                             .story-brief-text-user-image{
                                 display: block;
                                 position: absolute;
-                                bottom: 20px;
+                                bottom: 22px;
                                 border: 2px solid #CCC;
                                 right: 5px;
                                 height: 35px;

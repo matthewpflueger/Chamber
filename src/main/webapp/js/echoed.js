@@ -1443,17 +1443,16 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
                 } else {
                     pId = self.data.story.partnerId
                 }
-                textNode.append($("<div class='story-brief-text-from'></div>").append("from <a class='story-brief-text-partner' href='#partner/" + pId + "'>" + self.data.story.productInfo + "</a><br/>"));
+                //textNode.append($("<div class='story-brief-text-from'></div>").append("from <a class='story-brief-text-partner' href='#partner/" + pId + "'>" + self.data.story.productInfo + "</a><br/>"));
             } else {
-                textNode.append($("<div class='story-brief-text-from'></div>").append("from " + self.data.story.productInfo + "<br/>"));
+                //textNode.append($("<div class='story-brief-text-from'></div>").append("from " + self.data.story.productInfo + "<br/>"));
             }
             textNode.append($("<div class='story-brief-text-by'></div>").append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
 
-            var chapterText = self.data.chapters[0].text.substr(0,100);
-            if(self.data.chapters[0].text.length > 100){
-                chapterText += "...";
-            }
-            textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
+            var chapterText = self.data.chapters[0].text;
+            var c  = chapterText.split(/[.!?]/)[0];
+            c = c + chapterText.substr(c.length, 1); //Append Split Character
+            textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
             overlayNode.html(self.data.story.title);
         }
         var dateString = self.data.story.createdOn.toString();
