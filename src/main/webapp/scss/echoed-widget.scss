@@ -583,7 +583,7 @@ $headerFontFamily: 'Arvo', serif;
 
 .echoed-head{
     padding: 10px;
-    @include headerFont(20px, #FFF);
+    @include headerFont(30px, #FFF);
     @include black-gradient;
     text-shadow: 0px 1px 0px #000;
     text-align: center;
@@ -623,14 +623,14 @@ $headerFontFamily: 'Arvo', serif;
 }
 
 .echoed-footer{
-    padding: 10px 0px;
+    padding: 20px;
     text-align: center;
     background-color: #F0F0F0;
     .echoed-footer-left{
         float:left;
         .echoed-footer-left-title{
             text-align: center;
-            @include headerFont(24px);
+            @include headerFont(30px);
         }
         .echoed-footer-left-text{
             text-align: center;
@@ -640,11 +640,22 @@ $headerFontFamily: 'Arvo', serif;
         }
 
     }
-
+    .echoed-footer-right{
+        float:right;
+        width: 300px;
+    }
+    .echoed-share-container{
+        display:inline-block;
+        padding: 3px;
+        background-color: #CCC;
+        margin-bottom: 5px;
+    }
     .echoed-share{
-        @include textFontBold(14px, #FFF);
+        @include textFontBold(18px, #FFF);
         @include button;
         text-decoration: none;
+    }
+    .echo-click-share{
     }
 }
 
