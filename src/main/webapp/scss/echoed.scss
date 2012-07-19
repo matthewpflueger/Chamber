@@ -326,8 +326,7 @@ a{
 
 
 		#header-nav, #footer-nav{
-            margin-bottom: 10px;
-            margin-top: 20px;
+            padding: 10px 0px 20px 0px;
             .icon_world{
                 background-image: image-url("bk_icon_world.png");
                 background-position: left;
@@ -358,6 +357,10 @@ a{
 		}
 
         #footer-nav{
+            box-shadow: 0px -1px #CCC;
+            border-top: 1px solid #FFF;
+
+
             li{
                 padding: 7px 10px;
                 list-style:none;
