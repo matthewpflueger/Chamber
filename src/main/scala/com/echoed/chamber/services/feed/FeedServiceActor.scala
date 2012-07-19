@@ -154,6 +154,17 @@ class FeedServiceActor(
                     log.error("Unexpected error processing {} , {}", msg, e)
             }
 
+        case msg @ GetTags(partialTagId) =>
+            val channel = context.sender
+            try {
+                val tags = asScalaBuffer(feedDao.findTags(partialTagId + "%")).toList
+                channel ! GetTagsResponse(msg, Right(tags))
+            } catch {
+                case e =>
+                    channel ! GetTagsResponse(msg, Left(new FeedException("Cannot get tags", e)))
+                    log.error("Unexpected error processing {} , {}", msg ,e)
+            }
+
         case msg @ GetStory(storyId) =>
             val channel = context.sender
             try {

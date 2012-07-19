@@ -2,6 +2,8 @@ package com.echoed.chamber.services.feed
 
 import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedException, Message}
 import com.echoed.chamber.domain.views._
+import com.echoed.chamber.domain.Tag
+import java.util.{List => JList}
 
 sealed trait FeedMessage extends Message
 
@@ -18,6 +20,11 @@ case class GetPartnerIds() extends FM
 case class GetPartnerIdsResponse(
         message: GetPartnerIds,
         value: Either[FE, Array[String]]) extends FM with MR[Array[String], GetPartnerIds, FE]
+
+case class GetTags(partialTagId: String) extends FM
+case class GetTagsResponse(
+        message: GetTags,
+        value: Either[FE, JList[Tag]]) extends FM with RM[JList[Tag], GetTags, FE]
 
 case class GetStoryIds() extends FM
 case class GetStoryIdsResponse(message: GetStoryIds, value: Either[FE, Array[String]])

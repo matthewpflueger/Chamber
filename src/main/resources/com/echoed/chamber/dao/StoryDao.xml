@@ -18,6 +18,7 @@
             <arg column="storyProductInfo" javaType="String" />
             <arg column="storyViews" javaType="_int" />
             <arg column="storyComments" javaType="_int" />
+            <arg column="storyTag" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -35,6 +36,7 @@
         S.productInfo as storyProductInfo,
         S.views as storyViews,
         S.comments as storyComments,
+        S.tag as storyTag,
         <include refid="com.echoed.chamber.dao.ImageDao.imageColumns" />
     </sql>
 
@@ -65,7 +67,8 @@
             title,
             echoId,
             productId,
-            productInfo
+            productInfo,
+            tag
         ) values (
             #{id},
             #{createdOn},
@@ -78,7 +81,8 @@
             #{title},
             #{echoId},
             #{productId},
-            #{productInfo})
+            #{productInfo},
+            #{tag})
     </insert>
 
     <update id="update">

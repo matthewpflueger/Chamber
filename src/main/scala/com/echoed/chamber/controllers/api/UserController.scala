@@ -216,7 +216,7 @@ class UserController {
 
     @RequestMapping(value = Array("/story/{id}"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def get(
+    def getStory(
             @PathVariable(value = "id") id: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             httpServletRequest: HttpServletRequest,
@@ -235,6 +235,21 @@ class UserController {
                 eus.publishFacebookAction("browse", "story", storyGraphUrl + id)
         }
         if(origin.equals("widget")) eventService.widgetStoryOpened(id)
+        result
+    }
+
+    @RequestMapping(value = Array("/tags"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getTagList(
+            @RequestParam(value = "tagId", required = false, defaultValue = "") tagId: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin : String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult("error")
+        feedService.getTags(tagId).onSuccess {
+            case GetTagsResponse(_, Right(tags)) => result.set(tags)
+        }
         result
     }
 }

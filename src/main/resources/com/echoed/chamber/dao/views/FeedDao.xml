@@ -331,6 +331,10 @@
             CMT.createdOn desc
     </select>
 
+    <select id="findTags" resultType="String">
+        select T.id from Tag T where T.id like #{id} order by id asc
+    </select>
+
     <select id="getStoryIds" resultType="String">
         select S.id from Story S join Chapter C on S.id = C.storyId order by C.createdOn desc
     </select>

@@ -3,6 +3,7 @@ package com.echoed.chamber.dao.views
 import com.echoed.chamber.domain.views.{StoryFull, Feed, EchoViewPublic}
 import java.util.{List => JList}
 import org.apache.ibatis.annotations.Param
+import com.echoed.chamber.domain.Tag
 
 
 trait FeedDao {
@@ -52,6 +53,9 @@ trait FeedDao {
     def getAllStories: JList[StoryFull]
 
     def getStoryIds: Array[String]
+
+    def findTags(
+            @Param("id") id: String): JList[Tag]
 
     def getPartnerIds: Array[String]
 

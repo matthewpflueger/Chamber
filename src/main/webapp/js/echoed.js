@@ -90,9 +90,49 @@ Echoed = {
         var story = new Echoed.Views.Components.Story({ el: '#story', EvAg: EventAggregator});
         var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
         var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
+        var category = new Echoed.Views.Components.Menu({ el: '#menu', EvAg: EventAggregator });
         Backbone.history.start();
     }
 };
+
+Echoed.Views.Components.Menu = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'load', 'unload');
+        this.EvAg = options.EvAg;
+        this.el = options.el;
+        this.element = $(this.el);
+        this.EvAg.bind('menu/show', this.load);
+    },
+    events: {
+        "click .menu-close": "unload"
+    },
+    load: function(){
+        var self = this;
+        self.template = _.template($('#templates-components-menu').html());
+        self.element.html(self.template);
+        self.content = $('#menu-content');
+        $.ajax({
+            url: Echoed.urls.api + "/api/tags",
+            type: "GET",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data){
+                $.each(data, function(index, tag){
+                    self.content.append($('<div></div>').addClass('menu-item').html(tag));
+                });
+                self.EvAg.trigger('fade/show');
+                self.element.show();
+            }
+        });
+    },
+    unload: function(){
+        var self = this;
+        self.element.fadeOut();
+        self.element.empty();
+        self.EvAg.trigger('fade/hide');
+    }
+});
 
 Echoed.Views.Components.Fade = Backbone.View.extend({
     initialize: function(options){
@@ -822,7 +862,8 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
         this.element.append($("<div class='action-button'>Share a Story</div>"));
     },
     click: function(e){
-        window.location.hash = "#write/";
+        var self = this;
+        self.EvAg.trigger('menu/show');
     }
 });
 
@@ -1218,7 +1259,22 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         } else {
             textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
             textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
+<<<<<<< HEAD
             textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
+=======
+            if(self.data.story.partnerHandle !== "Echoed") {
+                var pId = "";
+                if(self.data.story.partnerHandle !== null){
+                    pId = self.data.story.partnerHandle;
+                } else {
+                    pId = self.data.story.partnerId
+                }
+                //textNode.append($("<div class='story-brief-text-from'></div>").append("from <a class='story-brief-text-partner' href='#partner/" + pId + "'>" + self.data.story.productInfo + "</a><br/>"));
+            } else {
+                //textNode.append($("<div class='story-brief-text-from'></div>").append("from " + self.data.story.productInfo + "<br/>"));
+            }
+            textNode.append($("<div class='story-brief-text-by'></div>").append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
+>>>>>>> WIP: Initial Commit for Tags
 
             var chapterText = self.data.chapters[0].text;
             var c  = chapterText.split(/[.!?]/)[0];

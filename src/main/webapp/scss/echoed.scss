@@ -1097,7 +1097,11 @@ a{
                             .story-brief-text-user-image{
                                 display: block;
                                 position: absolute;
+<<<<<<< HEAD
                                 bottom: 24px;
+=======
+                                bottom: 15px;
+>>>>>>> WIP: Initial Commit for Tags
                                 border: 2px solid #CCC;
                                 right: 5px;
                                 height: 30px;
@@ -1492,6 +1496,34 @@ h3{
     z-index: 99999;
     width: 876px;
     padding-bottom: 50px;
+}
+
+#menu{
+    position:absolute;
+    left: 50%;
+    width: 600px;
+    margin-left: -300px;
+    top: 75px;
+    background-color: #FFF;
+    border-radius:5px;
+    .menu-close{
+        position:absolute;
+        right: -15px;
+        top: -15px;
+        cursor: pointer;
+    }
+    #menu-content{
+        padding: 10px;
+    }
+    .menu-item{
+        padding: 6px 10px;
+        width: 100px;
+        display: inline-block;
+        @include textFontNormal(14px);
+        &:hover{
+            color: $mainColor;
+        }
+    }
 }
 
 .echo-story-main{

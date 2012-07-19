@@ -20,7 +20,8 @@ case class Story(
         productId: String,
         productInfo: String,
         views: Int,
-        comments: Int) extends DomainObject {
+        comments: Int,
+        tag: String) extends DomainObject {
 
     def this(
             echoedUser: EchoedUser,
@@ -43,6 +44,7 @@ case class Story(
         productId = echo.map(_.productId).orNull,
         productInfo = _productInfo.orNull,
         views = 0,
-        comments = 0)
+        comments = 0,
+        tag = null)
 
 }
