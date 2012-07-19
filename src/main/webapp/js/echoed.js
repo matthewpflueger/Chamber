@@ -47,6 +47,16 @@ Echoed = {
     getTwitterLoginUrl: function(hash){
         return Echoed.twitterUrl + encodeURIComponent(hash);
     },
+    isUrl: function(s){
+        var regexp = /(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+        return regexp.test(s);
+    },
+    makeUrl: function(s){
+        if(s.indexOf("http://") === -1){
+            s = "http://" + s;
+        }
+        return s;
+    },
     init: function() {
         var router = new Echoed.Router({EvAg: EventAggregator});
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
@@ -1039,9 +1049,11 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.userNode = self.element.find('.echo-s-h-t-n');
         var userLink = 'by <a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a><br/>';
         var fromLink = 'from ';
-        if(self.data.partnerId != "Echoed"){
+        if(self.data.story.partnerHandle !== "Echoed"){
             var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
             fromLink = fromLink + '<a href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
+        } else if (Echoed.isUrl(self.data.story.productInfo)){
+            fromLink = fromLink + '<a target="_blank" href="' + Echoed.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
         } else {
             fromLink = fromLink +  self.data.story.productInfo;
         }
