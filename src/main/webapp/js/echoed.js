@@ -1206,18 +1206,27 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.storyUrl);
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.userNode = self.element.find('.echo-s-h-t-n');
-        var userLink = '<a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
+        var userLink = 'by <a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a><br/>';
+        var fromLink = 'from ';
+        if(self.data.partnerId != "Echoed"){
+            var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
+            fromLink = fromLink + '<a href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
+        } else {
+            fromLink = fromLink +  self.data.story.productInfo;
+        }
         if(self.data.echoedUser !== null){
             if(self.data.echoedUser.facebookId !== null) {
-                var userImage = $('<img />').attr("src", "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture").addClass("echo-s-h-t-n-i").attr("align","absmiddle");
+                var userImage = $('<img />').attr("src", "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture").addClass("echo-s-h-t-n-i");
                 self.userNode.append(userImage);
             }
         }
 
         self.itemNode = $("<div class='echo-s-b-item'></div>");
         self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
-
-        self.userNode.append("by " + userLink);
+        self.userTextNode = $("<div class='echo-s-h-t-n-t'></div>");
+        self.userTextNode.append(userLink);
+        self.userTextNode.append(fromLink);
+        self.userNode.append(self.userTextNode);
         self.img = $("<img />");
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.galleryNode = $("#echo-story-gallery");

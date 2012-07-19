@@ -1022,7 +1022,7 @@ a{
                 position:relative;
                 .item_content{
                     .story-brief{
-                        cursor: pointer;
+                        //cursor: pointer;
                         .story-brief-indicator{
                             border-top: #CCC 1px dotted;
                             padding-top:3px;
@@ -1514,7 +1514,7 @@ h3{
         }
     }
     .echo-gallery-title{
-        @include textFontBold(12px);
+        @include textFontBold(12px, #000);
         text-shadow: 0px 1px #FFF;
         margin-bottom: 5px;
     }
@@ -1554,7 +1554,10 @@ h3{
                 word-wrap: break-word;
             }
             .echo-s-h-t-n{
+                position: relative;
                 .echo-s-h-t-n-i{
+                    position:absolute;
+                    top: 3px;
                     height: 30px;
                     width: 30px;
                     margin-right: 5px;
@@ -1563,10 +1566,17 @@ h3{
                 @include textFontNormal(16px);
                 text-align: center;
                 a{
+                    font-weight: bold;
                     &:hover{
                         color: $mainColor;
                     }
                 }
+            }
+            .echo-s-h-t-n-t{
+                display:inline-block;
+                text-align: left;
+                @include textFontNormal(14px);
+                padding-left: 40px;
             }
             .echo-s-h-i-c{
                 float:left;
