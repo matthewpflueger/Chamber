@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.feed._
+import com.echoed.chamber.services.event.EventService
 
 @Controller
 @RequestMapping(Array("/api"))
@@ -20,6 +21,7 @@ class UserController {
 
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var feedService: FeedService = _
+    @BeanProperty var eventService: EventService = _
 
     @BeanProperty var cookieManager: CookieManager = _
     @BeanProperty var closetView: String = _
@@ -30,7 +32,8 @@ class UserController {
     @RequestMapping(value = Array("/me"), method = Array(RequestMethod.GET))
     @ResponseBody
     def me(
-        @RequestParam(value="echoedUserId", required = false) echoedUserIdParam: String,
+        @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
+        @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
@@ -45,7 +48,6 @@ class UserController {
                         result.set(profile)
                 }
         }
-
         result
     }
 
@@ -74,6 +76,7 @@ class UserController {
     def feed(
             @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
             @RequestParam(value="page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -99,6 +102,7 @@ class UserController {
     def exhibit(
             @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
             @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -124,6 +128,7 @@ class UserController {
     @ResponseBody
     def friends(
             @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -146,6 +151,7 @@ class UserController {
     def categoryFeed(
                        @PathVariable(value="categoryId") categoryId: String,
                        @RequestParam(value="page", required = false) page: String,
+                       @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
                        httpServletRequest: HttpServletRequest,
                        httpServletResponse: HttpServletResponse) = {
 
@@ -167,6 +173,7 @@ class UserController {
     def partnerFeed(
             @PathVariable(value="partnerId") partnerId: String,
             @RequestParam(value="page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -179,6 +186,7 @@ class UserController {
         feedService.getPartnerFeed(partnerId, pageInt).onSuccess {
             case GetPartnerFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
         }
+        if(origin.equals("widget")) eventService.widgetOpened(partnerId)
         result
     }
 
@@ -187,6 +195,7 @@ class UserController {
     def friendExhibit(
             @PathVariable(value="id") echoedFriendId: String,
             @RequestParam(value= "page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -202,6 +211,7 @@ class UserController {
             case GetUserPublicFeedResponse(_, Right(feed)) =>
                 result.set(feed)
         }
+
         result
     }
 
@@ -209,6 +219,7 @@ class UserController {
     @ResponseBody
     def get(
             @PathVariable(value = "id") id: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
@@ -225,7 +236,7 @@ class UserController {
                 logger.debug("Publishing Action")
                 eus.publishFacebookAction("browse", "story", storyGraphUrl + id)
         }
-
+        if(origin.equals("widget")) eventService.widgetStoryOpened(id)
         result
     }
 }
