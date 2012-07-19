@@ -7,6 +7,46 @@ Echoed = {
     },
     Models:{},
     Collections:{},
+    AjaxFactory: function(params){
+        var defaultParams = {
+            type: "GET",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            cache: false,
+            success: function(data){
+            }
+        };
+        for(var index in params){
+            defaultParams[index] = params[index];
+        }
+        return function(){
+            $.ajax(defaultParams);
+        };
+    },
+    getImageSizing: function(image, width){
+        return {
+            height: image.preferredHeight / image.preferredWidth * width,
+            width: width
+        }
+    },
+    getProfilePhotoUrl: function(echoedUser){
+        if(echoedUser.facebookId !== null){
+            return "http://graph.facebook.com/" + echoedUser.facebookId + "/picture";
+        } else if(echoedUser.twitterId !== null) {
+            return "http://api.twitter.com/1/users/profile_image/" + echoedUser.twitterId;
+        }
+        return "";
+    },
+    getFacebookLoginUrl: function(hash){
+        return Echoed.facebookLogin.head +
+            encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(hash)) +
+            Echoed.facebookLogin.tail;
+    },
+    getTwitterLoginUrl: function(hash){
+        return Echoed.twitterUrl + encodeURIComponent(hash);
+    },
     init: function() {
         var router = new Echoed.Router({EvAg: EventAggregator});
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
@@ -33,13 +73,11 @@ Echoed.Views.Components.Fade = Backbone.View.extend({
         this.EvAg.bind("fade/hide", this.hide);
     },
     show: function(){
-        var self = this;
         $("html,body").addClass("noScroll");
-        self.element.fadeIn();
+        this.element.fadeIn();
     },
     hide: function(){
-        var self = this;
-        self.element.fadeOut();
+        this.element.fadeOut();
         $("html,body").removeClass("noScroll");
     }
 });
@@ -198,35 +236,25 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 break;
         }
         if(Echoed.echoedUser){
-            $.ajax({
+            Echoed.AjaxFactory({
                 url: jsonUrl,
-                type: "GET",
-                xhrFields: {
-                    withCredentials: true
-                },
                 data: loadData,
                 dataType: 'jsonp',
-                cache: false,
                 success: function(initStoryData){
                     self.data = initStoryData;
                     self.render();
                 }
-            });
+            })();
         } else {
             self.data = {};
             if(type == "partner"){
-                $.ajax({
+                Echoed.AjaxFactory({
                     url: Echoed.urls.api + "/api/partner/" + id,
-                    type: "GET",
-                    xhrFields: {
-                        withCredentials: true
-                    },
                     dataType: 'jsonp',
-                    cache: false,
                     success: function(data){
                         self.renderLogin(data);
                     }
-                });
+                })();
             } else {
                 self.renderLogin();
             }
@@ -237,30 +265,17 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         if(self.locked === false) {
             var title = $.trim(self.element.find("#story-name").val());
             var productFrom = $.trim($('#story-from').val());
-            var storyData = {};
+            var storyData = {
+                title: title,
+                imageId: self.data.imageId,
+                productInfo: productFrom
+            };
 
-            if(self.data.echo){
-                storyData = {
-                    title: title,
-                    echoId : self.data.echo.id,
-                    imageId : self.data.imageId,
-                    productInfo: productFrom
-                };
+            if(self.data.echo) {
+                storyData.echoId = self.data.echo.id;
             }
             else if(self.partnerId) {
-                storyData = {
-                    title: title,
-                    partnerId: self.partnerId,
-                    imageId: self.data.imageId,
-                    productInfo: productFrom
-                }
-            }
-            else {
-                storyData = {
-                    title: title,
-                    imageId : self.data.imageId,
-                    productInfo: productFrom
-                };
+                storyData.partnerId = self.partnerId;
             }
 
             if(!self.data.imageId){
@@ -271,19 +286,15 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 alert("Please enter where the product is from");
             } else {
                 self.locked = true;
-                $.ajax({
+                Echoed.AjaxFactory({
                     url: Echoed.urls.api + "/story",
-                    type: "POST",
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    dataType: 'json',
+                    type: 'POST',
                     data: storyData,
                     success: function(createStoryResponse){
                         self.load(createStoryResponse.id, "story");
                         self.locked = false;
                     }
-                });
+                })();
             }
         }
     },
@@ -355,10 +366,11 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.element.find(".story-preview-by").html(self.data.storyFull.echoedUser.name);
         $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
         var chapterPhotos = self.element.find(".thumbnails");
-        self.currentChapter = {};
-        self.currentChapter.images = [];
-        self.currentChapter.title = "";
-        self.currentChapter.text = "";
+        self.currentChapter = {
+            images: [],
+            title: "",
+            text: ""
+        };
         var selectOptions = {
             optionsArray : [],
             el : "#chapter-title"
@@ -381,10 +393,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                         "width" : 20
                     });
                     thumbDiv.append(thumbX);
-                    var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css({
-                        "height" :  75,
-                        "width" : (75 * chapterImage.image.preferredWidth / chapterImage.image.preferredHeight)
-                    });
+                    var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css(Echoed.getImageSizing(chapterImage, 75));
                     thumbDiv.append(photo).appendTo(chapterPhotos).fadeIn();
                     self.currentChapter.images.push(chapterImage.image.id);
                 }
@@ -434,13 +443,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             if(self.locked === false) {
                 self.locked = true;
                 if(self.currentChapter.id !== undefined){
-                    $.ajax({
+
+                    Echoed.AjaxFactory({
                         url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter/" + self.currentChapter.id,
                         type: "PUT",
-                        xhrFields: {
-                            withCredentials: true
-                        },
-                        dataType: 'json',
                         processData: false,
                         contentType: "application/json",
                         data: JSON.stringify({
@@ -452,15 +458,11 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                             self.locked = false;
                             self.load(self.data.storyFull.story.id, "story");
                         }
-                    });
+                    })();
                 } else {
-                    $.ajax({
+                    Echoed.AjaxFactory({
                         url: Echoed.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
                         type: "POST",
-                        xhrFields: {
-                            withCredentials: true
-                        },
-                        dataType: 'json',
                         processData: false,
                         contentType: "application/json",
                         data: JSON.stringify({
@@ -472,7 +474,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                             self.locked = false;
                             self.load(self.data.storyFull.story.id, "story");
                         }
-                    });
+                    })();
                 }
             }
         }
@@ -498,17 +500,12 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     renderLogin: function(data){
         var self = this;
         self.template = _.template($('#templates-components-story-login').html());
-        self.element.html(self.template);
-        self.element.addClass("small");
-        var facebookLoginUrl = Echoed.facebookLogin.head +
-            encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(window.location.hash)) +
-            Echoed.facebookLogin.tail;
-        var twitterLoginUrl = Echoed.twitterUrl + encodeURIComponent(window.location.hash);
-        self.element.find("#field-fb-login").attr("href", facebookLoginUrl);
-        self.element.find("#field-tw-login").attr("href", twitterLoginUrl);
+        self.element.html(self.template).addClass('small');
+        $("#field-fb-login").attr("href", Echoed.getFacebookLoginUrl(window.location.hash));
+        $("#field-tw-login").attr("href", Echoed.getTwitterLoginUrl(window.location.hash));
         var body = self.element.find(".field-login-body");
         if(data){
-            var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page. (click here to see other stories from " + data.partner.name + ")"  ;
+            var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
             var bodyTextNode = $('<div class="field-login-body-text"></div>').append(bodyText);
             body.append(bodyTextNode);
         }
@@ -564,17 +561,14 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     show: function(){
         var self = this;
         self.EvAg.trigger('fade/show');
-        self.element.fadeIn();
-        self.element.css({
+        self.element.fadeIn().css({
             "margin-left" : -(self.element.width()/2)
         });
-
         $("#story-name").focus();
     },
     close: function(){
         var self = this;
-        self.element.fadeOut();
-        self.element.empty();
+        self.element.fadeOut().empty();
         self.EvAg.trigger('fade/hide');
         self.EvAg.trigger('hash/reset');
     }
@@ -605,17 +599,14 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
         $("html, body").animate({scrollTop: 0 }, 300);
     },
     on: function(){
-        var self = this;
-        self.status = true;
+        this.status = true;
     },
     off: function(){
-        var self = this;
-        self.status = false;
+        this.status = false;
     },
     lock: function(){
-        var self = this;
-        self.element.show();
-        self.locked = true
+        this.element.show();
+        this.locked = true
     },
     unlock: function(){
         var self = this;
@@ -626,10 +617,9 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
         }
     },
     triggerScroll: function(){
-        var self = this;
         var noVScroll = $(document).height() <= $(window).height();
         if(noVScroll){
-            self.EvAg.trigger('infiniteScroll');
+            this.EvAg.trigger('infiniteScroll');
         }
     }
 });
@@ -637,7 +627,7 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','next','init','relayout', 'addProducts','addTitle', 'nextStory', 'previousStory');
+        _.bindAll(this,'render','next','init','relayout', 'addProducts', 'nextStory', 'previousStory');
         this.EvAg = options.EvAg;
         this.EvAg.bind('exhibit/relayout', this.relayout);
         this.EvAg.bind('exhibit/init', this.init);
@@ -649,33 +639,19 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     init: function(options){
         var self = this;
-        self.EvAg.trigger('infiniteScroll/on');
-        if (self.exhibit.isotope){
-            self.exhibit.isotope("destroy");
-        }
-        self.exhibit.empty();
-        self.exhibit.isotope({
-            itemSelector: '.item_wrap,.no_filter',
-            masonry:{
-                columnWidth: 5
-            }
-        });
-
-        self.contentDescription = "";
-        self.showDate = false;
+        self.exhibit.isotopeOn = true;
         self.personal = false;
         switch(options.Type){
             case "friend":
                 self.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
                 self.contentTitle = "Your Friends";
                 self.id = "friends";
-                    self.nextInt = 1;
+                self.nextInt = 1;
                 break;
             case "partner":
                 self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.partnerId;
                 self.contentTitle = options.Name;
                 self.id = "partner/" + options.partnerId;
-                self.showDate = 1;
                 self.nextInt = 1;
                 break;
             case "explore":
@@ -698,25 +674,26 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.nextInt = 1;
                 break;
         }
-        self.EvAg.trigger('infiniteScroll/lock');
-        $.ajax({
+        Echoed.AjaxFactory({
             url: self.jsonUrl,
-            xhrFields: {
-                withCredentials: true
-            },
             dataType: 'json',
             success: function(data){
+                self.stories = {
+                    array: [],
+                    hash: {}
+                };
                 self.render(data);
+                self.EvAg.trigger("infiniteScroll/unlock");
             }
-        });
+        })();
     },
     nextStory: function(storyId){
         var self = this;
         var index = self.stories.hash[storyId];
-        if((index + 1)>= self.stories.array.length){
+        if((index + 1) >= self.stories.array.length){
             self.next();
         }
-        if((index +1) < self.stories.array.length){
+        if((index +1 ) < self.stories.array.length){
             window.location.hash = "#story/" + self.stories.array[index + 1];
         }
     },
@@ -729,32 +706,32 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     render: function(data){
         var self = this;
-        self.stories = {
-            array: [],
-            hash: {}
-        };
+        if (self.exhibit.isotopeOn) self.exhibit.isotope("destroy");
+        self.exhibit.empty();
+        self.exhibit.isotope({
+            itemSelector: '.item_wrap,.no_filter',
+            masonry:{
+                columnWidth: 5
+            }
+        });
         if(data.partner){
-            self.contentDescription = "Recent stories and products purchased at " + data.partner.name;
             self.EvAg.trigger("title/update", { title: data.partner.name, description: self.contentDescription });
-        } else if (self.id == "friends") {
-            self.contentDescription = "Products purchased and shared by " + data.echoedUser.name;
+        } else if (self.id === "friends") {
             self.EvAg.trigger("title/update", { title: data.echoedUser.name, description: self.contentDescription });
-        } else if (self.id != "story"){
+        } else if (self.id !== "story"){
             self.EvAg.trigger("title/update", { title: self.contentTitle, description: self.contentDescription });
         }
         if(!Echoed.echoedUser) self.addLogin();
-        if(data.stories){
-            self.addStories(data);
-        }
-        if(data.echoes){
-            self.addProducts(data);
-        }
+
+        self.addStories(data);
+        self.addProducts(data);
 
         if(data.stories.length > 0 || data.echoes.length > 0 ){
+            self.EvAg.trigger('infiniteScroll/on');
+            //self.EvAg.trigger('infiniteScroll/lock');
             self.nextInt++;
         } else {
             self.nextInt = null;
-            self.EvAg.trigger("infiniteScroll/unlock");
         }
 
     },
@@ -768,52 +745,29 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         if(self.nextInt != null){
             self.EvAg.trigger('infiniteScroll/lock');
-            $.ajax({
-                url: self.jsonUrl + "?page=" + self.nextInt,
-                xhrFields: {
-                    withCredentials: true
-                },
-                dataType: 'json',
-                cache: false,
+            var url = self.jsonUrl + "?page=" + self.nextInt;
+            Echoed.AjaxFactory({
+                url: url,
                 success: function(data){
-                    if(data.echoes.length > 0){
-                        self.addProducts(data);
-                    }
-                    if(data.stories.length > 0){
-                        self.addStories(data);
-                    }
+                    self.addProducts(data);
+                    self.addStories(data);
                     if(data.stories.length > 0 || data.echoes.length > 0){
                         self.nextInt++;
                     } else{
                         self.nextInt = null;
                         self.EvAg.trigger("infiniteScroll/unlock");
                     }
-
                 }
-            });
+            })();
         }
-    },
-    addTitle: function(title, image){
-        var self = this;
-        var titleDiv = $('<div></div>').addClass('item_wrap').addClass('no_filter').attr("id","title");
-        var titleContainer = $('<div></div>').addClass("title-container");
-        titleDiv.append(titleContainer);
-        titleContainer.append($('<div></div>').addClass('title-text').append(title));
-        titleContainer.append($('<div></div>').addClass('title-description').append(self.contentDescription));
-        self.exhibit.isotope('insert', titleDiv);
     },
     addLogin: function(){
         var self = this;
-        var facebookLoginUrl = Echoed.facebookLogin.head +
-                               encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(window.location.hash)) +
-                               Echoed.facebookLogin.tail;
-        var twitterLoginUrl = Echoed.twitterUrl + encodeURIComponent(window.location.hash);
-
         var loginDiv = $('<div></div>').addClass('item_wrap');
         var template = _.template($("#templates-components-login").html());
         loginDiv.html(template);
-        loginDiv.find("#facebookLogin").attr("href",facebookLoginUrl);
-        loginDiv.find("#twitterLogin").attr("href", twitterLoginUrl);
+        loginDiv.find("#facebookLogin").attr("href", Echoed.getFacebookLoginUrl(window.location.hash));
+        loginDiv.find("#twitterLogin").attr("href", Echoed.getTwitterLoginUrl(window.location.hash));
         self.exhibit.isotope('insert', loginDiv)
     },
     addStories: function(data){
@@ -843,7 +797,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             var productDiv = $('<div></div>');
             var productModel = new Echoed.Models.Product(product);
             var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg, Personal: self.personal });
-            self.EvAg.trigger('Browse/add',product.echoCategory,product.echoCategory);
             productsFragment.append(productDiv);
         });
         self.exhibit.isotope('insert',productsFragment.children(), function(){
@@ -864,12 +817,10 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
         'click .action-button': 'click'
     },
     render: function(){
-        var self = this;
         this.element.empty();
         this.element.append($("<div class='action-button'>Share a Story</div>"));
     },
     click: function(e){
-        var self = this;
         window.location.hash = "#write/";
     }
 });
@@ -890,32 +841,21 @@ Echoed.Views.Pages.Friends = Backbone.View.extend({
         self.exhibit.empty();
         self.exhibit.isotope("destroy");
         var jsonUrl = Echoed.urls.api + "/api/me/friends";
-        $.ajax({
+        Echoed.AjaxFactory({
             url: jsonUrl,
-            xhrFields: {
-                withCredentials: true
-            },
-            dataType: 'json',
             success: function(data){
                 if(data.length > 0 ){
                     $.each(data, function(index,friend){
-                        var img = "";
                         var friendImage = $('<div class="friend-img"></div>');
                         var friendText = $('<div class="friend-text"></div>').html(friend.name);
                         var  a = $('<a></a>').attr("href","#user/" + friend.toEchoedUserId);
-                        if(friend.facebookId != null)
-                            img = $('<img />').attr("height","50px").attr("src","http://graph.facebook.com/" + friend.facebookId + "/picture");
-                        else
-                            img = $('<img />').attr("src", "http://api.twitter.com/1/users/profile_image/" + friend.twitterId);
-                        friendImage.append(img);
-                        var friendDiv = $('<div></div>').addClass("friend").append(friendImage).append(friendText).appendTo(a);
+                        $('<img />').attr("height","50px").attr("src",Echoed.getProfilePhotoUrl(friend)).appendTo(friendImage);
+                        $('<div></div>').addClass("friend").append(friendImage).append(friendText).appendTo(a);
                         a.appendTo(self.exhibit);
                     });
                 }
-                else{
-                }
             }
-        });
+        })();
     }
 });
 
@@ -942,9 +882,6 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         this.currentTitle = options.currentTitle;
         this.openState = false;
         this.default = "(Write Your Own Topic)";
-        if(this.currentTitle !== undefined){
-            //this.locked = true;
-        }
         this.render();
     },
     events: {
@@ -955,8 +892,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         "keyup :input": "keyPress"
     },
     val: function(){
-        var self = this;
-        return self.input.val();
+        return this.input.val();
     },
     render: function(){
         var self = this;
@@ -965,7 +901,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         self.label = $("<div class='field-question-label'></div>");
         self.label.append(self.input);
         self.element.append(self.label);
-        self.optionsList = $("<div class='field-question-options-list'></div>");
+        self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");
         self.element.append(self.optionsList);
         $.each(self.optionsArray, function(index, option){
             self.options[index] = $("<div class='field-question-option'></div>").append(option);
@@ -993,124 +929,23 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         }
     },
     selectOption: function(e){
-        var self = this;
         var target = $(e.target);
-        self.input.val(target.html());
-        self.close();
+        this.input.val(target.html());
+        this.close();
     },
     close: function(){
-        var self = this;
-        self.openState = false;
-        self.optionsList.hide();
-        if(self.input.val() == self.default){
-            self.input.val("");
-            self.input.select();
+        this.openState = false;
+        this.optionsList.hide();
+        if(this.input.val() === this.default){
+            this.input.val("");
+            this.input.select();
         }
     },
     open: function(){
-        var self = this;
-        self.openState = true;
-        self.input.focus();
-        self.input.select();
-        self.optionsList.show();
-    }
-});
-
-Echoed.Views.Components.Dropdown = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this,'addSelector','triggerClick','updateLabel','init','hide');
-
-        this.name = options.Name;
-        this.state = 0;
-        this.EvAg = options.EvAg;
-        this.categories = new Array();
-        this.EvAg.bind(this.name + '/add', this.addSelector);
-        this.EvAg.bind('filter/change',this.triggerClick);
-        this.EvAg.bind('filter/init', this.init);
-        this.EvAg.bind('filter/hide', this.hide);
-        this.el = options.el;
-        this.element = $(this.el);
-        this.body = this.element.find('.dd-body');
-        this.header = this.element.find('.dd-header');
-        this.list = {};
-    },
-    init: function(baseUrl){
-        var self = this;
-        self.baseUrl = baseUrl;
-        self.selected = "All";
-        self.body.empty();
-        self.list = {};
-        this.render();
-        self.element.fadeIn();
-    },
-    hide: function(){
-        var self = this;
-        self.element.fadeOut();
-    },
-    events: {
-        "click .dd-header": "click",
-        "click li": "highlight"
-    },
-    render: function(){
-        var self = this;
-        self.header.html('<strong>' + this.name + ': </strong>' + this.selected);
-    },
-    updateList: function(){
-        var self = this;
-        self.body.empty();
-        var sortedKeys = new Array();
-        var sortedObj = {};
-        for(var i in this.list){
-            sortedKeys.push(i);
-        }
-        sortedKeys.sort();
-        for(var j in sortedKeys){
-            sortedObj[sortedKeys[j]] = this.list[sortedKeys[j]];
-        }
-        this.list = sortedObj;
-
-        var ul = $('<ul></ul>');
-        ul.appendTo(self.body);
-        this.dropDown = ul;
-        var li = $('<li></li>').appendTo(ul);
-        var anc =$('<a></a>').attr("id","All").attr("href", this.baseUrl).html("All").appendTo(li);
-        for(var id in this.list){
-            anc = $('<a></a>').attr("id",id).attr("href", this.baseUrl + encodeURIComponent(this.name + "-" + id)).html(id).appendTo(li);
-        }
-    },
-    highlight: function(e){
-    },
-    addSelector: function(selector,text){
-        if(!this.list[text]){
-            this.list[text] =  selector;
-            this.updateList();
-        }
-    },
-    showList: function(){
-        this.body.slideDown();
-    },
-    hideList: function(){
-        this.body.slideUp();
-    },
-    click: function(e){
-        var self = this;
-        if(self.state === 0){
-            self.showList();
-            self.state = 1
-        } else {
-            self.hideList();
-            self.state = 0;
-        }
-    },
-    updateLabel: function(){
-        this.element.find('.dd-header').html('<strong>' + this.name + ': </strong>' + this.selected);
-    },
-    triggerClick: function(e){
-        if(e === "*" || e === "undefined" || typeof(e) === "undefined")
-            this.selected = "All";
-        else
-            this.selected = e.split("-")[1];
-        this.updateLabel();
+        this.openState = true;
+        this.input.focus();
+        this.input.select();
+        this.optionsList.show();
     }
 });
 
@@ -1158,17 +993,13 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     load: function(id){
         var self = this;
-        $.ajax({
+        Echoed.AjaxFactory({
             url: Echoed.urls.api + "/api/story/" + id,
-            type: "GET",
-            xhrFields: {
-                withCredentials: true
-            },
             success: function(data){
                 self.data = data;
                 self.render();
             }
-        });
+        })();
     },
     render: function(){
         var template = _.template($('#templates-components-story').html());
@@ -1214,12 +1045,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         } else {
             fromLink = fromLink +  self.data.story.productInfo;
         }
-        if(self.data.echoedUser !== null){
-            if(self.data.echoedUser.facebookId !== null) {
-                var userImage = $('<img />').attr("src", "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture").addClass("echo-s-h-t-n-i");
-                self.userNode.append(userImage);
-            }
-        }
+        var userImage = $('<img />').attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)).addClass("echo-s-h-t-n-i");
+        self.userNode.append(userImage);
 
         self.itemNode = $("<div class='echo-s-b-item'></div>");
         self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
@@ -1255,10 +1082,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             self.galleryNode.append(self.galleryChapters[index]);
             $.each(chapter.images, function(index2, image){
                 var thumbNailHash = index + "-" + index2;
-                self.thumbnails[thumbNailHash] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css({
-                    "height" :(90  * image.preferredHeight / image.preferredWidth),
-                    "width" : 90
-                });
+                self.thumbnails[thumbNailHash] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css(Echoed.getImageSizing(image, 90));
                 self.galleryChapters[index].append(self.thumbnails[thumbNailHash]);
             });
         });
@@ -1305,10 +1129,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var self = this;
         var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
         self.img.fadeOut();
-        self.itemImageContainer.animate({
-            height: 400 * currentImage.preferredHeight / currentImage.preferredWidth,
-            width: 400
-        }, function(){
+        self.itemImageContainer.animate(
+            Echoed.getImageSizing(currentImage, 400),
+            function(){
             if(currentImage.storyUrl !== null){
                 self.img.attr('src', currentImage.storyUrl);
             } else {
@@ -1344,10 +1167,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         if(self.data.comments.length > 0) $("#echo-s-c-t-count").html("(" + self.data.comments.length + ")");
         $.each(self.data.comments, function(index,comment){
             var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a></a>").append(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id));
-            if(comment.echoedUser.facebookId !== null){
-                var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", "http://graph.facebook.com/" + comment.echoedUser.facebookId + "/picture").attr("align", "absmiddle");
-                img.prependTo(commentUserNode);
-            }
+            var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", Echoed.getProfilePhotoUrl(comment.echoedUser)).attr("align", "absmiddle");
+            img.prependTo(commentUserNode);
             var commentText = $('<div class="echo-s-c-l-c-t"></div>').append(comment.text.replace(/\n/g, '<br />'));
             var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
             commentListNode.append(commentNode);
@@ -1365,13 +1186,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             alert("Please enter in a comment");
         } else if(self.locked !== true){
             self.locked = true;
-            $.ajax({
+            Echoed.AjaxFactory({
                 url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
                 type: "POST",
-                xhrFields: {
-                    withCredentials: true
-                },
-                dataType: 'json',
                 data: {
                     text: text
                 },
@@ -1380,14 +1197,13 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                     self.data.comments.push(createCommentData);
                     self.renderComments();
                 }
-            });
+            })();
         }
     },
     close: function(){
-        var self = this;
-        self.element.fadeOut();
-        self.EvAg.trigger("fade/hide");
-        self.EvAg.trigger("hash/reset");
+        this.element.fadeOut();
+        this.EvAg.trigger("fade/hide");
+        this.EvAg.trigger("hash/reset");
     }
 });
 
@@ -1413,16 +1229,10 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var imageNode = self.element.find(".story-brief-image");
         var textNode = self.element.find(".story-brief-text");
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
-        var overlay = self.element.find(".story-brief-overlay");
-        var image = null;
-        image = self.data.story.image;
-        var hToWidthRatio = image.preferredHeight / image.preferredWidth;
-        var width = 260;
+        self.overlay = self.element.find(".story-brief-overlay");
+        var image = self.data.story.image;
         if(image.preferredUrl !== null){
-            imageNode.attr("src", image.preferredUrl).css({
-                "height" : width * hToWidthRatio,
-                "width" : width
-            });
+            imageNode.attr("src", image.preferredUrl).css(Echoed.getImageSizing(image, 260));
         } else {
             imageNode.attr("src", image.url)
         }
@@ -1434,28 +1244,14 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
                 var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Complete Story");
                 overlayNode.append(editButton);
                 overlayNode.append("<br/>Complete your story by adding a chapter");
-                overlay.fadeIn();
+                self.overlay.fadeIn();
             } else {
                 var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");
                 overlayNode.append(editButton);
             }
         } else {
-            if(self.data.echoedUser.facebookId) {
-                photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
-                textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc));
-            }
+            textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
             textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
-            if(self.data.story.partnerHandle !== "Echoed") {
-                var pId = "";
-                if(self.data.story.partnerHandle !== null){
-                    pId = self.data.story.partnerHandle;
-                } else {
-                    pId = self.data.story.partnerId
-                }
-                //textNode.append($("<div class='story-brief-text-from'></div>").append("from <a class='story-brief-text-partner' href='#partner/" + pId + "'>" + self.data.story.productInfo + "</a><br/>"));
-            } else {
-                //textNode.append($("<div class='story-brief-text-from'></div>").append("from " + self.data.story.productInfo + "<br/>"));
-            }
             textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
 
             var chapterText = self.data.chapters[0].text;
@@ -1464,7 +1260,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
             overlayNode.html(self.data.story.title);
         }
-        var dateString = self.data.story.createdOn.toString();
+        var dateString = self.data.story.updatedOn.toString();
         var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
 
         var indicators = $("<div class='story-brief-indicator'></div>");
@@ -1480,12 +1276,10 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
-        var self = this;
-        self.element.find(".story-brief-overlay").fadeIn();
+        this.overlay.fadeIn();
     },
     hideOverlay: function(){
-        var self = this;
-        self.element.find(".story-brief-overlay").fadeOut();
+        this.overlay.fadeOut();
     },
     click: function(){
         var self = this;
@@ -1501,22 +1295,20 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
 Echoed.Views.Components.Title = Backbone.View.extend({
     initialize: function(options){
         _.bindAll(this, 'update');
-        this.el = options.el;
+        this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind('title/update', this.update);
-        this.element = $(this.el);
         this.titleText = $('#title-text');
         this.titleDescription = $('#title-description');
     },
     update: function(options){
         this.titleText.html(options.title);
-        //this.titleDescription.html(options.description);
     }
 });
 
 Echoed.Views.Components.Product = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'showOverlay','hideOverlay','enlarge','shrink','click','clickPartner');
+        _.bindAll(this,'showOverlay','hideOverlay','click','clickPartner');
         this.el = options.el;
         this.EvAg = options.EvAg;
         this.personal = options.Personal;
@@ -1533,9 +1325,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         var template = _.template($('#templates-components-product').html());
         var self = this;
         var landingUrl = Echoed.urls.api + "/echo/" + this.model.get("echoId");
-        var imageUrl =   this.model.get("image").preferredUrl;
-        var imageWidth = this.model.get("image").preferredWidth;
-        var imageHeight = this.model.get("image").preferredHeight;
+        var image =   this.model.get("image");
         this.el.attr("date", this.model.get("echoBoughtOn"));
         this.el.attr("productId", this.model.get("echoProductId"));
         this.el.attr("partnerHandle", this.model.get("partnerHandle"));
@@ -1543,7 +1333,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
         this.el.attr("id", this.model.get("echoId"));
         this.el.addClass("item_wrap").addClass('Browse-' + encodeURIComponent(this.model.get("echoCategory"))).html(template).attr("href", landingUrl);
         var hover = this.el.find(".item_hover_wrap");
-        var img = this.el.find("img");
+        this.img = this.el.find("img");
         var text = this.el.find(".item_text");
 
 
@@ -1564,12 +1354,7 @@ Echoed.Views.Components.Product = Backbone.View.extend({
             text.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
             this.el.attr("action","story");
         }
-        var heightToWidthRatio = imageHeight / imageWidth;
-        imageWidth = 260;
-        imageHeight = imageWidth * heightToWidthRatio;
-        img.attr('src', imageUrl);
-        img.attr('width', imageWidth);
-        img.attr('height', imageHeight);
+        this.img.attr('src', image.preferredUrl).css(Echoed.getImageSizing(image, 260));
 
         if(this.model.get("echoCreditWindowEndsAt")){
             var then = this.model.get("echoCreditWindowEndsAt");
@@ -1581,53 +1366,22 @@ Echoed.Views.Components.Product = Backbone.View.extend({
                 text.append("<span class='highlight'><strong>Days Left: "+ (daysleft + 1) + "</strong></span><br/>");
                 self.showOverlay();
                 var t = setTimeout(self.hideOverlay, 3000);
-                img.addClass("open-echo");
-                var visits = this.model.get("echoTotalClicks");
+                this.img.addClass("open-echo");
             }
         }
         return this;
     },
     showOverlay: function(){
-        var img = this.el.find("img")
-        img.addClass("highlight");
+        this.img.addClass("highlight");
     },
     hideOverlay: function(){
-        this.el.find("img").removeClass("highlight");
-    },
-    enlarge: function(){
-        var self = this;
-        self.el.css({
-            "z-index" : "99999"
-        });
-        self.EvAg.trigger("item/enlarge");
-        self.el.find('.item_content').fadeOut(function(){
-            self.el.find('.item_content_large').fadeIn(function(){
-                self.EvAg.bind("item/enlarge", self.shrink);
-                self.EvAg.trigger("exhibit/relayout",self.el);
-            });
-        });
-        this.state = 1;
-    },
-    shrink: function(){
-        var self= this;
-        self.el.css({
-            height : "",
-            width : "",
-            "z-index" : ""
-        });
-        self.state = 0;
-        self.el.find('.item_content').fadeIn();
-        self.el.find('.item_content_large').hide();
+        this.img.removeClass("highlight");
     },
     clickPartner: function(e){
-        var self = this;
-        if(this.el.attr("partnerHandle"))
-            window.location.hash = "#partner/" + this.el.attr('partnerHandle');
-        else
-            window.location.hash = "#partner/" + this.el.attr('partnerId');
+        var id = this.el.attr("partnerHandle") ? this.el.attr("partnerHandle") : this.el.attr("partnerId");
+        window.location.hash = "#partner/" + id;
     },
     click: function(e){
-        var self = this;
         if(this.personal){
             window.location.hash = "#write/echo/" + this.el.attr("id");
         } else {
@@ -1674,4 +1428,3 @@ function pluralize(integer){
         return "";
     }
 }
-
