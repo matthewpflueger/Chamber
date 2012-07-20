@@ -23,10 +23,20 @@ case class AddTagResponse(
         message: AddTag,
         value: Either[TE, Tag]) extends TM with RM[Tag, AddTag, TE]
 
-case class DecreaseTagCount(tagId: String) extends TM
-case class DecreaseTagCountResponse(
-        message: DecreaseTagCount,
-        value: Either[TE, Int]) extends TM with RM[Int, DecreaseTagCount, TE]
+case class ApproveTag(tagId: String) extends TM
+case class ApproveTagResponse(
+        message: ApproveTag,
+        value: Either[TE, Tag]) extends TM with RM[Tag, ApproveTag, TE]
+
+case class RemoveTag(tagId: String) extends TM
+case class RemoveTagResponse(
+        message: RemoveTag,
+        value: Either[TE, Int]) extends TM with RM[Int, RemoveTag, TE]
+
+case class ReplaceTag(ogTagId: String, newTagId: String) extends TM
+case class ReplaceTagResponse(
+        message: ReplaceTag,
+        value: Either[TE, Tag]) extends TM with RM[Tag, ReplaceTag, TE]
 
 case class WriteTag(tagId: String) extends TM
 case class WriteTagResponse(

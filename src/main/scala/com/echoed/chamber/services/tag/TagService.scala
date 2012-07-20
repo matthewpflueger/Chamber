@@ -7,4 +7,8 @@ trait TagService {
 
     def addTag(tagId: String): Future[AddTagResponse]
 
+    def removeTag(tagId: String): Future[RemoveTagResponse]
+
+    def replaceTag(ogTagId: String, newTagId: String): Future[ReplaceTagResponse]
+
 }

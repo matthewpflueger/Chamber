@@ -19,4 +19,8 @@ class TagServiceActorClient extends TagService with ActorClient with Serializabl
 
     def addTag(tagId: String) = (tagServiceActor ? AddTag(tagId)).mapTo[AddTagResponse]
 
+    def removeTag(tagId: String) = (tagServiceActor ? RemoveTag(tagId)).mapTo[RemoveTagResponse]
+
+    def replaceTag(ogTagId: String, newTagId: String) = (tagServiceActory ? ReplaceTag(ogtagId, newTagId)).mapTo[ReplaceTagResponse]
+
 }
