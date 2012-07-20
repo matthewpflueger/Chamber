@@ -762,7 +762,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 success: function(data){
                     self.addProducts(data);
                     self.addStories(data);
-                    if(data.stories.length > 0 || data.echoes){
+                    if(data.stories.length > 0){
                         self.nextInt++;
                     } else {
                         self.nextInt = null;
