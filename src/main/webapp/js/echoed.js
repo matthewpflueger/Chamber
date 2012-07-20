@@ -971,7 +971,6 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
         "click li": "click"
     },
     click: function(e){
-        var self = this;
         this.li.removeClass("current");
         $(e.target).addClass("current");
         window.location.hash = $(e.target).attr("href");
@@ -1063,9 +1062,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.itemNode = $("<div class='echo-s-b-item'></div>");
         self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
         self.userTextNode = $("<div class='echo-s-h-t-n-t'></div>");
-        self.userTextNode.append(userLink);
-        self.userTextNode.append(fromLink);
-        self.userNode.append(self.userTextNode);
+        self.userTextNode.append(userLink).append(fromLink).appendTo(self.userNode);
         self.img = $("<img />");
         self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
         self.galleryNode = $("#echo-story-gallery");
@@ -1144,12 +1141,12 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.itemImageContainer.animate(
             Echoed.getImageSizing(currentImage, 400),
             function(){
-            if(currentImage.storyUrl !== null){
-                self.img.attr('src', currentImage.storyUrl);
-            } else {
-                self.img.attr('src', currentImage.originalUrl);
-            }
-            self.img.fadeIn();
+                if(currentImage.storyUrl !== null){
+                    self.img.attr('src', currentImage.storyUrl);
+                } else {
+                    self.img.attr('src', currentImage.originalUrl);
+                }
+                self.img.fadeIn();
         });
 
         self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
