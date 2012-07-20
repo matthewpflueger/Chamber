@@ -14,6 +14,7 @@ import akka.pattern.ask
 import com.echoed.chamber.domain.AdminUser
 import akka.util.Timeout
 import akka.event.LoggingReceive
+import com.echoed.chamber.services.EchoedActor
 
 
 class AdminUserServiceLocatorActor(
@@ -22,7 +23,7 @@ class AdminUserServiceLocatorActor(
         adminViewDao: AdminViewDao,
         partnerSettingsDao: PartnerSettingsDao,
         partnerDao: PartnerDao,
-        implicit val timeout: Timeout = Timeout(20000)) extends Actor with ActorLogging {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
 
     private val cache: ConcurrentMap[String, AdminUserService] = new ConcurrentHashMap[String, AdminUserService]()
     private var cacheById = cacheManager.getCache[AdminUserService]("AdminUserServices", Some(new CacheListenerActorClient(self)))
@@ -63,7 +64,7 @@ class AdminUserServiceLocatorActor(
         }
     }
 
-    def receive = LoggingReceive {
+    def handle = {
         case msg @ CreateAdminUserService(email) =>
             val channel = context.sender
 
