@@ -22,8 +22,8 @@ import com.echoed.chamber.services.{ScatterGatherMessage => SGM}
 import com.echoed.chamber.services.{ScatterGatherException => SGE}
 
 
-case class Timeout(res: List[Message], s: String = "", t: Throwable = null) extends SGE(res, s, t)
-case class TimeoutTotal(r: List[Message], m: String = "", c: Throwable = null) extends Timeout(r, m, c)
+case class GatherTimeout(res: List[Message], s: String = "", t: Throwable = null) extends SGE(res, s, t)
+case class GatherTimeoutTotal(r: List[Message], m: String = "", c: Throwable = null) extends GatherTimeout(r, m, c)
 
 
 case class Scatter(
@@ -70,7 +70,7 @@ class ScatterGather extends Actor with FSM[ScatterGatherState, ScatterGatherData
         case Event(TimeoutTotalOccurred(timeoutTotal), Gather(scatter, channel, _)) =>
             channel ! ScatterResponse(
                 scatter,
-                Left(TimeoutTotal(
+                Left(GatherTimeoutTotal(
                     responseList.toList,
                     "Did not receive all messages within maximum time limit of %s" format timeoutTotal)))
             stop()
@@ -78,7 +78,7 @@ class ScatterGather extends Actor with FSM[ScatterGatherState, ScatterGatherData
         case Event(StateTimeout, Gather(scatter, channel, timeout)) =>
             channel ! ScatterResponse(
                 scatter,
-                Left(Timeout(
+                Left(GatherTimeout(
                     responseList.toList,
                     "Did not receive any response within timeout %s" format timeout)))
             stop()
