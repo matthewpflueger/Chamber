@@ -1,11 +1,9 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
-import java.lang.{Math => JMath}
+import java.util.Date
 import collection.mutable.ArrayBuilder
 import org.apache.commons.codec.binary.Base64
-import java.net.URLEncoder
-import com.echoed.util.ObjectUtils
+import com.echoed.util.{UUID, ObjectUtils}
 
 
 case class Echo(
@@ -79,7 +77,7 @@ object Echo {
             partnerSettingsId: String = null,
             view: String = null) = {
 
-        val id = UUID.randomUUID.toString
+        val id = UUID()
         val date = new Date
 
         //NOTE: do not include any changing attributes in the hash calc.  For example, step should never

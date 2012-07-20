@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain.partner
 
-import java.util.{UUID, Date}
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class Partner(
@@ -23,7 +24,7 @@ case class Partner(
             handle: String,
             logo: String,
             category: String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         name,
@@ -31,17 +32,17 @@ case class Partner(
         phone,
         handle,
         logo,
-        UUID.randomUUID.toString,
+        UUID(),
         category,
         null)
 
     def this(name: String) = this(
         name,
-        UUID.randomUUID.toString,
-        UUID.randomUUID.toString,
-        UUID.randomUUID.toString,
-        UUID.randomUUID.toString,
-        UUID.randomUUID.toString)
+        UUID(),
+        UUID(),
+        UUID(),
+        UUID(),
+        UUID())
 
 
     val isEchoed = "Echoed" == handle

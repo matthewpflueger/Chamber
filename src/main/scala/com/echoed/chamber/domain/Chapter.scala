@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import com.echoed.util.UUID
+import java.util.Date
 import com.echoed.util.DateUtils._
 
 
@@ -22,7 +23,7 @@ case class Chapter(
             story: Story,
             _title: String,
             _text: String) = this(
-        id = UUID.randomUUID.toString,
+        id = UUID(),
         updatedOn = new Date,
         createdOn = new Date,
         storyId = story.id,
@@ -36,3 +37,5 @@ case class Chapter(
         publishedOn = 0)
 
 }
+
+

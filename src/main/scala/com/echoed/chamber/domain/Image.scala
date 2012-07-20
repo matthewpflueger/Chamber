@@ -1,7 +1,8 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
 import java.net.URLEncoder
+import com.echoed.util.UUID
 
 
 case class Image(
@@ -30,7 +31,7 @@ case class Image(
 
 
     def this(url: String) = this(
-        UUID.randomUUID().toString,
+        UUID(),
         new Date,
         new Date,
         url,

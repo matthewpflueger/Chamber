@@ -1,10 +1,11 @@
 package com.echoed.chamber.domain.partner
 
-import java.util.{UUID, Date}
+import java.util.Date
 import com.echoed.chamber.services.partneruser.InvalidPassword
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import org.apache.commons.codec.binary.Base64
+import com.echoed.util.UUID
 
 
 case class PartnerUser(
@@ -19,13 +20,13 @@ case class PartnerUser(
 
 
     def this(partnerId: String, name: String, email: String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         partnerId,
         name,
         email,
-        UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString,
+        List.fill(4)(UUID()).mkString,
         null)
 
     def this(name: String, email: String) = this(

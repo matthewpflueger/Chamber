@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain.partner
 
-import java.util.{Calendar, UUID, Date}
+import java.util.{Calendar, Date}
+import com.echoed.util.UUID
 
 
 case class PartnerSettings(
@@ -52,7 +53,7 @@ case class PartnerSettings(
             couponDescription: String,
             couponExpiresOn: Date,
             activeOn: Date) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         partnerId,
@@ -117,7 +118,7 @@ case class PartnerSettings(
 object PartnerSettings {
     def createPartnerSettings(partnerId: String) = {
         PartnerSettings(
-            id = UUID.randomUUID.toString,
+            id = UUID(),
             updatedOn = new Date,
             createdOn = new Date,
             partnerId = partnerId,

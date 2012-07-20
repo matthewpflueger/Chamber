@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class EchoedUser(
@@ -23,7 +24,7 @@ case class EchoedUser(
             facebookId: String,
             twitterUserId: String,
             twitterId: String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         name,
@@ -67,7 +68,7 @@ case class EchoedUser(
         null)
 
     def this(facebookUser: FacebookUser) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         facebookUser.name,
@@ -79,7 +80,7 @@ case class EchoedUser(
         null)
 
     def this(twitterUser: TwitterUser) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         twitterUser.name,

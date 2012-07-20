@@ -1,7 +1,8 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
 import com.echoed.util.DateUtils._
+import com.echoed.util.UUID
 
 
 case class ChapterImage(
@@ -20,7 +21,7 @@ case class ChapterImage(
     def this(
             chapter: Chapter,
             _image: Image) = this(
-        id = UUID.randomUUID.toString,
+        id = UUID(),
         updatedOn = new Date,
         createdOn = new Date,
         storyId = chapter.storyId,

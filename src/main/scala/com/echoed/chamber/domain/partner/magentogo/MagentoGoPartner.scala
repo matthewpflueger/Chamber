@@ -1,7 +1,7 @@
 package com.echoed.chamber.domain.partner.magentogo
 
-import java.util.{UUID, Date}
-
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class MagentoGoPartner(
@@ -27,7 +27,7 @@ case class MagentoGoPartner(
         apiUser: String,
         apiPath: String,
         apiKey: String) = this(
-            UUID.randomUUID().toString,
+            UUID(),
             new Date,
             new Date,
             name,

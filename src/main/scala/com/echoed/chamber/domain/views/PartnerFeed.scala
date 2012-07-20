@@ -5,9 +5,9 @@ import com.echoed.chamber.domain.public.PartnerPublic
 import java.util
 
 case class PartnerFeed(
-    partner: PartnerPublic,
-    echoes: JList[EchoViewPublic],
-    stories: JList[StoryFull]) {
+        partner: PartnerPublic,
+        echoes: JList[EchoViewPublic],
+        stories: JList[StoryFull]) {
 
     def this(partner: PartnerPublic)= this(partner, new ArrayList[EchoViewPublic], new util.ArrayList[StoryFull])
 

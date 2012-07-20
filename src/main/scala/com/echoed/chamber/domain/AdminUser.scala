@@ -1,25 +1,18 @@
 package com.echoed.chamber.domain
-import java.util.{UUID, Date}
+import java.util.Date
 import java.security.MessageDigest
 import java.nio.charset.Charset
 import org.apache.commons.codec.binary.Base64
-
-/**
- * Created by IntelliJ IDEA.
- * User: jonlwu
- * Date: 2/6/12
- * Time: 10:27 AM
- * To change this template use File | Settings | File Templates.
- */
+import com.echoed.util.UUID
 
 case class AdminUser(
-                    id: String,
-                    updatedOn: Date,
-                    createdOn: Date,
-                    name: String,
-                    email: String,
-                    salt: String,
-                    password: String) {
+        id: String,
+        updatedOn: Date,
+        createdOn: Date,
+        name: String,
+        email: String,
+        salt: String,
+        password: String) {
     
     def this(id:String, name: String,  email:String) = this(
         id,
@@ -27,17 +20,17 @@ case class AdminUser(
         new Date,
         name,
         email,
-        UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString,
+        List.fill(4)(UUID()).mkString,
         null
     )
     
     def this(name:String,email:String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         name,
         email,
-        UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString + UUID.randomUUID.toString,
+        List.fill(4)(UUID()).mkString,
         null)
 
 

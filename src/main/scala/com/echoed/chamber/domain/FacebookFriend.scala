@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class FacebookFriend(
@@ -12,7 +13,7 @@ case class FacebookFriend(
         name: String) {
 
     def this(facebookUserId: String, facebookId: String, name: String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         facebookUserId,

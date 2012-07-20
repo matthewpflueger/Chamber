@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
+import com.echoed.util.UUID
 
 
 //-- "66.202.133.170","66.202.133.170","US","United States","NY","New York","New York","","40.761900","-73.976300","Regus Business Center","Regus Business Center"
@@ -35,7 +36,7 @@ case class GeoLocation(
             isp: String = null,
             organization: String = null,
             updateStatus: String = null) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         ipAddress,

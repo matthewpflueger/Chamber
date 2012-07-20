@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class TwitterStatus(
@@ -20,7 +21,7 @@ case class TwitterStatus(
             echoId: String,
             echoedUserId: String,
             message: String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         echoId,

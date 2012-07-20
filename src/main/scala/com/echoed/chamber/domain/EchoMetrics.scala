@@ -1,8 +1,9 @@
 package com.echoed.chamber.domain
 
 import java.lang.{Math => JMath}
-import java.util.{UUID, Date}
+import java.util.Date
 import partner.PartnerSettings
+import com.echoed.util.UUID
 
 
 case class EchoMetrics(
@@ -24,7 +25,7 @@ case class EchoMetrics(
         residualFee: Float) {
 
     def this(echo: Echo, partnerSettings: PartnerSettings) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         echo.id,

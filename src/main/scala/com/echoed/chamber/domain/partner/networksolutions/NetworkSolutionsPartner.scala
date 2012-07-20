@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain.partner.networksolutions
 
-import java.util.{UUID, Date}
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class NetworkSolutionsPartner(
@@ -19,7 +20,7 @@ case class NetworkSolutionsPartner(
         partnerId: String) {
 
     def this(name: String, email: String, phone: String, userKey: String) = this(
-        UUID.randomUUID().toString,
+        UUID(),
         new Date,
         new Date,
         name,

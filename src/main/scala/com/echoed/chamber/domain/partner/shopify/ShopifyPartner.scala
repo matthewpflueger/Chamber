@@ -1,7 +1,8 @@
 package com.echoed.chamber.domain.partner.shopify
 
-import java.util.{UUID, Date}
+import java.util.Date
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
+import com.echoed.util.UUID
 
 
 case class ShopifyPartner(
@@ -33,7 +34,7 @@ case class ShopifyPartner(
             city: String,
             shopifyDomain: String,
             password: String) = this(
-        UUID.randomUUID().toString,
+        UUID(),
         new Date,
         new Date,
         shopifyId,

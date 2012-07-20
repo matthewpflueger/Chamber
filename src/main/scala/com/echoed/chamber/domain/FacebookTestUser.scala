@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
+import com.echoed.util.UUID
 
 case class FacebookTestUser(
         id: String,
@@ -24,7 +25,7 @@ case class FacebookTestUser(
             password: String,
             loginUrl: String,
             accessToken: String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         echoedUserId,

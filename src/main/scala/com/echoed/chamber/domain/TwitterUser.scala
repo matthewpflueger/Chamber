@@ -1,7 +1,8 @@
 package com.echoed.chamber.domain
 
 
-import java.util.{Date, UUID}
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class TwitterUser (
@@ -28,7 +29,7 @@ case class TwitterUser (
             timezone: String,
             accessToken: String,
             accessTokenSecret: String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         null,
@@ -41,17 +42,6 @@ case class TwitterUser (
         accessToken,
         accessTokenSecret
     )
-
-//    def this(user: User, accessToken: String, accessTokenSecret: String) = this(
-//        null,
-//        user.getId.toString,
-//        user.getScreenName,
-//        user.getName,
-//        user.getProfileImageURL.toExternalForm,
-//        user.getLocation,
-//        user.getTimeZone,
-//        accessToken,
-//        accessTokenSecret)
 
 }
 

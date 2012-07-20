@@ -1,7 +1,7 @@
 package com.echoed.chamber.domain.partner.bigcommerce
 
-import java.util.{UUID, Date}
-
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class BigCommercePartner(
@@ -27,7 +27,7 @@ case class BigCommercePartner(
         apiUser: String,
         apiPath: String,
         apiToken: String) = this(
-            UUID.randomUUID().toString,
+            UUID(),
             new Date,
             new Date,
             name,

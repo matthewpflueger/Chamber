@@ -1,7 +1,8 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
 import com.echoed.util.DateUtils._
+import com.echoed.util.UUID
 
 
 case class Comment(
@@ -24,7 +25,7 @@ case class Comment(
             byEchoedUser: EchoedUser,
             _text: String,
             parentComment: Option[Comment] = None) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         storyId = chapter.storyId,

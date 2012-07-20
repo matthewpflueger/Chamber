@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
+import com.echoed.util.UUID
 
 
 case class EchoClick(
@@ -24,7 +25,7 @@ case class EchoClick(
             ipAddress: String,
             userAgent: String,
             referrerUrl: String) = this(
-        UUID.randomUUID.toString,
+        UUID(),
         new Date,
         new Date,
         echoId,

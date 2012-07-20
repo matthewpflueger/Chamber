@@ -1,8 +1,9 @@
 package com.echoed.chamber.domain
 
-import java.util.{UUID, Date}
+import java.util.Date
 import com.echoed.util.DateUtils._
 import partner.{PartnerSettings, Partner}
+import com.echoed.util.UUID
 
 
 case class Story(
@@ -29,7 +30,7 @@ case class Story(
             _title: String,
             echo: Option[Echo] = None,
             _productInfo: Option[String] = None) = this(
-        id = UUID.randomUUID.toString,
+        id = UUID(),
         updatedOn = new Date,
         createdOn = new Date,
         echoedUserId = echoedUser.id,
