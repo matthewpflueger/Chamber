@@ -109,6 +109,10 @@
         <property name="feedServiceActor" ref="feedServiceActor" />
     </bean>
 
+    <bean id="tagService" class="com.echoed.chamber.services.tag.TagServiceActorClient">
+        <property name="tagServiceActor" ref="tagServiceActor" />
+    </bean>
+
     <bean id="facebookAccess" class="com.echoed.chamber.services.facebook.FacebookAccessActorClient">
         <property name="actorRef" ref="facebookAccessActor" />
     </bean>

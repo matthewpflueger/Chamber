@@ -33,8 +33,6 @@ class FeedServiceActorClient extends FeedService with ActorClient with Serializa
 
     def getStory(storyId: String) = (feedServiceActor ? GetStory(storyId)).mapTo[GetStoryResponse]
 
-    def getTags(partialTagId: String) = (feedServiceActor ? GetTags(partialTagId)).mapTo[GetTagsResponse]
-
     def getStoryIds = (feedServiceActor ? GetStoryIds()).mapTo[GetStoryIdsResponse]
 
     def getPartnerIds = (feedServiceActor ? GetPartnerIds()).mapTo[GetPartnerIdsResponse]

@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.feed._
 import com.echoed.chamber.services.event.EventService
+import com.echoed.chamber.services.tag._
 
 @Controller
 @RequestMapping(Array("/api"))
@@ -22,6 +23,7 @@ class UserController {
     @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
     @BeanProperty var feedService: FeedService = _
     @BeanProperty var eventService: EventService = _
+    @BeanProperty var tagService: TagService = _
 
     @BeanProperty var cookieManager: CookieManager = _
     @BeanProperty var closetView: String = _
@@ -247,9 +249,24 @@ class UserController {
             httpServletResponse: HttpServletResponse) = {
 
         val result = new DeferredResult("error")
-        feedService.getTags(tagId).onSuccess {
+        tagService.getTags(tagId).onSuccess {
             case GetTagsResponse(_, Right(tags)) => result.set(tags)
         }
         result
+    }
+
+    @RequestMapping(value = Array("/tags/add"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def addTag(
+        @RequestParam(value = "tagId", required = true) tagId: String,
+        httpServletRequest: HttpServletRequest,
+        httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult("error")
+        tagService.addTag(tagId).onSuccess {
+            case AddTagResponse(_, Right(tag)) => result.set(tag)
+        }
+        result
+
     }
 }

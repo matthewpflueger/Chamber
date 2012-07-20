@@ -21,11 +21,6 @@ case class GetPartnerIdsResponse(
         message: GetPartnerIds,
         value: Either[FE, Array[String]]) extends FM with MR[Array[String], GetPartnerIds, FE]
 
-case class GetTags(partialTagId: String) extends FM
-case class GetTagsResponse(
-        message: GetTags,
-        value: Either[FE, JList[Tag]]) extends FM with RM[JList[Tag], GetTags, FE]
-
 case class GetStoryIds() extends FM
 case class GetStoryIdsResponse(message: GetStoryIds, value: Either[FE, Array[String]])
         extends FM with MR[Array[String], GetStoryIds, FE]

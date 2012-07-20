@@ -15,6 +15,7 @@ import com.echoed.util.mustache.MustacheEngine
 import com.echoed.chamber.dao.views.{AdminViewDao, PartnerViewDao, ClosetDao, FeedDao}
 import com.echoed.chamber.dao.partner.{PartnerUserDao, PartnerSettingsDao, PartnerDao}
 import com.echoed.chamber.services.feed.FeedServiceActor
+import com.echoed.chamber.services.tag.TagServiceActor
 import dispatch.Http
 import com.echoed.chamber.services.facebook._
 import com.echoed.cache.CacheManager
@@ -58,6 +59,8 @@ class ApplicationConfig {
     @Resource(name = "feedDao") var feedDao: FeedDao = _
     @Resource(name = "partnerDao") var partnerDao: PartnerDao = _
     @Resource(name = "echoedUserDao") var echoedUserDao: EchoedUserDao = _
+
+    @Resource(name = "tagDao") var tagDao: TagDao = _
 
     @Resource(name = "facebookAccessProperties") var facebookAccessProperties: Properties = _
 
@@ -154,6 +157,10 @@ class ApplicationConfig {
             partnerDao,
             echoedUserDao,
             eventProcessor)), "FeedService")
+
+    @Bean def tagServiceActor = actorSystem.actorOf(Props(new TagServiceActor(
+            tagDao
+    )), "TagService")
 
     @Bean
     def facebookAccessActor = actorSystem.actorOf(Props(new FacebookAccessDispatchActor(

@@ -111,20 +111,16 @@ Echoed.Views.Components.Menu = Backbone.View.extend({
         self.template = _.template($('#templates-components-menu').html());
         self.element.html(self.template);
         self.content = $('#menu-content');
-        $.ajax({
+        Echoed.AjaxFactory({
             url: Echoed.urls.api + "/api/tags",
-            type: "GET",
-            xhrFields: {
-                withCredentials: true
-            },
             success: function(data){
                 $.each(data, function(index, tag){
-                    self.content.append($('<div></div>').addClass('menu-item').html(tag));
+                    self.content.append($('<div></div>').addClass('menu-item').html(tag.id + " " + tag.counter));
                 });
                 self.EvAg.trigger('fade/show');
                 self.element.show();
             }
-        });
+        })();
     },
     unload: function(){
         var self = this;
@@ -848,23 +844,28 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
 Echoed.Views.Components.Actions = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this);
+        _.bindAll(this, 'click', 'browse');
         this.EvAg = options.EvAg;
         this.element = $(this.el);
         this.element.show();
         this.render();
     },
     events: {
-        'click .action-button': 'click'
+        'click #action-share': 'click',
+        'click #action-browse' : 'browse'
     },
     render: function(){
         this.element.empty();
-        this.element.append($("<div class='action-button'>Share a Story</div>"));
+        this.element.append($("<div class='action-button' id='action-share'>Share a Story</div>"));
+        this.element.append($("<div class='action-button' id='action-browse'>Browse Categories</div>"));
     },
     click: function(e){
-        var self = this;
-        self.EvAg.trigger('menu/show');
+        window.location.hash = "#write/";
+    },
+    browse: function(e){
+        this.EvAg.trigger('menu/show');
     }
+
 });
 
 Echoed.Views.Components.Logout = Backbone.View.extend({
@@ -1259,23 +1260,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         } else {
             textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
             textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
-<<<<<<< HEAD
             textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
-=======
-            if(self.data.story.partnerHandle !== "Echoed") {
-                var pId = "";
-                if(self.data.story.partnerHandle !== null){
-                    pId = self.data.story.partnerHandle;
-                } else {
-                    pId = self.data.story.partnerId
-                }
-                //textNode.append($("<div class='story-brief-text-from'></div>").append("from <a class='story-brief-text-partner' href='#partner/" + pId + "'>" + self.data.story.productInfo + "</a><br/>"));
-            } else {
-                //textNode.append($("<div class='story-brief-text-from'></div>").append("from " + self.data.story.productInfo + "<br/>"));
-            }
-            textNode.append($("<div class='story-brief-text-by'></div>").append("Story By <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
->>>>>>> WIP: Initial Commit for Tags
-
             var chapterText = self.data.chapters[0].text;
             var c  = chapterText.split(/[.!?]/)[0];
             c = c + chapterText.substr(c.length, 1); //Append Split Character

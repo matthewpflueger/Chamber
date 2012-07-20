@@ -4,16 +4,40 @@
 
     <resultMap id="tagResult" type="com.echoed.chamber.domain.Tag">
         <constructor>
-            <idArg column="tagId" javaType="String" />
+            <idArg column="id" javaType="String" />
+            <arg column="counter" javaType="_int" />
+            <arg column="approved" javaType="_boolean"/>
         </constructor>
     </resultMap>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.Tag">
         insert into Tag(
-            id
+            id,
+            counter,
+            approved
         ) values (
-            #{id}
+            #{id},
+            #{counter},
+            #{approved}
         )
+        on duplicate key update
+            counter = #{counter},
+            approved = #{approved}
     </insert>
+
+
+
+    <update id="update" parameterType="com.echoed.chamber.domain.Tag">
+        update Tag
+        set
+            counter = #{counter},
+            approved = #{approved}
+        where
+            id = #{id}
+    </update>
+
+    <select id="getTags" resultMap="tagResult">
+        select * from Tag order by id asc
+    </select>
 
 </mapper>
