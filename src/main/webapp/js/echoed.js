@@ -48,11 +48,12 @@ Echoed = {
         return Echoed.twitterUrl + encodeURIComponent(hash);
     },
     isUrl: function(s){
-        var regexp = /(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+        //var regexp = /(\w+:{3,3}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+        var regexp =/(http:\/\/|https:\/\/|www)(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
         return regexp.test(s);
     },
     makeUrl: function(s){
-        if(s.indexOf("http://") === -1){
+        if(s.indexOf("http") === -1){
             s = "http://" + s;
         }
         return s;

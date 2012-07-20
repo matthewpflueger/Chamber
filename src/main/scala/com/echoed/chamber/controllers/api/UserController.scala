@@ -63,11 +63,10 @@ class UserController {
 
         val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-        feedService.getPublicFeed(pageInt).onSuccess {
-            case GetPublicFeedResponse(_,Right(feed)) =>
-                logger.debug("Found feed of size {}", feed.echoes.size)
+        feedService.getPublicStoryFeed(pageInt).onSuccess {
+            case GetPublicStoryFeedResponse(_,Right(feed)) =>
                 result.set(feed)
-            }
+        }
         result
     }
     
