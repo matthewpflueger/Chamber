@@ -756,7 +756,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         if(self.nextInt != null){
             self.EvAg.trigger('infiniteScroll/lock');
-            var url = self.jsonUrl + "?page=" + self.nextInt;
+            var url = self.jsonUrl + "?page=" + (self.nextInt - 1);
             Echoed.AjaxFactory({
                 url: url,
                 success: function(data){
