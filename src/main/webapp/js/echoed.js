@@ -737,9 +737,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.addStories(data);
         self.addProducts(data);
 
-        if(data.stories.length > 0 || data.echoes.length > 0 ){
+        if(data.stories || data.echoes){
             self.EvAg.trigger('infiniteScroll/on');
-            //self.EvAg.trigger('infiniteScroll/lock');
+            self.EvAg.trigger('infiniteScroll/unlock');
             self.nextInt++;
         } else {
             self.nextInt = null;
@@ -762,9 +762,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 success: function(data){
                     self.addProducts(data);
                     self.addStories(data);
-                    if(data.stories.length > 0 || data.echoes.length > 0){
+                    if(data.stories.length > 0 || data.echoes){
                         self.nextInt++;
-                    } else{
+                    } else {
                         self.nextInt = null;
                         self.EvAg.trigger("infiniteScroll/unlock");
                     }
@@ -784,35 +784,41 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     addStories: function(data){
         var self = this;
         var storiesFragment = $('<div></div>');
-        $.each(data.stories, function(index, story){
-            if(story.chapters.length > 0 || self.personal == true){
-                self.stories.hash[story.id] = self.stories.array.length;
-                self.stories.array.push(story.id);
-                var storyDiv = $('<div></div>').addClass('item_wrap');
-                var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal});
-                if(story.story.image.originalUrl !== null){
-                    storiesFragment.append(storyDiv);
-                } else {
-                    storyDiv.imagesLoaded(function(){
-                        self.exhibit.isotope('insert', storyDiv);
-                    });
+        if(data.stories){
+            $.each(data.stories, function(index, story){
+                if(story.chapters.length > 0 || self.personal == true){
+                    self.stories.hash[story.id] = self.stories.array.length;
+                    self.stories.array.push(story.id);
+                    var storyDiv = $('<div></div>').addClass('item_wrap');
+                    var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal});
+                    if(story.story.image.originalUrl !== null){
+                        storiesFragment.append(storyDiv);
+                    } else {
+                        storyDiv.imagesLoaded(function(){
+                            self.exhibit.isotope('insert', storyDiv);
+                        });
+                    }
                 }
-            }
-        });
-        self.exhibit.isotope('insert', storiesFragment.children());
+            });
+            self.exhibit.isotope('insert', storiesFragment.children(), function(){
+                self.EvAg.trigger('infiniteScroll/unlock');
+            });
+        }
     },
     addProducts: function(data){
         var self = this;
         var productsFragment = $('<div></div>');
-        $.each(data.echoes, function(index, product){
-            var productDiv = $('<div></div>');
-            var productModel = new Echoed.Models.Product(product);
-            var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg, Personal: self.personal });
-            productsFragment.append(productDiv);
-        });
-        self.exhibit.isotope('insert',productsFragment.children(), function(){
-            self.EvAg.trigger('infiniteScroll/unlock');
-        });
+        if(data.echoes){
+            $.each(data.echoes, function(index, product){
+                var productDiv = $('<div></div>');
+                var productModel = new Echoed.Models.Product(product);
+                var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg, Personal: self.personal });
+                productsFragment.append(productDiv);
+            });
+            self.exhibit.isotope('insert',productsFragment.children(), function(){
+                self.EvAg.trigger('infiniteScroll/unlock');
+            });
+        }
     }
 });
 
