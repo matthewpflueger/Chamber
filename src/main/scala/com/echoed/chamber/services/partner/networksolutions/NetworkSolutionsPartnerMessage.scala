@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.partner.networksolutions
 
-import com.echoed.chamber.services.{ResponseMessage => RM}
+import com.echoed.chamber.services.{MessageResponse => MR}
 import java.util.Date
 import com.echoed.chamber.services.partner.{EchoRequest, PartnerAlreadyExists, PartnerException => PEx, PartnerMessage => PM}
 import com.echoed.chamber.domain._
@@ -41,13 +41,13 @@ case class RegisterNetworkSolutionsPartner(
         failureUrl: Option[String] = None) extends NSPM
 case class RegisterNetworkSolutionsPartnerResponse(message: RegisterNetworkSolutionsPartner, value: Either[PEx, String])
         extends NSPM
-        with RM[String, RegisterNetworkSolutionsPartner, PEx]
+        with MR[String, RegisterNetworkSolutionsPartner, PEx]
 
 
 case class AuthNetworkSolutionsPartner(userKey: String) extends NSPM
 case class AuthNetworkSolutionsPartnerResponse(message: AuthNetworkSolutionsPartner, value: Either[PEx, NetworkSolutionsPartnerEnvelope])
         extends NSPM
-        with RM[NetworkSolutionsPartnerEnvelope, AuthNetworkSolutionsPartner, PEx]
+        with MR[NetworkSolutionsPartnerEnvelope, AuthNetworkSolutionsPartner, PEx]
 
 
 case class FetchUserKeyEnvelope(loginUrl: String, userKey: String)
@@ -57,7 +57,7 @@ private[networksolutions] case class FetchUserKey(
         failureUrl: Option[String] = None) extends NSPM
 private[networksolutions] case class FetchUserKeyResponse(message: FetchUserKey, value: Either[NSPE, FetchUserKeyEnvelope])
         extends NSPM
-        with RM[FetchUserKeyEnvelope, FetchUserKey, NSPE]
+        with MR[FetchUserKeyEnvelope, FetchUserKey, NSPE]
 
 
 case class FetchUserTokenEnvelope(
@@ -72,7 +72,7 @@ private[networksolutions] case class FetchUserTokenResponse(
         message: FetchUserToken,
         value: Either[NSPE, FetchUserTokenEnvelope])
         extends NSPM
-        with RM[FetchUserTokenEnvelope, FetchUserToken, NSPE]
+        with MR[FetchUserTokenEnvelope, FetchUserToken, NSPE]
 
 
 private[networksolutions] case class FetchOrder(
@@ -80,5 +80,5 @@ private[networksolutions] case class FetchOrder(
         orderNumber: Long) extends NSPM
 private[networksolutions] case class FetchOrderResponse(message: FetchOrder, value: Either[NSPE, EchoRequest])
         extends NSPM
-        with RM[EchoRequest, FetchOrder, NSPE]
+        with MR[EchoRequest, FetchOrder, NSPE]
 

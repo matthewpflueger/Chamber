@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.echoeduser
 
-import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, EchoedException, Message}
 import com.echoed.chamber.services.facebook.FacebookService
 import com.echoed.chamber.services.twitter.TwitterService
 import com.echoed.chamber.domain.views.echoeduser.Profile
@@ -39,7 +39,7 @@ case class InitStory(
         partnerId: Option[String] = None) extends EUI(_echoedUserId)
 
 case class InitStoryResponse(message: InitStory, value: Either[EUE, StoryInfo])
-        extends EUM with RM[StoryInfo, InitStory, EUE]
+        extends EUM with MR[StoryInfo, InitStory, EUE]
 
 
 case class CreateStory(
@@ -51,7 +51,7 @@ case class CreateStory(
         productInfo: Option[String] = None) extends EUI(_echoedUserId)
 
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
-        extends EUM with RM[Story, CreateStory, EUE]
+        extends EUM with MR[Story, CreateStory, EUE]
 
 
 case class UpdateStory(
@@ -61,7 +61,7 @@ case class UpdateStory(
         imageId: String) extends EUI(_echoedUserId)
 
 case class UpdateStoryResponse(message: UpdateStory, value: Either[EUE, Story])
-        extends EUM with RM[Story, UpdateStory, EUE]
+        extends EUM with MR[Story, UpdateStory, EUE]
 
 
 case class CreateChapter(
@@ -72,7 +72,7 @@ case class CreateChapter(
         imageIds: Option[Array[String]]) extends EUI(_echoedUserId)
 
 case class CreateChapterResponse(message: CreateChapter, value: Either[EUE, ChapterInfo])
-        extends EUM with RM[ChapterInfo, CreateChapter, EUE]
+        extends EUM with MR[ChapterInfo, CreateChapter, EUE]
 
 
 case class UpdateChapter(
@@ -83,7 +83,7 @@ case class UpdateChapter(
         imageIds: Option[Array[String]] = None) extends EUI(_echoedUserId)
 
 case class UpdateChapterResponse(message: UpdateChapter, value: Either[EUE, ChapterInfo])
-        extends EUM with RM[ChapterInfo, UpdateChapter, EUE]
+        extends EUM with MR[ChapterInfo, UpdateChapter, EUE]
 
 
 case class CreateComment(
@@ -94,16 +94,15 @@ case class CreateComment(
         parentCommentId: Option[String]) extends EUI(_echoedUserId)
 
 case class CreateCommentResponse(message: CreateComment, value: Either[EUE, Comment])
-        extends EUM with RM[Comment, CreateComment, EUE]
-
+        extends EUM with MR[Comment, CreateComment, EUE]
 
 case class AssignFacebookService(facebookService: FacebookService) extends EUM
 case class AssignFacebookServiceResponse(message: AssignFacebookService, value: Either[EUE, FacebookService])
-    extends EUM with RM[FacebookService, AssignFacebookService, EUE]
+    extends EUM with MR[FacebookService, AssignFacebookService, EUE]
 
 case class AssignTwitterService(twitterService: TwitterService) extends EUM
 case class AssignTwitterServiceResponse(message: AssignTwitterService, value: Either[EUE,TwitterService])
-    extends EUM with RM[TwitterService,  AssignTwitterService, EUE]
+    extends EUM with MR[TwitterService,  AssignTwitterService, EUE]
 
 case class EchoTo(
         echoedUserId: String,
@@ -112,83 +111,83 @@ case class EchoTo(
         echoToFacebook: Boolean = false,
         twitterMessage: Option[String] = None,
         echoToTwitter: Boolean = false) extends EUM
-case class EchoToResponse(message: EchoTo, value: Either[EUE, EchoFull]) extends EUM with RM[EchoFull, EchoTo, EUE]
+case class EchoToResponse(message: EchoTo, value: Either[EUE, EchoFull]) extends EUM with MR[EchoFull, EchoTo, EUE]
 
 case class EchoToFacebook(echo:Echo, echoMessage: Option[String]) extends EUM
 case class EchoToFacebookResponse(message: EchoToFacebook, value: Either[EUE, FacebookPost])
-    extends EUM with RM[FacebookPost, EchoToFacebook, EUE]
+    extends EUM with MR[FacebookPost, EchoToFacebook, EUE]
 
 case class EchoToTwitter(echo:Echo, echoMessage: Option[String], partnerSettings: PartnerSettings) extends EUM
 case class EchoToTwitterResponse(message:EchoToTwitter,  value: Either[EUE, TwitterStatus])
-    extends EUM with RM[TwitterStatus, EchoToTwitter,  EUE]
+    extends EUM with MR[TwitterStatus, EchoToTwitter,  EUE]
 
 case class PublishFacebookAction(action: String,  obj: String,  objUrl: String) extends EUM
 case class PublishFacebookActionResponse(message: PublishFacebookAction, value: Either[EUE, Boolean])
-    extends EUM with RM[Boolean, PublishFacebookAction, EUE]
+    extends EUM with MR[Boolean, PublishFacebookAction, EUE]
 
 case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
-    extends EUM with RM[FriendCloset, GetFriendExhibit, EUE]
+    extends EUM with MR[FriendCloset, GetFriendExhibit, EUE]
 
 case class GetEchoedUser() extends EUM
 case class GetEchoedUserResponse(message: GetEchoedUser, value: Either[EUE, EchoedUser])
-    extends EUM with RM[EchoedUser, GetEchoedUser,  EUE]
+    extends EUM with MR[EchoedUser, GetEchoedUser,  EUE]
 
 case class UpdateEchoedUserEmail(email: String) extends EUM
 case class UpdateEchoedUserEmailResponse(message: UpdateEchoedUserEmail, value: Either[EUE, EchoedUser])
-    extends EUM with RM[EchoedUser, UpdateEchoedUserEmail, EUE]
+    extends EUM with MR[EchoedUser, UpdateEchoedUserEmail, EUE]
 
 case class UpdateEchoedUser(echoedUser: EchoedUser) extends EUM
 case class UpdateEchoedUserResponse(message: UpdateEchoedUser, value: Either[EUE, EchoedUser])
-    extends EUM with RM[EchoedUser, UpdateEchoedUser, EUE]
+    extends EUM with MR[EchoedUser, UpdateEchoedUser, EUE]
 
 case class GetProfile() extends EUM
 case class GetProfileResponse(message: GetProfile, value: Either[EUE, Profile])
-    extends EUM with RM[Profile, GetProfile, EUE]
+    extends EUM with MR[Profile, GetProfile, EUE]
 
 case class GetExhibit(page: Int) extends EUM
 case class GetExhibitResponse(message: GetExhibit, value: Either[EUE, ClosetPersonal])
-    extends EUM with RM[ClosetPersonal, GetExhibit, EUE]
+    extends EUM with MR[ClosetPersonal, GetExhibit, EUE]
 
 case class GetFeed(page: Int) extends EUM
 case class GetFeedResponse(message: GetFeed, value: Either[EUE, Feed])
-    extends EUM with RM[Feed, GetFeed, EUE]
+    extends EUM with MR[Feed, GetFeed, EUE]
 
 case class GetEchoedFriends() extends EUM
 case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, List[EchoedFriend]])
-    extends EUM with RM[List[EchoedFriend], GetEchoedFriends, EUE]
+    extends EUM with MR[List[EchoedFriend], GetEchoedFriends, EUE]
 
 case class LocateWithId(echoedUserId: String) extends EUM
 case class LocateWithIdResponse(message: LocateWithId, value: Either[EUE, EchoedUserService])
-    extends EUM with RM[EchoedUserService, LocateWithId, EUE]
+    extends EUM with MR[EchoedUserService, LocateWithId, EUE]
 
 case class Logout(echoedUserId: String) extends EUM
 case class LogoutResponse(message: Logout, value: Either[EUE, Boolean])
-    extends EUM with RM[Boolean, Logout, EUE]
+    extends EUM with MR[Boolean, Logout, EUE]
 
 case class LocateWithFacebookService(facebookService: FacebookService) extends EUM
 case class LocateWithFacebookServiceResponse(
     message: LocateWithFacebookService,
     value: Either[EUE, EchoedUserService])
-    extends EUM with RM[EchoedUserService, LocateWithFacebookService, EUE]
+    extends EUM with MR[EchoedUserService, LocateWithFacebookService, EUE]
 
 case class LocateWithTwitterService(twitterService: TwitterService) extends EUM
 case class LocateWithTwitterServiceResponse(message: LocateWithTwitterService,value: Either[EUE, EchoedUserService])
-    extends EUM with RM[EchoedUserService, LocateWithTwitterService, EUE]
+    extends EUM with MR[EchoedUserService, LocateWithTwitterService, EUE]
 
 case class CreateEchoedUserServiceWithId(echoedUserId: String) extends EUM
 case class CreateEchoedUserServiceWithIdResponse(message: CreateEchoedUserServiceWithId, value: Either[EUE, EchoedUserService])
-    extends EUM with RM[EchoedUserService, CreateEchoedUserServiceWithId, EUE]
+    extends EUM with MR[EchoedUserService, CreateEchoedUserServiceWithId, EUE]
 
 case class EchoedUserNotFound(id: String, m: String = "Echoed user not found") extends EUE(m)
 
 case class CreateEchoedUserServiceWithFacebookService(facebookService: FacebookService) extends EUM
 case class CreateEchoedUserServiceWithFacebookServiceResponse(message: CreateEchoedUserServiceWithFacebookService, value: Either[EUE, EchoedUserService])
-    extends EUM with RM[EchoedUserService, CreateEchoedUserServiceWithFacebookService ,EUE]
+    extends EUM with MR[EchoedUserService, CreateEchoedUserServiceWithFacebookService ,EUE]
 
 case class CreateEchoedUserServiceWithTwitterService(twitterService: TwitterService) extends EUM
 case class CreateEchoedUserServiceWithTwitterServiceResponse(message: CreateEchoedUserServiceWithTwitterService, value: Either[EUE, EchoedUserService])
-    extends EUM with RM[EchoedUserService, CreateEchoedUserServiceWithTwitterService, EUE]
+    extends EUM with MR[EchoedUserService, CreateEchoedUserServiceWithTwitterService, EUE]
 
 
 private[echoeduser] case class FetchFacebookFriends() extends EUM

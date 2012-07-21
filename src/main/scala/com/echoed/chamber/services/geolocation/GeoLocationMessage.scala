@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.geolocation
 
-import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
 import com.echoed.chamber.domain.GeoLocation
 
 
@@ -17,8 +17,8 @@ private[geolocation] case class FindForCrawl() extends GLM
 
 case class GeoLocate(gl: GeoLocation) extends GLM
 case class GeoLocateResponse(message: GeoLocate, value: Either[GLE, GeoLocation])
-        extends GLM with RM[GeoLocation, GeoLocate, GLE]
+        extends GLM with MR[GeoLocation, GeoLocate, GLE]
 
 case class MalformedResponse(ip: String, c: Throwable, m: String = "Received malformed response") extends GLE(ip, m, c)
 //case class AssignFacebookServiceResponse(message: AssignFacebookService, value: Either[EUE, FacebookService])
-//        extends EUM with RM[FacebookService, AssignFacebookService, EUE]
+//        extends EUM with MR[FacebookService, AssignFacebookService, EUE]

@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.image
 
 import com.echoed.chamber.domain.Image
-import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, EchoedException, Message}
 import java.awt.image.BufferedImage
 
 
@@ -16,12 +16,12 @@ import com.echoed.chamber.services.image.{ImageException => IE}
 case class StartProcessImage(image: Image) extends IM
 case class StartProcessImageResponse(
         message: StartProcessImage,
-        value: Either[IE, Image]) extends IM with RM[Image, StartProcessImage, IE]
+        value: Either[IE, Image]) extends IM with MR[Image, StartProcessImage, IE]
 
 case class ProcessImage(image: Image) extends IM
 case class ProcessImageResponse(
         message: ProcessImage,
-        value: Either[IE, Image]) extends IM with RM[Image, ProcessImage, IE]
+        value: Either[IE, Image]) extends IM with MR[Image, ProcessImage, IE]
 
 case class ProcessImageException(
         _image: Image,
@@ -56,7 +56,7 @@ case class ProcessLowPriorityImage(image: Image) extends IM
 
 case class ProcessLowPriorityImageResponse(
         message: ProcessLowPriorityImage,
-        value: Either[IE, Image]) extends IM with RM[Image, ProcessLowPriorityImage, IE]
+        value: Either[IE, Image]) extends IM with MR[Image, ProcessLowPriorityImage, IE]
 
 
 private[image] case class ProcessOriginalImage(image: Image) extends IM

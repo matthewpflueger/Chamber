@@ -2,7 +2,8 @@ package com.echoed.chamber.services
 
 
 
-trait ResponseMessage[R, M <: Message, E <: EchoedException] { this: Message =>
+trait MessageResponse[R, M <: Message, E <: EchoedException] extends Serializable {
+    this: Message =>
 
     val message: M
     val value: Either[E, R]

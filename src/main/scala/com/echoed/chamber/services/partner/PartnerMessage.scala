@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.partner
 
-import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
 import partner.{PartnerSettings, PartnerUser, Partner}
@@ -31,34 +31,34 @@ private[partner] case class Create(msg: Locate, channel: ActorRef)
 case class RegisterPartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM
 case class RegisterPartnerResponse(
         message: RegisterPartner,
-        value: Either[PE, PartnerService]) extends PM with RM[PartnerService, RegisterPartner, PE]
+        value: Either[PE, PartnerService]) extends PM with MR[PartnerService, RegisterPartner, PE]
 
 case class UpdatePartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM
 case class UpdatePartnerResponse(
         message: UpdatePartner, 
-        value: Either[PE, Partner]) extends PM with RM[Partner, UpdatePartner, PE]
+        value: Either[PE, Partner]) extends PM with MR[Partner, UpdatePartner, PE]
 
 case class GetPartner() extends PM
 case class GetPartnerResponse(
         message: GetPartner,
-        value: Either[PE, Partner]) extends PM with RM[Partner, GetPartner, PE]
+        value: Either[PE, Partner]) extends PM with MR[Partner, GetPartner, PE]
 
 case class Locate(partnerId: String) extends PM
 case class LocateResponse(
         message: Locate,
-        value: Either[PE, PartnerService]) extends PM with RM[PartnerService, Locate, PE]
+        value: Either[PE, PartnerService]) extends PM with MR[PartnerService, Locate, PE]
 
 
 case class LocateByEchoId(echoId: String) extends PM
 case class LocateByEchoIdResponse(
         message: LocateByEchoId,
-        value: Either[PE, PartnerService]) extends PM with RM[PartnerService, LocateByEchoId, PE]
+        value: Either[PE, PartnerService]) extends PM with MR[PartnerService, LocateByEchoId, PE]
 
 
 case class LocateByDomain(domain: String, context: Option[AnyRef] = None) extends PM
 case class LocateByDomainResponse(
         message: LocateByDomain,
-        value: Either[PE, PartnerService]) extends PM with RM[PartnerService, LocateByDomain, PE]
+        value: Either[PE, PartnerService]) extends PM with MR[PartnerService, LocateByDomain, PE]
 
 
 case class ViewDescription(view: String, model: Map[String, Any])
@@ -66,7 +66,7 @@ case class ViewDescription(view: String, model: Map[String, Any])
 case class GetView(_partnerId: String) extends PI(_partnerId)
 case class GetViewResponse(
         message: GetView,
-        value: Either[PE, ViewDescription]) extends PM with RM[ViewDescription, GetView, PE]
+        value: Either[PE, ViewDescription]) extends PM with MR[ViewDescription, GetView, PE]
 
 
 
@@ -107,12 +107,12 @@ case class InvalidEchoRequest(_message: String = "Invalid echo request",
 //case class GetPartner() extends PM
 //case class GetPartnerResponse(
 //        message: GetPartner,
-//        value: Either[PE, Partner]) extends PM with RM[Partner, GetPartner,  PE]
+//        value: Either[PE, Partner]) extends PM with MR[Partner, GetPartner,  PE]
 //
 //case class GetPartnerSettings() extends PM
 //case class GetPartnerSettingsResponse(
 //        message: GetPartnerSettings,
-//        value: Either[PE, PartnerSettings]) extends PM with RM[PartnerSettings, GetPartnerSettings, PE]
+//        value: Either[PE, PartnerSettings]) extends PM with MR[PartnerSettings, GetPartnerSettings, PE]
 //
 //case class RequestShopifyEcho(
 //        order: ShopifyOrderFull,
@@ -124,7 +124,7 @@ case class InvalidEchoRequest(_message: String = "Invalid echo request",
 //        echoClickId: Option[String] = None) extends PM
 //case class RequestShopifyEchoResponse(
 //        message: RequestShopifyEcho,
-//        value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RequestShopifyEcho, PE]
+//        value: Either[PE, EchoPossibilityView]) extends PM with MR[EchoPossibilityView, RequestShopifyEcho, PE]
 
 case class RequestEcho(
         _partnerId: String,
@@ -138,12 +138,12 @@ case class RequestEcho(
         view: Option[String] = None) extends PI(_partnerId)
 case class RequestEchoResponse(
         message: RequestEcho,
-        value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RequestEcho, PE]
+        value: Either[PE, EchoPossibilityView]) extends PM with MR[EchoPossibilityView, RequestEcho, PE]
 
 case class GetEcho(__echoId: String) extends EI(__echoId)
 case class GetEchoResponse(
         message: GetEcho,
-        value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, GetEcho, PE]
+        value: Either[PE, EchoPossibilityView]) extends PM with MR[EchoPossibilityView, GetEcho, PE]
 
 
 case class RecordEchoStep(
@@ -153,7 +153,7 @@ case class RecordEchoStep(
         echoClickId: Option[String] = None) extends EI(_echoId)
 case class RecordEchoStepResponse(
         message: RecordEchoStep,
-        value: Either[PE, EchoPossibilityView]) extends PM with RM[EchoPossibilityView, RecordEchoStep, PE]
+        value: Either[PE, EchoPossibilityView]) extends PM with MR[EchoPossibilityView, RecordEchoStep, PE]
 
 
 case class EchoExists(

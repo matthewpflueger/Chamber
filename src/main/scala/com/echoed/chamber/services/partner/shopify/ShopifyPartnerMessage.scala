@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.partner.shopify
 
-import com.echoed.chamber.services.{ResponseMessage => RM}
+import com.echoed.chamber.services.{MessageResponse => MR}
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
 import com.echoed.chamber.domain.partner.shopify.{ShopifyOrderFull, ShopifyPartner}
 import com.echoed.chamber.services.partner.{PartnerAlreadyExists, PartnerException => PE, PartnerMessage => PM}
@@ -35,72 +35,72 @@ case class ShopifyPartnerAlreadyExists(
 case class RegisterShopifyPartner(shop: String, signature: String, t: String, timeStamp: String) extends SPM
 case class RegisterShopifyPartnerResponse(message: RegisterShopifyPartner, value: Either[PE, RegisterShopifyPartnerEnvelope])
         extends SPM
-        with RM[RegisterShopifyPartnerEnvelope, RegisterShopifyPartner, PE]
+        with MR[RegisterShopifyPartnerEnvelope, RegisterShopifyPartner, PE]
 
 private[shopify] case class Update(shopifyPartner: ShopifyPartner) extends SPM
 private[shopify] case class UpdateResponse(message: Update, value: Either[SPE, ShopifyPartner])
         extends SPM
-        with RM[ShopifyPartner, Update, SPE]
+        with MR[ShopifyPartner, Update, SPE]
 
 
 
 private[shopify] case class GetShopifyPartner() extends SPM
 private[shopify] case class GetShopifyPartnerResponse(message: GetShopifyPartner, value: Either[SPE, ShopifyPartner])
         extends SPM
-        with RM[ShopifyPartner, GetShopifyPartner, SPE]
+        with MR[ShopifyPartner, GetShopifyPartner, SPE]
 
 private[shopify] case class GetOrder(orderId: Int) extends SPM
 private[shopify] case class GetOrderResponse(message: GetOrder, value: Either[SPE, SO])
         extends SPM
-        with RM[SO, GetOrder, SPE]
+        with MR[SO, GetOrder, SPE]
 
 private[shopify] case class GetOrderFull(orderId: Int) extends SPM
 private[shopify] case class GetOrderFullResponse(message: GetOrderFull, value: Either[SPE, ShopifyOrderFull])
         extends SPM
-        with RM[ShopifyOrderFull, GetOrderFull, SPE]
+        with MR[ShopifyOrderFull, GetOrderFull, SPE]
 
 private[shopify] case class GetProducts() extends SPM
 private[shopify] case class GetProductsResponse(message: GetProducts, value: Either[SPE, List[SP]])
         extends SPM
-        with RM[List[SP], GetProducts, SPE]
+        with MR[List[SP], GetProducts, SPE]
 
 
 private[shopify] case class GetShop(password: String) extends SPM
 private[shopify] case class GetShopResponse(message: GetShop, value: Either[SPE, ShopifyPartner])
         extends SPM
-        with RM[ShopifyPartner, GetShop, SPE]
+        with MR[ShopifyPartner, GetShop, SPE]
 
 
 private[shopify] case class FetchPassword(shop: String, signature: String, t: String, timeStamp: String) extends SPM
 private[shopify] case class FetchPasswordResponse(message: FetchPassword, value: Either[SPE, String])
         extends SPM
-        with RM[String, FetchPassword, SPE]
+        with MR[String, FetchPassword, SPE]
 
 private[shopify] case class FetchShop(shop: String, password: String) extends SPM
 private[shopify] case class FetchShopResponse(message: FetchShop, value: Either[SPE, ShopifyPartner])
         extends SPM
-        with RM[ShopifyPartner, FetchShop, SPE]
+        with MR[ShopifyPartner, FetchShop, SPE]
 
 private[shopify] case class FetchOrder(shop: String, password: String, orderId: Int) extends SPM
 private[shopify] case class FetchOrderResponse(message: FetchOrder, value: Either[SPE, SO])
         extends SPM
-        with RM[SO, FetchOrder, SPE]
+        with MR[SO, FetchOrder, SPE]
 
 private[shopify] case class FetchProduct(shop: String, password: String, productId: String) extends SPM
 private[shopify] case class FetchProductResponse(message: FetchProduct, value: Either[SPE, SP])
         extends SPM
-        with RM[SP, FetchProduct, SPE]
+        with MR[SP, FetchProduct, SPE]
 
 private[shopify] case class FetchProducts(shop: String, password: String) extends SPM
 private[shopify] case class FetchProductsResponse(message: FetchProducts, value: Either[SPE, List[SP]])
         extends SPM
-        with RM[List[SP], FetchProducts, SPE]
+        with MR[List[SP], FetchProducts, SPE]
 
 private[shopify] case class FetchShopFromToken(shop: String,  signature: String, t: String,  timeStamp: String)
         extends SPM
 private[shopify] case class FetchShopFromTokenResponse(message: FetchShopFromToken, value: Either[SPE, ShopifyPartner])
         extends SPM
-        with RM[ShopifyPartner, FetchShopFromToken, SPE]
+        with MR[ShopifyPartner, FetchShopFromToken, SPE]
 
 
 

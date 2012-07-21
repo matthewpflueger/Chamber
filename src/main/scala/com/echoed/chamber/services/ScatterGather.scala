@@ -1,6 +1,6 @@
 package com.echoed.chamber.services
 
-import com.echoed.chamber.services.{ResponseMessage => RM}
+import com.echoed.chamber.services.{MessageResponse => MR}
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import akka.actor.{FSM, Actor, ActorRef}
@@ -32,7 +32,7 @@ case class Scatter(
         timeout: Duration = Duration(5, TimeUnit.SECONDS),
         timeoutTotal: Option[Duration] = None) extends SGM
 case class ScatterResponse(message: Scatter, value: Either[SGE, List[Message]])
-        extends SGM with RM[List[Message], Scatter, SGE]
+        extends SGM with MR[List[Message], Scatter, SGE]
 
 private case class TimeoutTotalOccurred(timeoutTotal: Duration)
 

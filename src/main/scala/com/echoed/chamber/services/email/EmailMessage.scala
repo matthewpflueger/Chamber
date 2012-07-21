@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.email
 
-import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
 import java.util.{Map => JMap}
 
 
@@ -15,5 +15,5 @@ import com.echoed.chamber.services.email.{EmailException => EE}
 case class SendEmail(recipient: String, subject: String, view: String, model: JMap[String, AnyRef]) extends EM
 case class SendEmailResponse(
         message: SendEmail,
-        value: Either[EE, Boolean]) extends EM with RM[Boolean, SendEmail, EE]
+        value: Either[EE, Boolean]) extends EM with MR[Boolean, SendEmail, EE]
 

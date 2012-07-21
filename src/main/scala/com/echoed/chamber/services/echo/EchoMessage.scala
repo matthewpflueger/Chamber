@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.echo
 
-import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
 import com.echoed.chamber.domain.views.EchoPossibilityView
 import com.echoed.chamber.domain.{EchoClick, Echo}
 
@@ -18,7 +18,7 @@ case class RecordEchoPossibility(echoPossibility: Echo) extends EM
 @deprecated
 case class RecordEchoPossibilityResponse(
         message: RecordEchoPossibility,
-        value: Either[EE, EchoPossibilityView]) extends EM with RM[EchoPossibilityView, RecordEchoPossibility, EE]
+        value: Either[EE, EchoPossibilityView]) extends EM with MR[EchoPossibilityView, RecordEchoPossibility, EE]
 
 case class EchoExists(
         echoPossibilityView: EchoPossibilityView,
@@ -27,15 +27,15 @@ case class EchoExists(
 
 case class GetEcho(echoPossibilityId: String) extends EM
 case class GetEchoResponse(message: GetEcho, value: Either[EE, Echo])
-        extends EM with RM[Echo, GetEcho, EE]
+        extends EM with MR[Echo, GetEcho, EE]
 
 case class GetEchoById(echoId: String) extends EM
 case class GetEchoByIdResponse(message: GetEchoById, value: Either[EE, Echo])
-        extends EM with RM[Echo, GetEchoById, EE]
+        extends EM with MR[Echo, GetEchoById, EE]
 
 case class GetEchoByIdAndEchoedUserId(echoId: String, echoedUserId: String) extends EM
 case class GetEchoByIdAndEchoedUserIdResponse(message: GetEchoByIdAndEchoedUserId, value: Either[EE, Echo])
-        extends EM with RM[Echo, GetEchoByIdAndEchoedUserId, EE]
+        extends EM with MR[Echo, GetEchoByIdAndEchoedUserId, EE]
 
 case class EchoNotFound(id: String, m: String = "Echo not found") extends EE(m)
 
@@ -44,8 +44,8 @@ case class EchoPossibilityNotFound(id: String, m: String = "Echo possibility not
 
 case class GetEchoPossibility(echoPossibilityId: String) extends EM
 case class GetEchoPossibilityResponse(message: GetEchoPossibility, value: Either[EE, Echo])
-        extends EM with RM[Echo, GetEchoPossibility, EE]
+        extends EM with MR[Echo, GetEchoPossibility, EE]
 
 case class RecordEchoClick(echoClick: EchoClick, linkId: String, postId: String) extends EM
 case class RecordEchoClickResponse(message: RecordEchoClick, value: Either[EE, Echo])
-        extends EM with RM[Echo, RecordEchoClick, EE]
+        extends EM with MR[Echo, RecordEchoClick, EE]

@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.event
 
-import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
 import com.echoed.chamber.domain.EchoedUser
 
 
