@@ -1,5 +1,5 @@
 package com.echoed.chamber.services.tag
-import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedException, Message}
 import java.util.{List => JList}
 import com.echoed.chamber.domain.Tag
 
@@ -42,3 +42,6 @@ case class WriteTag(tagId: String) extends TM
 case class WriteTagResponse(
         message: WriteTag,
         value: Either[TE, Tag]) extends TM with MR[Tag, WriteTag, TE]
+
+case class TagAdded(tagId: String) extends TM with Event
+case class TagReplaced(originalTagId: String, tagId: String) extends TM with Event

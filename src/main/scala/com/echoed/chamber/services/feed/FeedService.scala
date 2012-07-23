@@ -13,6 +13,8 @@ trait FeedService {
 
     def getPublicCategoryFeed(categoryId: String, page: Int): Future[GetPublicCategoryFeedResponse]
 
+    def getCategoryStoryFeed(categoryId: String, page : Int): Future[GetCategoryStoryFeedResponse]
+
     def getUserPublicFeed(echoedUserId: String, page: Int): Future[GetUserPublicFeedResponse]
 
     def getPartnerFeed(partnerId: String, page: Int): Future[GetPartnerFeedResponse]

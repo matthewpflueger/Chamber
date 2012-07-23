@@ -162,8 +162,8 @@ class UserController {
 
         val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-        feedService.getPublicCategoryFeed(categoryId, pageInt).onSuccess {
-            case GetPublicCategoryFeedResponse(_, Right(feed)) => result.set(feed)
+        feedService.getCategoryStoryFeed(categoryId, pageInt).onSuccess {
+            case GetCategoryStoryFeedResponse(_, Right(feed)) => result.set(feed)
         }
         result
     }

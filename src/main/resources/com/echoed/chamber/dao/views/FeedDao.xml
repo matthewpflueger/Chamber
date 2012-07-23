@@ -293,6 +293,16 @@
             CMT.createdOn desc
     </select>
 
+    <select id="findStoryByTagId" resultMap="storyFullResult">
+        <include refid="storyFullLimitSelect" />
+        where S.tag = #{tagId}
+        order by
+            S.updatedOn desc,
+            C.createdOn,
+            CIMG.createdOn,
+            CMT.createdOn desc
+    </select>
+
     <select id="findStoryById" resultMap="storyFullResult" useCache = "false">
         <include refid="storyFullSelect" />
         where

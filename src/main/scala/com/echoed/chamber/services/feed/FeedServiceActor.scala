@@ -92,7 +92,21 @@ class FeedServiceActor(
                     log.error("Unpexected Error processing {}, {}", msg, e)
             }
 
+        case msg @ GetCategoryStoryFeed(categoryId: String, page: Int) =>
+            val channel = context.sender
+            val limit = 30
+            val start = msg.page * limit
 
+            try {
+                log.debug("Attempting to retrieve Category Story")
+                val stories = asScalaBuffer(feedDao.findStoryByTagId(categoryId, start, limit))
+                val feed = new PublicStoryFeed(stories)
+                channel ! GetCategoryStoryFeedResponse(msg, Right(feed))
+            } catch {
+                case e =>
+                    channel ! GetCategoryStoryFeedResponse(msg, Left(new FeedException("Cannot get public category feed", e)))
+                    log.error("Unexpected Error processing {}, {}", msg , e)
+            }
 
         case msg @ GetUserPublicFeed(echoedUserId: String, page:Int) =>
             val channel = context.sender

@@ -91,7 +91,8 @@
             title = #{title},
             updatedOn = utc_timestamp() + 0,
             views = #{views},
-            comments = #{comments}
+            comments = #{comments},
+            tag = #{tag}
         where
             id = #{id}
     </update>

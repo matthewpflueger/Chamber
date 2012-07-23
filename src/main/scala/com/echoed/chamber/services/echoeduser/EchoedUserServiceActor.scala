@@ -27,6 +27,7 @@ import org.springframework.transaction.TransactionStatus
 import java.util.Date
 import com.echoed.util.ScalaObjectMapper
 import com.echoed.chamber.domain.partner.StoryPrompts
+import tag.{TagReplaced, TagAdded}
 
 
 class EchoedUserServiceActor(
@@ -604,9 +605,11 @@ class EchoedUserServiceActor(
             val channel = context.sender
             val story = storyDao
                         .findByIdAndEchoedUserId(storyId, echoedUser.id)
-                        .copy(tag = tagId)
-            storyDao.update(story)
-            channel ! TagStoryResponse(msg, Right(story))
+            val originalTag = story.tag
+            val newStory = story.copy(tag = tagId)
+            storyDao.update(newStory)
+            eventProcessor.publish( TagReplaced(originalTag, tagId) )
+            channel ! TagStoryResponse(msg, Right(newStory))
 
         case msg @ CreateChapter(_, storyId, title, text, imageIds) =>
             sanityCheck(msg)
@@ -654,6 +657,7 @@ class EchoedUserServiceActor(
             sanityCheck(msg)
 
             val channel = context.sender
+            val me = self
 
             val comment = new com.echoed.chamber.domain.Comment(
                 chapterDao.findByIdAndStoryId(chapterId, storyId),
@@ -662,6 +666,7 @@ class EchoedUserServiceActor(
                 parentCommentId.map(commentDao.findByIdAndChapterId(_, chapterId)))
             commentDao.insert(comment)
             eventProcessor.publish(StoryUpdated(storyId))
+            me ! PublishFacebookAction("comment_on", "story", storyGraphUrl + storyId )
             channel ! CreateCommentResponse(msg, Right(comment))
 
         case msg @ InitStory(_, storyId, echoId, partnerId) =>

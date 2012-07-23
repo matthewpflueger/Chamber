@@ -80,16 +80,23 @@
                         <div class="story-preview-by"></div>
                     </div>
                 </div>
-                <div>
-                    Category:
-                </div>
-                <div id="ajax-input">
-
-                </div>
             </div>
             <div class="story-summary">
                 <div class="story-summary-body">
                     <div class="field-main-title">Your Story, So Far</div>
+                    <div class="field-main-category">
+
+                        <div class="field-main-category-title">
+                            <strong>Category:</strong>
+                            <span id="field-main-category-content">
+                            </span>
+                            <span id="field-main-category-edit">Edit</span>
+                        </div>
+                        <div id="ajax-input">
+                            <span id="category-add">Save</span>
+                        </div>
+
+                    </div>
                 </div>
                 <div class="story-summary-buttons">
                     <span class="story-summary-submit" act="add">Tell Us More</span>
@@ -332,11 +339,10 @@
         <div id="nav-container">
             <div id="actions"></div>
             {{#echoedUser}}
-
             <div id="header-nav" class="clearfix">
-                <div class="nav-label">
-                    Browse:
-                </div>
+                <!--<div class="nav-label">
+                    Favorites
+                </div>-->
                 <ul>
                     <li class="icon_world" href="#" id="explore_nav">
                         Community
@@ -350,6 +356,14 @@
                 </ul>
             </div>
             {{/echoedUser}}
+            <div id="category-nav" class="clearfix">
+                <!--<div class="nav-label">
+                    Top Categories
+                </div>
+                <div id="category-list">
+                </div>-->
+                <div id="category-more">+ Browse Categories</div>
+            </div>
             <div id="footer-nav">
                 <ul>
                     <li><a href="{{urls.site}}/about">About Us</a></li>

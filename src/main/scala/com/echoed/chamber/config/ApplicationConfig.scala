@@ -159,6 +159,7 @@ class ApplicationConfig {
             eventProcessor)), "FeedService")
 
     @Bean def tagServiceActor = actorSystem.actorOf(Props(new TagServiceActor(
+            eventProcessor,
             tagDao
     )), "TagService")
 

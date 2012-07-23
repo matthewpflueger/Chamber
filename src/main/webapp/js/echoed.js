@@ -92,20 +92,41 @@ Echoed = {
         var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
         var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
         var category = new Echoed.Views.Components.Menu({ el: '#menu', EvAg: EventAggregator });
+        var categoryList = new Echoed.Views.Components.CategoryList({ el: '#category-nav', EvAg: EventAggregator });
         Backbone.history.start();
     }
 };
 
+Echoed.Views.Components.CategoryList = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'seeMore');
+        this.EvAg = options.EvAg;
+        this.el = options.el;
+        this.element = $(this.el);
+        this.render()
+    },
+    events: {
+        "click #category-more" : "seeMore"
+    },
+    render: function(){
+    },
+    seeMore: function(){
+        this.EvAg.trigger("menu/show")
+    }
+});
+
 Echoed.Views.Components.Menu = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'load', 'unload');
+        _.bindAll(this, 'load', 'unload', 'navigate');
         this.EvAg = options.EvAg;
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg.bind('menu/show', this.load);
+        this.render();
     },
     events: {
-        "click .menu-close": "unload"
+        "click .menu-close": "unload",
+        "click .menu-item": "navigate"
     },
     load: function(){
         var self = this;
@@ -118,12 +139,19 @@ Echoed.Views.Components.Menu = Backbone.View.extend({
             success: function(data){
                 $.each(data, function(index, tag){
                     var colStr = (Math.floor(index / (data.length / 3)) +1).toString();
-                    $('#menu-column-' + colStr).append($('<div></div>').addClass('menu-item').html(tag.id + " (" + tag.counter + ")" ));
+                    $('#menu-column-' + colStr).append($('<div></div>').addClass('menu-item').append(tag.id + " (" + tag.counter + ")").attr("href", encodeURIComponent(tag.id)));
                 });
                 self.EvAg.trigger('fade/show');
                 self.element.show();
             }
         })();
+    },
+    navigate: function(ev){
+        var self = this;
+        var href = $(ev.currentTarget).attr("href");
+        self.EvAg.trigger('fade/hide');
+        window.location.hash = "#category/" + href;
+
     },
     unload: function(){
         var self = this;
@@ -159,15 +187,20 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Views.Components.AjaxInput = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this);
+        _.bindAll(this, 'show');
         this.EvAg = options.EvAg;
         this.el = options.el;
         this.element = $(options.el);
+        this.EvAg.bind("ajaxInput/show", this.show);
         this.render();
     },
     render: function(){
         var self = this;
-        self.element.append($('<input type="text"/>'));
+        self.element.prepend($('<input type="text"/>').addClass("input-field"));
+    },
+    show: function(){
+        var self = this;
+        self.element.fadeIn();
     },
     search: function(tagId){
         Echoed.AjaxFactory({
@@ -176,7 +209,6 @@ Echoed.Views.Components.AjaxInput = Backbone.View.extend({
                 tagId: tagId
             },
             success: function(data){
-                console.log(data)
             }
         })
     }
@@ -196,6 +228,7 @@ Echoed.Router = Backbone.Router.extend({
         "me/": "me",
         "me": "me",
         "user/:id": "user",
+        "category/:category": "category",
         "partner/:name/": "partnerFeed",
         "partner/:name": "partnerFeed",
         "story/:id": "story",
@@ -257,6 +290,14 @@ Echoed.Router = Backbone.Router.extend({
         this.oldPage = this.page;
         this.EvAg.trigger("field/show",id , type);
     },
+    category: function(categoryId){
+        if(this.page != window.location.hash){
+            this.page = window.location.hash;
+            this.EvAg.trigger('exhibit/init', { Type: "category", categoryId: categoryId });
+            _gaq.push(['_trackPageview', this.page]);
+            this.EvAg.trigger("page/change","category");
+        }
+    },
     story: function(id){
         if(this.page === null) {
             this.explore();
@@ -280,7 +321,7 @@ Echoed.Router = Backbone.Router.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'unload', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb');
+        _.bindAll(this, 'render', 'unload', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb', 'addCategory');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
@@ -294,7 +335,9 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         "click .chapter-cancel": "cancelChapter",
         "click .chapter-thumb-x": "removeChapterThumb",
         "click .story-summary-submit": "storySummarySubmit",
-        "click .story-summary-chapter-edit": "storyEditClick"
+        "click .story-summary-chapter-edit": "storyEditClick",
+        "click #category-add": "addCategory",
+        "click #field-main-category-edit": "editCategory"
 
     },
     load: function(id, type){
@@ -342,6 +385,25 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             }
         }
     },
+    addCategory: function(){
+        var self = this;
+        var category = $('#ajax-input').find(".input-field").val();
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/story/" + self.data.storyFull.id + "/tag",
+            type: "POST",
+            dataType: 'json',
+            data: {
+                tagId: category
+            },
+            success: function(data){
+                self.data.storyFull.story = data;
+                self.loadStorySummary();
+            }
+        })();
+    },
+    editCategory: function(){
+        $('#ajax-input').fadeIn();
+    },
     submitInitStory: function(){
         var self = this;
         if(self.locked === false) {
@@ -384,18 +446,18 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         var template = _.template($('#templates-components-story-summary').html());
         self.element.html(template);
-
         self.element.find(".story-preview-title").html(self.data.storyFull.story.title);
         self.element.find(".story-preview-from").html(self.data.storyFull.story.productInfo);
         self.element.find(".story-preview-by").html(self.data.storyFull.echoedUser.name);
         $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+        $("#field-main-category-content").html(self.data.storyFull.story.tag);
         var ajaxInput = new Echoed.Views.Components.AjaxInput({ el: '#ajax-input', EvAg: self.EvAg });
         var count = 0;
         self.element.chapters = self.element.find('.story-summary-body');
         $.each(self.data.storyFull.chapters, function(index, chapter){
             count = count + 1;
             var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
-            var chapterEdit = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-edit"></div>').html("Edit").attr("chapterId", index));
+            var chapterEdit = $('<div class="story-summary-chapter-edit"></div>').html("Edit").attr("chapterId", index);
             var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong>Topic: </strong>" + chapter.title));
             var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong>Description: </strong>" +chapter.text));
             var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
@@ -726,7 +788,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.jsonUrl = Echoed.urls.api + "/api/" + options.endPoint;
         this.personal = options.personal;
         this.contentTitle = options.title;
-
         Echoed.AjaxFactory({
             url: self.jsonUrl,
             dataType: 'json',
@@ -872,28 +933,22 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
 
 Echoed.Views.Components.Actions = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'click', 'browse');
+        _.bindAll(this, 'click');
         this.EvAg = options.EvAg;
         this.element = $(this.el);
         this.element.show();
         this.render();
     },
     events: {
-        'click #action-share': 'click',
-        'click #action-browse' : 'browse'
+        'click #action-share': 'click'
     },
     render: function(){
         this.element.empty();
         this.element.append($("<div class='action-button' id='action-share'>Share a Story</div>"));
-        this.element.append($("<div class='action-button' id='action-browse'>Browse Categories</div>"));
     },
     click: function(e){
         window.location.hash = "#write/";
-    },
-    browse: function(e){
-        this.EvAg.trigger('menu/show');
     }
-
 });
 
 Echoed.Views.Components.Logout = Backbone.View.extend({

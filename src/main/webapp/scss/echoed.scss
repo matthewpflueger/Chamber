@@ -87,6 +87,24 @@ $headerFontFamily: 'Arvo', serif;
         background-color: rgba(0, 0 ,0 , 0.4);
     }
 
+    @mixin buttonSmall(){
+        cursor: pointer;
+        margin: 3px;
+        display: inline-block;
+        text-align: center;
+        padding: 3px 10px;
+        background-color: #eb1a24;
+        background: -moz-linear-gradient(top, #eb1a24 0%, #b41b25);
+        background: -webkit-gradient(linear, left top, left bottom, from(#eb1a24), to(#b41b25));
+        border-radius: 3px;
+        -moz-border-radius: 3px;
+        -webkit-border-radius: 3px;
+        border: 1px solid #591b24;
+        -moz-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
+        -webkit-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
+        text-shadow: 0px -1px 1px rgba(089,027,036,1), 0px -1px 0px rgba(255,255,255,0.3);
+    }
+
     @mixin button(){
         cursor: pointer;
         margin: 3px;
@@ -95,26 +113,15 @@ $headerFontFamily: 'Arvo', serif;
         text-align: center;
         padding: 10px 10px;
         background-color: #eb1a24;
-        background: -moz-linear-gradient(
-            top,
-            #eb1a24 0%,
-            #b41b25);
-        background: -webkit-gradient(
-            linear, left top, left bottom,
-            from(#eb1a24),
-            to(#b41b25));
-
+        background: -moz-linear-gradient(top, #eb1a24 0%, #b41b25);
+        background: -webkit-gradient(linear, left top, left bottom, from(#eb1a24), to(#b41b25));
         border-radius: 3px;
             -moz-border-radius: 3px;
             -webkit-border-radius: 3px;
         border: 1px solid #591b24;
-        -moz-box-shadow:
-            inset 0px 1px 1px rgba(255,255,255,0.5);
-        -webkit-box-shadow:
-            inset 0px 1px 1px rgba(255,255,255,0.5);
-        text-shadow:
-            0px -1px 1px rgba(089,027,036,1),
-            0px -1px 0px rgba(255,255,255,0.3);
+        -moz-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
+        -webkit-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
+        text-shadow: 0px -1px 1px rgba(089,027,036,1), 0px -1px 0px rgba(255,255,255,0.3);
     }
 
 //RESET
@@ -328,9 +335,7 @@ a{
 
         }
 
-
 		#header-nav, #footer-nav{
-            padding: 10px 0px;
             .icon_world{
                 background-image: image-url("bk_icon_world.png");
                 background-position: left;
@@ -361,7 +366,8 @@ a{
 		}
 
         #footer-nav{
-            @include grooveTop;
+            position: absolute;
+            bottom: 50px;
             li{
                 padding: 7px 10px;
                 list-style:none;
@@ -656,7 +662,6 @@ a{
                             textarea, input[type=text]{
                                 width: 290px;
                                 resize: none;
-                                //outline: 0px;
                                 padding: 8px 5px;
                                 border: 1px solid #CCC;
                                 -webkit-appearance:none;
@@ -755,17 +760,18 @@ a{
                         padding: 10px;
                         border-radius: 5px;
                         margin-bottom: 10px;
+                        .story-summary-chapter-edit{
+                            @include textFontNormal(14px, $mainColor);
+                            text-decoration: underline;
+                            float:right;
+                            cursor: pointer;
+                        }
                         .story-summary-chapter-row{
                             margin-bottom: 10px;
                             label{
                                 vertical-align: top;
                                 @include textFontBold(14px);
                                 margin-right: 10px;
-                            }
-                            .story-summary-chapter-edit{
-                                @include textFontNormal(14px, $mainColor);
-                                text-decoration: underline;
-                                cursor: pointer;
                             }
                             .story-summary-chapter-label{
                                 text-align: center;
@@ -1528,9 +1534,7 @@ h3{
     }
     .menu-item{
         padding: 5px 10px;
-        width: 80px;
-        display: inline-block;
-        @include textFontNormal(12px);
+        @include textFontBold(14px);
         cursor: pointer;
         &:hover{
             color: $mainColor;
@@ -1909,4 +1913,64 @@ h3{
 }
 .highlight{
     color: $mainColor !important;
+}
+
+.field-main-category{
+    overflow-x: auto;
+    border: 1px solid #CCC;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    .field-main-category-title{
+        @include textFontNormal(14px);
+    }
+    #field-main-category-content{
+        @include textFontNormal(14px);
+    }
+    #field-main-category-edit{
+        @include textFontNormal(14px, $mainColor);
+        text-decoration: underline;
+        cursor: pointer;
+        float:right;
+    }
+}
+
+.input-field{
+    width: 290px;
+    resize: none;
+    display: inline-block;
+    padding: 8px 5px;
+    border: 1px solid #CCC;
+    -webkit-appearance:none;
+    @include textFontNormal(14px);
+}
+
+#ajax-input{
+    display: none;
+    padding-top: 10px;
+    @include textFontNormal(14px);
+}
+
+#category-add{
+    @include buttonSmall;
+    @include textFontNormal(16px, #FFF);
+}
+
+#category-more{
+    @include textFontBold(14px);
+    margin: 10px;
+    padding: 3px 5px;
+    background-position: right;
+    background-repeat: no-repeat;
+    background-color: #F3F3F3;
+    border: 1px solid #CCC;
+    background: -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+    background: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+    background: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+    background: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+    background: linear-gradient(top, white 0%, #F3F3F3 100%);
+    cursor: pointer;
+}
+#category-nav{
 }
