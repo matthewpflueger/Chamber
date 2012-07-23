@@ -738,9 +738,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.addProducts(data);
 
         if(data.stories || data.echoes){
+            self.nextInt++;
             self.EvAg.trigger('infiniteScroll/on');
             self.EvAg.trigger('infiniteScroll/unlock');
-            self.nextInt++;
         } else {
             self.nextInt = null;
         }
