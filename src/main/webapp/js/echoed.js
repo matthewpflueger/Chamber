@@ -1400,7 +1400,6 @@ Echoed.Views.Components.Title = Backbone.View.extend({
             this.titleText.html("");
             this.element.hide();
         }
-
     }
 });
 
