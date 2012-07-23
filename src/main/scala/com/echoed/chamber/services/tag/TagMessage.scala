@@ -1,5 +1,5 @@
 package com.echoed.chamber.services.tag
-import com.echoed.chamber.services.{EchoedException, ResponseMessage => RM, Message}
+import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
 import java.util.{List => JList}
 import com.echoed.chamber.domain.Tag
 
@@ -16,29 +16,29 @@ import com.echoed.chamber.services.tag.{ TagMessage => TM, TagException => TE }
 case class GetTags(filter: String) extends TM
 case class GetTagsResponse(
         message: GetTags,
-        value: Either[TE, JList[Tag]]) extends TM with RM[JList[Tag], GetTags, TE]
+        value: Either[TE, JList[Tag]]) extends TM with MR[JList[Tag], GetTags, TE]
 
 case class AddTag(tagId: String) extends TM
 case class AddTagResponse(
         message: AddTag,
-        value: Either[TE, Tag]) extends TM with RM[Tag, AddTag, TE]
+        value: Either[TE, Tag]) extends TM with MR[Tag, AddTag, TE]
 
 case class ApproveTag(tagId: String) extends TM
 case class ApproveTagResponse(
         message: ApproveTag,
-        value: Either[TE, Tag]) extends TM with RM[Tag, ApproveTag, TE]
+        value: Either[TE, Tag]) extends TM with MR[Tag, ApproveTag, TE]
 
 case class RemoveTag(tagId: String) extends TM
 case class RemoveTagResponse(
         message: RemoveTag,
-        value: Either[TE, Tag]) extends TM with RM[Tag, RemoveTag, TE]
+        value: Either[TE, Tag]) extends TM with MR[Tag, RemoveTag, TE]
 
 case class ReplaceTag(ogTagId: String, newTagId: String) extends TM
 case class ReplaceTagResponse(
         message: ReplaceTag,
-        value: Either[TE, Tag]) extends TM with RM[Tag, ReplaceTag, TE]
+        value: Either[TE, Tag]) extends TM with MR[Tag, ReplaceTag, TE]
 
 case class WriteTag(tagId: String) extends TM
 case class WriteTagResponse(
         message: WriteTag,
-        value: Either[TE, Tag]) extends TM with RM[Tag, WriteTag, TE]
+        value: Either[TE, Tag]) extends TM with MR[Tag, WriteTag, TE]

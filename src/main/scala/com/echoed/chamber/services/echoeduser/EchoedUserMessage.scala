@@ -31,7 +31,6 @@ abstract case class EchoedUserIdentifiable(echoedUserId: String) extends EUM
 
 import com.echoed.chamber.services.echoeduser.{EchoedUserIdentifiable => EUI}
 
-
 case class InitStory(
         _echoedUserId: String,
         storyId: Option[String] = None,
@@ -52,6 +51,13 @@ case class CreateStory(
 
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, CreateStory, EUE]
+
+case class TagStory(
+        _echoedUserId: String,
+        storyId: String,
+        tagId: String) extends EUI(_echoedUserId)
+case class TagStoryResponse(message: TagStory, value: Either[EUE, Story])
+        extends EUM with MR[Story, TagStory, EUE]
 
 
 case class UpdateStory(
@@ -128,6 +134,8 @@ case class PublishFacebookActionResponse(message: PublishFacebookAction, value: 
 case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
     extends EUM with MR[FriendCloset, GetFriendExhibit, EUE]
+
+
 
 case class GetEchoedUser() extends EUM
 case class GetEchoedUserResponse(message: GetEchoedUser, value: Either[EUE, EchoedUser])

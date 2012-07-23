@@ -1,7 +1,7 @@
 package com.echoed.chamber.controllers.api
 
 import org.springframework.stereotype.Controller
-import com.echoed.chamber.controllers.CookieManager
+import com.echoed.chamber.controllers.{ErrorResult, CookieManager}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 import com.echoed.chamber.services.echoeduser._
@@ -224,7 +224,8 @@ class UserController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
+
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull
         logger.debug("Requesting Story {}", id )
 

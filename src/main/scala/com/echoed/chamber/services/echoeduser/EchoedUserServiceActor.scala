@@ -598,6 +598,15 @@ class EchoedUserServiceActor(
             storyDao.update(story)
             channel ! UpdateStoryResponse(msg, Right(story))
 
+        case msg @ TagStory(_, storyId, tagId) =>
+            sanityCheck(msg)
+
+            val channel = context.sender
+            val story = storyDao
+                        .findByIdAndEchoedUserId(storyId, echoedUser.id)
+                        .copy(tag = tagId)
+            storyDao.update(story)
+            channel ! TagStoryResponse(msg, Right(story))
 
         case msg @ CreateChapter(_, storyId, title, text, imageIds) =>
             sanityCheck(msg)

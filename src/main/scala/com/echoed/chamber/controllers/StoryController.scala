@@ -142,6 +142,24 @@ class StoryController {
         result
     }
 
+    @RequestMapping(
+            value = Array("/{storyId}/tag"),
+            method = Array(RequestMethod.POST))
+    @ResponseBody
+    def tagStory(
+            @PathVariable("storyId") storyId: String,
+            @RequestParam("tagId") tagId: String,
+            httpServletRequest: HttpServletRequest,
+            httpServletResponse: HttpServletResponse ) = {
+
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).get
+
+        logger.debug("Tagging Story {} with Tag {}", storyId, tagId)
+
+        val result = new DeferredResult("error")
+
+    }
+
 
     @RequestMapping(
             value = Array("/{storyId}/chapter"),
