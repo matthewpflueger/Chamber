@@ -112,11 +112,13 @@ Echoed.Views.Components.Menu = Backbone.View.extend({
         self.template = _.template($('#templates-components-menu').html());
         self.element.html(self.template);
         self.content = $('#menu-content');
+        self.header = $('#menu-header').html("Select Category To Browse");
         Echoed.AjaxFactory({
             url: Echoed.urls.api + "/api/tags",
             success: function(data){
                 $.each(data, function(index, tag){
-                    self.content.append($('<div></div>').addClass('menu-item').html(tag.id + " " + tag.counter));
+                    var colStr = (Math.floor(index / (data.length / 3)) +1).toString();
+                    $('#menu-column-' + colStr).append($('<div></div>').addClass('menu-item').html(tag.id + " (" + tag.counter + ")" ));
                 });
                 self.EvAg.trigger('fade/show');
                 self.element.show();
@@ -152,6 +154,31 @@ Echoed.Views.Components.Fade = Backbone.View.extend({
 
 Echoed.Models.Product = Backbone.Model.extend({
     initialize: function(){
+    }
+});
+
+Echoed.Views.Components.AjaxInput = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.el = options.el;
+        this.element = $(options.el);
+        this.render();
+    },
+    render: function(){
+        var self = this;
+        self.element.append($('<input type="text"/>'));
+    },
+    search: function(tagId){
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/tags",
+            data: {
+                tagId: tagId
+            },
+            success: function(data){
+                console.log(data)
+            }
+        })
     }
 });
 
@@ -362,7 +389,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.element.find(".story-preview-from").html(self.data.storyFull.story.productInfo);
         self.element.find(".story-preview-by").html(self.data.storyFull.echoedUser.name);
         $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
-
+        var ajaxInput = new Echoed.Views.Components.AjaxInput({ el: '#ajax-input', EvAg: self.EvAg });
         var count = 0;
         self.element.chapters = self.element.find('.story-summary-body');
         $.each(self.data.storyFull.chapters, function(index, chapter){

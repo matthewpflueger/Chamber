@@ -17,10 +17,10 @@ class TagServiceActorClient extends TagService with ActorClient with Serializabl
 
     def getTags(filter: String) = (tagServiceActor ? GetTags(filter)).mapTo[GetTagsResponse]
 
-    def addTag(tagId: String) = (tagServiceActor ? AddTag(tagId)).mapTo[AddTagResponse]
+    def addTag(tagId: String) = (tagServiceActor ? AddTag(tagId.toLowerCase)).mapTo[AddTagResponse]
 
-    def removeTag(tagId: String) = (tagServiceActor ? RemoveTag(tagId)).mapTo[RemoveTagResponse]
+    def removeTag(tagId: String) = (tagServiceActor ? RemoveTag(tagId.toLowerCase)).mapTo[RemoveTagResponse]
 
-    def replaceTag(ogTagId: String, newTagId: String) = (tagServiceActory ? ReplaceTag(ogtagId, newTagId)).mapTo[ReplaceTagResponse]
+    def replaceTag(ogTagId: String, newTagId: String) = (tagServiceActor ? ReplaceTag(ogTagId.toLowerCase, newTagId.toLowerCase)).mapTo[ReplaceTagResponse]
 
 }

@@ -1500,22 +1500,38 @@ h3{
     width: 600px;
     margin-left: -300px;
     top: 75px;
-    background-color: #FFF;
-    border-radius:5px;
+    border-radius: 5px;
+    border: 10px solid #FFF;
+    background-image: image-url("bk_noise.jpg");
+
     .menu-close{
         position:absolute;
-        right: -15px;
-        top: -15px;
+        right: -25px;
+        top: -25px;
         cursor: pointer;
     }
     #menu-content{
         padding: 10px;
+        display: table;
+        .menu-column{
+            width: 200px;
+            display: table-cell;
+        }
+    }
+
+    #menu-header{
+        text-align: center;
+        @include headerFontBold(30px);
+        padding: 10px;
+        border-bottom: 1px solid #CCC;
+        box-shadow: 0px 1px #FFF;
     }
     .menu-item{
-        padding: 6px 10px;
-        width: 100px;
+        padding: 5px 10px;
+        width: 80px;
         display: inline-block;
-        @include textFontNormal(14px);
+        @include textFontNormal(12px);
+        cursor: pointer;
         &:hover{
             color: $mainColor;
         }
