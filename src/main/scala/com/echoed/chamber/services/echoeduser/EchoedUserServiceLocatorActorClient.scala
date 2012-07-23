@@ -95,4 +95,14 @@ class EchoedUserServiceLocatorActorClient extends EchoedUserServiceLocator with 
                 storyId,
                 echoId,
                 partnerId)).mapTo[InitStoryResponse]
+
+    def tagStory(
+            echoedUserId: String,
+            storyId: String,
+            tagId: String ) =
+        (echoedUserServiceLocatorActor ? TagStory(
+                echoedUserId,
+                storyId,
+                tagId)).mapTo[TagStoryResponse]
+
 }

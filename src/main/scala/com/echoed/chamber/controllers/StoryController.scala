@@ -156,7 +156,17 @@ class StoryController {
 
         logger.debug("Tagging Story {} with Tag {}", storyId, tagId)
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        echoedUserServiceLocator.tagStory(
+                echoedUserId,
+                storyId,
+                tagId).onSuccess {
+            case TagStoryResponse(_ , Right(tag)) =>
+                logger.debug("Successfully added tag {} to story {}", tagId, storyId)
+                result.set(tag)
+        }
+        result
 
     }
 
@@ -176,7 +186,7 @@ class StoryController {
 
         logger.debug("Making chapter {} for {}", chapterParams.title, echoedUserId)
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
         echoedUserServiceLocator.createChapter(
                 echoedUserId,

@@ -54,4 +54,9 @@ trait EchoedUserServiceLocator {
             chapterId: String,
             text: String,
             parentCommentId: Option[String] = None): Future[CreateCommentResponse]
+
+    def tagStory(
+            echoedUserId: String,
+            storyId: String,
+            tagId: String): Future[TagStoryResponse]
 }
