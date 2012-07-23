@@ -4,13 +4,16 @@ import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest}
 import scala.reflect.BeanProperty
 import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.{EchoClick, EchoedUser,AdminUser}
-import com.echoed.util.CookieToString
+import com.echoed.util.{Encrypter, ScalaObjectMapper, CookieToString}
 import com.echoed.chamber.domain.partner.PartnerUser
+import org.springframework.beans.factory.annotation.Autowired
 
 
 class CookieManager {
 
     private val logger = LoggerFactory.getLogger(classOf[CookieManager])
+
+    @Autowired var encrypter: Encrypter = _
 
     @BeanProperty var domain = ".echoed.com"
     @BeanProperty var path = "/"
@@ -49,7 +52,10 @@ class CookieManager {
             response: HttpServletResponse = null,
             echoedUser: EchoedUser = null,
             request: HttpServletRequest = null) = {
-        val cookie = makeCookie(echoedUserCookieName, Option(echoedUser).map(_.id), Option(request))
+        val cookie = makeCookie(
+                echoedUserCookieName,
+                Option(echoedUser).map(eu => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(eu.asMap))),
+                Option(request))
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }

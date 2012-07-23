@@ -2,12 +2,13 @@ package com.echoed.chamber.domain
 
 import java.util.Date
 import com.echoed.util.UUID
+import com.echoed.util.DateUtils._
 
 
 case class FacebookUser(
         id: String,
-        updatedOn: Date,
-        createdOn: Date,
+        updatedOn: Long,
+        createdOn: Long,
         echoedUserId: String,
         facebookId: String,
         name: String,
@@ -16,7 +17,9 @@ case class FacebookUser(
         gender: String,
         timezone: String,
         locale: String,
-        accessToken: String) {
+        accessToken: String) extends DomainObject {
+
+    def this() = this("", 0L, 0L, "", "", "", "", "", "", "","", "")
 
     def this(
             echoedUserId: String,
@@ -42,4 +45,5 @@ case class FacebookUser(
         accessToken)
 
 }
+
 

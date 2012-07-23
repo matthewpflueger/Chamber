@@ -7,8 +7,8 @@
     <resultMap id="echoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
         <constructor>
             <idArg column="echoedUserId" javaType="String" />
-            <arg column="echoedUserUpdatedOn" javaType="Date" />
-            <arg column="echoedUserCreatedOn" javaType="Date" />
+            <arg column="echoedUserUpdatedOn" javaType="_long" />
+            <arg column="echoedUserCreatedOn" javaType="_long" />
             <arg column="echoedUserName" javaType="String" />
             <arg column="echoedUserEmail" javaType="String" />
             <arg column="echoedUserScreenName" javaType="String" />

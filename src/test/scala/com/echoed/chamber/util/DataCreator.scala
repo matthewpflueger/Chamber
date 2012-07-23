@@ -1,6 +1,5 @@
 package com.echoed.chamber.util
 
-import com.echoed.chamber.controllers.EchoPossibilityParameters
 import scala.reflect.BeanProperty
 import scala.collection.JavaConversions.asScalaBuffer
 import org.slf4j.LoggerFactory
@@ -10,13 +9,13 @@ import java.io.{InputStreamReader, BufferedReader}
 import scala.collection.mutable.Buffer
 import com.echoed.chamber.dao._
 import com.echoed.util.ScalaObjectMapper
-import com.echoed.util.DateUtils._
 import com.echoed.chamber.domain._
-import java.util.{Properties, Random, Calendar, Date, UUID}
+import java.util.{Properties, Random, Calendar, Date}
 import com.google.common.io.ByteStreams
 import com.echoed.chamber.dao.partner.{PartnerUserDao, PartnerSettingsDao, PartnerDao}
 import com.echoed.chamber.domain.partner.{PartnerUser, PartnerSettings, Partner}
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.echoed.util.DateUtils._
 
 
 class DataCreator {
@@ -231,7 +230,7 @@ class DataCreator {
         list.foreach { tuple =>
             val (fu, eu) = tuple
             facebookUserDao.deleteByEmail(fu.email)
-            echoedUserDao.deleteByEmail(eu.email)
+//            echoedUserDao.deleteByEmail(eu.email)
         }
     }
 
@@ -263,8 +262,8 @@ class DataCreator {
             facebookUserDao.insertOrUpdate(fu)
             logger.debug("Created {}", fu)
 
-            echoedUserDao.insert(eu)
-            logger.debug("Created {}", eu)
+//            echoedUserDao.insert(eu)
+//            logger.debug("Created {}", eu)
         }
 
         list
@@ -628,42 +627,7 @@ class DataCreator {
     val ipAddress_3 = "66.202.133.172"
     val ipAddress_4 = "66.202.133.173"
 
-    val echoPossibilities = List(
-        EchoPossibilityParameters(
-            partnerId,
-            partnerId,
-            customerId_1,
-            productId_1,
-            on,
-            orderId_1,
-            price_1,
-            echoImageUrl_1,
-            echoedUserId,
-            echoId_1,
-            landingPageUrl,
-            productName_1,
-            category_1,
-            brand_1,
-            description_1,
-            null).createButtonEchoPossibility,
-        EchoPossibilityParameters(
-            partnerId,
-            partnerId,
-            customerId_2,
-            productId_2,
-            on,
-            orderId_2,
-            price_2,
-            echoImageUrl_2,
-            echoedUserId,
-            echoId_2,
-            landingPageUrl,
-            productName_2,
-            category_2,
-            brand_2,
-            description_2,
-            null).createButtonEchoPossibility
-    )
+
 
     val twitterStatuses = List(
         TwitterStatus(
@@ -851,10 +815,10 @@ class DataCreator {
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_1,
             twitterStatusId = twitterStatusId_1,
-            echoPossibilityId = echoPossibilities(0).id,
             partnerSettingsId = partnerSettingsFuture.id,
             echoMetricsId = null,
             echoClickId = null,
+            echoPossibilityId = null,
             step = "test",
             browserId = null,
             ipAddress = null,
@@ -952,10 +916,10 @@ class DataCreator {
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_1,
             twitterStatusId = twitterStatusId_1,
-            echoPossibilityId = echoPossibilities(0).id,
             partnerSettingsId = partnerSettings.id,
             echoMetricsId = null,
             echoClickId = null,
+            echoPossibilityId = null,
             step = "test",
             browserId = null,
             ipAddress = ipAddress_1,
@@ -973,10 +937,10 @@ class DataCreator {
             echoedUserId = echoedUserId,
             facebookPostId = facebookPostId_2,
             twitterStatusId = twitterStatusId_2,
-            echoPossibilityId = echoPossibilities(1).id,
             partnerSettingsId = partnerSettings.id,
             echoMetricsId = null,
             echoClickId = null,
+            echoPossibilityId = null,
             step = "test",
             browserId = null,
             ipAddress = ipAddress_2,

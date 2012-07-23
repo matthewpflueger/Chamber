@@ -5,6 +5,7 @@ import com.echoed.chamber.domain._
 import partner.bigcommerce.{BigCommerceCredentials, BigCommercePartner}
 import com.echoed.chamber.services.partner.{EchoRequest, PartnerAlreadyExists, PartnerException => PE, PartnerMessage => PM}
 import partner.{PartnerUser, Partner}
+import akka.actor.ActorRef
 
 sealed trait BigCommercePartnerMessage extends PM
 
@@ -18,7 +19,7 @@ case class RegisterBigCommercePartnerEnvelope(
         bigCommercePartner: BigCommercePartner,
         partner: Partner,
         partnerUser: PartnerUser,
-        bigCommercePartnerService: Option[BigCommercePartnerService] = None)
+        bigCommercePartnerService: Option[ActorRef] = None)
 
 case class BigCommercePartnerAlreadyExists(
         envelope: RegisterBigCommercePartnerEnvelope,

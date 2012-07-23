@@ -19,6 +19,20 @@ case class Chapter(
         text: String,
         publishedOn: Long) extends DomainObject {
 
+    def this() = this(
+        id = "",
+        updatedOn = 0L,
+        createdOn = 0L,
+        storyId = "",
+        echoedUserId = "",
+        partnerHandle = "",
+        partnerId = "",
+        partnerSettingsId = "",
+        echoId = "",
+        title = "",
+        text = "",
+        publishedOn = 0)
+
     def this(
             story: Story,
             _title: String,

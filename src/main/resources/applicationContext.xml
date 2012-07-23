@@ -20,7 +20,8 @@
 
     <bean id="applicationContextRef" class="com.echoed.util.ApplicationContextRef" />
 
-    <context:component-scan base-package="com.echoed.chamber.config" />
+    <bean class="com.echoed.chamber.services.ServiceConfig" />
+    <!--<context:component-scan base-package="com.echoed.chamber.config" />-->
 
 
     <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
@@ -90,95 +91,6 @@
         <property name="container" value="${blobstore.container}" />
         <property name="containerUrl" value="${blobstore.containerUrl}" />
         <property name="actorSystem" ref="actorSystem" />
-    </bean>
-
-
-    <bean id="imageService" class="com.echoed.chamber.services.image.ImageServiceActorClient">
-        <property name="actorRef" ref="imageServiceActor" />
-    </bean>
-
-    <bean id="emailService" class="com.echoed.chamber.services.email.EmailServiceActorClient">
-        <property name="actorRef" ref="emailServiceActor" />
-    </bean>
-
-    <bean id="eventService" class="com.echoed.chamber.services.event.EventServiceActorClient">
-        <property name="actorRef" ref="eventServiceActor" />
-    </bean>
-
-    <bean id="feedService" class="com.echoed.chamber.services.feed.FeedServiceActorClient">
-        <property name="feedServiceActor" ref="feedServiceActor" />
-    </bean>
-
-    <bean id="tagService" class="com.echoed.chamber.services.tag.TagServiceActorClient">
-        <property name="tagServiceActor" ref="tagServiceActor" />
-    </bean>
-
-    <bean id="facebookAccess" class="com.echoed.chamber.services.facebook.FacebookAccessActorClient">
-        <property name="actorRef" ref="facebookAccessActor" />
-    </bean>
-
-    <bean id="facebookServiceLocator" class="com.echoed.chamber.services.facebook.FacebookServiceLocatorActorClient">
-        <property name="facebookServiceLocatorActor" ref="facebookServiceLocatorActor" />
-    </bean>
-
-    <bean id="echoService" class="com.echoed.chamber.services.echo.EchoServiceActorClient">
-        <property name="echoServiceActor" ref="echoServiceActor" />
-    </bean>
-
-    <bean id="twitterAccess" class="com.echoed.chamber.services.twitter.TwitterAccessActorClient">
-        <property name="twitterAccessActor" ref="twitterAccessActor" />
-    </bean>
-
-    <bean id="twitterServiceLocator" class="com.echoed.chamber.services.twitter.TwitterServiceLocatorActorClient">
-        <property name="twitterServiceLocatorActor" ref="twitterServiceLocatorActor" />
-    </bean>
-
-    <bean id="echoedUserServiceLocator" class="com.echoed.chamber.services.echoeduser.EchoedUserServiceLocatorActorClient">
-        <property name="echoedUserServiceLocatorActor" ref="echoedUserServiceLocatorActor" />
-    </bean>
-
-    <bean id="partnerServiceManager" class="com.echoed.chamber.services.partner.PartnerServiceManagerActorClient">
-        <property name="actorRef" ref="partnerServiceManagerActor" />
-    </bean>
-
-    <bean id="partnerUserServiceLocator" class="com.echoed.chamber.services.partneruser.PartnerUserServiceLocatorActorClient">
-        <property name="partnerUserServiceLocatorActor" ref="partnerUserServiceLocatorActor" />
-    </bean>
-
-    <bean id="adminUserServiceLocator" class="com.echoed.chamber.services.adminuser.AdminUserServiceLocatorActorClient">
-        <property name="adminUserServiceLocatorActor"  ref="adminUserServiceLocatorActor" />
-    </bean>
-
-    <bean id="shopifyPartnerServiceManager" class="com.echoed.chamber.services.partner.shopify.ShopifyPartnerServiceManagerActorClient">
-        <property name="actorRef" ref="shopifyPartnerServiceManagerActor" />
-    </bean>
-
-    <bean id="shopifyAccess" class="com.echoed.chamber.services.partner.shopify.ShopifyAccessActorClient">
-        <property name="shopifyAccessActor" ref="shopifyAccessActor"/>
-    </bean>
-
-    <bean id="networkSolutionsPartnerServiceManager" class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsPartnerServiceManagerActorClient">
-        <property name="actorRef" ref="networkSolutionsPartnerServiceManagerActor" />
-    </bean>
-
-    <bean id="networkSolutionsAccess" class="com.echoed.chamber.services.partner.networksolutions.NetworkSolutionsAccessActorClient">
-        <property name="networkSolutionsAccessActor" ref="networkSolutionsAccessActor"/>
-    </bean>
-
-    <bean id="bigCommercePartnerServiceManager" class="com.echoed.chamber.services.partner.bigcommerce.BigCommercePartnerServiceManagerActorClient">
-        <property name="actorRef" ref="bigCommercePartnerServiceManagerActor" />
-    </bean>
-
-    <bean id="bigCommerceAccess" class="com.echoed.chamber.services.partner.bigcommerce.BigCommerceAccessActorClient">
-        <property name="bigCommerceAccessActor" ref="bigCommerceAccessActor"/>
-    </bean>
-
-    <bean id="magentoGoPartnerServiceManager" class="com.echoed.chamber.services.partner.magentogo.MagentoGoPartnerServiceManagerActorClient">
-        <property name="actorRef" ref="magentoGoPartnerServiceManagerActor" />
-    </bean>
-
-    <bean id="magentoGoAccess" class="com.echoed.chamber.services.partner.magentogo.MagentoGoAccessActorClient">
-        <property name="magentoGoAccessActor" ref="magentoGoAccessActor"/>
     </bean>
 
 

@@ -5,6 +5,7 @@ import akka.util.Duration
 import java.util.concurrent.TimeUnit
 import akka.actor.{FSM, Actor, ActorRef}
 import scala.collection.mutable.{ListBuffer => MList}
+import com.echoed.util.UUID
 
 sealed trait ScatterGatherState
 case object Ready extends ScatterGatherState
@@ -30,7 +31,8 @@ case class Scatter(
         requestList: List[(ActorRef, Message)],
         context: Option[AnyRef],
         timeout: Duration = Duration(5, TimeUnit.SECONDS),
-        timeoutTotal: Option[Duration] = None) extends SGM
+        timeoutTotal: Option[Duration] = None,
+        id: String = UUID()) extends SGM
 case class ScatterResponse(message: Scatter, value: Either[SGE, List[Message]])
         extends SGM with MR[List[Message], Scatter, SGE]
 
@@ -49,12 +51,12 @@ class ScatterGather extends Actor with FSM[ScatterGatherState, ScatterGatherData
     startWith(Ready, ScatterGatherData())
 
     when(Ready) {
-        case Event(scatter @ Scatter(requestList, context, timeout, timeoutTotal), _) if (requestList.isEmpty) =>
+        case Event(scatter @ Scatter(requestList, context, timeout, timeoutTotal, id), _) if (requestList.isEmpty) =>
             log.warning("Empty request list received")
             sender ! ScatterResponse(scatter, Right(List[Message]()))
             stop()
 
-        case Event(scatter @ Scatter(requestList, context, timeout, timeoutTotal), _) =>
+        case Event(scatter @ Scatter(requestList, context, timeout, timeoutTotal, id), _) =>
             log.debug("Recevied request list of size {}", requestList.size)
             requestList.foreach { tuple =>
                 val (actorRef, message) = tuple
@@ -62,7 +64,7 @@ class ScatterGather extends Actor with FSM[ScatterGatherState, ScatterGatherData
             }
 
             val tt = timeoutTotal.getOrElse(timeout * requestList.size)
-            setTimer(scatter.id, TimeoutTotalOccurred(tt), tt, false)
+            setTimer(id, TimeoutTotalOccurred(tt), tt, false)
             goto(Waiting) forMax(timeout) using Gather(scatter, sender, timeout)
     }
 

@@ -1,12 +1,50 @@
 package com.echoed.chamber.services.email
 
-import akka.dispatch.Future
-import java.util.{Map => JMap}
+
+import javax.mail.internet.MimeMessage
+import org.springframework.mail.javamail.{MimeMessageHelper, MimeMessagePreparator, JavaMailSender}
+import com.echoed.util.mustache.MustacheEngine
+import com.echoed.chamber.services.{EchoedService, GlobalsManager}
+import akka.actor._
+import scala.Right
+import scala.Left
 
 
-trait EmailService {
+class EmailService(
+        javaMailSender: JavaMailSender,
+        mustacheEngine: MustacheEngine,
+        globalsManager: GlobalsManager,
+        from: String) extends EchoedService {
 
-    def sendEmail(recipient: String, subject: String, view: String, model: JMap[String, AnyRef]): Future[SendEmailResponse]
+    require(from != null, "Missing from")
 
+    def handle = {
+        case msg @ SendEmail(recipient, subject, templateName, model) =>
+            val channel = context.sender
+
+            try {
+                globalsManager.addGlobals(model)
+
+                val renderedTemplate = mustacheEngine.execute(templateName, model) //compile(templateName).execute(model)
+
+                javaMailSender.send(new MimeMessagePreparator() {
+                    override def prepare(mimeMessage: MimeMessage) {
+                        val mimeMessageHelper = new MimeMessageHelper(mimeMessage)
+                        mimeMessageHelper.setTo(recipient)
+                        mimeMessageHelper.setFrom(from)
+                        mimeMessageHelper.setSubject(subject)
+                        mimeMessageHelper.setText(renderedTemplate, true)
+                    }
+                })
+
+                log.debug("Sent {}: {}", recipient, templateName)
+                channel ! SendEmailResponse(msg, Right(true))
+            } catch {
+                case e =>
+                    log.error("Error processing %s" format msg, e)
+                    channel ! SendEmailResponse(msg, Left(EmailException("Failed to send email message", e)))
+            }
+
+    }
 
 }

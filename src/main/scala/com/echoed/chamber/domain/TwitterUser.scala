@@ -3,12 +3,13 @@ package com.echoed.chamber.domain
 
 import java.util.Date
 import com.echoed.util.UUID
+import com.echoed.util.DateUtils._
 
 
 case class TwitterUser (
         id: String,
-        createdOn: Date,
-        updatedOn: Date,
+        createdOn: Long,
+        updatedOn: Long,
         echoedUserId: String,
         twitterId: String,
         screenName: String,
@@ -17,8 +18,9 @@ case class TwitterUser (
         location: String,
         timezone: String,
         accessToken: String,
-        accessTokenSecret: String) {
+        accessTokenSecret: String) extends DomainObject {
 
+    def this() = this("", 0L, 0L, "", "", "", "", "", "", "","", "")
 
     def this(
             twitterId: String,
@@ -40,9 +42,9 @@ case class TwitterUser (
         location,
         timezone,
         accessToken,
-        accessTokenSecret
-    )
+        accessTokenSecret)
 
 }
+
 
 

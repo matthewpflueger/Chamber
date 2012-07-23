@@ -21,9 +21,6 @@ trait EchoDao {
 
     def findByEchoPossibilityId(echoPossibilityId: String): Echo
 
-    @deprecated(message = "This is to support the old integration method")
-    def findByIdOrEchoPossibilityId(id: String): Echo
-
     def deleteByEchoPossibilityId(echoPossibilityId: String): Int
 
     def findById(id: String): Echo

@@ -23,8 +23,8 @@
     <resultMap id="CMTEchoedUserResult" type="com.echoed.chamber.domain.EchoedUser">
         <constructor>
             <idArg column="CMTEchoedUserId" javaType="String" />
-            <arg column="CMTEchoedUserUpdatedOn" javaType="Date" />
-            <arg column="CMTEchoedUserCreatedOn" javaType="Date" />
+            <arg column="CMTEchoedUserUpdatedOn" javaType="_long" />
+            <arg column="CMTEchoedUserCreatedOn" javaType="_long" />
             <arg column="CMTEchoedUserName" javaType="String" />
             <arg column="CMTEchoedUserEmail" javaType="String" />
             <arg column="CMTEchoedUserScreenName" javaType="String" />

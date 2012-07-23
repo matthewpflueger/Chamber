@@ -41,7 +41,8 @@ class AuthorizationControlInterceptor extends HandlerInterceptor {
                     path.startsWith("/partner/login") ||
                     path.startsWith("/partner/activate") ||
                     path.startsWith("/partner/register") ||
-                    path.startsWith("/admin/login")) {
+                    path.startsWith("/admin/login") ||
+                    path.startsWith("/admin/create")) {
                 true
             } else {
                 val pu = cookieManager.findPartnerUserCookie(request)

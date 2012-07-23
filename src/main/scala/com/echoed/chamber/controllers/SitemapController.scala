@@ -2,19 +2,20 @@ package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
 
-import scala.reflect.BeanProperty
 
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
-import com.echoed.chamber.services.feed.{GetPartnerIdsResponse, GetStoryIdsResponse, FeedService}
+import com.echoed.chamber.services.feed._
 import org.springframework.web.context.request.async.DeferredResult
 import scala.collection.JavaConversions._
+import com.echoed.chamber.services.feed.GetPartnerIdsResponse
+import com.echoed.chamber.services.feed.GetPartnerIds
+import com.echoed.chamber.services.feed.GetStoryIdsResponse
+import scala.Right
 
 
 @Controller
-class SitemapController {
-
-    @BeanProperty var feedService: FeedService = _
+class SitemapController extends EchoedController {
 
     @RequestMapping(value = Array("/sitemap_index.xml"), method = Array(RequestMethod.GET))
     def sitemapindex = new ModelAndView("sitemap_index.xml")
@@ -24,9 +25,9 @@ class SitemapController {
 
     @RequestMapping(value = Array("/sitemap_partners.xml"), method = Array(RequestMethod.GET))
     def partners = {
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(new ModelAndView("sitemap_partners.xml"))
 
-        feedService.getPartnerIds.onSuccess {
+        mp(GetPartnerIds()).onSuccess {
             case GetPartnerIdsResponse(_, Right(ids)) =>
                 result.set(new ModelAndView("sitemap_partners.xml", Map("partners" -> ids)))
         }
@@ -36,9 +37,9 @@ class SitemapController {
 
     @RequestMapping(value = Array("/sitemap_stories.xml"), method = Array(RequestMethod.GET))
     def stories = {
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(new ModelAndView("sitemap_stories.xml"))
 
-        feedService.getStoryIds.onSuccess {
+        mp(GetStoryIds()).onSuccess {
             case GetStoryIdsResponse(_, Right(ids)) =>
                 result.set(new ModelAndView("sitemap_stories.xml", Map("stories" -> ids)))
         }

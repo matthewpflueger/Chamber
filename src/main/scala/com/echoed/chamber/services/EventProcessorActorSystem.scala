@@ -16,4 +16,8 @@ class EventProcessorActorSystem(actorSystem: ActorSystem) extends EventProcessor
     def publish(event: Event) {
         actorSystem.eventStream.publish(event)
     }
+
+    def apply(event: Event) {
+        publish(event)
+    }
 }

@@ -1,12 +1,11 @@
 package com.echoed.chamber.controllers.api.admin
 
-import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
-import java.util.{UUID, Date}
-import org.hibernate.validator.constraints.{NotBlank, Email, URL}
+import com.echoed.chamber.domain.partner.PartnerSettings
+import java.util.Date
+import org.hibernate.validator.constraints.NotBlank
 import org.springframework.format.annotation.NumberFormat.Style
 import javax.validation.constraints._
 import org.springframework.format.annotation.{DateTimeFormat, NumberFormat}
-import org.springframework.format.annotation.DateTimeFormat.ISO
 
 case class AdminUpdatePartnerSettingsForm(
                             var partnerId: String = null,

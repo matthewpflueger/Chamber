@@ -15,20 +15,22 @@
         </constructor>
     </resultMap>
 
-    <insert id="insert" parameterType="com.echoed.chamber.domain.TwitterFollower">
+    <insert id="insertOrUpdate" parameterType="com.echoed.chamber.domain.TwitterFollower">
         insert into TwitterFollower(
             id,
             createdOn,
             twitterUserId,
             twitterId,
-            name
-        )
+            name)
         values(
             #{id},
             #{createdOn},
             #{twitterUserId},
             #{twitterId},
             #{name})
+  	    on duplicate key update
+    	    name = #{name}
+
     </insert>
 
     <select id="findByTwitterUserId" parameterType="java.lang.String" resultMap="twitterFollowerResult">

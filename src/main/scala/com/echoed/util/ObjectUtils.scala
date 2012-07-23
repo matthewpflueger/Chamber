@@ -2,6 +2,10 @@ package com.echoed.util
 
 import java.net.URLEncoder
 
+trait AsMap { self =>
+    def asMap: Map[String, String] = ObjectUtils.asMap(self)
+}
+
 object ObjectUtils {
 
     def asUrlParams(o: AnyRef, prefix: String = "", encode: Boolean = false) = {
@@ -17,9 +21,9 @@ object ObjectUtils {
     }
 
     def asMap(o: AnyRef) = {
-        (Map[String, String]() /: o.getClass.getDeclaredFields) {(a, f) =>
+        (Map[String, String]() /: o.getClass.getDeclaredFields) { (a, f) =>
             f.setAccessible(true)
-            Option(f.get(this)) match {
+            Option(f.get(o)) match {
                 case Some(v) => a + (f.getName -> v.toString)
                 case _ => a
             }

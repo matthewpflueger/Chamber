@@ -8,7 +8,7 @@ trait TwitterFollowerDao {
 
     def findByTwitterUserId(twitterUserId: String): JList[TwitterFollower]
 
-    def insert(twitterFollower: TwitterFollower): Int
+    def insertOrUpdate(twitterFollower: TwitterFollower): Int
 
     def deleteByTwitterUserId(twitterUserId: String): Int
 

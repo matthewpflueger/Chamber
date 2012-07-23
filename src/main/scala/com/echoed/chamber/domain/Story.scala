@@ -23,6 +23,23 @@ case class Story(
         comments: Int,
         tag: String) extends DomainObject {
 
+    def this() = this(
+        id = "",
+        updatedOn = 0L,
+        createdOn = 0L,
+        echoedUserId = "",
+        partnerId = "",
+        partnerHandle = "",
+        partnerSettingsId = "",
+        image = new Image(),
+        title = "",
+        echoId = "",
+        productId = "",
+        productInfo = "",
+        views = 0,
+        comments = 0,
+        tag = "")
+
     def this(
             echoedUser: EchoedUser,
             partner: Partner,

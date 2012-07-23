@@ -1,17 +1,16 @@
 package com.echoed.chamber.services.event
 
-import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.dao.EventLogDao
+import com.echoed.chamber.domain.EventLog
+import com.echoed.chamber.services.EchoedService
 
-trait EventService {
 
-    def facebookCanvasViewed(echoedUser: EchoedUser): Unit
+class EventService(eventLogDao: EventLogDao) extends EchoedService {
 
-    def exhibitViewed(echoedUser: EchoedUser): Unit
-
-    def widgetRequested(partnerId: String): Unit
-
-    def widgetOpened(partnerId: String): Unit
-
-    def widgetStoryOpened(storyId: String): Unit
+    def handle = {
+        case msg @ Event(name, ref, refId) =>
+            log.debug("Received {}", msg)
+            eventLogDao.insert(new EventLog(name, ref, refId))
+    }
 
 }
