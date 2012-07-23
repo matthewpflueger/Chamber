@@ -182,8 +182,8 @@ class UserController {
 
         val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-        feedService.getPartnerFeed(partnerId, pageInt).onSuccess {
-            case GetPartnerFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
+        feedService.getPartnerStoryFeed(partnerId, pageInt).onSuccess {
+            case GetPartnerStoryFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
         }
         if(origin.equals("widget")) eventService.widgetOpened(partnerId)
         result
