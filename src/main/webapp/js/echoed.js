@@ -1257,7 +1257,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         $("#echo-story-comment-ta").val("");
         if(self.data.comments.length > 0) $("#echo-s-c-t-count").html("(" + self.data.comments.length + ")");
         $.each(self.data.comments, function(index,comment){
-            var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a></a>").append(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id));
+            var elapsedString = timeElapsedString(timeStampStringToDate(comment.createdOn.toString()));
+            var elapsedNode = $('<span class="echo-s-c-l-c-d"></span>').append(elapsedString);
+            var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a></a>").append(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
             var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", Echoed.getProfilePhotoUrl(comment.echoedUser)).attr("align", "absmiddle");
             img.prependTo(commentUserNode);
             var commentText = $('<div class="echo-s-c-l-c-t"></div>').append(comment.text.replace(/\n/g, '<br />'));

@@ -1791,6 +1791,10 @@ h3{
                     .echo-s-c-l-c-u{
                         @include textFontBold(14px, $mainColor);
                     }
+                    .echo-s-c-l-c-d{
+                        margin-left: 10px;
+                        @include textFontNormal(12px);
+                    }
                     .echo-s-c-l-c-u-i{
                         height: 25px;
                         width: 25px;
