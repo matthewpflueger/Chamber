@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import com.echoed.chamber.interceptors.GlobalsInterceptor
 import org.springframework.context.MessageSource
 import java.util.Locale
+import java.util
 
 
 class GlobalsManager {
@@ -25,6 +26,8 @@ class GlobalsManager {
 
     @BeanProperty val httpUrls = new JHashMap[String, String]()
     @BeanProperty val httpsUrls = new JHashMap[String, String]()
+
+    @BeanProperty var envType: String = _
 
     @BeanProperty var version = ""
     @BeanProperty var facebookClientId = ""
@@ -69,6 +72,7 @@ class GlobalsManager {
     }
 
     def addGlobals(model: JMap[String, AnyRef], urls: JMap[String, String], locale: Locale) {
+        model.put(envType, envType)
         model.put(versionAttributeName, version)
         model.put(facebookClientIdAttributeName, facebookClientId)
 

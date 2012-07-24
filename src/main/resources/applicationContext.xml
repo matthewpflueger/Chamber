@@ -52,6 +52,7 @@
         <property name="facebookClientId" value="${facebook.clientId}" />
         <property name="version" value="${version}" />
         <property name="messageSource" ref="messageSource" />
+        <property name="envType" value="${envType}" />
     </bean>
 
     <bean id="encrypter" class="com.echoed.util.Encrypter" >

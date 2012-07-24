@@ -22,6 +22,7 @@
 
     <!--suppress SpringModelInspection -->
     <util:properties id="defaultPropertyValues">
+        <prop key="envType">${ENV_TYPE}</prop>
         <prop key="port">8080</prop>
 
         <prop key="ssl.port">8443</prop>
