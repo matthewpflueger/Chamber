@@ -40,6 +40,7 @@ class AuthorizationControlInterceptor extends HandlerInterceptor {
             } else if (
                     path.startsWith("/partner/login") ||
                     path.startsWith("/partner/activate") ||
+                    path.startsWith("/partner/register") ||
                     path.startsWith("/admin/login")) {
                 true
             } else {

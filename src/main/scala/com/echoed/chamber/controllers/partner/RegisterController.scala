@@ -73,7 +73,7 @@ class RegisterController {
                         result.set(errorModelAndView)
                     case RegisterPartnerResponse(_, Right(partner)) =>
                         logger.debug("Successfully registered partner {}", partner)
-                        result.set(new ModelAndView("redirect:http://www.echoed.com"))
+                        result.set(new ModelAndView("redirect:http://echoed.com"))
                 }))
 
             result
