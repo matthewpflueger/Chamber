@@ -151,10 +151,10 @@ $headerFontFamily: 'Arvo', serif;
         height: 400px;
         overflow-y: scroll;
         overflow-x: hidden;
+        background-image: image-url("bk_noise.jpg");
         #echoed-exhibit{
-            background-image: image-url("bk_noise.jpg");
             width: 780px;
-            background-color: #FFF;
+
         }
     }
 

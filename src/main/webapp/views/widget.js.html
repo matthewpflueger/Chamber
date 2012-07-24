@@ -696,6 +696,7 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
         this.EvAg.bind("infiniteScroll/unlock", this.unlock);
         this.EvAg.bind("infiniteScroll/on", this.on);
         this.EvAg.bind("infiniteScroll/off", this.off);
+
         this.element = EchoedjQuery('<div id="echoed-infiniteScroll">Loading </div>');
         EchoedjQuery('#echoed-e-c-b').append(this.element);
         this.locked = false;
@@ -714,6 +715,7 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
     off: function(){
         var self = this;
         self.status = false;
+        self.element.hide();
     },
     lock: function(){
         var self = this;
@@ -766,6 +768,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     close: function(){
         this.element.fadeOut();
         this.EvAg.trigger('fade/hide');
+        this.nextInt = 1;
+        this.exhibit.isotope('destroy');
+        this.exhibit.empty();
     },
     show: function(callback){
         var self = this;
@@ -807,15 +812,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     render: function(data){
         var self = this;
-
-        if(data.partner){
-            self.contentDescription = "Products recently purchased at " + data.partner.name;
-        }
         if(data.stories){
             self.addStories(data);
-        }
-        if(data.echoes){
-            self.addProducts(data);
+            self.nextInt++;
             self.EvAg.trigger("infiniteScroll/unlock");
         }
     },
@@ -824,19 +823,19 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         if(self.nextInt != null){
             self.EvAg.trigger('infiniteScroll/lock');
             EchoedjQuery.ajax({
-                url: self.jsonUrl + "?page=" + self.nextInt + "&origin=widget",
+                url: self.jsonUrl + "?page=" + (self.nextInt -1) + "&origin=widget",
                 xhrFields: {
                     withCredentials: true
                 },
                 dataType: 'jsonp',
                 success: function(data){
-                    if(data.echoes){
-                        self.addProducts(data);
+                    if(data.stories.length > 0){
+                        self.addStories(data);
                         self.nextInt++;
-                    }
-                    else{
-                        self.nextInt = null;
                         self.EvAg.trigger("infiniteScroll/unlock");
+                    } else {
+                        self.nextInt = null;
+                        self.EvAg.trigger("infiniteScroll/off");
                     }
                 }
             });
@@ -853,20 +852,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             }
         });
         self.exhibit.isotope('insert', storiesFragment.children());
-    },
-    addProducts: function(data){
-        var self = this;
-        var productsFragment = EchoedjQuery('<div></div>');
-        EchoedjQuery.each(data.echoes, function(index, product){
-            var productDiv = EchoedjQuery('<div></div>');
-            var productModel = new Echoed.Models.Product(product);
-            var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg });
-            self.EvAg.trigger('Browse/add',product.echoCategory,product.echoCategory);
-            productsFragment.append(productDiv);
-        });
-        self.exhibit.isotope('insert',productsFragment.children(), function(){
-            self.EvAg.trigger('infiniteScroll/unlock');
-        });
     }
 });
 
