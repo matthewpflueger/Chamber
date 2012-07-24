@@ -14,7 +14,8 @@ class AccessControlInterceptor extends HandlerInterceptor {
     def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Object) = {
         if (Option(request.getHeader("Origin")).map(_.endsWith(domain)).getOrElse(false)) {
             response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"))
-            response.addHeader("Access-Control-Allow-Methods", "POST, PUT, DELETE, GET, OPTIONS")
+            response.addHeader("Access-Control-Allow-Methods", "*") //POST, PUT, DELETE, GET, OPTIONS")
+            response.addHeader("Access-Control-Allow-Headers", "*")
             response.addHeader("Access-Control-Allow-Credentials", "true")
         }
         true
