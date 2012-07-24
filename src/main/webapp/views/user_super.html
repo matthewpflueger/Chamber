@@ -3,6 +3,7 @@
 <head>
     <link rel="shortcut icon" href="{{urls.images}}/favicon.png" type="image/png">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    {{#dev}}
     <script type='text/javascript' src="{{urls.js}}/webfonts.js"></script>
     <script type='text/javascript' src="{{urls.js}}/jquery-1.6.2.min.js"></script>
     <script type='text/javascript' src="{{urls.js}}/json2.js"></script>
@@ -11,8 +12,18 @@
     <script type='text/javascript' src="{{urls.js}}/jquery.imagesloaded.js"></script>
     <script type='text/javascript' src="{{urls.js}}/jquery.isotope.min.js"></script>
     <script type='text/javascript' src="{{urls.js}}/expanding.js"></script>
-    <script type='text/javascript' src="{{urls.js}}/echoed.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/easyXDM.debug.js"></script>
     <script type='text/javascript' src="{{urls.js}}/fileuploader.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/echoed.js"></script>
+    {{/dev}}
+    {{#staging}}
+    <script type='text/javascript' src="{{urls.js}}/echoed.min.js"></script>
+    {{/staging}}
+    {{#prod}}
+    <script type='text/javascript' src="{{urls.js}}/echoed.min.js"></script>
+    {{/prod}}
+
+
     <script type="text/javascript">
         Echoed.errors = {};
         Echoed.errors.global = new Array();

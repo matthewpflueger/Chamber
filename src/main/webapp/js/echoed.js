@@ -898,7 +898,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         this.optionsArray = options.optionsArray;
         this.currentTitle = options.currentTitle;
         this.openState = false;
-        this.default = "(Write Your Own Topic)";
+        this.defaultTopic = "(Write Your Own Topic)";
         this.render();
     },
     events: {
@@ -924,7 +924,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
             self.options[index] = $("<div class='field-question-option'></div>").append(option);
             self.optionsList.append(self.options[index]);
         });
-        self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.default);
+        self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.defaultTopic);
         self.optionsList.append(self.options[self.optionsArray.length]);
         self.input.val(self.options[0].html());
     },
@@ -953,7 +953,7 @@ Echoed.Views.Components.Select = Backbone.View.extend({
     close: function(){
         this.openState = false;
         this.optionsList.hide();
-        if(this.input.val() === this.default){
+        if(this.input.val() === this.defaultTopic){
             this.input.val("");
             this.input.select();
         }
