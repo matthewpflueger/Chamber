@@ -96,6 +96,14 @@
                                                 <property name="asyncSupported" value="true" />
                                             </bean>
                                             <bean class="org.eclipse.jetty.servlet.FilterHolder">
+                                                <property name="name" value="accessControlHeadersFilter" />
+                                                <property name="filter">
+                                                    <bean class="com.echoed.chamber.filters.AccessControlHeadersFilter"
+                                                          p:domain="${domain}" />
+                                                </property>
+                                                <property name="asyncSupported" value="true" />
+                                            </bean>
+                                            <bean class="org.eclipse.jetty.servlet.FilterHolder">
                                                 <property name="name" value="jsonpCallbackFilter" />
                                                 <property name="filter">
                                                     <bean class="com.echoed.chamber.filters.JsonpCallbackFilter" />
@@ -108,6 +116,9 @@
                                         <list>
                                             <bean class="org.eclipse.jetty.servlet.FilterMapping"
                                                   p:filterName="cacheControlFilter"
+                                                  p:pathSpec="/*"    />
+                                            <bean class="org.eclipse.jetty.servlet.FilterMapping"
+                                                  p:filterName="accessControlHeadersFilter"
                                                   p:pathSpec="/*"    />
                                             <bean class="org.eclipse.jetty.servlet.FilterMapping"
                                                   p:filterName="jsonpCallbackFilter"

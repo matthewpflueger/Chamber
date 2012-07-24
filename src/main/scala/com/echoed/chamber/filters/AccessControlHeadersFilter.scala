@@ -1,18 +1,24 @@
-package com.echoed.chamber.interceptors
+package com.echoed.chamber.filters
 
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.springframework.web.servlet.{ModelAndView, HandlerInterceptor}
+import javax.servlet._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.slf4j.LoggerFactory
 import scala.reflect.BeanProperty
 import scala.collection.JavaConversions._
 
-class AccessControlInterceptor extends HandlerInterceptor {
 
-    val logger = LoggerFactory.getLogger(classOf[AccessControlInterceptor])
+class AccessControlHeadersFilter extends Filter {
+
+    private val logger = LoggerFactory.getLogger(classOf[AccessControlHeadersFilter])
 
     @BeanProperty var domain: String = _
 
-    def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Object) = {
+    def init(filterConfig: FilterConfig) {}
+
+    def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain) {
+        val request = servletRequest.asInstanceOf[HttpServletRequest]
+        val response = servletRequest.asInstanceOf[HttpServletResponse]
+
         val origin = Option(request.getHeader("Origin"))
         if (origin.map(_.endsWith(domain)).getOrElse(false)) {
             val headers =
@@ -27,14 +33,10 @@ class AccessControlInterceptor extends HandlerInterceptor {
         } else {
             logger.debug("Did not add Access-Control-Allow headers: origin {} does not end with {}", origin.orNull, domain)
         }
-        true
+
+        chain.doFilter(request, response)
     }
 
-    def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Object, modelAndView: ModelAndView) {
-        //
-    }
+    def destroy() {}
 
-    def afterCompletion(request: HttpServletRequest, response: HttpServletResponse, handler: Object, ex: Exception) {
-        //
-    }
 }
