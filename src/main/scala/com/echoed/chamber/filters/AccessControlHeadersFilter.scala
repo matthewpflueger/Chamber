@@ -17,7 +17,7 @@ class AccessControlHeadersFilter extends Filter {
 
     def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain) {
         val request = servletRequest.asInstanceOf[HttpServletRequest]
-        val response = servletRequest.asInstanceOf[HttpServletResponse]
+        val response = servletResponse.asInstanceOf[HttpServletResponse]
 
         val origin = Option(request.getHeader("Origin"))
         if (origin.map(_.endsWith(domain)).getOrElse(false)) {
