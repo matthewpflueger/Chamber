@@ -19,7 +19,7 @@ class AccessControlInterceptor extends HandlerInterceptor {
                 if (logger.isDebugEnabled) {
                     request.getHeaderNames.map(h => "    %s: %s\n" format(h, request.getHeader(h)))
                 } else ""
-            logger.debug("Adding Access-Control-Allow headers for\n", headers)
+            logger.debug("Adding Access-Control-Allow headers for\n{}", headers)
             response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"))
             response.addHeader("Access-Control-Allow-Methods", "*") //POST, PUT, DELETE, GET, OPTIONS")
             response.addHeader("Access-Control-Allow-Headers", "*")
