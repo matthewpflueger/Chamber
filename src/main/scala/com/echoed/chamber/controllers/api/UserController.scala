@@ -232,7 +232,6 @@ class UserController {
 
         echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess{
             case LocateWithIdResponse(_, Right(eus)) =>
-                logger.debug("Publishing Action")
                 eus.publishFacebookAction("browse", "story", storyGraphUrl + id)
         }
         if(origin.equals("widget")) eventService.widgetStoryOpened(id)
