@@ -40,9 +40,9 @@ class FeedServiceActor(
 
     def handle = {
 
-
-
-
+        case msg @ StoryUpdated(storyId: String) =>
+            Option(feedDao.findStoryById(storyId)).map(updateStory(_))
+            //CURRENTLY HITS DATABASE ONCE STORY HAS BEEN UPDATED TO GRAB FULL STORY
 
         case msg @ GetPublicFeed(page: Int) =>
             val channel = context.sender

@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.feed
 
-import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedException, Message}
 import com.echoed.chamber.domain.views._
 
 sealed trait FeedMessage extends Message
@@ -61,3 +61,5 @@ case class GetPartnerStoryFeed(partnerId: String, page: Int) extends FM
 case class GetPartnerStoryFeedResponse(
             message: GetPartnerStoryFeed,
             value: Either[FE, PartnerStoryFeed]) extends FM with MR[PartnerStoryFeed, GetPartnerStoryFeed, FE]
+
+case class StoryUpdated(storyFull: StoryFull) extends FM with Event
