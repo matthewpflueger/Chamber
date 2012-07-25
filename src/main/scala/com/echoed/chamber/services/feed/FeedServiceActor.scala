@@ -97,8 +97,16 @@ class FeedServiceActor(
             val start = msg.page * pageSize
 
             try {
-                log.debug("Attempting to retrieve Category Story")
-                val feed = new PublicStoryFeed(storyTree.values.filter(_.story.tag.toLowerCase.equals(categoryId.toLowerCase)).toList.slice(start, start + pageSize))
+                log.debug("Attempting to retrieve Stories for Category: {}", categoryId)
+                val stories = storyTree.values.filter(storyFull =>
+                    storyFull.story.tag match {
+                        case t: String =>
+                            t.toLowerCase.equals(categoryId.toLowerCase)
+                        case null =>
+                            false
+                    }).toList
+                log.debug("Stores Tagged: {}", stories)
+                val feed = new PublicStoryFeed(stories.slice(start, start + pageSize))
                 channel ! GetCategoryStoryFeedResponse(msg, Right(feed))
             } catch {
                 case e =>

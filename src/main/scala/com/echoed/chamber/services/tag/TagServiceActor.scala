@@ -30,7 +30,7 @@ class TagServiceActor(
 
     def handle = {
 
-        //EVENTS                                       x`
+        //EVENTS
         case msg @ TagAdded(tagId) =>
             log.debug("Received Event Tag Added {}", tagId)
             self ! AddTag(tagId)
