@@ -94,13 +94,11 @@ class FeedServiceActor(
 
         case msg @ GetCategoryStoryFeed(categoryId: String, page: Int) =>
             val channel = context.sender
-            val limit = 30
-            val start = msg.page * limit
+            val start = msg.page * pageSize
 
             try {
                 log.debug("Attempting to retrieve Category Story")
-                val stories = asScalaBuffer(feedDao.findStoryByTagId(categoryId, start, limit))
-                val feed = new PublicStoryFeed(stories)
+                val feed = new PublicStoryFeed(storyTree.values.filter(_.story.tag.toLowerCase.equals(categoryId.toLowerCase)).toList.slice(start, start + pageSize))
                 channel ! GetCategoryStoryFeedResponse(msg, Right(feed))
             } catch {
                 case e =>
