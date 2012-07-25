@@ -46,7 +46,8 @@ class EchoedUserServiceActor(
         transactionTemplate: TransactionTemplate,
         facebookServiceLocator: FacebookServiceLocator,
         twitterServiceLocator: TwitterServiceLocator,
-        storyGraphUrl: String) extends EchoedActor {
+        storyGraphUrl: String,
+        eventProcessor: EventProcessorActorSystem) extends EchoedActor {
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
         case _: Exception ⇒ Stop

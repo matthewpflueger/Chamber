@@ -62,4 +62,4 @@ case class GetPartnerStoryFeedResponse(
             message: GetPartnerStoryFeed,
             value: Either[FE, PartnerStoryFeed]) extends FM with MR[PartnerStoryFeed, GetPartnerStoryFeed, FE]
 
-case class StoryUpdated(storyFull: StoryFull) extends FM with Event
+case class StoryUpdated(storyId: String) extends FM with Event

@@ -13,7 +13,7 @@ import com.echoed.chamber.services.facebook.FacebookServiceLocator
 import com.echoed.chamber.services.twitter.TwitterServiceLocator
 import akka.actor.SupervisorStrategy.Restart
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
-import com.echoed.chamber.services.{EchoedActor, ActorClient}
+import com.echoed.chamber.services.{EventProcessorActorSystem, EchoedActor, ActorClient}
 import com.echoed.chamber.domain.EchoedUser
 import scala.Right
 import com.echoed.chamber.services.twitter.GetUserResponse
@@ -44,7 +44,8 @@ class EchoedUserServiceLocatorActor(
         twitterServiceLocator: TwitterServiceLocator,
         cacheManager: CacheManager,
         storyGraphUrl: String,
-        implicit val timeout: Timeout = Timeout(20000)) extends EchoedActor {
+        implicit val timeout: Timeout = Timeout(20000),
+        eventProcessor: EventProcessorActorSystem) extends EchoedActor {
 
 
     private var cache: ConcurrentMap[String, EchoedUserService] =
@@ -220,7 +221,8 @@ class EchoedUserServiceLocatorActor(
                                             transactionTemplate = transactionTemplate,
                                             facebookServiceLocator = facebookServiceLocator,
                                             twitterServiceLocator = twitterServiceLocator,
-                                            storyGraphUrl = storyGraphUrl)
+                                            storyGraphUrl = storyGraphUrl,
+                                            eventProcessor = eventProcessor)
                                     }, echoedUserId))
                                 channel ! CreateEchoedUserServiceWithIdResponse(msg, Right(echoedUserService))
                                 cache.put(echoedUserId, echoedUserService)

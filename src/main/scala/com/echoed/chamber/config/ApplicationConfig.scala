@@ -3,7 +3,7 @@ package com.echoed.chamber.config
 import org.springframework.context.annotation.{Bean, Configuration}
 import akka.actor.{Props, ActorSystem}
 import javax.annotation.Resource
-import com.echoed.chamber.services.GlobalsManager
+import com.echoed.chamber.services.{EventProcessorActorSystem, GlobalsManager}
 import com.echoed.chamber.dao._
 import com.echoed.chamber.services.geolocation.GeoLocationServiceActor
 import com.echoed.util.{ApplicationContextRef, Encrypter, BlobStore}
@@ -130,6 +130,8 @@ class ApplicationConfig {
 
     @Bean(destroyMethod = "shutdown") def actorSystem = ActorSystem("Chamber")
 
+    @Bean def eventProcessor = new EventProcessorActorSystem(actorSystem)
+
     @Bean def geoLocationService = actorSystem.actorOf(Props(new GeoLocationServiceActor(
             geoLocationDao,
             geoLocationProperties("geoLocationServiceUrl"),
@@ -234,7 +236,8 @@ class ApplicationConfig {
             facebookServiceLocator = facebookServiceLocator,
             twitterServiceLocator  = twitterServiceLocator,
             cacheManager = cacheManager,
-            storyGraphUrl = urlsProperties("storyGraphUrl"))), "EchoedUserService")
+            storyGraphUrl = urlsProperties("storyGraphUrl"),
+            eventProcessor = eventProcessor)), "EchoedUserService")
 
     @Bean def partnerUserServiceLocatorActor = actorSystem.actorOf(Props(new PartnerUserServiceLocatorActor(
             cacheManager = cacheManager,
