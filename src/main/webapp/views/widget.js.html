@@ -1324,4 +1324,27 @@ EchoedjQuery(document).ready(function(){
         echoedUserId: "{{echoedUserId}}"
     });
 
+    window.onerror = function(message, file, line){
+        if(file.indexOf('echoed') >= 0){
+            var error = {
+                message: message,
+                file: file,
+                line: line,
+                location: location
+            };
+
+            var errorString = encodeURIComponent(JSON.stringify(error));
+            var xmlHttpRequest;
+
+            if (document.all) {
+                xmlHttpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+            } else {
+                xmlHttpRequest = new XMLHttpRequest();
+            }
+
+            xmlHttpRequest.open("POST", "{{urls.site}}/posterror?error=" + errorString);
+            xmlHttpRequest.send();
+        }
+    };
+
 });
