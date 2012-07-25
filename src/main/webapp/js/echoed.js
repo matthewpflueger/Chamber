@@ -59,6 +59,28 @@ Echoed = {
         return s;
     },
     init: function() {
+        window.onerror = function(message, file, line){
+            if(file.indexOf('echoed') >= 0){
+                var error = {
+                    message: message,
+                    file: file,
+                    line: line,
+                    location: location
+                };
+
+                var errorString = encodeURIComponent(JSON.stringify(error));
+                var xmlHttpRequest;
+
+                if (document.all) {
+                    xmlHttpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                } else {
+                    xmlHttpRequest = new XMLHttpRequest();
+                }
+
+                xmlHttpRequest.open("POST", Echoed.urls.api + "/posterror?error=" + errorString);
+                xmlHttpRequest.send();
+            }
+        };
         var router = new Echoed.Router({EvAg: EventAggregator});
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
         var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
@@ -1424,3 +1446,4 @@ function pluralize(integer){
         return "";
     }
 }
+
