@@ -3,7 +3,6 @@ package com.echoed.chamber.services.feed
 import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
 import com.echoed.chamber.domain.views._
 
-
 sealed trait FeedMessage extends Message
 
 sealed case class FeedException(

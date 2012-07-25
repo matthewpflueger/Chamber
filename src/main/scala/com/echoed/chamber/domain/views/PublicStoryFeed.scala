@@ -1,8 +1,7 @@
 package com.echoed.chamber.domain.views
-import java.util.{ArrayList, List => JList}
 
-case class PublicStoryFeed(stories: JList[StoryFull]) {
+case class PublicStoryFeed(stories: List[StoryFull]) {
 
-    def this() = this(new ArrayList[StoryFull])
+    def this() = this(List[StoryFull]())
 
 }

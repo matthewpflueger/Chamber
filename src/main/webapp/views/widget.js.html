@@ -1281,12 +1281,12 @@ EchoedjQuery(document).ready(function(){
     var echoedOpener = document.createElement('div');
     echoedOpener.id = "echoed-opener";
     var openImage = document.createElement('img');
-    {{#white}}
+    //{{#white}}
         openImage.src ="{{urls.images}}/bk_opener_white_left.png";
-    {{/white}}
-    {{^white}}
+    //{{/white}}
+    //{{^white}}
         openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
-    {{/white}}
+    //{{/white}}
 
     echoedOpener.appendChild(openImage);
     body.appendChild(echoedOpener);
@@ -1318,9 +1318,6 @@ EchoedjQuery(document).ready(function(){
     body.appendChild(echoedField);
     body.appendChild(echoedStory);
     body.appendChild(echoedContainer);
-
-
-
 
     Echoed.init({
         partnerId : "{{partnerId}}",

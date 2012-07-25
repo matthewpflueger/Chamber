@@ -313,6 +313,15 @@
             CMT.createdOn desc
     </select>
 
+    <select id="getAllStories" resultMap="storyFullResult" useCache="false">
+        <include refid="storyFullSelect" />
+        order by
+            S.updatedOn desc,
+            C.createdOn,
+            CIMG.createdOn,
+            CMT.createdOn desc
+    </select>
+
     <select id="getStories" resultMap="storyFullResult" useCache="false">
         <include refid="storyFullLimitSelect" />
         order by

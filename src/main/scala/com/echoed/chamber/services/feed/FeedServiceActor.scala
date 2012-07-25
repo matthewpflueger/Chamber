@@ -12,6 +12,7 @@ import com.echoed.chamber.domain.views._
 import scala.Left
 import com.echoed.chamber.domain.views.PublicFeed
 import com.echoed.chamber.services.EchoedActor
+import collection.immutable.{HashMap, TreeSet, SortedSet, TreeMap}
 
 
 class FeedServiceActor(
@@ -19,16 +20,38 @@ class FeedServiceActor(
         partnerDao: PartnerDao,
         echoedUserDao: EchoedUserDao) extends EchoedActor {
 
+    val pageSize = 30
+
+    implicit object StoryOrdering extends Ordering[(Long, String)] {
+        def compare(a:(Long, String), b:(Long, String)) = {
+            Option(b._1 compare a._1).getOrElse(b._2 compare a._2)
+        }
+    }
+
+    var storyMap = new HashMap[String, StoryFull]
+    var storyTree = new TreeMap[(Long, String), StoryFull]()(StoryOrdering)
+    val stories = asScalaBuffer(feedDao.getAllStories).map(updateStory(_))
+
+    def updateStory(storyFull: StoryFull) {
+        storyMap.get(storyFull.id).map(s => storyTree -= ((storyFull.story.updatedOn, storyFull.story.id)))
+        storyMap += (storyFull.id -> storyFull)
+        storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
+    }
+
     def handle = {
+
+
+
+
+
         case msg @ GetPublicFeed(page: Int) =>
             val channel = context.sender
-            val limit = 30
-            val start = msg.page * limit
+            val start = msg.page * pageSize
 
             try {
                 log.debug("Attempting to retrieve Public Feed ")
-                val echoes = asScalaBuffer(feedDao.getPublicFeed(start,limit)).toList
-                val stories = asScalaBuffer(feedDao.getStories(start,limit))
+                val echoes = asScalaBuffer(feedDao.getPublicFeed(start, pageSize)).toList
+                val stories = asScalaBuffer(feedDao.getStories(start, pageSize))
                 val feed = new PublicFeed(echoes, stories)
                 channel ! GetPublicFeedResponse(msg, Right(feed))
             } catch {
@@ -39,12 +62,10 @@ class FeedServiceActor(
 
         case msg @ GetPublicStoryFeed(page: Int) =>
             val channel = context.sender
-            val limit = 30
-            val start = msg.page * limit
+            val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve Public Story Feed")
-                val stories = asScalaBuffer(feedDao.getStories(start, limit))
-                val feed = new PublicStoryFeed(stories)
+                val feed = PublicStoryFeed(storyTree.values.toList.slice(start, start + pageSize))
                 channel ! GetPublicStoryFeedResponse(msg, Right(feed))
             } catch {
                 case e =>
@@ -54,13 +75,11 @@ class FeedServiceActor(
 
         case msg @ GetPublicCategoryFeed(categoryId: String, page: Int) =>
             val channel = context.sender
-            val limit = 30
-            val start = msg.page * limit
+            val start = msg.page * pageSize
 
             try{
                 log.debug("Attempting to retrive Category Feed")
-                val echoes = asScalaBuffer(feedDao.getCategoryFeed(categoryId, start, limit))
-                val stories = asScalaBuffer(feedDao.getStories(start,limit))
+                val echoes = asScalaBuffer(feedDao.getCategoryFeed(categoryId, start, pageSize))
                 val feed = new PublicFeed(echoes)
                 channel ! GetPublicCategoryFeedResponse(msg, Right(feed))
             } catch {
@@ -72,13 +91,12 @@ class FeedServiceActor(
 
         case msg @ GetUserPublicFeed(echoedUserId: String, page:Int) =>
             val channel = context.sender
-            val limit = 30
-            val start = msg.page * limit
+            val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve feed for user: ")
                 val echoedUser = echoedUserDao.findById(echoedUserId)
-                val echoes = asScalaBuffer(feedDao.getEchoedUserFeed(echoedUser.id, start, limit)).toList
-                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id, start, limit)).toList
+                val echoes = asScalaBuffer(feedDao.getEchoedUserFeed(echoedUser.id, start, pageSize)).toList
+                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id, start, pageSize)).toList
                 val feed = new EchoedUserFeed(new EchoedUserPublic(echoedUser), echoes, stories)
                 channel ! GetUserPublicFeedResponse(msg, Right(feed))
             } catch {
@@ -89,12 +107,11 @@ class FeedServiceActor(
 
         case msg @ GetUserPublicStoryFeed(echoedUserId: String, page: Int) =>
             val channel = context.sender
-            val limit = 30
-            val start = msg.page * limit
+            val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve story feed for user: {}", echoedUserId)
                 val echoedUser = echoedUserDao.findById(echoedUserId)
-                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id, start, limit)).toList
+                val stories = storyTree.values.filter(_.echoedUser.id.equals(echoedUser.id)).toList.slice(start, start + pageSize)
                 val feed = new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), stories)
                 channel ! GetUserPublicStoryFeedResponse(msg, Right(feed))
             } catch {
@@ -106,12 +123,10 @@ class FeedServiceActor(
         case msg @ GetPartnerFeed(partnerId: String, page: Int) =>
             val channel = context.sender
             try{
-                val partnerId = msg.partnerId
-                val limit = 30
-                val start = msg.page * limit
-                val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, limit)).toList
-                val partner = partnerDao.findByIdOrHandle(partnerId)
-                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id, start, limit)).toList
+                val start = page * pageSize
+                val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, pageSize)).toList
+                val partner = partnerDao.findByIdOrHandle(msg.partnerId)
+                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id, start, pageSize)).toList
                 val partnerFeed = new PartnerFeed(new PartnerPublic(partner), echoes, stories)
                 channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
             } catch {
@@ -123,11 +138,10 @@ class FeedServiceActor(
         case msg @ GetPartnerStoryFeed(partnerId: String, page: Int) =>
             val channel = context.sender
             try {
-                val partnerId = msg.partnerId
-                val limit = 30
-                val start = msg.page * limit
-                val partner = partnerDao.findByIdOrHandle(partnerId)
-                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id, start, limit)).toList
+                val start = msg.page * pageSize
+                val partner = partnerDao.findByIdOrHandle(msg.partnerId)
+                log.debug("Looking up stories for Partner Id {}", partner.id)
+                val stories = storyTree.values.filter(_.story.partnerId.equals(partner.id)).toList.slice(start, start + pageSize)
                 val partnerFeed = new PartnerStoryFeed(new PartnerPublic(partner), stories)
                 channel ! GetPartnerStoryFeedResponse(msg, Right(partnerFeed))
             } catch {
@@ -138,9 +152,8 @@ class FeedServiceActor(
 
         case msg @ GetStory(storyId) =>
             val channel = context.sender
-
             try {
-                channel ! GetStoryResponse(msg, Right(Option(feedDao.findStoryById(storyId))))
+                channel ! GetStoryResponse(msg, Right(storyMap.get(storyId)))
             } catch {
                 case e =>
                     channel ! GetStoryResponse(msg, Left(new FeedException("Cannot get story %s" format storyId, e)))
@@ -149,7 +162,7 @@ class FeedServiceActor(
 
         case msg: GetStoryIds =>
             val channel = context.sender
-            channel ! GetStoryIdsResponse(msg, Right(feedDao.getStoryIds))
+            channel ! GetStoryIdsResponse(msg, Right(storyTree.keys.map(_._2).toArray))
 
         case msg: GetPartnerIds =>
             val channel = context.sender

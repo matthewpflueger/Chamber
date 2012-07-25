@@ -638,9 +638,8 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','next','init','relayout', 'addProducts', 'nextStory', 'previousStory');
+        _.bindAll(this,'render','next','init', 'addProducts', 'nextStory', 'previousStory');
         this.EvAg = options.EvAg;
-        this.EvAg.bind('exhibit/relayout', this.relayout);
         this.EvAg.bind('exhibit/init', this.init);
         this.EvAg.bind('infiniteScroll', this.next);
         this.EvAg.bind('exhibit/story/next', this.nextStory);
@@ -650,39 +649,31 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     init: function(options){
         var self = this;
-        self.exhibit.isotopeOn = true;
         self.personal = false;
+        self.nextInt = 1;
+        self.EvAg.trigger('infiniteScroll/on');
         switch(options.Type){
             case "friend":
                 self.jsonUrl = Echoed.urls.api + "/api/user/" + options.Id;
                 self.contentTitle = "Your Friends";
                 self.id = "friends";
-                self.nextInt = 1;
                 break;
             case "partner":
                 self.jsonUrl = Echoed.urls.api + "/api/partner/" + options.partnerId;
                 self.contentTitle = options.Name;
                 self.id = "partner/" + options.partnerId;
-                self.nextInt = 1;
                 break;
             case "explore":
                 self.jsonUrl = Echoed.urls.api + "/api/me/feed";
                 self.contentTitle = "Community";
                 self.contentDescription ="";
                 self.id= "explore";
-                self.nextInt = 1;
-                break;
-            case "explore/friends":
-                self.jsonUrl = Echoed.urls.api + "/api/me/feed/friends";
-                self.id = "explore/friends";
-                self.nextInt = 1;
                 break;
             case "exhibit":
                 self.jsonUrl = Echoed.urls.api + "/api/me/exhibit";
                 self.id = "exhibit";
                 self.contentTitle = "My Stories";
                 self.personal = true;
-                self.nextInt = 1;
                 break;
         }
         Echoed.AjaxFactory({
@@ -693,8 +684,25 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                     array: [],
                     hash: {}
                 };
+                if (self.isotopeOn === true) {
+                    self.exhibit.isotope("destroy")
+                }
+                self.exhibit.empty();
+                self.exhibit.isotope({
+                    itemSelector: '.item_wrap,.no_filter',
+                    masonry:{
+                        columnWidth: 5
+                    }
+                });
+                self.isotopeOn = true;
+                var title = self.contentTitle;
+                if(data.partner) title = data.partner.name;
+                if (self.id === "friends")  title = data.echoedUser.name;
+                self.EvAg.trigger("title/update", { title: title, description: self.contentDescription });
+
+                if(!Echoed.echoedUser) self.addLogin();
+
                 self.render(data);
-                self.EvAg.trigger("infiniteScroll/unlock");
             }
         })();
     },
@@ -704,7 +712,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         if((index + 1) >= self.stories.array.length){
             self.next();
         }
-        if((index +1 ) < self.stories.array.length){
+        if((index + 1) < self.stories.array.length){
             window.location.hash = "#story/" + self.stories.array[index + 1];
         }
     },
@@ -717,57 +725,22 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     render: function(data){
         var self = this;
-        if (self.exhibit.isotopeOn) self.exhibit.isotope("destroy");
-        self.exhibit.empty();
-        self.exhibit.isotope({
-            itemSelector: '.item_wrap,.no_filter',
-            masonry:{
-                columnWidth: 5
-            }
-        });
-        if(data.partner){
-            self.EvAg.trigger("title/update", { title: data.partner.name, description: self.contentDescription });
-        } else if (self.id === "friends") {
-            self.EvAg.trigger("title/update", { title: data.echoedUser.name, description: self.contentDescription });
-        } else if (self.id !== "story"){
-            self.EvAg.trigger("title/update", { title: self.contentTitle, description: self.contentDescription });
-        }
-        if(!Echoed.echoedUser) self.addLogin();
-
-        self.addStories(data);
-        self.addProducts(data);
-
-        if(data.stories || data.echoes){
+        if(self.addStories(data) || self.addProducts(data)){
             self.nextInt++;
-            self.EvAg.trigger('infiniteScroll/on');
             self.EvAg.trigger('infiniteScroll/unlock');
         } else {
             self.nextInt = null;
         }
-
-    },
-    relayout: function(e){
-        var self = this;
-        self.exhibit.isotope('reLayout', function(){
-            $("html, body").animate({scrollTop: e.offset().top - 90 }, 300);
-        });
     },
     next: function(){
         var self = this;
-        if(self.nextInt != null){
+        if(self.nextInt !== null){
             self.EvAg.trigger('infiniteScroll/lock');
             var url = self.jsonUrl + "?page=" + (self.nextInt - 1);
             Echoed.AjaxFactory({
                 url: url,
                 success: function(data){
-                    self.addProducts(data);
-                    self.addStories(data);
-                    if(data.stories.length > 0){
-                        self.nextInt++;
-                    } else {
-                        self.nextInt = null;
-                        self.EvAg.trigger("infiniteScroll/unlock");
-                    }
+                    self.render(data);
                 }
             })();
         }
@@ -784,6 +757,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     addStories: function(data){
         var self = this;
         var storiesFragment = $('<div></div>');
+        var storiesAdded = false;
         if(data.stories){
             $.each(data.stories, function(index, story){
                 if(story.chapters.length > 0 || self.personal == true){
@@ -799,26 +773,32 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                         });
                     }
                 }
+                storiesAdded = true;
             });
             self.exhibit.isotope('insert', storiesFragment.children(), function(){
                 self.EvAg.trigger('infiniteScroll/unlock');
             });
         }
+        return storiesAdded;
     },
     addProducts: function(data){
         var self = this;
         var productsFragment = $('<div></div>');
+        var productsAdded = false;
         if(data.echoes){
             $.each(data.echoes, function(index, product){
                 var productDiv = $('<div></div>');
                 var productModel = new Echoed.Models.Product(product);
                 var productComponent = new Echoed.Views.Components.Product({el:productDiv, model:productModel, EvAg: self.EvAg, Personal: self.personal });
                 productsFragment.append(productDiv);
+                productsAdded = true;
             });
             self.exhibit.isotope('insert',productsFragment.children(), function(){
                 self.EvAg.trigger('infiniteScroll/unlock');
             });
+
         }
+        return productsAdded;
     }
 });
 
