@@ -152,7 +152,8 @@ class ApplicationConfig {
     @Bean def feedServiceActor = actorSystem.actorOf(Props(new FeedServiceActor(
             feedDao,
             partnerDao,
-            echoedUserDao)), "FeedService")
+            echoedUserDao,
+            eventProcessor)), "FeedService")
 
     @Bean
     def facebookAccessActor = actorSystem.actorOf(Props(new FacebookAccessDispatchActor(

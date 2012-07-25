@@ -11,14 +11,15 @@ import scala.Right
 import com.echoed.chamber.domain.views._
 import scala.Left
 import com.echoed.chamber.domain.views.PublicFeed
-import com.echoed.chamber.services.EchoedActor
+import com.echoed.chamber.services.{EventProcessorActorSystem, EchoedActor}
 import collection.immutable.{HashMap, TreeSet, SortedSet, TreeMap}
 
 
 class FeedServiceActor(
         feedDao: FeedDao,
         partnerDao: PartnerDao,
-        echoedUserDao: EchoedUserDao) extends EchoedActor {
+        echoedUserDao: EchoedUserDao,
+        eventProcessor: EventProcessorActorSystem) extends EchoedActor {
 
     val pageSize = 30
 
@@ -38,9 +39,12 @@ class FeedServiceActor(
         storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
     }
 
+    eventProcessor.subscribe(self, classOf[StoryUpdated])
+
     def handle = {
 
         case msg @ StoryUpdated(storyId: String) =>
+            log.debug("Story Updated: {}", storyId)
             Option(feedDao.findStoryById(storyId)).map(updateStory(_))
             //CURRENTLY HITS DATABASE ONCE STORY HAS BEEN UPDATED TO GRAB FULL STORY
 

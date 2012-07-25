@@ -20,6 +20,7 @@ import com.echoed.chamber.domain.views.echoeduser.Profile
 import akka.event.{LoggingReceive, Logging}
 import akka.actor.SupervisorStrategy.Stop
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
+import feed.StoryUpdated
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.TransactionUtils._
 import org.springframework.transaction.TransactionStatus
@@ -582,6 +583,7 @@ class EchoedUserServiceActor(
 
             val story = new Story(echoedUser, partner, partnerSettings, image, title, echo, productInfo)
             storyDao.insert(story)
+            eventProcessor.publish(StoryUpdated(story.id))
             channel ! CreateStoryResponse(msg, Right(story))
 
 
@@ -614,6 +616,7 @@ class EchoedUserServiceActor(
                 chapterImages.foreach(chapterImageDao.insert(_))
                 storyDao.update(story) //Update the story to get new timestamp
             }
+            eventProcessor.publish(StoryUpdated(storyId))
             me ! PublishFacebookAction("update", "story", storyGraphUrl + storyId )
             channel ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
 
@@ -629,7 +632,7 @@ class EchoedUserServiceActor(
             val chapterImages = imageIds.cata(
                 ids => ids.map(id => new ChapterImage(chapter, imageDao.findById(id))),
                 Array[ChapterImage]())
-
+            eventProcessor.publish(StoryUpdated(chapter.storyId))
             transactionTemplate.execute { status: TransactionStatus =>
                 chapterDao.update(chapter)
                 chapterImageDao.deleteByChapterId(chapter.id)
@@ -649,7 +652,7 @@ class EchoedUserServiceActor(
                 text,
                 parentCommentId.map(commentDao.findByIdAndChapterId(_, chapterId)))
             commentDao.insert(comment)
-
+            eventProcessor.publish(StoryUpdated(storyId))
             channel ! CreateCommentResponse(msg, Right(comment))
 
         case msg @ InitStory(_, storyId, echoId, partnerId) =>
