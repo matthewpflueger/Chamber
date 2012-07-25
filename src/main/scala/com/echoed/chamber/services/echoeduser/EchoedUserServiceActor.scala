@@ -501,7 +501,7 @@ class EchoedUserServiceActor(
             try {
                 log.debug("Loading EchoedFriends from database for EchoedUser {}", echoedUser.id)
                 val echoedFriends = asScalaBuffer(echoedFriendDao.findByEchoedUserId(echoedUser.id)).toList
-                channel ! GetEchoedFriendsResponse(msg, Right(echoedFriends))
+                channel ! GetEchoedFriendsResponse(msg, Right(new FriendFeed(echoedFriends)))
                 log.debug("Found {} EchoedFriends in database for EchoedUser {}", echoedFriends.length, echoedUser.id)
             } catch {
                 case e =>

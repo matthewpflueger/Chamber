@@ -154,8 +154,8 @@ case class GetFeedResponse(message: GetFeed, value: Either[EUE, Feed])
     extends EUM with MR[Feed, GetFeed, EUE]
 
 case class GetEchoedFriends() extends EUM
-case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, List[EchoedFriend]])
-    extends EUM with MR[List[EchoedFriend], GetEchoedFriends, EUE]
+case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, FriendFeed])
+    extends EUM with MR[FriendFeed, GetEchoedFriends, EUE]
 
 case class LocateWithId(echoedUserId: String) extends EUM
 case class LocateWithIdResponse(message: LocateWithId, value: Either[EUE, EchoedUserService])
