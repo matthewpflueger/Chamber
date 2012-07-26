@@ -773,13 +773,15 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render','next','init', 'show', 'hide', 'close');
+        _.bindAll(this,'render','next','init', 'show', 'hide', 'close', 'nextStory', 'previousStory');
         this.EvAg = options.EvAg;
         this.el = options.el;
         this.EvAg.bind('exhibit/open', this.init);
         this.EvAg.bind('infiniteScroll', this.next);
         this.EvAg.bind("exhibit/show", this.show);
         this.EvAg.bind("exhibit/hide", this.hide);
+        this.EvAg.bind('exhibit/story/next', this.nextStory);
+        this.EvAg.bind('exhibit/story/previous', this.previousStory);
         this.element = EchoedjQuery(this.el);
         this.exhibit = EchoedjQuery('#echoed-exhibit');
         this.jsonUrl = Echoed.Urls.Api + "/api/partner/" + Echoed.partnerId;
@@ -789,6 +791,25 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     events: {
         "click .echoed-close" : "close"
+    },
+    nextStory: function(storyId){
+        var self = this;
+        var index = self.stories.hash[storyId];
+        console.log(self.stories);
+        if((index + 1) >= self.stories.array.length){
+            self.next();
+        }
+        if((index + 1) < self.stories.array.length){
+            self.EvAg.trigger('story/show', self.stories.array[index + 1]);
+        }
+    },
+    previousStory: function(storyId){
+        var self = this;
+        var index = self.stories.hash[storyId];
+        console.log(self.stories);
+        if(index> 0){
+            self.EvAg.trigger('story/show', self.stories.array[index - 1]);
+        }
     },
     close: function(){
         this.element.fadeOut();
@@ -825,13 +846,14 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             },
             dataType: 'jsonp',
             success: function(data){
+                self.stories = {
+                    array: [],
+                    hash: {}
+                };
                 self.render(data);
             }
         });
         self.element.fadeIn();
-        self.element.css({
-            "margin-left" : -(self.element.width() / 2)
-        });
         self.EvAg.trigger('fade/show');
     },
     render: function(data){
@@ -870,6 +892,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var storiesFragment = EchoedjQuery('<div></div>');
         EchoedjQuery.each(data.stories, function(index, story){
             if(story.chapters.length > 0){
+                self.stories.hash[story.id] = self.stories.array.length;
+                self.stories.array.push(story.id);
                 var storyDiv = EchoedjQuery('<div></div>').addClass('item_wrap');
                 var storyComponent = new Echoed.Views.Components.StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg});
                 storiesFragment.append(storyDiv);
@@ -952,7 +976,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage', 'navClick');
         this.el = options.el;
         this.element = EchoedjQuery(this.el);
         this.EvAg = options.EvAg;
@@ -963,7 +987,14 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         "click .echoed-close" : "close",
         "click .comment-submit": "createComment",
         "click .echo-s-b-thumbnail": "imageClick",
-        "click .echo-s-b-item": "nextImage"
+        "click .echo-s-b-item": "nextImage",
+        "click .story-nav-button": "navClick"
+    },
+    navClick: function(ev){
+        var self = this;
+        var target = EchoedjQuery(ev.currentTarget);
+        var action = target.attr("act");
+        self.EvAg.trigger('exhibit/story/'+ action, self.data.story.id);
     },
     unload: function(){
         var self = this;
@@ -985,7 +1016,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-container clearfix"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"></div></div>';
+
+        var template = '<div id="echo-story-nav" class="clearfix"><div act="previous" class="story-nav-button" style="float:left">Previous Story</div><div act="next" class="story-nav-button" style="float:right">Next Story</div></div><div class="echo-story-container clearfix"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"></div></div>';
         var self = this;
         self.element.html(template);
 
@@ -1051,9 +1083,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         self.EvAg.trigger('fade/show');
         self.element.fadeIn();
-        self.element.css({
-           'margin-left': -(self.element.width() / 2)
-        });
     },
     renderGalleryNav: function(){
         var self = this;
