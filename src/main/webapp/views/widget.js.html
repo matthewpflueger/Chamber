@@ -596,6 +596,20 @@ Echoed = {
     },
     Models:{},
     Collections:{},
+    getImageSizing: function(image, width){
+        return {
+            height: image.preferredHeight / image.preferredWidth * width,
+            width: width
+        }
+    },
+    getProfilePhotoUrl: function(echoedUser){
+        if(echoedUser.facebookId !== null){
+            return "http://graph.facebook.com/" + echoedUser.facebookId + "/picture";
+        } else if(echoedUser.twitterId !== null) {
+            return "http://api.twitter.com/1/users/profile_image/" + echoedUser.twitterId;
+        }
+        return "";
+    },
     init: function(options) {
         this.partnerId = options.partnerId;
         this.echoedUserId = options.echoedUserId;
@@ -604,8 +618,19 @@ Echoed = {
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#echoed-infiniteScroll', EvAg : EventAggregator});
         var story = new Echoed.Views.Components.Story({ el: '#echoed-story', EvAg: EventAggregator });
         var fade = new Echoed.Views.Components.Fade({ el: '#echoed-fade', EvAg: EventAggregator });
+        var router = new Echoed.Router( { EvAg: EventAggregator } );
     }
 };
+Echoed.Router = Backbone.Router.extend({
+    initialize: function(options) {
+        _.bindAll(this,'me','friends','explore', 'story','resetHash');
+        this.EvAg = options.EvAg;
+        this.EvAg.bind("hash/reset", this.resetHash);
+        this.page = null;
+    },
+    routes: {
+    }
+});
 
 Echoed.Views.Components.Opener = Backbone.View.extend({
     initialize: function(options){
@@ -792,7 +817,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 columnWidth: 5
             }
         });
-
         self.EvAg.trigger('infiniteScroll/lock');
         EchoedjQuery.ajax({
             url: self.jsonUrl,
@@ -890,24 +914,24 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
         var image = self.data.story.image;
 
-        var hToWidthRatio = image.preferredHeight / image.preferredWidth;
-        var width = 228;
-        imageNode.attr("src", image.sizedUrl).css({
-            "height" : width * hToWidthRatio,
-            "width" : width
-        });
+        imageNode.attr("src", image.sizedUrl).css(Echoed.getImageSizing(image, 228));
         overlayNode.html(self.data.story.title);
-        textNode.append(self.data.story.title +"<br/>");
-        textNode.append("Story By <a class='story-brief-text-user' target='_blank' href='" + Echoed.Urls.Site + "#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>");
-        if(self.data.echoedUser.facebookId) {
-            photoSrc = "http://graph.facebook.com/" + self.data.echoedUser.facebookId + "/picture";
-            textNode.append(EchoedjQuery("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src",photoSrc).css({"margin": 5 }));
-        }
-        var chapterText = self.data.chapters[0].text.substr(0,100);
-        if(self.data.chapters[0].text.length > 100){
-            chapterText += "...";
-        }
-        textNode.append(EchoedjQuery("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
+        textNode.append(EchoedjQuery("<div class='story-brief-text-title'></div>").append(self.data.story.title));
+        textNode.append(EchoedjQuery("<div class='story-brief-text-by'></div>").append("Story by <a class='story-brief-text-user' target='_blank' href='" + Echoed.Urls.Site  + "#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
+
+        textNode.append(EchoedjQuery("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)).css({"margin": 5 }));
+        var chapterText = self.data.chapters[0].text;
+        var c  = chapterText.split(/[.!?]/)[0];
+        c = c + chapterText.substr(c.length, 1); //Append Split Character
+
+
+        textNode.prepend(EchoedjQuery("<div class='story-brief-text-quote'></div>").html('"' + chapterText + '"'));
+        var indicators = EchoedjQuery("<div class='story-brief-indicator'></div>");
+        indicators.append(EchoedjQuery("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
+        indicators.append(EchoedjQuery("<span class='story-brief-indicator-value'></span>").append(self.data.comments.length));
+        indicators.append(EchoedjQuery("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
+        indicators.append(EchoedjQuery("<span class='story-brief-indicator-value'></span>").append(self.data.chapterImages.length + 1));
+        textNode.append(indicators);
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
@@ -923,79 +947,6 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var id = self.element.attr("id");
         self.EvAg.trigger('story/show', id);
         this.EvAg.trigger('exhibit/hide');
-    }
-});
-
-Echoed.Views.Components.Product = Backbone.View.extend({
-    initialize: function(options){
-        _.bindAll(this,'click', 'showHighlight', 'hideHighlight');
-        this.el = options.el;
-        this.EvAg = options.EvAg;
-        this.state = 0;
-        this.render();
-    },
-    events:{
-        "click .exhibit_image": "click",
-        "mouseenter": "showHighlight",
-        "mouseleave": "hideHighlight"
-    },
-    render: function(){
-        this.template = '<div class="item_content"><img class="exhibit_image" width="230px" src=""/><div class="item_text"></div></div>';
-
-        var self = this;
-        var imageUrl =   this.model.get("image").sizedUrl;
-        var imageWidth = this.model.get("image").preferredWidth;
-        var imageHeight = this.model.get("image").preferredHeight;
-        var ratio = imageHeight / imageWidth;
-        this.el.attr("date", this.model.get("echoBoughtOn"));
-        this.el.attr("productId", this.model.get("echoProductId"));
-        this.el.attr("partnerId", this.model.get("partnerId"));
-        this.el.attr("id", this.model.get("echoId"));
-        this.el.attr("href", Echoed.Urls.Api + "/echo/" + this.el.attr("id"));
-        this.el.addClass("item_wrap").html(this.template);
-        var img = this.el.find("img");
-        var text = this.el.find(".item_text");
-
-
-        var boughtOnDate = new Date(this.model.get("echoBoughtOn"));
-        var todayDate = new Date();
-
-        if(this.model.get("echoProductName")){
-            text.prepend('<span class="icl_pn"><strong>'+this.model.get("echoProductName") + '</strong></span><br/>');
-        }
-
-        var dateDiff = todayDate - boughtOnDate;
-        var dayDiff = Math.floor((dateDiff)/(1000*60*60*24));
-        var hourDiff = Math.floor((dateDiff)/(1000*60*60));
-        var minDiff = Math.floor((dateDiff)/(1000*60));
-        if(dayDiff >= 1 ){
-            text.append(dayDiff + " day(s) ago <br/>");
-        } else if (hourDiff >= 1) {
-            text.append(hourDiff + " hour(s) ago <br/>");
-        } else {
-            text.append(minDiff + " minute(s) ago <br/>");
-        }
-        img.attr('src', imageUrl);
-        imageWidth = 228;
-        if (imageWidth > 0) {
-            img.attr('width', imageWidth)
-        }
-        if (imageHeight > 0) {
-            img.attr('height', ratio * imageWidth)
-        }
-        return this;
-    },
-    showHighlight: function(e){
-        var self = this;
-        this.el.find('.exhibit_image').addClass("highlight");
-    },
-    hideHighlight: function(e){
-        var self = this;
-        this.el.find('.exhibit_image').removeClass("highlight");
-    },
-    click: function(e){
-        var self = this;
-        window.open(this.el.attr("href"));
     }
 });
 
@@ -1034,7 +985,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
     },
     render: function(){
-        var template = '<div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-container clearfix"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"><div class="echo-gallery-header">Topics:</div></div></div>';
+        var template = '<div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-container clearfix"><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"></div></div>';
         var self = this;
         self.element.html(template);
 
@@ -1068,9 +1019,12 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.text = self.element.find('.echo-s-b-text');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.sizedUrl);
-
+        self.userNode = self.element.find('.echo-s-h-t-n');
         var userLink = '<a class="echo-s-h-t-n-u" target="_blank" href="' + Echoed.Urls.Site +'#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
-        self.element.find('.echo-s-h-t-n').html("by " + userLink);
+        var userImage = EchoedjQuery('<img />').attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)).addClass("echo-s-h-t-n-i").attr("align", "absmiddle");
+        self.userNode.append(userImage);
+
+        self.userNode.append("by " + userLink);
         self.galleryNode = EchoedjQuery("#echo-story-gallery");
 
         self.itemNode = EchoedjQuery("<div class='echo-s-b-item'></div>");
@@ -1113,10 +1067,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             self.galleryNode.append(self.galleryChapters[index]);
             EchoedjQuery.each(chapter.images, function(index2, image){
                 var thumbNailHash = index + "-" + index2;
-                self.thumbnails[thumbNailHash] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css({
-                    "height" :(90  * image.preferredHeight / image.preferredWidth),
-                    "width" : 90
-                });
+                self.thumbnails[thumbNailHash] = EchoedjQuery('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css(Echoed.getImageSizing(image, 90));
                 self.galleryChapters[index].append(self.thumbnails[thumbNailHash]);
             });
         });
@@ -1164,10 +1115,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
 
         var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
         self.img.fadeOut();
-        self.itemImageContainer.animate({
-            height: 400 * currentImage.preferredHeight / currentImage.preferredWidth,
-            width: 400
-        }, function(){
+        self.itemImageContainer.animate(Echoed.getImageSizing(currentImage, 400), function(){
             if(currentImage.storyUrl !== null){
                 self.img.attr('src', currentImage.storyUrl);
             } else {
@@ -1202,7 +1150,9 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         EchoedjQuery("#echo-story-comment-ta").val("");
         if(self.data.comments.length > 0) EchoedjQuery("#echo-s-c-t-count").html("(" + self.data.comments.length + ")");
         EchoedjQuery.each(self.data.comments, function(index,comment){
+            var img = EchoedjQuery('<img class="echo-s-c-l-c-u-i" />').attr("src", Echoed.getProfilePhotoUrl(comment.echoedUser)).attr("align", "absmiddle");
             var commentUserNode = EchoedjQuery('<div class="echo-s-c-l-c-u"></div>').append(EchoedjQuery("<a></a>").append(comment.echoedUser.name).attr("href",Echoed.Urls.Site + "#user/" + comment.echoedUser.id).attr("target","_blank"));
+            img.prependTo(commentUserNode);
             var commentText = EchoedjQuery('<div class="echo-s-c-l-c-t"></div>').append(comment.text);
             var commentNode = EchoedjQuery('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
             commentListNode.append(commentNode);

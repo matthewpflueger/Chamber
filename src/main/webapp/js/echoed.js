@@ -210,6 +210,7 @@ Echoed.Router = Backbone.Router.extend({
         } else {
             window.location.hash = "#";
         }
+
     },
 });
 

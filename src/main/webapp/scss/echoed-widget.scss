@@ -216,24 +216,73 @@ $headerFontFamily: 'Arvo', serif;
 
 
         .story-brief{
-            cursor: pointer;
+            //cursor: pointer;
+            .story-brief-indicator{
+                border-top: #CCC 1px dotted;
+                padding-top:3px;
+                margin-top: 3px;
+                height: 12px;
+                font-size: 11px;
+                .s-b-i-c{
+                    //margin-left: 5px;
+                    float:right;
+                    font-size: 11px;
+                    font-style: italic;
+                }
+                .story-brief-indicator-value{
+                    margin-right: 3px;
+                    @include textFontBold(11px, $mainColor);
+
+                }
+                .story-brief-indicator-sprite{
+                    width: 12px;
+                    height: 12px;
+                    top: 3px;
+                    margin: 0 2px;
+                    display: inline-block;
+                }
+                .sprite-comment{
+                    background-image: image-url("icon_comments.png");
+                }
+                .sprite-photo{
+                    background-image: image-url("icon_photos.png");
+                }
+            }
             .story-brief-text{
-                position:relative;
+                position: relative;
                 padding: 7px 5px 2px 5px;
                 line-height: 1.5em;
                 @include textFontNormal(12px, #333);
                 background-color: rgba(255,255,255, 0.8);
-                width: 226px;
-                .story-brief-text-from{
+                width: 228px;
+                .story-brief-text-from, .story-brief-text-title, .story-brief-text-by{
                     width: 180px;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow:hidden;
                 }
-                .story-brief-text-by{
-                    width: 180px;
+                .story-brief-text-title{
+                    font-weight: bold;
+                }
+                .story-brief-text-quote{
+                    overflow: hidden;
+                    margin-bottom: 10px;
+                    font-size: 13px;
+                    font-style: italic;
+                    word-wrap: break-word;
+                    text-overflow: ellipsis;
+
                 }
                 .story-brief-text-user{
                     @include textFontBold(12px);
-                    text-decoration: none;
-                    //@include textFpmt(12px);
+                    text-decoration:none;
+
+                    &:hover{
+                        color: $mainColor;
+                    }
+                }
+                .story-brief-text-partner{
+                    font-weight: bold;
                     &:hover{
                         color: $mainColor;
                     }
@@ -241,24 +290,19 @@ $headerFontFamily: 'Arvo', serif;
                 .story-brief-text-user-image{
                     display: block;
                     position: absolute;
-                    top: 0px;
+                    bottom: 18px;
                     border: 2px solid #CCC;
-                    right: 0px;
-                    height: 35px;
-                    width: 35px;
+                    right: 3px;
+                    height: 30px;
+                    width: 30px;
                 }
-                .story-brief-text-quote{
-                    overflow: hidden;
-                    margin-top: 10px;
-                    font-style: italic;
-                    word-wrap: break-word;
-                    text-overflow: ellipsis;
-
-                }
+            }
+            .story-brief-image{
+                display: block;
             }
             .story-brief-image-container{
                 position:relative;
-                border: 4px solid #F0F0F0;
+                border: 6px solid #F0F0F0;
                 border-radius: 3px;
                 cursor: pointer;
                 -webkit-transition: all 0.2s ease-in-out;
@@ -277,15 +321,18 @@ $headerFontFamily: 'Arvo', serif;
                     top:0px;
                     left:0px;
                     right:0px;
+                    word-wrap: break-word;
                     overflow: hidden;
+
                     .story-brief-overlay-wrap{
                         margin: 20px;
                         @include headerFont(24px, #FFF);
                         text-align: center;
+                        .story-brief-overlay-edit-button{
+                            @include button;
+                            @include textFontBold(16px, #FFF);
+                        }
                     }
-                }
-                .story-brief-image{
-                    display: block;
                 }
             }
 
@@ -350,6 +397,7 @@ $headerFontFamily: 'Arvo', serif;
     top: 50px;
     text-align: left;
     width: 880px;
+    margin-left: -440px;
     left: 50%;
     border-radius: 10px;
     background-color: #FFF;
@@ -387,7 +435,18 @@ $headerFontFamily: 'Arvo', serif;
                 .echo-s-h-t-n{
                     @include textFontNormal(16px);
                     text-align: center;
-                    .echo-s-h-t-n-u{
+                    position: relative;
+                    .echo-s-h-t-n-i{
+                        display:inline-block;
+                        height: 30px;
+                        width: 30px;
+                        margin-right: 5px;
+                        border: 2px solid #FFF;
+                    }
+
+                    .ss-h-t-n-u{
+                        display:inline-block;
+                        text-align: left;
                         @include textFontNormal(16px);
                         text-decoration: none;
                         &:hover{
@@ -519,6 +578,7 @@ $headerFontFamily: 'Arvo', serif;
                 }
             }
             .echo-story-comments{
+                width: 715px;
                 .echo-s-c-t{
                     @include textFontBold(24px);
                     text-shadow: 0px 1px 0px #FFF;
@@ -564,8 +624,14 @@ $headerFontFamily: 'Arvo', serif;
                                 text-decoration: none;
                             }
                         }
+                        .echo-s-c-l-c-u-i{
+                            height: 25px;
+                            width: 25px;
+                            margin-right: 10px;
+                            border: 2px solid #FFF;
+                        }
                         .echo-s-c-l-c-t{
-                            padding: 5px 0px;
+                            padding: 5px 37px;
                             @include textFontNormal(14px, #000);
                             border-bottom: 1px dotted #999;
                         }
