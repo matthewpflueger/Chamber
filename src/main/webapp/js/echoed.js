@@ -1137,7 +1137,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             img.prependTo(commentUserNode);
             var commentText = $('<div class="echo-s-c-l-c-t"></div>').append(comment.text.replace(/\n/g, '<br />'));
             var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
-            commentListNode.append(commentNode);
+            commentListNode.prepend(commentNode);
         });
         if(Echoed.echoedUser) {
             self.element.find('.comment-submit').fadeIn();
