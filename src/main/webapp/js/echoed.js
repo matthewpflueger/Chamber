@@ -92,9 +92,33 @@ Echoed = {
         var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
         var category = new Echoed.Views.Components.Menu({ el: '#menu', EvAg: EventAggregator });
         var categoryList = new Echoed.Views.Components.CategoryList({ el: '#category-nav', EvAg: EventAggregator });
+        var iFrameComm = new Echoed.Views.Components.MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator });
+        var iFrameNode = document.createElement('iframe');
+        iFrameNode.height = "0px";
+        iFrameNode.width = "0px";
+        iFrameNode.style.border = "none";
+        iFrameNode.id = "echoed-iframe";
+        iFrameNode.src = Echoed.urls.api + "/echo/iframe";
+        document.getElementsByTagName('body')[0].appendChild(iFrameNode);
         Backbone.history.start();
     }
 };
+
+Echoed.Views.Components.MessageHandler = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'receiveMessageResponse');
+        this.EvAg = options.EvAg;
+        if(window.addEventListener){
+            window.addEventListener('message', this.receiveMessageResponse , false);
+        } else if (window.attachEvent) {
+            window.attachEvent('onmessage', this.receiveMessageResponse);
+        }
+    },
+    receiveMessageResponse: function(response){
+        //Echoed.echoedUser = response;
+        this.EvAg.trigger('user/login');
+    }
+});
 
 Echoed.Views.Components.CategoryList = Backbone.View.extend({
     initialize: function(options){
@@ -786,12 +810,13 @@ Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     el: '#content',
     initialize: function(options){
-        _.bindAll(this,'render','next','init', 'addProducts', 'nextStory', 'previousStory');
+        _.bindAll(this,'render','next','init', 'addProducts', 'nextStory', 'previousStory', 'login');
         this.EvAg = options.EvAg;
         this.EvAg.bind('exhibit/init', this.init);
         this.EvAg.bind('infiniteScroll', this.next);
         this.EvAg.bind('exhibit/story/next', this.nextStory);
         this.EvAg.bind('exhibit/story/previous', this.previousStory);
+        this.EvAg.bind('user/login', this.login);
         this.element = $(this.el);
         this.exhibit = $('#exhibit');
     },
@@ -832,6 +857,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 self.render(data);
             }
         })();
+    },
+    login: function(){
+        var self = this;
+        self.exhibit.isotope('remove', $('#login'))
     },
     nextStory: function(storyId){
         var self = this;
@@ -874,12 +903,12 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     addLogin: function(){
         var self = this;
-        var loginDiv = $('<div></div>').addClass('item_wrap');
+        self.loginDiv = $('<div></div>').addClass('item_wrap').attr("id","login");
         var template = _.template($("#templates-components-login").html());
-        loginDiv.html(template);
-        loginDiv.find("#facebookLogin").attr("href", Echoed.getFacebookLoginUrl(window.location.hash));
-        loginDiv.find("#twitterLogin").attr("href", Echoed.getTwitterLoginUrl(window.location.hash));
-        self.exhibit.isotope('insert', loginDiv)
+        self.loginDiv.html(template);
+        self.loginDiv.find("#facebookLogin").attr("href", Echoed.getFacebookLoginUrl(window.location.hash));
+        self.loginDiv.find("#twitterLogin").attr("href", Echoed.getTwitterLoginUrl(window.location.hash));
+        self.exhibit.isotope('insert', self.loginDiv)
     },
     addFriends: function(data){
         var self = this;
@@ -963,6 +992,7 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
     },
     click: function(e){
         window.location.hash = "#write/";
+        this.EvAg.trigger('user/login');
     }
 });
 
@@ -1059,13 +1089,20 @@ Echoed.Views.Components.Select = Backbone.View.extend({
 Echoed.Views.Components.Nav = Backbone.View.extend({
     el: "#header-nav",
     initialize: function(options){
-        _.bindAll(this, 'click');
+        _.bindAll(this, 'click', 'login');
         this.element = $(this.el);
         this.EvAg = options.EvAg;
+        this.EvAg.bind('user/login', this.login);
         this.li = this.element.find('li');
+        this.ul = this.element.find('ul');
     },
     events:{
         "click li": "click"
+    },
+    login: function(){
+        $('<li class="icon_friends" href="#me/friends" id="friends_nav"></li>').html('My Friends').hide().appendTo(this.ul).fadeIn();
+        $('<li class="icon_me" href="#me" id="me_nav"></li>').html('My Stories').hide().appendTo(this.ul).fadeIn();
+
     },
     click: function(e){
         this.li.removeClass("current");
