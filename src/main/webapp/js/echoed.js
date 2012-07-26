@@ -48,7 +48,6 @@ Echoed = {
         return Echoed.twitterUrl + encodeURIComponent(hash);
     },
     isUrl: function(s){
-        //var regexp = /(\w+:{3,3}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
         var regexp =/(http:\/\/|https:\/\/|www)(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
         return regexp.test(s);
     },
@@ -103,12 +102,30 @@ Echoed.Views.Components.CategoryList = Backbone.View.extend({
         this.EvAg = options.EvAg;
         this.el = options.el;
         this.element = $(this.el);
+        this.list = $('#category-list');
         this.render()
     },
     events: {
-        "click #category-more" : "seeMore"
+        "click #category-more" : "seeMore",
+        "click .category-menu-item" : "navigate"
+
     },
     render: function(){
+        var self = this;
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/api/tags/top",
+            success: function(data){
+                self.list.append('<div class="category-menu-header">Categories</div>');
+                $.each(data, function(index, tag){
+                    var categoryItem = $('<div class="category-menu-item"></div>').html(tag.id + " (" + tag.counter + ")").attr("href", tag.id);
+                    self.list.append(categoryItem);
+                });
+            }
+        })();
+    },
+    navigate: function(ev){
+        var target = $(ev.currentTarget)
+        window.location.hash = "category/" + target.attr("href");
     },
     seeMore: function(){
         this.EvAg.trigger("menu/show")
@@ -293,9 +310,7 @@ Echoed.Router = Backbone.Router.extend({
     category: function(categoryId){
         if(this.page != window.location.hash){
             this.page = window.location.hash;
-            this.EvAg.trigger('exhibit/init', { Type: "category", categoryId: categoryId });
-            _gaq.push(['_trackPageview', this.page]);
-            this.EvAg.trigger("page/change","category");
+            this.loadPage("category", { endPoint: "/category/" + categoryId })
         }
     },
     story: function(id){
@@ -1133,6 +1148,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         if(self.data.story.partnerHandle !== "Echoed"){
             var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
             fromLink = fromLink + '<a href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
+            //fromLink = fromLink + '<a target="_blank" href="' + Echoed.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + self.data.story.productInfo + '</a>';
         } else if (Echoed.isUrl(self.data.story.productInfo)){
             fromLink = fromLink + '<a target="_blank" href="' + Echoed.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
         } else {

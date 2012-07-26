@@ -14,8 +14,16 @@ class TagServiceActor(
         eventProcessor: EventProcessorActorSystem,
         tagDao: TagDao) extends EchoedActor {
 
+
+    implicit object PopularityOrdering extends Ordering[(Int, String)] {
+        def compare(a:(Int, String), b:(Int, String)) = {
+            Option(b._1 compare a._1).getOrElse(b._1 compare a._1)
+        }
+    }
+
     var tagMap = Map[String, Tag]()
     var treeMap = new TreeMap[String, Tag]
+    var popularMap = new TreeMap[(Int, String), Tag]()(PopularityOrdering)
 
     eventProcessor.subscribe(self, classOf[TagAdded])
     eventProcessor.subscribe(self, classOf[TagReplaced])
@@ -24,8 +32,12 @@ class TagServiceActor(
 
     override def preStart(){
         val tags = asScalaBuffer(tagDao.getTags).toList
-        tags.map(tag => tagMap += (tag.id.toLowerCase -> tag))
-        tags.map(tag => treeMap += (tag.id.toLowerCase -> tag))
+        tags.map({
+            tag =>
+                tagMap += (tag.id.toLowerCase -> tag)
+                treeMap += (tag.id.toLowerCase -> tag)
+                popularMap += ((tag.counter, tag.id.toLowerCase) -> tag)
+        })
     }
 
     def handle = {
@@ -43,6 +55,12 @@ class TagServiceActor(
             val channel = context.sender
             val tags = treeMap.values.filter( t => { t.id.toLowerCase.startsWith(filter.toLowerCase) && t.counter > 0  }).toList
             channel ! GetTagsResponse(msg, Right(tags))
+
+        case msg: GetTopTags =>
+            val channel = context.sender
+            val tags = popularMap.values.slice(0, 10).toList
+            log.debug("Tags: {}", tags)
+            channel ! GetTopTagsResponse(msg, Right(tags))
 
         case msg @ ApproveTag(tagId) =>
             val channel = context.sender

@@ -182,9 +182,9 @@ a{
 
 .nav-label{
     margin: 5px 10px 0px 10px;
-    padding: 7px 0px;
-    @include grooveTop;
-    @include textFontBold(16px);
+    padding: 3px 0px;
+    @include grooveBottom;
+    @include textFontBold(14px);
     text-shadow: 0px 1px 0px #FFF;
     text-align: left;
 }
@@ -1509,6 +1509,7 @@ h3{
     border-radius: 5px;
     border: 10px solid #FFF;
     background-image: image-url("bk_noise.jpg");
+    background-color: #FFF;
 
     .menu-close{
         position:absolute;
@@ -1966,8 +1967,8 @@ h3{
 }
 
 #category-more{
-    @include textFontBold(14px);
-    margin: 10px;
+    @include textFontBold(12px);
+    margin: 0px 10px;
     padding: 3px 5px;
     background-position: right;
     background-repeat: no-repeat;
@@ -1980,6 +1981,24 @@ h3{
     background: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
     background: linear-gradient(top, white 0%, #F3F3F3 100%);
     cursor: pointer;
+    &:hover{
+        color: $mainColor;
+    }
 }
 #category-nav{
+    .category-menu-header{
+        margin: 10px 10px 0px 10px;
+        @include textFontBold(14px);
+        padding: 3px 0px;
+        @include grooveBottom;
+    }
+    .category-menu-item{
+        margin: 0px 10px;
+        padding: 7px 5px;
+        cursor:pointer;
+        @include textFontBold(12px);
+        &:hover{
+            color: $mainColor;
+        }
+    }
 }

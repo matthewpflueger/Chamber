@@ -5,6 +5,8 @@ trait TagService {
 
     def getTags(filter: String): Future[GetTagsResponse]
 
+    def getTopTags: Future[GetTopTagsResponse]
+
     def addTag(tagId: String): Future[AddTagResponse]
 
     def removeTag(tagId: String): Future[RemoveTagResponse]

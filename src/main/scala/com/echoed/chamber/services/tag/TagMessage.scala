@@ -18,6 +18,11 @@ case class GetTagsResponse(
         message: GetTags,
         value: Either[TE, JList[Tag]]) extends TM with MR[JList[Tag], GetTags, TE]
 
+case class GetTopTags() extends TM
+case class GetTopTagsResponse(
+        message: GetTopTags,
+        value: Either[TE, JList[Tag]]) extends TM with MR[JList[Tag], GetTopTags, TE]
+
 case class AddTag(tagId: String) extends TM
 case class AddTagResponse(
         message: AddTag,

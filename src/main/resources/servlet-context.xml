@@ -397,6 +397,12 @@
         <property name="widgetJsView" value="widget.js"/>
     </bean>
 
+    <!-- suppress DuplicatedBeanNamesInspection -->
+    <bean id="redirectController" class="com.echoed.chamber.controllers.RedirectController">
+        <property name="errorView" value="error" />
+        <property name="partnerServiceManager" ref="partnerServiceManager" />
+    </bean>
+
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>
 

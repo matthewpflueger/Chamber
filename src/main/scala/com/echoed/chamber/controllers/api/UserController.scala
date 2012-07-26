@@ -249,7 +249,7 @@ class UserController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
         tagService.getTags(tagId).onSuccess {
             case GetTagsResponse(_, Right(tags)) => result.set(tags)
         }
@@ -270,4 +270,18 @@ class UserController {
         result
 
     }
+
+    @RequestMapping(value = Array("/tags/top"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getTopTag(
+        httpServletRequest: HttpServletRequest,
+        HttpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult(ErrorResult.timeout)
+        tagService.getTopTags.onSuccess {
+            case GetTopTagsResponse(_, Right(tags)) => result.set(tags)
+        }
+        result
+    }
+
 }
