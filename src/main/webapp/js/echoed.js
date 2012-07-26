@@ -264,7 +264,7 @@ Echoed.Router = Backbone.Router.extend({
     explore: function(){
         if(this.page != window.location.hash){
             this.page = "";
-            this.loadPage("explore", { endPoint: "/me/feed" });
+            this.loadPage("explore", { endPoint: "/me/feed", title: "Community"});
         }
     },
     partnerFeed: function(partnerId) {
@@ -288,7 +288,13 @@ Echoed.Router = Backbone.Router.extend({
     user: function(id){
         if(this.page != window.location.hash){
             this.page = window.location.hash;
-            this.loadPage('user', { Type: 'friend', endPoint: "/user/" + id});
+            this.loadPage('user', { endPoint: "/user/" + id });
+        }
+    },
+    category: function(categoryId){
+        if(this.page != window.location.hash){
+            this.page = window.location.hash;
+            this.loadPage("category", { endPoint: "/category/" + categoryId, title: Id })
         }
     },
     writeStory: function(type, id){
@@ -306,12 +312,6 @@ Echoed.Router = Backbone.Router.extend({
         }
         this.oldPage = this.page;
         this.EvAg.trigger("field/show",id , type);
-    },
-    category: function(categoryId){
-        if(this.page != window.location.hash){
-            this.page = window.location.hash;
-            this.loadPage("category", { endPoint: "/category/" + categoryId })
-        }
     },
     story: function(id){
         if(this.page === null) {

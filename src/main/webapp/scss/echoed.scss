@@ -111,7 +111,7 @@ $headerFontFamily: 'Arvo', serif;
         display: inline-block;
         min-width: 100px;
         text-align: center;
-        padding: 10px 10px;
+        padding: 5px 10px;
         background-color: #eb1a24;
         background: -moz-linear-gradient(top, #eb1a24 0%, #b41b25);
         background: -webkit-gradient(linear, left top, left bottom, from(#eb1a24), to(#b41b25));
@@ -274,14 +274,11 @@ a{
 
         #actions{
             background-color: #DDD;
-            margin-bottom: 10px;
-            margin: 10px 5px;
+            margin: 10px 5px 5px 5px;
             text-align:center;
-            padding: 5px;
-            display: none;
             .action-button{
                 cursor: pointer;
-                @include textFontBold(16px, #FFF);
+                @include textFontBold(14px, #FFF);
                 @include button();
                 display: block;
             }
@@ -404,7 +401,7 @@ a{
 
     #content{
         padding-top: 43px;
-        margin-right: 200px;
+        margin-right: 180px;
     }
 
     #content-title{
@@ -1232,10 +1229,9 @@ a{
 				float:left;
 	            margin: 5px;
 	            background-color: #FFF;
-	            //@include drop-shadow;
                 border: 1px solid #CCC;
 	            &:hover{
-	                border-color: #000;
+	                border-color: #000 !important;
                     cursor: pointer;
 	            }
 	            img{

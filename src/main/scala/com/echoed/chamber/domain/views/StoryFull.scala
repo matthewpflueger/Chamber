@@ -3,7 +3,8 @@ package com.echoed.chamber.domain.views
 import com.echoed.chamber.domain._
 
 import java.util.{ArrayList, List => JList}
-
+import scala.collection.JavaConversions
+import com.echoed.chamber.domain.public.CommentPublic
 
 case class StoryFull(
         id: String,
@@ -20,5 +21,10 @@ case class StoryFull(
             new ArrayList[Chapter],
             new ArrayList[ChapterImage],
             new ArrayList[Comment])
+
+    def convertCommentsToPublic = {
+        JavaConversions.asScalaBuffer(comments).map({ new CommentPublic(_) }).toList
+    }
+
 }
 
