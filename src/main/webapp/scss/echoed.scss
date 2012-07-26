@@ -50,6 +50,11 @@ $headerFontFamily: 'Arvo', serif;
         box-shadow: 0px 1px 0px #FFF;
     }
 
+    @mixin grooveTop(){
+        border-top: 1px solid #FFF;
+        box-shadow: 0px -1px 0px #CCC;
+    }
+
     @mixin textFontBold($size: 12px, $color: #333) {
         font-family: $textFontFamily;
         font-size: $size;
@@ -171,8 +176,7 @@ a{
 .nav-label{
     margin: 5px 10px 0px 10px;
     padding: 7px 0px;
-    border-bottom: 1px #CCC solid;
-    box-shadow: 0px 1px 0px #FFF;
+    @include grooveTop;
     @include textFontBold(16px);
     text-shadow: 0px 1px 0px #FFF;
     text-align: left;
@@ -357,10 +361,7 @@ a{
 		}
 
         #footer-nav{
-            box-shadow: 0px -1px #CCC;
-            border-top: 1px solid #FFF;
-
-
+            @include grooveTop;
             li{
                 padding: 7px 10px;
                 list-style:none;
@@ -398,7 +399,6 @@ a{
     #content{
         padding-top: 43px;
         margin-right: 200px;
-        //height: 100%;
     }
 
     #content-title{
