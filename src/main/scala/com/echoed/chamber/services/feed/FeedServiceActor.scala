@@ -29,11 +29,13 @@ class FeedServiceActor(
         }
     }
 
-    var storyMap = new HashMap[String, StoryFull]
-    var storyTree = new TreeMap[(Long, String), StoryFull]()(StoryOrdering)
-    val stories = asScalaBuffer(feedDao.getAllStories).map(updateStory(_))
+    var storyMap = new HashMap[String, StoryPublic]
+    var storyTree = new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)
+    val stories = asScalaBuffer(feedDao.getAllStories).map({
+        sf => updateStory(new StoryPublic(sf))
+    })
 
-    def updateStory(storyFull: StoryFull) {
+    def updateStory(storyFull: StoryPublic) {
         storyMap.get(storyFull.id).map(s => storyTree -= ((storyFull.story.updatedOn, storyFull.story.id)))
         storyMap += (storyFull.id -> storyFull)
         storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
@@ -45,7 +47,9 @@ class FeedServiceActor(
 
         case msg @ StoryUpdated(storyId: String) =>
             log.debug("Story Updated: {}", storyId)
-            Option(feedDao.findStoryById(storyId)).map(updateStory(_))
+            Option(feedDao.findStoryById(storyId)).map({
+                sf => updateStory(new StoryPublic(sf))
+            })
             //CURRENTLY HITS DATABASE ONCE STORY HAS BEEN UPDATED TO GRAB FULL STORY
 
         case msg @ GetPublicFeed(page: Int) =>

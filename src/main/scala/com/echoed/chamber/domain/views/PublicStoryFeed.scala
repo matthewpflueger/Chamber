@@ -1,7 +1,9 @@
 package com.echoed.chamber.domain.views
 
-case class PublicStoryFeed(stories: List[StoryFull]) {
+import com.echoed.chamber.domain.public.StoryPublic
 
-    def this() = this(List[StoryFull]())
+case class PublicStoryFeed(stories: List[StoryPublic]) {
+
+    def this() = this(List[StoryPublic]())
 
 }

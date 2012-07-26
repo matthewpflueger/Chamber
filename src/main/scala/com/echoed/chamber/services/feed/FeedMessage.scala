@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedExceptio
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.Tag
 import java.util.{List => JList}
+import com.echoed.chamber.domain.public.StoryPublic
 
 sealed trait FeedMessage extends Message
 
@@ -26,8 +27,8 @@ case class GetStoryIdsResponse(message: GetStoryIds, value: Either[FE, Array[Str
         extends FM with MR[Array[String], GetStoryIds, FE]
 
 case class GetStory(storyId: String) extends FM
-case class GetStoryResponse(message: GetStory, value: Either[FE, Option[StoryFull]])
-        extends FM with MR[Option[StoryFull], GetStory, FE]
+case class GetStoryResponse(message: GetStory, value: Either[FE, Option[StoryPublic]])
+        extends FM with MR[Option[StoryPublic], GetStory, FE]
 
 case class GetPublicFeed(page: Int) extends FM
 case class GetPublicFeedResponse(
