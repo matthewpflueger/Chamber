@@ -623,10 +623,6 @@ Echoed = {
 };
 Echoed.Router = Backbone.Router.extend({
     initialize: function(options) {
-        _.bindAll(this,'me','friends','explore', 'story','resetHash');
-        this.EvAg = options.EvAg;
-        this.EvAg.bind("hash/reset", this.resetHash);
-        this.page = null;
     },
     routes: {
     }
