@@ -294,7 +294,7 @@ Echoed.Router = Backbone.Router.extend({
     category: function(categoryId){
         if(this.page != window.location.hash){
             this.page = window.location.hash;
-            this.loadPage("category", { endPoint: "/category/" + categoryId, title: Id })
+            this.loadPage("category", { endPoint: "/category/" + categoryId, title: categoryId })
         }
     },
     writeStory: function(type, id){
