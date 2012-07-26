@@ -396,9 +396,10 @@ $headerFontFamily: 'Arvo', serif;
 #echoed-story{
     position:absolute;
     text-align: left;
-    width: 880px;
-    margin-left: -440px;
+    width: 870px;
+    margin-left: -435px;
     left: 50%;
+    top: 20px;
     z-index: 10000;
     .clearfix{
         zoom:1;
@@ -576,7 +577,7 @@ $headerFontFamily: 'Arvo', serif;
                 }
             }
             .echo-story-comments{
-                width: 715px;
+                width: 722px;
                 .echo-s-c-t{
                     @include textFontBold(24px);
                     text-shadow: 0px 1px 0px #FFF;
