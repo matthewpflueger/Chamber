@@ -122,11 +122,12 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
 
 Echoed.Views.Components.CategoryList = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'seeMore');
+        _.bindAll(this, 'seeMore', 'render');
         this.EvAg = options.EvAg;
         this.el = options.el;
         this.element = $(this.el);
         this.list = $('#category-list');
+        this.EvAg.bind("category/refresh", this.render);
         this.render()
     },
     events: {
@@ -136,6 +137,7 @@ Echoed.Views.Components.CategoryList = Backbone.View.extend({
     },
     render: function(){
         var self = this;
+        self.list.empty();
         Echoed.AjaxFactory({
             url: Echoed.urls.api + "/api/tags/top",
             success: function(data){
@@ -448,6 +450,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         var category = $('#ajax-input').find(".input-field").val();
         category = category.substring(0,1).toUpperCase() + category.slice(1);
+        category = category.replace(/[^a-zA-Z ]+/g,'');
         Echoed.AjaxFactory({
             url: Echoed.urls.api + "/story/" + self.data.storyFull.id + "/tag",
             type: "POST",
@@ -458,6 +461,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             success: function(data){
                 self.data.storyFull.story = data;
                 self.loadStorySummary();
+                self.EvAg.trigger('category/refresh');
             }
         })();
     },
