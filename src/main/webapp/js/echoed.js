@@ -464,6 +464,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         category = $.trim(category.replace(/[^a-zA-Z 0-9-_]+/g,''));
         var cArray = category.split(" ");
         $.each(cArray, function(index, string){
+            string = string.toLowerCase();
             cArray[index] = string.substring(0,1).toUpperCase() + string.slice(1);
         });
         category = cArray.join(" ");
