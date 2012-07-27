@@ -150,7 +150,7 @@ Echoed.Views.Components.CategoryList = Backbone.View.extend({
     },
     navigate: function(ev){
         var target = $(ev.currentTarget);
-        window.location.hash = "category/" + target.attr("href");
+        window.location.hash = "!category/" + target.attr("href");
     },
     seeMore: function(){
         this.EvAg.trigger("menu/show")
@@ -192,7 +192,7 @@ Echoed.Views.Components.Menu = Backbone.View.extend({
         var self = this;
         var href = $(ev.currentTarget).attr("href");
         self.EvAg.trigger('fade/hide');
-        window.location.hash = "#category/" + href;
+        window.location.hash = "#!category/" + href;
 
     },
     unload: function(){
@@ -296,7 +296,20 @@ Echoed.Router = Backbone.Router.extend({
         "story/:id": "story",
         "write/:type/:id" : "writeStory",
         "write/" : "writeStory",
-        "write": "writeStory"
+        "write": "writeStory",
+        //
+        "!": "explore",
+        "!me/friends": "friends",
+        "!me/": "me",
+        "!me": "me",
+        "!user/:id": "user",
+        "!category/:category": "category",
+        "!partner/:name/": "partnerFeed",
+        "!partner/:name": "partnerFeed",
+        "!story/:id": "story",
+        "!write/:type/:id" : "writeStory",
+        "!write/" : "writeStory",
+        "!write": "writeStory"
     },
     fix: function(){
         window.location.href = "#";
@@ -320,7 +333,7 @@ Echoed.Router = Backbone.Router.extend({
     },
     me: function() {
         if(this.page != window.location.hash){
-            this.page = "#me";
+            this.page = "#!me";
             this.loadPage("exhibit", { endPoint: "/me/exhibit", personal: true, title: "My Stories"});
         }
     },
@@ -347,7 +360,7 @@ Echoed.Router = Backbone.Router.extend({
             switch(type){
                 case "partner":
                     this.partnerFeed(id);
-                    this.page = "#partner/" + id;
+                    this.page = "#!partner/" + id;
                     break;
                 default:
                     this.explore();
@@ -373,10 +386,10 @@ Echoed.Router = Backbone.Router.extend({
         if(this.oldPage){
             window.location.hash = this.oldPage;
         } else {
-            window.location.hash = "#";
+            window.location.hash = "#!";
         }
 
-    },
+    }
 });
 
 Echoed.Views.Components.Field = Backbone.View.extend({
@@ -548,7 +561,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         switch(nextAction){
             case "finish":
                 self.unload(function(){
-                    window.location.hash = "#story/" + self.data.storyFull.story.id;
+                    window.location.hash = "#!story/" + self.data.storyFull.story.id;
                 });
                 break;
             case "add":
@@ -1130,8 +1143,8 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
         "click li": "click"
     },
     login: function(){
-        $('<li class="icon_friends" href="#me/friends" id="friends_nav"></li>').html('My Friends').hide().appendTo(this.ul).fadeIn();
-        $('<li class="icon_me" href="#me" id="me_nav"></li>').html('My Stories').hide().appendTo(this.ul).fadeIn();
+        $('<li class="icon_friends" href="#!me/friends" id="friends_nav"></li>').html('My Friends').hide().appendTo(this.ul).fadeIn();
+        $('<li class="icon_me" href="#!me" id="me_nav"></li>').html('My Stories').hide().appendTo(this.ul).fadeIn();
 
     },
     click: function(e){
@@ -1477,10 +1490,10 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     click: function(){
         var self = this;
         if(this.personal) {
-            window.location.hash = "#write/story/" + self.data.story.id;
+            window.location.hash = "#!write/story/" + self.data.story.id;
         } else {
             var id = self.element.attr("id");
-            window.location.hash = "#story/" + self.data.story.id;
+            window.location.hash = "#!story/" + self.data.story.id;
         }
     }
 });
@@ -1577,11 +1590,11 @@ Echoed.Views.Components.Product = Backbone.View.extend({
     },
     clickPartner: function(e){
         var id = this.el.attr("partnerHandle") ? this.el.attr("partnerHandle") : this.el.attr("partnerId");
-        window.location.hash = "#partner/" + id;
+        window.location.hash = "#!partner/" + id;
     },
     click: function(e){
         if(this.personal){
-            window.location.hash = "#write/echo/" + this.el.attr("id");
+            window.location.hash = "#!write/echo/" + this.el.attr("id");
         } else {
             var href = this.el.attr("href");
             window.open(href);
