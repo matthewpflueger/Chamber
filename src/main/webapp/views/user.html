@@ -215,7 +215,10 @@
                             <textarea id="echo-story-comment-ta"></textarea>
                         </div>
                         <span class="comment-submit" style="display: none;">Submit Comment</span>
-                        <span class="comment-login" style="display: none;"></span>
+                        <span class="comment-login" style="display: none;">
+                            <img class="login-button comment-login-fb" src="{{urls.images}}/btn_facebook_login.png">
+                            <img class="comment-login-tw login-button" src="{{urls.images}}/btn_twitter_login.png">
+                        </span>
                         <div class="echo-s-c-l">
                             <!-- Comment List -->
                         </div>
@@ -323,9 +326,8 @@
             <div id="logo">
                 <a href="/"><img height="40px" src="{{urls.images}}/logo.png"></a>
             </div>
-            {{#echoedUser}}
             <div id="user" class="clearfix">
-
+                {{#echoedUser}}
                 <div id="user-image">
                     {{#facebookId}}
                     <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{.}}/picture" />
@@ -334,8 +336,8 @@
                 <div id="user-text">
                     {{name}} (<span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span>) <br />
                 </div>
+                {{/echoedUser}}
             </div>
-            {{/echoedUser}}
         </div>
         <div id="nav-container">
             <div id="actions"></div>

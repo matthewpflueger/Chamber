@@ -401,6 +401,9 @@
     <bean id="redirectController" class="com.echoed.chamber.controllers.RedirectController">
         <property name="errorView" value="error" />
         <property name="partnerServiceManager" ref="partnerServiceManager" />
+        <property name="echoedUserServiceLocator" ref="echoedUserServiceLocator" />
+        <property name="cookieManager" ref="cookieManager"/>
+        <property name="echoAuthComplete" value="echo_auth_complete" />
     </bean>
 
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->

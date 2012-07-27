@@ -9,9 +9,11 @@
                 {{/echoedUserName}}
                 {{#facebookUserId}}
                     data.facebook = true;
+                    data.facebookId = '{{.}}';
                 {{/facebookUserId}}
                 {{#twitterUserId}}
                     data.twitter = true;
+                    data.twitterId = '{{.}}';
                 {{/twitterUserId}}
                 data.success = true;
 
@@ -43,11 +45,9 @@
             <div id="message">
                 <img src="{{urls.images}}/logo.png" /><br/>
                 <img src="{{urls.images}}/bar-loader.gif" /><br/>
+                    Logging into Echoed
                 {{#network}}
-                    Logging into Echoed with {{.}}
-                {{/network}}
-                {{^network}}
-                    Error logging you into Echoed
+                    with {{.}}
                 {{/network}}
             </div>
         </div>

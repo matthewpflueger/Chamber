@@ -82,7 +82,7 @@ Echoed = {
         };
         var router = new Echoed.Router({EvAg: EventAggregator});
         var nav = new Echoed.Views.Components.Nav({EvAg: EventAggregator});
-        var logout = new Echoed.Views.Components.Logout({el: '#logout', EvAg: EventAggregator});
+        var logout = new Echoed.Views.Components.Login({el: '#user', EvAg: EventAggregator});
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#infiniteScroll', EvAg : EventAggregator});
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#content', EvAg: EventAggregator });
         var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
@@ -115,7 +115,7 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
         }
     },
     receiveMessageResponse: function(response){
-        //Echoed.echoedUser = response;
+        Echoed.echoedUser = JSON.parse(response.data);
         this.EvAg.trigger('user/login');
     }
 });
@@ -996,17 +996,19 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
     }
 });
 
-Echoed.Views.Components.Logout = Backbone.View.extend({
+Echoed.Views.Components.Login = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'triggerClick');
+        _.bindAll(this, 'login');
         this.EvAg = options.EvAg;
+        this.EvAg.bind('user/login', this.login);
         this.el = options.el;
         this.element = $(this.el);
     },
-    events:{
-        "click": "triggerClick"
-    },
-    triggerClick: function(){
+    login: function(){
+        var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', Echoed.getProfilePhotoUrl(Echoed.echoedUser));
+        var ui = $('<div id="user-image"></div>').append(image);
+        var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name + ' (<span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span>) <br />');
+        this.element.append(ui).append(ut);
     }
 });
 
@@ -1113,20 +1115,29 @@ Echoed.Views.Components.Nav = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage','navClick');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage','navClick', 'login');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind('story/show', this.load);
+        this.EvAg.bind('user/login', this.login);
         this.locked = false;
     },
     events: {
         "click .echo-s-h-close" : "close",
         "click .comment-submit": "createComment",
+        "click .login-button": "commentLogin",
         "click .echo-s-b-thumbnail": "imageClick",
         "click .echo-s-b-item": "nextImage",
         "click .story-nav-button": "navClick",
         "click a": "close"
+    },
+    login: function(){
+        var self = this;
+
+        this.element.find('.comment-login').fadeOut(function(){
+            self.element.find('.comment-submit').fadeIn();
+        });
     },
     navClick: function(ev){
         var self = this;
@@ -1321,7 +1332,16 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         });
         if(Echoed.echoedUser) {
             self.element.find('.comment-submit').fadeIn();
+        } else{
+            self.element.find('.comment-login-fb').attr("href", Echoed.getFacebookLoginUrl("redirect/close"));
+            self.element.find('.comment-login-tw').attr("href", Echoed.getTwitterLoginUrl("redirect/close"));
+            self.element.find('.comment-login').fadeIn();
         }
+    },
+    commentLogin: function(ev){
+        var href = $(ev.currentTarget).attr("href");
+        var child = window.open("about:blank", "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+        child.location = Echoed.getFacebookLoginUrl("redirect/close");
     },
     createComment: function(){
         var self = this;

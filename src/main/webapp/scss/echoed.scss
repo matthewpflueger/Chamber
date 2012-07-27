@@ -1780,6 +1780,9 @@ h3{
                 @include button();
                 @include textFontBold(14px, #FFF);
             }
+            .login-button{
+                cursor: pointer;
+            }
             .echo-s-c-l{
                 margin-top: 10px;
                 border-top: 1px dotted #999;
