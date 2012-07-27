@@ -89,6 +89,13 @@
                                     <property name="filters">
                                         <list>
                                             <bean class="org.eclipse.jetty.servlet.FilterHolder">
+                                                <property name="name" value="crawlFilter" />
+                                                <property name="filter">
+                                                    <bean class="com.echoed.chamber.filters.CrawlFilter" />
+                                                </property>
+                                                <property name="asyncSupported" value="true" />
+                                            </bean>
+                                            <bean class="org.eclipse.jetty.servlet.FilterHolder">
                                                 <property name="name" value="cacheControlFilter" />
                                                 <property name="filter">
                                                     <bean class="com.echoed.chamber.filters.CacheControlFilter" />
@@ -114,14 +121,17 @@
                                     <property name="filterMappings">
                                         <list>
                                             <bean class="org.eclipse.jetty.servlet.FilterMapping"
+                                                  p:filterName="crawlFilter"
+                                                  p:pathSpec="/*"/>
+                                            <bean class="org.eclipse.jetty.servlet.FilterMapping"
                                                   p:filterName="cacheControlFilter"
-                                                  p:pathSpec="/*"    />
+                                                  p:pathSpec="/*"/>
                                             <bean class="org.eclipse.jetty.servlet.FilterMapping"
                                                   p:filterName="accessControlHeadersFilter"
-                                                  p:pathSpec="/*"    />
+                                                  p:pathSpec="/*"/>
                                             <bean class="org.eclipse.jetty.servlet.FilterMapping"
                                                   p:filterName="jsonpCallbackFilter"
-                                                  p:pathSpec="/*"    />
+                                                  p:pathSpec="/*"/>
                                         </list>
                                     </property>
 
