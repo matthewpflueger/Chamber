@@ -35,12 +35,19 @@ class TagServiceActor(
 
     override def preStart(){
         val tags = asScalaBuffer(tagDao.getTags).toList
-        tags.map({
-            tag =>
-                tagMap += (tag.id.toLowerCase -> tag)
-                treeMap += (tag.id.toLowerCase -> tag)
-                popularMap += ((tag.counter, tag.id.toLowerCase) -> tag)
-        })
+        tags.map(addToCaches(_))
+    }
+
+    def addToCaches(tag: Tag){
+        tagMap += (tag.id.toLowerCase -> tag)
+        treeMap += (tag.id.toLowerCase -> tag)
+        popularMap += ((tag.counter, tag.id.toLowerCase) -> tag)
+    }
+
+    def removeFromCaches(tag: Tag){
+        tagMap -= (tag.id.toLowerCase)
+        treeMap -= (tag.id.toLowerCase)
+        popularMap -= ((tag.counter, tag.id.toLowerCase))
     }
 
     def handle = {
@@ -91,10 +98,9 @@ class TagServiceActor(
             val channel = context.sender
             if(tagId != ""){
                 var tag = treeMap.get(tagId.toLowerCase).getOrElse(new Tag(tagId, 0, false))
-                popularMap -= ((tag.counter, tag.id.toLowerCase))
+                removeFromCaches(tag)
                 tag = tag.copy(counter = tag.counter + 1)
-                treeMap += (tagId.toLowerCase -> tag)
-                popularMap += ((tag.counter, tag.id.toLowerCase) -> tag)
+                addToCaches(tag)
                 self ! WriteTag(tagId)
                 channel ! AddTagResponse(msg, Right(tag))
             }
@@ -104,10 +110,9 @@ class TagServiceActor(
             treeMap.get(tagId.toLowerCase).map({
                 case t: Tag =>
                     var tag = t
-                    popularMap -= ((tag.counter, tag.id.toLowerCase))
+                    removeFromCaches(tag)
                     tag = tag.copy(counter = { if(tag.counter > 0) tag.counter - 1 else 0})
-                    treeMap += (tagId.toLowerCase -> tag)
-                    popularMap += ((tag.counter, tag.id.toLowerCase) -> tag)
+                    addToCaches(tag)
                     self ! WriteTag(tagId)
                     channel ! RemoveTagResponse(msg, Right(tag))
                 case t =>

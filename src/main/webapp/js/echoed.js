@@ -141,7 +141,6 @@ Echoed.Views.Components.CategoryList = Backbone.View.extend({
         Echoed.AjaxFactory({
             url: Echoed.urls.api + "/api/tags/top",
             success: function(data){
-                self.list.append('<div class="category-menu-header">Categories</div>');
                 $.each(data, function(index, tag){
                     var categoryItem = $('<div class="category-menu-item"></div>').html(tag.id + " (" + tag.counter + ")").attr("href", tag.id);
                     self.list.append(categoryItem);
@@ -150,7 +149,7 @@ Echoed.Views.Components.CategoryList = Backbone.View.extend({
         })();
     },
     navigate: function(ev){
-        var target = $(ev.currentTarget)
+        var target = $(ev.currentTarget);
         window.location.hash = "category/" + target.attr("href");
     },
     seeMore: function(){
@@ -449,8 +448,13 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     addCategory: function(){
         var self = this;
         var category = $('#ajax-input').find(".input-field").val();
-        category = category.substring(0,1).toUpperCase() + category.slice(1);
-        category = category.replace(/[^a-zA-Z ]+/g,'');
+        category = $.trim(category.replace(/[^a-zA-Z 0-9-_]+/g,''));
+        var cArray = category.split(" ");
+        $.each(cArray, function(index, string){
+            cArray[index] = string.substring(0,1).toUpperCase() + string.slice(1);
+        });
+        category = cArray.join(" ");
+
         Echoed.AjaxFactory({
             url: Echoed.urls.api + "/story/" + self.data.storyFull.id + "/tag",
             type: "POST",
