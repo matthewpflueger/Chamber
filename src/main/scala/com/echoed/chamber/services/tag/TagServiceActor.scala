@@ -17,7 +17,10 @@ class TagServiceActor(
 
     implicit object PopularityOrdering extends Ordering[(Int, String)] {
         def compare(a:(Int, String), b:(Int, String)) = {
-            Option(b._1 compare a._1).getOrElse(b._1 compare a._1)
+            if( (b._1 compare a._1) != 0)
+                b._1 compare a._1
+            else
+                a._2 compare b._2
         }
     }
 
@@ -53,12 +56,12 @@ class TagServiceActor(
         //COMMANDS
         case msg @ GetTags(filter) =>
             val channel = context.sender
-            val tags = treeMap.values.filter( t => { t.id.toLowerCase.startsWith(filter.toLowerCase) && t.counter > 0  }).toList
+            val tags = treeMap.values.filter( t => { t.id.toLowerCase.startsWith(filter.toLowerCase) && t.counter > 0 }).toList
             channel ! GetTagsResponse(msg, Right(tags))
 
         case msg: GetTopTags =>
             val channel = context.sender
-            val tags = popularMap.values.slice(0, 10).toList
+            val tags = popularMap.values.filter(_.counter > 0).slice(0, 10).toList
             log.debug("Tags: {}", tags)
             channel ! GetTopTagsResponse(msg, Right(tags))
 
@@ -68,6 +71,7 @@ class TagServiceActor(
                 var tag = treeMap.get(tagId.toLowerCase).get
                 tag = tag.copy(approved = true)
                 treeMap += (tagId -> tag)
+                popularMap += ((tag.counter, tag.id) -> tag)
                 self ! WriteTag(tagId)
                 channel ! ApproveTagResponse(msg, Right(tag))
             } catch {
@@ -88,16 +92,20 @@ class TagServiceActor(
         case msg @ AddTag(tagId) =>
             val channel = context.sender
             var tag = treeMap.get(tagId.toLowerCase).getOrElse(new Tag(tagId, 0, false))
+            popularMap -= ((tag.counter, tag.id.toLowerCase))
             tag = tag.copy(counter = tag.counter + 1)
             treeMap += (tagId.toLowerCase -> tag)
+            popularMap += ((tag.counter, tag.id) -> tag)
             self ! WriteTag(tagId)
             channel ! AddTagResponse(msg, Right(tag))
 
         case msg @ RemoveTag(tagId) =>
             val channel = context.sender
             var tag = treeMap.get(tagId.toLowerCase).getOrElse(new Tag(tagId, 0 , false))
+            popularMap -= ((tag.counter, tag.id.toLowerCase))
             tag = tag.copy(counter = { if(tag.counter > 0) tag.counter - 1 else 0})
             treeMap += (tagId.toLowerCase -> tag)
+            popularMap += ((tag.counter, tag.id) -> tag)
             self ! WriteTag(tagId)
             channel ! RemoveTagResponse(msg, Right(tag))
 

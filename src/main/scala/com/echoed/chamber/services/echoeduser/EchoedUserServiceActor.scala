@@ -609,6 +609,7 @@ class EchoedUserServiceActor(
             val newStory = story.copy(tag = tagId)
             storyDao.update(newStory)
             eventProcessor.publish( TagReplaced(originalTag, tagId) )
+            eventProcessor.publish(StoryUpdated(storyId))
             channel ! TagStoryResponse(msg, Right(newStory))
 
         case msg @ CreateChapter(_, storyId, title, text, imageIds) =>

@@ -25,7 +25,10 @@ class FeedServiceActor(
 
     implicit object StoryOrdering extends Ordering[(Long, String)] {
         def compare(a:(Long, String), b:(Long, String)) = {
-            Option(b._1 compare a._1).getOrElse(b._2 compare a._2)
+            if((b._1 compare a._1) != 0)
+                b._1 compare a._1
+            else
+                b._2 compare a._2
         }
     }
 
@@ -36,7 +39,7 @@ class FeedServiceActor(
     })
 
     def updateStory(storyFull: StoryPublic) {
-        storyMap.get(storyFull.id).map(s => storyTree -= ((storyFull.story.updatedOn, storyFull.story.id)))
+        storyMap.get(storyFull.id).map(s => storyTree -= ((s.story.updatedOn, s.story.id)))
         storyMap += (storyFull.id -> storyFull)
         storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
     }

@@ -1924,7 +1924,6 @@ h3{
 }
 
 .field-main-category{
-    overflow-x: auto;
     border: 1px solid #CCC;
     padding: 10px;
     border-radius: 5px;
@@ -1961,7 +1960,32 @@ h3{
 #ajax-input{
     display: none;
     padding-top: 10px;
+    position: relative;
     @include textFontNormal(14px);
+    #ajax-input-suggestions{
+        width: 300px;
+        position: absolute;
+        background-color: #FFF;
+        top: 48px;
+        left:0px;
+        border: 1px solid #CCC;
+        display: none;
+        #ajax-suggestions-header{
+            padding: 4px 5px;
+            @include textFontBold(12px);
+            background-color: #F0F0F0;
+        }
+        .suggestion-item{
+            padding: 4px 5px;
+            @include textFontNormal(12px);
+            border-top: 1px dotted #CCC;
+            cursor: pointer;
+            &:hover{
+                background-color: #CCC;
+                font-weight:bold;
+            }
+        }
+    }
 }
 
 #category-add{
@@ -1971,7 +1995,7 @@ h3{
 
 #category-more{
     @include textFontBold(12px);
-    margin: 0px 10px;
+    margin: 3px 10px;
     padding: 3px 5px;
     background-position: right;
     background-repeat: no-repeat;
@@ -1993,11 +2017,12 @@ h3{
         margin: 10px 10px 0px 10px;
         @include textFontBold(14px);
         padding: 3px 0px;
+        margin-bottom: 4px;
         @include grooveBottom;
     }
     .category-menu-item{
         margin: 0px 10px;
-        padding: 7px 5px;
+        padding: 4px 5px;
         cursor:pointer;
         @include textFontBold(12px);
         &:hover{

@@ -228,30 +228,50 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Views.Components.AjaxInput = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'show');
+        _.bindAll(this, 'show', 'keyPress');
         this.EvAg = options.EvAg;
         this.el = options.el;
         this.element = $(options.el);
+        this.input = $('#ajax-input-field');
+        this.list = $('#ajax-suggestions-list');
+        this.suggestions = $('#ajax-input-suggestions');
         this.EvAg.bind("ajaxInput/show", this.show);
-        this.render();
     },
-    render: function(){
+    events: {
+        "keyup :input": "keyPress",
+        "click .suggestion-item": "click"
+    },
+    click: function(ev){
         var self = this;
-        self.element.prepend($('<input type="text"/>').addClass("input-field"));
+        self.input.val($(ev.currentTarget).attr('tag'));
+        self.suggestions.fadeOut();
+    },
+    keyPress: function(){
+        var self = this;
+        var filter = self.input.val();
+        if(filter !== ''){
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/tags",
+                data: {
+                    tagId: filter
+                },
+                success: function(data){
+                    self.render(data)
+                }
+            })();
+        }
+    },
+    render: function(data){
+        var self = this;
+        self.list.empty();
+        $.each(data, function(index, tag){
+            $('<div class="suggestion-item"></div>').append(tag.id + " (" + tag.counter + ")").appendTo(self.list).attr("tag", tag.id);
+        });
+        self.suggestions.fadeIn();
     },
     show: function(){
         var self = this;
         self.element.fadeIn();
-    },
-    search: function(tagId){
-        Echoed.AjaxFactory({
-            url: Echoed.urls.api + "/tags",
-            data: {
-                tagId: tagId
-            },
-            success: function(data){
-            }
-        })
     }
 });
 
@@ -427,6 +447,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     addCategory: function(){
         var self = this;
         var category = $('#ajax-input').find(".input-field").val();
+        category = category.substring(0,1).toUpperCase() + category.slice(1);
         Echoed.AjaxFactory({
             url: Echoed.urls.api + "/story/" + self.data.storyFull.id + "/tag",
             type: "POST",
@@ -992,7 +1013,6 @@ Echoed.Views.Components.Actions = Backbone.View.extend({
     },
     click: function(e){
         window.location.hash = "#write/";
-        this.EvAg.trigger('user/login');
     }
 });
 
@@ -1360,7 +1380,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 },
                 success: function(createCommentData) {
                     self.locked = false;
-                    self.data.comments.push(createCommentData);
+                    self.data.comments.unshift(createCommentData);
                     self.renderComments();
                 }
             })();
