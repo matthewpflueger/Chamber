@@ -321,7 +321,7 @@ Echoed.Router = Backbone.Router.extend({
     },
     explore: function(){
         if(this.page != window.location.hash){
-            this.page = "";
+            this.page = "#!";
             this.loadPage("explore", { endPoint: "/me/feed", title: "Community"});
         }
     },
@@ -374,7 +374,7 @@ Echoed.Router = Backbone.Router.extend({
     story: function(id){
         if(this.page === null) {
             this.explore();
-            this.page = "";
+            this.page = "#!";
         }
         this.oldPage = this.page;
         _gaq.push(['_trackPageview', window.location.hash]);
