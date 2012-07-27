@@ -587,7 +587,6 @@ $headerFontFamily: 'Arvo', serif;
                     }
                 }
                 .echo-s-c-ta{
-                    margin: 5px 0px;
                     textarea{
                         width: 705px;
                         padding: 10px;
@@ -596,18 +595,29 @@ $headerFontFamily: 'Arvo', serif;
                         height: 50px;
                         border: 1px solid #CCC;
                         @include textFontNormal(14px);
-                        display: none;
                     }
 
                 }
 
+                .echo-s-c-l-c-d{
+                    margin-left: 10px;
+                    @include textFontNormal(12px);
+                }
+
                 .echo-s-c-tb{
-                    padding: 10px 0px;
                     .comment-submit{
                         cursor: pointer;
                         @include textFontBold(14px, #FFF);
                         @include button;
-                        display: none;
+                        padding: 5px 10px;
+                    }
+                    .comment-login-title {
+                        @include textFontBold(14px);
+                        margin: 5px;
+                    }
+                    .login-button{
+                        height: 40px;
+                        cursor: pointer;
                     }
                 }
 

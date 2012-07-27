@@ -596,6 +596,40 @@ Echoed = {
     },
     Models:{},
     Collections:{},
+    timeStampStringToDate: function(timestampString){
+        var year = timestampString.substr(0,4);
+        var month = timestampString.substr(4,2);
+        var day = timestampString.substr(6,2);
+        var hour = timestampString.substr(8,2);
+        var minute = timestampString.substr(10,2);
+        var second = timestampString.substr(12,2);
+        var date = new Date(Date.UTC(year, month - 1, day, hour, minute, second, 0));
+        return date;
+    },
+    timeElapsedString: function(date){
+        var responseString = "";
+        var todayDate = new Date();
+        var dateDiff = todayDate - date;
+        var dayDiff = Math.floor((dateDiff)/(1000*60*60*24));
+        var hourDiff = Math.floor((dateDiff)/(1000*60*60));
+        var minDiff = Math.floor((dateDiff)/(1000*60));
+        if(dayDiff >= 1 ){
+            responseString = dayDiff + " day" + Echoed.pluralize(dayDiff);
+        } else if (hourDiff >= 1) {
+            responseString = hourDiff + " hour" + Echoed.pluralize(hourDiff);
+        } else {
+            responseString = minDiff + " minute" + Echoed.pluralize(minDiff);
+        }
+        responseString = responseString + " ago";
+        return responseString;
+    },
+    pluralize: function(integer){
+        if(integer >= 2){
+            return "s";
+        } else {
+            return "";
+        }
+    },
     getImageSizing: function(image, width){
         return {
             height: image.preferredHeight / image.preferredWidth * width,
@@ -610,14 +644,23 @@ Echoed = {
         }
         return "";
     },
+    getFacebookLoginUrl: function(hash){
+        return Echoed.facebookLogin.head +
+                encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(hash)) +
+                Echoed.facebookLogin.tail;
+    },
+    getTwitterLoginUrl: function(hash){
+        return Echoed.twitterUrl + encodeURIComponent(hash);
+    },
     init: function(options) {
         this.partnerId = options.partnerId;
-        this.echoedUserId = options.echoedUserId;
+        this.echoedUser = options.echoedUser;
         var opener = new Echoed.Views.Components.Opener({ el: '#echoed-opener', EvAg: EventAggregator });
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#echoed-exhibit-container', EvAg: EventAggregator });
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#echoed-infiniteScroll', EvAg : EventAggregator});
         var story = new Echoed.Views.Components.Story({ el: '#echoed-story', EvAg: EventAggregator });
         var fade = new Echoed.Views.Components.Fade({ el: '#echoed-fade', EvAg: EventAggregator });
+        var iFrameComm = new Echoed.Views.Components.MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator });
         var router = new Echoed.Router( { EvAg: EventAggregator } );
     }
 };
@@ -972,19 +1015,27 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage', 'navClick');
+        _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage', 'navClick', 'commentLogin', 'login');
         this.el = options.el;
         this.element = EchoedjQuery(this.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind('story/show', this.load);
         this.EvAg.bind('story/hide', this.unload);
+        this.EvAg.bind('user/login', this.login);
     },
     events: {
         "click .echoed-close" : "close",
         "click .comment-submit": "createComment",
+        "click .login-button": "commentLogin",
         "click .echo-s-b-thumbnail": "imageClick",
         "click .echo-s-b-item": "nextImage",
         "click .story-nav-button": "navClick"
+    },
+    login: function(){
+        var self = this;
+        this.element.find('.comment-login').fadeOut(function(){
+            self.element.find('.comment-submit').fadeIn();
+        });
     },
     navClick: function(ev){
         var self = this;
@@ -1013,7 +1064,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     render: function(){
 
-        var template = '<div id="echo-story-nav" class="clearfix"><div act="previous" class="story-nav-button" style="float:left">Previous Story</div><div act="next" class="story-nav-button" style="float:right">Next Story</div></div><div class="echo-story-container clearfix"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><span class="comment-submit">Submit Comment</span></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"></div></div>';
+        var template = '<div id="echo-story-nav" class="clearfix"><div act="previous" class="story-nav-button" style="float:left">Previous Story</div><div act="next" class="story-nav-button" style="float:right">Next Story</div></div><div class="echo-story-container clearfix"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><div class="comment-submit">Submit Comment</div></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"></div></div>';
         var self = this;
         self.element.html(template);
 
@@ -1070,12 +1121,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.renderGalleryNav();
         self.renderComments();
         self.renderChapter();
-
-        if(Echoed.echoedUserId !== "") {
-            self.element.find(".comment-submit").show();
-            EchoedjQuery('#echo-story-comment-ta').show();
-
-        }
 
         self.EvAg.trigger('fade/show');
         self.element.fadeIn();
@@ -1136,8 +1181,6 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     renderImage: function(){
         var self = this;
-
-
         var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
         self.img.fadeOut();
         self.itemImageContainer.animate(Echoed.getImageSizing(currentImage, 400), function(){
@@ -1175,13 +1218,34 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         EchoedjQuery("#echo-story-comment-ta").val("");
         if(self.data.comments.length > 0) EchoedjQuery("#echo-s-c-t-count").html("(" + self.data.comments.length + ")");
         EchoedjQuery.each(self.data.comments, function(index,comment){
+
+            var elapsedString = Echoed.timeElapsedString(Echoed.timeStampStringToDate(comment.createdOn.toString()));
+            var elapsedNode = EchoedjQuery('<span class="echo-s-c-l-c-d"></span>').append(elapsedString);
             var img = EchoedjQuery('<img class="echo-s-c-l-c-u-i" />').attr("src", Echoed.getProfilePhotoUrl(comment.echoedUser)).attr("align", "absmiddle");
-            var commentUserNode = EchoedjQuery('<div class="echo-s-c-l-c-u"></div>').append(EchoedjQuery("<a></a>").append(comment.echoedUser.name).attr("href",Echoed.Urls.Site + "#user/" + comment.echoedUser.id).attr("target","_blank"));
+            var commentUserNode = EchoedjQuery('<div class="echo-s-c-l-c-u"></div>').append(EchoedjQuery("<a></a>").append(comment.echoedUser.name).attr("href",Echoed.Urls.Site + "#user/" + comment.echoedUser.id).attr("target","_blank")).append(elapsedNode);
             img.prependTo(commentUserNode);
             var commentText = EchoedjQuery('<div class="echo-s-c-l-c-t"></div>').append(comment.text);
             var commentNode = EchoedjQuery('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
             commentListNode.append(commentNode);
         });
+        if(Echoed.echoedUser.id || Echoed.echoedUser.name) {
+            self.element.find('.comment-submit').fadeIn();
+        } else{
+            self.element.find('.comment-submit').hide();
+            var template = '<div class="comment-login">' +
+                                '<div class="comment-login-title">Login to Discuss</div>' +
+                                '<img class="login-button comment-login-fb" src="{{urls.images}}/btn_facebook_login.png">' +
+                                '<img class="comment-login-tw login-button" src="{{urls.images}}/btn_twitter_login.png">' +
+                            '</div>';
+            self.element.find('.echo-s-c-tb').append(template);
+            self.element.find('.comment-login-fb').attr("href", Echoed.getFacebookLoginUrl("redirect/close"));
+            self.element.find('.comment-login-tw').attr("href", Echoed.getTwitterLoginUrl("redirect/close"));
+        }
+    },
+    commentLogin: function(ev){
+        var href = EchoedjQuery(ev.currentTarget).attr("href");
+        var child = window.open("about:blank", "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+        child.location = href;
     },
     createComment: function(){
         var self = this;
@@ -1232,6 +1296,23 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         }
     }
 });
+
+Echoed.Views.Components.MessageHandler = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'receiveMessageResponse');
+        this.EvAg = options.EvAg;
+        if(window.addEventListener){
+            window.addEventListener('message', this.receiveMessageResponse , false);
+        } else if (window.attachEvent) {
+            window.attachEvent('onmessage', this.receiveMessageResponse);
+        }
+    },
+    receiveMessageResponse: function(response){
+        Echoed.echoedUser = JSON.parse(response.data);
+        this.EvAg.trigger('user/login');
+    }
+});
+
 
 EchoedjQuery(document).ready(function(){
     var cssNode = document.createElement("link");
@@ -1294,9 +1375,17 @@ EchoedjQuery(document).ready(function(){
     body.appendChild(echoedStory);
     body.appendChild(echoedContainer);
 
+    Echoed.facebookLogin ={};
+    Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
+    Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
+    Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
+    Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
+
     Echoed.init({
         partnerId : "{{partnerId}}",
-        echoedUserId: "{{echoedUserId}}"
+        echoedUser: {
+            id: "{{echoedUserId}}"
+        }
     });
 
     window.onerror = function(message, file, line){
@@ -1323,3 +1412,4 @@ EchoedjQuery(document).ready(function(){
     };
 
 });
+

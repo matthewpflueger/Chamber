@@ -1780,6 +1780,10 @@ h3{
                 @include button();
                 @include textFontBold(14px, #FFF);
             }
+            .comment-login-title {
+                @include textFontBold(14px);
+                margin: 5px;
+            }
             .login-button{
                 cursor: pointer;
             }

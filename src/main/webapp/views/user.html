@@ -5,7 +5,7 @@
         <div class="item_content">
             <div id="login-container">
                 <div id="login-title">Join Echoed</div>
-                <div id="login-description">Share stories about the products you love.<br/>Login to begin sharing your story.</div>
+                <div id="login-description">Share stories about the things you love.<br/>Login to begin sharing your story.</div>
                 <div id="login-buttons">
                     <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
                     <a id="twitterLogin" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
@@ -51,7 +51,7 @@
         <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
         <div class="story-login">
             <div class="field-logo"><img src="{{urls.images}}/logo_large.png" height="50px" /></div>
-            <div class="field-login-title">Share stories about the products you love.<br/>Login to begin sharing your story.</div>
+            <div class="field-login-title">Share stories about the things you love.<br/>Login to begin sharing your story.</div>
             <div class="field-login-body">
             </div>
             <div class="field-login-button">
@@ -214,11 +214,12 @@
                         <div class="echo-s-c-ta">
                             <textarea id="echo-story-comment-ta"></textarea>
                         </div>
-                        <span class="comment-submit" style="display: none;">Submit Comment</span>
-                        <span class="comment-login" style="display: none;">
+                        <div class="comment-submit" style="display: none;">Submit Comment</div>
+                        <div class="comment-login" style="display: none;">
+                            <div class="comment-login-title">Login to Discuss</div>
                             <img class="login-button comment-login-fb" src="{{urls.images}}/btn_facebook_login.png">
                             <img class="comment-login-tw login-button" src="{{urls.images}}/btn_twitter_login.png">
-                        </span>
+                        </div>
                         <div class="echo-s-c-l">
                             <!-- Comment List -->
                         </div>
