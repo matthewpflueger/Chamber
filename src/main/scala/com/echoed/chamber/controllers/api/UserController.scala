@@ -208,8 +208,8 @@ class UserController {
 
         val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
 
-        feedService.getUserPublicFeed(echoedFriendId, pageInt).onSuccess{
-            case GetUserPublicFeedResponse(_, Right(feed)) =>
+        feedService.getUserPublicStoryFeed(echoedFriendId, pageInt).onSuccess{
+            case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
                 result.set(feed)
         }
 

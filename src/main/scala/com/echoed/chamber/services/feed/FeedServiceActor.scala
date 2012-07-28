@@ -125,7 +125,7 @@ class FeedServiceActor(
             val channel = context.sender
             val start = msg.page * pageSize
             try {
-                log.debug("Attempting to retrieve feed for user: ")
+                log.debug("Attempting to retrieve feed for user: {}", echoedUserId)
                 val echoedUser = echoedUserDao.findById(echoedUserId)
                 val echoes = asScalaBuffer(feedDao.getEchoedUserFeed(echoedUser.id, start, pageSize)).toList
                 val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id, start, pageSize)).toList

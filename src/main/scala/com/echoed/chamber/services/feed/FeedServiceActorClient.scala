@@ -29,6 +29,8 @@ class FeedServiceActorClient extends FeedService with ActorClient with Serializa
 
     def getUserPublicFeed(echoedUserId: String, page: Int) = (feedServiceActor ? GetUserPublicFeed(echoedUserId, page)).mapTo[GetUserPublicFeedResponse]
 
+    def getUserPublicStoryFeed(echoedUserId: String, page: Int) = (feedServiceActor ? GetUserPublicStoryFeed(echoedUserId, page)).mapTo[GetUserPublicStoryFeedResponse]
+
     def getPartnerFeed(partnerId: String, page: Int) = (feedServiceActor ? GetPartnerFeed(partnerId, page)).mapTo[GetPartnerFeedResponse]
 
     def getPartnerStoryFeed(partnerId: String, page: Int) = (feedServiceActor ? GetPartnerStoryFeed(partnerId, page)).mapTo[GetPartnerStoryFeedResponse]
