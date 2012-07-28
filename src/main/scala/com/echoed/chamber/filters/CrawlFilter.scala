@@ -5,11 +5,16 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.slf4j.LoggerFactory
 import com.gargoylesoftware.htmlunit.{BrowserVersion, WebClient}
 import com.gargoylesoftware.htmlunit.html.HtmlPage
+import scala.collection.mutable.MutableList
+import java.net.URL
+import scala.io.Source
 
 
 class CrawlFilter extends Filter {
 
     private final val log = LoggerFactory.getLogger(classOf[CrawlFilter])
+
+//    private final val client = new WebClient(BrowserVersion.FIREFOX_10)
 
     def init(filterConfig: FilterConfig) {}
 
@@ -51,5 +56,32 @@ class CrawlFilter extends Filter {
     }
 
     def destroy() {}
+
+}
+
+
+object TestPool extends App {
+
+    val num = 100
+    val times = MutableList[Long]()
+    times.sizeHint(num)
+    for (i <- 1 to num) {
+        val current = System.currentTimeMillis()
+        val bytes = Source.fromInputStream(
+            new URL("http://localhost.com:8080/?_escaped_fragment_=story/92d40761-a6bc-434f-b366-cf86bf627b28").openStream(),
+            "UTF-8").length
+
+        val time = System.currentTimeMillis() - current
+        times += time
+        println("Fetched %s in %s" format(bytes, time))
+    }
+
+    val total = times.reduce((t1, t2) => t1 + t2)
+    println("Fetched url %s times in %s" format(times.size, total))
+    val avg = total / times.size
+    println("Average time %s" format avg)
+    //Average time 5140 with pooled WebClient
+    //Average time 5745 without pooled WebClient
+    //Conclusion: not enough savings to pool at this level - should create/cache static content offline for crawlers
 
 }
