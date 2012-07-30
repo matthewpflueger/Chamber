@@ -273,7 +273,7 @@
     </sql>
 
     <select id="findStoryByEchoedUserId" resultMap="storyFullResult" useCache = "false">
-        <include refid="storyFullLimitSelect" />
+        <include refid="storyFullSelect" />
         where EU.id=#{echoedUserId}
         order by
             S.updatedOn desc,
