@@ -14,7 +14,7 @@ import org.springframework.mail.javamail.JavaMailSender
 import com.echoed.util.mustache.MustacheEngine
 import com.echoed.chamber.dao.views.{AdminViewDao, PartnerViewDao, ClosetDao, FeedDao}
 import com.echoed.chamber.dao.partner.{PartnerUserDao, PartnerSettingsDao, PartnerDao}
-import com.echoed.chamber.services.feed.FeedServiceActor
+import com.echoed.chamber.services.feed.{FeedService, FeedServiceActor}
 import com.echoed.chamber.services.tag.TagServiceActor
 import dispatch.Http
 import com.echoed.chamber.services.facebook._
@@ -110,6 +110,7 @@ class ApplicationConfig {
     @Resource(name = "adminViewDao") var adminViewDao: AdminViewDao = _
 
     @Resource(name = "emailService") var emailService: EmailService = _
+    @Resource(name = "feedService") var feedService: FeedService = _
 
     @Resource(name = "shopifyPartnerServiceManager") var shopifyPartnerServiceManager: ShopifyPartnerServiceManager = _
     @Resource(name = "networkSolutionsPartnerServiceManager") var networkSolutionsPartnerServiceManager: NetworkSolutionsPartnerServiceManager = _
@@ -246,7 +247,8 @@ class ApplicationConfig {
             twitterServiceLocator  = twitterServiceLocator,
             cacheManager = cacheManager,
             storyGraphUrl = urlsProperties("storyGraphUrl"),
-            eventProcessor = eventProcessor)), "EchoedUserService")
+            eventProcessor = eventProcessor,
+            feedService = feedService)), "EchoedUserService")
 
     @Bean def partnerUserServiceLocatorActor = actorSystem.actorOf(Props(new PartnerUserServiceLocatorActor(
             cacheManager = cacheManager,

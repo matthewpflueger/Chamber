@@ -24,6 +24,7 @@ import com.echoed.chamber.services.facebook.GetFacebookUserResponse
 import scala.Left
 import org.springframework.transaction.support.TransactionTemplate
 import akka.util.Timeout
+import com.echoed.chamber.services.feed.FeedService
 
 class EchoedUserServiceLocatorActor(
         echoedUserDao: EchoedUserDao,
@@ -45,7 +46,8 @@ class EchoedUserServiceLocatorActor(
         cacheManager: CacheManager,
         storyGraphUrl: String,
         implicit val timeout: Timeout = Timeout(20000),
-        eventProcessor: EventProcessorActorSystem) extends EchoedActor {
+        eventProcessor: EventProcessorActorSystem,
+        feedService: FeedService) extends EchoedActor {
 
 
     private var cache: ConcurrentMap[String, EchoedUserService] =
@@ -222,7 +224,8 @@ class EchoedUserServiceLocatorActor(
                                             facebookServiceLocator = facebookServiceLocator,
                                             twitterServiceLocator = twitterServiceLocator,
                                             storyGraphUrl = storyGraphUrl,
-                                            eventProcessor = eventProcessor)
+                                            eventProcessor = eventProcessor,
+                                            feedService = feedService)
                                     }, echoedUserId))
                                 channel ! CreateEchoedUserServiceWithIdResponse(msg, Right(echoedUserService))
                                 cache.put(echoedUserId, echoedUserService)

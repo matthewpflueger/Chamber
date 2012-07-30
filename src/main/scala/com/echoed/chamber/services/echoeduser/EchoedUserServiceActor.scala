@@ -20,7 +20,7 @@ import com.echoed.chamber.domain.views.echoeduser.Profile
 import akka.event.{LoggingReceive, Logging}
 import akka.actor.SupervisorStrategy.Stop
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
-import feed.StoryUpdated
+import feed.{GetUserPublicStoryFeedResponse, FeedService, StoryUpdated}
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.TransactionUtils._
 import org.springframework.transaction.TransactionStatus
@@ -49,7 +49,8 @@ class EchoedUserServiceActor(
         facebookServiceLocator: FacebookServiceLocator,
         twitterServiceLocator: TwitterServiceLocator,
         storyGraphUrl: String,
-        eventProcessor: EventProcessorActorSystem) extends EchoedActor {
+        eventProcessor: EventProcessorActorSystem,
+        feedService: FeedService) extends EchoedActor {
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
         case _: Exception ⇒ Stop
@@ -478,17 +479,19 @@ class EchoedUserServiceActor(
                 val start = msg.page * limit
 
                 val closet = Option(closetDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new Closet(echoedUser.id, echoedUser))
-                val stories = Option(feedDao.findStoryByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new ArrayList[StoryFull])
-
-                if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
-                    log.debug("Echoed user {} has zero echoes", echoedUser.id)
-                    channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(
-                            totalCredit = credit, stories = stories, echoes = new ArrayList[EchoView]))))
-                } else {
-                    log.debug("Echoed user {} has {} echoes", echoedUser.id, closet.echoes.size)
-                    channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(totalCredit = credit, stories = stories))))
-                }
-                log.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
+                feedService.getUserPublicStoryFeed(echoedUser.id, msg.page).onSuccess({
+                    case GetUserPublicStoryFeedResponse(_ , Right(storyFeed)) =>
+                        if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
+                            log.debug("Echoed user {} has zero echoes", echoedUser.id)
+                            channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(
+                                totalCredit = credit, stories = storyFeed.stories, echoes = new ArrayList[EchoView]))))
+                        } else {
+                            log.debug("Echoed user {} has {} echoes", echoedUser.id, closet.echoes.size)
+                            channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(totalCredit = credit, stories = storyFeed.stories))))
+                        }
+                        log.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
+                })
+                (new ArrayList[StoryFull])
             } catch {
                 case e =>
                     channel ! GetExhibitResponse(msg, Left(new EchoedUserException("Cannot get exhibit", e)))
