@@ -363,8 +363,8 @@ Echoed.Router = Backbone.Router.extend({
                     this.page = "#!partner/" + id;
                     break;
                 default:
-                    this.explore();
-                    this.page = "";
+                    this.me();
+                    this.page = "#!me";
                     break;
             }
         }
@@ -563,6 +563,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             case "finish":
                 self.unload(function(){
                     window.location.hash = "#!story/" + self.data.storyFull.story.id;
+                    self.EvAg.trigger('exhibit/newStory',self.data.storyFull);
                 });
                 break;
             case "add":
@@ -866,7 +867,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     init: function(options){
         var self = this;
         self.personal = false;
-        self.nextInt = 1;
         self.EvAg.trigger('infiniteScroll/on');
         this.jsonUrl = Echoed.urls.api + "/api/" + options.endPoint;
         this.personal = options.personal;
@@ -875,6 +875,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             url: self.jsonUrl,
             dataType: 'json',
             success: function(data){
+                self.nextPage = data.nextPage ? data.nextPage : null;
                 self.stories = {
                     array: [],
                     hash: {}
@@ -894,9 +895,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 if(data.partner) title = data.partner.name;
                 if(data.echoedUser && self.personal !== true)  title = data.echoedUser.name;
                 self.EvAg.trigger("title/update", { title: title, description: self.contentDescription });
-
                 if(!Echoed.echoedUser) self.addLogin();
-
                 self.render(data);
             }
         })();
@@ -925,20 +924,21 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     render: function(data){
         var self = this;
         if(self.addStories(data) || self.addProducts(data) || self.addFriends(data)){
-            self.nextInt++;
             self.EvAg.trigger('infiniteScroll/unlock');
-        } else {
-            self.nextInt = null;
         }
     },
     next: function(){
         var self = this;
-        if(self.nextInt !== null){
+        if(self.nextPage !== null){
             self.EvAg.trigger('infiniteScroll/lock');
-            var url = self.jsonUrl + "?page=" + (self.nextInt - 1);
+            var url = self.jsonUrl + "?page=" + (self.nextPage);
+            self.nextPage = null;
             Echoed.AjaxFactory({
                 url: url,
                 success: function(data){
+                    if(data.nextPage !== null) {
+                        self.nextPage = data.nextPage;
+                    }
                     self.render(data);
                 }
             })();

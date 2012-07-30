@@ -5,8 +5,9 @@ import com.echoed.chamber.domain.public.{StoryPublic, PartnerPublic}
 
 case class PartnerStoryFeed(
     partner: PartnerPublic,
-    stories: JList[StoryPublic]) {
+    stories: JList[StoryPublic],
+    nextPage: String) {
 
-    def this(partner: PartnerPublic)= this(partner, new ArrayList[StoryPublic])
+    def this(partner: PartnerPublic)= this(partner, new ArrayList[StoryPublic], null)
 
 }

@@ -76,7 +76,14 @@ class FeedServiceActor(
             val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve Public Story Feed")
-                val feed = PublicStoryFeed(storyTree.values.toList.slice(start, start + pageSize))
+                val stories = storyTree.values.toList
+                val nextPage = {
+                    if(start + pageSize <= stories.length)
+                        (msg.page + 1).toString
+                    else
+                        null
+                }
+                val feed = PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
                 channel ! GetPublicStoryFeedResponse(msg, Right(feed))
             } catch {
                 case e =>
@@ -113,7 +120,14 @@ class FeedServiceActor(
                             false
                     }).toList
                 log.debug("Stores Tagged: {}", stories)
-                val feed = new PublicStoryFeed(stories.slice(start, start + pageSize))
+                val nextPage = {
+                    if(start + pageSize <= stories.length)
+                        (msg.page + 1).toString
+                    else
+                        null
+                }
+                val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
+
                 channel ! GetCategoryStoryFeedResponse(msg, Right(feed))
             } catch {
                 case e =>
@@ -143,8 +157,14 @@ class FeedServiceActor(
             try {
                 log.debug("Attempting to retrieve story feed for user: {}", echoedUserId)
                 val echoedUser = echoedUserDao.findById(echoedUserId)
-                val stories = storyTree.values.filter(_.echoedUser.id.equals(echoedUser.id)).toList.slice(start, start + pageSize)
-                val feed = new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), stories)
+                val stories = storyTree.values.filter(_.echoedUser.id.equals(echoedUser.id)).toList
+                val nextPage = {
+                    if(start + pageSize <= stories.length)
+                        (msg.page + 1).toString
+                    else
+                        null
+                }
+                val feed = new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), stories.slice(start, start + pageSize), nextPage)
                 channel ! GetUserPublicStoryFeedResponse(msg, Right(feed))
             } catch {
                 case e =>
@@ -173,8 +193,14 @@ class FeedServiceActor(
                 val start = msg.page * pageSize
                 val partner = partnerDao.findByIdOrHandle(msg.partnerId)
                 log.debug("Looking up stories for Partner Id {}", partner.id)
-                val stories = storyTree.values.filter(_.story.partnerId.equals(partner.id)).toList.slice(start, start + pageSize)
-                val partnerFeed = new PartnerStoryFeed(new PartnerPublic(partner), stories)
+                val stories = storyTree.values.filter(_.story.partnerId.equals(partner.id)).toList
+                val nextPage = {
+                    if(start + pageSize <= stories.length)
+                        (msg.page + 1).toString
+                    else
+                        null
+                }
+                val partnerFeed = new PartnerStoryFeed(new PartnerPublic(partner), stories.slice(start, start + pageSize), nextPage)
                 channel ! GetPartnerStoryFeedResponse(msg, Right(partnerFeed))
             } catch {
                 case e =>

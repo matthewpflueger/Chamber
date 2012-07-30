@@ -6,8 +6,9 @@ import com.echoed.chamber.domain.public.{StoryPublic, EchoedUserPublic}
 
 case class EchoedUserStoryFeed(
     echoedUser: EchoedUserPublic,
-    stories: JList[StoryPublic]) {
+    stories: JList[StoryPublic],
+    nextPage: String) {
 
-    def this(echoedUser: EchoedUserPublic) = this(echoedUser, new ArrayList[StoryPublic])
+    def this(echoedUser: EchoedUserPublic) = this(echoedUser, new ArrayList[StoryPublic], null)
 
 }
