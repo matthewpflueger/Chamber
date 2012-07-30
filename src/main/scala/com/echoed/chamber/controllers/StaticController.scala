@@ -17,9 +17,13 @@ class StaticController {
     @BeanProperty var privacyView: String = _
     @BeanProperty var termsView: String = _
     @BeanProperty var guidelinesView: String = _
+    @BeanProperty var storyTellingView: String = _
 
     @RequestMapping(value = Array("/about*"), method = Array(RequestMethod.GET))
     def howItWorks = new ModelAndView(whatIsEchoedView)
+
+    @RequestMapping(value = Array("/101*"), method = Array(RequestMethod.GET))
+    def storyTelling = new ModelAndView(storyTellingView)
 
     @RequestMapping(value = Array("/guidelines"), method = Array(RequestMethod.GET))
     def about = new ModelAndView(guidelinesView)

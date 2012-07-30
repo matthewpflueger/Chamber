@@ -377,6 +377,7 @@
         <property name="privacyView" value="public_privacy" />
         <property name="termsView" value="public_terms" />
         <property name="guidelinesView" value="public_guidelines" />
+        <property name="storyTellingView" value="public_storytelling" />
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->
