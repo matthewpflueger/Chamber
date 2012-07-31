@@ -1,15 +1,6 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-    <title>Echoed | Storytelling 101</title>
-    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css" />
-    <script type='text/javascript' src="{{urls.js}}/webfonts.js"></script>
-</head>
-<body>
-<div id="container" class="grey">
-    {{>partial_public_header}}
-    {{>partial_public_nav}}
+{{<public_super}}
+    {{$title}}Echoed | Storytelling 101{{/title}}
+    {{$content}}
     <div id="content">
         <section>
             <div class="center">
@@ -59,7 +50,5 @@
             </div>
         </section>
     </div>
-</div>
-</body>
-</html>
-{{>partial_google}}
+    {{/content}}
+{{/public_super}}

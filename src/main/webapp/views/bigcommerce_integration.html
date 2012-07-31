@@ -1,11 +1,6 @@
-{{> partial_header}}
-<title>Echoed | BigCommerce Partner Register</title>
-<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
-</head>
-<body>
-<div id="container">
-    {{ > partial_public_header }}
-    {{ > partial_public_nav}}
+{{<public_super}}
+    {{$title}}Echoed | BigCommerce Partner Register{{/title}}
+    {{$content}}
     <div id="content">
         <section>
             <div class="center">
@@ -48,7 +43,5 @@
             </div>
         </section>
     </div>
-</div>
-</body>
-</html>
-{{> partial_google}}
+    {{/content}}
+{{/public_super}}

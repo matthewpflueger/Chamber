@@ -1226,7 +1226,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             img.prependTo(commentUserNode);
             var commentText = EchoedjQuery('<div class="echo-s-c-l-c-t"></div>').append(comment.text);
             var commentNode = EchoedjQuery('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
-            commentListNode.append(commentNode);
+            commentListNode.prepend(commentNode);
         });
         if(Echoed.echoedUser.id || Echoed.echoedUser.name) {
             self.element.find('.comment-submit').fadeIn();
@@ -1268,7 +1268,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 },
                 success: function(createCommentData) {
                     self.locked = false;
-                    self.data.comments.push(createCommentData);
+                    self.data.comments.unshift(createCommentData);
                     self.renderComments();
                 }
             });

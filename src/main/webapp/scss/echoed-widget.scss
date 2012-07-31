@@ -435,6 +435,7 @@ $headerFontFamily: 'Arvo', serif;
                     @include textFontNormal(16px);
                     text-align: center;
                     position: relative;
+                    vertical-align: middle;
                     .echo-s-h-t-n-i{
                         display:inline-block;
                         height: 30px;
@@ -443,7 +444,7 @@ $headerFontFamily: 'Arvo', serif;
                         border: 2px solid #FFF;
                     }
 
-                    .ss-h-t-n-u{
+                    .echo-s-h-t-n-u{
                         display:inline-block;
                         text-align: left;
                         @include textFontNormal(16px);
