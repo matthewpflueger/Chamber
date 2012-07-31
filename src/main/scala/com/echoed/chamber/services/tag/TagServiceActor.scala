@@ -24,6 +24,7 @@ class TagServiceActor(
         }
     }
 
+
     var tagMap = Map[String, Tag]()
     var treeMap = new TreeMap[String, Tag]
     var popularMap = new TreeMap[(Int, String), Tag]()(PopularityOrdering)
@@ -89,7 +90,7 @@ class TagServiceActor(
         case msg @ ReplaceTag(originalTagId, newTagId) =>
             val channel = context.sender
             originalTagId.foreach(self ! RemoveTag(_))
-            (self ? AddTag(newTagId.toLowerCase)).onSuccess{
+            (self ? AddTag(newTagId)).onSuccess{
                 case AddTagResponse(_, Right(tag)) =>
                     channel ! ReplaceTagResponse(msg, Right(tag))
             }
