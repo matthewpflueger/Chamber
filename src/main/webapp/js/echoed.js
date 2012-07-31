@@ -282,6 +282,7 @@ Echoed.Router = Backbone.Router.extend({
         _.bindAll(this,'me','friends','explore', 'story','resetHash');
         this.EvAg = options.EvAg;
         this.EvAg.bind("hash/reset", this.resetHash);
+        this.EvAg.bind("router/me", this.me);
         this.page = null;
     },
     routes:{
@@ -566,8 +567,8 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         switch(nextAction){
             case "finish":
                 self.unload(function(){
+                    self.EvAg.trigger('router/me');
                     window.location.hash = "#!story/" + self.data.storyFull.story.id;
-                    self.EvAg.trigger('exhibit/newStory',self.data.storyFull);
                 });
                 break;
             case "add":
