@@ -1,14 +1,9 @@
-    {{> partial_header}}
-    <title>Echoed | Partner Login</title>
-    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css"/>
-</head>
-<body class="nooverflow">
-<div id="container">
-    {{> partial_staticNavBar }}
-    <div id="lm">
-        <div id="lm-top" class="clearfix">
-            <div id="lm-label">Partner Login</div>
-            <div id="lm-partner-form">
+{{<public_super}}
+    {{$title}}Echoed | Partner Login{{/title}}
+    {{$content}}
+        <div id="content">
+            <div id="lm-partner-form" class="center form roundbox">
+                <label>Partner Login</label>
                 {{#error}}<div id="lm-error">Error: {{message}}</div> {{/error}}
                 <form action="{{urls.site}}/partner/login" method="POST">
                     <label for="email">Email:</label>
@@ -19,12 +14,6 @@
                 </form>
             </div>
         </div>
-    </div>
-</div>
-<div id="footer" class="float">
-    {{ > partial_footerNav }}
-</div>
-</body>
-</html>
-
-{{> partial_google}}
+    {{/content}}
+    {{$olark}}{{/olark}}
+{{/public_super}}

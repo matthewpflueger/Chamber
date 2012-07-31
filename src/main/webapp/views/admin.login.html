@@ -1,34 +1,19 @@
-{{> partial_header }}
-<title>Echoed | Admin Login</title>
-<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css" />
-
-<body class="nooverflow">
-<div id="container">
-    {{> partial_staticNavBar }}
-    <div id="primary">
-        <div class="center clearfix">
-            <div id="lm">
-                <div id="lm-top" class="clearfix">
-                    <div id="lm-label">Admin Login</div>
-                    <div id="lm-partner-form">
-                        {{#error}}<div id="lm-error">Error: {{message}}</div> {{/error}}
-                        <form action="{{urls.site}}/admin/login" method="POST">
-                            <label for="email">Email:</label>
-                            <input id="email" name="email" type="text" />
-                            <label for="password">Password:</label>
-                            <input id="password" name="password" type="password" />
-                            <input id="login" name="login" type="submit">
-                        </form>
-                    </div>
-                </div>
-            </div>
+{{<public_super}}
+    {{$title}}Echoed | Admin Login{{/title}}
+    {{$content}}
+    <div id="content">
+        <div id="lm-partner-form" class="roundbox form">
+            <label>Admin Login</label>
+            {{#error}}<div id="lm-error">Error: {{message}}</div> {{/error}}
+            <form action="{{urls.site}}/admin/login" method="POST">
+                <label for="email">Email:</label>
+                <input id="email" name="email" type="text" />
+                <label for="password">Password:</label>
+                <input id="password" name="password" type="password" />
+                <input id="login" name="login" type="submit">
+            </form>
         </div>
     </div>
-    <div id="gap"></div>
-</div>
-<div id="footer" class="float">
-    {{ > partial_footerNav }}
-</div>
-</body>
-</html>
-{{> partial_google}}
+    {{/content}}
+    {{$olark}}{{/olark}}
+{{/public_super}}

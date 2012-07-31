@@ -173,9 +173,9 @@
 
         <property name="productGraphUrl" value="${https.urls.site}/graph/product/" />
         <property name="buttonView" value="redirect:${buttonViewUrl}" />
-        <property name="loginView" value="popuplogin" />
-        <property name="confirmView" value="confirm" />
-        <property name="echoItView" value="echoIt" />
+        <property name="loginView" value="popup_login" />
+        <property name="confirmView" value="popup_confirm" />
+        <property name="echoItView" value="popup_echoIt" />
         <property name="errorView" value="error" />
         <property name="facebookAddRedirectUrl" value="${https.urls.site}/facebook/add" />
         <property name="facebookLoginRedirectUrl" value="${https.urls.site}/facebook/login" />
@@ -248,7 +248,7 @@
     <bean id="loginController" class="com.echoed.chamber.controllers.partner.LoginController">
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
-        <property name="partnerLoginErrorView" value="login" />
+        <property name="partnerLoginErrorView" value="partner_login" />
         <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
     </bean>
 
@@ -301,7 +301,7 @@
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerUserServiceLocator" ref="partnerUserServiceLocator" />
         <property name="partnerDashboardView" value="partner" />
-        <property name="partnerDashboardErrorView" value="login" />
+        <property name="partnerDashboardErrorView" value="partner_login" />
     </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->

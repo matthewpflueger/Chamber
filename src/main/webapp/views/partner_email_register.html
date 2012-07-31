@@ -1,15 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Your Echoed Account</title>
-</head>
-<body class="nooverflow">
-<div>
-    {{> partial_register_email}}
-    <p>
-        After successfully activating your account you will receive your secret key and instructions on how to
-        integrate the Echoed service.
-    </p>
-</div>
-</body>
-</html>
+{{<email_super}}
+    {{$content}}
+        <div>
+            {{> partial_register_email}}
+            <p>
+                After successfully activating your account you will receive your secret key and instructions on how to
+                integrate the Echoed service.
+            </p>
+        </div>
+    {{/content}}
+{{/email_super}}
