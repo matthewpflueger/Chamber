@@ -653,6 +653,7 @@ Echoed = {
         return Echoed.twitterUrl + encodeURIComponent(hash);
     },
     init: function(options) {
+        if(blahdibla.blahdibla.length >0)
         this.partnerId = options.partnerId;
         this.echoedUser = options.echoedUser;
         var opener = new Echoed.Views.Components.Opener({ el: EchoedSettings.opener, EvAg: EventAggregator });
@@ -1316,6 +1317,30 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
 
 EchoedjQuery(document).ready(function(){
 
+    window.onerror = function(message, file, line){
+
+        if(file.indexOf('echoed') >= 0){
+            var error = {
+                message: message,
+                file: file,
+                line: line,
+                location: location
+            };
+
+            var errorString = encodeURIComponent(JSON.stringify(error));
+            var xmlHttpRequest;
+
+            if (document.all) {
+                xmlHttpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+            } else {
+                xmlHttpRequest = new XMLHttpRequest();
+            }
+
+            xmlHttpRequest.open("POST", "{{urls.site}}/posterror?error=" + errorString);
+            xmlHttpRequest.send();
+        }
+    };
+
     if(typeof(EchoedSettings) === 'undefined'){
         EchoedSettings = {};
     }
@@ -1394,29 +1419,6 @@ EchoedjQuery(document).ready(function(){
             id: "{{echoedUserId}}"
         }
     });
-
-    window.onerror = function(message, file, line){
-        if(file.indexOf('echoed') >= 0){
-            var error = {
-                message: message,
-                file: file,
-                line: line,
-                location: location
-            };
-
-            var errorString = encodeURIComponent(JSON.stringify(error));
-            var xmlHttpRequest;
-
-            if (document.all) {
-                xmlHttpRequest = new ActiveXObject("Msxml2.XMLHTTP");
-            } else {
-                xmlHttpRequest = new XMLHttpRequest();
-            }
-
-            xmlHttpRequest.open("POST", "{{urls.site}}/posterror?error=" + errorString);
-            xmlHttpRequest.send();
-        }
-    };
 
 });
 

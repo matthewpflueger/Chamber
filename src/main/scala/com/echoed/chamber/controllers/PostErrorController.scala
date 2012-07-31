@@ -16,10 +16,12 @@ class PostErrorController {
     @ResponseBody
     def postError(
         @RequestParam(value = "error") error: String,
+        @RequestHeader(value = "X-Real-IP", required = false) remoteIp: String,
+        @RequestHeader(value = "User-Agent", required = false) userAgent: String,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
-        logger.error(error)
+        logger.debug("Error Message: %s, IP: %s, User Agent: %s".format(error, remoteIp, userAgent))
         "Success"
     }
 
