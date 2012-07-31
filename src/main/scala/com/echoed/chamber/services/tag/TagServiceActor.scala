@@ -58,7 +58,7 @@ class TagServiceActor(
             self ! AddTag(tagId)
 
         case msg @ TagReplaced(originalTagId, newTagId) =>
-            self ! ReplaceTag(originalTagId, newTagId)
+            self ! ReplaceTag(Option(originalTagId), newTagId)
 
         //COMMANDS
         case msg @ GetTags(filter) =>
@@ -88,8 +88,8 @@ class TagServiceActor(
 
         case msg @ ReplaceTag(originalTagId, newTagId) =>
             val channel = context.sender
-            self ! RemoveTag(originalTagId)
-            (self ? AddTag(newTagId)).onSuccess{
+            originalTagId.foreach(self ! RemoveTag(_))
+            (self ? AddTag(newTagId.toLowerCase)).onSuccess{
                 case AddTagResponse(_, Right(tag)) =>
                     channel ! ReplaceTagResponse(msg, Right(tag))
             }

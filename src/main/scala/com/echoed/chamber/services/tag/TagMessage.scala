@@ -38,7 +38,7 @@ case class RemoveTagResponse(
         message: RemoveTag,
         value: Either[TE, Tag]) extends TM with MR[Tag, RemoveTag, TE]
 
-case class ReplaceTag(ogTagId: String, newTagId: String) extends TM
+case class ReplaceTag(ogTagId: Option[String] = None, newTagId: String) extends TM
 case class ReplaceTagResponse(
         message: ReplaceTag,
         value: Either[TE, Tag]) extends TM with MR[Tag, ReplaceTag, TE]
