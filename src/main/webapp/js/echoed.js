@@ -90,6 +90,7 @@ Echoed = {
         var story = new Echoed.Views.Components.Story({ el: '#story', EvAg: EventAggregator});
         var fade = new Echoed.Views.Components.Fade({ el: '#fade', EvAg: EventAggregator });
         var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
+        var pageTitle = new Echoed.Views.Components.PageTitle({ el: 'title', EvAg: EventAggregator});
         var category = new Echoed.Views.Components.Menu({ el: '#menu', EvAg: EventAggregator });
         var categoryList = new Echoed.Views.Components.CategoryList({ el: '#category-nav', EvAg: EventAggregator });
         var iFrameComm = new Echoed.Views.Components.MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator });
@@ -377,13 +378,16 @@ Echoed.Router = Backbone.Router.extend({
             this.page = "#!";
         }
         this.oldPage = this.page;
+        this.oldTitle = $('title').html();
         _gaq.push(['_trackPageview', window.location.hash]);
 
         this.EvAg.trigger("story/show", id);
         this.EvAg.trigger("page/change", "story");
     },
     resetHash: function(){
+
         if(this.oldPage){
+            $('title').html(this.oldTitle);
             window.location.hash = this.oldPage;
         } else {
             window.location.hash = "#!";
@@ -895,6 +899,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
                 if(data.partner) title = data.partner.name;
                 if(data.echoedUser && self.personal !== true)  title = data.echoedUser.name;
                 self.EvAg.trigger("title/update", { title: title, description: self.contentDescription });
+                self.EvAg.trigger("pagetitle/update", title);
                 if(!Echoed.echoedUser) self.addLogin();
                 self.render(data);
             }
@@ -1193,6 +1198,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             url: Echoed.urls.api + "/api/story/" + id,
             success: function(data){
                 self.data = data;
+                self.EvAg.trigger('pagetitle/update', data.story.title);
                 self.render();
             }
         })();
@@ -1496,6 +1502,18 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
             var id = self.element.attr("id");
             window.location.hash = "#!story/" + self.data.story.id;
         }
+    }
+});
+
+Echoed.Views.Components.PageTitle = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'update');
+        this.element = $(options.el);
+        this.EvAg = options.EvAg;
+        this.EvAg.bind('pagetitle/update', this.update);
+    },
+    update: function(text){
+        this.element.html("Echoed | " + text);
     }
 });
 

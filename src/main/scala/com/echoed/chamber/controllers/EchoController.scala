@@ -37,7 +37,6 @@ class EchoController {
     @BeanProperty var echoLoginNotNeededView: String = _
     @BeanProperty var echoConfirmView: String = _
     @BeanProperty var echoFinishView: String = _
-    @BeanProperty var echoDuplicateView: String = _
     @BeanProperty var echoAuthComplete: String = _
     @BeanProperty var echoIframe: String = _
 
@@ -52,7 +51,6 @@ class EchoController {
     @BeanProperty var postLoginView: String = _
     @BeanProperty var confirmView: String = _
     @BeanProperty var errorView: String = _
-    @BeanProperty var duplicateView: String = _
     @BeanProperty var facebookAddRedirectUrl: String = _
     @BeanProperty var facebookLoginRedirectUrl: String = _
     @BeanProperty var logoutUrl: String = _
