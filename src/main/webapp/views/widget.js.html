@@ -655,7 +655,7 @@ Echoed = {
     init: function(options) {
         this.partnerId = options.partnerId;
         this.echoedUser = options.echoedUser;
-        var opener = new Echoed.Views.Components.Opener({ el: '#echoed-opener', EvAg: EventAggregator });
+        var opener = new Echoed.Views.Components.Opener({ el: EchoedSettings.opener, EvAg: EventAggregator });
         var exhibit = new Echoed.Views.Pages.Exhibit({ el: '#echoed-exhibit-container', EvAg: EventAggregator });
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el: '#echoed-infiniteScroll', EvAg : EventAggregator});
         var story = new Echoed.Views.Components.Story({ el: '#echoed-story', EvAg: EventAggregator });
@@ -1315,6 +1315,10 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
 
 
 EchoedjQuery(document).ready(function(){
+
+    if(typeof(EchoedSettings) === 'undefined'){
+        EchoedSettings = {};
+    }
     var cssNode = document.createElement("link");
     cssNode.type="text/css";
     cssNode.rel = "stylesheet";
@@ -1334,18 +1338,21 @@ EchoedjQuery(document).ready(function(){
     document.getElementsByTagName('HEAD')[0].appendChild(fontNode2);
 
     var body = document.getElementsByTagName('body')[0];
-    var echoedOpener = document.createElement('div');
-    echoedOpener.id = "echoed-opener";
-    var openImage = document.createElement('img');
-    {{#white}}
-        openImage.src ="{{urls.images}}/bk_opener_white_left.png";
-    {{/white}}
-    {{^white}}
-        openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
-    {{/white}}
+    if(EchoedSettings.opener === undefined){
+        EchoedSettings.opener = '#echoed-opener';
+        var echoedOpener = document.createElement('div');
+        echoedOpener.id = "echoed-opener";
+        var openImage = document.createElement('img');
 
-    echoedOpener.appendChild(openImage);
-    body.appendChild(echoedOpener);
+        {{#white}}
+            openImage.src ="{{urls.images}}/bk_opener_white_left.png";
+        {{/white}}
+        {{^white}}
+            openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
+        {{/white}}
+        echoedOpener.appendChild(openImage);
+        body.appendChild(echoedOpener);
+    }
 
     var echoedStory = document.createElement('div');
     echoedStory.id = "echoed-story";
