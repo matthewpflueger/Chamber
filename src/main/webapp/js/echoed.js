@@ -1245,7 +1245,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         if(self.data.story.partnerHandle !== "Echoed"){
             var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
             fromLink = fromLink + '<a href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
-            //fromLink = fromLink + '<a target="_blank" href="' + Echoed.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + self.data.story.productInfo + '</a>';
+            fromLink = fromLink + ' (<a target="_blank" href="' + Echoed.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)';
         } else if (Echoed.isUrl(self.data.story.productInfo)){
             fromLink = fromLink + '<a target="_blank" href="' + Echoed.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
         } else {

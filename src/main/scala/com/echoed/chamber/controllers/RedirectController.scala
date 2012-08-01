@@ -36,7 +36,8 @@ class RedirectController {
                 ps.getPartner.onSuccess {
                     case GetPartnerResponse(_, Right(p)) =>
                         logger.debug("Redirecting to {}", p.domain)
-                        val modelAndView = new ModelAndView("redirect:http://" + p.domain)
+                        val domain = if (p.domain.startsWith("http")) p.domain else "http://" + p.domain
+                        val modelAndView = new ModelAndView("redirect:" + domain)
                         result.set(modelAndView)
                 }
         }
