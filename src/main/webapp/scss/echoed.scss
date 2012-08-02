@@ -1048,7 +1048,7 @@ a{
                             }
                             .story-brief-indicator-value{
                                 margin-right: 3px;
-                                @include textFontBold(11px, $mainColor);
+                                @include textFontBold(11px);
 
                             }
                             .story-brief-indicator-sprite{
@@ -1619,7 +1619,7 @@ h3{
                 }
                 @include textFontNormal(16px);
                 text-align: center;
-                a{
+                .bold-link{
                     font-weight: bold;
                     &:hover{
                         color: $mainColor;
@@ -1631,6 +1631,10 @@ h3{
                 text-align: left;
                 @include textFontNormal(14px);
                 padding-left: 40px;
+            }
+            .echo-s-h-t-n-t-l{
+                @include textFontNormal(14px, $mainColor);
+                text-decoration: underline;
             }
             .echo-s-h-i-c{
                 float:left;

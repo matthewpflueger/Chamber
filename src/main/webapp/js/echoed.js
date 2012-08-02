@@ -1240,14 +1240,14 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.storyUrl);
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.userNode = self.element.find('.echo-s-h-t-n');
-        var userLink = 'by <a href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a><br/>';
+        var userLink = 'by <a class="bold-link"  href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a><br/>';
         var fromLink = 'from ';
         if(self.data.story.partnerHandle !== "Echoed"){
             var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-            fromLink = fromLink + '<a href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
-            fromLink = fromLink + ' (<a target="_blank" href="' + Echoed.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)';
+            fromLink = fromLink + '<a class="bold-link" href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
+            fromLink = fromLink + ' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + Echoed.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)';
         } else if (Echoed.isUrl(self.data.story.productInfo)){
-            fromLink = fromLink + '<a target="_blank" href="' + Echoed.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
+            fromLink = fromLink + '<a class="bold-link"  target="_blank" href="' + Echoed.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
         } else {
             fromLink = fromLink +  self.data.story.productInfo;
         }
