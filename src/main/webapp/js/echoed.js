@@ -253,7 +253,7 @@ Echoed.Views.Components.AjaxInput = Backbone.View.extend({
         var filter = self.input.val();
         if(filter !== ''){
             Echoed.AjaxFactory({
-                url: Echoed.urls.api + "/api/tags",
+                url: Echoed.urls.api + "/api/tags/top",
                 data: {
                     tagId: filter
                 },
