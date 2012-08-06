@@ -396,6 +396,7 @@
         <property name="cookieManager" ref="cookieManager" />
         <property name="partnerServiceManager" ref="partnerServiceManager"/>
         <property name="widgetJsView" value="widget.js"/>
+        <property name="eventService" ref="eventService" />
     </bean>
 
     <!-- suppress DuplicatedBeanNamesInspection -->

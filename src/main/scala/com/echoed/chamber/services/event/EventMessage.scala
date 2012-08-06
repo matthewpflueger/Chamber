@@ -22,6 +22,9 @@ case class FacebookCanvasViewed(echoedUser: EchoedUser)
 case class ExhibitViewed(echoedUser: EchoedUser)
         extends Event("ExhibitViewed", echoedUser.getClass.getSimpleName, echoedUser.id)
 
+case class WidgetRequested(partnerId: String)
+        extends Event("WidgetRequested", "PartnerId", partnerId)
+
 case class WidgetOpened(partnerId: String)
         extends Event("WidgetOpened", "PartnerId", partnerId)
 

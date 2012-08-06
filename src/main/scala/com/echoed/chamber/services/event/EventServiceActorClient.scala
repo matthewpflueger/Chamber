@@ -19,6 +19,10 @@ class EventServiceActorClient extends EventService with ActorClient {
         actorRef ! ExhibitViewed(echoedUser)
     }
 
+    def widgetRequested(partnerId: String){
+        actorRef ! WidgetRequested(partnerId)
+    }
+
     def widgetOpened(partnerId: String){
         actorRef ! WidgetOpened(partnerId)
     }

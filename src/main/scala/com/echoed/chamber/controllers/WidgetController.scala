@@ -10,6 +10,7 @@ import Scalaz._
 import com.echoed.chamber.services.partner._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.services.event.EventService
 
 
 @Controller
@@ -21,6 +22,7 @@ class WidgetController {
     @BeanProperty var partnerServiceManager: PartnerServiceManager = _
     @BeanProperty var widgetJsView: String = _
     @BeanProperty var cookieManager: CookieManager = _
+    @BeanProperty var eventService: EventService = _
 
     @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
     def js(
@@ -43,8 +45,10 @@ class WidgetController {
                 } else {
                     modelAndView.addObject("black", true)
                 }
+                eventService.widgetRequested(pid)
                 result.set(modelAndView)
         }
+
         result
 
     }

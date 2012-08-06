@@ -8,7 +8,10 @@ trait EventService {
 
     def exhibitViewed(echoedUser: EchoedUser): Unit
 
+    def widgetRequested(partnerId: String): Unit
+
     def widgetOpened(partnerId: String): Unit
 
     def widgetStoryOpened(storyId: String): Unit
+
 }
