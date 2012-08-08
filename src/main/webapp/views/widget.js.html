@@ -1,5 +1,6 @@
 window.onload = function(){
     var body = document.getElementsByTagName('body')[0];
+
     var echoedFade = document.createElement('iframe');
     echoedFade.style.cssText = "z-index:9999; background-color: rgba(0,0,0,0.7); top: 0px; left: 0px; right: 0px; height: 100%; width: 100%; position: fixed; overflow-y: scroll; display: none;";
     echoedFade.src = "{{urls.site}}/widget/iframe?pid={{partnerId}}";
@@ -27,9 +28,15 @@ window.onload = function(){
             echoedFade.style.display = "block";
         };
     }
+    if (window.addEventListener) {
+        window.addEventListener('message', EchoedCloseIFrame, false);
+    } else if (window.attachEvent) {
+        window.attachEvent('onmessage', EchoedCloseIFrame);
+    }
 };
 
 function EchoedCloseIFrame(){
     var iframe = document.getElementById('echoed-fade');
     iframe.style.display = "none";
 };
+

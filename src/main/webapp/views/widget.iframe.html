@@ -159,7 +159,9 @@ Echoed.Views.Components.Fade = Backbone.View.extend({
         var self = this;
         self.element.fadeOut();
         $("html,body").removeClass("noScroll");
-        window.parent.EchoedCloseIFrame();
+        window.setTimeout(function(){
+            window.top.postMessage("close","*");
+        }, 0);
     },
     ___getPageSize:function () {
         var xScroll, yScroll;
