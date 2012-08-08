@@ -24,6 +24,25 @@ class WidgetController {
     @BeanProperty var cookieManager: CookieManager = _
     @BeanProperty var eventService: EventService = _
 
+    @RequestMapping(value = Array("/iframe"), method = Array(RequestMethod.GET))
+    def iframe(
+        @RequestParam(value = "pid", required = true) pid: String,
+        httpServletRequest: HttpServletRequest,
+        httpServletResponse: HttpServletResponse) = {
+
+        val result = new DeferredResult(new ModelAndView("error"))
+        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse("")
+        partnerServiceManager.locatePartnerService(pid).onSuccess {
+            case LocateResponse(_, Right(partnerService)) =>
+                val modelAndView = new ModelAndView("widget.iframe")
+                modelAndView.addObject("partnerId", pid)
+                modelAndView.addObject("echoedUserId", echoedUserId)
+                result.set(modelAndView)
+        }
+
+        result
+    }
+
     @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
     def js(
         @RequestParam(value = "pid", required = true) pid: String,

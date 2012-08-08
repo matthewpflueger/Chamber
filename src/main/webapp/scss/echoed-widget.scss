@@ -125,7 +125,6 @@ $headerFontFamily: 'Arvo', serif;
 
 
 #echoed-exhibit-container{
-    line-height: 1;
     position:absolute;
     top: 50px;
     left: 50%;
@@ -396,10 +395,10 @@ $headerFontFamily: 'Arvo', serif;
 
 #echoed-story{
     position:absolute;
-    line-height: 1;
     text-align: left;
     width: 875px;
     margin-left: -435px;
+    padding-bottom: 50px;
     left: 50%;
     top: 20px;
     z-index: 10000;
@@ -660,7 +659,6 @@ $headerFontFamily: 'Arvo', serif;
 
 
 .echoed-head{
-    line-height: 1;
     padding: 10px;
     @include headerFont(30px, #FFF);
     @include black-gradient;
