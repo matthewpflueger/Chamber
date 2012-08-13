@@ -576,19 +576,32 @@ class EchoedUserService(
             channel ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
 
 
-        case msg @ CreateComment(eucc, storyId, chapterId, text, parentCommentId) =>
+        case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
+            mp(NewComment(
+                    new EchoedUserClientCredentials(storyOwnerId),
+                    echoedUser,
+                    storyId,
+                    chapterId,
+                    text,
+                    parentCommentId))
+                .mapTo[NewCommentResponse]
+                .map(ncr => CreateCommentResponse(msg, ncr.value))
+                .pipeTo(context.sender)
+
+
+        case msg @ NewComment(eucc, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
             val channel = context.sender
             val me = self
 
             val comment = new com.echoed.chamber.domain.Comment(
                 chapterDao.findByIdAndStoryId(chapterId, storyId),
-                echoedUser,
+                byEchoedUser,
                 text,
                 parentCommentId.map(commentDao.findByIdAndChapterId(_, chapterId)))
             commentDao.insert(comment)
             ep.publish(StoryUpdated(storyId))
             me ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId, "echoed")
-            channel ! CreateCommentResponse(msg, Right(comment))
+            channel ! NewCommentResponse(msg, Right(comment))
 
 
         case msg @ InitStory(_, storyId, echoId, partnerId) =>

@@ -28,7 +28,7 @@ class EchoedUserClientCredentialsArgumentResolver extends HandlerMethodArgumentR
             val payload = new ScalaObjectMapper().readTree(encrypter.decrypt(euc))
             EchoedUserClientCredentials(
                     payload.get("id").asText,
-                    payload.get("name").asText,
+                    Option(payload.get("name")).map(_.asText),
                     Option(payload.get("email")).map(_.asText),
                     Option(payload.get("screenName")).map(_.asText),
                     Option(payload.get("facebookId")).map(_.asText),

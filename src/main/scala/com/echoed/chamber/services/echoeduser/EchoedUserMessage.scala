@@ -13,19 +13,15 @@ sealed case class EchoedUserException(message: String = "", cause: Throwable = n
 
 case class EchoedUserClientCredentials(
         id: String,
-        name: String,
-        email: Option[String],
-        screenName: Option[String],
-        facebookId: Option[String],
-        twitterId: Option[String]) extends EchoedClientCredentials {
+        name: Option[String] = None,
+        email: Option[String] = None,
+        screenName: Option[String] = None,
+        facebookId: Option[String] = None,
+        twitterId: Option[String] = None) extends EchoedClientCredentials {
 
     val echoedUserId = id
 }
 
-//trait EchoedUserClientCredentials extends EchoedClientCredentials {
-//    val echoedUserId = id
-//    override def toString = "EchoedUserClientCredentials=%s" format echoedUserId
-//}
 
 trait EchoedUserIdentifiable {
     this: EchoedUserMessage =>
@@ -152,7 +148,9 @@ case class UpdateChapterResponse(message: UpdateChapter, value: Either[EUE, Chap
         extends EUM with MR[ChapterInfo, UpdateChapter, EUE]
 
 
-case class CreateComment(        credentials: EUCC,
+case class CreateComment(
+        credentials: EUCC,
+        storyOwnerId: String,
         storyId: String,
         chapterId: String,
         text: String,
@@ -160,6 +158,19 @@ case class CreateComment(        credentials: EUCC,
 
 case class CreateCommentResponse(message: CreateComment, value: Either[EUE, Comment])
         extends EUM with MR[Comment, CreateComment, EUE]
+
+
+private[echoeduser] case class NewComment(
+        credentials: EUCC,
+        byEchoedUser: EchoedUser,
+        storyId: String,
+        chapterId: String,
+        text: String,
+        parentCommentId: Option[String]) extends EUM with EUI
+
+private[echoeduser] case class NewCommentResponse(message: NewComment, value: Either[EUE, Comment])
+        extends EUM with MR[Comment, NewComment, EUE]
+
 
 case class EchoTo(
         credentials: EUCC,

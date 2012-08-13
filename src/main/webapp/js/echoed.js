@@ -1405,7 +1405,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
                 type: "POST",
                 data: {
-                    text: text
+                    text: text,
+                    storyOwnerId: self.data.echoedUser.id
                 },
                 success: function(createCommentData) {
                     self.locked = false;
