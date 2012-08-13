@@ -59,7 +59,7 @@ class EchoedUserServiceManager(
 
 
     def handle = {
-        case Terminated(ref) => active.values().remove(ref)
+        case Terminated(ref) => active.values.removeAll(active.values.filter(_ == ref))
 
 
         case RegisterEchoedUserService(echoedUser) =>
