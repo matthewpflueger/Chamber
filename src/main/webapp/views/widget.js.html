@@ -2,6 +2,7 @@ window.onload = function(){
     var body = document.getElementsByTagName('body')[0];
 
     var echoedFade = document.createElement('iframe');
+    var hash = window.location.hash;
     echoedFade.style.cssText = "z-index:9999; background-color: rgba(0,0,0,0.7); top: 0px; left: 0px; right: 0px; height: 100%; width: 100%; position: fixed; overflow-y: scroll; display: none;";
     echoedFade.src = "{{urls.site}}/widget/iframe?pid={{partnerId}}";
     echoedFade.id = "echoed-fade";
@@ -12,12 +13,15 @@ window.onload = function(){
     }
 
     if(EchoedSettings.opener === undefined){
-        var echoedOpener = document.createElement('div');
-        echoedOpener.id = "echoed-opener";
-        var openImage = document.createElement('img');
-        openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
-        echoedOpener.appendChild(openImage);
-        body.appendChild(echoedOpener);
+        var echoedOpener = document.getElementById('echoed-opener');
+        if(echoedOpener === null){
+            echoedOpener = document.createElement('div');
+            echoedOpener.id = "echoed-opener";
+            var openImage = document.createElement('img');
+            openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
+            echoedOpener.appendChild(openImage);
+            body.appendChild(echoedOpener);
+        }
         echoedOpener.style.cssText = "left: 0px; top: 50%; position: absolute; margin-top: -260px; cursor: pointer;box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-moz-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-webkit-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);";
         echoedOpener.onclick = function(){
             echoedFade.style.display = "block";
