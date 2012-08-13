@@ -70,7 +70,7 @@
     <logger name="com.gargoylesoftware.htmlunit" level="error" />
 
     <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="info" />
-    <logger name="com.echoed.chamber.services.facebook.FacebookPostCrawlerActor" level="info" />
+    <logger name="com.echoed.chamber.services.facebook.FacebookPostCrawler" level="info" />
     <logger name="com.echoed.chamber.services.geolocation" level="info" />
     <logger name="com.echoed.chamber.dao" level="info" />
     <logger name="com.echoed" level="debug" />

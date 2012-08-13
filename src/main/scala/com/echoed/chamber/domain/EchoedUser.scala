@@ -2,19 +2,23 @@ package com.echoed.chamber.domain
 
 import java.util.Date
 import com.echoed.util.UUID
+import com.echoed.util.DateUtils._
+import com.fasterxml.jackson.annotation.{JsonProperty, JsonCreator}
 
 
 case class EchoedUser(
         id: String,
-        updatedOn: Date,
-        createdOn: Date,
+        updatedOn: Long,
+        createdOn: Long,
         name: String,
         email: String,
         screenName: String,
         facebookUserId: String,
         facebookId: String,
         twitterUserId: String,
-        twitterId: String) {
+        twitterId: String) extends DomainObject {
+
+    def this() = this("", 0L, 0L, "", "", "", "", "", "", "")
 
     def this(
             name: String,
@@ -35,6 +39,7 @@ case class EchoedUser(
         twitterUserId,
         twitterId)
 
+
     def this(
             id:String,
             name:String,
@@ -45,8 +50,8 @@ case class EchoedUser(
             twitterUserId: String,
             twitterId: String) = this(
         id,
-        null,
-        null,
+        new Date,
+        new Date,
         name,
         email,
         screenName,
@@ -55,17 +60,6 @@ case class EchoedUser(
         twitterUserId,
         twitterId)
 
-    def this(id: String, name: String, email: String) = this(
-        id,
-        null,
-        null,
-        name,
-        email,
-        null,
-        null,
-        null,
-        null,
-        null)
 
     def this(facebookUser: FacebookUser) = this(
         UUID(),
@@ -96,4 +90,8 @@ case class EchoedUser(
 
     def assignTwitterUser(tu: TwitterUser) =
         this.copy(twitterId = tu.twitterId, twitterUserId = tu.id, screenName = tu.screenName)
+
+    def hasEmail = Option(email).isDefined
 }
+
+

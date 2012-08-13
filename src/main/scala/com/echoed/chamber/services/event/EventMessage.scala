@@ -23,7 +23,7 @@ case class ExhibitViewed(echoedUser: EchoedUser)
         extends Event("ExhibitViewed", echoedUser.getClass.getSimpleName, echoedUser.id)
 
 case class WidgetRequested(partnerId: String)
-        extends Event("WidgetRequested", "PartnerId", partnerId)
+        extends Event("WidgetRequested", "PartnerId", partnerId) with com.echoed.chamber.services.Event
 
 case class WidgetOpened(partnerId: String)
         extends Event("WidgetOpened", "PartnerId", partnerId)

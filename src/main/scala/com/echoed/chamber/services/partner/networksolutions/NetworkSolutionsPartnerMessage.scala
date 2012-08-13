@@ -6,6 +6,7 @@ import com.echoed.chamber.services.partner.{EchoRequest, PartnerAlreadyExists, P
 import com.echoed.chamber.domain._
 import partner.networksolutions.NetworkSolutionsPartner
 import partner.{PartnerUser, Partner}
+import akka.actor.ActorRef
 
 sealed trait NetworkSolutionsPartnerMessage extends PM
 
@@ -19,7 +20,7 @@ case class NetworkSolutionsPartnerEnvelope(
         networkSolutionsPartner: NetworkSolutionsPartner,
         partner: Partner,
         partnerUser: PartnerUser,
-        networkSolutionsPartnerService: Option[NetworkSolutionsPartnerService] = None)
+        networkSolutionsPartnerService: Option[ActorRef] = None)
 
 case class NetworkSolutionsPartnerAlreadyExists(
         envelope: NetworkSolutionsPartnerEnvelope,

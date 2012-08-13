@@ -18,6 +18,19 @@ case class ChapterImage(
         chapterId: String,
         image: Image) extends DomainObject {
 
+    def this() = this(
+        id = "",
+        updatedOn = 0L,
+        createdOn = 0L,
+        storyId = "",
+        echoedUserId = "",
+        partnerId = "",
+        partnerHandle = "",
+        partnerSettingsId = "",
+        echoId = "",
+        chapterId = "",
+        image = new Image())
+
     def this(
             chapter: Chapter,
             _image: Image) = this(

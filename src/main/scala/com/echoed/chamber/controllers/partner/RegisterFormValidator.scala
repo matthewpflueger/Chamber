@@ -2,8 +2,10 @@ package com.echoed.chamber.controllers.partner
 
 import org.springframework.validation.{Errors, Validator}
 import java.lang.Class
+import org.springframework.stereotype.Component
 
 
+@Component
 class RegisterFormValidator extends Validator {
     def supports(clazz: Class[_]) = clazz == classOf[RegisterForm]
 

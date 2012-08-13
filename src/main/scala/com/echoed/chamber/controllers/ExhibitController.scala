@@ -2,81 +2,39 @@ package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
 
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import scala.reflect.BeanProperty
 import com.echoed.chamber.services.echoeduser._
-import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
-import com.echoed.chamber.services.event.EventService
 import org.springframework.web.context.request.async.DeferredResult
+import javax.annotation.Nullable
 
 
 @Controller
 @RequestMapping(Array("/"))
-class ExhibitController {
-
-    private final val logger = LoggerFactory.getLogger(classOf[ExhibitController])
-
-    @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
-
-    @BeanProperty var closetViewFacebook: String = _
-    @BeanProperty var closetView: String = _
-    @BeanProperty var indexView: String = _
-
-    @BeanProperty var cookieManager: CookieManager = _
-
-    @BeanProperty var eventService: EventService = _
-
+class ExhibitController extends EchoedController {
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def exhibit(
             @RequestParam(value="app", required = false) appType: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            @Nullable eucc: EchoedUserClientCredentials) = {
 
-        //val errorModelAndView = new ModelAndView(indexView)
-        val errorModelAndView = new ModelAndView(closetView)
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
+        log.debug("In exhibit with {}", eucc)
 
-        if (echoedUserId.isEmpty) {
-            errorModelAndView
-        } else {
-            val result = new DeferredResult(errorModelAndView)
+        val modelAndView = new ModelAndView(v.closetView)
 
-            echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId.get).onComplete(_.fold(
-                e => result.set(errorModelAndView),
-                _ match {
-                    case LocateWithIdResponse(_, Left(EchoedUserNotFound(id, _))) =>
-                        logger.debug("Did not find an EchoedUser for {}", id)
-                        result.set(errorModelAndView)
-                    case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                        logger.debug("Found EchoedUserService {} ", echoedUserService);
+        Option(eucc).map { eucc =>
+            val result = new DeferredResult(modelAndView)
 
-                        echoedUserService.getCloset.onComplete(_.fold(
-                            e => result.set(errorModelAndView),
-                            _ match {
-                                case GetExhibitResponse(_, Left(e)) => result.set(errorModelAndView)
-                                case GetExhibitResponse(_, Right(closet)) =>
-                                    val view =
-                                        if (appType == "facebook") {
-                                            eventService.facebookCanvasViewed(closet.echoedUser)
-                                            closetView
-                                        } else {
-                                            eventService.exhibitViewed(closet.echoedUser)
-                                            closetView
-                                        }
-                                    logger.debug("View for app type {}: {}", appType, view)
-
-                                    val modelAndView = new ModelAndView(view)
-                                    modelAndView.addObject("echoedUser", closet.echoedUser)
-                                    modelAndView.addObject("totalCredit", "%.2f\n".format(closet.totalCredit))
-                                    result.set(modelAndView)
-                            }))
-                }))
+            mp(GetExhibit(eucc, 0, Option(appType))).onSuccess {
+                case GetExhibitResponse(_, Right(closet)) =>
+                    //TODO ask Jon about closet echoes not actually being set (should be a different message then)
+                    modelAndView.addObject("echoedUser", closet.echoedUser)
+                    modelAndView.addObject("totalCredit", "%.2f\n".format(closet.totalCredit))
+                    result.set(modelAndView)
+            }
 
             result
-        }
-
+        }.getOrElse(modelAndView)
     }
+
 }

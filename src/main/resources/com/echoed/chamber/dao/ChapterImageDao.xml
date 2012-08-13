@@ -86,6 +86,13 @@
         CIMG.retries as CIMGimageRetries
     </sql>
 
+    <select id="findByStoryId" resultMap="chapterImageResult">
+        select <include refid="chapterImageColumns" />
+        from ChapterImage CI
+        join Image CIMG on CI.imageId = CIMG.id
+        where CI.storyId = #{storyId}
+    </select>
+
     <select id="findByChapterId" resultMap="chapterImageResult">
         select <include refid="chapterImageColumns" />
         from ChapterImage CI

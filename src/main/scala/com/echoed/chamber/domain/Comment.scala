@@ -20,6 +20,21 @@ case class Comment(
         parentCommentId: String,
         text: String) extends DomainObject {
 
+    def this() = this(
+        id = "",
+        updatedOn = 0L,
+        createdOn = 0L,
+        storyId = "",
+        echoedUserId = "",
+        partnerId = "",
+        partnerHandle = "",
+        partnerSettingsId = "",
+        echoId = "",
+        chapterId = "",
+        echoedUser = new EchoedUser(),
+        parentCommentId = "",
+        text = "")
+
     def this(
             chapter: Chapter,
             byEchoedUser: EchoedUser,

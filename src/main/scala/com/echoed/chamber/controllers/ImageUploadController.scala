@@ -1,15 +1,11 @@
 package com.echoed.chamber.controllers
 
 import org.springframework.stereotype.Controller
-
-
 import org.springframework.web.bind.annotation._
-import reflect.BeanProperty
 import com.echoed.util.BlobStore
 import javax.servlet.http.HttpServletRequest
-import org.slf4j.LoggerFactory
 import com.echoed.chamber.domain.Image
-import com.echoed.chamber.services.image.{StartProcessImageResponse, ImageService}
+import com.echoed.chamber.services.image.{StartProcessImage, StartProcessImageResponse}
 import org.springframework.web.context.request.async.DeferredResult
 import io.Source
 import java.util.Date
@@ -17,41 +13,41 @@ import java.text.SimpleDateFormat
 import java.net.URLDecoder
 import org.springframework.web.multipart.MultipartFile
 import java.io.InputStream
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import org.springframework.beans.factory.annotation.Autowired
 
 
 @Controller
 @RequestMapping(Array("/image"))
-class ImageUploadController {
+class ImageUploadController extends EchoedController {
 
-    private final val logger = LoggerFactory.getLogger(classOf[ImageUploadController])
-
-    @BeanProperty var cookieManager: CookieManager = _
-    @BeanProperty var blobStore: BlobStore = _
-    @BeanProperty var imageService: ImageService = _
+    @Autowired var blobStore: BlobStore = _
 
     @RequestMapping(
             method = Array(RequestMethod.POST),
             headers = Array("content-type=application/octet-stream"))
     @ResponseBody
-    def upload(request: HttpServletRequest) = {
-        handleUpload(request, request.getHeader("X-File-Name"), request.getInputStream)
-
+    def upload(
+            eucc: EchoedUserClientCredentials,
+            request: HttpServletRequest) = {
+        handleUpload(eucc, request, request.getHeader("X-File-Name"), request.getInputStream)
     }
 
     @RequestMapping(method = Array(RequestMethod.POST))
     @ResponseBody
     def uploadIE(
+            eucc: EchoedUserClientCredentials,
             request: HttpServletRequest,
             @RequestParam("qqfile") file: MultipartFile) = {
-        handleUpload(request, file.getOriginalFilename, file.getInputStream)
+        handleUpload(eucc, request, file.getOriginalFilename, file.getInputStream)
     }
 
     private def handleUpload(
+            eucc: EchoedUserClientCredentials,
             request: HttpServletRequest,
             name: String,
             inputStream: InputStream) = {
 
-        val eu = cookieManager.findEchoedUserCookie(request).get
         //we url decode because the image service will again encode :(  really the image service should not be encoding anything...
         val fileName = URLDecoder.decode(Option(name).get, "UTF-8")
         val i = new Image(fileName)
@@ -62,16 +58,16 @@ class ImageUploadController {
         val result = new DeferredResult(ImageUploadStatus())
         val dateString = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
 
-        logger.debug("Image %s of type %s being uploaded for EchoedUser %s" format(fileName, contentType, eu))
+        log.debug("Image %s of type %s being uploaded for %s" format(fileName, contentType, eucc))
         blobStore.store(
                 bytes,
-                eu + "_" + dateString + "_" + fileName ,
+                eucc.echoedUserId + "_" + dateString + "_" + fileName ,
                 contentType).onSuccess {
             case url =>
-                logger.debug("Successfully stored %s of type %s for EchoedUser %s" format(fileName, contentType, eu))
-                imageService.startProcessImage(new Image(url)).onSuccess {
+                log.debug("Successfully stored %s of type %s for %s" format(fileName, contentType, eucc))
+                mp(StartProcessImage(new Image(url))).onSuccess {
                     case StartProcessImageResponse(_, Right(image)) =>
-                        logger.debug("Successfully processed {} for EchoedUser {}", fileName, eu)
+                        log.debug("Successfully processed {} for {}", fileName, eucc)
                         result.set(ImageUploadStatus(true, image.preferredUrl, image.id))
             }
         }
