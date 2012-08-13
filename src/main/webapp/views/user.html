@@ -7,6 +7,7 @@
             <div id="logo">
                 <a href="/"><img height="40px" src="{{urls.images}}/logo.png"></a>
             </div>
+
             <div id="user" class="clearfix">
                 {{#echoedUser}}
                 <div id="user-image">
@@ -15,10 +16,29 @@
                     {{/facebookId}}
                 </div>
                 <div id="user-text">
-                    {{name}} (<span class="highlight"><strong><a id="logout" class="red-link" href="logout">Logout</a></strong></span>) <br />
+                    {{name}}
+                </div>
+                <div id="user-list">
+                    <ul>
+                        <li class="user-list-item"><a id="logout" href="logout">Logout</a></li>
+                    </ul>
                 </div>
                 {{/echoedUser}}
             </div>
+            <div id="notifications">
+                <div id="notifications-text">
+                    1
+                </div>
+                <div id="notifications-list">
+                    <div id="notifications-list-header">
+                        Notifications (1)
+                    </div>
+                    <div class="notification">
+                        Test
+                    </div>
+                </div>
+            </div>
+
         </div>
         <div id="nav-container">
             <div id="actions"></div>

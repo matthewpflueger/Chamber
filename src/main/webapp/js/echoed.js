@@ -92,6 +92,7 @@ Echoed = {
         var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
         var pageTitle = new Echoed.Views.Components.PageTitle({ el: 'title', EvAg: EventAggregator});
         var category = new Echoed.Views.Components.Menu({ el: '#menu', EvAg: EventAggregator });
+        var notifications = new Echoed.Views.Components.Notifications({ el: '#notifications', EvAg: EventAggregator });
         var categoryList = new Echoed.Views.Components.CategoryList({ el: '#category-nav', EvAg: EventAggregator });
         var iFrameComm = new Echoed.Views.Components.MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator });
         var iFrameNode = document.createElement('iframe');
@@ -104,6 +105,27 @@ Echoed = {
         Backbone.history.start();
     }
 };
+
+Echoed.Views.Components.Notifications = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.element = $(options.el);
+        this.list = $('#notifications-list');
+        Echoed.AjaxFactory({
+        })();
+    },
+    events: {
+        "mouseenter" : "show",
+        "mouseleave": "hide"
+    },
+    show: function(){
+        this.list.show();
+    },
+    hide: function(){
+        this.list.hide();
+    }
+});
 
 Echoed.Views.Components.MessageHandler = Backbone.View.extend({
     initialize: function(options){
@@ -1049,8 +1071,19 @@ Echoed.Views.Components.Login = Backbone.View.extend({
         _.bindAll(this, 'login');
         this.EvAg = options.EvAg;
         this.EvAg.bind('user/login', this.login);
+        this.list = $('#user-list');
         this.el = options.el;
         this.element = $(this.el);
+    },
+    events: {
+        "mouseenter": "show",
+        "mouseleave": "hide"
+    },
+    show: function(){
+        this.list.show();
+    },
+    hide: function(){
+        this.list.hide();
     },
     login: function(){
         var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', Echoed.getProfilePhotoUrl(Echoed.echoedUser));
