@@ -175,6 +175,7 @@ class StoryController extends EchoedController {
     def createComment(
             @PathVariable("storyId") storyId: String,
             @PathVariable("chapterId") chapterId: String,
+            @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String,
             @RequestParam(value = "text", required = true) text: String,
             @RequestParam(value = "parentCommentId", required = false) parentCommentId: String,
             credentials: EchoedUserClientCredentials) = {
@@ -185,6 +186,7 @@ class StoryController extends EchoedController {
 
         mp(CreateComment(
                 credentials,
+                storyOwnerId,
                 storyId,
                 chapterId,
                 text,
