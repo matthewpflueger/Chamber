@@ -10,8 +10,8 @@ trait DomainObject extends Identifiable with AsMap with KeyedEntity[String] {
     def updatedOn: Long
     def createdOn: Long
 
-    def updatedOnDate: Date = updatedOn
-    def createdOnDate: Date = createdOn
+    def updatedOnDate: Option[Date] = updatedOn
+    def createdOnDate: Option[Date] = createdOn
 
     def asPublicMap = asMap - ("createdOn", "updatedOn", "_isPersisted")
 
