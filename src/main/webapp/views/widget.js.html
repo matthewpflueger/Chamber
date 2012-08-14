@@ -12,7 +12,7 @@ window.onload = function(){
         EchoedSettings = {};
     }
 
-    if(EchoedSettings.opener === undefined){
+    if(EchoedSettings.opener === undefined || EchoedSettings.opener === '#echoed-opener'){
         var echoedOpener = document.getElementById('echoed-opener');
         if(echoedOpener === null){
             echoedOpener = document.createElement('div');
