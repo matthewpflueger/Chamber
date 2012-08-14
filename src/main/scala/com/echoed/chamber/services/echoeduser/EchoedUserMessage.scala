@@ -6,6 +6,7 @@ import com.echoed.chamber.domain.partner.{Partner, PartnerSettings}
 import com.echoed.chamber.domain.views._
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
+import scala.collection.immutable.Stack
 
 
 sealed trait EchoedUserMessage extends Message
@@ -34,6 +35,13 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserMessage => EUM}
 import com.echoed.chamber.services.echoeduser.{EchoedUserException => EUE}
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.echoeduser.{EchoedUserIdentifiable => EUI}
+
+
+private[services] case class EchoedUserServiceState(
+        echoedUser: EchoedUser,
+        facebookUser: Option[FacebookUser] = None,
+        twitterUser: Option[TwitterUser] = None,
+        notifications: Stack[Notification] = Stack[Notification]())
 
 
 case class DuplicateEcho(

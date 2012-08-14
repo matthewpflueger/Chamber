@@ -10,7 +10,6 @@ import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
 import akka.pattern._
-import com.echoed.chamber.services.echoeduser.{EchoToFacebookResponse => ETFR, EchoToFacebook => ETF}
 import akka.util.duration._
 import akka.actor.SupervisorStrategy.Stop
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
@@ -20,7 +19,8 @@ import org.springframework.transaction.TransactionStatus
 import java.util.Date
 import com.echoed.util.ScalaObjectMapper
 import akka.util.Timeout
-import com.echoed.chamber.services.twitter._
+import com.echoed.chamber.domain._
+import scala.collection.immutable.Stack
 import com.echoed.chamber.domain.ChapterInfo
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.twitter.FetchFollowersResponse
@@ -30,6 +30,7 @@ import com.echoed.chamber.domain.TwitterUser
 import scala.Some
 import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.FriendCloset
+import com.echoed.chamber.services.twitter.UpdateStatusResponse
 import com.echoed.chamber.domain.TwitterStatus
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.EchoedFriend
@@ -52,6 +53,7 @@ import com.echoed.chamber.services.tag.TagReplaced
 import com.echoed.chamber.services.state.TwitterUserNotFound
 import akka.actor.OneForOneStrategy
 import com.echoed.chamber.domain.views.StoryFull
+import com.echoed.chamber.services.twitter.UpdateStatus
 import com.echoed.chamber.domain.FacebookPost
 import com.echoed.chamber.services.facebook.Post
 import com.echoed.chamber.services.facebook.PostResponse
@@ -63,7 +65,6 @@ import com.echoed.chamber.domain.Chapter
 import com.echoed.chamber.services.state.ReadForCredentialsResponse
 import scala.Right
 import com.echoed.chamber.services.facebook.FetchFriendsResponse
-import com.echoed.chamber.services.state.EchoedUserServiceState
 import com.echoed.chamber.services.Scatter
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
@@ -102,6 +103,7 @@ class EchoedUserService(
     private var echoedUser: EchoedUser = _
     private var facebookUser: Option[FacebookUser] = None
     private var twitterUser: Option[TwitterUser] = None
+    private var notifications = Stack[Notification]()
 
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -179,6 +181,7 @@ class EchoedUserService(
         echoedUser = euss.echoedUser
         twitterUser = euss.twitterUser
         facebookUser = euss.facebookUser
+        notifications = euss.notifications
     }
 
     override def preStart() {
@@ -593,6 +596,9 @@ class EchoedUserService(
             val channel = context.sender
             val me = self
 
+            val story = storyDao.findByIdAndEchoedUserId(storyId, echoedUser.id)
+            assert(story != null, "Did not find story %s for EchoedUser %s" format(storyId, echoedUser.id))
+
             val comment = new com.echoed.chamber.domain.Comment(
                 chapterDao.findByIdAndStoryId(chapterId, storyId),
                 byEchoedUser,
@@ -602,6 +608,17 @@ class EchoedUserService(
             ep.publish(StoryUpdated(storyId))
             me ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId, "echoed")
             channel ! NewCommentResponse(msg, Right(comment))
+
+            if (echoedUser.id != byEchoedUser.id) {
+                val n = new Notification(
+                        echoedUser,
+                        byEchoedUser,
+                        "comment",
+                        Map[String, String]("message" -> "%s commented on %s".format(byEchoedUser.name, story.title)))
+                notifications = notifications.push(n)
+                ep.publish(NotificationCreated(n))
+            }
+
 
 
         case msg @ InitStory(_, storyId, echoId, partnerId) =>
@@ -619,7 +636,6 @@ class EchoedUserService(
                 val comments = commentDao.findByStoryId(s.id)
                 StoryFull(s.id, s, echoedUser, chapters, chapterImages, comments)
             }.orElse(echo.map(e => feedDao.findStoryByEchoId(e.id)))
-
 
             val partner = story
                     .map(s => partnerDao.findById(s.partnerId))
