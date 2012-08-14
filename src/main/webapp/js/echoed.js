@@ -1238,16 +1238,22 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         self.text = self.element.find('.echo-s-b-text');
         self.element.find('.echo-s-h-t-t').html(self.data.story.title);
         self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.storyUrl);
+        if(Echoed.echoedUser !== undefined){
+            if(self.data.echoedUser.id === Echoed.echoedUser.id){
+                var header = self.element.find('.echo-story-header');
+                $('<a class="story-edit-button"></a></span>').html('Edit Story').attr("href","#write/story/" + self.data.story.id).appendTo(header);
+            }
+        }
         self.gallery = self.element.find('.echo-s-b-gallery');
         self.userNode = self.element.find('.echo-s-h-t-n');
-        var userLink = 'by <a class="bold-link"  href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a><br/>';
+        var userLink = 'by <a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a><br/>';
         var fromLink = 'from ';
         if(self.data.story.partnerHandle !== "Echoed"){
             var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-            fromLink = fromLink + '<a class="bold-link" href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
+            fromLink = fromLink + '<a class="link-black bold-link" href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
             fromLink = fromLink + ' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + Echoed.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)';
         } else if (Echoed.isUrl(self.data.story.productInfo)){
-            fromLink = fromLink + '<a class="bold-link"  target="_blank" href="' + Echoed.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
+            fromLink = fromLink + '<a class="link-black bold-link"  target="_blank" href="' + Echoed.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
         } else {
             fromLink = fromLink +  self.data.story.productInfo;
         }
@@ -1372,7 +1378,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         $.each(self.data.comments, function(index,comment){
             var elapsedString = timeElapsedString(timeStampStringToDate(comment.createdOn.toString()));
             var elapsedNode = $('<span class="echo-s-c-l-c-d"></span>').append(elapsedString);
-            var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a></a>").append(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
+            var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a class='red-link'></a>").append(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
             var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", Echoed.getProfilePhotoUrl(comment.echoedUser)).attr("align", "absmiddle");
             img.prependTo(commentUserNode);
             var commentText = $('<div class="echo-s-c-l-c-t"></div>').append(comment.text.replace(/\n/g, '<br />'));
@@ -1452,29 +1458,21 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         } else {
             imageNode.attr("src", image.url)
         }
-        if(self.personal === true ) {
-            textNode.append("<strong>Story Title: </strong>"+ self.data.story.title + "<br/>");
-            textNode.append("<strong># Chapters: </strong>" + self.data.chapters.length + "<br/>");
-            textNode.append("<strong># Images: </strong>" + self.data.chapterImages.length + "<br/>");
-            if(self.data.chapters.length === 0 ){
-                var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Complete Story");
-                overlayNode.append(editButton);
-                overlayNode.append("<br/>Complete your story by adding a chapter");
-                self.overlay.fadeIn();
-            } else {
-                var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Edit Story");
-                overlayNode.append(editButton);
+        if(Echoed.echoedUser !== undefined){
+            if(self.data.echoedUser.id === Echoed.echoedUser.id){
+                textNode.append("<a class='red-link' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
             }
-        } else {
-            textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
-            textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
-            textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
-            var chapterText = self.data.chapters[0].text;
-            var c  = chapterText.split(/[.!?]/)[0];
-            c = c + chapterText.substr(c.length, 1); //Append Split Character
-            textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
-            overlayNode.html(self.data.story.title);
         }
+        textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
+        textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
+        textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
+
+
+        var chapterText = self.data.chapters[0].text;
+        var c  = chapterText.split(/[.!?]/)[0];
+        c = c + chapterText.substr(c.length, 1); //Append Split Character
+        textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
+        overlayNode.html(self.data.story.title);
         var dateString = self.data.story.updatedOn.toString();
         var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
 
@@ -1485,6 +1483,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
         indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.chapterImages.length + 1));
         indicators.append($("<span class='s-b-i-c'></span>").append(elapsedString));
+
 
         textNode.append(indicators);
 
@@ -1498,12 +1497,8 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     },
     click: function(){
         var self = this;
-        if(this.personal) {
-            window.location.hash = "#!write/story/" + self.data.story.id;
-        } else {
-            var id = self.element.attr("id");
-            window.location.hash = "#!story/" + self.data.story.id;
-        }
+        var id = self.element.attr("id");
+        window.location.hash = "#!story/" + self.data.story.id;
     }
 });
 
