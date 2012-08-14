@@ -19,10 +19,12 @@ window.onload = function(){
             echoedOpener.id = "echoed-opener";
             var openImage = document.createElement('img');
             openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
+            openImage.style.display = "block";
             echoedOpener.appendChild(openImage);
+
             body.appendChild(echoedOpener);
         }
-        echoedOpener.style.cssText = "left: 0px; top: 50%; position: absolute; margin-top: -260px; cursor: pointer;box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-moz-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-webkit-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);";
+        echoedOpener.style.cssText = "left: 0px; top: 250px; position: absolute; cursor: pointer;box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-moz-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-webkit-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);";
         echoedOpener.onclick = function(){
             echoedFade.style.display = "block";
         };
