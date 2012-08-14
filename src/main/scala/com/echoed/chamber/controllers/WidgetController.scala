@@ -27,6 +27,7 @@ class WidgetController {
     @RequestMapping(value = Array("/iframe"), method = Array(RequestMethod.GET))
     def iframe(
         @RequestParam(value = "pid", required = true) pid: String,
+        @RequestParam(value = "title", required= false, defaultValue = "") title: String,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
@@ -37,6 +38,7 @@ class WidgetController {
                 val modelAndView = new ModelAndView("widget.iframe")
                 modelAndView.addObject("partnerId", pid)
                 modelAndView.addObject("echoedUserId", echoedUserId)
+                if(!title.equals("")) modelAndView.addObject("title", title)
                 result.set(modelAndView)
         }
 
