@@ -330,6 +330,12 @@ a{
                     @include textFontBold(12px);
                     list-style: none;
                     padding: 7px 10px;
+                    cursor: pointer;
+                    &:hover{
+                        background-color: #F0F0F0;
+                        color: $mainColor;
+
+                    }
                 }
             }
         }
