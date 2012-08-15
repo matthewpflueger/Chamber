@@ -502,9 +502,25 @@ class EchoedUserService(
             createEchoedFriends(twitterEchoedUsers)
 
 
-        case msg @ CreateStory(_, title, imageId, partnerId, echoId, productInfo) =>
-            val channel = context.sender
+        case msg: FetchNotifications =>
+            sender ! FetchNotificationsResponse(msg, Right(notifications.filterNot(_.hasRead)))
 
+
+        case msg @ MarkNotificationsAsRead(_, ids) =>
+            var marked = false
+            notifications = notifications.map { n =>
+                if (ids.contains(n.id)) {
+                    val read = n.markAsRead
+                    ep(NotificationUpdated(read))
+                    marked = true
+                    read
+                } else n
+            }
+
+            sender ! MarkNotificationsAsReadResponse(msg, Right(marked))
+
+
+        case msg @ CreateStory(_, title, imageId, partnerId, echoId, productInfo) =>
             val echo = echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id))
 
             val partner = partnerDao.findByIdOrHandle(partnerId.getOrElse(echo.map(_.partnerId).getOrElse("Echoed")))
@@ -514,7 +530,7 @@ class EchoedUserService(
             val story = new Story(echoedUser, partner, partnerSettings, image, title, echo, productInfo)
             storyDao.insert(story)
             ep.publish(StoryUpdated(story.id))
-            channel ! CreateStoryResponse(msg, Right(story))
+            sender ! CreateStoryResponse(msg, Right(story))
 
 
         case msg @ UpdateStory(_, storyId, title, imageId) =>

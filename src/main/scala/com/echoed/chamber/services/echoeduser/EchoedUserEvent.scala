@@ -23,4 +23,6 @@ private[services] case class EchoedUserUpdated(
 
 private[services] case class NotificationCreated(notification: Notification) extends EUE with CreatedEvent
 
+private[services] case class NotificationUpdated(notification: Notification) extends EUE with UpdatedEvent
+
 

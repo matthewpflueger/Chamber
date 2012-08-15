@@ -117,6 +117,10 @@ class StateService(
             notifications.insert(Notification(notification))
         }
 
+        case msg @ NotificationUpdated(notification) => inTransaction {
+            notifications.update(Notification(notification))
+        }
+
     }
 }
 

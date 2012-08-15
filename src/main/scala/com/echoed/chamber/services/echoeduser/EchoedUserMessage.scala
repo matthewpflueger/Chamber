@@ -94,6 +94,15 @@ private[echoeduser] case class LoginWithCredentials(credentials: EUCC) extends E
 
 
 
+case class FetchNotifications(credentials: EUCC) extends EUM with EUI
+case class FetchNotificationsResponse(message: FetchNotifications, value: Either[EUE, Stack[Notification]])
+        extends EUM with MR[Stack[Notification], FetchNotifications, EUE]
+
+
+case class MarkNotificationsAsRead(credentials: EUCC, ids: Set[String]) extends EUM with EUI
+case class MarkNotificationsAsReadResponse(message: MarkNotificationsAsRead, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, MarkNotificationsAsRead, EUE]
+
 
 case class InitStory(
         credentials: EUCC,

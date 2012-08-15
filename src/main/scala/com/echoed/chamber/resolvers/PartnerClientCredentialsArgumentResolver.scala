@@ -25,7 +25,7 @@ class PartnerClientCredentialsArgumentResolver extends HandlerMethodArgumentReso
             webRequest: NativeWebRequest,
             binderFactory: WebDataBinderFactory) = {
         Option(webRequest.getParameter("pid")).map { pid =>
-            new PartnerClientCredentials with EchoedClientCredentials { def id = pid }
+            new PartnerClientCredentials with EchoedClientCredentials { val id = pid }
         }.getOrElse {
             if (parameter.hasParameterAnnotation(classOf[Nullable])) null
             else throw new IllegalAccessException("No credentials")

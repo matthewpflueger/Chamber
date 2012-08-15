@@ -20,11 +20,37 @@ class UserController extends EchoedController {
     private val failAsZero = failAsValue(classOf[NFE])(0)
     private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
 
+    @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def fetchNotifications(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(FetchNotifications(eucc)).onSuccess {
+            case FetchNotificationsResponse(_, Right(notifications)) => result.set(notifications)
+        }
+
+        result
+    }
+
+    @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def readNotifications(
+            @RequestParam(value = "ids", required = true) ids: Array[String],
+            eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(MarkNotificationsAsRead(eucc, ids.toSet)).onSuccess {
+            case MarkNotificationsAsReadResponse(_, Right(boolean)) => result.set(boolean)
+        }
+
+        result
+    }
+
     @RequestMapping(value = Array("/me/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def publicFeed(@RequestParam(value="page", required = false) page: String) = {
+    def publicFeed(@RequestParam(value = "page", required = false) page: String) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
         mp(GetPublicStoryFeed(parse(page))).onSuccess {
             case GetPublicStoryFeedResponse(_, Right(feed)) => result.set(feed)
@@ -36,8 +62,8 @@ class UserController extends EchoedController {
     @RequestMapping(value = Array("/feed/friends"), method = Array(RequestMethod.GET))
     @ResponseBody
     def feed(
-            @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
-            @RequestParam(value="page", required = false) page: String,
+            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam:String,
+            @RequestParam(value = "page", required = false) page: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             eucc: EchoedUserClientCredentials) = {
 
@@ -87,8 +113,8 @@ class UserController extends EchoedController {
     @RequestMapping(value = Array("/category/{categoryId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def categoryFeed(
-            @PathVariable(value="categoryId") categoryId: String,
-            @RequestParam(value="page", required = false) page: String,
+            @PathVariable(value = "categoryId") categoryId: String,
+            @RequestParam(value = "page", required = false) page: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
@@ -106,8 +132,8 @@ class UserController extends EchoedController {
     @RequestMapping(value = Array("/partner/{partnerId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def partnerFeed(
-            @PathVariable(value="partnerId") partnerId: String,
-            @RequestParam(value="page", required = false) page: String,
+            @PathVariable(value = "partnerId") partnerId: String,
+            @RequestParam(value = "page", required = false) page: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
@@ -124,8 +150,8 @@ class UserController extends EchoedController {
     @RequestMapping(value= Array("/user/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
-            @PathVariable(value="id") echoedFriendId: String,
-            @RequestParam(value= "page", required = false) page: String,
+            @PathVariable(value ="id") echoedFriendId: String,
+            @RequestParam(value = "page", required = false) page: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
         log.debug("echoedFriendId: {}", echoedFriendId)

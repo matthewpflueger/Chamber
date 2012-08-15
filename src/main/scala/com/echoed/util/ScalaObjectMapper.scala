@@ -3,7 +3,6 @@ package com.echoed.util
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import com.echoed.chamber.domain.EchoedUser
 
 
 object ScalaObjectMapper {

@@ -25,9 +25,8 @@ case class Notification(
             category,
             value)
 
-    val emailedOnDate: Option[Date] = emailedOn
-    val readOnDate: Option[Date] = readOn
-
+    def hasRead = readOn.isDefined
+    def markAsRead = copy(readOn = new Date)
 }
 
 
