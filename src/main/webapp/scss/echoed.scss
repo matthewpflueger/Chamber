@@ -244,18 +244,20 @@ a{
             float:left;
         }
 
-        #notifications{
-            display: none;
-            cursor: pointer;
+        #notifications-container{
             position: absolute;
+            display:none;
             right: 185px;
-            padding: 9px 10px;
             &:hover{
-                background-color: rgba(0, 0, 0, 0.2);
+                background-color: rgba(0, 0, 0, 0.1);
             }
             &.on{
                 background-color: rgba(0, 0, 0, 0.7);
             }
+        }
+        #notifications {
+            cursor: pointer;
+            padding: 9px 10px;
         }
 
         #notifications-text{
@@ -265,6 +267,11 @@ a{
             background-color: $mainColor;
             @include textFontBold(12px, #FFF);
             line-height: 12px;
+            &.off{
+                background-color: #AAA;
+                color: #333;
+                border-color: transparent;
+            }
         }
 
         #notifications-menu{
@@ -291,7 +298,14 @@ a{
                     background-color: rgb(255, 255, 200);
                 }
             }
+            #notification-settings{
+                padding: 5px;
+                font-weight: bold;
+                border-bottom: 1px solid #666;
+            }
         }
+
+
 
         #user{
             position: absolute;

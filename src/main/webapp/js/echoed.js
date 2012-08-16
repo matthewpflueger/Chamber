@@ -92,7 +92,7 @@ Echoed = {
         var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
         var pageTitle = new Echoed.Views.Components.PageTitle({ el: 'title', EvAg: EventAggregator});
         var category = new Echoed.Views.Components.Menu({ el: '#menu', EvAg: EventAggregator });
-        var notifications = new Echoed.Views.Components.Notifications({ el: '#notifications', EvAg: EventAggregator });
+        var notifications = new Echoed.Views.Components.Notifications({ el: '#notifications-container', EvAg: EventAggregator });
         var categoryList = new Echoed.Views.Components.CategoryList({ el: '#category-nav', EvAg: EventAggregator });
         var iFrameComm = new Echoed.Views.Components.MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator });
         var iFrameNode = document.createElement('iframe');
@@ -115,16 +115,24 @@ Echoed.Views.Components.Notifications = Backbone.View.extend({
         this.menu = $('#notifications-menu');
         this.header = $('#notifications-list-header');
         this.text = $('#notifications-text');
+        this.checkbox = $('#receive-notification-email-cb');
         var self = this;
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/api/me/settings",
+            success: function(settings){
+                if(settings.receiveNotificationEmail === true){
+                    self.checkbox.attr('checked',true)
+                }
+            }
+        })();
         Echoed.AjaxFactory({
             url: Echoed.urls.api + "/api/notifications",
             success: function(notifications){
                 self.count = notifications.length;
                 self.list.empty();
                 self.text.html(self.count);
+                self.header.html('New Notifications (' + self.count + ")");
                 if(self.count > 0){
-                    self.element.show();
-                    self.header.html('Notifications (' + self.count + ")");
                     $.each(notifications, function(index, notification){
                         var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
                         self.list.append($('<div></div>')
@@ -134,8 +142,9 @@ Echoed.Views.Components.Notifications = Backbone.View.extend({
                             .attr("id", notification.id));
                     });
                 } else {
-                    self.element.hide();
+                    self.text.addClass("off");
                 }
+                self.element.show();
             }
         })();
     },
@@ -143,23 +152,45 @@ Echoed.Views.Components.Notifications = Backbone.View.extend({
         var self = this;
         var id;
         var ids = [];
-        $.each(this.list.children(), function(index, node){
-            ids.push($(node).attr('id'));
-        });
-        Echoed.AjaxFactory({
-            url: Echoed.urls.api + "/api/notifications",
-            type: "POST",
-            data: {
-                'ids': ids
-            },
-            traditional: true
-        })();
+        if(this.count > 0){
+            $.each(this.list.children(), function(index, node){
+                ids.push($(node).attr('id'));
+            });
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/notifications",
+                type: "POST",
+                data: {
+                    'ids': ids
+                },
+                traditional: true
+            })();
+        }
     },
     events: {
         "click .notification": "redirect",
-        "click": "toggle"
+        "click #notifications": "toggle",
+        "click #receive-notification-email-cb": "setEmailSetting"
+    },
+    setEmailSetting: function(){
+        var self = this;
+        var bNotify = self.checkbox.is(':checked');
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/api/me/settings",
+            type: 'POST',
+            processData: false,
+            contentType: "application/json",
+            data: JSON.stringify({
+                receiveNotificationEmail: bNotify
+            }),
+            success: function(response){
+                if(response.receiveNotificationEmail === true){
+                    self.checkbox.attr('checked',true)
+                }
+            }
+        })();
     },
     redirect: function(ev){
+        this.toggle();
         window.location.hash = $(ev.currentTarget).attr("href");
     },
     toggle: function(){
