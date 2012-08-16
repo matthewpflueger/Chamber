@@ -112,18 +112,73 @@ Echoed.Views.Components.Notifications = Backbone.View.extend({
         this.EvAg = options.EvAg;
         this.element = $(options.el);
         this.list = $('#notifications-list');
+        this.menu = $('#notifications-menu');
+        this.header = $('#notifications-list-header');
+        this.text = $('#notifications-text');
+        var self = this;
         Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/api/notifications",
+            success: function(notifications){
+                self.count = notifications.length;
+                self.list.empty();
+                self.text.html(self.count);
+                if(self.count > 0){
+                    self.element.show();
+                    self.header.html('Notifications (' + self.count + ")");
+                    $.each(notifications, function(index, notification){
+                        var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
+                        self.list.append($('<div></div>')
+                            .addClass('notification')
+                            .html(message)
+                            .attr("href","#story/" + notification.value.storyId)
+                            .attr("id", notification.id));
+                    });
+                } else {
+                    self.element.hide();
+                }
+            }
+        })();
+    },
+    markAsRead: function(){
+        var self = this;
+        var id;
+        var ids = [];
+        $.each(this.list.children(), function(index, node){
+            ids.push($(node).attr('id'));
+        });
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/api/notifications",
+            type: "POST",
+            data: {
+                'ids': ids
+            },
+            traditional: true
         })();
     },
     events: {
-        "mouseenter" : "show",
-        "mouseleave": "hide"
+        "click .notification": "redirect",
+        "click": "toggle"
     },
+    redirect: function(ev){
+        window.location.hash = $(ev.currentTarget).attr("href");
+    },
+    toggle: function(){
+        this.element.toggleClass('on');
+        if(this.on === true){
+            this.hide();
+            this.on = false;
+        } else {
+            this.on = true;
+            this.show();
+        }
+    },
+
     show: function(){
-        this.list.show();
+        this.menu.show();
+        this.markAsRead();
     },
     hide: function(){
-        this.list.hide();
+        this.menu.hide();
     }
 });
 
@@ -1076,6 +1131,7 @@ Echoed.Views.Components.Login = Backbone.View.extend({
         this.element = $(this.el);
     },
     events: {
+        "click li": "click",
         "mouseenter": "show",
         "mouseleave": "hide"
     },
@@ -1085,11 +1141,15 @@ Echoed.Views.Components.Login = Backbone.View.extend({
     hide: function(){
         this.list.hide();
     },
+    click: function(ev){
+        window.location = $(ev.currentTarget).attr('href');
+    },
     login: function(){
         var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', Echoed.getProfilePhotoUrl(Echoed.echoedUser));
         var ui = $('<div id="user-image"></div>').append(image);
-        var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name + ' (<span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span>) <br />');
-        this.element.append(ui).append(ut);
+        var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name);
+        var list = $('<div id="user-list"><ul><li class="user-list-item" href="logout">Logout</li></ul></div>');
+        this.element.append(ui).append(ut).append(list);
     }
 });
 

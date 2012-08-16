@@ -14,31 +14,30 @@
                     {{#facebookId}}
                     <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{.}}/picture" />
                     {{/facebookId}}
+                    {{#twitterId}}
+                    <img id="u-i-i" height="30px" width="30px" src="http://api.twitter.com/1/users/profile_image/{{.}}" />
+                    {{/twitterId}}
                 </div>
                 <div id="user-text">
                     {{name}}
                 </div>
                 <div id="user-list">
                     <ul>
-                        <li class="user-list-item"><a id="logout" href="logout">Logout</a></li>
+                        <li class="user-list-item" href="logout">Logout</li>
                     </ul>
                 </div>
                 {{/echoedUser}}
             </div>
             <div id="notifications">
                 <div id="notifications-text">
-                    1
                 </div>
-                <div id="notifications-list">
+                <div id="notifications-menu">
                     <div id="notifications-list-header">
-                        Notifications (1)
                     </div>
-                    <div class="notification">
-                        Test
+                    <div id="notifications-list">
                     </div>
                 </div>
             </div>
-
         </div>
         <div id="nav-container">
             <div id="actions"></div>

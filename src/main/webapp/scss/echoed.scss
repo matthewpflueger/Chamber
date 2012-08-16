@@ -245,13 +245,17 @@ a{
         }
 
         #notifications{
-
+            display: none;
+            cursor: pointer;
             position: absolute;
-            right: 180px;
+            right: 185px;
             padding: 9px 10px;
-           &:hover{
-               background-color: rgba(0, 0, 0, 0.7);
-           }
+            &:hover{
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+            &.on{
+                background-color: rgba(0, 0, 0, 0.7);
+            }
         }
 
         #notifications-text{
@@ -263,27 +267,28 @@ a{
             line-height: 12px;
         }
 
-        #notifications-list{
-            //display: none;
+        #notifications-menu{
             background-color: #FFF;
             position:absolute;
             border: 1px solid #666;
-            //border-top: 0px !important;
+            border-bottom: 0px !important;
             top: 40px;
             right: 0px;
             display: none;
+            width: 260px;
             #notifications-list-header{
                 padding: 7px 0px 5px 5px;
                 @include textFontBold(12px);
                 border-bottom: 1px dashed #CCC;
             }
             .notification{
-                width: 250px;
+                font-size: 10px;
                 padding: 5px 10px;
                 background-color: #F0F0F0;
+                border-bottom: 1px solid #666;
                 cursor: pointer;
                 &:hover{
-                    background-color: #FFF;
+                    background-color: rgb(255, 255, 200);
                 }
             }
         }
@@ -293,6 +298,10 @@ a{
             right: 0px;
             width: 180px;
             padding: 4px 0px;
+            cursor: pointer;
+            &:hover{
+                background-color: rgba(0,0,0,0.1);
+            }
             #user-text{
                 display:inline-block;
                 width: 140px;
@@ -332,7 +341,7 @@ a{
                     padding: 7px 10px;
                     cursor: pointer;
                     &:hover{
-                        background-color: #F0F0F0;
+                        background-color: rgba(255, 255, 200, 1);
                         color: $mainColor;
 
                     }
