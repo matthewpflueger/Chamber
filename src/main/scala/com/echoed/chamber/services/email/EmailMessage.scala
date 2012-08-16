@@ -3,7 +3,6 @@ package com.echoed.chamber.services.email
 import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
 import java.util.{Map => JMap}
 
-
 sealed trait EmailMessage extends Message
 
 sealed case class EmailException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)

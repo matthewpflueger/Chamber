@@ -2,7 +2,11 @@
 
 {{$content}}
 <div>
-    THIS SPACE LEFT FOR NOTIFICATION EMAIL
+    <ul>
+        {{#notifications}}
+        <li> {{#value}} {{subject}} {{action}} {{object}} {{/value}} </li>
+        {{/notifications}}
+    </ul>
 </div>
 {{/content}}
 {{/email_super}}

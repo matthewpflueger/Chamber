@@ -70,6 +70,8 @@ import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
 import com.echoed.chamber.domain.StoryInfo
+import com.echoed.chamber.services.scheduler.{Today, ScheduleOnce}
+import com.echoed.chamber.services.email.SendEmail
 
 
 class EchoedUserService(
@@ -645,15 +647,36 @@ class EchoedUserService(
                         echoedUser,
                         byEchoedUser,
                         "comment",
-                        Map[String, String](
+                        Map(
                             "subject" -> byEchoedUser.name,
                             "action" -> "commented on",
                             "object" -> story.title,
                             "storyId" -> storyId))
                 notifications = notifications.push(n)
                 ep(NotificationCreated(n))
-                //mp(ScheduleOnce(Today, EmailNotifications(EchoedUserClientCredentials(echoedUser.id)), Option(echoedUser.id)))
+                mp(ScheduleOnce(
+                        Today,
+                        EmailNotifications(EchoedUserClientCredentials(echoedUser.id)),
+                        Option(echoedUser.id)))
             }
+
+
+        case msg: EmailNotifications if (echoedUser.hasEmail && echoedUserSettings.receiveNotificationEmail) =>
+            val toEmail = MList[Notification]()
+            notifications = notifications.map { n =>
+                if (n.canEmail) {
+                    val emailed = n.markAsEmailed
+                    toEmail += emailed
+                    ep(NotificationUpdated(emailed))
+                    emailed
+                } else n
+            }
+
+            if (!toEmail.isEmpty)
+                mp(SendEmail(
+                    echoedUser.email,
+                    "You have new comments on your stories!",
+                    "email_notifications", Map("notifications" -> toEmail.toList)))
 
 
         case msg @ InitStory(_, storyId, echoId, partnerId) =>

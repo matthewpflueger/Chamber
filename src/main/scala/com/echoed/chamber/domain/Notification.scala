@@ -27,6 +27,11 @@ case class Notification(
 
     def hasRead = readOn.isDefined
     def markAsRead = copy(readOn = new Date)
+
+    def hasEmailed = emailedOn.isDefined
+    def markAsEmailed = copy(emailedOn = new Date)
+
+    def canEmail = !hasRead && !hasEmailed
 }
 
 

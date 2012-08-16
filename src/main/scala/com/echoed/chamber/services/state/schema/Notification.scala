@@ -2,10 +2,8 @@ package com.echoed.chamber.services.state.schema
 
 import com.echoed.chamber.domain
 import com.echoed.util.ScalaObjectMapper
-import ChamberSchema._
 import com.echoed.chamber.domain.{EchoedUser, Identifiable}
 import org.squeryl._
-import org.squeryl.PrimitiveTypeMode._
 
 private[state] case class Notification(
         id: String,

@@ -2,7 +2,7 @@ package com.echoed.chamber.services.echoeduser
 
 import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedClientCredentials, EchoedException, Message}
 import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.partner.{Partner, PartnerSettings}
+import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.views._
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
@@ -20,14 +20,15 @@ case class EchoedUserClientCredentials(
         facebookId: Option[String] = None,
         twitterId: Option[String] = None) extends EchoedClientCredentials {
 
-    val echoedUserId = id
+    def echoedUserId = id
+
 }
 
 
 trait EchoedUserIdentifiable {
     this: EchoedUserMessage =>
     def credentials: EchoedUserClientCredentials
-    val echoedUserId = credentials.echoedUserId
+    def echoedUserId = credentials.echoedUserId
 }
 
 
@@ -113,6 +114,9 @@ case class ReadSettingsResponse(message: ReadSettings, value: Either[EUE, Echoed
 case class NewSettings(credentials: EUCC, settings: Map[String, AnyRef]) extends EUM with EUI
 case class NewSettingsResponse(message: NewSettings, value: Either[EUE,  EchoedUserSettings])
         extends EUM with MR[EchoedUserSettings, NewSettings, EUE]
+
+
+case class EmailNotifications(credentials: EUCC) extends EUM with EUI
 
 
 case class InitStory(

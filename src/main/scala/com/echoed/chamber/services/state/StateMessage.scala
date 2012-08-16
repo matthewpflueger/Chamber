@@ -6,6 +6,7 @@ import com.echoed.chamber.domain.FacebookUser
 import com.echoed.chamber.domain.AdminUser
 import com.echoed.chamber.services.EchoedException
 import com.echoed.chamber.domain.TwitterUser
+import com.echoed.chamber.services.scheduler.Schedule
 
 
 private[services] sealed trait StateMessage extends Message
@@ -22,12 +23,12 @@ private[services] case class ReadAdminUserServiceManagerStateResponse(
         value: Either[SE, Map[String, String]])
         extends SM with MR[Map[String, String], ReadAdminUserServiceManagerState, SE]
 
+
 private[services] case class ReadAdminUserServiceState(adminUserId: String) extends SM
 private[services] case class ReadAdminUserServiceStateResponse(
         message: ReadAdminUserServiceState,
         value: Either[SE, AdminUser])
         extends SM with MR[AdminUser, ReadAdminUserServiceState, SE]
-
 
 
 private[services] case class ReadPartnerUserServiceManagerState() extends SM
@@ -41,14 +42,15 @@ private[services] case class FacebookUserNotFound(
         facebookUser: FacebookUser,
         m: String = "Facebook user not found") extends SE(m)
 
+
 private[services] case class TwitterUserNotFound(
         twitterUser: TwitterUser,
         m: String = "Twitter user not found") extends SE(m)
 
 
 private[services] abstract class ReadEchoedUserServiceState extends SM
-
 import com.echoed.chamber.services.state.{ReadEchoedUserServiceState => REUSS}
+
 
 private[services] case class ReadForCredentials(credentials: EchoedUserClientCredentials) extends REUSS
 private[services] case class ReadForCredentialsResponse(
@@ -56,11 +58,13 @@ private[services] case class ReadForCredentialsResponse(
                 value: Either[SE, EchoedUserServiceState])
                 extends SM with MR[EchoedUserServiceState, ReadForCredentials, SE]
 
+
 private[services] case class ReadForFacebookUser(facebookUser: FacebookUser) extends REUSS
 private[services] case class ReadForFacebookUserResponse(
                 message: ReadForFacebookUser,
                 value: Either[SE, EchoedUserServiceState])
                 extends SM with MR[EchoedUserServiceState, ReadForFacebookUser, SE]
+
 
 private[services] case class ReadForTwitterUser(twitterUser: TwitterUser) extends REUSS
 private[services] case class ReadForTwitterUserResponse(
@@ -68,3 +72,9 @@ private[services] case class ReadForTwitterUserResponse(
                 value: Either[SE, EchoedUserServiceState])
                 extends SM with MR[EchoedUserServiceState, ReadForTwitterUser, SE]
 
+
+private[services] case class ReadSchedulerServiceState() extends SM
+private[services] case class ReadSchedulerServiceStateResponse(
+                message: ReadSchedulerServiceState,
+                value: Either[SE, Map[String, Schedule]])
+                extends SM with MR[Map[String, Schedule], ReadSchedulerServiceState, SE]
