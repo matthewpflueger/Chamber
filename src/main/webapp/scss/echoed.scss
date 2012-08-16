@@ -2164,6 +2164,9 @@ h3{
 .red-link{
     color: $mainColor;
     font-weight: bold;
+    &:hover{
+        color: #333 !important;
+    }
     &:visited{
         color: $mainColor;
     }
@@ -2183,4 +2186,8 @@ h3{
     left: 10px;
     bottom: 10px;
     @include textFontBold(12px, #FFF);
+}
+
+.underline{
+    text-decoration: underline;
 }
