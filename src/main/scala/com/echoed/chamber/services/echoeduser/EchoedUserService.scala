@@ -101,6 +101,7 @@ class EchoedUserService(
 
 
     private var echoedUser: EchoedUser = _
+    private var echoedUserSettings: EchoedUserSettings = _
     private var facebookUser: Option[FacebookUser] = None
     private var twitterUser: Option[TwitterUser] = None
     private var notifications = Stack[Notification]()
@@ -176,9 +177,11 @@ class EchoedUserService(
         msg.correlationSender.foreach(_ ! LoginWithTwitterResponse(msg.correlation, Right(echoedUser)))
     }
 
+    private def updated: Unit = ep(EchoedUserUpdated(echoedUser, echoedUserSettings, facebookUser, twitterUser))
 
     private def setState(euss: EchoedUserServiceState) {
         echoedUser = euss.echoedUser
+        echoedUserSettings = euss.echoedUserSettings
         twitterUser = euss.twitterUser
         facebookUser = euss.facebookUser
         notifications = euss.notifications
@@ -204,38 +207,50 @@ class EchoedUserService(
 
         case msg @ ReadForFacebookUserResponse(_, Left(FacebookUserNotFound(fu, _))) =>
             echoedUser = new EchoedUser(fu)
+            echoedUserSettings = new EchoedUserSettings(echoedUser)
             handleLoginWithFacebookUser(initMessage.asInstanceOf[LoginWithFacebookUser])
-            ep(EchoedUserCreated(echoedUser, facebookUser, twitterUser))
+            ep(EchoedUserCreated(echoedUser, echoedUserSettings, facebookUser, twitterUser))
 
 
         case msg @ ReadForFacebookUserResponse(_, Right(euss)) =>
             setState(euss)
             handleLoginWithFacebookUser(initMessage.asInstanceOf[LoginWithFacebookUser])
-            ep(EchoedUserUpdated(echoedUser, facebookUser, twitterUser))
+            updated
 
 
         case msg @ ReadForTwitterUserResponse(_, Left(TwitterUserNotFound(tu, _))) =>
             echoedUser = new EchoedUser(tu)
+            echoedUserSettings = new EchoedUserSettings(echoedUser)
             handleLoginWithTwitterUser(initMessage.asInstanceOf[LoginWithTwitterUser])
-            ep(EchoedUserCreated(echoedUser, facebookUser, twitterUser))
+            ep(EchoedUserCreated(echoedUser, echoedUserSettings, facebookUser, twitterUser))
 
 
         case msg @ ReadForTwitterUserResponse(_, Right(euss)) =>
             setState(euss)
             handleLoginWithTwitterUser(initMessage.asInstanceOf[LoginWithTwitterUser])
-            ep(EchoedUserUpdated(echoedUser, facebookUser, twitterUser))
+            updated
     }
 
 
     def online = {
         case msg @ LoginWithFacebookUser(fu, correlation, correlationSender) =>
             handleLoginWithFacebookUser(msg)
-            ep(EchoedUserUpdated(echoedUser, facebookUser, twitterUser))
+            updated
 
 
         case msg @ LoginWithTwitterUser(tu, correlation, correlationSender) =>
             handleLoginWithTwitterUser(msg)
-            ep(EchoedUserUpdated(echoedUser, facebookUser, twitterUser))
+            updated
+
+
+        case msg: ReadSettings =>
+            sender ! ReadSettingsResponse(msg, Right(echoedUserSettings))
+
+
+        case msg @ NewSettings(_, eus) =>
+            echoedUserSettings = echoedUserSettings.fromMap(eus)
+            sender ! NewSettingsResponse(msg, Right(echoedUserSettings))
+            updated
 
 
         case msg @ FetchFriendsResponse(_, Right(ffs)) =>
@@ -529,7 +544,7 @@ class EchoedUserService(
 
             val story = new Story(echoedUser, partner, partnerSettings, image, title, echo, productInfo)
             storyDao.insert(story)
-            ep.publish(StoryUpdated(story.id))
+            ep(StoryUpdated(story.id))
             sender ! CreateStoryResponse(msg, Right(story))
 
 
@@ -550,8 +565,8 @@ class EchoedUserService(
             val originalTag = story.tag
             val newStory = story.copy(tag = tagId)
             storyDao.update(newStory)
-            ep.publish(TagReplaced(originalTag, tagId) )
-            ep.publish(StoryUpdated(storyId))
+            ep(TagReplaced(originalTag, tagId) )
+            ep(StoryUpdated(storyId))
             channel ! TagStoryResponse(msg, Right(newStory))
 
 
@@ -571,7 +586,7 @@ class EchoedUserService(
                 storyDao.update(story) //Update the story to get new timestamp
             }
 
-            ep.publish(StoryUpdated(storyId))
+            ep(StoryUpdated(storyId))
             me ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId, "Echoed")
             channel ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
 
@@ -586,7 +601,7 @@ class EchoedUserService(
             val chapterImages = imageIds.cata(
                 ids => ids.map(id => new ChapterImage(chapter, imageDao.findById(id))),
                 Array[ChapterImage]())
-            ep.publish(StoryUpdated(chapter.storyId))
+            ep(StoryUpdated(chapter.storyId))
             transactionTemplate.execute { status: TransactionStatus =>
                 chapterDao.update(chapter)
                 chapterImageDao.deleteByChapterId(chapter.id)
@@ -621,7 +636,7 @@ class EchoedUserService(
                 text,
                 parentCommentId.map(commentDao.findByIdAndChapterId(_, chapterId)))
             commentDao.insert(comment)
-            ep.publish(StoryUpdated(storyId))
+            ep(StoryUpdated(storyId))
             me ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId, "echoed")
             channel ! NewCommentResponse(msg, Right(comment))
 
@@ -636,9 +651,9 @@ class EchoedUserService(
                             "object" -> story.title,
                             "storyId" -> storyId))
                 notifications = notifications.push(n)
-                ep.publish(NotificationCreated(n))
+                ep(NotificationCreated(n))
+                //mp(ScheduleOnce(Today, EmailNotifications(EchoedUserClientCredentials(echoedUser.id)), Option(echoedUser.id)))
             }
-
 
 
         case msg @ InitStory(_, storyId, echoId, partnerId) =>

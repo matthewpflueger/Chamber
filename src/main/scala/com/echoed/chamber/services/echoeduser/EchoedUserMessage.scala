@@ -39,6 +39,7 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserIdentifiable => EUI}
 
 private[services] case class EchoedUserServiceState(
         echoedUser: EchoedUser,
+        echoedUserSettings: EchoedUserSettings,
         facebookUser: Option[FacebookUser] = None,
         twitterUser: Option[TwitterUser] = None,
         notifications: Stack[Notification] = Stack[Notification]())
@@ -102,6 +103,16 @@ case class FetchNotificationsResponse(message: FetchNotifications, value: Either
 case class MarkNotificationsAsRead(credentials: EUCC, ids: Set[String]) extends EUM with EUI
 case class MarkNotificationsAsReadResponse(message: MarkNotificationsAsRead, value: Either[EUE, Boolean])
         extends EUM with MR[Boolean, MarkNotificationsAsRead, EUE]
+
+
+case class ReadSettings(credentials: EUCC) extends EUM with EUI
+case class ReadSettingsResponse(message: ReadSettings, value: Either[EUE, EchoedUserSettings])
+        extends EUM with MR[EchoedUserSettings, ReadSettings, EUE]
+
+
+case class NewSettings(credentials: EUCC, settings: Map[String, AnyRef]) extends EUM with EUI
+case class NewSettingsResponse(message: NewSettings, value: Either[EUE,  EchoedUserSettings])
+        extends EUM with MR[EchoedUserSettings, NewSettings, EUE]
 
 
 case class InitStory(

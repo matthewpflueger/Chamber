@@ -46,6 +46,35 @@ class UserController extends EchoedController {
         result
     }
 
+
+    @RequestMapping(value = Array("/me/settings"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def readSettings(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(ReadSettings(eucc)).onSuccess {
+            case ReadSettingsResponse(_, Right(eus)) => result.set(eus)
+        }
+
+        result
+    }
+
+
+    @RequestMapping(value = Array("/me/settings"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def newSettings(
+            @RequestBody(required = true) settings: Map[String, AnyRef],
+            eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(NewSettings(eucc, settings)).onSuccess {
+            case NewSettingsResponse(_, Right(eus)) => result.set(eus)
+        }
+
+        result
+    }
+
+
     @RequestMapping(value = Array("/me/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
     def publicFeed(@RequestParam(value = "page", required = false) page: String) = {
@@ -191,31 +220,35 @@ class UserController extends EchoedController {
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin : String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
+
         mp(GetTags(tagId)).onSuccess {
             case GetTagsResponse(_, Right(tags)) => result.set(tags)
         }
+
         result
     }
 
     @RequestMapping(value = Array("/tags/add"), method = Array(RequestMethod.GET))
     @ResponseBody
     def addTag(@RequestParam(value = "tagId", required = true) tagId: String) = {
-
         val result = new DeferredResult(ErrorResult.timeout)
+
         mp(AddTag(tagId)).onSuccess {
             case AddTagResponse(_, Right(tag)) => result.set(tag)
         }
+
         result
     }
 
     @RequestMapping(value = Array("/tags/top"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getTopTag() = {
-
         val result = new DeferredResult(ErrorResult.timeout)
+
         mp(GetTopTags()).onSuccess {
             case GetTopTagsResponse(_, Right(tags)) => result.set(tags)
         }
+
         result
     }
 
