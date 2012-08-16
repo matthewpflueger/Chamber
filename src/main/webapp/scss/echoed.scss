@@ -299,18 +299,19 @@ a{
             width: 180px;
             padding: 4px 0px;
             cursor: pointer;
+            background-position: right;
+            background-repeat: no-repeat;
+            background-image: image-url("bk_downarrow.png");
             &:hover{
                 background-color: rgba(0,0,0,0.1);
+                background-image: image-url("bk_downarrow_dark.png");
             }
             #user-text{
                 display:inline-block;
                 width: 140px;
-                background-position: right;
-                background-repeat: no-repeat;
-                background-image: image-url("bk_downarrow.png");
                 padding-left: 2px;
                 line-height:32px;
-                @include textFontNormal(12px);
+                @include textFontBold(12px);
                 text-align:left;
                 vertical-align: middle;
             }
@@ -330,7 +331,7 @@ a{
                 top: 40px;
                 display: none;
                 width: 180px;
-                border: 1px solid #CCC;
+                border-top: 1px solid #999;
                 border-right: 0;
                 right: 0px;
                 @include drop-shadow-down;

@@ -1129,6 +1129,7 @@ Echoed.Views.Components.Login = Backbone.View.extend({
         this.list = $('#user-list');
         this.el = options.el;
         this.element = $(this.el);
+        if(Echoed.echoedUser === undefined) this.element.hide();
     },
     events: {
         "click li": "click",
