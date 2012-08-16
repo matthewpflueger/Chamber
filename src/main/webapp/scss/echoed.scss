@@ -244,18 +244,20 @@ a{
             float:left;
         }
 
-        #notifications{
-            display: none;
-            cursor: pointer;
+        #notifications-container{
             position: absolute;
+            display:none;
             right: 185px;
-            padding: 9px 10px;
             &:hover{
-                background-color: rgba(0, 0, 0, 0.2);
+                background-color: rgba(0, 0, 0, 0.1);
             }
             &.on{
                 background-color: rgba(0, 0, 0, 0.7);
             }
+        }
+        #notifications {
+            cursor: pointer;
+            padding: 9px 10px;
         }
 
         #notifications-text{
@@ -265,6 +267,11 @@ a{
             background-color: $mainColor;
             @include textFontBold(12px, #FFF);
             line-height: 12px;
+            &.off{
+                background-color: #AAA;
+                color: #333;
+                border-color: transparent;
+            }
         }
 
         #notifications-menu{
@@ -291,7 +298,14 @@ a{
                     background-color: rgb(255, 255, 200);
                 }
             }
+            #notification-settings{
+                padding: 5px;
+                font-weight: bold;
+                border-bottom: 1px solid #666;
+            }
         }
+
+
 
         #user{
             position: absolute;
@@ -299,18 +313,19 @@ a{
             width: 180px;
             padding: 4px 0px;
             cursor: pointer;
+            background-position: right;
+            background-repeat: no-repeat;
+            background-image: image-url("bk_downarrow.png");
             &:hover{
                 background-color: rgba(0,0,0,0.1);
+                background-image: image-url("bk_downarrow_dark.png");
             }
             #user-text{
                 display:inline-block;
                 width: 140px;
-                background-position: right;
-                background-repeat: no-repeat;
-                background-image: image-url("bk_downarrow.png");
                 padding-left: 2px;
                 line-height:32px;
-                @include textFontNormal(12px);
+                @include textFontBold(12px);
                 text-align:left;
                 vertical-align: middle;
             }
@@ -330,7 +345,7 @@ a{
                 top: 40px;
                 display: none;
                 width: 180px;
-                border: 1px solid #CCC;
+                border-top: 1px solid #999;
                 border-right: 0;
                 right: 0px;
                 @include drop-shadow-down;
