@@ -356,50 +356,26 @@
                     </compilerArguments>
                 </configuration>
             </plugin>
+
+            <!-- http://davidb.github.com/scala-maven-plugin/index.html -->
             <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>2.15.2</version>
-                <configuration>
-                    <jvmArgs>
-                        <jvmArg>-Xms64m</jvmArg>
-                        <jvmArg>-Xmx512m</jvmArg>
-                    </jvmArgs>
-                    <launchers>
-                        <launcher>
-                            <id>scalatest</id>
-                            <mainClass>org.scalatest.tools.Runner</mainClass>
-                            <args>
-                                <arg>-l</arg>
-                                <arg>com.echoed.chamber.tags.IntegrationTest</arg>
-                                <arg>-p</arg>
-                                <arg>target/test-classes</arg>
-                            </args>
-                        </launcher>
-                    </launchers>
-                </configuration>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
-                        <id>compile</id>
                         <goals>
                             <goal>compile</goal>
-                        </goals>
-                        <phase>compile</phase>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <goals>
                             <goal>testCompile</goal>
-                        </goals>
-                        <phase>test-compile</phase>
-                    </execution>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <recompileMode>incremental</recompileMode>
+                    <!-- To use Zinc just download and install from: https://github.com/typesafehub/zinc
+                         More info here: http://davidb.github.com/scala-maven-plugin/example_incremental.html -->
+                    <useZincServer>true</useZincServer>
+                </configuration>
             </plugin>
 
             <!-- https://github.com/ktoso/maven-git-commit-id-plugin -->

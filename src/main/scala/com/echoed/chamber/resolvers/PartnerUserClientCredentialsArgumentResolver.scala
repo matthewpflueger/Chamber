@@ -24,9 +24,7 @@ class PartnerUserClientCredentialsArgumentResolver extends HandlerMethodArgument
             webRequest: NativeWebRequest,
             binderFactory: WebDataBinderFactory) = {
         cookieManager.findPartnerUserCookie(webRequest.getNativeRequest(classOf[HttpServletRequest])).map { puc =>
-            new PartnerUserClientCredentials with EchoedClientCredentials {
-                def id = puc
-            }
+            new PartnerUserClientCredentials with EchoedClientCredentials { val id = puc }
         }.getOrElse {
             if (parameter.hasParameterAnnotation(classOf[Nullable])) null
             else throw new IllegalAccessException("No credentials")

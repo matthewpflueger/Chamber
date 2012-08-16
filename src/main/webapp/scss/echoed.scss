@@ -169,11 +169,6 @@ th{
 
 a{
 	text-decoration:none;
-    color: inherit;
-    &:visited{
-        text-decoration: none;
-        color: inherit;
-    }
 }
 
 .highlight{
@@ -1092,6 +1087,9 @@ a{
                             }
                             .story-brief-text-user{
                                 font-weight:bold;
+                                &:visited{
+                                    color: #333;
+                                }
                                 &:hover{
                                     color: $mainColor;
                                 }
@@ -1595,6 +1593,7 @@ h3{
         cursor: pointer;
     }
     .echo-story-header{
+        position:relative;
         padding: 10px;
         border-bottom: 1px solid #CCC;
         box-shadow: 0px 1px 0px #FFF;
@@ -2062,4 +2061,32 @@ h3{
         line-height: 1em;
         border: 1px solid #CCC;
     }
+}
+
+.underline{
+    text-decoration: underline;
+}
+
+.red-link{
+    color: $mainColor;
+    font-weight: bold;
+    &:visited{
+        color: $mainColor;
+    }
+}
+
+.link-black{
+    color: #333;
+    &:visited, &:active{
+        color: #333;
+    }
+
+}
+
+.story-edit-button{
+    @include button;
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    @include textFontBold(12px, #FFF);
 }

@@ -24,7 +24,7 @@ class AdminUserClientCredentialsArgumentResolver extends HandlerMethodArgumentRe
             webRequest: NativeWebRequest,
             binderFactory: WebDataBinderFactory) = {
         cookieManager.findAdminUserCookie(webRequest.getNativeRequest(classOf[HttpServletRequest])).map {
-            auc => new AdminUserClientCredentials with EchoedClientCredentials { def id = auc }
+            auc => new AdminUserClientCredentials with EchoedClientCredentials { val id = auc }
         }.getOrElse {
             if (parameter.hasParameterAnnotation(classOf[Nullable])) null
             else throw new IllegalAccessException("No credentials")

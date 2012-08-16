@@ -6,6 +6,7 @@ import com.echoed.chamber.domain.partner.{Partner, PartnerSettings}
 import com.echoed.chamber.domain.views._
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
+import scala.collection.immutable.Stack
 
 
 sealed trait EchoedUserMessage extends Message
@@ -34,6 +35,13 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserMessage => EUM}
 import com.echoed.chamber.services.echoeduser.{EchoedUserException => EUE}
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.echoeduser.{EchoedUserIdentifiable => EUI}
+
+
+private[services] case class EchoedUserServiceState(
+        echoedUser: EchoedUser,
+        facebookUser: Option[FacebookUser] = None,
+        twitterUser: Option[TwitterUser] = None,
+        notifications: Stack[Notification] = Stack[Notification]())
 
 
 case class DuplicateEcho(
@@ -85,6 +93,15 @@ case class GetTwitterAuthenticationUrlResponse(message: GetTwitterAuthentication
 private[echoeduser] case class LoginWithCredentials(credentials: EUCC) extends EUM with EUI
 
 
+
+case class FetchNotifications(credentials: EUCC) extends EUM with EUI
+case class FetchNotificationsResponse(message: FetchNotifications, value: Either[EUE, Stack[Notification]])
+        extends EUM with MR[Stack[Notification], FetchNotifications, EUE]
+
+
+case class MarkNotificationsAsRead(credentials: EUCC, ids: Set[String]) extends EUM with EUI
+case class MarkNotificationsAsReadResponse(message: MarkNotificationsAsRead, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, MarkNotificationsAsRead, EUE]
 
 
 case class InitStory(

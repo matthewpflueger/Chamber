@@ -554,7 +554,12 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         var userLink = '<a class="echo-s-h-t-n-u" target="_blank" href="' + Echoed.Urls.Site + '#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
         var userImage = $('<img />').attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)).addClass("echo-s-h-t-n-i").attr("align", "absmiddle");
         self.userNode.append(userImage);
-
+        if(Echoed.echoedUser !== undefined){
+            if(self.data.echoedUser.id === Echoed.echoedUser.id){
+                var header = self.element.find('.echo-story-header');
+                $('<a class="story-edit-button"></a></span>').html('Edit Story').attr("target","_blank").attr("href",Echoed.Urls.Api + "#write/story/" + self.data.story.id).appendTo(header);
+            }
+        }
         self.userNode.append("by " + userLink);
         self.galleryNode = $("#echo-story-gallery");
 

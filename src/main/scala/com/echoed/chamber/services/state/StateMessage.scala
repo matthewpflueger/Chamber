@@ -1,8 +1,12 @@
 package com.echoed.chamber.services.state
 
-import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedException, Message}
-import com.echoed.chamber.domain.{TwitterUser, EchoedUser, FacebookUser, AdminUser}
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.{MessageResponse => MR, Message}
+import com.echoed.chamber.services.echoeduser.{EchoedUserServiceState, EchoedUserClientCredentials}
+import com.echoed.chamber.domain.FacebookUser
+import com.echoed.chamber.domain.AdminUser
+import com.echoed.chamber.services.EchoedException
+import com.echoed.chamber.domain.TwitterUser
+
 
 private[services] sealed trait StateMessage extends Message
 private[services] sealed case class StateException(message: String = "", cause: Throwable = null)
@@ -41,10 +45,6 @@ private[services] case class TwitterUserNotFound(
         twitterUser: TwitterUser,
         m: String = "Twitter user not found") extends SE(m)
 
-private[services] case class EchoedUserServiceState(
-        echoedUser: EchoedUser,
-        facebookUser: Option[FacebookUser] = None,
-        twitterUser: Option[TwitterUser] = None)
 
 private[services] abstract class ReadEchoedUserServiceState extends SM
 
