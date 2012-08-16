@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.echoeduser
 
 import com.echoed.chamber.services.{UpdatedEvent, CreatedEvent, Event}
-import com.echoed.chamber.domain.{Notification, TwitterUser, FacebookUser, EchoedUser}
+import com.echoed.chamber.domain._
 
 
 trait EchoedUserEvent extends Event
@@ -13,11 +13,13 @@ case class StoryUpdated(storyId: String) extends EUE with UpdatedEvent
 
 private[services] case class EchoedUserCreated(
                 echoedUser: EchoedUser,
+                echoedUserSettings: EchoedUserSettings,
                 facebookUser: Option[FacebookUser] = None,
                 twitterUser: Option[TwitterUser] = None) extends EUE with CreatedEvent
 
 private[services] case class EchoedUserUpdated(
                 echoedUser: EchoedUser,
+                echoedUserSettings: EchoedUserSettings,
                 facebookUser: Option[FacebookUser],
                 twitterUser: Option[TwitterUser]) extends EUE with UpdatedEvent
 
