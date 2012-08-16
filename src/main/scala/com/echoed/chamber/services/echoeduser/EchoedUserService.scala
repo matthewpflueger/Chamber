@@ -630,7 +630,11 @@ class EchoedUserService(
                         echoedUser,
                         byEchoedUser,
                         "comment",
-                        Map[String, String]("message" -> "%s commented on %s".format(byEchoedUser.name, story.title)))
+                        Map[String, String](
+                            "subject" -> byEchoedUser.name,
+                            "action" -> "commented on",
+                            "object" -> story.title,
+                            "storyId" -> storyId))
                 notifications = notifications.push(n)
                 ep.publish(NotificationCreated(n))
             }

@@ -44,7 +44,9 @@ class TwitterAccess(
 
         case msg @ FetchUserForAuthToken(authToken, authVerifier) =>
             val twitterHandler = cache(authToken)
-            val accessToken = twitterHandler.getOAuthAccessToken(authToken, authVerifier)
+            val accessToken = twitterHandler.getOAuthAccessToken(authVerifier)
+//            val accessToken = twitterHandler.getOAuthAccessToken(authToken, authVerifier)
+
             cache(accessToken.getToken) = twitterHandler
             context.sender ! FetchUserForAuthTokenResponse(
                     msg,

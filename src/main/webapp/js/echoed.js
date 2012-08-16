@@ -92,6 +92,7 @@ Echoed = {
         var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
         var pageTitle = new Echoed.Views.Components.PageTitle({ el: 'title', EvAg: EventAggregator});
         var category = new Echoed.Views.Components.Menu({ el: '#menu', EvAg: EventAggregator });
+        var notifications = new Echoed.Views.Components.Notifications({ el: '#notifications', EvAg: EventAggregator });
         var categoryList = new Echoed.Views.Components.CategoryList({ el: '#category-nav', EvAg: EventAggregator });
         var iFrameComm = new Echoed.Views.Components.MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator });
         var iFrameNode = document.createElement('iframe');
@@ -104,6 +105,82 @@ Echoed = {
         Backbone.history.start();
     }
 };
+
+Echoed.Views.Components.Notifications = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this);
+        this.EvAg = options.EvAg;
+        this.element = $(options.el);
+        this.list = $('#notifications-list');
+        this.menu = $('#notifications-menu');
+        this.header = $('#notifications-list-header');
+        this.text = $('#notifications-text');
+        var self = this;
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/api/notifications",
+            success: function(notifications){
+                self.count = notifications.length;
+                self.list.empty();
+                self.text.html(self.count);
+                if(self.count > 0){
+                    self.element.show();
+                    self.header.html('Notifications (' + self.count + ")");
+                    $.each(notifications, function(index, notification){
+                        var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
+                        self.list.append($('<div></div>')
+                            .addClass('notification')
+                            .html(message)
+                            .attr("href","#story/" + notification.value.storyId)
+                            .attr("id", notification.id));
+                    });
+                } else {
+                    self.element.hide();
+                }
+            }
+        })();
+    },
+    markAsRead: function(){
+        var self = this;
+        var id;
+        var ids = [];
+        $.each(this.list.children(), function(index, node){
+            ids.push($(node).attr('id'));
+        });
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/api/notifications",
+            type: "POST",
+            data: {
+                'ids': ids
+            },
+            traditional: true
+        })();
+    },
+    events: {
+        "click .notification": "redirect",
+        "click": "toggle"
+    },
+    redirect: function(ev){
+        window.location.hash = $(ev.currentTarget).attr("href");
+    },
+    toggle: function(){
+        this.element.toggleClass('on');
+        if(this.on === true){
+            this.hide();
+            this.on = false;
+        } else {
+            this.on = true;
+            this.show();
+        }
+    },
+
+    show: function(){
+        this.menu.show();
+        this.markAsRead();
+    },
+    hide: function(){
+        this.menu.hide();
+    }
+});
 
 Echoed.Views.Components.MessageHandler = Backbone.View.extend({
     initialize: function(options){
@@ -1049,14 +1126,30 @@ Echoed.Views.Components.Login = Backbone.View.extend({
         _.bindAll(this, 'login');
         this.EvAg = options.EvAg;
         this.EvAg.bind('user/login', this.login);
+        this.list = $('#user-list');
         this.el = options.el;
         this.element = $(this.el);
+    },
+    events: {
+        "click li": "click",
+        "mouseenter": "show",
+        "mouseleave": "hide"
+    },
+    show: function(){
+        this.list.show();
+    },
+    hide: function(){
+        this.list.hide();
+    },
+    click: function(ev){
+        window.location = $(ev.currentTarget).attr('href');
     },
     login: function(){
         var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', Echoed.getProfilePhotoUrl(Echoed.echoedUser));
         var ui = $('<div id="user-image"></div>').append(image);
-        var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name + ' (<span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span>) <br />');
-        this.element.append(ui).append(ut);
+        var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name);
+        var list = $('<div id="user-list"><ul><li class="user-list-item" href="logout">Logout</li></ul></div>');
+        this.element.append(ui).append(ut).append(list);
     }
 });
 
@@ -1460,7 +1553,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         }
         if(Echoed.echoedUser !== undefined){
             if(self.data.echoedUser.id === Echoed.echoedUser.id){
-                textNode.append("<a class='red-link' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
+                textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
             }
         }
         textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));

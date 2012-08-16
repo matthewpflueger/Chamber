@@ -21,6 +21,14 @@ $headerFontFamily: 'Arvo', serif;
 
 
     //DROP SHADOW
+    @mixin drop-shadow-down{
+        box-shadow: 0 3px 3px rgba(34,25,25,0.4);
+        -moz-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
+        -webkit-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
+        -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
+        filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
+    }
+
     @mixin drop-shadow{
         box-shadow: 0 0px 8px rgba(34,25,25,0.4);
         -moz-box-shadow: 0px 0px 8px rgba(34,25,25,0.4);
@@ -236,23 +244,107 @@ a{
             float:left;
         }
 
+        #notifications{
+            display: none;
+            cursor: pointer;
+            position: absolute;
+            right: 185px;
+            padding: 9px 10px;
+            &:hover{
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+            &.on{
+                background-color: rgba(0, 0, 0, 0.7);
+            }
+        }
+
+        #notifications-text{
+            padding: 4px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            background-color: $mainColor;
+            @include textFontBold(12px, #FFF);
+            line-height: 12px;
+        }
+
+        #notifications-menu{
+            background-color: #FFF;
+            position:absolute;
+            border: 1px solid #666;
+            border-bottom: 0px !important;
+            top: 40px;
+            right: 0px;
+            display: none;
+            width: 260px;
+            #notifications-list-header{
+                padding: 7px 0px 5px 5px;
+                @include textFontBold(12px);
+                border-bottom: 1px dashed #CCC;
+            }
+            .notification{
+                font-size: 10px;
+                padding: 5px 10px;
+                background-color: #F0F0F0;
+                border-bottom: 1px solid #666;
+                cursor: pointer;
+                &:hover{
+                    background-color: rgb(255, 255, 200);
+                }
+            }
+        }
+
         #user{
-            float:right;
-            margin: 0px 10px;
-            padding: 3px 0px;
+            position: absolute;
+            right: 0px;
+            width: 180px;
+            padding: 4px 0px;
+            cursor: pointer;
+            &:hover{
+                background-color: rgba(0,0,0,0.1);
+            }
             #user-text{
-                margin-left: 10px;
-                line-height:30px;
+                display:inline-block;
+                width: 140px;
+                background-position: right;
+                background-repeat: no-repeat;
+                background-image: image-url("bk_downarrow.png");
+                padding-left: 2px;
+                line-height:32px;
                 @include textFontNormal(12px);
-                float:right;
                 text-align:left;
+                vertical-align: middle;
             }
 
             #user-image{
-                float:right;
+                margin-left: 2px;
+                vertical-align: middle;
+                display:inline-block;
                 #u-i-i{
                     height: 30px;
                     border: 1px #CCC solid;
+                }
+            }
+
+            #user-list{
+                position:absolute;
+                top: 40px;
+                display: none;
+                width: 180px;
+                border: 1px solid #CCC;
+                border-right: 0;
+                right: 0px;
+                @include drop-shadow-down;
+                background-color: #FFF;
+                .user-list-item{
+                    @include textFontBold(12px);
+                    list-style: none;
+                    padding: 7px 10px;
+                    cursor: pointer;
+                    &:hover{
+                        background-color: rgba(255, 255, 200, 1);
+                        color: $mainColor;
+
+                    }
                 }
             }
         }
@@ -270,10 +362,12 @@ a{
         min-height: 600px;
         background-color: #F0F0F0;
         border-left: 1px solid #999;
+
+
+
     }
 
         #actions{
-            background-color: #DDD;
             margin: 20px 5px;
             text-align:center;
             .action-button{
@@ -2070,6 +2164,9 @@ h3{
 .red-link{
     color: $mainColor;
     font-weight: bold;
+    &:hover{
+        color: #333 !important;
+    }
     &:visited{
         color: $mainColor;
     }
@@ -2089,4 +2186,8 @@ h3{
     left: 10px;
     bottom: 10px;
     @include textFontBold(12px, #FFF);
+}
+
+.underline{
+    text-decoration: underline;
 }
