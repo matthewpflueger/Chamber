@@ -656,7 +656,7 @@ body {
     @include headerFont(24px, #FFF);
     position: fixed;
     width: 100%;
-    z-index: 10000;
+    z-index: 999999;
     background-color: #333;
 }
 
