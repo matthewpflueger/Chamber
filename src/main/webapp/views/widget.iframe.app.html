@@ -222,10 +222,11 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     initialize:function (options) {
-        _.bindAll(this, 'render', 'next', 'init', 'show', 'hide','nextStory', 'previousStory');
+        _.bindAll(this, 'render', 'next', 'init', 'show', 'hide','nextStory', 'previousStory', 'relayout');
         this.EvAg = options.EvAg;
         this.el = options.el;
         this.EvAg.bind('exhibit/open', this.init);
+        this.EvAg.bind('isotope/relayout', this.relayout);
         this.EvAg.bind('infiniteScroll', this.next);
         this.EvAg.bind("exhibit/show", this.show);
         this.EvAg.bind("exhibit/hide", this.hide);
@@ -235,6 +236,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.exhibit = $('#echoed-exhibit');
         this.jsonUrl = Echoed.Urls.Api + "/api/partner/" + Echoed.partnerId;
         this.nextInt = 1;
+    },
+    relayout: function(){
+        this.exhibit.isotope('reLayout');
     },
     nextStory:function (storyId) {
         var self = this;
@@ -712,8 +716,11 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
         }
     },
     receiveMessageResponse:function (response) {
+        var self = this;
         if(response.data === "echoed-open"){
-            $('body').fadeIn();
+            $('body').fadeIn(function(){
+                self.EvAg.trigger('isotope/relayout');
+            });
         } else {
             Echoed.echoedUser = JSON.parse(response.data);
             this.EvAg.trigger('user/login');
