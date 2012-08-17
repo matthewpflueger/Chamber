@@ -19,7 +19,12 @@
                 echoedOpener = document.createElement('div');
                 echoedOpener.id = "echoed-opener";
                 var openImage = document.createElement('img');
-                openImage.src = "{{urls.images}}/bk_opener_dark_left.png";
+                {{#white}}
+                openImage.src ="{{urls.images}}/bk_opener_white_left.png";
+                {{/white}}
+                {{^white}}
+                openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
+                {{/white}}
                 openImage.style.display = "block";
                 echoedOpener.appendChild(openImage);
 
