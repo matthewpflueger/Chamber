@@ -21,13 +21,17 @@ class WidgetController {
 
     @BeanProperty var partnerServiceManager: PartnerServiceManager = _
     @BeanProperty var widgetJsView: String = _
+    @BeanProperty var widgetAppJsView: String = _
+    @BeanProperty var widgetIframeView: String = _
+    @BeanProperty var widgetAppIframeView: String = _
     @BeanProperty var cookieManager: CookieManager = _
     @BeanProperty var eventService: EventService = _
 
     @RequestMapping(value = Array("/iframe"), method = Array(RequestMethod.GET))
     def iframe(
         @RequestParam(value = "pid", required = true) pid: String,
-        @RequestParam(value = "title", required= false, defaultValue = "") title: String,
+        @RequestParam(value = "title", required = false, defaultValue = "") title: String,
+        @RequestParam(value = "type", required = false, defaultValue = "widget" ) widgetType: String,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
@@ -35,13 +39,12 @@ class WidgetController {
         val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse("")
         partnerServiceManager.locatePartnerService(pid).onSuccess {
             case LocateResponse(_, Right(partnerService)) =>
-                val modelAndView = new ModelAndView("widget.iframe")
+                val modelAndView = if(widgetType.equals("widget")) new ModelAndView(widgetIframeView) else new ModelAndView(widgetAppIframeView)
                 modelAndView.addObject("partnerId", pid)
                 modelAndView.addObject("echoedUserId", echoedUserId)
                 if(!title.equals("")) modelAndView.addObject("title", title)
                 result.set(modelAndView)
         }
-
         result
     }
 
@@ -49,6 +52,7 @@ class WidgetController {
     def js(
         @RequestParam(value = "pid", required = true) pid: String,
         @RequestParam(value = "style", required = false, defaultValue = "black") style: String,
+        @RequestParam(value = "type", required = false, defaultValue = "widget") widgetType: String,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse) = {
 
@@ -58,7 +62,7 @@ class WidgetController {
         logger.debug("Retrieving Javascript Widget for PartnerId: {}", pid)
         partnerServiceManager.locatePartnerService(pid).onSuccess {
             case LocateResponse(_, Right(partnerService)) =>
-                val modelAndView = new ModelAndView(widgetJsView)
+                val modelAndView = if(widgetType.equals("widget")) new ModelAndView(widgetJsView) else new ModelAndView(widgetAppJsView)
                 modelAndView.addObject("partnerId", pid)
                 modelAndView.addObject("echoedUserId", echoedUserId)
                 if(style.equals("white")){

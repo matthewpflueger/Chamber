@@ -1,0 +1,57 @@
+
+    window.onload = function () {
+        var body = document.getElementsByTagName('body')[0];
+
+        var echoedOverlay = document.createElement('iframe');
+        var hash = window.location.hash;
+        echoedOverlay.style.cssText = "z-index:9999; top: 0px; left: 0px; right: 0px; height: 100%; width: 100%; position: fixed; overflow-y: scroll; display: none;";
+        echoedOverlay.src = "{{urls.site}}/widget/iframe?pid={{partnerId}}&type=app";
+        echoedOverlay.id = "echoed-overlay";
+        body.appendChild(echoedOverlay);
+
+        if (typeof(EchoedSettings) === 'undefined') {
+            EchoedSettings = {};
+        }
+
+        if (EchoedSettings.opener === undefined || EchoedSettings.opener === '#echoed-opener') {
+            var echoedOpener = document.getElementById('echoed-opener');
+            if (echoedOpener === null) {
+                echoedOpener = document.createElement('div');
+                echoedOpener.id = "echoed-opener";
+                var openImage = document.createElement('img');
+                openImage.src = "{{urls.images}}/bk_opener_dark_left.png";
+                openImage.style.display = "block";
+                echoedOpener.appendChild(openImage);
+
+                body.appendChild(echoedOpener);
+            }
+            echoedOpener.style.cssText = "left: 0px; top: 175px; position: absolute; cursor: pointer;box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-moz-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-webkit-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);";
+            echoedOpener.onclick = function () {
+                echoedOverlay.style.display = "block";
+                echoedOverlay.contentWindow.postMessage("echoed-open","*");
+            };
+        } else {
+            var echoedOpener = document.getElementById(EchoedSettings.opener.replace("#", ""));
+            echoedOpener.onclick = function () {
+                echoedOverlay.style.display = "block";
+                window.setTimeout(function(){
+                    window.top.postMessage("echoed-open","*");
+                }, 0);
+            };
+        }
+        if (window.addEventListener) {
+            window.addEventListener('message', messageHandler, false);
+        } else if (window.attachEvent) {
+            window.attachEvent('onmessage', messageHandler);
+        }
+    };
+
+
+    function messageHandler(message) {
+        console.log("Received Message 1");
+        if(message.data === "echoed-close"){
+            var iframe = document.getElementById('echoed-overlay');
+            iframe.style.display = "none";
+        }
+    };
+
