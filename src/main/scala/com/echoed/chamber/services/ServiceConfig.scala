@@ -1,6 +1,6 @@
 package com.echoed.chamber.services
 
-import org.springframework.context.annotation.{DependsOn, Bean, Configuration}
+import org.springframework.context.annotation.{Bean, Configuration}
 import akka.actor._
 import javax.annotation.Resource
 import com.echoed.chamber.dao._
@@ -8,7 +8,7 @@ import com.echoed.chamber.services.geolocation.GeoLocationService
 import com.echoed.util.{ApplicationContextRef, Encrypter, BlobStore}
 import com.echoed.chamber.services.image.{ImageMessage, ImageService}
 import com.echoed.chamber.services.event.{EventMessage, EventService}
-import com.echoed.chamber.services.email.{EmailMessage, EmailService}
+import com.echoed.chamber.services.email.{SchedulerService, EmailMessage, EmailService}
 import org.springframework.mail.javamail.JavaMailSender
 import com.echoed.util.mustache.MustacheEngine
 import com.echoed.chamber.dao.views.{AdminViewDao, PartnerViewDao, ClosetDao, FeedDao}
@@ -24,7 +24,7 @@ import com.echoed.chamber.services.partner.networksolutions._
 import com.echoed.chamber.services.partner.shopify.{ShopifyPartnerMessage, ShopifyAccess, ShopifyPartnerServiceManager}
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.twitter.{TwitterMessage, TwitterAccess}
-import com.echoed.chamber.services.echoeduser.{EchoedUserMessage, EchoedUserServiceManager}
+import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserMessage, EchoedUserServiceManager}
 import com.echoed.chamber.services.partneruser.{PartnerUserMessage, PartnerUserServiceManager}
 import com.echoed.chamber.services.adminuser.{AdminUserMessage, AdminUserServiceManager}
 import com.echoed.chamber.services.partner.{PartnerMessage, PartnerServiceManager}
@@ -33,11 +33,11 @@ import com.echoed.chamber.dao.partner.networksolutions.NetworkSolutionsPartnerDa
 import com.echoed.chamber.dao.partner.bigcommerce.BigCommercePartnerDao
 import com.echoed.chamber.dao.partner.magentogo.MagentoGoPartnerDao
 import java.util.{List => JList, Properties}
-import scala.collection.JavaConversions._
 import com.echoed.chamber.LoggingActorSystem
 import javax.sql.DataSource
 import com.echoed.chamber.services.state.{StateMessage, StateService}
 import scala.collection.mutable.LinkedHashMap
+import com.echoed.chamber.services.scheduler.SchedulerMessage
 
 
 @Configuration
@@ -203,32 +203,40 @@ class ServiceConfig {
             cacheManager = cacheManager)), "TwitterAccess")
 
     @Bean
+    def echoedUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new EchoedUserService(
+            mp = messageProcessor,
+            ep = eventProcessor,
+            initMessage = msg,
+            echoedUserDao = echoedUserDao,
+            closetDao = closetDao,
+            echoedFriendDao = echoedFriendDao,
+            feedDao = feedDao,
+            partnerSettingsDao = partnerSettingsDao,
+            echoDao = echoDao,
+            partnerDao = partnerDao,
+            echoMetricsDao = echoMetricsDao,
+            storyDao = storyDao,
+            chapterDao = chapterDao,
+            chapterImageDao = chapterImageDao,
+            commentDao = commentDao,
+            imageDao = imageDao,
+            transactionTemplate = transactionTemplate,
+            storyGraphUrl = urlsProperties.getProperty("storyGraphUrl"),
+            facebookFriendDao = facebookFriendDao,
+            twitterFollowerDao = twitterFollowerDao,
+            facebookPostDao = facebookPostDao,
+            twitterStatusDao = twitterStatusDao,
+            encrypter = encrypter,
+            echoClickUrl = urlsProperties.getProperty("echoClickUrl"))))
+
+    @Bean
     def echoedUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new EchoedUserServiceManager(
             mp = messageProcessor,
             ep = eventProcessor,
             facebookAccessCreator = facebookAccess,
             twitterAccessCreator = twitterAccess,
-            echoedUserDao = echoedUserDao,
-            closetDao = closetDao,
-            feedDao = feedDao,
-            partnerSettingsDao = partnerSettingsDao,
-            echoDao = echoDao,
-            echoedFriendDao = echoedFriendDao,
-            echoMetricsDao = echoMetricsDao,
-            partnerDao = partnerDao,
-            storyDao = storyDao,
-            chapterDao = chapterDao,
-            chapterImageDao = chapterImageDao,
-            imageDao = imageDao,
-            commentDao = commentDao,
-            facebookFriendDao = facebookFriendDao,
-            twitterFollowerDao = twitterFollowerDao,
-            facebookPostDao = facebookPostDao,
-            twitterStatusDao = twitterStatusDao,
-            echoClickUrl = urlsProperties.getProperty("echoClickUrl"),
-            transactionTemplate = transactionTemplate,
-            cacheManager = cacheManager,
-            storyGraphUrl = urlsProperties.getProperty("storyGraphUrl"))), "EchoedUsers")
+            echoedUserServiceCreator = echoedUserService,
+            encrypter = encrypter)), "EchoedUsers")
 
     @Bean
     def partnerUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new PartnerUserServiceManager(
@@ -341,8 +349,14 @@ class ServiceConfig {
             squerylDataSource)), "StateService")
 
     @Bean
+    def schedulerService = (ac: ActorContext) => ac.actorOf(Props(new SchedulerService(
+            mp = messageProcessor,
+            ep = eventProcessor)), "Scheduler")
+
+    @Bean
     def routeMap = LinkedHashMap[Class[_ <: Message], ActorContext => ActorRef](
             classOf[StateMessage] -> stateService,
+            classOf[SchedulerMessage] -> schedulerService,
             classOf[ImageMessage] -> imageService,
             classOf[EventMessage] -> eventService,
             classOf[EmailMessage] -> emailService,

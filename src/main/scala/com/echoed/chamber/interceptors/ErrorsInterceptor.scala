@@ -24,7 +24,7 @@ class ErrorsInterceptor extends HandlerInterceptor {
     }
 
     def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Object, modelAndView: ModelAndView) {
-        if (modelAndView == null || modelAndView.getViewName == null) { // || modelAndView.getViewName.startsWith("redirect:")) {
+        if (modelAndView == null || modelAndView.getViewName == null) {
             return
         }
 
@@ -70,7 +70,7 @@ class ErrorsInterceptor extends HandlerInterceptor {
         }
 
         if (logger.isDebugEnabled() && (global.size() > 0 || fieldErrors.size() > 0)) {
-            logger.debug("Found errors {}", modelAndView.getModel.get(errorsAttributeName))
+            logger.debug("Found errors={}", modelAndView.getModel.get(errorsAttributeName))
         }
     }
 

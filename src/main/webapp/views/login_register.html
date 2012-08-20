@@ -1,0 +1,21 @@
+{{<public_super}}
+    {{$title}}Echoed | Register{{/title}}
+    {{$content}}
+    <div id="content">
+        <div id="lm-partner-form" class="roundbox form">
+            <label>Register</label>
+            {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
+            <form action="{{urls.site}}/login/register" method="POST">
+                <label for="name">Name: {{errors.loginRegisterForm.name}}</label>
+                <input id="name" name="name" type="text" />
+                <label for="email">Email: {{errors.loginRegisterForm.email}}</label>
+                <input id="email" name="email" type="text" />
+                <label for="password">Password: {{errors.loginRegisterForm.password}}</label>
+                <input id="password" name="password" type="password" />
+                <input id="login" name="register" type="submit">
+            </form>
+        </div>
+    </div>
+    {{/content}}
+    {{$olark}}{{/olark}}
+{{/public_super}}

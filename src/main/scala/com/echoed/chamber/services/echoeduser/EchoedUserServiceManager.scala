@@ -3,13 +3,8 @@ package com.echoed.chamber.services.echoeduser
 import scalaz._
 import Scalaz._
 import akka.actor._
-import com.echoed.cache.CacheManager
 import akka.pattern._
-import com.echoed.chamber.dao.views.{FeedDao, ClosetDao}
-import com.echoed.chamber.dao._
-import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import com.echoed.chamber.services._
-import org.springframework.transaction.support.TransactionTemplate
 import akka.util.Timeout
 import com.echoed.chamber.domain.Identifiable
 import com.google.common.collect.HashMultimap
@@ -21,6 +16,7 @@ import com.echoed.chamber.services.twitter.FetchUserForAuthTokenResponse
 import com.echoed.chamber.services.facebook.FetchMe
 import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FetchMeResponse
+import com.echoed.util.{ScalaObjectMapper, Encrypter}
 
 
 class EchoedUserServiceManager(
@@ -28,27 +24,8 @@ class EchoedUserServiceManager(
         ep: EventProcessorActorSystem,
         facebookAccessCreator: (ActorContext) => ActorRef,
         twitterAccessCreator: (ActorContext) => ActorRef,
-        echoedUserDao: EchoedUserDao,
-        closetDao: ClosetDao,
-        feedDao: FeedDao,
-        partnerSettingsDao: PartnerSettingsDao,
-        echoDao: EchoDao,
-        echoedFriendDao: EchoedFriendDao,
-        echoMetricsDao: EchoMetricsDao,
-        partnerDao: PartnerDao,
-        storyDao: StoryDao,
-        chapterDao: ChapterDao,
-        chapterImageDao: ChapterImageDao,
-        imageDao: ImageDao,
-        commentDao: CommentDao,
-        facebookFriendDao: FacebookFriendDao,
-        twitterFollowerDao: TwitterFollowerDao,
-        facebookPostDao: FacebookPostDao,
-        twitterStatusDao: TwitterStatusDao,
-        transactionTemplate: TransactionTemplate,
-        cacheManager: CacheManager,
-        storyGraphUrl: String,
-        echoClickUrl: String,
+        echoedUserServiceCreator: (ActorContext, Message) => ActorRef,
+        encrypter: Encrypter,
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
     private val facebookAccess = facebookAccessCreator(context)
@@ -72,6 +49,17 @@ class EchoedUserServiceManager(
         case msg @ Logout(eucc) => active.get(EchoedUserId(eucc.echoedUserId)).headOption.foreach(_.forward(msg))
 
 
+        case msg @ LoginWithCode(code) =>
+            val channel = context.sender
+            val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
+            mp(LoginWithEmailPassword(map("email"), map("password"))).onSuccess {
+                case LoginWithEmailPasswordResponse(_, Left(e)) =>
+                    channel ! LoginWithCodeResponse(msg, Left(e))
+                case LoginWithEmailPasswordResponse(_, Right(echoedUser)) =>
+                    channel ! LoginWithCodeResponse(msg, Right(echoedUser))
+            }
+
+
         case msg @ LoginWithFacebookUser(facebookUser, correlation, channel) =>
             active
                     .get(FacebookId(facebookUser.facebookId)).headOption
@@ -79,31 +67,7 @@ class EchoedUserServiceManager(
                     .cata(
                 _ ! msg,
                 {
-                    val echoedUserService = context.watch(context.actorOf(Props(new EchoedUserService(
-                            mp,
-                            ep,
-                            initMessage = msg,
-                            echoedUserDao = echoedUserDao,
-                            closetDao = closetDao,
-                            echoedFriendDao = echoedFriendDao,
-                            feedDao = feedDao,
-                            partnerSettingsDao = partnerSettingsDao,
-                            echoDao = echoDao,
-                            partnerDao = partnerDao,
-                            echoMetricsDao = echoMetricsDao,
-                            storyDao = storyDao,
-                            chapterDao = chapterDao,
-                            chapterImageDao = chapterImageDao,
-                            commentDao = commentDao,
-                            imageDao = imageDao,
-                            transactionTemplate = transactionTemplate,
-                            storyGraphUrl = storyGraphUrl,
-                            facebookFriendDao = facebookFriendDao,
-                            twitterFollowerDao = twitterFollowerDao,
-                            facebookPostDao = facebookPostDao,
-                            twitterStatusDao = twitterStatusDao,
-                            echoClickUrl = echoClickUrl))))
-
+                    val echoedUserService = context.watch(echoedUserServiceCreator(context, msg))
                     active.put(FacebookId(facebookUser.facebookId), echoedUserService)
                     active.put(Email(facebookUser.email), echoedUserService)
                 })
@@ -133,31 +97,7 @@ class EchoedUserServiceManager(
                     .cata(
                 _ ! msg,
                 {
-                    val echoedUserService = context.watch(context.actorOf(Props(new EchoedUserService(
-                            mp,
-                            ep,
-                            initMessage = msg,
-                            echoedUserDao = echoedUserDao,
-                            closetDao = closetDao,
-                            echoedFriendDao = echoedFriendDao,
-                            feedDao = feedDao,
-                            partnerSettingsDao = partnerSettingsDao,
-                            echoDao = echoDao,
-                            partnerDao = partnerDao,
-                            echoMetricsDao = echoMetricsDao,
-                            storyDao = storyDao,
-                            chapterDao = chapterDao,
-                            chapterImageDao = chapterImageDao,
-                            commentDao = commentDao,
-                            imageDao = imageDao,
-                            facebookFriendDao = facebookFriendDao,
-                            twitterFollowerDao = twitterFollowerDao,
-                            transactionTemplate = transactionTemplate,
-                            storyGraphUrl = storyGraphUrl,
-                            facebookPostDao = facebookPostDao,
-                            twitterStatusDao = twitterStatusDao,
-                            echoClickUrl = echoClickUrl))))
-
+                    val echoedUserService = context.watch(echoedUserServiceCreator(context, msg))
                     active.put(TwitterId(twitterUser.twitterId), echoedUserService)
                 })
 
@@ -174,38 +114,21 @@ class EchoedUserServiceManager(
             }
 
 
+        case msg: EmailIdentifiable with EchoedUserMessage =>
+            active.get(Email(msg.email)).headOption.cata(
+                _.forward(msg),
+                {
+                    val echoedUserService = context.watch(echoedUserServiceCreator(context, LoginWithEmail(msg.email, msg, Option(sender))))
+                    echoedUserService.forward(msg)
+                    active.put(Email(msg.email), echoedUserService)
+                })
+
+
         case msg: EchoedUserIdentifiable =>
             active.get(EchoedUserId(msg.echoedUserId)).headOption.cata(
-                ref => {
-                    log.debug("Forwarding {} to {}", msg, ref.path)
-                    ref.forward(msg)
-                },
+                _.forward(msg),
                 {
-                    val echoedUserService = context.watch(context.actorOf(Props(new EchoedUserService(
-                            mp,
-                            ep,
-                            initMessage = LoginWithCredentials(msg.credentials),
-                            echoedUserDao = echoedUserDao,
-                            closetDao = closetDao,
-                            echoedFriendDao = echoedFriendDao,
-                            feedDao = feedDao,
-                            partnerSettingsDao = partnerSettingsDao,
-                            echoDao = echoDao,
-                            partnerDao = partnerDao,
-                            echoMetricsDao = echoMetricsDao,
-                            storyDao = storyDao,
-                            chapterDao = chapterDao,
-                            chapterImageDao = chapterImageDao,
-                            commentDao = commentDao,
-                            imageDao = imageDao,
-                            facebookFriendDao = facebookFriendDao,
-                            twitterFollowerDao = twitterFollowerDao,
-                            transactionTemplate = transactionTemplate,
-                            storyGraphUrl = storyGraphUrl,
-                            facebookPostDao = facebookPostDao,
-                            twitterStatusDao = twitterStatusDao,
-                            echoClickUrl = echoClickUrl))))
-
+                    val echoedUserService = context.watch(echoedUserServiceCreator(context, LoginWithCredentials(msg.credentials)))
                     echoedUserService.forward(msg)
                     active.put(EchoedUserId(msg.echoedUserId), echoedUserService)
                 })

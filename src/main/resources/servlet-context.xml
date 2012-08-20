@@ -165,6 +165,8 @@
         <property name="partnerDashboardView" value="partner" />
         <property name="partnerDashboardErrorView" value="partner_login" />
 
+        <property name="shopifyIntegrationView" value="shopify_integration" />
+
         <property name="networkSolutionsRegisterView" value="networksolutions_register" />
         <property name="networkSolutionsPostAuthView" value="networksolutions_auth" />
         <property name="networkSolutionsSuccessUrl" value="${http.urls.site}/networksolutions/auth" />
@@ -188,6 +190,12 @@
 
         <property name="widgetJsView" value="widget.js"/>
         <property name="widgetIframeView" value="widget.iframe"/>
+
+        <property name="loginEmailView" value="login_email" />
+        <property name="loginRegisterView" value="login_register" />
+        <property name="loginResetView" value="login_reset" />
+        <property name="loginResetPostView" value="login_reset_post" />
+        <property name="loginResetPasswordView" value="login_reset_password" />
     </bean>
 
 

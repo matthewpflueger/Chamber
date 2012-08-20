@@ -19,8 +19,6 @@ import scala.Right
 @RequestMapping(Array("/networksolutions"))
 class NetworkSolutionsController extends EchoedController with FormController {
 
-    def defaultFieldPrefix = "registerForm."
-
     @RequestMapping(method = Array(RequestMethod.GET))
     def registerGet = new ModelAndView(v.networkSolutionsRegisterView, "registerForm", new RegisterForm())
 

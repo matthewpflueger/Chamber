@@ -1,6 +1,6 @@
 package com.echoed.chamber.services
 
-import akka.routing.{Destination, RouteeProvider, RouterConfig}
+import akka.routing.{RouteeProvider, RouterConfig}
 import akka.actor._
 import akka.dispatch.Dispatchers
 import akka.event.Logging

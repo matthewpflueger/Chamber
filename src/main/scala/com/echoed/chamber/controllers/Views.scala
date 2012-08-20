@@ -66,7 +66,6 @@ class Views {
 
     @Required @BeanProperty var shopifyIntegrationView: String = _
 
-    @Required @BeanProperty var networkSolutionsPartnerLoginView: String = _
     @Required @BeanProperty var networkSolutionsRegisterView: String = _
     @Required @BeanProperty var networkSolutionsPostAuthView: String = _
     @Required @BeanProperty var networkSolutionsSuccessUrl: String = _
@@ -90,5 +89,11 @@ class Views {
     
     @Required @BeanProperty var widgetJsView: String = _
     @Required @BeanProperty var widgetIframeView: String = _
+
+    @Required @BeanProperty var loginEmailView: String = _
+    @Required @BeanProperty var loginRegisterView: String = _
+    @Required @BeanProperty var loginResetView: String = _
+    @Required @BeanProperty var loginResetPostView: String = _
+    @Required @BeanProperty var loginResetPasswordView: String = _
 
 }

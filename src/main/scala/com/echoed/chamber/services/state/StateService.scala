@@ -11,7 +11,7 @@ import Scalaz._
 import com.echoed.chamber.services.echoeduser._
 import java.util.Date
 import com.echoed.util.DateUtils._
-import com.echoed.chamber.services.state.schema.{EchoedUserSettings, Notification}
+import com.echoed.chamber.services.state.schema.{Schedule, EchoedUserSettings, Notification}
 import scala.Left
 import com.echoed.chamber.services.echoeduser.EchoedUserUpdated
 import com.echoed.chamber.services.adminuser.AdminUserCreated
@@ -22,6 +22,7 @@ import com.echoed.chamber.services.echoeduser.NotificationCreated
 import com.echoed.chamber.domain
 import com.echoed.chamber.domain.EchoedUser
 import scala.collection.immutable.Stack
+import com.echoed.chamber.services.scheduler.{ScheduleDeleted, ScheduleCreated}
 
 
 class StateService(
@@ -63,6 +64,18 @@ class StateService(
             context.sender ! ReadAdminUserServiceManagerStateResponse(
                     msg,
                     Right(from(adminUsers)(au => select(au.email, au.id)).toMap))
+        }
+
+        case msg @ ReadForEmail(email) => inTransaction {
+            val eu = from(echoedUsers)(eu => where(eu.email === email) select(eu)).headOption
+            val eus = readEchoedUserSettings(eu)
+            val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
+            val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
+            val nf = readNotifications(eu)
+
+            eu.cata(
+                _ => sender ! ReadForEmailResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf))),
+                sender ! ReadForEmailResponse(msg, Left(EchoedUserNotFound(email))))
         }
 
         case msg @ ReadForCredentials(credentials) => inTransaction {
@@ -128,6 +141,20 @@ class StateService(
 
         case msg @ NotificationUpdated(notification) => inTransaction {
             notifications.update(Notification(notification.copy(updatedOn = new Date)))
+        }
+
+        case msg: ReadSchedulerServiceState => inTransaction {
+            sender ! ReadSchedulerServiceStateResponse(
+                    msg,
+                    Right(from(schedules)(s => select(s)).map(s => (s.id, s.convertTo)).toMap))
+        }
+
+        case msg @ ScheduleCreated(schedule) => inTransaction {
+            schedules.insert(Schedule(schedule))
+        }
+
+        case msg @ ScheduleDeleted(schedule) => inTransaction {
+            schedules.delete(from(schedules)(s => where(s.id === schedule.id) select(s)))
         }
 
     }

@@ -9,7 +9,7 @@ import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.controllers.{EchoedController, Errors}
 
 
-@Controller
+@Controller("partnerLogin")
 class LoginController extends EchoedController {
 
     @RequestMapping(value = Array("/partner/login"))

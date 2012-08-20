@@ -17,10 +17,11 @@ import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.TransactionUtils._
 import org.springframework.transaction.TransactionStatus
 import java.util.Date
-import com.echoed.util.ScalaObjectMapper
+import com.echoed.util.{Encrypter, UUID, ScalaObjectMapper}
 import akka.util.Timeout
-import com.echoed.chamber.domain._
 import scala.collection.immutable.Stack
+import com.echoed.chamber.services.state._
+import com.echoed.chamber.services.scheduler.Today
 import com.echoed.chamber.domain.ChapterInfo
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.twitter.FetchFollowersResponse
@@ -31,8 +32,11 @@ import scala.Some
 import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.FriendCloset
 import com.echoed.chamber.services.twitter.UpdateStatusResponse
+import com.echoed.chamber.domain.EchoedUserSettings
+import com.echoed.chamber.services.scheduler.ScheduleOnce
 import com.echoed.chamber.domain.TwitterStatus
 import com.echoed.chamber.services.state.ReadForFacebookUser
+import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.domain.EchoedFriend
 import com.echoed.chamber.services.twitter.GetFollowersResponse
 import com.echoed.chamber.domain.FacebookUser
@@ -44,9 +48,9 @@ import com.echoed.chamber.services.state.ReadForCredentials
 import scala.Left
 import com.echoed.chamber.services.twitter.FetchFollowers
 import com.echoed.chamber.domain.Story
-import com.echoed.chamber.domain.partner.StoryPrompts
 import com.echoed.chamber.domain.views.EchoView
 import com.echoed.chamber.domain.views.FriendFeed
+import com.echoed.chamber.domain.partner.StoryPrompts
 import com.echoed.chamber.services.feed.GetUserPublicStoryFeed
 import com.echoed.chamber.services.facebook.FetchFriends
 import com.echoed.chamber.services.tag.TagReplaced
@@ -61,6 +65,7 @@ import com.echoed.chamber.services.facebook.PublishAction
 import com.echoed.chamber.domain.views.EchoFull
 import com.echoed.chamber.domain.views.ClosetPersonal
 import com.echoed.chamber.domain.views.Closet
+import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.domain.Chapter
 import com.echoed.chamber.services.state.ReadForCredentialsResponse
 import scala.Right
@@ -96,8 +101,8 @@ class EchoedUserService(
         transactionTemplate: TransactionTemplate,
         storyGraphUrl: String,
         echoClickUrl: String,
-        implicit val timeout: Timeout = Timeout(20000),
-        lifespan: Int = 30) extends OnlineOfflineService {
+        encrypter: Encrypter,
+        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService {
 
 
     private var echoedUser: EchoedUser = _
@@ -143,8 +148,7 @@ class EchoedUserService(
                 fu
             }
 
-        becomeOnline
-        context.parent ! RegisterEchoedUserService(echoedUser)
+        becomeOnlineAndRegister
         msg.correlationSender.foreach(_ ! LoginWithFacebookResponse(msg.correlation, Right(echoedUser)))
     }
 
@@ -172,12 +176,29 @@ class EchoedUserService(
                 tu
             }
 
-        becomeOnline
-        context.parent ! RegisterEchoedUserService(echoedUser)
+        becomeOnlineAndRegister
         msg.correlationSender.foreach(_ ! LoginWithTwitterResponse(msg.correlation, Right(echoedUser)))
     }
 
+
+    private def create(eu: EchoedUser) {
+        echoedUser = eu
+        echoedUserSettings = new EchoedUserSettings(echoedUser)
+        ep(EchoedUserCreated(echoedUser, echoedUserSettings, facebookUser, twitterUser))
+    }
+
     private def updated: Unit = ep(EchoedUserUpdated(echoedUser, echoedUserSettings, facebookUser, twitterUser))
+
+
+    private def becomeOnlineAndRegister {
+        becomeOnline
+        context.parent ! RegisterEchoedUserService(echoedUser)
+    }
+
+    private def setStateAndRegister(euss: EchoedUserServiceState) {
+        setState(euss)
+        becomeOnlineAndRegister
+    }
 
     private def setState(euss: EchoedUserServiceState) {
         echoedUser = euss.echoedUser
@@ -190,40 +211,49 @@ class EchoedUserService(
     override def preStart() {
         super.preStart()
         initMessage match {
+            case LoginWithEmail(email, _, _) => mp(ReadForEmail(email)).pipeTo(self)
             case LoginWithCredentials(credentials) => mp(ReadForCredentials(credentials)).pipeTo(self)
             case LoginWithFacebookUser(facebookUser, _, _) => mp(ReadForFacebookUser(facebookUser)).pipeTo(self)
             case LoginWithTwitterUser(twitterUser, _, _) => mp(ReadForTwitterUser(twitterUser)).pipeTo(self)
         }
-        context.setReceiveTimeout(lifespan minutes)
     }
 
 
     def init = {
-        case msg @ ReadForCredentialsResponse(_, Right(euss)) =>
-            setState(euss)
-            becomeOnline
-            context.parent ! RegisterEchoedUserService(echoedUser)
+        case msg @ ReadForEmailResponse(_, Left(_)) =>
+            initMessage match {
+                case LoginWithEmail(_, msg @ LoginWithEmailPassword(_, _), channel) =>
+                    channel.get ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
+                case LoginWithEmail(_, msg @ ResetLogin(_), channel) =>
+                    channel.get ! ResetLoginResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
+                case LoginWithEmail(_, msg @ RegisterLogin(name, email, password), channel) =>
+                    create(new EchoedUser(name, email).createPassword(password))
+                    channel.get ! RegisterLoginResponse(msg, Right(echoedUser))
+                    becomeOnlineAndRegister
+            }
 
+
+        case msg @ ReadForEmailResponse(_, Right(euss)) =>
+            initMessage match {
+                case LoginWithEmail(_, msg @ RegisterLogin(_, email, _), channel) =>
+                    channel.get ! RegisterLoginResponse(msg, Left(AlreadyRegistered(email))); self ! PoisonPill
+                case _ => setStateAndRegister(euss)
+            }
+
+        case msg @ ReadForCredentialsResponse(_, Right(euss)) => setStateAndRegister(euss)
 
         case msg @ ReadForFacebookUserResponse(_, Left(FacebookUserNotFound(fu, _))) =>
-            echoedUser = new EchoedUser(fu)
-            echoedUserSettings = new EchoedUserSettings(echoedUser)
+            create(new EchoedUser(fu))
             handleLoginWithFacebookUser(initMessage.asInstanceOf[LoginWithFacebookUser])
-            ep(EchoedUserCreated(echoedUser, echoedUserSettings, facebookUser, twitterUser))
-
 
         case msg @ ReadForFacebookUserResponse(_, Right(euss)) =>
             setState(euss)
             handleLoginWithFacebookUser(initMessage.asInstanceOf[LoginWithFacebookUser])
             updated
 
-
         case msg @ ReadForTwitterUserResponse(_, Left(TwitterUserNotFound(tu, _))) =>
-            echoedUser = new EchoedUser(tu)
-            echoedUserSettings = new EchoedUserSettings(echoedUser)
+            create(new EchoedUser(tu))
             handleLoginWithTwitterUser(initMessage.asInstanceOf[LoginWithTwitterUser])
-            ep(EchoedUserCreated(echoedUser, echoedUserSettings, facebookUser, twitterUser))
-
 
         case msg @ ReadForTwitterUserResponse(_, Right(euss)) =>
             setState(euss)
@@ -233,6 +263,34 @@ class EchoedUserService(
 
 
     def online = {
+        case msg @ LoginWithEmailPassword(email, password) =>
+            if (echoedUser.isCredentials(email, password)) sender ! LoginWithEmailPasswordResponse(msg, Right(echoedUser))
+            else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
+
+        case msg @ ResetLogin(_) =>
+            val password =
+                if (echoedUser.hasPassword) echoedUser.password
+                else {
+                    val p = UUID()
+                    echoedUser = echoedUser.createPassword(p)
+                    updated
+                    p
+                }
+
+            val code = encrypter.encrypt("""{ "email": "%s", "password": "%s" }""" format(echoedUser.email, password))
+            mp(SendEmail(echoedUser.email, "Password reset", "login_reset_email", Map("code" -> code)))
+            sender ! ResetLoginResponse(msg, Right(code))
+
+
+        case msg @ ResetPassword(_, password) =>
+            echoedUser = echoedUser.createPassword(password)
+            updated
+            sender ! ResetPasswordResponse(msg, Right(echoedUser))
+
+
+        case msg: RegisterLogin => //ignored on purpose - handled in init only...
+
+
         case msg @ LoginWithFacebookUser(fu, correlation, correlationSender) =>
             handleLoginWithFacebookUser(msg)
             updated
@@ -645,15 +703,36 @@ class EchoedUserService(
                         echoedUser,
                         byEchoedUser,
                         "comment",
-                        Map[String, String](
+                        Map(
                             "subject" -> byEchoedUser.name,
                             "action" -> "commented on",
                             "object" -> story.title,
                             "storyId" -> storyId))
                 notifications = notifications.push(n)
                 ep(NotificationCreated(n))
-                //mp(ScheduleOnce(Today, EmailNotifications(EchoedUserClientCredentials(echoedUser.id)), Option(echoedUser.id)))
+                mp(ScheduleOnce(
+                        Today,
+                        EmailNotifications(EchoedUserClientCredentials(echoedUser.id)),
+                        Option(echoedUser.id)))
             }
+
+
+        case msg: EmailNotifications if (echoedUser.hasEmail && echoedUserSettings.receiveNotificationEmail) =>
+            val toEmail = MList[Notification]()
+            notifications = notifications.map { n =>
+                if (n.canEmail) {
+                    val emailed = n.markAsEmailed
+                    toEmail += emailed
+                    ep(NotificationUpdated(emailed))
+                    emailed
+                } else n
+            }
+
+            if (!toEmail.isEmpty)
+                mp(SendEmail(
+                    echoedUser.email,
+                    "You have new comments on your stories!",
+                    "email_notifications", Map("notifications" -> toEmail.toList)))
 
 
         case msg @ InitStory(_, storyId, echoId, partnerId) =>

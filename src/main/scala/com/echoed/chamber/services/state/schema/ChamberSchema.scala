@@ -17,6 +17,7 @@ private[state] object ChamberSchema extends Schema {
 
     val notifications = table[Notification]
     val echoedUserSettings = table[EchoedUserSettings]
+    val schedules = table[Schedule]
 
     //    val echoClicks = table[EchoClick]
     //    val echoedFriend = table[EchoedFriend]

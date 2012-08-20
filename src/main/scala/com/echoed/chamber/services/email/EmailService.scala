@@ -5,7 +5,7 @@ import javax.mail.internet.MimeMessage
 import org.springframework.mail.javamail.{MimeMessageHelper, MimeMessagePreparator, JavaMailSender}
 import com.echoed.util.mustache.MustacheEngine
 import com.echoed.chamber.services.{EchoedService, GlobalsManager}
-import akka.actor._
+import java.util.{HashMap => JMap}
 import scala.Right
 import scala.Left
 
@@ -19,13 +19,14 @@ class EmailService(
     require(from != null, "Missing from")
 
     def handle = {
-        case msg @ SendEmail(recipient, subject, templateName, model) =>
+        case msg @ SendEmail(recipient, subject, templateName, m) =>
             val channel = context.sender
+            val model = new JMap[String, AnyRef](m)
 
             try {
                 globalsManager.addGlobals(model)
 
-                val renderedTemplate = mustacheEngine.execute(templateName, model) //compile(templateName).execute(model)
+                val renderedTemplate = mustacheEngine.execute(templateName, model)
 
                 javaMailSender.send(new MimeMessagePreparator() {
                     override def prepare(mimeMessage: MimeMessage) {
@@ -41,7 +42,7 @@ class EmailService(
                 channel ! SendEmailResponse(msg, Right(true))
             } catch {
                 case e =>
-                    log.error("Error processing %s" format msg, e)
+                    log.error(e, "Error processing {}", msg)
                     channel ! SendEmailResponse(msg, Left(EmailException("Failed to send email message", e)))
             }
 

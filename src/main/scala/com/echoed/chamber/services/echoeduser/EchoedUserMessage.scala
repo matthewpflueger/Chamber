@@ -2,7 +2,7 @@ package com.echoed.chamber.services.echoeduser
 
 import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedClientCredentials, EchoedException, Message}
 import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.partner.{Partner, PartnerSettings}
+import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.views._
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
@@ -20,14 +20,20 @@ case class EchoedUserClientCredentials(
         facebookId: Option[String] = None,
         twitterId: Option[String] = None) extends EchoedClientCredentials {
 
-    val echoedUserId = id
+    def echoedUserId = id
+
 }
 
 
 trait EchoedUserIdentifiable {
     this: EchoedUserMessage =>
     def credentials: EchoedUserClientCredentials
-    val echoedUserId = credentials.echoedUserId
+    def echoedUserId = credentials.echoedUserId
+}
+
+trait EmailIdentifiable {
+    this: EchoedUserMessage =>
+    def email: String
 }
 
 
@@ -113,6 +119,9 @@ case class ReadSettingsResponse(message: ReadSettings, value: Either[EUE, Echoed
 case class NewSettings(credentials: EUCC, settings: Map[String, AnyRef]) extends EUM with EUI
 case class NewSettingsResponse(message: NewSettings, value: Either[EUE,  EchoedUserSettings])
         extends EUM with MR[EchoedUserSettings, NewSettings, EUE]
+
+
+case class EmailNotifications(credentials: EUCC) extends EUM with EUI
 
 
 case class InitStory(
@@ -225,6 +234,34 @@ case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
     extends EUM with MR[FriendCloset, GetFriendExhibit, EUE]
 
+case class LoginWithEmailPassword(email: String, password: String) extends EUM with EmailIdentifiable
+case class LoginWithEmailPasswordResponse(message: LoginWithEmailPassword, value: Either[EUE, EchoedUser])
+    extends EUM with MR[EchoedUser, LoginWithEmailPassword, EUE]
+
+
+private[echoeduser] case class LoginWithEmail(
+        email: String,
+        correlation: EchoedUserMessage with EmailIdentifiable,
+        override val correlationSender: Option[ActorRef]) extends EUM with Correlated
+private[echoeduser] case class LoginWithEmailResponse(message: LoginWithEmail, value: Either[EUE, EchoedUser])
+    extends EUM with MR[EchoedUser, LoginWithEmail, EUE]
+
+case class RegisterLogin(name: String, email: String, password: String) extends EUM with EmailIdentifiable
+case class RegisterLoginResponse(message: RegisterLogin, value: Either[EUE, EchoedUser])
+    extends EUM with MR[EchoedUser, RegisterLogin, EUE]
+
+case class ResetLogin(email: String) extends EUM with EmailIdentifiable
+case class ResetLoginResponse(message: ResetLogin, value: Either[EUE, String])
+    extends EUM with MR[String, ResetLogin, EUE]
+
+case class LoginWithCode(code: String) extends EUM
+case class LoginWithCodeResponse(message: LoginWithCode, value: Either[EUE, EchoedUser])
+    extends EUM with MR[EchoedUser, LoginWithCode, EUE]
+
+case class ResetPassword(credentials: EUCC, password: String) extends EUM with EUI
+case class ResetPasswordResponse(message: ResetPassword, value: Either[EUE, EchoedUser])
+    extends EUM with MR[EchoedUser, ResetPassword,  EUE]
+
 case class Login(credentials: EUCC) extends EUM with EUI
 case class LoginResponse(message: Login, value: Either[EUE, EchoedUser]) extends EUM with MR[EchoedUser, Login,  EUE]
 
@@ -258,7 +295,11 @@ case class LogoutResponse(message: Logout, value: Either[EUE, Boolean])
 
 private[echoeduser] case class RegisterEchoedUserService(echoedUser: EchoedUser) extends EUM
 
+
+case class AlreadyRegistered(email: String, m: String = "Echoed user already registered") extends EUE(m)
+
 case class EchoedUserNotFound(id: String, m: String = "Echoed user not found") extends EUE(m)
 
+case class InvalidCredentials(m: String = "Invalid email or password") extends EUE(m)
 
 case class EchoNotFound(id: String, m: String = "Echo not found %s") extends EUE(m format id)

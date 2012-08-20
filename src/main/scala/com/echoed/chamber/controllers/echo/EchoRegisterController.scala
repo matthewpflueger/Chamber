@@ -18,7 +18,7 @@ class EchoRegisterController extends EchoedController with FormController {
 
     @Autowired var formValidator: EchoRegisterFormValidator = _
 
-    val defaultFieldPrefix = ("registerForm.")
+    override val defaultFieldPrefix = ("registerForm.")
 
     @RequestMapping(value = Array("/echo/register"), method = Array(RequestMethod.GET))
     def details(

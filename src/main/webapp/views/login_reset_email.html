@@ -1,0 +1,12 @@
+{{<email_super}}
+{{$content}}
+<div>
+    Please click <a href="{{urls.site}}/login/reset/{{code}}">here</a>
+    or copy the url below into your browser to reset your password.
+    If you have not requested a password reset then just ignore this email.
+    <p>
+        <a href="{{urls.site}}/login/reset/{{code}}">{{urls.site}}/login/reset/{{code}}</a>
+    </p>
+</div>
+{{/content}}
+{{/email_super}}
