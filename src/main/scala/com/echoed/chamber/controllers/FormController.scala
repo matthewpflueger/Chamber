@@ -8,7 +8,7 @@ import org.springframework.core.convert.ConversionService
 
 trait FormController {
 
-    def defaultFieldPrefix: String
+    def defaultFieldPrefix: String = "form"
 
     @Autowired var validator: Validator = _
     @Autowired var conversionService: ConversionService = _

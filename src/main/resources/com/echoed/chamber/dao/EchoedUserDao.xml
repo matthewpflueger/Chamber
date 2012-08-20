@@ -16,6 +16,8 @@
             <arg column="echoedUserFacebookId" javaType="String" />
             <arg column="echoedUserTwitterUserId" javaType="String" />
             <arg column="echoedUserTwitterId" javaType="String" />
+            <arg column="echoedUserPassword" javaType="String" />
+            <arg column="echoedUserSalt" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -29,7 +31,9 @@
         EU.facebookUserId as echoedUserFacebookUserId,
         EU.facebookId as echoedUserFacebookId,
         EU.twitterUserId as echoedUserTwitterUserId,
-        EU.twitterId as echoedUserTwitterId
+        EU.twitterId as echoedUserTwitterId,
+        EU.password as echoedUserPassword,
+        EU.salt as echoedUserSalt
     </sql>
 
 
@@ -79,7 +83,9 @@
                 facebookUserId,
                 facebookId,
                 twitterUserId,
-                twitterId)
+                twitterId,
+                password,
+                salt)
     		values (
                 #{id},
                 #{createdOn},
@@ -89,7 +95,9 @@
                 #{facebookUserId},
                 #{facebookId},
     			#{twitterUserId},
-    			#{twitterId})
+    			#{twitterId},
+    			#{password},
+    			#{salt})
     </insert>
 
     <delete id="deleteByEmail">
@@ -117,7 +125,9 @@
             facebookUserId=#{facebookUserId},
             facebookId=#{facebookId},
             twitterUserId=#{twitterUserId},
-            twitterId=#{twitterId}
+            twitterId=#{twitterId},
+            password=#{password},
+            salt=#{salt}
         where
             id=#{id}
     </update>

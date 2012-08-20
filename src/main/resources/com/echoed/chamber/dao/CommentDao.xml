@@ -32,6 +32,8 @@
             <arg column="CMTEchoedUserFacebookId" javaType="String" />
             <arg column="CMTEchoedUserTwitterUserId" javaType="String" />
             <arg column="CMTEchoedUserTwitterId" javaType="String" />
+            <arg column="CMTEchoedUserPassword" javaType="String" />
+            <arg column="CMTEchoedUserSalt" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -61,7 +63,9 @@
         CMTEU.facebookUserId as CMTEchoedUserFacebookUserId,
         CMTEU.facebookId as CMTEchoedUserFacebookId,
         CMTEU.twitterUserId as CMTEchoedUserTwitterUserId,
-        CMTEU.twitterId as CMTEchoedUserTwitterId
+        CMTEU.twitterId as CMTEchoedUserTwitterId,
+        CMTEU.password as CMTEchoedUserPassword,
+        CMTEU.salt as CMTEchoedUserSalt
     </sql>
 
     <insert id="insert" parameterType="com.echoed.chamber.domain.Comment">

@@ -38,6 +38,11 @@ private[services] case class ReadPartnerUserServiceManagerStateResponse(
         extends SM with MR[Map[String, String], ReadPartnerUserServiceManagerState, SE]
 
 
+private[services] case class EchoedUserNotFound(
+        email: String,
+        m: String = "Echoed user not found") extends SE(m)
+
+
 private[services] case class FacebookUserNotFound(
         facebookUser: FacebookUser,
         m: String = "Facebook user not found") extends SE(m)
@@ -50,6 +55,12 @@ private[services] case class TwitterUserNotFound(
 
 private[services] abstract class ReadEchoedUserServiceState extends SM
 import com.echoed.chamber.services.state.{ReadEchoedUserServiceState => REUSS}
+
+private[services] case class ReadForEmail(email: String) extends REUSS
+private[services] case class ReadForEmailResponse(
+                message: ReadForEmail,
+                value: Either[SE, EchoedUserServiceState])
+                extends SM with MR[EchoedUserServiceState, ReadForEmail, SE]
 
 
 private[services] case class ReadForCredentials(credentials: EchoedUserClientCredentials) extends REUSS

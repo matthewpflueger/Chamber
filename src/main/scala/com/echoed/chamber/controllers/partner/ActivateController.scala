@@ -18,8 +18,6 @@ class ActivateController extends EchoedController with FormController {
 
     @Autowired var formValidator: ActivateFormValidator = _
 
-    val defaultFieldPrefix = "activateForm."
-
     @RequestMapping(value = Array("/partner/activate/{code}"), method = Array(RequestMethod.GET))
     def activateGet(@PathVariable("code") code: String) = {
         val result = new DeferredResult(new ModelAndView(v.activateView))

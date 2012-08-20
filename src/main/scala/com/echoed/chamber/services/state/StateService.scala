@@ -66,6 +66,18 @@ class StateService(
                     Right(from(adminUsers)(au => select(au.email, au.id)).toMap))
         }
 
+        case msg @ ReadForEmail(email) => inTransaction {
+            val eu = from(echoedUsers)(eu => where(eu.email === email) select(eu)).headOption
+            val eus = readEchoedUserSettings(eu)
+            val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
+            val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
+            val nf = readNotifications(eu)
+
+            eu.cata(
+                _ => sender ! ReadForEmailResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf))),
+                sender ! ReadForEmailResponse(msg, Left(EchoedUserNotFound(email))))
+        }
+
         case msg @ ReadForCredentials(credentials) => inTransaction {
             echoedUsers.lookup(credentials.id).foreach { eu =>
                 val eus = readEchoedUserSettings(Option(eu)).get

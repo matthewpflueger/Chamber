@@ -19,8 +19,6 @@ class AdminController extends EchoedController with FormController {
 
     @BeanProperty var formValidator: AdminUpdatePartnerSettingsFormValidator = _
 
-    val defaultFieldPrefix = "registerForm."
-
     @RequestMapping(value = Array("/echoPossibility"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getEchoPossibilityJSON(aucc: AdminUserClientCredentials) = {

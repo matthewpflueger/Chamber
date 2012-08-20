@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory
 import com.echoed.chamber.interceptors.GlobalsInterceptor
 import org.springframework.context.MessageSource
 import java.util.Locale
-import java.util
 
 
 class GlobalsManager {

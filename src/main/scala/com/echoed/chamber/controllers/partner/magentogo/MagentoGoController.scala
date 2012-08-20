@@ -14,8 +14,6 @@ import org.springframework.web.context.request.async.DeferredResult
 @RequestMapping(Array("/magentogo"))
 class MagentoGoController extends EchoedController with FormController {
 
-    def defaultFieldPrefix = "registerForm."
-
     @RequestMapping(method = Array(RequestMethod.GET))
     def registerGet = new ModelAndView(v.magentoGoRegisterView, "registerForm", new RegisterForm())
 

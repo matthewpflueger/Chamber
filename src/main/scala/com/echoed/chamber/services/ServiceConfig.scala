@@ -24,7 +24,7 @@ import com.echoed.chamber.services.partner.networksolutions._
 import com.echoed.chamber.services.partner.shopify.{ShopifyPartnerMessage, ShopifyAccess, ShopifyPartnerServiceManager}
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.twitter.{TwitterMessage, TwitterAccess}
-import com.echoed.chamber.services.echoeduser.{EchoedUserMessage, EchoedUserServiceManager}
+import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserMessage, EchoedUserServiceManager}
 import com.echoed.chamber.services.partneruser.{PartnerUserMessage, PartnerUserServiceManager}
 import com.echoed.chamber.services.adminuser.{AdminUserMessage, AdminUserServiceManager}
 import com.echoed.chamber.services.partner.{PartnerMessage, PartnerServiceManager}
@@ -203,32 +203,40 @@ class ServiceConfig {
             cacheManager = cacheManager)), "TwitterAccess")
 
     @Bean
+    def echoedUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new EchoedUserService(
+            mp = messageProcessor,
+            ep = eventProcessor,
+            initMessage = msg,
+            echoedUserDao = echoedUserDao,
+            closetDao = closetDao,
+            echoedFriendDao = echoedFriendDao,
+            feedDao = feedDao,
+            partnerSettingsDao = partnerSettingsDao,
+            echoDao = echoDao,
+            partnerDao = partnerDao,
+            echoMetricsDao = echoMetricsDao,
+            storyDao = storyDao,
+            chapterDao = chapterDao,
+            chapterImageDao = chapterImageDao,
+            commentDao = commentDao,
+            imageDao = imageDao,
+            transactionTemplate = transactionTemplate,
+            storyGraphUrl = urlsProperties.getProperty("storyGraphUrl"),
+            facebookFriendDao = facebookFriendDao,
+            twitterFollowerDao = twitterFollowerDao,
+            facebookPostDao = facebookPostDao,
+            twitterStatusDao = twitterStatusDao,
+            encrypter = encrypter,
+            echoClickUrl = urlsProperties.getProperty("echoClickUrl"))))
+
+    @Bean
     def echoedUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new EchoedUserServiceManager(
             mp = messageProcessor,
             ep = eventProcessor,
             facebookAccessCreator = facebookAccess,
             twitterAccessCreator = twitterAccess,
-            echoedUserDao = echoedUserDao,
-            closetDao = closetDao,
-            feedDao = feedDao,
-            partnerSettingsDao = partnerSettingsDao,
-            echoDao = echoDao,
-            echoedFriendDao = echoedFriendDao,
-            echoMetricsDao = echoMetricsDao,
-            partnerDao = partnerDao,
-            storyDao = storyDao,
-            chapterDao = chapterDao,
-            chapterImageDao = chapterImageDao,
-            imageDao = imageDao,
-            commentDao = commentDao,
-            facebookFriendDao = facebookFriendDao,
-            twitterFollowerDao = twitterFollowerDao,
-            facebookPostDao = facebookPostDao,
-            twitterStatusDao = twitterStatusDao,
-            echoClickUrl = urlsProperties.getProperty("echoClickUrl"),
-            transactionTemplate = transactionTemplate,
-            cacheManager = cacheManager,
-            storyGraphUrl = urlsProperties.getProperty("storyGraphUrl"))), "EchoedUsers")
+            echoedUserServiceCreator = echoedUserService,
+            encrypter = encrypter)), "EchoedUsers")
 
     @Bean
     def partnerUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new PartnerUserServiceManager(

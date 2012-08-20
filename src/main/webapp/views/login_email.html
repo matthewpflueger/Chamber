@@ -1,0 +1,19 @@
+{{<public_super}}
+    {{$title}}Echoed | Login{{/title}}
+    {{$content}}
+    <div id="content">
+        <div id="lm-partner-form" class="roundbox form">
+            <label>Login</label>
+            <div>{{#errors}}{{#global}}{{.}}{{/global}}{{/errors}}</div>
+            <form action="{{urls.site}}/login" method="POST">
+                <label for="email">Email: {{errors.loginForm.email}}</label>
+                <input id="email" name="email" type="text" />
+                <label for="password">Password: {{errors.loginForm.password}}</label>
+                <input id="password" name="password" type="password" />
+                <input id="login" name="login" type="submit">
+            </form>
+        </div>
+    </div>
+    {{/content}}
+    {{$olark}}{{/olark}}
+{{/public_super}}

@@ -9,23 +9,25 @@
     <script type="text/javascript">
         Echoed.errors = {};
         Echoed.errors.global = new Array();
-        //{{#errors.global}}
+        //{{#errors.global}}//
         Echoed.errors.global.push("{{this}}");
-        /*{{/errors.global}} // */
+        //{{/errors.global}}//
 
-        //{{#errors.fieldErrors}}
+        //{{#errors.fieldErrors}}//
         Echoed.errors["{{object}}"] = {};
-        //{{/errors.fieldErrors}}
-        //{{#errors.fieldErrors}}
+        //{{/errors.fieldErrors}}//
+        //{{#errors.fieldErrors}}//
         Echoed.errors["{{object}}"]["{{field}}"] = "{{message}}";
-        //{{/errors.fieldErrors}}
+        //{{/errors.fieldErrors}}//
 
         Echoed.messages = {};
-        Echoed.messages.global = new Array(); //{{#messages.global}}
+        Echoed.messages.global = new Array();
+        //{{#messages.global}}//
         Echoed.messages.global.push("{{this}}");
-        /*{{/messages.global}} // */
+        //{{/messages.global}}//
 
-        Echoed.urls = {}; //{{#urls}}
+        Echoed.urls = {};
+        //{{#urls}}//
         Echoed.urls.api = "{{api}}";
         Echoed.urls.cdn = "{{cdn}}";
         Echoed.urls.js = "{{js}}";
@@ -33,7 +35,7 @@
         Echoed.urls.images = "{{images}}";
         Echoed.urls.views = "{{views}}";
         Echoed.urls.site = "{{site}}";
-        /*{{/urls}} // */
+        //{{/urls}}//
     </script>
 </head>
 <body>

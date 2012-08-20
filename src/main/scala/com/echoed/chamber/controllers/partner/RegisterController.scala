@@ -16,8 +16,6 @@ class RegisterController extends EchoedController with FormController {
 
     @Autowired var formValidator: RegisterFormValidator = _
 
-    val defaultFieldPrefix = "registerForm."
-
     @RequestMapping(value = Array("/partner/register"), method = Array(RequestMethod.GET))
     def registerGet = new ModelAndView(v.registerView, "registerForm", new RegisterForm())
 
