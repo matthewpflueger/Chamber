@@ -398,21 +398,30 @@ a{
         }
 
         .login-button{
-            padding: 7px 10px;
             @include textFontBold(12px, #FFF);
-            width: 125px;
+            line-height: 35px;
+            width: 180px;
             text-align: left;
             margin: 5px;
             display: inline-block;
-            border-radius: 3px;
+            border-radius: 5px;
+            vertical-align: baseline;
         }
 
         .facebook-button{
             background-color: $fbColor;
+            border: 1px solid transparent;
+            &:hover{
+                border: 1px solid #CCC;
+            }
         }
 
         .twitter-button{
             background-color: $twitterColor;
+            border: 1px solid transparent;
+            &:hover{
+                border: 1px solid #CCC;
+            }
         }
 
         #login-container{
@@ -2213,9 +2222,18 @@ h3{
     text-decoration: underline;
 }
 
+.fb-login-logo{
+    display: inline-block;
+    width:35px;
+    height:35px;
+    vertical-align: middle;
+    background-image: image-url("bk_facebook_f.png");
+}
+
 .tw-login-logo{
     display: inline-block;
     width:35px;
     height:35px;
     background-image: image-url("bk_twitter_bird.png");
+    vertical-align: middle;
 }

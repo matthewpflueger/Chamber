@@ -43,8 +43,10 @@ window.onload = function(){
     }
 };
 
-function EchoedCloseIFrame(){
-    var iframe = document.getElementById('echoed-fade');
-    iframe.style.display = "none";
+function EchoedCloseIFrame(message){
+    if(message.data === "echoed-close"){
+        var iframe = document.getElementById('echoed-fade');
+        iframe.style.display = "none";
+    }
 };
 
