@@ -1,21 +1,27 @@
-{{<public_super}}
+{{<public_nonav_super}}
     {{$title}}Echoed | Register{{/title}}
     {{$content}}
-    <div id="content">
-        <div id="lm-partner-form" class="roundbox form">
-            <label>Register</label>
+    <div id="login-content">
+        <div id="register-form" class="login-form">
+            <div class="login-form-title">Create Your Account</div>
             {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
             <form action="{{urls.site}}/login/register" method="POST">
-                <label for="name">Name: {{errors.loginRegisterForm.name}}</label>
-                <input id="name" name="name" type="text" />
-                <label for="email">Email: {{errors.loginRegisterForm.email}}</label>
-                <input id="email" name="email" type="text" />
-                <label for="password">Password: {{errors.loginRegisterForm.password}}</label>
-                <input id="password" name="password" type="password" />
-                <input id="login" name="register" type="submit">
+                <div class="login-form-row">
+                    <input placeholder="Name" id="name" name="name" type="text" />
+                    <label for="name">{{errors.loginRegisterForm.name}}</label>
+                </div>
+                <div class="login-form-row">
+
+                    <input placeholder="Email Address" id="email" name="email" type="text" />
+                    <label for="email">{{errors.loginRegisterForm.email}}</label>
+                </div>
+                <div class="login-form-row">
+                    <input placeholder="Password" id="password" name="password" type="password" />
+                    <label for="password">{{errors.loginRegisterForm.password}}</label>
+                </div>
+                <input id="login" name="register" type="submit" value="Submit">
             </form>
         </div>
     </div>
     {{/content}}
-    {{$olark}}{{/olark}}
-{{/public_super}}
+{{/public_nonav_super}}

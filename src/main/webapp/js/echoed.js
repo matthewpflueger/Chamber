@@ -39,6 +39,12 @@ Echoed = {
         }
         return "";
     },
+    getLoginRedirectUrl: function(){
+        return "login/register?r=" + encodeURIComponent(window.location.hash);
+    },
+    getSignUpRedirectUrl: function(){
+        return "login?r=" + encodeURIComponent(window.location.hash);
+    },
     getFacebookLoginUrl: function(hash){
         return Echoed.facebookLogin.head +
             encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(hash)) +
@@ -473,8 +479,13 @@ Echoed.Router = Backbone.Router.extend({
                     this.page = "#!partner/" + id;
                     break;
                 default:
-                    this.me();
-                    this.page = "#!me";
+                    if(Echoed.echoedUser !== undefined){
+                        this.me();
+                        this.page = "#!me";
+                    } else {
+                        this.explore();
+                        this.page = "#";
+                    }
                     break;
             }
         }
@@ -843,7 +854,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.element.html(self.template).addClass('small');
         $("#field-fb-login").attr("href", Echoed.getFacebookLoginUrl(window.location.hash));
         $("#field-tw-login").attr("href", Echoed.getTwitterLoginUrl(window.location.hash));
+        $('#field-user-login').attr('href', Echoed.getLoginRedirectUrl());
+        $('#field-user-signup').attr("href", Echoed.getSignUpRedirectUrl());
         var body = self.element.find(".field-login-body");
+
         if(data){
             var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
             var bodyTextNode = $('<div class="field-login-body-text"></div>').append(bodyText);
@@ -1182,6 +1196,7 @@ Echoed.Views.Components.Login = Backbone.View.extend({
         var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name);
         var list = $('<div id="user-list"><ul><li class="user-list-item" href="logout">Logout</li></ul></div>');
         this.element.append(ui).append(ut).append(list);
+        this.element.show();
     }
 });
 
@@ -1565,7 +1580,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         this.render();
     },
     events: {
-        "click .story-brief-overlay" : "click",
+        "click .story-brief-image-container" : "click",
         "mouseenter": "showOverlay",
         "mouseleave": "hideOverlay"
     },

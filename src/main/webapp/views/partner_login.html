@@ -1,19 +1,19 @@
-{{<public_super}}
+{{<public_nonav_super}}
     {{$title}}Echoed | Partner Login{{/title}}
     {{$content}}
-        <div id="content">
-            <div id="lm-partner-form" class="center form roundbox">
-                <label>Partner Login</label>
+        <div id="login-content">
+            <div id="partner-form" class="login-form">
+                <div class="login-form-title">Partner Login</div>
                 {{#error}}<div id="lm-error">Error: {{message}}</div> {{/error}}
                 <form action="{{urls.site}}/partner/login" method="POST">
-                    <label for="email">Email:</label>
-                    <input id="email" name="email" type="text" />
-                    <label for="password">Password:</label>
-                    <input id="password" name="password" type="password" />
+                    <input id="email" name="email" type="text" placeholder="E-mail"/>
+                    <label for="email"></label>
+                    <input id="password" name="password" type="password" placeholder="Password"/>
+                    <label for="password"></label>
                     <input id="login" name="login" type="submit">
                 </form>
             </div>
         </div>
     {{/content}}
     {{$olark}}{{/olark}}
-{{/public_super}}
+{{/public_nonav_super}}
