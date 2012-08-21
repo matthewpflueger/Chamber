@@ -268,9 +268,10 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     initialize:function (options) {
-        _.bindAll(this, 'render', 'next', 'init', 'show', 'hide', 'close', 'nextStory', 'previousStory');
+        _.bindAll(this, 'render', 'next', 'init', 'show', 'hide', 'close', 'nextStory', 'previousStory','relayout');
         this.EvAg = options.EvAg;
         this.el = options.el;
+        this.EvAg.bind('exhibit/relayout', this.relayout);
         this.EvAg.bind('exhibit/open', this.init);
         this.EvAg.bind('infiniteScroll', this.next);
         this.EvAg.bind("exhibit/show", this.show);
@@ -286,6 +287,9 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     },
     events:{
         "click .echoed-close":"close"
+    },
+    relayout: function(){
+        this.exhibit.isotope();
     },
     nextStory:function (storyId) {
         var self = this;
@@ -766,8 +770,12 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
         }
     },
     receiveMessageResponse:function (response) {
-        Echoed.echoedUser = JSON.parse(response.data);
-        this.EvAg.trigger('user/login');
+        if(response.data === "echoed-open"){
+            this.EvAg.trigger('exhibit/relayout');
+        } else {
+            Echoed.echoedUser = JSON.parse(response.data);
+            this.EvAg.trigger('user/login');
+        }
     }
 });
 
