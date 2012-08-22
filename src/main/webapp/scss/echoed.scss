@@ -110,7 +110,6 @@ $headerFontFamily: 'Arvo', serif;
         border: 1px solid #591b24;
         -moz-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
         -webkit-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
-        text-shadow: 0px -1px 1px rgba(089,027,036,1), 0px -1px 0px rgba(255,255,255,0.3);
     }
 
     @mixin button(){
@@ -120,7 +119,9 @@ $headerFontFamily: 'Arvo', serif;
         min-width: 100px;
         text-align: center;
         padding: 5px 10px;
-        background-color: #eb1a24;
+        border-radius: 5px;
+        border: 1px solid #000;
+        background-color: $mainColor;
         background: -moz-linear-gradient(top, #eb1a24 0%, #b41b25);
         background: -webkit-gradient(linear, left top, left bottom, from(#eb1a24), to(#b41b25));
         border-radius: 3px;
@@ -129,7 +130,6 @@ $headerFontFamily: 'Arvo', serif;
         border: 1px solid #591b24;
         -moz-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
         -webkit-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
-        text-shadow: 0px -1px 1px rgba(089,027,036,1), 0px -1px 0px rgba(255,255,255,0.3);
     }
 
 //RESET
@@ -398,39 +398,52 @@ a{
         }
 
         .login-button{
-            height: 40px;
+            @include textFontBold(13px, #FFF);
+            line-height: 30px;
+            text-align: left;
+            margin: 5px;
+            display: inline-block;
+            border-radius: 5px;
+            vertical-align: baseline;
+        }
+
+        .facebook-button{
+            background-color: $fbColor;
+            border: 1px solid transparent;
+            &:hover{
+                border: 1px solid #CCC;
+            }
+        }
+
+        .twitter-button{
+            background-color: $twitterColor;
+            border: 1px solid transparent;
+            &:hover{
+                border: 1px solid #CCC;
+            }
         }
 
         #login-container{
-            //background-color: rgba(200,225,255, 0.5);
-            background: #646e7d; /* Old browsers */
-        /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NDZlN2QiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI3NCUiIHN0b3AtY29sb3I9IiMzZDQzNGMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
-            background: -moz-radial-gradient(center, ellipse cover,  #646e7d 0%, #3d434c 74%); /* FF3.6+ */
-            background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#646e7d), color-stop(74%,#3d434c)); /* Chrome,Safari4+ */
-            background: -webkit-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* Chrome10+,Safari5.1+ */
-            background: -o-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* Opera 12+ */
-            background: -ms-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* IE10+ */
-            background: radial-gradient(ellipse at center,  #646e7d 0%,#3d434c 74%); /* W3C */
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#646e7d', endColorstr='#3d434c',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
-
-
+            background: #778294;
+            text-align: center;
+            color: #FFF;
             width: 572px;
             height: 200px;
             #login-title{
-                padding: 10px 20px;
+                padding: 7px 20px;
                 @include headerFontBold(36px, #FFF);
-                text-shadow: 0px 1px 1px #000;
+                text-shadow: 0px 1px 1px #333;
                 text-align: center;
             }
             #login-description{
                 padding: 0px 10px;
-                @include textFontNormal(20px,#FFF);
-                text-shadow: 0px 1px 1px #000;
+                @include textFontNormal(24px,#FFF);
+                text-shadow: 0px 1px 1px #333;
                 text-align: center;
             }
+
             #login-buttons{
-                margin-top: 20px;
+                margin-top: 7px;
                 text-align: center;
                 .login{
                     padding: 7px 10px;
@@ -438,29 +451,42 @@ a{
                     border-bottom: 1px solid #CCC;
                 }
             }
-
+            #login-email-title{
+                padding: 5px;
+                text-align: center;
+                @include textFontBold(14px, #FFF);
+                text-shadow: 0px 1px 1px #333;
+                a {
+                    @include textFontBold(14px, #FFF);
+                    text-decoration: underline;
+                    &:hover{
+                        color: $mainColor;
+                    }
+                }
+            }
         }
 
 		#header-nav, #footer-nav, #help-nav{
             .icon_world{
-                background-image: image-url("bk_icon_world.png");
+                //background-image: image-url("bk_icon_world.png");
                 background-position: left;
                 background-repeat: no-repeat;
             }
             .icon_me{
-                background-image: image-url("bk_icon_me.png");
+                //background-image: image-url("bk_icon_me.png");
                 background-position: left;
                 background-repeat: no-repeat;
             }
             .icon_friends{
-                background-image: image-url("bk_icon_friends.png");
+                //background-image: image-url("bk_icon_friends.png");
                 background-position: left;
                 background-repeat: no-repeat;
             }
 
             li{
                 margin-left: 10px;
-                padding: 7px 10px 7px 30px;
+                //padding: 7px 10px 7px 30px;
+                padding: 5px;
                 list-style:none;
                 cursor: pointer;
                 @include textFontNormal(12px);
@@ -806,9 +832,21 @@ a{
                     text-align: center;
                     @include textFontNormal(20px);
                 }
-                .field-login-button{
+                .field-login-buttons{
                     text-align:center;
                     margin: 5px auto;
+                }
+
+                .field-login-email{
+                    text-align: center;
+                    @include textFontBold(14px);
+                    a{
+                        @include textFontBold(14px);
+                        text-decoration: underline;
+                        &:hover{
+                            color: $mainColor;
+                        }
+                    }
                 }
 
                 .field-login-body{
@@ -1224,16 +1262,16 @@ a{
                             border: 6px solid #F0F0F0;
                             border-radius: 3px;
                             cursor: pointer;
-                            -webkit-transition: all 0.2s ease-in-out;
-                            -moz-transition: all 0.2s ease-in-out;
-                            -o-transition: all 0.2s ease-in-out;
-                            -ms-transition: all 0.2s ease-in-out;
-                            transition: all 0.2s ease-in-out;
-                            &.highlight{
-                                border-color: #CCC;
+                            -webkit-transition: all 0.5s ease-in-out;
+                            -moz-transition: all 0.5s ease-in-out;
+                            -o-transition: all 0.5s ease-in-out;
+                            -ms-transition: all 0.5s ease-in-out;
+                            transition: all 0.5s ease-in-out;
+                            &:hover{
+                                border-color: #333;
                             }
                             .story-brief-overlay{
-                                background-color: rgba(0,0,0, 0.8);
+                                background-color: rgba(0,0,0, 0.6);
                                 width: 100%;
                                 height: 100%;
                                 position: absolute;
@@ -1244,85 +1282,17 @@ a{
                                 overflow: hidden;
 
                                 .story-brief-overlay-wrap{
-                                    margin: 20px;
-                                    @include headerFontBold(24px, #FFF);
+                                    margin-top: 10px;
+                                    @include textFontBold(16px, #FFF);
                                     text-align: center;
-                                    .story-brief-overlay-edit-button{
-                                        @include button;
-                                        @include textFontBold(16px, #FFF);
-                                    }
                                 }
                             }
                         }
 
                     }
                 }
+            }
 
-	            .exhibit_image{
-                    -ms-interpolation-mode: bicubic;
-                    border: 6px solid #F0F0F0;
-                    border-radius: 3px;
-                    cursor: pointer;
-                    -webkit-transition: all 0.2s ease-in-out;
-                    -moz-transition: all 0.2s ease-in-out;
-                    -o-transition: all 0.2s ease-in-out;
-                    -ms-transition: all 0.2s ease-in-out;
-                    transition: all 0.2s ease-in-out;
-                    &.highlight{
-                        border-color: #CCC;
-                    }
-    	        }
-
-                .icl_pn{
-                    text-decoration: underline;
-                    cursor: pointer;
-                    &:hover{
-                        color: $mainColor;
-                    }
-                }
-
-    	        .item_content_large{
-                    background-image: image-url("bk_noise.jpg");
-                    width: 690px;
-                    border: 20px solid #FFF;
-                    .icl_in{
-                        text-align: center;
-                        @include textFontBold(36px);
-                        text-shadow: 0 -1px 0 rgba(0, 0, 0, .42);
-                    }
-                    .icl_pn{
-                        text-align: center;
-                        @include textFontNormal(24px);
-                        border-bottom: 1px solid #CCC;
-                        box-shadow: 1px 1px 0px #FFF;
-                        &:hover{
-                            text-decoration:underline;
-                        }
-                    }
-                    .icl_top{
-                        padding: 10px;
-                        .icl_left{
-                            height: 100%;
-                            float:left;
-                            .icli{
-                                background-color: #FFF;
-                                border: 1px solid #CCC;
-                            }
-                        }
-                        .icl_right{
-                            float:left;
-                            width: 440px;
-                            text-align:center;
-                            textarea{
-                                width: 400px;
-                                height: 75px;
-                                border-radius: 5px;
-                                resize: none;
-                            }
-                        }
-                    }
-    	        }
-	        }
 	        .item_text{
 	            padding: 5px;
 	            line-height: 1.5em;
@@ -1335,30 +1305,32 @@ a{
 
 	        }
 		}
-			.friend{
-				width: 230px;
-				height: 50px;
-				float:left;
-	            margin: 5px;
-	            background-color: #FFF;
-                border: 1px solid #CCC;
-	            &:hover{
-	                border-color: #000 !important;
-                    cursor: pointer;
-	            }
-	            img{
-                    width: 50px;
-                    height: 50px;
-                    float:left;
-	            }
-	            .friend-text{
-                    float:left;
-                    @include textFontNormal(12px);
-                    padding-left: 10px;
-                    line-height: 50px;
-                    width: 170px;
-                }
-			}
+
+
+        .friend{
+            width: 230px;
+            height: 50px;
+            float:left;
+            margin: 5px;
+            background-color: #FFF;
+            border: 1px solid #CCC;
+            &:hover{
+                border-color: #000 !important;
+                cursor: pointer;
+            }
+            img{
+                width: 50px;
+                height: 50px;
+                float:left;
+            }
+            .friend-text{
+                float:left;
+                @include textFontNormal(12px);
+                padding-left: 10px;
+                line-height: 50px;
+                width: 170px;
+            }
+        }
 
 
 
@@ -2148,6 +2120,53 @@ h3{
     }
 }
 
+#login-content{
+    padding-top: 50px;
+}
+
+.login-form{
+    margin: 20px auto;
+    width: 450px;
+    text-align: center;
+    .login-form-title{
+        margin-bottom: 10px;
+        text-align: center;
+        @include headerFontBold(36px);
+    }
+    .login-form-row{
+        padding: 5px 20px;
+    }
+
+    label{
+        display: block;
+        padding: 5px;
+        color: $mainColor;
+    }
+    input[type="text"], input[type="password"]{
+        width: 300px;
+        @include textFontNormal(24px);
+        border-radius: 5px;
+        padding: 5px 10px;
+        outline: none;
+        border: 1px solid #CCC;
+    }
+
+    input[type="submit"]{
+        width: 200px;
+        @include textFontBold(20px);
+        background-color: #F0F0F0;
+        outline: none;
+        border: 1px solid #CCC;
+        border-radius: 5px;
+        cursor: pointer;
+        &:hover{
+            background-color: $mainColor;
+            color: #FFF;
+            border-color: #000;
+        }
+    }
+}
+
 .error{
     color: red;
 }
@@ -2205,4 +2224,25 @@ h3{
 
 .underline{
     text-decoration: underline;
+}
+
+.login-button-text{
+    width: 140px;
+    display: inline-block;
+}
+
+.fb-login-logo{
+    display: inline-block;
+    width:30px;
+    height:30px;
+    vertical-align: middle;
+    background-image: image-url("bk_facebook_f.png");
+}
+
+.tw-login-logo{
+    display: inline-block;
+    width:30px;
+    height:30px;
+    background-image: image-url("bk_twitter_bird.png");
+    vertical-align: middle;
 }

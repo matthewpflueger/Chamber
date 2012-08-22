@@ -1,19 +1,22 @@
-{{<public_super}}
-    {{$title}}Echoed | Login{{/title}}
-    {{$content}}
-    <div id="content">
-        <div id="lm-partner-form" class="roundbox form">
-            <label>Login</label>
-            <div>{{#errors}}{{#global}}{{.}}{{/global}}{{/errors}}</div>
-            <form action="{{urls.site}}/login" method="POST">
-                <label for="email">Email: {{errors.loginForm.email}}</label>
-                <input id="email" name="email" type="text" />
-                <label for="password">Password: {{errors.loginForm.password}}</label>
-                <input id="password" name="password" type="password" />
-                <input id="login" name="login" type="submit">
-            </form>
-        </div>
+{{<public_nonav_super}}
+{{$title}}Echoed | Login{{/title}}
+{{$content}}
+<div id="login-content">
+    <div id="register-form" class="login-form">
+        <div class="login-form-title">Login</div>
+        {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
+        <form action="{{urls.site}}/login/" method="POST">
+            <div class="login-form-row">
+                <input placeholder="Email Address" id="email" name="email" type="text" />
+                <label for="email">{{errors.loginRegisterForm.email}}</label>
+            </div>
+            <div class="login-form-row">
+                <input placeholder="Password" id="password" name="password" type="password" />
+                <label for="password">{{errors.loginRegisterForm.password}}</label>
+            </div>
+            <input id="login" name="login" type="submit" value="Login">
+        </form>
     </div>
-    {{/content}}
-    {{$olark}}{{/olark}}
-{{/public_super}}
+</div>
+{{/content}}
+{{/public_nonav_super}}

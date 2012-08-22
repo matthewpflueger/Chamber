@@ -53,7 +53,6 @@
                     Navigate
                 </div>
                 <ul>
-
                     <li class="icon_world" href="#!" id="explore_nav">
                         Community
                     </li>
@@ -114,10 +113,20 @@
         <div class="item_content">
             <div id="login-container">
                 <div id="login-title">Join Echoed</div>
-                <div id="login-description">Share stories about the things you love.<br/>Login to begin sharing your story.</div>
+                <div id="login-description">Share stories about things you love.<!--<br/>Login to begin sharing your story.--></div>
                 <div id="login-buttons">
-                    <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
-                    <a id="twitterLogin" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
+                    <a class="login-button facebook-button" id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions">
+                        <span class="fb-login-logo"></span>
+                        <span class="login-button-text">Login With Facebook</span>
+                    </a>
+                    <a class="login-button twitter-button" id="twitterLogin" href="{{urls.site}}/twitter?redirect=">
+                        <span class="tw-login-logo"></span>
+                        <span class="login-button-text">Login With Twitter</span>
+                    </a>
+                </div>
+                - or -
+                <div id="login-email-title">
+                    <a href="login/register">Sign-up</a> / <a href="login">Login</a> With E-mail Address
                 </div>
             </div>
         </div>
@@ -163,11 +172,20 @@
             <div class="field-login-title">Share stories about the things you love.<br/>Login to begin sharing your story.</div>
             <div class="field-login-body">
             </div>
-            <div class="field-login-button">
-                <a id="field-fb-login" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
+            <div class="field-login-buttons">
+                <span></span>
+                <a id="field-fb-login" class="login-button facebook-button" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions">
+                    <span class="fb-login-logo"></span>
+                    <span class="login-button-text">Login With Facebook</span>
+                </a>
+                <a class="login-button twitter-button" id="field-tw-login" href="{{urls.site}}/twitter?redirect=">
+                    <span class="tw-login-logo"></span>
+                    <span class="login-button-text">Login With Twitter</span>
+                </a>
             </div>
-            <div class="field-login-button">
-                <a id="field-tw-login" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
+            <div class="field-login-email">
+                <div>- or -</div>
+                <a id="field-user-login" href="#">Login</a> / <a id="field-user-signup" href="#">Sign-up</a> With E-mail Address
             </div>
         </div>
     </script>
@@ -332,8 +350,12 @@
                         <div class="comment-submit" style="display: none;">Submit Comment</div>
                         <div class="comment-login" style="display: none;">
                             <div class="comment-login-title">Login to Discuss</div>
-                            <img class="login-button comment-login-fb" src="{{urls.images}}/btn_facebook_login.png">
-                            <img class="comment-login-tw login-button" src="{{urls.images}}/btn_twitter_login.png">
+                            <div class="login-button facebook-button comment-login-fb">
+                                <span class="fb-login-logo"></span>
+                            </div>
+                            <div class="login-button twitter-button comment-login-tw">
+                                <span class="tw-login-logo"></span>
+                            </div>
                         </div>
                         <div class="echo-s-c-l">
                             <!-- Comment List -->

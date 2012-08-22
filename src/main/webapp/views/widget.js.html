@@ -20,18 +20,20 @@ window.onload = function(){
             var openImage = document.createElement('img');
             openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
             openImage.style.display = "block";
+            openImage.style.margin = "0";
             echoedOpener.appendChild(openImage);
-
             body.appendChild(echoedOpener);
         }
-        echoedOpener.style.cssText = "left: 0px; top: 175px; position: absolute; cursor: pointer;box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-moz-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-webkit-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);";
+        echoedOpener.style.cssText = "z-index:99999;left: 0px; top: 175px; position: absolute; cursor: pointer;box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-moz-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-webkit-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);display:block;";
         echoedOpener.onclick = function(){
             echoedFade.style.display = "block";
+            echoedFade.contentWindow.postMessage("echoed-open","*");
         };
     } else {
         var echoedOpener = document.getElementById(EchoedSettings.opener.replace("#",""));
         echoedOpener.onclick = function(){
             echoedFade.style.display = "block";
+            echoedFade.contentWindow.postMessage("echoed-open","*");
         };
     }
     if (window.addEventListener) {
@@ -41,8 +43,10 @@ window.onload = function(){
     }
 };
 
-function EchoedCloseIFrame(){
-    var iframe = document.getElementById('echoed-fade');
-    iframe.style.display = "none";
+function EchoedCloseIFrame(message){
+    if(message.data === "echoed-close"){
+        var iframe = document.getElementById('echoed-fade');
+        iframe.style.display = "none";
+    }
 };
 
