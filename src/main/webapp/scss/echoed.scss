@@ -398,9 +398,8 @@ a{
         }
 
         .login-button{
-            @include textFontBold(12px, #FFF);
-            line-height: 35px;
-            width: 180px;
+            @include textFontBold(13px, #FFF);
+            line-height: 30px;
             text-align: left;
             margin: 5px;
             display: inline-block;
@@ -455,11 +454,14 @@ a{
             #login-email-title{
                 padding: 5px;
                 text-align: center;
-                @include textFontNormal(14px, #FFF);
+                @include textFontBold(14px, #FFF);
                 text-shadow: 0px 1px 1px #333;
                 a {
                     @include textFontBold(14px, #FFF);
                     text-decoration: underline;
+                    &:hover{
+                        color: $mainColor;
+                    }
                 }
             }
         }
@@ -837,11 +839,13 @@ a{
 
                 .field-login-email{
                     text-align: center;
-                    @include textFontNormal(14px);
+                    @include textFontBold(14px);
                     a{
-                        font-weight: bold;
-                        color: $mainColor;
+                        @include textFontBold(14px);
                         text-decoration: underline;
+                        &:hover{
+                            color: $mainColor;
+                        }
                     }
                 }
 
@@ -2222,18 +2226,23 @@ h3{
     text-decoration: underline;
 }
 
+.login-button-text{
+    width: 140px;
+    display: inline-block;
+}
+
 .fb-login-logo{
     display: inline-block;
-    width:35px;
-    height:35px;
+    width:30px;
+    height:30px;
     vertical-align: middle;
     background-image: image-url("bk_facebook_f.png");
 }
 
 .tw-login-logo{
     display: inline-block;
-    width:35px;
-    height:35px;
+    width:30px;
+    height:30px;
     background-image: image-url("bk_twitter_bird.png");
     vertical-align: middle;
 }

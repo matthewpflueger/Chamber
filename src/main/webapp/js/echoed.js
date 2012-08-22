@@ -114,14 +114,18 @@ Echoed = {
 
 Echoed.Views.Components.Notifications = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this);
+        _.bindAll(this, 'init');
         this.EvAg = options.EvAg;
         this.element = $(options.el);
+        this.EvAg.bind('user/login', this.init);
         this.list = $('#notifications-list');
         this.menu = $('#notifications-menu');
         this.header = $('#notifications-list-header');
         this.text = $('#notifications-text');
         this.checkbox = $('#receive-notification-email-cb');
+        this.init();
+    },
+    init: function(){
         var self = this;
         Echoed.AjaxFactory({
             url: Echoed.urls.api + "/api/me/settings",
@@ -209,7 +213,6 @@ Echoed.Views.Components.Notifications = Backbone.View.extend({
             this.show();
         }
     },
-
     show: function(){
         this.menu.show();
         this.markAsRead();
