@@ -1603,11 +1603,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         }
         if(Echoed.echoedUser !== undefined){
             if(self.data.echoedUser.id === Echoed.echoedUser.id){
-<<<<<<< HEAD
                 textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
-=======
-                textNode.append("<a class='red-link' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
->>>>>>> master
             }
         }
         textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
