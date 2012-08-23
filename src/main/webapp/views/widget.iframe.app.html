@@ -3,7 +3,7 @@
 <html>
 <head>
     <title></title>
-    <link rel="stylesheet" href="{{urls.css}}/echoed-widget.css"/>
+    <link rel="stylesheet" href="{{urls.css}}/echoed-app.css"/>
     <script type='text/javascript' src="{{urls.js}}/webfonts.js"></script>
     <script type='text/javascript' src="{{urls.js}}/jquery-1.8.0.min.js"></script>
     <script type='text/javascript' src="{{urls.js}}/json2.js"></script>
@@ -12,29 +12,23 @@
     <script type='text/javascript' src="{{urls.js}}/jquery.isotope.min.js"></script>
 </head>
 <body>
-<div id="echoed-story"></div>
-<div id="echoed-exhibit-container">
-    <div class='echoed-close'><img src='{{urls.images}}/btn_close_x_black.png'/></div>
-
-    <div class='echoed-head'>
-        {{#title}}
-            {{.}}
-        {{/title}}
-        {{^title}}
-            Real Stories From Our Customers
-        {{/title}}
-    </div>
-    <div id='echoed-e-c-b'>
-        <div id='echoed-exhibit'></div>
-    </div>
-    <div class='echoed-footer clearfix'>
-        <div class='echoed-footer-left'></div>
-        <div class='echoed-footer-right'>
-            <div class='echoed-share-container'><a class='echoed-share' target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a></div>
-            <div><img src='{{urls.images}}/bk_widget_subtitle.png'/></div>
-        </div>
+<div class='echoed-head'>Real Stories From Our Customers
+    <a class='echoed-share' target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a>
+    <div id="close">
+        <img src='{{urls.images}}/bk_white_x.png'/>
     </div>
 </div>
+<div id="echoed-story"></div>
+<div id="echoed-exhibit-container">
+
+    <div id="content">
+        <div id='echoed-exhibit'></div>
+    </div>
+    <!--<div class='echoed-footer clearfix'>
+        <div class='echoed-share-container'>
+            <a class='echoed-share' target='_blank' href='{{urls.site}}/#write/partner/{{partnerId}}'>Share Your Story</a>
+        </div>
+    </div>-->
 </div>
 </body>
 </html>
@@ -120,15 +114,34 @@ Echoed = {
         var exhibit = new Echoed.Views.Pages.Exhibit({ el:'#echoed-exhibit-container', EvAg:EventAggregator });
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el:'#echoed-infiniteScroll', EvAg:EventAggregator});
         var story = new Echoed.Views.Components.Story({ el:'#echoed-story', EvAg:EventAggregator });
-        var fade = new Echoed.Views.Components.Fade({ el:'#echoed-fade', EvAg:EventAggregator });
         var iFrameComm = new Echoed.Views.Components.MessageHandler({ el:'#echoed-iframe', EvAg:EventAggregator });
+        var close = new Echoed.Views.Components.Close({ el: '#close', EvAg: EventAggregator });
         var router = new Echoed.Router({ EvAg:EventAggregator });
     }
 };
+
+
 Echoed.Router = Backbone.Router.extend({
     initialize:function (options) {
     },
     routes:{
+    }
+});
+
+Echoed.Views.Components.Close = Backbone.View.extend({
+    initialize: function(options){
+        this.EvAg = options.EvAg;
+        this.element = $(options.el);
+    },
+    events: {
+        "click": "close"
+    },
+    close: function(){
+        $('body').fadeOut(function(){
+            window.setTimeout(function(){
+                window.top.postMessage("echoed-close","*");
+            }, 0);
+        });
     }
 });
 
@@ -145,73 +158,6 @@ Echoed.Views.Components.Opener = Backbone.View.extend({
     open:function () {
         var self = this;
         self.EvAg.trigger('exhibit/open');
-    }
-});
-
-Echoed.Views.Components.Fade = Backbone.View.extend({
-    initialize:function (options) {
-        _.bindAll(this, 'show', 'hide');
-        this.EvAg = options.EvAg;
-        this.el = options.el;
-        this.element = $(this.el);
-        this.EvAg.bind("fade/show", this.show);
-        this.EvAg.bind("fade/hide", this.hide);
-    },
-    show:function () {
-        var self = this;
-        var arrPageSizes = self.___getPageSize();
-        $("html,body").addClass("noScroll");
-        self.element.fadeIn();
-    },
-    hide:function () {
-        var self = this;
-        self.element.fadeOut();
-        $("html,body").removeClass("noScroll");
-        window.setTimeout(function(){
-            window.top.postMessage("echoed-close","*");
-        }, 0);
-    },
-    ___getPageSize:function () {
-        var xScroll, yScroll;
-        if (window.innerHeight && window.scrollMaxY) {
-            xScroll = window.innerWidth + window.scrollMaxX;
-            yScroll = window.innerHeight + window.scrollMaxY;
-        } else if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac
-            xScroll = document.body.scrollWidth;
-            yScroll = document.body.scrollHeight;
-        } else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
-            xScroll = document.body.offsetWidth;
-            yScroll = document.body.offsetHeight;
-        }
-        var windowWidth, windowHeight;
-        if (self.innerHeight) {    // all except Explorer
-            if (document.documentElement.clientWidth) {
-                windowWidth = document.documentElement.clientWidth;
-            } else {
-                windowWidth = self.innerWidth;
-            }
-            windowHeight = self.innerHeight;
-        } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
-            windowWidth = document.documentElement.clientWidth;
-            windowHeight = document.documentElement.clientHeight;
-        } else if (document.body) { // other Explorers
-            windowWidth = document.body.clientWidth;
-            windowHeight = document.body.clientHeight;
-        }
-        // for small pages with total height less then height of the viewport
-        if (yScroll < windowHeight) {
-            pageHeight = windowHeight;
-        } else {
-            pageHeight = yScroll;
-        }
-        // for small pages with total width less then width of the viewport
-        if (xScroll < windowWidth) {
-            pageWidth = xScroll;
-        } else {
-            pageWidth = windowWidth;
-        }
-        arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
-        return arrayPageSize;
     }
 });
 
@@ -276,11 +222,11 @@ Echoed.Models.Product = Backbone.Model.extend({
 
 Echoed.Views.Pages.Exhibit = Backbone.View.extend({
     initialize:function (options) {
-        _.bindAll(this, 'render', 'next', 'init', 'show', 'hide', 'close', 'nextStory', 'previousStory','relayout');
+        _.bindAll(this, 'render', 'next', 'init', 'show', 'hide','nextStory', 'previousStory', 'relayout');
         this.EvAg = options.EvAg;
         this.el = options.el;
-        this.EvAg.bind('exhibit/relayout', this.relayout);
         this.EvAg.bind('exhibit/open', this.init);
+        this.EvAg.bind('isotope/relayout', this.relayout);
         this.EvAg.bind('infiniteScroll', this.next);
         this.EvAg.bind("exhibit/show", this.show);
         this.EvAg.bind("exhibit/hide", this.hide);
@@ -289,15 +235,10 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.element = $(this.el);
         this.exhibit = $('#echoed-exhibit');
         this.jsonUrl = Echoed.Urls.Api + "/api/partner/" + Echoed.partnerId;
-        this.element.find('.echoed-footer-left').prepend($('<div class="echoed-footer-left-text"></div>').html("Let us know about your experience and we'll publish your story right here for everyone to see!"));
-        this.element.find('.echoed-footer-left').prepend($('<div class="echoed-footer-left-title"></div>').html("Got a great story to tell?"));
         this.nextInt = 1;
     },
-    events:{
-        "click .echoed-close":"close"
-    },
     relayout: function(){
-        this.exhibit.isotope();
+        this.exhibit.isotope('reLayout');
     },
     nextStory:function (storyId) {
         var self = this;
@@ -318,9 +259,6 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             self.EvAg.trigger('story/show', self.stories.array[index - 1]);
         }
     },
-    close:function () {
-        this.EvAg.trigger('fade/hide');
-    },
     show:function (callback) {
         var self = this;
         this.element.fadeIn(function () {
@@ -338,7 +276,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         self.exhibit.isotope({
             itemSelector:'.item_wrap,.no_filter',
             masonry:{
-                columnWidth:5
+                columnWidth: 300
             }
         });
         self.EvAg.trigger('infiniteScroll/lock');
@@ -441,7 +379,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         var overlayNode = self.element.find(".story-brief-overlay-wrap");
         var image = self.data.story.image;
 
-        imageNode.attr("src", image.sizedUrl).css(Echoed.getImageSizing(image, 228));
+        imageNode.attr("src", image.sizedUrl).css(Echoed.getImageSizing(image, 260));
         overlayNode.html(self.data.story.title);
         textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
         textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='story-brief-text-user' target='_blank' href='" + Echoed.Urls.Site + "#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
@@ -778,8 +716,11 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
         }
     },
     receiveMessageResponse:function (response) {
+        var self = this;
         if(response.data === "echoed-open"){
-            this.EvAg.trigger('exhibit/relayout');
+            $('body').fadeIn(function(){
+                self.EvAg.trigger('isotope/relayout');
+            });
         } else {
             Echoed.echoedUser = JSON.parse(response.data);
             this.EvAg.trigger('user/login');
@@ -798,5 +739,64 @@ $(document).ready(function () {
     });
     EventAggregator.trigger('exhibit/open');
 });
-
 </script>
+<script type="text/javascript">
+    $.Isotope.prototype._getCenteredMasonryColumns = function() {
+        this.width = this.element.width();
+        console.log(this.width);
+        var parentWidth = this.element.parent().width();
+
+        // i.e. options.masonry && options.masonry.columnWidth
+        var colW = this.options.masonry && this.options.masonry.columnWidth ||
+            // or use the size of the first item
+                this.$filteredAtoms.outerWidth(true) ||
+            // if there's no items, use size of container
+                parentWidth;
+
+        var cols = Math.floor( parentWidth / colW );
+        cols = Math.max( cols, 1 );
+
+        // i.e. this.masonry.cols = ....
+        this.masonry.cols = cols;
+        // i.e. this.masonry.columnWidth = ...
+        this.masonry.columnWidth = colW;
+    };
+
+    $.Isotope.prototype._masonryReset = function() {
+        // layout-specific props
+        this.masonry = {};
+        // FIXME shouldn't have to call this again
+        this._getCenteredMasonryColumns();
+        var i = this.masonry.cols;
+        this.masonry.colYs = [];
+        while (i--) {
+            this.masonry.colYs.push( 0 );
+        }
+    };
+
+    $.Isotope.prototype._masonryResizeChanged = function() {
+        var prevColCount = this.masonry.cols;
+        // get updated colCount
+        this._getCenteredMasonryColumns();
+        return ( this.masonry.cols !== prevColCount );
+    };
+
+    $.Isotope.prototype._masonryGetContainerSize = function() {
+        var unusedCols = 0,
+                i = this.masonry.cols;
+        // count unused columns
+        while ( --i ) {
+            if ( this.masonry.colYs[i] !== 0 ) {
+                break;
+            }
+            unusedCols++;
+        }
+
+        return {
+            height : Math.max.apply( Math, this.masonry.colYs ),
+            // fit container to columns that have been used;
+            width : (this.masonry.cols - unusedCols) * this.masonry.columnWidth
+        };
+    };
+</script>
+

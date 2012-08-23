@@ -89,6 +89,8 @@ class Views {
     
     @Required @BeanProperty var widgetJsView: String = _
     @Required @BeanProperty var widgetIframeView: String = _
+    @Required @BeanProperty var widgetAppJsView: String = _
+    @Required @BeanProperty var widgetAppIFrameView: String = _
 
     @Required @BeanProperty var loginEmailView: String = _
     @Required @BeanProperty var loginRegisterView: String = _
