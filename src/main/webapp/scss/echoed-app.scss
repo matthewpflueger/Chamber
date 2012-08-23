@@ -18,6 +18,30 @@ $headerFontFamily: 'Arvo', serif;
     font-size: $size;
 }
 
+@mixin headerFontBold($size: 16px, $color: #333){
+    font-family: $headerFontFamily;
+    color: $color;
+    font-size: $size;
+}
+
+@mixin grooveBottom(){
+    border-bottom: 1px solid #CCC;
+    box-shadow: 0px 1px 0px #FFF;
+}
+
+@mixin grooveTop(){
+    border-top: 1px solid #FFF;
+    box-shadow: 0px -1px 0px #CCC;
+}
+
+@mixin textFontLight($size: 12px, $color: #333){
+    font-family: $textFontFamily;
+    font-weight: 300;
+    color: $color;
+    font-size: $size;
+}
+
+
 @mixin headerFont($size: 16px, $color: #333){
     font-family: $headerFontFamily;
     color: $color;
@@ -84,14 +108,11 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
 }
 
-
-
-
-#echoed-fade { /*--Transparent background layer--*/
+#fade { /*--Transparent background layer--*/
     //position: absolute;
     z-index: 9999;
     //background-image: image-url("bk_greyPx.png");
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,0.9);
     top: 0px;
     left: 0px;
     bottom: 0px;
@@ -384,7 +405,7 @@ body {
 }
 
 
-#echoed-story{
+#story{
     position:absolute;
     text-align: left;
     width: 875px;
@@ -763,4 +784,498 @@ body {
     position: absolute;
     bottom: 10px;
     left: 10px;
+}
+
+
+#field{
+    position:absolute;
+    top: 75px;
+    left: 50%;
+    z-index: 99999;
+    width: 871px;
+    background-color: #FFF;
+    @include drop-shadow;
+    border-radius: 5px;
+    &.small{
+        width: 460px;
+    }
+
+    .story-preview{
+        border: 1px solid rgba(155,155,155, 0.5);
+        margin:5px;
+        padding: 7px;
+        background-color: #FFF;
+        display: inline-block;
+        .story-preview-image-container{
+            display: inline-block;
+            position: relative;
+            border: 6px solid #F0F0F0;
+            border-radius: 3px;
+            max-height: 250px;
+            overflow:hidden;
+            #story-preview-photo{
+                width: 200px;
+            }
+            #story-preview-overlay{
+                position:absolute;
+                top: 50px;
+                width: 150px;
+                margin-left: -75px;
+                left: 50%;
+                background-color: #F0F0F0;
+                border: 1px solid #666;
+                @include textFontBold(12px);
+                padding: 5px 0px;
+                text-align: center;
+            }
+        }
+        .story-preview-text{
+        }
+        .story-preview-by{
+            font-weight: bold;
+        }
+        .story-preview-from,.story-preview-by,.story-preview-title{
+            width: 200px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow:hidden;
+        }
+    }
+
+
+    .field-select{
+        display: inline-block;
+        position:relative;
+        input[type=text]{
+            @include textFontNormal(16px);
+            background-position: right;
+            background-repeat: no-repeat;
+            background-color: #F3F3F3;
+            //border: 1px solid $mainColor !important;
+            background-image: image-url("bk_downarrow.png"), -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: image-url("bk_downarrow.png"), -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+            background-image: image-url("bk_downarrow.png"), -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: image-url("bk_downarrow.png"), -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: image-url("bk_downarrow.png"), -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: image-url("bk_downarrow.png"), linear-gradient(top, white 0%, #F3F3F3 100%);
+            cursor: pointer;
+        }
+        .field-question-label{
+            cursor: pointer;
+        }
+        .field-question-options-list{
+            position: absolute;
+            top: 30px;
+            left: 0px;
+            border: 1px solid #CCC;
+            z-index: 100;
+            .field-question-option{
+                position:relative;
+                background-color: #FFF;
+                padding: 5px 6px;
+                width: 300px;
+                @include textFontNormal(14px);
+                cursor: pointer;
+                &:hover{
+                    font-weight: bold;
+                    background-color: #F0F0F0;
+                }
+            }
+        }
+
+    }
+
+    .field-close{
+        position:absolute;
+        right: -15px;
+        top: -15px;
+        //float:right;
+        cursor: pointer;
+    }
+    .field-photo-container{
+        max-width: 210px;
+        float:left;
+        overflow: hidden;
+        #preview{
+            display:inline-block;
+            //border: 5px solid #FFF;
+            max-width: 200px;
+            overflow: hidden;
+            #field-photo{
+            }
+        }
+
+    }
+
+
+
+    .field-title{
+        padding: 10px;
+        @include headerFontBold(24px,#FFF);
+        @include black-gradient;
+        @include grooveBottom;
+        text-shadow: 0x -1px #000;
+        text-align: center;
+        //width: 775px;
+        margin: 10px 10px 0px 10px;
+    }
+
+    .field-main-title{
+        @include headerFontBold(24px);
+        text-align: center;
+        text-shadow: 0px 1px #FFF;
+        margin-bottom: 15px;
+    }
+
+    .field-body{
+        display: table;
+        background-image: image-url("bk_noise.jpg");
+        margin: 0px 10px 10px 10px;
+        position: relative;
+        min-height: 350px;
+        .field-preview{
+        /*position: absolute;
+        top: 0px;
+        bottom:0px;*/
+            display: table-cell;
+            border-right: 1px solid #CCC;
+            box-shadow: 1px 0px #FFF;
+            padding: 10px;
+            width: 250px;
+            .field-preview-title{
+                @include headerFontBold(24px);
+                text-align: center;
+                text-shadow: 0px 1p #FFF;
+                margin-bottom: 10px;
+            }
+        }
+        .field-main-col{
+            padding: 10px;
+            width: 560px;
+            display: table-cell;
+            .field-row{
+                margin-bottom: 10px;
+                label{
+                    vertical-align: top;
+                    display: inline-block;
+                    width: 230px;
+                    text-align: right;
+                    @include textFontNormal(12px);
+                    margin-top: 3px;
+                }
+                .field-indent{
+                    margin-left: 10px;
+                    display:inline-block;
+                    textarea, input[type=text]{
+                        width: 290px;
+                        resize: none;
+                        padding: 8px 5px;
+                        border: 1px solid #CCC;
+                        -webkit-appearance:none;
+                        @include textFontNormal(14px);
+                    }
+                }
+            }
+            .field-submit{
+                cursor: pointer;
+                @include textFontBold(14px, #FFF);
+                @include button();
+            }
+        }
+    }
+    .story-login{
+        width: 460px;
+        background: #ffffff; /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMzclIiBzdG9wLWNvbG9yPSIjZmZmZmZmIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VkZWRlZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9yYWRpYWxHcmFkaWVudD4KICA8cmVjdCB4PSItNTAiIHk9Ii01MCIgd2lkdGg9IjEwMSIgaGVpZ2h0PSIxMDEiIGZpbGw9InVybCgjZ3JhZC11Y2dnLWdlbmVyYXRlZCkiIC8+Cjwvc3ZnPg==);
+        background: -moz-radial-gradient(center, ellipse cover,  #ffffff 37%, #ededed 100%); /* FF3.6+ */
+        background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(37%,#ffffff), color-stop(100%,#ededed)); /* Chrome,Safari4+ */
+        background: -webkit-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* Opera 12+ */
+        background: -ms-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* IE10+ */
+        background: radial-gradient(ellipse at center,  #ffffff 37%,#ededed 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+        border-radius: 5px;
+        padding: 20px 0px;
+        .field-logo{
+            padding-top: 5px;
+            padding-bottom: 20px;
+            text-align:center;
+        }
+        .field-login-title{
+            margin: 0px 20px 15px 20px;
+            text-align: center;
+            @include textFontNormal(20px);
+        }
+        .field-login-buttons{
+            text-align:center;
+            margin: 5px auto;
+        }
+
+        .field-login-email{
+            text-align: center;
+            @include textFontBold(14px);
+            a{
+                @include textFontBold(14px);
+                text-decoration: underline;
+                &:hover{
+                    color: $mainColor;
+                }
+            }
+        }
+
+        .field-login-body{
+            margin: 10px 20px 20px 20px;
+            .field-login-body-text{
+                text-align: left;
+                @include textFontLight(16px);
+            }
+        }
+    }
+
+    .story-summary{
+        margin: 0 10px 10px 10px;
+        width: 558px;
+        display: table-cell;
+        padding: 10px;
+        .story-summary-header{
+            border: 1px solid #CCC;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            .story-summary-header-row{
+                @include textFontNormal(14px);
+                margin-bottom: 10px;
+
+                label{
+                    vertical-align: top;
+                    font-weight: bold;
+                }
+                #story-summary-title{
+                    @include textFontNormal(14px);
+                    display: inline-block;
+                }
+                #story-summary-from{
+                    @include textFontNormal(14px);
+                    display: inline-block;
+                }
+                #story-summary-photo-container{
+                    @include textFontNormal(14px);
+                    display: inline-block;
+                    #story-summary-photo{
+                        height: 50px;
+                        border: 2px solid #CCC;
+                    }
+                }
+            }
+
+        }
+        .story-summary-body{
+
+            .story-summary-chapter{
+                overflow-x: auto;
+                border: 1px solid #CCC;
+                padding: 10px;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                .story-summary-chapter-edit{
+                    @include textFontNormal(14px, $mainColor);
+                    text-decoration: underline;
+                    float:right;
+                    cursor: pointer;
+                }
+                .story-summary-chapter-row{
+                    margin-bottom: 10px;
+                    label{
+                        vertical-align: top;
+                        @include textFontBold(14px);
+                        margin-right: 10px;
+                    }
+                    .story-summary-chapter-label{
+                        text-align: center;
+                        @include textFontBold(16px);
+                    }
+                    .story-summary-chapter-title{
+                        @include textFontNormal(14px);
+                    }
+                    .story-summary-chapter-description{
+                        @include textFontNormal(14px);
+                        word-wrap: break-word;
+                    }
+                    .story-summary-chapter-photo-container{
+                        @include textFontNormal(14px);
+                        display: inline-block;
+                        .story-summary-chapter-photo{
+                            border: 2px solid #CCC;
+                            margin-right: 3px;
+                        }
+                    }
+
+                }
+            }
+        }
+        .story-summary-buttons{
+            .story-summary-submit{
+                cursor: pointer;
+                @include button;
+                @include textFontBold(16px, #FFF);
+            }
+        }
+    }
+
+    .story-edit{
+        vertical-align: top;
+        display: table-cell;
+        .story-edit-label{
+            @include textFontNormal(20px);
+            text-shadow: 0px 2px 0px white;
+            margin-bottom: 10px;
+        }
+        #story-edit-header{
+            margin-bottom: 10px;
+
+            #story-title-photo-container{
+                float:left;
+                #story-title-photo{
+                    height: 50px;
+                    border: 2px solid #CCC;
+                }
+            }
+            #story-title-text-container{
+                float:left;
+
+                #story-title{
+                    @include textFontNormal(14px);
+                    padding: 0px 5px 5px 5px;
+                }
+                #story-from{
+                    @include textFontNormal(12px);
+                    padding: 0px 5px 5px 5px;
+                }
+            }
+
+        }
+
+        #chapter-list{
+            margin-left: 20px;
+            .chapter{
+                .chapter-number{
+                    width: 20px;
+                    float:left;
+                    text-align: right;
+                    @include textFontNormal(16px);
+                    text-decoration: underline;
+                }
+                .chapter-text-container{
+                    margin-left: 10px;
+                    width: 250px;
+                    float: left;
+                    .chapter-title{
+                        @include textFontNormal(16px);
+                        margin-bottom: 5px;
+                    }
+                    .chapter-text{
+                        @include textFontNormal(12px);
+                        width: 250px;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                    }
+                }
+                .chapter-photos{
+                    float:left;
+                    .chapter-photo{
+                        float:left;
+                        margin: 2px;
+                        border: 1px solid #CCC;
+                        img {
+                            height: 50px;
+                        }
+                    }
+                }
+            }
+        }
+
+        .chapter-edit-body{
+            padding: 10px;
+            width: 560px;
+            //margin-left: 270px;
+            .chapter-edit-body-top{
+                text-align: center;
+                .chapter-edit-body-top-title{
+                    @include headerFontBold(24px);
+                    text-shadow: 0px 1px #FFF;
+                    margin-bottom: 10px;
+                }
+            }
+            .chapter-edit-body-main{
+                .chapter-edit-body-row{
+                    margin-bottom: 10px;
+                    vertical-align: top;
+                    display: table;
+                    .chapter-edit-photos{
+                        display: inline-block;
+                        .thumbnails{
+                            float:left;
+                            .thumb{
+
+                                position: relative;
+                                float:left;
+                                img {
+                                    height: 75px;
+                                }
+                                border: 3px solid #FFF;
+                                margin-right: 5px;
+                                .thumb-cancel{
+                                    position: absolute;
+                                    top: 5px;
+                                    right: 5px;
+                                }
+                            }
+                        }
+                        .thumbnail-placeholder{
+                            float:left;
+                            img{
+                                height: 75px
+                            }
+                        }
+                        .photo-upload{
+                            float:left;
+                            position: relative;
+                        }
+                    }
+                    label{
+                        vertical-align: top;
+                        text-align: right;
+                        margin-right: 10px;
+                        margin-top: 3px;
+                        display: inline-block;
+                        width: 230px;
+                        min-height: 20px;
+                        @include textFontNormal(14px);
+                        .chapter-italics{
+                            @include textFontNormal(12px);
+                            font-style: italic;
+                        }
+                    }
+                    input[type=text]{
+                        display: inline-block;
+                        outline: 0px;
+                        margin: 0px;
+                        border: 1px solid #CCC;
+                        //border-radius: 5px;
+                        width: 300px;
+                        @include textFontNormal(14px);
+                        padding: 5px 6px;
+                    }
+                    .chapter-submit, .chapter-cancel{
+                        @include textFontBold(16px, #FFF);
+                        @include button();
+                    }
+                }
+            }
+
+        }
+    }
 }
