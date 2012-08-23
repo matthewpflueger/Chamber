@@ -4,17 +4,23 @@
 <head>
     <title></title>
     <link rel="stylesheet" href="{{urls.css}}/echoed-app.css"/>
+    <link rel="stylesheet" href="{{urls.css}}/echoed-fileuploader.css"/>
     <script type='text/javascript' src="{{urls.js}}/webfonts.js"></script>
     <script type='text/javascript' src="{{urls.js}}/jquery-1.8.0.min.js"></script>
     <script type='text/javascript' src="{{urls.js}}/json2.js"></script>
     <script type='text/javascript' src="{{urls.js}}/underscore-min.js"></script>
     <script type='text/javascript' src="{{urls.js}}/backbone-0.9.1-min.js"></script>
     <script type='text/javascript' src="{{urls.js}}/jquery.isotope.min.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/expanding.js"></script>
     <script type='text/javascript' src="{{urls.js}}/fileuploader.js"></script>
 </head>
 <body>
-<div class='echoed-head'>Real Stories From Our Customers
+<div class='echoed-head'>
+    <!--Real Stories From Our Customers-->
     <a class='echoed-share' href='#write/'>Share Your Story</a>
+    <div id="user">
+
+    </div>
     <div id="close">
         <img src='{{urls.images}}/bk_white_x.png'/>
     </div>
@@ -131,7 +137,6 @@ Echoed = {
         var router = new Echoed.Router({ EvAg:EventAggregator });
         var exhibit = new Echoed.Views.Pages.Exhibit({ el:'#echoed-exhibit-container', EvAg:EventAggregator });
         var infiniteScroll = new Echoed.Views.Components.InfiniteScroll({ el:'#echoed-infiniteScroll', EvAg:EventAggregator});
-        //var actions = new Echoed.Views.Components.Actions({ el: '#actions', EvAg: EventAggregator });
         var field = new Echoed.Views.Components.Field({ el: '#field', EvAg: EventAggregator });
         var story = new Echoed.Views.Components.Story({ el:'#story', EvAg:EventAggregator });
         var iFrameComm = new Echoed.Views.Components.MessageHandler({ el:'#echoed-iframe', EvAg:EventAggregator });
@@ -141,6 +146,56 @@ Echoed = {
 
     }
 };
+
+Echoed.Views.Components.AjaxInput = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'show', 'keyPress');
+        this.EvAg = options.EvAg;
+        this.el = options.el;
+        this.element = $(options.el);
+        this.input = $('#ajax-input-field');
+        this.list = $('#ajax-suggestions-list');
+        this.suggestions = $('#ajax-input-suggestions');
+        this.EvAg.bind("ajaxInput/show", this.show);
+    },
+    events: {
+        "keyup :input": "keyPress",
+        "click .suggestion-item": "click"
+    },
+    click: function(ev){
+        var self = this;
+        self.input.val($(ev.currentTarget).attr('tag'));
+        self.suggestions.fadeOut();
+    },
+    keyPress: function(){
+        var self = this;
+        var filter = self.input.val();
+        if(filter !== ''){
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/tags/top",
+                data: {
+                    tagId: filter
+                },
+                success: function(data){
+                    self.render(data)
+                }
+            })();
+        }
+    },
+    render: function(data){
+        var self = this;
+        self.list.empty();
+        $.each(data, function(index, tag){
+            $('<div class="suggestion-item"></div>').append(tag.id + " (" + tag.counter + ")").appendTo(self.list).attr("tag", tag.id);
+        });
+        self.suggestions.fadeIn();
+    },
+    show: function(){
+        var self = this;
+        self.element.fadeIn();
+    }
+});
+
 
 Echoed.Views.Components.Fade = Backbone.View.extend({
     initialize: function(options){
@@ -172,11 +227,14 @@ Echoed.Router = Backbone.Router.extend({
         "_=_" : "fix",
         "": "explore",
         "story/:id": "story",
-        "write/:id" : "writeStory",
-        "write/" : "writeStory",
-        "write": "writeStory"
+        "write/:type/:id" : "writeStory",
+        "write/" : "writePartner",
+        "write": "writePartner"
     },
     explore: function(){
+    },
+    writePartner: function(){
+        this.writeStory('partner','{{partnerId}}');
     },
     writeStory: function(type, id){
         if(this.page === null){
@@ -184,7 +242,7 @@ Echoed.Router = Backbone.Router.extend({
             this.page = "#!";
         }
         this.oldPage = this.page;
-        this.EvAg.trigger("field/show",id , type);
+        this.EvAg.trigger("field/show", id, type);
     },
     story: function(id){
         if(this.page === null) {
@@ -193,17 +251,10 @@ Echoed.Router = Backbone.Router.extend({
         }
         this.oldPage = this.page;
         this.oldTitle = $('title').html();
-        _gaq.push(['_trackPageview', window.location.hash]);
-
         this.EvAg.trigger("story/show", id);
-        this.EvAg.trigger("page/change", "story");
     },
     resetHash: function(){
-        if(this.oldPage){
-            window.location.hash = this.oldPage;
-        } else {
-            window.location.hash = "#!";
-        }
+        window.location.hash = "#!";
     }
 });
 
@@ -241,58 +292,54 @@ Echoed.Views.Components.Opener = Backbone.View.extend({
 });
 
 Echoed.Views.Components.InfiniteScroll = Backbone.View.extend({
-    initialize:function (options) {
-        _.bindAll(this, 'triggerScroll', 'lock', 'unlock', 'on', 'off');
+    initialize: function(options){
+        _.bindAll(this,'triggerScroll', 'lock', 'unlock', 'on', 'off','scrollUp');
         this.EvAg = options.EvAg;
         this.EvAg.bind("triggerInfiniteScroll", this.triggerScroll);
         this.EvAg.bind("infiniteScroll/lock", this.lock);
         this.EvAg.bind("infiniteScroll/unlock", this.unlock);
+        this.EvAg.bind("fade/show", this.off);
+        this.EvAg.bind("fade/hide", this.on);
         this.EvAg.bind("infiniteScroll/on", this.on);
         this.EvAg.bind("infiniteScroll/off", this.off);
-
-        this.element = $('<div id="echoed-infiniteScroll">Loading </div>');
-        $('#echoed-e-c-b').append(this.element);
+        this.EvAg.bind('page/change', this.scrollUp);
+        this.element = $(options.el);
         this.locked = false;
         var self = this;
-        this.status = true;
-        $('#echoed-e-c-b').scroll(function () {
-            if ($('#echoed-e-c-b').scrollTop() >= $('#echoed-exhibit').height() - $('#echoed-e-c-b').height() && self.locked == false && self.status == true) {
+        $(window).scroll(function(){
+            if($(window).scrollTop() + 600 >= $(document).height() - $(window).height() && self.locked == false && self.status == true){
                 self.EvAg.trigger("infiniteScroll");
             }
         });
     },
-    on:function () {
-        var self = this;
-        self.status = true;
+    scrollUp: function(){
+        $("html, body").animate({scrollTop: 0 }, 300);
     },
-    off:function () {
-        var self = this;
-        self.status = false;
-        self.element.hide();
+    on: function(){
+        this.status = true;
     },
-    lock:function () {
-        var self = this;
-        self.element.show();
-        self.locked = true
+    off: function(){
+        this.status = false;
     },
-    unlock:function () {
+    lock: function(){
+        this.element.show();
+        this.locked = true
+    },
+    unlock: function(){
         var self = this;
         self.element.hide();
         self.locked = false;
-        if ($('#echoed-e-c-b').scrollTop() >= $('#echoed-exhibit').height() - $('#echoed-e-c-b').height() && self.locked == false && self.status == true) {
+        if($(window).scrollTop() + 600 >= $(document).height() - $(window).height() && self.locked == false && self.status == true){
             self.EvAg.trigger("infiniteScroll");
         }
     },
-    triggerScroll:function () {
-        var self = this;
+    triggerScroll: function(){
         var noVScroll = $(document).height() <= $(window).height();
-        if (noVScroll) {
-            self.EvAg.trigger('infiniteScroll');
+        if(noVScroll){
+            this.EvAg.trigger('infiniteScroll');
         }
     }
-
 });
-
 
 Echoed.Models.Product = Backbone.Model.extend({
     initialize:function () {
@@ -308,6 +355,7 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         this.EvAg.bind('isotope/relayout', this.relayout);
         this.EvAg.bind('infiniteScroll', this.next);
         this.EvAg.bind("exhibit/show", this.show);
+        this.EvAg.bind('exhibit/refresh', this.init);
         this.EvAg.bind("exhibit/hide", this.hide);
         this.EvAg.bind('exhibit/story/next', this.nextStory);
         this.EvAg.bind('exhibit/story/previous', this.previousStory);
@@ -326,14 +374,16 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
             self.next();
         }
         if ((index + 1) < self.stories.array.length) {
-            self.EvAg.trigger('story/show', self.stories.array[index + 1]);
+            //self.EvAg.trigger('story/show', self.stories.array[index + 1]);
+            window.location.hash = '#story/' + self.stories.array[index + 1];
         }
     },
     previousStory:function (storyId) {
         var self = this;
         var index = self.stories.hash[storyId];
         if (index > 0) {
-            self.EvAg.trigger('story/show', self.stories.array[index - 1]);
+            //self.EvAg.trigger('story/show', self.stories.array[index - 1]);
+            window.location.hash = '#story/' + self.stories.array[index - 1];
         }
     },
     show:function (callback) {
@@ -350,6 +400,8 @@ Echoed.Views.Pages.Exhibit = Backbone.View.extend({
         var self = this;
         self.nextInt = 1;
         self.EvAg.trigger('infiniteScroll/on');
+        self.exhibit.empty();
+        self.exhibit.isotope('destroy');
         self.exhibit.isotope({
             itemSelector:'.item_wrap,.no_filter',
             masonry:{
@@ -486,16 +538,18 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     click:function () {
         var self = this;
         var id = self.element.attr("id");
-        self.EvAg.trigger('story/show', id);
+        window.location.hash = "#story/" + id;
+        //self.EvAg.trigger('story/show', id);
     }
 });
 
 Echoed.Views.Components.Story = Backbone.View.extend({
     initialize:function (options) {
-        _.bindAll(this, 'render', 'load', 'createComment', 'renderImage', 'imageClick', 'nextImage', 'navClick', 'commentLogin', 'login');
+        _.bindAll(this, 'render', 'load', 'createComment', 'renderImage', 'imageClick', 'nextImage', 'navClick', 'commentLogin', 'login', 'unload');
         this.el = options.el;
         this.element = $(this.el);
         this.EvAg = options.EvAg;
+        this.EvAg.bind('field/show', this.unload);
         this.EvAg.bind('story/show', this.load);
         this.EvAg.bind('story/hide', this.unload);
         this.EvAg.bind('user/login', this.login);
@@ -582,7 +636,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
         if(Echoed.echoedUser !== undefined){
             if(self.data.echoedUser.id === Echoed.echoedUser.id){
                 var header = self.element.find('.echo-story-header');
-                $('<a class="story-edit-button"></a></span>').html('Edit Story').attr("target","_blank").attr("href",Echoed.urls.api + "#write/story/" + self.data.story.id).appendTo(header);
+                $('<a class="story-edit-button"></a></span>').html('Edit Story').attr("href","#write/story/" + self.data.story.id).appendTo(header);
             }
         }
         self.userNode.append("by " + userLink);
@@ -760,6 +814,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     close:function () {
         var self = this;
         self.EvAg.trigger('fade/hide');
+        self.EvAg.trigger('hash/reset');
         self.element.fadeOut();
 
     },
@@ -793,7 +848,6 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
     receiveMessageResponse:function (response) {
         var self = this;
         if(response.data === "echoed-open"){
-            console.log("WHAT THE FUCK?");
             $('body').show();
             self.EvAg.trigger('isotope/relayout');
         } else {
@@ -806,10 +860,11 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
 
 Echoed.Views.Components.Field = Backbone.View.extend({
     initialize: function(options){
-        _.bindAll(this, 'render', 'unload', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb', 'addCategory');
+        _.bindAll(this, 'render', 'unload', 'loadPartner', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb', 'addCategory');
         this.element = $(options.el);
         this.EvAg = options.EvAg;
         this.EvAg.bind("field/show", this.load);
+        this.EvAg.bind("user/login", this.loadPartner);
         this.locked = false;
         this.prompts = [];
     },
@@ -825,6 +880,12 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         "click #field-main-category-edit": "editCategory"
 
     },
+    loadPartner: function(){
+        var self = this;
+        self.element.fadeOut(function(){
+            self.load("{{partnerId}}","partner");
+        });
+    },
     load: function(id, type){
         var self = this;
         var jsonUrl =  Echoed.urls.api + "/story";
@@ -836,16 +897,12 @@ Echoed.Views.Components.Field = Backbone.View.extend({
                 loadData.storyId = id;
                 self.storyId =id;
                 break;
-            case "echo":
-                loadData.echoId = id;
-                self.echoId = id;
-                break;
             case "partner":
                 loadData.partnerId = id;
                 self.partnerId = id;
                 break;
         }
-        if(Echoed.echoedUser){
+        if(Echoed.echoedUser.id !== ""){
             Echoed.AjaxFactory({
                 url: jsonUrl,
                 data: loadData,
@@ -858,17 +915,13 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             })();
         } else {
             self.data = {};
-            if(type == "partner"){
-                Echoed.AjaxFactory({
-                    url: Echoed.urls.api + "/api/partner/" + id,
-                    dataType: 'jsonp',
-                    success: function(data){
-                        self.renderLogin(data);
-                    }
-                })();
-            } else {
-                self.renderLogin();
-            }
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/partner/" + id,
+                dataType: 'jsonp',
+                success: function(data){
+                    self.renderLogin(data);
+                }
+            })();
         }
     },
     addCategory: function(){
@@ -975,7 +1028,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         switch(nextAction){
             case "finish":
                 self.unload(function(){
-                    self.EvAg.trigger('router/me');
+                    self.EvAg.trigger('exhibit/refresh');
                     window.location.hash = "#!story/" + self.data.storyFull.story.id;
                 });
                 break;
@@ -1141,10 +1194,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         var self = this;
         self.template = _.template($('#templates-components-story-login').html());
         self.element.html(self.template).addClass('small');
-        $("#field-fb-login").attr("href", Echoed.getFacebookLoginUrl(window.location.hash));
-        $("#field-tw-login").attr("href", Echoed.getTwitterLoginUrl(window.location.hash));
-        $('#field-user-login').attr('href', Echoed.getLoginRedirectUrl());
-        $('#field-user-signup').attr("href", Echoed.getSignUpRedirectUrl());
+        $("#field-fb-login").attr("href", Echoed.getFacebookLoginUrl("redirect/close"));
+        $("#field-tw-login").attr("href", Echoed.getTwitterLoginUrl("redirect/close"));
+        //$('#field-user-login').attr('href', Echoed.getLoginRedirectUrl());
+        //$('#field-user-signup').attr("href", Echoed.getSignUpRedirectUrl());
         var body = self.element.find(".field-login-body");
 
         if(data){
@@ -1157,7 +1210,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     render: function(){
         var self = this;
-        self.element.empty();
+        self.element.empty().removeClass("small");
         if(self.data.storyFull) {
             if(self.data.storyFull.chapters.length > 0) {
                 self.loadStorySummary();
@@ -1217,6 +1270,81 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     }
 });
 
+Echoed.Views.Components.Select = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this,'render','click','open','selectOption','close');
+        this.el = options.el;
+        this.element = $(options.el);
+        this.optionsArray = options.optionsArray;
+        this.currentTitle = options.currentTitle;
+        this.openState = false;
+        this.defaultTopic = "(Write Your Own Topic)";
+        this.render();
+    },
+    events: {
+        "mouseenter" : "open",
+        "mouseleave" : "close",
+        "click .field-question-label" : "click",
+        "click .field-question-option" : "selectOption",
+        "keyup :input": "keyPress"
+    },
+    val: function(){
+        return this.input.val();
+    },
+    render: function(){
+        var self = this;
+        self.input = $("<input type='text'>");
+
+        self.label = $("<div class='field-question-label'></div>");
+        self.label.append(self.input);
+        self.element.append(self.label);
+        self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");
+        self.element.append(self.optionsList);
+        $.each(self.optionsArray, function(index, option){
+            self.options[index] = $("<div class='field-question-option'></div>").append(option);
+            self.optionsList.append(self.options[index]);
+        });
+        self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.defaultTopic);
+        self.optionsList.append(self.options[self.optionsArray.length]);
+        self.input.val(self.options[0].html());
+    },
+    keyPress: function(e){
+        switch(e.keyCode){
+            case 13:
+                this.close();
+        }
+    },
+    click: function(){
+        var self = this;
+        if(self.locked !== true){
+            if(self.openState == false ){
+                self.open();
+            } else {
+                self.openState = false;
+                self.close();
+            }
+        }
+    },
+    selectOption: function(e){
+        var target = $(e.target);
+        this.input.val(target.html());
+        this.close();
+    },
+    close: function(){
+        this.openState = false;
+        this.optionsList.hide();
+        if(this.input.val() === this.defaultTopic){
+            this.input.val("");
+            this.input.select();
+        }
+    },
+    open: function(){
+        this.openState = true;
+        this.input.focus();
+        this.input.select();
+        this.optionsList.show();
+    }
+});
 
 var EventAggregator = _.extend({}, Backbone.Events);
 
@@ -1233,7 +1361,6 @@ $(document).ready(function () {
 <script type="text/javascript">
     $.Isotope.prototype._getCenteredMasonryColumns = function() {
         this.width = this.element.width();
-        console.log(this.width);
         var parentWidth = this.element.parent().width();
 
         // i.e. options.masonry && options.masonry.columnWidth
@@ -1289,39 +1416,6 @@ $(document).ready(function () {
         };
     };
 </script>
-<script type="text/template" id="templates-components-login">
-    <div class="item_content">
-        <div id="login-container">
-            <div id="login-title">Join Echoed</div>
-            <div id="login-description">Share stories about things you love.<!--<br/>Login to begin sharing your story.--></div>
-            <div id="login-buttons">
-                <a class="login-button facebook-button" id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions">
-                    <span class="fb-login-logo"></span>
-                    <span class="login-button-text">Login With Facebook</span>
-                </a>
-                <a class="login-button twitter-button" id="twitterLogin" href="{{urls.site}}/twitter?redirect=">
-                    <span class="tw-login-logo"></span>
-                    <span class="login-button-text">Login With Twitter</span>
-                </a>
-            </div>
-            - or -
-            <div id="login-email-title">
-                <a href="login/register">Sign-up</a> / <a href="login">Login</a> With E-mail Address
-            </div>
-        </div>
-    </div>
-</script>
-<script type="text/template" id="templates-components-product">
-    <div class="item_content">
-        <div class="item_hover" style="display:none;">
-            <div class="item_hover_wrap">
-            </div>
-        </div>
-        <img class="exhibit_image" src=""/>
-        <div class="item_text">
-        </div>
-    </div>
-</script>
 <script type="text/template" id="templates-components-story-brief">
     <div class="item_content">
         <div class="story-brief">
@@ -1354,19 +1448,19 @@ $(document).ready(function () {
         </div>
         <div class="field-login-buttons">
             <span></span>
-            <a id="field-fb-login" class="login-button facebook-button" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions">
+            <a id="field-fb-login" class="login-button facebook-button" target='_blank'>
                 <span class="fb-login-logo"></span>
                 <span class="login-button-text">Login With Facebook</span>
             </a>
-            <a class="login-button twitter-button" id="field-tw-login" href="{{urls.site}}/twitter?redirect=">
+            <a class="login-button twitter-button" id="field-tw-login" target='_blank'>
                 <span class="tw-login-logo"></span>
                 <span class="login-button-text">Login With Twitter</span>
             </a>
         </div>
-        <div class="field-login-email">
+        <!--<div class="field-login-email">
             <div>- or -</div>
             <a id="field-user-login" href="#">Login</a> / <a id="field-user-signup" href="#">Sign-up</a> With E-mail Address
-        </div>
+        </div>-->
     </div>
 </script>
 <script type="text/template" id="templates-components-story-summary">

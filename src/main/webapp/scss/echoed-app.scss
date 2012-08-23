@@ -1,5 +1,7 @@
 //RESET
 $mainColor: #E31B23;
+$fbColor: #3B5998;
+$twitterColor: #4099FF;
 $navFontFamily: "Open Sans", Tahoma, Arial,sans-serif;
 $textFontFamily: "Open Sans", Tahoma, Arial,sans-serif;
 $headerFontFamily: 'Arvo', serif;
@@ -622,7 +624,7 @@ body {
                 .echo-s-c-tb{
                     .comment-submit{
                         cursor: pointer;
-                        @include textFontBold(14px, #FFF);
+                        @include textFontBold(12px, #FFF);
                         @include button;
                         padding: 5px 10px;
                     }
@@ -674,7 +676,7 @@ body {
 .echoed-head{
     text-align: center;
     border-bottom: 1px solid #FFF;
-    @include headerFont(24px, #FFF);
+    @include textFontNormal(26px, #FFF);
     position: fixed;
     width: 100%;
     z-index: 999999;
@@ -714,9 +716,10 @@ body {
 }
 
 .echoed-share{
-    @include textFontBold(16px, #FFF);
+    @include textFontBold(12px, #FFF);
     @include button;
     text-decoration: none;
+    vertical-align: middle;
 }
 
 .echo-story-gallery{
@@ -1119,7 +1122,7 @@ body {
             .story-summary-submit{
                 cursor: pointer;
                 @include button;
-                @include textFontBold(16px, #FFF);
+                @include textFontBold(12px, #FFF);
             }
         }
     }
@@ -1270,6 +1273,7 @@ body {
                         padding: 5px 6px;
                     }
                     .chapter-submit, .chapter-cancel{
+                        cursor: pointer;
                         @include textFontBold(16px, #FFF);
                         @include button();
                     }
@@ -1277,5 +1281,136 @@ body {
             }
 
         }
+    }
+}
+
+.expandingText{
+    display: inline-block;
+    margin-bottom: 10px;
+    textarea, .textareaClone{
+        min-height: 5em;
+        padding: 5px 6px;
+        width: 300px;
+        @include textFontNormal(14px);
+        resize: none;
+        outline: 0px;
+        border: 1px solid #CCC;
+    }
+}
+
+#ajax-input{
+    display: none;
+    padding-top: 10px;
+    position: relative;
+    @include textFontNormal(14px);
+    #ajax-input-suggestions{
+        width: 300px;
+        position: absolute;
+        background-color: #FFF;
+        top: 48px;
+        left:0px;
+        border: 1px solid #CCC;
+        display: none;
+        #ajax-suggestions-header{
+            padding: 4px 5px;
+            @include textFontBold(12px);
+            background-color: #F0F0F0;
+        }
+        .suggestion-item{
+            padding: 4px 5px;
+            @include textFontNormal(12px);
+            border-top: 1px dotted #CCC;
+            cursor: pointer;
+            &:hover{
+                background-color: #CCC;
+                font-weight:bold;
+            }
+        }
+    }
+}
+
+.field-main-category{
+    border: 1px solid #CCC;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    .field-main-category-helper{
+        @include textFontNormal(14px);
+        font-style: italic;
+        margin-bottom: 5px;
+    }
+    .field-main-category-title{
+        @include textFontNormal(14px);
+    }
+    #field-main-category-content{
+        @include textFontNormal(14px);
+    }
+    #field-main-category-edit{
+        @include textFontNormal(14px, $mainColor);
+        text-decoration: underline;
+        cursor: pointer;
+        float:right;
+    }
+}
+
+.input-field{
+    width: 290px;
+    resize: none;
+    display: inline-block;
+    padding: 8px 5px;
+    border: 1px solid #CCC;
+    -webkit-appearance:none;
+    @include textFontNormal(14px);
+}
+
+#category-add{
+    @include button;
+    @include textFontNormal(16px, #FFF);
+}
+
+.login-button-text{
+    width: 140px;
+    display: inline-block;
+}
+
+.fb-login-logo{
+    display: inline-block;
+    width:30px;
+    height:30px;
+    vertical-align: middle;
+    background-image: image-url("bk_facebook_f.png");
+}
+
+.tw-login-logo{
+    display: inline-block;
+    width:30px;
+    height:30px;
+    background-image: image-url("bk_twitter_bird.png");
+    vertical-align: middle;
+}
+
+.login-button{
+    @include textFontBold(13px, #FFF);
+    line-height: 30px;
+    text-align: left;
+    margin: 5px;
+    display: inline-block;
+    border-radius: 5px;
+    vertical-align: baseline;
+}
+
+.facebook-button{
+    background-color: $fbColor;
+    border: 1px solid transparent;
+    &:hover{
+        border: 1px solid #CCC;
+    }
+}
+
+.twitter-button{
+    background-color: $twitterColor;
+    border: 1px solid transparent;
+    &:hover{
+        border: 1px solid #CCC;
     }
 }
