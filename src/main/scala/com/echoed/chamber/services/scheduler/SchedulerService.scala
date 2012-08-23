@@ -37,6 +37,8 @@ class SchedulerService(
                 StartToday)
     }
 
+    override def lifespan = Unit
+
     override def preStart() {
         super.preStart()
         mp(ReadSchedulerServiceState()).pipeTo(self)
