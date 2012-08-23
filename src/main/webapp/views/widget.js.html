@@ -1,16 +1,23 @@
 window.onload = function(){
     var body = document.getElementsByTagName('body')[0];
-
     var echoedFade = document.createElement('iframe');
     var hash = window.location.hash;
-    echoedFade.style.cssText = "z-index:9999; background-color: rgba(0,0,0,0.7); top: 0px; left: 0px; right: 0px; height: 100%; width: 100%; position: fixed; overflow-y: scroll; display: none;";
-    echoedFade.src = "{{urls.site}}/widget/iframe?pid={{partnerId}}";
-    echoedFade.id = "echoed-fade";
-    body.appendChild(echoedFade);
+
+    var iFrameSrc =  "{{urls.site}}/widget/iframe?pid={{partnerId}}";
+
+
 
     if(typeof(EchoedSettings) === 'undefined'){
         EchoedSettings = {};
+    } else {
+        if(EchoedSettings.title !== undefined){
+            iFrameSrc = iFrameSrc + "&title=" + encodeURIComponent(EchoedSettings.title);
+        }
     }
+    echoedFade.src = iFrameSrc;
+    echoedFade.style.cssText = "z-index:9999; background-color: rgba(0,0,0,0.7); top: 0px; left: 0px; right: 0px; height: 100%; width: 100%; position: fixed; overflow-y: scroll; display: none;";
+    echoedFade.id = "echoed-fade";
+    body.appendChild(echoedFade);
 
     if(EchoedSettings.opener === undefined || EchoedSettings.opener === '#echoed-opener'){
         var echoedOpener = document.getElementById('echoed-opener');
@@ -18,10 +25,15 @@ window.onload = function(){
             echoedOpener = document.createElement('div');
             echoedOpener.id = "echoed-opener";
             var openImage = document.createElement('img');
+            {{#white}}
+            openImage.src ="{{urls.images}}/bk_opener_white_left.png";
+            {{/white}}
+            {{^white}}
             openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
             openImage.style.display = "block";
             openImage.style.margin = "0";
             echoedOpener.appendChild(openImage);
+
             body.appendChild(echoedOpener);
         }
         echoedOpener.style.cssText = "z-index:99999;left: 0px; top: 175px; position: absolute; cursor: pointer;box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-moz-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);-webkit-box-shadow: 1px 1px 2px rgba(34,25,25,0.4);display:block;";

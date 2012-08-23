@@ -188,14 +188,16 @@
         <property name="facebookGraphProductView" value="facebook_graph_product" />
         <property name="facebookGraphStoryView" value="facebook_graph_story" />
 
-        <property name="widgetJsView" value="widget.js"/>
-        <property name="widgetIframeView" value="widget.iframe"/>
-
         <property name="loginEmailView" value="login_email" />
         <property name="loginRegisterView" value="login_register" />
         <property name="loginResetView" value="login_reset" />
         <property name="loginResetPostView" value="login_reset_post" />
         <property name="loginResetPasswordView" value="login_reset_password" />
+
+        <property name="widgetJsView" value="widget.js"/>
+        <property name="widgetAppJsView" value="widget.app.js"/>
+        <property name="widgetIframeView" value="widget.iframe"/>
+        <property name="widgetAppIFrameView" value="widget.iframe.app" />
     </bean>
 
 

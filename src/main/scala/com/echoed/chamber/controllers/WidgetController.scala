@@ -16,9 +16,10 @@ class WidgetController extends EchoedController {
     @RequestMapping(value = Array("/iframe"), method = Array(RequestMethod.GET))
     def iframe(
             pcc: PartnerClientCredentials,
+            @RequestParam(value = "type", required = false, defaultValue = "app") widgetType: String,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val modelAndView = new ModelAndView(v.widgetIframeView)
+        val modelAndView = if(widgetType == "widget") new ModelAndView(v.widgetIframeView) else new ModelAndView(v.widgetAppIFrameView)
         modelAndView.addObject("partnerId", pcc.partnerId)
         modelAndView.addObject("echoedUserId", Option(eucc).map(_.echoedUserId).getOrElse(""))
 
@@ -33,10 +34,11 @@ class WidgetController extends EchoedController {
             produces = Array("application/x-javascript"))
     def js(
             @RequestParam(value = "style", required = false, defaultValue = "black") style: String,
+            @RequestParam(value = "type", required = false, defaultValue = "app") widgetType: String,
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val modelAndView = new ModelAndView(v.widgetJsView)
+        val modelAndView = if(widgetType == "widget") new ModelAndView(v.widgetJsView) else new ModelAndView(v.widgetAppJsView)
         modelAndView.addObject("partnerId", pcc.partnerId)
         modelAndView.addObject("echoedUserId", Option(eucc).map(_.echoedUserId).getOrElse(""))
 
