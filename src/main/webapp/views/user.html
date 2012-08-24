@@ -1,4 +1,14 @@
-{{<user_super}}
+{{<common_super}}
+{{$jsHead}}
+    <script type='text/javascript' src="{{urls.js}}/jquery.imagesloaded.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/jquery.isotope.min.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/expanding.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/fileuploader.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/echoed.js"></script>
+{{/jsHead}}
+{{$css}}
+    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
+{{/css}}
 {{$header}}
 {{/header}}
 {{$content}}
@@ -14,16 +24,22 @@
                     {{#facebookId}}
                     <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{.}}/picture" />
                     {{/facebookId}}
-                    {{#twitterId}}
-                    <img id="u-i-i" height="30px" width="30px" src="http://api.twitter.com/1/users/profile_image/{{.}}" />
-                    {{/twitterId}}
+                    {{^facebookId}}
+                        {{#twitterId}}
+                        <img id="u-i-i" height="30px" width="30px" src="http://api.twitter.com/1/users/profile_image/{{.}}" />
+                        {{/twitterId}}
+                    {{/facebookId}}
                 </div>
                 <div id="user-text">
                     {{name}}
                 </div>
                 <div id="user-list">
                     <ul>
-                        <li class="user-list-item" href="logout">Logout</li>
+                        <li class="user-list-item" href="about">About Us</li>
+                        <li class="user-list-item" href="guidelines">Sharing Guidelines</li>
+                        <li class="user-list-item" href="privacy">Privacy Policy</li>
+                        <li class="user-list-item" href="terms">Terms of Service</li>
+                        <li class="user-list-item" href="logout"><strong>Logout</strong></li>
                     </ul>
                 </div>
                 {{/echoedUser}}
@@ -77,15 +93,6 @@
                 <div id="category-list">
                 </div>
                 <div id="category-more">+ More Categories</div>
-            </div>
-            <div id="footer-nav">
-                <ul>
-                    <li><a class="link-black" href="{{urls.site}}/about">About Us</a></li>
-                    <li><a class="link-black" href="{{urls.site}}/guidelines">Sharing Guidelines</a></li>
-                    <li><a class="link-black" href="{{urls.site}}/privacy">Privacy Policy</a></li>
-                    <li><a class="link-black" href="{{urls.site}}/terms">Terms of Service</a></li>
-                    <li><a class="link-black" href="{{urls.site}}/business">For Business</a></li>
-                </ul>
             </div>
         </div>
         <div id="fade" style="display:none;">
@@ -534,4 +541,4 @@
     </script>
 {{/content}}
 
-{{/user_super}}
+{{/common_super}}
