@@ -796,6 +796,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             alert("Please enter in a comment");
         } else if (self.locked !== true) {
             self.locked = true;
+            console.log("Creating Comment");
             $.ajax({
                 url:Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
                 type:"POST",
@@ -804,7 +805,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 },
                 dataType:'json',
                 data:{
-                    text:text
+                    text:text,
+                    storyOwnerId: self.data.echoedUser.id
                 },
                 success:function (createCommentData) {
                     self.locked = false;
