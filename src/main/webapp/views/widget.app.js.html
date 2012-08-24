@@ -4,8 +4,15 @@
 
         var echoedOverlay = document.createElement('iframe');
         var hash = window.location.hash;
+        var index = hash.indexOf('echoed');
+        var iFrameHash = '';
+        if(index > 0){
+            var hString = hash.substr(index);
+            iFrameHash = '#' + hString.split('_')[1];
+        }
+
         echoedOverlay.style.cssText = "z-index:9999; top: 0px; left: 0px; right: 0px; height: 100%; width: 100%; position: fixed; overflow-y: scroll; display: none;";
-        echoedOverlay.src = "{{urls.site}}/widget/iframe?pid={{partnerId}}&type=app";
+        echoedOverlay.src = "{{urls.site}}/widget/iframe?pid={{partnerId}}&type=app" + iFrameHash;
         echoedOverlay.id = "echoed-overlay";
         body.appendChild(echoedOverlay);
 
@@ -49,11 +56,18 @@
         } else if (window.attachEvent) {
             window.attachEvent('onmessage', messageHandler);
         }
+
+
+        if(index > 0 ) {
+
+            echoedOverlay.style.display = "block";
+            echoedOverlay.contentWindow.postMessage("echoed-open","*");
+        }
     };
 
 
+
     function messageHandler(message) {
-        console.log("Received Message 1");
         if(message.data === "echoed-close"){
             var iframe = document.getElementById('echoed-overlay');
             iframe.style.display = "none";
