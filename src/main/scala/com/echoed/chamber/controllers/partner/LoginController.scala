@@ -27,11 +27,11 @@ class LoginController extends EchoedController {
 
             log.debug("Received login request for {}", email)
 
-            mp(Login(email, password)).onSuccess {
-                case LoginResponse(_, Left(error)) =>
+            mp(LoginWithEmailPassword(email, password)).onSuccess {
+                case LoginWithEmailPasswordResponse(_, Left(error)) =>
                     errorModelAndView.addError(error)
                     result.set(errorModelAndView)
-                case LoginResponse(_, Right(pu)) =>
+                case LoginWithEmailPasswordResponse(_, Right(pu)) =>
                     log.debug("Successful login for {}", email)
                     cookieManager.addPartnerUserCookie(
                         response,

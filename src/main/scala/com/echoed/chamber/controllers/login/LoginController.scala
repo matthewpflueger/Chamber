@@ -13,7 +13,6 @@ import com.echoed.chamber.services.echoeduser._
 import scala.Left
 import com.echoed.chamber.services.echoeduser.RegisterLogin
 import com.echoed.chamber.services.echoeduser.RegisterLoginResponse
-import com.echoed.chamber.services.echoeduser.LoginWithEmail
 import scala.Right
 import com.echoed.chamber.services.echoeduser.LoginWithEmailPasswordResponse
 

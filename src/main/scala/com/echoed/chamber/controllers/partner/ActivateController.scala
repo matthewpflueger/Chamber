@@ -24,15 +24,8 @@ class ActivateController extends EchoedController with FormController {
 
         log.debug("Starting activation with code {}", code)
 
-        val payload = new ScalaObjectMapper().readTree(encrypter.decrypt(code))
-
-        val email = Option(payload.get("email")).map(_.asText()).orNull
-        val password = Option(payload.get("password")).map(_.asText()).orNull
-
-        log.debug("Starting activation for {}", email)
-
-        mp(Login(email, password)).onSuccess {
-            case LoginResponse(_, Right(partnerUser)) =>
+        mp(LoginWithCode(code)).onSuccess {
+            case LoginWithCodeResponse(_, Right(partnerUser)) =>
                 val modelAndView = new ModelAndView(v.activateView)
                 modelAndView.addObject("partnerUser", partnerUser)
                 modelAndView.addObject("activateForm", new ActivateForm(partnerUser.id))
@@ -47,6 +40,7 @@ class ActivateController extends EchoedController with FormController {
     def activatePost(
             @Valid activateForm: ActivateForm,
             bindingResult: BindingResult,
+            pucc: PartnerUserClientCredentials,
             request: HttpServletRequest,
             response: HttpServletResponse) = {
 
@@ -63,7 +57,7 @@ class ActivateController extends EchoedController with FormController {
 
             log.debug("Activating partner user {}", activateForm.partnerUserId)
 
-            mp(ActivatePartnerUser(activateForm.password)).onComplete(_.fold(
+            mp(ActivatePartnerUser(pucc, activateForm.password)).onComplete(_.fold(
                 e => {
                     errorModelAndView.addError(e)
                     result.set(errorModelAndView)

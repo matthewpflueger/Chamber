@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.partneruser
 
-import com.echoed.chamber.services.{MessageResponse => MR, EchoedClientCredentials, EchoedException, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedClientCredentials, EchoedException, Message}
 import com.echoed.chamber.domain.views.{PartnerSocialSummary, ProductSocialSummary, PartnerProductsListView, PartnerCustomerListView, PartnerProductSocialActivityByDate, PartnerSocialActivityByDate,CustomerSocialSummary,PartnerCustomerSocialActivityByDate, PartnerEchoView}
 import com.echoed.chamber.domain.partner._
 import com.echoed.chamber.domain._
@@ -24,20 +24,44 @@ trait PartnerUserIdentifiable {
     def partnerUserId = credentials.partnerUserId
 }
 
+trait EmailIdentifiable {
+    this: PartnerUserMessage =>
+    def email: String
+}
+
+
 import com.echoed.chamber.services.partneruser.{PartnerUserMessage => PUM}
 import com.echoed.chamber.services.partneruser.{PartnerUserException => PUE}
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.chamber.services.partneruser.{PartnerUserIdentifiable => PUI}
 
 
-case class Login(email: String, password: String) extends PUM
-case class LoginError(m: String = "", c: Throwable = null) extends PUE(m, c)
-case class LoginResponse(message: Login, value: Either[LoginError, PartnerUser])
-        extends PUM with MR[PartnerUser, Login, LoginError]
+private[partneruser] case class RegisterPartnerUserService(partnerUser: PartnerUser) extends PUM
+
+private[partneruser] case class LoginWithCredentials(credentials: PUCC) extends PUM with PUI
+
+private[partneruser] case class LoginWithEmail(
+        email: String,
+        correlation: PartnerUserMessage with EmailIdentifiable,
+        override val correlationSender: Option[ActorRef]) extends PUM with Correlated
+private[partneruser] case class LoginWithEmailResponse(message: LoginWithEmail, value: Either[PUE, PartnerUser])
+    extends PUM with MR[PartnerUser, LoginWithEmail, PUE]
+
+
+case class InvalidCredentials(m: String = "Invalid email or password", c: Throwable = null) extends PUE(m, c)
+case class LoginWithEmailPassword(email: String, password: String) extends PUM with EmailIdentifiable
+case class LoginWithEmailPasswordResponse(message: LoginWithEmailPassword, value: Either[PUE, PartnerUser])
+        extends PUM with MR[PartnerUser, LoginWithEmailPassword, PUE]
+
+case class LoginWithCode(code: String) extends PUM
+case class LoginWithCodeResponse(message: LoginWithCode, value: Either[PUE, PartnerUser])
+    extends PUM with MR[PartnerUser, LoginWithCode, PUE]
+
 
 case class Logout(credentials: PartnerUserClientCredentials) extends PUM with PUI
 case class LogoutResponse(message: Logout, value: Either[PUE, Boolean])
     extends PUM with MR[Boolean, Logout, PUE]
+
 
 case class GetPartnerUser(credentials: PUCC) extends PUM with PUI
 case class GetPartnerUserResponse(message: GetPartnerUser, value: Either[PartnerUserException, PartnerUser])
@@ -103,35 +127,16 @@ case class GetCommentsByProductId(credentials: PUCC, productId: String) extends 
 case class GetCommentsByProductIdResponse(message: GetCommentsByProductId, value: Either[PartnerUserException,List[FacebookComment]])
     extends PUM with MR[List[FacebookComment], GetCommentsByProductId, PUE]
 
-private[partneruser] case class CreateActorRef(msg: CreatePartnerUser, sender: ActorRef)
 
-case class CreatePartnerUser(credentials: PUCC, partnerUser: PartnerUser) extends PUM with PUI
-case class CreatePartnerUserResponse(
-                message: CreatePartnerUser,
-                value: Either[PUE,  PartnerUser])
-                extends PUM with MR[PartnerUser, CreatePartnerUser, PUE]
-
-//case class CreateActorRef(msg: Createmail: String) extends PUM
-//case class CreateActorRefResponse(
-//        message: CreateActorRef,
-//        value: Either[PUE, ActorRef])
-//        extends PUM with MR[ActorRef, CreateActorRef, PUE]
-
-case class Locate(partnerUserId: String) extends PUM
-case class LocateResponse(
-        message: Locate,
-        value: Either[PUE, ActorRef])
-        extends PUM with MR[ActorRef, Locate, PUE]
-
-case class ActivatePartnerUser(password: String) extends PUM
+case class ActivatePartnerUser(credentials: PUCC, password: String) extends PUM with PUI
 case class ActivatePartnerUserResponse(
         message: ActivatePartnerUser,
         value: Either[PUE, PartnerUser])
         extends PUM with MR[PartnerUser, ActivatePartnerUser, PUE]
 
+
 case class InvalidPassword(
         _message: String = "Invalid password",
         _cause: Throwable = null,
         _code: Option[String] = Some("password.invalid")) extends PUE(_message, _cause, _code)
-
 
