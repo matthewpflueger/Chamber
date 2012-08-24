@@ -25,7 +25,7 @@ import com.echoed.chamber.services.partner.shopify.{ShopifyPartnerMessage, Shopi
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.twitter.{TwitterMessage, TwitterAccess}
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserMessage, EchoedUserServiceManager}
-import com.echoed.chamber.services.partneruser.{PartnerUserMessage, PartnerUserServiceManager}
+import com.echoed.chamber.services.partneruser.{PartnerUserService, PartnerUserMessage, PartnerUserServiceManager}
 import com.echoed.chamber.services.adminuser.{AdminUserMessage, AdminUserServiceManager}
 import com.echoed.chamber.services.partner.{PartnerMessage, PartnerServiceManager}
 import com.echoed.chamber.dao.partner.shopify.ShopifyPartnerDao
@@ -239,9 +239,19 @@ class ServiceConfig {
             encrypter = encrypter)), "EchoedUsers")
 
     @Bean
+    def partnerUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new PartnerUserService(
+            mp = messageProcessor,
+            ep = eventProcessor,
+            initMessage = msg,
+            partnerUserDao = partnerUserDao,
+            partnerViewDao = partnerViewDao)))
+
+    @Bean
     def partnerUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new PartnerUserServiceManager(
             mp = messageProcessor,
-            ep = eventProcessor)), "PartnerUsers")
+            ep = eventProcessor,
+            partnerUserServiceCreator = partnerUserService,
+            encrypter = encrypter)), "PartnerUsers")
 
     @Bean
     def adminUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new AdminUserServiceManager(

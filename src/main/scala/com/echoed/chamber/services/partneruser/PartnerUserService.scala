@@ -1,38 +1,65 @@
 package com.echoed.chamber.services.partneruser
 
-import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.views.{CustomerSocialSummary,SocialActivityHistory, PartnerSocialSummary}
 import com.echoed.chamber.dao.partner.PartnerUserDao
 import com.echoed.chamber.dao.views.PartnerViewDao
-import partner.PartnerUser
+import com.echoed.chamber.domain.partner.{PartnerUser}
 import scala.collection.JavaConversions._
 import java.util.ArrayList
-import views.{PartnerProductSocialActivityByDate,PartnerSocialActivityByDate,PartnerCustomerSocialActivityByDate}
-
 import scalaz._
 import Scalaz._
-import akka.actor.{Actor, PoisonPill}
-import com.echoed.chamber.services.{EventProcessorActorSystem, MessageProcessor, OnlineOfflineService, EchoedService}
+import akka.actor.PoisonPill
+import akka.pattern._
+import com.echoed.chamber.services._
+import scala.Left
+import com.echoed.chamber.domain.views.PartnerSocialActivityByDate
+import scala.Right
+import com.echoed.chamber.domain.views.PartnerSocialSummary
+import com.echoed.chamber.domain.views.PartnerCustomerSocialActivityByDate
+import com.echoed.chamber.domain.views.CustomerSocialSummary
+import com.echoed.chamber.domain.views.SocialActivityHistory
+import com.echoed.chamber.domain.views.PartnerProductSocialActivityByDate
+import com.echoed.chamber.services.state.{ReadPartnerUserForCredentialsResponse, ReadPartnerUserForEmailResponse, ReadPartnerUserForCredentials, ReadPartnerUserForEmail}
 
 
 class PartnerUserService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
-        partnerUserId: Option[String] = None,
-        var partnerUser: PartnerUser,
+        initMessage: Message,
         partnerUserDao: PartnerUserDao,
         partnerViewDao: PartnerViewDao) extends OnlineOfflineService {
 
+    private var partnerUser: PartnerUser = _
+
+    private def setStateAndRegister(pu: PartnerUser) {
+        partnerUser = pu
+        becomeOnline
+        context.parent ! RegisterPartnerUserService(partnerUser)
+    }
 
     override def preStart() {
         super.preStart()
-        becomeOnline
+        initMessage match {
+            case LoginWithEmail(email, _, _) => mp(ReadPartnerUserForEmail(email)).pipeTo(self)
+            case LoginWithCredentials(credentials) => mp(ReadPartnerUserForCredentials(credentials)).pipeTo(self)
+        }
     }
 
-    def init = Actor.emptyBehavior
+    def init = {
+        case msg @ ReadPartnerUserForEmailResponse(_, Left(_)) => initMessage match {
+            case LoginWithEmail(_, msg @ LoginWithEmailPassword(_, _), channel) =>
+                channel.get ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
+        }
+
+        case msg @ ReadPartnerUserForEmailResponse(_, Right(pu)) => setStateAndRegister(pu)
+        case msg @ ReadPartnerUserForCredentialsResponse(_, Right(pu)) => setStateAndRegister(pu)
+    }
 
     def online = {
-        case msg @ ActivatePartnerUser(password) =>
+        case msg @ LoginWithEmailPassword(email, password) =>
+            if (partnerUser.isCredentials(email, password)) sender ! LoginWithEmailPasswordResponse(msg, Right(partnerUser))
+            else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
+
+        case msg @ ActivatePartnerUser(_, password) =>
             val channel = context.sender
 
             try {
@@ -48,19 +75,8 @@ class PartnerUserService(
                             Left(PartnerUserException("Could not activate partner user %s" format partnerUser.name, e)))
             }
 
-        case msg @ Logout(partnerUserId) =>
-            val channel = context.sender
-
-            try {
-                assert(partnerUser.id == partnerUserId)
-                channel ! LogoutResponse(msg, Right(true))
-                self ! PoisonPill
-                log.debug("Logged out {}", partnerUser)
-            } catch {
-                case e =>
-                    channel ! LogoutResponse(msg, Left(PartnerUserException("Could not logout", e)))
-                    log.error("Unexpected error processing %s" format msg, e)
-            }
+        case msg @ Logout(_) =>
+            self ! PoisonPill
 
         case msg: GetPartnerUser =>
             sender ! GetPartnerUserResponse(msg, Right(partnerUser))

@@ -1,58 +1,63 @@
 package com.echoed.chamber.services.partneruser
 
-import scalaz._
-import Scalaz._
 import akka.actor._
 import akka.util.Timeout
-import akka.pattern._
-import com.echoed.chamber.services.{EventProcessorActorSystem, MessageProcessor, OnlineOfflineService}
-import com.echoed.chamber.services.state.{ReadPartnerUserServiceManagerStateResponse, ReadPartnerUserServiceManagerState}
+import com.echoed.chamber.services._
+import com.echoed.chamber.domain.Identifiable
+import com.google.common.collect.HashMultimap
+import akka.actor.Terminated
+import scala.collection.JavaConversions._
+import scalaz._
+import Scalaz._
+import com.echoed.util.{Encrypter, ScalaObjectMapper}
 
 
 class PartnerUserServiceManager(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
-        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService {
+        partnerUserServiceCreator: (ActorContext, Message) => ActorRef,
+        encrypter: Encrypter,
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
-    private var emailIds: Map[String, String] = _
-    private var active = Map[String, ActorRef]()
+    private val active = HashMultimap.create[Identifiable, ActorRef]()
 
-    override def preStart() {
-        super.preStart()
-        mp(ReadPartnerUserServiceManagerState()).pipeTo(context.self)
-    }
 
-    def init = {
-        case ReadPartnerUserServiceManagerStateResponse(_, Right(state)) =>
-            emailIds = state
-            becomeOnline
-    }
+    def handle = {
+        case Terminated(ref) => active.values.removeAll(active.values.filter(_ == ref))
 
-    def online = {
-//        case CreatePartnerUserService(msg @ CreatePartnerUser(pucc, partnerUser), sender) =>
-//            emailIds.get(partnerUser.email).cata(
-//                _ => sender ! CreatePartnerUserResponse(msg, Left(PartnerUserException("Email already exists"))),
-//                {
-//                    val ref = context.watch(context.actorOf(Props(new PartnerUserService(mp, ep)), partnerUser.id))
-//                    ref.tell(msg, sender)
-//                    active += (partnerUser.email -> ref)
-//                    emailIds += (partnerUser.email -> partnerUser.id)
-//                })
+        case RegisterPartnerUserService(partnerUser) =>
+            active.put(PartnerUserId(partnerUser.id), context.sender)
+            active.put(Email(partnerUser.email), context.sender)
 
-        case msg: PartnerUserIdentifiable => context.actorFor(msg.partnerUserId).forward(msg)
+        case msg @ LoginWithCode(code) =>
+            val channel = context.sender
+            val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
+            mp(LoginWithEmailPassword(map("email"), map("password"))).onSuccess {
+                case LoginWithEmailPasswordResponse(_, Left(e)) =>
+                    channel ! LoginWithCodeResponse(msg, Left(e))
+                case LoginWithEmailPasswordResponse(_, Right(echoedUser)) =>
+                    channel ! LoginWithCodeResponse(msg, Right(echoedUser))
+            }
 
-        case msg @ Login(email, password) =>
-            active.get(email).cata(
+        case msg: EmailIdentifiable with PartnerUserMessage =>
+            active.get(Email(msg.email)).headOption.cata(
                 _.forward(msg),
-                emailIds.get(email).cata(
-                    id => {
-                        val ref = context.watch(context.actorOf(Props(new PartnerUserService(mp, ep, Some(id), null, null, null)), id))
-                        ref.forward(msg)
-                        active += (email -> ref)
-                    },
-                    sender ! LoginResponse(msg, Left(LoginError("Invalid login")))))
+                {
+                    val partnerUserService = context.watch(partnerUserServiceCreator(context, LoginWithEmail(msg.email, msg, Option(sender))))
+                    partnerUserService.forward(msg)
+                    active.put(Email(msg.email), partnerUserService)
+                })
 
-        case Terminated(ref) => active = active.filter(ref != _._2)
+
+        case msg: PartnerUserIdentifiable =>
+            active.get(PartnerUserId(msg.partnerUserId)).headOption.cata(
+                _.forward(msg),
+                {
+                    val partnerUserService = context.watch(partnerUserServiceCreator(context, LoginWithCredentials(msg.credentials)))
+                    partnerUserService.forward(msg)
+                    active.put(PartnerUserId(msg.partnerUserId), partnerUserService)
+                })
+
     }
 
 /*
@@ -155,3 +160,6 @@ class PartnerUserServiceManager(
 
 */
 }
+
+case class PartnerUserId(id: String) extends Identifiable
+case class Email(id: String) extends Identifiable

@@ -3,6 +3,7 @@ package com.echoed.chamber.services.state.schema
 import org.squeryl.Schema
 import com.echoed.chamber.domain
 
+
 private[state] object ChamberSchema extends Schema {
 
     val adminUsers = table[domain.AdminUser]
@@ -18,6 +19,7 @@ private[state] object ChamberSchema extends Schema {
     val notifications = table[Notification]
     val echoedUserSettings = table[EchoedUserSettings]
     val schedules = table[Schedule]
+    val partnerUsers = table[domain.partner.PartnerUser]
 
     //    val echoClicks = table[EchoClick]
     //    val echoedFriend = table[EchoedFriend]

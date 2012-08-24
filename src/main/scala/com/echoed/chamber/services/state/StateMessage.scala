@@ -7,6 +7,8 @@ import com.echoed.chamber.domain.AdminUser
 import com.echoed.chamber.services.EchoedException
 import com.echoed.chamber.domain.TwitterUser
 import com.echoed.chamber.services.scheduler.Schedule
+import com.echoed.chamber.domain.partner.PartnerUser
+import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
 
 
 private[services] sealed trait StateMessage extends Message
@@ -89,3 +91,21 @@ private[services] case class ReadSchedulerServiceStateResponse(
                 message: ReadSchedulerServiceState,
                 value: Either[SE, Map[String, Schedule]])
                 extends SM with MR[Map[String, Schedule], ReadSchedulerServiceState, SE]
+
+
+private[services] case class PartnerUserNotFound(
+        email: String,
+        m: String = "Partner user not found") extends SE(m)
+
+private[services] case class ReadPartnerUserForEmail(email: String) extends SM
+private[services] case class ReadPartnerUserForEmailResponse(
+                message: ReadPartnerUserForEmail,
+                value: Either[SE, PartnerUser])
+                extends SM with MR[PartnerUser, ReadPartnerUserForEmail, SE]
+
+
+private[services] case class ReadPartnerUserForCredentials(credentials: PartnerUserClientCredentials) extends SM
+private[services] case class ReadPartnerUserForCredentialsResponse(
+                message: ReadPartnerUserForCredentials,
+                value: Either[SE, PartnerUser])
+                extends SM with MR[PartnerUser, ReadPartnerUserForCredentials, SE]

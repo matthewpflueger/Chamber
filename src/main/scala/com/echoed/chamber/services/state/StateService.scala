@@ -157,6 +157,18 @@ class StateService(
             schedules.delete(from(schedules)(s => where(s.id === schedule.id) select(s)))
         }
 
+        case msg @ ReadPartnerUserForEmail(email) => inTransaction {
+            from(partnerUsers)(pu => where(pu.email === email) select(pu)).headOption.cata(
+                pu => sender ! ReadPartnerUserForEmailResponse(msg, Right(pu)),
+                sender ! ReadPartnerUserForEmailResponse(msg, Left(PartnerUserNotFound(email))))
+        }
+
+        case msg @ ReadPartnerUserForCredentials(credentials) => inTransaction {
+            partnerUsers.lookup(credentials.partnerUserId).foreach { pu =>
+                sender ! ReadPartnerUserForCredentialsResponse(msg, Right(pu))
+            }
+        }
+
     }
 }
 

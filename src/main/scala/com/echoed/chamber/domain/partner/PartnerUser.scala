@@ -1,23 +1,26 @@
 package com.echoed.chamber.domain.partner
 
 import java.util.Date
-import com.echoed.chamber.services.partneruser.InvalidPassword
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import org.apache.commons.codec.binary.Base64
 import com.echoed.util.UUID
+import com.echoed.chamber.domain.DomainObject
+import com.echoed.util.DateUtils._
+import com.echoed.chamber.services.partneruser.InvalidPassword
 
 
 case class PartnerUser(
         id: String,
-        updatedOn: Date,
-        createdOn: Date,
+        updatedOn: Long,
+        createdOn: Long,
         partnerId: String,
         name: String,
         email: String,
         @transient salt: String,
-        @transient password: String) {
+        @transient password: String) extends DomainObject {
 
+    def this() = this("", 0L, 0L, "", "", "", "", "")
 
     def this(partnerId: String, name: String, email: String) = this(
         UUID(),
@@ -34,7 +37,9 @@ case class PartnerUser(
         name,
         email)
 
-    val hasPassword = Option(password) != None
+    def hasPassword = Option(password).isDefined
+
+    def isCredentials(email: String, password: String) = this.email == email && isPassword(password)
 
     def isPassword(plainTextPassword: String) = {
         password == hash(plainTextPassword)
