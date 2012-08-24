@@ -111,6 +111,12 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
 }
 
+#title{
+    display: inline-block;
+    @include textFontNormal(26px, #FFF);
+    vertical-align: middle;
+}
+
 #fade { /*--Transparent background layer--*/
     //position: absolute;
     z-index: 9999;
@@ -677,7 +683,7 @@ body {
 .echoed-head{
     text-align: center;
     border-bottom: 1px solid #FFF;
-    @include textFontNormal(26px, #FFF);
+    height: 35px;
     position: fixed;
     width: 100%;
     z-index: 999999;
@@ -766,7 +772,7 @@ body {
     z-index: 10002;
     position: absolute;
     right: 10px;
-    top: 13px;
+    top: 10px;
     cursor: pointer;
 }
 
