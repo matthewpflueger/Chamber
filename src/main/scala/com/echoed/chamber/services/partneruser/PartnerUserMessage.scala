@@ -59,8 +59,6 @@ case class LoginWithCodeResponse(message: LoginWithCode, value: Either[PUE, Part
 
 
 case class Logout(credentials: PartnerUserClientCredentials) extends PUM with PUI
-case class LogoutResponse(message: Logout, value: Either[PUE, Boolean])
-    extends PUM with MR[Boolean, Logout, PUE]
 
 
 case class GetPartnerUser(credentials: PUCC) extends PUM with PUI

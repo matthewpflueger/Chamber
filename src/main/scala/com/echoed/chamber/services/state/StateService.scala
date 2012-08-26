@@ -14,7 +14,6 @@ import com.echoed.util.DateUtils._
 import com.echoed.chamber.services.state.schema.{Schedule, EchoedUserSettings, Notification}
 import scala.Left
 import com.echoed.chamber.services.echoeduser.EchoedUserUpdated
-import com.echoed.chamber.services.adminuser.AdminUserCreated
 import scala.Some
 import scala.Right
 import com.echoed.chamber.services.echoeduser.EchoedUserCreated
@@ -56,16 +55,6 @@ class StateService(
 
 
     protected def handle = {
-        case AdminUserCreated(adminUser) => inTransaction {
-            adminUsers.insert(adminUser)
-        }
-
-        case msg @ ReadAdminUserServiceManagerState() => inTransaction {
-            context.sender ! ReadAdminUserServiceManagerStateResponse(
-                    msg,
-                    Right(from(adminUsers)(au => select(au.email, au.id)).toMap))
-        }
-
         case msg @ ReadForEmail(email) => inTransaction {
             val eu = from(echoedUsers)(eu => where(eu.email === email) select(eu)).headOption
             val eus = readEchoedUserSettings(eu)
@@ -135,11 +124,11 @@ class StateService(
             }
         }
 
-        case msg @ NotificationCreated(notification) => inTransaction {
+        case NotificationCreated(notification) => inTransaction {
             notifications.insert(Notification(notification))
         }
 
-        case msg @ NotificationUpdated(notification) => inTransaction {
+        case NotificationUpdated(notification) => inTransaction {
             notifications.update(Notification(notification.copy(updatedOn = new Date)))
         }
 
@@ -149,11 +138,11 @@ class StateService(
                     Right(from(schedules)(s => select(s)).map(s => (s.id, s.convertTo)).toMap))
         }
 
-        case msg @ ScheduleCreated(schedule) => inTransaction {
+        case ScheduleCreated(schedule) => inTransaction {
             schedules.insert(Schedule(schedule))
         }
 
-        case msg @ ScheduleDeleted(schedule) => inTransaction {
+        case ScheduleDeleted(schedule) => inTransaction {
             schedules.delete(from(schedules)(s => where(s.id === schedule.id) select(s)))
         }
 
@@ -166,6 +155,18 @@ class StateService(
         case msg @ ReadPartnerUserForCredentials(credentials) => inTransaction {
             partnerUsers.lookup(credentials.partnerUserId).foreach { pu =>
                 sender ! ReadPartnerUserForCredentialsResponse(msg, Right(pu))
+            }
+        }
+
+        case msg @ ReadAdminUserForEmail(email) => inTransaction {
+            from(adminUsers)(au => where(au.email === email) select(au)).headOption.cata(
+                au => sender ! ReadAdminUserForEmailResponse(msg, Right(au)),
+                sender ! ReadAdminUserForEmailResponse(msg, Left(AdminUserNotFound(email))))
+        }
+
+        case msg @ ReadAdminUserForCredentials(credentials) => inTransaction {
+            adminUsers.lookup(credentials.adminUserId).foreach { au =>
+                sender ! ReadAdminUserForCredentialsResponse(msg, Right(au))
             }
         }
 

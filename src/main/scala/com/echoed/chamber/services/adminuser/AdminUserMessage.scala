@@ -1,11 +1,16 @@
 package com.echoed.chamber.services.adminuser
 
-import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedClientCredentials, EchoedException, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, _}
 
 import java.util.{List => JList}
 import com.echoed.chamber.domain._
-import partner.{PartnerSettings, Partner}
+import com.echoed.chamber.domain.partner.PartnerSettings
 import akka.actor.ActorRef
+import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.domain.partner.Partner
+import com.echoed.chamber.domain.AdminUser
+import com.echoed.chamber.services.EchoedException
+
 
 sealed trait AdminUserMessage extends Message
 sealed case class AdminUserException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)
@@ -21,12 +26,16 @@ trait AdminUserIdentifiable {
     def adminUserId = credentials.adminUserId
 }
 
+trait EmailIdentifiable {
+    this: AdminUserMessage =>
+    def email: String
+}
+
 import com.echoed.chamber.services.adminuser.{AdminUserMessage => AUM}
 import com.echoed.chamber.services.adminuser.{AdminUserException => AUE}
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.services.adminuser.{AdminUserIdentifiable => AUI}
 
-private[adminuser] case class CreateAdminUserService(msg: CreateAdminUser, sender: ActorRef)
 
 case class CreateAdminUser(credentials: AUCC, adminUser: AdminUser) extends AUM with AUI
 case class CreateAdminUserResponse(
@@ -34,12 +43,6 @@ case class CreateAdminUserResponse(
                 value: Either[AUE,  AdminUser])
                 extends AUM with MR[AdminUser, CreateAdminUser, AUE]
 
-
-//case class CreateAdminUserService(email: String) extends AUM
-//case class CreateAdminUserServiceResponse(
-//                message: CreateAdminUserService,
-//                value: Either[AUE, ActorRef])
-//                extends AUM with MR[ActorRef, CreateAdminUserService, AUE]
 
 case class GetAdminUser(credentials: AUCC) extends AUM with AUI
 case class GetAdminUserResponse(
@@ -83,22 +86,26 @@ case class GetEchoPossibilitiesResponse(
                 value: Either[AUE, JList[Echo]])
                 extends AUM with MR[JList[Echo], GetEchoPossibilities, AUE]
 
-//case class LocateAdminUserService(email: String) extends AUM
-//case class LocateAdminUserServiceResponse(
-//                message: LocateAdminUserService,
-//                value: Either[AUE, ActorRef])
-//                extends AUM with MR[ActorRef, LocateAdminUserService, AUE]
 
-case class Login(email:String, password: String) extends AUM
-case class LoginError(m: String = "", c: Throwable = null) extends AUE(m, c)
-case class LoginResponse(
-                message: Login, 
-                value: Either[AUE, AdminUser])
-                extends AUM with MR[AdminUser, Login, AUE]
+private[adminuser] case class RegisterAdminUserService(adminUser: AdminUser) extends AUM
+
+private[adminuser] case class LoginWithCredentials(credentials: AUCC) extends AUM with AUI
+
+private[adminuser] case class LoginWithEmail(
+        email: String,
+        correlation: AdminUserMessage with EmailIdentifiable,
+        override val correlationSender: Option[ActorRef]) extends AUM with Correlated
+private[adminuser] case class LoginWithEmailResponse(message: LoginWithEmail, value: Either[AUE, AdminUser])
+    extends AUM with MR[AdminUser, LoginWithEmail, AUE]
+
+
+case class InvalidCredentials(m: String = "Invalid email or password", c: Throwable = null) extends AUE(m, c)
+case class LoginWithEmailPassword(email: String, password: String) extends AUM with EmailIdentifiable
+case class LoginWithEmailPasswordResponse(message: LoginWithEmailPassword, value: Either[AUE, AdminUser])
+        extends AUM with MR[AdminUser, LoginWithEmailPassword, AUE]
 
 case class Logout(credentials: AUCC) extends AUM with AUI
-case class LogoutResponse(message: Logout, value: Either[AUE, Boolean])
-    extends AUM with MR[Boolean, Logout, AUE]
+
 
 case class UpdatePartnerSettings(
         credentials: AUCC,
