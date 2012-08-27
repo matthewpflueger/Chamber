@@ -10,7 +10,7 @@ $navColor: #111;
 $containerColor: #FFF;
 $backgroundColor: #CCC;
 
-$headerHeight: 40px;
+$headerHeght: 40px;
 
 $navFontFamily: 'Open Sans', sans-serif;
 $textFontFamily: 'Open Sans', sans-serif;
@@ -385,7 +385,7 @@ a{
             text-align:center;
             .action-button{
                 cursor: pointer;
-                @include textFontBold(14px, #FFF);
+                @include textFontBold(12px, #FFF);
                 @include button();
                 display: block;
             }
@@ -802,7 +802,7 @@ a{
                     }
                     .field-submit{
                         cursor: pointer;
-                        @include textFontBold(14px, #FFF);
+                        @include textFontBold(12px, #FFF);
                         @include button();
                     }
                 }
@@ -943,7 +943,7 @@ a{
                     .story-summary-submit{
                         cursor: pointer;
                         @include button;
-                        @include textFontBold(16px, #FFF);
+                        @include textFontBold(12px, #FFF);
                     }
                 }
             }
@@ -1094,7 +1094,7 @@ a{
                                 padding: 5px 6px;
                             }
                             .chapter-submit, .chapter-cancel{
-                                @include textFontBold(16px, #FFF);
+                                @include textFontBold(12px, #FFF);
                                 @include button();
                             }
                         }
@@ -1866,7 +1866,7 @@ h3{
             .comment-submit{
                 cursor: pointer;
                 @include button();
-                @include textFontBold(14px, #FFF);
+                @include textFontBold(12px, #FFF);
             }
             .comment-login-title {
                 @include textFontBold(14px);
