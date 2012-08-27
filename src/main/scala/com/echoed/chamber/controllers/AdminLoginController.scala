@@ -46,8 +46,8 @@ class AdminLoginController extends EchoedController {
         } else {
             val result = new DeferredResult(new ModelAndView(v.adminLoginView))
 
-            mp(Login(email, password)).onSuccess {
-                case LoginResponse(_, Right(adminUser)) =>
+            mp(LoginWithEmailPassword(email, password)).onSuccess {
+                case LoginWithEmailPasswordResponse(_, Right(adminUser)) =>
                     cookieManager.addAdminUserCookie(
                             response,
                             adminUser,

@@ -1,54 +1,73 @@
 package com.echoed.chamber.services.adminuser
 
-import com.echoed.chamber.domain._
 
-import com.echoed.chamber.services.{EventProcessorActorSystem, MessageProcessor, OnlineOfflineService}
-import com.echoed.chamber.services.state.{ReadAdminUserServiceStateResponse, ReadAdminUserServiceState}
+import com.echoed.chamber.services.{Message, EventProcessorActorSystem, MessageProcessor, OnlineOfflineService}
+import com.echoed.chamber.services.state._
+import com.echoed.chamber.dao.views.AdminViewDao
+import scala.collection.JavaConversions._
+import com.echoed.chamber.dao.partner.{PartnerSettingsDao, PartnerDao}
+import scalaz._
+import Scalaz._
+import akka.actor.PoisonPill
+import akka.pattern._
+import scala.Left
+import com.echoed.chamber.services.state.ReadAdminUserForEmail
+import com.echoed.chamber.domain.AdminUser
+import scala.Right
+import com.echoed.chamber.services.state.ReadAdminUserForCredentials
 
 
 class AdminUserService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
-        adminUserId: Option[String] = None) extends OnlineOfflineService {
+        initMessage: Message,
+        adminViewDao: AdminViewDao,
+        partnerDao: PartnerDao,
+        partnerSettingsDao: PartnerSettingsDao) extends OnlineOfflineService {
 
     private var adminUser: AdminUser = _
 
+    private def setStateAndRegister(au: AdminUser) {
+        adminUser = au
+        becomeOnline
+        context.parent ! RegisterAdminUserService(adminUser)
+    }
 
     override def preStart() {
         super.preStart()
-        adminUserId.foreach(context.self ! ReadAdminUserServiceState(_))
+        initMessage match {
+            case LoginWithEmail(email, _, _) => mp(ReadAdminUserForEmail(email)).pipeTo(self)
+            case LoginWithCredentials(credentials) => mp(ReadAdminUserForCredentials(credentials)).pipeTo(self)
+        }
     }
 
     def init = {
-        case msg @ CreateAdminUser(aucc, adminUser) =>
-            ep(AdminUserCreated(adminUser))
-            context.sender ! CreateAdminUserResponse(msg, Right(adminUser))
-            becomeOnline
+        case msg @ ReadAdminUserForEmailResponse(_, Left(_)) => initMessage match {
+            case LoginWithEmail(_, msg @ LoginWithEmailPassword(_, _), channel) =>
+                channel.get ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
+        }
 
-        case ReadAdminUserServiceStateResponse(_, Right(au)) =>
-            adminUser = au
-            becomeOnline
+        case msg @ ReadAdminUserForEmailResponse(_, Right(au)) => setStateAndRegister(au)
+        case msg @ ReadAdminUserForCredentialsResponse(_, Right(au)) => setStateAndRegister(au)
     }
 
     def online = {
-        case msg @ CreateAdminUser(aucc, adminUser) =>
-            //FIXME check permissions, assign roles, etc and then copy the message inserting the updated AdminUser into it...
-            context.parent ! CreateAdminUserService(msg, context.sender)
-
-        case msg @ Login(email, password) =>
+        case msg @ LoginWithEmailPassword(email, password) =>
             //FIXME create new credential, invalidate existing credentials, etc and send back credential as response
-            if (adminUser.isPassword(password)) sender ! LoginResponse(msg, Right(adminUser))
-            else sender ! LoginResponse(msg, Left(LoginError("Invalid login")))
-    }
+            if (adminUser.isCredentials(email, password)) sender ! LoginWithEmailPasswordResponse(msg, Right(adminUser))
+            else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
 
-/*
-    def handle = {
+
         case msg: GetUsers =>
             log.debug("Retrieving EchoedUsers")
             sender ! GetUsersResponse(msg,Right(asScalaBuffer(adminViewDao.getUsers).toList))
+
+
         case msg: GetPartners =>
             log.debug("Retrieving Partners")
             sender ! GetPartnersResponse(msg, Right(asScalaBuffer(adminViewDao.getPartners).toList))
+
+
         case msg @ GetPartner(aucc, partnerId) =>
             val channel = sender
             log.debug("Retrieving Partner {}", partnerId)
@@ -62,6 +81,7 @@ class AdminUserService(
                     channel ! GetPartnerResponse(msg, Left(new AdminUserException("Error Retrieving Partner")))
                 })
 
+
         case msg @ UpdatePartnerHandleAndCategory(aucc, partnerId, partnerHandle, partnerCategory) =>
             val channel = sender
             log.debug("Updating Partner {}", partnerId)
@@ -74,15 +94,23 @@ class AdminUserService(
                     log.error("Error Updating Partner Handle and Category for Partner {}", partnerId)
                     channel ! UpdatePartnerHandleAndCategoryResponse(msg, Left(new AdminUserException("Error updating Partner Handle")))
                 })
+
+
         case msg @ GetPartnerSettings(aucc, partnerId) =>
             log.debug("Retrieving Partner Settings for partner: {}", partnerId)
             sender ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(adminViewDao.getPartnerSettings(partnerId)).toList))
+
+
         case msg @ GetCurrentPartnerSettings(aucc, partnerId) =>
             log.debug("Retreiving Current Partner Settings for Partner: {}", partnerId)
             sender ! GetCurrentPartnerSettingsResponse(msg, Right(adminViewDao.getCurrentPartnerSettings(partnerId)))
+
+
         case msg: GetEchoPossibilities =>
             log.debug("Retrieving EchoPossibilities")
             sender ! GetEchoPossibilitiesResponse(msg, Right(asScalaBuffer(adminViewDao.getEchoPossibilities).toList))
+
+
         case msg @ UpdatePartnerSettings(aucc, partnerSettings) =>
             val channel = sender
             log.debug("Updating Partner Settings")
@@ -100,24 +128,10 @@ class AdminUserService(
         case msg: GetAdminUser =>
             log.debug("Retreiving AdminUser: {}", adminUser)
             sender ! GetAdminUserResponse(msg, Right(adminUser))
-        case msg @ Logout(adminUserId) =>
-            val channel = sender
 
-            try {
-                assert(adminUser.id == adminUserId)
-                channel ! LogoutResponse(msg, Right(true))
-                self ! PoisonPill
-                log.debug("Logged out {}", adminUser)
-            } catch {
-                case e =>
-                    channel ! LogoutResponse(msg, Left(AdminUserException("Could not logout", e)))
-                    log.error("Unexpected error processing %s" format msg, e)
-            }
 
-        case _ =>
-            log.debug("No Standard Message")
-            sender ! "None"
+        case msg @ Logout(adminUserId) => self ! PoisonPill
 
     }
- */
+
 }

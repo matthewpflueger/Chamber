@@ -9,6 +9,7 @@ import com.echoed.chamber.domain.TwitterUser
 import com.echoed.chamber.services.scheduler.Schedule
 import com.echoed.chamber.domain.partner.PartnerUser
 import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 
 
 private[services] sealed trait StateMessage extends Message
@@ -18,26 +19,6 @@ private[services] sealed case class StateException(message: String = "", cause: 
 import com.echoed.chamber.services.state.{StateMessage => SM}
 import com.echoed.chamber.services.state.{StateException => SE}
 
-
-private[services] case class ReadAdminUserServiceManagerState() extends SM
-private[services] case class ReadAdminUserServiceManagerStateResponse(
-        message: ReadAdminUserServiceManagerState,
-        value: Either[SE, Map[String, String]])
-        extends SM with MR[Map[String, String], ReadAdminUserServiceManagerState, SE]
-
-
-private[services] case class ReadAdminUserServiceState(adminUserId: String) extends SM
-private[services] case class ReadAdminUserServiceStateResponse(
-        message: ReadAdminUserServiceState,
-        value: Either[SE, AdminUser])
-        extends SM with MR[AdminUser, ReadAdminUserServiceState, SE]
-
-
-private[services] case class ReadPartnerUserServiceManagerState() extends SM
-private[services] case class ReadPartnerUserServiceManagerStateResponse(
-        message: ReadPartnerUserServiceManagerState,
-        value: Either[SE, Map[String, String]])
-        extends SM with MR[Map[String, String], ReadPartnerUserServiceManagerState, SE]
 
 
 private[services] case class EchoedUserNotFound(
@@ -109,3 +90,21 @@ private[services] case class ReadPartnerUserForCredentialsResponse(
                 message: ReadPartnerUserForCredentials,
                 value: Either[SE, PartnerUser])
                 extends SM with MR[PartnerUser, ReadPartnerUserForCredentials, SE]
+
+
+private[services] case class AdminUserNotFound(
+        email: String,
+        m: String = "Admin user not found") extends SE(m)
+
+private[services] case class ReadAdminUserForEmail(email: String) extends SM
+private[services] case class ReadAdminUserForEmailResponse(
+                message: ReadAdminUserForEmail,
+                value: Either[SE, AdminUser])
+                extends SM with MR[AdminUser, ReadAdminUserForEmail, SE]
+
+
+private[services] case class ReadAdminUserForCredentials(credentials: AdminUserClientCredentials) extends SM
+private[services] case class ReadAdminUserForCredentialsResponse(
+                message: ReadAdminUserForCredentials,
+                value: Either[SE, AdminUser])
+                extends SM with MR[AdminUser, ReadAdminUserForCredentials, SE]

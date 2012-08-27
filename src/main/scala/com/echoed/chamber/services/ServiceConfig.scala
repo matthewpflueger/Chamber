@@ -26,7 +26,7 @@ import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.chamber.services.twitter.{TwitterMessage, TwitterAccess}
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserMessage, EchoedUserServiceManager}
 import com.echoed.chamber.services.partneruser.{PartnerUserService, PartnerUserMessage, PartnerUserServiceManager}
-import com.echoed.chamber.services.adminuser.{AdminUserMessage, AdminUserServiceManager}
+import com.echoed.chamber.services.adminuser.{AdminUserService, AdminUserMessage, AdminUserServiceManager}
 import com.echoed.chamber.services.partner.{PartnerMessage, PartnerServiceManager}
 import com.echoed.chamber.dao.partner.shopify.ShopifyPartnerDao
 import com.echoed.chamber.dao.partner.networksolutions.NetworkSolutionsPartnerDao
@@ -105,7 +105,6 @@ class ServiceConfig {
     @Resource(name = "partnerUserDao") var partnerUserDao: PartnerUserDao = _
     @Resource(name = "partnerViewDao") var partnerViewDao: PartnerViewDao = _
 
-    @Resource(name = "adminUserDao") var adminUserDao: AdminUserDao = _
     @Resource(name = "adminViewDao") var adminViewDao: AdminViewDao = _
 
     @Resource(name = "shopifyPartnerDao") var shopifyPartnerDao: ShopifyPartnerDao = _
@@ -254,9 +253,19 @@ class ServiceConfig {
             encrypter = encrypter)), "PartnerUsers")
 
     @Bean
+    def adminUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new AdminUserService(
+            mp = messageProcessor,
+            ep = eventProcessor,
+            initMessage = msg,
+            adminViewDao = adminViewDao,
+            partnerDao = partnerDao,
+            partnerSettingsDao = partnerSettingsDao)))
+
+    @Bean
     def adminUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new AdminUserServiceManager(
             mp = messageProcessor,
-            ep = eventProcessor)), "AdminUsers")
+            ep = eventProcessor,
+            adminUserServiceCreator = adminUserService)), "AdminUsers")
 
     @Bean
     def partnerServiceManager = (ac: ActorContext) => ac.actorOf(Props(new PartnerServiceManager(

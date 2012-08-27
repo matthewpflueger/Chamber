@@ -13,45 +13,33 @@ case class AdminUser(
         name: String,
         email: String,
         salt: String,
-        password: String) extends DomainObject {
+        password: String) extends DomainObject with EmailPassword {
 
     def this() = this("", 0L, 0L, "", "", "", "")
 
-    def this(id:String, name: String,  email:String) = this(
+    def this(id: String, name: String,  email: String) = this(
         id,
         new Date,
         new Date,
         name,
         email,
-        List.fill(4)(UUID()).mkString,
+        null,
         null
     )
     
-    def this(name:String,email:String) = this(
+    def this(name: String, email: String) = this(
         UUID(),
         new Date,
         new Date,
         name,
         email,
-        List.fill(4)(UUID()).mkString,
+        null,
         null)
 
 
-    def isPassword(plainTextPassword: String) = {
-        password == hash(plainTextPassword)
-    }
-    
     def createPassword(plainTextPassword: String) = {
-        this.copy(password = hash(plainTextPassword))
-    }
-
-    private def hash(input: String) = {
-        val charset = Charset.forName("UTF-8")
-        val messageDigest = MessageDigest.getInstance("SHA-256")
-        messageDigest.update("108hqdvn9piqw3rfhy2e908bhb2p9834ufh9qw8fvh291348fhc9wqgu2hwq9s8ufy210r".getBytes(charset))
-        messageDigest.update(input.getBytes(charset))
-        messageDigest.update(salt.getBytes(charset))
-        Base64.encodeBase64URLSafeString(messageDigest.digest())
+        val (s, p) = createSaltAndPassword(plainTextPassword)
+        copy(salt = s, password = p)
     }
 
 }
