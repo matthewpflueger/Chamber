@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.partneruser
 
 import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedClientCredentials, EchoedException, Message}
-import com.echoed.chamber.domain.views.{PartnerSocialSummary, ProductSocialSummary, PartnerProductsListView, PartnerCustomerListView, PartnerProductSocialActivityByDate, PartnerSocialActivityByDate,CustomerSocialSummary,PartnerCustomerSocialActivityByDate, PartnerEchoView}
 import com.echoed.chamber.domain.partner._
 import com.echoed.chamber.domain._
 import akka.actor.ActorRef
