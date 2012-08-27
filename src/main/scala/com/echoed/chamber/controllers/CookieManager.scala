@@ -21,7 +21,7 @@ class CookieManager {
     @BeanProperty var persistentAge = 31556926 //1 year
     @BeanProperty var httpOnly = true
 
-    @BeanProperty var echoedUserCookieName = "eu"
+    @BeanProperty var echoedUserCookieName = "eucc"
     @BeanProperty var echoClickCookieName = "ec"
     @BeanProperty var partnerUserCookieName = "pu"
     @BeanProperty var adminUserCookieName = "au"
