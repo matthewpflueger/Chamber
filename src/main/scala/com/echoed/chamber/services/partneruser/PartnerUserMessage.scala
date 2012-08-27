@@ -69,63 +69,6 @@ case class GetPartnerSettings(credentials: PUCC) extends PUM with PUI
 case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerUserException, List[PartnerSettings]])
         extends PUM with MR[List[PartnerSettings], GetPartnerSettings, PUE]
 
-case class GetCustomerSocialSummary(credentials: PUCC, echoedUserId: String) extends PUM with PUI
-case class GetCustomerSocialSummaryResponse(message: GetCustomerSocialSummary, value: Either[PartnerUserException, CustomerSocialSummary])
-        extends PUM with MR[CustomerSocialSummary, GetCustomerSocialSummary, PUE]
-
-case class GetCustomerSocialActivityByDate(credentials: PUCC, echoedUserId: String) extends PUM with PUI
-case class GetCustomerSocialActivityByDateResponse(message: GetCustomerSocialActivityByDate, value: Either[PartnerUserException, PartnerCustomerSocialActivityByDate])
-        extends PUM with MR[PartnerCustomerSocialActivityByDate, GetCustomerSocialActivityByDate, PUE]
-
-case class GetPartnerSocialSummary(credentials: PUCC) extends PUM with PUI
-case class GetPartnerSocialSummaryResponse(message: GetPartnerSocialSummary, value: Either[PartnerUserException, PartnerSocialSummary])
-        extends PUM with MR[PartnerSocialSummary, GetPartnerSocialSummary, PUE]
-
-case class GetEchoClickGeoLocation(credentials: PUCC) extends PUM with PUI
-case class GetEchoClickGeoLocationResponse(message: GetEchoClickGeoLocation, value: Either[PartnerUserException, List[GeoLocation]])
-        extends PUM with MR[List[GeoLocation], GetEchoClickGeoLocation, PUE]
-
-case class GetPartnerSocialActivityByDate(credentials: PUCC) extends PUM with PUI
-case class GetPartnerSocialActivityByDateResponse(message: GetPartnerSocialActivityByDate, value: Either[PartnerUserException, PartnerSocialActivityByDate])
-        extends PUM with MR[PartnerSocialActivityByDate, GetPartnerSocialActivityByDate, PUE]
-
-case class GetProductSocialSummary(credentials: PUCC, productId: String) extends PUM with PUI
-case class GetProductSocialSummaryResponse(message: GetProductSocialSummary, value: Either[PartnerUserException, ProductSocialSummary])
-        extends PUM with MR[ProductSocialSummary, GetProductSocialSummary, PUE]
-
-case class GetProductSocialActivityByDate(credentials: PUCC, productId: String) extends PUM with PUI
-case class GetProductSocialActivityByDateResponse(message: GetProductSocialActivityByDate, value: Either[PartnerUserException, PartnerProductSocialActivityByDate])
-        extends PUM with MR[PartnerProductSocialActivityByDate, GetProductSocialActivityByDate, PUE]
-
-case class GetProducts(credentials: PUCC) extends PUM with PUI
-case class GetProductsResponse(message: GetProducts, value: Either[PartnerUserException, PartnerProductsListView])
-    extends PUM with MR[PartnerProductsListView, GetProducts, PUE]
-
-case class GetTopProducts(credentials: PUCC) extends PUM with PUI
-case class GetTopProductsResponse(message: GetTopProducts, value: Either[PartnerUserException, PartnerProductsListView])
-    extends PUM with MR[PartnerProductsListView, GetTopProducts, PUE]
-
-case class GetCustomers(credentials: PUCC) extends PUM with PUI
-case class GetCustomersResponse(message: GetCustomers, value: Either[PartnerUserException,PartnerCustomerListView])
-    extends PUM with MR[PartnerCustomerListView, GetCustomers, PUE]
-
-case class GetEchoes(credentials: PUCC) extends PUM with PUI
-case class GetEchoesResponse(message: GetEchoes,  value: Either[PartnerUserException, List[PartnerEchoView]])
-    extends PUM with MR[List[PartnerEchoView], GetEchoes, PUE]
-
-case class GetTopCustomers(credentials: PUCC) extends PUM with PUI
-case class GetTopCustomersResponse(message: GetTopCustomers, value: Either[PartnerUserException,PartnerCustomerListView])
-    extends PUM with MR[PartnerCustomerListView, GetTopCustomers, PUE]
-
-case class GetComments(credentials: PUCC) extends PUM with PUI
-case class GetCommentsResponse(message: GetComments, value: Either[PartnerUserException,List[FacebookComment]] )
-    extends PUM with MR[List[FacebookComment], GetComments, PUE]
-
-case class GetCommentsByProductId(credentials: PUCC, productId: String) extends PUM with PUI
-case class GetCommentsByProductIdResponse(message: GetCommentsByProductId, value: Either[PartnerUserException,List[FacebookComment]])
-    extends PUM with MR[List[FacebookComment], GetCommentsByProductId, PUE]
-
-
 case class ActivatePartnerUser(credentials: PUCC, password: String) extends PUM with PUI
 case class ActivatePartnerUserResponse(
         message: ActivatePartnerUser,
