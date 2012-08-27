@@ -1,4 +1,3 @@
-//$mainColor: #FF7733;
 $mainColor: #E31B23;
 $highlightColor : #DC0814;
 $fbColor: #3B5998;
@@ -11,7 +10,7 @@ $navColor: #111;
 $containerColor: #FFF;
 $backgroundColor: #CCC;
 
-$headerHeight: 40px;
+$headerHeght: 40px;
 
 $navFontFamily: 'Open Sans', sans-serif;
 $textFontFamily: 'Open Sans', sans-serif;
@@ -240,7 +239,6 @@ a{
             margin-left: 10px;
             height: 40px;
             text-align:center;
-
             float:left;
         }
 
@@ -351,7 +349,7 @@ a{
                 @include drop-shadow-down;
                 background-color: #FFF;
                 .user-list-item{
-                    @include textFontBold(12px);
+                    //@include textFontBold(12px);
                     list-style: none;
                     padding: 7px 10px;
                     cursor: pointer;
@@ -387,7 +385,7 @@ a{
             text-align:center;
             .action-button{
                 cursor: pointer;
-                @include textFontBold(14px, #FFF);
+                @include textFontBold(12px, #FFF);
                 @include button();
                 display: block;
             }
@@ -401,6 +399,7 @@ a{
             @include textFontBold(13px, #FFF);
             line-height: 30px;
             text-align: left;
+            padding: 2px;
             margin: 5px;
             display: inline-block;
             border-radius: 5px;
@@ -803,7 +802,7 @@ a{
                     }
                     .field-submit{
                         cursor: pointer;
-                        @include textFontBold(14px, #FFF);
+                        @include textFontBold(12px, #FFF);
                         @include button();
                     }
                 }
@@ -944,7 +943,7 @@ a{
                     .story-summary-submit{
                         cursor: pointer;
                         @include button;
-                        @include textFontBold(16px, #FFF);
+                        @include textFontBold(12px, #FFF);
                     }
                 }
             }
@@ -1095,7 +1094,7 @@ a{
                                 padding: 5px 6px;
                             }
                             .chapter-submit, .chapter-cancel{
-                                @include textFontBold(16px, #FFF);
+                                @include textFontBold(12px, #FFF);
                                 @include button();
                             }
                         }
@@ -1867,7 +1866,7 @@ h3{
             .comment-submit{
                 cursor: pointer;
                 @include button();
-                @include textFontBold(14px, #FFF);
+                @include textFontBold(12px, #FFF);
             }
             .comment-login-title {
                 @include textFontBold(14px);
@@ -2245,4 +2244,9 @@ h3{
     height:30px;
     background-image: image-url("bk_twitter_bird.png");
     vertical-align: middle;
+}
+
+.story-brief-overlay-edit-button{
+    @include button;
+    @include textFontBold(12px, #FFF);
 }

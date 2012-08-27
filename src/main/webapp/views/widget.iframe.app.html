@@ -18,21 +18,21 @@
 <div class='echoed-head'>
     <!--Real Stories From Our Customers-->
     <div id="title">
-        Real Stories From Our Customers
-    </div>
-    <a class='echoed-share' href='#write/'>Share Your Story</a>
-    <div id="user">
-
+        Stories From The Trixie + Peanut Community
     </div>
     <div id="close">
         <img src='{{urls.images}}/bk_white_x.png'/>
     </div>
 </div>
+
 <div id="fade">
     <div id="story"></div>
     <div id="field"></div>
 </div>
 <div id="echoed-exhibit-container">
+    <div class="echoed-share-container">
+        <a class='echoed-share' href='#write/'>Share Your Story</a>
+    </div>
     <div id="content">
         <div id='echoed-exhibit'></div>
     </div>
@@ -796,6 +796,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
             alert("Please enter in a comment");
         } else if (self.locked !== true) {
             self.locked = true;
+            console.log("Creating Comment");
             $.ajax({
                 url:Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
                 type:"POST",
@@ -804,7 +805,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 },
                 dataType:'json',
                 data:{
-                    text:text
+                    text:text,
+                    storyOwnerId: self.data.echoedUser.id
                 },
                 success:function (createCommentData) {
                     self.locked = false;

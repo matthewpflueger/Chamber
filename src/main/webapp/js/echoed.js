@@ -1601,35 +1601,46 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         } else {
             imageNode.attr("src", image.url)
         }
-        if(Echoed.echoedUser !== undefined){
-            if(self.data.echoedUser.id === Echoed.echoedUser.id){
-                textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
+        if(self.data.chapters.length > 0){
+            if(Echoed.echoedUser !== undefined){
+                if(self.data.echoedUser.id === Echoed.echoedUser.id){
+                    textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
+                }
+            }
+            textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
+            textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
+            textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
+            var chapterText = self.data.chapters[0].text;
+            var c  = chapterText.split(/[.!?]/)[0];
+            c = c + chapterText.substr(c.length, 1); //Append Split Character
+            textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
+            overlayNode.html(self.data.story.title);
+            var dateString = self.data.story.updatedOn.toString();
+            var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
+
+            var indicators = $("<div class='story-brief-indicator'></div>");
+
+            indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
+            indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.comments.length));
+            indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
+            indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.chapterImages.length + 1));
+            indicators.append($("<span class='s-b-i-c'></span>").append(elapsedString));
+
+            textNode.append(indicators);
+
+        } else {
+            if(self.personal === true ) {
+                textNode.append("<strong>"+ self.data.story.title + "</strong><br/>");
+                textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
+                if(self.data.chapters.length === 0 ){
+                    var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Complete Story");
+                    overlayNode.append(editButton);
+                    overlayNode.append("<br/>Complete your story by adding a chapter");
+                    self.overlay.fadeIn();
+                }
+                self.element.attr('action','write');
             }
         }
-        textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
-        textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
-        textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
-
-
-        var chapterText = self.data.chapters[0].text;
-        var c  = chapterText.split(/[.!?]/)[0];
-        c = c + chapterText.substr(c.length, 1); //Append Split Character
-        textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
-        overlayNode.html(self.data.story.title);
-        var dateString = self.data.story.updatedOn.toString();
-        var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
-
-        var indicators = $("<div class='story-brief-indicator'></div>");
-
-        indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
-        indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.comments.length));
-        indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
-        indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.chapterImages.length + 1));
-        indicators.append($("<span class='s-b-i-c'></span>").append(elapsedString));
-
-
-        textNode.append(indicators);
-
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
@@ -1641,7 +1652,11 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     click: function(){
         var self = this;
         var id = self.element.attr("id");
-        window.location.hash = "#!story/" + self.data.story.id;
+        if(self.element.attr('action') === "write"){
+            window.location.hash = "#!write/story/" + self.data.story.id;
+        } else {
+            window.location.hash = "#!story/" + self.data.story.id;
+        }
     }
 });
 

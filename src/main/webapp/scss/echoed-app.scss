@@ -173,7 +173,7 @@ body {
 
 #echoed-exhibit-container{
     position: relative;
-    padding-top: 40px;
+    padding-top: 50px;
     height: 100%;
     #echoed-exhibit{
         padding-top: 10px;
@@ -683,7 +683,7 @@ body {
 .echoed-head{
     text-align: center;
     border-bottom: 1px solid #FFF;
-    height: 35px;
+    height: 40px;
     position: fixed;
     width: 100%;
     z-index: 999999;
@@ -717,14 +717,20 @@ body {
     right: 0px;
     top: 0px;
     text-align: center;
-    .echoed-share-container{
-        padding-top: 50px;
-    }
+
+}
+
+.echoed-share-container{
+    width: 200px;
+    text-align: center;
+    margin: auto;
 }
 
 .echoed-share{
-    @include textFontBold(12px, #FFF);
+    @include textFontBold(18px, #FFF);
     @include button;
+    //position: absolute;
+    //right: 40px;
     text-decoration: none;
     vertical-align: middle;
 }

@@ -1,0 +1,38 @@
+$colorEC: #E31B23; //Echoed Color
+$colorFB: #3B5998; //Facebook Color
+$colorTW: #4099FF; //Twitter Color
+
+
+//DEFAULT FONT SETTINGS
+$fontTextFamily: 'Open Sans', sans-serif;
+$fontHeaderFamily: 'Arvo', sans-serif;
+
+$fontTextSizeDefault: 12px;
+$fontTextColorDefault: #333;
+
+//MIXINS
+    @mixin fontText($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+        font-family: $fontTextFamily;
+        font-weight: 400;
+        color: $color;
+    }
+
+    @mixin dropShadowDown(){
+        box-shadow: 0 3px 3px rgba(34,25,25,0.4);
+        -moz-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
+        -webkit-box-shadow: 0px 3px 3px rgba(34,25,25,0.4);
+        -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
+        filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
+    }
+
+    @mixin button{
+    }
+
+
+//RESET
+html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
+pre, form, fieldset, table, th, td {
+    margin:0;
+    padding: 0;
+    @include fontText;
+}

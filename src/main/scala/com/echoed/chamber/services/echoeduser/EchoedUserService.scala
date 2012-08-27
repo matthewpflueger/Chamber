@@ -732,7 +732,9 @@ class EchoedUserService(
                 mp(SendEmail(
                     echoedUser.email,
                     "You have new comments on your stories!",
-                    "email_notifications", Map("notifications" -> toEmail.toList)))
+                    "email_notifications", Map( "notifications" -> toEmail.toList,
+                                                "name" -> echoedUser.name)
+                ))
 
 
         case msg @ InitStory(_, storyId, echoId, partnerId) =>
