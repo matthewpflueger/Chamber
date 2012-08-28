@@ -22,6 +22,7 @@ import com.echoed.chamber.domain
 import com.echoed.chamber.domain.EchoedUser
 import scala.collection.immutable.Stack
 import com.echoed.chamber.services.scheduler.{ScheduleDeleted, ScheduleCreated}
+import com.echoed.util.TransactionUtils._
 
 
 class StateService(
@@ -54,8 +55,8 @@ class StateService(
     }
 
 
-    protected def handle = {
-        case msg @ ReadForEmail(email) => inTransaction {
+    protected def handle = transactional {
+        case msg @ ReadForEmail(email) =>
             val eu = from(echoedUsers)(eu => where(eu.email === email) select(eu)).headOption
             val eus = readEchoedUserSettings(eu)
             val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
@@ -65,9 +66,9 @@ class StateService(
             eu.cata(
                 _ => sender ! ReadForEmailResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf))),
                 sender ! ReadForEmailResponse(msg, Left(EchoedUserNotFound(email))))
-        }
 
-        case msg @ ReadForCredentials(credentials) => inTransaction {
+
+        case msg @ ReadForCredentials(credentials) =>
             echoedUsers.lookup(credentials.id).foreach { eu =>
                 val eus = readEchoedUserSettings(Option(eu)).get
                 val fu = Option(eu.facebookUserId).flatMap(facebookUsers.lookup(_))
@@ -76,9 +77,9 @@ class StateService(
 
                 context.sender ! ReadForCredentialsResponse(msg, Right(EchoedUserServiceState(eu, eus, fu, tu, nf)))
             }
-        }
 
-        case msg @ ReadForFacebookUser(facebookUser) => inTransaction {
+
+        case msg @ ReadForFacebookUser(facebookUser) =>
             val fu = from(facebookUsers)(fu => where(fu.facebookId === facebookUser.facebookId) select(fu)).headOption
             val eu = fu.map(_.echoedUserId).flatMap(echoedUsers.lookup(_))
             val eus = readEchoedUserSettings(eu)
@@ -88,9 +89,9 @@ class StateService(
             fu.cata(
                 _ => context.sender ! ReadForFacebookUserResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf))),
                 context.sender ! ReadForFacebookUserResponse(msg, Left(FacebookUserNotFound(facebookUser))))
-        }
 
-        case msg @ ReadForTwitterUser(twitterUser) => inTransaction {
+
+        case msg @ ReadForTwitterUser(twitterUser) =>
             val tu = from(twitterUsers)(tu => where(tu.twitterId === twitterUser.twitterId) select(tu)).headOption
             val eu = tu.map(_.echoedUserId).flatMap(echoedUsers.lookup(_))
             val eus = readEchoedUserSettings(eu)
@@ -100,16 +101,16 @@ class StateService(
             tu.cata(
                 _ => context.sender ! ReadForTwitterUserResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf))),
                 context.sender ! ReadForTwitterUserResponse(msg, Left(TwitterUserNotFound(twitterUser))))
-        }
 
-        case EchoedUserCreated(echoedUser, eus, facebookUser, twitterUser) => inTransaction {
+
+        case EchoedUserCreated(echoedUser, eus, facebookUser, twitterUser) =>
             echoedUsers.insert(echoedUser)
             echoedUserSettings.insert(EchoedUserSettings(eus))
             facebookUsers.insert(facebookUser)
             twitterUsers. insert(twitterUser)
-        }
 
-        case EchoedUserUpdated(echoedUser, eus, facebookUser, twitterUser) => inTransaction {
+
+        case EchoedUserUpdated(echoedUser, eus, facebookUser, twitterUser) =>
             echoedUsers.update(echoedUser.copy(updatedOn = new Date))
             echoedUserSettings.update(EchoedUserSettings(eus.copy(updatedOn = new Date)))
             facebookUser.foreach { fu =>
@@ -122,53 +123,46 @@ class StateService(
                     .map(tu => twitterUsers.update(tu.copy(updatedOn = new Date)))
                     .orElse(Option(twitterUsers.insert(tu)))
             }
-        }
 
-        case NotificationCreated(notification) => inTransaction {
-            notifications.insert(Notification(notification))
-        }
 
-        case NotificationUpdated(notification) => inTransaction {
-            notifications.update(Notification(notification.copy(updatedOn = new Date)))
-        }
+        case NotificationCreated(notification) => notifications.insert(Notification(notification))
 
-        case msg: ReadSchedulerServiceState => inTransaction {
+        case NotificationUpdated(notification) => notifications.update(Notification(notification.copy(updatedOn = new Date)))
+
+
+        case msg: ReadSchedulerServiceState =>
             sender ! ReadSchedulerServiceStateResponse(
                     msg,
                     Right(from(schedules)(s => select(s)).map(s => (s.id, s.convertTo)).toMap))
-        }
 
-        case ScheduleCreated(schedule) => inTransaction {
-            schedules.insert(Schedule(schedule))
-        }
 
-        case ScheduleDeleted(schedule) => inTransaction {
-            schedules.delete(from(schedules)(s => where(s.id === schedule.id) select(s)))
-        }
+        case ScheduleCreated(schedule) => schedules.insert(Schedule(schedule))
 
-        case msg @ ReadPartnerUserForEmail(email) => inTransaction {
+        case ScheduleDeleted(schedule) => schedules.delete(from(schedules)(s => where(s.id === schedule.id) select(s)))
+
+
+        case msg @ ReadPartnerUserForEmail(email) =>
             from(partnerUsers)(pu => where(pu.email === email) select(pu)).headOption.cata(
                 pu => sender ! ReadPartnerUserForEmailResponse(msg, Right(pu)),
                 sender ! ReadPartnerUserForEmailResponse(msg, Left(PartnerUserNotFound(email))))
-        }
 
-        case msg @ ReadPartnerUserForCredentials(credentials) => inTransaction {
+
+        case msg @ ReadPartnerUserForCredentials(credentials) =>
             partnerUsers.lookup(credentials.partnerUserId).foreach { pu =>
                 sender ! ReadPartnerUserForCredentialsResponse(msg, Right(pu))
             }
-        }
 
-        case msg @ ReadAdminUserForEmail(email) => inTransaction {
+
+        case msg @ ReadAdminUserForEmail(email) =>
             from(adminUsers)(au => where(au.email === email) select(au)).headOption.cata(
                 au => sender ! ReadAdminUserForEmailResponse(msg, Right(au)),
                 sender ! ReadAdminUserForEmailResponse(msg, Left(AdminUserNotFound(email))))
-        }
 
-        case msg @ ReadAdminUserForCredentials(credentials) => inTransaction {
+
+        case msg @ ReadAdminUserForCredentials(credentials) =>
             adminUsers.lookup(credentials.adminUserId).foreach { au =>
                 sender ! ReadAdminUserForCredentialsResponse(msg, Right(au))
             }
-        }
 
     }
 }
