@@ -14,7 +14,8 @@ class EmailService(
         javaMailSender: JavaMailSender,
         mustacheEngine: MustacheEngine,
         globalsManager: GlobalsManager,
-        from: String) extends EchoedService {
+        from: String,
+        fromName: String = "Echoed") extends EchoedService {
 
     require(from != null, "Missing from")
 
@@ -32,7 +33,7 @@ class EmailService(
                     override def prepare(mimeMessage: MimeMessage) {
                         val mimeMessageHelper = new MimeMessageHelper(mimeMessage)
                         mimeMessageHelper.setTo(recipient)
-                        mimeMessageHelper.setFrom(from)
+                        mimeMessageHelper.setFrom(from, fromName)
                         mimeMessageHelper.setSubject(subject)
                         mimeMessageHelper.setText(renderedTemplate, true)
                     }
