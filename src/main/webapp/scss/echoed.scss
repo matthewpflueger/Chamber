@@ -1695,9 +1695,12 @@ h3{
             }
             .echo-s-h-t-n{
                 position: relative;
+                height: 35px;
                 .echo-s-h-t-n-i{
                     position:absolute;
                     top: 3px;
+                    left: 50%;
+                    margin-left: -90px;
                     height: 30px;
                     width: 30px;
                     margin-right: 5px;
@@ -1714,9 +1717,11 @@ h3{
             }
             .echo-s-h-t-n-t{
                 display:inline-block;
+                left: 50%;
+                position: absolute;
+                margin-left: -50px;
                 text-align: left;
                 @include textFontNormal(14px);
-                padding-left: 40px;
             }
             .echo-s-h-t-n-t-l{
                 @include textFontNormal(14px, $mainColor);
