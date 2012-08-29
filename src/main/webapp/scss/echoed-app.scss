@@ -1395,17 +1395,13 @@ body {
 
 .fb-login-logo{
     display: inline-block;
-    width:30px;
-    height:30px;
+    @include sprite(0px, -164px, 30px, 30px);
     vertical-align: middle;
-    background-image: image-url("bk_facebook_f.png");
 }
 
 .tw-login-logo{
     display: inline-block;
-    width:30px;
-    height:30px;
-    background-image: image-url("bk_twitter_bird.png");
+    @include sprite(-73px, -164px, 30px, 30px);
     vertical-align: middle;
 }
 
