@@ -659,12 +659,12 @@ class EchoedUserService(
             val chapterImages = imageIds.cata(
                 ids => ids.map(id => new ChapterImage(chapter, imageDao.findById(id))),
                 Array[ChapterImage]())
-            ep(StoryUpdated(chapter.storyId))
             transactionTemplate.execute { status: TransactionStatus =>
                 chapterDao.update(chapter)
                 chapterImageDao.deleteByChapterId(chapter.id)
                 chapterImages.foreach(chapterImageDao.insert(_))
             }
+            ep(StoryUpdated(chapter.storyId))
             channel ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
 
 
