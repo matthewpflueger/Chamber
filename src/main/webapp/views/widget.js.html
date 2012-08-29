@@ -3,7 +3,7 @@ window.onload = function(){
     var echoedFade = document.createElement('iframe');
     var hash = window.location.hash;
 
-    var iFrameSrc =  "{{urls.site}}/widget/iframe?pid={{partnerId}}";
+    var iFrameSrc =  "{{urls.site}}/widget/iframe?pid={{partnerId}}&type=widget";
 
 
 
@@ -28,7 +28,6 @@ window.onload = function(){
             {{#white}}
             openImage.src ="{{urls.images}}/bk_opener_white_left.png";
             {{/white}}
-            {{^white}}
             openImage.src ="{{urls.images}}/bk_opener_dark_left.png";
             openImage.style.display = "block";
             openImage.style.margin = "0";

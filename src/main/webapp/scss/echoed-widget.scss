@@ -4,7 +4,14 @@ $navFontFamily: "Open Sans", Tahoma, Arial,sans-serif;
 $textFontFamily: "Open Sans", Tahoma, Arial,sans-serif;
 $headerFontFamily: 'Arvo', serif;
 
-@mixin textFontNormal($size: 12px, $color: #333){
+    @mixin sprite($posX, $posY, $width, $height){
+        background-image: image-url("sprites.png");
+        background-position: $posX $posY;
+        width: $width;
+        height: $height;
+    }
+
+    @mixin textFontNormal($size: 12px, $color: #333){
         font-family: $textFontFamily;
         font-weight: normal;
         color: $color;
@@ -92,11 +99,7 @@ $headerFontFamily: 'Arvo', serif;
     left: 0px;
     top: 50%;
     margin-top: -260px;
-    //background-image: image-url("btn_echoed_opener.jpg");
     @include drop-shadow;
-    //width: 30px;
-    //height: 250px;
-    //border-top: 1px solid #CCC;
     cursor: pointer;
     img{
         display: block;
@@ -243,10 +246,10 @@ $headerFontFamily: 'Arvo', serif;
                     display: inline-block;
                 }
                 .sprite-comment{
-                    background-image: image-url("icon_comments.png");
+                    @include sprite(0px, -14px, 12px, 12px);
                 }
                 .sprite-photo{
-                    background-image: image-url("icon_photos.png");
+                    @include sprite(0px, 0px, 12px, 12px);
                 }
             }
             .story-brief-text{
@@ -695,9 +698,8 @@ $headerFontFamily: 'Arvo', serif;
     margin-right: -20px;
     margin-top: -20px;
     z-index: 10000;
-    img{
-        cursor: pointer;
-    }
+    cursor: pointer;
+    @include sprite(-31px, -157px, 36px, 37px);
 }
 
 .echoed-footer{

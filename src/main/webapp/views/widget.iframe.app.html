@@ -21,7 +21,6 @@
         Stories From The Trixie + Peanut Community
     </div>
     <div id="close">
-        <img src='{{urls.images}}/bk_white_x.png'/>
     </div>
 </div>
 
@@ -598,7 +597,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     render:function () {
 
-        var template = '<div id="echo-story-nav" class="clearfix"><div act="previous" class="story-nav-button" style="float:left">Previous Story</div><div act="next" class="story-nav-button" style="float:right">Next Story</div></div><div class="echo-story-container clearfix"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><div class="comment-submit">Submit Comment</div></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"></div></div>';
+        var template = $('#templates-components-story').html();
         var self = this;
         self.element.html(template);
 
@@ -887,14 +886,17 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     loadPartner: function(){
         var self = this;
-        self.element.fadeOut(function(){
-            self.load("{{partnerId}}","partner");
-        });
+        if(self.loaded === true){
+            self.element.fadeOut(function(){
+                self.load("{{partnerId}}","partner");
+            });
+        }
     },
     load: function(id, type){
         var self = this;
         var jsonUrl =  Echoed.urls.api + "/story";
         var loadData = {};
+        self.loaded = true;
         self.data = {};
 
         switch(type){
@@ -1269,6 +1271,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
     },
     close: function(){
         var self = this;
+        self.loaded = false;
         self.element.fadeOut().empty();
         self.EvAg.trigger('fade/hide');
         self.EvAg.trigger('hash/reset');
@@ -1436,7 +1439,7 @@ $(document).ready(function () {
     </div>
 </script>
 <script type="text/template" id="templates-components-menu">
-    <div class="menu-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div>
+    <div class="menu-close"></div>
     <div id="menu-header"></div>
     <div id="menu-content">
         <div class="menu-column" id="menu-column-1"></div>
@@ -1445,7 +1448,7 @@ $(document).ready(function () {
     </div>
 </script>
 <script type="text/template" id="templates-components-story-login">
-    <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
+    <div class="field-close"></div>
     <div class="story-login">
         <div class="field-logo"><img src="{{urls.images}}/logo_large.png" height="50px" /></div>
         <div class="field-login-title">Share stories about the things you love.<br/>Login to begin sharing your story.</div>
@@ -1469,7 +1472,7 @@ $(document).ready(function () {
     </div>
 </script>
 <script type="text/template" id="templates-components-story-summary">
-    <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
+    <div class="field-close"></div>
     <div class="field-title">Share Your Product Story</div>
     <div class="field-body clearfix">
         <div class="field-preview">
@@ -1519,7 +1522,7 @@ $(document).ready(function () {
     </div>
 </script>
 <script type="text/template" id="templates-components-story-edit">
-    <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
+    <div class="field-close"></div>
     <div class="field-title">Share Your Product Story</div>
     <div class="field-body">
         <div class="field-preview">
@@ -1582,67 +1585,6 @@ $(document).ready(function () {
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</script>
-<script type="text/template" id="templates-components-story">
-    <div id="story-nav" class="clearfix">
-        <div act="previous" class="story-nav-button" style="float:left">Previous Story</div>
-        <div act="next" class="story-nav-button" style="float:right">Next Story</div>
-    </div>
-    <div class="echo-story-container clearfix">
-        <div class="echo-story-header clearfix">
-            <div class="echo-s-h-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
-            <div class="echo-s-h-title clearfix">
-                <div class="echo-s-h-i-c">
-                    <img class="echo-s-h-i-i" src="" />
-                </div>
-                <div class="echo-s-h-t-t">
-                </div>
-                <div class="echo-s-h-t-n">
-                </div>
-            </div>
-        </div>
-        <div class="echo-story-main">
-            <div class="echo-story-body clearfix">
-                <div class="echo-s-b-text">
-                    <!--<div class="echo-s-b-t-t"></div>
-                    <div class="echo-s-b-t-b"></div>
-                    <div class="echo-chapters clearfix">
-                        <div class="echo-chapters-title">
-                            Stories
-                        </div>
-                    </div>-->
-                </div>
-                <div class="echo-s-b-segment"></div>
-                <div class="echo-s-b-gallery clearfix">
-                </div>
-            </div>
-            <div class="echo-story-footer clearfix">
-                <div class="echo-story-comments">
-                    <div class="echo-s-c-t">
-                        Discussion <span id="echo-s-c-t-count"></span>
-                    </div>
-                    <div class="echo-s-c-ta">
-                        <textarea id="echo-story-comment-ta"></textarea>
-                    </div>
-                    <div class="comment-submit" style="display: none;">Submit Comment</div>
-                    <div class="comment-login" style="display: none;">
-                        <div class="comment-login-title">Login to Discuss</div>
-                        <div class="login-button facebook-button comment-login-fb">
-                            <span class="fb-login-logo"></span>
-                        </div>
-                        <div class="login-button twitter-button comment-login-tw">
-                            <span class="tw-login-logo"></span>
-                        </div>
-                    </div>
-                    <div class="echo-s-c-l">
-                        <!-- Comment List -->
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="echo-story-gallery" class="echo-story-gallery">
         </div>
     </div>
 </script>
@@ -1735,4 +1677,47 @@ $(document).ready(function () {
         </div>
     </div>
 </script>
-
+<script type="text/templates" id="templates-components-story">
+    <div id="echo-story-nav" class="clearfix">
+        <div act="previous" class="story-nav-button" style="float:left">Previous Story</div>
+        <div act="next" class="story-nav-button" style="float:right">Next Story</div>
+    </div>
+    <div class="echo-story-container clearfix">
+        <div class="echoed-close">
+        </div>
+        <div class="echo-story-header clearfix">
+            <div class="echo-s-h-title clearfix">
+                <div class="echo-s-h-i-c">
+                    <img class="echo-s-h-i-i" src="" />
+                </div>
+                <div class="echo-s-h-t-t">
+                </div>
+                <div class="echo-s-h-t-n">
+                </div>
+            </div>
+        </div>
+        <div class="echo-story-main">
+            <div class="echo-story-body clearfix">
+                <div class="echo-s-b-text">
+                </div>
+                <div class="echo-s-b-gallery clearfix">
+                </div>
+            </div>
+            <div class="echo-story-footer clearfix">
+                <div class="echo-story-comments">
+                    <div class="echo-s-c-t">Discussion
+                        <span id="echo-s-c-t-count"></span>
+                    </div>
+                    <div class="echo-s-c-ta">
+                        <textarea id="echo-story-comment-ta"></textarea>
+                    </div>
+                    <div class="echo-s-c-tb">
+                        <div class="comment-submit">Submit Comment</div>
+                    </div>
+                    <div class="echo-s-c-l"></div>
+                </div>
+            </div>
+        </div>
+        <div id="echo-story-gallery" class="echo-story-gallery"></div>
+    </div>
+</script>

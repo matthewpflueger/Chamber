@@ -14,7 +14,7 @@
 <body>
 <div id="echoed-story"></div>
 <div id="echoed-exhibit-container">
-    <div class='echoed-close'><img src='{{urls.images}}/btn_close_x_black.png'/></div>
+    <div class='echoed-close'></div>
 
     <div class='echoed-head'>
         {{#title}}
@@ -528,7 +528,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     render:function () {
 
-        var template = '<div id="echo-story-nav" class="clearfix"><div act="previous" class="story-nav-button" style="float:left">Previous Story</div><div act="next" class="story-nav-button" style="float:right">Next Story</div></div><div class="echo-story-container clearfix"><div class="echoed-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><div class="comment-submit">Submit Comment</div></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"></div></div>';
+        var template = '<div id="echo-story-nav" class="clearfix"><div act="previous" class="story-nav-button" style="float:left">Previous Story</div><div act="next" class="story-nav-button" style="float:right">Next Story</div></div><div class="echo-story-container clearfix"><div class="echoed-close"></div><div class="echo-story-header clearfix"><div class="echo-s-h-title clearfix"> <div class="echo-s-h-i-c"> <img class="echo-s-h-i-i" src="" /> </div> <div class="echo-s-h-t-t"> </div> <div class="echo-s-h-t-n"></div></div></div><div class="echo-story-main"><div class="echo-story-body clearfix"> <div class="echo-s-b-text"></div><div class="echo-s-b-gallery clearfix"></div></div> <div class="echo-story-footer clearfix"> <div class="echo-story-comments"> <div class="echo-s-c-t">Discussion <span id="echo-s-c-t-count"></span> </div> <div class="echo-s-c-ta"> <textarea id="echo-story-comment-ta"></textarea></div><div class="echo-s-c-tb"><div class="comment-submit">Submit Comment</div></div><div class="echo-s-c-l"></div></div></div></div><div id="echo-story-gallery" class="echo-story-gallery"></div></div>';
         var self = this;
         self.element.html(template);
 

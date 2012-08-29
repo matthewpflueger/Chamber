@@ -6,6 +6,15 @@ $navFontFamily: "Open Sans", Tahoma, Arial,sans-serif;
 $textFontFamily: "Open Sans", Tahoma, Arial,sans-serif;
 $headerFontFamily: 'Arvo', serif;
 
+@mixin sprite($x, $y, $width, $height){
+    background-image: image-url('sprites.png');
+    background-repeat: no-repeat;
+    background-position: $x $y;
+    width: $width;
+    height: $height;
+}
+
+
 @mixin textFontNormal($size: 12px, $color: #333){
     font-family: $textFontFamily;
     font-weight: normal;
@@ -264,10 +273,10 @@ body {
                     display: inline-block;
                 }
                 .sprite-comment{
-                    background-image: image-url("icon_comments.png");
+                    @include sprite(0px, -14px, 12px, 12px);
                 }
                 .sprite-photo{
-                    background-image: image-url("icon_photos.png");
+                    @include sprite(0px, 0px, 12px, 12px);
                 }
             }
             .story-brief-text{
@@ -694,12 +703,9 @@ body {
     position: absolute;
     right:-20px;
     top:-20px;
-    //margin-right: -20px;
-    //margin-top: -20px;
+    @include sprite(-31px, -157px, 36px, 37px);
+    cursor: pointer;
     z-index: 10000;
-    img{
-        cursor: pointer;
-    }
 }
 
 #content{
@@ -777,6 +783,7 @@ body {
 #close{
     z-index: 10002;
     position: absolute;
+    @include sprite(0px, -28px, 15px, 15px);
     right: 10px;
     top: 10px;
     cursor: pointer;
@@ -903,9 +910,9 @@ body {
 
     .field-close{
         position:absolute;
-        right: -15px;
-        top: -15px;
-        //float:right;
+        right: -20px;
+        top: -20px;
+        @include sprite(-31px, -157px, 36px, 37px);
         cursor: pointer;
     }
     .field-photo-container{
@@ -1427,3 +1434,5 @@ body {
         border: 1px solid #CCC;
     }
 }
+
+

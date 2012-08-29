@@ -11,9 +11,17 @@ $fontTextSizeDefault: 12px;
 $fontTextColorDefault: #333;
 
 //MIXINS
-    @mixin fontText($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+    @mixin sprite($posX, $posY, $width, $height){
+        background-image: image-url('sprites.png');
+        background-repeat: no-repeat;
+        background-position: $posX $posY;
+        width: $width;
+        height: $height;
+    }
+
+    @mixin fontText($size: $fontTextSizeDefault, $color: $fontTextColorDefault, $weight: 400){
         font-family: $fontTextFamily;
-        font-weight: 400;
+        font-weight: $weight;
         color: $color;
     }
 
