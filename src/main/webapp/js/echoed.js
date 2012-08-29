@@ -742,10 +742,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                 if(chapterImage.chapterId === chapterId){
                     var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
-                    var thumbX = $('<img />').addClass('chapter-thumb-x').attr('src', Echoed.urls.images + "/btn_close_x_black.png").css({
-                        "height" : 20,
-                        "width" : 20
-                    });
+                    var thumbX = $('<span></span>').addClass('chapter-thumb-x').attr('src', Echoed.urls.images + "/btn_close_x_black.png");
                     thumbDiv.append(thumbX);
                     var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css(Echoed.getImageSizing(chapterImage, 75));
                     thumbDiv.append(photo).appendTo(chapterPhotos).fadeIn();

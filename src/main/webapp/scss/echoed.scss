@@ -1998,8 +1998,9 @@ h3{
     position: relative;
     .chapter-thumb-x{
         position: absolute;
-        top: -10px;
-        left: -10px;
+        top: -15px;
+        left: -15px;
+        @include sprite(-31px, -157px, 36px, 37px);
         cursor: pointer;
     }
 }
