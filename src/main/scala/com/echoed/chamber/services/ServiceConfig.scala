@@ -74,7 +74,6 @@ class ServiceConfig {
     @Resource(name = "facebookCommentDao") var facebookCommentDao: FacebookCommentDao = _
 
     @Resource(name = "cacheManager") var cacheManager: CacheManager = _
-    @Resource(name = "facebookUserDao") var facebookUserDao: FacebookUserDao = _
     @Resource(name = "facebookFriendDao") var facebookFriendDao: FacebookFriendDao = _
     @Resource(name = "twitterFollowerDao") var twitterFollowerDao: TwitterFollowerDao = _
     @Resource(name = "partnerSettingsDao") var partnerSettingsDao: PartnerSettingsDao = _
@@ -124,6 +123,7 @@ class ServiceConfig {
     @Bean def eventProcessor = new EventProcessorActorSystem(actorSystem)
 
     @Bean def log = new LoggingActorSystem(actorSystem)
+
 
     @Bean
     def geoLocationService = (ac: ActorContext) => ac.actorOf(Props(new GeoLocationService(
@@ -377,6 +377,7 @@ class ServiceConfig {
             classOf[StateMessage] -> stateService,
             classOf[SchedulerMessage] -> schedulerService,
             classOf[GeoLocationMessage] -> geoLocationService,
+            classOf[FacebookPostCrawlerMessage] -> facebookPostCrawler,
             classOf[ImageMessage] -> imageService,
             classOf[EventMessage] -> eventService,
             classOf[EmailMessage] -> emailService,

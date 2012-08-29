@@ -79,3 +79,7 @@ case class FetchMeResponse(message: FetchMe, value: Either[FE, FacebookUser])
 case class FacebookCode(code: String, queryString: String)
 case class FacebookAccessToken(accessToken: String, facebookId: Option[String] = None)
 
+
+sealed trait FacebookPostCrawlerMessage extends Message
+
+case object CrawlNext extends FacebookPostCrawlerMessage

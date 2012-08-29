@@ -37,7 +37,7 @@ class FacebookPostCrawler(
 
     def next {
         //interval less than one is used for testing - we will handle the message sending in a test
-        if (interval > 0) self ! 'next
+        if (interval > 0) self ! CrawlNext
     }
 
     def findFacebookPostToCrawl = {
@@ -76,7 +76,7 @@ class FacebookPostCrawler(
     }
 
     def handle = {
-        case 'next =>
+        case CrawlNext =>
             try {
                 Option(findFacebookPostToCrawl).cata({ facebookPostToCrawl =>
                     log.debug("Found for crawling {}", facebookPostToCrawl)
@@ -88,7 +88,7 @@ class FacebookPostCrawler(
             } finally {
                 //always make sure we are looking for posts to crawl (less than one interval for testing)
                 if (interval > 0) scheduledMessage =
-                    Option(context.system.scheduler.scheduleOnce(interval milliseconds, context.self, 'next))
+                    Option(context.system.scheduler.scheduleOnce(interval milliseconds, context.self, CrawlNext))
             }
 
 
