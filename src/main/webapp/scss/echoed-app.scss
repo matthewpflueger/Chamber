@@ -69,6 +69,7 @@ $headerFontFamily: 'Arvo', serif;
 }
 
 @mixin black-gradient{
+    background-color: #000;
     background-image: linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
     background-image: -o-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
     background-image: -moz-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
