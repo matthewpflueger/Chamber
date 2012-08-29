@@ -17,7 +17,13 @@ $textFontFamily: 'Open Sans', sans-serif;
 $headerFontFamily: 'Arvo', serif;
 
 //MIXINS
-
+    @mixin sprite($posX, $posY, $width, $height){
+        background-image: image-url('sprites.png');
+        background-repeat: no-repeat;
+        background-position: $posX $posY;
+        width: $width;
+        height: $height;
+    }
 
     //DROP SHADOW
     @mixin drop-shadow-down{
@@ -198,7 +204,6 @@ a{
 #fade { /*--Transparent background layer--*/
     position: absolute;
     z-index: 9999;
-    //background-image: image_url("bk_greyPx.png");
     background-color: rgba(0,0,0,0.7);
     top: 0px;
     left: 0px;
@@ -231,8 +236,6 @@ a{
         background: -ms-linear-gradient(top,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* IE10+ */
         background: linear-gradient(to bottom,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* W3C */
         filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-8 */
-        //background-color: #FFF;
-        //background-image: image-url("bk_header.png");
         @include drop-shadow;
 
         #logo{
@@ -313,17 +316,25 @@ a{
             cursor: pointer;
             background-position: right;
             background-repeat: no-repeat;
+            border-left: 1px solid #CCC;
+            box-shadow: -1px -1px #FFF;
             background-image: image-url("bk_downarrow.png");
             &:hover{
+                .downarrow{
+                    border-top-color: #333;
+                }
+                border-left: 1px solid #333;
                 background-color: rgba(0,0,0,0.1);
                 background-image: image-url("bk_downarrow_dark.png");
             }
             #user-text{
                 display:inline-block;
-                width: 140px;
-                padding-left: 2px;
+                width: 130px;
+                padding-left: 10px;
                 line-height:32px;
-                @include textFontBold(12px);
+                @include textFontBold(13px);
+                text-wrap: none;
+                text-overflow: ellipsis;
                 text-align:left;
                 vertical-align: middle;
             }
@@ -713,7 +724,7 @@ a{
                 position:absolute;
                 right: -15px;
                 top: -15px;
-                //float:right;
+                @include sprite(-31px, -157px, 36px, 37px);
                 cursor: pointer;
             }
             .field-photo-container{
@@ -722,7 +733,6 @@ a{
                 overflow: hidden;
                 #preview{
                     display:inline-block;
-                    //border: 5px solid #FFF;
                     max-width: 200px;
                     overflow: hidden;
                     #field-photo{
@@ -1200,10 +1210,12 @@ a{
                                 display: inline-block;
                             }
                             .sprite-comment{
-                                background-image: image-url("icon_comments.png");
+                                @include sprite(0px, -14px, 12px, 12px);
+                                //background-image: image-url("icon_comments.png");
                             }
                             .sprite-photo{
-                                background-image: image-url("icon_photos.png");
+                                @include sprite(0px, 0px, 12px, 12px);
+                                //background-image: image-url("icon_photos.png");
                             }
                         }
                         .story-brief-text{
@@ -1592,6 +1604,7 @@ h3{
 
     .menu-close{
         position:absolute;
+        @include sprite(0px, -28px, 15px, 15px);
         right: -25px;
         top: -25px;
         cursor: pointer;
@@ -1671,6 +1684,7 @@ h3{
         right: -25px;
         top: -25px;
         cursor: pointer;
+        @include sprite(-31px, -157px, 36px, 37px);
     }
     .echo-story-header{
         position:relative;
@@ -2232,21 +2246,38 @@ h3{
 
 .fb-login-logo{
     display: inline-block;
-    width:30px;
-    height:30px;
     vertical-align: middle;
-    background-image: image-url("bk_facebook_f.png");
+    @include sprite(0px, -164px, 30px, 30px)
 }
 
 .tw-login-logo{
     display: inline-block;
-    width:30px;
-    height:30px;
-    background-image: image-url("bk_twitter_bird.png");
+    @include sprite(-73px, -164px, 30px, 30px);
     vertical-align: middle;
 }
 
 .story-brief-overlay-edit-button{
     @include button;
     @include textFontBold(12px, #FFF);
+}
+
+#content-wide{
+    padding-top: 43px;
+}
+
+.downarrow{
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    border-style: solid dashed dashed;
+    border-color: transparent;
+    border-top-color: #999;
+    display: -moz-inline-box;
+    display: inline-block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    width: 0;
+    border-width: 5px 5px 0;
+    padding-top: 1px;
 }
