@@ -1362,16 +1362,9 @@ a{
     margin:auto;
 }
 
-.center-static{
-    width: 720px;
-    margin: auto;
-    .center-section{
-        margin-top:20px;
-    }
-    p{
-        margin-bottom: 20px;
-        @include textFontNormal(16px);
-    }
+.static-section{
+    margin:20px 0px;
+    @include textFontNormal(16px);
 }
 
 .orange{
