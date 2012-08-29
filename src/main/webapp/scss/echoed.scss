@@ -1362,16 +1362,9 @@ a{
     margin:auto;
 }
 
-.center-static{
-    width: 720px;
-    margin: auto;
-    .center-section{
-        margin-top:20px;
-    }
-    p{
-        margin-bottom: 20px;
-        @include textFontNormal(16px);
-    }
+.static-section{
+    margin:20px 0px;
+    @include textFontNormal(16px);
 }
 
 .orange{
@@ -1702,9 +1695,12 @@ h3{
             }
             .echo-s-h-t-n{
                 position: relative;
+                height: 35px;
                 .echo-s-h-t-n-i{
                     position:absolute;
                     top: 3px;
+                    left: 50%;
+                    margin-left: -90px;
                     height: 30px;
                     width: 30px;
                     margin-right: 5px;
@@ -1721,9 +1717,11 @@ h3{
             }
             .echo-s-h-t-n-t{
                 display:inline-block;
+                left: 50%;
+                position: absolute;
+                margin-left: -50px;
                 text-align: left;
                 @include textFontNormal(14px);
-                padding-left: 40px;
             }
             .echo-s-h-t-n-t-l{
                 @include textFontNormal(14px, $mainColor);
@@ -2000,8 +1998,9 @@ h3{
     position: relative;
     .chapter-thumb-x{
         position: absolute;
-        top: -10px;
-        left: -10px;
+        top: -15px;
+        left: -15px;
+        @include sprite(-31px, -157px, 36px, 37px);
         cursor: pointer;
     }
 }

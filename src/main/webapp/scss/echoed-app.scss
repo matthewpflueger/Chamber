@@ -69,6 +69,7 @@ $headerFontFamily: 'Arvo', serif;
 }
 
 @mixin black-gradient{
+    background-color: #000;
     background-image: linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
     background-image: -o-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
     background-image: -moz-linear-gradient(top, rgb(77,77,77) 15%, rgb(41,41,41) 49%, rgb(36,36,36) 61%);
@@ -1395,17 +1396,13 @@ body {
 
 .fb-login-logo{
     display: inline-block;
-    width:30px;
-    height:30px;
+    @include sprite(0px, -164px, 30px, 30px);
     vertical-align: middle;
-    background-image: image-url("bk_facebook_f.png");
 }
 
 .tw-login-logo{
     display: inline-block;
-    width:30px;
-    height:30px;
-    background-image: image-url("bk_twitter_bird.png");
+    @include sprite(-73px, -164px, 30px, 30px);
     vertical-align: middle;
 }
 
