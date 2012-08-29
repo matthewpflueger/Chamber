@@ -6,7 +6,8 @@ import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.event.WidgetRequested
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import javax.annotation.Nullable
-import com.echoed.chamber.services.partner.PartnerClientCredentials
+import com.echoed.chamber.services.partner.{FetchPartnerResponse, FetchPartner, PartnerClientCredentials}
+import org.springframework.web.context.request.async.DeferredResult
 
 
 @Controller
@@ -19,13 +20,19 @@ class WidgetController extends EchoedController {
             @RequestParam(value = "type", required = false, defaultValue = "app") widgetType: String,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val modelAndView = if(widgetType == "widget") new ModelAndView(v.widgetIframeView) else new ModelAndView(v.widgetAppIFrameView)
-        modelAndView.addObject("partnerId", pcc.partnerId)
-        modelAndView.addObject("echoedUserId", Option(eucc).map(_.echoedUserId).getOrElse(""))
+        val result = new DeferredResult(new ModelAndView(v.errorView))
 
+        mp(FetchPartner(pcc)).onSuccess {
+            case FetchPartnerResponse(_, Right(partner)) =>
+                val modelAndView = if(widgetType == "widget") new ModelAndView(v.widgetIframeView) else new ModelAndView(v.widgetAppIFrameView)
+                modelAndView.addObject("partner", partner)
+                modelAndView.addObject("partnerId", pcc.partnerId)
+                modelAndView.addObject("echoedUserId", Option(eucc).map(_.echoedUserId).getOrElse(""))
+                result.set(modelAndView)
+                ep.publish(WidgetRequested(pcc.partnerId))
+        }
         //FIXME should be requesting the widget view from the service which then publishes the event
-        ep.publish(WidgetRequested(pcc.partnerId))
-        modelAndView
+        result
     }
 
     @RequestMapping(

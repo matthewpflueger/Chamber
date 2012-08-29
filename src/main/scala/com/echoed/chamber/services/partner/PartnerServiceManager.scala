@@ -164,7 +164,7 @@ class PartnerServiceManager(
                             case partner if (Option(partner.cloudPartnerId) == None) => me ! Create(msg, channel)
                             case partner =>
                                 log.debug("Found {} partner {}", partner.cloudPartnerId, partner.name)
-                                context.actorFor("../%sPartnerServiceManager" format partner.cloudPartnerId).tell(msg, channel)
+                                context.actorFor("../%sPartners" format partner.cloudPartnerId).tell(msg, channel)
 //                                cloudPartners(partner.cloudPartnerId).tell(msg, channel)
 //                                cloudPartners.get(partner.cloudPartnerId).actorRef.tell(msg, channel)
                         }))
@@ -237,7 +237,7 @@ class PartnerServiceManager(
                         channel ! constructor.newInstance(msg, Left(e))
                     case LocateResponse(_, Right(ps)) =>
                         log.debug("Located partner {}, forwarding on message {}", partnerId, msg)
-                        ps.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
+                        ps.tell(msg, channel)
                 }))
 
 

@@ -98,6 +98,11 @@ class PartnerService(
 
     def handle = {
 
+        case msg: FetchPartner =>
+            log.debug("Fetching Partner")
+            val channel = context.sender
+            channel ! FetchPartnerResponse(msg, Right(partner))
+
         case msg: GetPartner =>
             val channel = context.sender
             channel ! GetPartnerResponse(msg, Right(partner))
