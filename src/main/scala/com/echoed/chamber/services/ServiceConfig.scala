@@ -4,7 +4,7 @@ import org.springframework.context.annotation.{Bean, Configuration}
 import akka.actor._
 import javax.annotation.Resource
 import com.echoed.chamber.dao._
-import com.echoed.chamber.services.geolocation.GeoLocationService
+import com.echoed.chamber.services.geolocation.{GeoLocationMessage, GeoLocationService}
 import com.echoed.util.{ApplicationContextRef, Encrypter, BlobStore}
 import com.echoed.chamber.services.image.{ImageMessage, ImageService}
 import com.echoed.chamber.services.event.{EventMessage, EventService}
@@ -376,6 +376,7 @@ class ServiceConfig {
     def routeMap = LinkedHashMap[Class[_ <: Message], ActorContext => ActorRef](
             classOf[StateMessage] -> stateService,
             classOf[SchedulerMessage] -> schedulerService,
+            classOf[GeoLocationMessage] -> geoLocationService,
             classOf[ImageMessage] -> imageService,
             classOf[EventMessage] -> eventService,
             classOf[EmailMessage] -> emailService,
