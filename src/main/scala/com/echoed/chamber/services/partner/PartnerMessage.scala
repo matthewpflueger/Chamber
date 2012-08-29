@@ -58,6 +58,13 @@ case class GetPartnerResponse(
         message: GetPartner,
         value: Either[PE, Partner]) extends PM with MR[Partner, GetPartner, PE]
 
+case class FetchPartner(credentials: PartnerClientCredentials) extends PM with PI
+case class FetchPartnerResponse(
+                                 message: FetchPartner,
+                                 value: Either[PE, Partner]) extends PM with MR[Partner, FetchPartner, PE]
+
+
+
 
 case class Locate(partnerId: String) extends PM
 case class LocateResponse(
