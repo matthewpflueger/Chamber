@@ -80,7 +80,7 @@ class TwitterController extends EchoedController with NetworkController {
                         response,
                         echoedUser,
                         request)
-                val redirectView = v.postLoginView + redirect
+                val redirectView = "%s/%s" format(v.postLoginView, Option(redirect).getOrElse(""))
                 log.debug("Redirecting to View: {} ", redirectView)
                 result.set(new ModelAndView(redirectView))
         }
