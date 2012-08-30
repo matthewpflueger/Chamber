@@ -318,14 +318,12 @@ a{
             background-repeat: no-repeat;
             border-left: 1px solid #CCC;
             box-shadow: -1px -1px #FFF;
-            background-image: image-url("bk_downarrow.png");
             &:hover{
                 .downarrow{
                     border-top-color: #333;
                 }
                 border-left: 1px solid #333;
                 background-color: rgba(0,0,0,0.1);
-                background-image: image-url("bk_downarrow_dark.png");
             }
             #user-text{
                 display:inline-block;
@@ -418,21 +416,31 @@ a{
         }
 
         #login-container{
-            background: #778294;
+            //background-color: rgba(200,225,255, 0.5);
+            background: #646e7d; /* Old browsers */
+        /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NDZlN2QiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI3NCUiIHN0b3AtY29sb3I9IiMzZDQzNGMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+            background: -moz-radial-gradient(center, ellipse cover,  #646e7d 0%, #3d434c 74%); /* FF3.6+ */
+            background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#646e7d), color-stop(74%,#3d434c)); /* Chrome,Safari4+ */
+            background: -webkit-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* Chrome10+,Safari5.1+ */
+            background: -o-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* Opera 12+ */
+            background: -ms-radial-gradient(center, ellipse cover,  #646e7d 0%,#3d434c 74%); /* IE10+ */
+            background: radial-gradient(ellipse at center,  #646e7d 0%,#3d434c 74%); /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#646e7d', endColorstr='#3d434c',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
             text-align: center;
             color: #FFF;
             width: 572px;
-            height: 200px;
+            height: 230px;
             #login-title{
                 padding: 7px 20px;
-                @include headerFontBold(36px, #FFF);
-                text-shadow: 0px 1px 1px #333;
+                @include headerFontBold(48px, #FFF);
+                text-shadow: 0px 1px 1px #000;
                 text-align: center;
             }
             #login-description{
                 padding: 0px 10px;
-                @include textFontNormal(24px,#FFF);
-                text-shadow: 0px 1px 1px #333;
+                @include textFontNormal(28px,#FFF);
+                text-shadow: 0px 1px 1px #000;
                 text-align: center;
             }
 
@@ -449,7 +457,7 @@ a{
                 padding: 5px;
                 text-align: center;
                 @include textFontBold(14px, #FFF);
-                text-shadow: 0px 1px 1px #333;
+                text-shadow: 0px 1px 1px #000;
                 a {
                     @include textFontBold(14px, #FFF);
                     text-decoration: underline;
@@ -671,16 +679,21 @@ a{
                     background-repeat: no-repeat;
                     background-color: #F3F3F3;
                     //border: 1px solid $mainColor !important;
-                    background-image: image-url("bk_downarrow.png"), -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
-                    background-image: image-url("bk_downarrow.png"), -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
-                    background-image: image-url("bk_downarrow.png"), -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
-                    background-image: image-url("bk_downarrow.png"), -o-linear-gradient(top, white 0%, #F3F3F3 100%);
-                    background-image: image-url("bk_downarrow.png"), -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
-                    background-image: image-url("bk_downarrow.png"), linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+                    background-image: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: linear-gradient(top, white 0%, #F3F3F3 100%);
                     cursor: pointer;
                 }
                 .field-question-label{
                     cursor: pointer;
+                    &:hover{
+                        .downarrow{
+                            border-top-color: #333;
+                        }
+                    }
                 }
                 .field-question-options-list{
                     position: absolute;
@@ -1847,7 +1860,7 @@ h3{
                 }
             }
             .echo-s-c-ta{
-                margin: 5px 0px;
+                margin: 5px 3px;
                 textarea{
                     width: 705px;
                     padding: 10px;
@@ -1872,7 +1885,7 @@ h3{
                 cursor: pointer;
             }
             .echo-s-c-l{
-                margin-top: 10px;
+                margin-top: 5px;
                 border-top: 1px dotted #999;
                 .echo-s-c-l-c{
                     padding: 10px 0px 10px 10px;
@@ -2250,7 +2263,8 @@ h3{
 
 .downarrow{
     position: absolute;
-    top: 18px;
+    top: 50%;
+    margin-top: -3px;
     right: 10px;
     border-style: solid dashed dashed;
     border-color: transparent;

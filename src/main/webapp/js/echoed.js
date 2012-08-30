@@ -1226,6 +1226,8 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         self.input = $("<input type='text'>");
 
         self.label = $("<div class='field-question-label'></div>");
+        self.downArrow = $("<div class='downarrow'></div>");
+        self.label.append(self.downArrow);
         self.label.append(self.input);
         self.element.append(self.label);
         self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");

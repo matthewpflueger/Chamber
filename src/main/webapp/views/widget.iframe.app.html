@@ -783,7 +783,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     commentLogin:function (ev) {
         var href = $(ev.currentTarget).attr("href");
-        var child = window.open("about:blank", "Echoed");
+        var child = window.open("about:blank", "Echoed", 'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
         child.location = href;
     },
     createComment:function () {
@@ -1304,6 +1304,8 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         self.input = $("<input type='text'>");
 
         self.label = $("<div class='field-question-label'></div>");
+        self.downArrow = $("<div class='downarrow'></div>");
+        self.label.append(self.downArrow);
         self.label.append(self.input);
         self.element.append(self.label);
         self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");
@@ -1456,13 +1458,11 @@ $(document).ready(function () {
         </div>
         <div class="field-login-buttons">
             <span></span>
-            <a id="field-fb-login" class="login-button facebook-button" target='_blank'>
-                <span class="fb-login-logo"></span>
-                <span class="login-button-text">Login With Facebook</span>
+            <a id="field-fb-login" href="#" class="login-button facebook-button" target='_blank'>
+                <span class="fb-login-logo"></span><span class="login-button-text">Login With Facebook</span>
             </a>
-            <a class="login-button twitter-button" id="field-tw-login" target='_blank'>
-                <span class="tw-login-logo"></span>
-                <span class="login-button-text">Login With Twitter</span>
+            <a class="login-button twitter-button" href="#" id="field-tw-login" target='_blank'>
+                <span class="tw-login-logo"></span><span class="login-button-text">Login With Twitter</span>
             </a>
         </div>
         <!--<div class="field-login-email">
