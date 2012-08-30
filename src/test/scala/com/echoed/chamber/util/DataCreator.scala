@@ -21,7 +21,6 @@ import com.echoed.util.DateUtils._
 class DataCreator {
 
     @BeanProperty var facebookTestUserDao: FacebookTestUserDao = _
-    @BeanProperty var facebookUserDao: FacebookUserDao = _
     @BeanProperty var echoedUserDao: EchoedUserDao = _
     @BeanProperty var partnerDao: PartnerDao = _
     @BeanProperty var partnerSettingsDao: PartnerSettingsDao = _
@@ -227,11 +226,11 @@ class DataCreator {
     }
 
     def cleanupEchoedUsers(list: Buffer[(FacebookUser, EchoedUser)]) {
-        list.foreach { tuple =>
-            val (fu, eu) = tuple
-            facebookUserDao.deleteByEmail(fu.email)
+//        list.foreach { tuple =>
+//            val (fu, eu) = tuple
+//            facebookUserDao.deleteByEmail(fu.email)
 //            echoedUserDao.deleteByEmail(eu.email)
-        }
+//        }
     }
 
     def generateEchoedUsers = {
@@ -256,15 +255,15 @@ class DataCreator {
 
         cleanupEchoedUsers(list)
 
-        list.foreach { tuple =>
-            val (fu, eu) = tuple
-
-            facebookUserDao.insertOrUpdate(fu)
-            logger.debug("Created {}", fu)
-
-//            echoedUserDao.insert(eu)
-//            logger.debug("Created {}", eu)
-        }
+//        list.foreach { tuple =>
+//            val (fu, eu) = tuple
+//
+////            facebookUserDao.insertOrUpdate(fu)
+////            logger.debug("Created {}", fu)
+//
+////            echoedUserDao.insert(eu)
+////            logger.debug("Created {}", eu)
+//        }
 
         list
     }
