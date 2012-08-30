@@ -783,7 +783,7 @@ Echoed.Views.Components.Story = Backbone.View.extend({
     },
     commentLogin:function (ev) {
         var href = $(ev.currentTarget).attr("href");
-        var child = window.open("about:blank", "Echoed", 'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+        var child = window.open("about:blank", "Echoed");
         child.location = href;
     },
     createComment:function () {
@@ -1720,4 +1720,10 @@ $(document).ready(function () {
         </div>
         <div id="echo-story-gallery" class="echo-story-gallery"></div>
     </div>
+</script>
+<script type="text/javascript">
+    //FIX FOR IE FOR POST MESSAGE
+    function postMessageInterface(data){
+        self.postMessage(data, "*");
+    }
 </script>
