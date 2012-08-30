@@ -12,7 +12,8 @@
         }
 
         echoedOverlay.style.cssText = "z-index:9999; top: 0px; left: 0px; right: 0px; height: 100%; width: 100%; position: fixed; overflow-y: scroll; display: none;";
-        echoedOverlay.src = "{{urls.site}}/widget/iframe?pid={{partnerId}}&type=app" + iFrameHash;
+        echoedOverlay.src = "{{https.site}}/widget/iframe?pid={{partnerId}}&type=app" + iFrameHash;
+        echoedOverlay.name = "echoed-iframe";
         echoedOverlay.id = "echoed-overlay";
         body.appendChild(echoedOverlay);
 
@@ -65,9 +66,8 @@
         }
     };
 
-
-
     function messageHandler(message) {
+        alert('test');
         if(message.data === "echoed-close"){
             var iframe = document.getElementById('echoed-overlay');
             iframe.style.display = "none";
