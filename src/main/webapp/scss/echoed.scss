@@ -318,14 +318,12 @@ a{
             background-repeat: no-repeat;
             border-left: 1px solid #CCC;
             box-shadow: -1px -1px #FFF;
-            background-image: image-url("bk_downarrow.png");
             &:hover{
                 .downarrow{
                     border-top-color: #333;
                 }
                 border-left: 1px solid #333;
                 background-color: rgba(0,0,0,0.1);
-                background-image: image-url("bk_downarrow_dark.png");
             }
             #user-text{
                 display:inline-block;
@@ -671,16 +669,21 @@ a{
                     background-repeat: no-repeat;
                     background-color: #F3F3F3;
                     //border: 1px solid $mainColor !important;
-                    background-image: image-url("bk_downarrow.png"), -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
-                    background-image: image-url("bk_downarrow.png"), -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
-                    background-image: image-url("bk_downarrow.png"), -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
-                    background-image: image-url("bk_downarrow.png"), -o-linear-gradient(top, white 0%, #F3F3F3 100%);
-                    background-image: image-url("bk_downarrow.png"), -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
-                    background-image: image-url("bk_downarrow.png"), linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+                    background-image: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+                    background-image: linear-gradient(top, white 0%, #F3F3F3 100%);
                     cursor: pointer;
                 }
                 .field-question-label{
                     cursor: pointer;
+                    &:hover{
+                        .downarrow{
+                            border-top-color: #333;
+                        }
+                    }
                 }
                 .field-question-options-list{
                     position: absolute;
@@ -2250,7 +2253,8 @@ h3{
 
 .downarrow{
     position: absolute;
-    top: 18px;
+    top: 50%;
+    margin-top: -3px;
     right: 10px;
     border-style: solid dashed dashed;
     border-color: transparent;

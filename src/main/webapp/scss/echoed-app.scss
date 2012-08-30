@@ -876,12 +876,12 @@ body {
             background-repeat: no-repeat;
             background-color: #F3F3F3;
             //border: 1px solid $mainColor !important;
-            background-image: image-url("bk_downarrow.png"), -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
-            background-image: image-url("bk_downarrow.png"), -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
-            background-image: image-url("bk_downarrow.png"), -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
-            background-image: image-url("bk_downarrow.png"), -o-linear-gradient(top, white 0%, #F3F3F3 100%);
-            background-image: image-url("bk_downarrow.png"), -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
-            background-image: image-url("bk_downarrow.png"), linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+            background-image: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+            background-image: linear-gradient(top, white 0%, #F3F3F3 100%);
             cursor: pointer;
         }
         .field-question-label{
@@ -1432,4 +1432,20 @@ body {
     }
 }
 
-
+.downarrow{
+    position: absolute;
+    top: 50%;
+    margin-top: -3px;
+    right: 10px;
+    border-style: solid dashed dashed;
+    border-color: transparent;
+    border-top-color: #999;
+    display: -moz-inline-box;
+    display: inline-block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    width: 0;
+    border-width: 5px 5px 0;
+    padding-top: 1px;
+}
