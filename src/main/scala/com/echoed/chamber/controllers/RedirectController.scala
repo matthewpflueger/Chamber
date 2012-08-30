@@ -4,22 +4,28 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
-import com.echoed.chamber.services.partner.{GetPartner, GetPartnerResponse}
+import com.echoed.chamber.services.partner._
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.echoeduser.GetEchoedUser
 import com.echoed.chamber.services.echoeduser.GetEchoedUserResponse
+import scala.Right
+import com.echoed.chamber.services.echoeduser.GetEchoedUser
+import com.echoed.chamber.services.echoeduser.GetEchoedUserResponse
+import com.echoed.chamber.services.partner.FetchPartnerResponse
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.partner.FetchPartner
 import scala.Right
 
 @Controller
 @RequestMapping(Array("/redirect"))
 class RedirectController extends EchoedController {
 
-    @RequestMapping(value = Array("partner/{partnerId}"), method = Array(RequestMethod.GET))
-    def redirectPartner(@PathVariable(value = "partnerId") partnerId: String) = {
+    @RequestMapping(value = Array("partner/{pid}"), method = Array(RequestMethod.GET))
+    def redirectPartner(pcc: PartnerClientCredentials) = {
         val result = new DeferredResult(new ModelAndView(v.errorView))
 
-        mp(GetPartner()).onSuccess {
-            case GetPartnerResponse(_, Right(p)) =>
+        mp(FetchPartner(pcc)).onSuccess {
+            case FetchPartnerResponse(_, Right(p)) =>
                 log.debug("Redirecting to {}", p.domain)
                 val domain = if (p.domain.startsWith("http")) p.domain else "http://" + p.domain
                 val modelAndView = new ModelAndView("redirect:" + domain)
