@@ -126,13 +126,13 @@ class EchoController extends EchoedController {
             @RequestParam(value = "network", required = true) network: String,
             @RequestParam(value = "add", required = false, defaultValue = "false") add: Boolean,
             @RequestParam(value = "close", required=false, defaultValue = "false") close: Boolean,
-            eucc: EchoedUserClientCredentials,
+            @Nullable eucc: EchoedUserClientCredentials,
             request: HttpServletRequest) = {
 
         val networkController = networkControllers.get(network)
         val ec = cookieManager.findEchoClickCookie(request)
 
-        mp(RecordEchoStep(id, "authorize-%s" format network, Some(eucc.echoedUserId), ec))
+        mp(RecordEchoStep(id, "authorize-%s" format network, Option(eucc).map(_.echoedUserId), ec))
         val authorizeUrl =
             if (close) networkController.makeAuthorizeUrl("echo/close?id=%s&network=%s" format (id, network), add)
             else networkController.makeAuthorizeUrl("echo/confirm?id=%s" format id, add)
