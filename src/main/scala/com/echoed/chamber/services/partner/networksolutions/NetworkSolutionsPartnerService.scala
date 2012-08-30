@@ -10,13 +10,14 @@ import com.echoed.chamber.dao.partner.networksolutions.NetworkSolutionsPartnerDa
 import com.echoed.chamber.dao.partner.{PartnerSettingsDao, PartnerDao}
 import com.echoed.chamber.services.MessageProcessor
 import java.util.{List => JList}
+import akka.actor.{ActorContext, ActorRef}
+import akka.pattern._
+import akka.util.Timeout
 
 
 class NetworkSolutionsPartnerService(
         mp: MessageProcessor,
-        var networkSolutionsPartner: NetworkSolutionsPartner,
-        partner: Partner,
-        networkSolutionsPartnerDao: NetworkSolutionsPartnerDao,
+        partnerId: String,
         partnerDao: PartnerDao,
         partnerSettingsDao: PartnerSettingsDao,
         echoDao: EchoDao,
@@ -25,9 +26,12 @@ class NetworkSolutionsPartnerService(
         imageDao: ImageDao,
         transactionTemplate: TransactionTemplate,
         encrypter: Encrypter,
-        filteredUserAgents: JList[String]) extends PartnerService(
+        filteredUserAgents: JList[String],
+        networkSolutionsPartnerDao: NetworkSolutionsPartnerDao,
+        networkSolutionsAccessCreator: ActorContext => ActorRef,
+        implicit val timeout: Timeout = Timeout(20000)) extends PartnerService(
             mp,
-            partner,
+            partnerId,
             partnerDao,
             partnerSettingsDao,
             echoDao,
@@ -38,6 +42,8 @@ class NetworkSolutionsPartnerService(
             encrypter,
             filteredUserAgents) {
 
+    private var networkSolutionsPartner = Option(networkSolutionsPartnerDao.findByPartnerId(partnerId)).get
+    private val networkSolutionsAccess = networkSolutionsAccessCreator(context)
 
     override def handle = networkSolutionsPartnerHandle.orElse(super.handle)
 
@@ -65,7 +71,7 @@ class NetworkSolutionsPartnerService(
             try {
                 val orderNumber = java.lang.Long.parseLong(order)
 
-                mp(FetchOrder(networkSolutionsPartner.userToken, orderNumber)).onComplete(_.fold(
+                (networkSolutionsAccess ? FetchOrder(networkSolutionsPartner.userToken, orderNumber)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)

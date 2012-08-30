@@ -10,12 +10,14 @@ import partner.{PartnerDao, PartnerSettingsDao}
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.services.MessageProcessor
 import java.util.{List => JList}
+import akka.actor.{ActorRef, ActorContext}
+import akka.pattern._
+import akka.util.Timeout
+
 
 class MagentoGoPartnerService(
             mp: MessageProcessor,
-            var magentoGoPartner: MagentoGoPartner,
-            partner: Partner,
-            magentoGoPartnerDao: MagentoGoPartnerDao,
+            partnerId: String,
             partnerDao: PartnerDao,
             partnerSettingsDao: PartnerSettingsDao,
             echoDao: EchoDao,
@@ -24,9 +26,12 @@ class MagentoGoPartnerService(
             imageDao: ImageDao,
             transactionTemplate: TransactionTemplate,
             encrypter: Encrypter,
-            filteredUserAgents: JList[String]) extends PartnerService(
+            filteredUserAgents: JList[String],
+            magentoGoPartnerDao: MagentoGoPartnerDao,
+            magentoGoAccessCreator: ActorContext => ActorRef,
+            implicit val timeout: Timeout = Timeout(20000)) extends PartnerService(
         mp,
-        partner,
+        partnerId,
         partnerDao,
         partnerSettingsDao,
         echoDao,
@@ -37,6 +42,8 @@ class MagentoGoPartnerService(
         encrypter,
         filteredUserAgents) {
 
+    private var magentoGoPartner = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).get
+    private val magentoGoAccess = magentoGoAccessCreator(context)
 
     override def handle = magentoGoPartnerHandle.orElse(super.handle)
 
@@ -63,7 +70,7 @@ class MagentoGoPartnerService(
 
             try {
                 val orderId = java.lang.Long.parseLong(order)
-                mp(FetchOrder(magentoGoPartner.credentials, orderId)).onComplete(_.fold(
+                (magentoGoAccess ? FetchOrder(magentoGoPartner.credentials, orderId)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)

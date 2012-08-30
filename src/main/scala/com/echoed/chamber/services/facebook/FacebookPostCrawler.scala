@@ -2,7 +2,7 @@ package com.echoed.chamber.services.facebook
 
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.services.{EchoedService, ActorClient}
+import com.echoed.chamber.services.EchoedService
 import java.util.{Calendar, Date}
 import com.echoed.chamber.dao.{FacebookCommentDao, FacebookLikeDao, FacebookPostDao}
 import com.echoed.chamber.domain.FacebookPost

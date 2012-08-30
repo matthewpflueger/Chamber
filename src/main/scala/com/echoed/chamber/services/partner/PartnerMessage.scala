@@ -75,7 +75,7 @@ case class LocateResponse(
 case class LocateByEchoId(echoId: String) extends PM
 case class LocateByEchoIdResponse(
         message: LocateByEchoId,
-        value: Either[PE, Partner]) extends PM with MR[Partner, LocateByEchoId, PE]
+        value: Either[PE, ActorRef]) extends PM with MR[ActorRef, LocateByEchoId, PE]
 
 
 case class LocateByDomain(domain: String, context: Option[AnyRef] = None) extends PM

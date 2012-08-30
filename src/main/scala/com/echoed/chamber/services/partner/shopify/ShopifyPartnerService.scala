@@ -8,7 +8,6 @@ import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
 import java.util.{Date, List => JList}
-import com.echoed.chamber.domain.partner.Partner
 import akka.dispatch.Future
 import partner.shopify.ShopifyPartnerDao
 import partner.{PartnerSettingsDao, PartnerDao}
@@ -17,12 +16,13 @@ import akka.util.Timeout
 import akka.util.duration._
 import org.springframework.transaction.TransactionStatus
 import com.echoed.chamber.services.MessageProcessor
+import akka.actor.{ActorContext, ActorRef}
 
 
 class ShopifyPartnerService(
         mp: MessageProcessor,
-        var shopifyPartner: ShopifyPartner,
-        var partner: Partner,
+        partnerId: String,
+        shopifyAccessCreator: ActorContext => ActorRef,
         shopifyPartnerDao: ShopifyPartnerDao,
         partnerDao: PartnerDao,
         partnerSettingsDao: PartnerSettingsDao,
@@ -34,7 +34,7 @@ class ShopifyPartnerService(
         encrypter: Encrypter,
         filteredUserAgents: JList[String]) extends PartnerService(
             mp,
-            partner,
+            partnerId,
             partnerDao,
             partnerSettingsDao,
             echoDao,
@@ -45,6 +45,8 @@ class ShopifyPartnerService(
             encrypter,
             filteredUserAgents) {
 
+    private var shopifyPartner = Option(shopifyPartnerDao.findByPartnerId(partnerId)).get
+    private val shopifyAccess = shopifyAccessCreator(context)
 
     private implicit val timeout = Timeout(20 seconds)
 
@@ -123,7 +125,7 @@ class ShopifyPartnerService(
 
             try {
                 log.debug("Fetching order {} for Shopify partner {}", orderId, shopifyPartner.name)
-                mp(FetchOrder(shopifyPartner.shopifyDomain, shopifyPartner.password, orderId)).onComplete(_.fold(
+                (shopifyAccess ? FetchOrder(shopifyPartner.shopifyDomain, shopifyPartner.password, orderId)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)
@@ -145,7 +147,7 @@ class ShopifyPartnerService(
 
             try {
                 log.debug("Fetching products for Shopify partner %s", shopifyPartner.name)
-                mp(FetchProducts(shopifyPartner.shopifyDomain, shopifyPartner.password)).onComplete(_.fold(
+                (shopifyAccess ? FetchProducts(shopifyPartner.shopifyDomain, shopifyPartner.password)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchProductsResponse(_, Left(e)) => error(e)
@@ -184,7 +186,7 @@ class ShopifyPartnerService(
                         val productList = Future.sequence(o.lineItems.toList.map { li =>
                             log.debug("Fetching Shopify product {} for order {}", li.productId, o.id)
                             liMap(li.productId) = li
-                            mp(FetchProduct(shopifyPartner.shopifyDomain, shopifyPartner.password, li.productId)).mapTo[FetchProductResponse]
+                            (shopifyAccess ? FetchProduct(shopifyPartner.shopifyDomain, shopifyPartner.password, li.productId)).mapTo[FetchProductResponse]
                         })
 
                         productList.onComplete(_.fold(

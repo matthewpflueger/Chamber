@@ -6,70 +6,55 @@ import com.echoed.cache.CacheManager
 import com.echoed.chamber.services.partner._
 import org.springframework.transaction.TransactionStatus
 import com.echoed.chamber.dao._
-import com.echoed.chamber.services.image.ImageService
 import org.springframework.transaction.support.TransactionTemplate
-import com.echoed.chamber.services.email.{SendEmail, EmailService}
+import com.echoed.chamber.services.email.SendEmail
 import com.echoed.util.TransactionUtils._
 import partner.magentogo.MagentoGoPartnerDao
 import partner.{PartnerSettingsDao, PartnerDao, PartnerUserDao}
 import scalaz._
 import Scalaz._
-import java.util.{HashMap, UUID, List => JList}
+import java.util.{HashMap, UUID}
 import com.echoed.util.{ObjectUtils, Encrypter}
 import com.echoed.chamber.domain.partner.magentogo.MagentoGoCredentials
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor._
-import akka.actor.SupervisorStrategy.Restart
 import akka.util.duration._
 import com.echoed.chamber.services.{MessageProcessor, EchoedService}
+import akka.pattern._
+import akka.util.Timeout
 
 
 class MagentoGoPartnerServiceManager(
         mp: MessageProcessor,
-        magentoGoPartnerDao: MagentoGoPartnerDao,
         partnerDao: PartnerDao,
         partnerSettingsDao: PartnerSettingsDao,
         partnerUserDao: PartnerUserDao,
         echoDao: EchoDao,
-        echoClickDao: EchoClickDao,
-        echoMetricsDao: EchoMetricsDao,
-        imageDao: ImageDao,
         encrypter: Encrypter,
         transactionTemplate: TransactionTemplate,
         accountManagerEmail: String,
         cacheManager: CacheManager,
-        filteredUserAgents: JList[String]) extends EchoedService {
 
-    //this will be replaced by the ActorRegistry eventually (I think)
+        magentoGoPartnerDao: MagentoGoPartnerDao,
+        magentoGoPartnerServiceCreator: (ActorContext, String) => ActorRef,
+        magentoGoAccessCreator: ActorContext => ActorRef,
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
+
+
     private var cache: ConcurrentMap[String, ActorRef] = cacheManager.getCache[ActorRef]("PartnerServices")
 
-    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-        case _: Exception ⇒ Restart
-    }
+    override val supervisorStrategy = OneForOneStrategy(
+            maxNrOfRetries = 10,
+            withinTimeRange = 1 minute)(SupervisorStrategy.defaultStrategy.decider)
+
+    private val magentoGoAccess = magentoGoAccessCreator(context)
 
     def handle = {
+        case Terminated(ref) => for ((k, v) <- cache if (v == ref)) cache.remove(k)
 
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {
-                val ps = context.actorOf(Props().withCreator {
-                    val mgp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).get
-                    val p = Option(partnerDao.findById(partnerId)).get
-                    log.debug("Found MagentoGo partner {}", mgp.name)
-                    new MagentoGoPartnerService(
-                        mp,
-                        mgp,
-                        p,
-                        magentoGoPartnerDao,
-                        partnerDao,
-                        partnerSettingsDao,
-                        echoDao,
-                        echoClickDao,
-                        echoMetricsDao,
-                        imageDao,
-                        transactionTemplate,
-                        encrypter,
-                        filteredUserAgents)
-                }, partnerId)
+                val ps = context.watch(magentoGoPartnerServiceCreator(context, partnerId))
                 cache.put(partnerId, ps)
                 ps
             }
@@ -94,8 +79,8 @@ class MagentoGoPartnerServiceManager(
                         log.debug("Cache hit for {}", partnerService)
                     },
                     {
-                        val mgp = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
-                        val p = Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+                        Option(magentoGoPartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+                        Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
                         me ! Create(msg, channel)
                     })
             } catch {
@@ -123,7 +108,7 @@ class MagentoGoPartnerServiceManager(
 
             try {
                 val mgc = MagentoGoCredentials(mg.apiPath, mg.apiUser, mg.apiKey)
-                mp(Validate(mgc)).onComplete(_.fold(
+                (magentoGoAccess ? Validate(mgc)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case ValidateResponse(_, Left(e)) => error(e)

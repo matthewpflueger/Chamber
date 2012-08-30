@@ -7,68 +7,55 @@ import com.echoed.chamber.services.partner._
 import org.springframework.transaction.TransactionStatus
 import com.echoed.chamber.dao._
 import org.springframework.transaction.support.TransactionTemplate
-import com.echoed.chamber.services.email.{SendEmail}
+import com.echoed.chamber.services.email.SendEmail
 import com.echoed.util.TransactionUtils._
 import partner.bigcommerce.BigCommercePartnerDao
 import partner.{PartnerDao, PartnerUserDao, PartnerSettingsDao}
 import scalaz._
 import Scalaz._
-import java.util.{HashMap, UUID, List => JList}
+import java.util.{HashMap, UUID}
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner, PartnerSettings}
 import com.echoed.util.{ObjectUtils, Encrypter}
 import com.echoed.chamber.domain.partner.bigcommerce.BigCommerceCredentials
 import akka.actor._
+import akka.pattern._
 import akka.util.duration._
-import akka.actor.SupervisorStrategy.Restart
 import com.echoed.chamber.services.{MessageProcessor, EchoedService}
+import akka.util.Timeout
 
 
 class BigCommercePartnerServiceManager(
         mp: MessageProcessor,
-        bigCommercePartnerDao: BigCommercePartnerDao,
         partnerDao: PartnerDao,
         partnerSettingsDao: PartnerSettingsDao,
         partnerUserDao: PartnerUserDao,
         echoDao: EchoDao,
-        echoClickDao: EchoClickDao,
-        echoMetricsDao: EchoMetricsDao,
-        imageDao: ImageDao,
         encrypter: Encrypter,
         transactionTemplate: TransactionTemplate,
         accountManagerEmail: String,
         cacheManager: CacheManager,
-        filteredUserAgents: JList[String]) extends EchoedService {
 
-    //this will be replaced by the ActorRegistry eventually (I think)
-    private var cache: ConcurrentMap[String, ActorRef] = cacheManager.getCache[ActorRef]("PartnerServices")
+        bigCommercePartnerDao: BigCommercePartnerDao,
+        bigCommercePartnerServiceCreator: (ActorContext, String) => ActorRef,
+        bigCommerceAccessCreator: ActorContext => ActorRef,
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
-    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-        case _: Exception ⇒ Restart
-    }
+
+    private val cache: ConcurrentMap[String, ActorRef] = cacheManager.getCache[ActorRef]("PartnerServices")
+
+    override val supervisorStrategy = OneForOneStrategy(
+            maxNrOfRetries = 10,
+            withinTimeRange = 1 minute)(SupervisorStrategy.defaultStrategy.decider)
+
+    private val bigCommerceAccess = bigCommerceAccessCreator(context)
 
 
     def handle = {
+        case Terminated(ref) => for ((k, v) <- cache if (v == ref)) cache.remove(k)
+
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {
-                val ps = context.actorOf(Props().withCreator {
-                    val bcp = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).get
-                    val p = Option(partnerDao.findById(partnerId)).get
-                    log.debug("Found BigCommerce partner {}", bcp.name)
-                    new BigCommercePartnerService(
-                        mp,
-                        bcp,
-                        p,
-                        bigCommercePartnerDao,
-                        partnerDao,
-                        partnerSettingsDao,
-                        echoDao,
-                        echoClickDao,
-                        echoMetricsDao,
-                        imageDao,
-                        transactionTemplate,
-                        encrypter,
-                        filteredUserAgents)
-                }, partnerId)
+                val ps = context.watch(bigCommercePartnerServiceCreator(context, partnerId))
                 cache.put(partnerId, ps)
                 ps
             }
@@ -122,7 +109,7 @@ class BigCommercePartnerServiceManager(
 
             try {
                 val bcc = BigCommerceCredentials(bc.apiPath, bc.apiUser, bc.apiToken)
-                mp(Validate(bcc)).onComplete(_.fold(
+                (bigCommerceAccess ? Validate(bcc)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case ValidateResponse(_, Left(e)) => error(e)

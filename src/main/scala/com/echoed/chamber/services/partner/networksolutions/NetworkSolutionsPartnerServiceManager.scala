@@ -14,65 +14,51 @@ import partner.{PartnerSettingsDao, PartnerUserDao, PartnerDao}
 import scalaz._
 import Scalaz._
 import akka.dispatch.Future
-import java.util.{HashMap, UUID, List => JList}
+import java.util.{HashMap, UUID}
 import com.echoed.chamber.domain.partner.networksolutions.NetworkSolutionsPartner
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor._
 import akka.util.duration._
-import akka.actor.SupervisorStrategy.Restart
 import com.echoed.chamber.services.{MessageProcessor, EchoedService}
+import akka.pattern._
+import akka.util.Timeout
 
 
 class NetworkSolutionsPartnerServiceManager(
         mp: MessageProcessor,
-        networkSolutionsPartnerDao: NetworkSolutionsPartnerDao,
         partnerDao: PartnerDao,
         partnerSettingsDao: PartnerSettingsDao,
         partnerUserDao: PartnerUserDao,
         echoDao: EchoDao,
-        echoClickDao: EchoClickDao,
-        echoMetricsDao: EchoMetricsDao,
-        imageDao: ImageDao,
         encrypter: Encrypter,
         transactionTemplate: TransactionTemplate,
         accountManagerEmail: String,
+        cacheManager: CacheManager,
+
+        networkSolutionsPartnerDao: NetworkSolutionsPartnerDao,
+        networkSolutionsPartnerServiceCreator: (ActorContext, String) => ActorRef,
+        networkSolutionsAccessCreator: ActorContext => ActorRef,
         accountManagerRegisterEmailTemplate: String = "networksolutions_accountManager_register_email",
         accountManagerEmailTemplate: String = "networksolutions_accountManager_email",
         partnerEmailTemplate: String = "networksolutions_partner_email_register",
-        cacheManager: CacheManager,
-        filteredUserAgents: JList[String]) extends EchoedService {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
 
-    //this will be replaced by the ActorRegistry eventually (I think)
-    private var cache: ConcurrentMap[String, ActorRef] = cacheManager.getCache[ActorRef]("PartnerServices")
+    private val cache: ConcurrentMap[String, ActorRef] = cacheManager.getCache[ActorRef]("PartnerServices")
 
-    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-        case _: Exception ⇒ Restart
-    }
+    override val supervisorStrategy = OneForOneStrategy(
+            maxNrOfRetries = 10,
+            withinTimeRange = 1 minute)(SupervisorStrategy.defaultStrategy.decider)
+
+    private val networkSolutionsAccess = networkSolutionsAccessCreator(context)
+
 
     def handle = {
+        case Terminated(ref) => for ((k, v) <- cache if (v == ref)) cache.remove(k)
 
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {
-                val ps = context.actorOf(Props().withCreator {
-                    val nsp = Option(networkSolutionsPartnerDao.findByPartnerId(partnerId)).get
-                    val p = Option(partnerDao.findById(partnerId)).get
-                    log.debug("Found NetworkSolutions partner {}", nsp.name)
-                    new NetworkSolutionsPartnerService(
-                        mp,
-                        nsp,
-                        p,
-                        networkSolutionsPartnerDao,
-                        partnerDao,
-                        partnerSettingsDao,
-                        echoDao,
-                        echoClickDao,
-                        echoMetricsDao,
-                        imageDao,
-                        transactionTemplate,
-                        encrypter,
-                        filteredUserAgents)
-                }, partnerId)
+                val ps = context.watch(networkSolutionsPartnerServiceCreator(context, partnerId))
                 cache.put(partnerId, ps)
                 ps
             }
@@ -118,7 +104,7 @@ class NetworkSolutionsPartnerServiceManager(
 
             try {
                 log.debug("Creating Network Solutions partner service for {}, {}", name, email)
-                mp(FetchUserKey(successUrl, failureUrl)).onComplete(_.fold(
+                (networkSolutionsAccess ? FetchUserKey(successUrl, failureUrl)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchUserKeyResponse(_, Left(e)) => error(e)
@@ -155,7 +141,7 @@ class NetworkSolutionsPartnerServiceManager(
             try {
                 Option(networkSolutionsPartnerDao.findByUserKey(userKey)).cata(
                     ns => {
-                        mp(FetchUserToken(userKey)).onComplete(_.fold(
+                        (networkSolutionsAccess ? FetchUserToken(userKey)).onComplete(_.fold(
                             error(_),
                             _ match {
                                 case FetchUserTokenResponse(_, Left(e)) => error(e)

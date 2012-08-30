@@ -33,48 +33,33 @@ class ShopifyPartnerServiceManager(
         partnerSettingsDao: PartnerSettingsDao,
         partnerUserDao: PartnerUserDao,
         echoDao: EchoDao,
-        echoClickDao: EchoClickDao,
-        echoMetricsDao: EchoMetricsDao,
-        imageDao: ImageDao,
         encrypter: Encrypter,
         transactionTemplate: TransactionTemplate,
-        filteredUserAgents: JList[String],
         accountManagerEmail: String,
         accountManagerEmailTemplate: String = "shopify_partner_accountManager_email",
         partnerEmailTemplate: String = "shopify_partner_email_register",
         cacheManager: CacheManager,
+        shopifyPartnerServiceCreator: (ActorContext, String) => ActorRef,
+        shopifyAccessCreator: ActorContext => ActorRef,
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
-    //this will be replaced by the ActorRegistry eventually (I think)
+
     private val cache = cacheManager.getCache[ActorRef]("PartnerServices")
 
-    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-        case _: Exception ⇒ Restart
-    }
+
+    override val supervisorStrategy = OneForOneStrategy(
+            maxNrOfRetries = 10,
+            withinTimeRange = 1 minute)(SupervisorStrategy.defaultStrategy.decider)
+
+
+    private val shopifyAccess = shopifyAccessCreator(context)
 
     def handle = {
+        case Terminated(ref) => for ((k, v) <- cache if (v == ref)) cache.remove(k)
 
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {
-                val ps = context.actorOf(Props().withCreator {
-                    val sp = Option(shopifyPartnerDao.findByPartnerId(partnerId)).get
-                    val p = Option(partnerDao.findById(partnerId)).get
-                    log.debug("Found Shopify partner {}", sp.name)
-                    new ShopifyPartnerService(
-                        mp,
-                        sp,
-                        p,
-                        shopifyPartnerDao,
-                        partnerDao,
-                        partnerSettingsDao,
-                        echoDao,
-                        echoClickDao,
-                        echoMetricsDao,
-                        imageDao,
-                        transactionTemplate,
-                        encrypter,
-                        filteredUserAgents)
-                }, partnerId)
+                val ps = context.watch(shopifyPartnerServiceCreator(context, partnerId))
                 cache.put(partnerId, ps)
                 ps
             }
@@ -119,7 +104,7 @@ class ShopifyPartnerServiceManager(
 
             try {
                 log.debug("Creating Shopfiy partner service for shop {} from token: {}" , shop, t)
-                mp(FetchShopFromToken(shop, signature, t, timeStamp)).onComplete(_.fold(
+                (shopifyAccess ? FetchShopFromToken(shop, signature, t, timeStamp)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchShopFromTokenResponse(_, Left(e)) => error(e)
