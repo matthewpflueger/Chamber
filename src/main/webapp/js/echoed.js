@@ -127,36 +127,38 @@ Echoed.Views.Components.Notifications = Backbone.View.extend({
     },
     init: function(){
         var self = this;
-        Echoed.AjaxFactory({
-            url: Echoed.urls.api + "/api/me/settings",
-            success: function(settings){
-                if(settings.receiveNotificationEmail === true){
-                    self.checkbox.attr('checked',true)
+        if(Echoed.echoedUser !== undefined){
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/me/settings",
+                success: function(settings){
+                    if(settings.receiveNotificationEmail === true){
+                        self.checkbox.attr('checked',true)
+                    }
                 }
-            }
-        })();
-        Echoed.AjaxFactory({
-            url: Echoed.urls.api + "/api/notifications",
-            success: function(notifications){
-                self.count = notifications.length;
-                self.list.empty();
-                self.text.html(self.count);
-                self.header.html('New Notifications (' + self.count + ")");
-                if(self.count > 0){
-                    $.each(notifications, function(index, notification){
-                        var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
-                        self.list.append($('<div></div>')
-                            .addClass('notification')
-                            .html(message)
-                            .attr("href","#story/" + notification.value.storyId)
-                            .attr("id", notification.id));
-                    });
-                } else {
-                    self.text.addClass("off");
+            })();
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/notifications",
+                success: function(notifications){
+                    self.count = notifications.length;
+                    self.list.empty();
+                    self.text.html(self.count);
+                    self.header.html('New Notifications (' + self.count + ")");
+                    if(self.count > 0){
+                        $.each(notifications, function(index, notification){
+                            var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
+                            self.list.append($('<div></div>')
+                                .addClass('notification')
+                                .html(message)
+                                .attr("href","#story/" + notification.value.storyId)
+                                .attr("id", notification.id));
+                        });
+                    } else {
+                        self.text.addClass("off");
+                    }
+                    self.element.show();
                 }
-                self.element.show();
-            }
-        })();
+            })();
+        }
     },
     markAsRead: function(){
         var self = this;
