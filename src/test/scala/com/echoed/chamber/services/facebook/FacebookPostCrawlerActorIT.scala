@@ -7,17 +7,13 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import org.springframework.test.context.{TestContextManager, ContextConfiguration}
 import com.echoed.util.IntegrationTest
-import scala.collection.JavaConversions
-import org.openqa.selenium.{By, Cookie, WebDriver}
-import com.echoed.chamber.domain.{Echo, FacebookPost}
+import com.echoed.chamber.domain.FacebookPost
 import com.echoed.chamber.dao._
 import com.echoed.chamber.util.DataCreator
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen, FeatureSpec}
-import akka.testkit.TestActorRef
-import com.echoed.chamber.services.ActorClient
 
 import java.util.{UUID, Calendar, Properties}
-import akka.util.Duration
+
 
 
 @RunWith(classOf[JUnitRunner])

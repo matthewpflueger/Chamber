@@ -14,7 +14,6 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.services.image.{ProcessImage}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.{List => JList}
-import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import com.echoed.chamber.services.{MessageProcessor, EchoedService}
 import scala.collection.JavaConversions._
@@ -22,7 +21,7 @@ import scala.collection.JavaConversions._
 
 class PartnerService(
         mp: MessageProcessor,
-        partner: Partner,
+        partnerId: String,
         partnerDao: PartnerDao,
         partnerSettingsDao: PartnerSettingsDao,
         echoDao: EchoDao,
@@ -32,6 +31,8 @@ class PartnerService(
         transactionTemplate: TransactionTemplate,
         encrypter: Encrypter,
         filteredUserAgents: JList[String]) extends EchoedService {
+
+    protected var partner = Option(partnerDao.findById(partnerId)).get
 
     val viewCounter: AtomicInteger = new AtomicInteger(0)
 

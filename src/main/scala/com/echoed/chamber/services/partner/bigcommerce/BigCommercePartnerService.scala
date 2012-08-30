@@ -5,18 +5,18 @@ import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
 import com.echoed.chamber.domain.partner.Partner
-import com.echoed.chamber.domain.partner.bigcommerce.BigCommercePartner
 import partner.bigcommerce.BigCommercePartnerDao
 import partner.{PartnerSettingsDao, PartnerDao}
 import com.echoed.chamber.services.MessageProcessor
 import java.util.{List => JList}
+import akka.actor.{ActorContext, ActorRef}
+import akka.pattern._
+import akka.util.Timeout
 
 
 class BigCommercePartnerService (
             mp: MessageProcessor,
-            var bigCommercePartner: BigCommercePartner,
-            partner: Partner,
-            bigCommercePartnerDao: BigCommercePartnerDao,
+            partnerId: String,
             partnerDao: PartnerDao,
             partnerSettingsDao: PartnerSettingsDao,
             echoDao: EchoDao,
@@ -25,9 +25,12 @@ class BigCommercePartnerService (
             imageDao: ImageDao,
             transactionTemplate: TransactionTemplate,
             encrypter: Encrypter,
-            filteredUserAgents: JList[String]) extends PartnerService(
+            filteredUserAgents: JList[String],
+            bigCommercePartnerDao: BigCommercePartnerDao,
+            bigCommerceAccessCreator: ActorContext => ActorRef,
+            implicit val timeout: Timeout = Timeout(20000)) extends PartnerService(
         mp,
-        partner,
+        partnerId,
         partnerDao,
         partnerSettingsDao,
         echoDao,
@@ -38,6 +41,8 @@ class BigCommercePartnerService (
         encrypter,
         filteredUserAgents) {
 
+    private var bigCommercePartner = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).get
+    private val bigCommerceAccess = bigCommerceAccessCreator(context)
 
     override def handle = bigCommercePartnerHandle.orElse(super.handle)
 
@@ -64,7 +69,7 @@ class BigCommercePartnerService (
 
             try {
                 val orderId = java.lang.Long.parseLong(order)
-                mp(FetchOrder(bigCommercePartner.credentials, orderId)).onComplete(_.fold(
+                (bigCommerceAccess ? FetchOrder(bigCommercePartner.credentials, orderId)).onComplete(_.fold(
                     error(_),
                     _ match {
                         case FetchOrderResponse(_, Left(e)) => error(e)

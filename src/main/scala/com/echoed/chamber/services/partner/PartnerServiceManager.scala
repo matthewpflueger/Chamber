@@ -11,9 +11,9 @@ import Scalaz._
 import akka.dispatch.Future
 import com.echoed.chamber.dao._
 import partner.{PartnerDao, PartnerSettingsDao, PartnerUserDao}
-import com.echoed.cache.{CacheEntryRemoved, CacheListenerActorClient, CacheManager}
-import com.echoed.chamber.services.{MessageProcessor, EchoedService, ActorClient}
-import java.util.{UUID, HashMap => JHashMap, List => JList}
+import com.echoed.cache.CacheManager
+import com.echoed.chamber.services.{MessageProcessor, EchoedService}
+import java.util.{UUID, HashMap => JHashMap}
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -27,28 +27,22 @@ class PartnerServiceManager(
         partnerSettingsDao: PartnerSettingsDao,
         partnerUserDao: PartnerUserDao,
         echoDao: EchoDao,
-        echoClickDao: EchoClickDao,
-        echoMetricsDao: EchoMetricsDao,
-        imageDao: ImageDao,
         encrypter: Encrypter,
         transactionTemplate: TransactionTemplate,
         cacheManager: CacheManager,
-        filteredUserAgents: JList[String],
+        partnerServiceCreator: (ActorContext, String) => ActorRef,
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
 
-    private val cache = cacheManager.getCache[ActorRef]("PartnerServices", Some(new CacheListenerActorClient(self)))
+    private val cache = cacheManager.getCache[ActorRef]("PartnerServices")
 
-    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-        case _: Exception ⇒ Restart
-    }
+    override val supervisorStrategy = OneForOneStrategy(
+            maxNrOfRetries = 10,
+            withinTimeRange = 1 minute)(SupervisorStrategy.defaultStrategy.decider)
+
 
     def handle = {
-
-        case msg @ CacheEntryRemoved(partnerId: String, partnerService: PartnerService, cause: String) =>
-            log.debug("Received {}", msg)
-            partnerService.asInstanceOf[ActorClient].actorRef ! PoisonPill
-            log.debug("Stopped {}", partnerService)
+        case Terminated(ref) => for ((k, v) <- cache if (v == ref)) cache.remove(k)
 
         case msg @ RegisterPartner(partner, partnerSettings, partnerUser) =>
             val me = context.self
@@ -117,22 +111,7 @@ class PartnerServiceManager(
 
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {
-                val ps = context.actorOf(Props().withCreator {
-                    //we do this to force the actor to reload its state from the database or die trying...
-                    val p = Option(partnerDao.findById(partnerId)).get
-                    new PartnerService(
-                        mp,
-                        p,
-                        partnerDao,
-                        partnerSettingsDao,
-                        echoDao,
-                        echoClickDao,
-                        echoMetricsDao,
-                        imageDao,
-                        transactionTemplate,
-                        encrypter,
-                        filteredUserAgents)
-                }, partnerId)
+                val ps = context.watch(partnerServiceCreator(context, partnerId))
                 cache.put(partnerId, ps)
                 ps
             }
@@ -189,11 +168,7 @@ class PartnerServiceManager(
                             channel ! LocateByEchoIdResponse(msg, Left(e))
                         case LocateResponse(_, Right(partnerService)) =>
                             log.debug("Found parnter for echo {}", echoId)
-                            //FIXME this should be removed during cleanup...
-                            (partnerService ? GetPartner()).onSuccess {
-                                case GetPartnerResponse(_, Right(p)) => channel ! LocateByEchoIdResponse(msg, Right(p))
-                            }
-//                            channel ! LocateByEchoIdResponse(msg, Right(partnerService.getPartner.resultOrException))
+                            channel ! LocateByEchoIdResponse(msg, Right(partnerService))
                     })),
                 {
                     log.error("Did not find partner for echo {}", echoId)
@@ -262,7 +237,7 @@ class PartnerServiceManager(
                         channel ! constructor.newInstance(msg, Left(e))
                     case LocateByEchoIdResponse(_, Right(ps)) =>
                         log.debug("Located partner for echo {}, forwarding on message {}", echoId, msg)
-                        ps.asInstanceOf[ActorClient].actorRef.tell(msg, channel)
+                        ps.tell(msg, channel)
                 }))
     }
 
