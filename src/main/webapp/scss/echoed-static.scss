@@ -506,7 +506,6 @@ form label em {
     padding: 20px;
     @include drop-shadow;
     &.bk_biz{
-        background-image: image-url("bk_biz.png");
         background-position: right;
         background-repeat: no-repeat;
         height: 275px;
@@ -547,7 +546,6 @@ form label em {
     }
 
     &.bk_hiw{
-        background-image: image-url("bk_hiw.png");
         background-position: right;
         background-repeat: no-repeat;
         height: 275px;

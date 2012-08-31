@@ -226,7 +226,7 @@ function receiveMessageResponse(e) {
             },
             success:function (data) {
                 container.append(table);
-                $(data.echoPossibilities).each(function (index, echoPossibility) {
+                $(data.echoes).each(function (index, echoPossibility) {
                     echoPossibility.boughtOn = new Date(echoPossibility.boughtOn).toUTCString();
                     var message = "";
                     var placeHolder = "Tell your friends why you bought this product.";

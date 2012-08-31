@@ -1,43 +1,26 @@
 package com.echoed.chamber.controllers.partner
 
 import org.springframework.stereotype.Controller
-import org.slf4j.LoggerFactory
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import reflect.BeanProperty
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.partneruser._
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod}
-import com.echoed.chamber.controllers.CookieManager
 import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.controllers.EchoedController
 
 
 @Controller
-class DashboardController {
-
-    private val logger = LoggerFactory.getLogger(classOf[DashboardController])
-
-    @BeanProperty var partnerUserServiceLocator: PartnerUserServiceLocator = _
-
-    @BeanProperty var partnerDashboardErrorView: String = _
-    @BeanProperty var partnerDashboardView: String = _
-    @BeanProperty var cookieManager: CookieManager = _
-
+class DashboardController extends EchoedController {
 
     @RequestMapping(value = Array("/partner/dashboard"), method = Array(RequestMethod.GET))
-    def dashboard(
-             httpServletRequest: HttpServletRequest,
-             httpServletResponse: HttpServletResponse) = {
+    def dashboard(pucc: PartnerUserClientCredentials) = {
 
-        val result = new DeferredResult(new ModelAndView(partnerDashboardErrorView))
-        val partnerUserId = cookieManager.findPartnerUserCookie(httpServletRequest)
+        val result = new DeferredResult(new ModelAndView(v.partnerDashboardErrorView))
 
-        logger.debug("Showing dashboard for PartnerUser {}", partnerUserId)
-        partnerUserServiceLocator.locate(partnerUserId.get).onSuccess {
-            case LocateResponse(_, Right(pus)) => pus.getPartnerUser.onSuccess {
-                case GetPartnerUserResponse(_, Right(pu)) =>
-                    logger.debug("Got {}", pu)
-                    result.set(new ModelAndView(partnerDashboardView, "partnerUser", pu))
-            }
+        log.debug("Showing dashboard for {}", pucc)
+        mp(GetPartnerUser(pucc)).onSuccess {
+            case GetPartnerUserResponse(_, Right(pu)) =>
+                log.debug("Got {}", pu)
+                result.set(new ModelAndView(v.partnerDashboardView, "partnerUser", pu))
         }
 
         result

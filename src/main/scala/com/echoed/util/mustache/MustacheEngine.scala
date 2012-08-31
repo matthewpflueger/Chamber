@@ -4,10 +4,8 @@ import com.github.mustachejava.{MustacheException, DefaultMustacheFactory}
 import scala.reflect.BeanProperty
 import org.springframework.context.ResourceLoaderAware
 import org.springframework.core.io.ResourceLoader
-import java.io.{StringWriter, InputStreamReader, Reader}
+import java.io.{StringReader, StringWriter, InputStreamReader, Reader}
 import java.util.{Map => JMap}
-import com.github.mustachejava.reflect.ReflectionObjectHandler
-import java.lang.reflect.{Method, Field}
 import org.slf4j.LoggerFactory
 
 class MustacheEngine(
@@ -22,11 +20,7 @@ class MustacheEngine(
 
     def this() = this("", "", true, null)
 
-    setObjectHandler(new ReflectionObjectHandler {
-        /* allow access to private fields and methods */
-        override def checkField(member: Field) {}
-        override def checkMethod(member: Method) {}
-    })
+    setObjectHandler(new EchoedObjectHandler())
 
     override def getReader(resourceName: String): Reader = {
         var rn = resourceName
@@ -53,4 +47,23 @@ class MustacheEngine(
     def setResourceLoader(loader: ResourceLoader) {
         resourceLoader = loader
     }
+}
+
+object MustacheEngineTest extends App {
+
+    case class TestClassWithOption(hello: String, world: Option[String] = None)
+
+    val m = new java.util.HashMap[String, Object]()
+    m.put("test", new TestClassWithOption("HELLO", Some("WORLD")))
+
+//    val t = new DefaultMustacheFactory().compile(new StringReader("{{#test}}{{hello}}{{world}}{{/test}}!"), "test")
+    val f = new DefaultMustacheFactory()
+    f.setObjectHandler(new EchoedObjectHandler)
+//    val t = f.compile(new StringReader("Test: {{test.hello}}{{test.world}}!"), "example")
+    val t = f.compile(new StringReader("Test: {{#test}}{{hello}} {{world}}{{/test}}!"), "example")
+    val w = new StringWriter(1024)
+//    t.execute(w, Map("test" -> new TestClassWithOption("HELLO")))
+    t.execute(w, m)
+    w.flush()
+    println(w.toString)
 }

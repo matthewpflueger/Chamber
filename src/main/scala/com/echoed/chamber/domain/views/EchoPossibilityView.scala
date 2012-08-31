@@ -5,24 +5,15 @@ import partner.{PartnerSettings, Partner}
 
 
 case class EchoPossibilityView(
-        echoPossibilities: List[Echo],
+        echoes: List[Echo],
         partner: Partner,
-        partnerSettings: PartnerSettings,
-        echoedUser: EchoedUser,
-        echo: Echo) {
+        partnerSettings: PartnerSettings) {
 
-    def this(echoPossibilities: List[Echo], partner: Partner, partnerSettings: PartnerSettings) = this(
-        echoPossibilities,
-        partner,
-        partnerSettings,
-        null,
-        null)
-
-    def this(echoPossibility: Echo, partner: Partner, partnerSettings: PartnerSettings) = this(
-        List(echoPossibility),
+    def this(echo: Echo, partner: Partner, partnerSettings: PartnerSettings) = this(
+        List(echo),
         partner,
         partnerSettings)
 
-    val echoPossibility = echoPossibilities(0)
+    val echo = echoes.head
 }
 

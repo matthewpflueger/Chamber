@@ -5,6 +5,7 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.partner.magentogo.{MagentoGoCredentials, MagentoGoPartner}
 import com.echoed.chamber.services.partner.{EchoRequest, PartnerAlreadyExists, PartnerException => PE, PartnerMessage => PM}
 import partner.{PartnerUser, Partner}
+import akka.actor.ActorRef
 
 sealed trait MagentoGoPartnerMessage extends PM
 
@@ -20,7 +21,7 @@ case class RegisterMagentoGoPartnerEnvelope(
         magentoGoPartner: MagentoGoPartner,
         partner: Partner,
         partnerUser: PartnerUser,
-        magentoGoPartnerService: Option[MagentoGoPartnerService] = None)
+        magentoGoPartnerService: Option[ActorRef] = None)
 
 case class MagentoGoPartnerAlreadyExists(
         envelope: RegisterMagentoGoPartnerEnvelope,

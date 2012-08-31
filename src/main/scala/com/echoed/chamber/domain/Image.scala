@@ -29,6 +29,29 @@ case class Image(
         processedStatus: String,
         retries: Int) {
 
+    def this() = this(
+        "",
+        new Date,
+        new Date,
+        "",
+        "",
+        0,
+        0,
+        "",
+        0,
+        0,
+        "",
+        0,
+        0,
+        "",
+        0,
+        0,
+        "",
+        0,
+        0,
+        new Date,
+        "",
+        0)
 
     def this(url: String) = this(
         UUID(),

@@ -1,0 +1,22 @@
+{{<public_super}}
+    {{$title}}Echoed | Login{{/title}}
+    {{$public_content}}
+    <div id="login-content">
+        <div id="register-form" class="login-form">
+            <div class="login-form-title">Login</div>
+            {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
+            <form action="{{urls.site}}/login/" method="POST">
+                <div class="login-form-row">
+                    <input placeholder="Email Address" id="email" name="email" type="text" />
+                    <label for="email">{{errors.loginRegisterForm.email}}</label>
+                </div>
+                <div class="login-form-row">
+                    <input placeholder="Password" id="password" name="password" type="password" />
+                    <label for="password">{{errors.loginRegisterForm.password}}</label>
+                </div>
+                <input id="login" name="login" type="submit" value="Login">
+            </form>
+        </div>
+    </div>
+    {{/public_content}}
+{{/public_super}}

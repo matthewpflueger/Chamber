@@ -5,57 +5,16 @@ import org.springframework.stereotype.Controller
 import scala.reflect.BeanProperty
 
 import org.springframework.web.bind.annotation._
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import com.echoed.chamber.services.echoeduser._
-import org.slf4j.LoggerFactory
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.echoeduser.CreateChapterResponse
 import scala.Right
 import com.echoed.chamber.services.echoeduser.CreateStoryResponse
-import com.echoed.util.{Encrypter, ScalaObjectMapper}
-import org.springframework.web.servlet.ModelAndView
 
 
 @Controller
 @RequestMapping(Array("/story"))
-class StoryController {
-
-    private final val logger = LoggerFactory.getLogger(classOf[StoryController])
-
-    @BeanProperty var cookieManager: CookieManager = _
-    @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
-    @BeanProperty var encrypter: Encrypter = _
-    @BeanProperty var siteUrl: String = _
-
-
-    @RequestMapping(value = Array("/code/{code}"), method = Array(RequestMethod.GET))
-    def requestStory(
-            @PathVariable("code") code: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
-
-        val result = new DeferredResult(new ModelAndView("redirect:%s" format siteUrl))
-
-        logger.debug("Story request with code {}", code)
-
-        val payload = new ScalaObjectMapper().readTree(encrypter.decrypt(code))
-
-        val echoedUserId = Option(payload.get("echoedUserId")).map(_.asText()).orNull
-        val echoId = Option(payload.get("echoId")).map(_.asText()).orNull
-
-        logger.debug("Story request about echo {} for {}", echoId, echoedUserId)
-
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-            case LocateWithIdResponse(_, Right(eus)) => eus.getEchoedUser.onSuccess {
-                case GetEchoedUserResponse(_, Right(eu)) =>
-                    logger.debug("Successful story request about echo {} for {}", echoId, echoedUserId)
-                    cookieManager.addEchoedUserCookie(httpServletResponse, eu, httpServletRequest)
-                    result.set(new ModelAndView("redirect:%s/#story/%s" format (siteUrl, echoId)))
-            }
-        }
-
-        result
-    }
+class StoryController extends EchoedController {
 
     @RequestMapping(method = Array(RequestMethod.GET))
     @ResponseBody
@@ -63,18 +22,15 @@ class StoryController {
             @RequestParam(value = "storyId", required = false) storyId: String,
             @RequestParam(value = "echoId", required = false) echoId: String,
             @RequestParam(value = "partnerId", required = false) partnerId: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).get
+        log.debug("Initializing story for {}", eucc.echoedUserId)
 
-        logger.debug("Initializing story for {}", echoedUserId)
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val result = new DeferredResult("error")
-
-        echoedUserServiceLocator.initStory(echoedUserId, Option(storyId), Option(echoId), Option(partnerId)).onSuccess {
+        mp(InitStory(eucc, Option(storyId), Option(echoId), Option(partnerId))).onSuccess {
             case InitStoryResponse(_, Right(storyInfo)) =>
-                logger.debug("Successfully initialized story for {}", echoedUserId)
+                log.debug("Successfully initialized story for {}", eucc)
                 result.set(storyInfo)
         }
 
@@ -90,24 +46,21 @@ class StoryController {
             @RequestParam(value = "partnerId", required = false) partnerId: String,
             @RequestParam(value = "echoId", required = false) echoId: String,
             @RequestParam(value = "productInfo", required = false) productInfo: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).get
+        log.debug("Making story {} for {}", title, eucc)
 
-        logger.debug("Making story {} for {}", title, echoedUserId)
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val result = new DeferredResult("error")
-
-        echoedUserServiceLocator.createStory(
-                echoedUserId,
+        mp(CreateStory(
+                eucc,
                 title,
                 imageId,
                 Option(partnerId),
                 Option(echoId),
-                Option(productInfo)).onSuccess {
+                Option(productInfo))).onSuccess {
             case CreateStoryResponse(_, Right(story)) =>
-                logger.debug("Successfully made story {} for {}", title, echoedUserId)
+                log.debug("Successfully made story {} for {}", title, eucc)
                 result.set(story)
         }
 
@@ -120,50 +73,39 @@ class StoryController {
             @PathVariable(value = "storyId") storyId: String,
             @RequestParam(value = "title", required = true) title: String,
             @RequestParam(value = "imageId", required = true) imageId: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).get
+        log.debug("Updating story {} for {}", storyId, eucc)
 
-        logger.debug("Updating story {} for {}", storyId, echoedUserId)
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val result = new DeferredResult("error")
-
-        echoedUserServiceLocator.updateStory(
-                echoedUserId,
+        mp(UpdateStory(
+                eucc,
                 storyId,
                 title,
-                imageId).onSuccess {
+                imageId)).onSuccess {
             case UpdateStoryResponse(_, Right(story)) =>
-                logger.debug("Successfully updated story {} for {}", storyId, echoedUserId)
+                log.debug("Successfully updated story {} for {}", storyId, eucc)
                 result.set(story)
         }
 
         result
     }
 
-    @RequestMapping(
-            value = Array("/{storyId}/tag"),
-            method = Array(RequestMethod.POST))
+    @RequestMapping(value = Array("/{storyId}/tag"), method = Array(RequestMethod.POST))
     @ResponseBody
     def tagStory(
             @PathVariable("storyId") storyId: String,
             @RequestParam("tagId") tagId: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse ) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).get
-
-        logger.debug("Tagging Story {} with Tag {}", storyId, tagId)
+        log.debug("Tagging Story {} with Tag {}", storyId, tagId)
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        echoedUserServiceLocator.tagStory(
-                echoedUserId,
-                storyId,
-                tagId).onSuccess {
+        mp(TagStory(eucc, storyId, tagId)).onSuccess {
             case TagStoryResponse(_ , Right(tag)) =>
-                logger.debug("Successfully added tag {} to story {}", tagId, storyId)
+                log.debug("Successfully added tag {} to story {}", tagId, storyId)
                 result.set(tag)
         }
         result
@@ -179,24 +121,20 @@ class StoryController {
     def createChapter(
             @PathVariable("storyId") storyId: String,
             @RequestBody chapterParams: ChapterParams,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).get
-
-        logger.debug("Making chapter {} for {}", chapterParams.title, echoedUserId)
+        log.debug("Making chapter {} for {}", chapterParams.title, eucc)
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        echoedUserServiceLocator.createChapter(
-                echoedUserId,
+        mp(CreateChapter(
+                eucc,
                 storyId,
-//                chapterParams.storyId,
                 chapterParams.title,
                 chapterParams.text,
-                Option(chapterParams.imageIds)).onSuccess {
+                Option(chapterParams.imageIds))).onSuccess {
             case CreateChapterResponse(_, Right(chapter)) =>
-                logger.debug("Successfully made chapter {} for {}", chapterParams.title, echoedUserId)
+                log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
                 result.set(chapter)
         }
 
@@ -212,55 +150,49 @@ class StoryController {
             @PathVariable("storyId") storyId: String,
             @PathVariable("chapterId") chapterId: String,
             @RequestBody chapterParams: ChapterParams,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).get
+        log.debug("Updating chapter {} for {}", chapterId, eucc)
 
-        logger.debug("Updating chapter {} for {}", chapterId, echoedUserId)
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val result = new DeferredResult("error")
-
-        echoedUserServiceLocator.updateChapter(
-                echoedUserId,
+        mp(UpdateChapter(
+                eucc,
                 chapterId,
                 chapterParams.title,
                 chapterParams.text,
-                Option(chapterParams.imageIds)).onSuccess {
+                Option(chapterParams.imageIds))).onSuccess {
             case UpdateChapterResponse(_, Right(chapter)) =>
-                logger.debug("Successfully updated chapter {} for {}", chapterId, echoedUserId)
+                log.debug("Successfully updated chapter {} for {}", chapterId, eucc)
                 result.set(chapter)
         }
 
         result
     }
 
-    @RequestMapping(
-            value = Array("/{storyId}/chapter/{chapterId}/comment"),
-            method = Array(RequestMethod.POST))
+    @RequestMapping(value = Array("/{storyId}/chapter/{chapterId}/comment"), method = Array(RequestMethod.POST))
     @ResponseBody
     def createComment(
             @PathVariable("storyId") storyId: String,
             @PathVariable("chapterId") chapterId: String,
+            @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String,
             @RequestParam(value = "text", required = true) text: String,
             @RequestParam(value = "parentCommentId", required = false) parentCommentId: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            credentials: EchoedUserClientCredentials) = {
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).get
+        log.debug("Creating comment on chapter {} for {}", chapterId, credentials)
 
-        logger.debug("Creating comment on chapter {} for {}", chapterId, echoedUserId)
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val result = new DeferredResult("error")
-
-        echoedUserServiceLocator.createComment(
-                echoedUserId,
+        mp(CreateComment(
+                credentials,
+                storyOwnerId,
                 storyId,
                 chapterId,
                 text,
-                Option(parentCommentId)).onSuccess {
+                Option(parentCommentId))).onSuccess {
             case CreateCommentResponse(_, Right(comment)) =>
-                logger.debug("Successfully created comment on chapter {} for {}", chapterId, echoedUserId)
+                log.debug("Successfully created comment on chapter {} for {}", chapterId, credentials)
                 result.set(comment)
         }
 

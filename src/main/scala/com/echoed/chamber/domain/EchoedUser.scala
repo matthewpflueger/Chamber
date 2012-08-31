@@ -2,65 +2,33 @@ package com.echoed.chamber.domain
 
 import java.util.Date
 import com.echoed.util.UUID
+import com.echoed.util.DateUtils._
 
 
 case class EchoedUser(
         id: String,
-        updatedOn: Date,
-        createdOn: Date,
+        updatedOn: Long,
+        createdOn: Long,
         name: String,
         email: String,
         screenName: String,
         facebookUserId: String,
         facebookId: String,
         twitterUserId: String,
-        twitterId: String) {
+        twitterId: String,
+        password: String,
+        salt: String) extends DomainObject with EmailPassword {
 
-    def this(
-            name: String,
-            email: String,
-            screenName: String,
-            facebookUserId: String,
-            facebookId: String,
-            twitterUserId: String,
-            twitterId: String) = this(
+    def this() = this("", 0L, 0L, "", "", "", "", "", "", "", "", "")
+
+    def this(name: String, email: String) = this(
         UUID(),
         new Date,
         new Date,
         name,
         email,
-        screenName,
-        facebookUserId,
-        facebookId,
-        twitterUserId,
-        twitterId)
-
-    def this(
-            id:String,
-            name:String,
-            email:String,
-            screenName: String,
-            facebookUserId: String,
-            facebookId:String,
-            twitterUserId: String,
-            twitterId: String) = this(
-        id,
         null,
         null,
-        name,
-        email,
-        screenName,
-        facebookUserId,
-        facebookId,
-        twitterUserId,
-        twitterId)
-
-    def this(id: String, name: String, email: String) = this(
-        id,
-        null,
-        null,
-        name,
-        email,
         null,
         null,
         null,
@@ -77,6 +45,8 @@ case class EchoedUser(
         facebookUser.id,
         facebookUser.facebookId,
         null,
+        null,
+        null,
         null)
 
     def this(twitterUser: TwitterUser) = this(
@@ -89,11 +59,20 @@ case class EchoedUser(
         null,
         null,
         twitterUser.id,
-        twitterUser.twitterId)
+        twitterUser.twitterId,
+        null,
+        null)
 
     def assignFacebookUser(fu: FacebookUser) =
         this.copy(facebookId = fu.facebookId, facebookUserId = fu.id, email = Option(email).getOrElse(fu.email))
 
     def assignTwitterUser(tu: TwitterUser) =
         this.copy(twitterId = tu.twitterId, twitterUserId = tu.id, screenName = tu.screenName)
+
+    def createPassword(plainTextPassword: String) = {
+        val (s, p) = createSaltAndPassword(plainTextPassword)
+        copy(salt = s, password = p)
+    }
 }
+
+

@@ -2,6 +2,10 @@ package com.echoed.util
 
 import java.net.URLEncoder
 
+trait AsMap {
+    def asMap = ObjectUtils.asMap(this)
+}
+
 object ObjectUtils {
 
     def asUrlParams(o: AnyRef, prefix: String = "", encode: Boolean = false) = {
@@ -17,13 +21,8 @@ object ObjectUtils {
     }
 
     def asMap(o: AnyRef) = {
-        (Map[String, String]() /: o.getClass.getDeclaredFields) {(a, f) =>
-            f.setAccessible(true)
-            Option(f.get(this)) match {
-                case Some(v) => a + (f.getName -> v.toString)
-                case _ => a
-            }
-        }
+        val som = new ScalaObjectMapper()
+        som.readValue(som.writeValueAsString(o), classOf[Map[String, AnyRef]])
     }
 
 }

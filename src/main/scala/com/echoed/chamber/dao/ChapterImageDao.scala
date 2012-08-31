@@ -10,6 +10,8 @@ trait ChapterImageDao {
 
     def findByChapterId(chapterId: String): JList[ChapterImage]
 
+    def findByStoryId(storyId: String): JList[ChapterImage]
+
     def deleteById(id: String): Int
 
     def deleteByChapterId(chapterId: String): Int

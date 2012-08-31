@@ -1,7 +1,6 @@
 package com.echoed.chamber.controllers.partner
 
-import javax.validation.constraints.{Min, Size}
-import org.hibernate.validator.constraints.{Length, NotBlank, ScriptAssert}
+import org.hibernate.validator.constraints.{Length, NotBlank}
 
 
 case class ActivateForm(

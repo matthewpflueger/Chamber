@@ -1,98 +1,106 @@
 package com.echoed.chamber.controllers.api
 
 import org.springframework.stereotype.Controller
-import com.echoed.chamber.controllers.{ErrorResult, CookieManager}
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import scala.reflect.BeanProperty
+import com.echoed.chamber.controllers.{EchoedController, ErrorResult}
 import com.echoed.chamber.services.echoeduser._
-import org.eclipse.jetty.continuation.ContinuationSupport
-import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
-import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.feed._
-import com.echoed.chamber.services.event.EventService
 import com.echoed.chamber.services.tag._
+import scala.util.control.Exception._
+import java.lang.{NumberFormatException => NFE}
+import javax.annotation.Nullable
+
 
 @Controller
 @RequestMapping(Array("/api"))
-class UserController {
+class UserController extends EchoedController {
 
-    private final val logger = LoggerFactory.getLogger(classOf[UserController])
 
-    @BeanProperty var echoedUserServiceLocator: EchoedUserServiceLocator = _
-    @BeanProperty var feedService: FeedService = _
-    @BeanProperty var eventService: EventService = _
-    @BeanProperty var tagService: TagService = _
+    private val failAsZero = failAsValue(classOf[NFE])(0)
+    private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
 
-    @BeanProperty var cookieManager: CookieManager = _
-    @BeanProperty var closetView: String = _
-    @BeanProperty var errorView: String = _
-
-    @BeanProperty var storyGraphUrl: String = _
-
-    @RequestMapping(value = Array("/me"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def me(
-        @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
-        @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-        httpServletRequest: HttpServletRequest,
-        httpServletResponse: HttpServletResponse) = {
+    def fetchNotifications(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val result = new DeferredResult("error")
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
-
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-            case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                echoedUserService.getProfile.onSuccess {
-                    case GetProfileResponse(_, Right(profile)) =>
-                        logger.debug("Found Echoed User {}", profile)
-                        result.set(profile)
-                }
+        mp(FetchNotifications(eucc)).onSuccess {
+            case FetchNotificationsResponse(_, Right(notifications)) => result.set(notifications)
         }
+
         result
     }
 
-    
+    @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def readNotifications(
+            @RequestParam(value = "ids", required = true) ids: Array[String],
+            eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(MarkNotificationsAsRead(eucc, ids.toSet)).onSuccess {
+            case MarkNotificationsAsReadResponse(_, Right(boolean)) => result.set(boolean)
+        }
+
+        result
+    }
+
+
+    @RequestMapping(value = Array("/me/settings"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def readSettings(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(ReadSettings(eucc)).onSuccess {
+            case ReadSettingsResponse(_, Right(eus)) => result.set(eus)
+        }
+
+        result
+    }
+
+
+    @RequestMapping(value = Array("/me/settings"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def newSettings(
+            @RequestBody(required = true) settings: Map[String, AnyRef],
+            eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(NewSettings(eucc, settings)).onSuccess {
+            case NewSettingsResponse(_, Right(eus)) => result.set(eus)
+        }
+
+        result
+    }
+
+
     @RequestMapping(value = Array("/me/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def publicFeed(
-            @RequestParam(value="page", required = false) page: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse): DeferredResult = {
+    def publicFeed(@RequestParam(value = "page", required = false) page: String) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
-
-        feedService.getPublicStoryFeed(pageInt).onSuccess {
-            case GetPublicStoryFeedResponse(_,Right(feed)) =>
-                result.set(feed)
+        mp(GetPublicStoryFeed(parse(page))).onSuccess {
+            case GetPublicStoryFeedResponse(_, Right(feed)) => result.set(feed)
         }
+
         result
     }
-    
+
     @RequestMapping(value = Array("/feed/friends"), method = Array(RequestMethod.GET))
     @ResponseBody
     def feed(
-            @RequestParam(value="echoedUserId", required = false) echoedUserIdParam:String,
-            @RequestParam(value="page", required = false) page: String,
+            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam:String,
+            @RequestParam(value = "page", required = false) page: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
-
-        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
-
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-            case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                echoedUserService.getFeed(pageInt).onSuccess {
-                    case GetFeedResponse(_, Right(feed)) =>
-                        result.set(feed)
-                }
+        //FIXME WTF this returns the user's feed, not a friend's feed?!?!
+        mp(GetFeed(eucc, parse(page))).onSuccess {
+            case GetFeedResponse(_, Right(feed)) => result.set(feed)
         }
 
         result
@@ -101,25 +109,15 @@ class UserController {
     @RequestMapping(value = Array("/me/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
     def exhibit(
-            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
             @RequestParam(value = "page", required = false) page: String,
-            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
-
-        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
-
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-            case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                echoedUserService.getCloset(pageInt).onSuccess {
-                    case GetExhibitResponse(_, Right(closet)) =>
-                        logger.debug("Received for {} exhibit of {} echoes", echoedUserId, closet.echoes.size)
-                        result.set(closet)
-                }
+        mp(GetExhibit(eucc, parse(page))).onSuccess {
+            case GetExhibitResponse(_, Right(closet)) =>
+                log.debug("Received for {} exhibit of {} echoes", eucc, closet.echoes.size)
+                result.set(closet)
         }
 
         result
@@ -130,18 +128,12 @@ class UserController {
     def friends(
             @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).getOrElse(echoedUserIdParam)
-
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess {
-            case LocateWithIdResponse(_, Right(echoedUserService)) =>
-                echoedUserService.getFriends.onSuccess{
-                    case GetEchoedFriendsResponse(_, Right(friends)) => result.set(friends)
-                }
+        mp(GetEchoedFriends(eucc)).onSuccess {
+            case GetEchoedFriendsResponse(_, Right(friends)) => result.set(friends)
         }
 
         result
@@ -150,21 +142,18 @@ class UserController {
     @RequestMapping(value = Array("/category/{categoryId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def categoryFeed(
-                       @PathVariable(value="categoryId") categoryId: String,
-                       @RequestParam(value="page", required = false) page: String,
-                       @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-                       httpServletRequest: HttpServletRequest,
-                       httpServletResponse: HttpServletResponse) = {
+            @PathVariable(value = "categoryId") categoryId: String,
+            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        logger.debug("Requesting for Category Feed for Category {}", categoryId )
+        log.debug("Requesting for Category Feed for Category {}", categoryId )
 
-        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
-
-        feedService.getCategoryStoryFeed(categoryId, pageInt).onSuccess {
+        mp(GetCategoryStoryFeed(categoryId, parse(page), origin)).onSuccess {
             case GetCategoryStoryFeedResponse(_, Right(feed)) => result.set(feed)
         }
+
         result
     }
 
@@ -172,45 +161,34 @@ class UserController {
     @RequestMapping(value = Array("/partner/{partnerId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def partnerFeed(
-            @PathVariable(value="partnerId") partnerId: String,
-            @RequestParam(value="page", required = false) page: String,
-            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            @PathVariable(value = "partnerId") partnerId: String,
+            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        logger.debug("Requesting for Partner Feed for Partner {}", partnerId )
+        log.debug("Requesting for Partner Feed for Partner {}", partnerId )
 
-        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
-
-        feedService.getPartnerStoryFeed(partnerId, pageInt).onSuccess {
+        mp(GetPartnerStoryFeed(partnerId, parse(page), origin)).onSuccess {
             case GetPartnerStoryFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
         }
-        if(origin.equals("widget")) eventService.widgetOpened(partnerId)
+
         result
     }
 
     @RequestMapping(value= Array("/user/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
-            @PathVariable(value="id") echoedFriendId: String,
-            @RequestParam(value= "page", required = false) page: String,
-            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            @PathVariable(value ="id") echoedFriendId: String,
+            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        logger.debug("echoedFriendId: {}", echoedFriendId)
+        log.debug("echoedFriendId: {}", echoedFriendId)
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest)
-
-        val pageInt = try { Integer.parseInt(page) } catch { case _ => 0 }
-
-        feedService.getUserPublicStoryFeed(echoedFriendId, pageInt).onSuccess{
-            case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
-                result.set(feed)
+        mp(GetUserPublicStoryFeed(echoedFriendId, parse(page), origin)).onSuccess {
+            case GetUserPublicStoryFeedResponse(_, Right(feed)) => result.set(feed)
         }
 
         result
@@ -221,23 +199,17 @@ class UserController {
     def getStory(
             @PathVariable(value = "id") id: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            @Nullable eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        val echoedUserId = cookieManager.findEchoedUserCookie(httpServletRequest).orNull
-        logger.debug("Requesting Story {}", id )
+        log.debug("Requesting Story {}", id )
 
-        feedService.getStory(id).onSuccess {
+        mp(GetStory(id)).onSuccess {
             case GetStoryResponse(_, Right(story)) => result.set(story)
         }
 
-        echoedUserServiceLocator.getEchoedUserServiceWithId(echoedUserId).onSuccess{
-            case LocateWithIdResponse(_, Right(eus)) =>
-                eus.publishFacebookAction("browse", "story", storyGraphUrl + id)
-        }
-        if(origin.equals("widget")) eventService.widgetStoryOpened(id)
+        Option(eucc).map(c => mp(PublishFacebookAction(c, "browse", "story", v.storyGraphUrl + id, origin)))
         result
     }
 
@@ -245,42 +217,38 @@ class UserController {
     @ResponseBody
     def getTagList(
             @RequestParam(value = "tagId", required = false, defaultValue = "") tagId: String,
-            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin : String,
-            httpServletRequest: HttpServletRequest,
-            httpServletResponse: HttpServletResponse) = {
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin : String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
-        tagService.getTags(tagId).onSuccess {
+
+        mp(GetTags(tagId)).onSuccess {
             case GetTagsResponse(_, Right(tags)) => result.set(tags)
         }
+
         result
     }
 
     @RequestMapping(value = Array("/tags/add"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def addTag(
-        @RequestParam(value = "tagId", required = true) tagId: String,
-        httpServletRequest: HttpServletRequest,
-        httpServletResponse: HttpServletResponse) = {
+    def addTag(@RequestParam(value = "tagId", required = true) tagId: String) = {
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        val result = new DeferredResult("error")
-        tagService.addTag(tagId).onSuccess {
+        mp(AddTag(tagId)).onSuccess {
             case AddTagResponse(_, Right(tag)) => result.set(tag)
         }
-        result
 
+        result
     }
 
     @RequestMapping(value = Array("/tags/top"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getTopTag(
-        httpServletRequest: HttpServletRequest,
-        HttpServletResponse: HttpServletResponse) = {
-
+    def getTopTag() = {
         val result = new DeferredResult(ErrorResult.timeout)
-        tagService.getTopTags.onSuccess {
+
+        mp(GetTopTags()).onSuccess {
             case GetTopTagsResponse(_, Right(tags)) => result.set(tags)
         }
+
         result
     }
 

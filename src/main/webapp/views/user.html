@@ -1,4 +1,14 @@
-{{<user_super}}
+{{<common_super}}
+{{$jsHead}}
+    <script type='text/javascript' src="{{urls.js}}/jquery.imagesloaded.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/jquery.isotope.min.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/expanding.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/fileuploader.js"></script>
+    <script type='text/javascript' src="{{urls.js}}/echoed.js"></script>
+{{/jsHead}}
+{{$css}}
+    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
+{{/css}}
 {{$header}}
 {{/header}}
 {{$content}}
@@ -7,28 +17,68 @@
             <div id="logo">
                 <a href="/"><img height="40px" src="{{urls.images}}/logo.png"></a>
             </div>
+
             <div id="user" class="clearfix">
                 {{#echoedUser}}
                 <div id="user-image">
                     {{#facebookId}}
                     <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{.}}/picture" />
                     {{/facebookId}}
-                </div>
-                <div id="user-text">
-                    {{name}} (<span class="highlight"><strong><a id="logout" class="red-link" href="logout">Logout</a></strong></span>) <br />
+                    {{^facebookId}}
+                        {{#twitterId}}
+                        <img id="u-i-i" height="30px" width="30px" src="http://api.twitter.com/1/users/profile_image/{{.}}" />
+                        {{/twitterId}}
+                    {{/facebookId}}
                 </div>
                 {{/echoedUser}}
+                <div id="user-text">
+                    {{#echoedUser}}
+                        {{name}}
+                    {{/echoedUser}}
+                    {{^echoedUser}}
+                        Learn More
+                    {{/echoedUser}}
+                </div>
+                <span class="downarrow"></span>
+                <div id="user-list">
+                    <ul>
+                        <li class="user-list-item" href="about">About Us</li>
+                        <li class="user-list-item" href="guidelines">Sharing Guidelines</li>
+                        <li class="user-list-item" href="privacy">Privacy Policy</li>
+                        <li class="user-list-item" href="terms">Terms of Service</li>
+                        <li class="user-list-item" href="business">For Business</li>
+                        {{#echoedUser}}
+                        <li class="user-list-item" href="logout"><strong>Logout</strong></li>
+                        {{/echoedUser}}
+                    </ul>
+                </div>
+
+
+            </div>
+            <div id="notifications-container">
+                <div id="notifications">
+                    <div id="notifications-text">
+                    </div>
+                </div>
+                <div id="notifications-menu">
+                    <div id="notifications-list-header">
+                    </div>
+                    <div id="notifications-list">
+                    </div>
+                    <div id="notification-settings">
+                        Send Notification E-mail:
+                        <input id="receive-notification-email-cb" type="checkbox" />
+                    </div>
+                </div>
             </div>
         </div>
         <div id="nav-container">
             <div id="actions"></div>
-
             <div id="header-nav" class="clearfix">
                 <div class="nav-label">
                     Navigate
                 </div>
                 <ul>
-
                     <li class="icon_world" href="#!" id="explore_nav">
                         Community
                     </li>
@@ -53,15 +103,6 @@
                 <div id="category-list">
                 </div>
                 <div id="category-more">+ More Categories</div>
-            </div>
-            <div id="footer-nav">
-                <ul>
-                    <li><a class="link-black" href="{{urls.site}}/about">About Us</a></li>
-                    <li><a class="link-black" href="{{urls.site}}/guidelines">Sharing Guidelines</a></li>
-                    <li><a class="link-black" href="{{urls.site}}/privacy">Privacy Policy</a></li>
-                    <li><a class="link-black" href="{{urls.site}}/terms">Terms of Service</a></li>
-                    <li><a class="link-black" href="{{urls.site}}/business">For Business</a></li>
-                </ul>
             </div>
         </div>
         <div id="fade" style="display:none;">
@@ -89,10 +130,20 @@
         <div class="item_content">
             <div id="login-container">
                 <div id="login-title">Join Echoed</div>
-                <div id="login-description">Share stories about the things you love.<br/>Login to begin sharing your story.</div>
+                <div id="login-description">Share stories about things you love.<!--<br/>Login to begin sharing your story.--></div>
                 <div id="login-buttons">
-                    <a id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
-                    <a id="twitterLogin" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
+                    <a class="login-button facebook-button" id="facebookLogin" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions">
+                        <span class="fb-login-logo"></span>
+                        <span class="login-button-text">Login With Facebook</span>
+                    </a>
+                    <a class="login-button twitter-button" id="twitterLogin" href="{{urls.site}}/twitter?redirect=">
+                        <span class="tw-login-logo"></span>
+                        <span class="login-button-text">Login With Twitter</span>
+                    </a>
+                </div>
+                - or -
+                <div id="login-email-title">
+                    <a href="login">Login</a> / <a href="login/register">Sign-up</a> With E-mail Address
                 </div>
             </div>
         </div>
@@ -123,7 +174,7 @@
         </div>
     </script>
     <script type="text/template" id="templates-components-menu">
-        <div class="menu-close"><img src="{{urls.images}}/btn_close_x_black.png"/></div>
+        <div class="menu-close"></div>
         <div id="menu-header"></div>
         <div id="menu-content">
             <div class="menu-column" id="menu-column-1"></div>
@@ -132,22 +183,31 @@
         </div>
     </script>
     <script type="text/template" id="templates-components-story-login">
-        <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
+        <div class="field-close"></div>
         <div class="story-login">
             <div class="field-logo"><img src="{{urls.images}}/logo_large.png" height="50px" /></div>
             <div class="field-login-title">Share stories about the things you love.<br/>Login to begin sharing your story.</div>
             <div class="field-login-body">
             </div>
-            <div class="field-login-button">
-                <a id="field-fb-login" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions"><img class="login-button" src="{{urls.images}}/btn_facebook_login.png"></a>
+            <div class="field-login-buttons">
+                <span></span>
+                <a id="field-fb-login" class="login-button facebook-button" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions">
+                    <span class="fb-login-logo"></span>
+                    <span class="login-button-text">Login With Facebook</span>
+                </a>
+                <a class="login-button twitter-button" id="field-tw-login" href="{{urls.site}}/twitter?redirect=">
+                    <span class="tw-login-logo"></span>
+                    <span class="login-button-text">Login With Twitter</span>
+                </a>
             </div>
-            <div class="field-login-button">
-                <a id="field-tw-login" href="{{urls.site}}/twitter?redirect="><img class="login-button" src="{{urls.images}}/btn_twitter_login.png"></a>
+            <div class="field-login-email">
+                <div>- or -</div>
+                <a id="field-user-login" href="#">Login</a> / <a id="field-user-signup" href="#">Sign-up</a> With E-mail Address
             </div>
         </div>
     </script>
     <script type="text/template" id="templates-components-story-summary">
-        <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
+        <div class="field-close"></div>
         <div class="field-title">Share Your Product Story</div>
         <div class="field-body clearfix">
             <div class="field-preview">
@@ -197,7 +257,7 @@
         </div>
     </script>
     <script type="text/template" id="templates-components-story-edit">
-        <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
+        <div class="field-close"></div>
         <div class="field-title">Share Your Product Story</div>
         <div class="field-body">
             <div class="field-preview">
@@ -270,7 +330,7 @@
         </div>
         <div class="echo-story-container clearfix">
             <div class="echo-story-header clearfix">
-                <div class="echo-s-h-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
+                <div class="echo-s-h-close"><!--<img src="{{urls.images}}/btn_close_x_black.png" />--></div>
                 <div class="echo-s-h-title clearfix">
                     <div class="echo-s-h-i-c">
                         <img class="echo-s-h-i-i" src="" />
@@ -307,8 +367,12 @@
                         <div class="comment-submit" style="display: none;">Submit Comment</div>
                         <div class="comment-login" style="display: none;">
                             <div class="comment-login-title">Login to Discuss</div>
-                            <img class="login-button comment-login-fb" src="{{urls.images}}/btn_facebook_login.png">
-                            <img class="comment-login-tw login-button" src="{{urls.images}}/btn_twitter_login.png">
+                            <div class="login-button facebook-button comment-login-fb">
+                                <span class="fb-login-logo"></span>
+                            </div>
+                            <div class="login-button twitter-button comment-login-tw">
+                                <span class="tw-login-logo"></span>
+                            </div>
                         </div>
                         <div class="echo-s-c-l">
                             <!-- Comment List -->
@@ -344,7 +408,7 @@
         </div>
     </script>
     <script type="text/templates" id="templates-components-story-input">
-        <div class="field-close"><img src="{{urls.images}}/btn_close_x_black.png" /></div>
+        <div class="field-close"></div>
         <div class="field-title">Share Your Product Story</div>
         <div class="field-body clearfix">
             <div class="field-preview">
@@ -487,4 +551,4 @@
     </script>
 {{/content}}
 
-{{/user_super}}
+{{/common_super}}

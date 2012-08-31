@@ -1,48 +1,85 @@
 package com.echoed.chamber.services.partneruser
 
-import akka.dispatch.Future
+import com.echoed.chamber.dao.partner.PartnerUserDao
+import com.echoed.chamber.dao.views.PartnerViewDao
+import com.echoed.chamber.domain.partner.{PartnerUser}
+import scala.collection.JavaConversions._
+import java.util.ArrayList
+import scalaz._
+import Scalaz._
+import akka.actor.PoisonPill
+import akka.pattern._
+import com.echoed.chamber.services._
+import scala.Left
+import scala.Right
+import com.echoed.chamber.services.state.{ReadPartnerUserForCredentialsResponse, ReadPartnerUserForEmailResponse, ReadPartnerUserForCredentials, ReadPartnerUserForEmail}
 
 
-trait PartnerUserService {
+class PartnerUserService(
+        mp: MessageProcessor,
+        ep: EventProcessorActorSystem,
+        initMessage: Message,
+        partnerUserDao: PartnerUserDao,
+        partnerViewDao: PartnerViewDao) extends OnlineOfflineService {
 
-    val id: String
+    private var partnerUser: PartnerUser = _
 
-    def activate(password: String): Future[ActivatePartnerUserResponse]
+    private def setStateAndRegister(pu: PartnerUser) {
+        partnerUser = pu
+        becomeOnline
+        context.parent ! RegisterPartnerUserService(partnerUser)
+    }
 
-    def getPartnerUser: Future[GetPartnerUserResponse]
+    override def preStart() {
+        super.preStart()
+        initMessage match {
+            case LoginWithEmail(email, _, _) => mp(ReadPartnerUserForEmail(email)).pipeTo(self)
+            case LoginWithCredentials(credentials) => mp(ReadPartnerUserForCredentials(credentials)).pipeTo(self)
+        }
+    }
 
-    def getPartnerSettings: Future[GetPartnerSettingsResponse]
+    def init = {
+        case msg @ ReadPartnerUserForEmailResponse(_, Left(_)) => initMessage match {
+            case LoginWithEmail(_, msg @ LoginWithEmailPassword(_, _), channel) =>
+                channel.get ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
+        }
 
-    def getCustomerSocialSummary(echoedUserId: String): Future[GetCustomerSocialSummaryResponse]
+        case msg @ ReadPartnerUserForEmailResponse(_, Right(pu)) => setStateAndRegister(pu)
+        case msg @ ReadPartnerUserForCredentialsResponse(_, Right(pu)) => setStateAndRegister(pu)
+    }
 
-    def getCustomerSocialActivityByDate(echoedUserId: String): Future[GetCustomerSocialActivityByDateResponse]
+    def online = {
+        case msg @ LoginWithEmailPassword(email, password) =>
+            if (partnerUser.isCredentials(email, password)) sender ! LoginWithEmailPasswordResponse(msg, Right(partnerUser))
+            else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
 
-    def getPartnerSocialSummary: Future[GetPartnerSocialSummaryResponse]
+        case msg @ ActivatePartnerUser(_, password) =>
+            val channel = context.sender
 
-    def getPartnerSocialActivityByDate: Future[GetPartnerSocialActivityByDateResponse]
+            try {
+                partnerUser = partnerUser.createPassword(password)
+                partnerUserDao.updatePassword(partnerUser)
+                channel ! ActivatePartnerUserResponse(msg, Right(partnerUser))
+            } catch {
+                case e: InvalidPassword =>
+                    channel ! ActivatePartnerUserResponse(msg, Left(e))
+                case e =>
+                    channel ! ActivatePartnerUserResponse(
+                            msg,
+                            Left(PartnerUserException("Could not activate partner user %s" format partnerUser.name, e)))
+            }
 
-    def getProductSocialSummary(productId: String): Future[GetProductSocialSummaryResponse]
+        case msg @ Logout(_) =>
+            self ! PoisonPill
 
-    def getProductSocialActivityByDate(productId: String): Future[GetProductSocialActivityByDateResponse]
+        case msg: GetPartnerUser =>
+            sender ! GetPartnerUserResponse(msg, Right(partnerUser))
 
-    def getProducts: Future[GetProductsResponse]
+        case msg: GetPartnerSettings =>
+            Option(partnerViewDao.getPartnerSettings(partnerUser.partnerId)).cata(
+                resultSet => sender ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
+                sender ! GetPartnerSettingsResponse(msg, Left(PartnerUserException("Partner Settings not available"))))
 
-    def getTopProducts: Future[GetTopProductsResponse]
+    }
 
-    def getCustomers: Future[GetCustomersResponse]
-
-    def getTopCustomers: Future[GetTopCustomersResponse]
-
-    def getComments: Future[GetCommentsResponse]
-
-    def getCommentsByProductId(productId:String): Future[GetCommentsByProductIdResponse]
-    
-    def getEchoClickGeoLocation: Future[GetEchoClickGeoLocationResponse]
-
-    def getEchoes: Future[GetEchoesResponse]
-    
-    //def getEchoes: Future[]
-
-    def logout(partnerUserId: String): Future[LogoutResponse]
 }
-

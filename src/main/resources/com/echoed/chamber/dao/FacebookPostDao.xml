@@ -28,8 +28,8 @@
     <resultMap id="facebookUserResult" type="com.echoed.chamber.domain.FacebookUser">
         <constructor>
             <idArg column="facebookUserId" javaType="String" />
-            <arg column="facebookUserUpdatedOn" javaType="Date" />
-			<arg column="facebookUserCreatedOn" javaType="Date" />
+            <arg column="facebookUserUpdatedOn" javaType="_long" />
+			<arg column="facebookUserCreatedOn" javaType="_long" />
             <arg column="facebookUserEchoedUserId" javaType="String" />
             <arg column="facebookUserFacebookId" javaType="String" />
             <arg column="facebookUserName" javaType="String" />

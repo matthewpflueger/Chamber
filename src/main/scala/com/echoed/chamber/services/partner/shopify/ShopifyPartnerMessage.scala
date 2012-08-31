@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{MessageResponse => MR}
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
 import com.echoed.chamber.domain.partner.shopify.{ShopifyOrderFull, ShopifyPartner}
 import com.echoed.chamber.services.partner.{PartnerAlreadyExists, PartnerException => PE, PartnerMessage => PM}
+import akka.actor.ActorRef
 
 sealed trait ShopifyPartnerMessage extends PM
 
@@ -18,7 +19,7 @@ case class RegisterShopifyPartnerEnvelope(
         shopifyPartner: ShopifyPartner,
         partner: Partner,
         partnerUser: PartnerUser,
-        shopifyPartnerService: Option[ShopifyPartnerService] = None)
+        shopifyPartnerService: Option[ActorRef] = None)
 
 case class ShopifyPartnerAlreadyExists(
         envelope: RegisterShopifyPartnerEnvelope,

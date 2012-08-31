@@ -1,0 +1,17 @@
+{{<public_super}}
+    {{$title}}Echoed | Login Reset{{/title}}
+    {{$content}}
+    <div id="content">
+        <div id="lm-partner-form" class="roundbox form">
+            <label>Login Reset</label>
+            {{#error}}<div id="lm-error">Error: {{message}}</div> {{/error}}
+            <form action="{{urls.site}}/login/reset" method="POST">
+                <label for="email">Email:</label>
+                <input id="email" name="email" type="text" />
+                <input id="login" name="reset" type="submit">
+            </form>
+        </div>
+    </div>
+    {{/content}}
+    {{$olark}}{{/olark}}
+{{/public_super}}

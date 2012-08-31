@@ -18,7 +18,6 @@ class ScalaObjectMapper(unwrap: Boolean = false) extends ObjectMapper {
     configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
     configure(DeserializationFeature.UNWRAP_ROOT_VALUE, unwrap)
 
-
     registerModule(DefaultScalaModule)
 
     def this() = this(false)

@@ -39,6 +39,12 @@ Echoed = {
         }
         return "";
     },
+    getLoginRedirectUrl: function(){
+        return "login/register?r=" + encodeURIComponent(window.location.hash);
+    },
+    getSignUpRedirectUrl: function(){
+        return "login?r=" + encodeURIComponent(window.location.hash);
+    },
     getFacebookLoginUrl: function(hash){
         return Echoed.facebookLogin.head +
             encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(hash)) +
@@ -92,6 +98,7 @@ Echoed = {
         var title = new Echoed.Views.Components.Title({ el: '#title', EvAg: EventAggregator });
         var pageTitle = new Echoed.Views.Components.PageTitle({ el: 'title', EvAg: EventAggregator});
         var category = new Echoed.Views.Components.Menu({ el: '#menu', EvAg: EventAggregator });
+        var notifications = new Echoed.Views.Components.Notifications({ el: '#notifications-container', EvAg: EventAggregator });
         var categoryList = new Echoed.Views.Components.CategoryList({ el: '#category-nav', EvAg: EventAggregator });
         var iFrameComm = new Echoed.Views.Components.MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator });
         var iFrameNode = document.createElement('iframe');
@@ -104,6 +111,118 @@ Echoed = {
         Backbone.history.start();
     }
 };
+
+Echoed.Views.Components.Notifications = Backbone.View.extend({
+    initialize: function(options){
+        _.bindAll(this, 'init');
+        this.EvAg = options.EvAg;
+        this.element = $(options.el);
+        this.EvAg.bind('user/login', this.init);
+        this.list = $('#notifications-list');
+        this.menu = $('#notifications-menu');
+        this.header = $('#notifications-list-header');
+        this.text = $('#notifications-text');
+        this.checkbox = $('#receive-notification-email-cb');
+        this.init();
+    },
+    init: function(){
+        var self = this;
+        if(Echoed.echoedUser !== undefined){
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/me/settings",
+                success: function(settings){
+                    if(settings.receiveNotificationEmail === true){
+                        self.checkbox.attr('checked',true)
+                    }
+                }
+            })();
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/notifications",
+                success: function(notifications){
+                    self.count = notifications.length;
+                    self.list.empty();
+                    self.text.html(self.count);
+                    self.header.html('New Notifications (' + self.count + ")");
+                    if(self.count > 0){
+                        $.each(notifications, function(index, notification){
+                            var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
+                            self.list.append($('<div></div>')
+                                .addClass('notification')
+                                .html(message)
+                                .attr("href","#story/" + notification.value.storyId)
+                                .attr("id", notification.id));
+                        });
+                    } else {
+                        self.text.addClass("off");
+                    }
+                    self.element.show();
+                }
+            })();
+        }
+    },
+    markAsRead: function(){
+        var self = this;
+        var id;
+        var ids = [];
+        if(this.count > 0){
+            $.each(this.list.children(), function(index, node){
+                ids.push($(node).attr('id'));
+            });
+            Echoed.AjaxFactory({
+                url: Echoed.urls.api + "/api/notifications",
+                type: "POST",
+                data: {
+                    'ids': ids
+                },
+                traditional: true
+            })();
+        }
+    },
+    events: {
+        "click .notification": "redirect",
+        "click #notifications": "toggle",
+        "click #receive-notification-email-cb": "setEmailSetting"
+    },
+    setEmailSetting: function(){
+        var self = this;
+        var bNotify = self.checkbox.is(':checked');
+        Echoed.AjaxFactory({
+            url: Echoed.urls.api + "/api/me/settings",
+            type: 'POST',
+            processData: false,
+            contentType: "application/json",
+            data: JSON.stringify({
+                receiveNotificationEmail: bNotify
+            }),
+            success: function(response){
+                if(response.receiveNotificationEmail === true){
+                    self.checkbox.attr('checked',true)
+                }
+            }
+        })();
+    },
+    redirect: function(ev){
+        this.toggle();
+        window.location.hash = $(ev.currentTarget).attr("href");
+    },
+    toggle: function(){
+        this.element.toggleClass('on');
+        if(this.on === true){
+            this.hide();
+            this.on = false;
+        } else {
+            this.on = true;
+            this.show();
+        }
+    },
+    show: function(){
+        this.menu.show();
+        this.markAsRead();
+    },
+    hide: function(){
+        this.menu.hide();
+    }
+});
 
 Echoed.Views.Components.MessageHandler = Backbone.View.extend({
     initialize: function(options){
@@ -365,8 +484,13 @@ Echoed.Router = Backbone.Router.extend({
                     this.page = "#!partner/" + id;
                     break;
                 default:
-                    this.me();
-                    this.page = "#!me";
+                    if(Echoed.echoedUser !== undefined){
+                        this.me();
+                        this.page = "#!me";
+                    } else {
+                        this.explore();
+                        this.page = "#";
+                    }
                     break;
             }
         }
@@ -620,10 +744,7 @@ Echoed.Views.Components.Field = Backbone.View.extend({
             $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                 if(chapterImage.chapterId === chapterId){
                     var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
-                    var thumbX = $('<img />').addClass('chapter-thumb-x').attr('src', Echoed.urls.images + "/btn_close_x_black.png").css({
-                        "height" : 20,
-                        "width" : 20
-                    });
+                    var thumbX = $('<span></span>').addClass('chapter-thumb-x').attr('src', Echoed.urls.images + "/btn_close_x_black.png");
                     thumbDiv.append(thumbX);
                     var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css(Echoed.getImageSizing(chapterImage, 75));
                     thumbDiv.append(photo).appendTo(chapterPhotos).fadeIn();
@@ -735,7 +856,10 @@ Echoed.Views.Components.Field = Backbone.View.extend({
         self.element.html(self.template).addClass('small');
         $("#field-fb-login").attr("href", Echoed.getFacebookLoginUrl(window.location.hash));
         $("#field-tw-login").attr("href", Echoed.getTwitterLoginUrl(window.location.hash));
+        $('#field-user-login').attr('href', Echoed.getLoginRedirectUrl());
+        $('#field-user-signup').attr("href", Echoed.getSignUpRedirectUrl());
         var body = self.element.find(".field-login-body");
+
         if(data){
             var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
             var bodyTextNode = $('<div class="field-login-body-text"></div>').append(bodyText);
@@ -1049,14 +1173,32 @@ Echoed.Views.Components.Login = Backbone.View.extend({
         _.bindAll(this, 'login');
         this.EvAg = options.EvAg;
         this.EvAg.bind('user/login', this.login);
+        this.list = $('#user-list');
         this.el = options.el;
         this.element = $(this.el);
+        //if(Echoed.echoedUser === undefined) this.element.hide();
+    },
+    events: {
+        "click li": "click",
+        "mouseenter": "show",
+        "mouseleave": "hide"
+    },
+    show: function(){
+        this.list.show();
+    },
+    hide: function(){
+        this.list.hide();
+    },
+    click: function(ev){
+        window.location = $(ev.currentTarget).attr('href');
     },
     login: function(){
         var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', Echoed.getProfilePhotoUrl(Echoed.echoedUser));
         var ui = $('<div id="user-image"></div>').append(image);
-        var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name + ' (<span class="highlight"><strong><a id="logout" href="logout">Logout</a></strong></span>) <br />');
-        this.element.append(ui).append(ut);
+        var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name);
+        var list = $('<div id="user-list"><ul><li class="user-list-item" href="logout">Logout</li></ul></div>');
+        this.element.append(ui).append(ut).append(list);
+        this.element.show();
     }
 });
 
@@ -1086,6 +1228,8 @@ Echoed.Views.Components.Select = Backbone.View.extend({
         self.input = $("<input type='text'>");
 
         self.label = $("<div class='field-question-label'></div>");
+        self.downArrow = $("<div class='downarrow'></div>");
+        self.label.append(self.downArrow);
         self.label.append(self.input);
         self.element.append(self.label);
         self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");
@@ -1411,7 +1555,8 @@ Echoed.Views.Components.Story = Backbone.View.extend({
                 url: Echoed.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
                 type: "POST",
                 data: {
-                    text: text
+                    text: text,
+                    storyOwnerId: self.data.echoedUser.id
                 },
                 success: function(createCommentData) {
                     self.locked = false;
@@ -1439,7 +1584,7 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         this.render();
     },
     events: {
-        "click .story-brief-overlay" : "click",
+        "click .story-brief-image-container" : "click",
         "mouseenter": "showOverlay",
         "mouseleave": "hideOverlay"
     },
@@ -1457,35 +1602,46 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
         } else {
             imageNode.attr("src", image.url)
         }
-        if(Echoed.echoedUser !== undefined){
-            if(self.data.echoedUser.id === Echoed.echoedUser.id){
-                textNode.append("<a class='red-link' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
+        if(self.data.chapters.length > 0){
+            if(Echoed.echoedUser !== undefined){
+                if(self.data.echoedUser.id === Echoed.echoedUser.id){
+                    textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
+                }
+            }
+            textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
+            textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
+            textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
+            var chapterText = self.data.chapters[0].text;
+            var c  = chapterText.split(/[.!?]/)[0];
+            c = c + chapterText.substr(c.length, 1); //Append Split Character
+            textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
+            overlayNode.html(self.data.story.title);
+            var dateString = self.data.story.updatedOn.toString();
+            var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
+
+            var indicators = $("<div class='story-brief-indicator'></div>");
+
+            indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
+            indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.comments.length));
+            indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
+            indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.chapterImages.length + 1));
+            indicators.append($("<span class='s-b-i-c'></span>").append(elapsedString));
+
+            textNode.append(indicators);
+
+        } else {
+            if(self.personal === true ) {
+                textNode.append("<strong>"+ self.data.story.title + "</strong><br/>");
+                textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
+                if(self.data.chapters.length === 0 ){
+                    var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Complete Story");
+                    overlayNode.append(editButton);
+                    overlayNode.append("<br/>Complete your story by adding a chapter");
+                    self.overlay.fadeIn();
+                }
+                self.element.attr('action','write');
             }
         }
-        textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", Echoed.getProfilePhotoUrl(self.data.echoedUser)));
-        textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
-        textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
-
-
-        var chapterText = self.data.chapters[0].text;
-        var c  = chapterText.split(/[.!?]/)[0];
-        c = c + chapterText.substr(c.length, 1); //Append Split Character
-        textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
-        overlayNode.html(self.data.story.title);
-        var dateString = self.data.story.updatedOn.toString();
-        var elapsedString = timeElapsedString(timeStampStringToDate(dateString));
-
-        var indicators = $("<div class='story-brief-indicator'></div>");
-
-        indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
-        indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.comments.length));
-        indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
-        indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.chapterImages.length + 1));
-        indicators.append($("<span class='s-b-i-c'></span>").append(elapsedString));
-
-
-        textNode.append(indicators);
-
         self.element.attr("id", self.data.story.id);
     },
     showOverlay: function(){
@@ -1497,7 +1653,11 @@ Echoed.Views.Components.StoryBrief = Backbone.View.extend({
     click: function(){
         var self = this;
         var id = self.element.attr("id");
-        window.location.hash = "#!story/" + self.data.story.id;
+        if(self.element.attr('action') === "write"){
+            window.location.hash = "#!write/story/" + self.data.story.id;
+        } else {
+            window.location.hash = "#!story/" + self.data.story.id;
+        }
     }
 });
 
