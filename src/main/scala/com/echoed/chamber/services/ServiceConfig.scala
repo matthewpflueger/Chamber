@@ -151,6 +151,7 @@ class ServiceConfig {
             feedDao,
             partnerDao,
             echoedUserDao,
+            messageProcessor,
             eventProcessor)), "FeedService")
 
     @Bean

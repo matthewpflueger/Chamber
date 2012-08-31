@@ -3,7 +3,6 @@ package com.echoed.chamber.services.feed
 import scala.collection.JavaConversions._
 import com.echoed.chamber.dao.views._
 import akka.actor._
-import akka.actor.{ActorSystem, Props, ActorRef, Actor}
 import com.echoed.chamber.dao.partner.PartnerDao
 import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.domain.public._
@@ -11,16 +10,18 @@ import scala.Right
 import com.echoed.chamber.domain.views._
 import scala.Left
 import com.echoed.chamber.domain.views.PublicFeed
-import com.echoed.chamber.services.{EventProcessorActorSystem, EchoedService}
-import collection.immutable.{HashMap, TreeSet, SortedSet, TreeMap}
+import com.echoed.chamber.services.{MessageProcessor, EventProcessorActorSystem, EchoedService}
+import collection.immutable.{HashMap, TreeMap}
 import com.echoed.chamber.services.echoeduser.StoryUpdated
+import com.echoed.chamber.services.event.{WidgetStoryOpened, WidgetOpened}
 
 
 class FeedService(
         feedDao: FeedDao,
         partnerDao: PartnerDao,
         echoedUserDao: EchoedUserDao,
-        eventProcessor: EventProcessorActorSystem) extends EchoedService {
+        mp: MessageProcessor,
+        ep: EventProcessorActorSystem) extends EchoedService {
 
     val pageSize = 30
 
@@ -45,7 +46,7 @@ class FeedService(
         storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
     }
 
-    eventProcessor.subscribe(self, classOf[StoryUpdated])
+    ep.subscribe(self, classOf[StoryUpdated])
 
     def handle = {
 
@@ -92,8 +93,7 @@ class FeedService(
                     log.error("Unexpected error processing {}, {}", msg, e)
             }
 
-        case msg @ GetPublicCategoryFeed(categoryId, page, origin) =>
-            log.error("TODO: Publish origin ", origin)
+        case msg @ GetPublicCategoryFeed(categoryId, page) =>
             val channel = context.sender
             val start = msg.page * pageSize
 
@@ -108,8 +108,7 @@ class FeedService(
                     log.error("Unpexected Error processing {}, {}", msg, e)
             }
 
-        case msg @ GetCategoryStoryFeed(categoryId, page, origin) =>
-            log.error("TODO: Publish origin ", origin)
+        case msg @ GetCategoryStoryFeed(categoryId, page) =>
             val channel = context.sender
             val start = msg.page * pageSize
 
@@ -138,8 +137,7 @@ class FeedService(
                     log.error("Unexpected Error processing {}, {}", msg , e)
             }
 
-        case msg @ GetUserPublicFeed(echoedUserId, page, origin) =>
-            log.error("TODO: Publish origin ", origin)
+        case msg @ GetUserPublicFeed(echoedUserId, page) =>
             val channel = context.sender
             val start = msg.page * pageSize
             try {
@@ -155,8 +153,7 @@ class FeedService(
                     log.error("Unexpected error processesing {}, {}", msg, e)
             }
 
-        case msg @ GetUserPublicStoryFeed(echoedUserId, page, origin) =>
-            log.error("TODO: Publish origin ", origin)
+        case msg @ GetUserPublicStoryFeed(echoedUserId, page) =>
             val channel = context.sender
             val start = msg.page * pageSize
             try {
@@ -179,8 +176,7 @@ class FeedService(
                     log.error(e, "Unexpected error processesiong {}", msg)
             }
 
-        case msg @ GetPartnerFeed(partnerId, page, origin) =>
-            log.error("TODO: Publish origin ", origin)
+        case msg @ GetPartnerFeed(partnerId, page) =>
             val channel = context.sender
             try{
                 val start = page * pageSize
@@ -196,7 +192,8 @@ class FeedService(
             }
 
         case msg @ GetPartnerStoryFeed(partnerId, page, origin) =>
-            log.error("TODO: Publish origin ", origin)
+            if (origin != "echoed") mp(WidgetOpened(partnerId))
+
             val channel = context.sender
             try {
                 val start = msg.page * pageSize
@@ -217,7 +214,9 @@ class FeedService(
                     log.error("Unexpected error processing {} , {}", msg, e)
             }
 
-        case msg @ GetStory(storyId) =>
+        case msg @ GetStory(storyId, origin) =>
+            if (origin != "echoed") mp(WidgetStoryOpened(storyId))
+
             val channel = context.sender
             try {
                 channel ! GetStoryResponse(msg, Right(storyMap.get(storyId)))

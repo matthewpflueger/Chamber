@@ -226,7 +226,7 @@ private[echoeduser] case class EchoToTwitter(echo:Echo, echoMessage: Option[Stri
 private[echoeduser] case class EchoToTwitterResponse(message:EchoToTwitter,  value: Either[EUE, TwitterStatus])
     extends EUM with MR[TwitterStatus, EchoToTwitter,  EUE]
 
-case class PublishFacebookAction(credentials: EUCC, action: String,  obj: String,  objUrl: String, origin: String) extends EUM with EUI
+case class PublishFacebookAction(credentials: EUCC, action: String,  obj: String,  objUrl: String) extends EUM with EUI
 case class PublishFacebookActionResponse(message: PublishFacebookAction, value: Either[EUE, Boolean])
     extends EUM with MR[Boolean, PublishFacebookAction, EUE]
 
