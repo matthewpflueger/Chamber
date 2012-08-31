@@ -321,7 +321,7 @@ class EchoController extends EchoedController {
                     result.set(modelAndView)
                 }
 
-                Option(eucc).map(c => mp(PublishFacebookAction(c, "browse", "product", v.productGraphUrl + postId, "Echo Click")))
+                Option(eucc).map(c => mp(PublishFacebookAction(c, "browse", "product", v.productGraphUrl + postId)))
         }
 
         result

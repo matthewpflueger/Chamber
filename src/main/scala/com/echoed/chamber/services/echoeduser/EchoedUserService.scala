@@ -352,8 +352,7 @@ class EchoedUserService(
             }
 
 
-        case msg @ PublishFacebookAction(eucc, action, obj, objUrl, origin) =>
-            log.error("TODO: Publish origin {}", origin)
+        case msg @ PublishFacebookAction(eucc, action, obj, objUrl) =>
             facebookUser.foreach { fu =>
                 mp(PublishAction(FacebookAccessToken(fu.accessToken, Some(fu.facebookId)), action, obj, objUrl))
             }
@@ -530,7 +529,7 @@ class EchoedUserService(
                 val start = msg.page * limit
 
                 val closet = Option(closetDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new Closet(echoedUser.id, echoedUser))
-                mp(GetUserPublicStoryFeed(echoedUser.id, msg.page, "echoed")).onSuccess({
+                mp(GetUserPublicStoryFeed(echoedUser.id, msg.page)).onSuccess({
                     case GetUserPublicStoryFeedResponse(_ , Right(storyFeed)) =>
                         if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                             log.debug("Echoed user {} has zero echoes", echoedUser.id)
@@ -645,7 +644,7 @@ class EchoedUserService(
             }
 
             ep(StoryUpdated(storyId))
-            me ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId, "Echoed")
+            me ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
             channel ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
 
 
@@ -695,7 +694,7 @@ class EchoedUserService(
                 parentCommentId.map(commentDao.findByIdAndChapterId(_, chapterId)))
             commentDao.insert(comment)
             ep(StoryUpdated(storyId))
-            me ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId, "echoed")
+            me ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId)
             channel ! NewCommentResponse(msg, Right(comment))
 
             if (echoedUser.id != byEchoedUser.id) {

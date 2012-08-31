@@ -150,7 +150,7 @@ class UserController extends EchoedController {
 
         log.debug("Requesting for Category Feed for Category {}", categoryId )
 
-        mp(GetCategoryStoryFeed(categoryId, parse(page), origin)).onSuccess {
+        mp(GetCategoryStoryFeed(categoryId, parse(page))).onSuccess {
             case GetCategoryStoryFeedResponse(_, Right(feed)) => result.set(feed)
         }
 
@@ -187,7 +187,7 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(GetUserPublicStoryFeed(echoedFriendId, parse(page), origin)).onSuccess {
+        mp(GetUserPublicStoryFeed(echoedFriendId, parse(page))).onSuccess {
             case GetUserPublicStoryFeedResponse(_, Right(feed)) => result.set(feed)
         }
 
@@ -205,11 +205,11 @@ class UserController extends EchoedController {
 
         log.debug("Requesting Story {}", id )
 
-        mp(GetStory(id)).onSuccess {
+        mp(GetStory(id, origin)).onSuccess {
             case GetStoryResponse(_, Right(story)) => result.set(story)
         }
 
-        Option(eucc).map(c => mp(PublishFacebookAction(c, "browse", "story", v.storyGraphUrl + id, origin)))
+        Option(eucc).map(c => mp(PublishFacebookAction(c, "browse", "story", v.storyGraphUrl + id)))
         result
     }
 

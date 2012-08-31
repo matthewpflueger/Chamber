@@ -16,11 +16,13 @@ class FacebookGraphController extends EchoedController {
     @BeanProperty var facebookAppNameSpace: String = _
 
     @RequestMapping(value = Array("/story/{storyId}"), method = Array(RequestMethod.GET))
-    def story(@PathVariable(value = "storyId") storyId: String) = {
+    def story(
+            @PathVariable(value = "storyId") storyId: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
         val result = new DeferredResult(new ModelAndView(v.errorView))
 
         log.debug("Retrieving Story Graph Story Page for Echo: {}", storyId)
-        mp(GetStory(storyId)).onSuccess {
+        mp(GetStory(storyId, origin)).onSuccess {
             case GetStoryResponse(msg, Right(storyFull)) =>
                 log.debug("Successfully Retrived Story {} , Responding With Facebook Graph Story View", storyFull)
                 val modelAndView = new ModelAndView(v.facebookGraphStoryView)

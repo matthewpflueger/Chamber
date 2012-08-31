@@ -29,7 +29,6 @@ class WidgetController extends EchoedController {
                 modelAndView.addObject("partnerId", pcc.partnerId)
                 modelAndView.addObject("echoedUserId", Option(eucc).map(_.echoedUserId).getOrElse(""))
                 result.set(modelAndView)
-                ep.publish(WidgetRequested(pcc.partnerId))
         }
         //FIXME should be requesting the widget view from the service which then publishes the event
         result
