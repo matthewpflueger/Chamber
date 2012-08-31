@@ -234,6 +234,7 @@ Echoed.Router = Backbone.Router.extend({
         "write": "writePartner"
     },
     explore: function(){
+        this.EvAg.trigger('exhibit/open');
     },
     writePartner: function(){
         this.writeStory('partner','{{partnerId}}');
