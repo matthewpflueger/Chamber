@@ -678,6 +678,7 @@ class EchoedUserService(
                 .mapTo[NewCommentResponse]
                 .map(ncr => CreateCommentResponse(msg, ncr.value))
                 .pipeTo(context.sender)
+            self ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId, "echoed")
 
 
         case msg @ NewComment(eucc, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
@@ -694,7 +695,11 @@ class EchoedUserService(
                 parentCommentId.map(commentDao.findByIdAndChapterId(_, chapterId)))
             commentDao.insert(comment)
             ep(StoryUpdated(storyId))
+<<<<<<< Updated upstream
             me ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId)
+=======
+
+>>>>>>> Stashed changes
             channel ! NewCommentResponse(msg, Right(comment))
 
             if (echoedUser.id != byEchoedUser.id) {
