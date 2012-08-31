@@ -532,6 +532,19 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <excludes>
+                                <!-- defaults are: **/.keep", "**/scss/*", "**/*.psd", "**/sprites/* -->
+                                <exclude>**/.keep</exclude>
+                                <exclude>**/scss/*</exclude>
+                                <exclude>**/*.psd</exclude>
+                                <exclude>**/sprites/*</exclude>
+
+                                <exclude>**/views/*</exclude>
+                                <exclude>**/WEB-INF/*</exclude>
+                                <exclude>**/messages/*</exclude>
+                            </excludes>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
