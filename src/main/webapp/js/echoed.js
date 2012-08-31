@@ -1195,9 +1195,9 @@ Echoed.Views.Components.Login = Backbone.View.extend({
     login: function(){
         var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', Echoed.getProfilePhotoUrl(Echoed.echoedUser));
         var ui = $('<div id="user-image"></div>').append(image);
-        var ut = $('<div id="user-text"></div>').append(Echoed.echoedUser.name);
-        var list = $('<div id="user-list"><ul><li class="user-list-item" href="logout">Logout</li></ul></div>');
-        this.element.append(ui).append(ut).append(list);
+        $("#user-text").html(Echoed.echoedUser.name);
+        $('#user-list').find('ul').append('<li class="user-list-item" href="logout">Logout</li>');
+        this.element.prepend(ui);
         this.element.show();
     }
 });

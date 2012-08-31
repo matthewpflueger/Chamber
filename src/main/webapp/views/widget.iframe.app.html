@@ -853,6 +853,7 @@ Echoed.Views.Components.MessageHandler = Backbone.View.extend({
         var self = this;
         if(response.data === "echoed-open"){
             $('body').show();
+            self.EvAg.trigger('exhibit/open');
             self.EvAg.trigger('isotope/relayout');
         } else {
             Echoed.echoedUser = JSON.parse(response.data);
@@ -1365,7 +1366,6 @@ $(document).ready(function () {
             id:"{{echoedUserId}}"
         }
     });
-    EventAggregator.trigger('exhibit/open');
 });
 </script>
 <script type="text/javascript">
