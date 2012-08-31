@@ -137,8 +137,9 @@
         <prop key="geolocation.lastUpdatedBeforeHours">24</prop>
 
 
-        <prop key="mustache.cache">true</prop>
-        <prop key="mustache.prefix">${http.urls.views}/${version}</prop>
+        <prop key="mustache.cache">false</prop>
+        <prop key="mustache.prefix">classpath:views/</prop>
+        <!--<prop key="mustache.prefix">${http.urls.views}/${version}</prop>-->
         <prop key="mustache.suffix">.html</prop>
         <prop key="mustache.defaultValue"> </prop>
 
@@ -161,17 +162,9 @@
         <prop key="confirmUrl">${http.urls.site}/echo</prop>
 
         <prop key="buttonViewUrl">${http.urls.images}/button_echoed.png</prop>
-        <prop key="loginViewUrl">${http.urls.views}/popuplogin.html</prop>
 
         <prop key="twitterController.loginRedirectUrl">http://www.twitter.com</prop>
 
-        <prop key="confirmViewUrl">${http.urls.views}/confirm.html</prop>
-
-
-        <prop key="twitterLoginErrorViewUrl">${http.urls.views}/twitter_login_error.html</prop>
-        <prop key="facebookLoginErrorViewUrl">${http.urls.views}/facebook_login_error.html</prop>
-        <prop key="dashboardViewUrl">${http.urls.views}/partner.html</prop>
-        <prop key="adminDashboardViewUrl">${http.urls.views}/admin.dashboard.html</prop>
 
         <prop key="exhibitUrl">${http.urls.api}/user/exhibit</prop>
         <prop key="friendsUrl">${http.urls.api}/user/friends</prop>
