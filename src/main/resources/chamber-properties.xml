@@ -138,7 +138,7 @@
 
 
         <prop key="mustache.cache">false</prop>
-        <prop key="mustache.prefix">classpath:views/</prop>
+        <prop key="mustache.prefix">classpath:cdn/${version}</prop>
         <!--<prop key="mustache.prefix">${http.urls.views}/${version}</prop>-->
         <prop key="mustache.suffix">.html</prop>
         <prop key="mustache.defaultValue"> </prop>
