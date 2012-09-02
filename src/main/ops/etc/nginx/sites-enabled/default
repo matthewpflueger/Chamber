@@ -8,10 +8,6 @@
 # Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
 ##
 
-server {
-    server_name www.echoed.com;
-    return 301 $scheme://echoed.com$request_uri;
-}
 
 server {
     listen       80;
@@ -72,7 +68,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Scheme $scheme;
         proxy_intercept_errors on;
-        proxy_redirect http:// https://;
+        #proxy_redirect http:// https://;
     }
 }
 
