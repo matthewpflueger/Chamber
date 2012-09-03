@@ -35,8 +35,7 @@
                 <bean class="com.echoed.chamber.interceptors.BrowserIdInterceptor">
                     <property name="cookieManager" ref="cookieManager" />
                 </bean>
-                <bean class="com.echoed.chamber.interceptors.AuthorizationControlInterceptor">
-                    <property name="cookieManager" ref="cookieManager" />
+                <bean class="com.echoed.chamber.interceptors.SecureInterceptor">
                     <property name="httpsUrl" value="${https.urls.site}" />
                 </bean>
                 <bean class="com.echoed.chamber.interceptors.GlobalsInterceptor">

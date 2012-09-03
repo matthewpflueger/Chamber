@@ -9,12 +9,15 @@ import org.springframework.validation.BindingResult
 import com.echoed.chamber.controllers.{FormController, EchoedController, Errors}
 import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.beans.factory.annotation.Autowired
+import com.echoed.chamber.controllers.interceptors.Secure
 
 
 @Controller
+@Secure
 class RegisterController extends EchoedController with FormController {
 
     @Autowired var formValidator: RegisterFormValidator = _
+
 
     @RequestMapping(value = Array("/partner/register"), method = Array(RequestMethod.GET))
     def registerGet = new ModelAndView(v.registerView, "registerForm", new RegisterForm())

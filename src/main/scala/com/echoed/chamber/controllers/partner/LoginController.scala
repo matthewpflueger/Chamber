@@ -7,11 +7,13 @@ import com.echoed.chamber.services.partneruser._
 import org.springframework.web.bind.annotation.{RequestParam, RequestMapping}
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.controllers.{EchoedController, Errors}
+import com.echoed.chamber.controllers.interceptors.Secure
 
 
 @Controller("partnerLogin")
 class LoginController extends EchoedController {
 
+    @Secure
     @RequestMapping(value = Array("/partner/login"))
     def login(
             @RequestParam(value = "email", required = false) email: String,

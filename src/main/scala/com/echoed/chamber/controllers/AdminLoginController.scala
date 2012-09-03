@@ -7,13 +7,15 @@ import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.adminuser._
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.domain.AdminUser
+import com.echoed.chamber.controllers.interceptors.Secure
 
 
 @Controller
 @RequestMapping(Array("/admin"))
+@Secure
 class AdminLoginController extends EchoedController {
 
-    @RequestMapping(Array("/create"))
+    @RequestMapping(value = Array("/create"), method = Array(RequestMethod.POST))
     @ResponseBody
     def create(
             aucc: AdminUserClientCredentials,
