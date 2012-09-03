@@ -39,6 +39,7 @@
                     <property name="cookieManager" ref="cookieManager" />
                     <property name="httpsUrl" value="${https.urls.site}" />
                 </bean>
+                <bean class="com.echoed.chamber.interceptors.PreflightArgumentResolverInterceptor" />
                 <bean class="com.echoed.chamber.interceptors.GlobalsInterceptor">
                     <property name="globalsManager" ref="globalsManager" />
                 </bean>
