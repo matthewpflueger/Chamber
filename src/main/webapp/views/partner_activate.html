@@ -18,24 +18,24 @@
                         <form action="{{urls.site}}/partner/activate" method="POST">
                             <fieldset>
                                 <legend>Credential Info</legend>
-                                <label  for="activateForm.password">Password<em> * </em><span class="error">{{errors.activateForm.password}}</span></label>
-                                <input  id="activateForm.password"
-                                        name="activateForm.password"
+                                <label  for="password">Password<em> * </em><span class="error">{{errors.activateForm.password}}</span></label>
+                                <input  id="password"
+                                        name="password"
                                         type="password"
                                         placeholder="Minimum of six characters..." />
-                                <label  for="activateForm.passwordConfirm">Password Confirm<em> * </em><span class="error">{{errors.activateForm.passwordConfirm}}</span></label>
-                                <input  id="activateForm.passwordConfirm"
-                                        name="activateForm.passwordConfirm"
+                                <label  for="passwordConfirm">Password Confirm<em> * </em><span class="error">{{errors.activateForm.passwordConfirm}}</span></label>
+                                <input  id="passwordConfirm"
+                                        name="passwordConfirm"
                                         type="password"
                                         placeholder="Password again..." />
-                                <input  id="activateForm.partnerUserId"
-                                        name="activateForm.partnerUserId"
+                                <input  id="partnerUserId"
+                                        name="partnerUserId"
                                         type="hidden"
                                         value="{{activateForm.partnerUserId}}" />
                             </fieldset>
                             <br/>
-                            <input  id="activateForm.activate"
-                                    name="activateForm.activate"
+                            <input  id="activate"
+                                    name="activate"
                                     type="submit" />
                         </form>
                     </div>
