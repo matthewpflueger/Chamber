@@ -7,60 +7,71 @@ import org.slf4j.LoggerFactory
 
 class JsonpCallbackFilter extends Filter {
 
-    private val logger = LoggerFactory.getLogger(classOf[JsonpCallbackFilter])
+    private val log = LoggerFactory.getLogger(classOf[JsonpCallbackFilter])
 
     def init(filterConfig: FilterConfig) {}
 
     def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        val callback = Option(request.getParameter("callback"))
-        if (!callback.isDefined) {
+        val cb = Option(request.getParameter("callback"))
+        if (!cb.isDefined) {
             chain.doFilter(request, response)
             return
         }
+        val callback = cb.get
 
-        logger.debug("Wrapping response for jsonp request with callback {}", callback)
+        log.debug("Wrapping response for jsonp request with callback {}", callback)
 
-        var wrapper = new GenericResponseWrapper(response.asInstanceOf[HttpServletResponse])
+        val wrapper = new GenericResponseWrapper(response.asInstanceOf[HttpServletResponse])
 
         chain.doFilter(request, wrapper)
 
-        if (!request.isAsyncStarted) {
-            finishResponse(callback.get, wrapper, response)
-        } else {
-            logger.debug("Adding async listener")
-            request.getAsyncContext.addListener(new AsyncListener() {
-                def onComplete(event: AsyncEvent) {
-                    finishResponse(callback.get, wrapper, response)
-                }
-
-                def onTimeout(event: AsyncEvent) {
-                    logger.error("Timeout occurred on wrapped response")
-                    finishResponse(callback.get, wrapper, response)
-                }
-
-                def onError(event: AsyncEvent) {
-                    logger.error("Received error on wrapped response", event.getThrowable)
-                }
-
-                def onStartAsync(event: AsyncEvent) {}
-            })
-        }
+        if (!request.isAsyncStarted) finishResponse(callback, wrapper, response)
+        else addAsyncListener(callback, wrapper, request, response)
     }
 
     def finishResponse(callback: String, wrapper: GenericResponseWrapper, response: ServletResponse) {
         val output = response.getOutputStream
         if (wrapper.getContentType == null || wrapper.getContentType.contains("json")) {
-            logger.debug("Writing jsonp callback {}", callback)
+            log.debug("Writing jsonp callback {}", callback)
             response.setContentType("application/x-javascript")
             output.write("%s(".format(callback).getBytes("UTF-8"))
             output.write(wrapper.output.toByteArray)
             output.write(");".getBytes("UTF-8"))
         } else {
-            logger.warn("Callback {} found but content type is not json but {}", callback, wrapper.getContentType)
+            log.debug("Callback {} found but content type is not json but {}", callback, wrapper.getContentType)
             output.write(wrapper.output.toByteArray)
         }
     }
 
-    def destroy() {}
+    def addAsyncListener(
+            callback: String,
+            wrapper: GenericResponseWrapper,
+            request: ServletRequest,
+            response: ServletResponse) {
 
+        log.debug("Adding async listener for callback {}", callback)
+        try {
+            request.getAsyncContext.addListener(new AsyncListener() {
+                def onComplete(event: AsyncEvent) {
+                    finishResponse(callback, wrapper, response)
+                }
+
+                def onTimeout(event: AsyncEvent) {
+                    log.debug("Timeout occurred on wrapped response for callback {}", callback)
+                    finishResponse(callback, wrapper, response)
+                }
+
+                def onError(event: AsyncEvent) {
+                    log.error("Received error on wrapped response for callback %s" format(callback), event.getThrowable)
+                }
+
+                def onStartAsync(event: AsyncEvent) {}
+            })
+        } catch {
+            case e: IllegalStateException =>
+                log.debug("Caught IllegalStateException fetching async context for callback {}: {}", callback, e.getMessage)
+        }
+    }
+
+    def destroy() {}
 }
