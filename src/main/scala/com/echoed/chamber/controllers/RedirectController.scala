@@ -5,16 +5,13 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.services.echoeduser._
-import com.echoed.chamber.services.echoeduser.GetEchoedUser
-import com.echoed.chamber.services.echoeduser.GetEchoedUserResponse
-import scala.Right
 import com.echoed.chamber.services.echoeduser.GetEchoedUser
 import com.echoed.chamber.services.echoeduser.GetEchoedUserResponse
 import com.echoed.chamber.services.partner.FetchPartnerResponse
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.partner.FetchPartner
 import scala.Right
+
 
 @Controller
 @RequestMapping(Array("/redirect"))

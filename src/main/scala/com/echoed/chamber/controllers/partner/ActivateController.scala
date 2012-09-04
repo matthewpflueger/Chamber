@@ -11,9 +11,11 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.controllers.{FormController, EchoedController, Errors}
 import org.springframework.beans.factory.annotation.Autowired
+import com.echoed.chamber.controllers.interceptors.Secure
 
 
 @Controller
+@Secure
 class ActivateController extends EchoedController with FormController {
 
     @Autowired var formValidator: ActivateFormValidator = _

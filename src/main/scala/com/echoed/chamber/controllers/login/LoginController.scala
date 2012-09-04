@@ -15,10 +15,12 @@ import com.echoed.chamber.services.echoeduser.RegisterLogin
 import com.echoed.chamber.services.echoeduser.RegisterLoginResponse
 import scala.Right
 import com.echoed.chamber.services.echoeduser.LoginWithEmailPasswordResponse
+import com.echoed.chamber.controllers.interceptors.Secure
 
 
 @Controller("echoedUserLogin")
 @RequestMapping(Array("/login"))
+@Secure
 class LoginController extends EchoedController with FormController {
 
     @RequestMapping(method = Array(RequestMethod.GET))

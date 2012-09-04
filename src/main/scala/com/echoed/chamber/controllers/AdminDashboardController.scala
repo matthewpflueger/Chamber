@@ -5,9 +5,11 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.adminuser._
 import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.controllers.interceptors.Secure
 
 
 @Controller
+@Secure(redirect = true, redirectToPath = "/admin/login")
 class AdminDashboardController extends EchoedController {
 
     @RequestMapping(Array("/admin/dashboard"))
