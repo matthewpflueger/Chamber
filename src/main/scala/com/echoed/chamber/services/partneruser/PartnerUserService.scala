@@ -13,6 +13,7 @@ import com.echoed.chamber.services._
 import scala.Left
 import scala.Right
 import com.echoed.chamber.services.state.{ReadPartnerUserForCredentialsResponse, ReadPartnerUserForEmailResponse, ReadPartnerUserForCredentials, ReadPartnerUserForEmail}
+import com.echoed.chamber.domain.InvalidPassword
 
 
 class PartnerUserService(
@@ -61,12 +62,7 @@ class PartnerUserService(
                 partnerUserDao.updatePassword(partnerUser)
                 channel ! ActivatePartnerUserResponse(msg, Right(partnerUser))
             } catch {
-                case e: InvalidPassword =>
-                    channel ! ActivatePartnerUserResponse(msg, Left(e))
-                case e =>
-                    channel ! ActivatePartnerUserResponse(
-                            msg,
-                            Left(PartnerUserException("Could not activate partner user %s" format partnerUser.name, e)))
+                case e: InvalidPassword => sender ! ActivatePartnerUserResponse(msg, Left(e))
             }
 
         case msg @ Logout(_) =>

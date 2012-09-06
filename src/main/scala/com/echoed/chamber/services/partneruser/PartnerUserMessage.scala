@@ -71,12 +71,6 @@ case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either
 case class ActivatePartnerUser(credentials: PUCC, password: String) extends PUM with PUI
 case class ActivatePartnerUserResponse(
         message: ActivatePartnerUser,
-        value: Either[PUE, PartnerUser])
-        extends PUM with MR[PartnerUser, ActivatePartnerUser, PUE]
-
-
-case class InvalidPassword(
-        _message: String = "Invalid password",
-        _cause: Throwable = null,
-        _code: Option[String] = Some("password.invalid")) extends PUE(_message, _cause, _code)
+        value: Either[InvalidPassword, PartnerUser])
+        extends PUM with MR[PartnerUser, ActivatePartnerUser, InvalidPassword]
 

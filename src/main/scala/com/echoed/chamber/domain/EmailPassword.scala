@@ -4,6 +4,7 @@ import java.nio.charset.Charset
 import java.security.MessageDigest
 import com.echoed.util.UUID
 import org.apache.commons.codec.binary.Base64
+import com.echoed.chamber.services.EchoedException
 
 trait EmailPassword { self =>
     def email: String
@@ -20,9 +21,16 @@ trait EmailPassword { self =>
         else password == hash(plainTextPassword)
     }
 
-    protected def createSaltAndPassword(plainTextPassword: String) = {
+    protected final def createSaltAndPassword(plainTextPassword: String) = {
+        val validatedPassword = validatePassword(plainTextPassword)
         val newSalt = List.fill(4)(UUID()).mkString
-        (newSalt, hash(plainTextPassword, Option(newSalt)))
+        (newSalt, hash(validatedPassword, Option(newSalt)))
+    }
+
+    def validatePassword(plainTextPassword: String) = {
+        val validatedPassword = plainTextPassword.trim()
+        if (validatedPassword.length < 6) throw new InvalidPassword()
+        validatedPassword
     }
 
     private def hash(input: String, newSalt: Option[String] = None) = {
@@ -34,6 +42,11 @@ trait EmailPassword { self =>
         Base64.encodeBase64URLSafeString(messageDigest.digest())
     }
 }
+
+case class InvalidPassword(
+        message: String = "Invalid password",
+        cause: Throwable = null,
+        code: Option[String] = Some("password.invalid")) extends EchoedException(message, cause, code)
 
 
 object PasswordGenerator extends App {
