@@ -155,6 +155,7 @@ class StateService(
                 sender ! ReadAdminUserForCredentialsResponse(msg, Right(au))
             }
 
+        case PartnerUserUpdated(partnerUser) => partnerUsers.update(partnerUser.copy(updatedOn = new Date))
     }
 }
 

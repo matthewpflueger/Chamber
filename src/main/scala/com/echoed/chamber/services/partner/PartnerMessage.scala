@@ -53,6 +53,10 @@ case class UpdatePartnerResponse(
         value: Either[PE, Partner]) extends PM with MR[Partner, UpdatePartner, PE]
 
 
+private[services] case class GetPartnerSettings(credentials: PCC) extends PM with PI
+private[services] case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerException, List[PartnerSettings]])
+        extends PM with MR[List[PartnerSettings], GetPartnerSettings, PE]
+
 case class GetPartner() extends PM
 case class GetPartnerResponse(
         message: GetPartner,

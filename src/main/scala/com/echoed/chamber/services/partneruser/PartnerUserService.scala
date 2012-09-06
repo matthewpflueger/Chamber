@@ -1,12 +1,6 @@
 package com.echoed.chamber.services.partneruser
 
-import com.echoed.chamber.dao.partner.PartnerUserDao
-import com.echoed.chamber.dao.views.PartnerViewDao
 import com.echoed.chamber.domain.partner.{PartnerUser}
-import scala.collection.JavaConversions._
-import java.util.ArrayList
-import scalaz._
-import Scalaz._
 import akka.actor.PoisonPill
 import akka.pattern._
 import com.echoed.chamber.services._
@@ -14,14 +8,13 @@ import scala.Left
 import scala.Right
 import com.echoed.chamber.services.state.{ReadPartnerUserForCredentialsResponse, ReadPartnerUserForEmailResponse, ReadPartnerUserForCredentials, ReadPartnerUserForEmail}
 import com.echoed.chamber.domain.InvalidPassword
+import com.echoed.chamber.services.partner.PartnerClientCredentials
 
 
 class PartnerUserService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
-        initMessage: Message,
-        partnerUserDao: PartnerUserDao,
-        partnerViewDao: PartnerViewDao) extends OnlineOfflineService {
+        initMessage: Message) extends OnlineOfflineService {
 
     private var partnerUser: PartnerUser = _
 
@@ -55,12 +48,10 @@ class PartnerUserService(
             else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
 
         case msg @ ActivatePartnerUser(_, password) =>
-            val channel = context.sender
-
             try {
                 partnerUser = partnerUser.createPassword(password)
-                partnerUserDao.updatePassword(partnerUser)
-                channel ! ActivatePartnerUserResponse(msg, Right(partnerUser))
+                sender ! ActivatePartnerUserResponse(msg, Right(partnerUser))
+                ep(PartnerUserUpdated(partnerUser))
             } catch {
                 case e: InvalidPassword => sender ! ActivatePartnerUserResponse(msg, Left(e))
             }
@@ -72,9 +63,13 @@ class PartnerUserService(
             sender ! GetPartnerUserResponse(msg, Right(partnerUser))
 
         case msg: GetPartnerSettings =>
-            Option(partnerViewDao.getPartnerSettings(partnerUser.partnerId)).cata(
-                resultSet => sender ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
-                sender ! GetPartnerSettingsResponse(msg, Left(PartnerUserException("Partner Settings not available"))))
+            val channel = sender
+
+            mp(partner.GetPartnerSettings(new PartnerClientCredentials with EchoedClientCredentials {
+                val id = partnerUser.partnerId
+            })).onSuccess {
+                case GetPartnerSettingsResponse(_, Right(ps)) => channel ! GetPartnerSettingsResponse(msg, Right(ps))
+            }
 
     }
 

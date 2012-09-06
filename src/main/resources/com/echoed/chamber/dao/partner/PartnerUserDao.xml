@@ -17,9 +17,6 @@
         </constructor>
     </resultMap>
 
-    <select id="findById" resultMap="partnerUserResult">
-        select * from PartnerUser where id = #{id}
-    </select>
 
     <select id="findByEmail" resultMap="partnerUserResult">
         select * from PartnerUser where email = #{email}
@@ -44,24 +41,5 @@
                 #{password})
     </insert>
 
-    <update id="update" parameterType="com.echoed.chamber.domain.partner.PartnerUser">
-        update PartnerUser set
-            name = #{name},
-            email = #{email}
-        where id = #{id}
-    </update>
-    <update id="updatePassword" parameterType="com.echoed.chamber.domain.partner.PartnerUser">
-        update PartnerUser set
-            password = #{password}
-        where id = #{id}
-    </update>
-
-    <delete id="deleteById">
-        delete from PartnerUser where id=#{id}
-    </delete>
-
-    <delete id="deleteByEmail">
-        delete from PartnerUser where email=#{email}
-    </delete>
 
 </mapper>
