@@ -2,13 +2,10 @@ package com.echoed.chamber.resolvers
 
 import org.springframework.core.MethodParameter
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import org.springframework.beans.factory.annotation.Autowired
 import javax.servlet.http.HttpServletRequest
-import com.echoed.util.{ScalaObjectMapper, Encrypter}
+import com.echoed.util.ScalaObjectMapper
 
 class EchoedUserClientCredentialsArgumentResolver extends ClientCredentialsArgumentResolver {
-
-    @Autowired var encrypter: Encrypter = _
 
     def supportsParameter(parameter: MethodParameter) =
             classOf[EchoedUserClientCredentials].isAssignableFrom(parameter.getParameterType)

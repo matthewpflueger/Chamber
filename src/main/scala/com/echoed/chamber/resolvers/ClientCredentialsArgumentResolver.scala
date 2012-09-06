@@ -10,11 +10,13 @@ import org.springframework.web.bind.support.WebDataBinderFactory
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import com.echoed.chamber.services.EchoedClientCredentials
 import javax.annotation.Nullable
+import com.echoed.util.Encrypter
 
 abstract class ClientCredentialsArgumentResolver
         extends HandlerMethodArgumentResolver
         with PreflightArgumentResolver {
 
+    @Autowired var encrypter: Encrypter = _
     @Autowired var cookieManager: CookieManager = _
 
 
