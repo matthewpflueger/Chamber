@@ -12,8 +12,14 @@ sealed case class PartnerUserException(
         cause: Throwable = null,
         code: Option[String] = None) extends EchoedException(message, cause, code)
 
-trait PartnerUserClientCredentials {
-    this: EchoedClientCredentials =>
+
+case class PartnerUserClientCredentials(
+        id: String,
+        name: Option[String] = None,
+        email: Option[String] = None,
+        partnerId: Option[String] = None,
+        partnerName: Option[String] = None) extends EchoedClientCredentials {
+
     def partnerUserId = id
 }
 

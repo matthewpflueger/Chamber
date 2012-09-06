@@ -2,8 +2,8 @@ package com.echoed.chamber.resolvers
 
 import org.springframework.core.MethodParameter
 import javax.servlet.http.HttpServletRequest
-import com.echoed.chamber.services.EchoedClientCredentials
 import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import com.echoed.util.ScalaObjectMapper
 
 class PartnerUserClientCredentialsArgumentResolver extends ClientCredentialsArgumentResolver {
 
@@ -16,6 +16,12 @@ class PartnerUserClientCredentialsArgumentResolver extends ClientCredentialsArgu
 
     protected def resolveCredentials(request: HttpServletRequest) =
             cookieManager.findPartnerUserCookie(request).map { puc =>
-                new PartnerUserClientCredentials with EchoedClientCredentials { val id = puc }
+                val payload = new ScalaObjectMapper().readTree(encrypter.decrypt(puc))
+                PartnerUserClientCredentials(
+                        payload.get("id").asText,
+                        Option(payload.get("name")).map(_.asText),
+                        Option(payload.get("email")).map(_.asText),
+                        Option(payload.get("partnerId")).map(_.asText),
+                        Option(payload.get("partnerName")).map(_.asText))
             }
 }
