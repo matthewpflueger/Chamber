@@ -11,7 +11,7 @@ import com.echoed.chamber.services.event.{EventMessage, EventService}
 import com.echoed.chamber.services.email.{SchedulerService, EmailMessage, EmailService}
 import org.springframework.mail.javamail.JavaMailSender
 import com.echoed.util.mustache.MustacheEngine
-import com.echoed.chamber.dao.views.{AdminViewDao, PartnerViewDao, ClosetDao, FeedDao}
+import com.echoed.chamber.dao.views.{AdminViewDao, ClosetDao, FeedDao}
 import com.echoed.chamber.dao.partner.{PartnerUserDao, PartnerSettingsDao, PartnerDao}
 import com.echoed.chamber.services.feed.{FeedMessage, FeedService}
 import com.echoed.chamber.services.tag.{TagMessage, TagService}
@@ -102,7 +102,6 @@ class ServiceConfig {
 
     @Resource(name = "encrypter") var encrypter: Encrypter = _
     @Resource(name = "partnerUserDao") var partnerUserDao: PartnerUserDao = _
-    @Resource(name = "partnerViewDao") var partnerViewDao: PartnerViewDao = _
 
     @Resource(name = "adminViewDao") var adminViewDao: AdminViewDao = _
 
@@ -242,9 +241,7 @@ class ServiceConfig {
     def partnerUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new PartnerUserService(
             mp = messageProcessor,
             ep = eventProcessor,
-            initMessage = msg,
-            partnerUserDao = partnerUserDao,
-            partnerViewDao = partnerViewDao)))
+            initMessage = msg)))
 
     @Bean
     def partnerUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new PartnerUserServiceManager(

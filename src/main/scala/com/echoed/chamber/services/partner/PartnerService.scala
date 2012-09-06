@@ -108,6 +108,11 @@ class PartnerService(
             val channel = context.sender
             channel ! GetPartnerResponse(msg, Right(partner))
 
+        case msg: GetPartnerSettings =>
+            Option(partnerSettingsDao.findByPartnerId(partner.id)).cata(
+                resultSet => sender ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
+                sender ! GetPartnerSettingsResponse(msg, Left(PartnerException("Partner Settings not available"))))
+
         case msg @ RequestEcho(
                 partnerId,
                 request,
