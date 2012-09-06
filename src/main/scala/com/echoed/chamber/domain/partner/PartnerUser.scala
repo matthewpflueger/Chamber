@@ -4,7 +4,6 @@ import java.util.Date
 import com.echoed.util.UUID
 import com.echoed.chamber.domain.{EmailPassword, DomainObject}
 import com.echoed.util.DateUtils._
-import com.echoed.chamber.services.partneruser.InvalidPassword
 
 
 case class PartnerUser(
@@ -36,10 +35,7 @@ case class PartnerUser(
 
 
     def createPassword(plainTextPassword: String) = {
-        val validatedPassword = plainTextPassword.trim()
-        if (validatedPassword.length < 6) throw new InvalidPassword()
-
-        val (s, p) = createSaltAndPassword(validatedPassword)
+        val (s, p) = createSaltAndPassword(plainTextPassword)
         copy(salt = s, password = p)
     }
 
