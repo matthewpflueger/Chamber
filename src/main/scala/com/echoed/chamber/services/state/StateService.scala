@@ -1,11 +1,9 @@
 package com.echoed.chamber.services.state
 
-import org.squeryl._
 import org.squeryl.PrimitiveTypeMode._
 import com.echoed.chamber.services.state.schema.ChamberSchema._
 import com.echoed.chamber.services._
 import javax.sql.DataSource
-import org.squeryl.adapters.MySQLAdapter
 import scalaz._
 import Scalaz._
 import com.echoed.chamber.services.echoeduser._
@@ -14,7 +12,6 @@ import com.echoed.util.DateUtils._
 import com.echoed.chamber.services.state.schema.{Schedule, EchoedUserSettings, Notification}
 import scala.Left
 import com.echoed.chamber.services.echoeduser.EchoedUserUpdated
-import scala.Some
 import scala.Right
 import com.echoed.chamber.services.echoeduser.EchoedUserCreated
 import com.echoed.chamber.services.echoeduser.NotificationCreated
@@ -25,14 +22,8 @@ import com.echoed.chamber.services.scheduler.{ScheduleDeleted, ScheduleCreated}
 
 
 class StateService(
-        ep: EventProcessorActorSystem,
-        dataSource: DataSource) extends EchoedService {
-
-    SessionFactory.concreteFactory = Some(() => {
-        val session = Session.create(dataSource.getConnection, new MySQLAdapter)
-        session.setLogger(msg => log.debug(msg))
-        session
-    })
+        val ep: EventProcessorActorSystem,
+        val dataSource: DataSource) extends EchoedService with SquerylSessionFactory {
 
     ep.subscribe(context.self, classOf[CreatedEvent])
     ep.subscribe(context.self, classOf[UpdatedEvent])
