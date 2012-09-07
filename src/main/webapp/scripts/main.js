@@ -1,7 +1,7 @@
 require.config({
     paths: {
-        'backbone': 'libs/backbone-0.9.1-min',
-        'underscore': 'libs/underscore-min',
+        'backbone': 'libs/backbone-amd-0.9.2-min',
+        'underscore': 'libs/underscore-amd-1.3.3-min',
         'jquery': 'libs/jquery-1.8.0.min',
         'isotope': 'libs/jquery.isotope.min',
         'expanding' : 'libs/expanding',
@@ -9,10 +9,10 @@ require.config({
         'text': 'libs/require/text'
     },
     shim: {
-        backbone: {
-            deps: ['underscore', 'jquery'],
-            exports: 'Backbone'
-        },
+//        backbone: {
+//            deps: ['underscore', 'jquery'],
+//            exports: 'Backbone'
+//        },
         fileuploader: {
             exports: 'qq'
         }
