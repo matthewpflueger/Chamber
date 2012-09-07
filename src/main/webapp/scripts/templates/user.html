@@ -1,0 +1,205 @@
+{{<common_super}}
+{{$jsHead}}
+<script type='text/javascript' src="{{urls.js}}/jquery.imagesloaded.js"></script>
+<script type='text/javascript' src="{{urls.js}}/jquery.isotope.min.js"></script>
+<script type='text/javascript' src="{{urls.js}}/expanding.js"></script>
+<script type='text/javascript' src="{{urls.js}}/fileuploader.js"></script>
+<script type='text/javascript' src="{{urls.js}}/echoed.js"></script>
+{{/jsHead}}
+{{$css}}
+<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
+{{/css}}
+{{$header}}
+{{/header}}
+{{$content}}
+<div id="container">
+    <div id="header-container">
+        <div id="logo">
+            <a href="/"><img height="40px" src="{{urls.images}}/logo.png"></a>
+        </div>
+
+        <div id="user" class="clearfix">
+            {{#echoedUser}}
+            <div id="user-image">
+                {{#facebookId}}
+                <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{.}}/picture" />
+                {{/facebookId}}
+                {{^facebookId}}
+                {{#twitterId}}
+                <img id="u-i-i" height="30px" width="30px" src="http://api.twitter.com/1/users/profile_image/{{.}}" />
+                {{/twitterId}}
+                {{/facebookId}}
+            </div>
+            {{/echoedUser}}
+            <div id="user-text">
+                {{#echoedUser}}
+                {{name}}
+                {{/echoedUser}}
+                {{^echoedUser}}
+                Learn More
+                {{/echoedUser}}
+            </div>
+            <span class="downarrow"></span>
+            <div id="user-list">
+                <ul>
+                    <li class="user-list-item" href="about">About Us</li>
+                    <li class="user-list-item" href="guidelines">Sharing Guidelines</li>
+                    <li class="user-list-item" href="privacy">Privacy Policy</li>
+                    <li class="user-list-item" href="terms">Terms of Service</li>
+                    <li class="user-list-item" href="business">For Business</li>
+                    {{#echoedUser}}
+                    <li class="user-list-item" href="logout"><strong>Logout</strong></li>
+                    {{/echoedUser}}
+                </ul>
+            </div>
+        </div>
+        <div id="notifications-container">
+            <div id="notifications">
+                <div id="notifications-text">
+                </div>
+            </div>
+            <div id="notifications-menu">
+                <div id="notifications-list-header">
+                </div>
+                <div id="notifications-list">
+                </div>
+                <div id="notification-settings">
+                    Send Notification E-mail:
+                    <input id="receive-notification-email-cb" type="checkbox" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="nav-container">
+        <div id="actions"></div>
+        <div id="header-nav" class="clearfix">
+            <div class="nav-label">
+                Navigate
+            </div>
+            <ul>
+                <li class="icon_world" href="#!" id="explore_nav">
+                    Community
+                </li>
+                {{#echoedUser}}
+                <li class="icon_friends" href="#!me/friends" id="friends_nav">
+                    My Friends
+                </li>
+                <li class="icon_me" href="#!me" id="exhibit_nav">
+                    My Stories
+                </li>
+                {{/echoedUser}}
+            </ul>
+        </div>
+        <div id="help-nav">
+            <ul>
+                <li><a class="link-black bold" href="{{urls.site}}/101">Storytelling 101</a></li>
+            </ul>
+        </div>
+
+        <div id="category-nav" class="clearfix">
+            <div class="category-menu-header">Categories</div>
+            <div id="category-list">
+            </div>
+            <div id="category-more">+ More Categories</div>
+        </div>
+    </div>
+    <div id="fade" style="display:none;">
+        <div id="story" style="display:none"></div>
+        <div id="field" style="display:none;"></div>
+        <div id="menu" style="display:none;"></div>
+    </div>
+    <div id="content" class="clearfix">
+        <div id="title-container">
+            <div id="title">
+                <div id="title-text">
+                </div>
+                <div id="title-description">
+                </div>
+            </div>
+        </div>
+        <div id="exhibit" class="clearfix">
+        </div>
+    </div>
+    <div id="infiniteScroll" style="display:none;">
+        Loading <img align="absmiddle" src="{{urls.images}}/bk_loader_circle.gif" />
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        {{#echoedUser}}
+        Echoed.echoedUser = {};
+        Echoed.echoedUser.id = '{{id}}';
+        {{/echoedUser}}
+            {{^echoedUser}}
+            Echoed.facebookLogin ={};
+            Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
+            Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
+            Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
+            Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
+            {{/echoedUser}}
+
+                EchoedApp.init();
+            });
+</script>
+<script type="text/javascript">
+    $.Isotope.prototype._getCenteredMasonryColumns = function() {
+        this.width = this.element.width();
+
+        var parentWidth = this.element.parent().width();
+
+        // i.e. options.masonry && options.masonry.columnWidth
+        var colW = this.options.masonry && this.options.masonry.columnWidth ||
+            // or use the size of the first item
+                this.$filteredAtoms.outerWidth(true) ||
+            // if there's no items, use size of container
+                parentWidth;
+
+        var cols = Math.floor( parentWidth / colW );
+        cols = Math.max( cols, 1 );
+
+        // i.e. this.masonry.cols = ....
+        this.masonry.cols = cols;
+        // i.e. this.masonry.columnWidth = ...
+        this.masonry.columnWidth = colW;
+    };
+
+    $.Isotope.prototype._masonryReset = function() {
+        // layout-specific props
+        this.masonry = {};
+        // FIXME shouldn't have to call this again
+        this._getCenteredMasonryColumns();
+        var i = this.masonry.cols;
+        this.masonry.colYs = [];
+        while (i--) {
+            this.masonry.colYs.push( 0 );
+        }
+    };
+
+    $.Isotope.prototype._masonryResizeChanged = function() {
+        var prevColCount = this.masonry.cols;
+        // get updated colCount
+        this._getCenteredMasonryColumns();
+        return ( this.masonry.cols !== prevColCount );
+    };
+
+    $.Isotope.prototype._masonryGetContainerSize = function() {
+        var unusedCols = 0,
+                i = this.masonry.cols;
+        // count unused columns
+        while ( --i ) {
+            if ( this.masonry.colYs[i] !== 0 ) {
+                break;
+            }
+            unusedCols++;
+        }
+
+        return {
+            height : Math.max.apply( Math, this.masonry.colYs ),
+            // fit container to columns that have been used;
+            width : (this.masonry.cols - unusedCols) * this.masonry.columnWidth
+        };
+    };
+</script>
+{{/content}}
+
+{{/common_super}}
