@@ -3,12 +3,13 @@ package com.echoed.chamber.domain
 import java.util.Date
 import java.net.URLEncoder
 import com.echoed.util.UUID
+import com.echoed.util.DateUtils._
 
 
 case class Image(
         id: String,
-        updatedOn: Date,
-        createdOn: Date,
+        updatedOn: Long,
+        createdOn: Long,
         url: String,
         originalUrl: String,
         originalWidth: Int,
@@ -25,9 +26,9 @@ case class Image(
         thumbnailUrl: String,
         thumbnailWidth: Int,
         thumbnailHeight: Int,
-        processedOn: Date,
+        processedOn: Long,
         processedStatus: String,
-        retries: Int) {
+        retries: Int) extends DomainObject {
 
     def this() = this(
         "",
@@ -73,7 +74,7 @@ case class Image(
         null,
         0,
         0,
-        null,
+        0,
         null,
         0)
 
@@ -110,7 +111,7 @@ case class Image(
     val hasExhibit = exhibitUrl != null && exhibitWidth > 0 && exhibitHeight > 0
     val hasStory = storyUrl != null && storyWidth > 0 && storyHeight > 0
 
-    val isProcessed = processedOn != null && hasOriginal && hasSized && hasThumbnail && hasExhibit
+    val isProcessed = processedOn > 0 && hasOriginal && hasSized && hasThumbnail && hasExhibit
     
     val preferredUrl = if (hasExhibit) exhibitUrl else if (hasSized) sizedUrl else if (hasStory) storyUrl else if (hasOriginal) originalUrl else url
     val preferredWidth = if (hasExhibit) exhibitWidth else if (hasSized) sizedWidth else if (hasStory) storyWidth else if (hasOriginal) originalWidth else 0

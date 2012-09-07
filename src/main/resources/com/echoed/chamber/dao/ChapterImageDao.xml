@@ -22,8 +22,8 @@
     <resultMap id="CIMGimageResult" type="com.echoed.chamber.domain.Image">
         <constructor>
             <idArg column="CIMGimageId" javaType="String" />
-            <arg column="CIMGimageUpdatedOn" javaType="Date" />
-            <arg column="CIMGimageCreatedOn" javaType="Date" />
+            <arg column="CIMGimageUpdatedOn" javaType="_long" />
+            <arg column="CIMGimageCreatedOn" javaType="_long" />
             <arg column="CIMGimageUrl" javaType="String" />
             <arg column="CIMGimageOriginalUrl" javaType="String" />
             <arg column="CIMGimageOriginalWidth" javaType="_int" />
@@ -40,7 +40,7 @@
             <arg column="CIMGimageThumbnailUrl" javaType="String" />
             <arg column="CIMGimageThumbnailWidth" javaType="_int" />
             <arg column="CIMGimageThumbnailHeight" javaType="_int" />
-            <arg column="CIMGimageProcessedOn" javaType="Date" />
+            <arg column="CIMGimageProcessedOn" javaType="_long" />
             <arg column="CIMGimageProcessedStatus" javaType="String" />
             <arg column="CIMGimageRetries" javaType="_int" />
         </constructor>
