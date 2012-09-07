@@ -20,6 +20,7 @@ import com.echoed.chamber.domain.EchoedUser
 import scala.collection.immutable.Stack
 import com.echoed.chamber.services.scheduler.{ScheduleDeleted, ScheduleCreated}
 import com.echoed.util.TransactionUtils._
+import com.echoed.chamber.services.partneruser.PartnerUserUpdated
 
 
 class StateService(
