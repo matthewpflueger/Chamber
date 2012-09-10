@@ -30,8 +30,10 @@ define(
             click: function(ev){
                 window.location = $(ev.currentTarget).attr('href');
             },
-            login: function(){
-                var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', utils.getProfilePhotoUrl(Echoed.echoedUser));
+            login: function(echoedUser){
+                this.properties.echoedUser = echoedUser;
+                console.log(echoedUser);
+                var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', utils.getProfilePhotoUrl(echoedUser));
                 var ui = $('<div id="user-image"></div>').append(image);
                 $("#user-text").html(this.properties.echoedUser.name);
                 $('#user-list').find('ul').append('<li class="user-list-item" href="logout">Logout</li>');

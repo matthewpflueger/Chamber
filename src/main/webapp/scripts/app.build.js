@@ -3,6 +3,7 @@
     baseUrl: "./",
     dir: "../release",
     paths: {
+        'requireLib': 'libs/require/require',
         'json2' : 'libs/json2',
         'underscore' : 'libs/underscore-amd-1.3.3-min',
         'backbone' : 'libs/backbone-amd-0.9.2-min',
@@ -11,8 +12,7 @@
         'isotope' : 'libs/jquery.isotope.min',
         'imagesLoaded' : 'libs/imagesloaded',
         'fileuploader' : 'libs/fileuploader',
-        'expanding' : 'libs/expanding',
-        'requireLib': 'libs/require/require'
+        'expanding' : 'libs/expanding'
     },
 //    shim: {
 //        underscore: {
@@ -26,8 +26,13 @@
     optimize: "uglify",
     modules: [
         {
+            name: "widget",
+            include: ['requireLib']
+        },
+        {
             name: "main",
             include: ['requireLib']
         }
+
     ]
 })

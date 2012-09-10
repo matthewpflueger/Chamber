@@ -27,8 +27,9 @@ define(
                 "click .story-nav-button": "navClick",
                 "click a": "close"
             },
-            login: function(){
+            login: function(echoedUser){
                 var self = this;
+                this.properties.echoedUser = echoedUser;
 
                 this.element.find('.comment-login').fadeOut(function(){
                     self.element.find('.comment-submit').fadeIn();
@@ -86,23 +87,26 @@ define(
                 self.element.find('.echo-s-h-t-t').html(self.data.story.title);
                 self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.storyUrl);
                 if(self.properties.echoedUser !== undefined){
-                    if(self.data.echoedUser.id === Echoed.echoedUser.id){
+                    if(self.data.echoedUser.id === self.properties.echoedUser.id){
                         var header = self.element.find('.echo-story-header');
                         $('<a class="story-edit-button"></a></span>').html('Edit Story').attr("href","#write/story/" + self.data.story.id).appendTo(header);
                     }
                 }
                 self.gallery = self.element.find('.echo-s-b-gallery');
                 self.userNode = self.element.find('.echo-s-h-t-n');
-                var userLink = 'by <a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a><br/>';
-                var fromLink = 'from ';
-                if(self.data.story.partnerHandle !== "Echoed"){
-                    var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-                    fromLink = fromLink + '<a class="link-black bold-link" href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
-                    fromLink = fromLink + ' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)';
-                } else if (utils.isUrl(self.data.story.productInfo)){
-                    fromLink = fromLink + '<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
-                } else {
-                    fromLink = fromLink +  self.data.story.productInfo;
+                var userLink = 'by <a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
+
+                if(self.properties.isWidget !== true){
+                    var fromLink = '<br/>from ';
+                    if(self.data.story.partnerHandle !== "Echoed"){
+                        var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
+                        fromLink = fromLink + '<a class="link-black bold-link" href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
+                        fromLink = fromLink + ' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)';
+                    } else if (utils.isUrl(self.data.story.productInfo)){
+                        fromLink = fromLink + '<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
+                    } else {
+                        fromLink = fromLink +  self.data.story.productInfo;
+                    }
                 }
                 var userImage = $('<img />').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)).addClass("echo-s-h-t-n-i");
                 self.userNode.append(userImage);

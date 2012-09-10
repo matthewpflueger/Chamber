@@ -312,7 +312,7 @@ a{
             position: absolute;
             right: 0px;
             width: 180px;
-            padding: 2px 0px;
+            height: 40px;
             cursor: pointer;
             background-position: right;
             background-repeat: no-repeat;
@@ -328,17 +328,17 @@ a{
             #user-text{
                 display:inline-block;
                 width: 130px;
+                margin: 3px 0px;
                 padding-left: 10px;
                 line-height:32px;
                 @include textFontBold(13px);
                 text-wrap: none;
                 text-overflow: ellipsis;
                 text-align:left;
-                vertical-align: middle;
             }
 
             #user-image{
-                margin-left: 2px;
+                margin: 4px 2px;
                 vertical-align: middle;
                 display:inline-block;
                 #u-i-i{
@@ -1662,6 +1662,7 @@ h3{
         }
     }
 }
+
 .echo-story-container{
     position:relative;
     background-image: image-url("bk_noise.jpg");
@@ -2005,7 +2006,7 @@ h3{
 #story-nav{
     .story-nav-button{
         padding: 20px 0px;
-        @include textFontNormal(16px, #CCC);
+        @include textFontBold(16px, #F0F0F0);
         cursor: pointer;
         &:hover{
             color: #FFF;

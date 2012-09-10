@@ -19,10 +19,47 @@ $fontTextColorDefault: #333;
         height: $height;
     }
 
-    @mixin fontText($size: $fontTextSizeDefault, $color: $fontTextColorDefault, $weight: 400){
+    @mixin fontText($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
         font-family: $fontTextFamily;
-        font-weight: $weight;
+        font-size: $size;
         color: $color;
+    }
+
+    @mixin fontTextBold($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+        font-family: $fontTextFamily;
+        font-size: $size;
+        color: $color;
+        font-weight: bold;
+    }
+
+    @mixin fontTextLight($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+        font-family: $fontTextFamily;
+        font-size: $size;
+        color: $color;
+        font-weight: 300;
+    }
+
+    @mixin fontHeader($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+        font-family: $fontHeaderFamily;
+        font-size: $size;
+        color: $color;
+    }
+
+    @mixin fontHeaderBold($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+        font-family: $fontHeaderFamily;
+        font-size: $size;
+        color: $color;
+        font-weight: bold;
+    }
+
+    @mixin grooveBottom(){
+        border-bottom: 1px solid #CCC;
+        box-shadow: 0px 1px 0px #FFF;
+    }
+
+    @mixin grooveTop(){
+        border-top: 1px solid #FFF;
+        box-shadow: 0px -1px 0px #CCC;
     }
 
     @mixin dropShadowDown(){
@@ -33,7 +70,26 @@ $fontTextColorDefault: #333;
         filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
     }
 
-    @mixin button{
+    @mixin button($size: 12px){
+        cursor: pointer;
+        margin: 3px;
+        display: inline-block;
+        min-width: 50px;
+        text-align: center;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #000;
+        background-color: $colorEC;
+        background: -moz-linear-gradient(top, #eb1a24 0%, #b41b25);
+        background: -webkit-gradient(linear, left top, left bottom, from(#eb1a24), to(#b41b25));
+        border-radius: 3px;
+        -moz-border-radius: 3px;
+        -webkit-border-radius: 3px;
+        border: 1px solid #591b24;
+        -moz-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
+        -webkit-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
+        @include fontTextBold($size, #FFF);
+        text-decoration: none;
     }
 
 
@@ -43,4 +99,57 @@ pre, form, fieldset, table, th, td {
     margin:0;
     padding: 0;
     @include fontText;
+}
+
+
+
+.clearfix{
+    zoom:1;
+    &:before,&:after{
+        content:"";
+        display:table;
+    }
+    &:after{
+        clear:both;
+    }
+}
+
+.red-link{
+    color: $colorEC;
+    font-weight: bold;
+    text-decoration: none;
+    &:hover{
+        color: #333 !important;
+    }
+    &:visited{
+        color: $colorEC;
+    }
+}
+
+.link-black{
+    color: #333;
+    text-decoration: none;
+    &:visited, &:active{
+        color: #333;
+    }
+
+}
+
+
+.downarrow{
+    position: absolute;
+    top: 50%;
+    margin-top: -3px;
+    right: 10px;
+    border-style: solid dashed dashed;
+    border-color: transparent;
+    border-top-color: #999;
+    display: -moz-inline-box;
+    display: inline-block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    width: 0;
+    border-width: 5px 5px 0;
+    padding-top: 1px;
 }

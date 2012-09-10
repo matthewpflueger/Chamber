@@ -1,16 +1,18 @@
 <div class="field-close"></div>
 <div class="story-login">
-    <div class="field-logo"><img src="{{urls.images}}/logo_large.png" height="50px" /></div>
+    <div class="field-logo">
+        <img id="field-logo-img" src="{{urls.images}}/logo_large.png" height="50px" />
+    </div>
     <div class="field-login-title">Share stories about the things you love.<br/>Login to begin sharing your story.</div>
     <div class="field-login-body">
     </div>
     <div class="field-login-buttons">
         <span></span>
-        <a id="field-fb-login" class="login-button facebook-button" href="https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri={{https.site}}/facebook/login&scope=email,user_birthday,publish_actions">
+        <a id="field-fb-login" class="login-button facebook-button">
             <span class="fb-login-logo"></span>
             <span class="login-button-text">Login With Facebook</span>
         </a>
-        <a class="login-button twitter-button" id="field-tw-login" href="{{urls.site}}/twitter?redirect=">
+        <a class="login-button twitter-button" id="field-tw-login">
             <span class="tw-login-logo"></span>
             <span class="login-button-text">Login With Twitter</span>
         </a>

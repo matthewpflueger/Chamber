@@ -16,11 +16,16 @@ define(
                     window.attachEvent('onmessage', this.receiveMessageResponse);
                 }
             },
-            receiveMessageResponse: function(response) {
+            receiveMessageResponse:function (response) {
                 var self = this;
-                console.log(this.properties);
-                var echoedUser = JSON.parse(response.data);
-                this.EvAg.trigger('user/login', echoedUser);
+                if(response.data === "echoed-open"){
+                    $('body').show();
+                    self.EvAg.trigger('exhibit/init', { endPoint : "/partner/" + this.properties.partnerId });
+                    self.EvAg.trigger('isotope/relayout');
+                } else {
+                    var echoedUser = JSON.parse(response.data);
+                    this.EvAg.trigger('user/login', echoedUser);
+                }
             }
         });
     }

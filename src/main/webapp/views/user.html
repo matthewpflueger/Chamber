@@ -1,7 +1,8 @@
 {{<common_super}}
 {{$jsHead}}
     <!--<script type='text/javascript' src="{{urls.js}}/main.js"></script>-->
-    <script data-main="scripts/main" src="{{urls.js}}/require.js"></script>
+    <script src="{{urls.js}}/main.js"></script>
+    <!--<script data-main="scripts/main.js" src="{{urls.js}}/require.js"></script>-->
 {{/jsHead}}
 {{$css}}
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
@@ -130,17 +131,6 @@
         Echoed.echoedUser.id = '{{id}}';
         {{/echoedUser}}
 
-
-
-        /*$(document).ready(function() {
-            {{^echoedUser}}
-                Echoed.facebookLogin ={};
-                Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
-                Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
-                Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
-                Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
-            {{/echoedUser}}
-        });*/
     </script>
     <script type="text/javascript">
 

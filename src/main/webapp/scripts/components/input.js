@@ -16,11 +16,14 @@ define(
     function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateStoryEdit, templateStoryInput, templateStorySummary, templateStoryLogin){
         return Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this, 'render', 'unload', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb', 'addCategory');
+                _.bindAll(this, 'render', 'unload', 'login', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb', 'addCategory');
                 this.element = $(options.el);
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
                 this.EvAg.bind("field/show", this.load);
+                if(this.properties.isWidget === true){
+                    this.EvAg.bind("user/login", this.login);
+                }
                 this.locked = false;
                 this.prompts = [];
             },
@@ -36,10 +39,23 @@ define(
                 "click #field-main-category-edit": "editCategory"
 
             },
+            login: function(echoedUser){
+                this.properties.echoedUser = echoedUser;
+                this.loadPartner();
+            },
+            loadPartner: function(){
+                var self = this;
+                if(self.loaded === true){
+                    self.element.fadeOut(function(){
+                        self.load(self.properties.partnerId, "partner");
+                    });
+                }
+            },
             load: function(id, type){
                 var self = this;
                 var jsonUrl =  self.properties.urls.api + "/story";
                 var loadData = {};
+                self.loaded = true;
                 self.data = {};
 
                 switch(type){
@@ -350,8 +366,14 @@ define(
                 var self = this;
                 self.template = _.template(templateStoryLogin);
                 self.element.html(self.template).addClass('small');
-                $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
-                $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
+                $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
+                if(self.properties.isWidget){
+                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close")).attr("target","_blank");
+                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close")).attr("target","_blank");
+                } else {
+                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
+                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
+                }
                 $('#field-user-login').attr('href', utils.getLoginRedirectUrl());
                 $('#field-user-signup').attr("href", utils.getSignUpRedirectUrl());
                 var body = self.element.find(".field-login-body");
@@ -380,7 +402,7 @@ define(
             loadStoryTemplate: function(){
                 var self = this;
                 self.template = _.template(templateStoryInput);
-                self.element.html(self.template);
+                self.element.html(self.template).removeClass("small");
                 $('#field-photo').attr("src", self.properties.urls.images + '/bk_img_upload_ph.png');
                 $('#story-preview-photo').attr('src', self.properties.urls.images + '/bk_cover_default.jpg');
                 self.data.imageId = null;

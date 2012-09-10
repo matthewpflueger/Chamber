@@ -10,10 +10,6 @@ require.config({
         'requireLib': 'libs/require/require'
     },
     shim: {
-//        backbone: {
-//            deps: ['underscore', 'jquery'],
-//            exports: 'Backbone'
-//        },
         fileuploader: {
             exports: 'qq'
         }
@@ -24,27 +20,20 @@ require(
     [
         'requireLib',
         'jquery',
-        'underscore',
         'backbone',
+        'underscore',
         'isotope',
-        'routers/website',
+        'components/errorLog',
+        'components/fade',
+        'components/infiniteScroll',
         'components/exhibit',
         'components/story',
-        'components/fade',
-        'components/pageTitle',
-        'components/title',
         'components/input',
-        'components/login',
-        'components/messageHandler',
-        'components/notifications',
-        'components/errorLog',
-        'components/actions',
-        'components/categoryList',
-        'components/menu',
-        'components/infiniteScroll',
-        'components/nav'
+        'components/messageHandler.widget',
+        'components/widgetCloser',
+        'routers/widget'
     ],
-    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, Fade, PageTitle, Title, Input, Login, MessageHandler, Notifications, ErrorLog, Actions, CategoryList, Menu, InfiniteScroll, Nav){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, Fade, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Router){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -106,29 +95,21 @@ require(
 
         $(document).ready(function(){
             var EventAggregator = _.extend({}, Backbone.Events);
-
             var properties = {
                 urls: Echoed.urls,
                 echoedUser: Echoed.echoedUser,
-                exhibitShowLogin: true
+                partnerId: Echoed.partnerId,
+                isWidget: true
             };
 
             this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
-
-            this.router = new Router({ EvAg: EventAggregator, properties: properties });
-            this.infiniteScroll = new InfiniteScroll({ el: '#infiniteScroll', EvAg: EventAggregator, properties: properties})
-            this.nav = new Nav({ EvAg: EventAggregator, properties: properties});
             this.fade = new Fade({ el: '#fade', EvAg: EventAggregator, properties: properties });
-            this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
-            this.exhibit = new Exhibit({ el: '#content', EvAg: EventAggregator, properties: properties });
-            this.pageTitle = new PageTitle({ el: 'title', EvAg: EventAggregator, properties: properties });
-            this.actions = new Actions({ el: '#actions', EvAg: EventAggregator, properties: properties });
-            this.title = new Title({ el: '#title', EvAg: EventAggregator, properties: properties });
+            this.exhibit = new Exhibit({ el:'#exhibit', EvAg:EventAggregator, properties: properties });
+            this.infiniteScroll = new InfiniteScroll({ el:'#infiniteScroll', EvAg:EventAggregator, properties: properties});
             this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
-            this.login = new Login({ el: '#user', EvAg: EventAggregator, properties: properties });
-            this.notifications = new Notifications({ el: '#notifications-container', EvAg: EventAggregator, properties: properties });
-            this.menu = new Menu({ el: "#menu", EvAg: EventAggregator, properties: properties });
-            this.categoryList = new CategoryList({ el: '#category-nav', EvAg: EventAggregator, properties: properties});
+            this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
+            this.closer = new WidgetCloser( { el: '#close', EvAg: EventAggregator, properties: properties });
+            this.router = new Router({ EvAg: EventAggregator, properties: properties });
 
             var iFrameNode = document.createElement('iframe');
 
@@ -138,11 +119,10 @@ require(
             iFrameNode.id = "echoed-iframe";
             iFrameNode.src = Echoed.urls.api + "/echo/iframe";
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
-            this.messageHandler = new MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator, properties: properties });
 
+            this.messageHandler = new MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator, properties: properties });
             Backbone.history.start();
-            }
-        );
+        });
     }
-);
+)
 

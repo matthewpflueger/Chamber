@@ -1,0 +1,39 @@
+#ajax-input{
+    display: none;
+    padding-top: 10px;
+    position: relative;
+    .input-field{
+        width: 290px;
+        resize: none;
+        display: inline-block;
+        padding: 8px 5px;
+        border: 1px solid #CCC;
+        -webkit-appearance:none;
+        @include fontText(14px);
+    }
+    @include fontText(14px);
+    #ajax-input-suggestions{
+        width: 300px;
+        position: absolute;
+        background-color: #FFF;
+        top: 48px;
+        left:0px;
+        border: 1px solid #CCC;
+        display: none;
+        #ajax-suggestions-header{
+            padding: 4px 5px;
+            @include fontTextBold(12px);
+            background-color: #F0F0F0;
+        }
+        .suggestion-item{
+            padding: 4px 5px;
+            @include fontText(12px);
+            border-top: 1px dotted #CCC;
+            cursor: pointer;
+            &:hover{
+                background-color: #CCC;
+                font-weight:bold;
+            }
+        }
+    }
+}

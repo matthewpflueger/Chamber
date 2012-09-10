@@ -1,0 +1,90 @@
+@import "base";
+
+@import "components/itemWrap";
+@import "components/story";
+@import "components/isotope";
+@import "components/field";
+@import "components/storyBrief";
+@import "components/fade";
+@import "components/buttons";
+@import "components/fileuploader";
+@import "components/expanding";
+@import "components/ajaxInput";
+@import "components/infiniteScroll";
+
+
+body, html{
+    height: 100%;
+}
+
+body {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+
+#echoed-head{
+    text-align: center;
+    border-bottom: 1px solid #FFF;
+    height: 40px;
+    position: fixed;
+    width: 100%;
+    z-index: 999999;
+    background-color: #333;
+
+    #title{
+        display: inline-block;
+        @include fontText(26px, #FFF);
+        vertical-align: middle;
+    }
+}
+
+
+#echoed-exhibit-container{
+    position: relative;
+    padding-top: 50px;
+    height: 100%;
+    #exhibit{
+        padding-top: 10px;
+        margin: auto;
+    }
+
+    #echoed-title{
+        width: 210px;
+        padding: 10px;
+        text-align:center;
+        @include fontText(24px, #FFF);
+        background-color: #333 !important;
+        .title-description{
+            @include fontText(18px, #FFF);
+        }
+        img {
+            width: 230px;
+            padding: 0px;
+            margin: 0px;
+        }
+    }
+
+}
+
+//STORY OVERRIDE
+#story{
+    top: 50px !important;
+}
+
+.echoed-share-container{
+    width: 200px;
+    text-align: center;
+    margin: auto;
+    .echoed-share{
+        @include button(16px);
+    }
+}
+
+#close{
+    z-index: 10002;
+    position: absolute;
+    @include sprite(0px, -28px, 15px, 15px);
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
