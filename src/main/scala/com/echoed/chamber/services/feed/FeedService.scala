@@ -34,8 +34,18 @@ class FeedService(
         }
     }
 
+    implicit object TopStoryOrdering extends Ordering[(Int, String)] {
+        def compare(a:(Int, String), b:(Int, String)) = {
+            if((b._1 compare a._1) != 0)
+                b._1 compare a._1
+            else
+                b._2 compare a._2
+        }
+    }
+
     var storyMap = new HashMap[String, StoryPublic]
     var storyTree = new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)
+    var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
     val stories = asScalaBuffer(feedDao.getAllStories).map({
         sf => updateStory(new StoryPublic(sf))
     })
@@ -44,6 +54,7 @@ class FeedService(
         storyMap.get(storyFull.id).map(s => storyTree -= ((s.story.updatedOn, s.story.id)))
         storyMap += (storyFull.id -> storyFull)
         storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
+        topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
     }
 
     ep.subscribe(self, classOf[StoryUpdated])
@@ -78,7 +89,7 @@ class FeedService(
             val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve Public Story Feed")
-                val stories = storyTree.values.toList
+                val stories = topStoryTree.values.toList
                 val nextPage = {
                     if(start + pageSize <= stories.length)
                         (msg.page + 1).toString
