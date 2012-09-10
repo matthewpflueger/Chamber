@@ -1,0 +1,14 @@
+#infiniteScroll{
+    position: fixed;
+    z-index: 99999;
+    bottom: 10px;
+    left: 50%;
+    width: 250px;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 5px;
+    background-image: image-url("bg-blackpx90.png");
+    margin-left: -75px;
+    @include fontTextBold(16px, #FFF);
+    text-align: center;
+}

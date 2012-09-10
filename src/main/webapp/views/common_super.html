@@ -1,17 +1,17 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
     <link rel="shortcut icon" href="{{urls.images}}/favicon.png" type="image/png">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-    <script type='text/javascript' src="{{urls.js}}/webfonts.js"></script>
+    <!--<script type='text/javascript' src="{{urls.js}}/webfonts.js"></script>
     <script type='text/javascript' src="{{urls.js}}/jquery-1.8.0.min.js"></script>
     <script type='text/javascript' src="{{urls.js}}/json2.js"></script>
     <script type='text/javascript' src="{{urls.js}}/underscore-min.js"></script>
-    <script type='text/javascript' src="{{urls.js}}/backbone-0.9.1-min.js"></script>
-    {{$jsHead}}
-    {{/jsHead}}
+    <script type='text/javascript' src="{{urls.js}}/backbone-0.9.1-min.js"></script>-->
+
     <script type="text/javascript">
+        Echoed = {};
         Echoed.errors = {};
         Echoed.errors.global = new Array();
         //{{#errors.global}}//
@@ -42,7 +42,14 @@
         Echoed.urls.views = "{{views}}";
         Echoed.urls.site = "{{site}}";
         //{{/urls}}//
+        Echoed.facebookLogin ={};
+        Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
+        Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
+        Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
+        Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
     </script>
+    {{$jsHead}}
+    {{/jsHead}}
     <title>{{$title}}Echoed | Community{{/title}}</title>
     {{$css}}{{/css}}
     {{$header}}{{/header}}

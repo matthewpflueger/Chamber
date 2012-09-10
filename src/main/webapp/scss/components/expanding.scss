@@ -1,0 +1,13 @@
+.expandingText{
+    display: inline-block;
+    margin-bottom: 10px;
+    textarea, .textareaClone{
+        min-height: 5em;
+        padding: 5px 6px;
+        width: 300px;
+        @include fontText(14px);
+        resize: none;
+        outline: 0px;
+        border: 1px solid #CCC;
+    }
+}

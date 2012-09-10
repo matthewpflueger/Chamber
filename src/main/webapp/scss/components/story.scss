@@ -1,0 +1,320 @@
+#story{
+    position: absolute;
+    left: 50%;
+    z-index: 99999;
+    width: 876px;
+    padding-bottom: 50px;
+}
+
+#story-nav{
+    .story-nav-button{
+        padding: 0px 0px 15px 0px;
+        @include fontTextBold(16px, #F0F0F0);
+        cursor: pointer;
+        &:hover{
+            color: #FFF;
+        }
+    }
+}
+
+.echo-story-container{
+    position:relative;
+    background-image: image-url("bk_noise.jpg");
+    background-color: #F7F7F7;
+    padding-bottom: 10px;
+    border: 8px solid #FFF;
+    border-radius: 3px;
+    .echo-s-h-close{
+        position:absolute;
+        right: -25px;
+        top: -25px;
+        cursor: pointer;
+        @include sprite(-31px, -157px, 36px, 37px);
+    }
+    .echo-story-header{
+        position:relative;
+        padding: 10px;
+        border-bottom: 1px solid #CCC;
+        box-shadow: 0px 1px 0px #FFF;
+        .echo-s-h-title{
+            @include fontText(16px);
+            .echo-s-h-t-t{
+                @include fontHeader(36px, #111);
+                text-shadow: 0px 1px 0px #FFF;
+                margin: 0px 30px;
+                text-align: center;
+                word-wrap: break-word;
+            }
+            .echo-s-h-t-n{
+                position: relative;
+                height: 35px;
+                .echo-s-h-t-n-i{
+                    position:absolute;
+                    top: 3px;
+                    left: 50%;
+                    margin-left: -90px;
+                    height: 30px;
+                    width: 30px;
+                    margin-right: 5px;
+                    border: 2px solid #FFF;
+                }
+                @include fontText(16px);
+                text-align: center;
+                .bold-link{
+                    font-weight: bold;
+                    &:hover{
+                        color: $colorEC;
+                    }
+                }
+            }
+            .echo-s-h-t-n-t{
+                display:inline-block;
+                left: 50%;
+                position: absolute;
+                margin-left: -50px;
+                text-align: left;
+                @include fontText(14px);
+            }
+            .echo-s-h-t-n-t-l{
+                @include fontText(14px, $colorEC);
+                text-decoration: underline;
+            }
+            .echo-s-h-i-c{
+                float:left;
+                display: none;
+                margin-right: 10px;
+                .echo-s-h-i-i {
+                    height: 50px;
+                }
+            }
+        }
+    }
+    .echo-chapters{
+        width: 300px;
+        background-color: #F0F0F0;
+        box-shadow:         inset 0 0 1px #000000;
+        -moz-box-shadow:    inset 0 0 1px #000000;
+        -webkit-box-shadow: inset 0 0 1px #000000;
+
+
+
+        .echo-chapters-title{
+            padding: 3px 5px;
+            @include fontTextBold(14px);
+        }
+        .echo-chapter{
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            padding: 3px 20px;
+            cursor:pointer;
+            @include fontText(12px);
+
+            &.on, &:hover{
+                //background-color: #FFF;
+                @include fontTextBold(12px);
+            }
+        }
+    }
+    .echo-story-body{
+        position: relative;
+        margin: 0px 10px;
+        padding: 10px 0px;
+        .echo-s-b-text{
+            float:left;
+            width: 300px;
+            padding: 0px 0px 0px 5px;
+
+            .echo-s-b-t-t{
+                padding-bottom: 5px;
+                @include fontTextBold(20px);
+                text-shadow: 0px 1px 0px #FFF;
+                word-wrap: break-word;
+            }
+            .echo-s-b-t-b{
+                padding-bottom: 20px;
+                @include fontText(14px, #333);
+                font-style: italic;
+                line-height: 1.3em;
+                word-wrap: break-word;
+            }
+        }
+        .echo-s-b-segment{
+            position: absolute;
+            left: 0px;
+            bottom: 10px;
+            padding: 10px 0px;
+            background-color: #CCC;
+            .echo-s-b-s-t{
+                padding: 0px 10px;
+                @include fontTextBold(14px);
+            }
+        }
+        .echo-s-b-gallery{
+            float: left;
+            width: 410px;
+            margin-left: 10px;
+            text-align:center;
+            .echo-s-b-item{
+                cursor: pointer;
+                display: table-cell;
+                vertical-align: middle;
+                text-align: left;
+                border: 5px solid #FFF;
+                .echo-s-b-i-c{
+                    margin: auto;
+                    width: 400px;
+                    overflow:hidden;
+                    text-align: center;
+
+                    img{
+                        width: 400px;
+                        display: block;
+                        margin: auto;
+
+                    }
+                }
+            }
+        }
+
+    }
+    .echo-story-footer{
+        padding: 0px 10px;
+        .echo-story-nav{
+            margin: 5px 0px 10px 0px;
+            .echo-s-n-s{
+                margin-right: 5px;
+                cursor: pointer;
+                float:left;
+                border: 1px solid #CCC;
+
+                img {
+                    height: 40px;
+                    padding: 3px;
+                    background-color: #FFF;
+                }
+                .echo-s-n-s-tt {
+                    visibility: hidden;
+                    padding: 10px;
+                    border-radius: 5px;
+                    background-color: #000;
+                    color: #FFF;
+                    @include fontText(14px, #FFF);
+                    position:absolute;
+                }
+            }
+        }
+        .echo-story-comments{
+            //border-top: 1px #CCC solid;
+            width: 715px;
+            .echo-s-c-t{
+                @include fontTextBold(24px);
+                text-shadow: 0px 1px 0px #FFF;
+                #echo-s-c-t-count{
+
+                }
+            }
+            .echo-s-c-ta{
+                margin: 5px 3px;
+                textarea{
+                    width: 705px;
+                    padding: 10px;
+                    border-radius: 5px;
+                    resize: none;
+                    height: 50px;
+                    border: 1px solid #CCC;
+                    @include fontText(14px);
+                }
+
+            }
+            .comment-submit{
+                cursor: pointer;
+                @include button();
+                @include fontTextBold(12px, #FFF);
+            }
+            .comment-login-title {
+                @include fontTextBold(14px);
+                margin: 5px;
+            }
+            .login-button{
+                cursor: pointer;
+            }
+            .echo-s-c-l{
+                margin-top: 5px;
+                border-top: 1px dotted #999;
+                .echo-s-c-l-c{
+                    padding: 10px 0px 10px 10px;
+                    .echo-s-c-l-c-u{
+                        @include fontText(14px, $colorEC);
+                    }
+                    .echo-s-c-l-c-d{
+                        margin-left: 10px;
+                        @include fontText(12px);
+                    }
+                    .echo-s-c-l-c-u-i{
+                        height: 25px;
+                        width: 25px;
+                        margin-right: 10px;
+                        border: 2px solid #FFF;
+                    }
+                    .echo-s-c-l-c-t{
+                        padding: 5px 37px;
+                        @include fontText(14px, #000);
+                        border-bottom: 1px dotted #999;
+                        word-wrap: break-word;
+                    }
+
+                }
+
+            }
+        }
+
+    }
+}
+
+.echo-story-main{
+    float:left;
+}
+
+.echo-story-gallery{
+    width: 104px;
+    float:left;
+    padding: 10px 5px;
+    text-align: center;
+    .echo-gallery-header{
+        @include fontTextBold(14px);
+        text-shadow: 0px 1px #FFF;
+        margin-bottom: 5px;
+        text-align: left;
+    }
+    .echo-gallery-chapter{
+        padding: 5px;
+        margin-bottom: 5px;
+        background-color: #F0F0F0;
+        cursor: pointer;
+        &.highlight{
+            background-color: rgba(0,0,0,0.2);
+        }
+    }
+    .echo-gallery-title{
+        @include fontTextBold(12px, #000);
+        text-shadow: 0px 1px #FFF;
+        margin-bottom: 5px;
+    }
+    .echo-s-b-thumbnail{
+        margin: 5px 0px;
+        border: 2px solid #FFF;
+        cursor: pointer;
+        &:hover, &.highlight{
+            border-color: #333;
+        }
+    }
+}
+
+
+.story-edit-button{
+    @include button(12px);
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+}

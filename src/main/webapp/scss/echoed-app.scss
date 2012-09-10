@@ -149,7 +149,6 @@ body {
     left: 0px;
     top: 50%;
     margin-top: -260px;
-    //background-image: image-url("btn_echoed_opener.jpg");
     @include drop-shadow;
     //width: 30px;
     //height: 250px;
@@ -185,7 +184,7 @@ body {
     position: relative;
     padding-top: 50px;
     height: 100%;
-    #echoed-exhibit{
+    #exhibit{
         padding-top: 10px;
         margin: auto;
     }
@@ -433,16 +432,7 @@ body {
     left: 50%;
     top: 50px;
     z-index: 10000;
-    .clearfix{
-        zoom:1;
-        &:before,&:after{
-            content:"";
-            display:table;
-        }
-        &:after{
-            clear:both;
-        }
-    }
+
     .echo-story-container{
         position:relative;
         background-image: image-url("bk_noise.jpg");
@@ -790,7 +780,7 @@ body {
     cursor: pointer;
 }
 
-#echo-story-nav{
+#story-nav{
     .story-nav-button{
         padding: 0px 0px 15px 0px;
         @include textFontBold(16px, #F0F0F0);
@@ -799,6 +789,14 @@ body {
             color: #FFF;
         }
     }
+}
+
+.echo-s-h-close{
+    position:absolute;
+    right: -25px;
+    top: -25px;
+    cursor: pointer;
+    @include sprite(-31px, -157px, 36px, 37px);
 }
 
 .story-edit-button{
