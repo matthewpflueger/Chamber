@@ -121,8 +121,19 @@ case class NewSettingsResponse(message: NewSettings, value: Either[EUE,  EchoedU
         extends EUM with MR[EchoedUserSettings, NewSettings, EUE]
 
 
+case class RegisterNotification(credentials: EUCC, notification: Notification) extends EUM with EUI
+
 case class EmailNotifications(credentials: EUCC) extends EUM with EUI
 
+private[echoeduser] case class RegisterStory(story: Story)
+
+sealed trait StoryIdentifiable {
+    this: EchoedUserMessage =>
+
+    def storyId: String
+}
+
+import com.echoed.chamber.services.echoeduser.{StoryIdentifiable => SI}
 
 case class InitStory(
         credentials: EUCC,
@@ -138,8 +149,8 @@ case class CreateStory(
         credentials: EUCC,
         title: String,
         imageId: String,
-        partnerId: Option[String] = None,
         echoId: Option[String] = None,
+        partnerId: Option[String] = None,
         productInfo: Option[String] = None) extends EUM with EUI
 
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
@@ -148,7 +159,7 @@ case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
 case class TagStory(
         credentials: EUCC,
         storyId: String,
-        tagId: String) extends EUM with EUI
+        tagId: String) extends EUM with EUI with SI
 case class TagStoryResponse(message: TagStory, value: Either[EUE, Story])
         extends EUM with MR[Story, TagStory, EUE]
 
@@ -157,7 +168,7 @@ case class UpdateStory(
         credentials: EUCC,
         storyId: String,
         title: String,
-        imageId: String) extends EUM with EUI
+        imageId: String) extends EUM with EUI with SI
 
 case class UpdateStoryResponse(message: UpdateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, UpdateStory, EUE]
@@ -168,7 +179,7 @@ case class CreateChapter(
         storyId: String,
         title: String,
         text: String,
-        imageIds: Option[Array[String]]) extends EUM with EUI
+        imageIds: Option[Array[String]]) extends EUM with EUI with SI
 
 case class CreateChapterResponse(message: CreateChapter, value: Either[EUE, ChapterInfo])
         extends EUM with MR[ChapterInfo, CreateChapter, EUE]
@@ -176,10 +187,11 @@ case class CreateChapterResponse(message: CreateChapter, value: Either[EUE, Chap
 
 case class UpdateChapter(
         credentials: EUCC,
+        storyId: String,
         chapterId: String,
         title: String,
         text: String,
-        imageIds: Option[Array[String]] = None) extends EUM with EUI
+        imageIds: Option[Array[String]] = None) extends EUM with EUI with SI
 
 case class UpdateChapterResponse(message: UpdateChapter, value: Either[EUE, ChapterInfo])
         extends EUM with MR[ChapterInfo, UpdateChapter, EUE]
@@ -203,7 +215,7 @@ private[echoeduser] case class NewComment(
         storyId: String,
         chapterId: String,
         text: String,
-        parentCommentId: Option[String]) extends EUM with EUI
+        parentCommentId: Option[String]) extends EUM with EUI with SI
 
 private[echoeduser] case class NewCommentResponse(message: NewComment, value: Either[EUE, Comment])
         extends EUM with MR[Comment, NewComment, EUE]

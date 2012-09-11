@@ -65,9 +65,7 @@ class PartnerUserService(
         case msg: GetPartnerSettings =>
             val channel = sender
 
-            mp(partner.GetPartnerSettings(new PartnerClientCredentials with EchoedClientCredentials {
-                val id = partnerUser.partnerId
-            })).onSuccess {
+            mp(partner.GetPartnerSettings(PartnerClientCredentials(partnerUser.partnerId))).onSuccess {
                 case GetPartnerSettingsResponse(_, Right(ps)) => channel ! GetPartnerSettingsResponse(msg, Right(ps))
             }
 

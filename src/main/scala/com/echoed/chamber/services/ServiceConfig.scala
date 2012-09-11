@@ -38,6 +38,8 @@ import javax.sql.DataSource
 import com.echoed.chamber.services.state.{StateMessage, StateService}
 import scala.collection.mutable.LinkedHashMap
 import com.echoed.chamber.services.scheduler.SchedulerMessage
+import com.echoed.chamber.services.echoeduser.story.StoryService
+import com.echoed.chamber.domain.EchoedUser
 
 
 @Configuration
@@ -202,10 +204,26 @@ class ServiceConfig {
             cacheManager = cacheManager)), "TwitterAccess")
 
     @Bean
+    def storyService = (ac: ActorContext, msg: Message, eu: EchoedUser) => ac.actorOf(Props(new StoryService(
+            mp = messageProcessor,
+            ep = eventProcessor,
+            initMessage = msg,
+            echoedUser = eu,
+            echoDao = echoDao,
+            storyDao = storyDao,
+            chapterDao = chapterDao,
+            chapterImageDao = chapterImageDao,
+            commentDao = commentDao,
+            imageDao = imageDao,
+            feedDao = feedDao,
+            transactionTemplate = transactionTemplate)))
+
+    @Bean
     def echoedUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new EchoedUserService(
             mp = messageProcessor,
             ep = eventProcessor,
             initMessage = msg,
+            storyServiceCreator = storyService,
             echoedUserDao = echoedUserDao,
             closetDao = closetDao,
             echoedFriendDao = echoedFriendDao,
@@ -214,11 +232,6 @@ class ServiceConfig {
             echoDao = echoDao,
             partnerDao = partnerDao,
             echoMetricsDao = echoMetricsDao,
-            storyDao = storyDao,
-            chapterDao = chapterDao,
-            chapterImageDao = chapterImageDao,
-            commentDao = commentDao,
-            imageDao = imageDao,
             transactionTemplate = transactionTemplate,
             storyGraphUrl = urlsProperties.getProperty("storyGraphUrl"),
             facebookFriendDao = facebookFriendDao,

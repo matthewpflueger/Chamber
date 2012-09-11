@@ -3,7 +3,7 @@ package com.echoed.chamber.services.partner
 import com.echoed.chamber.services.{MessageResponse => MR, EchoedClientCredentials, EchoedException, Message}
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
-import partner.{PartnerSettings, PartnerUser, Partner}
+import com.echoed.chamber.domain.partner.{StoryPrompts, PartnerSettings, PartnerUser, Partner}
 import akka.actor.ActorRef
 
 
@@ -14,9 +14,10 @@ case class PartnerException(
         code: Option[String] = None,
         arguments: Option[Array[AnyRef]] = None) extends EchoedException(message, cause, code, arguments)
 
-trait PartnerClientCredentials {
-    this: EchoedClientCredentials =>
-    def partnerId = id
+case class PartnerClientCredentials(partnerId: String) extends EchoedClientCredentials {
+    val id = partnerId
+//    this: EchoedClientCredentials =>
+//    def partnerId = id
 }
 
 trait PartnerIdentifiable {
@@ -139,6 +140,13 @@ private[partner] case class FilteredException(
 case class RecordEchoClick(echoId: String, echoClick: EchoClick) extends PM with EI
 case class RecordEchoClickResponse(message: RecordEchoClick, value: Either[PE, EchoPossibilityView])
         extends PM with MR[EchoPossibilityView, RecordEchoClick, PE]
+
+
+
+case class RequestStory(credentials: PCC) extends PM with PI
+case class RequestStoryResponseEnvelope(partner: Partner, partnerSettings: PartnerSettings)
+case class RequestStoryResponse(message: RequestStory, value: Either[PE, RequestStoryResponseEnvelope])
+        extends PM with MR[RequestStoryResponseEnvelope, RequestStory, PE]
 
 
 case class RequestEcho(

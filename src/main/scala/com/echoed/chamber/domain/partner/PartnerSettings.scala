@@ -1,7 +1,7 @@
 package com.echoed.chamber.domain.partner
 
 import java.util.{Calendar, Date}
-import com.echoed.util.UUID
+import com.echoed.util.{ScalaObjectMapper, UUID}
 
 
 case class PartnerSettings(
@@ -113,6 +113,8 @@ case class PartnerSettings(
         cal.add(Calendar.HOUR, creditWindow)
         cal.getTime
     }
+
+    def makeStoryPrompts = new ScalaObjectMapper().readValue(storyPrompts, classOf[StoryPrompts])
 }
 
 object PartnerSettings {

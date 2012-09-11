@@ -32,7 +32,7 @@ class PartnerService(
         encrypter: Encrypter,
         filteredUserAgents: JList[String]) extends EchoedService {
 
-    protected var partner = Option(partnerDao.findById(partnerId)).get
+    protected var partner = Option(partnerDao.findByIdOrHandle(partnerId)).get
 
     val viewCounter: AtomicInteger = new AtomicInteger(0)
 
@@ -112,6 +112,11 @@ class PartnerService(
             Option(partnerSettingsDao.findByPartnerId(partner.id)).cata(
                 resultSet => sender ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
                 sender ! GetPartnerSettingsResponse(msg, Left(PartnerException("Partner Settings not available"))))
+
+        case msg @ RequestStory(_) =>
+            sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(
+                    partner,
+                    partnerSettingsDao.findByActiveOn(partner.id, new Date()))))
 
         case msg @ RequestEcho(
                 partnerId,

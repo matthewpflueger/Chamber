@@ -25,6 +25,7 @@ import akka.util.duration._
 import akka.util.Timeout
 import akka.pattern.ask
 import com.echoed.chamber.services.EchoedService
+import com.echoed.util.DateUtils._
 
 
 class ImageService(

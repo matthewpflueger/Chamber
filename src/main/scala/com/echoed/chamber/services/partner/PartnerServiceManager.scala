@@ -130,7 +130,7 @@ class PartnerServiceManager(
                 case _ =>
                     log.debug("Looking up partner {}", partnerId)
                     Future {
-                        Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+                        Option(partnerDao.findByIdOrHandle(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
                     }.onComplete(_.fold(
                         _ match {
                             case e: PartnerNotFound =>

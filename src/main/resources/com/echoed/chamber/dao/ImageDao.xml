@@ -7,8 +7,8 @@
     <resultMap id="imageResult" type="com.echoed.chamber.domain.Image">
         <constructor>
             <idArg column="imageId" javaType="String" />
-            <arg column="imageUpdatedOn" javaType="Date" />
-            <arg column="imageCreatedOn" javaType="Date" />
+            <arg column="imageUpdatedOn" javaType="_long" />
+            <arg column="imageCreatedOn" javaType="_long" />
             <arg column="imageUrl" javaType="String" />
             <arg column="imageOriginalUrl" javaType="String" />
             <arg column="imageOriginalWidth" javaType="_int" />
@@ -25,7 +25,7 @@
             <arg column="imageThumbnailUrl" javaType="String" />
             <arg column="imageThumbnailWidth" javaType="_int" />
             <arg column="imageThumbnailHeight" javaType="_int" />
-            <arg column="imageProcessedOn" javaType="Date" />
+            <arg column="imageProcessedOn" javaType="_long" />
             <arg column="imageProcessedStatus" javaType="String" />
             <arg column="imageRetries" javaType="_int" />
         </constructor>

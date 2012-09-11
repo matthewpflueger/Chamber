@@ -21,7 +21,7 @@ class PartnerClientCredentialsArgumentResolver extends ClientCredentialsArgument
         val variables = request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE).asInstanceOf[JMap[String, String]]
 
         Option(request.getParameter("pid")).orElse(Option(variables.get("pid"))).map { pid =>
-            new PartnerClientCredentials with EchoedClientCredentials { val id = pid }
+            PartnerClientCredentials(pid)
         }
     }
 }
