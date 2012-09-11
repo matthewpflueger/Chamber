@@ -13,7 +13,25 @@
             <div id="logo">
                 <a href="/"><img height="40px" src="{{urls.images}}/logo.png"></a>
             </div>
-
+            <div id="header-tabs">
+                <ul>
+                    <li>
+                        <a href="about">
+                            About Us
+                        </a>
+                    </li>
+                    <li>
+                        <a href="business">
+                            For Your Website
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://blog.echoed.com">
+                            Blog
+                        </a>
+                    </li>
+                </ul>
+            </div>
             <div id="user" class="clearfix">
                 {{#echoedUser}}
                 <div id="user-image">
@@ -38,11 +56,9 @@
                 <span class="downarrow"></span>
                 <div id="user-list">
                     <ul>
-                        <li class="user-list-item" href="about">About Us</li>
                         <li class="user-list-item" href="guidelines">Sharing Guidelines</li>
                         <li class="user-list-item" href="privacy">Privacy Policy</li>
                         <li class="user-list-item" href="terms">Terms of Service</li>
-                        <li class="user-list-item" href="business">For Business</li>
                         {{#echoedUser}}
                         <li class="user-list-item" href="logout"><strong>Logout</strong></li>
                         {{/echoedUser}}
@@ -99,14 +115,14 @@
             <div id="menu" style="display:none;"></div>
         </div>
         <div id="content" class="clearfix">
-            <div id="title-container">
+            <!--<div id="title-container">
                 <div id="title">
                     <div id="title-text">
                     </div>
                     <div id="title-description">
                     </div>
                 </div>
-            </div>
+            </div>-->
             <div id="exhibit" class="clearfix">
             </div>
         </div>

@@ -29,7 +29,7 @@ html{
 
 body{
     background-color: rgba(226,229, 236, 1);
-    background-image: image-url("bk_noise.jpg");
+    background-image: image-url("bk_noise_dark.jpg");
     height: 100%;
     &.noScroll{
         overflow-y: hidden;
@@ -82,7 +82,11 @@ h3{
             margin-left: 10px;
             height: 40px;
             text-align:center;
-            float:left;
+            position:absolute;
+            left: 0px;
+            border-right: 1px solid #FFF;
+            box-shadow: 1px 0px #CCC;
+            padding-right: 10px;
         }
 
 
@@ -109,7 +113,7 @@ h3{
                 margin: 3px 0px;
                 padding-left: 10px;
                 line-height:32px;
-                @include fontTextBold(13px);
+                @include fontHeaderBold(14px);
                 text-wrap: none;
                 text-overflow: ellipsis;
                 text-align:left;
@@ -136,14 +140,13 @@ h3{
                 @include dropShadowDown;
                 background-color: #FFF;
                 .user-list-item{
-                    //@include textFontBold(12px);
+                    @include fontText(13px);
                     list-style: none;
                     padding: 7px 10px;
                     cursor: pointer;
                     &:hover{
                         background-color: rgba(255, 255, 200, 1);
                         color: colorEC;
-
                     }
                 }
             }
@@ -154,7 +157,7 @@ h3{
 }
 
 #content{
-    padding-top: 43px;
+    padding-top: 50px;
     margin-right: 180px;
 }
 
@@ -314,4 +317,26 @@ h3{
 
 #story{
     padding-top: 10px;
+}
+
+#header-tabs{
+    height: 40px;
+    position:absolute;
+    left: 182px;
+    li{
+        float:left;
+        border-right: 1px solid #CCC;
+        box-shadow: 1px 0px #FFF;
+        list-style: none;
+        cursor: pointer;
+        &:hover{
+            background-color: rgba(100, 100, 100, 0.1);
+        }
+        a{
+            display: inline-block;
+            padding: 12px;
+            @include fontHeaderBold(14px);
+            text-decoration: none;
+        }
+    }
 }

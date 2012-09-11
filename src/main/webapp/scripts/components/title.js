@@ -12,7 +12,7 @@ define(
             },
             update: function(options){
                 if(options.title !== undefined){
-                    this.titleText.html(options.title);
+                    this.titleText.html(decodeURIComponent(options.title));
                     this.element.show()
                 } else{
                     this.titleText.html("");
