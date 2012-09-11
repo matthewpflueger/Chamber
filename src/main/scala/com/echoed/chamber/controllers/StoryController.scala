@@ -158,6 +158,7 @@ class StoryController extends EchoedController {
 
         mp(UpdateChapter(
                 eucc,
+                storyId,
                 chapterId,
                 chapterParams.title,
                 chapterParams.text,

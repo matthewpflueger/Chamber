@@ -14,20 +14,20 @@ import akka.util.duration._
 import akka.actor.SupervisorStrategy.Stop
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import org.springframework.transaction.support.TransactionTemplate
-import com.echoed.util.TransactionUtils._
-import org.springframework.transaction.TransactionStatus
 import java.util.Date
-import com.echoed.util.{Encrypter, UUID, ScalaObjectMapper}
+import com.echoed.util.{Encrypter, UUID}
 import akka.util.Timeout
 import scala.collection.immutable.Stack
-import com.echoed.chamber.services.state._
 import com.echoed.chamber.services.scheduler.Today
-import com.echoed.chamber.domain.ChapterInfo
+import com.echoed.chamber.domain._
+import com.google.common.collect.HashMultimap
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.twitter.FetchFollowersResponse
 import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
 import com.echoed.chamber.domain.views.EchoViewDetail
 import com.echoed.chamber.domain.TwitterUser
+import com.echoed.chamber.services.state.ReadForEmail
+import com.echoed.chamber.services.state.ReadForEmailResponse
 import scala.Some
 import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.FriendCloset
@@ -40,20 +40,16 @@ import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.domain.EchoedFriend
 import com.echoed.chamber.services.twitter.GetFollowersResponse
 import com.echoed.chamber.domain.FacebookUser
-import com.echoed.chamber.domain.ChapterImage
 import com.echoed.chamber.services.state.FacebookUserNotFound
 import com.echoed.chamber.services.facebook.FacebookAccessToken
 import com.echoed.chamber.services.ScatterResponse
 import com.echoed.chamber.services.state.ReadForCredentials
 import scala.Left
 import com.echoed.chamber.services.twitter.FetchFollowers
-import com.echoed.chamber.domain.Story
 import com.echoed.chamber.domain.views.EchoView
 import com.echoed.chamber.domain.views.FriendFeed
-import com.echoed.chamber.domain.partner.StoryPrompts
 import com.echoed.chamber.services.feed.GetUserPublicStoryFeed
 import com.echoed.chamber.services.facebook.FetchFriends
-import com.echoed.chamber.services.tag.TagReplaced
 import com.echoed.chamber.services.state.TwitterUserNotFound
 import akka.actor.OneForOneStrategy
 import com.echoed.chamber.domain.views.StoryFull
@@ -66,7 +62,6 @@ import com.echoed.chamber.domain.views.EchoFull
 import com.echoed.chamber.domain.views.ClosetPersonal
 import com.echoed.chamber.domain.views.Closet
 import com.echoed.chamber.services.email.SendEmail
-import com.echoed.chamber.domain.Chapter
 import com.echoed.chamber.services.state.ReadForCredentialsResponse
 import scala.Right
 import com.echoed.chamber.services.facebook.FetchFriendsResponse
@@ -74,13 +69,13 @@ import com.echoed.chamber.services.Scatter
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
-import com.echoed.chamber.domain.StoryInfo
 
 
 class EchoedUserService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
         initMessage: Message,
+        storyServiceCreator: (ActorContext, Message, EchoedUser) => ActorRef,
         echoedUserDao: EchoedUserDao,
         closetDao: ClosetDao,
         echoedFriendDao: EchoedFriendDao,
@@ -89,11 +84,6 @@ class EchoedUserService(
         echoDao: EchoDao,
         echoMetricsDao: EchoMetricsDao,
         partnerDao: PartnerDao,
-        storyDao: StoryDao,
-        chapterDao: ChapterDao,
-        chapterImageDao: ChapterImageDao,
-        commentDao: CommentDao,
-        imageDao: ImageDao,
         facebookFriendDao: FacebookFriendDao,
         twitterFollowerDao: TwitterFollowerDao,
         facebookPostDao: FacebookPostDao,
@@ -111,6 +101,7 @@ class EchoedUserService(
     private var twitterUser: Option[TwitterUser] = None
     private var notifications = Stack[Notification]()
 
+    private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
         case _: Exception ⇒ Stop
@@ -263,6 +254,8 @@ class EchoedUserService(
 
 
     def online = {
+        case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
+
         case msg @ LoginWithEmailPassword(email, password) =>
             if (echoedUser.isCredentials(email, password)) sender ! LoginWithEmailPasswordResponse(msg, Right(echoedUser))
             else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
@@ -592,128 +585,13 @@ class EchoedUserService(
             sender ! MarkNotificationsAsReadResponse(msg, Right(marked))
 
 
-        case msg @ CreateStory(_, title, imageId, partnerId, echoId, productInfo) =>
-            val echo = echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id))
-
-            val partner = partnerDao.findByIdOrHandle(partnerId.getOrElse(echo.map(_.partnerId).getOrElse("Echoed")))
-            val partnerSettings = partnerSettingsDao.findByIdOrPartnerHandle(echo.map(_.partnerSettingsId).getOrElse("Echoed"))
-            val image = imageDao.findById(imageId)
-
-            val story = new Story(echoedUser, partner, partnerSettings, image, title, echo, productInfo)
-            storyDao.insert(story)
-            ep(StoryUpdated(story.id))
-            sender ! CreateStoryResponse(msg, Right(story))
-
-
-        case msg @ UpdateStory(_, storyId, title, imageId) =>
-            val channel  = context.sender
-
-            val story = storyDao
-                    .findByIdAndEchoedUserId(storyId, echoedUser.id)
-                    .copy(title = title, image = imageDao.findById(imageId))
-            storyDao.update(story)
-            channel ! UpdateStoryResponse(msg, Right(story))
-
-
-        case msg @ TagStory(_, storyId, tagId) =>
-            val channel = context.sender
-            val story = storyDao
-                        .findByIdAndEchoedUserId(storyId, echoedUser.id)
-            val originalTag = story.tag
-            val newStory = story.copy(tag = tagId)
-            storyDao.update(newStory)
-            ep(TagReplaced(originalTag, tagId) )
-            ep(StoryUpdated(storyId))
-            channel ! TagStoryResponse(msg, Right(newStory))
-
-
-        case msg @ CreateChapter(eucc, storyId, title, text, imageIds) =>
-            val channel = context.sender
-            val me = self
-
-            val story = storyDao.findByIdAndEchoedUserId(storyId, echoedUser.id)
-            val chapter = new Chapter(story, title, text)
-            val chapterImages = imageIds.cata(
-                ids => ids.map(id => new ChapterImage(chapter, imageDao.findById(id))),
-                Array[ChapterImage]())
-
-            transactionTemplate.execute { status: TransactionStatus =>
-                chapterDao.insert(chapter)
-                chapterImages.foreach(chapterImageDao.insert(_))
-                storyDao.update(story) //Update the story to get new timestamp
-            }
-
-            ep(StoryUpdated(storyId))
-            me ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
-            channel ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
-
-
-        case msg @ UpdateChapter(_, chapterId, title, text, imageIds) =>
-            val channel = context.sender
-
-            val chapter = chapterDao
-                    .findByIdAndEchoedUserId(chapterId, echoedUser.id)
-                    .copy(title = title, text = text)
-
-            val chapterImages = imageIds.cata(
-                ids => ids.map(id => new ChapterImage(chapter, imageDao.findById(id))),
-                Array[ChapterImage]())
-            transactionTemplate.execute { status: TransactionStatus =>
-                chapterDao.update(chapter)
-                chapterImageDao.deleteByChapterId(chapter.id)
-                chapterImages.foreach(chapterImageDao.insert(_))
-            }
-            ep(StoryUpdated(chapter.storyId))
-            channel ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
-
-
-        case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
-            mp(NewComment(
-                    new EchoedUserClientCredentials(storyOwnerId),
-                    echoedUser,
-                    storyId,
-                    chapterId,
-                    text,
-                    parentCommentId))
-                .mapTo[NewCommentResponse]
-                .map(ncr => CreateCommentResponse(msg, ncr.value))
-                .pipeTo(context.sender)
-            self ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId)
-
-
-        case msg @ NewComment(eucc, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
-            val channel = context.sender
-            val me = self
-
-            val story = storyDao.findByIdAndEchoedUserId(storyId, echoedUser.id)
-            assert(story != null, "Did not find story %s for EchoedUser %s" format(storyId, echoedUser.id))
-
-            val comment = new com.echoed.chamber.domain.Comment(
-                chapterDao.findByIdAndStoryId(chapterId, storyId),
-                byEchoedUser,
-                text,
-                parentCommentId.map(commentDao.findByIdAndChapterId(_, chapterId)))
-            commentDao.insert(comment)
-            ep(StoryUpdated(storyId))
-            channel ! NewCommentResponse(msg, Right(comment))
-
-            if (echoedUser.id != byEchoedUser.id) {
-                val n = new Notification(
-                        echoedUser,
-                        byEchoedUser,
-                        "comment",
-                        Map(
-                            "subject" -> byEchoedUser.name,
-                            "action" -> "commented on",
-                            "object" -> story.title,
-                            "storyId" -> storyId))
-                notifications = notifications.push(n)
-                ep(NotificationCreated(n))
-                mp(ScheduleOnce(
-                        Today,
-                        EmailNotifications(EchoedUserClientCredentials(echoedUser.id)),
-                        Option(echoedUser.id)))
-            }
+        case RegisterNotification(_, n) =>
+            notifications = notifications.push(n)
+            ep(NotificationCreated(n))
+            mp(ScheduleOnce(
+                    Today,
+                    EmailNotifications(EchoedUserClientCredentials(echoedUser.id)),
+                    Option(echoedUser.id)))
 
 
         case msg: EmailNotifications if (echoedUser.hasEmail && echoedUserSettings.receiveNotificationEmail) =>
@@ -736,37 +614,57 @@ class EchoedUserService(
                 ))
 
 
-        case msg @ InitStory(_, storyId, echoId, partnerId) =>
-            val channel = context.sender
-            val story = storyId.map(storyDao.findByIdAndEchoedUserId(_, echoedUser.id))
+        case RegisterStory(story) =>
+            activeStories.put(StoryId(story.id), sender)
+            Option(story.echoId).map(e => activeStories.put(EchoId(e), sender))
 
-            val echo = story
-                    .map(s => s.echoId)
-                    .map(e => echoDao.findByIdAndEchoedUserId(e , echoedUser.id))
-                    .orElse(echoId.map(echoDao.findByIdAndEchoedUserId(_, echoedUser.id)))
+        case msg @ InitStory(_, Some(storyId), _, _) => forwardToStory(msg, StoryId(storyId))
+        case msg @ InitStory(_, _, Some(echoId), _) => forwardToStory(msg, EchoId(echoId))
+        case msg @ InitStory(_, _, _, partnerId) => forwardToStory(msg, PartnerId(partnerId.getOrElse("Echoed")))
 
-            val storyFull = story.map { s =>
-                val chapters = chapterDao.findByStoryId(s.id)
-                val chapterImages = chapterImageDao.findByStoryId(s.id)
-                val comments = commentDao.findByStoryId(s.id)
-                StoryFull(s.id, s, echoedUser, chapters, chapterImages, comments)
-            }.orElse(echo.map(e => feedDao.findStoryByEchoId(e.id)))
+        case msg @ CreateStory(_, _, _, Some(echoId), _, _) => forwardToStory(msg, EchoId(echoId))
+        case msg: CreateStory =>
+            //create a fresh actor for non-echo related stories
+            context.watch(storyServiceCreator(context, msg, echoedUser)).forward(msg)
 
-            val partner = story
-                    .map(s => partnerDao.findById(s.partnerId))
-                    .orElse(echo.map(e => partnerDao.findById(e.partnerId)))
-                    .orElse(partnerId.map(partnerDao.findByIdOrHandle(_)))
-                    .orElse(Option(partnerDao.findByIdOrHandle("Echoed")))
-                    .get
 
-            val storyPrompts = new ScalaObjectMapper().readValue(
-                    Option(partnerSettingsDao.findByActiveOn(partner.id, new Date()).storyPrompts)
-                        .getOrElse(partnerSettingsDao.findByIdOrPartnerHandle("Echoed").storyPrompts),
-                    classOf[StoryPrompts])
+        case msg @ CreateChapter(eucc, storyId, _, _, _) =>
+            forwardToStory(msg, StoryId(storyId))
+            self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
 
-            channel ! InitStoryResponse(
-                    msg,
-                    Right(StoryInfo(echoedUser, echo.orNull, partner, storyPrompts, storyFull.orNull)))
+        case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
+            val me = self
+            mp(NewComment(
+                    new EchoedUserClientCredentials(storyOwnerId),
+                    echoedUser,
+                    storyId,
+                    chapterId,
+                    text,
+                    parentCommentId))
+                .mapTo[NewCommentResponse]
+                .map { ncr =>
+                    me ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId)
+                    CreateCommentResponse(msg, ncr.value)
+                }.pipeTo(context.sender)
+
+
+        case msg: StoryIdentifiable with Message => forwardToStory(msg, StoryId(msg.storyId))
     }
 
+
+    private def forwardToStory(
+            msg: Message,
+            identifiable: Identifiable) {
+        activeStories.get(identifiable).headOption.cata(
+            _.forward(msg),
+            {
+                val storyService = context.watch(storyServiceCreator(context, msg, echoedUser))
+                storyService.forward(msg)
+                activeStories.put(identifiable, storyService)
+            })
+    }
 }
+
+private case class StoryId(id: String) extends Identifiable
+private case class EchoId(id: String) extends Identifiable
+private case class PartnerId(id: String) extends Identifiable

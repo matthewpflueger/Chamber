@@ -113,6 +113,11 @@ class PartnerService(
                 resultSet => sender ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
                 sender ! GetPartnerSettingsResponse(msg, Left(PartnerException("Partner Settings not available"))))
 
+        case msg @ RequestStory(_) =>
+            sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(
+                    partner,
+                    partnerSettingsDao.findByActiveOn(partner.id, new Date()))))
+
         case msg @ RequestEcho(
                 partnerId,
                 request,
