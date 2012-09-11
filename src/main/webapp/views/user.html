@@ -1,8 +1,6 @@
 {{<common_super}}
 {{$jsHead}}
-    <!--<script type='text/javascript' src="{{urls.js}}/main.js"></script>-->
-    <!--<script src="{{urls.js}}/main.js"></script>-->
-    <script data-main="scripts/main.js" src="{{urls.js}}/require.js"></script>
+    {{#scriptTag}}main.js{{/scriptTag}}
 {{/jsHead}}
 {{$css}}
     <!--<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>-->

@@ -62,6 +62,7 @@
         <prop key="https.urls.messages">https://c779203.ssl.cf2.rackcdn.com</prop>
         <prop key="https.urls.products">https://c10415403.ssl.cf2.rackcdn.com</prop>
 
+        <prop key="scriptTagTemplate">&lt;script src="{{urls.js}}/%s"&gt;&lt;/script&gt;</prop>
 
         <prop key="blobstore.provider">cloudfiles-us</prop>
         <prop key="blobstore.identity">echoedinc</prop>
