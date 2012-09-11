@@ -14,9 +14,10 @@ case class PartnerException(
         code: Option[String] = None,
         arguments: Option[Array[AnyRef]] = None) extends EchoedException(message, cause, code, arguments)
 
-trait PartnerClientCredentials {
-    this: EchoedClientCredentials =>
-    def partnerId = id
+case class PartnerClientCredentials(partnerId: String) extends EchoedClientCredentials {
+    val id = partnerId
+//    this: EchoedClientCredentials =>
+//    def partnerId = id
 }
 
 trait PartnerIdentifiable {
