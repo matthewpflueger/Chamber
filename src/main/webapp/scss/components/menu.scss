@@ -1,0 +1,43 @@
+#menu{
+    position:absolute;
+    left: 50%;
+    width: 600px;
+    margin-left: -300px;
+    top: 75px;
+    border-radius: 5px;
+    border: 10px solid #FFF;
+    background-image: image-url("bk_noise.jpg");
+    background-color: #FFF;
+
+    .menu-close{
+        position:absolute;
+        @include sprite(-31px, -157px, 36px, 37px);
+        right: -25px;
+        top: -25px;
+        cursor: pointer;
+    }
+    #menu-content{
+        padding: 10px;
+        display: table;
+        .menu-column{
+            width: 200px;
+            display: table-cell;
+        }
+    }
+
+    #menu-header{
+        text-align: center;
+        @include fontHeader(30px);
+        padding: 10px;
+        border-bottom: 1px solid #CCC;
+        box-shadow: 0px 1px #FFF;
+    }
+    .menu-item{
+        padding: 5px 10px;
+        @include fontTextBold(14px);
+        cursor: pointer;
+        &:hover{
+            color: $colorEC;
+        }
+    }
+}
