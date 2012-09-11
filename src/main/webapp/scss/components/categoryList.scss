@@ -1,0 +1,37 @@
+#category-more{
+    @include fontTextBold(12px);
+    margin: 3px 10px;
+    padding: 3px 5px;
+    background-position: right;
+    background-repeat: no-repeat;
+    background-color: #F3F3F3;
+    border: 1px solid #CCC;
+    background: -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+    background: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+    background: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+    background: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+    background: linear-gradient(top, white 0%, #F3F3F3 100%);
+    cursor: pointer;
+    &:hover{
+        color: $colorEC;
+    }
+}
+
+#category-nav{
+    .category-menu-header{
+        margin: 10px 10px 0px 10px;
+        @include fontTextBold(14px);
+        padding: 3px 0px;
+        margin-bottom: 4px;
+        @include grooveBottom;
+    }
+    .category-menu-item{
+        margin: 0px 10px;
+        padding: 4px 5px;
+        cursor:pointer;
+        &:hover{
+            color: $colorEC;
+        }
+    }
+}

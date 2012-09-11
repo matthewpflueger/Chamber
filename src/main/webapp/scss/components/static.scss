@@ -1,0 +1,67 @@
+.center{
+    width: 960px;
+    margin:auto;
+}
+
+.static-section{
+    margin:20px 0px;
+    @include fontText(16px);
+}
+
+.subtitle{
+    @include fontTextBold(30px);
+    border-bottom: 2px solid #CCC;
+    margin: 15px 0px;
+}
+
+
+.privacy, .terms{
+    p{
+        line-height: 1.5em;
+        margin-bottom: 20px;
+    }
+
+    ol{
+        list-style: lower-alpha;
+    }
+
+    li{
+        margin: 10px 40px 10px 40px;
+        line-height: 1.5em;
+    }
+}
+
+
+
+.roundbox{
+    background-color: #FFF;
+    border-radius: 5px;
+    padding: 20px;
+
+    .register_form_container{
+        margin: 20px 0px;
+        .register_form{
+            margin: auto;
+            width: 600px;
+            padding: 10px;
+            background-color: #F1F1F1;
+            border: 2px solid #FF0000;
+            border-radius: 5px;
+
+            label{
+                font-size: 16px;
+                margin: 10px 5px 5px 5px;
+                display:block;
+            }
+            input[type=text],input[type=password]{
+                display:block;
+                width: 400px;
+                font-size: 16px;
+                line-height: 1em;
+                border: 1px solid #CCC;
+                margin: 5px;
+            }
+        }
+    }
+
+}

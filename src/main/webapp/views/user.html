@@ -1,10 +1,11 @@
 {{<common_super}}
 {{$jsHead}}
     <!--<script type='text/javascript' src="{{urls.js}}/main.js"></script>-->
-    <script src="{{urls.js}}/main.js"></script>
-    <!--<script data-main="scripts/main.js" src="{{urls.js}}/require.js"></script>-->
+    <!--<script src="{{urls.js}}/main.js"></script>-->
+    <script data-main="scripts/main.js" src="{{urls.js}}/require.js"></script>
 {{/jsHead}}
 {{$css}}
+    <!--<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>-->
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
 {{/css}}
 {{$header}}
@@ -50,8 +51,6 @@
                         {{/echoedUser}}
                     </ul>
                 </div>
-
-
             </div>
             <div id="notifications-container">
                 <div id="notifications">
@@ -90,17 +89,11 @@
                     {{/echoedUser}}
                 </ul>
             </div>
-            <div id="help-nav">
-                <ul>
-                    <li><a class="link-black bold" href="{{urls.site}}/101">Storytelling 101</a></li>
-                </ul>
-            </div>
-
             <div id="category-nav" class="clearfix">
-                <div class="category-menu-header">Categories</div>
+                <div class="category-menu-header">Communities</div>
                 <div id="category-list">
                 </div>
-                <div id="category-more">+ More Categories</div>
+                <div id="category-more">+ More Communities</div>
             </div>
         </div>
         <div id="fade" style="display:none;">
