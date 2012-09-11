@@ -134,7 +134,6 @@
             .echo-s-b-t-b{
                 padding-bottom: 20px;
                 @include fontText(14px, #333);
-                font-style: italic;
                 line-height: 1.3em;
                 word-wrap: break-word;
             }

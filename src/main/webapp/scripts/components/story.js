@@ -178,7 +178,7 @@ define(
                 var textArea = self.element.find('.echo-s-b-text');
                 textArea.fadeOut(function(){
                     self.element.find('.echo-s-b-t-t').html(self.chapters.array[self.currentChapterIndex].chapter.title);
-                    self.element.find('.echo-s-b-t-b').html('"' + self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />') + '"');
+                    self.element.find('.echo-s-b-t-b').html(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />'));
                     textArea.fadeIn();
                 });
 
