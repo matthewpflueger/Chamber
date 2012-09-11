@@ -54,6 +54,7 @@
         <property name="version" value="${version}" />
         <property name="messageSource" ref="messageSource" />
         <property name="envType" value="${envType}" />
+        <property name="scriptTagTemplate" value="${scriptTagTemplate}" />
     </bean>
 
     <bean id="encrypter" class="com.echoed.util.Encrypter" >

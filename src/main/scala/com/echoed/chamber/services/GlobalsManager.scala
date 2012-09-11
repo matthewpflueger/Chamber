@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import com.echoed.chamber.interceptors.GlobalsInterceptor
 import org.springframework.context.MessageSource
 import java.util.Locale
+import com.github.mustachejava.TemplateFunction
 
 
 class GlobalsManager {
@@ -22,6 +23,7 @@ class GlobalsManager {
     @BeanProperty var urlsAttributeName = "urls"
     @BeanProperty var versionAttributeName = "version"
     @BeanProperty var facebookClientIdAttributeName = "facebookClientId"
+    @BeanProperty var scriptTagAttributeName = "scriptTag"
 
     @BeanProperty val httpUrls = new JHashMap[String, String]()
     @BeanProperty val httpsUrls = new JHashMap[String, String]()
@@ -33,6 +35,11 @@ class GlobalsManager {
 
     @BeanProperty var i18nKey = "i18n"
     @BeanProperty var messageSource: MessageSource = _
+
+    @BeanProperty var scriptTagTemplate: String = _
+
+    private var scriptTagFunction: TemplateFunction = _
+
 
     def init() {
         urlsProperties.filterKeys(_.toString.startsWith("http.urls.")).foreach {
@@ -59,6 +66,11 @@ class GlobalsManager {
                     .append(gitProperties.getProperty(key))
                     .append("\n")
         }
+
+        scriptTagFunction = new TemplateFunction {
+            def apply(input: String) = scriptTagTemplate format input
+        }
+
         logger.error("Booting Chamber:\n" + versionInfo)
     }
 
@@ -79,6 +91,7 @@ class GlobalsManager {
         model.put(httpsUrlsAttributeName, httpsUrls)
 
         model.put(urlsAttributeName, urls)
+        model.put(scriptTagAttributeName, scriptTagFunction)
 
         model.put(i18nKey, new Function[String, String]() {
             def apply(input: String) = messageSource.getMessage(input, null, locale)
