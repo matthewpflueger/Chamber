@@ -137,6 +137,14 @@ pre, form, fieldset, table, th, td {
 
 }
 
+.rightarrow{
+    border-width: 5px 0px 5px 5px;
+    display: inline-block;
+    border-style: solid;
+    border-color: transparent;
+    border-left-color: #333;
+}
+
 
 .downarrow{
     position: absolute;
