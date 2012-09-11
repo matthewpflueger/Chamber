@@ -26,7 +26,6 @@ define(
                 self.template = _.template(templateMenu);
                 self.element.html(self.template);
                 self.content = $('#menu-content');
-                self.header = $('#menu-header').html("Select Category To Browse");
                 utils.AjaxFactory({
                     url: self.properties.urls.api + "/api/tags",
                     success: function(data){

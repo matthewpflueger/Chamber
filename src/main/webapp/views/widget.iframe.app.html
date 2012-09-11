@@ -4,8 +4,9 @@
 <head>
     <title></title>
     <link rel="stylesheet" href="{{urls.css}}/widget.css"/>
-    <!--<script data-main='{{urls.js}}/widget.js' src="{{urls.js}}/require.js"></script>-->
-    <script  type="text/javascript" src="{{urls.js}}/widget.js"></script>
+    {{$jsHead}}
+        {{#scriptTag}}widget.js{{/scriptTag}}
+    {{/jsHead}}
     <script>
         {{>partial_urls}}
         Echoed.partnerId = '{{partnerId}}';

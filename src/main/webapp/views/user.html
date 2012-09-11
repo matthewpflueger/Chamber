@@ -3,7 +3,6 @@
     {{#scriptTag}}main.js{{/scriptTag}}
 {{/jsHead}}
 {{$css}}
-    <!--<link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>-->
     <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed.css"/>
 {{/css}}
 {{$header}}
@@ -14,7 +13,25 @@
             <div id="logo">
                 <a href="/"><img height="40px" src="{{urls.images}}/logo.png"></a>
             </div>
-
+            <div id="header-tabs">
+                <ul>
+                    <li>
+                        <a href="about">
+                            About Us
+                        </a>
+                    </li>
+                    <li>
+                        <a href="business">
+                            For Your Website
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://blog.echoed.com">
+                            Blog
+                        </a>
+                    </li>
+                </ul>
+            </div>
             <div id="user" class="clearfix">
                 {{#echoedUser}}
                 <div id="user-image">
@@ -39,11 +56,9 @@
                 <span class="downarrow"></span>
                 <div id="user-list">
                     <ul>
-                        <li class="user-list-item" href="about">About Us</li>
                         <li class="user-list-item" href="guidelines">Sharing Guidelines</li>
                         <li class="user-list-item" href="privacy">Privacy Policy</li>
                         <li class="user-list-item" href="terms">Terms of Service</li>
-                        <li class="user-list-item" href="business">For Business</li>
                         {{#echoedUser}}
                         <li class="user-list-item" href="logout"><strong>Logout</strong></li>
                         {{/echoedUser}}
@@ -74,21 +89,21 @@
                     Navigate
                 </div>
                 <ul>
-                    <li class="icon_world" href="#!" id="explore_nav">
-                        Community
+                    <li href="#!" id="explore_nav">
+                        Home
                     </li>
                     {{#echoedUser}}
-                    <li class="icon_friends" href="#!me/friends" id="friends_nav">
+                    <li href="#!me/friends" id="friends_nav">
                         My Friends
                     </li>
-                    <li class="icon_me" href="#!me" id="exhibit_nav">
+                    <li href="#!me" id="exhibit_nav">
                         My Stories
                     </li>
                     {{/echoedUser}}
                 </ul>
             </div>
             <div id="category-nav" class="clearfix">
-                <div class="category-menu-header">Communities</div>
+                <div class="category-menu-header">Top Communities</div>
                 <div id="category-list">
                 </div>
                 <div id="category-more">+ More Communities</div>
@@ -100,14 +115,14 @@
             <div id="menu" style="display:none;"></div>
         </div>
         <div id="content" class="clearfix">
-            <div id="title-container">
+            <!--<div id="title-container">
                 <div id="title">
                     <div id="title-text">
                     </div>
                     <div id="title-description">
                     </div>
                 </div>
-            </div>
+            </div>-->
             <div id="exhibit" class="clearfix">
             </div>
         </div>
