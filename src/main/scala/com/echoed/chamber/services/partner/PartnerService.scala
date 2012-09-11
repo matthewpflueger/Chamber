@@ -32,7 +32,7 @@ class PartnerService(
         encrypter: Encrypter,
         filteredUserAgents: JList[String]) extends EchoedService {
 
-    protected var partner = Option(partnerDao.findById(partnerId)).get
+    protected var partner = Option(partnerDao.findByIdOrHandle(partnerId)).get
 
     val viewCounter: AtomicInteger = new AtomicInteger(0)
 
