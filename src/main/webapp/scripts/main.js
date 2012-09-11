@@ -10,10 +10,6 @@ require.config({
         'requireLib': 'libs/require/require'
     },
     shim: {
-//        backbone: {
-//            deps: ['underscore', 'jquery'],
-//            exports: 'Backbone'
-//        },
         fileuploader: {
             exports: 'qq'
         }
@@ -112,6 +108,7 @@ require(
                 echoedUser: Echoed.echoedUser,
                 exhibitShowLogin: true
             };
+
 
             this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
 

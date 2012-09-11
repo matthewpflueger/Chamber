@@ -1,0 +1,42 @@
+.login-form{
+    margin: 20px auto;
+    width: 450px;
+    text-align: center;
+    .login-form-title{
+        margin-bottom: 10px;
+        text-align: center;
+        @include fontHeader(36px);
+    }
+    .login-form-row{
+        padding: 5px 20px;
+    }
+
+    label{
+        display: block;
+        padding: 5px;
+        color: $colorEC;
+    }
+    input[type="text"], input[type="password"]{
+        width: 300px;
+        @include fontText(24px);
+        border-radius: 5px;
+        padding: 5px 10px;
+        outline: none;
+        border: 1px solid #CCC;
+    }
+
+    input[type="submit"]{
+        width: 200px;
+        @include fontTextBold(20px);
+        background-color: #F0F0F0;
+        outline: none;
+        border: 1px solid #CCC;
+        border-radius: 5px;
+        cursor: pointer;
+        &:hover{
+            background-color: $colorEC;
+            color: #FFF;
+            border-color: #000;
+        }
+    }
+}

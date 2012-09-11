@@ -14,15 +14,6 @@
         'fileuploader' : 'libs/fileuploader',
         'expanding' : 'libs/expanding'
     },
-//    shim: {
-//        underscore: {
-//            exports: "_"
-//        },
-//        backbone: {
-//            deps: ['underscore', 'jquery'],
-//            exports: "Backbone"
-//        }
-//    },
     optimize: "uglify",
     modules: [
         {
@@ -33,6 +24,5 @@
             name: "main",
             include: ['requireLib']
         }
-
     ]
 })

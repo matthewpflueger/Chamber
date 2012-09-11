@@ -23,6 +23,7 @@ $fontTextColorDefault: #333;
         font-family: $fontTextFamily;
         font-size: $size;
         color: $color;
+        font-weight: normal;
     }
 
     @mixin fontTextBold($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
@@ -43,6 +44,7 @@ $fontTextColorDefault: #333;
         font-family: $fontHeaderFamily;
         font-size: $size;
         color: $color;
+        font-weight: normal;
     }
 
     @mixin fontHeaderBold($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
