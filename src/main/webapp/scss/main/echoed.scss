@@ -41,9 +41,8 @@ h1{
 }
 
 h2{
-    @include fontTextBold(30px, #FFF);
-    text-shadow: #000 1px 1px 0;
-    //background-color: rgba(0, 0, 0, 0.1);
+    @include fontTextBold(30px);
+    text-shadow: #FFF 1px 1px 0;
 }
 
 h3{

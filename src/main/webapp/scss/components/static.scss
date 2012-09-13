@@ -1,19 +1,22 @@
 #static-masthead{
     margin-top: 40px;
     padding: 20px 0px;
-    height: 250px;
     background-color: rgb(30, 85, 120);
-    border-bottom: 10px solid #8E98AC
+    border-bottom: 10px solid #8E98AC;
+    .masthead-subtitle{
+        padding: 20px 0px;
+        width: 750px;
+        line-height: 1.5em;
+        @include fontTitleLight(24px, #FFF);
+    }
 }
 
 #static-body{
     padding: 20px;
 }
 
-.static-h2{
-    color: #333;
-    text-shadow: 0px 1px 0px #FFF;
-    margin-bottom: 10px;
+.white-h1{
+    @include fontTitleLight(48px, #FFF)
 }
 
 .center{
