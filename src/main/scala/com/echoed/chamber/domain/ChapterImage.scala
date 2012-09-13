@@ -16,6 +16,7 @@ case class ChapterImage(
         partnerSettingsId: String,
         echoId: String,
         chapterId: String,
+        imageId: String,
         image: Image) extends DomainObject {
 
     def this() = this(
@@ -29,6 +30,7 @@ case class ChapterImage(
         partnerSettingsId = "",
         echoId = "",
         chapterId = "",
+        imageId = "",
         image = new Image())
 
     def this(
@@ -44,6 +46,7 @@ case class ChapterImage(
         partnerSettingsId = chapter.partnerSettingsId,
         echoId = chapter.echoId,
         chapterId = chapter.id,
+        imageId = _image.id,
         image = _image)
 
 }

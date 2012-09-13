@@ -74,7 +74,7 @@ case class Image(
         null,
         0,
         0,
-        0,
+        0L,
         null,
         0)
 

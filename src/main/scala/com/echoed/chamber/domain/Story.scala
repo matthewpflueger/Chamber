@@ -1,9 +1,9 @@
 package com.echoed.chamber.domain
 
 import java.util.Date
-import com.echoed.util.DateUtils._
 import partner.{PartnerSettings, Partner}
 import com.echoed.util.UUID
+import com.echoed.util.DateUtils._
 
 
 case class Story(
@@ -14,6 +14,7 @@ case class Story(
         partnerId: String,
         partnerHandle: String,
         partnerSettingsId: String,
+        imageId: String,
         image: Image,
         title: String,
         echoId: String,
@@ -31,6 +32,7 @@ case class Story(
         partnerId = "",
         partnerHandle = "",
         partnerSettingsId = "",
+        imageId = "",
         image = new Image(),
         title = "",
         echoId = "",
@@ -55,6 +57,7 @@ case class Story(
         partnerId = partner.id,
         partnerHandle = partner.handle,
         partnerSettingsId = partnerSettings.id,
+        imageId = _image.id,
         image = _image,
         title = _title,
         echoId = echo.map(_.id).orNull,
@@ -64,4 +67,24 @@ case class Story(
         comments = 0,
         tag = null)
 
+}
+
+object Story {
+    def apply(s: StoryState): Story = Story(
+        id = s.id,
+        updatedOn = s.updatedOn,
+        createdOn = s.createdOn,
+        echoedUserId = s.echoedUser.id,
+        partnerId = s.partner.id,
+        partnerHandle = s.partner.handle,
+        partnerSettingsId = s.partnerSettings.id,
+        imageId = s.image.id,
+        image = s.image,
+        title = s.title,
+        echoId = s.echo.map(_.id).orNull,
+        productId = s.echo.map(_.productId).orNull,
+        productInfo = s.productInfo,
+        views = s.views,
+        comments = s.comments.size,
+        tag = s.tag)
 }

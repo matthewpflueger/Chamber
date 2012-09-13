@@ -16,11 +16,11 @@ trait PartnerSettingsDao {
 
     def findByActiveOn(
         @Param("partnerId") partnerId: String,
-        @Param("activeOn") activeOn: Date): PartnerSettings
+        @Param("activeOn") activeOn: Long): PartnerSettings
 
     def findInactive(
         @Param("partnerId") partnerId: String,
-        @Param("activeOn") activeOn: Date): PartnerSettings
+        @Param("activeOn") activeOn: Long): PartnerSettings
 
     def insert(partnerSettings: PartnerSettings): Int
 

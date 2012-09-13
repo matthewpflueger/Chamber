@@ -17,6 +17,7 @@ import java.util.{List => JList}
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import com.echoed.chamber.services.{MessageProcessor, EchoedService}
 import scala.collection.JavaConversions._
+import com.echoed.util.DateUtils._
 
 
 class PartnerService(

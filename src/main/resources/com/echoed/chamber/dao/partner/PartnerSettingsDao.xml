@@ -7,8 +7,8 @@
     <resultMap id="partnerSettingsResult" type="com.echoed.chamber.domain.partner.PartnerSettings">
         <constructor>
             <idArg column="id" javaType="String" />
-            <arg column="updatedOn" javaType="Date" />
-            <arg column="createdOn" javaType="Date" />
+            <arg column="updatedOn" javaType="_long" />
+            <arg column="createdOn" javaType="_long" />
             <arg column="partnerId" javaType="String" />
             <arg column="closetPercentage" javaType="_float" />
             <arg column="minClicks" javaType="_int" />
@@ -22,8 +22,8 @@
             <arg column="hashTag" javaType="String" />
             <arg column="couponCode"  javaType="String" />
             <arg column="couponDescription" javaType="String" />
-            <arg column="couponExpiresOn" javaType="Date" />
-            <arg column="activeOn" javaType="Date" />
+            <arg column="couponExpiresOn" javaType="_long" />
+            <arg column="activeOn" javaType="_long" />
             <arg column="storyPrompts" javaType="String" />
         </constructor>
     </resultMap>

@@ -2,12 +2,15 @@ package com.echoed.chamber.domain.partner
 
 import java.util.{Calendar, Date}
 import com.echoed.util.{ScalaObjectMapper, UUID}
+import com.echoed.util.DateUtils._
+import com.echoed.chamber.domain.DomainObject
+import org.squeryl.annotations.Transient
 
 
 case class PartnerSettings(
         id: String,
-        updatedOn: Date,
-        createdOn: Date,
+        updatedOn: Long,
+        createdOn: Long,
         partnerId: String,
         closetPercentage: Float,
         minClicks: Int,
@@ -21,9 +24,9 @@ case class PartnerSettings(
         hashTag: String,
         couponCode: String,
         couponDescription: String,
-        couponExpiresOn: Date,
-        activeOn: Date,
-        storyPrompts: String) {
+        couponExpiresOn: Long,
+        activeOn: Long,
+        storyPrompts: String) extends DomainObject {
 
     require(closetPercentage >= 0, "Closet percentage is less than 0")
     require(echoedMaxPercentage >= 0, "Echoed max percentage is less than 0")
@@ -35,7 +38,9 @@ case class PartnerSettings(
     require(minPercentage >= closetPercentage, "Closet percentage is greater than minimum percentage")
     require(maxPercentage >= minPercentage, "Minimum percentage is greater than maximum percentage")
 
-    require(views != null && views.length > 0, "Views is null or empty")
+    require(views != null, "Views is null")
+
+    def this() = this("", 0L, 0L, "", 0f, 0, 0f, 0, 0f, 0f, 0f, 0, "", "", "", "", 0L, 0L, "")
 
     def this(
             partnerId: String,
@@ -104,9 +109,9 @@ case class PartnerSettings(
     )
 
 
-    lazy val viewsList = views.split(",").map(_.trim)
+    @Transient lazy val viewsList = views.split(",").map(_.trim)
 
-    val isFree = maxPercentage <= 0
+    @Transient val isFree = maxPercentage <= 0
 
     def creditWindowEndsAt = {
         val cal = Calendar.getInstance()
@@ -115,6 +120,8 @@ case class PartnerSettings(
     }
 
     def makeStoryPrompts = new ScalaObjectMapper().readValue(storyPrompts, classOf[StoryPrompts])
+
+    def couponExpiresOnDate: Date = couponExpiresOn
 }
 
 object PartnerSettings {

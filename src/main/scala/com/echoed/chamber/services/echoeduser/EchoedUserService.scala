@@ -648,17 +648,19 @@ class EchoedUserService(
                 }.pipeTo(context.sender)
 
 
-        case msg: StoryIdentifiable with Message => forwardToStory(msg, StoryId(msg.storyId))
+        case msg: StoryIdentifiable with EchoedUserIdentifiable with Message =>
+            forwardToStory(msg, StoryId(msg.storyId), Option(InitStory(msg.credentials, Option(msg.storyId))))
     }
 
 
     private def forwardToStory(
             msg: Message,
-            identifiable: Identifiable) {
+            identifiable: Identifiable,
+            initMessage: Option[Message] = None) {
         activeStories.get(identifiable).headOption.cata(
             _.forward(msg),
             {
-                val storyService = context.watch(storyServiceCreator(context, msg, echoedUser))
+                val storyService = context.watch(storyServiceCreator(context, initMessage.getOrElse(msg), echoedUser))
                 storyService.forward(msg)
                 activeStories.put(identifiable, storyService)
             })
