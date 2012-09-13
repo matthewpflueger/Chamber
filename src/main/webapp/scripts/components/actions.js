@@ -19,7 +19,7 @@ define(
             },
             render: function(){
                 this.element.empty();
-                this.element.append($("<div class='action-button' id='action-share'>Share a Story</div>"));
+                this.element.append($("<div class='action-button' id='action-share'>Share Your Story</div>"));
             },
             click: function(e){
                 window.location.hash = "#write/";

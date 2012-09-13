@@ -177,7 +177,7 @@
         <property name="magentoGoRegisterView" value="magentogo_register" />
         <property name="magentoGoPostRegisterView" value="magentogo_integration" />
 
-        <property name="businessView"  value="public_business" />
+        <property name="websitesView"  value="public_websites" />
         <property name="contactUsView"  value="public_contactus" />
         <property name="whatIsEchoedView" value="public_about" />
         <property name="privacyView" value="public_privacy" />

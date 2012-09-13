@@ -76,7 +76,7 @@ class Views {
     @Required @BeanProperty var magentoGoRegisterView: String = _
     @Required @BeanProperty var magentoGoPostRegisterView: String = _
     
-    @Required @BeanProperty var businessView: String = _
+    @Required @BeanProperty var websitesView: String = _
     @Required @BeanProperty var contactUsView: String = _
     @Required @BeanProperty var whatIsEchoedView: String = _
     @Required @BeanProperty var privacyView: String = _

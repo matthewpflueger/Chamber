@@ -49,7 +49,7 @@ define(
                     var chapterText = self.data.chapters[0].text;
                     var c  = chapterText.split(/[.!?]/)[0];
                     c = c + chapterText.substr(c.length, 1); //Append Split Character
-                    textNode.prepend($("<div class='story-brief-text-quote'></div>").html('"' + c + '"'));
+                    textNode.prepend($("<div class='story-brief-text-quote'></div>").html(c));
                     overlayNode.html(self.data.story.title);
                     var dateString = self.data.story.updatedOn.toString();
                     var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(dateString));

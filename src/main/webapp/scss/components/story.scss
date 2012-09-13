@@ -120,9 +120,9 @@
         position: relative;
         margin: 0px 10px;
         padding: 10px 0px;
+        width: 725px;
         .echo-s-b-text{
-            float:left;
-            width: 300px;
+            display: inline;
             padding: 0px 0px 0px 5px;
 
             .echo-s-b-t-t{
@@ -133,9 +133,8 @@
             }
             .echo-s-b-t-b{
                 padding-bottom: 20px;
-                @include fontText(14px, #333);
-                font-style: italic;
-                line-height: 1.3em;
+                @include fontText(13px, #333);
+                line-height: 1.5em;
                 word-wrap: break-word;
             }
         }
@@ -151,7 +150,7 @@
             }
         }
         .echo-s-b-gallery{
-            float: left;
+            float: right;
             width: 410px;
             margin-left: 10px;
             text-align:center;
@@ -206,7 +205,7 @@
         }
         .echo-story-comments{
             //border-top: 1px #CCC solid;
-            width: 715px;
+            width: 725px;
             .echo-s-c-t{
                 @include fontTextBold(24px);
                 text-shadow: 0px 1px 0px #FFF;
@@ -215,22 +214,25 @@
                 }
             }
             .echo-s-c-ta{
-                margin: 5px 3px;
+                margin: 10px 0px;
                 textarea{
-                    width: 705px;
-                    padding: 10px;
+                    width: 715px;
+                    padding: 5px;
                     border-radius: 5px;
                     resize: none;
                     height: 50px;
                     border: 1px solid #CCC;
                     @include fontText(14px);
+                    outline: none;
+                    &:focus{
+                        border-color: #333;
+                    }
                 }
 
             }
             .comment-submit{
                 cursor: pointer;
-                @include button();
-                @include fontTextBold(12px, #FFF);
+                @include button;
             }
             .comment-login-title {
                 @include fontTextBold(14px);
@@ -258,8 +260,8 @@
                         border: 2px solid #FFF;
                     }
                     .echo-s-c-l-c-t{
-                        padding: 5px 37px;
-                        @include fontText(14px, #000);
+                        padding: 0px 37px 5px;
+                        @include fontText(13px, #000);
                         border-bottom: 1px dotted #999;
                         word-wrap: break-word;
                     }
@@ -313,7 +315,7 @@
 
 
 .story-edit-button{
-    @include button(12px);
+    @include button(15px);
     position: absolute;
     left: 10px;
     bottom: 10px;

@@ -181,7 +181,7 @@ define(
                     var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
                     var chapterEdit = $('<div class="story-summary-chapter-edit"></div>').html("Edit").attr("chapterId", index);
                     var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong>Topic: </strong>" + chapter.title));
-                    var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong>Description: </strong>" +chapter.text));
+                    var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong>Description: </strong>" + chapter.text.substr(0, 200)));
                     var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
                     var chapterPhotosRow = $("<div class='story-summary-chapter-row'></div>").append($('<label>Photos: </label>')).append(chapterPhotos);
                     $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
