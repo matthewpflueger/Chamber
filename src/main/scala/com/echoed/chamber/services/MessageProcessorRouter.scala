@@ -15,6 +15,7 @@ class MessageProcessorRouter(
         router: ActorRef,
         implicit val timeout: Timeout = Timeout(20000)) extends MessageProcessor {
     def apply(message: Message) = (router ? message).mapTo
+    def tell(message: Message, sender: ActorRef) = router.tell(message, sender)
 }
 
 class MessageRouter(routeMap: scala.collection.Map[Class[_ <: Message], ActorContext => ActorRef]) extends RouterConfig {

@@ -51,4 +51,5 @@ trait MessageResponse[R, M <: Message, E <: EchoedException] extends ResponseVal
 
 trait MessageProcessor {
     def apply(message: Message): Future[MessageResponse[_, _, _]]
+    def tell(message: Message, sender: ActorRef): Unit
 }

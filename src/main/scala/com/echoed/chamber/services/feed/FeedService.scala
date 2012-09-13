@@ -67,7 +67,7 @@ class FeedService(
 
     override def preStart() {
         super.preStart()
-        mp(FindAllStories()).pipeTo(self)
+        mp.tell(FindAllStories(), self)
     }
 
     def handle = {
