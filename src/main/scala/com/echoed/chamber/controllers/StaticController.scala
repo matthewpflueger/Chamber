@@ -20,8 +20,8 @@ class StaticController extends EchoedController {
     @RequestMapping(value = Array("/contactus*"), method = Array(RequestMethod.GET))
     def contactUs = new ModelAndView(v.contactUsView)
 
-    @RequestMapping(value = Array("/business*"), method = Array(RequestMethod.GET))
-    def business = new ModelAndView(v.businessView)
+    @RequestMapping(value = Array("/websites*"), method = Array(RequestMethod.GET))
+    def business = new ModelAndView(v.websitesView)
 
     @RequestMapping(value = Array("/privacy*"), method = Array(RequestMethod.GET))
     def privacy = new ModelAndView(v.privacyView)

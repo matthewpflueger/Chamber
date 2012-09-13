@@ -5,6 +5,7 @@ $colorTW: #4099FF; //Twitter Color
 
 //DEFAULT FONT SETTINGS
 $fontTextFamily: 'Open Sans', sans-serif;
+$fontTitleFamily: 'Lato', sans-serif;
 $fontHeaderFamily: 'Arvo', sans-serif;
 
 $fontTextSizeDefault: 12px;
@@ -17,6 +18,20 @@ $fontTextColorDefault: #333;
         background-position: $posX $posY;
         width: $width;
         height: $height;
+    }
+
+    @mixin fontTitle($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+        font-family: $fontTitleFamily;
+        font-size: $size;
+        color: $color;
+        font-weight: normal;
+    }
+
+    @mixin fontTitleLight($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+        font-family: $fontTitleFamily;
+        font-size: $size;
+        color: $color;
+        font-weight: 200;
     }
 
     @mixin fontText($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
@@ -71,7 +86,7 @@ $fontTextColorDefault: #333;
         -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
         filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
     }
-
+/*
     @mixin button($size: 12px){
         cursor: pointer;
         margin: 3px;
@@ -92,7 +107,22 @@ $fontTextColorDefault: #333;
         -webkit-box-shadow: inset 0px 1px 1px rgba(255,255,255,0.5);
         @include fontTextBold($size, #FFF);
         text-decoration: none;
+    }*/
+
+    @mixin button($size: 15px){
+        display: inline-block;
+        cursor:pointer;
+        background-color: rgb(200, 45, 45);
+        border: 1px solid #000;
+        border-radius: 5px;
+        padding: 5px 20px;
+        text-decoration: none;
+        @include fontTextBold($size, #FFF);
+        &:hover{
+            background-color: $colorEC;
+        }
     }
+
 
 
 //RESET

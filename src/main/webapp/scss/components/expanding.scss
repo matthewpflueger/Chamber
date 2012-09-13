@@ -2,7 +2,8 @@
     display: inline-block;
     margin-bottom: 10px;
     textarea, .textareaClone{
-        min-height: 5em;
+        border-radius: 5px;
+        min-height: 10em;
         padding: 5px 6px;
         width: 300px;
         @include fontText(14px);

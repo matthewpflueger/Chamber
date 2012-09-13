@@ -1,11 +1,31 @@
+#static-masthead{
+    margin-top: 40px;
+    padding: 20px 0px;
+    height: 250px;
+    background-color: rgb(30, 85, 120);
+    border-bottom: 10px solid #8E98AC
+}
+
+#static-body{
+    padding: 20px;
+}
+
+.static-h2{
+    color: #333;
+    text-shadow: 0px 1px 0px #FFF;
+    margin-bottom: 10px;
+}
+
 .center{
     width: 960px;
     margin:auto;
 }
 
 .static-section{
-    margin:20px 0px;
+    margin-bottom: 20px;
     @include fontText(16px);
+    background-position: center bottom;
+    background-repeat: no-repeat;
 }
 
 .subtitle{

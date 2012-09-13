@@ -37,14 +37,13 @@ body{
 }
 
 h1{
-    @include fontHeader(48px);
-    text-shadow: #fff 1px 1px 0;
+    @include fontTitleLight(48px, #FFF);
 }
 
 h2{
-    @include fontText(30px);
-    text-shadow: #fff 1px 1px 0;
-    background-color: rgba(0, 0, 0, 0.1);
+    @include fontTextBold(30px, #FFF);
+    text-shadow: #000 1px 1px 0;
+    //background-color: rgba(0, 0, 0, 0.1);
 }
 
 h3{
@@ -53,7 +52,10 @@ h3{
     text-shadow: #fff 1px 1px 0;
 }
 
-
+p{
+    line-height: 1.8em;
+    @include fontText(13px);
+}
 
 #container{
     top: 0px;
@@ -109,12 +111,13 @@ h3{
             }
             #user-text{
                 display:inline-block;
-                width: 130px;
+                width: 110px;
                 margin: 3px 0px;
                 padding-left: 10px;
                 line-height:32px;
                 @include fontHeaderBold(14px);
-                text-wrap: none;
+                white-space: nowrap;
+                overflow: hidden;
                 text-overflow: ellipsis;
                 text-align:left;
             }
@@ -157,7 +160,7 @@ h3{
 }
 
 #content{
-    padding-top: 50px;
+    padding: 50px 0px;
     margin-right: 180px;
 }
 
@@ -312,7 +315,7 @@ h3{
 }
 
 #content-wide{
-    padding-top: 50px;
+    padding: 50px 0px;
 }
 
 #story{
