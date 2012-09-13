@@ -16,11 +16,12 @@ import scala.Right
 import com.echoed.chamber.services.echoeduser.EchoedUserCreated
 import com.echoed.chamber.services.echoeduser.NotificationCreated
 import com.echoed.chamber.domain
-import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.domain.{StoryState, EchoedUser}
 import scala.collection.immutable.Stack
 import com.echoed.chamber.services.scheduler.{ScheduleDeleted, ScheduleCreated}
 import com.echoed.util.TransactionUtils._
 import com.echoed.chamber.services.partneruser.PartnerUserUpdated
+import StateUtils._
 
 
 class StateService(
@@ -156,8 +157,45 @@ class StateService(
                 sender ! ReadAdminUserForCredentialsResponse(msg, Right(au))
             }
 
+
         case PartnerUserUpdated(partnerUser) => partnerUsers.update(partnerUser.copy(updatedOn = new Date))
+
+
+        case msg @ ReadStory(id) =>
+            stories.lookup(id).map(readStory(_)).foreach(s => sender ! ReadStoryResponse(msg, Right(s)))
+
+        case msg @ ReadStoryForEcho(echoId, echoedUserId) =>
+            from(echoes)(e => where(e.id === echoId and e.echoedUserId === echoedUserId) select(e)).headOption.map { e =>
+                from(stories)(s => where(s.echoId === e.id) select(s)).map { s =>
+                    readStory(s, Option(e))
+                }.headOption.cata(
+                    s => sender ! ReadStoryForEchoResponse(msg, Right(s)),
+                    {
+                        val eu = echoedUsers.lookup(e.echoedUserId).get
+                        val img = images.lookup(e.imageId).get.convertTo
+                        val p = partners.lookup(e.partnerId).get
+                        val ps = partnerSettings.lookup(e.partnerSettingsId).get
+
+                        sender ! ReadStoryForEchoResponse(msg, Left(StoryForEchoNotFound(
+                                new StoryState(eu, p, ps, Option(e.convertTo(img)), Option(img)))))
+                    })
+            }
+
+        case msg @ StoryCreated(storyState) => stories.insert(domain.Story(storyState))
+        case msg @ StoryUpdated(storyState) => stories.update(domain.Story(storyState))
+        case msg @ StoryTagged(storyState, _, _) => stories.update(domain.Story(storyState))
+        case msg @ ChapterCreated(_, c, ci) =>
+            chapters.insert(c)
+            ci.map(chapterImages.insert(_))
+
+        case msg @ ChapterUpdated(_, c, ci) =>
+            chapters.update(c)
+            chapterImages.deleteWhere(ci => ci.chapterId === c.id)
+            ci.map(chapterImages.insert(_))
+
+        case msg @ CommentCreated(_, c) => comments.insert(c)
     }
+
 }
 
 

@@ -5,15 +5,23 @@ import com.echoed.chamber.dao.views._
 import akka.actor._
 import com.echoed.chamber.dao.partner.PartnerDao
 import com.echoed.chamber.dao.EchoedUserDao
-import com.echoed.chamber.domain.public._
-import scala.Right
-import com.echoed.chamber.domain.views._
+import com.echoed.chamber.services._
+import collection.immutable.TreeMap
+import com.echoed.chamber.services.echoeduser.StoryEvent
+import akka.pattern._
+import scala.collection.mutable.HashMap
 import scala.Left
-import com.echoed.chamber.domain.views.PublicFeed
-import com.echoed.chamber.services.{MessageProcessor, EventProcessorActorSystem, EchoedService}
-import collection.immutable.{HashMap, TreeMap}
-import com.echoed.chamber.services.echoeduser.StoryUpdated
-import com.echoed.chamber.services.event.{WidgetStoryOpened, WidgetOpened}
+import com.echoed.chamber.services.state.FindAllStoriesResponse
+import com.echoed.chamber.services.event.WidgetStoryOpened
+import com.echoed.chamber.services.event.WidgetOpened
+import com.echoed.chamber.domain.views.PublicStoryFeed
+import com.echoed.chamber.domain.views.EchoedUserStoryFeed
+import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.views.PartnerStoryFeed
+import scala.Right
+import com.echoed.chamber.services.state.FindAllStories
+import com.echoed.chamber.domain.public.EchoedUserPublic
+import com.echoed.chamber.domain.public.PartnerPublic
 
 
 class FeedService(
@@ -22,6 +30,8 @@ class FeedService(
         echoedUserDao: EchoedUserDao,
         mp: MessageProcessor,
         ep: EventProcessorActorSystem) extends EchoedService {
+
+    ep.subscribe(context.self, classOf[StoryEvent])
 
     val pageSize = 30
 
@@ -43,12 +53,9 @@ class FeedService(
         }
     }
 
-    var storyMap = new HashMap[String, StoryPublic]
+    val storyMap = HashMap.empty[String, StoryPublic]
     var storyTree = new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
-    val stories = asScalaBuffer(feedDao.getAllStories).map({
-        sf => updateStory(new StoryPublic(sf))
-    })
 
     def updateStory(storyFull: StoryPublic) {
         storyMap.get(storyFull.id).map(s => storyTree -= ((s.story.updatedOn, s.story.id)))
@@ -57,32 +64,18 @@ class FeedService(
         topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
     }
 
-    ep.subscribe(self, classOf[StoryUpdated])
+
+    override def preStart() {
+        super.preStart()
+        mp(FindAllStories()).pipeTo(self)
+    }
 
     def handle = {
+        case msg: StoryEvent =>
+            log.debug("Received StoryEvent {}", msg)
+            updateStory(new StoryPublic(msg.story.asStoryFull.get))
 
-        case msg @ StoryUpdated(storyId: String) =>
-            log.debug("Story Updated: {}", storyId)
-            Option(feedDao.findStoryById(storyId)).map({
-                sf => updateStory(new StoryPublic(sf))
-            })
-            //CURRENTLY HITS DATABASE ONCE STORY HAS BEEN UPDATED TO GRAB FULL STORY
-
-        case msg @ GetPublicFeed(page: Int) =>
-            val channel = context.sender
-            val start = msg.page * pageSize
-
-            try {
-                log.debug("Attempting to retrieve Public Feed ")
-                val echoes = asScalaBuffer(feedDao.getPublicFeed(start, pageSize)).toList
-                val stories = asScalaBuffer(feedDao.getStories(start, pageSize))
-                val feed = new PublicFeed(echoes, stories)
-                channel ! GetPublicFeedResponse(msg, Right(feed))
-            } catch {
-                case e=>
-                    channel ! GetPublicFeedResponse(msg, Left(new FeedException("Cannot get public feed", e)))
-                    log.error("Unexpected error processing {} , {}", msg, e)
-            }
+        case FindAllStoriesResponse(_, Right(all)) => all.map(s => updateStory(new StoryPublic(s.asStoryFull.get)))
 
         case msg @ GetPublicStoryFeed(page: Int) =>
             val channel = context.sender
@@ -102,21 +95,6 @@ class FeedService(
                 case e =>
                     channel ! GetPublicStoryFeedResponse(msg, Left(new FeedException("Cannot get public story feed", e)))
                     log.error("Unexpected error processing {}, {}", msg, e)
-            }
-
-        case msg @ GetPublicCategoryFeed(categoryId, page) =>
-            val channel = context.sender
-            val start = msg.page * pageSize
-
-            try{
-                log.debug("Attempting to retrive Category Feed")
-                val echoes = asScalaBuffer(feedDao.getCategoryFeed(categoryId, start, pageSize))
-                val feed = new PublicFeed(echoes)
-                channel ! GetPublicCategoryFeedResponse(msg, Right(feed))
-            } catch {
-                case e =>
-                    channel ! GetPublicCategoryFeedResponse(msg, Left(new FeedException("Cannot get public category feed", e)))
-                    log.error("Unpexected Error processing {}, {}", msg, e)
             }
 
         case msg @ GetCategoryStoryFeed(categoryId, page) =>
@@ -148,21 +126,6 @@ class FeedService(
                     log.error("Unexpected Error processing {}, {}", msg , e)
             }
 
-        case msg @ GetUserPublicFeed(echoedUserId, page) =>
-            val channel = context.sender
-            val start = msg.page * pageSize
-            try {
-                log.debug("Attempting to retrieve feed for user: {}", echoedUserId)
-                val echoedUser = echoedUserDao.findById(echoedUserId)
-                val echoes = asScalaBuffer(feedDao.getEchoedUserFeed(echoedUser.id, start, pageSize)).toList
-                val stories = asScalaBuffer(feedDao.findStoryByEchoedUserId(echoedUser.id, start, pageSize)).toList
-                val feed = new EchoedUserFeed(new EchoedUserPublic(echoedUser), echoes, stories)
-                channel ! GetUserPublicFeedResponse(msg, Right(feed))
-            } catch {
-                case e =>
-                    channel ! GetUserPublicFeedResponse(msg, Left(new FeedException("Cannot get user public feed", e)))
-                    log.error("Unexpected error processesing {}, {}", msg, e)
-            }
 
         case msg @ GetUserPublicStoryFeed(echoedUserId, page) =>
             val channel = context.sender
@@ -187,20 +150,6 @@ class FeedService(
                     log.error(e, "Unexpected error processesiong {}", msg)
             }
 
-        case msg @ GetPartnerFeed(partnerId, page) =>
-            val channel = context.sender
-            try{
-                val start = page * pageSize
-                val echoes = asScalaBuffer(feedDao.getPartnerFeed(partnerId, start, pageSize)).toList
-                val partner = partnerDao.findByIdOrHandle(msg.partnerId)
-                val stories = asScalaBuffer(feedDao.findStoryByPartnerId(partner.id, start, pageSize)).toList
-                val partnerFeed = new PartnerFeed(new PartnerPublic(partner), echoes, stories)
-                channel ! GetPartnerFeedResponse(msg,Right(partnerFeed))
-            } catch {
-                case e =>
-                    channel ! GetPartnerFeedResponse(msg, Left(new FeedException("Cannot get partner feed", e)))
-                    log.error("Unexpected error processesing {}, {}", msg, e)
-            }
 
         case msg @ GetPartnerStoryFeed(partnerId, page, origin) =>
             if (origin != "echoed") mp(WidgetOpened(partnerId))
@@ -244,7 +193,6 @@ class FeedService(
         case msg: GetPartnerIds =>
             val channel = context.sender
             channel ! GetPartnerIdsResponse(msg, Right(feedDao.getPartnerIds))
-
     }
 
 }

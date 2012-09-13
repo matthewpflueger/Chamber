@@ -4,6 +4,7 @@ import org.squeryl.Schema
 import com.echoed.chamber.domain
 
 
+
 private[state] object ChamberSchema extends Schema {
 
     val adminUsers = table[domain.AdminUser]
@@ -11,7 +12,7 @@ private[state] object ChamberSchema extends Schema {
     val facebookUsers = table[domain.FacebookUser]
     val twitterUsers = table[domain.TwitterUser]
 
-    val images = table[domain.Image]
+    val images = table[Image]
 
     val stories = table[domain.Story]
     val chapters = table[domain.Chapter]
@@ -21,6 +22,11 @@ private[state] object ChamberSchema extends Schema {
     val notifications = table[Notification]
     val echoedUserSettings = table[EchoedUserSettings]
     val schedules = table[Schedule]
+
+    val echoes = table[Echo]
+
+    val partners = table[domain.partner.Partner]
+    val partnerSettings = table[domain.partner.PartnerSettings]
     val partnerUsers = table[domain.partner.PartnerUser]
 
     //    val echoClicks = table[EchoClick]
@@ -34,7 +40,6 @@ private[state] object ChamberSchema extends Schema {
     //    val facebookPosts = table[FacebookPost]
     //    val facebookTestUsers = table[FacebookTestUser]
     //    val geoLocations = table[GeoLocation]
-    //    val images = table[Image]
 
     //    val twitterFollowers = table[TwitterFollower]
     //    val twitterStatuses = table[TwitterStatus]

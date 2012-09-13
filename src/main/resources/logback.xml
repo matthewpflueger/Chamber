@@ -64,21 +64,27 @@
         <discardingThreshold>20</discardingThreshold>
     </appender>
 
-
-    <!-- below just clutter the logs -->
-    <logger name="org.springframework.web.servlet.PageNotFound" level="error" />
-    <logger name="com.gargoylesoftware.htmlunit" level="error" />
-
-    <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="info" />
-    <logger name="com.echoed.chamber.services.facebook.FacebookPostCrawler" level="info" />
-    <logger name="com.echoed.chamber.services.geolocation" level="info" />
-    <logger name="com.echoed.chamber.dao" level="info" />
-    <logger name="com.echoed" level="debug" />
-    <logger name="org.jclouds" level="debug" />
-
+    <!-- Our javascript errors get posted to their own file due to the volume -->
     <logger name="com.echoed.chamber.controllers.PostErrorController" level="debug" additivity="false">
         <appender-ref ref="js" />
     </logger>
+
+    <!-- put the following at debug to see SQL statements -->
+    <logger name="com.echoed.chamber.services.state.QueryService" level="info" />
+    <logger name="com.echoed.chamber.services.state.StateService" level="info" />
+
+    <!-- below just clutter the logs -->
+    <logger name="com.echoed.chamber.services.feed.FeedService" level="info" />
+    <logger name="com.echoed.chamber.services.facebook.FacebookPostCrawler" level="info" />
+    <logger name="com.echoed.chamber.services.geolocation" level="info" />
+    <logger name="com.echoed.chamber.dao" level="info" />
+    <logger name="org.springframework.web.servlet.PageNotFound" level="error" />
+    <logger name="com.gargoylesoftware.htmlunit" level="error" />
+    <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="info" />
+
+    <!-- make sure we see our debug statements -->
+    <logger name="com.echoed" level="debug" />
+    <logger name="org.jclouds" level="debug" />
 
     <root level="warn">
         <appender-ref ref="async" />

@@ -2,12 +2,15 @@ package com.echoed.chamber.domain.partner
 
 import java.util.Date
 import com.echoed.util.UUID
+import com.echoed.chamber.domain.DomainObject
+import com.echoed.util.DateUtils._
+import org.squeryl.annotations.Transient
 
 
 case class Partner(
         id: String,
-        updatedOn: Date,
-        createdOn: Date,
+        updatedOn: Long,
+        createdOn: Long,
         name: String,
         domain: String,
         phone: String,
@@ -15,7 +18,9 @@ case class Partner(
         logo: String,
         @transient secret: String,
         category: String,
-        cloudPartnerId: String) {
+        cloudPartnerId: String) extends DomainObject {
+
+    def this() = this("", 0L, 0L, "", "", "", "", "", "", "", "")
 
     def this(
             name: String,
@@ -45,6 +50,6 @@ case class Partner(
         UUID())
 
 
-    val isEchoed = "Echoed" == handle
+    @Transient val isEchoed = "Echoed" == handle
 }
 

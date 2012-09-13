@@ -35,7 +35,7 @@ import com.echoed.chamber.dao.partner.magentogo.MagentoGoPartnerDao
 import java.util.{List => JList, Properties}
 import com.echoed.chamber.LoggingActorSystem
 import javax.sql.DataSource
-import com.echoed.chamber.services.state.{StateMessage, StateService}
+import com.echoed.chamber.services.state.{QueryMessage, QueryService, StateMessage, StateService}
 import scala.collection.mutable.LinkedHashMap
 import com.echoed.chamber.services.scheduler.SchedulerMessage
 import com.echoed.chamber.services.echoeduser.story.StoryService
@@ -97,10 +97,6 @@ class ServiceConfig {
 
     @Resource(name = "closetDao") var closetDao: ClosetDao = _
     @Resource(name = "echoedFriendDao") var echoedFriendDao: EchoedFriendDao = _
-    @Resource(name = "storyDao") var storyDao: StoryDao = _
-    @Resource(name = "chapterDao") var chapterDao: ChapterDao = _
-    @Resource(name = "chapterImageDao") var chapterImageDao: ChapterImageDao = _
-    @Resource(name = "commentDao") var commentDao: CommentDao = _
 
     @Resource(name = "encrypter") var encrypter: Encrypter = _
     @Resource(name = "partnerUserDao") var partnerUserDao: PartnerUserDao = _
@@ -209,13 +205,7 @@ class ServiceConfig {
             ep = eventProcessor,
             initMessage = msg,
             echoedUser = eu,
-            echoDao = echoDao,
-            storyDao = storyDao,
-            chapterDao = chapterDao,
-            chapterImageDao = chapterImageDao,
-            commentDao = commentDao,
             imageDao = imageDao,
-            feedDao = feedDao,
             transactionTemplate = transactionTemplate)))
 
     @Bean
@@ -472,6 +462,9 @@ class ServiceConfig {
     }
 
     @Bean
+    def queryService = (ac: ActorContext) => ac.actorOf(Props(new QueryService(squerylDataSource)), "QueryService")
+
+    @Bean
     def stateService = (ac: ActorContext) => ac.actorOf(Props(new StateService(
             eventProcessor,
             squerylDataSource)), "StateService")
@@ -483,6 +476,7 @@ class ServiceConfig {
 
     @Bean
     def routeMap = LinkedHashMap[Class[_ <: Message], ActorContext => ActorRef](
+            classOf[QueryMessage] -> queryService,
             classOf[StateMessage] -> stateService,
             classOf[SchedulerMessage] -> schedulerService,
             classOf[GeoLocationMessage] -> geoLocationService,

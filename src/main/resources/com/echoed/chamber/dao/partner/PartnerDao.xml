@@ -7,8 +7,8 @@
     <resultMap id="partnerResult" type="com.echoed.chamber.domain.partner.Partner">
         <constructor>
             <idArg column="id" javaType="String" />
-            <arg column="updatedOn" javaType="Date" />
-            <arg column="createdOn" javaType="Date" />
+            <arg column="updatedOn" javaType="_long" />
+            <arg column="createdOn" javaType="_long" />
             <arg column="name" javaType="String" />
             <arg column="domain" javaType="String" />
             <arg column="phone" javaType="String" />

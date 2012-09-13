@@ -305,7 +305,7 @@ class EchoController extends EchoedController {
                 val partner = epv.partner
                 log.debug("Returned Echo: {}", epv.echo)
 
-                if (partnerSettings.couponCode != null && partnerSettings.couponExpiresOn.after(new Date())) {
+                if (partnerSettings.couponCode != null && partnerSettings.couponExpiresOnDate.after(new Date())) {
                     log.debug("Coupon Code!")
                     val modelAndView = new ModelAndView(v.echoCouponView)
                     modelAndView.addObject("echo", epv.echo)
