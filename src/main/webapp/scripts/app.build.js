@@ -1,7 +1,8 @@
 ({
     appDir: "./",
     baseUrl: "./",
-    dir: "../release",
+    dir: "../scripts_build",
+    keepBuildDir: false,
     paths: {
         'requireLib': 'libs/require/require',
         'json2' : 'libs/json2',
