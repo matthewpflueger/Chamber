@@ -18,6 +18,7 @@ import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import com.echoed.chamber.services.{MessageProcessor, EchoedService}
 import scala.collection.JavaConversions._
 import com.echoed.util.DateUtils._
+import com.echoed.chamber.domain.partner.PartnerSettings
 
 
 class PartnerService(
@@ -31,11 +32,28 @@ class PartnerService(
         imageDao: ImageDao,
         transactionTemplate: TransactionTemplate,
         encrypter: Encrypter,
-        filteredUserAgents: JList[String]) extends EchoedService {
+        filteredUserAgents: JList[String],
+        defaultStoryPrompts: String) extends EchoedService {
 
     protected var partner = Option(partnerDao.findByIdOrHandle(partnerId)).get
 
     val viewCounter: AtomicInteger = new AtomicInteger(0)
+
+    protected def applyDefaults(ps: Option[PartnerSettings]) =
+        ps.map(ps => if (ps.storyPrompts == null) ps.copy(storyPrompts = defaultStoryPrompts) else ps)
+
+    protected def findInactive(date: Option[Date] = None) =
+        applyDefaults(Option(partnerSettingsDao.findInactive(partner.id, dateToLong(date.getOrElse(new Date)))))
+
+    protected def findActive(date: Option[Date] = None) =
+        applyDefaults(Option(partnerSettingsDao.findByActiveOn(partner.id, dateToLong(date.getOrElse(new Date)))))
+
+    protected def findById(partnerSettingsId: String) =
+        applyDefaults(Option(partnerSettingsDao.findById(partnerSettingsId)))
+
+    protected def findByPartnerId =
+        partnerSettingsDao.findByPartnerId(partner.id).map(ps => applyDefaults(Option(ps))).map(_.get)
+
 
     protected def requestEcho(
             echoRequest: EchoRequest,
@@ -46,9 +64,7 @@ class PartnerService(
             echoClickId: Option[String] = None,
             view: Option[String] = None) = {
 
-        val partnerSettings = Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
-                .getOrElse(Option(partnerSettingsDao.findInactive(partner.id,new Date))
-                    .getOrElse(throw new PartnerNotActive(partner)))
+        val partnerSettings = findActive().orElse(findInactive()).orElse(throw new PartnerNotActive(partner)).get
 
         val echoes = echoRequest.items.map { i =>
             Echo.make(
@@ -110,14 +126,14 @@ class PartnerService(
             channel ! GetPartnerResponse(msg, Right(partner))
 
         case msg: GetPartnerSettings =>
-            Option(partnerSettingsDao.findByPartnerId(partner.id)).cata(
-                resultSet => sender ! GetPartnerSettingsResponse(msg, Right(asScalaBuffer(resultSet).toList)),
+            Option(findByPartnerId).cata(
+                resultSet => sender ! GetPartnerSettingsResponse(msg, Right(resultSet.toList)),
                 sender ! GetPartnerSettingsResponse(msg, Left(PartnerException("Partner Settings not available"))))
 
         case msg @ RequestStory(_) =>
             sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(
                     partner,
-                    partnerSettingsDao.findByActiveOn(partner.id, new Date()))))
+                    findActive().get)))
 
         case msg @ RequestEcho(
                 partnerId,
@@ -166,7 +182,7 @@ class PartnerService(
             }.onComplete(_.fold(
                 e => channel ! GetEchoResponse(msg, Left(PartnerException("Error retrieving echo %s" format echoId, e))),
                 ep => {
-                    val partnerSettings = partnerSettingsDao.findById(ep.partnerSettingsId)
+                    val partnerSettings = findById(ep.partnerSettingsId).get
                     val epv = new EchoPossibilityView(ep, partner, partnerSettings)
                     channel ! GetEchoResponse(msg, Right(epv))
                     log.debug("Returned EchoPossibility View: {}", epv)
@@ -187,7 +203,7 @@ class PartnerService(
             }.onComplete(_.fold(
                 e => channel ! RecordEchoStepResponse(msg, Left(PartnerException("Error retrieving echo %s" format echoId, e))),
                 ep => {
-                    val partnerSettings = partnerSettingsDao.findById(ep.partnerSettingsId)
+                    val partnerSettings = findById(ep.partnerSettingsId).get
                     val epv = new EchoPossibilityView(ep, partner, partnerSettings)
                     if (ep.isEchoed) {
                         channel ! RecordEchoStepResponse(msg, Left(EchoExists(epv)))
@@ -208,7 +224,7 @@ class PartnerService(
             implicit val ec = context.dispatcher
 
             Future {
-                Option(partnerSettingsDao.findByActiveOn(partner.id, new Date))
+                findActive()
             }.onComplete(_.fold(
                 e => channel ! GetViewResponse(msg, Left(PartnerException("Error retrieving partner settings for %s" format partner.id, e))),
                 _.cata(
@@ -239,7 +255,7 @@ class PartnerService(
                     channel ! RecordEchoClickResponse(msg, Right(new EchoPossibilityView(
                             echo,
                             partner,
-                            partnerSettingsDao.findById(echo.partnerSettingsId))))
+                            findById(echo.partnerSettingsId).get)))
 
                     //this really should be sent to another actor that has a durable mailbox...
                     Future {
@@ -272,7 +288,7 @@ class PartnerService(
 
                         (for {
                             echoMetrics <- Option(echoMetricsDao.findById(echo.echoMetricsId))
-                            partnerSettings <- Option(partnerSettingsDao.findById(echo.partnerSettingsId))
+                            partnerSettings <- Option(findById(echo.partnerSettingsId).get)
                         } yield {
                             val clickedEcho = echoMetrics.clicked(partnerSettings)
                             echoMetricsDao.updateForClick(clickedEcho)

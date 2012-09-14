@@ -149,9 +149,9 @@ case class CreateStory(
         credentials: EUCC,
         title: String,
         imageId: String,
-        echoId: Option[String] = None,
         partnerId: Option[String] = None,
-        productInfo: Option[String] = None) extends EUM with EUI
+        productInfo: Option[String] = None,
+        echoId: Option[String] = None) extends EUM with EUI
 
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, CreateStory, EUE]
