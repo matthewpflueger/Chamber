@@ -20,7 +20,7 @@ TARGET=target/chamber-0.1-SNAPSHOT-allinone.jar
 MAIN=com.echoed.chamber.Main
 
 NEWRELIC=${BASEDIR}/src/main/ops/opt/newrelic/newrelic.jar
-
+MVN="mvn -Dmaven.test.skip=true -Dsun.net.client.defaultConnectTimeout=1000 -Dsun.net.client.defaultReadTimeout=1000"
 MIN_MEM="1024m"
 MAX_MEM="2048m"
 PERM_SIZE="256m"
@@ -39,6 +39,16 @@ DATABASE_PASSWORD=password
 [ -r $BASEDIR/$NAME ] && . $BASEDIR/$NAME
 
 
+function run_cmd() {
+    local run_cmd_args=($*)
+    echo "Running ${run_cmd_args[*]}"
+    ${run_cmd_args[*]}
+    result=$?
+    if [[ $result > 0 ]]; then
+        exit 1;
+    fi
+}
+
 function service_cmd() {
 
     local service_args=($*)
@@ -46,23 +56,15 @@ function service_cmd() {
     case $service_args in
         clean)
             rm -Rf out
-            CLEAN="mvn -Dmaven.test.skip=true clean"
-            echo "Running ${CLEAN}"
-            $CLEAN
-            result=$?
-            if [[ $result > 0 ]]; then
-                exit 1;
-            fi
+            run_cmd "${MVN} clean"
+            ;;
+
+        compile)
+            run_cmd "${MVN} compile"
             ;;
 
         package)
-            PACKAGE="mvn -Dmaven.test.skip=true -Dsun.net.client.defaultConnectTimeout=1000 -Dsun.net.client.defaultReadTimeout=1000 -Pallinone package"
-            echo "Running ${PACKAGE}"
-            $PACKAGE
-            result=$?
-            if [[ $result > 0 ]]; then
-                exit 1;
-            fi
+            run_cmd "${MVN} -Pallinone package"
             ;;
 
         start)
@@ -125,8 +127,13 @@ function service_cmd() {
         reload)
             service_cmd "dump"
             service_cmd "clean"
+            #service_cmd "git_rev"
+            #service_cmd "compass_compile"
+            #service_cmd "requirejs"
+            #service_cmd "migrate_up"
+            service_cmd "compile"
             service_cmd "package"
-            service_cmd "restart"
+            #service_cmd "restart"
             ;;
 
         verify)
@@ -160,7 +167,7 @@ function service_cmd() {
         targz)
             rm chamber.tar.gz
             rm target/chamber-0.1-SNAPSHOT-allinone.jar
-            mvn -Dmaven.test.skip=true -Pallinone clean package
+            ${MVN} -Pallinone clean package
             tar -cvzf chamber.tar.gz --exclude chamber.pid --exclude chamber.iml --exclude std.out --exclude out --exclude-vcs --exclude-backups *
             ;;
 
@@ -214,6 +221,10 @@ function service_cmd() {
             ps uh -p `cat chamber.pid`
             ;;
 
+        git_rev)
+            run_cmd "${MVN} pl.project13.maven:git-commit-id-plugin:revision"
+            ;;
+
         compass)
             compass watch -c src/main/compass/${ENV_TYPE}.rb
             ;;
@@ -222,44 +233,24 @@ function service_cmd() {
             compass compile -f -c src/main/compass/${ENV_TYPE}.rb
             ;;
 
+        requirejs)
+            cd src/main/webapp/scripts && r.js -o app.build.js && cd ../../../
+            ;;     
+
         migrate_status)
-            PACKAGE="mvn migration:status -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
-            echo "Running ${PACKAGE}"
-            $PACKAGE
-            result=$?
-            if [[ $result > 0 ]]; then
-                exit 1;
-            fi
+            run_cmd "${MVN} migration:status -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
             ;;
 
         migrate_up)
-            PACKAGE="mvn migration:up -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
-            echo "Running ${PACKAGE}"
-            $PACKAGE
-            result=$?
-            if [[ $result > 0 ]]; then
-                exit 1;
-            fi
+            run_cmd "${MVN} migration:up -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
             ;;
 
         migrate_down)
-            PACKAGE="mvn migration:down -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
-            echo "Running ${PACKAGE}"
-            $PACKAGE
-            result=$?
-            if [[ $result > 0 ]]; then
-                exit 1;
-            fi
+            run_cmd "${MVN} migration:down -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database"
             ;;
 
         migrate_new)
-            PACKAGE="mvn migration:new -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database -Dmigration.description=${service_args[*]:1}"
-            echo "Running ${PACKAGE}"
-            $PACKAGE
-            result=$?
-            if [[ $result > 0 ]]; then
-                exit 1;
-            fi
+            run_cmd "${MVN} migration:new -Dmigration.env=${ENV_TYPE} -Dmigration.path=src/main/database -Dmigration.description=${service_args[*]:1}"
             ;;
 
         dump)
@@ -283,7 +274,7 @@ function service_cmd() {
             ;;
 
         *)
-            echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|compass|compass_compile|migrate_status|migrate_up|migrate_down|dump|cloud_clean}" >&2
+            echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|git_rev|compass|compass_compile|requirejs|migrate_status|migrate_up|migrate_down|dump|cloud_clean}" >&2
             exit 1
             ;;
     esac

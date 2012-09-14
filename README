@@ -81,3 +81,13 @@ Install NewRelic (https://newrelic.com/docs/java/new-relic-for-java):
 - sudo chmod -R ugo+rwx /opt/newrelic
 - sudo cp src/main/ops/opt/newrelic/newrelic* /opt/newrelic/.
 
+
+Install nodejs, requirejs, uglify-js
+
+- sudo apt-get install python-software-properties
+- sudo add-apt-repository ppa:chris-lea/node.js
+- sudo apt-get update
+- sudo apt-get install nodejs npm
+- npm install requirejs
+- npm install uglify-js
+- cd ~/bin && ln -s ../node_modules/.bin/r.js r.js
