@@ -404,21 +404,63 @@
                 <version>1.2.1</version>
                 <executions>
                     <execution>
+                        <id>compass_compile</id>
                         <phase>process-sources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
+                        <configuration>
+                            <executable>compass</executable>
+                            <arguments>
+                                <argument>compile</argument>
+                                <argument>-c</argument>
+                                <argument>src/main/compass/${ENV_TYPE}.rb</argument>
+                                <argument>--force</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>requirejs</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>r.js</executable>
+                            <workingDirectory>${basedir}/src/main/webapp/scripts</workingDirectory>
+                            <arguments>
+                                <argument>-o</argument>
+                                <argument>app.build.js</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <executable>compass</executable>
-                    <arguments>
-                        <argument>compile</argument>
-                        <argument>-c</argument>
-                        <argument>src/main/compass/${ENV_TYPE}.rb</argument>
-                        <argument>--force</argument>
-                    </arguments>
-                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/src/main/webapp/scripts_release</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/webapp/scripts_build</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>main.js</include>
+                                        <include>widget.js</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <overwrite>true</overwrite>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.mybatis.maven</groupId>
@@ -434,7 +476,7 @@
                 <executions>
                     <execution>
                         <id>apply-all-pending-migration</id>
-                        <phase>process-test-resources</phase>
+                        <phase>process-sources</phase>
                         <goals>
                             <goal>up</goal>
                         </goals>
@@ -520,53 +562,6 @@
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.1</version>
-                        <executions>
-                            <execution>
-                                <phase>process-sources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>r.js</executable>
-                                    <workingDirectory>${basedir}/src/main/webapp/scripts</workingDirectory>
-                                    <arguments>
-                                        <argument>-o</argument>
-                                        <argument>app.build.js</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>2.6</version>
-                        <executions>
-                            <execution>
-                                <phase>process-sources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${basedir}/src/main/webapp/scripts_release</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/main/webapp/scripts_build</directory>
-                                            <filtering>false</filtering>
-                                            <includes>
-                                                <include>main.js</include>
-                                                <include>widget.js</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                    <overwrite>true</overwrite>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>com.echoed</groupId>
                         <artifactId>cloud-maven-plugin</artifactId>
