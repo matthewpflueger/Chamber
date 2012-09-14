@@ -17,7 +17,15 @@ img{
         padding: 5px;
         background-color: #FFF;
         border-radius: 5px;
-        margin-left: 10px;
+        margin-left: 25px;
+        @include dropShadowDown;
+    }
+    &.left{
+        float:left;
+        padding: 5px;
+        background-color: #FFF;
+        border-radius: 5px;
+        margin-right: 25px;
         @include dropShadowDown;
     }
 }
@@ -44,7 +52,7 @@ body{
 }
 
 .static-section{
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     @include fontText(16px);
     background-position: center bottom;
     background-repeat: no-repeat;
