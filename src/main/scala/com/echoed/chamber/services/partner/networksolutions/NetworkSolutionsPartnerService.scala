@@ -27,6 +27,7 @@ class NetworkSolutionsPartnerService(
         transactionTemplate: TransactionTemplate,
         encrypter: Encrypter,
         filteredUserAgents: JList[String],
+        defaultStoryPrompts: String,
         networkSolutionsPartnerDao: NetworkSolutionsPartnerDao,
         networkSolutionsAccessCreator: ActorContext => ActorRef,
         implicit val timeout: Timeout = Timeout(20000)) extends PartnerService(
@@ -40,7 +41,8 @@ class NetworkSolutionsPartnerService(
             imageDao,
             transactionTemplate,
             encrypter,
-            filteredUserAgents) {
+            filteredUserAgents,
+            defaultStoryPrompts) {
 
     private var networkSolutionsPartner = Option(networkSolutionsPartnerDao.findByPartnerId(partnerId)).get
     private val networkSolutionsAccess = networkSolutionsAccessCreator(context)
