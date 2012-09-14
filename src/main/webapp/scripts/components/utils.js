@@ -28,6 +28,10 @@ define(
                     encodeURIComponent(Echoed.facebookLogin.redirect + encodeURIComponent(hash)) +
                     Echoed.facebookLogin.tail;
             },
+            replaceUrlsWithLink: function(text){
+                var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+                return text.replace(exp,"(<a href='$1' class='red-link' target='_blank'>Link</a>)" );
+            },
             getTwitterLoginUrl: function(hash){
                 return Echoed.twitterUrl + encodeURIComponent(hash);
             },

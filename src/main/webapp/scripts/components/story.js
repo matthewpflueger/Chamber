@@ -118,9 +118,10 @@ define(
                 self.img = $("<img />");
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
-                var chapterTitle = $("<div class='echo-s-b-t-t'></div>").append(self.data.chapters[0].title);
-                var chapterText = $("<div class='echo-s-b-t-b'></div>").append(self.data.chapters[0].text.replace(/\n/g, '<br />'));
-                self.text.append(chapterTitle).append(chapterText);
+                //var chapterTitle = $("<div class='echo-s-b-t-t'></div>").append(self.data.chapters[0].title);
+                self.element.find('.echo-story-chapter-title').html(self.data.chapters[0].title);
+                var chapterText = $("<div class='echo-s-b-t-b'></div>").append(utils.replaceUrlsWithLink(self.data.chapters[0].text.replace(/\n/g, '<br />')));
+                self.text.append(chapterText);
                 self.renderGalleryNav();
                 self.renderComments();
                 self.renderChapter();
@@ -177,8 +178,8 @@ define(
                 var self = this;
                 var textArea = self.element.find('.echo-s-b-text');
                 textArea.fadeOut(function(){
-                    self.element.find('.echo-s-b-t-t').html(self.chapters.array[self.currentChapterIndex].chapter.title);
-                    self.element.find('.echo-s-b-t-b').html(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />'));
+                    self.element.find('.echo-story-chapter-title').html(self.chapters.array[self.currentChapterIndex].chapter.title);
+                    self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />')));
                     textArea.fadeIn();
                 });
 

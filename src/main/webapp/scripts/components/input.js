@@ -173,7 +173,7 @@ define(
                 $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
 
                 $("#field-main-category-content").html(self.data.storyFull.story.tag);
-                var ajaxInput = new AjaxInput({ el: '#ajax-input', EvAg: self.EvAg });
+                this.ajaxInput = new AjaxInput({ el: '#ajax-input', EvAg: self.EvAg, properties: this.properties });
                 var count = 0;
                 self.element.chapters = self.element.find('.story-summary-body');
                 $.each(self.data.storyFull.chapters, function(index, chapter){
