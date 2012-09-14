@@ -39,7 +39,7 @@
         .echo-s-h-title{
             @include fontText(16px);
             .echo-s-h-t-t{
-                @include fontHeader(36px, #111);
+                @include fontTitle(36px, #111);
                 text-shadow: 0px 1px 0px #FFF;
                 margin: 0px 30px;
                 text-align: center;
@@ -116,21 +116,20 @@
             }
         }
     }
+    .echo-story-chapter-title{
+        margin: 0px 10px;
+        padding: 10px 0px 5px;
+        @include fontTextBold(20px);
+        text-shadow: 0px 1px 0px #FFF;
+    }
     .echo-story-body{
         position: relative;
         margin: 0px 10px;
-        padding: 10px 0px;
         width: 725px;
         .echo-s-b-text{
             display: inline;
             padding: 0px 0px 0px 5px;
 
-            .echo-s-b-t-t{
-                padding-bottom: 5px;
-                @include fontTextBold(20px);
-                text-shadow: 0px 1px 0px #FFF;
-                word-wrap: break-word;
-            }
             .echo-s-b-t-b{
                 padding-bottom: 20px;
                 @include fontText(13px, #333);

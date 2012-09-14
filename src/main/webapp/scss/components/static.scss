@@ -11,8 +11,27 @@
     }
 }
 
+img{
+    &.right{
+        float:right;
+        padding: 5px;
+        background-color: #FFF;
+        border-radius: 5px;
+        margin-left: 10px;
+        @include dropShadowDown;
+    }
+}
+
+body{
+    &.white{
+        background-color: #FFF;
+        background-image: none;
+    }
+}
+
 #static-body{
     padding: 20px;
+    background-color: #FFF;
 }
 
 .white-h1{
