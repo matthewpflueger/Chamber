@@ -26,6 +26,7 @@ class BigCommercePartnerService (
             transactionTemplate: TransactionTemplate,
             encrypter: Encrypter,
             filteredUserAgents: JList[String],
+            defaultStoryPrompts: String,
             bigCommercePartnerDao: BigCommercePartnerDao,
             bigCommerceAccessCreator: ActorContext => ActorRef,
             implicit val timeout: Timeout = Timeout(20000)) extends PartnerService(
@@ -39,7 +40,8 @@ class BigCommercePartnerService (
         imageDao,
         transactionTemplate,
         encrypter,
-        filteredUserAgents) {
+        filteredUserAgents,
+        defaultStoryPrompts) {
 
     private var bigCommercePartner = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).get
     private val bigCommerceAccess = bigCommerceAccessCreator(context)

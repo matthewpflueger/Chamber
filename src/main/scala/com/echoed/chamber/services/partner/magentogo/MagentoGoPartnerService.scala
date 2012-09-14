@@ -27,6 +27,7 @@ class MagentoGoPartnerService(
             transactionTemplate: TransactionTemplate,
             encrypter: Encrypter,
             filteredUserAgents: JList[String],
+            defaultStoryPrompts: String,
             magentoGoPartnerDao: MagentoGoPartnerDao,
             magentoGoAccessCreator: ActorContext => ActorRef,
             implicit val timeout: Timeout = Timeout(20000)) extends PartnerService(
@@ -40,7 +41,8 @@ class MagentoGoPartnerService(
         imageDao,
         transactionTemplate,
         encrypter,
-        filteredUserAgents) {
+        filteredUserAgents,
+        defaultStoryPrompts) {
 
     private var magentoGoPartner = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).get
     private val magentoGoAccess = magentoGoAccessCreator(context)
