@@ -24,7 +24,7 @@ class CookieManager {
     @BeanProperty var echoedUserCookieName = "eucc"
     @BeanProperty var echoClickCookieName = "ec"
     @BeanProperty var partnerUserCookieName = "pucc"
-    @BeanProperty var adminUserCookieName = "au"
+    @BeanProperty var adminUserCookieName = "aucc"
     @BeanProperty var browserIdCookieName = "bi"
 
 
@@ -78,14 +78,18 @@ class CookieManager {
     }
 
     def addAdminUserCookie(
-        response: HttpServletResponse = null,
-        adminUser: AdminUser = null,
-        request: HttpServletRequest= null) = {
-        
-        val cookie = makeCookie(adminUserCookieName, Option(adminUser).map(_.id), Option(request), None,/* Option(sessionAge),*/ true)
+            response: HttpServletResponse = null,
+            adminUser: AdminUser = null,
+            request: HttpServletRequest= null) = {
+
+        val cookie = makeCookie(
+                adminUserCookieName,
+                Option(adminUser).map(au => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(au))),
+                Option(request),
+                None,
+                true)
         Option(response).foreach(_.addCookie(cookie))
         cookie
-        
     }
     
     def findAdminUserCookie(request: HttpServletRequest) = {
