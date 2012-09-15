@@ -11,6 +11,18 @@
     }
 }
 
+h1{
+    &.static-h1{
+        @include fontTextBold(44px);
+        text-shadow: 0px 1px #FFF;
+    }
+}
+
+.title{
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+}
+
 img{
     &.right{
         float:right;
@@ -35,6 +47,10 @@ body{
         background-color: #FFF;
         background-image: none;
     }
+    &.blue-grey{
+        background-color: rgba(226,229, 236, 1);
+        background-image: none;
+    }
 }
 
 #static-body{
@@ -56,6 +72,10 @@ body{
     @include fontText(16px);
     background-position: center bottom;
     background-repeat: no-repeat;
+    p{
+        line-height: 1.8em;
+        @include fontTitleLight(17px);
+    }
 }
 
 .subtitle{
@@ -65,10 +85,11 @@ body{
 }
 
 
-.privacy, .terms{
+.info{
     p{
         line-height: 1.5em;
         margin-bottom: 20px;
+        @include fontTitleLight(16px);
     }
 
     ol{
@@ -78,6 +99,7 @@ body{
     li{
         margin: 10px 40px 10px 40px;
         line-height: 1.5em;
+        @include fontTitleLight(16px);
     }
 }
 
