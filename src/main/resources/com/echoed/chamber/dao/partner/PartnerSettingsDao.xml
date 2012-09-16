@@ -25,6 +25,7 @@
             <arg column="couponExpiresOn" javaType="_long" />
             <arg column="activeOn" javaType="_long" />
             <arg column="storyPrompts" javaType="String" />
+            <arg column="moderateAll" javaType="_boolean" />
         </constructor>
     </resultMap>
 
@@ -83,7 +84,8 @@
                 couponDescription,
                 couponExpiresOn,
                 activeOn,
-                storyPrompts)
+                storyPrompts,
+                moderateAll)
     	values (
     			#{id},
     			#{createdOn},
@@ -102,7 +104,8 @@
                 #{couponDescription},
                 #{couponExpiresOn},
                 #{activeOn},
-                #{storyPrompts})
+                #{storyPrompts},
+                #{moderateAll})
     </insert>
 
     <delete id="deleteByPartnerId">

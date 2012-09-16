@@ -54,7 +54,7 @@ class CookieManager {
             request: HttpServletRequest = null) = {
         val cookie = makeCookie(
                 echoedUserCookieName,
-                Option(echoedUser).map(eu => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(eu.asMap))),
+                Option(echoedUser).map(eu => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(eu))),
                 Option(request))
         Option(response).foreach(_.addCookie(cookie))
         cookie
@@ -102,7 +102,7 @@ class CookieManager {
             request: HttpServletRequest = null) = {
         val cookie = makeCookie(
                 partnerUserCookieName,
-                Option(partnerUser).map(pu => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(pu.asMap))),
+                Option(partnerUser).map(pu => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(pu))),
                 Option(request))
         Option(response).foreach(_.addCookie(cookie))
         cookie

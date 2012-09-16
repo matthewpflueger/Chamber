@@ -12,7 +12,8 @@ case class StoryFull(
         echoedUser: EchoedUser,
         chapters: JList[Chapter],
         chapterImages: JList[ChapterImage],
-        comments: JList[Comment]) {
+        comments: JList[Comment],
+        moderation: Option[ModerationDescription] = None) {
 
     def this(id:String, story: Story, echoedUser: EchoedUser) = this(
             id,
@@ -22,9 +23,6 @@ case class StoryFull(
             new ArrayList[ChapterImage],
             new ArrayList[Comment])
 
-    def convertCommentsToPublic = {
-        JavaConversions.asScalaBuffer(comments).map({ new CommentPublic(_) }).toList
-    }
-
+    def convertCommentsToPublic = JavaConversions.asScalaBuffer(comments).map({ new CommentPublic(_) }).toList
 }
 

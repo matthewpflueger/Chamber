@@ -10,6 +10,9 @@ import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.echoeduser.CreateChapterResponse
 import scala.Right
 import com.echoed.chamber.services.echoeduser.CreateStoryResponse
+import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import javax.annotation.Nullable
+import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 
 
 @Controller
@@ -199,6 +202,26 @@ class StoryController extends EchoedController {
 
         result
     }
+
+    @RequestMapping(value = Array("/{storyId}/moderate"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def moderateStory(
+            @PathVariable("storyId") storyId: String,
+            @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String,
+            @RequestParam(value = "moderated", required = false, defaultValue = "true") moderated: Boolean,
+            @Nullable pucc: PartnerUserClientCredentials,
+            @Nullable aucc: AdminUserClientCredentials) = {
+
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        val eucc = new EchoedUserClientCredentials(storyOwnerId)
+        mp(ModerateStory(eucc, storyId, Option(pucc).toLeft(aucc), moderated)).onSuccess {
+            case ModerateStoryResponse(_, Right(story)) => result.set(story)
+        }
+
+        result
+    }
+
 }
 
 class ChapterParams(

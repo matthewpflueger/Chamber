@@ -7,6 +7,8 @@ import com.echoed.chamber.domain.views._
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
 import scala.collection.immutable.Stack
+import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 
 
 sealed trait EchoedUserMessage extends Message
@@ -219,6 +221,15 @@ private[echoeduser] case class NewComment(
 
 private[echoeduser] case class NewCommentResponse(message: NewComment, value: Either[EUE, Comment])
         extends EUM with MR[Comment, NewComment, EUE]
+
+
+case class ModerateStory(
+        credentials: EUCC,
+        storyId: String,
+        moderatedBy: Either[PartnerUserClientCredentials, AdminUserClientCredentials],
+        moderated: Boolean = true) extends EUM with EUI with SI
+case class ModerateStoryResponse(message: ModerateStory, value: Either[EUE, ModerationDescription])
+        extends EUM with MR[ModerationDescription, ModerateStory, EUE]
 
 
 case class EchoTo(

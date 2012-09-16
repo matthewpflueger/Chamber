@@ -7,6 +7,7 @@ import com.echoed.util.UUID
 import com.echoed.util.DateUtils._
 import java.util.Date
 
+
 case class StoryState(
         id: String,
         updatedOn: Long,
@@ -22,33 +23,44 @@ case class StoryState(
         comments: List[Comment],
         partner: Partner,
         partnerSettings: PartnerSettings,
-        echo: Option[Echo]) extends DomainObject {
+        echo: Option[Echo],
+        moderations: List[Moderation]) extends DomainObject {
 
-    def this(eu: EchoedUser, p: Partner, ps: PartnerSettings, e: Option[Echo] = None, img: Option[Image] = None) = this(
-            null,
-            0L,
-            0L,
-            null,
-            null,
-            0,
-            null,
-            eu,
-            img.orNull,
-            List.empty[Chapter],
-            List.empty[ChapterImage],
-            List.empty[Comment],
-            p,
-            ps,
-            e)
+    def this(
+            eu: EchoedUser,
+            p: Partner,
+            ps: PartnerSettings,
+            e: Option[Echo] = None,
+            img: Option[Image] = None) = this(
+        null,
+        0L,
+        0L,
+        null,
+        null,
+        0,
+        null,
+        eu,
+        img.orNull,
+        List.empty[Chapter],
+        List.empty[ChapterImage],
+        List.empty[Comment],
+        p,
+        ps,
+        e,
+        List.empty[Moderation])
 
     def isCreated = id != null && createdOn > 0
-    def create(title: String, productInfo: String, image: Image) = copy(
+    def create(title: String, productInfo: String, image: Image) = {
+        val storyState = copy(
             id = UUID(),
             updatedOn = new Date,
             createdOn = new Date,
             title = title,
             productInfo = productInfo,
             image = image)
+        if (partnerSettings.moderateAll) storyState.moderate(partner.name, "Partner", partner.id)
+        else storyState
+    }
 
     def asStory = Story(
             id,
@@ -69,6 +81,41 @@ case class StoryState(
             tag)
 
     def asStoryInfo = StoryInfo(echoedUser, echo.orNull, partner, partnerSettings.makeStoryPrompts, asStoryFull.orNull)
-    def asStoryFull = if (!isCreated) None else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments))
-}
+    def asStoryFull =
+            if (!isCreated) None
+            else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, moderationDescription))
 
+    private def echoedModeratePredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"
+    private def moderatedPredicate: Moderation => Boolean = _.moderatedRef != "AdminUser"
+
+    val isEchoedModerated = moderated(echoedModeratePredicate)
+    val isModerated = moderated(moderatedPredicate)
+
+    def moderate(
+            moderatedBy: String,
+            moderatedRef: String,
+            moderatedRefId: String,
+            moderated: Boolean = true) = {
+        val moderation = new Moderation(
+                "Story",
+                this.id,
+                moderatedBy,
+                moderatedRef,
+                moderatedRefId,
+                moderated)
+        copy(moderations = moderation :: moderations)
+    }
+
+    def moderationDescription = {
+        val mod = findModeration(moderatedPredicate)
+        val echoedMod = findModeration(echoedModeratePredicate)
+        if (mod.isEmpty && echoedMod.isEmpty) None else Option(new ModerationDescription(mod, echoedMod))
+    }
+
+    private def moderated(predicate: Moderation => Boolean) =
+            findModeration(predicate).map(_.moderated).getOrElse(false)
+
+    private def findModeration(predicate: Moderation => Boolean) =
+            moderations.sortWith(_.createdOn > _.createdOn).filter(predicate).headOption
+
+}

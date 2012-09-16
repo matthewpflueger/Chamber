@@ -1,10 +1,14 @@
 package com.echoed.chamber.controllers.api
 
 import org.springframework.stereotype.Controller
-import com.echoed.chamber.services.partneruser._
-import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod,ResponseBody,PathVariable}
+import org.springframework.web.bind.annotation._
 import com.echoed.chamber.controllers.{EchoedController, ErrorResult}
 import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.services.partneruser.GetPartnerSettings
+import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import scala.Right
+import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
+import com.echoed.chamber.services.state.{QueryStoriesForPartnerResponse, QueryStoriesForPartner}
 
 
 @Controller
@@ -24,5 +28,25 @@ class PartnerController extends EchoedController {
 
         result
     }
+
+
+    @RequestMapping(value = Array("/stories"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def queryStories(
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int,
+            @RequestParam(value = "moderated", required = false, defaultValue = "false") moderated: Boolean,
+            pucc: PartnerUserClientCredentials) = {
+
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(QueryStoriesForPartner(pucc, page, pageSize, moderated)).onSuccess {
+            case QueryStoriesForPartnerResponse(_, Right(stories)) =>
+                result.set(stories)
+        }
+
+        result
+    }
+
 
 }
