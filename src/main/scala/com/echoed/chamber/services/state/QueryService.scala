@@ -19,9 +19,9 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             log.error("Querying all stories took %s" format System.currentTimeMillis() - now)
 
         case msg @ QueryStoriesForPartner(pucc, page, pageSize, moderated) =>
-            val ss = from(stories)(s => where(s.partnerId === pucc.partnerId.get) select(s))
+            val ss = from(stories)(s => where(s.partnerId === pucc.partnerId.get) select(s) orderBy(s.updatedOn desc))
                         .map(readStory(_))
-                        .filter(moderated.isEmpty || _.isModerated == moderated.get)
+//                      .filter(moderated.isEmpty || _.isModerated == moderated.get)
                         .toList
 //            val s = join(stories, moderations.leftOuter)((s, m) =>
 //                where((s.partnerId === pucc.partnerId.get) and (m.get.refId isNull))
