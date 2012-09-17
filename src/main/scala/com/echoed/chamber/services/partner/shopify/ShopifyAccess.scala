@@ -20,8 +20,8 @@ class ShopifyAccess(
 
 
     private def fetch[T](path: String, shop: String, password: String, valueType: Class[T])(callback: T => Unit) {
-        val resourceUrl = (host(shop).secure / path).subject.build().getUrl
-        httpClient(url(resourceUrl) as_! (shopifyApiKey, password) OK As.string).onSuccess {
+        val resourceUrl = host(shop).secure.subject.build.getUrl
+        httpClient(url(resourceUrl + path) as_! (shopifyApiKey, password) OK As.string).onSuccess {
             case s =>
                 log.debug("Fetched Shopify resource {}", resourceUrl)
                 callback(ScalaObjectMapper(s, valueType, true))
