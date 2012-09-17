@@ -23,7 +23,7 @@ case class QueryStoriesForPartner(
         pucc: PartnerUserClientCredentials,
         page: Int = 0,
         pageSize: Int = 30,
-        moderated: Option[Boolean] = None) extends QM
+        moderated: Option[Any] = None) extends QM
 
 case class QueryStoriesForPartnerResponse(
                 message: QueryStoriesForPartner,
