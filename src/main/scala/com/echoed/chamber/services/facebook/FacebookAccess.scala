@@ -26,9 +26,7 @@ class FacebookAccess(
         appNameSpace: String,
         httpClient: Http) extends EchoedService {
 
-    private val facebook = "https://graph.facebook.com"
-
-    private def path(path: String) = url(facebook) / path
+    private def u = url("https://graph.facebook.com/")
 
     private def fetch(request: RequestBuilder)
             (callback: String => Unit)
@@ -63,7 +61,7 @@ class FacebookAccess(
         case msg @ FetchMe(Right(fat)) =>
             val channel = context.sender
 
-            graph(path("me"), fat.accessToken, classOf[Me]) { me =>
+            graph(u / "me", fat.accessToken, classOf[Me]) { me =>
                 channel ! FetchMeResponse(msg, Right(me.createFacebookUser(fat.accessToken)))
             } { e => channel ! FetchMeResponse(msg, Left(e)) }
 
@@ -77,9 +75,9 @@ class FacebookAccess(
                     "client_id" -> clientId,
                     "client_secret" -> clientSecret)
 
-            graph(path("/oauth/access_token") <<? params) { res: String =>
+            graph(u / "oauth" / "access_token" <<? params) { res: String => //path("/oauth/access_token") <<? params) { res: String =>
                 val accessToken = res.split("&").filter(_.startsWith("access_token"))(0).substring(13)
-                graph(path("me"), accessToken, classOf[Me]) { me =>
+                graph(u / "me", accessToken, classOf[Me]) { me =>
                     channel ! FetchMeResponse(msg, Right(me.createFacebookUser(accessToken)))
                 } { e => channel ! FetchMeResponse(msg, Left(e)) }
             } { e => channel ! FetchMeResponse(msg, Left(e)) }
@@ -101,7 +99,7 @@ class FacebookAccess(
                 } { e => channel ! FetchFriendsResponse(msg, Left(e)) }
             }
 
-            fetchFriends(path("%s/friends" format fat.facebookId.get))
+            fetchFriends(u / fat.facebookId.get / "friends")
 
 
         case msg @ Post(fat, facebookPost) =>
@@ -115,7 +113,7 @@ class FacebookAccess(
                     "caption" -> facebookPost.caption,
                     "actions" -> ("""[{ "name": "View Echoed Exhibit", "link": "%s" }]""" format canvasApp))
 
-            graph(path("/%s/feed" format fat.facebookId.get) << params, fat.accessToken, classOf[Id]) { res =>
+            graph(u / fat.facebookId.get / "feed" << params, fat.accessToken, classOf[Id]) { res =>
                 log.debug("Successfully posted FacebookPost {}, facebookId {}", facebookPost.id, res)
                 channel ! PostResponse(msg, Right(facebookPost.copy(facebookId = res.id)))
             } { e => channel ! PostResponse(msg, Left(e)) }
@@ -124,7 +122,7 @@ class FacebookAccess(
         case msg @ PublishAction(fat, action, obj, objUrl) =>
             val channel = context.sender
 
-            graph(path("/me/%s:%s" format(appNameSpace, action)) << Map(obj -> objUrl), fat.accessToken) { res =>
+            graph(u / "me" / appNameSpace / ":" / action << Map(obj -> objUrl), fat.accessToken) { res =>
                 log.debug("Published action: {}", res)
                 channel ! PublishActionResponse(msg, Right(true))
             } { e => channel ! PublishActionResponse(msg, Left(e)) }
@@ -215,8 +213,8 @@ class FacebookAccess(
                 } { e => log.error("Error fetching likes for FacebookPost {}: {}", facebookPostData.id, e) }
             }
 
-            fetchComments(path("%s/comments" format facebookId))
-            fetchLikes(path("%s/likes" format facebookId))
+            fetchComments(u / facebookId / "comments")
+            fetchLikes(u / facebookId / "likes")
 
     }
 

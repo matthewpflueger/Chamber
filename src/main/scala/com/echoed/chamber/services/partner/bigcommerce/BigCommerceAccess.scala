@@ -32,9 +32,8 @@ class BigCommerceAccess(client: Http) extends EchoedService {
 
 
     private def endpoint(c: BigCommerceCredentials, path: String) =
-        url(c.apiPath.trim)
+        url(c.apiPath.trim + path)
             .as_!(c.apiUser, c.apiToken)
-            ./(path)
             .addHeader("Accept", "application/json; charset=utf-8")
 
 
