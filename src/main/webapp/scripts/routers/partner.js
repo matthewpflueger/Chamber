@@ -20,13 +20,16 @@ define(
             },
             routes: {
                 "" : "home",
-                "install": "install"
+                "install" : "install",
+                "moderate" : "moderate"
             },
             install: function(){
                 this.EvAg.trigger('install/show');
+                this.EvAg.trigger('moderate/hide');
             },
             home: function(){
-                this.EvAg.trigger('home/show');
+                this.EvAg.trigger('moderate/show');
+                this.EvAg.trigger('install/hide');
             }
         })
     }

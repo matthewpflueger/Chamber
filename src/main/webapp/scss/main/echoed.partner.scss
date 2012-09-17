@@ -1,5 +1,8 @@
 @import "base";
 @import "partner/howToInstall";
+@import "partner/moderateStory";
+@import "story";
+@import "fade";
 
 body{
     background-color: rgba(226,229, 236, 1);
@@ -153,8 +156,8 @@ h2 {
 }
 
 .content-container{
-    margin:0px 10px;
-    background-color: #F2F2F2;
+    margin:0px 10px 10px;
+    background-color: #FFF;
     border-radius: 4px;
     padding: 10px;
     border: 1px solid #C9C9C9;
@@ -162,3 +165,9 @@ h2 {
     min-width: 960px;
 }
 
+#story{
+    padding-top: 20px;
+    #story-nav {
+        display: none;
+    }
+}

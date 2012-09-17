@@ -14,7 +14,7 @@ define(
                 this.element = $(options.el);
 
                 this.EvAg.bind('install/show', this.show);
-                this.EvAg.bind('home/show', this.hide);
+                this.EvAg.bind('install/hide', this.hide);
 
                 this.render();
             },
@@ -26,8 +26,9 @@ define(
                 this.element.fadeIn();
             },
             hide: function(){
-                this.element.fadeOut();
+                this.element.hide();
             }
         })
     }
 )
+
