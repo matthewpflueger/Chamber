@@ -131,9 +131,9 @@ function service_cmd() {
             #service_cmd "compass_compile"
             #service_cmd "requirejs"
             #service_cmd "migrate_up"
-            service_cmd "compile"
+            #service_cmd "compile"
             service_cmd "package"
-            #service_cmd "restart"
+            service_cmd "restart"
             ;;
 
         verify)

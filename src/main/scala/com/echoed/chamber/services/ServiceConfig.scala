@@ -485,7 +485,7 @@ class ServiceConfig {
             classOf[QueryMessage] -> queryService,
             classOf[StateMessage] -> stateService,
             classOf[SchedulerMessage] -> schedulerService,
-            classOf[GeoLocationMessage] -> geoLocationService,
+//            classOf[GeoLocationMessage] -> geoLocationService,
             classOf[FacebookPostCrawlerMessage] -> facebookPostCrawler,
             classOf[ImageMessage] -> imageService,
             classOf[EventMessage] -> eventService,
