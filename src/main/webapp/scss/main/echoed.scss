@@ -109,10 +109,9 @@ h3{
             #user-text{
                 display:inline-block;
                 width: 110px;
-                margin: 3px 0px;
-                padding-left: 10px;
-                line-height:32px;
+                padding: 12px 0px 12px 10px;
                 @include fontHeaderBold(14px);
+                text-shadow: 0px 1px #FFF;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -336,7 +335,12 @@ h3{
             display: inline-block;
             padding: 12px;
             @include fontHeaderBold(14px);
+            text-shadow: 0px 1px #FFF;
             text-decoration: none;
         }
     }
+}
+
+#login-content{
+    padding: 50px 0px;
 }

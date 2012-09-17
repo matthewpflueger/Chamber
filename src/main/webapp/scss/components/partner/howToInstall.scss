@@ -1,0 +1,23 @@
+#howToInstall{
+
+    display: none;
+
+    ol,ul{
+        margin: 0px 0px 18px 25px;
+    }
+
+    li{
+        @include fontTitleLight(16px);
+    }
+
+    textarea{
+        padding: 10px;
+        @include fontText(12px);
+        resize: none;
+        outline: none;
+        border-radius: 4px;
+        border: 1px solid #CCC;
+    }
+
+
+}
