@@ -14,7 +14,7 @@ create table Moderation (
     primary key (id));
 
 create index ref on Moderation (ref);
-create unique index refId on Moderation (refId);
+create index refId on Moderation (refId);
 create index moderatedRef on Moderation(moderatedRef);
 create index moderatedRefId on Moderation(moderatedRefId);
 

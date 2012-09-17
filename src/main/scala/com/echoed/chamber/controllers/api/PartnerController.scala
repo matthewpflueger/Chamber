@@ -35,12 +35,12 @@ class PartnerController extends EchoedController {
     def queryStories(
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int,
-            @RequestParam(value = "moderated", required = false, defaultValue = "false") moderated: Boolean,
+            @RequestParam(value = "moderated", required = false) moderated: Boolean,
             pucc: PartnerUserClientCredentials) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(QueryStoriesForPartner(pucc, page, pageSize, moderated)).onSuccess {
+        mp(QueryStoriesForPartner(pucc, page, pageSize, Option(moderated))).onSuccess {
             case QueryStoriesForPartnerResponse(_, Right(stories)) =>
                 result.set(stories)
         }
