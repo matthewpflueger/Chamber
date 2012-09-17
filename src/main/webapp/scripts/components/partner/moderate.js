@@ -25,6 +25,9 @@ define(
 
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/partner/stories",
+                    data:{
+                        moderated: true
+                    },
                     success: function(data){
                         $.each(data, function(index, story){
                             console.log(story);
@@ -61,7 +64,7 @@ define(
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/story/" + id + "/moderate",
                     data: {
-                        moderate: isModerated,
+                        moderated: isModerated,
                         storyOwnerId : storyOwnerId
                     },
                     success: function(data){
