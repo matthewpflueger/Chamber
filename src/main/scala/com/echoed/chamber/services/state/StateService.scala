@@ -28,11 +28,6 @@ class StateService(
         val ep: EventProcessorActorSystem,
         val dataSource: DataSource) extends EchoedService with SquerylSessionFactory {
 
-    ep.subscribe(context.self, classOf[CreatedEvent])
-    ep.subscribe(context.self, classOf[UpdatedEvent])
-    ep.subscribe(context.self, classOf[DeletedEvent])
-
-
     def readNotifications(eu: Option[EchoedUser]) =
         eu
             .map(eu => (from(notifications)(n =>
@@ -47,6 +42,14 @@ class StateService(
             (from(echoedUserSettings)(eus => where(eus.echoedUserId === eu.id) select(eus))).single.convertTo(eu)
     }
 
+
+    override def preStart() {
+        super.preStart()
+        ep.subscribe(self, classOf[Event])
+//        ep.subscribe(self, classOf[CreatedEvent])
+//        ep.subscribe(self, classOf[UpdatedEvent])
+//        ep.subscribe(self, classOf[DeletedEvent])
+    }
 
     protected def handle = transactional {
         case msg @ ReadForEmail(email) =>
@@ -181,19 +184,20 @@ class StateService(
                     })
             }
 
-        case msg @ StoryCreated(storyState) => stories.insert(domain.Story(storyState))
-        case msg @ StoryUpdated(storyState) => stories.update(domain.Story(storyState))
-        case msg @ StoryTagged(storyState, _, _) => stories.update(domain.Story(storyState))
-        case msg @ ChapterCreated(_, c, ci) =>
+        case StoryModerated(_, moderation) => moderations.insert(moderation)
+        case StoryCreated(storyState) => stories.insert(domain.Story(storyState))
+        case StoryUpdated(storyState) => stories.update(domain.Story(storyState))
+        case StoryTagged(storyState, _, _) => stories.update(domain.Story(storyState))
+        case ChapterCreated(_, c, ci) =>
             chapters.insert(c)
             ci.map(chapterImages.insert(_))
 
-        case msg @ ChapterUpdated(_, c, ci) =>
+        case ChapterUpdated(_, c, ci) =>
             chapters.update(c)
             chapterImages.deleteWhere(ci => ci.chapterId === c.id)
             ci.map(chapterImages.insert(_))
 
-        case msg @ CommentCreated(_, c) => comments.insert(c)
+        case CommentCreated(_, c) => comments.insert(c)
     }
 
 }

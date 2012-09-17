@@ -13,7 +13,8 @@
         'isotope' : 'libs/jquery.isotope.min',
         'imagesLoaded' : 'libs/imagesloaded',
         'fileuploader' : 'libs/fileuploader',
-        'expanding' : 'libs/expanding'
+        'expanding' : 'libs/expanding',
+        'easyXDM' : 'libs/easyXDM/easyXDM.debug.js'
     },
     optimize: "uglify",
     modules: [

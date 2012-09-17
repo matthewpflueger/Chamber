@@ -160,6 +160,19 @@ class StoryService(
                         "storyId" -> storyState.id))))
 
             }
+
+        case msg @ ModerateStory(_, _, Left(pucc), mo) => moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
+        case msg @ ModerateStory(_, _, Right(aucc), mo) => moderate(msg, aucc.name.get, "AdminUser", aucc.id, mo)
     }
 
+    private def moderate(
+            msg: ModerateStory,
+            moderatedBy: String,
+            moderatedRef: String,
+            moderatedRefId: String,
+            moderated: Boolean = true) {
+        storyState = storyState.moderate(moderatedBy, moderatedRef, moderatedRefId, moderated)
+        sender ! ModerateStoryResponse(msg, Right(storyState.moderationDescription.get))
+        ep(StoryModerated(storyState, storyState.moderations.head))
+    }
 }

@@ -1,9 +1,12 @@
 {{<common_super}}
     {{$jsHead}}
-    <script type="text/javascript" src="{{urls.js}}/echoed-partner.js" ></script>
+        {{#scriptTag}}partner.js{{/scriptTag}}
     {{/jsHead}}
+    {{$title}}
+        Echoed | Partner Dashboard
+    {{/title}}
     {{$css}}
-    <link rel="stylesheet" href="{{urls.css}}/echoed-partner-new.css" />
+    <link rel="stylesheet" href="{{urls.css}}/echoed.partner.css" />
     {{/css}}
     {{$content}}
     <div id="container">
@@ -11,12 +14,42 @@
             <div id="logo">
                 <a href="#"><img height="40px" src="{{urls.images}}/logo.png"/></a>
             </div>
-        </div>
-        <div id="nav-container">
-            <div id="nav">
+            <div id="header-tabs">
+                <ul>
+                    <li>
+                        <a href="#">
+                            Partner Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#install">
+                            How To Install
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div id="user" class="clearfix">
+                <div id="user-text">
+                    {{partnerUser.name}}
+                </div>
+                <span class="downarrow"></span>
+                <div id="user-list">
+                    <ul>
+                        <li class="user-list-item">
+                            <a href="{{urls.site}}/logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
+        <div id="nav-container">
+        </div>
         <div id="content">
+            <div id="howToInstall" class="content-container"></div>
+            <div id="moderate" class="content-container"></div>
+            <div id="fade">
+                <div id="story"></div>
+            </div>
         </div>
     </div>
     {{/content}}

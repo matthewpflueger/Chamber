@@ -18,6 +18,7 @@ case class StoryTagged(story: StoryState, originalTag: String, newTag: String) e
 case class ChapterCreated(story: StoryState, chapter: Chapter, chapterImages: List[ChapterImage]) extends SE with CreatedEvent
 case class ChapterUpdated(story: StoryState, chapter: Chapter, chapterImages: List[ChapterImage]) extends SE with UpdatedEvent
 case class CommentCreated(story: StoryState, comment: Comment) extends SE with UpdatedEvent
+case class StoryModerated(story: StoryState, moderation: Moderation) extends SE with CreatedEvent
 
 
 private[services] case class EchoedUserCreated(

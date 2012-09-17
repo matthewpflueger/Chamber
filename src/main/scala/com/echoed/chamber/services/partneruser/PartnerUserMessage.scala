@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedCli
 import com.echoed.chamber.domain.partner._
 import com.echoed.chamber.domain._
 import akka.actor.ActorRef
+import com.echoed.chamber.services.partner.PartnerIdentifiable
 
 
 sealed trait PartnerUserMessage extends Message

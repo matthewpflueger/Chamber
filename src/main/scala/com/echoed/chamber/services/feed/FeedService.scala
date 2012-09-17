@@ -31,8 +31,6 @@ class FeedService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem) extends EchoedService {
 
-    ep.subscribe(context.self, classOf[StoryEvent])
-
     val pageSize = 30
 
     implicit object StoryOrdering extends Ordering[(Long, String)] {
@@ -58,15 +56,22 @@ class FeedService(
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
 
     def updateStory(storyFull: StoryPublic) {
-        storyMap.get(storyFull.id).map(s => storyTree -= ((s.story.updatedOn, s.story.id)))
+        storyMap.get(storyFull.id).map { s =>
+            topStoryTree -= ((s.comments.length + s.chapterImages.length, s.story.id))
+            storyTree -= ((s.story.updatedOn, s.story.id))
+        }
         storyMap += (storyFull.id -> storyFull)
         storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
-        topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
+
+        if (!storyFull.isEchoedModerated) {
+            topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
+        }
     }
 
 
     override def preStart() {
         super.preStart()
+        ep.subscribe(context.self, classOf[Event])
         mp.tell(FindAllStories(), self)
     }
 
@@ -101,15 +106,13 @@ class FeedService(
             val channel = context.sender
             val start = msg.page * pageSize
 
+            val catId = categoryId.toLowerCase
+
             try {
-                log.debug("Attempting to retrieve Stories for Category: {}", categoryId)
-                val stories = storyTree.values.filter(storyFull =>
-                    storyFull.story.tag match {
-                        case t: String =>
-                            t.toLowerCase.equals(categoryId.toLowerCase)
-                        case null =>
-                            false
-                    }).toList
+                log.debug("Attempting to retrieve Stories for Category: {}", catId)
+                val stories = storyTree.values.filter { s =>
+                    !s.isEchoedModerated && Option(s.story.tag).map(_.toLowerCase == catId).getOrElse(false)
+                }.toList
                 log.debug("Stores Tagged: {}", stories)
                 val nextPage = {
                     if(start + pageSize <= stories.length)
@@ -159,7 +162,7 @@ class FeedService(
                 val start = msg.page * pageSize
                 val partner = partnerDao.findByIdOrHandle(msg.partnerId)
                 log.debug("Looking up stories for Partner Id {}", partner.id)
-                val stories = storyTree.values.filter(_.story.partnerId.equals(partner.id)).toList
+                val stories = storyTree.values.filter(s => s.story.partnerId.equals(partner.id) && !s.isModerated).toList
                 val nextPage = {
                     if(start + pageSize <= stories.length)
                         (msg.page + 1).toString

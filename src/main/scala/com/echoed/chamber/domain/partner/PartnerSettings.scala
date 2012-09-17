@@ -26,7 +26,8 @@ case class PartnerSettings(
         couponDescription: String,
         couponExpiresOn: Long,
         activeOn: Long,
-        storyPrompts: String) extends DomainObject {
+        storyPrompts: String,
+        moderateAll: Boolean) extends DomainObject {
 
     require(closetPercentage >= 0, "Closet percentage is less than 0")
     require(echoedMaxPercentage >= 0, "Echoed max percentage is less than 0")
@@ -40,7 +41,7 @@ case class PartnerSettings(
 
     require(views != null, "Views is null")
 
-    def this() = this("", 0L, 0L, "", 0f, 0, 0f, 0, 0f, 0f, 0f, 0, "", "", "", "", 0L, 0L, "")
+    def this() = this("", 0L, 0L, "", 0f, 0, 0f, 0, 0f, 0f, 0f, 0, "", "", "", "", 0L, 0L, "", false)
 
     def this(
             partnerId: String,
@@ -76,7 +77,8 @@ case class PartnerSettings(
         couponDescription: String,
         couponExpiresOn: Date,
         activeOn,
-        null)
+        null,
+        false)
 
     def this(
                 partnerId: String,
@@ -105,8 +107,7 @@ case class PartnerSettings(
         "",
         "",
         new Date,
-        activeOn
-    )
+        activeOn)
 
 
     @Transient lazy val viewsList = views.split(",").map(_.trim)
@@ -145,7 +146,8 @@ object PartnerSettings {
             couponDescription = "",
             couponExpiresOn = new Date,
             activeOn = new Date,
-            storyPrompts = null)
+            storyPrompts = null,
+            moderateAll = false)
 
     }
 

@@ -7,7 +7,8 @@ require.config({
         'expanding' : 'libs/expanding',
         'fileuploader': 'libs/fileuploader',
         'text': 'libs/require/text',
-        'requireLib': 'libs/require/require'
+        'requireLib': 'libs/require/require',
+        'easyXDM': 'libs/easyXDM.debug.js'
     },
     shim: {
         fileuploader: {
