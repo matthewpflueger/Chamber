@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import javax.annotation.Nullable
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import scala.collection.JavaConversions._
 
 
 @Controller
@@ -36,5 +38,17 @@ class ExhibitController extends EchoedController {
             result
         }.getOrElse(modelAndView)
     }
+
+    @RequestMapping(method = Array(RequestMethod.GET), value = Array("/{partnerHandle}"))
+    def partnerExhibit(
+            @PathVariable(value = "partnerHandle") partnerHandle: String,
+            request: HttpServletRequest,
+            response: HttpServletResponse) = {
+        log.debug("Redirecting to #partner/{}", partnerHandle)
+        new ModelAndView(
+                v.echoRedirectView,
+                Map("echo" -> Map("landingPageUrl" -> ("%s/#partner/%s" format(getHttpSiteUrl, partnerHandle)))))
+    }
+
 
 }
