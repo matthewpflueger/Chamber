@@ -111,9 +111,6 @@ class ServiceConfig {
     @Resource(name = "squerylDataSource") var squerylDataSource: DataSource = _
     @Resource(name = "filteredUserAgents") var filteredUserAgents: JList[String] = _
 
-    @Resource(name = "partnerSettingsProperties") var partnerSettingsProperties: Properties = _
-
-
     @Bean(destroyMethod = "shutdown") def actorSystem = ActorSystem("Chamber")
 
     @Bean def messageProcessor: MessageProcessor = new MessageProcessorRouter(messageRouter)
@@ -282,8 +279,7 @@ class ServiceConfig {
             imageDao = imageDao,
             transactionTemplate = transactionTemplate,
             encrypter = encrypter,
-            filteredUserAgents = filteredUserAgents,
-            defaultStoryPrompts = partnerSettingsProperties.getProperty("storyPrompts"))), partnerId)
+            filteredUserAgents = filteredUserAgents)), partnerId)
 
 
     @Bean
@@ -315,7 +311,6 @@ class ServiceConfig {
             transactionTemplate = transactionTemplate,
             encrypter = encrypter,
             filteredUserAgents = filteredUserAgents,
-            defaultStoryPrompts = partnerSettingsProperties.getProperty("storyPrompts"),
 
             shopifyPartnerDao = spd,
             shopifyAccessCreator = shopifyAccess)), partnerId)
@@ -357,7 +352,6 @@ class ServiceConfig {
             transactionTemplate = transactionTemplate,
             encrypter = encrypter,
             filteredUserAgents = filteredUserAgents,
-            defaultStoryPrompts = partnerSettingsProperties.getProperty("storyPrompts"),
 
             networkSolutionsPartnerDao = nspd,
             networkSolutionsAccessCreator = networkSolutionsAccess)), partnerId)
@@ -399,7 +393,6 @@ class ServiceConfig {
             transactionTemplate = transactionTemplate,
             encrypter = encrypter,
             filteredUserAgents = filteredUserAgents,
-            defaultStoryPrompts = partnerSettingsProperties.getProperty("storyPrompts"),
 
             bigCommercePartnerDao = bcpd,
             bigCommerceAccessCreator = bigCommerceAccess)), partnerId)
@@ -441,7 +434,6 @@ class ServiceConfig {
             transactionTemplate = transactionTemplate,
             encrypter = encrypter,
             filteredUserAgents = filteredUserAgents,
-            defaultStoryPrompts = partnerSettingsProperties.getProperty("storyPrompts"),
 
             magentoGoPartnerDao = mgpd,
             magentoGoAccessCreator = magentoGoAccess)), partnerId)
