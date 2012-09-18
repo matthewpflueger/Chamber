@@ -454,6 +454,7 @@
                                     <includes>
                                         <include>main.js</include>
                                         <include>widget.js</include>
+                                        <include>partner.js</include>
                                     </includes>
                                 </resource>
                             </resources>
