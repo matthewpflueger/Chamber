@@ -107,8 +107,10 @@ h3{
                 background-color: rgba(0,0,0,0.1);
             }
             #user-text{
-                display:inline-block;
+                position: absolute;
+                left: 30px;
                 width: 110px;
+
                 padding: 12px 0px 12px 10px;
                 @include fontHeaderBold(14px);
                 text-shadow: 0px 1px #FFF;
@@ -119,9 +121,9 @@ h3{
             }
 
             #user-image{
-                margin: 4px 2px;
-                vertical-align: middle;
-                display:inline-block;
+                position: absolute;
+                left: 3px;
+                top: 3px;
                 #u-i-i{
                     height: 30px;
                     border: 1px #CCC solid;
@@ -333,8 +335,8 @@ h3{
         }
         a{
             display: inline-block;
-            padding: 12px;
-            @include fontHeaderBold(14px);
+            padding: 10px 10px 11px 10px;
+            @include fontHeaderBold(15px);
             text-shadow: 0px 1px #FFF;
             text-decoration: none;
         }
