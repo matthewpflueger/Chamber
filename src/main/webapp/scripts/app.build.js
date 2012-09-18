@@ -25,6 +25,10 @@
         {
             name: "main",
             include: ['requireLib']
+        },
+        {
+            name: "partner",
+            include: ['requireLib']
         }
     ]
 })
