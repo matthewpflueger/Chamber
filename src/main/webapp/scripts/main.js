@@ -120,7 +120,6 @@ require(
             this.exhibit = new Exhibit({ el: '#content', EvAg: EventAggregator, properties: properties });
             this.pageTitle = new PageTitle({ el: 'title', EvAg: EventAggregator, properties: properties });
             this.actions = new Actions({ el: '#actions', EvAg: EventAggregator, properties: properties });
-            this.title = new Title({ el: '#title', EvAg: EventAggregator, properties: properties });
             this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
             this.login = new Login({ el: '#user', EvAg: EventAggregator, properties: properties });
             this.notifications = new Notifications({ el: '#notifications-container', EvAg: EventAggregator, properties: properties });
