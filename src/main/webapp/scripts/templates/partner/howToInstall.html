@@ -10,7 +10,13 @@
 <div class="content-header">Using A Customized Launcher</div>
 <ol>
     <li>
-        D<br/><br/>
+        If you already have an html element that you would like to use to trigger the opening of the script. Insert the following into the HTML of your page.<br/><br/>
+        <textarea readonly="true" style="width:800px; height:85px;">
+            <script type='text/javascript'>
+                EchoedSettings = {
+                    "opener": "#<ELEMENT ID HERE>"
+                };
+            </script></textarea>
     </li>
     <li>
         Embed Script<br/><br/>
