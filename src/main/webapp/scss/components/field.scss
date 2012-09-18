@@ -167,6 +167,7 @@
             padding: 10px;
             width: 505px;
             display: table-cell;
+            vertical-align: top;
             .field-row{
                 margin-bottom: 10px;
                 label{
@@ -489,6 +490,7 @@
                         padding: 5px 6px;
                     }
                     .chapter-submit, .chapter-cancel{
+                        margin-right: 5px;
                         @include fontTextBold(12px, #FFF);
                         @include button();
                     }
