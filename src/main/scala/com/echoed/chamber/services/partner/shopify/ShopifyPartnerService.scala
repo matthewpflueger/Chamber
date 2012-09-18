@@ -32,8 +32,7 @@ class ShopifyPartnerService(
         imageDao: ImageDao,
         transactionTemplate: TransactionTemplate,
         encrypter: Encrypter,
-        filteredUserAgents: JList[String],
-        defaultStoryPrompts: String) extends PartnerService(
+        filteredUserAgents: JList[String]) extends PartnerService(
             mp,
             partnerId,
             partnerDao,
@@ -44,8 +43,7 @@ class ShopifyPartnerService(
             imageDao,
             transactionTemplate,
             encrypter,
-            filteredUserAgents,
-            defaultStoryPrompts) {
+            filteredUserAgents) {
 
     private var shopifyPartner = Option(shopifyPartnerDao.findByPartnerId(partnerId)).get
     private val shopifyAccess = shopifyAccessCreator(context)

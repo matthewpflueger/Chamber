@@ -4,10 +4,8 @@ import com.echoed.chamber.dao._
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.domain.partner.magentogo.MagentoGoPartner
 import partner.magentogo.MagentoGoPartnerDao
 import partner.{PartnerDao, PartnerSettingsDao}
-import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.services.MessageProcessor
 import java.util.{List => JList}
 import akka.actor.{ActorRef, ActorContext}
@@ -27,7 +25,6 @@ class MagentoGoPartnerService(
             transactionTemplate: TransactionTemplate,
             encrypter: Encrypter,
             filteredUserAgents: JList[String],
-            defaultStoryPrompts: String,
             magentoGoPartnerDao: MagentoGoPartnerDao,
             magentoGoAccessCreator: ActorContext => ActorRef,
             implicit val timeout: Timeout = Timeout(20000)) extends PartnerService(
@@ -41,8 +38,7 @@ class MagentoGoPartnerService(
         imageDao,
         transactionTemplate,
         encrypter,
-        filteredUserAgents,
-        defaultStoryPrompts) {
+        filteredUserAgents) {
 
     private var magentoGoPartner = Option(magentoGoPartnerDao.findByPartnerId(partnerId)).get
     private val magentoGoAccess = magentoGoAccessCreator(context)

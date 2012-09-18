@@ -32,27 +32,21 @@ class PartnerService(
         imageDao: ImageDao,
         transactionTemplate: TransactionTemplate,
         encrypter: Encrypter,
-        filteredUserAgents: JList[String],
-        defaultStoryPrompts: String) extends EchoedService {
+        filteredUserAgents: JList[String]) extends EchoedService {
 
     protected var partner = Option(partnerDao.findByIdOrHandle(partnerId)).get
 
     val viewCounter: AtomicInteger = new AtomicInteger(0)
 
-    protected def applyDefaults(ps: Option[PartnerSettings]) =
-        ps.map(ps => if (ps.storyPrompts == null) ps.copy(storyPrompts = defaultStoryPrompts) else ps)
-
     protected def findInactive(date: Option[Date] = None) =
-        applyDefaults(Option(partnerSettingsDao.findInactive(partner.id, dateToLong(date.getOrElse(new Date)))))
+        Option(partnerSettingsDao.findInactive(partner.id, dateToLong(date.getOrElse(new Date))))
 
     protected def findActive(date: Option[Date] = None) =
-        applyDefaults(Option(partnerSettingsDao.findByActiveOn(partner.id, dateToLong(date.getOrElse(new Date)))))
+        Option(partnerSettingsDao.findByActiveOn(partner.id, dateToLong(date.getOrElse(new Date))))
 
-    protected def findById(partnerSettingsId: String) =
-        applyDefaults(Option(partnerSettingsDao.findById(partnerSettingsId)))
+    protected def findById(partnerSettingsId: String) = Option(partnerSettingsDao.findById(partnerSettingsId))
 
-    protected def findByPartnerId =
-        partnerSettingsDao.findByPartnerId(partner.id).map(ps => applyDefaults(Option(ps))).map(_.get)
+    protected def findByPartnerId = partnerSettingsDao.findByPartnerId(partner.id)
 
 
     protected def requestEcho(

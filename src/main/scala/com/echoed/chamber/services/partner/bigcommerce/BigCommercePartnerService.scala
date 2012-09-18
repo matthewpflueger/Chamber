@@ -4,7 +4,6 @@ import com.echoed.chamber.dao._
 import org.springframework.transaction.support.TransactionTemplate
 import com.echoed.util.Encrypter
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.domain.partner.Partner
 import partner.bigcommerce.BigCommercePartnerDao
 import partner.{PartnerSettingsDao, PartnerDao}
 import com.echoed.chamber.services.MessageProcessor
@@ -26,7 +25,6 @@ class BigCommercePartnerService (
             transactionTemplate: TransactionTemplate,
             encrypter: Encrypter,
             filteredUserAgents: JList[String],
-            defaultStoryPrompts: String,
             bigCommercePartnerDao: BigCommercePartnerDao,
             bigCommerceAccessCreator: ActorContext => ActorRef,
             implicit val timeout: Timeout = Timeout(20000)) extends PartnerService(
@@ -40,8 +38,7 @@ class BigCommercePartnerService (
         imageDao,
         transactionTemplate,
         encrypter,
-        filteredUserAgents,
-        defaultStoryPrompts) {
+        filteredUserAgents) {
 
     private var bigCommercePartner = Option(bigCommercePartnerDao.findByPartnerId(partnerId)).get
     private val bigCommerceAccess = bigCommerceAccessCreator(context)

@@ -120,7 +120,9 @@ case class PartnerSettings(
         cal.getTime
     }
 
-    def makeStoryPrompts = new ScalaObjectMapper().readValue(storyPrompts, classOf[StoryPrompts])
+    def makeStoryPrompts =
+            if (storyPrompts == null || storyPrompts.length < 1) StoryPrompts()
+            else new ScalaObjectMapper().readValue(storyPrompts, classOf[StoryPrompts])
 
     def couponExpiresOnDate: Date = couponExpiresOn
 }

@@ -203,10 +203,6 @@
         <!-- cache expiration configs zero or less does not expire -->
         <prop key="cache.PartnerServices">-1</prop>
         <prop key="cache.MagentoGoSessions">14</prop>
-
-        <prop key="partnerSettings.storyPrompts">
-            { "prompts": ["Why did you buy it?", "What are you doing with it?", "Who is it for?"] }
-        </prop>
     </util:properties>
 
 
@@ -315,10 +311,6 @@
     <util:properties id="geoLocationProperties">
         <prop key="geoLocationServiceUrl">${geolocation.serviceUrl}</prop>
         <prop key="lastUpdatedBeforeHours">${geolocation.lastUpdatedBeforeHours}</prop>
-    </util:properties>
-
-    <util:properties id="partnerSettingsProperties">
-        <prop key="storyPrompts">${partnerSettings.storyPrompts}</prop>
     </util:properties>
 </beans>
 
