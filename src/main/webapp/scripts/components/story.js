@@ -248,7 +248,7 @@ define(
             commentLogin: function(ev){
                 var href = $(ev.currentTarget).attr("href");
                 var child = window.open("about:blank", "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-                child.location = utils.getFacebookLoginUrl("redirect/close");
+                child.location = href;
             },
             createComment: function(){
                 var self = this;

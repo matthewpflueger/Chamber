@@ -87,7 +87,7 @@ class StoryService(
         case msg: CreateStory if (storyState.isCreated) => sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
 
-        case msg @ CreateStory(_, title, imageId, _, _, productInfo) =>
+        case msg @ CreateStory(_, title, imageId, _, productInfo, _) =>
             val image = imageDao.findById(imageId)
             storyState = storyState.create(title, productInfo.orNull, image)
             ep(StoryCreated(storyState))

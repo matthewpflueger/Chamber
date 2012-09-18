@@ -111,6 +111,9 @@ pre, form, fieldset, table, th, td {
     @include fontText;
 }
 
+img {
+    border: none;
+}
 
 
 .clearfix{
