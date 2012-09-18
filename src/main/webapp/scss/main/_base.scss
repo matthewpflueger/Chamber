@@ -96,6 +96,7 @@ $fontTextColorDefault: #333;
         padding: 5px 20px;
         text-decoration: none;
         @include fontTextBold($size, #FFF);
+        margin-right: 5px;
         &:hover{
             background-color: $colorEC;
         }
@@ -111,6 +112,9 @@ pre, form, fieldset, table, th, td {
     @include fontText;
 }
 
+img {
+    border: none;
+}
 
 
 .clearfix{
