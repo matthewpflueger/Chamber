@@ -87,7 +87,7 @@ class FeedService(
             val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve Public Story Feed")
-                val stories = topStoryTree.values.toList
+                val stories = storyTree.values.toList
                 val nextPage = {
                     if(start + pageSize <= stories.length)
                         (msg.page + 1).toString
