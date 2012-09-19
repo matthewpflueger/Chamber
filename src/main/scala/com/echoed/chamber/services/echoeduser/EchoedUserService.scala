@@ -627,11 +627,6 @@ class EchoedUserService(
             //create a fresh actor for non-echo related stories
             context.watch(storyServiceCreator(context, msg, echoedUser)).forward(msg)
 
-
-        case msg @ CreateChapter(eucc, storyId, _, _, _) =>
-            forwardToStory(msg, StoryId(storyId))
-            self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
-
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
             val me = self
             mp(NewComment(
@@ -647,20 +642,20 @@ class EchoedUserService(
                     CreateCommentResponse(msg, ncr.value)
                 }.pipeTo(context.sender)
 
+        case msg @ CreateChapter(eucc, storyId, _, _, _) =>
+            forwardToStory(msg, StoryId(storyId))
+            self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
 
         case msg: StoryIdentifiable with EchoedUserIdentifiable with Message =>
-            forwardToStory(msg, StoryId(msg.storyId), Option(InitStory(msg.credentials, Option(msg.storyId))))
+            forwardToStory(msg, StoryId(msg.storyId))
     }
 
 
-    private def forwardToStory(
-            msg: Message,
-            identifiable: Identifiable,
-            initMessage: Option[Message] = None) {
+    private def forwardToStory(msg: Message, identifiable: Identifiable) {
         activeStories.get(identifiable).headOption.cata(
             _.forward(msg),
             {
-                val storyService = context.watch(storyServiceCreator(context, initMessage.getOrElse(msg), echoedUser))
+                val storyService = context.watch(storyServiceCreator(context, msg, echoedUser))
                 storyService.forward(msg)
                 activeStories.put(identifiable, storyService)
             })
