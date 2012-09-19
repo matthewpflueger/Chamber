@@ -7,6 +7,7 @@ define(
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.EvAg.bind('hash/reset', this.resetHash);
+                this.EvAg.bind('router/me', this.reload);
                 this.page = null;
             },
             routes:{
@@ -18,6 +19,9 @@ define(
                 "write/" : "writePartner",
                 "write": "writePartner",
                 "!story/:id": "story"
+            },
+            reload: function(){
+                this.EvAg.trigger('exhibit/init', { endPoint: "/partner/" + this.properties.partnerId });
             },
             explore: function(){
 
