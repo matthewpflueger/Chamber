@@ -67,6 +67,7 @@ class StoryService(
             case msg @ InitStory(_, _, _, partnerId) => requestStory(partnerId.getOrElse("Echoed"))
             case msg @ CreateStory(_, _, _, _, _, Some(echoId)) => mp(ReadStoryForEcho(echoId, echoedUser.id)).pipeTo(self)
             case msg @ CreateStory(_, _, _, partnerId, _, _) => requestStory(partnerId.getOrElse("Echoed"))
+            case msg: StoryIdentifiable => mp(ReadStory(msg.storyId)).pipeTo(self)
         }
     }
 
