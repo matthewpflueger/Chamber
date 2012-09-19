@@ -122,7 +122,7 @@ class FacebookAccess(
         case msg @ PublishAction(fat, action, obj, objUrl) =>
             val channel = context.sender
 
-            graph(u / "me" / appNameSpace / ":" / action << Map(obj -> objUrl), fat.accessToken) { res =>
+            graph(u / "me" / (appNameSpace + ":" + action) << Map(obj -> objUrl), fat.accessToken) { res =>
                 log.debug("Published action: {}", res)
                 channel ! PublishActionResponse(msg, Right(true))
             } { e => channel ! PublishActionResponse(msg, Left(e)) }
