@@ -137,3 +137,17 @@ body{
     }
 
 }
+
+#examples{
+    .example{
+        width:310px;
+        padding: 5px;
+        float: left;
+    }
+    .example-title{
+        text-align: center;
+        @include fontTitle(20px);
+        padding: 10px;
+    }
+
+}

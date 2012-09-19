@@ -339,7 +339,6 @@
             .story-summary-submit{
                 cursor: pointer;
                 @include button;
-                @include fontTextBold(12px, #FFF);
             }
         }
     }
@@ -528,4 +527,5 @@
 
 #category-add{
     @include button;
+    margin-left: 5px;
 }
