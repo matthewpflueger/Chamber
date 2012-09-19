@@ -234,6 +234,7 @@ class EchoedUserService(
         case msg @ ReadForCredentialsResponse(_, Right(euss)) => setStateAndRegister(euss)
 
         case msg @ ReadForFacebookUserResponse(_, Left(FacebookUserNotFound(fu, _))) =>
+            facebookUser = Option(fu)
             create(new EchoedUser(fu))
             handleLoginWithFacebookUser(initMessage.asInstanceOf[LoginWithFacebookUser])
 
@@ -243,6 +244,7 @@ class EchoedUserService(
             updated
 
         case msg @ ReadForTwitterUserResponse(_, Left(TwitterUserNotFound(tu, _))) =>
+            twitterUser = Option(tu)
             create(new EchoedUser(tu))
             handleLoginWithTwitterUser(initMessage.asInstanceOf[LoginWithTwitterUser])
 
