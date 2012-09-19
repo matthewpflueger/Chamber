@@ -172,8 +172,12 @@ class EchoedUserService(
     }
 
 
-    private def create(eu: EchoedUser) {
+    private def create(eu: EchoedUser, fu: Option[FacebookUser] = None, tu: Option[TwitterUser] = None) {
         echoedUser = eu
+        facebookUser = fu.map(_.copy(echoedUserId = echoedUser.id))
+        twitterUser = tu.map(_.copy(echoedUserId = echoedUser.id))
+        facebookUser.map(echoedUser.assignFacebookUser(_))
+        twitterUser.map(echoedUser.assignTwitterUser(_))
         echoedUserSettings = new EchoedUserSettings(echoedUser)
         ep(EchoedUserCreated(echoedUser, echoedUserSettings, facebookUser, twitterUser))
     }
@@ -234,8 +238,7 @@ class EchoedUserService(
         case msg @ ReadForCredentialsResponse(_, Right(euss)) => setStateAndRegister(euss)
 
         case msg @ ReadForFacebookUserResponse(_, Left(FacebookUserNotFound(fu, _))) =>
-            facebookUser = Option(fu)
-            create(new EchoedUser(fu))
+            create(new EchoedUser(fu), fu = Option(fu))
             handleLoginWithFacebookUser(initMessage.asInstanceOf[LoginWithFacebookUser])
 
         case msg @ ReadForFacebookUserResponse(_, Right(euss)) =>
@@ -244,8 +247,7 @@ class EchoedUserService(
             updated
 
         case msg @ ReadForTwitterUserResponse(_, Left(TwitterUserNotFound(tu, _))) =>
-            twitterUser = Option(tu)
-            create(new EchoedUser(tu))
+            create(new EchoedUser(tu), tu = Option(tu))
             handleLoginWithTwitterUser(initMessage.asInstanceOf[LoginWithTwitterUser])
 
         case msg @ ReadForTwitterUserResponse(_, Right(euss)) =>
