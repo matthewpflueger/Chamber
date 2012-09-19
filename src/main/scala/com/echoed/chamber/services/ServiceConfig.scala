@@ -92,7 +92,6 @@ class ServiceConfig {
 
     @Resource(name = "twitterAccessProperties") var twitterProperties: Properties = _
 
-    @Resource(name = "twitterUserDao") var twitterUserDao: TwitterUserDao = _
     @Resource(name = "twitterStatusDao") var twitterStatusDao: TwitterStatusDao = _
 
     @Resource(name = "closetDao") var closetDao: ClosetDao = _
