@@ -20,10 +20,12 @@ class SchedulerService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
         todayStartsAtHour: Int = 20,
+        hourStartsAtMinute: Int = 30,
         sendIntervalInSeconds: Int = 5,
         sendImmediately: Boolean = false) extends OnlineOfflineService {
 
     assert(todayStartsAtHour > 0, "todayStartsAtHour is %s which is not greater than zero" format todayStartsAtHour)
+    assert(hourStartsAtMinute > 0, "hourStartsAtMinute is %s which is not greater than zero" format hourStartsAtMinute)
     assert(sendIntervalInSeconds > 0, "sendIntervalInSeconds is %s which is not greater than zero" format sendIntervalInSeconds)
 
     private var schedules: Map[String, Schedule] = _
@@ -36,6 +38,15 @@ class SchedulerService(
                 context.self,
                 StartToday)
     }
+
+    private def scheduleStartHour {
+        val hourStart = DateTime.now().plusHours(1).withMinuteOfHour(hourStartsAtMinute)
+        context.system.scheduler.scheduleOnce(
+                new JD(DateTime.now(), hourStart).getStandardMinutes minutes,
+                context.self,
+                StartHour)
+    }
+
 
     override def lifespan = Unit
 
@@ -51,16 +62,20 @@ class SchedulerService(
             becomeOnline
             if (DateTime.now().hourOfDay().get() == todayStartsAtHour) self ! StartToday
             else scheduleStartToday
+            scheduleStartHour
     }
 
 
     def online = {
         case StartToday =>
-            self ! SendToday(schedules)
+            self ! Send(schedules.filter(t => t._2.schedulePattern == Today))
             scheduleStartToday
 
+        case StartHour =>
+            self ! Send(schedules.filter(t => t._2.schedulePattern == Hour))
+            scheduleStartHour
 
-        case SendToday(schedulesForToday) => schedulesForToday.headOption.foreach { case (id, _) =>
+        case Send(schedulesToSend) => schedulesToSend.headOption.foreach { case (id, _) =>
             schedules.get(id).foreach { schedule =>
                 schedules = schedules - id
                 mp(schedule.message)
@@ -70,21 +85,20 @@ class SchedulerService(
             context.system.scheduler.scheduleOnce(
                     sendIntervalInSeconds seconds,
                     self,
-                    SendToday(schedulesForToday - id))
+                    Send(schedulesToSend - id))
         }
 
 
-        case msg @ ScheduleOnce(Today, message, id) =>
+        case msg @ ScheduleOnce(pattern, message, id) if (pattern == Today || pattern == Hour) =>
             val sid = id.getOrElse(UUID())
             val schedule = schedules.get(sid).getOrElse {
-                val schedule = Schedule(sid, new Date, new Date, Today, message)
+                val schedule = Schedule(sid, new Date, new Date, pattern, message)
                 schedules = schedules + (sid -> schedule)
                 ep(ScheduleCreated(schedule))
-                if (sendImmediately) self ! StartToday
+                if (sendImmediately) self ! Send(schedules)
                 schedule
             }
             sender ! ScheduleOnceResponse(msg, Right(schedule))
-
 
         case msg: ScheduleOnce =>
             sender ! ScheduleOnceResponse(

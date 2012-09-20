@@ -21,8 +21,9 @@ private[services] case class Schedule(
 
 
 case object StartToday
+case object StartHour
 
-private[services] case class SendToday(schedulesForToday: Map[String, Schedule])
+private[services] case class Send(schedulesToSend: Map[String, Schedule])
 
 //possible cron syntax implementations:
 //http://www.sauronsoftware.it/projects/cron4j/
@@ -31,6 +32,7 @@ private[services] case class SendToday(schedulesForToday: Map[String, Schedule])
 case class SchedulePattern(pattern: String)
 
 object Today extends SchedulePattern("today")
+object Hour extends SchedulePattern("hour")
 
 case class ScheduleOnce(
         schedulePattern: SchedulePattern,
