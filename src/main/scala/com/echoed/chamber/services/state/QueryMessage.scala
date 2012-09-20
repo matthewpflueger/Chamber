@@ -3,6 +3,7 @@ package com.echoed.chamber.services.state
 import com.echoed.chamber.services.{MessageResponse => MR, EchoedException, Message}
 import com.echoed.chamber.domain.{StoryState}
 import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 
 sealed trait QueryMessage extends Message
 sealed case class QueryException(message: String = "", cause: Throwable = null)
@@ -17,6 +18,18 @@ case class FindAllStoriesResponse(
                 message: FindAllStories,
                 value: Either[QE, List[StoryState]])
                 extends QM with MR[List[StoryState], FindAllStories, QE]
+
+
+case class QueryStoriesForAdmin(
+        aucc: AdminUserClientCredentials,
+        page: Int = 0,
+        pageSize: Int = 30,
+        moderated: Option[Boolean] = None) extends QM
+
+case class QueryStoriesForAdminResponse(
+                message: QueryStoriesForAdmin,
+                value: Either[QE, List[StoryState]])
+                extends QM with MR[List[StoryState], QueryStoriesForAdmin, QE]
 
 
 case class QueryStoriesForPartner(
