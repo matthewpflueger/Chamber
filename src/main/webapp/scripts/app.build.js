@@ -29,6 +29,10 @@
         {
             name: "partner",
             include: ['requireLib']
+        },
+        {
+            name: "admin",
+            include: ['requireLib']
         }
     ]
 })
