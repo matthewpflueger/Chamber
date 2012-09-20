@@ -21,7 +21,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
         case msg @ QueryStoriesForAdmin(aucc, page, pageSize, moderated) =>
             val ss = from(stories)(s => select(s) orderBy(s.updatedOn desc))
                         .map(readStory(_))
-                        .filter(moderated.isEmpty || _.isModerated == moderated.get)
+                        .filter(moderated.isEmpty || _.isEchoedModerated == moderated.get)
                         .toList
 
             sender ! QueryStoriesForAdminResponse(msg, Right(ss))
