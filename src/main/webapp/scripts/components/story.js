@@ -94,18 +94,19 @@ define(
                 }
                 self.gallery = self.element.find('.echo-s-b-gallery');
                 self.userNode = self.element.find('.echo-s-h-t-n');
-                var userLink = $(document.createTextNode('by ')).append('<a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '"></a>').text(self.data.echoedUser.name);
+                var userLink = $('<a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '"></a>')
+                                    .text(self.data.echoedUser.name);
 
                 if(self.properties.isWidget !== true){
-                    var fromLink = $('<br/>').append(document.createTextNode('from '));
+                    var fromLink = $('<span style="display: block;"></span>').append(document.createTextNode('from '));
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-                        fromLink.append('<a class="link-black bold-link" href="#partner/' + p + '"></a>').text(self.data.story.productInfo);
-                        fromLink.append(' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
+                        fromLink.append($('<a class="link-black bold-link" href="#partner/' + p + '"></a>').text(self.data.story.productInfo));
+                        fromLink.append('(<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
                     } else if (utils.isUrl(self.data.story.productInfo)){
-                        fromLink.append('<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo);
+                        fromLink.append($('<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo));
                     } else {
-                        fromLink.append(document.createTextNode(self.data.story.productInfo));
+                        fromLink.text(self.data.story.productInfo);
                     }
                 }
                 var userImage = $('<img />').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)).addClass("echo-s-h-t-n-i");
@@ -114,13 +115,12 @@ define(
                 self.itemNode = $("<div class='echo-s-b-item'></div>");
                 self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
                 self.userTextNode = $("<div class='echo-s-h-t-n-t'></div>");
-                self.userTextNode.append(userLink).append(fromLink).appendTo(self.userNode);
+                self.userTextNode.append(userLink).prepend("by ").append(fromLink).appendTo(self.userNode);
                 self.img = $("<img />");
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
-                self.element.find('.echo-story-chapter-title').text(self.data.chapters[0].title);
-                var chapterText = $("<div class='echo-s-b-t-b'></div>").text(utils.replaceUrlsWithLink(self.data.chapters[0].text.replace(/\n/g, '<br />')));
-                self.text.append(chapterText);
+                //self.element.find('.echo-story-chapter-title').text(self.data.chapters[0].title);
+                self.text.append($("<div class='echo-s-b-t-b'></div>"));
                 self.renderGalleryNav();
                 self.renderComments();
                 self.renderChapter();
@@ -179,7 +179,7 @@ define(
                 textArea.fadeOut(function(){
                     self.element.find('.echo-story-chapter-title').text(self.chapters.array[self.currentChapterIndex].chapter.title);
                     //appending as text obviously breaks the link replacement...
-                    self.element.find('.echo-s-b-t-b').text(utils.replaceUrlsWithLink(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />')));
+                    self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(utils.escapeHtml(self.chapters.array[self.currentChapterIndex].chapter.text)).replace(/\n/g, '<br />'));
 //                    self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />')));
                     textArea.fadeIn();
                 });
