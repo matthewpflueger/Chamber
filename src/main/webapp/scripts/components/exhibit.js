@@ -120,7 +120,7 @@ define(
                 if(data.friends){
                     $.each(data.friends, function(index, friend){
                         var friendImage = $('<div class="friend-img"></div>');
-                        var friendText = $('<div class="friend-text"></div>').html(friend.name);
+                        var friendText = $('<div class="friend-text"></div>').text(friend.name);
                         var  a = $('<a></a>').attr("href","#user/" + friend.toEchoedUserId).addClass('item_wrap').addClass("friend");
                         $('<img />').attr("height","50px").attr("src",utils.getProfilePhotoUrl(friend)).appendTo(friendImage);
                         $('<div></div>').append(friendImage).append(friendText).appendTo(a);

@@ -37,15 +37,15 @@ define(
                 text.append(utils.timeElapsedString(boughtOnDate) + "<br/>");
 
                 if(this.model.get("echoProductName")){
-                    hover.append(this.model.get("echoProductName") + '<br/>');
-                    text.prepend(this.model.get("echoProductName")+'<br/>');
+                    hover.text(this.model.get("echoProductName")).append('<br/>');
+                    text.prepend($(document.createTextNode(this.model.get("echoProductName"))).append('<br/>'));
                 }
                 if(this.model.get("partnerName")){
-                    text.prepend('<span class="icl_pn"><strong>'+this.model.get("partnerName") + '</strong></span><br/>');
-                    hover.append(this.model.get("partnerName") + '<br/>');
+                    text.prepend('<span class="icl_pn"></span>').append('<strong></strong>').text(this.model.get("partnerName")).append('<br/>');
+                    hover.append(document.createTextNode(this.model.get("partnerName"))).append('<br/>');
                 }
                 if(this.model.get("echoedUserName"))
-                    hover.append('<span class="highlight"><strong>' + this.model.get("echoedUserName") + '</strong></span><br/>');
+                    hover.append('<span class="highlight"></span>').append('<strong></strong>').text(this.model.get("echoedUserName")).append('<br/>');
                 if(typeof(this.model.get("echoCredit")) == 'number'){
                     text.append("<span class='highlight'><strong>Reward: $" + this.model.get("echoCredit").toFixed(2) +'</strong></span><br/>');
                     this.el.attr("action","story");

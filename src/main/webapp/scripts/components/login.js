@@ -35,7 +35,7 @@ define(
                 console.log(echoedUser);
                 var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', utils.getProfilePhotoUrl(echoedUser));
                 var ui = $('<div id="user-image"></div>').append(image);
-                $("#user-text").html(this.properties.echoedUser.name);
+                $("#user-text").text(this.properties.echoedUser.name);
                 $('#user-list').find('ul').append('<li class="user-list-item" href="logout">Logout</li>');
                 this.element.prepend(ui);
                 this.element.show();

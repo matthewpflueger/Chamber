@@ -46,7 +46,7 @@ define(
                 var self = this;
                 self.list.empty();
                 $.each(data, function(index, tag){
-                    $('<div class="suggestion-item"></div>').append(tag.id + " (" + tag.counter + ")").appendTo(self.list).attr("tag", tag.id);
+                    $('<div class="suggestion-item"></div>').text(tag.id + " (" + tag.counter + ")").appendTo(self.list).attr("tag", tag.id);
                 });
                 self.suggestions.fadeIn();
             },

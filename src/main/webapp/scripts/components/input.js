@@ -167,21 +167,21 @@ define(
                 var self = this;
                 var template = _.template(templateStorySummary);
                 self.element.html(template);
-                self.element.find(".story-preview-title").html(self.data.storyFull.story.title);
-                self.element.find(".story-preview-from").html(self.data.storyFull.story.productInfo);
-                self.element.find(".story-preview-by").html(self.data.storyFull.echoedUser.name);
+                self.element.find(".story-preview-title").text(self.data.storyFull.story.title);
+                self.element.find(".story-preview-from").text(self.data.storyFull.story.productInfo);
+                self.element.find(".story-preview-by").text(self.data.storyFull.echoedUser.name);
                 $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
 
-                $("#field-main-category-content").html(self.data.storyFull.story.tag);
+                $("#field-main-category-content").text(self.data.storyFull.story.tag);
                 this.ajaxInput = new AjaxInput({ el: '#ajax-input', EvAg: self.EvAg, properties: this.properties });
                 var count = 0;
                 self.element.chapters = self.element.find('.story-summary-body');
                 $.each(self.data.storyFull.chapters, function(index, chapter){
                     count = count + 1;
                     var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
-                    var chapterEdit = $('<div class="story-summary-chapter-edit"></div>').html("Edit").attr("chapterId", index);
-                    var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong>Topic: </strong>" + chapter.title));
-                    var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong>Description: </strong>" + chapter.text.substr(0, 200)));
+                    var chapterEdit = $('<div class="story-summary-chapter-edit"></div>').text("Edit").attr("chapterId", index);
+                    var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong></strong>").text("Topic: " + chapter.title));
+                    var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong></strong>").text("Description: " + chapter.text.substr(0, 200)));
                     var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
                     var chapterPhotosRow = $("<div class='story-summary-chapter-row'></div>").append($('<label>Photos: </label>')).append(chapterPhotos);
                     $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
@@ -228,9 +228,9 @@ define(
                 var self = this;
                 self.template = _.template(templateStoryEdit);
                 self.element.html(self.template);
-                self.element.find(".story-preview-title").html(self.data.storyFull.story.title);
-                self.element.find(".story-preview-from").html(self.data.storyFull.story.productInfo);
-                self.element.find(".story-preview-by").html(self.data.storyFull.echoedUser.name);
+                self.element.find(".story-preview-title").text(self.data.storyFull.story.title);
+                self.element.find(".story-preview-from").text(self.data.storyFull.story.productInfo);
+                self.element.find(".story-preview-by").text(self.data.storyFull.echoedUser.name);
                 $("#thumb-placeholder").attr("src", self.properties.urls.images + "/bk_img_upload_ph.png" );
                 $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
                 var chapterPhotos = self.element.find(".thumbnails");
@@ -408,7 +408,7 @@ define(
                 self.data.imageId = null;
                 if (self.data.partner && self.data.partner.name != "Echoed"){
                     $("#story-from").val(self.data.partner.name).attr("readonly",true);
-                    self.element.find('.field-title').html("Share Your " + self.data.partner.name + " Story");
+                    self.element.find('.field-title').text("Share Your " + self.data.partner.name + " Story");
                 }
                 if(self.data.echo){
                     $("#field-photo").attr("src", self.data.echo.image.preferredUrl);

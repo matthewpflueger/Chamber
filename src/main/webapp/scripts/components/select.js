@@ -43,7 +43,7 @@ define(
                 });
                 self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.defaultTopic);
                 self.optionsList.append(self.options[self.optionsArray.length]);
-                self.input.val(self.options[0].html());
+                self.input.val(self.options[0].text());
             },
             keyPress: function(e){
                 switch(e.keyCode){
@@ -64,7 +64,7 @@ define(
             },
             selectOption: function(e){
                 var target = $(e.target);
-                this.input.val(target.html());
+                this.input.val(target.text());
                 this.close();
             },
             close: function(){
