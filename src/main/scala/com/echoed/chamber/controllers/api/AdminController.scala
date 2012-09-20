@@ -12,12 +12,31 @@ import org.springframework.web.context.request.async.DeferredResult
 import java.util.ArrayList
 import com.echoed.chamber.domain.Echo
 import com.echoed.chamber.domain.partner.Partner
+import com.echoed.chamber.services.state.{QueryStoriesForAdmin, QueryStoriesForAdminResponse}
 
 @Controller
 @RequestMapping(Array("/admin"))
 class AdminController extends EchoedController with FormController {
 
     @BeanProperty var formValidator: AdminUpdatePartnerSettingsFormValidator = _
+
+    @RequestMapping(value = Array("/stories"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def queryStories(
+                        @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+                        @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int,
+                        @RequestParam(value = "moderated", required = false) moderated: String,
+                        aucc: AdminUserClientCredentials) = {
+
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(QueryStoriesForAdmin(aucc, page, pageSize, Option(moderated).map(_.toBoolean))).onSuccess {
+            case QueryStoriesForAdminResponse(_, Right(stories)) =>
+                result.set(stories)
+        }
+
+        result
+    }
 
     @RequestMapping(value = Array("/echoPossibility"), method = Array(RequestMethod.GET))
     @ResponseBody

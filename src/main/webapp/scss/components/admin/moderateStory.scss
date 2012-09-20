@@ -1,0 +1,26 @@
+#moderate{
+    display: none;
+}
+
+
+#moderate-table{
+    width: 100%;
+    border-collapse: collapse;
+    thead{
+        border-bottom: 1px solid #CCC;
+    }
+    th, td{
+        //border: 1px solid #CCC;
+        padding: 8px 3px;
+    }
+}
+
+.moderate-header{
+    @include fontTextBold(13px);
+}
+
+.moderate-preview{
+    @include button;
+    @include fontTextBold(12px, #FFF);
+}
+
