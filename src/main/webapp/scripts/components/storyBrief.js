@@ -44,32 +44,33 @@ define(
                         }
                     }
                     textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)));
-                    textNode.append($("<div class='story-brief-text-title'></div>").append(self.data.story.title));
-                    textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
+                    textNode.append($("<div class='story-brief-text-title'></div>").text(self.data.story.title));
+                    textNode.append($("<div class='story-brief-text-by'></div>").text("Story by").append("<a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'></a>").text(self.data.echoedUser.name));
+//                    textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
                     var chapterText = self.data.chapters[0].text;
                     var c  = chapterText.split(/[.!?]/)[0];
                     c = c + chapterText.substr(c.length, 1); //Append Split Character
-                    textNode.prepend($("<div class='story-brief-text-quote'></div>").html(c));
-                    overlayNode.html(self.data.story.title);
+                    textNode.prepend($("<div class='story-brief-text-quote'></div>").text(c));
+                    overlayNode.text(self.data.story.title);
                     var dateString = self.data.story.updatedOn.toString();
                     var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(dateString));
 
                     var indicators = $("<div class='story-brief-indicator'></div>");
 
                     indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
-                    indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.comments.length));
+                    indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.comments.length));
                     indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
-                    indicators.append($("<span class='story-brief-indicator-value'></span>").append(self.data.chapterImages.length + 1));
-                    indicators.append($("<span class='s-b-i-c'></span>").append(elapsedString));
+                    indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.chapterImages.length + 1));
+                    indicators.append($("<span class='s-b-i-c'></span>").text(elapsedString));
 
                     textNode.append(indicators);
 
                 } else {
                     if(self.personal === true ) {
-                        textNode.append("<strong>"+ self.data.story.title + "</strong><br/>");
+                        textNode.append("<strong></strong>").text(self.data.story.title).append("<br/>");
                         textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
                         if(self.data.chapters.length === 0 ){
-                            var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").html("Complete Story");
+                            var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").text("Complete Story");
                             overlayNode.append(editButton);
                             overlayNode.append("<br/>Complete your story by adding a chapter");
                             self.overlay.fadeIn();

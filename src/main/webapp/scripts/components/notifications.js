@@ -38,13 +38,13 @@ define(
                             self.count = notifications.length;
                             self.list.empty();
                             self.text.html(self.count);
-                            self.header.html('New Notifications (' + self.count + ")");
+                            self.header.text('New Notifications (' + self.count + ")");
                             if(self.count > 0){
                                 $.each(notifications, function(index, notification){
                                     var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
                                     self.list.append($('<div></div>')
                                         .addClass('notification')
-                                        .html(message)
+                                        .text(message)
                                         .attr("href","#story/" + notification.value.storyId)
                                         .attr("id", notification.id));
                                 });

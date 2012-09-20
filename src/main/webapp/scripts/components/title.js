@@ -12,10 +12,10 @@ define(
             },
             update: function(options){
                 if(options.title !== undefined){
-                    this.titleText.html(decodeURIComponent(options.title));
+                    this.titleText.text(decodeURIComponent(options.title));
                     this.element.show()
                 } else{
-                    this.titleText.html("");
+                    this.titleText.text("");
                     this.element.hide();
                 }
             }

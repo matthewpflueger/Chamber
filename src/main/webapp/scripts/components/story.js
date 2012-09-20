@@ -84,28 +84,28 @@ define(
                 self.currentImageIndex = 0;
 
                 self.text = self.element.find('.echo-s-b-text');
-                self.element.find('.echo-s-h-t-t').html(self.data.story.title);
+                self.element.find('.echo-s-h-t-t').text(self.data.story.title);
                 self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.storyUrl);
                 if(self.properties.echoedUser !== undefined){
                     if(self.data.echoedUser.id === self.properties.echoedUser.id){
                         var header = self.element.find('.echo-story-header');
-                        $('<a class="story-edit-button"></a></span>').html('Edit Story').attr("href","#write/story/" + self.data.story.id).appendTo(header);
+                        $('<a class="story-edit-button"></a></span>').text('Edit Story').attr("href","#write/story/" + self.data.story.id).appendTo(header);
                     }
                 }
                 self.gallery = self.element.find('.echo-s-b-gallery');
                 self.userNode = self.element.find('.echo-s-h-t-n');
-                var userLink = 'by <a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '">' + self.data.echoedUser.name + '</a>';
+                var userLink = $(document.createTextNode('by ')).append('<a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '"></a>').text(self.data.echoedUser.name);
 
                 if(self.properties.isWidget !== true){
-                    var fromLink = '<br/>from ';
+                    var fromLink = $('<br/>').append(document.createTextNode('from '));
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-                        fromLink = fromLink + '<a class="link-black bold-link" href="#partner/' + p + '">' + self.data.story.productInfo + '</a>';
-                        fromLink = fromLink + ' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)';
+                        fromLink.append('<a class="link-black bold-link" href="#partner/' + p + '"></a>').text(self.data.story.productInfo);
+                        fromLink.append(' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
                     } else if (utils.isUrl(self.data.story.productInfo)){
-                        fromLink = fromLink + '<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '">' + self.data.story.productInfo + '</a>';
+                        fromLink.append('<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo);
                     } else {
-                        fromLink = fromLink +  self.data.story.productInfo;
+                        fromLink.append(document.createTextNode(self.data.story.productInfo));
                     }
                 }
                 var userImage = $('<img />').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)).addClass("echo-s-h-t-n-i");
@@ -118,9 +118,8 @@ define(
                 self.img = $("<img />");
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
-                //var chapterTitle = $("<div class='echo-s-b-t-t'></div>").append(self.data.chapters[0].title);
-                self.element.find('.echo-story-chapter-title').html(self.data.chapters[0].title);
-                var chapterText = $("<div class='echo-s-b-t-b'></div>").append(utils.replaceUrlsWithLink(self.data.chapters[0].text.replace(/\n/g, '<br />')));
+                self.element.find('.echo-story-chapter-title').text(self.data.chapters[0].title);
+                var chapterText = $("<div class='echo-s-b-t-b'></div>").text(utils.replaceUrlsWithLink(self.data.chapters[0].text.replace(/\n/g, '<br />')));
                 self.text.append(chapterText);
                 self.renderGalleryNav();
                 self.renderComments();
@@ -139,7 +138,7 @@ define(
                 self.galleryChapters = [];
                 $.each(self.chapters.array, function(index, chapter){
                     self.galleryChapters[index]=  $('<div></div>').addClass('echo-gallery-chapter');
-                    var title = $('<div></div>').addClass('echo-gallery-title').html(chapter.chapter.title);
+                    var title = $('<div></div>').addClass('echo-gallery-title').text(chapter.chapter.title);
                     self.galleryChapters[index].append(title);
                     self.galleryNode.append(self.galleryChapters[index]);
                     $.each(chapter.images, function(index2, image){
@@ -178,8 +177,10 @@ define(
                 var self = this;
                 var textArea = self.element.find('.echo-s-b-text');
                 textArea.fadeOut(function(){
-                    self.element.find('.echo-story-chapter-title').html(self.chapters.array[self.currentChapterIndex].chapter.title);
-                    self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />')));
+                    self.element.find('.echo-story-chapter-title').text(self.chapters.array[self.currentChapterIndex].chapter.title);
+                    //appending as text obviously breaks the link replacement...
+                    self.element.find('.echo-s-b-t-b').text(utils.replaceUrlsWithLink(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />')));
+//                    self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />')));
                     textArea.fadeIn();
                 });
 
@@ -226,14 +227,14 @@ define(
                 });
                 commentListNode.empty();
                 $("#echo-story-comment-ta").val("");
-                if(self.data.comments.length > 0) $("#echo-s-c-t-count").html("(" + self.data.comments.length + ")");
+                if(self.data.comments.length > 0) $("#echo-s-c-t-count").text("(" + self.data.comments.length + ")");
                 $.each(self.data.comments, function(index,comment){
                     var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(comment.createdOn.toString()));
                     var elapsedNode = $('<span class="echo-s-c-l-c-d"></span>').append(elapsedString);
-                    var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a class='red-link'></a>").append(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
+                    var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a class='red-link'></a>").text(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
                     var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", utils.getProfilePhotoUrl(comment.echoedUser)).attr("align", "absmiddle");
                     img.prependTo(commentUserNode);
-                    var commentText = $('<div class="echo-s-c-l-c-t"></div>').append(comment.text.replace(/\n/g, '<br />'));
+                    var commentText = $('<div class="echo-s-c-l-c-t"></div>').text(comment.text.replace(/\n/g, '<br />'));
                     var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
                     commentListNode.append(commentNode);
                 });

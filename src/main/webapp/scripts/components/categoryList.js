@@ -29,7 +29,8 @@ define(
                     url: self.properties.urls.api + "/api/tags/top",
                     success: function(data){
                         $.each(data, function(index, tag){
-                            var categoryItem = $('<div class="category-menu-item"></div>').html(tag.id + " (" + tag.counter + ")").attr("href", tag.id);
+                            var categoryItem = $('<div class="category-menu-item"></div>').text(tag.id + " (" + tag.counter + ")").attr("href", tag.id);
+//                            var categoryItem = $('<div class="category-menu-item"></div>').html(tag.id + " (" + tag.counter + ")").attr("href", tag.id);
                             self.list.append(categoryItem);
                         });
                     }

@@ -10,7 +10,7 @@ define(
                 this.EvAg.bind('pagetitle/update', this.update);
             },
             update: function(text){
-                this.element.html("Echoed | " + text);
+                this.element.text("Echoed | " + text);
             }
         });
     }
