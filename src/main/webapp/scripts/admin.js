@@ -19,6 +19,7 @@ require.config({
 
 define(
     [
+        'requireLib',
         'jquery',
         'backbone',
         'underscore',
@@ -28,7 +29,7 @@ define(
         'components/fade',
         'components/story'
     ],
-    function($, Backbone, _, Router, ErrorLog, Moderate, Fade, Story){
+    function(require, $, Backbone, _, Router, ErrorLog, Moderate, Fade, Story){
         $(document).ready(function(){
             var EventAggregator = _.extend({}, Backbone.Events);
 
