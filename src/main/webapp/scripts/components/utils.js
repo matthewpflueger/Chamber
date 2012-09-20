@@ -39,6 +39,9 @@ define(
                 var regexp =/(http:\/\/|https:\/\/|www)(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
                 return regexp.test(s);
             },
+            escapeHtml: function(string){
+                return string.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            },
             makeUrl: function(s){
                 if(s.indexOf("http") === -1){
                     s = "http://" + s;
