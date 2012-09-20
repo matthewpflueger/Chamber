@@ -611,7 +611,7 @@ class EchoedUserService(
             if (!toEmail.isEmpty)
                 mp(SendEmail(
                     echoedUser.email,
-                    "You have new comments on your stories!",
+                    "%s, you have new comments on your stories!" format echoedUser.name,
                     "email_notifications", Map( "notifications" -> toEmail.toList,
                                                 "name" -> echoedUser.name)
                 ))
