@@ -18,7 +18,7 @@ import java.util.Date
 import com.echoed.util.{Encrypter, UUID}
 import akka.util.Timeout
 import scala.collection.immutable.Stack
-import com.echoed.chamber.services.scheduler.Today
+import com.echoed.chamber.services.scheduler.{Hour, ScheduleOnce}
 import com.echoed.chamber.domain._
 import com.google.common.collect.HashMultimap
 import com.echoed.chamber.domain.EchoedUser
@@ -33,7 +33,6 @@ import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.FriendCloset
 import com.echoed.chamber.services.twitter.UpdateStatusResponse
 import com.echoed.chamber.domain.EchoedUserSettings
-import com.echoed.chamber.services.scheduler.ScheduleOnce
 import com.echoed.chamber.domain.TwitterStatus
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
@@ -593,7 +592,7 @@ class EchoedUserService(
             notifications = notifications.push(n)
             ep(NotificationCreated(n))
             mp(ScheduleOnce(
-                    Today,
+                    Hour,
                     EmailNotifications(EchoedUserClientCredentials(echoedUser.id)),
                     Option(echoedUser.id)))
 
