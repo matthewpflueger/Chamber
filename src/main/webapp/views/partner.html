@@ -1,6 +1,10 @@
 {{<common_super}}
     {{$jsHead}}
         {{#scriptTag}}partner.js{{/scriptTag}}
+        <script type="text/javascript">
+            Echoed.partnerUser = {};
+            Echoed.partnerUser.partnerId = '{{ partnerUser.partnerId }}';
+        </script>
     {{/jsHead}}
     {{$title}}
         Echoed | Partner Dashboard

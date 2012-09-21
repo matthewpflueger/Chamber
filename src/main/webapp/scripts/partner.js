@@ -36,7 +36,7 @@ require(
 
                 var properties = {
                     urls: Echoed.urls,
-                    echoedUser: Echoed.echoedUser,
+                    partnerUser: Echoed.partnerUser,
                     exhibitShowLogin: true
                 };
 

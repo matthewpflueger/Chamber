@@ -27,10 +27,11 @@ define(
                     url: this.properties.urls.api + "/partner/stories",
                     success: function(data){
                         $.each(data, function(index, story){
-                            console.log(story);
                             var template = _.template(templateModerateStory, story);
-                            $('<tr></tr>').html(template).appendTo(body);
-
+                            var tr = $('<tr></tr>').html(template).appendTo(body);
+                            if(story.isModerated){
+                                tr.find('.moderate-cb').attr("checked","checked");
+                            }
                         });
                         self.show();
                     }
