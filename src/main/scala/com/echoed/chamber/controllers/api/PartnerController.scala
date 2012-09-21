@@ -9,9 +9,11 @@ import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
 import scala.Right
 import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
 import com.echoed.chamber.services.state.{QueryStoriesForPartnerResponse, QueryStoriesForPartner}
+import com.echoed.chamber.controllers.interceptors.Secure
 
 
 @Controller
+@Secure
 @RequestMapping(Array("/partner"))
 class PartnerController extends EchoedController {
 
@@ -47,6 +49,5 @@ class PartnerController extends EchoedController {
 
         result
     }
-
 
 }

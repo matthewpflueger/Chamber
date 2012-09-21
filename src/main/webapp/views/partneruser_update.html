@@ -1,0 +1,38 @@
+{{<public_super}}
+    {{$title}}Echoed | Partner User Update{{/title}}
+    {{$public_content}}
+    <div id="login-content">
+        <div id="register-form" class="login-form">
+            <div class="login-form-title">Update Your Info</div>
+            {{#errors.global}}{{this}}{{/errors.global}}
+            <form action="{{urls.site}}/partner/partneruser" method="POST">
+                <fieldset>
+                    <legend>Info</legend>
+                    <label  for="name">Name<em> * </em><span class="error">{{errors.updatePartnerUserForm.name}}</span></label>
+                    <input  id="name"
+                            name="name"
+                            type="text"
+                            placeholder="What is your name?"
+                            value="{{updatePartnerUserForm.name}}" />
+                    <label  for="email">Email<em> * </em><span class="error">{{errors.updatePartnerUserForm.email}}</span></label>
+                    <input  id="email"
+                            name="email"
+                            type="text"
+                            placeholder="What is your email?"
+                            value="{{updatePartnerUserForm.email}}" />
+                    <label  for="password">Password<em> * </em><span class="error">{{errors.updatePartnerUserForm.password}}</span></label>
+                    <input  id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Minimum of six characters..." />
+                </fieldset>
+                <br/>
+                <input  id="register"
+                        name="register"
+                        type="submit" />
+            </form>
+        </div>
+    </div>
+    {{/public_content}}
+    {{$olark}}{{/olark}}
+{{/public_super}}

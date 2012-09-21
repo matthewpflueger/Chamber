@@ -6,6 +6,7 @@ import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.adminuser._
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.controllers.interceptors.Secure
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 
 @Controller
@@ -20,6 +21,23 @@ class AdminDashboardController extends EchoedController {
             case GetAdminUserResponse(_, Right(au)) =>
                 log.debug("Got {}", au)
                 result.set(new ModelAndView(v.adminDashboardView, "adminUser", au))
+        }
+
+        result
+    }
+
+    @RequestMapping(Array("/admin/become"))
+    def become(
+            @RequestParam(value = "partnerUserId", required = true) partnerUserId: String,
+            request: HttpServletRequest,
+            response: HttpServletResponse,
+            aucc: AdminUserClientCredentials) = {
+        val result = new DeferredResult(new ModelAndView(v.adminDashboardErrorView))
+
+        mp(BecomePartnerUser(aucc, partnerUserId)).onSuccess {
+            case BecomePartnerUserResponse(_, Right(pu)) =>
+                cookieManager.addPartnerUserCookie(response, pu, request)
+                result.set(new ModelAndView(v.partnerLoginView))
         }
 
         result

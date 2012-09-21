@@ -4,6 +4,7 @@ import com.echoed.chamber.domain
 import org.squeryl.KeyedEntity
 import java.util.Date
 
+
 class Echo(
         val id: String,
         val updatedOn: Date,

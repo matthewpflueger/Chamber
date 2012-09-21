@@ -41,5 +41,12 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
 
             sender ! QueryStoriesForPartnerResponse(msg, Right(ss))
 
+        case msg @ QueryPartners(aucc, page, pageSize) =>
+            sender ! QueryPartnersResponse(msg, Right(from(partners)(p => select(p)).page(page, pageSize).toList))
+
+        case msg @ QueryPartnerUsers(aucc, partnerId, page, pageSize) =>
+            sender ! QueryPartnerUsersResponse(
+                    msg,
+                    Right(from(partnerUsers)(pu => where(pu.partnerId === partnerId) select(pu)).page(page, pageSize).toList))
     }
 }

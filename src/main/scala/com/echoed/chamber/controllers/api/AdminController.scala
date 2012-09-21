@@ -9,10 +9,27 @@ import org.springframework.web.bind.annotation._
 import org.springframework.validation.BindingResult
 import javax.validation.Valid
 import org.springframework.web.context.request.async.DeferredResult
-import java.util.ArrayList
-import com.echoed.chamber.domain.Echo
-import com.echoed.chamber.domain.partner.Partner
-import com.echoed.chamber.services.state.{QueryStoriesForAdmin, QueryStoriesForAdminResponse}
+import com.echoed.chamber.services.state._
+import com.echoed.chamber.controllers.api.admin.AdminUpdatePartnerSettingsForm
+import com.echoed.chamber.services.adminuser.GetPartnerSettingsResponse
+import com.echoed.chamber.services.state.QueryStoriesForAdminResponse
+import com.echoed.chamber.services.state.QueryPartnersResponse
+import com.echoed.chamber.services.adminuser.GetUsersResponse
+import com.echoed.chamber.services.adminuser.UpdatePartnerHandleAndCategory
+import com.echoed.chamber.services.adminuser.UpdatePartnerHandleAndCategoryResponse
+import scala.Right
+import com.echoed.chamber.services.adminuser.GetPartner
+import com.echoed.chamber.services.adminuser.GetCurrentPartnerSettings
+import com.echoed.chamber.services.adminuser.GetCurrentPartnerSettingsResponse
+import com.echoed.chamber.services.adminuser.UpdatePartnerSettings
+import com.echoed.chamber.services.state.QueryStoriesForAdmin
+import com.echoed.chamber.services.adminuser.GetPartnerResponse
+import com.echoed.chamber.services.adminuser.GetPartnerSettings
+import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
+import com.echoed.chamber.services.adminuser.UpdatePartnerSettingsResponse
+import com.echoed.chamber.services.adminuser.GetUsers
+import com.echoed.chamber.services.state.QueryPartners
+
 
 @Controller
 @RequestMapping(Array("/admin"))
@@ -20,13 +37,14 @@ class AdminController extends EchoedController with FormController {
 
     @BeanProperty var formValidator: AdminUpdatePartnerSettingsFormValidator = _
 
+
     @RequestMapping(value = Array("/stories"), method = Array(RequestMethod.GET))
     @ResponseBody
     def queryStories(
-                        @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
-                        @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int,
-                        @RequestParam(value = "moderated", required = false) moderated: String,
-                        aucc: AdminUserClientCredentials) = {
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int,
+            @RequestParam(value = "moderated", required = false) moderated: String,
+            aucc: AdminUserClientCredentials) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
@@ -38,33 +56,39 @@ class AdminController extends EchoedController with FormController {
         result
     }
 
-    @RequestMapping(value = Array("/echoPossibility"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def getEchoPossibilityJSON(aucc: AdminUserClientCredentials) = {
-        val result = new DeferredResult(new ArrayList[Echo]())
-
-        mp(GetEchoPossibilities(aucc)).onSuccess {
-            case GetEchoPossibilitiesResponse(_, Right(echoPossibilities)) =>
-                log.debug("Successfully received Json Response for EchoPossibilities")
-                result.set(echoPossibilities)
-        }
-
-        result
-    }
-
     @RequestMapping(value = Array("/partners"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getPartnersJSON(aucc: AdminUserClientCredentials) = {
-        val result = new DeferredResult(new ArrayList[Partner]())
+    def queryPartners(
+            aucc: AdminUserClientCredentials,
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int) = {
+        val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(GetPartners(aucc)).onSuccess {
-            case GetPartnersResponse(_, Right(partners)) =>
-                log.debug("Received Json Response For Users: {}", partners)
+        mp(QueryPartners(aucc, page, pageSize)).onSuccess {
+            case QueryPartnersResponse(_, Right(partners)) =>
                 result.set(partners)
         }
 
         result
     }
+
+    @RequestMapping(value = Array("/partnerusers"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def queryPartnerUsers(
+            aucc: AdminUserClientCredentials,
+            @RequestParam(value = "partnerId", required = true) partnerId: String,
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(QueryPartnerUsers(aucc, partnerId, page, pageSize)).onSuccess {
+            case QueryPartnerUsersResponse(_, Right(partnerUsers)) =>
+                result.set(partnerUsers)
+        }
+
+        result
+    }
+
 
     @RequestMapping(value = Array("/partner/{partnerId}"), method = Array(RequestMethod.GET))
     @ResponseBody

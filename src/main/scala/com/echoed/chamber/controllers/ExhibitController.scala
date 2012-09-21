@@ -47,7 +47,7 @@ class ExhibitController extends EchoedController {
         log.debug("Redirecting to #partner/{}", partnerHandle)
         new ModelAndView(
                 v.echoRedirectView,
-                Map("echo" -> Map("landingPageUrl" -> ("%s/#partner/%s" format(getHttpSiteUrl, partnerHandle)))))
+                Map("echo" -> Map("landingPageUrl" -> ("%s/#partner/%s" format(v.siteUrl, partnerHandle)))))
     }
 
 

@@ -4,10 +4,9 @@ import com.echoed.chamber.services.{MessageResponse => MR, _}
 
 import java.util.{List => JList}
 import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.partner.PartnerSettings
+import com.echoed.chamber.domain.partner.{PartnerUser, PartnerSettings, Partner}
 import akka.actor.ActorRef
 import com.echoed.chamber.domain.EchoedUser
-import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.AdminUser
 import com.echoed.chamber.services.EchoedException
 
@@ -40,6 +39,11 @@ import com.echoed.chamber.services.adminuser.{AdminUserException => AUE}
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.services.adminuser.{AdminUserIdentifiable => AUI}
 
+case class BecomePartnerUser(credentials: AUCC, partnerUserId: String) extends AUM with AUI
+case class BecomePartnerUserResponse(
+                message: BecomePartnerUser,
+                value: Either[AUE, PartnerUser])
+                extends AUM with MR[PartnerUser, BecomePartnerUser, AUE]
 
 case class CreateAdminUser(credentials: AUCC, adminUser: AdminUser) extends AUM with AUI
 case class CreateAdminUserResponse(
