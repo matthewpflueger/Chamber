@@ -17,7 +17,8 @@ case class StoryState(
         views: Int,
         tag: String,
         echoedUser: EchoedUser,
-        image: Image,
+        imageId: String,
+        image: Option[Image],
         chapters: List[Chapter],
         chapterImages: List[ChapterImage],
         comments: List[Comment],
@@ -40,7 +41,8 @@ case class StoryState(
         0,
         null,
         eu,
-        img.orNull,
+        img.map(_.id).orNull,
+        img,
         List.empty[Chapter],
         List.empty[ChapterImage],
         List.empty[Comment],
@@ -50,14 +52,14 @@ case class StoryState(
         List.empty[Moderation])
 
     def isCreated = id != null && createdOn > 0
-    def create(title: String, productInfo: String, image: Image) = {
+    def create(title: String, productInfo: String, imageId: String) = {
         val storyState = copy(
             id = UUID(),
             updatedOn = new Date,
             createdOn = new Date,
             title = title,
             productInfo = productInfo,
-            image = image)
+            imageId = imageId)
         if (partnerSettings.moderateAll) storyState.moderate(partner.name, "Partner", partner.id)
         else storyState
     }
@@ -70,8 +72,8 @@ case class StoryState(
             partner.id,
             partner.handle,
             partnerSettings.id,
-            image.id,
-            image,
+            image.map(_.id).orNull,
+            image.orNull,
             title,
             echo.map(_.id).orNull,
             echo.map(_.productId).orNull,

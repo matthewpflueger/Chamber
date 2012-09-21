@@ -91,7 +91,7 @@ class PartnerService(
                         val img = Option(imageDao.findByUrl(ec.image.url)).getOrElse {
                             log.debug("New image for processing {}", ec.image.url)
                             imageDao.insert(ec.image)
-                            mp(ProcessImage(ec.image))
+                            mp(ProcessImage(Left(ec.image)))
                             ec.image
                         }
                         echoMetricsDao.insert(echoMetrics)

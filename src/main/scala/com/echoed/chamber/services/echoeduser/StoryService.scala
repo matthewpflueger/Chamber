@@ -45,15 +45,14 @@ import com.echoed.chamber.services.echoeduser.UpdateChapterResponse
 import com.echoed.chamber.services.state.ReadStoryForEcho
 import com.echoed.chamber.services.state.ReadStory
 import com.echoed.util.DateUtils._
+import com.echoed.chamber.services.image.{ProcessImage, ProcessImageResponse}
 
 
 class StoryService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
         initMessage: Message,
-        echoedUser: EchoedUser,
-        imageDao: ImageDao,
-        transactionTemplate: TransactionTemplate) extends OnlineOfflineService {
+        echoedUser: EchoedUser) extends OnlineOfflineService {
 
     private var storyState: StoryState = _
 
@@ -89,8 +88,8 @@ class StoryService(
 
 
         case msg @ CreateStory(_, title, imageId, _, productInfo, _) =>
-            val image = imageDao.findById(imageId)
-            storyState = storyState.create(title, productInfo.orNull, image)
+            mp.tell(ProcessImage(Right(imageId)), self)
+            storyState = storyState.create(title, productInfo.orNull, imageId)
             ep(StoryCreated(storyState))
 
             context.parent ! RegisterStory(storyState.asStory)
@@ -98,7 +97,8 @@ class StoryService(
 
 
         case msg @ UpdateStory(_, storyId, title, imageId) =>
-            storyState = storyState.copy(title = title, image = imageDao.findById(imageId), updatedOn = new Date)
+            mp.tell(ProcessImage(Right(imageId)), self)
+            storyState = storyState.copy(title = title, imageId = imageId, image = None, updatedOn = new Date)
             ep(new StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
 
@@ -113,7 +113,10 @@ class StoryService(
 
         case msg @ CreateChapter(_, storyId, title, text, imageIds) =>
             val chapter = new Chapter(storyState.asStory, title, text)
-            val chapterImages = imageIds.map(id => new ChapterImage(chapter, imageDao.findById(id)))
+            val chapterImages = imageIds.map { id =>
+                mp.tell(ProcessImage(Right(id)), self)
+                new ChapterImage(chapter, id)
+            }
 
             storyState = storyState.copy(
                     chapters = storyState.chapters ::: List(chapter),
@@ -125,8 +128,14 @@ class StoryService(
 
 
         case msg @ UpdateChapter(_, storyId, chapterId, title, text, imageIds) =>
-            val chapter = storyState.chapters.find(_.id == chapterId).map(_.copy(title = title, text = text)).get
-            val chapterImages = imageIds.map(id => new ChapterImage(chapter, imageDao.findById(id)))
+            val chapter = storyState.chapters
+                    .find(_.id == chapterId)
+                    .map(_.copy(title = title, text = text, updatedOn = new Date))
+                    .get
+            val chapterImages = imageIds.map { id =>
+                mp.tell(ProcessImage(Right(id)), self)
+                new ChapterImage(chapter, id)
+            }
 
             storyState = storyState.copy(
                     chapters = storyState.chapters.map(c => if (c.id == chapter.id) chapter else c),
@@ -164,6 +173,34 @@ class StoryService(
 
         case msg @ ModerateStory(_, _, Left(pucc), mo) => moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
         case msg @ ModerateStory(_, _, Right(aucc), mo) => moderate(msg, aucc.name.get, "AdminUser", aucc.id, mo)
+
+        case msg @ ProcessImageResponse(_, Right(img)) =>
+            if (storyState.imageId == img.id) {
+                storyState = storyState.copy(image = Option(img), updatedOn = new Date)
+                ep(StoryUpdated(storyState))
+            } else storyState.chapterImages
+                    .find(_.imageId == img.id)
+                    .map(_.copy(image = img, updatedOn = new Date))
+                    .foreach { chapterImage =>
+
+                storyState.chapters
+                        .find(_.id == chapterImage.chapterId)
+                        .map(_.copy(updatedOn = new Date))
+                        .foreach { chapter =>
+
+                    val chapterImages = storyState.chapterImages.filter(_.chapterId == chapter.id).map { ci =>
+                        if (ci.id == chapterImage.id) chapterImage else ci
+                    }
+
+                    storyState = storyState.copy(
+                            chapters = storyState.chapters.map(c => if (c.id == chapter.id) chapter else c),
+                            chapterImages = storyState.chapterImages.filterNot(_.chapterId == chapter.id) ::: chapterImages,
+                            updatedOn = new Date)
+
+                    ep(ChapterUpdated(storyState, chapter, chapterImages))
+                }
+            }
+
     }
 
     private def moderate(

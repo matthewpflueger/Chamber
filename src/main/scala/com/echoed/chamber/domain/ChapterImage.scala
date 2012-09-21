@@ -35,7 +35,7 @@ case class ChapterImage(
 
     def this(
             chapter: Chapter,
-            _image: Image) = this(
+            imageId: String) = this(
         id = UUID(),
         updatedOn = new Date,
         createdOn = new Date,
@@ -46,7 +46,7 @@ case class ChapterImage(
         partnerSettingsId = chapter.partnerSettingsId,
         echoId = chapter.echoId,
         chapterId = chapter.id,
-        imageId = _image.id,
-        image = _image)
+        imageId = imageId,
+        image = new Image().copy(id = imageId))
 
 }

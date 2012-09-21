@@ -111,7 +111,7 @@ case class Image(
     val hasExhibit = exhibitUrl != null && exhibitWidth > 0 && exhibitHeight > 0
     val hasStory = storyUrl != null && storyWidth > 0 && storyHeight > 0
 
-    val isProcessed = processedOn > 0 && hasOriginal && hasSized && hasThumbnail && hasExhibit
+    val isProcessed = processedOn > 0 && hasOriginal && hasStory && hasExhibit && hasSized && hasThumbnail
     
     val preferredUrl = if (hasExhibit) exhibitUrl else if (hasSized) sizedUrl else if (hasStory) storyUrl else if (hasOriginal) originalUrl else url
     val preferredWidth = if (hasExhibit) exhibitWidth else if (hasSized) sizedWidth else if (hasStory) storyWidth else if (hasOriginal) originalWidth else 0

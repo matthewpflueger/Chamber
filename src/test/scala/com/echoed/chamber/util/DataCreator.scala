@@ -976,7 +976,7 @@ class DataCreator {
 
     val chapterImage = new ChapterImage(
             chapter,
-            images(0)).copy(id = "450eefcb-bb04-11e1-8fd0-0090f5bf0f7b")
+            images(0).id).copy(id = "450eefcb-bb04-11e1-8fd0-0090f5bf0f7b")
 
     val comment = new Comment(
             chapter,

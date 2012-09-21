@@ -201,9 +201,7 @@ class ServiceConfig {
             mp = messageProcessor,
             ep = eventProcessor,
             initMessage = msg,
-            echoedUser = eu,
-            imageDao = imageDao,
-            transactionTemplate = transactionTemplate)))
+            echoedUser = eu)))
 
     @Bean
     def echoedUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new EchoedUserService(
