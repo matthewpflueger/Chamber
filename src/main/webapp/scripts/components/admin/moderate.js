@@ -29,7 +29,10 @@ define(
                         $.each(data, function(index, story){
                             console.log(story);
                             var template = _.template(templateModerateStory, story);
-                            $('<tr></tr>').html(template).appendTo(body);
+                            var tr = $('<tr></tr>').html(template).appendTo(body);
+                            if(story.isEchoedModerated){
+                                tr.find('.moderate-cb').attr("checked","checked");
+                            }
 
                         });
                         self.show();
