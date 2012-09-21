@@ -162,6 +162,8 @@
         <property name="adminDashboardView" value="admin.dashboard" />
         <property name="adminDashboardErrorView" value="admin.login"/>
 
+        <property name="updatePartnerUserView" value="partneruser_update" />
+        <property name="postUpdatePartnerUserView" value="redirect:${dashboardUrl}" />
         <property name="partnerDashboardView" value="partner" />
         <property name="partnerDashboardErrorView" value="partner_login" />
 

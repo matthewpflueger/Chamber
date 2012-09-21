@@ -1,9 +1,11 @@
 package com.echoed.chamber.services.state
 
 import com.echoed.chamber.services.{MessageResponse => MR, EchoedException, Message}
-import com.echoed.chamber.domain.{StoryState}
-import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import com.echoed.chamber.domain.StoryState
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
+import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
+import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
+import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
 
 sealed trait QueryMessage extends Message
 sealed case class QueryException(message: String = "", cause: Throwable = null)
@@ -33,12 +35,20 @@ case class QueryStoriesForAdminResponse(
 
 
 case class QueryStoriesForPartner(
-        pucc: PartnerUserClientCredentials,
+        pucc: PUCC,
         page: Int = 0,
         pageSize: Int = 30,
         moderated: Option[Boolean] = None) extends QM
-
 case class QueryStoriesForPartnerResponse(
                 message: QueryStoriesForPartner,
                 value: Either[QE, List[StoryState]])
                 extends QM with MR[List[StoryState], QueryStoriesForPartner, QE]
+
+
+case class QueryPartners(aucc: AUCC, page: Int = 0, pageSize: Int = 30) extends QM
+case class QueryPartnersResponse(message: QueryPartners, value: Either[QE, List[Partner]])
+        extends QM with MR[List[Partner], QueryPartners, QE]
+
+case class QueryPartnerUsers(aucc: AUCC, partnerId: String, page: Int = 0, pageSize: Int = 30) extends QM
+case class QueryPartnerUsersResponse(message: QueryPartnerUsers, value: Either[QE, List[PartnerUser]])
+        extends QM with MR[List[PartnerUser], QueryPartnerUsers, QE]

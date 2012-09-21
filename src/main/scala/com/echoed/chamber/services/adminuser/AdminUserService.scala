@@ -15,6 +15,8 @@ import com.echoed.chamber.services.state.ReadAdminUserForEmail
 import com.echoed.chamber.domain.AdminUser
 import scala.Right
 import com.echoed.chamber.services.state.ReadAdminUserForCredentials
+import com.echoed.chamber.domain.partner.PartnerUser
+import com.echoed.chamber.services.partneruser.{GetPartnerUserResponse, PartnerUserClientCredentials, GetPartnerUser}
 
 
 class AdminUserService(
@@ -57,10 +59,15 @@ class AdminUserService(
             if (adminUser.isCredentials(email, password)) sender ! LoginWithEmailPasswordResponse(msg, Right(adminUser))
             else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
 
+        case msg @ BecomePartnerUser(_, partnerUserId) =>
+            val channel = sender
+            mp(GetPartnerUser(PartnerUserClientCredentials(partnerUserId))).onSuccess {
+                case GetPartnerUserResponse(_, Right(pu)) => channel ! BecomePartnerUserResponse(msg, Right(pu))
+            }
 
         case msg: GetUsers =>
             log.debug("Retrieving EchoedUsers")
-            sender ! GetUsersResponse(msg,Right(asScalaBuffer(adminViewDao.getUsers).toList))
+            sender ! GetUsersResponse(msg, Right(asScalaBuffer(adminViewDao.getUsers).toList))
 
 
         case msg: GetPartners =>

@@ -60,7 +60,10 @@ class Views {
     @Required @BeanProperty var adminDashboardUrl: String = _
     @Required @BeanProperty var adminDashboardView: String = _
     @Required @BeanProperty var adminDashboardErrorView: String = _
-    
+
+    @Required @BeanProperty var updatePartnerUserView: String = _
+    @Required @BeanProperty var postUpdatePartnerUserView: String = _
+
     @Required @BeanProperty var partnerDashboardView: String = _
     @Required @BeanProperty var partnerDashboardErrorView: String = _
 

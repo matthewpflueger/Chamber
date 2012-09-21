@@ -56,6 +56,15 @@ class PartnerUserService(
                 case e: InvalidPassword => sender ! ActivatePartnerUserResponse(msg, Left(e))
             }
 
+        case msg @ UpdatePartnerUser(_, name, email, password) =>
+            try {
+                partnerUser = partnerUser.copy(name = name, email = email).createPassword(password)
+                sender ! UpdatePartnerUserResponse(msg, Right(partnerUser))
+                ep(PartnerUserUpdated(partnerUser))
+            } catch {
+                case e: InvalidPassword => sender ! UpdatePartnerUserResponse(msg, Left(e))
+            }
+
         case msg @ Logout(_) =>
             self ! PoisonPill
 

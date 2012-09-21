@@ -103,7 +103,9 @@ class CookieManager {
         val cookie = makeCookie(
                 partnerUserCookieName,
                 Option(partnerUser).map(pu => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(pu))),
-                Option(request))
+                Option(request),
+                None,
+                true)
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }

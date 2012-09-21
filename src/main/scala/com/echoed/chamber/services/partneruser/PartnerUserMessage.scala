@@ -68,11 +68,11 @@ case class Logout(credentials: PartnerUserClientCredentials) extends PUM with PU
 
 
 case class GetPartnerUser(credentials: PUCC) extends PUM with PUI
-case class GetPartnerUserResponse(message: GetPartnerUser, value: Either[PartnerUserException, PartnerUser])
+case class GetPartnerUserResponse(message: GetPartnerUser, value: Either[PUE, PartnerUser])
         extends PUM with MR[PartnerUser, GetPartnerUser, PUE]
 
 case class GetPartnerSettings(credentials: PUCC) extends PUM with PUI
-case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerUserException, List[PartnerSettings]])
+case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PUE, List[PartnerSettings]])
         extends PUM with MR[List[PartnerSettings], GetPartnerSettings, PUE]
 
 case class ActivatePartnerUser(credentials: PUCC, password: String) extends PUM with PUI
@@ -81,3 +81,8 @@ case class ActivatePartnerUserResponse(
         value: Either[InvalidPassword, PartnerUser])
         extends PUM with MR[PartnerUser, ActivatePartnerUser, InvalidPassword]
 
+case class UpdatePartnerUser(credentials: PUCC, name: String, email: String, password: String) extends PUM with PUI
+case class UpdatePartnerUserResponse(
+        message: UpdatePartnerUser,
+        value: Either[InvalidPassword, PartnerUser])
+        extends PUM with MR[PartnerUser, UpdatePartnerUser, InvalidPassword]
