@@ -12,20 +12,18 @@ import java.security.MessageDigest
 import javax.imageio.ImageIO
 import org.imgscalr.Scalr
 import com.echoed.chamber.domain.Image
-import collection.mutable.ListBuffer
 import java.util.{Calendar, Date}
 import java.io.{FileNotFoundException, ByteArrayOutputStream, ByteArrayInputStream}
 import org.jclouds.rest.AuthorizationException
 import java.util.concurrent.atomic.AtomicLong
-import scala.collection.mutable.ConcurrentMap
-import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 import akka.dispatch.Promise
 import akka.util.duration._
 import akka.util.Timeout
-import akka.pattern.ask
 import com.echoed.chamber.services.EchoedService
 import com.echoed.util.DateUtils._
+import com.google.common.collect.HashMultimap
+import akka.pattern._
 
 
 class ImageService(
@@ -47,9 +45,8 @@ class ImageService(
     var future: Option[Promise[ProcessImageResponse]] = None
     var unprocessedFuture: Option[Promise[Option[Image]]] = None
 
-    //responses is a concurrent map because the sendResponse call gets initiated post blobStore.store in a future...
-    private val responses: ConcurrentMap[String, ListBuffer[(ProcessImage, ActorRef)]] =
-        new ConcurrentHashMap[String, ListBuffer[(ProcessImage, ActorRef)]]()
+
+    private val responses = HashMultimap.create[String, ActorRef]()
 
     private val reloadBlobStore = new AtomicLong(System.currentTimeMillis())
 
@@ -133,8 +130,7 @@ class ImageService(
                 image.ext)))
         } catch {
             case e: FileNotFoundException => f(Left(ImageNotFound(image, _cause = e)))
-            case e =>
-                f(Left(e))
+            case e => f(Left(e))
         } finally {
             bufferedImage.foreach(_.flush)
             sizedBufferedImage.foreach(_.flush)
@@ -143,43 +139,27 @@ class ImageService(
 
 
     private def update(image: Image) = {
-        try {
-            val img = image.copy(processedOn = new Date, processedStatus = image.processedStatus.take(510))
-            imageDao.update(img)
-        } catch {
-            case e => log.error("Error persisting {}, {}", image, e)
-        }
+        val img = image.copy(processedOn = new Date, processedStatus = image.processedStatus.take(510))
+        try { imageDao.update(img) } catch { case e => log.error("Error persisting {}, {}", image, e) }
+        img
     }
 
     private def sendResponse(image: Image, response: Either[ImageException, Image]) {
-        update(image)
-
-        responses.remove(image.url).orElse {
-            log.debug("Nobody waiting for image processing response {}", response)
-            None
-        }.foreach(_.foreach { tuple =>
-            val message = tuple._1
-            val channel = tuple._2
-            log.debug("Sending image processing response {}", response)
-            channel ! ProcessImageResponse(message, response)
-        })
-
+        val img = update(image)
+        responses.removeAll(img.id).foreach(_ ! ProcessImageResponse(ProcessImage(Left(img)), response))
         //only for testing purposes...
-        future.foreach(_.success(ProcessImageResponse(ProcessImage(image), response)))
+        future.foreach(_.success(ProcessImageResponse(ProcessImage(Left(img)), response)))
     }
 
 
     private def error(image: Image, e: Throwable, processedStatus: Option[String] = None) {
         log.info("Error processing {}, {}", image, e)
 
-        val imageException =
-                if (e.isInstanceOf[ImageException]) {
-                    e.asInstanceOf[ImageException]
-                } else {
-                    ImageException(image, processedStatus.getOrElse("Error processing image"), e)
-                }
+        val ie =
+                if (e.isInstanceOf[ImageException]) e.asInstanceOf[ImageException]
+                else ImageException(image, processedStatus.getOrElse("Error processing image"), e)
 
-        sendResponse(image.copy(processedStatus = imageException.getMessage, retries = image.retries + 1), Left(imageException))
+        sendResponse(image.copy(processedStatus = ie.getMessage, retries = image.retries + 1), Left(ie))
     }
 
 
@@ -206,7 +186,7 @@ class ImageService(
                         return
                     }
                 }
-                me ! ImageStoreError(image, e, Some("Error storing image %s: %s" format(imageInfo.fileName, e.getMessage)))
+                me ! ImageError(image, e, Some("Error storing image %s: %s" format(imageInfo.fileName, e.getMessage)))
             },
             storedUrl => success(storedUrl)))
     }
@@ -228,16 +208,22 @@ class ImageService(
             try {
                 imageDao.insert(image)
                 channel ! StartProcessImageResponse(msg, Right(image))
-                (me ? ProcessImage(image)).onComplete(_.fold(
-                    e => log.error("Error processing image {}: {}", image.url, e),
-                    _ => log.debug("Successfully processed image {}", image.url)))
+                (me ? ProcessImage(Left(image))).onComplete(_.fold(
+                    log.error("Error processing image {}: {}", msg, _),
+                    log.debug("Successfully processed image {}", _)))
             } catch {
                 case e =>
                     log.error("Error inserting image {}: {}", image, e)
                     channel ! StartProcessImageResponse(msg, Left(ImageException(image, "Error inserting image", e)))
             }
 
-        case msg @ ProcessImage(image) =>
+        case msg @ ProcessImage(Right(imageId)) =>
+            Option(imageDao.findById(imageId)).map { image =>
+                sender ! ProcessImageResponse(msg, Right(image))
+                if (!image.isProcessed) self.forward(ProcessImage(Left(image)))
+            }
+
+        case msg @ ProcessImage(Left(image)) =>
             val me = context.self
             val channel = context.sender
 
@@ -246,37 +232,20 @@ class ImageService(
                 log.debug("Image has already been processed {}", image)
                 future.foreach(_.success(ProcessImageResponse(msg, Right(image))))
                 channel ! ProcessImageResponse(msg, Right(image))
-            } else /* commenting this out as it is really buggy - we have a leak that causes the response list to grow
-                      indefinitely - see API-67 this is part of that whole thing...
-                   responses.get(image.url).cata(
-                //looks like we are already processing this image so lets just remember to respond later...
-                list => {
-                    list += ((msg, channel))
-                    logger.debug("Already processing image {}, list of channels waiting for response {}", image.url, list)
-                },   */
-                {
-                    val list = responses.getOrElseUpdate(image.url, { ListBuffer[(ProcessImage, ActorRef)]() })
+            } else if (!responses.containsKey(image.id)) {
+                responses.put(image.id, channel)
 
-                    //we are not working on the image so lets see what we need to do...
-                    log.debug("Processing {}", image.url)
-//                    val list = ListBuffer[(ProcessImage, Channel[ProcessImageResponse])]()
-                    list += ((msg, channel))
-//                    responses.put(image.url, list)
-
-
-                    if (!image.hasOriginal) {
-                        me ! ProcessOriginalImage(image)
-                    } else if (!image.hasSized) {
-                        me ! ProcessSizedImage(image)
-                    } else if (!image.hasThumbnail) {
-                        me ! ProcessThumbnailImage(image)
-                    } else {
-                        //sanity check...
-                        log.error("Image already processed!?!? {}", image.url)
-                        responses.remove(image.url)
-                        channel ! ProcessImageResponse(msg, Right(image))
-                    }
-                } //)
+                if (!image.hasOriginal) me ! ProcessOriginalImage(image)
+                else if (!image.hasStory) me ! ProcessStoryImage(image)
+                else if (!image.hasExhibit) me ! ProcessExhibitImage(image)
+                else if (!image.hasSized) me ! ProcessSizedImage(image)
+                else if (!image.hasThumbnail) me ! ProcessThumbnailImage(image)
+                else {
+                    //sanity check...
+                    log.error("Image already processed!?!? {}", image.url)
+                    sendResponse(image, Right(image))
+                }
+            } else responses.put(image.id, channel)
 
 
         case msg @ ProcessOriginalImage(image) =>
@@ -284,7 +253,7 @@ class ImageService(
 
             log.debug("Processing original image from {}", image.url)
             processImage(image, image.urlWithEncodedFileName, "original") {
-                case Left(e) => error(image, e, Some("Error processing original image: %s" format e.getMessage))
+                case Left(e) => me ! ImageError(image, e, Some("Error processing original image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     log.debug("Storing original image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
@@ -318,7 +287,7 @@ class ImageService(
                         else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_WIDTH, sizedImageTargetWidth, bi.getHeight))
                     }) {
 
-                case Left(e) => error(image, e, Some("Error processing sized image: %s" format e.getMessage))
+                case Left(e) => me ! ImageError(image, e, Some("Error processing sized image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     log.debug("Storing sized image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
@@ -351,7 +320,7 @@ class ImageService(
                     else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_WIDTH, storyImageTargetWidth, bi.getHeight))
                 }) {
 
-                case Left(e) => error(image, e, Some("Error processing story image: %s" format e.getMessage))
+                case Left(e) => me ! ImageError(image, e, Some("Error processing story image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     log.debug("Storing story image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
@@ -385,7 +354,7 @@ class ImageService(
                     else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_WIDTH, exhibitImageTargetWidth, bi.getHeight))
                 }) {
 
-                case Left(e) => error(image, e, Some("Error processing exhibit image: %s" format e.getMessage))
+                case Left(e) => me ! ImageError(image, e, Some("Error processing exhibit image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     log.debug("Storing exhibit image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
@@ -401,6 +370,8 @@ class ImageService(
 
 
         case msg @ ProcessThumbnailImage(image) =>
+            val me = context.self
+
             log.debug("Processing thumbnail image from {}", image.sizedUrl)
             processImage(
                     image,
@@ -417,7 +388,7 @@ class ImageService(
                         else Some(Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, thumbImageTargetWidth, thumbImageTargetHeight))
                     }) {
 
-                case Left(e) => error(image, e, Some("Error processing thumbnamil image: %s" format e.getMessage))
+                case Left(e) => me ! ImageError(image, e, Some("Error processing thumbnamil image: %s" format e.getMessage))
                 case Right(imageInfo) =>
                     log.debug("Storing thumbnail image {}", imageInfo.fileName)
                     store(image, imageInfo) { storedUrl =>
@@ -428,7 +399,7 @@ class ImageService(
                             thumbnailHeight = imageInfo.height,
                             processedOn = new Date,
                             processedStatus = "processed")
-                        sendResponse(img, Right(img))
+                        me ! SendResponse(img)
                     }
             }
 
@@ -437,7 +408,7 @@ class ImageService(
             val me = self
 
             resp.cata(
-                log.error("Error processing low priority image {}: {}", msg.image.url, _),
+                log.error("Error processing low priority image {}", msg, _),
                 log.debug("Successfully processed low priority image {}", _))
             me ! FindUnprocessedImage()
 
@@ -446,7 +417,7 @@ class ImageService(
             val me = self
 
             log.debug("Starting to process low priority image {}", image.url)
-            me ! ProcessImage(image)
+            me ! ProcessImage(Left(image))
 
 
         case msg @ FindUnprocessedImage() =>
@@ -478,7 +449,8 @@ class ImageService(
             }
 
 
-        case msg @ ImageStoreError(image, e, message) => error(image, e, message)
+        case msg @ ImageError(image, e, message) => error(image, e, message)
+        case msg @ SendResponse(image) => sendResponse(image, Right(image))
 
     }
 

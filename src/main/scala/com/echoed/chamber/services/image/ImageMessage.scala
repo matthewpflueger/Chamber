@@ -18,7 +18,7 @@ case class StartProcessImageResponse(
         message: StartProcessImage,
         value: Either[IE, Image]) extends IM with MR[Image, StartProcessImage, IE]
 
-case class ProcessImage(image: Image) extends IM
+case class ProcessImage(either: Either[Image, String]) extends IM
 case class ProcessImageResponse(
         message: ProcessImage,
         value: Either[IE, Image]) extends IM with MR[Image, ProcessImage, IE]
@@ -68,7 +68,8 @@ private[image] case class ProcessExhibitImage(image: Image) extends IM
 private[image] case class FindUnprocessedImage() extends IM
 
 
-private[image] case class ImageStoreError(image: Image, error: Throwable, message: Option[String] = None) extends IM
+private[image] case class ImageError(image: Image, error: Throwable, message: Option[String] = None) extends IM
+private[image] case class SendResponse(image: Image) extends IM
 
 private[image] case class ReloadBlobStore(image: Image, imageInfo: ImageInfo, success: String => Unit) extends IM
 
