@@ -79,7 +79,7 @@ case class RegisterForm(
     def getPhone = phone
     def setPhone(phone: String) { this.phone = phone }
 
-    @Pattern(regexp = "^$|^@.*", message="{regexp.hashTag}")
+    @NotBlank
     def getHashTag = hashTag
     def setHashTag(hashTag: String) { this.hashTag = hashTag }
 
