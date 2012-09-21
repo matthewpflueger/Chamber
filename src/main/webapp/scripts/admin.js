@@ -17,7 +17,7 @@ require.config({
 });
 
 
-define(
+require(
     [
         'requireLib',
         'jquery',
