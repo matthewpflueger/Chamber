@@ -182,8 +182,7 @@ define(
                     var chapterDiv = $('<div class="story-summary-chapter clearfix"></div>');
                     var t = _.template(templateStorySummaryRow, chapter);
                     chapterDiv.html(t);
-
-
+                    chapterDiv.find('.story-summary-chapter-edit').attr('chapterId', index);
 
                     var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
                     var chapterPhotosRow = $("<div class='story-summary-chapter-row'></div>").append($('<label>Photos: </label>')).append(chapterPhotos);
