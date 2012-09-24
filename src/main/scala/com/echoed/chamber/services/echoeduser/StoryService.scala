@@ -111,8 +111,12 @@ class StoryService(
             sender ! TagStoryResponse(msg, Right(storyState.asStory))
 
 
-        case msg @ CreateChapter(_, storyId, title, text, imageIds) =>
-            val chapter = new Chapter(storyState.asStory, title, text)
+        case msg @ CreateChapter(_, storyId, title, text, imageIds, publish) =>
+            val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
+            log.debug("Publish On: {} | {}", publish, publishedOn)
+
+            val chapter = new Chapter(storyState.asStory, title, text).copy(publishedOn = publishedOn)
+
             val chapterImages = imageIds.map { id =>
                 mp.tell(ProcessImage(Right(id)), self)
                 new ChapterImage(chapter, id)
@@ -127,10 +131,13 @@ class StoryService(
             sender ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
 
 
-        case msg @ UpdateChapter(_, storyId, chapterId, title, text, imageIds) =>
+        case msg @ UpdateChapter(_, storyId, chapterId, title, text, imageIds, publish) =>
+            val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
+            log.debug("Publish On: {} | {}", publish, publishedOn)
+
             val chapter = storyState.chapters
                     .find(_.id == chapterId)
-                    .map(_.copy(title = title, text = text, updatedOn = new Date))
+                    .map(_.copy(title = title, text = text, updatedOn = new Date, publishedOn = publishedOn))
                     .get
             val chapterImages = imageIds.map { id =>
                 mp.tell(ProcessImage(Right(id)), self)

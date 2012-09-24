@@ -11,9 +11,10 @@ define(
         'text!templates/story-edit.html',
         'text!templates/story-input.html',
         'text!templates/story-summary.html',
-        'text!templates/story-login.html'
+        'text!templates/story-login.html',
+        'text!templates/input/storySummaryRow.html'
     ],
-    function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateStoryEdit, templateStoryInput, templateStorySummary, templateStoryLogin){
+    function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateStoryEdit, templateStoryInput, templateStorySummary, templateStoryLogin, templateStorySummaryRow){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this, 'render', 'unload', 'login', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb', 'addCategory');
@@ -31,6 +32,7 @@ define(
                 "click .field-close" : "close",
                 "click .field-submit" : "submitInitStory",
                 "click .chapter-submit": "submitChapter",
+                "click .chapter-publish": "publishChapter",
                 "click .chapter-cancel": "cancelChapter",
                 "click .chapter-thumb-x": "removeChapterThumb",
                 "click .story-summary-submit": "storySummarySubmit",
@@ -174,14 +176,15 @@ define(
 
                 $("#field-main-category-content").text(self.data.storyFull.story.tag);
                 this.ajaxInput = new AjaxInput({ el: '#ajax-input', EvAg: self.EvAg, properties: this.properties });
-                var count = 0;
                 self.element.chapters = self.element.find('.story-summary-body');
                 $.each(self.data.storyFull.chapters, function(index, chapter){
-                    count = count + 1;
-                    var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
-                    var chapterEdit = $('<div class="story-summary-chapter-edit"></div>').text("Edit").attr("chapterId", index);
-                    var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong></strong>").text("Topic: " + chapter.title));
-                    var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong></strong>").text("Description: " + chapter.text.substr(0, 200)));
+
+                    var chapterDiv = $('<div class="story-summary-chapter clearfix"></div>');
+                    var t = _.template(templateStorySummaryRow, chapter);
+                    chapterDiv.html(t);
+
+
+
                     var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
                     var chapterPhotosRow = $("<div class='story-summary-chapter-row'></div>").append($('<label>Photos: </label>')).append(chapterPhotos);
                     $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
@@ -190,7 +193,7 @@ define(
                             chapterPhotos.append(chapterImg);
                         }
                     });
-                    chapterDiv.append(chapterEdit).append(chapterTitle).append(chapterDescription).append(chapterPhotosRow);
+                    chapterDiv.append(chapterPhotosRow);
                     self.element.chapters.append(chapterDiv);
                 });
                 self.show();
@@ -295,6 +298,56 @@ define(
                     }
                 });
                 self.show();
+            },
+            publishChapter: function(e){
+                var self = this;
+                self.currentChapter.title = $.trim(self.select.val());
+                self.currentChapter.text = $.trim($('#chapter-text').val());
+                if(self.currentChapter.title === ""){
+                    alert("Please select or write a topic.");
+                } else if(self.currentChapter.text === ""){
+                    alert("You must have some text for your topic. Even a single sentence is enough!");
+                } else {
+                    if(self.locked === false) {
+                        self.locked = true;
+                        if(self.currentChapter.id !== undefined){
+
+                            utils.AjaxFactory({
+                                url: self.properties.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter/" + self.currentChapter.id,
+                                type: "PUT",
+                                processData: false,
+                                contentType: "application/json",
+                                data: JSON.stringify({
+                                    title: self.currentChapter.title,
+                                    text: self.currentChapter.text,
+                                    imageIds: self.currentChapter.images,
+                                    publish: true
+                                }),
+                                success: function(chapterSubmitResponse) {
+                                    self.locked = false;
+                                    self.load(self.data.storyFull.story.id, "story");
+                                }
+                            })();
+                        } else {
+                            utils.AjaxFactory({
+                                url: self.properties.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
+                                type: "POST",
+                                processData: false,
+                                contentType: "application/json",
+                                data: JSON.stringify({
+                                    title: self.currentChapter.title,
+                                    text: self.currentChapter.text,
+                                    imageIds: self.currentChapter.images,
+                                    publish: true
+                                }),
+                                success: function(chapterSubmitResponse) {
+                                    self.locked = false;
+                                    self.load(self.data.storyFull.story.id, "story");
+                                }
+                            })();
+                        }
+                    }
+                }
             },
             submitChapter: function(e){
                 var self = this;

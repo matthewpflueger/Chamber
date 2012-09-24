@@ -87,7 +87,7 @@ class FeedService(
             val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve Public Story Feed")
-                val stories = storyTree.values.filter(s => !s.isEchoedModerated ).toList
+                val stories = storyTree.values.filter(s => !s.isEchoedModerated && s.isPublished).map(_.published).toList
                 val nextPage = {
                     if(start + pageSize <= stories.length)
                         (msg.page + 1).toString
@@ -182,7 +182,7 @@ class FeedService(
 
             val channel = context.sender
             try {
-                channel ! GetStoryResponse(msg, Right(storyMap.get(storyId)))
+                channel ! GetStoryResponse(msg, Right(storyMap.get(storyId).map(_.published)))
             } catch {
                 case e =>
                     channel ! GetStoryResponse(msg, Left(new FeedException("Cannot get story %s" format storyId, e)))

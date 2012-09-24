@@ -488,10 +488,15 @@
                         @include fontText(14px);
                         padding: 5px 6px;
                     }
-                    .chapter-submit, .chapter-cancel{
+                    .chapter-submit, .chapter-publish{
                         margin-right: 5px;
                         @include fontTextBold(12px, #FFF);
                         @include button();
+                    }
+                    .chapter-cancel{
+                        @include fontTextBold(12px, $colorEC);
+                        text-decoration: underline;
+                        cursor: pointer;
                     }
                 }
             }

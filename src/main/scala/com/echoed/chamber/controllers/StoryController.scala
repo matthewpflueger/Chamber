@@ -135,7 +135,8 @@ class StoryController extends EchoedController {
                 storyId,
                 chapterParams.title,
                 chapterParams.text,
-                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]))).onSuccess {
+                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]),
+                Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
             case CreateChapterResponse(_, Right(chapter)) =>
                 log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
                 result.set(chapter)
@@ -165,7 +166,8 @@ class StoryController extends EchoedController {
                 chapterId,
                 chapterParams.title,
                 chapterParams.text,
-                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]))).onSuccess {
+                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]),
+                Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
             case UpdateChapterResponse(_, Right(chapter)) =>
                 log.debug("Successfully updated chapter {} for {}", chapterId, eucc)
                 result.set(chapter)
@@ -227,6 +229,7 @@ class StoryController extends EchoedController {
 class ChapterParams(
             @BeanProperty var title: String,
             @BeanProperty var text: String,
-            @BeanProperty var imageIds: Array[String]) {
-    def this() = this(null, null, null)
+            @BeanProperty var imageIds: Array[String],
+            @BeanProperty var publish: String) {
+    def this() = this(null, null, null, null)
 }

@@ -6,6 +6,7 @@ import com.echoed.chamber.domain.Chapter
 import com.echoed.chamber.domain.Story
 import com.echoed.chamber.domain.ChapterImage
 import views.StoryFull
+import scala.collection.JavaConversions
 
 case class StoryPublic(
         id: String,
@@ -24,6 +25,10 @@ case class StoryPublic(
         story.chapterImages,
         story.convertCommentsToPublic,
         story.moderation)
+
+    def published = this.copy(chapters = JavaConversions.bufferAsJavaList(JavaConversions.asScalaBuffer(chapters).filter( c => c.publishedOn != 0)))
+
+    def isPublished = JavaConversions.asScalaBuffer(chapters).foldLeft(false)(_ || _.publishedOn != 0)
 
     def isModerated = moderation.map(_.moderated).getOrElse(false)
     def isEchoedModerated = moderation.map(_.echoedModerated).getOrElse(false)

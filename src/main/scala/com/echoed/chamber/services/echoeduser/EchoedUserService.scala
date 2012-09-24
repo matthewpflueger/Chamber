@@ -651,7 +651,7 @@ class EchoedUserService(
                     CreateCommentResponse(msg, ncr.value)
                 }.pipeTo(context.sender)
 
-        case msg @ CreateChapter(eucc, storyId, _, _, _) =>
+        case msg @ CreateChapter(eucc, storyId, _, _, _, _) =>
             forwardToStory(msg, StoryId(storyId))
             self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
 

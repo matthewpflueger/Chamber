@@ -181,7 +181,8 @@ case class CreateChapter(
         storyId: String,
         title: String,
         text: String,
-        imageIds: List[String]) extends EUM with EUI with SI
+        imageIds: List[String],
+        publish: Option[Boolean]) extends EUM with EUI with SI
 
 case class CreateChapterResponse(message: CreateChapter, value: Either[EUE, ChapterInfo])
         extends EUM with MR[ChapterInfo, CreateChapter, EUE]
@@ -193,7 +194,8 @@ case class UpdateChapter(
         chapterId: String,
         title: String,
         text: String,
-        imageIds: List[String] = List.empty[String]) extends EUM with EUI with SI
+        imageIds: List[String] = List.empty[String],
+        publish: Option[Boolean]) extends EUM with EUI with SI
 
 case class UpdateChapterResponse(message: UpdateChapter, value: Either[EUE, ChapterInfo])
         extends EUM with MR[ChapterInfo, UpdateChapter, EUE]
