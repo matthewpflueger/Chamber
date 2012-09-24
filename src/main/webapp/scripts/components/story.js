@@ -102,7 +102,7 @@ define(
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
                         fromLink.append($('<a class="link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
-                        fromLink.append('(<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
+                        fromLink.append(' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
                     } else if (utils.isUrl(self.data.story.productInfo)){
                         fromLink.append($('<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo));
                     } else {
