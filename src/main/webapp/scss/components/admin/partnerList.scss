@@ -1,0 +1,20 @@
+#partnerList{
+    //display: none;
+}
+
+#partnerList-table{
+    width: 100%;
+    border-collapse: collapse;
+    thead{
+        border-bottom: 1px solid #CCC;
+    }
+    th, td{
+        //border: 1px solid #CCC;
+        padding: 8px 3px;
+    }
+}
+
+.partnerList-button{
+    @include button;
+    @include fontTextBold(12px, #FFF);
+}

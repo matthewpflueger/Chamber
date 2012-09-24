@@ -33,7 +33,6 @@ define(
                             if(story.isEchoedModerated){
                                 tr.find('.moderate-cb').attr("checked","checked");
                             }
-
                         });
                         self.show();
                     }
