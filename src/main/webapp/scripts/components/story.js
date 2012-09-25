@@ -92,13 +92,14 @@ define(
                         $('<a class="story-edit-button"></a></span>').text('Edit Story').attr("href","#write/story/" + self.data.story.id).appendTo(header);
                     }
                 }
+
                 self.gallery = self.element.find('.echo-s-b-gallery');
                 self.userNode = self.element.find('.echo-s-h-t-n');
                 var userLink = $('<a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '"></a>')
                                     .text(self.data.echoedUser.name);
 
                 if(self.properties.isWidget !== true){
-                    var fromLink = $('<span style="display: block;"></span>').append(document.createTextNode('from '));
+                    var fromLink = $('<div style="text-align: center;display: block;"></div>').append(document.createTextNode('from '));
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
                         fromLink.append($('<a class="link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
@@ -108,6 +109,7 @@ define(
                     } else {
                         fromLink.text(self.data.story.productInfo);
                     }
+                    self.element.find('.echo-s-h-title').append(fromLink);
                 }
                 var userImage = $('<img />').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)).addClass("echo-s-h-t-n-i");
                 self.userNode.append(userImage);
@@ -115,11 +117,10 @@ define(
                 self.itemNode = $("<div class='echo-s-b-item'></div>");
                 self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
                 self.userTextNode = $("<div class='echo-s-h-t-n-t'></div>");
-                self.userTextNode.append(userLink).prepend("by ").append(fromLink).appendTo(self.userNode);
+                self.userTextNode.append(userLink).prepend("<strong>Story by:</strong><br/>").appendTo(self.userNode);
                 self.img = $("<img />");
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
-                //self.element.find('.echo-story-chapter-title').text(self.data.chapters[0].title);
                 self.text.append($("<div class='echo-s-b-t-b'></div>"));
                 self.renderGalleryNav();
                 self.renderComments();
@@ -193,7 +194,7 @@ define(
                 var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
                 self.img.fadeOut();
                 self.itemImageContainer.animate(
-                    utils.getImageSizing(currentImage, 400),
+                    utils.getImageSizing(currentImage, 450),
                     function(){
                         if(currentImage.storyUrl !== null){
                             self.img.attr('src', currentImage.storyUrl);

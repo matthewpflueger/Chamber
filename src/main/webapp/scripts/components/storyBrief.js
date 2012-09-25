@@ -45,8 +45,7 @@ define(
                     }
                     textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)));
                     textNode.append($("<div class='story-brief-text-title'></div>").text(self.data.story.title));
-                    textNode.append($("<div class='story-brief-text-by'></div>").text("Story by ").append($("<a class='link-black story-brief-text-user'></a>").attr("href",'#user/' + self.data.echoedUser.id).text(self.data.echoedUser.name)));
-//                    textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
+                    textNode.append($("<div class='story-brief-text-by'></div>").text("by ").append($("<a class='link-black story-brief-text-user'></a>").attr("href",'#user/' + self.data.echoedUser.id).text(self.data.echoedUser.name)));
                     var chapterText = self.data.chapters[0].text;
                     var c  = chapterText.split(/[.!?]/)[0];
                     c = c + chapterText.substr(c.length, 1); //Append Split Character

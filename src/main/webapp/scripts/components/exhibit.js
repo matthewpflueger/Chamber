@@ -46,7 +46,7 @@ define(
                         self.exhibit.isotope({
                             itemSelector: '.item_wrap,.no_filter',
                             masonry:{
-                                //columnWidth: 5
+                                columnWidth: 300
                             }
                         });
                         self.isotopeOn = true;

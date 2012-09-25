@@ -55,7 +55,7 @@ require(
                 parentWidth;
 
             var cols = Math.floor( parentWidth / colW );
-            cols = Math.max( cols, 1 );
+            cols = Math.max( cols, 3 );
 
             // i.e. this.masonry.cols = ....
             this.masonry.cols = cols;
@@ -63,7 +63,7 @@ require(
             this.masonry.columnWidth = colW;
             //Title Container Resizing
             $('#title-container').animate({
-                width: Math.max(cols * colW - 10, 960)
+                width: Math.max(cols * colW - 10, 890)
             });
         };
 

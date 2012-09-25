@@ -52,18 +52,21 @@ class FeedService(
     }
 
     val storyMap = HashMap.empty[String, StoryPublic]
+
     var storyTree = new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
 
     def updateStory(storyFull: StoryPublic) {
+
         storyMap.get(storyFull.id).map { s =>
             topStoryTree -= ((s.comments.length + s.chapterImages.length, s.story.id))
             storyTree -= ((s.story.updatedOn, s.story.id))
         }
+
         storyMap += (storyFull.id -> storyFull)
         storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
 
-        if (!storyFull.isEchoedModerated) {
+        if (!storyFull.isEchoedModerated && storyFull.isPublished) {
             topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
         }
     }
@@ -87,7 +90,7 @@ class FeedService(
             val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve Public Story Feed")
-                val stories = storyTree.values.filter(s => !s.isEchoedModerated && s.isPublished).map(_.published).toList
+                val stories = storyTree.values.filter(s => !s.isEchoedModerated).map(_.published).toList
                 val nextPage = {
                     if(start + pageSize <= stories.length)
                         (msg.page + 1).toString
@@ -135,7 +138,7 @@ class FeedService(
             val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve story feed for user: {}", echoedUserId)
-                val stories = storyTree.values.filter(_.echoedUser.id.equals(echoedUserId)).toList
+                val stories = storyTree.values.filter( s => s.echoedUser.id.equals(echoedUserId)).map(_.published).toList
                 val nextPage = {
                     if(start + pageSize <= stories.length)
                         (msg.page + 1).toString
@@ -162,7 +165,7 @@ class FeedService(
                 val start = msg.page * pageSize
                 val partner = partnerDao.findByIdOrHandle(msg.partnerId)
                 log.debug("Looking up stories for Partner Id {}", partner.id)
-                val stories = storyTree.values.filter(s => s.story.partnerId.equals(partner.id) && !s.isModerated).toList
+                val stories = storyTree.values.filter(s => s.story.partnerId.equals(partner.id) && !s.isModerated && s.isPublished).map(_.published).toList
                 val nextPage = {
                     if(start + pageSize <= stories.length)
                         (msg.page + 1).toString
