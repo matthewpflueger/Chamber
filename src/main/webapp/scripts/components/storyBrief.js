@@ -49,16 +49,18 @@ define(
                     var chapterText = self.data.chapters[0].text;
                     var c  = chapterText.split(/[.!?]/)[0];
                     c = c + chapterText.substr(c.length, 1); //Append Split Character
-                    textNode.prepend($("<div class='story-brief-text-quote'></div>").text(c));
+                    textNode.append($("<div class='story-brief-text-quote'></div>").text(c));
                     overlayNode.text(self.data.story.title);
                     var dateString = self.data.story.updatedOn.toString();
                     var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(dateString));
 
                     var indicators = $("<div class='story-brief-indicator'></div>");
 
-                    indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
+                    //indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
+                    indicators.append($("<span>Comments: </span>"));
                     indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.comments.length));
-                    indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
+                    //indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
+                    indicators.append($("<span>Photos: </span>"));
                     indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.chapterImages.length + 1));
                     indicators.append($("<span class='s-b-i-c'></span>").text(elapsedString));
 
