@@ -61,6 +61,10 @@ require(
             this.masonry.cols = cols;
             // i.e. this.masonry.columnWidth = ...
             this.masonry.columnWidth = colW;
+            //Title Container Resizing
+            $('#title-container').animate({
+                width: Math.max(cols * colW - 10, 960)
+            });
         };
 
         $.Isotope.prototype._masonryReset = function() {
@@ -93,6 +97,8 @@ require(
                 unusedCols++;
             }
 
+
+
             return {
                 height : Math.max.apply( Math, this.masonry.colYs ),
                 // fit container to columns that have been used;
@@ -119,6 +125,7 @@ require(
             this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
             this.exhibit = new Exhibit({ el: '#content', EvAg: EventAggregator, properties: properties });
             this.pageTitle = new PageTitle({ el: 'title', EvAg: EventAggregator, properties: properties });
+            this.contentTitle = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
             this.actions = new Actions({ el: '#actions', EvAg: EventAggregator, properties: properties });
             this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
             this.login = new Login({ el: '#user', EvAg: EventAggregator, properties: properties });

@@ -46,14 +46,15 @@ define(
                         self.exhibit.isotope({
                             itemSelector: '.item_wrap,.no_filter',
                             masonry:{
-                                columnWidth: 5
+                                //columnWidth: 5
                             }
                         });
                         self.isotopeOn = true;
                         var title = self.contentTitle;
                         if(data.partner) title = data.partner.name;
                         if(data.echoedUser && self.personal !== true)  title = data.echoedUser.name;
-                        self.EvAg.trigger("title/update", { title: title, description: self.contentDescription });
+                        console.log("Title: " + title);
+                        self.EvAg.trigger("title/update", { title: title});
                         self.EvAg.trigger("pagetitle/update", title);
                         if(!self.properties.echoedUser && self.properties.exhibitShowLogin === true) self.addLogin();
                         self.render(data);

@@ -49,7 +49,7 @@ define(
             explore: function(){
                 if(this.page != window.location.hash){
                     this.page = "#!";
-                    this.loadPage("explore", { endPoint: "/me/feed", title: "Community"});
+                    this.loadPage("explore", { endPoint: "/me/feed", title: ""});
                 }
             },
             partnerFeed: function(partnerId) {

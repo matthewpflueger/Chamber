@@ -17,6 +17,7 @@
 @import "categoryList";
 @import "static";
 @import "menu";
+@import "title";
 
 
 html{
@@ -159,26 +160,6 @@ h3{
 #content{
     padding: 50px 0px;
     margin-right: 180px;
-}
-
-#title-container{
-    text-align: center;
-    #title{
-        width: 600px;
-        margin: 5px auto;
-        padding: 10px;
-        #title-text{
-            text-align: center;
-            @include fontHeader(36px);
-            text-shadow: 0px 1px 0px #FFF;
-        }
-        #title-description{
-            @include fontText(16px);
-            text-shadow: 0px 1px 0px #FFF;
-            text-align: center;
-        }
-    }
-
 }
 
 #nav-container{
