@@ -1,8 +1,9 @@
 package com.echoed.chamber.services.state
 
-import com.echoed.chamber.domain.{StoryState, Story}
+import com.echoed.chamber.domain.{StoryState, Story, Vote}
 import org.squeryl.PrimitiveTypeMode._
 import com.echoed.chamber.services.state.schema.ChamberSchema._
+import collection.immutable.HashMap
 
 private[state] object StateUtils {
 
@@ -22,7 +23,10 @@ private[state] object StateUtils {
         val ps = partnerSettings.lookup(s.partnerSettingsId).get
         val e = echo.orElse(Option(s.echoId).flatMap(echoes.lookup(_)))
         val m = from(moderations)(m => where(m.refId === s.id) select(m)).toList
-        val v = from(votes)(v => where(v.ref === "story" and v.refId === s.id) select(v)).toList
+        val v = from(votes)(v => where(v.ref === "story" and v.refId === s.id) select(v)).toList.foldLeft(new HashMap[String, Vote]){
+            (hashMap, vote) =>
+                hashMap + (vote.echoedUserId -> vote)
+        }
 
         StoryState(
                 s.id,

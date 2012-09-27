@@ -545,3 +545,10 @@
 
 
 }
+
+#story-preview-edit{
+    @include fontText(14px, $colorEC);
+    text-decoration: underline;
+    cursor: pointer;
+    float: left;
+}

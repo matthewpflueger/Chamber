@@ -7,6 +7,7 @@ import com.echoed.chamber.domain.Story
 import com.echoed.chamber.domain.ChapterImage
 import views.StoryFull
 import scala.collection.JavaConversions
+import collection.immutable.HashMap
 
 case class StoryPublic(
         id: String,
@@ -15,7 +16,7 @@ case class StoryPublic(
         chapters: JList[Chapter],
         chapterImages: JList[ChapterImage],
         comments: List[CommentPublic],
-        votes: JList[Vote],
+        votes: HashMap[String, Vote],
         moderation: Option[ModerationDescription] = None) {
 
     def this(story: StoryFull) = this(

@@ -169,8 +169,6 @@
             }
         }
         .echo-story-comments{
-            //border-top: 1px #CCC solid;
-            //width: 725px;
             .echo-s-c-t{
                 @include fontTextBold(24px);
                 text-shadow: 0px 1px 0px #FFF;
@@ -244,37 +242,22 @@
 }
 
 .echo-story-gallery{
-    /*background-color: #F0F0F0;
-    position:absolute;
-    width: 105px;
-    padding: 10px 5px;
-    top: 0px;
-    right: -123px;*/
-
-
-    position: fixed;
-    top: 20px;
-    bottom: 20px;
-    right: 15px;
-    padding: 10px 5px;
-    width: 105px;
-    border-left:1px solid #FFF;
+    position: absolute;
+    padding: 0px 5px;
+    top: 25px;
+    bottom: 25px;
+    left: 0px;
     overflow:hidden;
-
-
-
 
     text-align: center;
     .echo-gallery-header{
         @include fontTextBold(14px, #FFF);
-        //text-shadow: 0px 1px #FFF;
         margin-bottom: 5px;
         text-align: left;
     }
     .echo-gallery-chapter{
         padding: 5px;
         margin-bottom: 5px;
-        //background-color: #F0F0F0;
         cursor: pointer;
         border: 1px solid #666;
         &.highlight{
@@ -305,11 +288,6 @@
 }
 
 #echo-story-user-container{
-    /*position: fixed;
-    top:0px;
-    left: 0px;
-    height: 100%;
-    border-right: 1px solid #FFF;*/
     position:absolute;
     border: 5px solid #FFF;
     border-right-width: 0px;
@@ -325,27 +303,45 @@
     height: 400px;
 }
 
+#echo-story-gallery-container{
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    right: 15px;
+    padding: 10px 5px;
+    width: 105px;
+    border-left: 1px solid #CCC;
+}
+
 #echo-story-gallery-prev, #echo-story-gallery-next{
-    @include fontTextBold(12px);
-    background-color:#F0F0F0;
     height: 20px;
     width: 115px;
     text-align: center;
-    border-left: 1px solid #FFF;
     position: fixed;
     cursor:pointer;
+    opacity: .5;
+    transition:opacity 1s linear;
+    &:hover{
+        opacity: 1;
+    }
 }
 
 #echo-story-gallery-prev{
     top: 0px;
     right: 15px;
     border-bottom: 1px dotted #FFF;
+    background-image: image-url("bk_prevarrow.png");
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 #echo-story-gallery-next{
     border-top: 1px dotted #FFF;
     bottom:0px;
     right: 15px;
+    background-image: image-url("bk_nextarrow.png");
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .echo-s-h-t-n{
@@ -356,12 +352,6 @@
         border: 2px solid #CCC;
         margin: auto;
     }
-    .bold-link{
-        font-weight: bold;
-        &:hover{
-            color: $colorEC;
-        }
-    }
 }
 
 .echo-s-h-t-n-t{
@@ -371,4 +361,16 @@
 .echo-s-h-t-n-t-l{
     @include fontText(13px, $colorEC);
     text-decoration: underline;
+}
+
+.echo-story-from{
+    @include fontText(14px);
+    text-align: center;
+}
+
+.bold-link{
+    font-weight: bold;
+    &:hover{
+        color: $colorEC;
+    }
 }

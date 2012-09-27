@@ -40,7 +40,7 @@ define(
                 if(self.data.chapters.length > 0){
                     if(self.properties.echoedUser !== undefined){
                         if(self.data.echoedUser.id === Echoed.echoedUser.id){
-                            textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
+                            //textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
                         }
                     }
                     textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)));

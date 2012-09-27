@@ -37,6 +37,7 @@ define(
                 "click .chapter-thumb-x": "removeChapterThumb",
                 "click .story-summary-submit": "storySummarySubmit",
                 "click .story-summary-chapter-edit": "storyEditClick",
+                "click #story-preview-edit": "loadStoryTemplate",
                 "click #category-add": "addCategory",
                 "click #field-main-category-edit": "editCategory"
 
@@ -129,6 +130,7 @@ define(
             },
             submitInitStory: function(){
                 var self = this;
+                var type = $('#submit-type').val();
                 if(self.locked === false) {
                     var title = $.trim(self.element.find("#story-name").val());
                     var productFrom = $.trim($('#story-from').val());
@@ -153,15 +155,32 @@ define(
                         alert("Please enter where the product is from");
                     } else {
                         self.locked = true;
-                        utils.AjaxFactory({
-                            url: self.properties.urls.api + "/story",
-                            type: 'POST',
-                            data: storyData,
-                            success: function(createStoryResponse){
-                                self.load(createStoryResponse.id, "story");
-                                self.locked = false;
-                            }
-                        })();
+                        if(type==="PUT"){
+                            console.log(title);
+                            utils.AjaxFactory({
+                                url: self.properties.urls.api + "/story/" + self.data.storyFull.story.id,
+                                type: 'PUT',
+                                data: {
+                                    title: title,
+                                    imageId: self.data.imageId,
+                                    productInfo: productFrom
+                                },
+                                success: function(createStoryResponse){
+                                    self.load(createStoryResponse.id, "story");
+                                    self.locked = false;
+                                }
+                            })();
+                        } else {
+                            utils.AjaxFactory({
+                                url: self.properties.urls.api + "/story",
+                                type: 'POST',
+                                data: storyData,
+                                success: function(createStoryResponse){
+                                    self.load(createStoryResponse.id, "story");
+                                    self.locked = false;
+                                }
+                            })();
+                        }
                     }
                 }
             },
@@ -230,6 +249,8 @@ define(
                 var self = this;
                 self.template = _.template(templateStoryEdit);
                 self.element.html(self.template);
+
+
                 self.element.find(".story-preview-title").text(self.data.storyFull.story.title);
                 self.element.find(".story-preview-from").text(self.data.storyFull.story.productInfo);
                 self.element.find(".story-preview-by").text(self.data.storyFull.echoedUser.name);
@@ -455,9 +476,24 @@ define(
                 var self = this;
                 self.template = _.template(templateStoryInput);
                 self.element.html(self.template).removeClass("small");
-                $('#field-photo').attr("src", self.properties.urls.images + '/bk_img_upload_ph.png');
-                $('#story-preview-photo').attr('src', self.properties.urls.images + '/bk_cover_default.jpg');
+                var type = "";
+
                 self.data.imageId = null;
+
+                if(self.data.storyFull !== null){
+                    $('#story-name').val(self.data.storyFull.story.title);
+                    $('#story-from').val(self.data.storyFull.story.productInfo);
+                    $('#field-photo, #story-preview-photo').attr("src", self.data.storyFull.story.image.preferredUrl);
+                    self.data.imageId = self.data.storyFull.story.imageId;
+                    $('#submit-type').val('PUT');
+
+                } else{
+                    $('#field-photo').attr("src", self.properties.urls.images + '/bk_img_upload_ph.png');
+                    $('#story-preview-photo').attr('src', self.properties.urls.images + '/bk_cover_default.jpg');
+                    $('#submit-type').val('POST');
+                }
+
+
                 if (self.data.partner && self.data.partner.name != "Echoed"){
                     $("#story-from").val(self.data.partner.name).attr("readonly",true);
                     self.element.find('.field-title').text("Share Your " + self.data.partner.name + " Story");

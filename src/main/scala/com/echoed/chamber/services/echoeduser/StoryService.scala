@@ -96,9 +96,9 @@ class StoryService(
             sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
 
-        case msg @ UpdateStory(_, storyId, title, imageId) =>
+        case msg @ UpdateStory(_, storyId, title, imageId, productInfo) =>
             mp.tell(ProcessImage(Right(imageId)), self)
-            storyState = storyState.copy(title = title, imageId = imageId, image = None, updatedOn = new Date)
+            storyState = storyState.copy(title = title, imageId = imageId, image = None, productInfo = productInfo.orNull, updatedOn = new Date)
             ep(new StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
 
@@ -107,7 +107,7 @@ class StoryService(
                 "story",
                 storyId,
                 echoedUser.id)
-            storyState = storyState.copy(votes = storyState.votes ::: List(vote))
+            storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote))
             ep(new StoryUpVoted(storyState, vote))
             sender ! UpVoteStoryResponse(msg, Right(storyState.asStory))
 

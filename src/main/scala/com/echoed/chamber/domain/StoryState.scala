@@ -6,7 +6,7 @@ import scala.collection.JavaConversions._
 import com.echoed.util.UUID
 import com.echoed.util.DateUtils._
 import java.util.Date
-
+import collection.immutable.HashMap
 
 case class StoryState(
         id: String,
@@ -26,7 +26,7 @@ case class StoryState(
         partnerSettings: PartnerSettings,
         echo: Option[Echo],
         moderations: List[Moderation],
-        votes: List[Vote]) extends DomainObject {
+        votes: HashMap[String, Vote]) extends DomainObject {
 
     def this(
             eu: EchoedUser,
@@ -51,7 +51,7 @@ case class StoryState(
         ps,
         e,
         List.empty[Moderation],
-        List.empty[Vote])
+        HashMap.empty[String, Vote])
 
     def isCreated = id != null && createdOn > 0
     def create(title: String, productInfo: String, imageId: String) = {
