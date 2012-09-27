@@ -258,7 +258,7 @@ define(
                     $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                         if(chapterImage.chapterId === chapterId){
                             var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
-                            var thumbX = $('<span></span>').addClass('chapter-thumb-x').attr('src', self.properties.urls.images + "/btn_close_x_black.png");
+                            var thumbX = $('<div></div>').addClass('chapter-thumb-x');
                             thumbDiv.append(thumbX);
                             var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css(utils.getImageSizing(chapterImage, 75));
                             thumbDiv.append(photo).appendTo(chapterPhotos).fadeIn();

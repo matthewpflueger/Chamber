@@ -534,3 +534,14 @@
     @include button;
     margin-left: 5px;
 }
+
+.chapter-thumb-x{
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    z-index: 10;
+    @include sprite(-31px, -157px, 36px, 37px);
+    cursor: pointer;
+
+
+}
