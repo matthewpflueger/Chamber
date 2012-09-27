@@ -119,3 +119,28 @@
     }
 
 }
+
+.story-brief-edit{
+    text-align: center;
+    height: 25px;
+    display: none;
+}
+
+.story-brief-edit-tab{
+    display: inline-block;
+    padding: 2px 20px 5px;
+    background-color: rgb(200, 45, 45);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    @include fontTextBold(12px, #FFF);
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover{
+        background-color: $colorEC;
+        padding-top: 10px;
+        transition: padding 0.2s linear;
+        -webkit-transition: padding 0.2s linear;
+    }
+}

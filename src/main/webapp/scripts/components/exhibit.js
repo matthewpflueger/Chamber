@@ -124,7 +124,7 @@ define(
                         var friendText = $('<div class="friend-text"></div>').text(friend.name);
                         var  a = $('<a></a>').attr("href","#user/" + friend.toEchoedUserId).addClass('item_wrap').addClass("friend");
                         $('<img />').attr("height","50px").attr("src",utils.getProfilePhotoUrl(friend)).appendTo(friendImage);
-                        $('<div></div>').append(friendImage).append(friendText).appendTo(a);
+                        $('<div class="item_content"></div>').append(friendImage).append(friendText).appendTo(a);
                         friendsFragment.append(a);
                         friendsAdded = true;
                     });
