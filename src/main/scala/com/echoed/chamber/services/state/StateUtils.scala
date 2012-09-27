@@ -22,6 +22,7 @@ private[state] object StateUtils {
         val ps = partnerSettings.lookup(s.partnerSettingsId).get
         val e = echo.orElse(Option(s.echoId).flatMap(echoes.lookup(_)))
         val m = from(moderations)(m => where(m.refId === s.id) select(m)).toList
+        val v = from(votes)(v => where(v.ref === "story" and v.refId === s.id) select(v)).toList
 
         StoryState(
                 s.id,
@@ -40,7 +41,8 @@ private[state] object StateUtils {
                 p,
                 ps,
                 e.map(_.convertTo(img)),
-                m)
+                m,
+                v)
     }
 }
 

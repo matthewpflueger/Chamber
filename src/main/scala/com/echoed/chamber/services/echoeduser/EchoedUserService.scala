@@ -636,6 +636,8 @@ class EchoedUserService(
             //create a fresh actor for non-echo related stories
             context.watch(storyServiceCreator(context, msg, echoedUser)).forward(msg)
 
+        case msg @ UpVoteStory(_, storyId) => forwardToStory(msg, StoryId(storyId))
+
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
             val me = self
             mp(NewComment(

@@ -25,7 +25,26 @@ define(
                 "click .echo-s-b-thumbnail": "imageClick",
                 "click .echo-s-b-item": "nextImage",
                 "click .story-nav-button": "navClick",
-                "click a": "close"
+                "click a": "close",
+                "click #upvote": "upVote"
+            },
+            scroll: function(position){
+                var self = this;
+                self.galleryNode.animate({
+                    scrollTop: position.top
+                });
+            },
+            upVote: function(ev){
+                var self = this;
+                utils.AjaxFactory({
+                    url: self.properties.urls.api + "/api/upvote",
+                    data: {
+                        storyId: self.data.story.id
+                    },
+                    success: function(data){
+                        alert(data);
+                    }
+                })();
             },
             login: function(echoedUser){
                 var self = this;
@@ -117,10 +136,11 @@ define(
                 self.itemNode = $("<div class='echo-s-b-item'></div>");
                 self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
                 self.userTextNode = $("<div class='echo-s-h-t-n-t'></div>");
-                self.userTextNode.append(userLink).prepend("<strong>Story by:</strong><br/>").appendTo(self.userNode);
+                self.userTextNode.append(userLink).appendTo(self.userNode);
                 self.img = $("<img />");
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
+                self.galleryNodeBody = $('#echo-story-gallery-body');
                 self.text.append($("<div class='echo-s-b-t-b'></div>"));
                 self.renderGalleryNav();
                 self.renderComments();
@@ -141,7 +161,7 @@ define(
                     self.galleryChapters[index]=  $('<div></div>').addClass('echo-gallery-chapter');
                     var title = $('<div></div>').addClass('echo-gallery-title').text(chapter.chapter.title);
                     self.galleryChapters[index].append(title);
-                    self.galleryNode.append(self.galleryChapters[index]);
+                    self.galleryNodeBody.append(self.galleryChapters[index]);
                     $.each(chapter.images, function(index2, image){
                         var thumbNailHash = index + "-" + index2;
                         self.thumbnails[thumbNailHash] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css(utils.getImageSizing(image, 90));
@@ -179,14 +199,13 @@ define(
                 var textArea = self.element.find('.echo-s-b-text');
                 textArea.fadeOut(function(){
                     self.element.find('.echo-story-chapter-title').text(self.chapters.array[self.currentChapterIndex].chapter.title);
-                    //appending as text obviously breaks the link replacement...
                     self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(utils.escapeHtml(self.chapters.array[self.currentChapterIndex].chapter.text)).replace(/\n/g, '<br />'));
-//                    self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(self.chapters.array[self.currentChapterIndex].chapter.text.replace(/\n/g, '<br />')));
                     textArea.fadeIn();
                 });
 
                 self.galleryNode.find('.echo-gallery-chapter').removeClass("highlight");
                 self.galleryChapters[self.currentChapterIndex].addClass("highlight");
+                self.scroll(self.galleryChapters[self.currentChapterIndex].position());
                 self.renderImage();
             },
             renderImage: function(){
@@ -235,7 +254,7 @@ define(
                     var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a class='red-link'></a>").text(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
                     var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", utils.getProfilePhotoUrl(comment.echoedUser)).attr("align", "absmiddle");
                     img.prependTo(commentUserNode);
-                    var commentText = $('<div class="echo-s-c-l-c-t"></div>').text(comment.text.replace(/\n/g, '<br />'));
+                    var commentText = $('<div class="echo-s-c-l-c-t"></div>').html(utils.replaceUrlsWithLink(utils.escapeHtml(comment.text).replace(/\n/g, '<br />')));
                     var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
                     commentListNode.append(commentNode);
                 });

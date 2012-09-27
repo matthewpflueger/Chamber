@@ -91,7 +91,7 @@
     .echo-story-body{
         position: relative;
         margin: 0px 10px;
-        //width: 725px;
+        min-height: 400px;
         .echo-s-b-text{
             display: inline;
             padding: 0px 0px 0px 5px;
@@ -244,41 +244,54 @@
 }
 
 .echo-story-gallery{
-    background-color: #F0F0F0;
+    /*background-color: #F0F0F0;
     position:absolute;
     width: 105px;
     padding: 10px 5px;
     top: 0px;
-    right: -123px;
+    right: -123px;*/
+
+
+    position: fixed;
+    top: 20px;
+    bottom: 20px;
+    right: 15px;
+    padding: 10px 5px;
+    width: 105px;
+    border-left:1px solid #FFF;
+    overflow:hidden;
+
+
+
+
     text-align: center;
     .echo-gallery-header{
-        @include fontTextBold(14px);
-        text-shadow: 0px 1px #FFF;
+        @include fontTextBold(14px, #FFF);
+        //text-shadow: 0px 1px #FFF;
         margin-bottom: 5px;
         text-align: left;
     }
     .echo-gallery-chapter{
         padding: 5px;
         margin-bottom: 5px;
-        background-color: #F0F0F0;
+        //background-color: #F0F0F0;
         cursor: pointer;
-        border: 1px solid #AAA;
+        border: 1px solid #666;
         &.highlight{
-            background-color: rgba(0,0,0,0.2);
-            border-color: #000;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #FFF;
         }
     }
     .echo-gallery-title{
-        @include fontTextBold(12px, #000);
-        text-shadow: 0px 1px #FFF;
+        @include fontTextBold(12px, #FFF);
         margin-bottom: 5px;
     }
     .echo-s-b-thumbnail{
         margin: 5px 0px;
-        border: 2px solid #FFF;
+        border: 2px solid #666;
         cursor: pointer;
         &:hover, &.highlight{
-            border-color: #333;
+            border-color: #FFF;
         }
     }
 }
@@ -291,16 +304,48 @@
     bottom: 10px;
 }
 
-#echo-story-user{
+#echo-story-user-container{
+    /*position: fixed;
+    top:0px;
+    left: 0px;
+    height: 100%;
+    border-right: 1px solid #FFF;*/
     position:absolute;
-    top: 0px;
-    left: -133px;
-    width: 110px;
-    background-color: #CCC;
-    padding: 5px;
     border: 5px solid #FFF;
     border-right-width: 0px;
+    top: 0px;
+    left: -135px;
+}
+
+#echo-story-user{
+    width: 110px;
+    background-color: #F0F0F0;
+    padding: 5px;
+    border: 1px solid #000;
     height: 400px;
+}
+
+#echo-story-gallery-prev, #echo-story-gallery-next{
+    @include fontTextBold(12px);
+    background-color:#F0F0F0;
+    height: 20px;
+    width: 115px;
+    text-align: center;
+    border-left: 1px solid #FFF;
+    position: fixed;
+    cursor:pointer;
+}
+
+#echo-story-gallery-prev{
+    top: 0px;
+    right: 15px;
+    border-bottom: 1px dotted #FFF;
+}
+
+#echo-story-gallery-next{
+    border-top: 1px dotted #FFF;
+    bottom:0px;
+    right: 15px;
 }
 
 .echo-s-h-t-n{
@@ -320,11 +365,10 @@
 }
 
 .echo-s-h-t-n-t{
-    text-align: left;
-    @include fontText(14px);
+    @include fontText(13px, #FFF);
 }
 
 .echo-s-h-t-n-t-l{
-    @include fontText(14px, $colorEC);
+    @include fontText(13px, $colorEC);
     text-decoration: underline;
 }

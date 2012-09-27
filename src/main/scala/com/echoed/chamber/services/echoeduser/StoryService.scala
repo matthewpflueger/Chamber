@@ -102,6 +102,14 @@ class StoryService(
             ep(new StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
 
+        case msg @ UpVoteStory(_, storyId) =>
+            val vote = new com.echoed.chamber.domain.Vote(
+                "story",
+                storyId,
+                echoedUser.id)
+            storyState = storyState.copy(votes = storyState.votes ::: List(vote))
+            ep(new StoryUpVoted(storyState, vote))
+            sender ! UpVoteStoryResponse(msg, Right(storyState.asStory))
 
         case msg @ TagStory(_, storyId, tag) =>
             val originalTag = storyState.tag

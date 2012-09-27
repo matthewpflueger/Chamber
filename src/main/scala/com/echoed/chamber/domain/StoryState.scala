@@ -25,7 +25,8 @@ case class StoryState(
         partner: Partner,
         partnerSettings: PartnerSettings,
         echo: Option[Echo],
-        moderations: List[Moderation]) extends DomainObject {
+        moderations: List[Moderation],
+        votes: List[Vote]) extends DomainObject {
 
     def this(
             eu: EchoedUser,
@@ -49,7 +50,8 @@ case class StoryState(
         p,
         ps,
         e,
-        List.empty[Moderation])
+        List.empty[Moderation],
+        List.empty[Vote])
 
     def isCreated = id != null && createdOn > 0
     def create(title: String, productInfo: String, imageId: String) = {
@@ -85,7 +87,7 @@ case class StoryState(
     def asStoryInfo = StoryInfo(echoedUser, echo.orNull, partner, partnerSettings.makeStoryPrompts, asStoryFull.orNull)
     def asStoryFull =
             if (!isCreated) None
-            else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, moderationDescription))
+            else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription))
 
     private def echoedModeratePredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"
     private def moderatedPredicate: Moderation => Boolean = _.moderatedRef != "AdminUser"

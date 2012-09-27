@@ -56,12 +56,13 @@ define(
 
                     var indicators = $("<div class='story-brief-indicator'></div>");
 
-                    //indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
+                    indicators.append($("<span>Votes: </span>"));
+                    indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.votes.length));
                     indicators.append($("<span>Comments: </span>"));
                     indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.comments.length));
-                    //indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
                     indicators.append($("<span>Photos: </span>"));
                     indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.chapterImages.length + 1));
+
                     indicators.append($("<span class='s-b-i-c'></span>").text(elapsedString));
 
                     textNode.append(indicators);

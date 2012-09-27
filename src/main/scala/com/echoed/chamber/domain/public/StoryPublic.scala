@@ -15,6 +15,7 @@ case class StoryPublic(
         chapters: JList[Chapter],
         chapterImages: JList[ChapterImage],
         comments: List[CommentPublic],
+        votes: JList[Vote],
         moderation: Option[ModerationDescription] = None) {
 
     def this(story: StoryFull) = this(
@@ -24,6 +25,7 @@ case class StoryPublic(
         story.chapters,
         story.chapterImages,
         story.convertCommentsToPublic,
+        story.votes,
         story.moderation)
 
     def published = this.copy(chapters = JavaConversions.bufferAsJavaList(JavaConversions.asScalaBuffer(chapters).filter( c => c.publishedOn != 0)))
