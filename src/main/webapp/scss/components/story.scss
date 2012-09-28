@@ -24,6 +24,8 @@
     padding-bottom: 10px;
     border: 8px solid #FFF;
     border-radius: 3px;
+    border-top-left-radius: 0px;
+
     .echo-s-h-close{
         position:absolute;
         right: -25px;
@@ -280,26 +282,17 @@
 }
 
 
-.story-edit-button{
-    @include button(15px);
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-}
-
 #echo-story-user-container{
     position:absolute;
-    border: 5px solid #FFF;
-    border-right-width: 0px;
-    top: 0px;
-    left: -135px;
+    top: -8px;
+    left: -138px;
 }
 
 #echo-story-user{
-    width: 110px;
+    width: 112px;
     background-color: #F0F0F0;
+    border: 8px solid #FFF;
     padding: 5px;
-    border: 1px solid #000;
     height: 400px;
 }
 
@@ -327,8 +320,9 @@
 }
 
 #echo-story-gallery-prev{
+    position:absolute;
+    left: 0px;
     top: 0px;
-    right: 15px;
     border-bottom: 1px dotted #FFF;
     background-image: image-url("bk_prevarrow.png");
     background-position: center;
@@ -337,8 +331,9 @@
 
 #echo-story-gallery-next{
     border-top: 1px dotted #FFF;
+    position: absolute;
     bottom:0px;
-    right: 15px;
+    left: 0px;
     background-image: image-url("bk_nextarrow.png");
     background-position: center;
     background-repeat: no-repeat;
@@ -372,5 +367,42 @@
     font-weight: bold;
     &:hover{
         color: $colorEC;
+    }
+}
+
+#story-edit-container{
+    text-align: center;
+}
+
+#story-edit-tab{
+    display: none;
+    padding: 2px 20px 5px;
+    background-color: rgb(200, 45, 45);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    @include fontTextBold(13px, #FFF);
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid #333;
+    border-top: 0px;
+    &:hover{
+        background-color: $colorEC;
+        padding-top: 10px;
+        transition: padding 0.2s linear;
+        -webkit-transition: padding 0.2s linear;
+        -moz-transition: padding 0.2s linear;
+        -o-transition: padding 0.2s linear;
+    }
+}
+
+.greyButton{
+    @include whiteButton;
+}
+
+#story-actions{
+    li{
+        list-style: none;
+        padding: 2px;
     }
 }

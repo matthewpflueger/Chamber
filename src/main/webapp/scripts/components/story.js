@@ -119,7 +119,7 @@ define(
                 if(self.properties.echoedUser !== undefined){
                     if(self.data.echoedUser.id === self.properties.echoedUser.id){
                         var header = self.element.find('.echo-story-header');
-                        $('<a class="story-edit-button"></a></span>').text('Edit Story').attr("href","#write/story/" + self.data.story.id).appendTo(header);
+                        $('#story-edit-tab').attr("href","#write/story/" + self.data.story.id).css("display","inline-block");
                     }
                 }
 

@@ -122,9 +122,9 @@ define(
                     $.each(data.friends, function(index, friend){
                         var friendImage = $('<div class="friend-img"></div>');
                         var friendText = $('<div class="friend-text"></div>').text(friend.name);
-                        var  a = $('<a></a>').attr("href","#user/" + friend.toEchoedUserId).addClass('item_wrap').addClass("friend");
+                        var  a = $('<a></a>').attr("href","#user/" + friend.toEchoedUserId).addClass('item_wrap');
                         $('<img />').attr("height","50px").attr("src",utils.getProfilePhotoUrl(friend)).appendTo(friendImage);
-                        $('<div class="item_content"></div>').append(friendImage).append(friendText).appendTo(a);
+                        $('<div class="item_content friend"></div>').append(friendImage).append(friendText).appendTo(a).addClass('clearfix');
                         friendsFragment.append(a);
                         friendsAdded = true;
                     });

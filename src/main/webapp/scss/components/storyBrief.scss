@@ -132,15 +132,18 @@
     background-color: rgb(200, 45, 45);
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
-    @include fontTextBold(12px, #FFF);
+    @include fontTextBold(13px, #FFF);
     text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
     cursor: pointer;
     text-decoration: none;
-
+    border: 1px solid #333;
+    border-top: 0px;
     &:hover{
         background-color: $colorEC;
         padding-top: 10px;
         transition: padding 0.2s linear;
         -webkit-transition: padding 0.2s linear;
+        -moz-transition: padding 0.2s linear;
+        -o-transition: padding 0.2s linear;
     }
 }
