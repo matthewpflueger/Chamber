@@ -125,7 +125,7 @@ define(
 
                 self.gallery = self.element.find('.echo-s-b-gallery');
                 self.userNode = self.element.find('.echo-s-h-t-n');
-                var userLink = $('<a class="link-black bold-link"  href="#user/' + self.data.echoedUser.id + '"></a>')
+                var userLink = $('<a class="link-white bold-link"  href="#user/' + self.data.echoedUser.id + '"></a>')
                                     .text(self.data.echoedUser.name);
 
                 if(self.properties.isWidget !== true){

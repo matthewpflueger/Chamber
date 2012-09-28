@@ -84,7 +84,7 @@ define(
             },
             render: function(data){
                 var self = this;
-                if(self.addStories(data) || self.addFriends(data)){
+                if(self.addStories(data) || self.addFriends(data) || self.addCommunities(data)){
                     self.EvAg.trigger('infiniteScroll/unlock');
                 }
             },
@@ -113,6 +113,21 @@ define(
                 self.loginDiv.find("#facebookLogin").attr("href", utils.getFacebookLoginUrl(window.location.hash));
                 self.loginDiv.find("#twitterLogin").attr("href", utils.getTwitterLoginUrl(window.location.hash));
                 self.exhibit.isotope('insert', self.loginDiv)
+            },
+            addCommunities: function(data){
+                var self = this;
+                var communityFragment = $('<div></div>');
+                var communityAdded = false;
+                if(data.communities){
+                    $.each(data.communities, function(index, community){
+                        var communityDiv = $('<div></div>').addClass("item_wrap");
+                        $('<a class="item_content community"></a>').html(community.id).appendTo(communityDiv).attr("href", "#community/" + community.id);
+                        communityFragment.append(communityDiv);
+                        communityAdded = true;
+                    });
+                    self.exhibit.isotope('insert', communityFragment.children());
+                }
+                return communityAdded;
             },
             addFriends: function(data){
                 var self = this;

@@ -9,6 +9,7 @@ import collection.immutable.TreeMap
 import akka.pattern.ask
 import akka.util.Timeout
 import akka.util.duration._
+import com.echoed.chamber.domain.views.CommunityFeed
 
 class TagService(
         eventProcessor: EventProcessorActorSystem,
@@ -65,13 +66,13 @@ class TagService(
         case msg @ GetTags(filter) =>
             val channel = context.sender
             val tags = treeMap.values.filter( t => { t.id.toLowerCase.startsWith(filter.toLowerCase) && t.counter > 0 }).toList
-            channel ! GetTagsResponse(msg, Right(tags))
+            channel ! GetTagsResponse(msg, Right(new CommunityFeed(tags)))
 
         case msg: GetTopTags =>
             val channel = context.sender
             val tags = popularMap.values.filter(_.counter > 0).slice(0, 10).toList
             log.debug("Tags: {}", tags)
-            channel ! GetTopTagsResponse(msg, Right(tags))
+            channel ! GetTopTagsResponse(msg, Right(new CommunityFeed(tags)))
 
         case msg @ ApproveTag(tagId) =>
             val channel = context.sender

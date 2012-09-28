@@ -149,14 +149,14 @@ h3{
 }
 
 #content{
-    padding: 50px 0px;
+    padding: 55px 0px;
     margin-right: 180px;
 }
 
 #nav-container{
     position:fixed;
     right:0px;
-    top: 40px;
+    top: 22px;
     width: 180px;
     height: 100%;
     min-height: 600px;
@@ -178,12 +178,18 @@ h3{
     }
 
     #header-nav, #footer-nav, #help-nav{
+        ul{
+            border-top: 1px solid #FFF;
+            box-shadow: 0px -1px #CCC;
+        }
         li{
-            margin-left: 10px;
-            padding: 5px;
+            padding: 10px 20px;
+            @include fontTextBold(14px);
             list-style:none;
             cursor: pointer;
             text-shadow: 0px 1px 0px #FFF;
+            border-bottom: 1px solid #CCC;
+            box-shadow: 0px 1px #FFF;
         }
         li:hover, .current{
             color: $colorEC;

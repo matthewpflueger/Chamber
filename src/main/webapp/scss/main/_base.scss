@@ -173,6 +173,14 @@ img {
     }
 }
 
+.link-white{
+    color: #FFF;
+    text-decoration: none;
+    &visited, &:active{
+        color: #333;
+    }
+}
+
 .link-black{
     color: #333;
     text-decoration: none;

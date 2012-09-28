@@ -2,6 +2,7 @@ package com.echoed.chamber.services.tag
 import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedException, Message}
 import java.util.{List => JList}
 import com.echoed.chamber.domain.Tag
+import com.echoed.chamber.domain.views.CommunityFeed
 
 sealed trait TagMessage extends Message
 
@@ -16,12 +17,12 @@ import com.echoed.chamber.services.tag.{ TagMessage => TM, TagException => TE }
 case class GetTags(filter: String) extends TM
 case class GetTagsResponse(
         message: GetTags,
-        value: Either[TE, JList[Tag]]) extends TM with MR[JList[Tag], GetTags, TE]
+        value: Either[TE, CommunityFeed]) extends TM with MR[CommunityFeed, GetTags, TE]
 
 case class GetTopTags() extends TM
 case class GetTopTagsResponse(
         message: GetTopTags,
-        value: Either[TE, JList[Tag]]) extends TM with MR[JList[Tag], GetTopTags, TE]
+        value: Either[TE, CommunityFeed]) extends TM with MR[CommunityFeed, GetTopTags, TE]
 
 case class AddTag(tagId: String) extends TM
 case class AddTagResponse(
