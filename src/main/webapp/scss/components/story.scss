@@ -404,10 +404,34 @@
 }
 
 #story-actions{
-    padding: 10px;
-    li{
-        list-style: none;
-        padding: 2px;
-        text-align: center;
+    padding: 5px 10px;
+    .story-share{
+        border-radius: 3px;
+        cursor: pointer;
+        float:left;
+        margin: 2px;
+        border: 1px solid;
+        border-color: transparent;
+        &:hover{
+            border-color: #333;
+        }
     }
+
+    .fb{
+        @include sprite(0px, -164px, 30px, 30px);
+        background-color: $colorFB;
+    }
+    .tw{
+        @include sprite(-73px, -164px, 30px, 30px);
+        background-color: $colorTW;
+    }
+
+    border-bottom: 1px dotted #CCC;
+}
+
+.user-label{
+    text-align: center;
+    margin: 5px 0px;
+    @include fontTextBold(14px, #FFF);
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
 }

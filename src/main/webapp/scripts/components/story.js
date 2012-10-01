@@ -28,7 +28,27 @@ define(
                 "click a": "close",
                 "click #upvote": "upVote",
                 "click #echo-story-gallery-next": "next",
-                "click #echo-story-gallery-prev": "previous"
+                "click #echo-story-gallery-prev": "previous",
+                "click .story-share": "share"
+            },
+            share: function(ev){
+                var self = this;
+                var target = $(ev.currentTarget);
+                var href = "";
+                switch(target.attr("type")){
+                    case "fb":
+                        href = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(self.properties.urls.api + "/graph/story/" + self.data.story.id)
+                        break;
+                    case "tw":
+                        href = "http://twitter.com/intent/tweet?original_referer="
+                            + encodeURIComponent(self.properties.urls.api + "/#story/" + self.data.story.id)
+                            + "&url="
+                            + encodeURIComponent(self.properties.urls.api + "/#story/" + self.data.story.id)
+                            + "&via="
+                            + "echoedinc";
+                        break;
+                }
+                window.open(href, "Share",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
             },
             next: function(){
                 var self = this;
