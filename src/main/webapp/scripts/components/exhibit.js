@@ -50,11 +50,10 @@ define(
                             }
                         });
                         self.isotopeOn = true;
-                        var title = self.contentTitle;
-                        if(data.partner) title = data.partner.name;
-                        if(data.echoedUser && self.personal !== true)  title = data.echoedUser.name;
-                        console.log("Title: " + title);
-                        self.EvAg.trigger("title/update", { title: title});
+                        var titleOpt = { title: self.contentTitle, href: "" };
+                        if(data.partner) titleOpt = { title: data.partner.name, href: "#write/partner/" + data.partner.id };
+                        if(data.echoedUser && self.personal !== true) titleOpt = { title: data.echoedUser.name, href: "" };
+                        self.EvAg.trigger("title/update", titleOpt);
                         self.EvAg.trigger("pagetitle/update", title);
                         if(!self.properties.echoedUser && self.properties.exhibitShowLogin === true) self.addLogin();
                         self.render(data);

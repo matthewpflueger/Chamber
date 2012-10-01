@@ -112,6 +112,9 @@ $fontTextColorDefault: #333;
         text-decoration: none;
         @include fontText($size, #FFF);
         text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
+        &:hover{
+            background-color: $colorEC;
+        }
     }
 
     @mixin whiteButton($size: 14px){

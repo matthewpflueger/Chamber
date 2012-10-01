@@ -13,10 +13,23 @@
             padding: 10px;
             float: left;
             width: 268px;
+            height: 75px;
+
         }
-        #title-action{
+        #title-actions{
             float:right;
             padding: 10px;
+            text-align: right;
+
+            #title-share{
+                @include shareButton;
+            }
         }
     }
+}
+
+#title-share-label{
+    @include fontTextBold(16px, #FFF);
+    margin-bottom: 10px;
+    text-shadow: rgba(0, 0, 0, 0.8) 0px -1px;
 }
