@@ -404,7 +404,7 @@
 }
 
 #story-actions{
-    padding: 5px 10px;
+    padding: 5px 7px;
     .story-share{
         border-radius: 3px;
         cursor: pointer;
@@ -425,7 +425,12 @@
         @include sprite(-73px, -164px, 30px, 30px);
         background-color: $colorTW;
     }
-
+    .pinterest{
+        width: 30px;
+        height: 30px;
+        background-image: image-url("bk_pinterest.png");
+        background-color: #FFF;
+    }
     border-bottom: 1px dotted #CCC;
 }
 

@@ -47,6 +47,14 @@ define(
                             + "&via="
                             + "echoedinc";
                         break;
+                    case "pinterest":
+                        href = "http://pinterest.com/pin/create/button?url="
+                            + encodeURIComponent(self.properties.urls.api + "/#story/" + self.data.story.id)
+                            + "&media="
+                            + encodeURIComponent(self.data.story.image.preferredUrl)
+                            + "&description="
+                            + encodeURIComponent(self.data.story.title);
+                        break
                 }
                 window.open(href, "Share",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
             },
