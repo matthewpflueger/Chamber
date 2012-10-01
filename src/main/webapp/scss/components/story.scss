@@ -289,10 +289,9 @@
 }
 
 #echo-story-user{
-    width: 112px;
+    width: 122px;
     background-color: rgba(55, 55, 55, 0.5);
     border: 8px solid #FFF;
-    padding: 5px;
     height: 400px;
 }
 
@@ -341,7 +340,8 @@
 
 .echo-s-h-t-n{
     text-align: center;
-    margin: 4px;
+    border-bottom: 1px dotted #CCC;
+    padding: 10px;
     .echo-s-h-t-n-i{
         height: 100px;
         width: 100px;
@@ -351,8 +351,9 @@
 }
 
 .echo-s-h-t-n-t{
-    @include fontText(15px);
+    @include fontText(14px);
     text-shadow: 0px -1px #000;
+    margin: 10px 0px;
 }
 
 .echo-s-h-t-n-t-l{
@@ -403,6 +404,7 @@
 }
 
 #story-actions{
+    padding: 10px;
     li{
         list-style: none;
         padding: 2px;

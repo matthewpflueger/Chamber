@@ -33,7 +33,6 @@ define(
             next: function(){
                 var self = this;
                 self.scroll(Math.min(self.galleryNode.scrollTop() + self.galleryNode.height(),self.galleryNodeBody.children().last().position().top));
-                //self.scroll(self.galleryNode.scrollTop() + self.galleryNode.height());
             },
             previous: function(){
                 var self = this;
@@ -83,8 +82,9 @@ define(
                 })();
             },
             render: function(){
-                var template = _.template(templateStory);
+
                 var self = this;
+                var template = _.template(templateStory, self.data);
                 self.element.html(template);
                 self.chapters = {
                     array: [],
@@ -114,8 +114,6 @@ define(
                 self.currentImageIndex = 0;
 
                 self.text = self.element.find('.echo-s-b-text');
-                self.element.find('.echo-s-h-t-t').text(self.data.story.title);
-                self.element.find('.echo-s-h-i-i').attr("src",self.data.story.image.storyUrl);
                 if(self.properties.echoedUser !== undefined){
                     if(self.data.echoedUser.id === self.properties.echoedUser.id){
                         var header = self.element.find('.echo-story-header');
@@ -124,9 +122,9 @@ define(
                 }
 
                 self.gallery = self.element.find('.echo-s-b-gallery');
-                self.userNode = self.element.find('.echo-s-h-t-n');
-                var userLink = $('<a class="link-white bold-link"  href="#user/' + self.data.echoedUser.id + '"></a>')
-                                    .text(self.data.echoedUser.name);
+
+                $('#echo-s-h-t-n-i').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser));
+
 
                 if(self.properties.isWidget !== true){
                     var fromLink = $('<div class="echo-story-from"></div>').append(document.createTextNode('from '));
@@ -141,13 +139,9 @@ define(
                     }
                     self.element.find('.echo-s-h-title').append(fromLink);
                 }
-                var userImage = $('<img />').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)).addClass("echo-s-h-t-n-i");
-                self.userNode.append(userImage);
 
                 self.itemNode = $("<div class='echo-s-b-item'></div>");
                 self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
-                self.userTextNode = $("<div class='echo-s-h-t-n-t'></div>");
-                self.userTextNode.append(userLink).appendTo(self.userNode);
                 self.img = $("<img />");
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
@@ -259,7 +253,8 @@ define(
                 });
                 commentListNode.empty();
                 $("#echo-story-comment-ta").val("");
-                if(self.data.comments.length > 0) $("#echo-s-c-t-count").text("(" + self.data.comments.length + ")");
+
+
                 $.each(self.data.comments, function(index,comment){
                     var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(comment.createdOn.toString()));
                     var elapsedNode = $('<span class="echo-s-c-l-c-d"></span>').append(elapsedString);

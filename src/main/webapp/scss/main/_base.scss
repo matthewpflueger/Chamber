@@ -114,25 +114,32 @@ $fontTextColorDefault: #333;
         text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
     }
 
-    @mixin whiteButton($size: 13px){
+    @mixin whiteButton($size: 14px){
         display: inline-block;
         cursor: pointer;
-        border: 1px solid #AAA;
         border-radius: 5px;
-        height: 24px;
-        line-height: 24px;
+        height: 33px;
+        line-height: 33px;
         background-color: #CECECE;
+        color: #CCC;
         @include fontTextBold($size);
         text-shadow: 0px 1px #FFF;
         text-align:center;
         width: 82px;
         background-color: #f0eded;
-        background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fdfafb), to(#f0eded), color-stop(.5,#f9f7f7),color-stop(.5,#f6f3f4));
-        background-image: -moz-linear-gradient(top, #fdfafb, #f9f7f7 50%, #f6f3f4 50%, #f0eded);
-        background-image: -o-linear-gradient(top, #fdfafb, #f9f7f7 50%, #f6f3f4 50%, #f0eded);
-        background-image: -webkit-linear-gradient(top, #fdfafb, #f9f7f7 50%, #f6f3f4 50%, #f0eded);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#BBBBBB');
+        background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#A0A0A0));
+        background: -moz-linear-gradient(top, #FFF, #A0A0A0);
         &:hover{
-            border-color: #333;
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#BBBBBB');
+            background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#666666));
+            background: -moz-linear-gradient(top, #FFFFFF, #666666);
+            color: #000;
+        }
+        &:active{
+            background: $colorEC;
+            color: #FFF;
+            text-shadow: none;
         }
     }
 

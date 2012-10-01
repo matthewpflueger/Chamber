@@ -6,12 +6,21 @@
         <div id="echo-story-user-container">
             <div id="echo-story-user">
                 <div class="echo-s-h-t-n">
+                    <img id="echo-s-h-t-n-i" class="echo-s-h-t-n-i" src="" />
+                    <div class='echo-s-h-t-n-t'>
+                        <a class="link-white bold-link" href="#user/ {{ echoedUser.id }}">{{ echoedUser.name }}</a>
+                    </div>
+                    <span class="greyButton">
+                        Follow
+                    </span>
                 </div>
+                <!--
                 <div style="border-top: 1px dotted #FFF; color: #FFF; margin: 10px 0px; text-align:center; font-size: 14px; font-weight: bold;">Vote</div>
                 <div class="echo-s-vote">
                     <div><img style="margin:2px;vertical-align: middle" id="upvote" src="http://localhost.com:8080/images/uparrow_off.png"/></div>
                     <div><img style="margin:2px;vertical-align: middle" id="downvote" src="http://localhost.com:8080/images/downarrow_off.png"/></div>
                 </div>
+                -->
                 <div id="story-actions">
                     <ul>
                         <li>
@@ -19,16 +28,8 @@
                                 Share
                             </span>
                         </li>
-                        <li>
-                            <span class="greyButton">
-                                Follow
-                            </span>
-                        </li>
                     </ul>
                 </div>
-
-
-
             </div>
             <div id="story-edit-container">
                 <a id="story-edit-tab">
@@ -40,9 +41,10 @@
             <div class="echo-s-h-close"></div>
             <div class="echo-s-h-title clearfix">
                 <div class="echo-s-h-i-c">
-                    <img class="echo-s-h-i-i" src="" />
+                    <img class="echo-s-h-i-i" src="{{ story.image.storyUrl }}" />
                 </div>
                 <div class="echo-s-h-t-t">
+                    {{ story.title }}
                 </div>
             </div>
         </div>
@@ -60,7 +62,7 @@
             <div class="echo-story-footer clearfix">
                 <div class="echo-story-comments">
                     <div class="echo-s-c-t">
-                        Discussion <span id="echo-s-c-t-count"></span>
+                        Discussion <span id="echo-s-c-t-count">({{ comments.length }})</span>
                     </div>
                     <div class="echo-s-c-ta">
                         <textarea id="echo-story-comment-ta"></textarea>
