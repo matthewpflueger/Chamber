@@ -440,3 +440,37 @@
     @include fontTextBold(14px, #FFF);
     text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
 }
+
+#echo-s-vote{
+    padding: 10px;
+    border-bottom: 1px dotted #FFF;
+}
+
+.upvote, .downvote{
+    cursor:pointer;
+    width: 33px;
+    height: 33px;
+    display: block;
+    background-repeat: none;
+}
+
+.upvote{
+    background-image: image-url("uparrow_off.png");
+    &:hover{
+        background-image: image-url("uparrow_hover.png");
+    }
+    &:active, &.on{
+        background-image: image-url("uparrow.png");
+    }
+
+}
+
+.downvote{
+    background-image: image-url("downarrow_off.png");
+    &:hover{
+        background: image-url("downarrow_hover.png");
+    }
+    &:active, &.on{
+        background: image-url("downarrow.png");
+    }
+}
