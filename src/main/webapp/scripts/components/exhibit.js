@@ -54,7 +54,7 @@ define(
                         if(data.partner) titleOpt = { title: data.partner.name, href: "#write/partner/" + data.partner.id };
                         if(data.echoedUser && self.personal !== true) titleOpt = { title: data.echoedUser.name, href: "" };
                         self.EvAg.trigger("title/update", titleOpt);
-                        self.EvAg.trigger("pagetitle/update", title);
+                        self.EvAg.trigger("pagetitle/update", titleOpt.title);
                         if(!self.properties.echoedUser && self.properties.exhibitShowLogin === true) self.addLogin();
                         self.render(data);
                     }
