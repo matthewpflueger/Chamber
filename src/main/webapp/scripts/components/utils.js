@@ -17,6 +17,13 @@ define(
                 }
                 return "";
             },
+            arraySize: function(array){
+                var size = 0, key;
+                for(key in array){
+                    if(array.hasOwnProperty(key)) size++;
+                }
+                return size;
+            },
             getLoginRedirectUrl: function(){
                 return "login/register?r=" + encodeURIComponent(window.location.hash);
             },

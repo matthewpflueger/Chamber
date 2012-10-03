@@ -11,18 +11,21 @@ case class Vote(
     createdOn: Long,
     ref: String,
     refId: String,
-    echoedUserId: String) extends DomainObject {
+    echoedUserId: String,
+    value: Int) extends DomainObject {
 
     def this(
             ref: String,
             refId: String,
-            echoedUserId: String) = this(
+            echoedUserId: String,
+            value: Int) = this(
         UUID(),
         new Date,
         new Date,
         ref,
         refId,
-        echoedUserId
+        echoedUserId,
+        value
     )
 
 }

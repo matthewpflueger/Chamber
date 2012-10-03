@@ -232,15 +232,32 @@ class UserController extends EchoedController {
     @ResponseBody
     def upVote(
               eucc: EchoedUserClientCredentials,
-              @RequestParam(value = "storyId", required = true) storyId: String) = {
+              @RequestParam(value = "storyId", required = true) storyId: String,
+              @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(UpVoteStory(eucc, storyId)).onSuccess {
-            case UpVoteStoryResponse(_, Right(vote)) => result.set(vote)
+        mp(VoteStory(eucc, storyOwnerId, storyId, 1)).onSuccess {
+            case VoteStoryResponse(_, Right(vote)) => result.set(vote)
         }
 
         result
     }
+
+    @RequestMapping(value = Array("/downvote"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def downVote(
+                eucc: EchoedUserClientCredentials,
+                @RequestParam(value = "storyId", required = true) storyId: String,
+                @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
+
+        val result = new DeferredResult(ErrorResult.timeout)
+        mp(VoteStory(eucc, storyOwnerId, storyId, -1)).onSuccess{
+            case VoteStoryResponse(_, Right(vote)) => result.set(vote)
+        }
+
+        result
+    }
+
 
     @RequestMapping(value = Array("/tags/add"), method = Array(RequestMethod.GET))
     @ResponseBody

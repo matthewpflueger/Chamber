@@ -102,14 +102,36 @@ class StoryService(
             ep(new StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
 
-        case msg @ UpVoteStory(_, storyId) =>
-            val vote = new com.echoed.chamber.domain.Vote(
-                "story",
-                storyId,
-                echoedUser.id)
-            storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote))
-            ep(new StoryUpVoted(storyState, vote))
-            sender ! UpVoteStoryResponse(msg, Right(storyState.asStory))
+        case msg @ NewVote(eucc, byEchoedUser, storyId, value) =>
+            val vote = storyState.votes.get(eucc.echoedUserId).map {
+                v =>
+                    val newVote = v.copy(value = value)
+                    storyState = storyState.copy(votes = storyState.votes + (newVote.echoedUserId -> newVote))
+                    ep(VoteUpdated(storyState, newVote))
+                    newVote
+            }.orElse({
+                val newVote = new Vote(
+                                    "story",
+                                    storyId,
+                                    eucc.echoedUserId,
+                                    value)
+                storyState = storyState.copy(votes = storyState.votes + (newVote.echoedUserId -> newVote))
+                ep(VoteCreated(storyState, newVote))
+                Option(newVote)
+
+            }).get
+
+            mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
+                echoedUser,
+                byEchoedUser,
+                "comment",
+                Map(
+                    "subject" -> byEchoedUser.name,
+                    "action" -> "upvoted ",
+                    "object" -> storyState.title,
+                    "storyId" -> storyState.id))))
+
+            sender ! NewVoteResponse(msg, Right(storyState.asStory))
 
         case msg @ TagStory(_, storyId, tag) =>
             val originalTag = storyState.tag

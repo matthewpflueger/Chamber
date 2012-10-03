@@ -189,7 +189,8 @@ class StateService(
         case StoryUpdated(storyState) => stories.update(domain.Story(storyState))
         case StoryTagged(storyState, _, _) => stories.update(domain.Story(storyState))
 
-        case StoryUpVoted(_, vote) => votes.insert(vote)
+        case VoteUpdated(_, vote) => votes.update(vote)
+        case VoteCreated(_, vote) => votes.insert(vote)
 
         case ChapterCreated(_, c, ci) =>
             chapters.insert(c)

@@ -636,7 +636,17 @@ class EchoedUserService(
             //create a fresh actor for non-echo related stories
             context.watch(storyServiceCreator(context, msg, echoedUser)).forward(msg)
 
-        case msg @ UpVoteStory(_, storyId) => forwardToStory(msg, StoryId(storyId))
+        case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
+            mp(new NewVote(
+                new EchoedUserClientCredentials(storyOwnerId),
+                echoedUser,
+                storyId,
+                value))
+            .mapTo[NewVoteResponse]
+            .map {
+                nvr =>
+                    VoteStoryResponse(msg, nvr.value)
+            }.pipeTo(context.sender)
 
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
             val me = self

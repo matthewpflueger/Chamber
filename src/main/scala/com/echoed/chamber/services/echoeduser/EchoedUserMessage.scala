@@ -146,12 +146,23 @@ case class InitStory(
 case class InitStoryResponse(message: InitStory, value: Either[EUE, StoryInfo])
         extends EUM with MR[StoryInfo, InitStory, EUE]
 
-case class UpVoteStory(
+case class VoteStory(
         credentials: EUCC,
-        storyId: String) extends EUM with EUI with SI
+        storyOwnerId: String,
+        storyId: String,
+        value: Int) extends EUM with EUI with SI
 
-case class UpVoteStoryResponse(message: UpVoteStory, value: Either[EUE, Story])
-        extends EUM with MR[Story, UpVoteStory, EUE]
+case class VoteStoryResponse(message: VoteStory, value: Either[EUE, Story])
+        extends EUM with MR[Story,  VoteStory, EUE]
+
+case class NewVote(
+        credentials: EUCC,
+        byEchoedUser: EchoedUser,
+        storyId: String,
+        value: Int) extends EUM with EUI with SI
+
+case class NewVoteResponse(message: NewVote, value: Either[EUE, Story])
+        extends EUM with MR[Story, NewVote, EUE]
 
 
 case class CreateStory(

@@ -19,7 +19,9 @@ case class ChapterCreated(story: StoryState, chapter: Chapter, chapterImages: Li
 case class ChapterUpdated(story: StoryState, chapter: Chapter, chapterImages: List[ChapterImage]) extends SE with UpdatedEvent
 case class CommentCreated(story: StoryState, comment: Comment) extends SE with UpdatedEvent
 case class StoryModerated(story: StoryState, moderation: Moderation) extends SE with CreatedEvent
-case class StoryUpVoted(story: StoryState, vote: Vote) extends SE with UpdatedEvent
+
+case class VoteUpdated(story: StoryState, vote: Vote) extends SE with UpdatedEvent
+case class VoteCreated(story: StoryState, vote: Vote) extends SE with CreatedEvent
 
 
 private[services] case class EchoedUserCreated(

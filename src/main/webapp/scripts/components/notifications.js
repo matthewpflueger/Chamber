@@ -41,10 +41,15 @@ define(
                             self.header.text('New Notifications (' + self.count + ")");
                             if(self.count > 0){
                                 $.each(notifications, function(index, notification){
-                                    var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
+                                    var sub = $('<span class="bold"></span>').text(notification.value.subject);
+                                    var act = $('<span></span>').text(" " + notification.value.action + " ");
+                                    var obj = $('<span class="bold"></span>').text(notification.value.object);
+
                                     self.list.append($('<div></div>')
                                         .addClass('notification')
-                                        .text(message)
+                                        .append(sub)
+                                        .append(act)
+                                        .append(obj)
                                         .attr("href","#story/" + notification.value.storyId)
                                         .attr("id", notification.id));
                                 });

@@ -431,7 +431,7 @@
         background-image: image-url("bk_pinterest.png");
         background-color: #FFF;
     }
-    border-bottom: 1px dotted #CCC;
+    //border-bottom: 1px dotted #CCC;
 }
 
 .user-label{
@@ -450,8 +450,19 @@
     cursor:pointer;
     width: 33px;
     height: 33px;
-    display: block;
+    display: inline-block;
     background-repeat: none;
+    vertical-align: middle;
+}
+
+#upvote-counter, #downvote-counter{
+    @include fontTextBold(20px, #FFF);
+    vertical-align: middle;
+    width: 60px;
+    text-align: center;
+    display: inline-block;
+    height: 33px;
+    line-height: 33px;
 }
 
 .upvote{

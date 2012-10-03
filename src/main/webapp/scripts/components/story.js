@@ -26,7 +26,8 @@ define(
                 "click .echo-s-b-item": "nextImage",
                 "click .story-nav-button": "navClick",
                 "click a": "close",
-                "click #upvote": "upVote",
+                "click .upvote": "upVote",
+                "click .downvote": "downVote",
                 "click #echo-story-gallery-next": "next",
                 "click #echo-story-gallery-prev": "previous",
                 "click .story-share": "share"
@@ -74,13 +75,32 @@ define(
             },
             upVote: function(ev){
                 var self = this;
+                var target = $(ev.currentTarget);
                 utils.AjaxFactory({
                     url: self.properties.urls.api + "/api/upvote",
                     data: {
-                        storyId: self.data.story.id
+                        storyId: self.data.story.id,
+                        storyOwnerId: self.data.echoedUser.id
                     },
                     success: function(data){
-                        alert(data);
+                        self.data.votes[self.properties.echoedUser.id].value = 1;
+                        self.renderVotes();
+                    }
+                })();
+            },
+            downVote: function(ev){
+                var self = this;
+                var target = $(ev.currentTarget);
+                utils.AjaxFactory({
+                    url: self.properties.urls.api + "/api/downvote",
+                    data: {
+                        storyId: self.data.story.id,
+                        storyOwnerId: self.data.echoedUser.id
+                    },
+                    success: function(data){
+                        console.log(data);
+                        self.data.votes[self.properties.echoedUser.id].value = -1;
+                        self.renderVotes();
                     }
                 })();
             },
@@ -108,6 +128,27 @@ define(
                         self.render();
                     }
                 })();
+            },
+            renderVotes: function(){
+                var self = this;
+                var upVotes = 0, downVotes = 0, key;
+                var votes = self.data.votes;
+                self.element.find('.upvote').removeClass('on');
+                self.element.find('.downvote').removeClass('on');
+                for (key in votes){
+                    if(votes[key].value > 0 ) upVotes++;
+                    else if(votes[key].value < 0) downVotes++;
+                }
+                $('#upvote-counter').text(upVotes);
+                $('#downvote-counter').text(downVotes);
+
+                if(self.properties.echoedUser !== undefined){
+                    var vote = self.data.votes[self.properties.echoedUser.id];
+                    if(vote !== undefined){
+                        if(vote.value > 0) self.element.find('.upvote').addClass('on');
+                        else if(vote.value < 0) self.element.find('.downvote').addClass('on');
+                    }
+                }
             },
             render: function(){
 
@@ -154,6 +195,7 @@ define(
                 $('#echo-s-h-t-n-i').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser));
 
 
+
                 if(self.properties.isWidget !== true){
                     var fromLink = $('<div class="echo-story-from"></div>').append(document.createTextNode('from '));
                     if(self.data.story.partnerHandle !== "Echoed"){
@@ -178,6 +220,7 @@ define(
                 self.renderGalleryNav();
                 self.renderComments();
                 self.renderChapter();
+                self.renderVotes();
                 self.scroll(0);
 
                 self.EvAg.trigger('fade/show');
