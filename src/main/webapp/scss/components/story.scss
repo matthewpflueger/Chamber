@@ -262,7 +262,7 @@
         margin-bottom: 5px;
         cursor: pointer;
         border: 1px solid #666;
-        &.highlight{
+        &.highlight, &:hover{
             background-color: rgba(255, 255, 255, 0.1);
             border-color: #FFF;
         }

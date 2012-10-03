@@ -22,6 +22,7 @@ define(
                 "click .echo-s-h-close" : "close",
                 "click .comment-submit": "createComment",
                 "click .login-button": "commentLogin",
+                "click .echo-gallery-chapter" : "chapterClick",
                 "click .echo-s-b-thumbnail": "imageClick",
                 "click .echo-s-b-item": "nextImage",
                 "click .story-nav-button": "navClick",
@@ -83,7 +84,10 @@ define(
                         storyOwnerId: self.data.echoedUser.id
                     },
                     success: function(data){
-                        self.data.votes[self.properties.echoedUser.id].value = 1;
+                        self.data.votes[self.properties.echoedUser.id] = {
+                            echoedUserId: self.properties.echoedUser.id,
+                            value: 1
+                        };
                         self.renderVotes();
                     }
                 })();
@@ -99,7 +103,10 @@ define(
                     },
                     success: function(data){
                         console.log(data);
-                        self.data.votes[self.properties.echoedUser.id].value = -1;
+                        self.data.votes[self.properties.echoedUser.id] = {
+                            echoedUserId: self.properties.echoedUser.id,
+                            value: -1
+                        };
                         self.renderVotes();
                     }
                 })();
@@ -165,7 +172,7 @@ define(
                         chapter: chapter,
                         images: []
                     };
-                    if(index === 0){
+                    if(index === 0 && self.data.story.image){
                         hash.images.push(self.data.story.image);
                     }
                     $.each(self.data.chapterImages, function(index, chapterImage){
@@ -173,9 +180,9 @@ define(
                             hash.images.push(chapterImage.image);
                         }
                     });
-                    if(hash.images.length === 0){
+                    /*if(hash.images.length === 0){
                         hash.images.push(self.data.story.image);
-                    }
+                    } */
                     self.chapters.array.push(hash);
                     self.chapters.hash[chapter.id] = index;
                 });
@@ -235,7 +242,7 @@ define(
                 self.titles = [];
                 self.galleryChapters = [];
                 $.each(self.chapters.array, function(index, chapter){
-                    self.galleryChapters[index]=  $('<div></div>').addClass('echo-gallery-chapter');
+                    self.galleryChapters[index]=  $('<div></div>').addClass('echo-gallery-chapter').attr("index", index);
                     var title = $('<div></div>').addClass('echo-gallery-title').text(chapter.chapter.title);
                     self.galleryChapters[index].append(title);
                     self.galleryNodeBody.append(self.galleryChapters[index]);
@@ -271,6 +278,15 @@ define(
                 self.currentImageIndex = index.split("-")[1];
                 self.renderChapter();
             },
+            chapterClick: function(e){
+                var self = this;
+                var target = $(e.target);
+                if(!target.is("img")){
+                    self.currentChapterIndex = $(e.currentTarget).attr("index");
+                    self.currentImageIndex = 0;
+                    self.renderChapter();
+                }
+            },
             renderChapter: function(){
                 var self = this;
                 var textArea = self.element.find('.echo-s-b-text');
@@ -288,20 +304,26 @@ define(
             renderImage: function(){
                 var self = this;
                 var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
-                self.img.fadeOut();
-                self.itemImageContainer.animate(
-                    utils.getImageSizing(currentImage, 450),
-                    function(){
-                        if(currentImage.storyUrl !== null){
-                            self.img.attr('src', currentImage.storyUrl);
-                        } else {
-                            self.img.attr('src', currentImage.originalUrl);
-                        }
-                        self.img.fadeIn();
-                    });
-
-                self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
-                self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
+                console.log(currentImage);
+                if(currentImage !== null && currentImage !== undefined){
+                    self.gallery.show();
+                    self.img.fadeOut();
+                    self.itemImageContainer.animate(
+                        utils.getImageSizing(currentImage, 450),
+                        function(){
+                            if(currentImage.storyUrl !== null){
+                                self.img.attr('src', currentImage.storyUrl);
+                                self.img.fadeIn();
+                            } else {
+                                self.img.attr('src', currentImage.originalUrl);
+                                self.img.fadeIn();
+                            }
+                        });
+                    self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
+                    self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
+                } else{
+                    self.gallery.hide();
+                }
             },
             renderComments: function(){
                 var self = this;

@@ -19,7 +19,7 @@ define(
                 this.render();
             },
             events: {
-                "click .story-brief-image-container" : "click",
+                "click .item_content": "click",
                 "mouseenter": "showOverlay",
                 "mouseleave": "hideOverlay"
             },
@@ -30,9 +30,23 @@ define(
 
                 if(self.data.chapters.length > 0){
                     var chapterText = self.data.chapters[0].text;
-                    var c  = chapterText.split(/[.!?]/)[0];
-                    c = c + chapterText.substr(c.length, 1); //Append Split Character
-                    self.data.chapterText = c;
+                    if(self.data.story.imageId !== null){
+                        var c  = chapterText.split(/[.!?]/)[0];
+                        c = c + chapterText.substr(c.length, 1); //Append Split Character
+                        self.data.chapterText = c;
+                    } else {
+                        var len = 200;
+                        if(chapterText.length > len){
+                            c = chapterText.substr(len).split(/[.!?]/)[0];
+                            c = chapterText.substr(0, len) + c + chapterText.substr(len +c.length, 1);
+                            self.data.chapterText = c;
+                        } else {
+                            self.data.chapterText = chapterText;
+                        }
+
+                    }
+
+
                 } else {
                     textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
                     self.data.chapterText = "";
@@ -44,6 +58,7 @@ define(
                 var template = _.template(templateStoryBrief, self.data);
                 self.element.html(template);
 
+                self.imageContainer = self.element.find('.story-brief-image-container');
 
                 var image = self.data.story.image;
                 var imageNode = self.element.find(".story-brief-image");
@@ -54,7 +69,8 @@ define(
                     };
                     imageNode.attr('src', image.preferredUrl).css(utils.getImageSizing(image,260))
                 } else{
-                    self.element.find('.story-brief-image-container').hide();
+                    //self.element.find('.story-brief-text-quote').addClass('large');
+                    self.imageContainer.hide();
                 }
 
 
@@ -67,15 +83,15 @@ define(
                 self.element.attr("id", self.data.story.id);
             },
             showOverlay: function(){
+                this.imageContainer.addClass('highlight');
             },
             hideOverlay: function(){
+                this.imageContainer.removeClass('highlight');
             },
-            click: function(){
+            click: function(ev){
                 var self = this;
-                var id = self.element.attr("id");
-                if(self.element.attr('action') === "write"){
-                    window.location.hash = "#!write/story/" + self.data.story.id;
-                } else {
+                var target = $(ev.target);
+                if(!target.is('a')){
                     window.location.hash = "#!story/" + self.data.story.id;
                 }
             }
