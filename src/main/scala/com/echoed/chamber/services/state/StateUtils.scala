@@ -18,7 +18,15 @@ private[state] object StateUtils {
         }.toList
 
         val eu = echoedUsers.lookup(s.echoedUserId).get
-        val img = images.lookup(s.imageId).get.convertTo
+
+
+
+        //val img = images.lookup(s.imageId).get.convertTo
+
+        val img = Option(s.imageId).map {
+            images.lookup(_).get.convertTo
+        }.orElse(None)
+
         val p = partners.lookup(s.partnerId).get
         val ps = partnerSettings.lookup(s.partnerSettingsId).get
         val e = echo.orElse(Option(s.echoId).flatMap(echoes.lookup(_)))
@@ -37,14 +45,14 @@ private[state] object StateUtils {
                 s.views,
                 s.tag,
                 eu,
-                img.id,
-                Option(img),
+                s.imageId,
+                img,
                 c,
                 ci,
                 cm,
                 p,
                 ps,
-                e.map(_.convertTo(img)),
+                e.map(_.convertTo(img.get)),
                 m,
                 v)
     }

@@ -25,53 +25,50 @@ define(
             },
             render: function(){
                 var self = this;
-                var template = _.template(templateStoryBrief, self.data);
-                self.element.html(template);
-                var imageNode = self.element.find(".story-brief-image");
+
                 var textNode = self.element.find(".story-brief-text");
-                var overlayNode = self.element.find(".story-brief-overlay-wrap");
-                self.overlay = self.element.find(".story-brief-overlay");
-                var image = self.data.story.image;
-                if(image.preferredUrl !== null){
-                    imageNode.attr("src", image.preferredUrl).css(utils.getImageSizing(image, 260));
-                } else {
-                    imageNode.attr("src", image.url)
-                }
+
                 if(self.data.chapters.length > 0){
-                    if(self.properties.echoedUser !== undefined){
-                        if(self.data.echoedUser.id === Echoed.echoedUser.id){
-                            self.element.find('.story-brief-edit').show();
-                            //textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
-                        }
-                    }
-                    self.element.find('.story-brief-text-user-image').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser));
                     var chapterText = self.data.chapters[0].text;
                     var c  = chapterText.split(/[.!?]/)[0];
                     c = c + chapterText.substr(c.length, 1); //Append Split Character
-                    self.element.find('.story-brief-text-quote').text(c);
-                    var dateString = self.data.story.updatedOn.toString();
-                    var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(dateString));
-                    self.element.find('.s-b-i-c').text(elapsedString);
+                    self.data.chapterText = c;
                 } else {
-                    if(self.personal === true ) {
-                        textNode.append("<strong></strong>").text(self.data.story.title).append("<br/>");
-                        textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
-                        if(self.data.chapters.length === 0 ){
-                            var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").text("Complete Story");
-                            overlayNode.append(editButton);
-                            overlayNode.append("<br/>Complete your story by adding a chapter");
-                            self.overlay.fadeIn();
-                        }
-                        self.element.attr('action','write');
+                    textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
+                    self.data.chapterText = "";
+                }
+
+                var dateString = self.data.story.updatedOn.toString();
+                self.data.elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(dateString));
+                self.data.profilePhotoUrl = utils.getProfilePhotoUrl(self.data.echoedUser);
+                var template = _.template(templateStoryBrief, self.data);
+                self.element.html(template);
+
+
+                var image = self.data.story.image;
+                var imageNode = self.element.find(".story-brief-image");
+                if(image !== null){
+                    self.data.storyImage = {
+                        url: image.preferedUrl,
+                        size: utils.getImageSizing(image, 260)
+                    };
+                    imageNode.attr('src', image.preferredUrl).css(utils.getImageSizing(image,260))
+                } else{
+                    self.element.find('.story-brief-image-container').hide();
+                }
+
+
+                if(self.properties.echoedUser !== undefined){
+                    if(self.data.echoedUser.id === Echoed.echoedUser.id){
+                        self.element.find('.story-brief-edit').show();
                     }
                 }
+
                 self.element.attr("id", self.data.story.id);
             },
             showOverlay: function(){
-                this.overlay.fadeIn();
             },
             hideOverlay: function(){
-                this.overlay.fadeOut();
             },
             click: function(){
                 var self = this;

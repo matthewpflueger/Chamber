@@ -88,8 +88,13 @@ class StoryService(
 
 
         case msg @ CreateStory(_, title, imageId, _, productInfo, _) =>
-            mp.tell(ProcessImage(Right(imageId)), self)
-            storyState = storyState.create(title, productInfo.orNull, imageId)
+
+            imageId.map {
+                id =>
+                    mp.tell(ProcessImage(Right(id)), self)
+            }
+
+            storyState = storyState.create(title, productInfo.orNull, imageId.orNull)
             ep(StoryCreated(storyState))
 
             context.parent ! RegisterStory(storyState.asStory)

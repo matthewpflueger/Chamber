@@ -147,16 +147,11 @@ define(
                         storyData.partnerId = self.partnerId;
                     }
 
-                    if(!self.data.imageId){
-                        alert("Please select a photo for the product");
-                    } else if(title === ""){
+                    if(title === ""){
                         alert("Please title your product story");
-                    } else if(productFrom === "") {
-                        alert("Please enter where the product is from");
                     } else {
                         self.locked = true;
                         if(type==="PUT"){
-                            console.log(title);
                             utils.AjaxFactory({
                                 url: self.properties.urls.api + "/story/" + self.data.storyFull.story.id,
                                 type: 'PUT',
@@ -185,17 +180,16 @@ define(
                 }
             },
             loadStorySummary: function(){
-                var self = this;
-                var template = _.template(templateStorySummary);
-                self.element.html(template);
-                self.element.find(".story-preview-title").text(self.data.storyFull.story.title);
-                self.element.find(".story-preview-from").text(self.data.storyFull.story.productInfo);
-                self.element.find(".story-preview-by").text(self.data.storyFull.echoedUser.name);
-                $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
 
-                $("#field-main-category-content").text(self.data.storyFull.story.tag);
+                var self = this;
+                var template = _.template(templateStorySummary, self.data);
+                self.element.html(template);
+
+                if(self.data.storyFull.story.image !== null) $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+
                 this.ajaxInput = new AjaxInput({ el: '#ajax-input', EvAg: self.EvAg, properties: this.properties });
                 self.element.chapters = self.element.find('.story-summary-body');
+
                 $.each(self.data.storyFull.chapters, function(index, chapter){
 
                     var chapterDiv = $('<div class="story-summary-chapter clearfix"></div>');
@@ -247,15 +241,16 @@ define(
             },
             loadChapterTemplate: function(chapterIndex){
                 var self = this;
-                self.template = _.template(templateStoryEdit);
+                self.template = _.template(templateStoryEdit, self.data);
                 self.element.html(self.template);
 
 
-                self.element.find(".story-preview-title").text(self.data.storyFull.story.title);
-                self.element.find(".story-preview-from").text(self.data.storyFull.story.productInfo);
-                self.element.find(".story-preview-by").text(self.data.storyFull.echoedUser.name);
                 $("#thumb-placeholder").attr("src", self.properties.urls.images + "/bk_img_upload_ph.png" );
-                $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+
+                if(self.data.storyFull.story.image !== null){
+                    $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+                }
+
                 var chapterPhotos = self.element.find(".thumbnails");
                 self.currentChapter = {
                     images: [],

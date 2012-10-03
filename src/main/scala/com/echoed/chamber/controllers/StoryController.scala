@@ -58,7 +58,7 @@ class StoryController extends EchoedController {
         mp(CreateStory(
                 eucc,
                 title,
-                imageId,
+                Option(imageId),
                 Option(partnerId),
                 Option(productInfo),
                 Option(echoId))).onSuccess {

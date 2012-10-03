@@ -168,7 +168,7 @@ case class NewVoteResponse(message: NewVote, value: Either[EUE, Story])
 case class CreateStory(
         credentials: EUCC,
         title: String,
-        imageId: String,
+        imageId: Option[String] = None,
         partnerId: Option[String] = None,
         productInfo: Option[String] = None,
         echoId: Option[String] = None) extends EUM with EUI

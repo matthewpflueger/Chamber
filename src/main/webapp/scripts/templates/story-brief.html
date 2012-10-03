@@ -1,21 +1,17 @@
 <div class="item_content">
     <div class="story-brief">
         <div class="story-brief-image-container">
-            <!--<div class="story-brief-overlay" style="display:none;">
-                <div class="story-brief-overlay-wrap">
-                </div>
-            </div>-->
-            <img class="story-brief-image" src= ""/>
+            <img class="story-brief-image" />
         </div>
         <div class="story-brief-text">
-            <img class="story-brief-text-user-image" height="35px" width="35px"/>
+            <img class="story-brief-text-user-image" height="35px" width="35px" src="{{ profilePhotoUrl }}"/>
             <div class="story-brief-text-title">
                 {{ story.title }}
             </div>
             <div class="story-brief-text-by">
                 by <a class="link-black story-brief-text-user" href="#user/{{echoedUser.id}}">{{ echoedUser.name }}</a>
             </div>
-            <div class="story-brief-text-quote"></div>
+            <div class="story-brief-text-quote">{{ chapterText }}</div>
             <div class="story-brief-indicator">
                 <span>Votes: </span>
                 <!--<span class="story-brief-indicator-value">{{ votes.length }}</span>-->
@@ -23,8 +19,9 @@
                 <span class="story-brief-indicator-value">{{ comments.length }}</span>
                 <span>Photos: </span>
                 <span class="story-brief-indicator-value">{{ chapterImages.length + 1 }}</span>
-                <!--<span class="s-b-i-c">
-                </span>-->
+                <span class="s-b-i-c">
+                    {{ elapsedString }}
+                </span>
             </div>
         </div>
     </div>

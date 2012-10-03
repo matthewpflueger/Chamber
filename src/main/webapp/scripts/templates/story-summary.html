@@ -10,9 +10,8 @@
                     <img id="story-preview-photo" />
                 </div>
                 <div class="story-preview-text">
-                    <div class="story-preview-title"></div>
-                    <div class="story-preview-from"></div>
-                    <div class="story-preview-by"></div>
+                    <div class="story-preview-title">{{ storyFull.story.title }}</div>
+                    <div class="story-preview-by">{{ storyFull.echoedUser.name }}</div>
                     <span id="story-preview-edit">Edit</span>
                 </div>
             </div>
@@ -25,6 +24,7 @@
                         <div class="field-main-category-helper">Choose a community for your story. Make it easier to find!</div>
                         <strong>Community:</strong>
                                 <span id="field-main-category-content">
+                                    {{ storyFull.story.tag }}
                                 </span>
                         <span id="field-main-category-edit">Edit</span>
                     </div>

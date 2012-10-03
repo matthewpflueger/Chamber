@@ -156,13 +156,7 @@ define(
                             self.stories.array.push(story.id);
                             var storyDiv = $('<div></div>').addClass('item_wrap');
                             var storyComponent = new StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal, properties: self.properties});
-                            if(story.story.image.originalUrl !== null){
-                                storiesFragment.append(storyDiv);
-                            } else {
-                                storyDiv.imagesLoaded(function(){
-                                    self.exhibit.isotope('insert', storyDiv);
-                                });
-                            }
+                            storiesFragment.append(storyDiv);
                         }
                         storiesAdded = true;
                     });
