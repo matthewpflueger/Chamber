@@ -185,11 +185,15 @@ define(
                 var template = _.template(templateStorySummary, self.data);
                 self.element.html(template);
 
-                if(self.data.storyFull.story.image !== null) $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+                if(self.data.storyFull.story.image !== null) {
+                    var coverPhoto = $('<div class="story-summary-chapter-photo-container"></div>');
+                    var coverPhotoRow  = $('<div class="story-summary-chapter-row"></div>').append($('<label>Photo:</label>')).append(coverPhoto);
+                    $('#field-summary-cover').append(coverPhotoRow);
+                    $('<img class="story-summary-chapter-photo"/>').attr("height", 50).attr("src", self.data.storyFull.story.image.preferredUrl).appendTo(coverPhoto);
+                }
 
                 this.ajaxInput = new AjaxInput({ el: '#ajax-input', EvAg: self.EvAg, properties: this.properties });
                 self.element.chapters = self.element.find('.story-summary-body');
-
                 $.each(self.data.storyFull.chapters, function(index, chapter){
 
                     var chapterDiv = $('<div class="story-summary-chapter clearfix"></div>');

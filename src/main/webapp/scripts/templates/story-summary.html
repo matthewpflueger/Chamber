@@ -1,32 +1,22 @@
     <div class="field-close"></div>
     <div class="field-title">Share Your Story</div>
     <div class="field-body clearfix">
-        <div class="field-preview">
-            <div class="field-preview-title">
-                Your Cover
-            </div>
-            <div class="story-preview">
-                <div class="story-preview-image-container">
-                    <img id="story-preview-photo" />
-                </div>
-                <div class="story-preview-text">
-                    <div class="story-preview-title">{{ storyFull.story.title }}</div>
-                    <div class="story-preview-by">{{ storyFull.echoedUser.name }}</div>
-                    <span id="story-preview-edit">Edit</span>
-                </div>
-            </div>
-        </div>
         <div class="story-summary">
             <div class="story-summary-body">
-                <div class="field-main-title">Your Story, So Far</div>
-                <div class="field-main-category">
-                    <div class="field-main-category-title">
-                        <div class="field-main-category-helper">Choose a community for your story. Make it easier to find!</div>
+                <div id="field-summary-cover" class="field-main-row clearfix">
+                    <span class="field-edit" id="field-cover-edit">Edit</span>
+                    <div class="field-summary-label">
+                        Title: {{ storyFull.story.title }}
+                    </div>
+                </div>
+                <div class="field-main-row">
+                    <div id="field-main-category-title">
+                        <span class="field-edit" id="field-main-category-edit">Edit</span>
+                        <div id="field-main-category-helper">Choose a community for your story. Make it easier to find!</div>
                         <strong>Community:</strong>
                                 <span id="field-main-category-content">
                                     {{ storyFull.story.tag }}
                                 </span>
-                        <span id="field-main-category-edit">Edit</span>
                     </div>
                     <div id="ajax-input">
                         <div style="display: inline-block;">
@@ -37,7 +27,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="story-summary-buttons">

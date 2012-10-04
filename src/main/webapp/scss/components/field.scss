@@ -142,13 +142,11 @@
     }
 
     .field-body{
-        display: table;
         background-color: #F0F0F0;
         margin: 0px 10px 10px 10px;
         position: relative;
         min-height: 350px;
         .field-preview{
-        display: table-cell;
         border-right: 1px solid #CCC;
         box-shadow: 1px 0px #FFF;
         padding: 10px;
@@ -162,8 +160,6 @@
         }
         .field-main-col{
             padding: 10px;
-            width: 505px;
-            display: table-cell;
             vertical-align: top;
             .field-row{
                 margin-bottom: 10px;
@@ -252,8 +248,6 @@
 
     .story-summary{
         margin: 0 10px 10px 10px;
-        width: 558px;
-        display: table-cell;
         padding: 10px;
         .story-summary-header{
             border: 1px solid #CCC;
@@ -429,7 +423,6 @@
                 .chapter-edit-body-row{
                     margin-bottom: 10px;
                     vertical-align: top;
-                    display: table;
                     .chapter-edit-photos{
                         display: inline-block;
                         .thumbnails{
@@ -502,29 +495,34 @@
     }
 }
 
-
-.field-main-category{
+.field-main-row{
     border: 1px solid #CCC;
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 10px;
-    .field-main-category-helper{
-        @include fontText(14px);
-        font-style: italic;
-        margin-bottom: 5px;
-    }
-    .field-main-category-title{
-        @include fontText(14px);
-    }
-    #field-main-category-content{
-        @include fontText(14px);
-    }
-    #field-main-category-edit{
-        @include fontText(14px, $colorEC);
-        text-decoration: underline;
-        cursor: pointer;
-        float:right;
-    }
+}
+
+.field-edit{
+    @include fontText(14px, $colorEC);
+    text-decoration: underline;
+    cursor: pointer;
+    float:right;
+}
+
+.field-summary-label{
+    @include fontTextBold(14px);
+}
+
+#field-main-category-helper{
+    @include fontText(14px);
+    font-style: italic;
+    margin-bottom: 5px;
+}
+#field-main-category-title{
+    @include fontText(14px);
+}
+#field-main-category-content{
+    @include fontText(14px);
 }
 
 #category-add{
