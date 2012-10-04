@@ -28,7 +28,7 @@
 
     .echo-s-h-close{
         position:absolute;
-        right: -25px;
+        right: -155px;
         top: -25px;
         cursor: pointer;
         @include sprite(-31px, -157px, 36px, 37px);
@@ -285,7 +285,7 @@
 #echo-story-user-container{
     position:absolute;
     top: -8px;
-    left: -138px;
+    right: -138px;
 }
 
 #echo-story-user{
@@ -299,10 +299,10 @@
     position: fixed;
     top: 0px;
     bottom: 0px;
-    right: 15px;
+    left: 0px;
     padding: 10px 5px;
     width: 105px;
-    border-left: 1px solid #CCC;
+    border-right: 1px solid #CCC;
 }
 
 #echo-story-gallery-prev, #echo-story-gallery-next{
