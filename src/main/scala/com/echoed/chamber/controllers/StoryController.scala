@@ -45,7 +45,7 @@ class StoryController extends EchoedController {
     @ResponseBody
     def createStory(
             @RequestParam(value = "title", required = true) title: String,
-            @RequestParam(value = "imageId", required = true) imageId: String,
+            @RequestParam(value = "imageId", required = false) imageId: String,
             @RequestParam(value = "partnerId", required = false) partnerId: String,
             @RequestParam(value = "productInfo", required = false) productInfo: String,
             @RequestParam(value = "echoId", required = false) echoId: String,

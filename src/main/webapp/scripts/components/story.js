@@ -203,8 +203,8 @@ define(
 
 
 
-                if(self.properties.isWidget !== true){
-                    var fromLink = $('<div class="echo-story-from"></div>').append(document.createTextNode('from '));
+                if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
+                    var fromLink = $('<div class="echo-story-from"></div>').append(document.createTextNode(''));
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
                         fromLink.append($('<a class="link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));

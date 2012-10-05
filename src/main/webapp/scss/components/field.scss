@@ -1,106 +1,15 @@
 #field{
     position:absolute;
-    top: 75px;
+    top: 25px;
     left: 50%;
     z-index: 99999;
     width: 816px;
+    margin-left: -408px;
     background-color: #FFF;
     @include dropShadowDown;
     border-radius: 5px;
     &.small{
         width: 460px;
-    }
-
-    .story-preview{
-        border: 1px solid rgba(155,155,155, 0.5);
-        margin:5px;
-        padding: 7px;
-        background-color: #FFF;
-        display: inline-block;
-        .story-preview-image-container{
-            display: inline-block;
-            position: relative;
-            border: 6px solid #F0F0F0;
-            border-radius: 3px;
-            max-height: 250px;
-            overflow:hidden;
-            #story-preview-photo{
-                width: 200px;
-            }
-            #story-preview-overlay{
-                position:absolute;
-                top: 50px;
-                width: 150px;
-                margin-left: -75px;
-                left: 50%;
-                background-color: #F0F0F0;
-                border: 1px solid #666;
-                @include fontTextBold(12px);
-                padding: 5px 0px;
-                text-align: center;
-            }
-        }
-        .story-preview-text{
-        }
-        .story-preview-by{
-            font-weight: bold;
-        }
-        .story-preview-from,.story-preview-by,.story-preview-title{
-            width: 200px;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow:hidden;
-        }
-    }
-
-
-    .field-select{
-        display: inline-block;
-        position:relative;
-        input[type=text]{
-            @include fontText(16px);
-            background-position: right;
-            background-repeat: no-repeat;
-            background-color: #F3F3F3;
-            //border: 1px solid $colorEC !important;
-            background-image: -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
-            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
-            background-image: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
-            background-image: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
-            background-image: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
-            background-image: linear-gradient(top, white 0%, #F3F3F3 100%);
-            border-bottom: 1px solid #333;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .field-question-label{
-            cursor: pointer;
-            &:hover{
-                .downarrow{
-                    border-top-color: #333;
-                }
-            }
-        }
-        .field-question-options-list{
-            position: absolute;
-            top: 30px;
-            left: 0px;
-            border: 1px solid #CCC;
-            z-index: 100;
-            .field-question-option{
-                position:relative;
-                background-color: #FFF;
-                padding: 5px 6px;
-                width: 300px;
-                @include fontText(14px);
-                cursor: pointer;
-                &:hover{
-                    font-weight: bold;
-                    background-color: #F0F0F0;
-                }
-            }
-        }
-
     }
 
     .field-close{
@@ -110,19 +19,7 @@
         @include sprite(-31px, -157px, 36px, 37px);
         cursor: pointer;
     }
-    .field-photo-container{
-        max-width: 210px;
-        float:left;
-        overflow: hidden;
-        #preview{
-            display:inline-block;
-            max-width: 200px;
-            overflow: hidden;
-            #field-photo{
-            }
-        }
 
-    }
 
 
 
@@ -145,54 +42,7 @@
         background-color: #F0F0F0;
         margin: 0px 10px 10px 10px;
         position: relative;
-        min-height: 350px;
-        .field-preview{
-        border-right: 1px solid #CCC;
-        box-shadow: 1px 0px #FFF;
-        padding: 10px;
-        width: 250px;
-        .field-preview-title{
-                @include fontHeaderBold(20px);
-                text-align: center;
-                text-shadow: 0px 1p #FFF;
-                margin-bottom: 10px;
-            }
-        }
-        .field-main-col{
-            padding: 10px;
-            vertical-align: top;
-            .field-row{
-                margin-bottom: 10px;
-                label{
-                    vertical-align: top;
-                    display: inline-block;
-                    width: 175px;
-                    text-align: right;
-                    @include fontText(15px);
-                    margin-top: 8px;
-                }
-                .field-indent{
-                    margin-left: 10px;
-                    display:inline-block;
-                    textarea, input[type=text]{
-                        width: 290px;
-                        resize: none;
-                        padding: 8px 5px;
-                        border: 1px solid #CCC;
-                        -webkit-appearance:none;
-                        border-radius: 5px;
-                        @include fontText(14px);
-                        outline: none;
-                        &:focus{
-                            border: 1px solid #000;
-                        }
-                    }
-                }
-            }
-            .field-submit{
-                @include button;
-            }
-        }
+        @include transition;
     }
     .story-login{
         width: 460px;
@@ -255,243 +105,9 @@
             border-radius: 5px;
             margin-bottom: 10px;
             overflow-x: auto;
-            .story-summary-header-row{
-                @include fontText(14px);
-                margin-bottom: 10px;
-
-                label{
-                    vertical-align: top;
-                    font-weight: bold;
-                }
-                #story-summary-title{
-                    @include fontText(14px);
-                    display: inline-block;
-                }
-                #story-summary-from{
-                    @include fontText(14px);
-                    display: inline-block;
-                }
-                #story-summary-photo-container{
-                    @include fontText(14px);
-                    display: inline-block;
-                    #story-summary-photo{
-                        height: 50px;
-                        border: 2px solid #CCC;
-                    }
-                }
-            }
-
-        }
-        .story-summary-body{
-
-            .story-summary-chapter{
-                overflow-x: auto;
-                border: 1px solid #CCC;
-                padding: 10px;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                .story-summary-chapter-edit{
-                    @include fontText(14px, $colorEC);
-                    text-decoration: underline;
-                    float:right;
-                    cursor: pointer;
-                }
-                .story-summary-chapter-row{
-                    margin-bottom: 10px;
-                    label{
-                        vertical-align: top;
-                        @include fontTextBold(14px);
-                        margin-right: 10px;
-                    }
-                    .story-summary-chapter-label{
-                        text-align: center;
-                        @include fontTextBold(16px);
-                    }
-                    .story-summary-chapter-title{
-                        @include fontText(14px);
-                    }
-                    .story-summary-chapter-description{
-                        @include fontText(14px);
-                        word-wrap: break-word;
-                    }
-                    .story-summary-chapter-photo-container{
-                        @include fontText(14px);
-                        display: inline-block;
-                        .story-summary-chapter-photo{
-                            border: 2px solid #CCC;
-                            margin-right: 3px;
-                        }
-                    }
-
-                }
-            }
-        }
-        .story-summary-buttons{
-            .story-summary-submit{
-                cursor: pointer;
-                @include button;
-            }
-        }
-    }
-
-    .story-edit{
-        vertical-align: top;
-        display: table-cell;
-        .story-edit-label{
-            @include fontText(20px);
-            text-shadow: 0px 2px 0px white;
-            margin-bottom: 10px;
-        }
-        #story-edit-header{
-            margin-bottom: 10px;
-
-            #story-title-photo-container{
-                float:left;
-                #story-title-photo{
-                    height: 50px;
-                    border: 2px solid #CCC;
-                }
-            }
-            #story-title-text-container{
-                float:left;
-
-                #story-title{
-                    @include fontText(14px);
-                    padding: 0px 5px 5px 5px;
-                }
-                #story-from{
-                    @include fontText(12px);
-                    padding: 0px 5px 5px 5px;
-                }
-            }
 
         }
 
-        #chapter-list{
-            margin-left: 20px;
-            .chapter{
-                .chapter-number{
-                    width: 20px;
-                    float:left;
-                    text-align: right;
-                    @include fontText(16px);
-                    text-decoration: underline;
-                }
-                .chapter-text-container{
-                    margin-left: 10px;
-                    width: 250px;
-                    float: left;
-                    .chapter-title{
-                        @include fontText(16px);
-                        margin-bottom: 5px;
-                    }
-                    .chapter-text{
-                        @include fontText(12px);
-                        width: 250px;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        overflow: hidden;
-                    }
-                }
-                .chapter-photos{
-                    float:left;
-                    .chapter-photo{
-                        float:left;
-                        margin: 2px;
-                        border: 1px solid #CCC;
-                        img {
-                            height: 50px;
-                        }
-                    }
-                }
-            }
-        }
-
-        .chapter-edit-body{
-            padding: 10px;
-            width: 505px;
-            //margin-left: 270px;
-            .chapter-edit-body-top{
-                text-align: center;
-                .chapter-edit-body-top-title{
-                    @include fontHeaderBold(24px);
-                    text-shadow: 0px 1px #FFF;
-                    margin-bottom: 10px;
-                }
-            }
-            .chapter-edit-body-main{
-                .chapter-edit-body-row{
-                    margin-bottom: 10px;
-                    vertical-align: top;
-                    .chapter-edit-photos{
-                        display: inline-block;
-                        .thumbnails{
-                            float:left;
-                            .thumb{
-
-                                position: relative;
-                                float:left;
-                                img {
-                                    height: 75px;
-                                }
-                                border: 3px solid #FFF;
-                                margin-right: 5px;
-                                .thumb-cancel{
-                                    position: absolute;
-                                    top: 5px;
-                                    right: 5px;
-                                }
-                            }
-                        }
-                        .thumbnail-placeholder{
-                            float:left;
-                            img{
-                                height: 75px
-                            }
-                        }
-                        .photo-upload{
-                            float:left;
-                            position: relative;
-                        }
-                    }
-                    label{
-                        vertical-align: top;
-                        text-align: right;
-                        margin-right: 10px;
-                        margin-top: 5px;
-                        display: inline-block;
-                        width: 175px;
-                        min-height: 20px;
-                        @include fontText(14px);
-                        .chapter-italics{
-                            @include fontText(12px);
-                            font-style: italic;
-                        }
-                    }
-                    input[type=text]{
-                        display: inline-block;
-                        outline: 0px;
-                        margin: 0px;
-                        border: 1px solid #CCC;
-                        border-bottom-color: #666;
-                        width: 300px;
-                        @include fontText(14px);
-                        padding: 5px 6px;
-                    }
-                    .chapter-submit, .chapter-publish{
-                        margin-right: 5px;
-                        @include fontTextBold(12px, #FFF);
-                        @include button();
-                    }
-                    .chapter-cancel{
-                        @include fontTextBold(12px, $colorEC);
-                        text-decoration: underline;
-                        cursor: pointer;
-                    }
-                }
-            }
-
-        }
     }
 }
 
@@ -500,6 +116,10 @@
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 10px;
+    &.highlight{
+        border-color: $colorEC;
+    }
+
 }
 
 .field-edit{
@@ -546,4 +166,151 @@
     text-decoration: underline;
     cursor: pointer;
     float: left;
+}
+
+.field-text-input{
+    width: 500px;
+    resize: none;
+    padding: 8px 5px;
+    border: 1px solid #CCC;
+    -webkit-appearance:none;
+    border-radius: 5px;
+    @include fontText(14px);
+    outline: none;
+    &:focus{
+        border: 1px solid #000;
+    }
+}
+
+.field-submit{
+    @include button;
+}
+
+
+.story-detail-row{
+    display: table;
+    padding: 5px 0px;
+    label{
+        vertical-align: top;
+        @include fontTextBold(14px);
+        margin-right: 10px;
+    }
+    .story-input-label{
+        display:table-cell;
+        width: 150px;
+        text-align:right;
+        @include fontTextBold(14px);
+        padding-right: 10px;
+    }
+    .story-input-content{
+        display:table-cell;
+        @include fontText(13px);
+    }
+
+}
+
+.story-summary-photo{
+    margin-right: 5px;
+    border: 3px solid #666;
+}
+
+
+#field-photo-upload{
+    display:inline-block;
+}
+
+.field-photo-container{
+    max-width: 210px;
+    float:left;
+    overflow: hidden;
+    #preview{
+        display:inline-block;
+        max-width: 200px;
+        overflow: hidden;
+        #field-photo{
+        }
+    }
+
+}
+
+.field-select{
+    display: inline-block;
+    position:relative;
+    .field-text-input{
+        @include fontText(16px);
+        background-position: right;
+        background-repeat: no-repeat;
+        background-color: #F3F3F3;
+        //border: 1px solid $colorEC !important;
+        background-image: -moz-linear-gradient(top, white 0%, #F3F3F3 100%);
+        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #F3F3F3));
+        background-image: -webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+        background-image: -o-linear-gradient(top, white 0%, #F3F3F3 100%);
+        background-image: -ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+        background-image: linear-gradient(top, white 0%, #F3F3F3 100%);
+        border-bottom: 1px solid #333;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .field-question-label{
+        cursor: pointer;
+        &:hover{
+            .downarrow{
+                border-top-color: #333;
+            }
+        }
+    }
+    .field-question-options-list{
+        position: absolute;
+        top: 40px;
+        left: 0px;
+        border: 1px solid #CCC;
+        z-index: 100;
+        .field-question-option{
+            position:relative;
+            background-color: #FFF;
+            padding: 5px 6px;
+            width: 500px;
+            @include fontText(14px);
+            cursor: pointer;
+            &:hover{
+                font-weight: bold;
+                background-color: #F0F0F0;
+            }
+        }
+    }
+
+}
+
+#chapter-cancel{
+    @include fontTextBold(12px, $colorEC);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#story-input-thumbnails{
+    float:left;
+    .thumb{
+
+        position: relative;
+        float:left;
+        img {
+            height: 75px;
+            display: block;
+        }
+        border: 3px solid #FFF;
+        margin-right: 5px;
+        .thumb-cancel{
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+    }
+}
+
+.thumbnail-placeholder{
+    float:left;
+    img{
+        height: 81px
+    }
 }
