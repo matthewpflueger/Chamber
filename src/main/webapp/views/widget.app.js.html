@@ -43,6 +43,7 @@
             echoedOpener.onclick = function () {
                 echoedOverlay.style.display = "block";
                 echoedOverlay.contentWindow.postMessage("echoed-open","*");
+
             };
         } else {
             var echoedOpener = document.getElementById(EchoedSettings.opener.replace("#", ""));

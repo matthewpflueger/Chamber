@@ -12,9 +12,10 @@ define(
         'text!templates/input/storyCoverInput.html',
         'text!templates/input/storyCover.html',
         'text!templates/input/storyChapter.html',
-        'text!templates/input/storyChapterInput.html'
+        'text!templates/input/storyChapterInput.html',
+        'text!templates/input/storyLogin.html'
     ],
-    function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput){
+    function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput, templateStoryLogin){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -85,6 +86,30 @@ define(
                     }
                 }
             },
+            renderLogin: function(data){
+                var self = this;
+                self.template = _.template(templateStoryLogin);
+                self.element.html(self.template).addClass('small');
+                $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
+                if(self.properties.isWidget){
+                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close")).attr("target","_blank");
+                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close")).attr("target","_blank");
+                } else {
+                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
+                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
+                }
+                $('#field-user-login').attr('href', utils.getLoginRedirectUrl());
+                $('#field-user-signup').attr("href", utils.getSignUpRedirectUrl());
+                var body = self.element.find(".field-login-body");
+
+                if(data){
+                    var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
+                    var bodyTextNode = $('<div class="field-login-body-text"></div>').append(bodyText);
+                    body.append(bodyTextNode);
+                }
+
+                self.show();
+            },
             unload: function(callback){
                 var self = this;
                 self.EvAg.trigger('fade/hide');
@@ -99,7 +124,9 @@ define(
                 self.element.empty();
                 self.locked = false;
                 self.template = _.template(templateSummary);
+                self.element.removeClass("small");
                 self.element.html(self.template);
+
                 self.cover = $('#field-summary-cover');
                 self.body = $('#story-summary-body');
 
