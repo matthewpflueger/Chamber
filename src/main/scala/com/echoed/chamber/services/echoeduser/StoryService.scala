@@ -89,10 +89,7 @@ class StoryService(
 
         case msg @ CreateStory(_, title, imageId, _, productInfo, _) =>
 
-            imageId.map {
-                id =>
-                    mp.tell(ProcessImage(Right(id)), self)
-            }
+            imageId.map(id => mp.tell(ProcessImage(Right(id)), self))
 
             storyState = storyState.create(title, productInfo.orNull, imageId.orNull)
             ep(StoryCreated(storyState))
@@ -108,23 +105,13 @@ class StoryService(
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
 
         case msg @ NewVote(eucc, byEchoedUser, storyId, value) =>
-            val vote = storyState.votes.get(eucc.echoedUserId).map {
-                v =>
-                    val newVote = v.copy(value = value)
-                    storyState = storyState.copy(votes = storyState.votes + (newVote.echoedUserId -> newVote))
-                    ep(VoteUpdated(storyState, newVote))
-                    newVote
-            }.orElse({
-                val newVote = new Vote(
-                                    "story",
-                                    storyId,
-                                    eucc.echoedUserId,
-                                    value)
-                storyState = storyState.copy(votes = storyState.votes + (newVote.echoedUserId -> newVote))
-                ep(VoteCreated(storyState, newVote))
-                Option(newVote)
+            val vote = storyState.votes.get(byEchoedUser.id)
+                    .map(_.copy(value = value, updatedOn = new Date))
+                    .orElse(Option(new Vote("Story", storyId, byEchoedUser.id, value)))
+                    .get
 
-            }).get
+            storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote))
+            if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
 
             mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
                 echoedUser,
@@ -148,7 +135,6 @@ class StoryService(
 
         case msg @ CreateChapter(_, storyId, title, text, imageIds, publish) =>
             val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
-            log.debug("Publish On: {} | {}", publish, publishedOn)
 
             val chapter = new Chapter(storyState.asStory, title, text).copy(publishedOn = publishedOn)
 

@@ -234,13 +234,8 @@ class UserController extends EchoedController {
               eucc: EchoedUserClientCredentials,
               @RequestParam(value = "storyId", required = true) storyId: String,
               @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
-        val result = new DeferredResult(ErrorResult.timeout)
-
-        mp(VoteStory(eucc, storyOwnerId, storyId, 1)).onSuccess {
-            case VoteStoryResponse(_, Right(vote)) => result.set(vote)
-        }
-
-        result
+        mp(VoteStory(eucc, storyOwnerId, storyId, 1))
+        true
     }
 
     @RequestMapping(value = Array("/downvote"), method = Array(RequestMethod.GET))
@@ -249,13 +244,8 @@ class UserController extends EchoedController {
                 eucc: EchoedUserClientCredentials,
                 @RequestParam(value = "storyId", required = true) storyId: String,
                 @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
-
-        val result = new DeferredResult(ErrorResult.timeout)
-        mp(VoteStory(eucc, storyOwnerId, storyId, -1)).onSuccess{
-            case VoteStoryResponse(_, Right(vote)) => result.set(vote)
-        }
-
-        result
+        mp(VoteStory(eucc, storyOwnerId, storyId, -1))
+        true
     }
 
 

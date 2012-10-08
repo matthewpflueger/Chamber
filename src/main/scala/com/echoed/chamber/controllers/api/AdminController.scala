@@ -64,7 +64,6 @@ class AdminController extends EchoedController with FormController {
             @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int) = {
         val result = new DeferredResult(ErrorResult.timeout)
 
-        log.debug("Testing This")
         mp(QueryPartners(aucc, page, pageSize)).onSuccess {
             case QueryPartnersResponse(_, Right(partners)) =>
                 result.set(partners)

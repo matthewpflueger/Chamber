@@ -3,7 +3,7 @@ package com.echoed.chamber.services.state
 import com.echoed.chamber.domain.{StoryState, Story, Vote}
 import org.squeryl.PrimitiveTypeMode._
 import com.echoed.chamber.services.state.schema.ChamberSchema._
-import collection.immutable.HashMap
+import collection.mutable.{Map => MMap}
 
 private[state] object StateUtils {
 
@@ -18,23 +18,16 @@ private[state] object StateUtils {
         }.toList
 
         val eu = echoedUsers.lookup(s.echoedUserId).get
-
-
-
-        //val img = images.lookup(s.imageId).get.convertTo
-
-        val img = Option(s.imageId).map {
-            images.lookup(_).get.convertTo
-        }.orElse(None)
+        val img = Option(s.imageId).map(images.lookup(_).get.convertTo).orElse(None)
 
         val p = partners.lookup(s.partnerId).get
         val ps = partnerSettings.lookup(s.partnerSettingsId).get
         val e = echo.orElse(Option(s.echoId).flatMap(echoes.lookup(_)))
         val m = from(moderations)(m => where(m.refId === s.id) select(m)).toList
-        val v = from(votes)(v => where(v.ref === "story" and v.refId === s.id) select(v)).toList.foldLeft(new HashMap[String, Vote]){
-            (hashMap, vote) =>
-                hashMap + (vote.echoedUserId -> vote)
-        }
+        val v = Map.empty ++ from(votes)(v => where(v.ref === "Story" and v.refId === s.id) select(v))
+                    .toList
+                    .foldLeft(MMap.empty[String, Vote])((map, vote) => map + (vote.echoedUserId -> vote))
+
 
         StoryState(
                 s.id,

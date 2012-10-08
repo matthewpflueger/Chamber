@@ -80,7 +80,6 @@ class FeedService(
 
     def handle = {
         case msg: StoryEvent =>
-            log.error("Received StoryEvent {}", msg)
             updateStory(new StoryPublic(msg.story.asStoryFull.get))
 
         case FindAllStoriesResponse(_, Right(all)) => all.map(s => updateStory(new StoryPublic(s.asStoryFull.get)))

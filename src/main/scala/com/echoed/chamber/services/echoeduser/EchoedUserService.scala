@@ -637,16 +637,8 @@ class EchoedUserService(
             context.watch(storyServiceCreator(context, msg, echoedUser)).forward(msg)
 
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
-            mp(new NewVote(
-                new EchoedUserClientCredentials(storyOwnerId),
-                echoedUser,
-                storyId,
-                value))
-            .mapTo[NewVoteResponse]
-            .map {
-                nvr =>
-                    VoteStoryResponse(msg, nvr.value)
-            }.pipeTo(context.sender)
+            mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value))
+            sender ! VoteStoryResponse(msg, Right(true))
 
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
             val me = self

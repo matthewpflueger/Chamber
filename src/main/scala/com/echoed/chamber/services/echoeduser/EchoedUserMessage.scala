@@ -152,8 +152,8 @@ case class VoteStory(
         storyId: String,
         value: Int) extends EUM with EUI with SI
 
-case class VoteStoryResponse(message: VoteStory, value: Either[EUE, Story])
-        extends EUM with MR[Story,  VoteStory, EUE]
+case class VoteStoryResponse(message: VoteStory, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean,  VoteStory, EUE]
 
 case class NewVote(
         credentials: EUCC,
