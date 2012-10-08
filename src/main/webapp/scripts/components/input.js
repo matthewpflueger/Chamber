@@ -291,7 +291,7 @@ define(
                         debug: true,
                         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
                         onComplete: function(id, fileName, response) {
-                            $("#field-photo").attr("src", response.url);
+                            $("#story-input-photo").attr("src", response.url);
                             self.data.imageId = response.id;
                         }
                     });
