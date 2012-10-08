@@ -25,7 +25,7 @@ define(
             },
             render: function(){
                 var self = this;
-
+                self.element.addClass('item-story');
                 var textNode = self.element.find(".story-brief-text");
 
                 if(self.data.chapters.length > 0){
