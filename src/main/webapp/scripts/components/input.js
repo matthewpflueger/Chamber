@@ -146,7 +146,7 @@ define(
                 var target = $(e.currentTarget).parent();
                 var index = target.attr("index");
                 self.currentChapter.images.splice(index, 1);
-                target.remove();
+                target.fadeOut(function(){$(this).remove()});
             },
             editStoryClick: function(ev){
                 this.loadStoryInputTemplate({ type: "Edit" });
