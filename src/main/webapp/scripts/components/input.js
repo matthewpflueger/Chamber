@@ -277,12 +277,13 @@ define(
 
                     if(self.data.partner.name !== "Echoed"){
                         $('#story-input-from-content').text(self.data.partner.name);
-                        $('#story-input-partnerId').text(self.data.partner.id);
+                        $('#story-input-partnerId').val(self.data.partner.id);
                         $('#story-input-from').show();
                     } else {
                         $('#story-input-from').hide();
                         if(self.data.storyFull !== null){
                             if(self.data.storyFull.story.productInfo !== null){
+                                $('#story-input-partnerId').val(self.data.partner.id);
                                 $('#story-input-from-content').text(self.data.storyFull.story.productInfo);
                                 $('#story-input-from').show();
                             }
