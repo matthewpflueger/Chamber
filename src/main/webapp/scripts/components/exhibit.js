@@ -120,7 +120,7 @@ define(
                 if(data.communities){
                     $.each(data.communities, function(index, community){
                         var communityDiv = $('<div></div>').addClass("item_wrap");
-                        $('<a class="item_content community"></a>').html(community.id).appendTo(communityDiv).attr("href", "#community/" + community.id);
+                        $('<a class="item_content community"></a>').text(community.id).appendTo(communityDiv).attr("href", "#community/" + community.id);
                         communityFragment.append(communityDiv);
                         communityAdded = true;
                     });

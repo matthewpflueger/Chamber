@@ -104,7 +104,7 @@ define(
 
                 if(data){
                     var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
-                    var bodyTextNode = $('<div class="field-login-body-text"></div>').append(bodyText);
+                    var bodyTextNode = $('<div class="field-login-body-text"></div>').text(bodyText);
                     body.append(bodyTextNode);
                 }
 
@@ -249,8 +249,8 @@ define(
                         }
                     });
                     if (imagesFound === false) chapterRow.find('.story-input-photo-row').hide();
-                    if (chapter.publishedOn > 0) chapterRow.find('.story-input-publishedOn').html("Published");
-                    else chapterRow.find('.story-input-publishedOn').html("Draft");
+                    if (chapter.publishedOn > 0) chapterRow.find('.story-input-publishedOn').text("Published");
+                    else chapterRow.find('.story-input-publishedOn').text("Draft");
 
                 });
             },
