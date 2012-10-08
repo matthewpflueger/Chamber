@@ -176,7 +176,9 @@ define(
                     if(opt.type ==="Edit") return $("#chapter-row-" + opt.index);
                     else return $('<div class="field-main-row clearfix"></div>').appendTo(self.body);
                 }(option);
-                self.currentChapter = {};
+                self.currentChapter = {
+                    images: []
+                };
                 chapter.fadeOut(function(){
                     $(this).html(template);
 
@@ -185,10 +187,11 @@ define(
                         el: '#chapter-title'
                     };
 
+                    self.chapterPhotos = $('#story-input-thumbnails');
+
                     if(option.type==="Edit"){
                         self.currentChapter = self.data.storyFull.chapters[option.index];
                         self.currentChapter.images = [];
-                        self.chapterPhotos = $('#story-input-thumbnails');
                         $('#chapter-text').val(self.currentChapter.text);
                         selectOptions.optionsArray.push(self.currentChapter.title);
                         $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
@@ -292,6 +295,7 @@ define(
                         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
                         onComplete: function(id, fileName, response) {
                             $("#story-input-photo").attr("src", response.url);
+                            $('#story-input-imageId').val(response.id);
                             self.data.imageId = response.id;
                         }
                     });
@@ -319,6 +323,7 @@ define(
                     if(imageId !== null) storyData.imageId = imageId;
 
                     var url = "";
+                    console.log(storyData);
                     if(type === "PUT") url = self.properties.urls.api +"/story/" + self.data.storyFull.story.id;
                     else url = self.properties.urls.api + "/story";
                     utils.AjaxFactory({
