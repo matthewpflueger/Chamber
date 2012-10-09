@@ -139,6 +139,49 @@ class UserController extends EchoedController {
         result
     }
 
+    @RequestMapping(value = Array("/me/following"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def listFollowingUsers(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(ListFollowingUsers(eucc)).onSuccess {
+            case ListFollowingUsersResponse(_, Right(fus)) => result.set(fus)
+        }
+
+        result
+    }
+
+    @RequestMapping(value = Array("/me/followers"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def listFollowedByUsers(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(ListFollowedByUsers(eucc)).onSuccess {
+            case ListFollowedByUsersResponse(_, Right(fbu)) => result.set(fbu)
+        }
+
+        result
+    }
+
+    @RequestMapping(value = Array("/me/followers/{userToFollowId}"), method = Array(RequestMethod.PUT))
+    @ResponseBody
+    def followUser(
+            @PathVariable(value = "userToFollowId") userToFollowId: String,
+            eucc: EchoedUserClientCredentials) = {
+        mp(FollowUser(eucc, userToFollowId))
+        true
+    }
+
+    @RequestMapping(value = Array("/me/followers/{userToUnFollowId}"), method = Array(RequestMethod.DELETE))
+    @ResponseBody
+    def unFollowUser(
+            @PathVariable(value = "userToUnFollowId") userToUnFollowId: String,
+            eucc: EchoedUserClientCredentials) = {
+        mp(UnFollowUser(eucc, userToUnFollowId))
+        true
+    }
+
+
     @RequestMapping(value = Array("/category/{categoryId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def categoryFeed(

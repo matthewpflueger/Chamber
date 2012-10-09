@@ -32,6 +32,8 @@ private[state] object ChamberSchema extends Schema {
 
     val votes = table[domain.Vote]
 
+    val followers = table[Follower]
+
     //    val echoClicks = table[EchoClick]
     //    val echoedFriend = table[EchoedFriend]
 

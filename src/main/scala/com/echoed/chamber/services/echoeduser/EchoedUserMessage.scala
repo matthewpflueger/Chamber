@@ -48,9 +48,11 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserIdentifiable => EUI}
 private[services] case class EchoedUserServiceState(
         echoedUser: EchoedUser,
         echoedUserSettings: EchoedUserSettings,
-        facebookUser: Option[FacebookUser] = None,
-        twitterUser: Option[TwitterUser] = None,
-        notifications: Stack[Notification] = Stack[Notification]())
+        facebookUser: Option[FacebookUser],
+        twitterUser: Option[TwitterUser],
+        notifications: Stack[Notification],
+        followingUsers: List[Follower],
+        followedByUsers: List[Follower])
 
 
 case class DuplicateEcho(
@@ -101,6 +103,37 @@ case class GetTwitterAuthenticationUrlResponse(message: GetTwitterAuthentication
 
 private[echoeduser] case class LoginWithCredentials(credentials: EUCC) extends EUM with EUI
 
+
+case class FollowUser(credentials: EUCC, userToFollowerId: String) extends EUM with EUI
+case class FollowUserResponse(message: FollowUser, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, FollowUser, EUE]
+
+case class AddFollower(
+        credentials: EUCC,
+        echoedUser: EchoedUser,
+        correlation: FollowUser,
+        override val correlationSender: Option[ActorRef]) extends EUM with EUI with Correlated[FollowUser]
+
+case class AddFollowerResponse(message: AddFollower, value: Either[EUE, EchoedUser])
+        extends EUM with MR[EchoedUser, AddFollower, EUE]
+
+case class UnFollowUser(credentials: EUCC, followingUserId: String) extends EUM with EUI
+case class UnFollowUserResponse(message: UnFollowUser, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, UnFollowUser, EUE]
+
+case class RemoveFollower(credentials: EUCC, echoedUser: EchoedUser) extends EUM with EUI
+case class RemoveFollowerResponse(message: RemoveFollower, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, RemoveFollower, EUE]
+
+case class Follower(echoedUserId: String, name: String, facebookId: Option[String] = None, twitterId: Option[String] = None)
+
+case class ListFollowingUsers(credentials: EUCC) extends EUM with EUI
+case class ListFollowingUsersResponse(message: ListFollowingUsers, value: Either[EUE, List[Follower]])
+        extends EUM with MR[List[Follower], ListFollowingUsers, EUE]
+
+case class ListFollowedByUsers(credentials: EUCC) extends EUM with EUI
+case class ListFollowedByUsersResponse(message: ListFollowedByUsers, value: Either[EUE, List[Follower]])
+        extends EUM with MR[List[Follower], ListFollowedByUsers, EUE]
 
 
 case class FetchNotifications(credentials: EUCC) extends EUM with EUI

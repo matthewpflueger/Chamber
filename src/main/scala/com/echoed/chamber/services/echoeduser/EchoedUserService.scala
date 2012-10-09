@@ -99,6 +99,8 @@ class EchoedUserService(
     private var facebookUser: Option[FacebookUser] = None
     private var twitterUser: Option[TwitterUser] = None
     private var notifications = Stack[Notification]()
+    private var followingUsers = List[Follower]()
+    private var followedByUsers = List[Follower]()
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
@@ -200,6 +202,8 @@ class EchoedUserService(
         twitterUser = euss.twitterUser
         facebookUser = euss.facebookUser
         notifications = euss.notifications
+        followingUsers = euss.followingUsers
+        followedByUsers = euss.followedByUsers
     }
 
     override def preStart() {
@@ -617,10 +621,48 @@ class EchoedUserService(
             if (!toEmail.isEmpty)
                 mp(SendEmail(
                     echoedUser.email,
-                    "%s, you have new comments on your stories!" format echoedUser.name,
+                    "%s, you have new notifications on Echoed.com!" format echoedUser.name,
                     "email_notifications", Map( "notifications" -> toEmail.toList,
                                                 "name" -> echoedUser.name)
                 ))
+
+
+        case msg: ListFollowingUsers => sender ! ListFollowingUsersResponse(msg, Right(followingUsers))
+        case msg: ListFollowedByUsers => sender ! ListFollowedByUsersResponse(msg, Right(followedByUsers))
+
+        case msg @ FollowUser(_, followerId) =>
+            mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser, msg, Option(context.sender)), self)
+
+        case AddFollowerResponse(AddFollower(_, _, msg, Some(s)), Right(eu)) =>
+            followingUsers = Follower(eu.id, eu.name, Option(eu.facebookId), Option(eu.twitterId)) :: followingUsers
+            s ! FollowUserResponse(msg, Right(true))
+            ep(FollowerCreated(echoedUser.id, followingUsers.head))
+
+        case msg @ AddFollower(_, eu, _, _) =>
+            sender ! AddFollowerResponse(msg, Right(echoedUser))
+            followedByUsers = Follower(eu.id, eu.name, Option(eu.facebookId), Option(eu.twitterId)) :: followedByUsers
+            mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
+                echoedUser,
+                eu,
+                "follower",
+                Map(
+                    "subject" -> eu.name,
+                    "action" -> "is following",
+                    "object" -> "you",
+                    "followerId" -> eu.id))))
+
+        case msg @ UnFollowUser(_, followingUserId) =>
+            val (fu, fus) = followingUsers.partition(_.echoedUserId == followingUserId)
+            followingUsers = fus
+            fu.headOption.map { f =>
+                mp(RemoveFollower(EchoedUserClientCredentials(f.echoedUserId), echoedUser))
+                ep(FollowerDeleted(echoedUser.id, f))
+            }
+            sender ! UnFollowUserResponse(msg, Right(true))
+
+        case msg @ RemoveFollower(_, eu) =>
+            followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
+            sender ! RemoveFollowerResponse(msg, Right(true))
 
 
         case RegisterStory(story) =>

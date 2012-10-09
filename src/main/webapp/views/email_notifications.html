@@ -10,10 +10,17 @@
         <tr>
             <td style="padding: 10px 10px 10px 40px; color: #111; font-size: 12px;">
                 {{#value}}
-                <p><strong>{{subject}}</strong> {{action}} <strong>{{object}}</strong></p>
-                <a href="{{urls.site}}/#story/{{storyId}}" style="font-weight:bold; color: #4099ff;">
-                    See Comment
-                </a>
+                    <p><strong>{{subject}}</strong> {{action}} <strong>{{object}}</strong></p>
+                    {{#storyId}}
+                        <a href="{{urls.site}}/#story/{{this}}" style="font-weight:bold; color: #4099ff;">
+                            See Comment
+                        </a>
+                    {{/storyId}}
+                    {{#followerId}}
+                        <a href="{{urls.site}}/#user/{{this}}" style="font-weight:bold; color: #4099ff;">
+                            Checkout stories by {{subject}}
+                        </a>
+                    {{/followerId}}
                 {{/value}}
             </td>
         </tr>
