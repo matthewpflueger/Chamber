@@ -180,9 +180,6 @@ define(
                             hash.images.push(chapterImage.image);
                         }
                     });
-                    /*if(hash.images.length === 0){
-                        hash.images.push(self.data.story.image);
-                    } */
                     self.chapters.array.push(hash);
                     self.chapters.hash[chapter.id] = index;
                 });
@@ -204,7 +201,7 @@ define(
 
 
                 if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
-                    var fromLink = $('<div class="echo-story-from"></div>').append(document.createTextNode(''));
+                    var fromLink = $('<div class="echo-story-from"></div>').append(document.createTextNode());
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
                         fromLink.append($('<a class="link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
@@ -358,6 +355,7 @@ define(
                     var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
                     commentListNode.append(commentNode);
                 });
+                $('#echo-s-c-t-count').text("(" + self.data.comments.length + ")");
                 if(Echoed.echoedUser) {
                     self.element.find('.comment-submit').fadeIn();
                 } else{
