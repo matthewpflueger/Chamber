@@ -1,4 +1,4 @@
-define(
+    define(
     [
         'jquery',
         'backbone',
@@ -199,7 +199,7 @@ define(
                                 var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
                                 var thumbX = $('<div></div>').addClass('chapter-thumb-x');
                                 thumbDiv.append(thumbX);
-                                var photo = $('<img />').attr('src', chapterImage.image.preferredUrl);
+                                var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css(utils.getImageSizing(chapterImage.image));
                                 thumbDiv.append(photo).appendTo(self.chapterPhotos).fadeIn();
                                 self.currentChapter.images.push(chapterImage.image.id);
                             }
