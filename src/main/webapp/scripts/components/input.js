@@ -253,7 +253,7 @@ define(
                     });
                     if (imagesFound === false) chapterRow.find('.story-input-photo-row').hide();
                     if (chapter.publishedOn > 0) chapterRow.find('.story-input-publishedOn').text("Published");
-                    else chapterRow.find('.story-input-publishedOn').text("Draft");
+                    else chapterRow.find('.story-input-publishedOn').text("Draft").addClass('highlight-text').addClass("bold");
 
                 });
             },

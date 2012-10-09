@@ -237,5 +237,9 @@ img {
 
 
 .bold{
-    font-weight: bold;
+    font-weight: bold !important;
+}
+
+.highlight-text{
+    color: $colorEC !important;
 }
