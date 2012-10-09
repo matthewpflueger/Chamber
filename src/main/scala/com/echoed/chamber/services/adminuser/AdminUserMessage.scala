@@ -102,7 +102,7 @@ private[adminuser] case class LoginWithCredentials(credentials: AUCC) extends AU
 private[adminuser] case class LoginWithEmail(
         email: String,
         correlation: AdminUserMessage with EmailIdentifiable,
-        override val correlationSender: Option[ActorRef]) extends AUM with Correlated
+        override val correlationSender: Option[ActorRef]) extends AUM with Correlated[AdminUserMessage with EmailIdentifiable]
 private[adminuser] case class LoginWithEmailResponse(message: LoginWithEmail, value: Either[AUE, AdminUser])
     extends AUM with MR[AdminUser, LoginWithEmail, AUE]
 

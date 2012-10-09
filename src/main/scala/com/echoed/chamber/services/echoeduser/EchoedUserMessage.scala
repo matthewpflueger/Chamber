@@ -72,7 +72,7 @@ case class AddFacebook(
 private[echoeduser] case class LoginWithFacebookUser(
         facebookUser: FacebookUser,
         correlation: LoginWithFacebook,
-        override val correlationSender: Option[ActorRef]) extends EUM with Correlated
+        override val correlationSender: Option[ActorRef]) extends EUM with Correlated[LoginWithFacebook]
 
 
 case class LoginWithFacebook(loginInfo: Either[FacebookCode, FacebookAccessToken]) extends EUM
@@ -88,7 +88,7 @@ case class AddTwitter(
 private[echoeduser] case class LoginWithTwitterUser(
         twitterUser: TwitterUser,
         correlation: LoginWithTwitter,
-        override val correlationSender: Option[ActorRef]) extends EUM with Correlated
+        override val correlationSender: Option[ActorRef]) extends EUM with Correlated[LoginWithTwitter]
 
 case class LoginWithTwitter(oAuthToken: String, oAuthVerifier: String) extends EUM
 case class LoginWithTwitterResponse(message: LoginWithTwitter, value: Either[EUE, EchoedUser])
@@ -286,7 +286,7 @@ case class LoginWithEmailPasswordResponse(message: LoginWithEmailPassword, value
 private[echoeduser] case class LoginWithEmail(
         email: String,
         correlation: EchoedUserMessage with EmailIdentifiable,
-        override val correlationSender: Option[ActorRef]) extends EUM with Correlated
+        override val correlationSender: Option[ActorRef]) extends EUM with Correlated[EchoedUserMessage with EmailIdentifiable]
 private[echoeduser] case class LoginWithEmailResponse(message: LoginWithEmail, value: Either[EUE, EchoedUser])
     extends EUM with MR[EchoedUser, LoginWithEmail, EUE]
 

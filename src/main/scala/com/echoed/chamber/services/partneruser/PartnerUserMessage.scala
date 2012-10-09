@@ -49,7 +49,7 @@ private[partneruser] case class LoginWithCredentials(credentials: PUCC) extends 
 private[partneruser] case class LoginWithEmail(
         email: String,
         correlation: PartnerUserMessage with EmailIdentifiable,
-        override val correlationSender: Option[ActorRef]) extends PUM with Correlated
+        override val correlationSender: Option[ActorRef]) extends PUM with Correlated[PartnerUserMessage with EmailIdentifiable]
 private[partneruser] case class LoginWithEmailResponse(message: LoginWithEmail, value: Either[PUE, PartnerUser])
     extends PUM with MR[PartnerUser, LoginWithEmail, PUE]
 

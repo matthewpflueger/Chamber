@@ -7,8 +7,8 @@ import akka.dispatch.Future
 trait Message extends Serializable
 
 
-trait Correlated {
-    def correlation: Message
+trait Correlated[M <: Message] {
+    def correlation: M
     def correlationSender: Option[ActorRef] = None
 }
 
@@ -21,7 +21,7 @@ trait ResponseValue[E <: Any, R <: Any] {
     def value: Either[E, R]
 }
 
-trait MessageResponse[R, M <: Message, E <: EchoedException] extends ResponseValue[E, R] with Correlated {
+trait MessageResponse[R, M <: Message, E <: EchoedException] extends ResponseValue[E, R] with Correlated[M] {
     this: Message =>
 
     val message: M
