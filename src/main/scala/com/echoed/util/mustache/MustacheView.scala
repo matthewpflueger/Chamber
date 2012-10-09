@@ -26,11 +26,11 @@ class MustacheView extends AbstractTemplateView {
     }
 
     override def getContentType() = {
-        if (getBeanName.endsWith(".js")) "application/x-javascript"
-        else if (getBeanName.endsWith(".json")) "application/json"
-        else if (getBeanName.endsWith(".txt")) "text/plain"
-        else if (getBeanName.endsWith(".xml")) "application/xml"
-        else super.getContentType
+        if (getBeanName.endsWith(".js")) "application/x-javascript; charset=UTF-8"
+        else if (getBeanName.endsWith(".json")) "application/json; charset=UTF-8"
+        else if (getBeanName.endsWith(".txt")) "text/plain; charset=UTF-8"
+        else if (getBeanName.endsWith(".xml")) "application/xml; charset=UTF-8"
+        else "text/html; charset=UTF-8"
     }
 
 }
