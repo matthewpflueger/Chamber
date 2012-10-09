@@ -70,16 +70,27 @@
                             <bean class="org.springframework.http.MediaType">
                                 <constructor-arg value="application" />
                                 <constructor-arg value="json" />
+                                <constructor-arg>
+                                    <util:map id="charset">
+                                        <entry key="charset" value="UTF-8" />
+                                    </util:map>
+                                </constructor-arg>
                             </bean>
                             <bean class="org.springframework.http.MediaType">
                                 <constructor-arg value="text" />
                                 <constructor-arg value="html" />
+                                <constructor-arg>
+                                    <util:map id="charset">
+                                        <entry key="charset" value="UTF-8" />
+                                    </util:map>
+                                </constructor-arg>
                             </bean>
                         </util:list>
                     </property>
                 </bean>
                 <bean class = "org.springframework.http.converter.StringHttpMessageConverter">
                     <property name="writeAcceptCharset" value="false" />
+                    <property name="supportedMediaTypes" value = "text/plain;charset=UTF-8" />
                 </bean>
             </list>
         </property>
