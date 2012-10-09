@@ -112,16 +112,17 @@ class StoryService(
 
             storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote))
             if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
-
-            mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
-                echoedUser,
-                byEchoedUser,
-                "comment",
-                Map(
-                    "subject" -> byEchoedUser.name,
-                    "action" -> "upvoted ",
-                    "object" -> storyState.title,
-                    "storyId" -> storyState.id))))
+            if (value > 0 && !vote.isUpdated) {
+                mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
+                    echoedUser,
+                    byEchoedUser,
+                    "comment",
+                    Map(
+                        "subject" -> byEchoedUser.name,
+                        "action" -> "upvoted",
+                        "object" -> storyState.title,
+                        "storyId" -> storyState.id))))
+            }
 
             sender ! NewVoteResponse(msg, Right(storyState.asStory))
 
