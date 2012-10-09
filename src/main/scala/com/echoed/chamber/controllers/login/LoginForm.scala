@@ -39,7 +39,7 @@ trait PasswordForm {
     var password: String = _
 
     @NotBlank
-    @Length(min = 4, message = "length must be at least 4 characters")
+    @Length(min = 6, message = "length must be at least 6 characters")
     def getPassword = password
     def setPassword(password: String) {
         this.password = password

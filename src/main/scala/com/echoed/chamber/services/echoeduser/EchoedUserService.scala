@@ -221,9 +221,15 @@ class EchoedUserService(
                 case LoginWithEmail(_, msg @ ResetLogin(_), channel) =>
                     channel.get ! ResetLoginResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
                 case LoginWithEmail(_, msg @ RegisterLogin(name, email, password), channel) =>
-                    create(new EchoedUser(name, email).createPassword(password))
-                    channel.get ! RegisterLoginResponse(msg, Right(echoedUser))
-                    becomeOnlineAndRegister
+                    try {
+                        create(new EchoedUser(name, email).createPassword(password))
+                        channel.get ! RegisterLoginResponse(msg, Right(echoedUser))
+                        becomeOnlineAndRegister
+                    } catch {
+                        case e: InvalidPassword =>
+                            channel.get ! RegisterLoginResponse(msg, Left(InvalidCredentials("Invalid password")))
+                            self ! PoisonPill
+                    }
             }
 
 
