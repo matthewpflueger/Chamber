@@ -48,9 +48,7 @@
             var echoedOpener = document.getElementById(EchoedSettings.opener.replace("#", ""));
             echoedOpener.onclick = function () {
                 echoedOverlay.style.display = "block";
-                window.setTimeout(function(){
-                    window.top.postMessage("echoed-open","*");
-                }, 0);
+                echoedOverlay.contentWindow.postMessage("echoed-open","*");
             };
         }
         if (window.addEventListener) {
