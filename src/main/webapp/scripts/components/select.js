@@ -17,8 +17,6 @@ define(
                 this.render();
             },
             events: {
-                "mouseenter" : "open",
-                "mouseleave" : "close",
                 "click .field-question-label" : "click",
                 "click .field-question-option" : "selectOption",
                 "keyup :input": "keyPress"
