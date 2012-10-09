@@ -178,7 +178,7 @@
     border-radius: 5px;
     @include fontText(14px);
     outline: none;
-    &:focus{
+    &:focus, &:hover{
         border: 1px solid #000;
     }
 }
@@ -256,6 +256,7 @@
     .field-question-label{
         cursor: pointer;
         &:hover{
+            border-color: #333;
             .downarrow{
                 border-top-color: #333;
             }
