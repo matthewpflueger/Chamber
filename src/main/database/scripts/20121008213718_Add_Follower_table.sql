@@ -10,8 +10,7 @@ create table Follower (
     echoedUserId varchar(36) not null,
     primary key (id));
 
-create index ref on Follower (ref);
-create index refId on Follower (refId);
+create index ref_refId on Follower (ref, refId);
 create index echoedUserId on Follower (echoedUserId);
 
 --//@UNDO
