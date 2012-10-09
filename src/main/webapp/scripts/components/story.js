@@ -62,7 +62,7 @@ define(
             },
             next: function(){
                 var self = this;
-                self.scroll(Math.min(self.galleryNode.scrollTop() + self.galleryNode.height(),self.galleryNodeBody.children().last().position().top));
+                self.scroll(self.galleryNode.scrollTop() + self.galleryNode.height());
             },
             previous: function(){
                 var self = this;
@@ -295,7 +295,7 @@ define(
 
                 self.galleryNode.find('.echo-gallery-chapter').removeClass("highlight");
                 self.galleryChapters[self.currentChapterIndex].addClass("highlight");
-                self.scroll(self.galleryChapters[self.currentChapterIndex].position().top);
+                self.scroll(self.galleryNode.scrollTop() + self.galleryChapters[self.currentChapterIndex].position().top);
                 self.renderImage();
             },
             renderImage: function(){
