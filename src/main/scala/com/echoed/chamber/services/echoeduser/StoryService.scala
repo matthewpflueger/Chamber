@@ -112,7 +112,7 @@ class StoryService(
 
             storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote))
             if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
-            if (value > 0 && !vote.isUpdated) {
+            if (value > 0 && !vote.isUpdated && (eucc.echoedUserId != byEchoedUser.id)) {
                 mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
                     echoedUser,
                     byEchoedUser,
