@@ -189,8 +189,6 @@ define(
                 var self = this;
                 self.following = false;
                 $('#story-follow').attr("echoedUserId", self.data.echoedUserId);
-                console.log(self.properties.echoedUser.id);
-                console.log(self.data.echoedUser.id);
                 if(self.properties.echoedUser !== undefined){
                     if(self.properties.echoedUser.id !== self.data.echoedUser.id){
                         utils.AjaxFactory({
