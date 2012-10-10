@@ -164,7 +164,6 @@
 
                 if(story.image !== null) $('<img class="story-summary-photo"/>').attr("height", 50).attr("src", story.image.preferredUrl).appendTo(self.cover.find('.story-input-photo'));
                 else self.cover.find('.story-input-photo-row').hide();
-                console.log(story.productInfo);
                 if(story.productInfo !== null) $('#story-info').show();
                 else $('#story-info').hide();
 
@@ -325,7 +324,6 @@
                     if(imageId !== null) storyData.imageId = imageId;
 
                     var url = "";
-                    console.log(storyData);
                     if(type === "PUT") url = self.properties.urls.api +"/story/" + self.data.storyFull.story.id;
                     else url = self.properties.urls.api + "/story";
                     utils.AjaxFactory({

@@ -18,7 +18,6 @@ define(
             },
             receiveMessageResponse: function(response) {
                 var self = this;
-                console.log(this.properties);
                 var echoedUser = JSON.parse(response.data);
                 this.EvAg.trigger('user/login', echoedUser);
             }
