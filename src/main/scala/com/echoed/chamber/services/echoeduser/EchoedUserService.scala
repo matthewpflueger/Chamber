@@ -630,7 +630,7 @@ class EchoedUserService(
         case msg: ListFollowingUsers => sender ! ListFollowingUsersResponse(msg, Right(followingUsers))
         case msg: ListFollowedByUsers => sender ! ListFollowedByUsersResponse(msg, Right(followedByUsers))
 
-        case msg @ FollowUser(_, followerId) =>
+        case msg @ FollowUser(eucc, followerId) if (eucc.echoedUserId != followerId) =>
             mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser, msg, Option(context.sender)), self)
 
         case AddFollowerResponse(AddFollower(_, _, msg, Some(s)), Right(eu)) =>
