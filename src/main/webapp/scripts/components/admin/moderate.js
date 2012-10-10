@@ -27,7 +27,6 @@ define(
                     url: this.properties.urls.api + "/admin/stories",
                     success: function(data){
                         $.each(data, function(index, story){
-                            console.log(story);
                             var template = _.template(templateModerateStory, story);
                             var tr = $('<tr></tr>').html(template).appendTo(body);
                             if(story.isEchoedModerated){
@@ -51,7 +50,6 @@ define(
             preview: function(ev){
                 var target = $(ev.currentTarget);
                 var id = target.attr('storyId');
-                console.log(id);
                 this.EvAg.trigger('story/show', id);
             },
             check: function(ev){
@@ -59,7 +57,6 @@ define(
                 var id = target.attr('id');
                 var isModerated = target.is(':checked');
                 var storyOwnerId = target.attr('storyOwnerId');
-                console.log(isModerated);
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/story/" + id + "/moderate",
                     data: {
@@ -67,7 +64,6 @@ define(
                         storyOwnerId : storyOwnerId
                     },
                     success: function(data){
-                        console.log(data);
                     }
                 })();
             }
