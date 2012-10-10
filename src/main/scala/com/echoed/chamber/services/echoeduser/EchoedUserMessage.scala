@@ -126,6 +126,9 @@ private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, v
         extends EUM with MR[Boolean, RemoveFollower, EUE]
 
 case class Follower(echoedUserId: String, name: String, facebookId: Option[String] = None, twitterId: Option[String] = None)
+private[echoeduser] case class FollowerNotification(category: String, value: Map[String, String])
+
+private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: FollowerNotification) extends EUM with EUI
 
 case class ListFollowingUsers(credentials: EUCC) extends EUM with EUI
 case class ListFollowingUsersResponse(message: ListFollowingUsers, value: Either[EUE, List[Follower]])

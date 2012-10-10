@@ -638,11 +638,11 @@ class EchoedUserService(
             s ! FollowUserResponse(msg, Right(true))
             ep(FollowerCreated(echoedUser.id, followingUsers.head))
 
-        case msg @ AddFollower(_, eu, _, _) =>
+        case msg @ AddFollower(eucc, eu, _, _) =>
             sender ! AddFollowerResponse(msg, Right(echoedUser))
             followedByUsers = Follower(eu.id, eu.name, Option(eu.facebookId), Option(eu.twitterId)) :: followedByUsers
-            mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
-                echoedUser,
+            mp(RegisterNotification(eucc, new Notification(
+                echoedUser.id,
                 eu,
                 "follower",
                 Map(
@@ -664,6 +664,12 @@ class EchoedUserService(
             followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
             sender ! RemoveFollowerResponse(msg, Right(true))
 
+        case NotifyFollowers(_, notification) =>
+            followedByUsers.foreach { f =>
+                mp(RegisterNotification(
+                    EchoedUserClientCredentials(f.echoedUserId),
+                    new Notification(f.echoedUserId, echoedUser, notification.category, notification.value)))
+            }
 
         case RegisterStory(story) =>
             activeStories.put(StoryId(story.id), sender)
