@@ -40,6 +40,7 @@ class RedirectController extends EchoedController {
             case GetEchoedUserResponse(_, Right(echoedUser)) =>
                 val modelAndView = new ModelAndView(v.echoAuthComplete)
                 modelAndView.addObject("echoedUserName", echoedUser.name)
+                modelAndView.addObject("echoedUserId", echoedUser.id)
                 modelAndView.addObject("facebookUserId", echoedUser.facebookId)
                 modelAndView.addObject("twitterUserId", echoedUser.twitterId)
                 result.set(modelAndView)

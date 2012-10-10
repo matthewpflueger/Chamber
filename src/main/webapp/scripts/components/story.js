@@ -3,10 +3,11 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'text!templates/story.html',
+        'text!templates/story/story.html',
+        'text!templates/story/login.html',
         'components/utils'
     ],
-    function($, Backbone, _, templateStory, utils){
+    function($, Backbone, _, templateStory, templateLogin, utils){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage','navClick', 'login');
@@ -14,6 +15,9 @@ define(
                 this.element = $(this.el);
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
+                if(this.properties.isWidget === true){
+                    this.EvAg.bind("user/login", this.login);
+                }
                 this.EvAg.bind('story/show', this.load);
                 this.EvAg.bind('user/login', this.login);
                 this.locked = false;
@@ -26,40 +30,66 @@ define(
                 "click .echo-s-b-thumbnail": "imageClick",
                 "click .echo-s-b-item": "nextImage",
                 "click .story-nav-button": "navClick",
-                "click a": "close",
                 "click .upvote": "upVote",
                 "click .downvote": "downVote",
                 "click #echo-story-gallery-next": "next",
                 "click #echo-story-gallery-prev": "previous",
                 "click .story-share": "share",
-                "click #story-follow": "followClick"
+                "click #story-follow": "followClick",
+                "click #story-login-container": "closeLogin"
             },
             followClick: function(ev){
                 var self = this;
                 var request = {};
+                var currentTarget = $(ev.currentTarget);
                 var followId = currentTarget.attr("echoedUserId");
-                if(self.properties.echoedUser !== undefined && self.properties.echoedUser.id !== followId){
-                    var currentTarget = $(ev.currentTarget);
-                    if(self.following === false){
-                        request = {
-                            url: self.properties.urls.api + "/api/me/following/" + followId,
-                            type: "PUT",
-                            success: function(data){
-                                self.following = true;
-                                currentTarget.text("Unfollow").addClass("redButton").removeClass("greyButton");
+                if(self.properties.echoedUser !== undefined ){
+                    if(self.properties.echoedUser.id !== followId) {
+                        if(self.following === false){
+                            request = {
+                                url: self.properties.urls.api + "/api/me/following/" + followId,
+                                type: "PUT",
+                                success: function(data){
+                                    self.following = true;
+                                    currentTarget.text("Unfollow").addClass("redButton").removeClass("greyButton");
+                                }
+                            }
+                        } else {
+                            request = {
+                                url: self.properties.urls.api + "/api/me/following/" + followId,
+                                type: "DELETE",
+                                success: function(data){
+                                    self.following = false;
+                                    currentTarget.text("Follow").removeClass("redButton").addClass("greyButton");
+                                }
                             }
                         }
-                    } else {
-                        request = {
-                            url: self.properties.urls.api + "/api/me/following/" + followId,
-                            type: "DELETE",
-                            success: function(data){
-                                self.following = false;
-                                currentTarget.text("Follow").removeClass("redButton").addClass("greyButton");
-                            }
-                        }
+                        utils.AjaxFactory(request)();
                     }
-                    utils.AjaxFactory(request)();
+                } else{
+                    self.showLogin();
+                }
+            },
+            showLogin: function(){
+                var self = this;
+                var login = $('<div id="story-login"></div>').html(templateLogin);
+                $('#story-login-container').append(login);
+                $('#story-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
+                if(self.properties.isWidget){
+                    $("#story-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close")).attr("target","_blank");
+                    $("#story-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close")).attr("target","_blank");
+                } else {
+                    $("#story-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
+                    $("#story-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
+                }
+                $('#story-user-login').attr('href', utils.getLoginRedirectUrl());
+                $('#story-user-signup').attr("href", utils.getSignUpRedirectUrl());
+                $('#story-login-container').fadeIn();
+            },
+            closeLogin: function(ev){
+                var self = this;
+                if($(ev.target).attr("id") === "story-login-container"){
+                    $('#story-login-container').fadeOut();
                 }
             },
             share: function(ev){
@@ -106,46 +136,57 @@ define(
             upVote: function(ev){
                 var self = this;
                 var target = $(ev.currentTarget);
-                utils.AjaxFactory({
-                    url: self.properties.urls.api + "/api/upvote",
-                    data: {
-                        storyId: self.data.story.id,
-                        storyOwnerId: self.data.echoedUser.id
-                    },
-                    success: function(data){
-                        self.data.votes[self.properties.echoedUser.id] = {
-                            echoedUserId: self.properties.echoedUser.id,
-                            value: 1
-                        };
-                        self.renderVotes();
-                    }
-                })();
+                if(self.properties.echoedUser !== undefined){
+                    utils.AjaxFactory({
+                        url: self.properties.urls.api + "/api/upvote",
+                        data: {
+                            storyId: self.data.story.id,
+                            storyOwnerId: self.data.echoedUser.id
+                        },
+                        success: function(data){
+                            self.data.votes[self.properties.echoedUser.id] = {
+                                echoedUserId: self.properties.echoedUser.id,
+                                value: 1
+                            };
+                            self.renderVotes();
+                        }
+                    })();
+                } else{
+                    self.showLogin();
+                }
             },
             downVote: function(ev){
                 var self = this;
                 var target = $(ev.currentTarget);
-                utils.AjaxFactory({
-                    url: self.properties.urls.api + "/api/downvote",
-                    data: {
-                        storyId: self.data.story.id,
-                        storyOwnerId: self.data.echoedUser.id
-                    },
-                    success: function(data){
-                        self.data.votes[self.properties.echoedUser.id] = {
-                            echoedUserId: self.properties.echoedUser.id,
-                            value: -1
-                        };
-                        self.renderVotes();
-                    }
-                })();
+                if(self.properties.echoedUser !== undefined){
+                    utils.AjaxFactory({
+                        url: self.properties.urls.api + "/api/downvote",
+                        data: {
+                            storyId: self.data.story.id,
+                            storyOwnerId: self.data.echoedUser.id
+                        },
+                        success: function(data){
+                            self.data.votes[self.properties.echoedUser.id] = {
+                                echoedUserId: self.properties.echoedUser.id,
+                                value: -1
+                            };
+                            self.renderVotes();
+                        }
+                    })();
+                }
+                else {
+                    self.showLogin();
+                }
             },
             login: function(echoedUser){
                 var self = this;
                 this.properties.echoedUser = echoedUser;
-
                 this.element.find('.comment-login').fadeOut(function(){
                     self.element.find('.comment-submit').fadeIn();
                 });
+                $('#story-login-container').fadeOut();
+                self.renderVotes();
+                self.renderFollowing();
             },
             navClick: function(ev){
                 var self = this;
@@ -205,6 +246,8 @@ define(
                                 }
                             }
                         })();
+                    } else{
+                        $('#story-follow').fadeOut();
                     }
                 } else {
                     $('#story-follow').addClass('greyButton').text("Follow").fadeIn();

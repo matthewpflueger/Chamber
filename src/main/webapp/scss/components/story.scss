@@ -407,6 +407,49 @@
     @include redButton;
 }
 
+#story-login-container{
+    position: fixed;
+    top:0px;
+    bottom: 0px;
+    left:0px;
+    right: 0px;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    display: none;
+    #story-login{
+        position: absolute;
+        background-color: #FFF;
+        border-radius: 5px;
+        width: 400px;
+        left: 50%;
+        margin-left: -200px;
+        top: 50px;
+        padding: 20px 10px;
+        .story-login-logo{
+            text-align: center;
+        }
+        .story-login-buttons{
+            text-align: center;
+        }
+        .story-login-email{
+            text-align: center;
+            @include fontTextBold(14px);
+            a{
+                @include fontTextBold(14px);
+                text-decoration: underline;
+                &:hover{
+                    color: $colorEC;
+                }
+            }
+        }
+        .story-login-body{
+            text-align: center;
+            @include fontText(24px);
+            padding: 10px;
+        }
+    }
+}
+
 #story-actions{
     padding: 5px 7px;
     .story-share{
