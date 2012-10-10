@@ -9,8 +9,8 @@ private[state] object StateUtils {
     def readStory(s: Story, echo: Option[schema.Echo] = None) = {
         val c = from(chapters)(c => where(c.storyId === s.id) select(c)).toList
         val ci = from(chapterImages)(ci => where(ci.storyId === s.id) select(ci)).map { ci =>
-            images.lookup(ci.imageId).map(img => ci.copy(image = img.convertTo)).getOrElse(None)
-        }.toList
+            images.lookup(ci.imageId).map(img => ci.copy(image = img.convertTo))
+        }.filter(_.isDefined).map(_.get).toList
 
         val cm = from(comments)(cm => where(cm.storyId === s.id) select(cm) orderBy(cm.createdOn asc)).toList.map { cm =>
             echoedUsers.lookup(cm.byEchoedUserId).map(eu => cm.copy(echoedUser = eu)).get
