@@ -113,10 +113,10 @@ class StoryService(
             storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote))
             if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
             if (value > 0 && !vote.isUpdated && (eucc.echoedUserId != byEchoedUser.id)) {
-                mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
-                    echoedUser,
+                mp(RegisterNotification(eucc, new Notification(
+                    echoedUser.id,
                     byEchoedUser,
-                    "comment",
+                    "upvoted",
                     Map(
                         "subject" -> byEchoedUser.name,
                         "action" -> "upvoted",
@@ -134,7 +134,7 @@ class StoryService(
             sender ! TagStoryResponse(msg, Right(storyState.asStory))
 
 
-        case msg @ CreateChapter(_, storyId, title, text, imageIds, publish) =>
+        case msg @ CreateChapter(eucc, storyId, title, text, imageIds, publish) =>
             val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
 
             val chapter = new Chapter(storyState.asStory, title, text).copy(publishedOn = publishedOn)
@@ -151,11 +151,11 @@ class StoryService(
 
             ep(ChapterCreated(storyState, chapter, chapterImages))
             sender ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
+            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc)
 
 
-        case msg @ UpdateChapter(_, storyId, chapterId, title, text, imageIds, publish) =>
+        case msg @ UpdateChapter(eucc, storyId, chapterId, title, text, imageIds, publish) =>
             val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
-            log.debug("Publish On: {} | {}", publish, publishedOn)
 
             val chapter = storyState.chapters
                     .find(_.id == chapterId)
@@ -173,9 +173,10 @@ class StoryService(
 
             ep(ChapterUpdated(storyState, chapter, chapterImages))
             sender ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
+            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc)
 
 
-        case msg @ NewComment(_, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
+        case msg @ NewComment(eucc, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
             val comment = new com.echoed.chamber.domain.Comment(
                 storyState.chapters.find(_.id == chapterId).get,
                 byEchoedUser,
@@ -188,8 +189,8 @@ class StoryService(
             sender ! NewCommentResponse(msg, Right(comment))
 
             if (echoedUser.id != byEchoedUser.id) {
-                mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
-                    echoedUser,
+                mp(RegisterNotification(eucc, new Notification(
+                    echoedUser.id,
                     byEchoedUser,
                     "comment",
                     Map(
@@ -197,7 +198,6 @@ class StoryService(
                         "action" -> "commented on",
                         "object" -> storyState.title,
                         "storyId" -> storyState.id))))
-
             }
 
         case msg @ ModerateStory(_, _, Left(pucc), mo) => moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
@@ -241,5 +241,15 @@ class StoryService(
         storyState = storyState.moderate(moderatedBy, moderatedRef, moderatedRefId, moderated)
         sender ! ModerateStoryResponse(msg, Right(storyState.moderationDescription.get))
         ep(StoryModerated(storyState, storyState.moderations.head))
+    }
+
+    private def notifyFollowersOfStoryUpdate(eucc: EchoedUserClientCredentials) {
+        mp(NotifyFollowers(eucc, new FollowerNotification(
+                "story updated",
+                Map(
+                    "subject" -> echoedUser.name,
+                    "action" -> "updated story",
+                    "object" -> storyState.title,
+                    "storyId" -> storyState.id))))
     }
 }
