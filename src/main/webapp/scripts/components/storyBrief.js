@@ -59,7 +59,7 @@ define(
                 self.element.html(template);
 
                 self.imageContainer = self.element.find('.story-brief-image-container');
-
+                self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));
                 var image = self.data.story.image;
                 var imageNode = self.element.find(".story-brief-image");
                 if(image !== null){
@@ -92,7 +92,11 @@ define(
                 var self = this;
                 var target = $(ev.target);
                 if(!target.is('a')){
-                    window.location.hash = "#!story/" + self.data.story.id;
+                    if(self.data.chapters.length > 0){
+                        window.location.hash = "#!story/" + self.data.story.id;
+                    } else {
+                        window.location.hash = "#!write/story/" + self.data.story.id;
+                    }
                 }
             }
         });
