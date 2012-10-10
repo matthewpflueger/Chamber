@@ -231,6 +231,8 @@
                     self.select = new Select(selectOptions);
                     $('#thumb-placeholder').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
                     $(this).addClass('highlight');
+                    if(self.currentChapter.publishedOn > 0) $('#chapter-save').hide();
+
                     $(this).fadeIn();
                 });
 
