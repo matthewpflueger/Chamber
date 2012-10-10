@@ -403,6 +403,10 @@
     @include whiteButton;
 }
 
+.redButton{
+    @include redButton;
+}
+
 #story-actions{
     padding: 5px 7px;
     .story-share{

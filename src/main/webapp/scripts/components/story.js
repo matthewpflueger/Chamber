@@ -31,7 +31,36 @@ define(
                 "click .downvote": "downVote",
                 "click #echo-story-gallery-next": "next",
                 "click #echo-story-gallery-prev": "previous",
-                "click .story-share": "share"
+                "click .story-share": "share",
+                "click #story-follow": "followClick"
+            },
+            followClick: function(ev){
+                var self = this;
+                var request = {};
+                var followId = currentTarget.attr("echoedUserId");
+                if(self.properties.echoedUser !== undefined && self.properties.echoedUser.id !== followId){
+                    var currentTarget = $(ev.currentTarget);
+                    if(self.following === false){
+                        request = {
+                            url: self.properties.urls.api + "/api/me/following/" + followId,
+                            type: "PUT",
+                            success: function(data){
+                                self.following = true;
+                                currentTarget.text("Unfollow").addClass("redButton").removeClass("greyButton");
+                            }
+                        }
+                    } else {
+                        request = {
+                            url: self.properties.urls.api + "/api/me/following/" + followId,
+                            type: "DELETE",
+                            success: function(data){
+                                self.following = false;
+                                currentTarget.text("Follow").removeClass("redButton").addClass("greyButton");
+                            }
+                        }
+                    }
+                    utils.AjaxFactory(request)();
+                }
             },
             share: function(ev){
                 var self = this;
@@ -102,7 +131,6 @@ define(
                         storyOwnerId: self.data.echoedUser.id
                     },
                     success: function(data){
-                        console.log(data);
                         self.data.votes[self.properties.echoedUser.id] = {
                             echoedUserId: self.properties.echoedUser.id,
                             value: -1
@@ -157,6 +185,33 @@ define(
                     }
                 }
             },
+            renderFollowing: function(){
+                var self = this;
+                self.following = false;
+                $('#story-follow').attr("echoedUserId", self.data.echoedUserId);
+                console.log(self.properties.echoedUser.id);
+                console.log(self.data.echoedUser.id);
+                if(self.properties.echoedUser !== undefined){
+                    if(self.properties.echoedUser.id !== self.data.echoedUser.id){
+                        utils.AjaxFactory({
+                            url: self.properties.urls.api + "/api/me/following",
+                            success: function(data){
+
+                                $.each(data, function(index, following){
+                                    if(following.echoedUserId === self.data.echoedUser.id ) self.following = true;
+                                });
+                                if(self.following === true){
+                                    $('#story-follow').text("Unfollow").removeClass("greyButton").addClass("redButton").fadeIn();
+                                } else {
+                                    $('#story-follow').addClass('greyButton').text("Follow").fadeIn();
+                                }
+                            }
+                        })();
+                    }
+                } else {
+                    $('#story-follow').addClass('greyButton').text("Follow").fadeIn();
+                }
+            },
             render: function(){
 
                 var self = this;
@@ -197,7 +252,7 @@ define(
                 self.gallery = self.element.find('.echo-s-b-gallery');
 
                 $('#echo-s-h-t-n-i').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser));
-
+                $('#story-follow').attr("echoedUserId", self.data.echoedUser.id);
 
 
                 if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
@@ -225,6 +280,7 @@ define(
                 self.renderComments();
                 self.renderChapter();
                 self.renderVotes();
+                self.renderFollowing();
                 self.scroll(0);
 
                 self.EvAg.trigger('fade/show');
@@ -301,7 +357,6 @@ define(
             renderImage: function(){
                 var self = this;
                 var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
-                console.log(currentImage);
                 if(currentImage !== null && currentImage !== undefined){
                     self.gallery.show();
                     self.img.fadeOut();

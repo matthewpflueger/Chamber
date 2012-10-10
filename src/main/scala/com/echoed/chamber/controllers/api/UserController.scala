@@ -163,7 +163,7 @@ class UserController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/me/followers/{userToFollowId}"), method = Array(RequestMethod.PUT))
+    @RequestMapping(value = Array("/me/following/{userToFollowId}"), method = Array(RequestMethod.PUT))
     @ResponseBody
     def followUser(
             @PathVariable(value = "userToFollowId") userToFollowId: String,
@@ -172,7 +172,7 @@ class UserController extends EchoedController {
         true
     }
 
-    @RequestMapping(value = Array("/me/followers/{userToUnFollowId}"), method = Array(RequestMethod.DELETE))
+    @RequestMapping(value = Array("/me/following/{userToUnFollowId}"), method = Array(RequestMethod.DELETE))
     @ResponseBody
     def unFollowUser(
             @PathVariable(value = "userToUnFollowId") userToUnFollowId: String,

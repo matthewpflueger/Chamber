@@ -117,6 +117,27 @@ $fontTextColorDefault: #333;
         }
     }
 
+    @mixin redButton($size: 14px){
+        display: inline-block;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 33px;
+        line-height: 33px;
+        @include fontTextBold($size);
+        width: 82px;
+        background: $colorEC;
+        color: #FFF;
+        text-shadow: 0px -1px #000;
+        border: 1px solid transparent;
+        &:hover{
+            border: 1px solid #FFF;
+        }
+        &:active{
+            text-shadow: none;
+            border-color: transparent;
+        }
+    }
+
     @mixin whiteButton($size: 14px){
         display: inline-block;
         cursor: pointer;
