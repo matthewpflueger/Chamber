@@ -108,21 +108,21 @@ case class FollowUser(credentials: EUCC, userToFollowerId: String) extends EUM w
 case class FollowUserResponse(message: FollowUser, value: Either[EUE, Boolean])
         extends EUM with MR[Boolean, FollowUser, EUE]
 
-case class AddFollower(
+private[echoeduser] case class AddFollower(
         credentials: EUCC,
         echoedUser: EchoedUser,
         correlation: FollowUser,
         override val correlationSender: Option[ActorRef]) extends EUM with EUI with Correlated[FollowUser]
 
-case class AddFollowerResponse(message: AddFollower, value: Either[EUE, EchoedUser])
+private[echoeduser] case class AddFollowerResponse(message: AddFollower, value: Either[EUE, EchoedUser])
         extends EUM with MR[EchoedUser, AddFollower, EUE]
 
 case class UnFollowUser(credentials: EUCC, followingUserId: String) extends EUM with EUI
 case class UnFollowUserResponse(message: UnFollowUser, value: Either[EUE, Boolean])
         extends EUM with MR[Boolean, UnFollowUser, EUE]
 
-case class RemoveFollower(credentials: EUCC, echoedUser: EchoedUser) extends EUM with EUI
-case class RemoveFollowerResponse(message: RemoveFollower, value: Either[EUE, Boolean])
+private[echoeduser] case class RemoveFollower(credentials: EUCC, echoedUser: EchoedUser) extends EUM with EUI
+private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, value: Either[EUE, Boolean])
         extends EUM with MR[Boolean, RemoveFollower, EUE]
 
 case class Follower(echoedUserId: String, name: String, facebookId: Option[String] = None, twitterId: Option[String] = None)
