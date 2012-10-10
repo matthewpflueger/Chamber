@@ -10,7 +10,7 @@ define(
     function($, Backbone, _, templateStory, templateLogin, utils){
         return Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this,'render', 'load','createComment', 'renderImage', 'imageClick', 'nextImage','navClick', 'login');
+                _.bindAll(this);
                 this.el = options.el;
                 this.element = $(this.el);
                 this.properties = options.properties;
@@ -20,6 +20,7 @@ define(
                 }
                 this.EvAg.bind('story/show', this.load);
                 this.EvAg.bind('user/login', this.login);
+                this.EvAg.bind("field/show", this.hide);
                 this.locked = false;
             },
             events: {
@@ -488,6 +489,10 @@ define(
                         }
                     })();
                 }
+            },
+            hide: function(){
+                this.element.fadeOut();
+                this.element.empty();
             },
             close: function(){
                 this.element.fadeOut();
