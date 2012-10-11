@@ -227,10 +227,12 @@
                         debug: true,
                         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
                         onComplete: function(id, fileName, response) {
-                            var thumbDiv = $('<div></div>').addClass("thumb");
-                            var photo = $('<img />').attr('src', response.url);
-                            thumbDiv.append(photo).hide().appendTo(self.chapterPhotos).fadeIn();
-                            self.currentChapter.images.push(response.id);
+                            if(response.success === true){
+                                var thumbDiv = $('<div></div>').addClass("thumb");
+                                var photo = $('<img />').attr('src', response.url);
+                                thumbDiv.append(photo).hide().appendTo(self.chapterPhotos).fadeIn();
+                                self.currentChapter.images.push(response.id);
+                            }
                         }
                     });
 
@@ -311,9 +313,11 @@
                         debug: true,
                         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
                         onComplete: function(id, fileName, response) {
-                            $("#story-input-photo").fadeOut().attr("src", response.url).fadeIn();
-                            $('#story-input-imageId').val(response.id);
-                            self.data.imageId = response.id;
+                            if(response.success === true){
+                                $("#story-input-photo").fadeOut().attr("src", response.url).fadeIn();
+                                $('#story-input-imageId').val(response.id);
+                                self.data.imageId = response.id;
+                            }
                         }
                     });
 
