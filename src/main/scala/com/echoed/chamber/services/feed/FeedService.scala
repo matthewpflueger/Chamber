@@ -7,7 +7,7 @@ import com.echoed.chamber.dao.partner.PartnerDao
 import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.services._
 import collection.immutable.TreeMap
-import com.echoed.chamber.services.echoeduser.StoryEvent
+import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials, StoryViewed, StoryEvent}
 import akka.pattern._
 import scala.collection.mutable.HashMap
 import scala.Left
@@ -207,15 +207,9 @@ class FeedService(
 
         case msg @ GetStory(storyId, origin) =>
             if (origin != "echoed") mp(WidgetStoryOpened(storyId))
-
-            val channel = context.sender
-            try {
-                channel ! GetStoryResponse(msg, Right(storyMap.get(storyId).map(_.published)))
-            } catch {
-                case e =>
-                    channel ! GetStoryResponse(msg, Left(new FeedException("Cannot get story %s" format storyId, e)))
-                    log.error("Unexpected error processing {}: {}", msg, e)
-            }
+            sender ! GetStoryResponse(msg, Right(storyMap.get(storyId).map { sp =>
+                mp(StoryViewed(EchoedUserClientCredentials(sp.echoedUser.id), storyId)); sp
+            }))
 
         case msg: GetStoryIds =>
             val channel = context.sender

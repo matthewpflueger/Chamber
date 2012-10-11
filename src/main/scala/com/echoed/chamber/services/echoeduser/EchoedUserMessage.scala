@@ -288,6 +288,8 @@ case class ModerateStoryResponse(message: ModerateStory, value: Either[EUE, Mode
         extends EUM with MR[ModerationDescription, ModerateStory, EUE]
 
 
+case class StoryViewed(credentials: EUCC, storyId: String) extends EUM with EUI with SI
+
 case class EchoTo(
         credentials: EUCC,
         echoId: String,

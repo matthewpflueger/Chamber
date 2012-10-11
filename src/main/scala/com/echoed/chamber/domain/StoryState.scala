@@ -80,7 +80,9 @@ case class StoryState(
             echo.map(_.productId).orNull,
             productInfo,
             views,
-            comments.size,
+            numComments,
+            upVotes,
+            downVotes,
             community)
 
     def asStoryInfo = StoryInfo(echoedUser, echo.orNull, partner, partnerSettings.makeStoryPrompts, asStoryFull.orNull)
@@ -93,6 +95,9 @@ case class StoryState(
 
     val isEchoedModerated = moderated(echoedModeratePredicate)
     val isModerated = moderated(moderatedPredicate)
+    val numComments = comments.length
+    val upVotes = votes.filter(t => t._2.value > 0).size
+    val downVotes = votes.filter(t => t._2.value < 0).size
 
     def moderate(
             moderatedBy: String,

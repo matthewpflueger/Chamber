@@ -22,25 +22,29 @@ case class Story(
         productInfo: String,
         views: Int,
         comments: Int,
+        upVotes: Int,
+        downVotes: Int,
         community: String) extends DomainObject {
 
     def this() = this(
-        id = "",
-        updatedOn = 0L,
-        createdOn = 0L,
-        echoedUserId = "",
-        partnerId = "",
-        partnerHandle = "",
-        partnerSettingsId = "",
-        imageId = "",
-        image = new Image(),
-        title = "",
-        echoId = "",
-        productId = "",
-        productInfo = "",
-        views = 0,
-        comments = 0,
-        community = "")
+            id = "",
+            updatedOn = 0L,
+            createdOn = 0L,
+            echoedUserId = "",
+            partnerId = "",
+            partnerHandle = "",
+            partnerSettingsId = "",
+            imageId = "",
+            image = new Image(),
+            title = "",
+            echoId = "",
+            productId = "",
+            productInfo = "",
+            views = 0,
+            comments = 0,
+            upVotes = 0,
+            downVotes = 0,
+            community = "")
 
     def this(
             echoedUser: EchoedUser,
@@ -65,26 +69,8 @@ case class Story(
         productInfo = _productInfo.orNull,
         views = 0,
         comments = 0,
+        upVotes = 0,
+        downVotes = 0,
         community = null)
 
-}
-
-object Story {
-    def apply(s: StoryState): Story = Story(
-        id = s.id,
-        updatedOn = s.updatedOn,
-        createdOn = s.createdOn,
-        echoedUserId = s.echoedUser.id,
-        partnerId = s.partner.id,
-        partnerHandle = s.partner.handle,
-        partnerSettingsId = s.partnerSettings.id,
-        imageId = s.imageId,
-        image = s.image.orNull,
-        title = s.title,
-        echoId = s.echo.map(_.id).orNull,
-        productId = s.echo.map(_.productId).orNull,
-        productInfo = s.productInfo,
-        views = s.views,
-        comments = s.comments.size,
-        community = s.community)
 }
