@@ -97,24 +97,19 @@ class StoryController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/{storyId}/tag"), method = Array(RequestMethod.POST))
+    @RequestMapping(value = Array("/{storyId}/community/update"), method = Array(RequestMethod.POST))
     @ResponseBody
-    def tagStory(
-            @PathVariable("storyId") storyId: String,
-            @RequestParam("tagId") tagId: String,
-            eucc: EchoedUserClientCredentials) = {
-
-        log.debug("Tagging Story {} with Tag {}", storyId, tagId)
+    def updateCommunity(
+        eucc: EchoedUserClientCredentials,
+        @RequestParam(value = "communityId", required = true) communityId: String,
+        @PathVariable(value = "storyId") storyId: String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(TagStory(eucc, storyId, tagId)).onSuccess {
-            case TagStoryResponse(_ , Right(tag)) =>
-                log.debug("Successfully added tag {} to story {}", tagId, storyId)
-                result.set(tag)
+        mp(UpdateCommunity(eucc, storyId, communityId)).onSuccess {
+            case UpdateCommunityResponse(_, Right(story)) => result.set(story)
         }
         result
-
     }
 
 

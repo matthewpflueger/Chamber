@@ -6,7 +6,6 @@ import com.echoed.chamber.services.echoeduser._
 import org.springframework.web.bind.annotation._
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.feed._
-import com.echoed.chamber.services.tag._
 import scala.util.control.Exception._
 import java.lang.{NumberFormatException => NFE}
 import javax.annotation.Nullable
@@ -291,21 +290,6 @@ class UserController extends EchoedController {
                 @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
         mp(VoteStory(eucc, storyOwnerId, storyId, -1))
         true
-    }
-
-
-    @RequestMapping(value = Array("/community/update"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def updateCommunity(
-        eucc: EchoedUserClientCredentials,
-        @RequestParam(value = "communityId", required = true) communityId: String,
-        @RequestParam(value = "storyId", required = true) storyId: String) = {
-        val result = new DeferredResult(ErrorResult.timeout)
-
-        mp(UpdateCommunity(eucc, storyId, communityId)).onSuccess {
-            case UpdateCommunityResponse(_, Right(story)) => result.set(story)
-        }
-        result
     }
 
 }
