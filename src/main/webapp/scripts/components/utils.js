@@ -24,11 +24,13 @@ define(
                 }
                 return size;
             },
-            getLoginRedirectUrl: function(){
-                return "login?r=" + encodeURIComponent(window.location.hash);
+            getLoginRedirectUrl: function(url){
+                var location = url ? url : encodeURIComponent(window.location.hash);
+                return "login?r=" + location;
             },
-            getSignUpRedirectUrl: function(){
-                return "login/register?r=" + encodeURIComponent(window.location.hash);
+            getSignUpRedirectUrl: function(url){
+                var location = url ? url : encodeURIComponent(window.location.hash);
+                return "login/register?r=" + location;
             },
             getFacebookLoginUrl: function(hash){
                 return Echoed.facebookLogin.head +

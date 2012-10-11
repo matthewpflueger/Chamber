@@ -39,7 +39,8 @@
                 'click #chapter-add': 'addChapterClick',
                 'click #story-finish': 'finishStoryClick',
                 'click #chapter-cancel': 'cancelChapterClick',
-                'click .chapter-thumb-x': 'removeChapterThumb'
+                'click .chapter-thumb-x': 'removeChapterThumb',
+                "click .input-login-button": "loginClick"
             },
             login: function(echoedUser){
                 this.properties.echoedUser = echoedUser;
@@ -86,6 +87,15 @@
                     }
                 }
             },
+            loginClick: function(ev){
+                var self = this;
+                if(self.properties.isWidget){
+                    var target = $(ev.currentTarget);
+                    var href = target.attr('href');
+                    window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                    return false;
+                }
+            },
             renderLogin: function(data){
                 var self = this;
                 self.template = _.template(templateStoryLogin);
@@ -93,10 +103,10 @@
                 $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
 
                 if(self.properties.isWidget){
-                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close")).attr("target","_blank");
-                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close")).attr("target","_blank");
-                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl()).attr("target","_blank");
-                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl()).attr("target", "_blank");
+                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
+                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close"));
+                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl("redirect/close"));
+                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl("redirect/close"));
 
                 } else {
                     $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
