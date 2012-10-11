@@ -91,15 +91,19 @@
                 self.template = _.template(templateStoryLogin);
                 self.element.html(self.template).addClass('small');
                 $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
+
                 if(self.properties.isWidget){
                     $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close")).attr("target","_blank");
                     $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close")).attr("target","_blank");
+                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl()).attr("target","_blank");
+                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl()).attr("target", "_blank");
+
                 } else {
+                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
+                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl());
                     $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
                     $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
                 }
-                $('#field-user-login').attr('href', utils.getLoginRedirectUrl());
-                $('#field-user-signup').attr("href", utils.getSignUpRedirectUrl());
                 var body = self.element.find(".field-login-body");
 
                 if(data){
