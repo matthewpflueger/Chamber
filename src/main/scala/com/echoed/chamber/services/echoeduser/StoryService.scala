@@ -16,7 +16,6 @@ import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.echoeduser.CreateStory
 import com.echoed.chamber.services.echoeduser.RegisterStory
 import com.echoed.chamber.services.partner.RequestStory
-import com.echoed.chamber.services.echoeduser.TagStoryResponse
 import com.echoed.chamber.services.echoeduser.CreateStoryResponse
 import com.echoed.chamber.services.echoeduser.UpdateStory
 import com.echoed.chamber.services.echoeduser.InitStoryResponse
@@ -36,7 +35,6 @@ import com.echoed.chamber.domain.Chapter
 import scala.Right
 import com.echoed.chamber.services.echoeduser.RegisterNotification
 import com.echoed.chamber.domain.Notification
-import com.echoed.chamber.services.echoeduser.TagStory
 import com.echoed.chamber.domain.ChapterImage
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.partner.RequestStoryResponse

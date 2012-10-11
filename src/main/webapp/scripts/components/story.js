@@ -37,7 +37,9 @@ define(
                 "click #echo-story-gallery-prev": "previous",
                 "click .story-share": "share",
                 "click #story-follow": "followClick",
-                "click #story-login-container": "closeLogin"
+                "click #story-login-container": "closeLogin",
+                "click .story-login-button": "loginClick",
+                "click .story-login-email": "loginClick"
             },
             followClick: function(ev){
                 var self = this;
@@ -71,20 +73,34 @@ define(
                     self.showLogin();
                 }
             },
+            loginClick: function(ev){
+                var self = this;
+                if(self.properties.isWidget){
+                    var target = $(ev.currentTarget);
+                    var href = target.attr('href');
+                    window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                    return false;
+                }
+            },
             showLogin: function(){
                 var self = this;
                 var login = $('<div id="story-login"></div>').html(templateLogin);
                 $('#story-login-container').append(login);
                 $('#story-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
                 if(self.properties.isWidget){
-                    $("#story-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close")).attr("target","_blank");
-                    $("#story-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close")).attr("target","_blank");
+                    $("#story-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
+                    $("#story-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close"));
+                    $('#story-user-login').attr('href', self.properties.urls.api + "/" +utils.getLoginRedirectUrl("redirect/close"));
+                    $('#story-user-signup').attr("href", self.properties.urls.api + "/" +utils.getSignUpRedirectUrl("redirect/close"));
+
                 } else {
                     $("#story-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
                     $("#story-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
+                    $('#story-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
+                    $('#story-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl());
+
+
                 }
-                $('#story-user-login').attr('href', utils.getLoginRedirectUrl());
-                $('#story-user-signup').attr("href", utils.getSignUpRedirectUrl());
                 $('#story-login-container').fadeIn();
             },
             closeLogin: function(ev){

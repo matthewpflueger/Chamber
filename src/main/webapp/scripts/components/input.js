@@ -39,7 +39,8 @@
                 'click #chapter-add': 'addChapterClick',
                 'click #story-finish': 'finishStoryClick',
                 'click #chapter-cancel': 'cancelChapterClick',
-                'click .chapter-thumb-x': 'removeChapterThumb'
+                'click .chapter-thumb-x': 'removeChapterThumb',
+                "click .input-login-button": "loginClick"
             },
             login: function(echoedUser){
                 this.properties.echoedUser = echoedUser;
@@ -86,20 +87,33 @@
                     }
                 }
             },
+            loginClick: function(ev){
+                var self = this;
+                if(self.properties.isWidget){
+                    var target = $(ev.currentTarget);
+                    var href = target.attr('href');
+                    window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                    return false;
+                }
+            },
             renderLogin: function(data){
                 var self = this;
                 self.template = _.template(templateStoryLogin);
                 self.element.html(self.template).addClass('small');
                 $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
+
                 if(self.properties.isWidget){
-                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close")).attr("target","_blank");
-                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close")).attr("target","_blank");
+                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
+                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close"));
+                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl("redirect/close"));
+                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl("redirect/close"));
+
                 } else {
+                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
+                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl());
                     $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
                     $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
                 }
-                $('#field-user-login').attr('href', utils.getLoginRedirectUrl());
-                $('#field-user-signup').attr("href", utils.getSignUpRedirectUrl());
                 var body = self.element.find(".field-login-body");
 
                 if(data){
@@ -213,10 +227,12 @@
                         debug: true,
                         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
                         onComplete: function(id, fileName, response) {
-                            var thumbDiv = $('<div></div>').addClass("thumb");
-                            var photo = $('<img />').attr('src', response.url);
-                            thumbDiv.append(photo).hide().appendTo(self.chapterPhotos).fadeIn();
-                            self.currentChapter.images.push(response.id);
+                            if(response.success === true){
+                                var thumbDiv = $('<div></div>').addClass("thumb");
+                                var photo = $('<img />').attr('src', response.url);
+                                thumbDiv.append(photo).hide().appendTo(self.chapterPhotos).fadeIn();
+                                self.currentChapter.images.push(response.id);
+                            }
                         }
                     });
 
@@ -297,9 +313,11 @@
                         debug: true,
                         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
                         onComplete: function(id, fileName, response) {
-                            $("#story-input-photo").fadeOut().attr("src", response.url).fadeIn();
-                            $('#story-input-imageId').val(response.id);
-                            self.data.imageId = response.id;
+                            if(response.success === true){
+                                $("#story-input-photo").fadeOut().attr("src", response.url).fadeIn();
+                                $('#story-input-imageId').val(response.id);
+                                self.data.imageId = response.id;
+                            }
                         }
                     });
 
