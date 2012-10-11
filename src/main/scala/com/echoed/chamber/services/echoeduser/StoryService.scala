@@ -154,9 +154,13 @@ class StoryService(
                     .find(_.id == chapterId)
                     .map(_.copy(title = title, text = text, updatedOn = new Date, publishedOn = publishedOn))
                     .get
+
+            val existingChapterImages = storyState.chapterImages.filter(_.chapterId == chapterId)
             val chapterImages = imageIds.map { id =>
-                mp.tell(ProcessImage(Right(id)), self)
-                new ChapterImage(chapter, id)
+                existingChapterImages.find(_.imageId == id).getOrElse {
+                    mp.tell(ProcessImage(Right(id)), self)
+                    new ChapterImage(chapter, id)
+                }
             }
 
             storyState = storyState.copy(
