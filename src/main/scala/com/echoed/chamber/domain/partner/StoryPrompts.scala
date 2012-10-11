@@ -1,4 +1,4 @@
 package com.echoed.chamber.domain.partner
 
-case class StoryPrompts(prompts: Array[String] = Array("Why did you buy it?", "What are you doing with it?", "Who is it for?"))
+case class StoryPrompts(prompts: Array[String] = Array("My favorite...", "The reason I...", "Something I learned...", "This is how...", "The best thing about..."))
 
