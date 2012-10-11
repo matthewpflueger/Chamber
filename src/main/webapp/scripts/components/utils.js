@@ -17,11 +17,20 @@ define(
                 }
                 return "";
             },
-            getLoginRedirectUrl: function(){
-                return "login/register?r=" + encodeURIComponent(window.location.hash);
+            arraySize: function(array){
+                var size = 0, key;
+                for(key in array){
+                    if(array.hasOwnProperty(key)) size++;
+                }
+                return size;
             },
-            getSignUpRedirectUrl: function(){
-                return "login?r=" + encodeURIComponent(window.location.hash);
+            getLoginRedirectUrl: function(url){
+                var location = url ? url : encodeURIComponent(window.location.hash);
+                return "login?r=" + location;
+            },
+            getSignUpRedirectUrl: function(url){
+                var location = url ? url : encodeURIComponent(window.location.hash);
+                return "login/register?r=" + location;
             },
             getFacebookLoginUrl: function(hash){
                 return Echoed.facebookLogin.head +

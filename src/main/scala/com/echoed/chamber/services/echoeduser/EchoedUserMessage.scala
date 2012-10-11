@@ -48,9 +48,11 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserIdentifiable => EUI}
 private[services] case class EchoedUserServiceState(
         echoedUser: EchoedUser,
         echoedUserSettings: EchoedUserSettings,
-        facebookUser: Option[FacebookUser] = None,
-        twitterUser: Option[TwitterUser] = None,
-        notifications: Stack[Notification] = Stack[Notification]())
+        facebookUser: Option[FacebookUser],
+        twitterUser: Option[TwitterUser],
+        notifications: Stack[Notification],
+        followingUsers: List[Follower],
+        followedByUsers: List[Follower])
 
 
 case class DuplicateEcho(
@@ -72,7 +74,7 @@ case class AddFacebook(
 private[echoeduser] case class LoginWithFacebookUser(
         facebookUser: FacebookUser,
         correlation: LoginWithFacebook,
-        override val correlationSender: Option[ActorRef]) extends EUM with Correlated
+        override val correlationSender: Option[ActorRef]) extends EUM with Correlated[LoginWithFacebook]
 
 
 case class LoginWithFacebook(loginInfo: Either[FacebookCode, FacebookAccessToken]) extends EUM
@@ -88,7 +90,7 @@ case class AddTwitter(
 private[echoeduser] case class LoginWithTwitterUser(
         twitterUser: TwitterUser,
         correlation: LoginWithTwitter,
-        override val correlationSender: Option[ActorRef]) extends EUM with Correlated
+        override val correlationSender: Option[ActorRef]) extends EUM with Correlated[LoginWithTwitter]
 
 case class LoginWithTwitter(oAuthToken: String, oAuthVerifier: String) extends EUM
 case class LoginWithTwitterResponse(message: LoginWithTwitter, value: Either[EUE, EchoedUser])
@@ -101,6 +103,40 @@ case class GetTwitterAuthenticationUrlResponse(message: GetTwitterAuthentication
 
 private[echoeduser] case class LoginWithCredentials(credentials: EUCC) extends EUM with EUI
 
+
+case class FollowUser(credentials: EUCC, userToFollowerId: String) extends EUM with EUI
+case class FollowUserResponse(message: FollowUser, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, FollowUser, EUE]
+
+private[echoeduser] case class AddFollower(
+        credentials: EUCC,
+        echoedUser: EchoedUser,
+        correlation: FollowUser,
+        override val correlationSender: Option[ActorRef]) extends EUM with EUI with Correlated[FollowUser]
+
+private[echoeduser] case class AddFollowerResponse(message: AddFollower, value: Either[EUE, EchoedUser])
+        extends EUM with MR[EchoedUser, AddFollower, EUE]
+
+case class UnFollowUser(credentials: EUCC, followingUserId: String) extends EUM with EUI
+case class UnFollowUserResponse(message: UnFollowUser, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, UnFollowUser, EUE]
+
+private[echoeduser] case class RemoveFollower(credentials: EUCC, echoedUser: EchoedUser) extends EUM with EUI
+private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, RemoveFollower, EUE]
+
+case class Follower(echoedUserId: String, name: String, facebookId: Option[String] = None, twitterId: Option[String] = None)
+private[echoeduser] case class FollowerNotification(category: String, value: Map[String, String])
+
+private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: FollowerNotification) extends EUM with EUI
+
+case class ListFollowingUsers(credentials: EUCC) extends EUM with EUI
+case class ListFollowingUsersResponse(message: ListFollowingUsers, value: Either[EUE, List[Follower]])
+        extends EUM with MR[List[Follower], ListFollowingUsers, EUE]
+
+case class ListFollowedByUsers(credentials: EUCC) extends EUM with EUI
+case class ListFollowedByUsersResponse(message: ListFollowedByUsers, value: Either[EUE, List[Follower]])
+        extends EUM with MR[List[Follower], ListFollowedByUsers, EUE]
 
 
 case class FetchNotifications(credentials: EUCC) extends EUM with EUI
@@ -146,11 +182,29 @@ case class InitStory(
 case class InitStoryResponse(message: InitStory, value: Either[EUE, StoryInfo])
         extends EUM with MR[StoryInfo, InitStory, EUE]
 
+case class VoteStory(
+        credentials: EUCC,
+        storyOwnerId: String,
+        storyId: String,
+        value: Int) extends EUM with EUI with SI
+
+case class VoteStoryResponse(message: VoteStory, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean,  VoteStory, EUE]
+
+case class NewVote(
+        credentials: EUCC,
+        byEchoedUser: EchoedUser,
+        storyId: String,
+        value: Int) extends EUM with EUI with SI
+
+case class NewVoteResponse(message: NewVote, value: Either[EUE, Story])
+        extends EUM with MR[Story, NewVote, EUE]
+
 
 case class CreateStory(
         credentials: EUCC,
         title: String,
-        imageId: String,
+        imageId: Option[String] = None,
         partnerId: Option[String] = None,
         productInfo: Option[String] = None,
         echoId: Option[String] = None) extends EUM with EUI
@@ -158,19 +212,12 @@ case class CreateStory(
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, CreateStory, EUE]
 
-case class TagStory(
-        credentials: EUCC,
-        storyId: String,
-        tagId: String) extends EUM with EUI with SI
-case class TagStoryResponse(message: TagStory, value: Either[EUE, Story])
-        extends EUM with MR[Story, TagStory, EUE]
-
-
 case class UpdateStory(
         credentials: EUCC,
         storyId: String,
         title: String,
-        imageId: String) extends EUM with EUI with SI
+        imageId: String,
+        productInfo: Option[String]) extends EUM with EUI with SI
 
 case class UpdateStoryResponse(message: UpdateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, UpdateStory, EUE]
@@ -181,11 +228,19 @@ case class CreateChapter(
         storyId: String,
         title: String,
         text: String,
-        imageIds: List[String]) extends EUM with EUI with SI
+        imageIds: List[String],
+        publish: Option[Boolean]) extends EUM with EUI with SI
 
 case class CreateChapterResponse(message: CreateChapter, value: Either[EUE, ChapterInfo])
         extends EUM with MR[ChapterInfo, CreateChapter, EUE]
 
+case class UpdateCommunity(
+        credentials: EUCC,
+        storyId: String,
+        communityId: String) extends EUM with EUI with SI
+
+case class UpdateCommunityResponse(message: UpdateCommunity, value: Either[EUE, Story])
+        extends EUM with MR[Story, UpdateCommunity, EUE]
 
 case class UpdateChapter(
         credentials: EUCC,
@@ -193,7 +248,8 @@ case class UpdateChapter(
         chapterId: String,
         title: String,
         text: String,
-        imageIds: List[String] = List.empty[String]) extends EUM with EUI with SI
+        imageIds: List[String] = List.empty[String],
+        publish: Option[Boolean]) extends EUM with EUI with SI
 
 case class UpdateChapterResponse(message: UpdateChapter, value: Either[EUE, ChapterInfo])
         extends EUM with MR[ChapterInfo, UpdateChapter, EUE]
@@ -265,7 +321,7 @@ case class LoginWithEmailPasswordResponse(message: LoginWithEmailPassword, value
 private[echoeduser] case class LoginWithEmail(
         email: String,
         correlation: EchoedUserMessage with EmailIdentifiable,
-        override val correlationSender: Option[ActorRef]) extends EUM with Correlated
+        override val correlationSender: Option[ActorRef]) extends EUM with Correlated[EchoedUserMessage with EmailIdentifiable]
 private[echoeduser] case class LoginWithEmailResponse(message: LoginWithEmail, value: Either[EUE, EchoedUser])
     extends EUM with MR[EchoedUser, LoginWithEmail, EUE]
 

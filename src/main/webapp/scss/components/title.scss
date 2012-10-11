@@ -1,0 +1,35 @@
+#title-container{
+    margin: 5px auto 5px;
+    display: none;
+    #title{
+        background-color: rgba(0, 0, 0, 0.5);
+        margin-bottom: 10px;
+        -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+        box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+        #title-text{
+            @include fontTextBold(24px, #FFF);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            float: left;
+            width: 268px;
+            height: 75px;
+
+        }
+        #title-actions{
+            float:right;
+            padding: 10px;
+            text-align: right;
+
+            #title-share{
+                @include shareButton;
+            }
+        }
+    }
+}
+
+#title-share-label{
+    @include fontTextBold(16px, #FFF);
+    margin-bottom: 10px;
+    text-shadow: rgba(0, 0, 0, 0.8) 0px -1px;
+}

@@ -9,18 +9,18 @@ case class Notification(
         id: String,
         updatedOn: Long,
         createdOn: Long,
-        echoedUser: EchoedUser,
+        echoedUserId: String,
         origin: Identifiable,
         category: String,
         value: Map[String, String],
         emailedOn: Option[Long] = None,
         readOn: Option[Long] = None) extends DomainObject {
 
-    def this(echoedUser: EchoedUser, origin: Identifiable, category: String, value: Map[String, String]) = this(
+    def this(echoedUserId: String, origin: Identifiable, category: String, value: Map[String, String]) = this(
             UUID(),
             new Date,
             new Date,
-            echoedUser,
+            echoedUserId,
             origin,
             category,
             value)

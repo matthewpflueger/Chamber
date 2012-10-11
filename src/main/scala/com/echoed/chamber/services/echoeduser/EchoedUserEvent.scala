@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.echoeduser
 
-import com.echoed.chamber.services.{UpdatedEvent, CreatedEvent, Event}
+import com.echoed.chamber.services.{DeletedEvent, UpdatedEvent, CreatedEvent, Event}
 import com.echoed.chamber.domain._
 
 
@@ -20,6 +20,9 @@ case class ChapterUpdated(story: StoryState, chapter: Chapter, chapterImages: Li
 case class CommentCreated(story: StoryState, comment: Comment) extends SE with UpdatedEvent
 case class StoryModerated(story: StoryState, moderation: Moderation) extends SE with CreatedEvent
 
+case class VoteUpdated(story: StoryState, vote: Vote) extends SE with UpdatedEvent
+case class VoteCreated(story: StoryState, vote: Vote) extends SE with CreatedEvent
+
 
 private[services] case class EchoedUserCreated(
                 echoedUser: EchoedUser,
@@ -33,8 +36,11 @@ private[services] case class EchoedUserUpdated(
                 facebookUser: Option[FacebookUser],
                 twitterUser: Option[TwitterUser]) extends EUE with UpdatedEvent
 
-private[services] case class NotificationCreated(notification: Notification) extends EUE with CreatedEvent
 
+private[services] case class NotificationCreated(notification: Notification) extends EUE with CreatedEvent
 private[services] case class NotificationUpdated(notification: Notification) extends EUE with UpdatedEvent
 
+
+private[services] case class FollowerCreated(echoedUserId: String, follower: Follower) extends EUE with CreatedEvent
+private[services] case class FollowerDeleted(echoedUserId: String, follower: Follower) extends EUE with DeletedEvent
 

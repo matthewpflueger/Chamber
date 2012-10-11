@@ -12,10 +12,14 @@ define(
                 this.properties = options.properties;
             },
             routes: {
-                "": "home"
+                "": "home",
+                "partners": "partners"
             },
             home: function(){
                 this.EvAg.trigger('moderate/show');
+            },
+            partners: function(){
+                this.EvAg.trigger('partnerList/show');
             }
         })
     }

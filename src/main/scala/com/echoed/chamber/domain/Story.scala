@@ -22,7 +22,7 @@ case class Story(
         productInfo: String,
         views: Int,
         comments: Int,
-        tag: String) extends DomainObject {
+        community: String) extends DomainObject {
 
     def this() = this(
         id = "",
@@ -40,7 +40,7 @@ case class Story(
         productInfo = "",
         views = 0,
         comments = 0,
-        tag = "")
+        community = "")
 
     def this(
             echoedUser: EchoedUser,
@@ -65,7 +65,7 @@ case class Story(
         productInfo = _productInfo.orNull,
         views = 0,
         comments = 0,
-        tag = null)
+        community = null)
 
 }
 
@@ -86,5 +86,5 @@ object Story {
         productInfo = s.productInfo,
         views = s.views,
         comments = s.comments.size,
-        tag = s.tag)
+        community = s.community)
 }

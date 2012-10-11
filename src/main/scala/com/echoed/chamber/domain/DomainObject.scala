@@ -15,4 +15,5 @@ trait DomainObject extends Identifiable with AsMap with KeyedEntity[String] {
 
     def asPublicMap = asMap - ("createdOn", "updatedOn", "_isPersisted")
 
+    def isUpdated = updatedOn > createdOn
 }

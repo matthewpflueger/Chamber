@@ -16,9 +16,7 @@ import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.echoeduser.CreateStory
 import com.echoed.chamber.services.echoeduser.RegisterStory
 import com.echoed.chamber.services.partner.RequestStory
-import com.echoed.chamber.services.echoeduser.TagStoryResponse
 import com.echoed.chamber.services.echoeduser.CreateStoryResponse
-import com.echoed.chamber.services.tag.TagReplaced
 import com.echoed.chamber.services.echoeduser.UpdateStory
 import com.echoed.chamber.services.echoeduser.InitStoryResponse
 import com.echoed.chamber.services.state.ReadStoryResponse
@@ -37,7 +35,6 @@ import com.echoed.chamber.domain.Chapter
 import scala.Right
 import com.echoed.chamber.services.echoeduser.RegisterNotification
 import com.echoed.chamber.domain.Notification
-import com.echoed.chamber.services.echoeduser.TagStory
 import com.echoed.chamber.domain.ChapterImage
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.partner.RequestStoryResponse
@@ -88,31 +85,49 @@ class StoryService(
 
 
         case msg @ CreateStory(_, title, imageId, _, productInfo, _) =>
-            mp.tell(ProcessImage(Right(imageId)), self)
-            storyState = storyState.create(title, productInfo.orNull, imageId)
+
+            imageId.map(id => mp.tell(ProcessImage(Right(id)), self))
+
+            storyState = storyState.create(title, productInfo.orNull, imageId.orNull)
             ep(StoryCreated(storyState))
 
             context.parent ! RegisterStory(storyState.asStory)
             sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
 
-        case msg @ UpdateStory(_, storyId, title, imageId) =>
+        case msg @ UpdateStory(_, storyId, title, imageId, productInfo) =>
             mp.tell(ProcessImage(Right(imageId)), self)
-            storyState = storyState.copy(title = title, imageId = imageId, image = None, updatedOn = new Date)
+            storyState = storyState.copy(title = title, imageId = imageId, image = None, productInfo = productInfo.orNull, updatedOn = new Date)
             ep(new StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
 
+        case msg @ NewVote(eucc, byEchoedUser, storyId, value) =>
+            val vote = storyState.votes.get(byEchoedUser.id)
+                    .map(_.copy(value = value, updatedOn = new Date))
+                    .orElse(Option(new Vote("Story", storyId, byEchoedUser.id, value)))
+                    .get
 
-        case msg @ TagStory(_, storyId, tag) =>
-            val originalTag = storyState.tag
-            storyState = storyState.copy(tag = tag, updatedOn = new Date)
-            ep(TagReplaced(originalTag, tag))
-            ep(StoryTagged(storyState, originalTag, tag))
-            sender ! TagStoryResponse(msg, Right(storyState.asStory))
+            storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote))
+            if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
+            if (value > 0 && !vote.isUpdated && (eucc.echoedUserId != byEchoedUser.id)) {
+                mp(RegisterNotification(eucc, new Notification(
+                    echoedUser.id,
+                    byEchoedUser,
+                    "upvoted",
+                    Map(
+                        "subject" -> byEchoedUser.name,
+                        "action" -> "upvoted",
+                        "object" -> storyState.title,
+                        "storyId" -> storyState.id))))
+            }
 
+            sender ! NewVoteResponse(msg, Right(storyState.asStory))
 
-        case msg @ CreateChapter(_, storyId, title, text, imageIds) =>
-            val chapter = new Chapter(storyState.asStory, title, text)
+        case msg @ CreateChapter(eucc, storyId, title, text, imageIds, publish) =>
+            val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
+
+            val chapter = new Chapter(storyState.asStory, title, text).copy(publishedOn = publishedOn)
+
             val chapterImages = imageIds.map { id =>
                 mp.tell(ProcessImage(Right(id)), self)
                 new ChapterImage(chapter, id)
@@ -125,16 +140,27 @@ class StoryService(
 
             ep(ChapterCreated(storyState, chapter, chapterImages))
             sender ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
+            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc)
 
+        case msg @ UpdateCommunity(eucc, storyId, communityId) =>
+            storyState = storyState.copy(community = communityId)
+            ep(StoryUpdated(storyState))
+            sender ! UpdateCommunityResponse(msg, Right(storyState.asStory))
 
-        case msg @ UpdateChapter(_, storyId, chapterId, title, text, imageIds) =>
+        case msg @ UpdateChapter(eucc, storyId, chapterId, title, text, imageIds, publish) =>
+            val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
+
             val chapter = storyState.chapters
                     .find(_.id == chapterId)
-                    .map(_.copy(title = title, text = text, updatedOn = new Date))
+                    .map(_.copy(title = title, text = text, updatedOn = new Date, publishedOn = publishedOn))
                     .get
+
+            val existingChapterImages = storyState.chapterImages.filter(_.chapterId == chapterId)
             val chapterImages = imageIds.map { id =>
-                mp.tell(ProcessImage(Right(id)), self)
-                new ChapterImage(chapter, id)
+                existingChapterImages.find(_.imageId == id).getOrElse {
+                    mp.tell(ProcessImage(Right(id)), self)
+                    new ChapterImage(chapter, id)
+                }
             }
 
             storyState = storyState.copy(
@@ -144,9 +170,10 @@ class StoryService(
 
             ep(ChapterUpdated(storyState, chapter, chapterImages))
             sender ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
+            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc)
 
 
-        case msg @ NewComment(_, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
+        case msg @ NewComment(eucc, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
             val comment = new com.echoed.chamber.domain.Comment(
                 storyState.chapters.find(_.id == chapterId).get,
                 byEchoedUser,
@@ -159,8 +186,8 @@ class StoryService(
             sender ! NewCommentResponse(msg, Right(comment))
 
             if (echoedUser.id != byEchoedUser.id) {
-                mp(RegisterNotification(EchoedUserClientCredentials(echoedUser.id), new Notification(
-                    echoedUser,
+                mp(RegisterNotification(eucc, new Notification(
+                    echoedUser.id,
                     byEchoedUser,
                     "comment",
                     Map(
@@ -168,7 +195,6 @@ class StoryService(
                         "action" -> "commented on",
                         "object" -> storyState.title,
                         "storyId" -> storyState.id))))
-
             }
 
         case msg @ ModerateStory(_, _, Left(pucc), mo) => moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
@@ -212,5 +238,15 @@ class StoryService(
         storyState = storyState.moderate(moderatedBy, moderatedRef, moderatedRefId, moderated)
         sender ! ModerateStoryResponse(msg, Right(storyState.moderationDescription.get))
         ep(StoryModerated(storyState, storyState.moderations.head))
+    }
+
+    private def notifyFollowersOfStoryUpdate(eucc: EchoedUserClientCredentials) {
+        mp(NotifyFollowers(eucc, new FollowerNotification(
+                "story updated",
+                Map(
+                    "subject" -> echoedUser.name,
+                    "action" -> "updated story",
+                    "object" -> storyState.title,
+                    "storyId" -> storyState.id))))
     }
 }

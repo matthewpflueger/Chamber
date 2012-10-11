@@ -35,12 +35,10 @@ require(
         'components/notifications',
         'components/errorLog',
         'components/actions',
-        'components/categoryList',
-        'components/menu',
         'components/infiniteScroll',
         'components/nav'
     ],
-    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, Fade, PageTitle, Title, Input, Login, MessageHandler, Notifications, ErrorLog, Actions, CategoryList, Menu, InfiniteScroll, Nav){
+    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, Fade, PageTitle, Title, Input, Login, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -55,12 +53,16 @@ require(
                 parentWidth;
 
             var cols = Math.floor( parentWidth / colW );
-            cols = Math.max( cols, 1 );
+            cols = Math.max( cols, 3 );
 
             // i.e. this.masonry.cols = ....
             this.masonry.cols = cols;
             // i.e. this.masonry.columnWidth = ...
             this.masonry.columnWidth = colW;
+            //Title Container Resizing
+            $('#title-container').animate({
+                width: Math.max(cols * colW - 10, 890)
+            });
         };
 
         $.Isotope.prototype._masonryReset = function() {
@@ -93,6 +95,8 @@ require(
                 unusedCols++;
             }
 
+
+
             return {
                 height : Math.max.apply( Math, this.masonry.colYs ),
                 // fit container to columns that have been used;
@@ -119,12 +123,11 @@ require(
             this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
             this.exhibit = new Exhibit({ el: '#content', EvAg: EventAggregator, properties: properties });
             this.pageTitle = new PageTitle({ el: 'title', EvAg: EventAggregator, properties: properties });
+            this.contentTitle = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
             this.actions = new Actions({ el: '#actions', EvAg: EventAggregator, properties: properties });
             this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
             this.login = new Login({ el: '#user', EvAg: EventAggregator, properties: properties });
             this.notifications = new Notifications({ el: '#notifications-container', EvAg: EventAggregator, properties: properties });
-            this.menu = new Menu({ el: "#menu", EvAg: EventAggregator, properties: properties });
-            this.categoryList = new CategoryList({ el: '#category-nav', EvAg: EventAggregator, properties: properties});
 
             var iFrameNode = document.createElement('iframe');
 

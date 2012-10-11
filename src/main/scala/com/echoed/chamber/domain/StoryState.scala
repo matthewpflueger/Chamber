@@ -7,7 +7,6 @@ import com.echoed.util.UUID
 import com.echoed.util.DateUtils._
 import java.util.Date
 
-
 case class StoryState(
         id: String,
         updatedOn: Long,
@@ -15,7 +14,7 @@ case class StoryState(
         title: String,
         productInfo: String,
         views: Int,
-        tag: String,
+        community: String,
         echoedUser: EchoedUser,
         imageId: String,
         image: Option[Image],
@@ -25,7 +24,8 @@ case class StoryState(
         partner: Partner,
         partnerSettings: PartnerSettings,
         echo: Option[Echo],
-        moderations: List[Moderation]) extends DomainObject {
+        moderations: List[Moderation],
+        votes: Map[String, Vote]) extends DomainObject {
 
     def this(
             eu: EchoedUser,
@@ -49,7 +49,8 @@ case class StoryState(
         p,
         ps,
         e,
-        List.empty[Moderation])
+        List.empty[Moderation],
+        Map.empty[String, Vote])
 
     def isCreated = id != null && createdOn > 0
     def create(title: String, productInfo: String, imageId: String) = {
@@ -80,12 +81,12 @@ case class StoryState(
             productInfo,
             views,
             comments.size,
-            tag)
+            community)
 
     def asStoryInfo = StoryInfo(echoedUser, echo.orNull, partner, partnerSettings.makeStoryPrompts, asStoryFull.orNull)
     def asStoryFull =
             if (!isCreated) None
-            else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, moderationDescription))
+            else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription))
 
     private def echoedModeratePredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"
     private def moderatedPredicate: Moderation => Boolean = _.moderatedRef != "AdminUser"

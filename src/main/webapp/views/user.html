@@ -67,6 +67,8 @@
                     </ul>
                 </div>
             </div>
+            <div id="actions">
+            </div>
             <div id="notifications-container">
                 <div id="notifications">
                     <div id="notifications-text">
@@ -85,18 +87,17 @@
             </div>
         </div>
         <div id="nav-container">
-            <div id="actions"></div>
             <div id="header-nav" class="clearfix">
-                <div class="nav-label">
-                    Navigate
-                </div>
                 <ul>
                     <li href="#!" id="explore_nav">
                         Home
                     </li>
+                    <li href="#!communities" id="nav_communities">
+                        Communities
+                    </li>
                     {{#echoedUser}}
                     <li href="#!me/friends" id="friends_nav">
-                        My Friends
+                        Storytellers
                     </li>
                     <li href="#!me" id="exhibit_nav">
                         My Stories
@@ -104,19 +105,26 @@
                     {{/echoedUser}}
                 </ul>
             </div>
-            <div id="category-nav" class="clearfix">
-                <div class="category-menu-header">Top Communities</div>
-                <div id="category-list">
-                </div>
-                <div id="category-more">+ More Communities</div>
-            </div>
         </div>
         <div id="fade" style="display:none;">
             <div id="story" style="display:none"></div>
             <div id="field" style="display:none;"></div>
-            <div id="menu" style="display:none;"></div>
         </div>
         <div id="content" class="clearfix">
+            <div id="title-container" class="clearfix">
+                <div id="title" class="clearfix">
+                    <div id="title-text">
+                    </div>
+                    <div id="title-actions">
+                        <div id="title-share-label">
+                        </div>
+                        <a id="title-share" href="#write/">
+                            + Tell Your Story
+                        </a>
+                    </div>
+                </div>
+
+            </div>
             <div id="exhibit" class="clearfix">
             </div>
         </div>
@@ -125,12 +133,10 @@
         </div>
     </div>
     <script type="text/javascript">
-
         {{#echoedUser}}
         Echoed.echoedUser = {};
         Echoed.echoedUser.id = '{{id}}';
         {{/echoedUser}}
-
     </script>
     <script type="text/javascript">
 

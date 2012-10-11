@@ -7,6 +7,9 @@
                 {{#echoedUserName}}
                     data.name = '{{.}}';
                 {{/echoedUserName}}
+                {{#echoedUserId}}
+                    data.id = '{{.}}';
+                {{/echoedUserId}}
                 {{#facebookUserId}}
                     data.facebook = true;
                     data.facebookId = '{{.}}';

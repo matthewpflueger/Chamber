@@ -46,15 +46,15 @@ define(
                         self.exhibit.isotope({
                             itemSelector: '.item_wrap,.no_filter',
                             masonry:{
-                                columnWidth: 5
+                                columnWidth: 300
                             }
                         });
                         self.isotopeOn = true;
-                        var title = self.contentTitle;
-                        if(data.partner) title = data.partner.name;
-                        if(data.echoedUser && self.personal !== true)  title = data.echoedUser.name;
-                        self.EvAg.trigger("title/update", { title: title, description: self.contentDescription });
-                        self.EvAg.trigger("pagetitle/update", title);
+                        var titleOpt = { title: self.contentTitle, href: "" };
+                        if(data.partner) titleOpt = { title: data.partner.name, href: "#write/partner/" + data.partner.id };
+                        if(data.echoedUser && self.personal !== true) titleOpt = { title: data.echoedUser.name, href: "" };
+                        self.EvAg.trigger("title/update", titleOpt);
+                        self.EvAg.trigger("pagetitle/update", titleOpt.title);
                         if(!self.properties.echoedUser && self.properties.exhibitShowLogin === true) self.addLogin();
                         self.render(data);
                     }
@@ -83,7 +83,7 @@ define(
             },
             render: function(data){
                 var self = this;
-                if(self.addStories(data) || self.addFriends(data)){
+                if(self.addStories(data) || self.addFriends(data) || self.addCommunities(data)){
                     self.EvAg.trigger('infiniteScroll/unlock');
                 }
             },
@@ -113,6 +113,21 @@ define(
                 self.loginDiv.find("#twitterLogin").attr("href", utils.getTwitterLoginUrl(window.location.hash));
                 self.exhibit.isotope('insert', self.loginDiv)
             },
+            addCommunities: function(data){
+                var self = this;
+                var communityFragment = $('<div></div>');
+                var communityAdded = false;
+                if(data.communities){
+                    $.each(data.communities, function(index, community){
+                        var communityDiv = $('<div></div>').addClass("item_wrap");
+                        $('<a class="item_content community"></a>').text(community.id).appendTo(communityDiv).attr("href", "#community/" + community.id);
+                        communityFragment.append(communityDiv);
+                        communityAdded = true;
+                    });
+                    self.exhibit.isotope('insert', communityFragment.children());
+                }
+                return communityAdded;
+            },
             addFriends: function(data){
                 var self = this;
                 var friendsFragment = $('<div></div>');
@@ -121,9 +136,9 @@ define(
                     $.each(data.friends, function(index, friend){
                         var friendImage = $('<div class="friend-img"></div>');
                         var friendText = $('<div class="friend-text"></div>').text(friend.name);
-                        var  a = $('<a></a>').attr("href","#user/" + friend.toEchoedUserId).addClass('item_wrap').addClass("friend");
+                        var  a = $('<a></a>').attr("href","#user/" + friend.toEchoedUserId).addClass('item_wrap');
                         $('<img />').attr("height","50px").attr("src",utils.getProfilePhotoUrl(friend)).appendTo(friendImage);
-                        $('<div></div>').append(friendImage).append(friendText).appendTo(a);
+                        $('<div class="item_content friend"></div>').append(friendImage).append(friendText).appendTo(a).addClass('clearfix');
                         friendsFragment.append(a);
                         friendsAdded = true;
                     });
@@ -141,13 +156,18 @@ define(
                             self.stories.array.push(story.id);
                             var storyDiv = $('<div></div>').addClass('item_wrap');
                             var storyComponent = new StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal, properties: self.properties});
-                            if(story.story.image.originalUrl !== null){
-                                storiesFragment.append(storyDiv);
+                            if(story.story.image !== null){
+                                if(story.story.image.originalUrl !== null){
+                                    storiesFragment.append(storyDiv)
+                                } else {
+                                    storyDiv.imagesLoaded(function(){
+                                        self.exhibit.isotope('insert', storyDiv);
+                                    });
+                                }
                             } else {
-                                storyDiv.imagesLoaded(function(){
-                                    self.exhibit.isotope('insert', storyDiv);
-                                });
+                                storiesFragment.append(storyDiv);
                             }
+
                         }
                         storiesAdded = true;
                     });

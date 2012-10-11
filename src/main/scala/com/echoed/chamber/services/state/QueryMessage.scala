@@ -21,7 +21,6 @@ case class FindAllStoriesResponse(
                 value: Either[QE, List[StoryState]])
                 extends QM with MR[List[StoryState], FindAllStories, QE]
 
-
 case class QueryStoriesForAdmin(
         aucc: AdminUserClientCredentials,
         page: Int = 0,

@@ -1,17 +1,50 @@
+    <div id="story-login-container">
+    </div>
     <div id="story-nav" class="clearfix">
         <div act="previous" class="story-nav-button" style="float:left">Previous Story</div>
         <div act="next" class="story-nav-button" style="float:right">Next Story</div>
     </div>
     <div class="echo-story-container clearfix">
+        <div id="echo-story-user-container">
+            <div id="echo-story-user">
+                <div class="echo-s-h-t-n">
+                    <img id="echo-s-h-t-n-i" class="echo-s-h-t-n-i" src="" />
+                    <div class='echo-s-h-t-n-t'>
+                        <a class="link-white bold-link" href="#user/ {{ echoedUser.id }}">{{ echoedUser.name }}</a>
+                    </div>
+                    <span id="story-follow" style="display:none;">
+                    </span>
+                </div>
+                <div id="echo-s-vote">
+                    <div>
+                        <span class="upvote"></span>
+                        <span id="upvote-counter"></span>
+                    </div>
+                    <div>
+                        <span class="downvote"></span>
+                        <span id="downvote-counter"></span>
+                    </div>
+                </div>
+                <div id="story-actions" class="clearfix">
+                    <div class="story-share fb" type="fb"></div>
+                    <div class="story-share tw" type="tw"></div>
+                    <div class="story-share pinterest" type="pinterest"></div>
+                </div>
+            </div>
+            <div id="story-edit-container">
+                <a id="story-edit-tab">
+                    Edit Story
+                </a>
+            </div>
+        </div>
         <div class="echo-story-header clearfix">
             <div class="echo-s-h-close"></div>
             <div class="echo-s-h-title clearfix">
                 <div class="echo-s-h-i-c">
-                    <img class="echo-s-h-i-i" src="" />
+                    <img class="echo-s-h-i-i" />
                 </div>
                 <div class="echo-s-h-t-t">
-                </div>
-                <div class="echo-s-h-t-n">
+                    {{ story.title }}
                 </div>
             </div>
         </div>
@@ -50,6 +83,14 @@
                 </div>
             </div>
         </div>
-        <div id="echo-story-gallery" class="echo-story-gallery">
+        <div id="echo-story-gallery-container">
+            <div id="echo-story-gallery-prev"></div>
+            <div id="echo-story-gallery" class="echo-story-gallery">
+                <div id="echo-story-gallery-body">
+                </div>
+                <div style="height: 100%; width:100px">
+                </div>
+            </div>
+            <div id="echo-story-gallery-next"></div>
         </div>
     </div>

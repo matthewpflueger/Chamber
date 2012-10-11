@@ -6,7 +6,6 @@ import com.echoed.chamber.services.echoeduser._
 import org.springframework.web.bind.annotation._
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.feed._
-import com.echoed.chamber.services.tag._
 import scala.util.control.Exception._
 import java.lang.{NumberFormatException => NFE}
 import javax.annotation.Nullable
@@ -139,6 +138,49 @@ class UserController extends EchoedController {
         result
     }
 
+    @RequestMapping(value = Array("/me/following"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def listFollowingUsers(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(ListFollowingUsers(eucc)).onSuccess {
+            case ListFollowingUsersResponse(_, Right(fus)) => result.set(fus)
+        }
+
+        result
+    }
+
+    @RequestMapping(value = Array("/me/followers"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def listFollowedByUsers(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(ListFollowedByUsers(eucc)).onSuccess {
+            case ListFollowedByUsersResponse(_, Right(fbu)) => result.set(fbu)
+        }
+
+        result
+    }
+
+    @RequestMapping(value = Array("/me/following/{userToFollowId}"), method = Array(RequestMethod.PUT))
+    @ResponseBody
+    def followUser(
+            @PathVariable(value = "userToFollowId") userToFollowId: String,
+            eucc: EchoedUserClientCredentials) = {
+        mp(FollowUser(eucc, userToFollowId))
+        true
+    }
+
+    @RequestMapping(value = Array("/me/following/{userToUnFollowId}"), method = Array(RequestMethod.DELETE))
+    @ResponseBody
+    def unFollowUser(
+            @PathVariable(value = "userToUnFollowId") userToUnFollowId: String,
+            eucc: EchoedUserClientCredentials) = {
+        mp(UnFollowUser(eucc, userToUnFollowId))
+        true
+    }
+
+
     @RequestMapping(value = Array("/category/{categoryId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def categoryFeed(
@@ -216,40 +258,38 @@ class UserController extends EchoedController {
     @RequestMapping(value = Array("/tags"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getTagList(
-            @RequestParam(value = "tagId", required = false, defaultValue = "") tagId: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin : String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(GetTags(tagId)).onSuccess {
-            case GetTagsResponse(_, Right(tags)) => result.set(tags)
+        mp(GetCommunities()).onSuccess {
+            case GetCommunitiesResponse(_, Right(communities)) =>
+                log.debug("Communities Returned: {}", communities)
+                result.set(communities)
+
         }
 
         result
     }
 
-    @RequestMapping(value = Array("/tags/add"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/upvote"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def addTag(@RequestParam(value = "tagId", required = true) tagId: String) = {
-        val result = new DeferredResult(ErrorResult.timeout)
-
-        mp(AddTag(tagId)).onSuccess {
-            case AddTagResponse(_, Right(tag)) => result.set(tag)
-        }
-
-        result
+    def upVote(
+              eucc: EchoedUserClientCredentials,
+              @RequestParam(value = "storyId", required = true) storyId: String,
+              @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
+        mp(VoteStory(eucc, storyOwnerId, storyId, 1))
+        true
     }
 
-    @RequestMapping(value = Array("/tags/top"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/downvote"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getTopTag() = {
-        val result = new DeferredResult(ErrorResult.timeout)
-
-        mp(GetTopTags()).onSuccess {
-            case GetTopTagsResponse(_, Right(tags)) => result.set(tags)
-        }
-
-        result
+    def downVote(
+                eucc: EchoedUserClientCredentials,
+                @RequestParam(value = "storyId", required = true) storyId: String,
+                @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
+        mp(VoteStory(eucc, storyOwnerId, storyId, -1))
+        true
     }
 
 }

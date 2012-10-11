@@ -1,4 +1,4 @@
-define(
+    define(
     [
         'jquery',
         'backbone',
@@ -8,15 +8,17 @@ define(
         'components/utils',
         'components/select',
         'components/ajaxInput',
-        'text!templates/story-edit.html',
-        'text!templates/story-input.html',
-        'text!templates/story-summary.html',
-        'text!templates/story-login.html'
+        'text!templates/input/storySummary.html',
+        'text!templates/input/storyCoverInput.html',
+        'text!templates/input/storyCover.html',
+        'text!templates/input/storyChapter.html',
+        'text!templates/input/storyChapterInput.html',
+        'text!templates/input/storyLogin.html'
     ],
-    function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateStoryEdit, templateStoryInput, templateStorySummary, templateStoryLogin){
+    function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput, templateStoryLogin){
         return Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this, 'render', 'unload', 'login', 'load', 'loadStoryTemplate', 'submitInitStory', 'loadChapterTemplate', 'cancelChapter','submitChapter', 'storyEditClick', 'removeChapterThumb', 'addCategory');
+                _.bindAll(this);
                 this.element = $(options.el);
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
@@ -25,19 +27,21 @@ define(
                     this.EvAg.bind("user/login", this.login);
                 }
                 this.locked = false;
+                this.imageMap = {};
                 this.prompts = [];
             },
             events: {
                 "click .field-close" : "close",
-                "click .field-submit" : "submitInitStory",
-                "click .chapter-submit": "submitChapter",
-                "click .chapter-cancel": "cancelChapter",
-                "click .chapter-thumb-x": "removeChapterThumb",
-                "click .story-summary-submit": "storySummarySubmit",
-                "click .story-summary-chapter-edit": "storyEditClick",
-                "click #category-add": "addCategory",
-                "click #field-main-category-edit": "editCategory"
-
+                "click #edit-cover": "editStoryClick",
+                "click .edit-chapter" : "editChapterClick",
+                'click #submit-cover': "submitCover",
+                'click #chapter-publish': "publishChapterClick",
+                'click #chapter-save': 'saveChapterClick',
+                'click #chapter-add': 'addChapterClick',
+                'click #story-finish': 'finishStoryClick',
+                'click #chapter-cancel': 'cancelChapterClick',
+                'click .chapter-thumb-x': 'removeChapterThumb',
+                "click .input-login-button": "loginClick"
             },
             login: function(echoedUser){
                 this.properties.echoedUser = echoedUser;
@@ -57,21 +61,8 @@ define(
                 var loadData = {};
                 self.loaded = true;
                 self.data = {};
-
-                switch(type){
-                    case "story":
-                        loadData.storyId = id;
-                        self.storyId =id;
-                        break;
-                    case "echo":
-                        loadData.echoId = id;
-                        self.echoId = id;
-                        break;
-                    case "partner":
-                        loadData.partnerId = id;
-                        self.partnerId = id;
-                        break;
-                }
+                loadData[type + "Id"] = id;
+                self[type+"Id"] = id;
                 if(self.properties.echoedUser){
                     utils.AjaxFactory({
                         url: jsonUrl,
@@ -97,261 +88,42 @@ define(
                     }
                 }
             },
-            addCategory: function(){
+            loginClick: function(ev){
                 var self = this;
-                var category = $('#ajax-input').find(".input-field").val();
-                category = $.trim(category.replace(/[^a-zA-Z 0-9-_]+/g,''));
-                var cArray = category.split(" ");
-                $.each(cArray, function(index, string){
-                    string = string.toLowerCase();
-                    cArray[index] = string.substring(0,1).toUpperCase() + string.slice(1);
-                });
-                category = cArray.join(" ");
-
-                utils.AjaxFactory({
-                    url: self.properties.urls.api + "/story/" + self.data.storyFull.id + "/tag",
-                    type: "POST",
-                    dataType: 'json',
-                    data: {
-                        tagId: category
-                    },
-                    success: function(data){
-                        self.data.storyFull.story = data;
-                        self.loadStorySummary();
-                        self.EvAg.trigger('category/refresh');
-                    }
-                })();
-            },
-            editCategory: function(){
-                $('#ajax-input').fadeIn();
-            },
-            submitInitStory: function(){
-                var self = this;
-                if(self.locked === false) {
-                    var title = $.trim(self.element.find("#story-name").val());
-                    var productFrom = $.trim($('#story-from').val());
-                    var storyData = {
-                        title: title,
-                        imageId: self.data.imageId,
-                        productInfo: productFrom
-                    };
-
-                    if(self.data.echo) {
-                        storyData.echoId = self.data.echo.id;
-                    }
-                    else if(self.partnerId) {
-                        storyData.partnerId = self.partnerId;
-                    }
-
-                    if(!self.data.imageId){
-                        alert("Please select a photo for the product");
-                    } else if(title === ""){
-                        alert("Please title your product story");
-                    } else if(productFrom === "") {
-                        alert("Please enter where the product is from");
-                    } else {
-                        self.locked = true;
-                        utils.AjaxFactory({
-                            url: self.properties.urls.api + "/story",
-                            type: 'POST',
-                            data: storyData,
-                            success: function(createStoryResponse){
-                                self.load(createStoryResponse.id, "story");
-                                self.locked = false;
-                            }
-                        })();
-                    }
+                if(self.properties.isWidget){
+                    var target = $(ev.currentTarget);
+                    var href = target.attr('href');
+                    window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                    return false;
                 }
             },
-            loadStorySummary: function(){
+            renderLogin: function(data){
                 var self = this;
-                var template = _.template(templateStorySummary);
-                self.element.html(template);
-                self.element.find(".story-preview-title").text(self.data.storyFull.story.title);
-                self.element.find(".story-preview-from").text(self.data.storyFull.story.productInfo);
-                self.element.find(".story-preview-by").text(self.data.storyFull.echoedUser.name);
-                $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
+                self.template = _.template(templateStoryLogin);
+                self.element.html(self.template).addClass('small');
+                $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
 
-                $("#field-main-category-content").text(self.data.storyFull.story.tag);
-                this.ajaxInput = new AjaxInput({ el: '#ajax-input', EvAg: self.EvAg, properties: this.properties });
-                var count = 0;
-                self.element.chapters = self.element.find('.story-summary-body');
-                $.each(self.data.storyFull.chapters, function(index, chapter){
-                    count = count + 1;
-                    var chapterDiv = $('<div class="story-summary-chapter"></div>').addClass("clearfix");
-                    var chapterEdit = $('<div class="story-summary-chapter-edit"></div>').text("Edit").attr("chapterId", index);
-                    var chapterTitle = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-title"></div>').html("<strong></strong>").text("Topic: " + chapter.title));
-                    var chapterDescription = $("<div class='story-summary-chapter-row'></div>").append($('<div class="story-summary-chapter-description"></div>').html("<strong></strong>").text("Description: " + chapter.text.substr(0, 200)));
-                    var chapterPhotos = $('<div class="story-summary-chapter-photo-container"></div>');
-                    var chapterPhotosRow = $("<div class='story-summary-chapter-row'></div>").append($('<label>Photos: </label>')).append(chapterPhotos);
-                    $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
-                        if(chapterImage.chapterId === chapter.id){
-                            var chapterImg = $('<img class="story-summary-chapter-photo"/>').attr("height", 50).attr("src",chapterImage.image.preferredUrl);
-                            chapterPhotos.append(chapterImg);
-                        }
-                    });
-                    chapterDiv.append(chapterEdit).append(chapterTitle).append(chapterDescription).append(chapterPhotosRow);
-                    self.element.chapters.append(chapterDiv);
-                });
-                self.show();
-            },
-            storySummarySubmit: function(e){
-                var self = this;
-                var target = $(e.target);
-                var nextAction = target.attr("act");
-                switch(nextAction){
-                    case "finish":
-                        self.unload(function(){
-                            self.EvAg.trigger('router/me');
-                            window.location.hash = "#!story/" + self.data.storyFull.story.id;
-                        });
-                        break;
-                    case "add":
-                        self.loadChapterTemplate();
-                        break;
-                }
-            },
-            storyEditClick: function(e){
-                var self = this;
-                var domNode = $(e.target);
-                var chapterId = domNode.attr("chapterId");
-                self.loadChapterTemplate(chapterId);
-            },
-            removeChapterThumb: function(e){
-                var self = this;
-                var target = $(e.currentTarget).parent();
-                var index = target.attr("index");
-                self.currentChapter.images.splice(index, 1);
-                target.remove();
-            },
-            loadChapterTemplate: function(chapterIndex){
-                var self = this;
-                self.template = _.template(templateStoryEdit);
-                self.element.html(self.template);
-                self.element.find(".story-preview-title").text(self.data.storyFull.story.title);
-                self.element.find(".story-preview-from").text(self.data.storyFull.story.productInfo);
-                self.element.find(".story-preview-by").text(self.data.storyFull.echoedUser.name);
-                $("#thumb-placeholder").attr("src", self.properties.urls.images + "/bk_img_upload_ph.png" );
-                $("#story-preview-photo").attr("src", self.data.storyFull.story.image.preferredUrl);
-                var chapterPhotos = self.element.find(".thumbnails");
-                self.currentChapter = {
-                    images: [],
-                    title: "",
-                    text: ""
-                };
-                var selectOptions = {
-                    optionsArray : [],
-                    el : "#chapter-title"
-                };
+                if(self.properties.isWidget){
+                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
+                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close"));
+                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl("redirect/close"));
+                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl("redirect/close"));
 
-                if(chapterIndex !== undefined){
-                    var chapterId = self.data.storyFull.chapters[chapterIndex].id;
-                    self.currentChapter.title = self.data.storyFull.chapters[chapterIndex].title;
-                    selectOptions.currentTitle = self.currentChapter.title;
-                    self.currentChapter.text = self.data.storyFull.chapters[chapterIndex].text;
-                    selectOptions.optionsArray.push(self.currentChapter.title);
-                    self.currentChapter.id = chapterId;
-                    $("#chapter-title").val(self.data.storyFull.chapters[chapterIndex].title);
-                    $("#chapter-text").val(self.data.storyFull.chapters[chapterIndex].text);
-                    $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
-                        if(chapterImage.chapterId === chapterId){
-                            var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
-                            var thumbX = $('<span></span>').addClass('chapter-thumb-x').attr('src', self.properties.urls.images + "/btn_close_x_black.png");
-                            thumbDiv.append(thumbX);
-                            var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css(utils.getImageSizing(chapterImage, 75));
-                            thumbDiv.append(photo).appendTo(chapterPhotos).fadeIn();
-                            self.currentChapter.images.push(chapterImage.image.id);
-                        }
-                    });
-                }
-                $.each(self.data.storyPrompts.prompts, function(index, prompt){
-                    var inChapters = false;
-                    $.each(self.data.storyFull.chapters, function(index, chapter){
-                        if(prompt === chapter.title){
-                            inChapters = true;
-                        }
-                    });
-                    if(inChapters === false){
-                        selectOptions.optionsArray.push(prompt)
-                    }
-                });
-                $("#chapter-text").expandingTextarea();
-
-                self.select = new Select(selectOptions);
-                var uploader = new qq.FileUploader({
-                    element: document.getElementsByClassName('photo-upload')[0],
-                    action: '/image',
-                    debug: true,
-                    allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-                    onProgress: function(id, fileName, loaded, total){
-                    },
-                    onSubmit: function(id, fileName) {
-                    },
-                    onComplete: function(id, fileName, response) {
-                        var thumbDiv = $('<div></div>').addClass("thumb");
-                        var photo = $('<img />').attr('src', response.url);
-                        thumbDiv.append(photo).hide().appendTo(chapterPhotos).fadeIn();
-                        self.currentChapter.images.push(response.id);
-                    }
-                });
-                self.show();
-            },
-            submitChapter: function(e){
-                var self = this;
-                self.currentChapter.title = $.trim(self.select.val());
-                self.currentChapter.text = $.trim($('#chapter-text').val());
-                if(self.currentChapter.title === ""){
-                    alert("Please select or write a topic.");
-                } else if(self.currentChapter.text === ""){
-                    alert("You must have some text for your topic. Even a single sentence is enough!");
                 } else {
-                    if(self.locked === false) {
-                        self.locked = true;
-                        if(self.currentChapter.id !== undefined){
-
-                            utils.AjaxFactory({
-                                url: self.properties.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter/" + self.currentChapter.id,
-                                type: "PUT",
-                                processData: false,
-                                contentType: "application/json",
-                                data: JSON.stringify({
-                                    title: self.currentChapter.title,
-                                    text: self.currentChapter.text,
-                                    imageIds: self.currentChapter.images
-                                }),
-                                success: function(chapterSubmitResponse) {
-                                    self.locked = false;
-                                    self.load(self.data.storyFull.story.id, "story");
-                                }
-                            })();
-                        } else {
-                            utils.AjaxFactory({
-                                url: self.properties.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
-                                type: "POST",
-                                processData: false,
-                                contentType: "application/json",
-                                data: JSON.stringify({
-                                    title: self.currentChapter.title,
-                                    text: self.currentChapter.text,
-                                    imageIds: self.currentChapter.images
-                                }),
-                                success: function(chapterSubmitResponse) {
-                                    self.locked = false;
-                                    self.load(self.data.storyFull.story.id, "story");
-                                }
-                            })();
-                        }
-                    }
+                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
+                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl());
+                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
+                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
                 }
-            },
-            cancelChapter: function(){
-                var self = this;
-                if(self.data.storyFull.chapters.length > 0){
-                    self.load(self.data.storyFull.story.id, "story");
-                } else{
-                    self.close();
+                var body = self.element.find(".field-login-body");
+
+                if(data){
+                    var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
+                    var bodyTextNode = $('<div class="field-login-body-text"></div>').text(bodyText);
+                    body.append(bodyTextNode);
                 }
 
+                self.show();
             },
             unload: function(callback){
                 var self = this;
@@ -362,89 +134,328 @@ define(
                     self.data = {};
                 });
             },
-            renderLogin: function(data){
-                var self = this;
-                self.template = _.template(templateStoryLogin);
-                self.element.html(self.template).addClass('small');
-                $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
-                if(self.properties.isWidget){
-                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close")).attr("target","_blank");
-                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close")).attr("target","_blank");
-                } else {
-                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
-                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
-                }
-                $('#field-user-login').attr('href', utils.getLoginRedirectUrl());
-                $('#field-user-signup').attr("href", utils.getSignUpRedirectUrl());
-                var body = self.element.find(".field-login-body");
-
-                if(data){
-                    var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
-                    var bodyTextNode = $('<div class="field-login-body-text"></div>').append(bodyText);
-                    body.append(bodyTextNode);
-                }
-
-                self.show();
-            },
             render: function(){
                 var self = this;
                 self.element.empty();
-                if(self.data.storyFull) {
-                    if(self.data.storyFull.chapters.length > 0) {
-                        self.loadStorySummary();
-                    } else {
-                        self.loadChapterTemplate();
-                    }
+                self.locked = false;
+                self.template = _.template(templateSummary);
+                self.element.removeClass("small");
+                self.element.html(self.template);
+
+                self.cover = $('#field-summary-cover');
+                self.body = $('#story-summary-body');
+
+                if(!self.data.storyFull){
+                    self.loadStoryInputTemplate({ type: "Add" });
+                } else if(self.data.storyFull.chapters.length > 0){
+                    self.loadStoryCoverTemplate();
+                    self.loadChapterTemplates();
                 } else {
-                    self.loadStoryTemplate();
+                    self.loadStoryCoverTemplate();
+                    self.loadChapterInputTemplate({ type: "Add" });
+                }
+                self.show();
+            },
+            removeChapterThumb: function(e){
+                var self = this;
+                var target = $(e.currentTarget).parent();
+                var index = target.attr("index");
+                self.currentChapter.images.splice(index, 1);
+                target.fadeOut(function(){$(this).remove()});
+            },
+            editStoryClick: function(ev){
+                this.loadStoryInputTemplate({ type: "Edit" });
+            },
+            editChapterClick: function(ev){
+                var chapterIndex = $(ev.currentTarget).attr('chapterIndex');
+                var chapterId = $(ev.currentTarget).attr('chapterId');
+                this.loadChapterInputTemplate({ type: "Edit", index: chapterIndex, chapterId: chapterId })
+            },
+            loadStoryCoverTemplate: function(){
+                var self = this;
+                var story = self.data.storyFull.story;
+                var template = _.template(templateStoryCover, story);
+                self.cover.html(template);
+
+                if(story.image !== null) {
+                    $('<img class="story-summary-photo"/>').attr("height", 50).attr("src", self.getImageUrl(story.image)).appendTo(self.cover.find('.story-input-photo'));
+                }
+                else self.cover.find('.story-input-photo-row').hide();
+                if(story.productInfo !== null) $('#story-info').show();
+                else $('#story-info').hide();
+
+            },
+            getImageUrl: function(image){
+                if(image.preferredUrl){
+                    return image.preferredUrl;
+                } else if(image.originalUrl){
+                    return image.originalUrl;
+                } else {
+                    return this.imageMap[image.id];
                 }
             },
-            loadStoryTemplate: function(){
+            loadChapterInputTemplate: function(option){
                 var self = this;
-                self.template = _.template(templateStoryInput);
-                self.element.html(self.template).removeClass("small");
-                $('#field-photo').attr("src", self.properties.urls.images + '/bk_img_upload_ph.png');
-                $('#story-preview-photo').attr('src', self.properties.urls.images + '/bk_cover_default.jpg');
-                self.data.imageId = null;
-                if (self.data.partner && self.data.partner.name != "Echoed"){
-                    $("#story-from").val(self.data.partner.name).attr("readonly",true);
-                    self.element.find('.field-title').text("Share Your " + self.data.partner.name + " Story");
-                }
-                if(self.data.echo){
-                    $("#field-photo").attr("src", self.data.echo.image.preferredUrl);
-                    self.data.imageId = self.data.echo.image.id;
-                    $("#story-from").val(self.data.partner.name).attr("readonly",true);
-                    $("#story-name").val(self.data.echo.productName);
-                } else {
-                    $("#field-photo-upload").show();
+                var template = _.template(templateChapterInput);
+                var chapter = function(opt){
+                    if(opt.type ==="Edit") return $("#chapter-row-" + opt.index);
+                    else return $('<div class="field-main-row clearfix"></div>').appendTo(self.body);
+                }(option);
+                self.currentChapter = {
+                    images: []
+                };
+                chapter.fadeOut(function(){
+                    $(this).html(template);
+
+                    var selectOptions = {
+                        optionsArray: [],
+                        el: '#chapter-title'
+                    };
+
+                    self.chapterPhotos = $('#story-input-thumbnails');
+
+                    if(option.type==="Edit"){
+                        self.currentChapter = self.data.storyFull.chapters[option.index];
+                        self.currentChapter.images = [];
+                        $('#chapter-text').val(self.currentChapter.text);
+                        selectOptions.optionsArray.push(self.currentChapter.title);
+                        $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
+                            if(chapterImage.chapterId === self.currentChapter.id){
+                                var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
+                                var thumbX = $('<div></div>').addClass('chapter-thumb-x');
+                                thumbDiv.append(thumbX);
+                                var photo = $('<img />').attr('src', self.getImageUrl(chapterImage.image)).css(utils.getImageSizing(chapterImage.image));
+                                thumbDiv.append(photo).appendTo(self.chapterPhotos).fadeIn();
+                                self.currentChapter.images.push(chapterImage.image.id);
+                            }
+                        });
+                    }
+
+                    $("#chapter-text").expandingTextarea();
+
+                    var uploader = new qq.FileUploader({
+                        element: document.getElementById('photo-upload'),
+                        action: '/image',
+                        debug: true,
+                        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+                        onComplete: function(id, fileName, response) {
+                            if(response.success === true){
+                                var thumbDiv = $('<div></div>').addClass("thumb");
+                                var photo = $('<img />').attr('src', response.url);
+                                thumbDiv.append(photo).hide().appendTo(self.chapterPhotos).fadeIn();
+                                self.currentChapter.images.push(response.id);
+                                self.imageMap[response.id] = response.url;
+                            }
+                        }
+                    });
+
+                    $.each(self.data.storyPrompts.prompts, function(index, prompt){
+                        var inChapters = false;
+                        $.each(self.data.storyFull.chapters, function(index, chapter){
+                            if(prompt === chapter.title) inChapters = true;
+                        });
+                        if(inChapters === false) selectOptions.optionsArray.push(prompt)
+                    });
+                    self.hideSubmits();
+                    self.select = new Select(selectOptions);
+                    $('#thumb-placeholder').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
+                    $(this).addClass('highlight');
+                    if(self.currentChapter.publishedOn > 0) $('#chapter-save').hide();
+
+                    $(this).fadeIn();
+                });
+
+            },
+            loadChapterTemplates: function(){
+                var self = this;
+                $.each(self.data.storyFull.chapters, function(index, chapter){
+                    chapter.index = index;
+                    var template = _.template(templateChapter, chapter);
+                    var chapterRow = $('<div class="field-main-row clearfix"></div>').html(template).appendTo(self.body).attr('id','chapter-row-' + index);
+                    var photos = chapterRow.find('.story-input-photos');
+                    var imagesFound = false;
+                    $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
+                        if(chapterImage.chapterId === chapter.id){
+                            var chapterImg = $('<img class="story-summary-photo"/>').attr("height", 50).attr("src",self.getImageUrl(chapterImage.image));
+                            photos.append(chapterImg);
+                            imagesFound = true
+                        }
+                    });
+                    if (imagesFound === false) chapterRow.find('.story-input-photo-row').hide();
+                    if (chapter.publishedOn > 0) chapterRow.find('.story-input-publishedOn').text("Published");
+                    else chapterRow.find('.story-input-publishedOn').text("Draft").addClass('highlight-text').addClass("bold");
+
+                });
+            },
+            loadStoryInputTemplate: function(option){
+                var self = this;
+                var template = _.template(templateStoryCoverInput);
+                self.cover.fadeOut(function(){
+                    $(this).html(template);
+                    $('#story-input-photo').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
+                    $('#submit-type').val("POST");
+                    if(option.type === "Edit"){
+                        $('#story-name').val(self.data.storyFull.story.title);
+                        $('#submit-type').val("PUT");
+
+                        if(self.data.storyFull.story.image !== null){
+                            var image = self.data.storyFull.story.image;
+                            $('#story-input-photo').attr('src', image.preferredUrl).css(utils.getImageSizing(image, 75));
+                            $('#story-input-imageId').val(self.data.storyFull.story.image.id);
+                        }
+                    }
+
+                    if(self.data.partner.name !== "Echoed"){
+                        $('#story-input-from-content').text(self.data.partner.name);
+                        $('#story-input-partnerId').val(self.data.partner.id);
+                        $('#story-input-from').show();
+                    } else {
+                        $('#story-input-from').hide();
+                        if(self.data.storyFull !== null){
+                            if(self.data.storyFull.story.productInfo !== null){
+                                $('#story-input-partnerId').val(self.data.partner.id);
+                                $('#story-input-from-content').text(self.data.storyFull.story.productInfo);
+                                $('#story-input-from').show();
+                            }
+                        }
+                    }
+
                     var uploader = new qq.FileUploader({
                         element: document.getElementById('field-photo-upload'),
                         action: '/image',
                         debug: true,
                         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-                        onSubmit: function(id, fileName) {
-
-                        },
                         onComplete: function(id, fileName, response) {
-                            $("#field-photo").attr("src", response.url);
-                            self.data.imageId = response.id;
-
+                            if(response.success === true){
+                                $("#story-input-photo").fadeOut().attr("src", response.url).fadeIn();
+                                $('#story-input-imageId').val(response.id);
+                                self.data.imageId = response.id;
+                                self.imageMap[response.id] = response.url;
+                            }
                         }
                     });
+
+                    self.hideSubmits();
+                    $(this).addClass("highlight").fadeIn();
+                });
+            },
+            submitCover: function(){
+                var self = this;
+                if(self.locked !== true){
+                    var type = $('#submit-type').val();
+                    var imageId = $('#story-input-imageId').val() ?  $('#story-input-imageId').val() : null;
+                    var partnerId = $('#story-input-partnerId').val() ? $('#story-input-partnerId').val() : null;
+                    var echoId = $('#story-input-echoId').val() ? $('#story-input-echoId').val() : null;
+                    var productInfo = $.trim($('#story-input-from-content').html()) ? $.trim($('#story-input-from-content').html()) : null;
+                    var title = $('#story-name').val();
+                    storyData = {
+                        title: title
+                    };
+
+                    if(echoId !== null && type === "POST") storyData.echoId = echoId;
+                    if(partnerId !== null && type === "POST") storyData.partnerId = partnerId;
+                    if(productInfo !== null) storyData.productInfo = productInfo;
+                    if(imageId !== null) storyData.imageId = imageId;
+
+                    var url = "";
+                    if(type === "PUT") url = self.properties.urls.api +"/story/" + self.data.storyFull.story.id;
+                    else url = self.properties.urls.api + "/story";
+                    utils.AjaxFactory({
+                        url: url,
+                        type: type,
+                        data: storyData,
+                        success: function(resp){
+                            self.locked = false;
+                            self.load(resp.id, "story");
+                        }
+                    })();
                 }
-                self.show();
+            },
+            addChapterClick: function(){
+                this.loadChapterInputTemplate({ type: "Add" });
+            },
+            publishChapterClick: function(){
+                this.updateChapter(true);
+            },
+            saveChapterClick: function(){
+                this.updateChapter(false);
+            },
+            finishStoryClick: function(){
+                var self = this;
+                self.unload(function(){
+                    self.EvAg.trigger('router/me');
+                    window.location.hash = "#!story/" + self.data.storyFull.story.id;
+                });
+            },
+            cancelChapterClick: function(){
+                var self = this;
+                if(self.data.storyFull.chapters.length > 0) self.load(self.data.storyFull.story.id, "story");
+                else self.close();
+            },
+            updateChapter: function(publishOption){
+                var self = this;
+                var title = $.trim(self.select.val());
+                var text = $.trim($('#chapter-text').val());
+
+                var images = self.currentChapter.images ? self.currentChapter.images : [];
+
+                if(title === ""){
+                    alert("Please write or choose a topic");
+                } else if(text === "" && images.length <= 0){
+                    alert("You must have either a description or an image");
+                } else if(self.locked === false){
+                    self.locked = true;
+                    if(self.currentChapter.id !== undefined){
+                        utils.AjaxFactory({
+                            url: self.properties.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter/" + self.currentChapter.id,
+                            type: "PUT",
+                            processData: false,
+                            contentType: "application/json",
+                            data: JSON.stringify({
+                                title: title,
+                                text: text,
+                                imageIds: images,
+                                publish: publishOption
+                            }),
+                            success: function(chapterSubmitResponse) {
+                                self.locked = false;
+                                self.load(self.data.storyFull.story.id, "story");
+                            }
+                        })();
+                    } else {
+                        utils.AjaxFactory({
+                            url: self.properties.urls.api + "/story/" + self.data.storyFull.story.id + "/chapter",
+                            type: "POST",
+                            processData: false,
+                            contentType: "application/json",
+                            data: JSON.stringify({
+                                title: title,
+                                text: text,
+                                imageIds: images,
+                                publish: publishOption
+                            }),
+                            success: function(chapterSubmitResponse) {
+                                self.locked = false;
+                                self.load(self.data.storyFull.story.id, "story");
+                            }
+                        })();
+                    }
+               }
+            },
+            hideSubmits: function(){
+                this.element.find('.field-edit').hide();
+                this.element.find('.story-summary-buttons').hide();
             },
             show: function(){
                 var self = this;
                 self.EvAg.trigger('fade/show');
-                self.element.fadeIn().css({
-                    "margin-left" : -(self.element.width()/2)
-                });
+                self.element.fadeIn();
                 $("#story-name").focus();
             },
             close: function(){
                 var self = this;
                 self.element.fadeOut().empty();
+                self.imageMap = {};
                 self.EvAg.trigger('fade/hide');
                 self.EvAg.trigger('hash/reset');
             }

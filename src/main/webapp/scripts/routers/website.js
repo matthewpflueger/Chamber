@@ -17,19 +17,21 @@ define(
                 "me/": "me",
                 "me": "me",
                 "user/:id": "user",
-                "category/:category": "category",
+                "community/:community": "community",
                 "partner/:name/": "partnerFeed",
                 "partner/:name": "partnerFeed",
                 "story/:id": "story",
                 "write/:type/:id" : "writeStory",
                 "write/" : "writeStory",
                 "write": "writeStory",
+                "communities" : "cList",
                 //
                 "!": "explore",
                 "!me/friends": "friends",
                 "!me/": "me",
                 "!me": "me",
                 "!user/:id": "user",
+                "!communities": "cList",
                 "!category/:category": "category",
                 "!partner/:name/": "partnerFeed",
                 "!partner/:name": "partnerFeed",
@@ -46,10 +48,16 @@ define(
                 this.EvAg.trigger('page/change', page);
                 _gaq.push(['_trackPageview', this.page]);
             },
+            cList: function(){
+                if(this.page != window.location.hash){
+                    this.page = window.location.hash;
+                    this.loadPage("communities", { endPoint: "/tags", title: "Communities"});
+                }
+            },
             explore: function(){
                 if(this.page != window.location.hash){
                     this.page = "#!";
-                    this.loadPage("explore", { endPoint: "/me/feed", title: "Community"});
+                    this.loadPage("explore", { endPoint: "/me/feed", title: "" });
                 }
             },
             partnerFeed: function(partnerId) {
@@ -76,10 +84,10 @@ define(
                     this.loadPage('user', { endPoint: "/user/" + id });
                 }
             },
-            category: function(categoryId){
+            community: function(communityId){
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
-                    this.loadPage("category", { endPoint: "/category/" + categoryId, title: categoryId })
+                    this.loadPage("category", { endPoint: "/category/" + communityId, title: communityId })
                 }
             },
             writeStory: function(type, id){

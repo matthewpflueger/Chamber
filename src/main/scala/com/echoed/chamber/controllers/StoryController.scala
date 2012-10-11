@@ -45,7 +45,7 @@ class StoryController extends EchoedController {
     @ResponseBody
     def createStory(
             @RequestParam(value = "title", required = true) title: String,
-            @RequestParam(value = "imageId", required = true) imageId: String,
+            @RequestParam(value = "imageId", required = false) imageId: String,
             @RequestParam(value = "partnerId", required = false) partnerId: String,
             @RequestParam(value = "productInfo", required = false) productInfo: String,
             @RequestParam(value = "echoId", required = false) echoId: String,
@@ -58,7 +58,7 @@ class StoryController extends EchoedController {
         mp(CreateStory(
                 eucc,
                 title,
-                imageId,
+                Option(imageId),
                 Option(partnerId),
                 Option(productInfo),
                 Option(echoId))).onSuccess {
@@ -76,6 +76,7 @@ class StoryController extends EchoedController {
             @PathVariable(value = "storyId") storyId: String,
             @RequestParam(value = "title", required = true) title: String,
             @RequestParam(value = "imageId", required = true) imageId: String,
+            @RequestParam(value = "productInfo", required = false) productInfo: String,
             eucc: EchoedUserClientCredentials) = {
 
         log.debug("Updating story {} for {}", storyId, eucc)
@@ -86,7 +87,8 @@ class StoryController extends EchoedController {
                 eucc,
                 storyId,
                 title,
-                imageId)).onSuccess {
+                imageId,
+                Option(productInfo))).onSuccess {
             case UpdateStoryResponse(_, Right(story)) =>
                 log.debug("Successfully updated story {} for {}", storyId, eucc)
                 result.set(story)
@@ -95,24 +97,19 @@ class StoryController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/{storyId}/tag"), method = Array(RequestMethod.POST))
+    @RequestMapping(value = Array("/{storyId}/community/update"), method = Array(RequestMethod.POST))
     @ResponseBody
-    def tagStory(
-            @PathVariable("storyId") storyId: String,
-            @RequestParam("tagId") tagId: String,
-            eucc: EchoedUserClientCredentials) = {
-
-        log.debug("Tagging Story {} with Tag {}", storyId, tagId)
+    def updateCommunity(
+        eucc: EchoedUserClientCredentials,
+        @RequestParam(value = "communityId", required = true) communityId: String,
+        @PathVariable(value = "storyId") storyId: String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(TagStory(eucc, storyId, tagId)).onSuccess {
-            case TagStoryResponse(_ , Right(tag)) =>
-                log.debug("Successfully added tag {} to story {}", tagId, storyId)
-                result.set(tag)
+        mp(UpdateCommunity(eucc, storyId, communityId)).onSuccess {
+            case UpdateCommunityResponse(_, Right(story)) => result.set(story)
         }
         result
-
     }
 
 
@@ -135,7 +132,8 @@ class StoryController extends EchoedController {
                 storyId,
                 chapterParams.title,
                 chapterParams.text,
-                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]))).onSuccess {
+                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]),
+                Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
             case CreateChapterResponse(_, Right(chapter)) =>
                 log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
                 result.set(chapter)
@@ -165,7 +163,8 @@ class StoryController extends EchoedController {
                 chapterId,
                 chapterParams.title,
                 chapterParams.text,
-                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]))).onSuccess {
+                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]),
+                Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
             case UpdateChapterResponse(_, Right(chapter)) =>
                 log.debug("Successfully updated chapter {} for {}", chapterId, eucc)
                 result.set(chapter)
@@ -227,6 +226,7 @@ class StoryController extends EchoedController {
 class ChapterParams(
             @BeanProperty var title: String,
             @BeanProperty var text: String,
-            @BeanProperty var imageIds: Array[String]) {
-    def this() = this(null, null, null)
+            @BeanProperty var imageIds: Array[String],
+            @BeanProperty var publish: String) {
+    def this() = this(null, null, null, null)
 }

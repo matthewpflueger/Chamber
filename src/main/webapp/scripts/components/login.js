@@ -32,7 +32,6 @@ define(
             },
             login: function(echoedUser){
                 this.properties.echoedUser = echoedUser;
-                console.log(echoedUser);
                 var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', utils.getProfilePhotoUrl(echoedUser));
                 var ui = $('<div id="user-image"></div>').append(image);
                 $("#user-text").text(this.properties.echoedUser.name);

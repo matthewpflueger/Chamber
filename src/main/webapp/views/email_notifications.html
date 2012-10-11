@@ -1,19 +1,26 @@
 {{<email_super}}
-{{$title}}You have new comments on your stories!{{/title}}
+{{$title}}You have new notifications at Echoed.com!{{/title}}
 {{$content}}
     <p>
     {{name}},
     </p>
-    You have new comments on your stories!
+    You have new notifications at Echoed.com!
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="min-height: 250px;">
         {{#notifications}}
         <tr>
             <td style="padding: 10px 10px 10px 40px; color: #111; font-size: 12px;">
                 {{#value}}
-                <p><strong>{{subject}}</strong> {{action}} <strong>{{object}}</strong></p>
-                <a href="{{urls.site}}/#story/{{storyId}}" style="font-weight:bold; color: #4099ff;">
-                    See Comment
-                </a>
+                    <p><strong>{{subject}}</strong> {{action}} <strong>{{object}}</strong></p>
+                    {{#storyId}}
+                        <a href="{{urls.site}}/#story/{{.}}" style="font-weight:bold; color: #4099ff;">
+                            See story
+                        </a>
+                    {{/storyId}}
+                    {{#followerId}}
+                        <a href="{{urls.site}}/#user/{{.}}" style="font-weight:bold; color: #4099ff;">
+                            See stories by {{subject}}
+                        </a>
+                    {{/followerId}}
                 {{/value}}
             </td>
         </tr>

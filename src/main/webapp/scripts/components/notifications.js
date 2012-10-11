@@ -41,12 +41,19 @@ define(
                             self.header.text('New Notifications (' + self.count + ")");
                             if(self.count > 0){
                                 $.each(notifications, function(index, notification){
-                                    var message = "<span class='bold'>" + notification.value.subject + "</span> " + notification.value.action + " <span class='bold'>" + notification.value.object + "</span>";
-                                    self.list.append($('<div></div>')
-                                        .addClass('notification')
-                                        .text(message)
-                                        .attr("href","#story/" + notification.value.storyId)
-                                        .attr("id", notification.id));
+                                    var ntf = $('<div></div>')
+                                            .addClass('notification')
+                                            .append($('<span class="bold"></span>').text(notification.value.subject))
+                                            .append($('<span></span>').text(" " + notification.value.action + " "))
+                                            .append($('<span class="bold"></span>').text(notification.value.object))
+                                            .attr("id", notification.id);
+
+                                    if (notification.value.storyId !== undefined)
+                                        ntf.attr("href", "#story/" + notification.value.storyId)
+                                    else if (notification.value.followerId !== undefined)
+                                        ntf.attr("href", "#user/" + notification.value.followerId)
+
+                                    self.list.append(ntf)
                                 });
                             } else {
                                 self.text.addClass("off");

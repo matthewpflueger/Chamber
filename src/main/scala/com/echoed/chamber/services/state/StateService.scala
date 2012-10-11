@@ -9,7 +9,7 @@ import Scalaz._
 import com.echoed.chamber.services.echoeduser._
 import java.util.Date
 import com.echoed.util.DateUtils._
-import com.echoed.chamber.services.state.schema.{Schedule, EchoedUserSettings, Notification}
+import com.echoed.chamber.services.state.schema._
 import scala.Left
 import com.echoed.chamber.services.echoeduser.EchoedUserUpdated
 import scala.Right
@@ -22,6 +22,7 @@ import com.echoed.chamber.services.scheduler.{ScheduleDeleted, ScheduleCreated}
 import com.echoed.util.TransactionUtils._
 import com.echoed.chamber.services.partneruser.PartnerUserUpdated
 import StateUtils._
+import com.echoed.util.UUID
 
 
 class StateService(
@@ -42,6 +43,18 @@ class StateService(
             (from(echoedUserSettings)(eus => where(eus.echoedUserId === eu.id) select(eus))).single.convertTo(eu)
     }
 
+    def readFollowingUsers(eu: Option[EchoedUser]) =
+        eu
+            .map(eu => (from(followers)(f => where(f.ref === "EchoedUser" and f.echoedUserId === eu.id) select(f))).toList)
+            .map(_.map(f => echoedUsers.lookup(f.refId).map(f.convertTo(_))).filter(_.isDefined).map(_.get))
+            .getOrElse(List[echoeduser.Follower]())
+
+    def readFollowedByUsers(eu: Option[EchoedUser]) =
+        eu
+            .map(eu => (from(followers)(f => where(f.ref === "EchoedUser" and f.refId === eu.id) select(f))).toList)
+            .map(_.map(f => echoedUsers.lookup(f.echoedUserId).map(f.convertTo(_))).filter(_.isDefined).map(_.get))
+            .getOrElse(List[echoeduser.Follower]())
+
 
     override def preStart() {
         super.preStart()
@@ -58,9 +71,11 @@ class StateService(
             val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
             val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
             val nf = readNotifications(eu)
+            val fus = readFollowingUsers(eu)
+            val fbu = readFollowedByUsers(eu)
 
             eu.cata(
-                _ => sender ! ReadForEmailResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf))),
+                _ => sender ! ReadForEmailResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf, fus, fbu))),
                 sender ! ReadForEmailResponse(msg, Left(EchoedUserNotFound(email))))
 
 
@@ -70,8 +85,10 @@ class StateService(
                 val fu = Option(eu.facebookUserId).flatMap(facebookUsers.lookup(_))
                 val tu = Option(eu.twitterUserId).flatMap(twitterUsers.lookup(_))
                 val nf = readNotifications(Option(eu))
+                val fus = readFollowingUsers(Option(eu))
+                val fbu = readFollowedByUsers(Option(eu))
 
-                context.sender ! ReadForCredentialsResponse(msg, Right(EchoedUserServiceState(eu, eus, fu, tu, nf)))
+                context.sender ! ReadForCredentialsResponse(msg, Right(EchoedUserServiceState(eu, eus, fu, tu, nf, fus, fbu)))
             }
 
 
@@ -81,9 +98,11 @@ class StateService(
             val eus = readEchoedUserSettings(eu)
             val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
             val nf = readNotifications(eu)
+            val fus = readFollowingUsers(eu)
+            val fbu = readFollowedByUsers(eu)
 
             fu.cata(
-                _ => context.sender ! ReadForFacebookUserResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf))),
+                _ => context.sender ! ReadForFacebookUserResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf, fus, fbu))),
                 context.sender ! ReadForFacebookUserResponse(msg, Left(FacebookUserNotFound(facebookUser))))
 
 
@@ -93,9 +112,11 @@ class StateService(
             val eus = readEchoedUserSettings(eu)
             val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
             val nf = readNotifications(eu)
+            val fus = readFollowingUsers(eu)
+            val fbu = readFollowedByUsers(eu)
 
             tu.cata(
-                _ => context.sender ! ReadForTwitterUserResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf))),
+                _ => context.sender ! ReadForTwitterUserResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf, fus, fbu))),
                 context.sender ! ReadForTwitterUserResponse(msg, Left(TwitterUserNotFound(twitterUser))))
 
 
@@ -122,8 +143,14 @@ class StateService(
 
 
         case NotificationCreated(notification) => notifications.insert(Notification(notification))
-
         case NotificationUpdated(notification) => notifications.update(Notification(notification.copy(updatedOn = new Date)))
+
+
+        case FollowerCreated(echoedUserId, follower) =>
+            followers.insert(schema.Follower(UUID(), new Date, new Date, "EchoedUser", follower.echoedUserId, echoedUserId))
+
+        case FollowerDeleted(echoedUserId, follower) =>
+            followers.deleteWhere(f => f.ref === "EchoedUser" and f.refId === follower.echoedUserId and f.echoedUserId === echoedUserId)
 
 
         case msg: ReadSchedulerServiceState =>
@@ -133,7 +160,6 @@ class StateService(
 
 
         case ScheduleCreated(schedule) => schedules.insert(Schedule(schedule))
-
         case ScheduleDeleted(schedule) => schedules.delete(from(schedules)(s => where(s.id === schedule.id) select(s)))
 
 
@@ -188,6 +214,10 @@ class StateService(
         case StoryCreated(storyState) => stories.insert(domain.Story(storyState))
         case StoryUpdated(storyState) => stories.update(domain.Story(storyState))
         case StoryTagged(storyState, _, _) => stories.update(domain.Story(storyState))
+
+        case VoteUpdated(_, vote) => votes.update(vote)
+        case VoteCreated(_, vote) => votes.insert(vote)
+
         case ChapterCreated(_, c, ci) =>
             chapters.insert(c)
             ci.map(chapterImages.insert(_))

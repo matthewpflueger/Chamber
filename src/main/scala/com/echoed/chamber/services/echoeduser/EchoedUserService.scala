@@ -99,6 +99,8 @@ class EchoedUserService(
     private var facebookUser: Option[FacebookUser] = None
     private var twitterUser: Option[TwitterUser] = None
     private var notifications = Stack[Notification]()
+    private var followingUsers = List[Follower]()
+    private var followedByUsers = List[Follower]()
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
@@ -200,6 +202,8 @@ class EchoedUserService(
         twitterUser = euss.twitterUser
         facebookUser = euss.facebookUser
         notifications = euss.notifications
+        followingUsers = euss.followingUsers
+        followedByUsers = euss.followedByUsers
     }
 
     override def preStart() {
@@ -617,11 +621,55 @@ class EchoedUserService(
             if (!toEmail.isEmpty)
                 mp(SendEmail(
                     echoedUser.email,
-                    "%s, you have new comments on your stories!" format echoedUser.name,
+                    "%s, you have new notifications on Echoed.com!" format echoedUser.name,
                     "email_notifications", Map( "notifications" -> toEmail.toList,
                                                 "name" -> echoedUser.name)
                 ))
 
+
+        case msg: ListFollowingUsers => sender ! ListFollowingUsersResponse(msg, Right(followingUsers))
+        case msg: ListFollowedByUsers => sender ! ListFollowedByUsersResponse(msg, Right(followedByUsers))
+
+        case msg @ FollowUser(eucc, followerId) if (eucc.echoedUserId != followerId) =>
+            mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser, msg, Option(context.sender)), self)
+
+        case AddFollowerResponse(AddFollower(_, _, msg, Some(s)), Right(eu)) =>
+            followingUsers = Follower(eu.id, eu.name, Option(eu.facebookId), Option(eu.twitterId)) :: followingUsers
+            s ! FollowUserResponse(msg, Right(true))
+            ep(FollowerCreated(echoedUser.id, followingUsers.head))
+
+        case msg @ AddFollower(eucc, eu, _, _) =>
+            sender ! AddFollowerResponse(msg, Right(echoedUser))
+            followedByUsers = Follower(eu.id, eu.name, Option(eu.facebookId), Option(eu.twitterId)) :: followedByUsers
+            mp(RegisterNotification(eucc, new Notification(
+                echoedUser.id,
+                eu,
+                "follower",
+                Map(
+                    "subject" -> eu.name,
+                    "action" -> "is following",
+                    "object" -> "you",
+                    "followerId" -> eu.id))))
+
+        case msg @ UnFollowUser(_, followingUserId) =>
+            val (fu, fus) = followingUsers.partition(_.echoedUserId == followingUserId)
+            followingUsers = fus
+            fu.headOption.map { f =>
+                mp(RemoveFollower(EchoedUserClientCredentials(f.echoedUserId), echoedUser))
+                ep(FollowerDeleted(echoedUser.id, f))
+            }
+            sender ! UnFollowUserResponse(msg, Right(true))
+
+        case msg @ RemoveFollower(_, eu) =>
+            followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
+            sender ! RemoveFollowerResponse(msg, Right(true))
+
+        case NotifyFollowers(_, notification) =>
+            followedByUsers.foreach { f =>
+                mp(RegisterNotification(
+                    EchoedUserClientCredentials(f.echoedUserId),
+                    new Notification(f.echoedUserId, echoedUser, notification.category, notification.value)))
+            }
 
         case RegisterStory(story) =>
             activeStories.put(StoryId(story.id), sender)
@@ -635,6 +683,10 @@ class EchoedUserService(
         case msg: CreateStory =>
             //create a fresh actor for non-echo related stories
             context.watch(storyServiceCreator(context, msg, echoedUser)).forward(msg)
+
+        case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
+            mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value))
+            sender ! VoteStoryResponse(msg, Right(true))
 
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
             val me = self
@@ -651,7 +703,7 @@ class EchoedUserService(
                     CreateCommentResponse(msg, ncr.value)
                 }.pipeTo(context.sender)
 
-        case msg @ CreateChapter(eucc, storyId, _, _, _) =>
+        case msg @ CreateChapter(eucc, storyId, _, _, _, _) =>
             forwardToStory(msg, StoryId(storyId))
             self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
 

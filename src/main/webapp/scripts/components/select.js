@@ -17,8 +17,7 @@ define(
                 this.render();
             },
             events: {
-                "mouseenter" : "open",
-                "mouseleave" : "close",
+                "mouseleave": "close",
                 "click .field-question-label" : "click",
                 "click .field-question-option" : "selectOption",
                 "keyup :input": "keyPress"
@@ -28,7 +27,7 @@ define(
             },
             render: function(){
                 var self = this;
-                self.input = $("<input type='text'>");
+                self.input = $("<input type='text' class='field-text-input'>");
 
                 self.label = $("<div class='field-question-label'></div>");
                 self.downArrow = $("<div class='downarrow'></div>");
@@ -72,8 +71,9 @@ define(
                 this.optionsList.hide();
                 if(this.input.val() === this.defaultTopic){
                     this.input.val("");
-                    this.input.select();
+
                 }
+                this.input.select();
             },
             open: function(){
                 this.openState = true;

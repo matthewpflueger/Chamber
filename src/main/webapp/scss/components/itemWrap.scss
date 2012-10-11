@@ -1,9 +1,32 @@
 .item_wrap{
-    border: 1px solid rgba(155,155,155, 0.5);
-    z-index :1;
-    float:left;
     margin:5px;
+    float:left;
+    &.item-story{
+        width: 286px;
+    }
+}
+
+.item_content{
+    border: 1px solid rgba(90, 90, 90, 0.5);
+    z-index :1;
     padding: 7px;
     background-color: #FFF;
     position:relative;
+    cursor: pointer;
+}
+
+.community{
+    width: 270px;
+    float: left;
+    border: 1px solid rgba(90, 90, 90, 0.5);
+    @include fontTextBold(18px);
+    display: block;
+    cursor: pointer;
+    height: 40px;
+    line-height: 40px;
+    text-decoration: none;
+    &:hover{
+        border-color: #000;
+    }
+
 }

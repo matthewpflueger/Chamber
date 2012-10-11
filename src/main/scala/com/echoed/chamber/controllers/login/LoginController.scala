@@ -24,12 +24,22 @@ import com.echoed.chamber.controllers.interceptors.Secure
 class LoginController extends EchoedController with FormController {
 
     @RequestMapping(method = Array(RequestMethod.GET))
-    def loginGet = new ModelAndView(v.loginEmailView, "loginForm", new LoginForm())
+    def loginGet(
+            @RequestParam(value = "r", required = false) r: String,
+            response: HttpServletResponse,
+            request: HttpServletRequest) = {
+
+        val modelAndView = new ModelAndView(v.loginEmailView, "loginForm", new LoginForm())
+        Option(r).map { modelAndView.addObject("redirect", _) }
+        modelAndView
+
+    }
 
     @RequestMapping(method = Array(RequestMethod.POST))
     def loginPost(
             @Valid lf: LoginForm,
             bindingResult: BindingResult,
+            @RequestParam (value = "r", required = false) r: String,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
@@ -40,14 +50,14 @@ class LoginController extends EchoedController with FormController {
         } else {
 
             val result = new DeferredResult(errorModelAndView)
-
+            val view = Option(r).map { redirect => "redirect:%s/%s" format (v.secureSiteUrl, redirect) }.getOrElse("redirect:%s" format v.siteUrl)
             mp(LoginWithEmailPassword(lf.email, lf.password)).onSuccess {
                 case LoginWithEmailPasswordResponse(_, Left(e)) =>
                     errorModelAndView.addError(e)
                     result.set(errorModelAndView)
                 case LoginWithEmailPasswordResponse(_, Right(echoedUser)) =>
                     cookieManager.addEchoedUserCookie(response, echoedUser, request)
-                    result.set(new ModelAndView("redirect:%s" format v.siteUrl))
+                    result.set(new ModelAndView(view))
             }
 
             result
@@ -56,12 +66,21 @@ class LoginController extends EchoedController with FormController {
 
 
     @RequestMapping(value = Array("/register"), method = Array(RequestMethod.GET))
-    def registerGet = new ModelAndView(v.loginRegisterView, "loginRegisterForm", new LoginRegisterForm())
+    def registerGet(
+        @RequestParam(value = "r", required = false) r: String,
+        response: HttpServletResponse,
+        request: HttpServletRequest) = {
+
+        val modelAndView = new ModelAndView(v.loginRegisterView, "loginRegisterForm", new LoginRegisterForm())
+        Option(r).map { modelAndView.addObject("redirect", _) }
+        modelAndView
+    }
 
     @RequestMapping(value = Array("/register"), method = Array(RequestMethod.POST))
     def registerPost(
             @Valid lrf: LoginRegisterForm,
             bindingResult: BindingResult,
+            @RequestParam(value = "r", required = false) r: String,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
@@ -72,14 +91,14 @@ class LoginController extends EchoedController with FormController {
         } else {
 
             val result = new DeferredResult(errorModelAndView)
-
+            val view = Option(r).map { redirect => "redirect:%s/%s" format (v.secureSiteUrl, redirect) }.getOrElse("redirect:%s" format v.siteUrl)
             mp(RegisterLogin(lrf.name, lrf.email, lrf.password)).onSuccess {
                 case RegisterLoginResponse(_, Left(e)) =>
                     errorModelAndView.addError(e)
                     result.set(errorModelAndView)
                 case RegisterLoginResponse(_, Right(echoedUser)) =>
                     cookieManager.addEchoedUserCookie(response, echoedUser, request)
-                    result.set(new ModelAndView("redirect:%s" format v.siteUrl))
+                    result.set(new ModelAndView(view))
             }
 
             result

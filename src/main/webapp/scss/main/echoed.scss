@@ -17,6 +17,7 @@
 @import "categoryList";
 @import "static";
 @import "menu";
+@import "title";
 
 
 html{
@@ -66,15 +67,6 @@ h3{
         right: 0px;
         height: 40px;
         background: #ffffff; /* Old browsers */
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2YzZjNmMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUxJSIgc3RvcC1jb2xvcj0iI2VkZWRlZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZmZmZmYiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-        background: -moz-linear-gradient(top,  #ffffff 0%, #f3f3f3 50%, #ededed 51%, #ffffff 100%); /* FF3.6+ */
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(50%,#f3f3f3), color-stop(51%,#ededed), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
-        background: -webkit-linear-gradient(top,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-linear-gradient(top,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* Opera 11.10+ */
-        background: -ms-linear-gradient(top,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* IE10+ */
-        background: linear-gradient(to bottom,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-8 */
         @include dropShadowDown;
 
         #logo{
@@ -157,39 +149,20 @@ h3{
 }
 
 #content{
-    padding: 50px 0px;
+    padding: 55px 0px;
     margin-right: 180px;
-}
-
-#title-container{
-    text-align: center;
-    #title{
-        width: 600px;
-        margin: 5px auto;
-        padding: 10px;
-        #title-text{
-            text-align: center;
-            @include fontHeader(36px);
-            text-shadow: 0px 1px 0px #FFF;
-        }
-        #title-description{
-            @include fontText(16px);
-            text-shadow: 0px 1px 0px #FFF;
-            text-align: center;
-        }
-    }
-
 }
 
 #nav-container{
     position:fixed;
     right:0px;
-    top: 40px;
+    top: 22px;
     width: 180px;
     height: 100%;
     min-height: 600px;
     background-color: #F0F0F0;
     border-left: 1px solid #999;
+    z-index: 10;
 
     .nav-label{
         margin: 5px 10px 0px 10px;
@@ -200,13 +173,23 @@ h3{
         text-align: left;
     }
 
+    #header-nav{
+        margin-top: 40px;
+    }
+
     #header-nav, #footer-nav, #help-nav{
+        ul{
+            border-top: 1px solid #FFF;
+            box-shadow: 0px -1px #CCC;
+        }
         li{
-            margin-left: 10px;
-            padding: 5px;
+            padding: 10px 20px;
+            @include fontTextBold(14px);
             list-style:none;
             cursor: pointer;
             text-shadow: 0px 1px 0px #FFF;
+            border-bottom: 1px solid #CCC;
+            box-shadow: 0px 1px #FFF;
         }
         li:hover, .current{
             color: $colorEC;
@@ -253,16 +236,6 @@ h3{
         @include fontText(12px, #FFF);
     }
 
-    .item_wrap{
-        border: 1px solid rgba(90, 90, 90, 0.5);
-        z-index :1;
-        float:left;
-        margin:5px;
-        padding: 7px;
-        background-color: #FFF;
-        position:relative;
-    }
-
     .item_text{
         padding: 5px;
         line-height: 1.5em;
@@ -276,16 +249,14 @@ h3{
     }
 
     .friend{
-        width: 230px;
-        height: 50px;
-        float:left;
-        margin: 5px;
+        width: 270px;
         background-color: #FFF;
-        border: 1px solid #CCC;
+        float:left;
+
         &:hover{
-            border-color: #000 !important;
-            cursor: pointer;
+            border: 1px solid #000;
         }
+
         img{
             width: 50px;
             height: 50px;
@@ -296,18 +267,18 @@ h3{
             padding-left: 10px;
             line-height: 50px;
             width: 170px;
+            @include fontTextBold(14px);
         }
     }
 }
 
 #actions{
-    margin: 20px 5px;
-    text-align:center;
+    padding: 5px;
+    position: absolute;
+    right: 225px;
     .action-button{
         cursor: pointer;
-        @include fontTextBold(12px, #FFF);
-        @include button();
-        display: block;
+        @include shareButton();
     }
 }
 

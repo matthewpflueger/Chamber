@@ -5,7 +5,7 @@
         <div id="register-form" class="login-form">
             <div class="login-form-title">Create Your Account</div>
             {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
-            <form action="{{urls.site}}/login/register" method="POST">
+            <form action="{{urls.site}}/login/register{{#redirect}}?r={{.}}{{/redirect}}" method="POST">
                 <div class="login-form-row">
                     <input placeholder="Name" id="name" name="name" type="text" />
                     <label for="name">{{errors.loginRegisterForm.name}}</label>

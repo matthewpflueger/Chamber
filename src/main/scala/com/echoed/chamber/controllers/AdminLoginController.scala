@@ -54,7 +54,7 @@ class AdminLoginController extends EchoedController {
                             response,
                             adminUser,
                             request)
-                    result.set(new ModelAndView(v.adminDashboardView))
+                    result.set(new ModelAndView(v.adminDashboardUrl))
             }
 
             result

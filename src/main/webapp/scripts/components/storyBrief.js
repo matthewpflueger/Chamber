@@ -19,80 +19,84 @@ define(
                 this.render();
             },
             events: {
-                "click .story-brief-image-container" : "click",
+                "click .item_content": "click",
                 "mouseenter": "showOverlay",
                 "mouseleave": "hideOverlay"
             },
             render: function(){
                 var self = this;
-                var template = _.template(templateStoryBrief);
-                self.element.html(template);
-                var imageNode = self.element.find(".story-brief-image");
+                self.element.addClass('item-story');
                 var textNode = self.element.find(".story-brief-text");
-                var overlayNode = self.element.find(".story-brief-overlay-wrap");
-                self.overlay = self.element.find(".story-brief-overlay");
-                var image = self.data.story.image;
-                if(image.preferredUrl !== null){
-                    imageNode.attr("src", image.preferredUrl).css(utils.getImageSizing(image, 260));
-                } else {
-                    imageNode.attr("src", image.url)
-                }
+
                 if(self.data.chapters.length > 0){
-                    if(self.properties.echoedUser !== undefined){
-                        if(self.data.echoedUser.id === Echoed.echoedUser.id){
-                            textNode.append("<a class='red-link underline' href='#write/story/" + self.data.story.id + "'>Edit Story</a>");
-                        }
-                    }
-                    textNode.append($("<img class='story-brief-text-user-image' height='35px' width='35px' align='absmiddle'/>").attr("src", utils.getProfilePhotoUrl(self.data.echoedUser)));
-                    textNode.append($("<div class='story-brief-text-title'></div>").text(self.data.story.title));
-                    textNode.append($("<div class='story-brief-text-by'></div>").text("Story by ").append($("<a class='link-black story-brief-text-user'></a>").attr("href",'#user/' + self.data.echoedUser.id).text(self.data.echoedUser.name)));
-//                    textNode.append($("<div class='story-brief-text-by'></div>").append("Story by <a class='link-black story-brief-text-user' href='#user/" + self.data.echoedUser.id + "'>" + self.data.echoedUser.name + "</a>"));
                     var chapterText = self.data.chapters[0].text;
-                    var c  = chapterText.split(/[.!?]/)[0];
-                    c = c + chapterText.substr(c.length, 1); //Append Split Character
-                    textNode.prepend($("<div class='story-brief-text-quote'></div>").text(c));
-                    overlayNode.text(self.data.story.title);
-                    var dateString = self.data.story.updatedOn.toString();
-                    var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(dateString));
+                    if(self.data.story.imageId !== null){
+                        var c  = chapterText.split(/[.!?]/)[0];
+                        c = c + chapterText.substr(c.length, 1); //Append Split Character
+                        self.data.chapterText = c;
+                    } else {
+                        var len = 200;
+                        if(chapterText.length > len){
+                            c = chapterText.substr(len).split(/[.!?]/)[0];
+                            c = chapterText.substr(0, len) + c + chapterText.substr(len +c.length, 1);
+                            self.data.chapterText = c;
+                        } else {
+                            self.data.chapterText = chapterText;
+                        }
 
-                    var indicators = $("<div class='story-brief-indicator'></div>");
+                    }
 
-                    indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-comment'));
-                    indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.comments.length));
-                    indicators.append($("<span class='story-brief-indicator-sprite'></span>").addClass('sprite-photo'));
-                    indicators.append($("<span class='story-brief-indicator-value'></span>").text(self.data.chapterImages.length + 1));
-                    indicators.append($("<span class='s-b-i-c'></span>").text(elapsedString));
-
-                    textNode.append(indicators);
 
                 } else {
-                    if(self.personal === true ) {
-                        textNode.append("<strong></strong>").text(self.data.story.title).append("<br/>");
-                        textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
-                        if(self.data.chapters.length === 0 ){
-                            var editButton = $('<div></div>').addClass("story-brief-overlay-edit-button").text("Complete Story");
-                            overlayNode.append(editButton);
-                            overlayNode.append("<br/>Complete your story by adding a chapter");
-                            self.overlay.fadeIn();
-                        }
-                        self.element.attr('action','write');
+                    textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
+                    self.data.chapterText = "";
+                }
+
+                var dateString = self.data.story.updatedOn.toString();
+                self.data.elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(dateString));
+                self.data.profilePhotoUrl = utils.getProfilePhotoUrl(self.data.echoedUser);
+                var template = _.template(templateStoryBrief, self.data);
+                self.element.html(template);
+
+                self.imageContainer = self.element.find('.story-brief-image-container');
+                self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));
+                var image = self.data.story.image;
+                var imageNode = self.element.find(".story-brief-image");
+                if(image !== null){
+                    self.data.storyImage = {
+                        url: image.preferedUrl,
+                        size: utils.getImageSizing(image, 260)
+                    };
+                    imageNode.attr('src', image.preferredUrl).css(utils.getImageSizing(image,260))
+                } else{
+                    //self.element.find('.story-brief-text-quote').addClass('large');
+                    self.imageContainer.hide();
+                }
+
+
+                if(self.properties.echoedUser !== undefined){
+                    if(self.data.echoedUser.id === Echoed.echoedUser.id){
+                        self.element.find('.story-brief-edit').show();
                     }
                 }
+
                 self.element.attr("id", self.data.story.id);
             },
             showOverlay: function(){
-                this.overlay.fadeIn();
+                this.imageContainer.addClass('highlight');
             },
             hideOverlay: function(){
-                this.overlay.fadeOut();
+                this.imageContainer.removeClass('highlight');
             },
-            click: function(){
+            click: function(ev){
                 var self = this;
-                var id = self.element.attr("id");
-                if(self.element.attr('action') === "write"){
-                    window.location.hash = "#!write/story/" + self.data.story.id;
-                } else {
-                    window.location.hash = "#!story/" + self.data.story.id;
+                var target = $(ev.target);
+                if(!target.is('a')){
+                    if(self.data.chapters.length > 0){
+                        window.location.hash = "#!story/" + self.data.story.id;
+                    } else {
+                        window.location.hash = "#!write/story/" + self.data.story.id;
+                    }
                 }
             }
         });
