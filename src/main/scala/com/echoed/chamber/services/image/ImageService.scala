@@ -209,7 +209,7 @@ class ImageService(
                 imageDao.insert(image)
                 channel ! StartProcessImageResponse(msg, Right(image))
                 (me ? ProcessImage(Left(image))).onComplete(_.fold(
-                    log.error("Error processing image {}: {}", msg, _),
+                    log.debug("Problem processing image {}: {}", msg, _),
                     log.debug("Successfully processed image {}", _)))
             } catch {
                 case e =>
