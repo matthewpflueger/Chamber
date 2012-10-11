@@ -14,7 +14,6 @@ import com.echoed.util.mustache.MustacheEngine
 import com.echoed.chamber.dao.views.{AdminViewDao, ClosetDao, FeedDao}
 import com.echoed.chamber.dao.partner.{PartnerUserDao, PartnerSettingsDao, PartnerDao}
 import com.echoed.chamber.services.feed.{FeedMessage, FeedService}
-import com.echoed.chamber.services.tag.{TagMessage, TagService}
 import dispatch.Http
 import com.echoed.chamber.services.facebook._
 import com.echoed.cache.CacheManager
@@ -64,8 +63,6 @@ class ServiceConfig {
     @Resource(name = "feedDao") var feedDao: FeedDao = _
     @Resource(name = "partnerDao") var partnerDao: PartnerDao = _
     @Resource(name = "echoedUserDao") var echoedUserDao: EchoedUserDao = _
-
-    @Resource(name = "tagDao") var tagDao: TagDao = _
 
     @Resource(name = "facebookAccessProperties") var facebookAccessProperties: Properties = _
 
@@ -147,11 +144,6 @@ class ServiceConfig {
             echoedUserDao,
             messageProcessor,
             eventProcessor)), "FeedService")
-
-    @Bean
-    def tagService = (ac: ActorContext) => ac.actorOf(Props(new TagService(
-            eventProcessor,
-            tagDao)), "TagService")
 
     @Bean
     def facebookAccess = (ac: ActorContext) => ac.actorOf(Props(new FacebookAccess(
@@ -489,8 +481,7 @@ class ServiceConfig {
             classOf[ShopifyPartnerMessage] -> shopifyPartnerServiceManager,
             classOf[NetworkSolutionsPartnerMessage] -> networkSolutionsPartnerServiceManager,
             classOf[BigCommercePartnerMessage] -> bigCommercePartnerServiceManager,
-            classOf[MagentoGoPartnerMessage] -> magentoGoPartnerServiceManager,
-            classOf[TagMessage] -> tagService)
+            classOf[MagentoGoPartnerMessage] -> magentoGoPartnerServiceManager)
 
     def messageRouter = actorSystem.actorOf(Props.default.withRouter(new MessageRouter(routeMap)), "Services")
 

@@ -14,14 +14,13 @@ import scala.Left
 import com.echoed.chamber.services.state.FindAllStoriesResponse
 import com.echoed.chamber.services.event.WidgetStoryOpened
 import com.echoed.chamber.services.event.WidgetOpened
-import com.echoed.chamber.domain.views.PublicStoryFeed
-import com.echoed.chamber.domain.views.EchoedUserStoryFeed
+import com.echoed.chamber.domain.views.{CommunityFeed, PublicStoryFeed, EchoedUserStoryFeed, PartnerStoryFeed}
 import com.echoed.chamber.domain.public.StoryPublic
-import com.echoed.chamber.domain.views.PartnerStoryFeed
 import scala.Right
 import com.echoed.chamber.services.state.FindAllStories
 import com.echoed.chamber.domain.public.EchoedUserPublic
 import com.echoed.chamber.domain.public.PartnerPublic
+import com.echoed.chamber.domain.Community
 
 
 class FeedService(
@@ -51,16 +50,33 @@ class FeedService(
         }
     }
 
-    val storyMap = HashMap.empty[String, StoryPublic]
 
+
+    val storyMap = HashMap.empty[String, StoryPublic]
     var storyTree = new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
+
+    var communityTree = new TreeMap[String, Community]()
 
     def updateStory(storyFull: StoryPublic) {
 
         storyMap.get(storyFull.id).map { s =>
             topStoryTree -= ((s.comments.length + s.chapterImages.length, s.story.id))
             storyTree -= ((s.story.updatedOn, s.story.id))
+
+            if(s.isPublished && !s.isEchoedModerated && s.story.community != null && s.story.community != ""){
+                val c2 = communityTree.get(s.story.community).map {
+                    c => {
+                        communityTree += (c.id -> c.copy(counter = c.counter - 1))
+                    }
+                }
+            }
+        }
+
+        if(storyFull.isPublished && !storyFull.isEchoedModerated && storyFull.story.community != null && storyFull.story.community != ""){
+            val community = communityTree.get(storyFull.story.community)
+                .getOrElse(new Community(storyFull.story.community, 0, true))
+            communityTree += (community.id -> community.copy(counter = community.counter + 1))
         }
 
         storyMap += (storyFull.id -> storyFull)
@@ -70,7 +86,6 @@ class FeedService(
             topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
         }
     }
-
 
     override def preStart() {
         super.preStart()
@@ -83,6 +98,17 @@ class FeedService(
             updateStory(new StoryPublic(msg.story.asStoryFull.get))
 
         case FindAllStoriesResponse(_, Right(all)) => all.map(s => updateStory(new StoryPublic(s.asStoryFull.get)))
+
+        case msg @ GetCommunities() =>
+            val channel = context.sender
+            try {
+                val communities = communityTree.values.toList
+                channel ! GetCommunitiesResponse(msg, Right(new CommunityFeed(communities)))
+            } catch {
+                case e =>
+                    channel ! GetCommunitiesResponse(msg, Left(new FeedException("Cannot Get Communities", e)))
+                    log.error("Unexpected error processing {}, {}", msg, e)
+            }
 
         case msg @ GetPublicStoryFeed(page: Int) =>
             val channel = context.sender
@@ -113,7 +139,7 @@ class FeedService(
             try {
                 log.debug("Attempting to retrieve Stories for Category: {}", catId)
                 val stories = storyTree.values.filter { s =>
-                    !s.isEchoedModerated && Option(s.story.tag).map(_.toLowerCase == catId).getOrElse(false)
+                    !s.isEchoedModerated && Option(s.story.community).map(_.toLowerCase == catId).getOrElse(false)
                 }.toList
                 log.debug("Stores Tagged: {}", stories)
                 val nextPage = {

@@ -25,10 +25,10 @@ define(
                 return size;
             },
             getLoginRedirectUrl: function(){
-                return "login/register?r=" + encodeURIComponent(window.location.hash);
+                return "login?r=" + encodeURIComponent(window.location.hash);
             },
             getSignUpRedirectUrl: function(){
-                return "login?r=" + encodeURIComponent(window.location.hash);
+                return "login/register?r=" + encodeURIComponent(window.location.hash);
             },
             getFacebookLoginUrl: function(hash){
                 return Echoed.facebookLogin.head +

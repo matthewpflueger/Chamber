@@ -259,13 +259,15 @@ class UserController extends EchoedController {
     @RequestMapping(value = Array("/tags"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getTagList(
-            @RequestParam(value = "tagId", required = false, defaultValue = "") tagId: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin : String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(GetTags(tagId)).onSuccess {
-            case GetTagsResponse(_, Right(tags)) => result.set(tags)
+        mp(GetCommunities()).onSuccess {
+            case GetCommunitiesResponse(_, Right(communities)) =>
+                log.debug("Communities Returned: {}", communities)
+                result.set(communities)
+
         }
 
         result
@@ -292,27 +294,17 @@ class UserController extends EchoedController {
     }
 
 
-    @RequestMapping(value = Array("/tags/add"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/community/update"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def addTag(@RequestParam(value = "tagId", required = true) tagId: String) = {
+    def updateCommunity(
+        eucc: EchoedUserClientCredentials,
+        @RequestParam(value = "communityId", required = true) communityId: String,
+        @RequestParam(value = "storyId", required = true) storyId: String) = {
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(AddTag(tagId)).onSuccess {
-            case AddTagResponse(_, Right(tag)) => result.set(tag)
+        mp(UpdateCommunity(eucc, storyId, communityId)).onSuccess {
+            case UpdateCommunityResponse(_, Right(story)) => result.set(story)
         }
-
-        result
-    }
-
-    @RequestMapping(value = Array("/tags/top"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def getTopTag() = {
-        val result = new DeferredResult(ErrorResult.timeout)
-
-        mp(GetTopTags()).onSuccess {
-            case GetTopTagsResponse(_, Right(tags)) => result.set(tags)
-        }
-
         result
     }
 

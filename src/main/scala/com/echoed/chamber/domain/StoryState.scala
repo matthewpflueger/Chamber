@@ -14,7 +14,7 @@ case class StoryState(
         title: String,
         productInfo: String,
         views: Int,
-        tag: String,
+        community: String,
         echoedUser: EchoedUser,
         imageId: String,
         image: Option[Image],
@@ -81,7 +81,7 @@ case class StoryState(
             productInfo,
             views,
             comments.size,
-            tag)
+            community)
 
     def asStoryInfo = StoryInfo(echoedUser, echo.orNull, partner, partnerSettings.makeStoryPrompts, asStoryFull.orNull)
     def asStoryFull =

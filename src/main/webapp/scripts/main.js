@@ -35,12 +35,10 @@ require(
         'components/notifications',
         'components/errorLog',
         'components/actions',
-        'components/categoryList',
-        'components/menu',
         'components/infiniteScroll',
         'components/nav'
     ],
-    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, Fade, PageTitle, Title, Input, Login, MessageHandler, Notifications, ErrorLog, Actions, CategoryList, Menu, InfiniteScroll, Nav){
+    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, Fade, PageTitle, Title, Input, Login, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -130,8 +128,6 @@ require(
             this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
             this.login = new Login({ el: '#user', EvAg: EventAggregator, properties: properties });
             this.notifications = new Notifications({ el: '#notifications-container', EvAg: EventAggregator, properties: properties });
-            this.menu = new Menu({ el: "#menu", EvAg: EventAggregator, properties: properties });
-            this.categoryList = new CategoryList({ el: '#category-nav', EvAg: EventAggregator, properties: properties});
 
             var iFrameNode = document.createElement('iframe');
 
