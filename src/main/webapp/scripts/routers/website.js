@@ -51,7 +51,7 @@ define(
             cList: function(){
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
-                    this.loadPage("communities", { endPoint: "/tags/top", title: "Communities"});
+                    this.loadPage("communities", { endPoint: "/tags", title: "Communities"});
                 }
             },
             explore: function(){

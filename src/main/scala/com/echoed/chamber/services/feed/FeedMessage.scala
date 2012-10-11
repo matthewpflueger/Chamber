@@ -3,6 +3,7 @@ package com.echoed.chamber.services.feed
 import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedException, Message}
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.Community
 
 sealed trait FeedMessage extends Message
 
@@ -48,4 +49,9 @@ case class GetPartnerStoryFeedResponse(
             message: GetPartnerStoryFeed,
             value: Either[FE, PartnerStoryFeed]) extends FM with MR[PartnerStoryFeed, GetPartnerStoryFeed, FE]
 
+
+case class GetCommunities() extends FM
+case class GetCommunitiesResponse(
+            message: GetCommunities,
+            value: Either[FE, CommunityFeed]) extends FM with MR[CommunityFeed,GetCommunities, FE]
 

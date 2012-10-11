@@ -126,11 +126,9 @@ class StoryService(
 
             sender ! NewVoteResponse(msg, Right(storyState.asStory))
 
-        case msg @ TagStory(_, storyId, tag) =>
-            val originalTag = storyState.tag
-            storyState = storyState.copy(tag = tag, updatedOn = new Date)
-            ep(TagReplaced(originalTag, tag))
-            ep(StoryTagged(storyState, originalTag, tag))
+        case msg @ TagStory(_, storyId, community) =>
+            val originalTag = storyState.community
+            storyState = storyState.copy(community = community, updatedOn = new Date)
             sender ! TagStoryResponse(msg, Right(storyState.asStory))
 
 

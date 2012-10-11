@@ -36,7 +36,7 @@ private[state] object StateUtils {
                 s.title,
                 s.productInfo,
                 s.views,
-                s.tag,
+                s.community,
                 eu,
                 s.imageId,
                 img,
