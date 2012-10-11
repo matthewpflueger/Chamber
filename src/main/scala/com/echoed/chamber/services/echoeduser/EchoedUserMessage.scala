@@ -212,14 +212,6 @@ case class CreateStory(
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, CreateStory, EUE]
 
-case class TagStory(
-        credentials: EUCC,
-        storyId: String,
-        tagId: String) extends EUM with EUI with SI
-case class TagStoryResponse(message: TagStory, value: Either[EUE, Story])
-        extends EUM with MR[Story, TagStory, EUE]
-
-
 case class UpdateStory(
         credentials: EUCC,
         storyId: String,
@@ -242,6 +234,13 @@ case class CreateChapter(
 case class CreateChapterResponse(message: CreateChapter, value: Either[EUE, ChapterInfo])
         extends EUM with MR[ChapterInfo, CreateChapter, EUE]
 
+case class UpdateCommunity(
+        credentials: EUCC,
+        storyId: String,
+        communityId: String) extends EUM with EUI with SI
+
+case class UpdateCommunityResponse(message: UpdateCommunity, value: Either[EUE, Story])
+        extends EUM with MR[Story, UpdateCommunity, EUE]
 
 case class UpdateChapter(
         credentials: EUCC,

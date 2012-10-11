@@ -18,7 +18,6 @@ import com.echoed.chamber.services.echoeduser.RegisterStory
 import com.echoed.chamber.services.partner.RequestStory
 import com.echoed.chamber.services.echoeduser.TagStoryResponse
 import com.echoed.chamber.services.echoeduser.CreateStoryResponse
-import com.echoed.chamber.services.tag.TagReplaced
 import com.echoed.chamber.services.echoeduser.UpdateStory
 import com.echoed.chamber.services.echoeduser.InitStoryResponse
 import com.echoed.chamber.services.state.ReadStoryResponse
@@ -126,12 +125,6 @@ class StoryService(
 
             sender ! NewVoteResponse(msg, Right(storyState.asStory))
 
-        case msg @ TagStory(_, storyId, community) =>
-            val originalTag = storyState.community
-            storyState = storyState.copy(community = community, updatedOn = new Date)
-            sender ! TagStoryResponse(msg, Right(storyState.asStory))
-
-
         case msg @ CreateChapter(eucc, storyId, title, text, imageIds, publish) =>
             val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
 
@@ -151,6 +144,10 @@ class StoryService(
             sender ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
             if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc)
 
+        case msg @ UpdateCommunity(eucc, storyId, communityId) =>
+            storyState = storyState.copy(community = communityId)
+            ep(StoryUpdated(storyState))
+            sender ! UpdateCommunityResponse(msg, Right(storyState.asStory))
 
         case msg @ UpdateChapter(eucc, storyId, chapterId, title, text, imageIds, publish) =>
             val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date

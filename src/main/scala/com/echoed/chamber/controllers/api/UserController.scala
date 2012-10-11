@@ -294,16 +294,18 @@ class UserController extends EchoedController {
     }
 
 
-    /*@RequestMapping(value = Array("/tags/add"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/community/update"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def addTag(@RequestParam(value = "tagId", required = true) tagId: String) = {
+    def updateCommunity(
+        eucc: EchoedUserClientCredentials,
+        @RequestParam(value = "communityId", required = true) communityId: String,
+        @RequestParam(value = "storyId", required = true) storyId: String) = {
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(AddCommuni(tagId)).onSuccess {
-            case AddTagResponse(_, Right(tag)) => result.set(tag)
+        mp(UpdateCommunity(eucc, storyId, communityId)).onSuccess {
+            case UpdateCommunityResponse(_, Right(story)) => result.set(story)
         }
-
         result
-    }*/
+    }
 
 }
