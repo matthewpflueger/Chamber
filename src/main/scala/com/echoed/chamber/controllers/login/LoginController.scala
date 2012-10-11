@@ -38,8 +38,8 @@ class LoginController extends EchoedController with FormController {
     @RequestMapping(method = Array(RequestMethod.POST))
     def loginPost(
             @Valid lf: LoginForm,
-            @RequestParam (value = "r", required = false) r: String,
             bindingResult: BindingResult,
+            @RequestParam (value = "r", required = false) r: String,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
@@ -79,8 +79,8 @@ class LoginController extends EchoedController with FormController {
     @RequestMapping(value = Array("/register"), method = Array(RequestMethod.POST))
     def registerPost(
             @Valid lrf: LoginRegisterForm,
-            @RequestParam(value = "r", required = false) r: String,
             bindingResult: BindingResult,
+            @RequestParam(value = "r", required = false) r: String,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
