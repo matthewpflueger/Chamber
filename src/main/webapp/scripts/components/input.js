@@ -27,6 +27,7 @@
                     this.EvAg.bind("user/login", this.login);
                 }
                 this.locked = false;
+                this.imageMap = {};
                 this.prompts = [];
             },
             events: {
@@ -176,11 +177,22 @@
                 var template = _.template(templateStoryCover, story);
                 self.cover.html(template);
 
-                if(story.image !== null) $('<img class="story-summary-photo"/>').attr("height", 50).attr("src", story.image.preferredUrl).appendTo(self.cover.find('.story-input-photo'));
+                if(story.image !== null) {
+                    $('<img class="story-summary-photo"/>').attr("height", 50).attr("src", self.getImageUrl(story.image)).appendTo(self.cover.find('.story-input-photo'));
+                }
                 else self.cover.find('.story-input-photo-row').hide();
                 if(story.productInfo !== null) $('#story-info').show();
                 else $('#story-info').hide();
 
+            },
+            getImageUrl: function(image){
+                if(image.preferredUrl){
+                    return image.preferredUrl;
+                } else if(image.originalUrl){
+                    return image.originalUrl;
+                } else {
+                    return this.imageMap[image.id];
+                }
             },
             loadChapterInputTemplate: function(option){
                 var self = this;
@@ -212,7 +224,7 @@
                                 var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
                                 var thumbX = $('<div></div>').addClass('chapter-thumb-x');
                                 thumbDiv.append(thumbX);
-                                var photo = $('<img />').attr('src', chapterImage.image.preferredUrl).css(utils.getImageSizing(chapterImage.image));
+                                var photo = $('<img />').attr('src', self.getImageUrl(chapterImage.image)).css(utils.getImageSizing(chapterImage.image));
                                 thumbDiv.append(photo).appendTo(self.chapterPhotos).fadeIn();
                                 self.currentChapter.images.push(chapterImage.image.id);
                             }
@@ -232,6 +244,7 @@
                                 var photo = $('<img />').attr('src', response.url);
                                 thumbDiv.append(photo).hide().appendTo(self.chapterPhotos).fadeIn();
                                 self.currentChapter.images.push(response.id);
+                                self.imageMap[response.id] = response.url;
                             }
                         }
                     });
@@ -263,7 +276,7 @@
                     var imagesFound = false;
                     $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                         if(chapterImage.chapterId === chapter.id){
-                            var chapterImg = $('<img class="story-summary-photo"/>').attr("height", 50).attr("src",chapterImage.image.preferredUrl);
+                            var chapterImg = $('<img class="story-summary-photo"/>').attr("height", 50).attr("src",self.getImageUrl(chapterImage.image));
                             photos.append(chapterImg);
                             imagesFound = true
                         }
@@ -317,6 +330,7 @@
                                 $("#story-input-photo").fadeOut().attr("src", response.url).fadeIn();
                                 $('#story-input-imageId').val(response.id);
                                 self.data.imageId = response.id;
+                                self.imageMap[response.id] = response.url;
                             }
                         }
                     });
@@ -441,6 +455,7 @@
             close: function(){
                 var self = this;
                 self.element.fadeOut().empty();
+                self.imageMap = {};
                 self.EvAg.trigger('fade/hide');
                 self.EvAg.trigger('hash/reset');
             }
