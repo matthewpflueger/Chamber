@@ -50,6 +50,8 @@ case class Chapter(
         text = _text,
         publishedOn = 0)
 
+    val isPublished = publishedOn > 0
+
 }
 
 
