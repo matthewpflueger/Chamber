@@ -32,7 +32,7 @@ define(
             },
             login: function(echoedUser){
                 this.properties.echoedUser = echoedUser;
-                var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', utils.getProfilePhotoUrl(echoedUser));
+                var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', utils.getProfilePhotoUrl(echoedUser, self.properties.urls));
                 var ui = $('<div id="user-image"></div>').append(image);
                 $("#user-text").text(this.properties.echoedUser.name);
                 $('#user-list').find('ul').append('<li class="user-list-item" href="logout">Logout</li>');

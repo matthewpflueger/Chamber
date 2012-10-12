@@ -207,9 +207,7 @@
         <property name="loginResetPostView" value="login_reset_post" />
         <property name="loginResetPasswordView" value="login_reset_password" />
 
-        <property name="widgetJsView" value="widget.js"/>
         <property name="widgetAppJsView" value="widget.app.js"/>
-        <property name="widgetIframeView" value="widget.iframe"/>
         <property name="widgetAppIFrameView" value="widget.iframe.app" />
     </bean>
 

@@ -54,7 +54,7 @@ define(
 
                 var dateString = self.data.story.updatedOn.toString();
                 self.data.elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(dateString));
-                self.data.profilePhotoUrl = utils.getProfilePhotoUrl(self.data.echoedUser);
+                self.data.profilePhotoUrl = utils.getProfilePhotoUrl(self.data.echoedUser, self.properties.urls);
                 var template = _.template(templateStoryBrief, self.data);
                 self.element.html(template);
 

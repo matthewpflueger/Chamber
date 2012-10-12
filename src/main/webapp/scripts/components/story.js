@@ -39,7 +39,8 @@ define(
                 "click #story-follow": "followClick",
                 "click #story-login-container": "closeLogin",
                 "click .story-login-button": "loginClick",
-                "click .story-login-email": "loginClick"
+                "click .story-login-email": "loginClick",
+                "click .story-link": "redirect"
             },
             followClick: function(ev){
                 var self = this;
@@ -309,15 +310,16 @@ define(
 
                 self.gallery = self.element.find('.echo-s-b-gallery');
 
-                $('#echo-s-h-t-n-i').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser));
+                $('#echo-s-h-t-n-i').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser, self.properties.urls));
                 $('#story-follow').attr("echoedUserId", self.data.echoedUser.id);
-
+                if(self.properties.isWidget) $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id).attr('target',"_blank");
+                else $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id)
 
                 if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
                     var fromLink = $('<div class="echo-story-from"></div>');
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-                        fromLink.append($('<a class="link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
+                        fromLink.append($('<a class="story-link link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
                         fromLink.append(' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
                     } else if (utils.isUrl(self.data.story.productInfo)){
                         fromLink.append($('<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo));
@@ -462,7 +464,7 @@ define(
                     var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(comment.createdOn.toString()));
                     var elapsedNode = $('<span class="echo-s-c-l-c-d"></span>').append(elapsedString);
                     var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a class='red-link'></a>").text(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
-                    var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", utils.getProfilePhotoUrl(comment.echoedUser)).attr("align", "absmiddle");
+                    var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", utils.getProfilePhotoUrl(comment.echoedUser, self.properties.urls)).attr("align", "absmiddle");
                     img.prependTo(commentUserNode);
                     var commentText = $('<div class="echo-s-c-l-c-t"></div>').html(utils.replaceUrlsWithLink(utils.escapeHtml(comment.text).replace(/\n/g, '<br />')));
                     var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
@@ -509,6 +511,13 @@ define(
             hide: function(){
                 this.element.fadeOut();
                 this.element.empty();
+            },
+            redirect: function(){
+                var self = this;
+                this.element.fadeOut(function(){
+                    self.element.empty();
+                })
+                this.EvAg.trigger('fade/hide');
             },
             close: function(){
                 this.element.fadeOut();
