@@ -207,7 +207,8 @@ class StoryService(
         case msg @ ModerateStory(_, _, Right(aucc), mo) => moderate(msg, aucc.name.get, "AdminUser", aucc.id, mo)
 
         case msg: StoryViewed =>
-            storyState = storyState.copy(views = storyState.views + 1, updatedOn = new Date)
+            //we are not updating the updatedOn on purpose so the FeedService does not push the story to the top :(
+            storyState = storyState.copy(views = storyState.views + 1) /*, updatedOn = new Date) */
             ep(StoryUpdated(storyState))
 
         case msg @ ProcessImageResponse(_, Right(img)) =>
