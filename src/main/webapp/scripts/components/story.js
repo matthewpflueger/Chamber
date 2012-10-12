@@ -312,7 +312,8 @@ define(
 
                 $('#echo-s-h-t-n-i').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser));
                 $('#story-follow').attr("echoedUserId", self.data.echoedUser.id);
-
+                if(self.properties.isWidget) $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id).attr('target',"_blank");
+                else $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id)
 
                 if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
                     var fromLink = $('<div class="echo-story-from"></div>');
