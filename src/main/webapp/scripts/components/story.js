@@ -463,7 +463,7 @@ define(
                 $.each(self.data.comments, function(index,comment){
                     var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(comment.createdOn.toString()));
                     var elapsedNode = $('<span class="echo-s-c-l-c-d"></span>').append(elapsedString);
-                    var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a class='red-link'></a>").text(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
+                    var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a class='story-link red-link'></a>").text(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
                     var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", utils.getProfilePhotoUrl(comment.echoedUser, self.properties.urls)).attr("align", "absmiddle");
                     img.prependTo(commentUserNode);
                     var commentText = $('<div class="echo-s-c-l-c-t"></div>').html(utils.replaceUrlsWithLink(utils.escapeHtml(comment.text).replace(/\n/g, '<br />')));
