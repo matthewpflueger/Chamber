@@ -85,7 +85,6 @@ class StoryService(
 
 
         case msg @ CreateStory(_, title, imageId, _, productInfo, _) =>
-
             imageId.map(id => mp.tell(ProcessImage(Right(id)), self))
 
             storyState = storyState.create(title, productInfo.orNull, imageId.orNull)
@@ -107,7 +106,7 @@ class StoryService(
                     .orElse(Option(new Vote("Story", storyId, byEchoedUser.id, value)))
                     .get
 
-            storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote))
+            storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote), updatedOn = new Date)
             if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
             if (value > 0 && !vote.isUpdated && (eucc.echoedUserId != byEchoedUser.id)) {
                 mp(RegisterNotification(eucc, new Notification(
@@ -185,7 +184,6 @@ class StoryService(
 
             storyState = storyState.copy(
                     comments = storyState.comments ::: List(comment),
-
                     updatedOn = new Date)
             ep(CommentCreated(storyState, comment))
 
