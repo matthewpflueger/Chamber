@@ -9,13 +9,14 @@ define(
                     width: width
                 }
             },
-            getProfilePhotoUrl: function(echoedUser){
+            getProfilePhotoUrl: function(echoedUser, urls){
                 if(echoedUser.facebookId !== null){
                     return "http://graph.facebook.com/" + echoedUser.facebookId + "/picture";
                 } else if(echoedUser.twitterId !== null) {
                     return "http://api.twitter.com/1/users/profile_image/" + echoedUser.twitterId;
+                } else {
+                    return urls.images + "/profile_default.jpg";
                 }
-                return "";
             },
             arraySize: function(array){
                 var size = 0, key;
