@@ -39,7 +39,8 @@ define(
                 "click #story-follow": "followClick",
                 "click #story-login-container": "closeLogin",
                 "click .story-login-button": "loginClick",
-                "click .story-login-email": "loginClick"
+                "click .story-login-email": "loginClick",
+                "click .story-link": "redirect"
             },
             followClick: function(ev){
                 var self = this;
@@ -317,7 +318,7 @@ define(
                     var fromLink = $('<div class="echo-story-from"></div>');
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-                        fromLink.append($('<a class="link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
+                        fromLink.append($('<a class="story-link link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
                         fromLink.append(' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
                     } else if (utils.isUrl(self.data.story.productInfo)){
                         fromLink.append($('<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo));
@@ -509,6 +510,13 @@ define(
             hide: function(){
                 this.element.fadeOut();
                 this.element.empty();
+            },
+            redirect: function(){
+                var self = this;
+                this.element.fadeOut(function(){
+                    self.element.empty();
+                })
+                this.EvAg.trigger('fade/hide');
             },
             close: function(){
                 this.element.fadeOut();
