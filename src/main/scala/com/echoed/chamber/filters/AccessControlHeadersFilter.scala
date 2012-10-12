@@ -20,7 +20,7 @@ class AccessControlHeadersFilter extends Filter {
         response.addHeader("Access-Control-Allow-Methods", "POST, PUT, DELETE, GET, OPTIONS")
         response.addHeader(
                 "Access-Control-Allow-Headers",
-                "Origin, Host, Allow, Accept, Content-Type, X-Real-IP, X-Scheme, X-Forwarded-For")
+                "Origin, Host, Allow, Accept, Content-Type, X-Real-IP, X-Scheme, X-Forwarded-For, Authorization")
         response.addHeader("Access-Control-Allow-Credentials", "true")
 
         chain.doFilter(request, response)
