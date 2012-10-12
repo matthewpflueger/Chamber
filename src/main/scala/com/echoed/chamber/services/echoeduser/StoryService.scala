@@ -124,7 +124,7 @@ class StoryService(
             sender ! NewVoteResponse(msg, Right(storyState.asStory))
 
         case msg @ CreateChapter(eucc, storyId, title, text, imageIds, publish) =>
-            val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
+            val publishedOn: Long = if (publish.isEmpty || !publish.get) 0 else new Date
 
             val chapter = new Chapter(storyState.asStory, title, text).copy(publishedOn = publishedOn)
 
@@ -148,12 +148,16 @@ class StoryService(
             sender ! UpdateCommunityResponse(msg, Right(storyState.asStory))
 
         case msg @ UpdateChapter(eucc, storyId, chapterId, title, text, imageIds, publish) =>
-            val publishedOn: Long = if(publish.isEmpty || !publish.get) 0 else new Date
-
-            val chapter = storyState.chapters
+            var chapter = storyState.chapters
                     .find(_.id == chapterId)
-                    .map(_.copy(title = title, text = text, updatedOn = new Date, publishedOn = publishedOn))
+                    .map(_.copy(title = title, text = text, updatedOn = new Date))
                     .get
+
+            chapter =
+                if (!chapter.isPublished && publish.getOrElse(false)) {
+                    notifyFollowersOfStoryUpdate(eucc)
+                    chapter.copy(publishedOn = new Date)
+                } else chapter
 
             val existingChapterImages = storyState.chapterImages.filter(_.chapterId == chapterId)
             val chapterImages = imageIds.map { id =>
@@ -170,7 +174,6 @@ class StoryService(
 
             ep(ChapterUpdated(storyState, chapter, chapterImages))
             sender ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
-            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc)
 
 
         case msg @ NewComment(eucc, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
