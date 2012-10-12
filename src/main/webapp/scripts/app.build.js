@@ -6,7 +6,7 @@
     paths: {
         'requireLib': 'libs/require/require',
         'json2' : 'libs/json2',
-        'underscore' : 'libs/underscore-amd-1.3.3-min',
+        'underscore' : 'libs/underscore-amd-1.4.1-min',
         'backbone' : 'libs/backbone-amd-0.9.2-min',
         'text' : 'libs/require/text',
         'jquery' : 'libs/jquery-1.8.1.min',
