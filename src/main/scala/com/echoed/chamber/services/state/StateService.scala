@@ -211,12 +211,17 @@ class StateService(
             }
 
         case StoryModerated(_, moderation) => moderations.insert(moderation)
-        case StoryCreated(storyState) => stories.insert(domain.Story(storyState))
-        case StoryUpdated(storyState) => stories.update(domain.Story(storyState))
-        case StoryTagged(storyState, _, _) => stories.update(domain.Story(storyState))
+        case StoryCreated(storyState) => stories.insert(storyState.asStory)
+        case StoryUpdated(storyState) => stories.update(storyState.asStory)
+        case StoryTagged(storyState, _, _) => stories.update(storyState.asStory)
 
-        case VoteUpdated(_, vote) => votes.update(vote)
-        case VoteCreated(_, vote) => votes.insert(vote)
+        case VoteUpdated(storyState, vote) =>
+            votes.update(vote)
+            stories.update(storyState.asStory)
+
+        case VoteCreated(storyState, vote) =>
+            votes.insert(vote)
+            stories.update(storyState.asStory)
 
         case ChapterCreated(_, c, ci) =>
             chapters.insert(c)
@@ -227,7 +232,9 @@ class StateService(
             chapterImages.deleteWhere(ci => ci.chapterId === c.id)
             ci.map(chapterImages.insert(_))
 
-        case CommentCreated(_, c) => comments.insert(c)
+        case CommentCreated(storyState, c) =>
+            comments.insert(c)
+            stories.update(storyState.asStory)
     }
 
 }

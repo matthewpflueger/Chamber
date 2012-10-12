@@ -180,7 +180,10 @@ class StoryService(
                 text,
                 storyState.comments.find(_.id == parentCommentId))
 
-            storyState = storyState.copy(comments = storyState.comments ::: List(comment), updatedOn = new Date)
+            storyState = storyState.copy(
+                    comments = storyState.comments ::: List(comment),
+
+                    updatedOn = new Date)
             ep(CommentCreated(storyState, comment))
 
             sender ! NewCommentResponse(msg, Right(comment))
@@ -199,6 +202,10 @@ class StoryService(
 
         case msg @ ModerateStory(_, _, Left(pucc), mo) => moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
         case msg @ ModerateStory(_, _, Right(aucc), mo) => moderate(msg, aucc.name.get, "AdminUser", aucc.id, mo)
+
+        case msg: StoryViewed =>
+            storyState = storyState.copy(views = storyState.views + 1, updatedOn = new Date)
+            ep(StoryUpdated(storyState))
 
         case msg @ ProcessImageResponse(_, Right(img)) =>
             if (storyState.imageId == img.id) {
