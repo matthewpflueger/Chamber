@@ -97,7 +97,7 @@ define(
                 } else if (hourDiff >= 1) {
                     responseString = hourDiff + " hour" + this.pluralize(hourDiff);
                 } else {
-                    responseString = minDiff + " minute" + this.pluralize(minDiff);
+                    responseString = minDiff + " min" + this.pluralize(minDiff);
                 }
                 responseString = responseString + " ago";
                 return responseString;
