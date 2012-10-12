@@ -28,7 +28,7 @@ define(
             render: function(){
                 var self = this;
                 self.input = $("<input type='text' class='field-text-input'>");
-
+                self.element.addClass('input-select');
                 self.label = $("<div class='field-question-label'></div>");
                 self.downArrow = $("<div class='downarrow'></div>");
                 self.label.append(self.downArrow);

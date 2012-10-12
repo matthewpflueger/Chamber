@@ -48,6 +48,7 @@ class StoryController extends EchoedController {
             @RequestParam(value = "imageId", required = false) imageId: String,
             @RequestParam(value = "partnerId", required = false) partnerId: String,
             @RequestParam(value = "productInfo", required = false) productInfo: String,
+            @RequestParam(value = "community", required = false) community: String,
             @RequestParam(value = "echoId", required = false) echoId: String,
             eucc: EchoedUserClientCredentials) = {
 
@@ -61,6 +62,7 @@ class StoryController extends EchoedController {
                 Option(imageId),
                 Option(partnerId),
                 Option(productInfo),
+                Option(community),
                 Option(echoId))).onSuccess {
             case CreateStoryResponse(_, Right(story)) =>
                 log.debug("Successfully made story {} for {}", title, eucc)

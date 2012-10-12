@@ -61,8 +61,8 @@ class StoryService(
             case msg @ InitStory(_, Some(storyId), _, _) => mp(ReadStory(storyId)).pipeTo(self)
             case msg @ InitStory(_, _, Some(echoId), _) => mp(ReadStoryForEcho(echoId, echoedUser.id)).pipeTo(self)
             case msg @ InitStory(_, _, _, partnerId) => requestStory(partnerId.getOrElse("Echoed"))
-            case msg @ CreateStory(_, _, _, _, _, Some(echoId)) => mp(ReadStoryForEcho(echoId, echoedUser.id)).pipeTo(self)
-            case msg @ CreateStory(_, _, _, partnerId, _, _) => requestStory(partnerId.getOrElse("Echoed"))
+            case msg @ CreateStory(_, _, _, _, _, _, Some(echoId)) => mp(ReadStoryForEcho(echoId, echoedUser.id)).pipeTo(self)
+            case msg @ CreateStory(_, _, _, partnerId, _, _, _) => requestStory(partnerId.getOrElse("Echoed"))
             case msg: StoryIdentifiable => mp(ReadStory(msg.storyId)).pipeTo(self)
         }
     }
@@ -84,10 +84,11 @@ class StoryService(
         case msg: CreateStory if (storyState.isCreated) => sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
 
-        case msg @ CreateStory(_, title, imageId, _, productInfo, _) =>
+        case msg @ CreateStory(_, title, imageId, _, productInfo, community, _) =>
+
             imageId.map(id => mp.tell(ProcessImage(Right(id)), self))
 
-            storyState = storyState.create(title, productInfo.orNull, imageId.orNull)
+            storyState = storyState.create(title, productInfo.orNull, community.orNull, imageId.orNull)
             ep(StoryCreated(storyState))
 
             context.parent ! RegisterStory(storyState.asStory)

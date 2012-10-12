@@ -207,6 +207,7 @@ case class CreateStory(
         imageId: Option[String] = None,
         partnerId: Option[String] = None,
         productInfo: Option[String] = None,
+        community: Option[String] = None,
         echoId: Option[String] = None) extends EUM with EUI
 
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])

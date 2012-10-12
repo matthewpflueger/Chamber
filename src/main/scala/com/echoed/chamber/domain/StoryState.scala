@@ -39,7 +39,7 @@ case class StoryState(
         null,
         null,
         0,
-        null,
+        p.category,
         eu,
         img.map(_.id).orNull,
         img,
@@ -53,13 +53,14 @@ case class StoryState(
         Map.empty[String, Vote])
 
     def isCreated = id != null && createdOn > 0
-    def create(title: String, productInfo: String, imageId: String) = {
+    def create(title: String, productInfo: String, community: String, imageId: String) = {
         val storyState = copy(
             id = UUID(),
             updatedOn = new Date,
             createdOn = new Date,
             title = title,
             productInfo = productInfo,
+            community = community,
             imageId = imageId)
         if (partnerSettings.moderateAll) storyState.moderate(partner.name, "Partner", partner.id)
         else storyState

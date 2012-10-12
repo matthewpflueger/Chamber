@@ -293,10 +293,15 @@
             loadStoryInputTemplate: function(option){
                 var self = this;
                 var template = _.template(templateStoryCoverInput);
+                console.log(self.data);
                 self.cover.fadeOut(function(){
                     $(this).html(template);
                     $('#story-input-photo').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
                     $('#submit-type').val("POST");
+                    var selectOptions = {
+                        optionsArray: [],
+                        el: '#story-input-community'
+                    };
                     if(option.type === "Edit"){
                         $('#story-name').val(self.data.storyFull.story.title);
                         $('#submit-type').val("PUT");
@@ -307,7 +312,7 @@
                             $('#story-input-imageId').val(self.data.storyFull.story.image.id);
                         }
                     }
-
+                    self.select = new Select(selectOptions);
                     if(self.data.partner.name !== "Echoed"){
                         $('#story-input-from-content').text(self.data.partner.name);
                         $('#story-input-partnerId').val(self.data.partner.id);
