@@ -210,7 +210,10 @@
 
                     var selectOptions = {
                         optionsArray: [],
-                        el: '#chapter-title'
+                        el: '#chapter-title',
+                        freeForm: "(Write Your Own Topic)",
+                        edit: true,
+                        default: null
                     };
 
                     self.chapterPhotos = $('#story-input-thumbnails');
@@ -293,14 +296,16 @@
             loadStoryInputTemplate: function(option){
                 var self = this;
                 var template = _.template(templateStoryCoverInput);
-                console.log(self.data);
                 self.cover.fadeOut(function(){
                     $(this).html(template);
                     $('#story-input-photo').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
                     $('#submit-type').val("POST");
                     var selectOptions = {
-                        optionsArray: [],
-                        el: '#story-input-community'
+                        optionsArray: self.data.communities.communities,
+                        el: '#story-input-community',
+                        default: self.data.partner.category,
+                        freeForm: null,
+                        edit: false
                     };
                     if(option.type === "Edit"){
                         $('#story-name').val(self.data.storyFull.story.title);

@@ -12,8 +12,10 @@ define(
                 this.element = $(options.el);
                 this.optionsArray = options.optionsArray;
                 this.currentTitle = options.currentTitle;
+                this.default = options.default;
+                this.freeForm = options.freeForm;
+                this.edit = options.edit;
                 this.openState = false;
-                this.defaultTopic = "(Write Your Own Topic)";
                 this.render();
             },
             events: {
@@ -40,9 +42,18 @@ define(
                     self.options[index] = $("<div class='field-question-option'></div>").append(option);
                     self.optionsList.append(self.options[index]);
                 });
-                self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.defaultTopic);
+
+
+
+                if(self.default !== null) self.input.val(self.default);
+                else self.input.val(self.options[0].text());
+
+                if(self.edit === false) self.input.attr('readonly', "true");
+
+                if(self.freeForm !== null) self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.freeForm);
+
                 self.optionsList.append(self.options[self.optionsArray.length]);
-                self.input.val(self.options[0].text());
+
             },
             keyPress: function(e){
                 switch(e.keyCode){
@@ -69,11 +80,8 @@ define(
             close: function(){
                 this.openState = false;
                 this.optionsList.hide();
-                if(this.input.val() === this.defaultTopic){
-                    this.input.val("");
-
-                }
-                this.input.select();
+                if(this.input.val() === this.freeForm) this.input.val("");
+                if(this.edit === true) this.input.select();
             },
             open: function(){
                 this.openState = true;

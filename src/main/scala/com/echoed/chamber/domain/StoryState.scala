@@ -1,7 +1,7 @@
 package com.echoed.chamber.domain
 
 import com.echoed.chamber.domain.partner.{PartnerSettings, Partner}
-import com.echoed.chamber.domain.views.StoryFull
+import views.{StoryCommunities, StoryFull}
 import scala.collection.JavaConversions._
 import com.echoed.util.UUID
 import com.echoed.util.DateUtils._
@@ -78,7 +78,7 @@ case class StoryState(
             image.orNull,
             title,
             echo.map(_.id).orNull,
-            echo.map(_.productId).orNull,
+            echo.map(_. productId).orNull,
             productInfo,
             views,
             numComments,
@@ -86,7 +86,7 @@ case class StoryState(
             downVotes,
             community)
 
-    def asStoryInfo = StoryInfo(echoedUser, echo.orNull, partner, partnerSettings.makeStoryPrompts, asStoryFull.orNull)
+    def asStoryInfo = StoryInfo(echoedUser, echo.orNull, partner, partnerSettings.makeStoryPrompts, new StoryCommunities(), asStoryFull.orNull)
     def asStoryFull =
             if (!isCreated) None
             else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription))

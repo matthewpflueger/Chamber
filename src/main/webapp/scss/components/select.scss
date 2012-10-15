@@ -2,7 +2,7 @@
     display: inline-block;
     position:relative;
     .field-text-input{
-        @include fontText(16px);
+        @include fontText(13px);
         background-position: right;
         background-repeat: no-repeat;
         background-color: #F3F3F3;
@@ -30,14 +30,14 @@
         position: absolute;
         top: 40px;
         left: 0px;
-        border: 1px solid #CCC;
+        border: 1px solid #333;
         z-index: 100;
         .field-question-option{
             position:relative;
             background-color: #FFF;
             padding: 5px 6px;
             width: 500px;
-            @include fontText(14px);
+            @include fontText(13px);
             cursor: pointer;
             &:hover{
                 font-weight: bold;

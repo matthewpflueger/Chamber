@@ -679,7 +679,7 @@ class EchoedUserService(
         case msg @ InitStory(_, _, Some(echoId), _) => forwardToStory(msg, EchoId(echoId))
         case msg @ InitStory(_, _, _, partnerId) => forwardToStory(msg, PartnerId(partnerId.getOrElse("Echoed")))
 
-        case msg @ CreateStory(_, _, _, _, _, Some(echoId)) => forwardToStory(msg, EchoId(echoId))
+        case msg @ CreateStory(_, _, _, _, _, _, Some(echoId)) => forwardToStory(msg, EchoId(echoId))
         case msg: CreateStory =>
             //create a fresh actor for non-echo related stories
             context.watch(storyServiceCreator(context, msg, echoedUser)).forward(msg)
