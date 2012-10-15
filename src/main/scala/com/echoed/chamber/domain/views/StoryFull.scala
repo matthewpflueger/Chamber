@@ -14,7 +14,7 @@ case class StoryFull(
         chapterImages: JList[ChapterImage],
         comments: JList[Comment],
         votes: Map[String, Vote],
-        moderation: Option[ModerationDescription] = None) {
+        moderation: ModerationDescription) {
 
     def this(id:String, story: Story, echoedUser: EchoedUser) = this(
             id,
@@ -23,7 +23,8 @@ case class StoryFull(
             new ArrayList[Chapter],
             new ArrayList[ChapterImage],
             new ArrayList[Comment],
-            Map.empty[String, Vote])
+            Map.empty[String, Vote],
+            new ModerationDescription())
 
     def convertCommentsToPublic = comments.map(new CommentPublic(_)).toList
 }

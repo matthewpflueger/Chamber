@@ -59,6 +59,7 @@ define(
                 var storyOwnerId = target.attr('storyOwnerId');
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/story/" + id + "/moderate",
+                    type: "POST",
                     data: {
                         moderated: isModerated,
                         storyOwnerId : storyOwnerId

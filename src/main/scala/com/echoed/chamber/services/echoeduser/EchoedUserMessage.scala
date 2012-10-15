@@ -282,7 +282,7 @@ private[echoeduser] case class NewCommentResponse(message: NewComment, value: Ei
 case class ModerateStory(
         credentials: EUCC,
         storyId: String,
-        moderatedBy: Either[PartnerUserClientCredentials, AdminUserClientCredentials],
+        moderatedBy: EchoedClientCredentials,
         moderated: Boolean = true) extends EUM with EUI with SI
 case class ModerateStoryResponse(message: ModerateStory, value: Either[EUE, ModerationDescription])
         extends EUM with MR[ModerationDescription, ModerateStory, EUE]

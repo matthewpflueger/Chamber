@@ -6,13 +6,22 @@ case class ModerationDescription(
         moderatedOn: Option[Long],
         echoedModerated: Boolean,
         echoedModeratedBy: Option[String],
-        echoedModeratedOn: Option[Long]) {
+        echoedModeratedOn: Option[Long],
+        selfModerated: Boolean,
+        selfModeratedBy: Option[String],
+        selfModeratedOn: Option[Long]) {
 
-    def this(moderation: Option[Moderation] = None, echoedModeration: Option[Moderation] = None) = this(
-            moderation.map(_.moderated).getOrElse(false),
-            moderation.map(_.moderatedBy),
-            moderation.map(_.createdOn),
-            echoedModeration.map(_.moderated).getOrElse(false),
-            echoedModeration.map(_.moderatedBy),
-            echoedModeration.map(_.createdOn))
+    def this(
+            moderation: Option[Moderation] = None,
+            echoedModeration: Option[Moderation] = None,
+            selfModeration: Option[Moderation] = None) = this(
+        moderation.map(_.moderated).getOrElse(false),
+        moderation.map(_.moderatedBy),
+        moderation.map(_.createdOn),
+        echoedModeration.map(_.moderated).getOrElse(false),
+        echoedModeration.map(_.moderatedBy),
+        echoedModeration.map(_.createdOn),
+        selfModeration.map(_.moderated).getOrElse(false),
+        selfModeration.map(_.moderatedBy),
+        selfModeration.map(_.createdOn))
 }

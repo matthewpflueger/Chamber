@@ -3,9 +3,7 @@ package com.echoed.chamber.services.echoeduser.story
 
 import com.echoed.chamber.services._
 import com.echoed.chamber.domain._
-import com.echoed.chamber.dao._
 import com.echoed.chamber.services.echoeduser._
-import org.springframework.transaction.support.TransactionTemplate
 import java.util.Date
 import akka.pattern._
 import com.echoed.chamber.services.state._
@@ -36,7 +34,9 @@ import scala.Right
 import com.echoed.chamber.services.echoeduser.RegisterNotification
 import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.domain.ChapterImage
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
+import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
+import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.services.partner.RequestStoryResponse
 import com.echoed.chamber.services.echoeduser.UpdateChapterResponse
 import com.echoed.chamber.services.state.ReadStoryForEcho
@@ -201,8 +201,9 @@ class StoryService(
                         "storyId" -> storyState.id))))
             }
 
-        case msg @ ModerateStory(_, _, Left(pucc), mo) => moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
-        case msg @ ModerateStory(_, _, Right(aucc), mo) => moderate(msg, aucc.name.get, "AdminUser", aucc.id, mo)
+        case msg @ ModerateStory(_, _, eucc: EUCC, mo) => moderate(msg, eucc.name.get, "EchoedUser", eucc.id, mo)
+        case msg @ ModerateStory(_, _, pucc: PUCC, mo) => moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
+        case msg @ ModerateStory(_, _, aucc: AUCC, mo) => moderate(msg, aucc.name.get, "AdminUser", aucc.id, mo)
 
         case msg: StoryViewed =>
             //we are not updating the updatedOn on purpose so the FeedService does not push the story to the top :(
@@ -244,9 +245,11 @@ class StoryService(
             moderatedRef: String,
             moderatedRefId: String,
             moderated: Boolean = true) {
-        storyState = storyState.moderate(moderatedBy, moderatedRef, moderatedRefId, moderated)
-        sender ! ModerateStoryResponse(msg, Right(storyState.moderationDescription.get))
-        ep(StoryModerated(storyState, storyState.moderations.head))
+        if (moderatedRefId == echoedUser.id && !storyState.isPublished) {
+            storyState = storyState.moderate(moderatedBy, moderatedRef, moderatedRefId, moderated)
+            ep(StoryModerated(storyState, storyState.moderations.head))
+        }
+        sender ! ModerateStoryResponse(msg, Right(storyState.moderationDescription))
     }
 
     private def notifyFollowersOfStoryUpdate(eucc: EchoedUserClientCredentials) {

@@ -16,7 +16,7 @@ case class StoryPublic(
         chapterImages: JList[ChapterImage],
         comments: List[CommentPublic],
         votes: Map[String, Vote],
-        moderation: Option[ModerationDescription] = None) {
+        moderation: ModerationDescription) {
 
     def this(story: StoryFull) = this(
         story.id,
@@ -32,6 +32,7 @@ case class StoryPublic(
 
     def isPublished = chapters.foldLeft(false)(_ || _.publishedOn != 0)
 
-    def isModerated = moderation.map(_.moderated).getOrElse(false)
-    def isEchoedModerated = moderation.map(_.echoedModerated).getOrElse(false)
+    def isModerated = moderation.moderated
+    def isEchoedModerated = moderation.echoedModerated
+    def isSelfModerated = moderation.selfModerated
 }

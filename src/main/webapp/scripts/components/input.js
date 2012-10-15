@@ -39,6 +39,7 @@
                 'click #chapter-save': 'saveChapterClick',
                 'click #chapter-add': 'addChapterClick',
                 'click #story-finish': 'finishStoryClick',
+                'click #story-hide': "hideStoryClick",
                 'click #chapter-cancel': 'cancelChapterClick',
                 'click .chapter-thumb-x': 'removeChapterThumb',
                 "click .input-login-button": "loginClick"
@@ -282,8 +283,10 @@
                         }
                     });
                     if (imagesFound === false) chapterRow.find('.story-input-photo-row').hide();
-                    if (chapter.publishedOn > 0) chapterRow.find('.story-input-publishedOn').text("Published");
-                    else chapterRow.find('.story-input-publishedOn').text("Draft").addClass('highlight-text').addClass("bold");
+                    if (chapter.publishedOn > 0) {
+                        chapterRow.find('.story-input-publishedOn').text("Published");
+                        $("#story-hide").hide();
+                    } else chapterRow.find('.story-input-publishedOn').text("Draft").addClass('highlight-text').addClass("bold");
 
                 });
             },
@@ -391,6 +394,24 @@
                 var self = this;
                 if(self.data.storyFull.chapters.length > 0) self.load(self.data.storyFull.story.id, "story");
                 else self.close();
+            },
+            hideStoryClick: function() {
+                var self = this;
+                var id = self.data.storyFull.story.id
+                var echoedUserId = self.properties.echoedUser.id
+                utils.AjaxFactory({
+                    url: this.properties.urls.api + "/story/" + id + "/moderate",
+                    type: "POST",
+                    data: {
+                        moderated: true,
+                        storyOwnerId : echoedUserId
+                    },
+                    success: function() {
+                        self.unload(function() {
+                            self.EvAg.trigger('router/me');
+                        });
+                    }
+                })();
             },
             updateChapter: function(publishOption){
                 var self = this;
