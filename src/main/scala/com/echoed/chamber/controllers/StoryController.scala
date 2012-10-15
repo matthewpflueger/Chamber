@@ -202,19 +202,20 @@ class StoryController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/{storyId}/moderate"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/{storyId}/moderate"), method = Array(RequestMethod.POST))
     @ResponseBody
     def moderateStory(
             @PathVariable("storyId") storyId: String,
             @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String,
             @RequestParam(value = "moderated", required = false, defaultValue = "true") moderated: Boolean,
             @Nullable pucc: PartnerUserClientCredentials,
-            @Nullable aucc: AdminUserClientCredentials) = {
+            @Nullable aucc: AdminUserClientCredentials,
+            @Nullable eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        val eucc = new EchoedUserClientCredentials(storyOwnerId)
-        mp(ModerateStory(eucc, storyId, Option(pucc).toLeft(aucc), moderated)).onSuccess {
+        val ecc = Option(eucc).orElse(Option(pucc)).orElse(Option(aucc)).get
+        mp(ModerateStory(new EchoedUserClientCredentials(storyOwnerId), storyId, ecc, moderated)).onSuccess {
             case ModerateStoryResponse(_, Right(story)) => result.set(story)
         }
 

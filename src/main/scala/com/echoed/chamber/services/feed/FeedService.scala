@@ -159,27 +159,21 @@ class FeedService(
 
 
         case msg @ GetUserPublicStoryFeed(echoedUserId, page) =>
-            val channel = context.sender
             val start = msg.page * pageSize
-            try {
-                log.debug("Attempting to retrieve story feed for user: {}", echoedUserId)
-                val stories = storyTree.values.filter( s => s.echoedUser.id.equals(echoedUserId)).map(_.published).toList
-                val nextPage = {
-                    if(start + pageSize <= stories.length)
-                        (msg.page + 1).toString
-                    else
-                        null
-                }
-                val feed = new EchoedUserStoryFeed(
-                        Option(echoedUserDao.findById(echoedUserId)).map(new EchoedUserPublic(_)).orNull,
-                        stories.slice(start, start + pageSize),
-                        nextPage)
-                channel ! GetUserPublicStoryFeedResponse(msg, Right(feed))
-            } catch {
-                case e =>
-                    channel ! GetUserPublicStoryFeedResponse(msg, Left(new FeedException("Cannot get user public story feed", e)))
-                    log.error(e, "Unexpected error processesiong {}", msg)
+            val stories = storyTree.values
+                    .filter(s => !s.isSelfModerated && s.echoedUser.id.equals(echoedUserId))
+                    .map(_.published).toList
+            val nextPage = {
+                if(start + pageSize <= stories.length)
+                    (msg.page + 1).toString
+                else
+                    null
             }
+            val feed = new EchoedUserStoryFeed(
+                    stories.headOption.map(_.echoedUser).orNull,
+                    stories.slice(start, start + pageSize),
+                    nextPage)
+            sender ! GetUserPublicStoryFeedResponse(msg, Right(feed))
 
 
         case msg @ GetPartnerStoryFeed(partnerId, page, origin) =>

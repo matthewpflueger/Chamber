@@ -90,35 +90,33 @@ case class StoryState(
             if (!isCreated) None
             else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription))
 
-    private def echoedModeratePredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"
-    private def moderatedPredicate: Moderation => Boolean = _.moderatedRef != "AdminUser"
+    private def selfModeratedPredicate: Moderation => Boolean = _.moderatedRef == "EchoedUser"
+    private def echoedModeratedPredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"
+    private def partnerModeratedPredicate: Moderation => Boolean = _.moderatedRef == "PartnerUser"
 
-    val isEchoedModerated = moderated(echoedModeratePredicate)
-    val isModerated = moderated(moderatedPredicate)
+    val isPublished: Boolean = chapters.foldLeft(false)((published, chapter) => published || chapter.isPublished)
+    val isEchoedModerated = moderated(echoedModeratedPredicate)
+    val isModerated = moderated(partnerModeratedPredicate)
+    val isSelfModerated = moderated(selfModeratedPredicate)
+
     val numComments = comments.length
     val upVotes = votes.filter(t => t._2.value > 0).size
     val downVotes = votes.filter(t => t._2.value < 0).size
 
-    def moderate(
-            moderatedBy: String,
-            moderatedRef: String,
-            moderatedRefId: String,
-            moderated: Boolean = true) = {
-        val moderation = new Moderation(
-                "Story",
-                this.id,
-                moderatedBy,
-                moderatedRef,
-                moderatedRefId,
-                moderated)
-        copy(moderations = moderation :: moderations)
-    }
+    def moderate(moderatedBy: String, moderatedRef: String, moderatedRefId: String, moderated: Boolean = true) =
+        copy(moderations = new Moderation(
+            "Story",
+            this.id,
+            moderatedBy,
+            moderatedRef,
+            moderatedRefId,
+            moderated) :: moderations)
 
-    def moderationDescription = {
-        val mod = findModeration(moderatedPredicate)
-        val echoedMod = findModeration(echoedModeratePredicate)
-        if (mod.isEmpty && echoedMod.isEmpty) None else Option(new ModerationDescription(mod, echoedMod))
-    }
+
+    val moderationDescription = new ModerationDescription(
+        findModeration(partnerModeratedPredicate),
+        findModeration(echoedModeratedPredicate),
+        findModeration(selfModeratedPredicate))
 
     private def moderated(predicate: Moderation => Boolean) =
             findModeration(predicate).map(_.moderated).getOrElse(false)
