@@ -1,3 +1,12 @@
+.input-select-off{
+    @include fontText(13px);
+    background-color: none;
+    outline: none;
+    hover:{
+        border-color: #CCC !important;
+    }
+}
+
 .input-select{
     display: inline-block;
     position:relative;
