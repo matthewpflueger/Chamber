@@ -41,6 +41,7 @@ define(
                 "click #story-login-container": "closeLogin",
                 "click .story-login-button": "loginClick",
                 "click .story-login-email": "loginClick",
+                "click #comments-login": "showLogin",
                 "click .story-link": "redirect"
             },
             followClick: function(ev){
@@ -87,7 +88,7 @@ define(
             showLogin: function(){
                 var self = this;
                 var login = $('<div id="story-login"></div>').html(templateLogin);
-                $('#story-login-container').append(login);
+                $('#story-login-container').html(login);
                 $('#story-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
                 if(self.properties.isWidget){
                     $("#story-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
