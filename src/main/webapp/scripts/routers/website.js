@@ -46,6 +46,8 @@ define(
             loadPage: function(page, options){
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
+                this.EvAg.trigger("story/hide");
+                this.EvAg.trigger('fade/hide');
                 _gaq.push(['_trackPageview', this.page]);
             },
             cList: function(){
