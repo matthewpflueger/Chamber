@@ -358,13 +358,16 @@
             },
             submitCover: function(){
                 var self = this;
-                if(self.locked !== true){
+                var title = $('#story-name').val();
+                if($.trim(title) === ""){
+                    alert("Please include a title for your story");
+                } else if(self.locked !== true){
                     var type = $('#submit-type').val();
                     var imageId = $('#story-input-imageId').val() ?  $('#story-input-imageId').val() : null;
                     var partnerId = $('#story-input-partnerId').val() ? $('#story-input-partnerId').val() : null;
                     var echoId = $('#story-input-echoId').val() ? $('#story-input-echoId').val() : null;
                     var productInfo = $.trim($('#story-input-from-content').html()) ? $.trim($('#story-input-from-content').html()) : null;
-                    var title = $('#story-name').val();
+
                     var community = self.communitySelect.val() ? self.communitySelect.val() : null;
 
                     storyData = {
