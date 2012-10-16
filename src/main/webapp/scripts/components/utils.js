@@ -39,7 +39,8 @@ define(
                     Echoed.facebookLogin.tail;
             },
             replaceUrlsWithLink: function(text){
-                var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+                text = text.replace("www", "http://www");
+                var exp = /(\b(https?)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
                 return text.replace(exp,"(<a href='$1' class='red-link' target='_blank'>Link</a>)" );
             },
             getTwitterLoginUrl: function(hash){
