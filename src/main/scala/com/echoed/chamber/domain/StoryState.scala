@@ -78,7 +78,7 @@ case class StoryState(
             image.orNull,
             title,
             echo.map(_.id).orNull,
-            echo.map(_. productId).orNull,
+            echo.map(_.productId).orNull,
             productInfo,
             views,
             numComments,
