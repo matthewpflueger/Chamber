@@ -687,6 +687,7 @@ class EchoedUserService(
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
             mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value))
             sender ! VoteStoryResponse(msg, Right(true))
+            if(value > 0) self ! PublishFacebookAction(eucc, "upvote", "story", storyGraphUrl + storyId)
 
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
             val me = self
