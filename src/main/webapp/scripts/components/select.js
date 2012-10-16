@@ -12,8 +12,11 @@ define(
                 this.element = $(options.el);
                 this.optionsArray = options.optionsArray;
                 this.currentTitle = options.currentTitle;
+                this.default = options.default;
+                this.freeForm = options.freeForm;
+                this.edit = options.edit;
+                this.locked = options.locked;
                 this.openState = false;
-                this.defaultTopic = "(Write Your Own Topic)";
                 this.render();
             },
             events: {
@@ -23,26 +26,44 @@ define(
                 "keyup :input": "keyPress"
             },
             val: function(){
-                return this.input.val();
+                if(this.locked !== true) return this.input.val();
+                else return this.input.html();
             },
             render: function(){
                 var self = this;
-                self.input = $("<input type='text' class='field-text-input'>");
+
 
                 self.label = $("<div class='field-question-label'></div>");
-                self.downArrow = $("<div class='downarrow'></div>");
-                self.label.append(self.downArrow);
+
+
+                if(this.locked !== true){
+                    self.downArrow = $("<div class='downarrow'></div>");
+                    self.label.append(self.downArrow);
+                    self.element.addClass('input-select');
+                    self.input = $("<input type='text' class='field-text-input'>");
+                    self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");
+                    $.each(self.optionsArray, function(index, option){
+                        self.options[index] = $("<div class='field-question-option'></div>").append(option);
+                        self.optionsList.append(self.options[index]);
+                    });
+                    if(self.default !== null) self.input.val(self.default);
+                    else self.input.val(self.options[0].text());
+
+                    if(self.edit === false) self.input.attr('readonly', "true");
+
+                    if(self.freeForm !== null) self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.freeForm);
+
+                    self.optionsList.append(self.options[self.optionsArray.length]);
+
+
+                } else{
+                    self.input = $("<span></span>").text(self.default);
+                }
+
                 self.label.append(self.input);
                 self.element.append(self.label);
-                self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");
                 self.element.append(self.optionsList);
-                $.each(self.optionsArray, function(index, option){
-                    self.options[index] = $("<div class='field-question-option'></div>").append(option);
-                    self.optionsList.append(self.options[index]);
-                });
-                self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.defaultTopic);
-                self.optionsList.append(self.options[self.optionsArray.length]);
-                self.input.val(self.options[0].text());
+
             },
             keyPress: function(e){
                 switch(e.keyCode){
@@ -69,17 +90,16 @@ define(
             close: function(){
                 this.openState = false;
                 this.optionsList.hide();
-                if(this.input.val() === this.defaultTopic){
-                    this.input.val("");
-
-                }
-                this.input.select();
+                if(this.input.val() === this.freeForm) this.input.val("");
+                if(this.edit === true) this.input.select();
             },
             open: function(){
-                this.openState = true;
-                this.input.focus();
-                this.input.select();
-                this.optionsList.show();
+                if(this.locked !== true){
+                    this.openState = true;
+                    this.input.focus();
+                    this.input.select();
+                    this.optionsList.show();
+                }
             }
         });
     }

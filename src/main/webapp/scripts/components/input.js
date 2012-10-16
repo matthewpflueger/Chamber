@@ -210,7 +210,10 @@
 
                     var selectOptions = {
                         optionsArray: [],
-                        el: '#chapter-title'
+                        el: '#chapter-title',
+                        freeForm: "(Write Your Own Topic)",
+                        edit: true,
+                        default: null
                     };
 
                     self.chapterPhotos = $('#story-input-thumbnails');
@@ -297,6 +300,18 @@
                     $(this).html(template);
                     $('#story-input-photo').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
                     $('#submit-type').val("POST");
+
+
+                    var selectOptions = {
+                        optionsArray: self.data.communities.communities,
+                        el: '#story-input-community',
+                        default: self.data.partner.category,
+                        freeForm: null,
+                        edit: false
+                    };
+                    if(self.data.partner.name !== "Echoed") selectOptions.locked = true;
+                    self.communitySelect = new Select(selectOptions);
+
                     if(option.type === "Edit"){
                         $('#story-name').val(self.data.storyFull.story.title);
                         $('#submit-type').val("PUT");
@@ -307,7 +322,6 @@
                             $('#story-input-imageId').val(self.data.storyFull.story.image.id);
                         }
                     }
-
                     if(self.data.partner.name !== "Echoed"){
                         $('#story-input-from-content').text(self.data.partner.name);
                         $('#story-input-partnerId').val(self.data.partner.id);
@@ -351,6 +365,8 @@
                     var echoId = $('#story-input-echoId').val() ? $('#story-input-echoId').val() : null;
                     var productInfo = $.trim($('#story-input-from-content').html()) ? $.trim($('#story-input-from-content').html()) : null;
                     var title = $('#story-name').val();
+                    var community = self.communitySelect.val() ? self.communitySelect.val() : null;
+
                     storyData = {
                         title: title
                     };
@@ -359,6 +375,7 @@
                     if(partnerId !== null && type === "POST") storyData.partnerId = partnerId;
                     if(productInfo !== null) storyData.productInfo = productInfo;
                     if(imageId !== null) storyData.imageId = imageId;
+                    if(community !== null) storyData.community = community;
 
                     var url = "";
                     if(type === "PUT") url = self.properties.urls.api +"/story/" + self.data.storyFull.story.id;
