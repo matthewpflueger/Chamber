@@ -60,7 +60,14 @@ define(
 
                 self.imageContainer = self.element.find('.story-brief-image-container');
                 self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));
-                var image = self.data.story.image;
+                var image = function(){
+                    if(self.data.story.image) return self.data.story.image;
+                    else if (self.data.chapterImages.length > 0) return self.data.chapterImages[0].image;
+                    else return null;
+                }();
+
+                console.log(image);
+
                 var imageNode = self.element.find(".story-brief-image");
                 if(image !== null){
                     self.data.storyImage = {
