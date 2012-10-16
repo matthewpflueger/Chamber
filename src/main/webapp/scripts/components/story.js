@@ -225,6 +225,10 @@ define(
                     }
                 })();
             },
+            renderViews: function(){
+                var self = this;
+                $('#story-views').text("Views: " + self.data.story.views);
+            },
             renderVotes: function(){
                 var self = this;
                 var upVotes = 0, downVotes = 0, key;
@@ -343,6 +347,7 @@ define(
                 self.renderChapter();
                 self.renderVotes();
                 self.renderFollowing();
+                self.renderViews();
                 self.scroll(0);
 
                 self.EvAg.trigger('fade/show');
