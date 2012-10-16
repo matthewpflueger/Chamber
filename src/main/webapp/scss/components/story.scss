@@ -17,6 +17,13 @@
     }
 }
 
+#story-views{
+    border-top: 1px dotted #FFF;
+    @include fontTextBold(15px, #FFF);
+    text-align: center;
+    padding: 10px 0px;
+}
+
 .echo-story-container{
     position:relative;
     background-image: image-url("bk_noise.jpg");

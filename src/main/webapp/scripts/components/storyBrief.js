@@ -66,8 +66,6 @@ define(
                     else return null;
                 }();
 
-                console.log(image);
-
                 var imageNode = self.element.find(".story-brief-image");
                 if(image !== null){
                     self.data.storyImage = {
