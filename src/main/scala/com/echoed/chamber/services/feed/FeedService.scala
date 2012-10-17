@@ -202,7 +202,7 @@ class FeedService(
         case msg @ GetStory(storyId, origin) =>
             if (origin != "echoed") mp(WidgetStoryOpened(storyId))
             sender ! GetStoryResponse(msg, Right(storyMap.get(storyId).map { sp =>
-                mp(StoryViewed(EchoedUserClientCredentials(sp.echoedUser.id), storyId)); sp
+                mp(StoryViewed(EchoedUserClientCredentials(sp.echoedUser.id), storyId)); sp.published
             }))
 
         case msg: GetStoryIds =>
