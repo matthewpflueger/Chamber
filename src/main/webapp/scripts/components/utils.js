@@ -39,9 +39,9 @@ define(
                     Echoed.facebookLogin.tail;
             },
             replaceUrlsWithLink: function(text){
-                text = text.replace("www", "http://www");
-                var exp = /(\b(https?)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-                return text.replace(exp,"(<a href='$1' class='red-link' target='_blank'>Link</a>)" );
+                text = text.replace("http://","");
+                var exp = /(\b(www)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+                return text.replace(exp,"(<a href='http://$1' class='red-link' target='_blank'>Link</a>)" );
             },
             getTwitterLoginUrl: function(hash){
                 return Echoed.twitterUrl + encodeURIComponent(hash);
