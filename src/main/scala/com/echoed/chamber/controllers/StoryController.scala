@@ -77,8 +77,9 @@ class StoryController extends EchoedController {
     def updateStory(
             @PathVariable(value = "storyId") storyId: String,
             @RequestParam(value = "title", required = true) title: String,
-            @RequestParam(value = "imageId", required = true) imageId: String,
+            @RequestParam(value = "imageId", required = false) imageId: String,
             @RequestParam(value = "productInfo", required = false) productInfo: String,
+            @RequestParam(value = "community", required = false) community: String,
             eucc: EchoedUserClientCredentials) = {
 
         log.debug("Updating story {} for {}", storyId, eucc)
@@ -89,7 +90,8 @@ class StoryController extends EchoedController {
                 eucc,
                 storyId,
                 title,
-                imageId,
+                Option(imageId),
+                community,
                 Option(productInfo))).onSuccess {
             case UpdateStoryResponse(_, Right(story)) =>
                 log.debug("Successfully updated story {} for {}", storyId, eucc)

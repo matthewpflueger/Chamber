@@ -95,9 +95,11 @@ class StoryService(
             sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
 
-        case msg @ UpdateStory(_, storyId, title, imageId, productInfo) =>
-            mp.tell(ProcessImage(Right(imageId)), self)
-            storyState = storyState.copy(title = title, imageId = imageId, image = None, productInfo = productInfo.orNull, updatedOn = new Date)
+        case msg @ UpdateStory(_, storyId, title, imageId, community, productInfo) =>
+
+            imageId.map(id => mp.tell(ProcessImage(Right(id)), self))
+
+            storyState = storyState.copy(title = title, imageId = imageId.orNull, image = None, community = community, productInfo = productInfo.orNull, updatedOn = new Date)
             ep(new StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
 
