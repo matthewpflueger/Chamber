@@ -217,7 +217,8 @@ case class UpdateStory(
         credentials: EUCC,
         storyId: String,
         title: String,
-        imageId: String,
+        imageId: Option[String] = None,
+        community: String,
         productInfo: Option[String]) extends EUM with EUI with SI
 
 case class UpdateStoryResponse(message: UpdateStory, value: Either[EUE, Story])

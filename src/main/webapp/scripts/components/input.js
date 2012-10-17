@@ -178,10 +178,11 @@
                 var template = _.template(templateStoryCover, story);
                 self.cover.html(template);
 
-                if(story.image !== null) {
-                    $('<img class="story-summary-photo"/>').attr("height", 50).attr("src", self.getImageUrl(story.image)).appendTo(self.cover.find('.story-input-photo'));
-                }
+                if(story.image !== null) $('<img class="story-summary-photo"/>').attr("height", 50).attr("src", self.getImageUrl(story.image)).appendTo(self.cover.find('.story-input-photo'));
                 else self.cover.find('.story-input-photo-row').hide();
+
+                if(!story.community) $('#story-community').hide();
+
                 if(story.productInfo !== null) $('#story-info').show();
                 else $('#story-info').hide();
 
@@ -301,14 +302,19 @@
                     $('#story-input-photo').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
                     $('#submit-type').val("POST");
 
+                    var defaultCommunity = self.data.partner.category;
+                    if(self.data.storyFull){
+                        if(self.data.storyFull.story.community) defaultCommunity = self.data.storyFull.story.community;
+                    }
 
                     var selectOptions = {
                         optionsArray: self.data.communities.communities,
                         el: '#story-input-community',
-                        default: self.data.partner.category,
+                        default: defaultCommunity,
                         freeForm: null,
                         edit: false
                     };
+
                     if(self.data.partner.name !== "Echoed") selectOptions.locked = true;
                     self.communitySelect = new Select(selectOptions);
 
