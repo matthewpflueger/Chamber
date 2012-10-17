@@ -43,7 +43,7 @@ define(
                 text = text.replace(replacePattern1, '(<a href="$1" class="red-link" target="_blank">Link</a>)');
 
                 //URLs starting with www. (without // before it, or it'd re-link the ones done above)
-                var replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+                var replacePattern2 = /\b(^|[^\/])(www\.[\S]+(\b|$))/gim;
                 return text = text.replace(replacePattern2, '(<a class="red-link" href="http://$2" target="_blank">Link</a>)');
             },
             getTwitterLoginUrl: function(hash){
