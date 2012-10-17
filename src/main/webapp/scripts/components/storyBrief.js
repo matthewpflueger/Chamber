@@ -74,7 +74,6 @@ define(
                     };
                     imageNode.attr('src', image.preferredUrl).css(utils.getImageSizing(image,260))
                 } else{
-                    //self.element.find('.story-brief-text-quote').addClass('large');
                     self.imageContainer.hide();
                 }
 
@@ -84,6 +83,8 @@ define(
                         self.element.find('.story-brief-edit').show();
                     }
                 }
+
+                if(self.properties.isWidget) self.element.find('.story-brief-text-user').attr("target","_blank").attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id);
 
                 self.element.attr("id", self.data.story.id);
             },
