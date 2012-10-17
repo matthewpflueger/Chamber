@@ -20,7 +20,6 @@ define(
                 this.render();
             },
             events: {
-                "mouseleave": "close",
                 "click .field-question-label" : "click",
                 "click .field-question-option" : "selectOption",
                 "keyup :input": "keyPress"
