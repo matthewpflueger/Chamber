@@ -37,6 +37,7 @@ define(
                 if(this.page === null){
                     this.explore();
                     this.page = "#!";
+                    this.EvAg.trigger('exhibit/init', { endPoint: "/partner/" + this.properties.partnerId });
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("field/show", id, type);
