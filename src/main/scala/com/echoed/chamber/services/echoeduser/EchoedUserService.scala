@@ -68,7 +68,10 @@ import com.echoed.chamber.services.Scatter
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
-
+import com.echoed.chamber.services.feed.GetUserPublicStoryFeed
+import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
+import com.echoed.chamber.domain.views.EchoedUserStoryFeed
+import com.echoed.chamber.domain.public.EchoedUserPublic
 
 class EchoedUserService(
         mp: MessageProcessor,
@@ -707,6 +710,14 @@ class EchoedUserService(
         case msg @ CreateChapter(eucc, storyId, _, _, _, _) =>
             forwardToStory(msg, StoryId(storyId))
             self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
+
+        case msg @ GetUserFeed(eucc, page) =>
+            val channel = sender
+            mp(GetUserPublicStoryFeed(eucc.echoedUserId, page)).onSuccess {
+                case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
+                    channel ! GetUserFeedResponse(msg, Right(new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), feed.stories, feed.nextPage)))
+            }
+
 
         case msg: StoryIdentifiable with EchoedUserIdentifiable with Message =>
             forwardToStory(msg, StoryId(msg.storyId))
