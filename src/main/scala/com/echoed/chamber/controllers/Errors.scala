@@ -5,25 +5,14 @@ import com.echoed.chamber.services.EchoedException
 
 trait Errors { this: ModelAndView =>
 
-    def addError(defaultMessage: String, code: Option[String] = None, arguments: Option[Array[AnyRef]] = None) {
-        addError(new EchoedException(
-            msg = defaultMessage,
-            cde = code,
-            args = arguments))
-    }
-
-    def addError(e: Throwable) {
-        addError(Some(e))
-    }
-
-    def addError(e: Option[Throwable]) {
-        e.foreach { _ match {
+    def addError(e: Throwable, errorsForObjectName: Option[String] = None, attributeName: Option[String] = None) {
+        e match {
             case ex: EchoedException =>
-                val errors = ex.asErrors
-                addObject(errors.getObjectName, errors)
+                val errors = ex.asErrors(errorsForObjectName)
+                addObject(attributeName.getOrElse(ex.getClass.getName), errors)
             case other =>
-                addError(Some(EchoedException(other.getMessage, other)))
-        }}
+                addError(new EchoedException(other.getMessage, other), errorsForObjectName, attributeName)
+        }
     }
 
 }

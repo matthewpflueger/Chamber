@@ -4,7 +4,6 @@ import org.springframework.web.method.support.{ModelAndViewContainer, HandlerMet
 import org.springframework.beans.factory.annotation.Autowired
 import com.echoed.chamber.controllers.CookieManager
 import org.springframework.core.MethodParameter
-import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.bind.support.WebDataBinderFactory
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}

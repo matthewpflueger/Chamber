@@ -21,13 +21,13 @@ case class EchoedUser(
 
     def this() = this("", 0L, 0L, "", "", "", "", "", "", "", "", "")
 
-    def this(name: String, email: String) = this(
+    def this(name: String, email: String, screenName: String) = this(
         UUID(),
         new Date,
         new Date,
         name,
         email,
-        null,
+        screenName,
         null,
         null,
         null,
@@ -67,7 +67,7 @@ case class EchoedUser(
         this.copy(facebookId = fu.facebookId, facebookUserId = fu.id, email = Option(email).getOrElse(fu.email))
 
     def assignTwitterUser(tu: TwitterUser) =
-        this.copy(twitterId = tu.twitterId, twitterUserId = tu.id, screenName = tu.screenName)
+        this.copy(twitterId = tu.twitterId, twitterUserId = tu.id, screenName = Option(screenName).getOrElse(tu.screenName))
 
     def createPassword(plainTextPassword: String) = {
         val (s, p) = createSaltAndPassword(plainTextPassword)

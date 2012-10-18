@@ -18,21 +18,22 @@ import java.util.Date
 import com.echoed.util.{Encrypter, UUID}
 import akka.util.Timeout
 import scala.collection.immutable.Stack
-import com.echoed.chamber.services.scheduler.{Hour, ScheduleOnce}
+import com.echoed.chamber.services.scheduler.Hour
 import com.echoed.chamber.domain._
 import com.google.common.collect.HashMultimap
+import com.echoed.chamber.services.state._
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.twitter.FetchFollowersResponse
 import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
 import com.echoed.chamber.domain.views.EchoViewDetail
 import com.echoed.chamber.domain.TwitterUser
-import com.echoed.chamber.services.state.ReadForEmail
-import com.echoed.chamber.services.state.ReadForEmailResponse
 import scala.Some
+import com.echoed.chamber.domain.InvalidPassword
 import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.FriendCloset
 import com.echoed.chamber.services.twitter.UpdateStatusResponse
 import com.echoed.chamber.domain.EchoedUserSettings
+import com.echoed.chamber.services.scheduler.ScheduleOnce
 import com.echoed.chamber.domain.TwitterStatus
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
@@ -40,6 +41,7 @@ import com.echoed.chamber.domain.EchoedFriend
 import com.echoed.chamber.services.twitter.GetFollowersResponse
 import com.echoed.chamber.domain.FacebookUser
 import com.echoed.chamber.services.state.FacebookUserNotFound
+import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FacebookAccessToken
 import com.echoed.chamber.services.ScatterResponse
 import com.echoed.chamber.services.state.ReadForCredentials
@@ -72,6 +74,8 @@ import com.echoed.chamber.services.feed.GetUserPublicStoryFeed
 import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
 import com.echoed.chamber.domain.views.EchoedUserStoryFeed
 import com.echoed.chamber.domain.public.EchoedUserPublic
+import akka.dispatch.Futures
+
 
 class EchoedUserService(
         mp: MessageProcessor,
@@ -137,7 +141,7 @@ class EchoedUserService(
                 echoedUser = echoedUser.assignFacebookUser(msg.facebookUser)
                 Some(msg.facebookUser.copy(echoedUserId = echoedUser.id))
             }.map { fu =>
-                mp(FetchFriends(FacebookAccessToken(fu.accessToken, Some(fu.facebookId)), fu.id)).pipeTo(self)
+                mp.tell(FetchFriends(FacebookAccessToken(fu.accessToken, Some(fu.facebookId)), fu.id), self)
                 //hack to reset our posts to be crawled - really should send a message to FacebookPostCrawler to crawl our posts...
                 facebookPostDao.resetPostsToCrawl(fu.id)
                 fu
@@ -163,18 +167,13 @@ class EchoedUserService(
                 echoedUser = echoedUser.assignTwitterUser(msg.twitterUser)
                 Some(msg.twitterUser.copy(echoedUserId = echoedUser.id))
             }.map { tu =>
-                mp(FetchFollowers(
-                    tu.accessToken,
-                    tu.accessTokenSecret,
-                    tu.id,
-                    tu.twitterId.toLong)).pipeTo(self)
+                mp.tell(FetchFollowers(tu.accessToken, tu.accessTokenSecret, tu.id, tu.twitterId.toLong), self)
                 tu
             }
 
         becomeOnlineAndRegister
         msg.correlationSender.foreach(_ ! LoginWithTwitterResponse(msg.correlation, Right(echoedUser)))
     }
-
 
     private def create(eu: EchoedUser, fu: Option[FacebookUser] = None, tu: Option[TwitterUser] = None) {
         echoedUser = eu
@@ -212,40 +211,44 @@ class EchoedUserService(
     override def preStart() {
         super.preStart()
         initMessage match {
-            case LoginWithEmail(email, _, _) => mp(ReadForEmail(email)).pipeTo(self)
-            case LoginWithCredentials(credentials) => mp(ReadForCredentials(credentials)).pipeTo(self)
-            case LoginWithFacebookUser(facebookUser, _, _) => mp(ReadForFacebookUser(facebookUser)).pipeTo(self)
-            case LoginWithTwitterUser(twitterUser, _, _) => mp(ReadForTwitterUser(twitterUser)).pipeTo(self)
+            case LoginWithEmailOrScreenName(emailOrScreenName, _, _) => mp.tell(ReadForEmailOrScreenName(emailOrScreenName), self)
+            case LoginWithCredentials(credentials) => mp.tell(ReadForCredentials(credentials), self)
+            case LoginWithFacebookUser(facebookUser, _, _) => mp.tell(ReadForFacebookUser(facebookUser), self)
+            case LoginWithTwitterUser(twitterUser, _, _) => mp.tell(ReadForTwitterUser(twitterUser), self)
+            case msg: RegisterLogin => //handled in init as we need to capture the sender
         }
     }
 
 
     def init = {
-        case msg @ ReadForEmailResponse(_, Left(_)) =>
+        case msg @ RegisterLogin(name, email, screenName, _, None) if (msg == initMessage) =>
+            mp.tell(QueryUnique(new EchoedUser(name, email, screenName), msg, Option(sender)), self)
+
+        case QueryUniqueResponse(QueryUnique(_, msg: RegisterLogin, channel), Left(e)) if (msg == initMessage) =>
+            channel.get ! RegisterLoginResponse(msg, Left(InvalidRegistration(e.asErrors())))
+            self ! PoisonPill
+
+        case QueryUniqueResponse(QueryUnique(_, msg: RegisterLogin, channel), Right(true)) if (msg == initMessage) =>
+            try {
+                create(new EchoedUser(msg.name, msg.email, msg.screenName).createPassword(msg.password))
+                channel.get ! RegisterLoginResponse(msg, Right(echoedUser))
+                becomeOnlineAndRegister
+            } catch {
+                case e: InvalidPassword =>
+                    channel.get ! RegisterLoginResponse(msg, Left(InvalidCredentials("Invalid password")))
+                    self ! PoisonPill
+            }
+
+        case msg @ ReadForEmailOrScreenNameResponse(_, Left(_)) =>
             initMessage match {
-                case LoginWithEmail(_, msg @ LoginWithEmailPassword(_, _), channel) =>
+                case LoginWithEmailOrScreenName(_, msg @ LoginWithEmailPassword(_, _), channel) =>
                     channel.get ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
-                case LoginWithEmail(_, msg @ ResetLogin(_), channel) =>
+                case LoginWithEmailOrScreenName(_, msg @ ResetLogin(_), channel) =>
                     channel.get ! ResetLoginResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
-                case LoginWithEmail(_, msg @ RegisterLogin(name, email, password), channel) =>
-                    try {
-                        create(new EchoedUser(name, email).createPassword(password))
-                        channel.get ! RegisterLoginResponse(msg, Right(echoedUser))
-                        becomeOnlineAndRegister
-                    } catch {
-                        case e: InvalidPassword =>
-                            channel.get ! RegisterLoginResponse(msg, Left(InvalidCredentials("Invalid password")))
-                            self ! PoisonPill
-                    }
             }
 
 
-        case msg @ ReadForEmailResponse(_, Right(euss)) =>
-            initMessage match {
-                case LoginWithEmail(_, msg @ RegisterLogin(_, email, _), channel) =>
-                    channel.get ! RegisterLoginResponse(msg, Left(AlreadyRegistered(email))); self ! PoisonPill
-                case _ => setStateAndRegister(euss)
-            }
+        case msg @ ReadForEmailOrScreenNameResponse(_, Right(euss)) => setStateAndRegister(euss)
 
         case msg @ ReadForCredentialsResponse(_, Right(euss)) => setStateAndRegister(euss)
 
@@ -297,7 +300,17 @@ class EchoedUserService(
             sender ! ResetPasswordResponse(msg, Right(echoedUser))
 
 
-        case msg: RegisterLogin => //ignored on purpose - handled in init only...
+        case msg @ RegisterLogin(name, email, screenName, password, Some(eucc)) if (initMessage != msg && eucc.id == echoedUser.id) =>
+            val channel = sender
+            mp(QueryUnique(echoedUser.copy(name = name, email = email, screenName = screenName), msg, Some(sender))).onSuccess {
+                case QueryUniqueResponse(_, Left(e)) =>
+                    channel ! RegisterLoginResponse(msg, Left(InvalidRegistration(e.asErrors())))
+                case QueryUniqueResponse(_, Right(true)) =>
+                    echoedUser = echoedUser.copy(name = name, email = email, screenName = screenName)
+                    echoedUser = if (echoedUser.password != password) echoedUser.createPassword(password) else echoedUser
+                    updated
+                    channel ! RegisterLoginResponse(msg, Right(echoedUser))
+            }
 
 
         case msg @ LoginWithFacebookUser(fu, correlation, correlationSender) =>

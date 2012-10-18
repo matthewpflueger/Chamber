@@ -2,7 +2,6 @@ package com.echoed.chamber.resolvers
 
 import org.springframework.core.MethodParameter
 import javax.servlet.http.HttpServletRequest
-import com.echoed.chamber.services.EchoedClientCredentials
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import com.echoed.util.ScalaObjectMapper
 
@@ -17,11 +16,13 @@ class AdminUserClientCredentialsArgumentResolver extends ClientCredentialsArgume
 
     protected def resolveCredentials(request: HttpServletRequest) =
         cookieManager.findAdminUserCookie(request).map { auc =>
-                val payload = new ScalaObjectMapper().readTree(encrypter.decrypt(auc))
+                val payload = new ScalaObjectMapper()
+                        .readValue(encrypter.decrypt(auc), classOf[Map[String, String]])
+                        .filter(kv => kv._2 != null)
                 AdminUserClientCredentials(
-                        payload.get("id").asText,
-                        Option(payload.get("name")).map(_.asText),
-                        Option(payload.get("email")).map(_.asText))
+                        payload.get("id").get,
+                        payload.get("name"),
+                        payload.get("email"))
             }
 
 }

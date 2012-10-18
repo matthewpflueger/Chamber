@@ -3,22 +3,33 @@
     {{$public_content}}
     <div id="content-wide">
         <div id="register-form" class="login-form">
-            <div class="login-form-title">Create Your Account</div>
+            <div class="login-form-title">
+                {{#eucc}} Welcome to Echoed! We need just a little bit more info... {{/eucc}}
+                {{^eucc}} Create Your Account {{/eucc}}
+            </div>
             {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
             <form action="{{urls.site}}/login/register{{#redirect}}?r={{.}}{{/redirect}}" method="POST">
                 <div class="login-form-row">
-                    <input placeholder="Name" id="name" name="name" type="text" />
+                    <input placeholder="Name" id="name" name="name" type="text" value="{{loginRegisterForm.name}}"/>
                     <label for="name">{{errors.loginRegisterForm.name}}</label>
                 </div>
                 <div class="login-form-row">
-
-                    <input placeholder="Email Address" id="email" name="email" type="text" />
-                    <label for="email">{{errors.loginRegisterForm.email}}</label>
+                    <input placeholder="Screen Name" id="screenName" name="screenName" type="text" value="{{loginRegisterForm.screenName}}"/>
+                    <label for="screenName">{{errors.loginRegisterForm.screenName}}</label>
                 </div>
                 <div class="login-form-row">
-                    <input placeholder="Password" id="password" name="password" type="password" />
-                    <label for="password">{{errors.loginRegisterForm.password}}</label>
+                    <input placeholder="Email Address" id="email" name="email" type="text" value="{{loginRegisterForm.email}}"/>
+                    <label for="email">{{errors.loginRegisterForm.email}}</label>
                 </div>
+                {{#password}}
+                    <input type="hidden" id="password" name="password" value="{{.}}" />
+                {{/password}}
+                {{^password}}
+                    <div class="login-form-row">
+                        <input placeholder="Password" id="password" name="password" type="password" />
+                        <label for="password">{{errors.loginRegisterForm.password}}</label>
+                    </div>
+                {{/password}}
                 <input id="login" name="register" type="submit" value="Submit">
             </form>
         </div>

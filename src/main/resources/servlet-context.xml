@@ -151,7 +151,8 @@
         <property name="facebookLoginRedirectUrl" value="${https.urls.site}/facebook/login" />
         <property name="logoutUrl" value="${https.urls.site}/logout" />
 
-        <property name="postLoginView" value="redirect:${https.urls.site}" />
+        <property name="postLoginView" value="redirect:${https.urls.site}/login/register" />
+        <!--<property name="postLoginView" value="redirect:${https.urls.site}" />-->
         <property name="postAddView" value="redirect:${https.urls.site}" />
         <property name="facebookLoginErrorView" value="error" />
         <property name="postLogoutView" value="redirect:${http.urls.site}" />
