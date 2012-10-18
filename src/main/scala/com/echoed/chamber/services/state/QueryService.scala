@@ -19,7 +19,10 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             log.error("Querying all stories took %s" format System.currentTimeMillis() - now)
 
         case msg @ QueryStoriesForAdmin(aucc, page, pageSize, moderated) =>
-            val ss = from(stories)(s => select(s) orderBy(s.updatedOn desc))
+            val ss = from(stories)(s =>
+                        select(s)
+                        orderBy(s.updatedOn desc))
+                        .page(page * pageSize, pageSize)
                         .map(readStory(_))
                         .filter(moderated.isEmpty || _.isEchoedModerated == moderated.get)
                         .toList
@@ -28,7 +31,11 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
 
 
         case msg @ QueryStoriesForPartner(pucc, page, pageSize, moderated) =>
-            val ss = from(stories)(s => where(s.partnerId === pucc.partnerId.get) select(s) orderBy(s.updatedOn desc))
+            val ss = from(stories)(s =>
+                        where(s.partnerId === pucc.partnerId.get)
+                        select(s)
+                        orderBy(s.updatedOn desc))
+                        .page(page * pageSize, pageSize)
                         .map(readStory(_))
                         .filter(moderated.isEmpty || _.isModerated == moderated.get)
                         .toList
