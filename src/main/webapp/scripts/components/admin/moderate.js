@@ -5,9 +5,10 @@ define(
         'underscore',
         'components/utils',
         'text!templates/admin/moderateStory.html',
-        'text!templates/admin/moderateStoryTable.html'
+        'text!templates/admin/moderateStoryTable.html',
+        'text!templates/admin/paginate.html'
     ],
-    function($, Backbone, _, utils, templateModerateStory, templateModerateStoryTable){
+    function($, Backbone, _, utils, templateModerateStory, templateModerateStoryTable, templatePaginate){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -16,6 +17,8 @@ define(
                 this.element = $(options.el);
                 this.EvAg.bind('moderate/show', this.render);
                 this.EvAg.bind('moderate/hide', this.hide);
+                this.page = 0;
+                this.pageSize = 30;
             },
             render: function(){
                 var self = this;
@@ -24,7 +27,7 @@ define(
                 var body = self.element.find('tbody');
 
                 utils.AjaxFactory({
-                    url: this.properties.urls.api + "/admin/stories",
+                    url: this.properties.urls.api + "/admin/stories?page=" + self.page + "&pageSize=" + self.pageSize,
                     success: function(data){
                         $.each(data, function(index, story){
                             var template = _.template(templateModerateStory, story);
@@ -33,6 +36,11 @@ define(
                                 tr.find('.moderate-cb').attr("checked","checked");
                             }
                         });
+
+                        self.element.append(_.template(templatePaginate))
+                        if (self.page == 0) $('#paginate-previous').hide();
+                        if (data.length < self.pageSize) $('#paginate-next').hide();
+
                         self.show();
                     }
                 })();
@@ -45,7 +53,17 @@ define(
             },
             events: {
                 'click .moderate-cb' : 'check',
-                'click .moderate-preview' : 'preview'
+                'click .moderate-preview' : 'preview',
+                'click #paginate-next' : 'paginateNext',
+                'click #paginate-previous' : 'paginatePrevious'
+            },
+            paginateNext: function() {
+                this.page = this.page + 1;
+                this.render();
+            },
+            paginatePrevious: function() {
+                this.page = this.page - 1;
+                this.render();
             },
             preview: function(ev){
                 var target = $(ev.currentTarget);

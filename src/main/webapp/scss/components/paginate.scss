@@ -1,0 +1,24 @@
+@mixin paginate-button {
+    font-family: "Open Sans",sans-serif;
+    font-size: 16px;
+    color: #070707;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.paginate-buttons {
+    position: relative;
+    height: 30px;
+}
+
+#paginate-next {
+    padding: 10px 20px 0px 0px;
+    float: right;
+    @include paginate-button;
+}
+
+#paginate-previous {
+    padding: 10px 0px 0px 20px;
+    float: left;
+    @include paginate-button;
+}
