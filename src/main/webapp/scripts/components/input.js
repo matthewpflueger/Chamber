@@ -160,8 +160,11 @@
             removeChapterThumb: function(e){
                 var self = this;
                 var target = $(e.currentTarget).parent();
-                var index = target.attr("index");
-                self.currentChapter.images.splice(index, 1);
+                var id = target.attr("imageId");
+                var i = 0;
+                for(i = 0; i < self.currentChapter.images.length; i++){
+                    if(self.currentChapter.images[i] === id) self.currentChapter.images.splice(i, 1);
+                }
                 target.fadeOut(function(){$(this).remove()});
             },
             editStoryClick: function(ev){
@@ -226,7 +229,7 @@
                         selectOptions.optionsArray.push(self.currentChapter.title);
                         $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                             if(chapterImage.chapterId === self.currentChapter.id){
-                                var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index);
+                                var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index).attr("imageId",chapterImage.image.id);
                                 var thumbX = $('<div></div>').addClass('chapter-thumb-x');
                                 thumbDiv.append(thumbX);
                                 var photo = $('<img />').attr('src', self.getImageUrl(chapterImage.image)).css(utils.getImageSizing(chapterImage.image));
