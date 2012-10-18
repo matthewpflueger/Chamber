@@ -169,10 +169,7 @@ class FeedService(
                 else
                     null
             }
-            val feed = new EchoedUserStoryFeed(
-                    stories.headOption.map(_.echoedUser).orNull,
-                    stories.slice(start, start + pageSize),
-                    nextPage)
+            val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
             sender ! GetUserPublicStoryFeedResponse(msg, Right(feed))
 
 
