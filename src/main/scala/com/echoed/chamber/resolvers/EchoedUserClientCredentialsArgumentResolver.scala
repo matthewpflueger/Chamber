@@ -16,14 +16,17 @@ class EchoedUserClientCredentialsArgumentResolver extends ClientCredentialsArgum
 
     protected def resolveCredentials(request: HttpServletRequest) =
             cookieManager.findEchoedUserCookie(request).map { euc =>
-                val payload = new ScalaObjectMapper().readTree(encrypter.decrypt(euc))
+                val payload = new ScalaObjectMapper()
+                        .readValue(encrypter.decrypt(euc), classOf[Map[String, String]])
+                        .filter(kv => kv._2 != null)
                 EchoedUserClientCredentials(
-                        payload.get("id").asText,
-                        Option(payload.get("name")).map(_.asText),
-                        Option(payload.get("email")).map(_.asText),
-                        Option(payload.get("screenName")).map(_.asText),
-                        Option(payload.get("facebookId")).map(_.asText),
-                        Option(payload.get("twitterId")).map(_.asText))
+                        payload.get("id").get,
+                        payload.get("name"),
+                        payload.get("email"),
+                        payload.get("screenName"),
+                        payload.get("facebookId"),
+                        payload.get("twitterId"),
+                        payload.get("password"))
             }
 
 }

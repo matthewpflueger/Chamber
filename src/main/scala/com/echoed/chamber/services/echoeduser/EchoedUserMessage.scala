@@ -7,12 +7,16 @@ import com.echoed.chamber.domain.views._
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
 import scala.collection.immutable.Stack
-import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
-import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
+import org.springframework.validation.Errors
 
 
 sealed trait EchoedUserMessage extends Message
-sealed case class EchoedUserException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)
+sealed case class EchoedUserException(
+        message: String = "",
+        cause: Throwable = null,
+        code: Option[String] = None,
+        arguments: Option[Array[AnyRef]] = None,
+        errors: Option[Errors] = None) extends EchoedException(message, cause, code, arguments, errors)
 
 case class EchoedUserClientCredentials(
         id: String,
@@ -20,10 +24,11 @@ case class EchoedUserClientCredentials(
         email: Option[String] = None,
         screenName: Option[String] = None,
         facebookId: Option[String] = None,
-        twitterId: Option[String] = None) extends EchoedClientCredentials {
+        twitterId: Option[String] = None,
+        password: Option[String] = None) extends EchoedClientCredentials {
 
     def echoedUserId = id
-
+    def isComplete = name.isDefined && email.isDefined && screenName.isDefined && password.isDefined
 }
 
 
@@ -33,9 +38,9 @@ trait EchoedUserIdentifiable {
     def echoedUserId = credentials.echoedUserId
 }
 
-trait EmailIdentifiable {
+trait EmailOrScreenNameIdentifiable {
     this: EchoedUserMessage =>
-    def email: String
+    def emailOrScreenName: String
 }
 
 
@@ -317,23 +322,28 @@ case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
     extends EUM with MR[FriendCloset, GetFriendExhibit, EUE]
 
-case class LoginWithEmailPassword(email: String, password: String) extends EUM with EmailIdentifiable
+case class LoginWithEmailPassword(emailOrScreenName: String, password: String) extends EUM with EmailOrScreenNameIdentifiable
 case class LoginWithEmailPasswordResponse(message: LoginWithEmailPassword, value: Either[EUE, EchoedUser])
     extends EUM with MR[EchoedUser, LoginWithEmailPassword, EUE]
 
 
-private[echoeduser] case class LoginWithEmail(
-        email: String,
-        correlation: EchoedUserMessage with EmailIdentifiable,
-        override val correlationSender: Option[ActorRef]) extends EUM with Correlated[EchoedUserMessage with EmailIdentifiable]
-private[echoeduser] case class LoginWithEmailResponse(message: LoginWithEmail, value: Either[EUE, EchoedUser])
-    extends EUM with MR[EchoedUser, LoginWithEmail, EUE]
+private[echoeduser] case class LoginWithEmailOrScreenName(
+        emailOrScreenName: String,
+        correlation: EchoedUserMessage with EmailOrScreenNameIdentifiable,
+        override val correlationSender: Option[ActorRef]) extends EUM with Correlated[EchoedUserMessage with EmailOrScreenNameIdentifiable]
+private[echoeduser] case class LoginWithEmailResponse(message: LoginWithEmailOrScreenName, value: Either[EUE, EchoedUser])
+    extends EUM with MR[EchoedUser, LoginWithEmailOrScreenName, EUE]
 
-case class RegisterLogin(name: String, email: String, password: String) extends EUM with EmailIdentifiable
+case class RegisterLogin(
+        name: String,
+        email: String,
+        screenName: String,
+        password: String,
+        credentials: Option[EUCC] = None) extends EUM
 case class RegisterLoginResponse(message: RegisterLogin, value: Either[EUE, EchoedUser])
     extends EUM with MR[EchoedUser, RegisterLogin, EUE]
 
-case class ResetLogin(email: String) extends EUM with EmailIdentifiable
+case class ResetLogin(emailOrScreenName: String) extends EUM with EmailOrScreenNameIdentifiable
 case class ResetLoginResponse(message: ResetLogin, value: Either[EUE, String])
     extends EUM with MR[String, ResetLogin, EUE]
 
@@ -390,3 +400,5 @@ case class EchoedUserNotFound(id: String, m: String = "Echoed user not found") e
 case class InvalidCredentials(m: String = "Invalid email or password") extends EUE(m)
 
 case class EchoNotFound(id: String, m: String = "Echo not found %s") extends EUE(m format id)
+
+case class InvalidRegistration(_errors: Errors, m: String = "Error creating account") extends EUE(m, errors = Some(_errors))

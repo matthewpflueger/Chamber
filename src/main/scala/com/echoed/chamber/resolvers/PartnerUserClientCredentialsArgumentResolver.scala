@@ -16,12 +16,14 @@ class PartnerUserClientCredentialsArgumentResolver extends ClientCredentialsArgu
 
     protected def resolveCredentials(request: HttpServletRequest) =
             cookieManager.findPartnerUserCookie(request).map { puc =>
-                val payload = new ScalaObjectMapper().readTree(encrypter.decrypt(puc))
+                val payload = new ScalaObjectMapper()
+                        .readValue(encrypter.decrypt(puc), classOf[Map[String, String]])
+                        .filter(kv => kv._2 != null)
                 PartnerUserClientCredentials(
-                        payload.get("id").asText,
-                        Option(payload.get("name")).map(_.asText),
-                        Option(payload.get("email")).map(_.asText),
-                        Option(payload.get("partnerId")).map(_.asText),
-                        Option(payload.get("partnerName")).map(_.asText))
+                        payload.get("id").get,
+                        payload.get("name"),
+                        payload.get("email"),
+                        payload.get("partnerId"),
+                        payload.get("partnerName"))
             }
 }

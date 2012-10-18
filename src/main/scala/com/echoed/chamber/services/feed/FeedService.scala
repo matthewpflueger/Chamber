@@ -8,7 +8,6 @@ import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.services._
 import collection.immutable.TreeMap
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials, StoryViewed, StoryEvent}
-import akka.pattern._
 import scala.collection.mutable.HashMap
 import scala.Left
 import com.echoed.chamber.services.state.FindAllStoriesResponse
@@ -18,7 +17,6 @@ import com.echoed.chamber.domain.views.{CommunityFeed, PublicStoryFeed, EchoedUs
 import com.echoed.chamber.domain.public.StoryPublic
 import scala.Right
 import com.echoed.chamber.services.state.FindAllStories
-import com.echoed.chamber.domain.public.EchoedUserPublic
 import com.echoed.chamber.domain.public.PartnerPublic
 import com.echoed.chamber.domain.Community
 
@@ -65,7 +63,7 @@ class FeedService(
             storyTree -= ((s.story.updatedOn, s.story.id))
 
             if(s.isPublished && !s.isEchoedModerated && s.story.community != null && s.story.community != ""){
-                val c2 = communityTree.get(s.story.community).map {
+                communityTree.get(s.story.community).map {
                     c => {
                         communityTree += (c.id -> c.copy(counter = c.counter - 1))
                     }
@@ -163,12 +161,11 @@ class FeedService(
             val stories = storyTree.values
                     .filter(s => !s.isSelfModerated && s.echoedUser.id.equals(echoedUserId))
                     .map(_.published).toList
-            val nextPage = {
-                if(start + pageSize <= stories.length)
-                    (msg.page + 1).toString
-                else
-                    null
-            }
+
+            val nextPage =
+                if (start + pageSize <= stories.length) (msg.page + 1).toString
+                else null
+
             val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
             sender ! GetUserPublicStoryFeedResponse(msg, Right(feed))
 

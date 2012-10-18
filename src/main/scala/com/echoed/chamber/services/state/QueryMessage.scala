@@ -1,11 +1,13 @@
 package com.echoed.chamber.services.state
 
-import com.echoed.chamber.services.{MessageResponse => MR, EchoedException, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedException, Message}
 import com.echoed.chamber.domain.StoryState
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
+import org.springframework.validation.Errors
+import akka.actor.ActorRef
 
 sealed trait QueryMessage extends Message
 sealed case class QueryException(message: String = "", cause: Throwable = null)
@@ -51,3 +53,10 @@ case class QueryPartnersResponse(message: QueryPartners, value: Either[QE, List[
 case class QueryPartnerUsers(aucc: AUCC, partnerId: String, page: Int = 0, pageSize: Int = 30) extends QM
 case class QueryPartnerUsersResponse(message: QueryPartnerUsers, value: Either[QE, List[PartnerUser]])
         extends QM with MR[List[PartnerUser], QueryPartnerUsers, QE]
+
+
+case class QueryUnique(ref: Any, correlation: Message, override val correlationSender: Option[ActorRef])
+        extends QM with Correlated[Message]
+case class QueryUniqueResponse(message: QueryUnique, value: Either[EchoedException, Boolean])
+        extends QM with MR[Boolean, QueryUnique, EchoedException]
+

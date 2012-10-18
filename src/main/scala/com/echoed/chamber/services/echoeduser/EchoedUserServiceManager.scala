@@ -35,13 +35,25 @@ class EchoedUserServiceManager(
     private val active = HashMultimap.create[Identifiable, ActorRef]()
 
 
+    private def forwardForCredentials(msg: EchoedUserMessage, credentials: EchoedUserClientCredentials) {
+        active.get(EchoedUserId(credentials.echoedUserId)).headOption.cata(
+            _.forward(msg),
+            {
+                val echoedUserService = context.watch(echoedUserServiceCreator(context, LoginWithCredentials(credentials)))
+                echoedUserService.forward(msg)
+                active.put(EchoedUserId(credentials.echoedUserId), echoedUserService)
+            })
+    }
+
+
     def handle = {
         case Terminated(ref) => active.values.removeAll(active.values.filter(_ == ref))
 
 
         case RegisterEchoedUserService(echoedUser) =>
             active.put(EchoedUserId(echoedUser.id), context.sender)
-            Option(echoedUser.email).foreach(email => active.put(Email(email), context.sender))
+            Option(echoedUser.email).foreach(id => active.put(Email(id), context.sender))
+            Option(echoedUser.screenName).foreach(id => active.put(ScreenName(id), context.sender))
             Option(echoedUser.facebookId).foreach(id => active.put(FacebookId(id), context.sender))
             Option(echoedUser.twitterId).foreach(id => active.put(TwitterId(id), context.sender))
 
@@ -63,30 +75,19 @@ class EchoedUserServiceManager(
         case msg @ LoginWithFacebookUser(facebookUser, correlation, channel) =>
             active
                     .get(FacebookId(facebookUser.facebookId)).headOption
-                    .orElse(active.get(Email(facebookUser.email)).headOption)
                     .cata(
                 _ ! msg,
                 {
                     val echoedUserService = context.watch(echoedUserServiceCreator(context, msg))
                     active.put(FacebookId(facebookUser.facebookId), echoedUserService)
-                    active.put(Email(facebookUser.email), echoedUserService)
                 })
 
 
-        case msg @ LoginWithFacebook(Left(fc)) =>
+        case msg @ LoginWithFacebook(fb) =>
             val me = context.self
             val channel = Option(context.sender)
 
-            (facebookAccess ? FetchMe(Left(fc))).onSuccess {
-                case FetchMeResponse(_, Right(facebookUser)) => me ! LoginWithFacebookUser(facebookUser, msg, channel)
-            }
-
-
-        case msg @ LoginWithFacebook(Right(fat)) =>
-            val me = context.self
-            val channel = Option(context.sender)
-
-            (facebookAccess ? FetchMe(Right(fat))).onSuccess {
+            (facebookAccess ? FetchMe(fb)).onSuccess {
                 case FetchMeResponse(_, Right(facebookUser)) => me ! LoginWithFacebookUser(facebookUser, msg, channel)
             }
 
@@ -110,34 +111,41 @@ class EchoedUserServiceManager(
             val channel = Option(context.sender)
 
             (twitterAccess ? FetchUserForAuthToken(authToken, authVerifier)).onSuccess {
-                case FetchUserForAuthTokenResponse(_, Right(twitterUser)) => me ! LoginWithTwitterUser(twitterUser, msg, channel)
+                case FetchUserForAuthTokenResponse(_, Right(twitterUser)) =>
+                        me ! LoginWithTwitterUser(twitterUser, msg, channel)
             }
 
 
-        case msg: EmailIdentifiable with EchoedUserMessage =>
-            active.get(Email(msg.email)).headOption.cata(
+        case msg @ RegisterLogin(_, email, screenName, _, credentials) =>
+            credentials.cata(
+                forwardForCredentials(msg, _),
+                context.watch(echoedUserServiceCreator(context, msg)).forward(msg))
+
+
+        case msg: EmailOrScreenNameIdentifiable with EchoedUserMessage =>
+            active
+                    .get(Email(msg.emailOrScreenName))
+                    .headOption
+                    .orElse(active.get(ScreenName(msg.emailOrScreenName)).headOption)
+                    .cata(
                 _.forward(msg),
                 {
-                    val echoedUserService = context.watch(echoedUserServiceCreator(context, LoginWithEmail(msg.email, msg, Option(sender))))
+                    val echoedUserService = context.watch(echoedUserServiceCreator(
+                            context,
+                            LoginWithEmailOrScreenName(msg.emailOrScreenName, msg, Option(sender))))
                     echoedUserService.forward(msg)
-                    active.put(Email(msg.email), echoedUserService)
+                    active.put(Email(msg.emailOrScreenName), echoedUserService)
                 })
 
 
-        case msg: EchoedUserIdentifiable =>
-            active.get(EchoedUserId(msg.echoedUserId)).headOption.cata(
-                _.forward(msg),
-                {
-                    val echoedUserService = context.watch(echoedUserServiceCreator(context, LoginWithCredentials(msg.credentials)))
-                    echoedUserService.forward(msg)
-                    active.put(EchoedUserId(msg.echoedUserId), echoedUserService)
-                })
+        case msg: EchoedUserIdentifiable with EchoedUserMessage => forwardForCredentials(msg, msg.credentials)
     }
-
 }
+
 
 case class EchoedUserId(id: String) extends Identifiable
 case class Email(id: String) extends Identifiable
+case class ScreenName(id: String) extends Identifiable
 case class FacebookId(id: String) extends Identifiable
 case class TwitterId(id: String) extends Identifiable
 

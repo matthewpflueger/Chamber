@@ -3,10 +3,12 @@ package com.echoed.chamber.services.state
 
 import com.echoed.chamber.services.state.schema.ChamberSchema._
 import javax.sql.DataSource
-import com.echoed.chamber.services.EchoedService
+import com.echoed.chamber.services.{EchoedException, EchoedService}
 import com.echoed.util.TransactionUtils._
 import StateUtils._
 import org.squeryl.PrimitiveTypeMode._
+import com.echoed.chamber.domain.EchoedUser
+import org.springframework.validation.{BindException, FieldError}
 
 
 class QueryService(val dataSource: DataSource) extends EchoedService with SquerylSessionFactory {
@@ -55,5 +57,23 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             sender ! QueryPartnerUsersResponse(
                     msg,
                     Right(from(partnerUsers)(pu => where(pu.partnerId === partnerId) select(pu)).page(page, pageSize).toList))
+
+        case msg @ QueryUnique(ref: EchoedUser, _, _) =>
+            val results = List(
+                    (from(echoedUsers)(eu => where(eu.id <> ref.id and eu.screenName === ref.screenName) compute(count)).single.measures,
+                    "screenName",
+                    "Screen name already taken"),
+                    (from(echoedUsers)(eu => where(eu.id <> ref.id and eu.email === ref.email) compute(count)).single.measures,
+                    "email",
+                    "Email already taken"))
+                .filter(_._1 > 0)
+                .map(t3 => new FieldError("EchoedUser", t3._2, t3._3))
+
+            if (results.isEmpty) sender ! QueryUniqueResponse(msg, Right(true))
+            else {
+                val be = new BindException(ref, "EchoedUser")
+                results.foreach(be.addError(_))
+                sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))//NotUniqueException().copy(errs = Some(be))))
+            }
     }
 }

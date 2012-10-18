@@ -2,7 +2,6 @@ package com.echoed.chamber.resolvers
 
 import org.springframework.core.MethodParameter
 import javax.servlet.http.HttpServletRequest
-import com.echoed.chamber.services.EchoedClientCredentials
 import com.echoed.chamber.services.partner.PartnerClientCredentials
 import org.springframework.web.servlet.HandlerMapping
 import java.util.{Map => JMap}
