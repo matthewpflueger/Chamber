@@ -160,9 +160,8 @@
             removeChapterThumb: function(e){
                 var self = this;
                 var target = $(e.currentTarget).parent();
-                var id = target.attr("imageId"), i;
-                console.log(id);
-                console.log(self.currentChapter.images);
+                var id = target.attr("imageId");
+                var i = 0;
                 for(i = 0; i < self.currentChapter.images.length; i++){
                     if(self.currentChapter.images[i] === id) self.currentChapter.images.splice(i, 1);
                 }
