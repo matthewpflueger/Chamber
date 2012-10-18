@@ -25,6 +25,7 @@
     <insert id="insert" parameterType="com.echoed.chamber.domain.partner.PartnerUser">
         insert into PartnerUser(
     			id,
+    			updatedOn,
     			createdOn,
     			partnerId,
                 name,
@@ -33,6 +34,7 @@
                 password)
     	values (
     			#{id},
+    			#{updatedOn}
     			#{createdOn},
     			#{partnerId},
                 #{name},
