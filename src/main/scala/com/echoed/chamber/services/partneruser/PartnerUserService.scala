@@ -9,6 +9,8 @@ import scala.Right
 import com.echoed.chamber.services.state.{ReadPartnerUserForCredentialsResponse, ReadPartnerUserForEmailResponse, ReadPartnerUserForCredentials, ReadPartnerUserForEmail}
 import com.echoed.chamber.domain.InvalidPassword
 import com.echoed.chamber.services.partner.PartnerClientCredentials
+import com.echoed.util.DateUtils._
+import java.util.Date
 
 
 class PartnerUserService(
@@ -49,7 +51,7 @@ class PartnerUserService(
 
         case msg @ ActivatePartnerUser(_, password) =>
             try {
-                partnerUser = partnerUser.createPassword(password)
+                partnerUser = partnerUser.copy(updatedOn = new Date).createPassword(password)
                 sender ! ActivatePartnerUserResponse(msg, Right(partnerUser))
                 ep(PartnerUserUpdated(partnerUser))
             } catch {
@@ -58,7 +60,7 @@ class PartnerUserService(
 
         case msg @ UpdatePartnerUser(_, name, email, password) =>
             try {
-                partnerUser = partnerUser.copy(name = name, email = email).createPassword(password)
+                partnerUser = partnerUser.copy(name = name, email = email, updatedOn = new Date).createPassword(password)
                 sender ! UpdatePartnerUserResponse(msg, Right(partnerUser))
                 ep(PartnerUserUpdated(partnerUser))
             } catch {
