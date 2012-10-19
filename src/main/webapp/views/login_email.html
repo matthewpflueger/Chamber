@@ -7,12 +7,18 @@
             {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
             <form action="{{urls.site}}/login{{#redirect}}?r={{.}}{{/redirect}}" method="POST">
                 <div class="login-form-row">
+                    <label>Email Address</label>
                     <input placeholder="Email Address" id="email" name="email" type="text" value="{{loginRegisterForm.email}}" />
-                    <label for="email">{{errors.loginRegisterForm.email}}</label>
+                    {{#errors.loginRegisterForm.email}}
+                    <label for="email">{{.}}</label>
+                    {{/errors.loginRegisterForm.email}}
                 </div>
                 <div class="login-form-row">
+                    <label>Password</label>
                     <input placeholder="Password" id="password" name="password" type="password" />
-                    <label for="password">{{errors.loginRegisterForm.password}}</label>
+                    {{#errors.loginRegisterForm.password}}
+                    <label for="password">{{.}}</label>
+                    {{/errors.loginRegisterForm.password}}
                 </div>
                 <input id="login" name="login" type="submit" value="Login">
             </form>
