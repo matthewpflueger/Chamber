@@ -28,5 +28,11 @@ require(
             if($(this).val() !== "") $(this).addClass("on");
             else $(this).removeClass("on")
         });
+        $(document).ready(function(){
+            $('.placeholder-input').each(function(i){
+                if($(this).val() !== "") $(this).addClass("on");
+                else $(this).removeClass("on")
+            });
+        });
     }
 );

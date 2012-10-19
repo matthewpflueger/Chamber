@@ -13,18 +13,22 @@
                     <input class="placeholder-input" id="email" name="email" type="text" value="{{loginRegisterForm.email}}" />
                     <label class="placeholder-text">Email Address</label>
                     <span class="placeholder-white"></span>
-                    {{#errors.loginRegisterForm.email}}
-                    <label for="email">{{.}}</label>
-                    {{/errors.loginRegisterForm.email}}
                 </div>
+                {{#errors.loginForm.email}}
+                <div>
+                    <label for="email">{{.}}</label>
+                </div>
+                {{/errors.loginForm.email}}
                 <div class="login-form-row">
                     <input class="placeholder-input"  id="password" name="password" type="password" />
                     <label class="placeholder-text">Password</label>
                     <span class="placeholder-white"></span>
-                    {{#errors.loginRegisterForm.password}}
-                    <label for="password">{{.}}</label>
-                    {{/errors.loginRegisterForm.password}}
                 </div>
+                {{#errors.loginForm.password}}
+                <div>
+                    <label for="password">{{.}}</label>
+                </div>
+                {{/errors.loginForm.password}}
                 <input id="login" name="login" type="submit" value="Login">
             </form>
         </div>
