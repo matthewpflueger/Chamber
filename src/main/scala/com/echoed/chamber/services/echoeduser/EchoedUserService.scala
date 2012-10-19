@@ -74,7 +74,6 @@ import com.echoed.chamber.services.feed.GetUserPublicStoryFeed
 import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
 import com.echoed.chamber.domain.views.EchoedUserStoryFeed
 import com.echoed.chamber.domain.public.EchoedUserPublic
-import akka.dispatch.Futures
 
 
 class EchoedUserService(
@@ -276,8 +275,10 @@ class EchoedUserService(
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
         case msg @ LoginWithEmailPassword(email, password) =>
-            if (echoedUser.isCredentials(email, password)) sender ! LoginWithEmailPasswordResponse(msg, Right(echoedUser))
-            else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
+            //compare the hashed version of the passwords here in case of password reset :(
+            if (echoedUser.isCredentials(email, password) || echoedUser.email == email && echoedUser.password == password) {
+                context.sender ! LoginWithEmailPasswordResponse(msg, Right(echoedUser))
+            } else context.sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
 
         case msg @ ResetLogin(_) =>
             val password =

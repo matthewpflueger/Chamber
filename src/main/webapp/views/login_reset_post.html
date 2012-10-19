@@ -1,9 +1,11 @@
 {{<public_super}}
     {{$title}}Echoed | Login Reset{{/title}}
-    {{$content}}
-    <div id="content">
-        <p>Instructions on how to reset your password has been sent to {{email}}.</p>
+    {{$public_content}}
+    <div id="content-wide">
+        <div id="register-form" class="login-form">
+            <div class="login-form-title">Login Reset</div>
+            <div><h2>Instructions on how to reset your password has been sent to {{email}}</h2></div>
+        </div>
     </div>
-    {{/content}}
-    {{$olark}}{{/olark}}
+    {{/public_content}}
 {{/public_super}}
