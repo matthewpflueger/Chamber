@@ -204,8 +204,10 @@ class StoryService(
                         "storyId" -> storyState.id))))
             }
 
-        case msg @ ModerateStory(_, _, eucc: EUCC, mo) => moderate(msg, eucc.name.get, "EchoedUser", eucc.id, mo)
-        case msg @ ModerateStory(_, _, pucc: PUCC, mo) => moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
+        case msg @ ModerateStory(_, _, eucc: EUCC, mo) if (eucc.echoedUserId == echoedUser.id) =>
+            moderate(msg, eucc.name.get, "EchoedUser", eucc.id, mo)
+        case msg @ ModerateStory(_, _, pucc: PUCC, mo) if (pucc.partnerId == storyState.partner.id) =>
+            moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)
         case msg @ ModerateStory(_, _, aucc: AUCC, mo) => moderate(msg, aucc.name.get, "AdminUser", aucc.id, mo)
 
         case msg: StoryViewed =>
