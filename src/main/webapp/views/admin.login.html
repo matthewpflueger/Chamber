@@ -1,4 +1,7 @@
 {{<public_super}}
+    {{$jsHead}}
+        {{#scriptTag}}static.js{{/scriptTag}}
+    {{/jsHead}}
     {{$title}}Echoed | Admin Login{{/title}}
     {{$public_content}}
     <div id="login-content">
@@ -6,10 +9,17 @@
             <div class="login-form-title">Admin Login</div>
             {{#error}}<div id="lm-error">Error: {{message}}</div> {{/error}}
             <form action="{{urls.site}}/admin/login" method="POST">
-                <input id="email" name="email" type="text" placeholder="E-mail"/>
-                <label for="email"></label>
-                <input id="password" name="password" type="password" placeholder="Password"/>
-                <label for="password"></label>
+                <div class="login-form-row">
+                    <input class="placeholder-input" id="email" name="email" type="text"/>
+                    <label class="placeholder-text">Email Address</label>
+                    <span class="placeholder-white"></span>
+                </div>
+                <div class="login-form-row">
+                    <input class="placeholder-input" id="password" name="password" type="password"/>
+                    <label class="placeholder-text">Password</label>
+                    <span class="placeholder-white"></span>
+                </div>
+
                 <input id="login" name="login" type="submit">
             </form>
         </div>
