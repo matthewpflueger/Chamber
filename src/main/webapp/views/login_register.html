@@ -1,5 +1,8 @@
 {{<public_super}}
     {{$title}}Echoed | Register{{/title}}
+    {{$jsHead}}
+        {{#scriptTag}}static.js{{/scriptTag}}
+    {{/jsHead}}
     {{$public_content}}
     <div id="content-wide">
         <div id="register-form" class="login-form">
@@ -10,37 +13,49 @@
             {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
             <form action="{{urls.site}}/login/register{{#redirect}}?r={{.}}{{/redirect}}" method="POST">
                 <div class="login-form-row">
-                    <label>Name</label>
-                    <input placeholder="Name" id="name" name="name" type="text" value="{{loginRegisterForm.name}}"/>
-                    {{#errors.loginRegisterForm.name}}
+                    <input class="placeholder-input" id="name" name="name" type="text" value="{{loginRegisterForm.name}}"/>
+                    <label class="placeholder-text">Name</label>
+                    <span class="placeholder-white"></span>
+                </div>
+                {{#errors.loginRegisterForm.name}}
+                <div>
                     <label class="error" for="name">{{.}}</label>
-                    {{/errors.loginRegisterForm.name}}
                 </div>
+                {{/errors.loginRegisterForm.name}}
                 <div class="login-form-row">
-                    <label>Screenname</label>
-                    <input placeholder="Screen Name" id="screenName" name="screenName" type="text" value="{{loginRegisterForm.screenName}}"/>
-                    {{#errors.loginRegisterForm.screenName}}
+                    <input class="placeholder-input" id="screenName" name="screenName" type="text" value="{{loginRegisterForm.screenName}}"/>
+                    <label class="placeholder-text">Username</label>
+                    <span class="placeholder-white"></span>
+                </div>
+                {{#errors.loginRegisterForm.screenName}}
+                <div>
                     <label class="error" for="screenName">{{.}}</label>
-                    {{/errors.loginRegisterForm.screenName}}
                 </div>
+                {{/errors.loginRegisterForm.screenName}}
                 <div class="login-form-row">
-                    <label>Email Address</label>
-                    <input placeholder="Email Address" id="email" name="email" type="text" value="{{loginRegisterForm.email}}"/>
-                    {{#errors.loginRegisterForm.email}}
-                    <label class="error"  for="email">{{.}}</label>
-                    {{/errors.loginRegisterForm.email}}
+                    <input class="placeholder-input" id="email" name="email" type="text" value="{{loginRegisterForm.email}}"/>
+                    <label class="placeholder-text">Email Address</label>
+                    <span class="placeholder-white"></span>
                 </div>
+                {{#errors.loginRegisterForm.email}}
+                <div>
+                    <label class="error"  for="email">{{.}}</label>
+                </div>
+                {{/errors.loginRegisterForm.email}}
                 {{#password}}
                     <input type="hidden" id="password" name="password" value="{{.}}" />
                 {{/password}}
                 {{^password}}
                     <div class="login-form-row">
-                        <label>Password (Must be at least 6 characters long)</label>
-                        <input placeholder="Password" id="password" name="password" type="password" />
-                        {{#errors.loginRegisterForm.password}}
-                        <label class="error" for="password">{{.}}</label>
-                        {{/errors.loginRegisterForm.password}}
+                        <input class="placeholder-input" id="password" name="password" type="password" />
+                        <label class="placeholder-text">Password</label>
+                        <span class="placeholder-white"></span>
                     </div>
+                {{#errors.loginRegisterForm.password}}
+                    <div>
+                        <label class="error" for="password">{{.}}</label>
+                    </div>
+                {{/errors.loginRegisterForm.password}}
                 {{/password}}
                 <input id="login" name="register" type="submit" value="Submit">
             </form>
