@@ -33,6 +33,10 @@
         {
             name: "admin",
             include: ['requireLib']
+        },
+        {
+            name: "static",
+            include: ['requireLib']
         }
     ]
 })
