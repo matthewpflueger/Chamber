@@ -14,21 +14,21 @@
                     <label class="placeholder-text">Email Address</label>
                     <span class="placeholder-white"></span>
                 </div>
-                {{#errors.loginRegisterForm.email}}
+                {{#errors.loginForm.email}}
                 <div>
                     <label for="email">{{.}}</label>
                 </div>
-                {{/errors.loginRegisterForm.email}}
+                {{/errors.loginForm.email}}
                 <div class="login-form-row">
                     <input class="placeholder-input"  id="password" name="password" type="password" />
                     <label class="placeholder-text">Password</label>
                     <span class="placeholder-white"></span>
                 </div>
-                {{#errors.loginRegisterForm.password}}
+                {{#errors.loginForm.password}}
                 <div>
                     <label for="password">{{.}}</label>
                 </div>
-                {{/errors.loginRegisterForm.password}}
+                {{/errors.loginForm.password}}
                 <input id="login" name="login" type="submit" value="Login">
             </form>
         </div>
