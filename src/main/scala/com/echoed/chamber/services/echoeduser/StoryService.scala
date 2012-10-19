@@ -248,7 +248,7 @@ class StoryService(
             moderatedRef: String,
             moderatedRefId: String,
             moderated: Boolean = true) {
-        if (moderatedRefId == echoedUser.id && !storyState.isPublished) {
+        if (moderatedRefId != echoedUser.id || !storyState.isPublished) {
             storyState = storyState.moderate(moderatedBy, moderatedRef, moderatedRefId, moderated)
             ep(StoryModerated(storyState, storyState.moderations.head))
         }
