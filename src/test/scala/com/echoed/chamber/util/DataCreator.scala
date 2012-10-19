@@ -562,7 +562,8 @@ class DataCreator {
         twitterUser.id,
         twitterUser.twitterId,
         null,
-        null)
+        null,
+        false)
 
     val fromEchoedUser = echoedUser
 
@@ -578,7 +579,8 @@ class DataCreator {
         twitterUser.id,
         twitterUser.twitterId,
         null,
-        null)
+        null,
+        false)
 
     val echoedFriends = List(
         new EchoedFriend(

@@ -43,6 +43,11 @@ trait EmailOrScreenNameIdentifiable {
     def emailOrScreenName: String
 }
 
+trait CodeIdentifiable {
+    this: EchoedUserMessage =>
+    def code: String
+}
+
 
 import com.echoed.chamber.services.echoeduser.{EchoedUserMessage => EUM}
 import com.echoed.chamber.services.echoeduser.{EchoedUserException => EUE}
@@ -322,10 +327,13 @@ case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
 case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
     extends EUM with MR[FriendCloset, GetFriendExhibit, EUE]
 
-case class LoginWithEmailPassword(emailOrScreenName: String, password: String) extends EUM with EmailOrScreenNameIdentifiable
+case class LoginWithEmailPassword(
+        emailOrScreenName: String,
+        password: String) extends EUM with EmailOrScreenNameIdentifiable
 case class LoginWithEmailPasswordResponse(message: LoginWithEmailPassword, value: Either[EUE, EchoedUser])
     extends EUM with MR[EchoedUser, LoginWithEmailPassword, EUE]
 
+case class VerifyEmail(code: String) extends EUM with CodeIdentifiable
 
 private[echoeduser] case class LoginWithEmailOrScreenName(
         emailOrScreenName: String,
@@ -347,7 +355,7 @@ case class ResetLogin(emailOrScreenName: String) extends EUM with EmailOrScreenN
 case class ResetLoginResponse(message: ResetLogin, value: Either[EUE, String])
     extends EUM with MR[String, ResetLogin, EUE]
 
-case class LoginWithCode(code: String) extends EUM
+case class LoginWithCode(code: String) extends EUM with CodeIdentifiable
 case class LoginWithCodeResponse(message: LoginWithCode, value: Either[EUE, EchoedUser])
     extends EUM with MR[EchoedUser, LoginWithCode, EUE]
 

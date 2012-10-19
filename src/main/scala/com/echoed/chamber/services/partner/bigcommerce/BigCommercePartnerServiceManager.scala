@@ -143,11 +143,11 @@ class BigCommercePartnerServiceManager(
                                 Right(RegisterBigCommercePartnerEnvelope(bcp, p, pu)))
 
 
-                            val model = new HashMap[String, AnyRef]()
-                            model.put("code", code)
-                            model.put("bigCommercePartner", bcp)
-                            model.put("partner", p)
-                            model.put("partnerUser", pu)
+                            val model = Map(
+                                "code" -> code,
+                                "bigCommercePartner" -> bcp,
+                                "partner" -> p,
+                                "partnerUser" -> pu)
 
                             mp(SendEmail(
                                 pu.email,

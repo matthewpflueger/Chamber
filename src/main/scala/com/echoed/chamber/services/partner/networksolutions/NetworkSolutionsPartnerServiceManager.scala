@@ -112,10 +112,10 @@ class NetworkSolutionsPartnerServiceManager(
                             networkSolutionsPartnerDao.insert(new NetworkSolutionsPartner(name, email, phone, userKey))
                             channel ! RegisterNetworkSolutionsPartnerResponse(msg, Right(loginUrl))
 
-                            val model = new HashMap[String, AnyRef]()
-                            model.put("name", name)
-                            model.put("email", email)
-                            model.put("phone", phone)
+                            val model = Map(
+                                "name" -> name,
+                                "email" -> email,
+                                "phone" -> phone)
 
                             mp(SendEmail(
                                 email,
@@ -182,11 +182,11 @@ class NetworkSolutionsPartnerServiceManager(
                                             msg,
                                             Right(NetworkSolutionsPartnerEnvelope(nsp, p, pu)))
 
-                                        val model = new HashMap[String, AnyRef]()
-                                        model.put("code", code)
-                                        model.put("networkSolutionsPartner", nsp)
-                                        model.put("partnerUser", pu)
-                                        model.put("partner", p)
+                                        val model = Map(
+                                            "code" -> code,
+                                            "networkSolutionsPartner" -> nsp,
+                                            "partnerUser" -> pu,
+                                            "partner" -> p)
 
                                         mp(SendEmail(
                                             pu.email,

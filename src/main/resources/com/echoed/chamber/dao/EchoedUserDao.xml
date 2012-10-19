@@ -18,6 +18,7 @@
             <arg column="echoedUserTwitterId" javaType="String" />
             <arg column="echoedUserPassword" javaType="String" />
             <arg column="echoedUserSalt" javaType="String" />
+            <arg column="echoedUserEmailVerified" javaType="_boolean" />
         </constructor>
     </resultMap>
 
@@ -33,7 +34,8 @@
         EU.twitterUserId as echoedUserTwitterUserId,
         EU.twitterId as echoedUserTwitterId,
         EU.password as echoedUserPassword,
-        EU.salt as echoedUserSalt
+        EU.salt as echoedUserSalt,
+        EU.emailVerified as echoedUserEmailVerified
     </sql>
 
 
@@ -85,7 +87,8 @@
                 twitterUserId,
                 twitterId,
                 password,
-                salt)
+                salt,
+                emailVerified)
     		values (
                 #{id},
                 #{createdOn},
@@ -97,7 +100,8 @@
     			#{twitterUserId},
     			#{twitterId},
     			#{password},
-    			#{salt})
+    			#{salt},
+    			#{emailVerified})
     </insert>
 
     <delete id="deleteByEmail">
@@ -127,7 +131,8 @@
             twitterUserId=#{twitterUserId},
             twitterId=#{twitterId},
             password=#{password},
-            salt=#{salt}
+            salt=#{salt},
+            emailVerified=#{emailVerified}
         where
             id=#{id}
     </update>
