@@ -1,7 +1,6 @@
 package com.echoed.chamber.services.email
 
 import com.echoed.chamber.services.{EchoedException, MessageResponse => MR, Message}
-import java.util.{Map => JMap}
 
 sealed trait EmailMessage extends Message
 
@@ -11,7 +10,7 @@ import com.echoed.chamber.services.email.{EmailMessage => EM}
 import com.echoed.chamber.services.email.{EmailException => EE}
 
 
-case class SendEmail(recipient: String, subject: String, view: String, model: JMap[String, AnyRef]) extends EM
+case class SendEmail(recipient: String, subject: String, view: String, model: Map[String, AnyRef]) extends EM
 case class SendEmailResponse(
         message: SendEmail,
         value: Either[EE, Boolean]) extends EM with MR[Boolean, SendEmail, EE]

@@ -24,7 +24,6 @@ import com.google.common.collect.HashMultimap
 import com.echoed.chamber.services.state._
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.twitter.FetchFollowersResponse
-import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
 import com.echoed.chamber.domain.views.EchoViewDetail
 import com.echoed.chamber.domain.TwitterUser
 import scala.Some
@@ -49,7 +48,6 @@ import scala.Left
 import com.echoed.chamber.services.twitter.FetchFollowers
 import com.echoed.chamber.domain.views.EchoView
 import com.echoed.chamber.domain.views.FriendFeed
-import com.echoed.chamber.services.feed.GetUserPublicStoryFeed
 import com.echoed.chamber.services.facebook.FetchFriends
 import com.echoed.chamber.services.state.TwitterUserNotFound
 import akka.actor.OneForOneStrategy
@@ -123,6 +121,18 @@ class EchoedUserService(
         }
         log.debug("Saved {} EchoedFriends for {}", echoedUsers.length, echoedUser)
     }
+
+
+    private def createCode(email: String, password: String) =
+        encrypter.encrypt("""{ "email": "%s", "password": "%s" }""" format(email, password))
+
+
+    private def verifyEmail: Unit =
+        mp(SendEmail(
+            echoedUser.email,
+            "Email verification",
+            "email_verification",
+            Map("echoedUser" -> echoedUser, "code" -> createCode(echoedUser.email, echoedUser.password))))
 
 
     private def handleLoginWithFacebookUser(msg: LoginWithFacebookUser) {
@@ -232,6 +242,7 @@ class EchoedUserService(
                 create(new EchoedUser(msg.name, msg.email, msg.screenName).createPassword(msg.password))
                 channel.get ! RegisterLoginResponse(msg, Right(echoedUser))
                 becomeOnlineAndRegister
+                verifyEmail
             } catch {
                 case e: InvalidPassword =>
                     channel.get ! RegisterLoginResponse(msg, Left(InvalidCredentials("Invalid password")))
@@ -241,10 +252,11 @@ class EchoedUserService(
         case msg @ ReadForEmailOrScreenNameResponse(_, Left(_)) =>
             initMessage match {
                 case LoginWithEmailOrScreenName(_, msg @ LoginWithEmailPassword(_, _), channel) =>
-                    channel.get ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
+                    channel.get ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
                 case LoginWithEmailOrScreenName(_, msg @ ResetLogin(_), channel) =>
-                    channel.get ! ResetLoginResponse(msg, Left(InvalidCredentials())); self ! PoisonPill
+                    channel.get ! ResetLoginResponse(msg, Left(InvalidCredentials()))
             }
+            self ! PoisonPill
 
 
         case msg @ ReadForEmailOrScreenNameResponse(_, Right(euss)) => setStateAndRegister(euss)
@@ -274,6 +286,15 @@ class EchoedUserService(
     def online = {
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
+        case msg: LoginWithEmailPassword with Correlated[EchoedUserMessage] => msg.correlation match {
+            case m: VerifyEmail =>
+                log.debug("In verify email with {}", m)
+                echoedUser = echoedUser.copy(emailVerified = true)
+                updated
+            case m: LoginWithCode =>
+                msg.correlationSender.map(_ ! LoginWithCodeResponse(m, Right(echoedUser)))
+        }
+
         case msg @ LoginWithEmailPassword(email, password) =>
             //compare the hashed version of the passwords here in case of password reset :(
             if (echoedUser.isCredentials(email, password) || echoedUser.email == email && echoedUser.password == password) {
@@ -291,7 +312,11 @@ class EchoedUserService(
                 }
 
             val code = encrypter.encrypt("""{ "email": "%s", "password": "%s" }""" format(echoedUser.email, password))
-            mp(SendEmail(echoedUser.email, "Password reset", "login_reset_email", Map("code" -> code)))
+            mp(SendEmail(
+                    echoedUser.email,
+                    "Password reset",
+                    "login_reset_email",
+                    Map("echoedUser" -> echoedUser, "code" -> createCode(echoedUser.email, password))))
             sender ! ResetLoginResponse(msg, Right(code))
 
 
@@ -307,10 +332,12 @@ class EchoedUserService(
                 case QueryUniqueResponse(_, Left(e)) =>
                     channel ! RegisterLoginResponse(msg, Left(InvalidRegistration(e.asErrors())))
                 case QueryUniqueResponse(_, Right(true)) =>
-                    echoedUser = echoedUser.copy(name = name, email = email, screenName = screenName)
+                    val needsVerification = echoedUser.email != email
+                    echoedUser = echoedUser.copy(name = name, email = email, screenName = screenName, emailVerified = needsVerification)
                     echoedUser = if (echoedUser.password != password) echoedUser.createPassword(password) else echoedUser
                     updated
                     channel ! RegisterLoginResponse(msg, Right(echoedUser))
+                    if (needsVerification) verifyEmail
             }
 
 

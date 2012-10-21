@@ -17,9 +17,10 @@ case class EchoedUser(
         twitterUserId: String,
         twitterId: String,
         password: String,
-        salt: String) extends DomainObject with EmailPassword {
+        salt: String,
+        emailVerified: Boolean) extends DomainObject with EmailPassword {
 
-    def this() = this("", 0L, 0L, "", "", "", "", "", "", "", "", "")
+    def this() = this("", 0L, 0L, "", "", "", "", "", "", "", "", "", false)
 
     def this(name: String, email: String, screenName: String) = this(
         UUID(),
@@ -33,7 +34,8 @@ case class EchoedUser(
         null,
         null,
         null,
-        null)
+        null,
+        false)
 
     def this(facebookUser: FacebookUser) = this(
         UUID(),
@@ -47,7 +49,8 @@ case class EchoedUser(
         null,
         null,
         null,
-        null)
+        null,
+        true)
 
     def this(twitterUser: TwitterUser) = this(
         UUID(),
@@ -61,7 +64,8 @@ case class EchoedUser(
         twitterUser.id,
         twitterUser.twitterId,
         null,
-        null)
+        null,
+        false)
 
     def assignFacebookUser(fu: FacebookUser) =
         this.copy(facebookId = fu.facebookId, facebookUserId = fu.id, email = Option(email).getOrElse(fu.email))

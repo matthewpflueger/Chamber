@@ -85,10 +85,10 @@ class PartnerServiceManager(
                                 partnerUserDao.insert(pu)
                             })
 
-                            val model = new JHashMap[String, AnyRef]()
-                            model.put("code", code)
-                            model.put("partner", p)
-                            model.put("partnerUser", pu)
+                            val model = Map(
+                                "code" -> code,
+                                "partner" -> p,
+                                "partnerUser" -> pu)
 
                             mp(SendEmail(
                                     partnerUser.email,

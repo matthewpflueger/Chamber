@@ -207,4 +207,12 @@ class LoginController extends EchoedController with FormController {
         }
     }
 
+    @RequestMapping(value = Array("/verify/{code}"), method = Array(RequestMethod.GET))
+    def verifyGet(
+            @PathVariable("code") code: String,
+            response: HttpServletResponse,
+            request: HttpServletRequest) = {
+        mp(VerifyEmail(code))
+        new ModelAndView("redirect:%s" format v.siteUrl)
+    }
 }

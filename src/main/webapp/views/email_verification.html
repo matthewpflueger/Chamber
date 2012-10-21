@@ -1,0 +1,13 @@
+{{<email_super}}
+{{$title}}Please verify your email{{/title}}
+{{$content}}
+    <p>{{echoedUser.name}}</p>
+    <div>
+        Thank you for visiting Echoed.com!  Please click <a href="{{urls.site}}/login/verify/{{code}}">here</a>
+        or copy the url below into your browser to verify email.
+        <p>
+            <a href="{{urls.site}}/login/verify/{{code}}">{{urls.site}}/login/verify/{{code}}</a>
+        </p>
+    </div>
+{{/content}}
+{{/email_super}}

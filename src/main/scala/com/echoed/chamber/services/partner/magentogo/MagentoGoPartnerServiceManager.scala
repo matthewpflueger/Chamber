@@ -140,11 +140,11 @@ class MagentoGoPartnerServiceManager(
                                 Right(RegisterMagentoGoPartnerEnvelope(mgp, p, pu)))
 
 
-                            val model = new HashMap[String, AnyRef]()
-                            model.put("code", code)
-                            model.put("magentoGoPartner", mgp)
-                            model.put("partner", p)
-                            model.put("partnerUser", pu)
+                            val model = Map(
+                                "code" -> code,
+                                "magentoGoPartner" -> mgp,
+                                "partner" -> p,
+                                "partnerUser" -> pu)
 
                             mp(SendEmail(
                                 pu.email,

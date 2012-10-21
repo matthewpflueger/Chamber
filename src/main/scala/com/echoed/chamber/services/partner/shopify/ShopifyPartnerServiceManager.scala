@@ -175,11 +175,11 @@ class ShopifyPartnerServiceManager(
                                                 log.debug("Successfully registered and created Shopify partner: {}", sp.name)
                                         }))
 
-                                    val model = new HashMap[String, AnyRef]()
-                                    model.put("code", code)
-                                    model.put("shopifyPartner", sp)
-                                    model.put("partnerUser", pu)
-                                    model.put("partner", p)
+                                    val model = Map(
+                                        "code" -> code,
+                                        "shopifyPartner" -> sp,
+                                        "partnerUser" -> pu,
+                                        "partner" -> p)
 
                                     mp(SendEmail(
                                         pu.email,

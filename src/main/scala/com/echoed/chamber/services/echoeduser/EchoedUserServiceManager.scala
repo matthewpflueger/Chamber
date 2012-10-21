@@ -61,15 +61,13 @@ class EchoedUserServiceManager(
         case msg @ Logout(eucc) => active.get(EchoedUserId(eucc.echoedUserId)).headOption.foreach(_.forward(msg))
 
 
-        case msg @ LoginWithCode(code) =>
-            val channel = context.sender
-            val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
-            mp(LoginWithEmailPassword(map("email"), map("password"))).onSuccess {
-                case LoginWithEmailPasswordResponse(_, Left(e)) =>
-                    channel ! LoginWithCodeResponse(msg, Left(e))
-                case LoginWithEmailPasswordResponse(_, Right(echoedUser)) =>
-                    channel ! LoginWithCodeResponse(msg, Right(echoedUser))
+        case msg: CodeIdentifiable with EchoedUserMessage =>
+            val map = ScalaObjectMapper(encrypter.decrypt(msg.code), classOf[Map[String, String]])
+            val m = new LoginWithEmailPassword(map("email"), map("password")) with Correlated[EchoedUserMessage] {
+                val correlation = msg
+                override val correlationSender = Some(sender)
             }
+            mp(m)
 
 
         case msg @ LoginWithFacebookUser(facebookUser, correlation, channel) =>
@@ -148,5 +146,3 @@ case class Email(id: String) extends Identifiable
 case class ScreenName(id: String) extends Identifiable
 case class FacebookId(id: String) extends Identifiable
 case class TwitterId(id: String) extends Identifiable
-
-
