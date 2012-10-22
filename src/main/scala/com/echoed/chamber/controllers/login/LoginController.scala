@@ -28,7 +28,7 @@ class LoginController extends EchoedController with FormController {
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def loginGet(
-            @RequestParam(value = "r", required = false) redirect: String,
+            @RequestParam(value = "redirect", required = false) redirect: String,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
@@ -41,7 +41,7 @@ class LoginController extends EchoedController with FormController {
     def loginPost(
             @Valid lf: LoginForm,
             bindingResult: BindingResult,
-            @RequestParam (value = "r", required = false) redirect: String,
+            @RequestParam (value = "redirect", required = false) redirect: String,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
@@ -75,7 +75,7 @@ class LoginController extends EchoedController with FormController {
 
     @RequestMapping(value = Array("/register"), method = Array(RequestMethod.GET))
     def registerGet(
-            @RequestParam(value = "r", required = false) r: String,
+            @RequestParam(value = "redirect", required = false) r: String,
             @Nullable eucc: EchoedUserClientCredentials,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
@@ -97,7 +97,7 @@ class LoginController extends EchoedController with FormController {
     def registerPost(
             @Valid lrf: LoginRegisterForm,
             bindingResult: BindingResult,
-            @RequestParam(value = "r", required = false) redirect: String,
+            @RequestParam(value = "redirect", required = false) redirect: String,
             @Nullable eucc: EchoedUserClientCredentials,
             response: HttpServletResponse,
             request: HttpServletRequest) = {

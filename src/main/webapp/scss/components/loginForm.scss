@@ -1,12 +1,12 @@
+.login-form-title{
+    margin-bottom: 10px;
+    text-align: center;
+    @include fontHeader(36px);
+}
 .login-form{
     margin: 20px auto;
     width: 320px;
     text-align: center;
-    .login-form-title{
-        margin-bottom: 10px;
-        text-align: center;
-        @include fontHeader(36px);
-    }
     .login-form-row{
         position: relative;
         margin: 10px 0px;
