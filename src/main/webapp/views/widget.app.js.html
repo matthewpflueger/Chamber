@@ -8,7 +8,8 @@
         var iFrameHash = '';
         if(index > 0){
             var hString = hash.substr(index);
-            iFrameHash = '#' + hString.split('_')[1];
+            if(hString.split('_')[1]) iFrameHash = '#' + hString.split('_')[1];
+            else iFrameHash = "#home";
         }
 
         echoedOverlay.style.cssText = "z-index:9999; top: 0px; left: 0px; right: 0px; height: 100%; width: 100%; position: fixed; overflow-y: scroll; display: none;";

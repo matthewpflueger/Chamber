@@ -14,6 +14,7 @@ define(
                 "_=_" : "fix",
                 "": "explore",
                 "!": "explore",
+                "home": "reload",
                 "story/:id": "story",
                 "write/:type/:id" : "writeStory",
                 "write/" : "writePartner",
