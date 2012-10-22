@@ -27,11 +27,11 @@ define(
             },
             getLoginRedirectUrl: function(url){
                 var location = url ? url : encodeURIComponent(window.location.hash);
-                return "login?r=" + location;
+                return "login?redirect=" + location;
             },
             getSignUpRedirectUrl: function(url){
                 var location = url ? url : encodeURIComponent(window.location.hash);
-                return "login/register?r=" + location;
+                return "login/register?redirect=" + location;
             },
             getFacebookLoginUrl: function(hash){
                 return Echoed.facebookLogin.head +
