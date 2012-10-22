@@ -54,7 +54,7 @@ class LoginController extends EchoedController with FormController {
 
             val result = new DeferredResult(errorModelAndView)
 
-            val view = "%s/%s" format(v.postLoginView, Option(redirect).getOrElse(""))
+            val view = "%s?redirect=%s" format(v.postLoginView, Option(redirect).getOrElse(""))
 //            val view = Option(r).map { redirect =>
 //                "redirect:%s/%s" format (v.secureSiteUrl, redirect)
 //            }.getOrElse("redirect:%s" format v.siteUrl)
