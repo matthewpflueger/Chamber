@@ -5,13 +5,13 @@
     {{/jsHead}}
     {{$public_content}}
     <div id="content-wide">
+        <div class="login-form-title">
+            {{#eucc}} Welcome to Echoed! <br/>We need just a little bit more info... {{/eucc}}
+            {{^eucc}} Create Your Account {{/eucc}}
+        </div>
         <div id="register-form" class="login-form">
-            <div class="login-form-title">
-                {{#eucc}} Welcome to Echoed! <br/>We need just a little bit more info... {{/eucc}}
-                {{^eucc}} Create Your Account {{/eucc}}
-            </div>
             {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
-            <form action="{{urls.site}}/login/register{{#redirect}}?r={{.}}{{/redirect}}" method="POST">
+            <form action="{{urls.site}}/login/register{{#redirect}}?redirect={{.}}{{/redirect}}" method="POST">
                 <div class="login-form-row">
                     <input class="placeholder-input" id="name" name="name" type="text" value="{{loginRegisterForm.name}}"/>
                     <label class="placeholder-text">Name</label>

@@ -83,7 +83,7 @@ class FacebookController extends EchoedController with NetworkController {
         mp(LoginWithFacebook(Left(FacebookCode(code, queryString)))).onSuccess {
             case LoginWithFacebookResponse(_, Right(echoedUser)) =>
                 cookieManager.addEchoedUserCookie(response, echoedUser, request)
-                val redirectView = "%s/%s" format(v.postLoginView, Option(redirect).getOrElse(""))
+                val redirectView = "%s?redirect=%s" format(v.postLoginView, Option(redirect).getOrElse(""))
                 log.debug("Redirecting to View: {} ", redirectView)
                 val modelAndView = new ModelAndView(redirectView)
                 result.set(modelAndView)
