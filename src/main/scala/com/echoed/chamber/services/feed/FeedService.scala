@@ -159,7 +159,7 @@ class FeedService(
         case msg @ GetUserPublicStoryFeed(echoedUserId, page) =>
             val start = msg.page * pageSize
             val stories = storyTree.values
-                    .filter(s => !s.isSelfModerated && s.echoedUser.id.equals(echoedUserId))
+                    .filter(s => !s.isSelfModerated && s.isOwnedBy(echoedUserId))
                     .map(_.published).toList
 
             val nextPage =

@@ -35,4 +35,7 @@ case class StoryPublic(
     def isModerated = moderation.moderated
     def isEchoedModerated = moderation.echoedModerated
     def isSelfModerated = moderation.selfModerated
+
+    def isOwnedBy(id: String) = echoedUser.id == id || echoedUser.screenName == id
+
 }
