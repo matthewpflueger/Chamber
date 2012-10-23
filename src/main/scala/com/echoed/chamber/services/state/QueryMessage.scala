@@ -55,6 +55,15 @@ case class QueryPartnerUsersResponse(message: QueryPartnerUsers, value: Either[Q
         extends QM with MR[List[PartnerUser], QueryPartnerUsers, QE]
 
 
+case class PartnerAndPartnerUsers(partner: Partner, partnerUser: PartnerUser)
+case class QueryPartnersAndPartnerUsers(aucc: AUCC, page: Int = 0, pageSize: Int = 30) extends QM
+case class QueryPartnersAndPartnerUsersResponse(
+            message: QueryPartnersAndPartnerUsers,
+            value: Either[QE, List[PartnerAndPartnerUsers]])
+            extends QM with MR[List[PartnerAndPartnerUsers], QueryPartnersAndPartnerUsers, QE]
+
+
+
 case class QueryUnique(ref: Any, correlation: Message, override val correlationSender: Option[ActorRef])
         extends QM with Correlated[Message]
 case class QueryUniqueResponse(message: QueryUnique, value: Either[EchoedException, Boolean])

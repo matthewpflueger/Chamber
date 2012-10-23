@@ -50,6 +50,14 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
 
             sender ! QueryStoriesForPartnerResponse(msg, Right(ss))
 
+        case msg @ QueryPartnersAndPartnerUsers(aucc, page, pageSize) =>
+            //Assumes only one partnerUser for each Partner
+            val results = join(partners, partnerUsers)((p, pu) =>
+                select(p, pu)
+                on(p.id === pu.partnerId)).map( r => new PartnerAndPartnerUsers(r.a1, r.a2)).toList
+            log.error("Results: {}", results)
+            sender ! QueryPartnersAndPartnerUsersResponse(msg, Right(results))
+
         case msg @ QueryPartners(aucc, page, pageSize) =>
             sender ! QueryPartnersResponse(msg, Right(from(partners)(p => select(p)).page(page, pageSize).toList))
 

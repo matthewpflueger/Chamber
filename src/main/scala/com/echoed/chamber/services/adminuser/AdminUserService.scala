@@ -70,11 +70,6 @@ class AdminUserService(
             sender ! GetUsersResponse(msg, Right(asScalaBuffer(adminViewDao.getUsers).toList))
 
 
-        case msg: GetPartners =>
-            log.debug("Retrieving Partners")
-            sender ! GetPartnersResponse(msg, Right(asScalaBuffer(adminViewDao.getPartners).toList))
-
-
         case msg @ GetPartner(aucc, partnerId) =>
             val channel = sender
             log.debug("Retrieving Partner {}", partnerId)

@@ -58,12 +58,6 @@ case class GetAdminUserResponse(
                 value: Either[AUE,AdminUser])
                 extends AUM with MR[AdminUser,GetAdminUser,AUE]
 
-case class GetPartners(credentials: AUCC) extends AUM with AUI
-case class GetPartnersResponse(
-                message: GetPartners,
-                value: Either[AUE, JList[Partner]])
-                extends AUM with MR[JList[Partner], GetPartners, AUE]
-
 case class GetPartnerSettings(credentials: AUCC, partnerId: String) extends AUM with AUI
 case class GetPartnerSettingsResponse(
                 message: GetPartnerSettings, 

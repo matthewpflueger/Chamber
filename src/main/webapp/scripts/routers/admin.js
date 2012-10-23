@@ -16,10 +16,10 @@ define(
                 "partners": "partners"
             },
             home: function(){
-                this.EvAg.trigger('moderate/show');
+                this.EvAg.trigger('page/change','moderate');
             },
             partners: function(){
-                this.EvAg.trigger('partnerList/show');
+                this.EvAg.trigger('page/change','partnerList');
             }
         })
     }
