@@ -286,7 +286,7 @@ class EchoedUserService(
     def online = {
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
-        case msg: LoginWithEmailPassword with Correlated[EchoedUserMessage] => msg.correlation match {
+        case msg: LoginWithEmailPassword with Correlated[EchoedUserMessage] => (msg.correlation: @unchecked) match {
             case m: VerifyEmail =>
                 log.debug("In verify email with {}", m)
                 echoedUser = echoedUser.copy(emailVerified = true)
