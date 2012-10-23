@@ -24,7 +24,7 @@ define(
                 });
             },
             scrollUp: function(){
-                $("html, body").animate({scrollTop: 0 }, 300);
+                //$("html, body").animate({scrollTop: 0 }, 300);
             },
             on: function(){
                 this.status = true;
