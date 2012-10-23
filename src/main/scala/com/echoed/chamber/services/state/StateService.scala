@@ -65,10 +65,10 @@ class StateService(
     }
 
     protected def handle = transactional {
-        case msg @ ReadForEmailOrScreenName(emailOrScreenName) =>
+        case msg @ ReadForCredentials(c) =>
             val eu = from(echoedUsers)(eu =>
-                    where(eu.email === emailOrScreenName or eu.screenName === emailOrScreenName)
-                    select(eu)).headOption
+                where(eu.id === c.id or eu.email === c.id or eu.screenName === c.id)
+                select(eu)).headOption
             val eus = readEchoedUserSettings(eu)
             val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
             val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
@@ -77,23 +77,10 @@ class StateService(
             val fbu = readFollowedByUsers(eu)
 
             eu.cata(
-                _ => sender ! ReadForEmailOrScreenNameResponse(
+                _ => sender ! ReadForCredentialsResponse(
                         msg,
                         Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf, fus, fbu))),
-                sender ! ReadForEmailOrScreenNameResponse(msg, Left(EchoedUserNotFound(emailOrScreenName))))
-
-
-        case msg @ ReadForCredentials(credentials) =>
-            echoedUsers.lookup(credentials.id).foreach { eu =>
-                val eus = readEchoedUserSettings(Option(eu)).get
-                val fu = Option(eu.facebookUserId).flatMap(facebookUsers.lookup(_))
-                val tu = Option(eu.twitterUserId).flatMap(twitterUsers.lookup(_))
-                val nf = readNotifications(Option(eu))
-                val fus = readFollowingUsers(Option(eu))
-                val fbu = readFollowedByUsers(Option(eu))
-
-                context.sender ! ReadForCredentialsResponse(msg, Right(EchoedUserServiceState(eu, eus, fu, tu, nf, fus, fbu)))
-            }
+                sender ! ReadForCredentialsResponse(msg, Left(EchoedUserNotFound(c.id))))
 
 
         case msg @ ReadForFacebookUser(facebookUser) =>

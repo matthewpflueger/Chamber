@@ -77,6 +77,9 @@ case class EchoedUser(
         val (s, p) = createSaltAndPassword(plainTextPassword)
         copy(salt = s, password = p)
     }
+
+    override def isCredentials(cred: String, password: String) =
+        (this.screenName == cred && isPassword(password)) || super.isCredentials(cred, password)
 }
 
 

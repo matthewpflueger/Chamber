@@ -9,16 +9,15 @@ import org.springframework.validation.BindingResult
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.controllers.{Errors, FormController, EchoedController}
 import scala._
+import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.echoeduser._
 import scala.Left
 import com.echoed.chamber.services.echoeduser.RegisterLogin
 import com.echoed.chamber.services.echoeduser.RegisterLoginResponse
 import scala.Right
-import com.echoed.chamber.services.echoeduser.LoginWithEmailPasswordResponse
 import com.echoed.chamber.controllers.interceptors.Secure
 import javax.annotation.Nullable
-import scalaz._
-import Scalaz._
+
 
 
 @Controller("echoedUserLogin")
@@ -55,15 +54,12 @@ class LoginController extends EchoedController with FormController {
             val result = new DeferredResult(errorModelAndView)
 
             val view = "%s?redirect=%s" format(v.postLoginView, Option(redirect).getOrElse(""))
-//            val view = Option(r).map { redirect =>
-//                "redirect:%s/%s" format (v.secureSiteUrl, redirect)
-//            }.getOrElse("redirect:%s" format v.siteUrl)
 
-            mp(LoginWithEmailPassword(lf.email, lf.password)).onSuccess {
-                case LoginWithEmailPasswordResponse(_, Left(e)) =>
+            mp(LoginWithPassword(EchoedUserClientCredentials(lf.cred, password = Some(lf.password)))).onSuccess {
+                case LoginWithPasswordResponse(_, Left(e)) =>
                     errorModelAndView.addError(e)
                     result.set(errorModelAndView)
-                case LoginWithEmailPasswordResponse(_, Right(echoedUser)) =>
+                case LoginWithPasswordResponse(_, Right(echoedUser)) =>
                     cookieManager.addEchoedUserCookie(response, echoedUser, request)
                     result.set(new ModelAndView(view))
             }
@@ -75,19 +71,19 @@ class LoginController extends EchoedController with FormController {
 
     @RequestMapping(value = Array("/register"), method = Array(RequestMethod.GET))
     def registerGet(
-            @RequestParam(value = "redirect", required = false) r: String,
-            @Nullable eucc: EchoedUserClientCredentials,
+            @RequestParam(value = "redirect", required = false) redirect: String,
+            @Nullable eucc: EUCC,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
-        val view = Option(r).map { redirect =>
+        val view = Option(redirect).map { redirect =>
             "redirect:%s/%s" format (v.secureSiteUrl, redirect)
         }.getOrElse("redirect:%s" format v.siteUrl)
 
         if (Option(eucc).exists(_.isComplete)) new ModelAndView(view)
         else {
             val modelAndView = new ModelAndView(v.loginRegisterView, "loginRegisterForm", new LoginRegisterForm(Option(eucc)))
-            modelAndView.addObject("redirect", r)
+            modelAndView.addObject("redirect", redirect)
             modelAndView.addObject("eucc", eucc)
             modelAndView.addObject("password", Option(eucc).map(_.password))
         }
@@ -98,7 +94,7 @@ class LoginController extends EchoedController with FormController {
             @Valid lrf: LoginRegisterForm,
             bindingResult: BindingResult,
             @RequestParam(value = "redirect", required = false) redirect: String,
-            @Nullable eucc: EchoedUserClientCredentials,
+            @Nullable eucc: EUCC,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
@@ -144,18 +140,8 @@ class LoginController extends EchoedController with FormController {
         if (bindingResult.hasErrors) {
             errorModelAndView
         } else {
-
-            val result = new DeferredResult(errorModelAndView)
-
-            mp(ResetLogin(loginResetForm.email)).onSuccess {
-                case ResetLoginResponse(_, Left(e)) =>
-                    errorModelAndView.addError(e)
-                    result.set(errorModelAndView)
-                case ResetLoginResponse(_, Right(_)) =>
-                    result.set(new ModelAndView(v.loginResetPostView, "email", loginResetForm.email))
-            }
-
-            result
+            mp(ResetLogin(EUCC(loginResetForm.cred)))
+            new ModelAndView(v.loginResetPostView)
         }
     }
 
@@ -163,31 +149,29 @@ class LoginController extends EchoedController with FormController {
     @RequestMapping(value = Array("/reset/{code}"), method = Array(RequestMethod.GET))
     def resetPasswordGet(
             @PathVariable("code") code: String,
+            @RequestParam(value = "id", required = true) id: String,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
-        val result = new DeferredResult(new ModelAndView("redirect:%s" format v.siteUrl))
-
-        mp(LoginWithCode(code)).onSuccess {
-            case LoginWithCodeResponse(_, Right(echoedUser)) =>
-                val modelAndView = new ModelAndView(v.loginResetPasswordView)
-                modelAndView.addObject("resetPasswordForm", new ResetPasswordForm())
-                modelAndView.addObject("echoedUser", echoedUser)
-                cookieManager.addEchoedUserCookie(response, echoedUser, request)
-                result.set(modelAndView)
-        }
-
-        result
+        val mv = new ModelAndView(v.loginResetPasswordView)
+        mv.addObject("resetPasswordForm", new ResetPasswordForm())
+        mv.addObject("code", code)
+        mv.addObject("id", id)
     }
 
 
-    @RequestMapping(value = Array("/reset/password"), method = Array(RequestMethod.POST))
+    @RequestMapping(value = Array("/reset/password/{code}"), method = Array(RequestMethod.POST))
     def resetPasswordPost(
             @Valid resetPasswordForm: ResetPasswordForm,
             bindingResult: BindingResult,
-            eucc: EchoedUserClientCredentials) = {
+            @PathVariable("code") code: String,
+            @RequestParam(value = "id", required = true) id: String,
+            response: HttpServletResponse,
+            request: HttpServletRequest) = {
 
         val errorModelAndView = new ModelAndView(v.loginResetPasswordView) with Errors
+        errorModelAndView.addObject("code", code)
+        errorModelAndView.addObject("id", id)
 
         if (bindingResult.hasErrors) {
             errorModelAndView
@@ -195,11 +179,12 @@ class LoginController extends EchoedController with FormController {
 
             val result = new DeferredResult(errorModelAndView)
 
-            mp(ResetPassword(eucc, resetPasswordForm.password)).onSuccess {
+            mp(ResetPassword(EUCC(id), code, resetPasswordForm.password)).onSuccess {
                 case ResetPasswordResponse(_, Left(e)) =>
                     errorModelAndView.addError(e)
                     result.set(errorModelAndView)
-                case ResetPasswordResponse(_, Right(_)) =>
+                case ResetPasswordResponse(_, Right(echoedUser)) =>
+                    cookieManager.addEchoedUserCookie(response, echoedUser, request)
                     result.set(new ModelAndView("redirect:%s" format v.siteUrl))
             }
 
@@ -210,9 +195,19 @@ class LoginController extends EchoedController with FormController {
     @RequestMapping(value = Array("/verify/{code}"), method = Array(RequestMethod.GET))
     def verifyGet(
             @PathVariable("code") code: String,
+            @RequestParam(value = "id", required = true) id: String,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
-        mp(VerifyEmail(code))
-        new ModelAndView("redirect:%s" format v.siteUrl)
+
+        val mv = new ModelAndView("redirect:%s" format v.siteUrl)
+        val result = new DeferredResult(mv)
+
+        mp(VerifyEmail(EUCC(id), code)).onSuccess {
+            case VerifyEmailResponse(_, Right(echoedUser)) =>
+                cookieManager.addEchoedUserCookie(response, echoedUser, request)
+                result.set(mv)
+        }
+
+        result
     }
 }

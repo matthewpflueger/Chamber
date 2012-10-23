@@ -111,7 +111,7 @@ class StoryService(
 
             storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote), updatedOn = new Date)
             if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
-            if (value > 0 && !vote.isUpdated && (eucc.echoedUserId != byEchoedUser.id)) {
+            if (value > 0 && !vote.isUpdated && (eucc.id != byEchoedUser.id)) {
                 mp(RegisterNotification(eucc, new Notification(
                     echoedUser.id,
                     byEchoedUser,
@@ -204,7 +204,7 @@ class StoryService(
                         "storyId" -> storyState.id))))
             }
 
-        case msg @ ModerateStory(_, _, eucc: EUCC, mo) if (eucc.echoedUserId == echoedUser.id) =>
+        case msg @ ModerateStory(_, _, eucc: EUCC, mo) if (eucc.id == echoedUser.id) =>
             moderate(msg, eucc.name.get, "EchoedUser", eucc.id, mo)
         case msg @ ModerateStory(_, _, pucc: PUCC, mo) if (pucc.partnerId.exists(_ == storyState.partner.id)) =>
             moderate(msg, pucc.name.get, "PartnerUser", pucc.id, mo)

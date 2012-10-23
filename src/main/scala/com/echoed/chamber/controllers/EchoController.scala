@@ -70,7 +70,7 @@ class EchoController extends EchoedController {
                 ipAddress = ip,
                 userAgent = userAgent,
                 referrerUrl = referrerUrl,
-                echoedUserId = Option(eucc).map(_.echoedUserId),
+                echoedUserId = Option(eucc).map(_.id),
                 echoClickId = ec,
                 view = Option(view))).onSuccess {
             case RequestEchoResponse(_, Right(echoPossibilityView)) => result.set(echoPossibilityView)
@@ -91,7 +91,7 @@ class EchoController extends EchoedController {
 
         val ec = cookieManager.findEchoClickCookie(request)
 
-        mp(RecordEchoStep(id, "login", Option(eucc).map(_.echoedUserId), ec)).onSuccess {
+        mp(RecordEchoStep(id, "login", Option(eucc).map(_.id), ec)).onSuccess {
             case RecordEchoStepResponse(_, Left(EchoExists(_, _ , _))) =>
                 log.debug("Product already echoed, Redirecting to echo/echoed")
                 result.set(new ModelAndView(v.echoEchoedUrl, "id", id))
@@ -132,7 +132,7 @@ class EchoController extends EchoedController {
         val networkController = networkControllers.get(network)
         val ec = cookieManager.findEchoClickCookie(request)
 
-        mp(RecordEchoStep(id, "authorize-%s" format network, Option(eucc).map(_.echoedUserId), ec))
+        mp(RecordEchoStep(id, "authorize-%s" format network, Option(eucc).map(_.id), ec))
         val authorizeUrl =
             if (close) networkController.makeAuthorizeUrl("echo/close?id=%s&network=%s" format (id, network), add)
             else networkController.makeAuthorizeUrl("echo/confirm?id=%s" format id, add)
@@ -157,7 +157,7 @@ class EchoController extends EchoedController {
 
         val ec = cookieManager.findEchoClickCookie(request)
 
-        mp(RecordEchoStep(id, "confirm", Some(eucc.echoedUserId), ec))
+        mp(RecordEchoStep(id, "confirm", Some(eucc.id), ec))
 
         mp(GetEchoedUser(eucc)).onSuccess {
             case GetEchoedUserResponse(_, Right(eu)) =>
@@ -183,7 +183,7 @@ class EchoController extends EchoedController {
 
         val ec = cookieManager.findEchoClickCookie(request)
 
-        mp(RecordEchoStep(id, "confirm", Some(eucc.echoedUserId), ec)).onSuccess {
+        mp(RecordEchoStep(id, "confirm", Some(eucc.id), ec)).onSuccess {
             case RecordEchoStepResponse(_, Left(EchoExists(epv, message , _))) =>
                 log.debug("Product already echoed {}, Redirecting to echo/echoed", epv)
                 result.set(new ModelAndView(v.echoEchoedUrl, "id", id))
@@ -283,7 +283,7 @@ class EchoController extends EchoedController {
             httpServletResponse: HttpServletResponse) = {
 
         val result = new DeferredResult(new ModelAndView(v.errorView))
-        val echoedUserId = Option(eucc).map(_.echoedUserId).orNull
+        val echoedUserId = Option(eucc).map(_.id).orNull
 
         val echoClick = new EchoClick(
                 echoId = null, //we will determine what the echoId is in the service...

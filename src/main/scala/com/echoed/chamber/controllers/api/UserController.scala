@@ -221,15 +221,15 @@ class UserController extends EchoedController {
     @RequestMapping(value= Array("/user/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def friendExhibit(
-            @PathVariable(value ="id") echoedUserId: String,
+            @PathVariable(value ="id") id: String,
             @RequestParam(value = "page", required = false) page: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        log.debug("echoedUserId: {}", echoedUserId)
+        log.debug("Getting feed for {}", id)
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(GetUserFeed(new EchoedUserClientCredentials(echoedUserId), parse(page))).onSuccess {
+        mp(GetUserFeed(new EchoedUserClientCredentials(id), parse(page))).onSuccess {
             case GetUserFeedResponse(_, Right(feed)) =>
                 result.set(feed)
         }

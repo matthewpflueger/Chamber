@@ -43,12 +43,6 @@ private[services] case class TwitterUserNotFound(
 private[services] abstract class ReadEchoedUserServiceState extends SM
 import com.echoed.chamber.services.state.{ReadEchoedUserServiceState => REUSS}
 
-private[services] case class ReadForEmailOrScreenName(emailOrScreenName: String) extends REUSS
-private[services] case class ReadForEmailOrScreenNameResponse(
-                message: ReadForEmailOrScreenName,
-                value: Either[SE, EchoedUserServiceState])
-                extends SM with MR[EchoedUserServiceState, ReadForEmailOrScreenName, SE]
-
 
 private[services] case class ReadForCredentials(credentials: EchoedUserClientCredentials) extends REUSS
 private[services] case class ReadForCredentialsResponse(

@@ -4,7 +4,7 @@ import org.hibernate.validator.constraints.{Length, NotBlank, Email}
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 
 
-class LoginForm extends EmailForm with PasswordForm
+class LoginForm extends CredForm with PasswordForm
 
 class LoginRegisterForm(eucc: Option[EchoedUserClientCredentials] = None) extends EmailForm with PasswordForm {
 
@@ -34,9 +34,21 @@ class LoginRegisterForm(eucc: Option[EchoedUserClientCredentials] = None) extend
     }
 }
 
-class LoginResetForm extends EmailForm
+class LoginResetForm extends CredForm
 
 class ResetPasswordForm extends PasswordForm
+
+
+trait CredForm {
+
+    var cred: String = _
+
+    @NotBlank
+    def getCred = cred
+    def setCred(cred: String) {
+        this.cred = cred
+    }
+}
 
 
 trait EmailForm {

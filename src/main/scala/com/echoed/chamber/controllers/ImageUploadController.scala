@@ -61,7 +61,7 @@ class ImageUploadController extends EchoedController {
         log.debug("Image %s of type %s being uploaded for %s" format(fileName, contentType, eucc))
         blobStore.store(
                 bytes,
-                eucc.echoedUserId + "_" + dateString + "_" + fileName ,
+                eucc.id + "_" + dateString + "_" + fileName ,
                 contentType).onSuccess {
             case url =>
                 log.debug("Successfully stored %s of type %s for %s" format(fileName, contentType, eucc))

@@ -27,7 +27,7 @@ class StoryController extends EchoedController {
             @RequestParam(value = "partnerId", required = false) partnerId: String,
             eucc: EchoedUserClientCredentials) = {
 
-        log.debug("Initializing story for {}", eucc.echoedUserId)
+        log.debug("Initializing story for {}", eucc.id)
 
         val result = new DeferredResult(ErrorResult.timeout)
 

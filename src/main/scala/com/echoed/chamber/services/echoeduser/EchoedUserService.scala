@@ -15,7 +15,7 @@ import akka.actor.SupervisorStrategy.Stop
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import org.springframework.transaction.support.TransactionTemplate
 import java.util.Date
-import com.echoed.util.{Encrypter, UUID}
+import com.echoed.util.{ScalaObjectMapper, Encrypter, UUID, DateUtils}
 import akka.util.Timeout
 import scala.collection.immutable.Stack
 import com.echoed.chamber.services.scheduler.Hour
@@ -108,8 +108,8 @@ class EchoedUserService(
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
-    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-        case _: Exception ⇒ Stop
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1 minute) {
+        case _: Throwable ⇒ Stop
     }
 
 
@@ -123,8 +123,8 @@ class EchoedUserService(
     }
 
 
-    private def createCode(email: String, password: String) =
-        encrypter.encrypt("""{ "email": "%s", "password": "%s" }""" format(email, password))
+    private def createCode(password: String) =
+        encrypter.encrypt("""{ "password": "%s", "createdOn": "%s" }""" format(password, DateUtils.dateToLong(new Date)))
 
 
     private def verifyEmail: Unit =
@@ -132,7 +132,7 @@ class EchoedUserService(
             echoedUser.email,
             "Email verification",
             "email_verification",
-            Map("echoedUser" -> echoedUser, "code" -> createCode(echoedUser.email, echoedUser.password))))
+            Map("echoedUser" -> echoedUser, "code" -> createCode(echoedUser.password))))
 
 
     private def handleLoginWithFacebookUser(msg: LoginWithFacebookUser) {
@@ -220,8 +220,7 @@ class EchoedUserService(
     override def preStart() {
         super.preStart()
         initMessage match {
-            case LoginWithEmailOrScreenName(emailOrScreenName, _, _) => mp.tell(ReadForEmailOrScreenName(emailOrScreenName), self)
-            case LoginWithCredentials(credentials) => mp.tell(ReadForCredentials(credentials), self)
+            case LoginWithCredentials(credentials, _, _) => mp.tell(ReadForCredentials(credentials), self)
             case LoginWithFacebookUser(facebookUser, _, _) => mp.tell(ReadForFacebookUser(facebookUser), self)
             case LoginWithTwitterUser(twitterUser, _, _) => mp.tell(ReadForTwitterUser(twitterUser), self)
             case msg: RegisterLogin => //handled in init as we need to capture the sender
@@ -249,34 +248,31 @@ class EchoedUserService(
                     self ! PoisonPill
             }
 
-        case msg @ ReadForEmailOrScreenNameResponse(_, Left(_)) =>
-            initMessage match {
-                case LoginWithEmailOrScreenName(_, msg @ LoginWithEmailPassword(_, _), channel) =>
-                    channel.get ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
-                case LoginWithEmailOrScreenName(_, msg @ ResetLogin(_), channel) =>
+        case ReadForCredentialsResponse(_, Left(_)) =>
+            (initMessage: @unchecked) match {
+                case LoginWithCredentials(_, msg @ LoginWithPassword(_), channel) =>
+                    channel.get ! LoginWithPasswordResponse(msg, Left(InvalidCredentials()))
+                case LoginWithCredentials(_, msg @ ResetLogin(_), channel) =>
                     channel.get ! ResetLoginResponse(msg, Left(InvalidCredentials()))
             }
             self ! PoisonPill
 
+        case ReadForCredentialsResponse(_, Right(euss)) => setStateAndRegister(euss)
 
-        case msg @ ReadForEmailOrScreenNameResponse(_, Right(euss)) => setStateAndRegister(euss)
-
-        case msg @ ReadForCredentialsResponse(_, Right(euss)) => setStateAndRegister(euss)
-
-        case msg @ ReadForFacebookUserResponse(_, Left(FacebookUserNotFound(fu, _))) =>
+        case ReadForFacebookUserResponse(_, Left(FacebookUserNotFound(fu, _))) =>
             create(new EchoedUser(fu), fu = Option(fu))
             handleLoginWithFacebookUser(initMessage.asInstanceOf[LoginWithFacebookUser])
 
-        case msg @ ReadForFacebookUserResponse(_, Right(euss)) =>
+        case ReadForFacebookUserResponse(_, Right(euss)) =>
             setState(euss)
             handleLoginWithFacebookUser(initMessage.asInstanceOf[LoginWithFacebookUser])
             updated
 
-        case msg @ ReadForTwitterUserResponse(_, Left(TwitterUserNotFound(tu, _))) =>
+        case ReadForTwitterUserResponse(_, Left(TwitterUserNotFound(tu, _))) =>
             create(new EchoedUser(tu), tu = Option(tu))
             handleLoginWithTwitterUser(initMessage.asInstanceOf[LoginWithTwitterUser])
 
-        case msg @ ReadForTwitterUserResponse(_, Right(euss)) =>
+        case ReadForTwitterUserResponse(_, Right(euss)) =>
             setState(euss)
             handleLoginWithTwitterUser(initMessage.asInstanceOf[LoginWithTwitterUser])
             updated
@@ -286,44 +282,45 @@ class EchoedUserService(
     def online = {
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
-        case msg: LoginWithEmailPassword with Correlated[EchoedUserMessage] => (msg.correlation: @unchecked) match {
-            case m: VerifyEmail =>
-                log.debug("In verify email with {}", m)
+        case msg @ VerifyEmail(_, code) =>
+            val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
+            map.get("password").filter(_ == echoedUser.password).foreach { _ =>
                 echoedUser = echoedUser.copy(emailVerified = true)
                 updated
-            case m: LoginWithCode =>
-                msg.correlationSender.map(_ ! LoginWithCodeResponse(m, Right(echoedUser)))
-        }
+                sender ! VerifyEmailResponse(msg, Right(echoedUser))
+            }
 
-        case msg @ LoginWithEmailPassword(email, password) =>
-            //compare the hashed version of the passwords here in case of password reset :(
-            if (echoedUser.isCredentials(email, password) || echoedUser.email == email && echoedUser.password == password) {
-                context.sender ! LoginWithEmailPasswordResponse(msg, Right(echoedUser))
-            } else context.sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
+
+        case msg @ ResetPassword(_, code, password) =>
+            val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
+            map.get("password").filter(_ == echoedUser.password).foreach { _ =>
+                echoedUser = echoedUser.createPassword(password)
+                updated
+                sender ! ResetPasswordResponse(msg, Right(echoedUser))
+            }
+
+
+        case msg @ LoginWithPassword(eucc) if (eucc.password.isDefined) =>
+            if (echoedUser.isCredentials(eucc.id, eucc.password.get)) {
+                sender ! LoginWithPasswordResponse(msg, Right(echoedUser))
+            } else sender ! LoginWithPasswordResponse(msg, Left(InvalidCredentials()))
+
 
         case msg @ ResetLogin(_) =>
             val password =
                 if (echoedUser.hasPassword) echoedUser.password
                 else {
-                    val p = UUID()
-                    echoedUser = echoedUser.createPassword(p)
+                    echoedUser = echoedUser.createPassword(UUID())
                     updated
-                    p
+                    echoedUser.password
                 }
 
-            val code = encrypter.encrypt("""{ "email": "%s", "password": "%s" }""" format(echoedUser.email, password))
             mp(SendEmail(
                     echoedUser.email,
                     "Password reset",
                     "login_reset_email",
-                    Map("echoedUser" -> echoedUser, "code" -> createCode(echoedUser.email, password))))
-            sender ! ResetLoginResponse(msg, Right(code))
-
-
-        case msg @ ResetPassword(_, password) =>
-            echoedUser = echoedUser.createPassword(password)
-            updated
-            sender ! ResetPasswordResponse(msg, Right(echoedUser))
+                    Map("echoedUser" -> echoedUser, "code" -> createCode(password))))
+            sender ! ResetLoginResponse(msg, Right(true))
 
 
         case msg @ RegisterLogin(name, email, screenName, password, Some(eucc)) if (initMessage != msg && eucc.id == echoedUser.id) =>
@@ -674,7 +671,7 @@ class EchoedUserService(
         case msg: ListFollowingUsers => sender ! ListFollowingUsersResponse(msg, Right(followingUsers))
         case msg: ListFollowedByUsers => sender ! ListFollowedByUsersResponse(msg, Right(followedByUsers))
 
-        case msg @ FollowUser(eucc, followerId) if (eucc.echoedUserId != followerId) =>
+        case msg @ FollowUser(eucc, followerId) if (eucc.id != followerId) =>
             mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser, msg, Option(context.sender)), self)
 
         case AddFollowerResponse(AddFollower(_, _, msg, Some(s)), Right(eu)) =>
@@ -754,7 +751,7 @@ class EchoedUserService(
 
         case msg @ GetUserFeed(eucc, page) =>
             val channel = sender
-            mp(GetUserPublicStoryFeed(eucc.echoedUserId, page)).onSuccess {
+            mp(GetUserPublicStoryFeed(eucc.id, page)).onSuccess {
                 case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
                     channel ! GetUserFeedResponse(msg, Right(new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), feed.stories, feed.nextPage)))
             }
