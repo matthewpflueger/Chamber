@@ -24,7 +24,7 @@ require(
         'jquery'
     ],
     function(require, $){
-        $('.placeholder-input').keyup(function(e){
+        $('.placeholder-input').live("keyup",function(e){
             if($(this).val() !== "") $(this).addClass("on");
             else $(this).removeClass("on")
         });
