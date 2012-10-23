@@ -15,10 +15,16 @@ define(
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.element = $(options.el);
-                this.EvAg.bind('moderate/show', this.render);
-                this.EvAg.bind('moderate/hide', this.hide);
+                this.EvAg.bind('page/change', this.pageChange);
                 this.page = 0;
                 this.pageSize = 30;
+            },
+            pageChange: function(option){
+                if(option === "moderate"){
+                    this.render();
+                } else {
+                    this.hide();
+                }
             },
             render: function(){
                 var self = this;

@@ -12,9 +12,23 @@ define(
             initialize: function(options){
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
-                this.EvAg.bind('partnerList/show', this.render);
+                this.EvAg.bind('page/change', this.pageChange);
                 this.properties = options.properties;
                 this.element = $(options.el);
+            },
+            pageChange: function(option){
+                if(option === "partnerList"){
+                    this.render();
+                } else {
+                    this.hide();
+                }
+            },
+            events: {
+                "click .partnerList-button" : "clickButton"
+            },
+            clickButton: function(ev){
+                var target = $(ev.currentTarget);
+                window.location = this.properties.urls.api + "/admin/become?partnerUserId=" + target.attr('partnerUserId');
             },
             render: function(){
                 var self = this;
@@ -25,6 +39,7 @@ define(
                         self.element.html(tableTemplate);
                         var body = self.element.find('tbody');
                         $.each(data, function(index, partner){
+                            console.log(partner);
                             var rowTemplate = _.template(templatePartnerRow, partner);
                             var tr = $('<tr></tr>').html(rowTemplate);
                             body.append(tr);

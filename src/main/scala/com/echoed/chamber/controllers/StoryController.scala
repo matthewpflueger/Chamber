@@ -218,7 +218,7 @@ class StoryController extends EchoedController {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        val ecc = Option(aucc).orElse(Option(pucc)).orElse(Option(eucc)).get
+        val ecc = Option(pucc).orElse(Option(aucc)).orElse(Option(eucc)).get
         mp(ModerateStory(new EchoedUserClientCredentials(storyOwnerId), storyId, ecc, moderated)).onSuccess {
             case ModerateStoryResponse(_, Right(story)) => result.set(story)
         }
