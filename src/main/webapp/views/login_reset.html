@@ -10,15 +10,15 @@
             {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
             <form action="{{urls.site}}/login/reset{{#redirect}}?r={{.}}{{/redirect}}" method="POST">
                 <div class="login-form-row">
-                    <input class="placeholder-input" id="email" name="email" type="text" value="{{loginResetForm.email}}"/>
-                    <label class="placeholder-text">Email Address</label>
+                    <input class="placeholder-input" id="cred" name="cred" type="text" value="{{loginResetForm.cred}}"/>
+                    <label class="placeholder-text">Email or Username</label>
                     <span class="placeholder-white"></span>
                 </div>
-                {{#errors.loginResetForm.email}}
+                {{#errors.loginResetForm.cred}}
                 <div>
-                    <label class="error"  for="email">{{.}}</label>
+                    <label class="error"  for="cred">{{.}}</label>
                 </div>
-                {{/errors.loginResetForm.email}}
+                {{/errors.loginResetForm.cred}}
                 <input id="reset" name="reset" type="submit" value="Reset">
             </form>
         </div>

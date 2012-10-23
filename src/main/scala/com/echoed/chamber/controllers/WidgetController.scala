@@ -26,7 +26,7 @@ class WidgetController extends EchoedController {
                 val modelAndView = new ModelAndView(v.widgetAppIFrameView)
                 modelAndView.addObject("partner", partner)
                 modelAndView.addObject("partnerId", pcc.partnerId)
-                modelAndView.addObject("echoedUserId", Option(eucc).map(_.echoedUserId).getOrElse(""))
+                modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                 result.set(modelAndView)
         }
         //FIXME should be requesting the widget view from the service which then publishes the event
@@ -44,7 +44,7 @@ class WidgetController extends EchoedController {
 
         val modelAndView =  new ModelAndView(v.widgetAppJsView)
         modelAndView.addObject("partnerId", pcc.partnerId)
-        modelAndView.addObject("echoedUserId", Option(eucc).map(_.echoedUserId).getOrElse(""))
+        modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
 
         if(style.equals("white")){
             modelAndView.addObject("white", true)

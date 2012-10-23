@@ -17,6 +17,7 @@ import com.echoed.chamber.services.facebook.FetchMe
 import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FetchMeResponse
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
+import akka.actor.SupervisorStrategy.Stop
 
 
 class EchoedUserServiceManager(
@@ -28,20 +29,26 @@ class EchoedUserServiceManager(
         encrypter: Encrypter,
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0) {
+        case _: Throwable ⇒ Stop
+    }
+
     private val facebookAccess = facebookAccessCreator(context)
     private val twitterAccess = twitterAccessCreator(context)
 
 
-    private val active = HashMultimap.create[Identifiable, ActorRef]()
+    private val active = HashMultimap.create[String, ActorRef]()
 
 
     private def forwardForCredentials(msg: EchoedUserMessage, credentials: EchoedUserClientCredentials) {
-        active.get(EchoedUserId(credentials.echoedUserId)).headOption.cata(
+        active.get(credentials.id).headOption.cata(
             _.forward(msg),
             {
-                val echoedUserService = context.watch(echoedUserServiceCreator(context, LoginWithCredentials(credentials)))
+                val echoedUserService = context.watch(echoedUserServiceCreator(
+                        context,
+                        LoginWithCredentials(credentials, msg, Some(context.sender))))
                 echoedUserService.forward(msg)
-                active.put(EchoedUserId(credentials.echoedUserId), echoedUserService)
+                active.put(credentials.id, echoedUserService)
             })
     }
 
@@ -51,33 +58,24 @@ class EchoedUserServiceManager(
 
 
         case RegisterEchoedUserService(echoedUser) =>
-            active.put(EchoedUserId(echoedUser.id), context.sender)
-            Option(echoedUser.email).foreach(id => active.put(Email(id), context.sender))
-            Option(echoedUser.screenName).foreach(id => active.put(ScreenName(id), context.sender))
-            Option(echoedUser.facebookId).foreach(id => active.put(FacebookId(id), context.sender))
-            Option(echoedUser.twitterId).foreach(id => active.put(TwitterId(id), context.sender))
+            active.put(echoedUser.id, context.sender)
+            Option(echoedUser.email).foreach(id => active.put(id, context.sender))
+            Option(echoedUser.screenName).foreach(id => active.put(id, context.sender))
+            Option(echoedUser.facebookId).foreach(id => active.put(id, context.sender))
+            Option(echoedUser.twitterId).foreach(id => active.put(id, context.sender))
 
 
-        case msg @ Logout(eucc) => active.get(EchoedUserId(eucc.echoedUserId)).headOption.foreach(_.forward(msg))
-
-
-        case msg: CodeIdentifiable with EchoedUserMessage =>
-            val map = ScalaObjectMapper(encrypter.decrypt(msg.code), classOf[Map[String, String]])
-            val m = new LoginWithEmailPassword(map("email"), map("password")) with Correlated[EchoedUserMessage] {
-                val correlation = msg
-                override val correlationSender = Some(sender)
-            }
-            mp(m)
+        case msg @ Logout(eucc) => active.get(eucc.id).headOption.foreach(_.forward(msg))
 
 
         case msg @ LoginWithFacebookUser(facebookUser, correlation, channel) =>
             active
-                    .get(FacebookId(facebookUser.facebookId)).headOption
+                    .get(facebookUser.facebookId).headOption
                     .cata(
                 _ ! msg,
                 {
                     val echoedUserService = context.watch(echoedUserServiceCreator(context, msg))
-                    active.put(FacebookId(facebookUser.facebookId), echoedUserService)
+                    active.put(facebookUser.facebookId, echoedUserService)
                 })
 
 
@@ -92,12 +90,12 @@ class EchoedUserServiceManager(
 
         case msg @ LoginWithTwitterUser(twitterUser, correlation, channel) =>
             active
-                    .get(TwitterId(twitterUser.twitterId)).headOption
+                    .get(twitterUser.twitterId).headOption
                     .cata(
                 _ ! msg,
                 {
                     val echoedUserService = context.watch(echoedUserServiceCreator(context, msg))
-                    active.put(TwitterId(twitterUser.twitterId), echoedUserService)
+                    active.put(twitterUser.twitterId, echoedUserService)
                 })
 
 
@@ -120,20 +118,20 @@ class EchoedUserServiceManager(
                 context.watch(echoedUserServiceCreator(context, msg)).forward(msg))
 
 
-        case msg: EmailOrScreenNameIdentifiable with EchoedUserMessage =>
-            active
-                    .get(Email(msg.emailOrScreenName))
-                    .headOption
-                    .orElse(active.get(ScreenName(msg.emailOrScreenName)).headOption)
-                    .cata(
-                _.forward(msg),
-                {
-                    val echoedUserService = context.watch(echoedUserServiceCreator(
-                            context,
-                            LoginWithEmailOrScreenName(msg.emailOrScreenName, msg, Option(sender))))
-                    echoedUserService.forward(msg)
-                    active.put(Email(msg.emailOrScreenName), echoedUserService)
-                })
+//        case msg: EmailOrScreenNameIdentifiable with EchoedUserMessage =>
+//            active
+//                    .get(Email(msg.emailOrScreenName))
+//                    .headOption
+//                    .orElse(active.get(ScreenName(msg.emailOrScreenName)).headOption)
+//                    .cata(
+//                _.forward(msg),
+//                {
+//                    val echoedUserService = context.watch(echoedUserServiceCreator(
+//                            context,
+//                            LoginWithEmailOrScreenName(msg.emailOrScreenName, msg, Option(sender))))
+//                    echoedUserService.forward(msg)
+//                    active.put(Email(msg.emailOrScreenName), echoedUserService)
+//                })
 
 
         case msg: EchoedUserIdentifiable with EchoedUserMessage => forwardForCredentials(msg, msg.credentials)
@@ -141,8 +139,8 @@ class EchoedUserServiceManager(
 }
 
 
-case class EchoedUserId(id: String) extends Identifiable
-case class Email(id: String) extends Identifiable
-case class ScreenName(id: String) extends Identifiable
-case class FacebookId(id: String) extends Identifiable
-case class TwitterId(id: String) extends Identifiable
+//case class EchoedUserId(id: String) extends Identifiable
+//case class Email(id: String) extends Identifiable
+//case class ScreenName(id: String) extends Identifiable
+//case class FacebookId(id: String) extends Identifiable
+//case class TwitterId(id: String) extends Identifiable
