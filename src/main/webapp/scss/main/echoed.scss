@@ -21,14 +21,6 @@
 @import "select";
 
 
-html{
-    overflow-y: scroll;
-    //height: 100%;
-    &.noScroll{
-        overflow-y: hidden;
-    }
-}
-
 body{
     background-color: rgba(226,229, 236, 1);
     background-image: image-url("bk_noise_dark.jpg");
@@ -37,7 +29,7 @@ body{
         background-color: #FFF;
     }
     &.noScroll{
-        overflow-y: hidden;
+        overflow: hidden;
     }
 }
 
@@ -58,7 +50,6 @@ h3{
 
 #container{
     top: 0px;
-    height: 100%;
 
     #header-container{
         position: fixed;

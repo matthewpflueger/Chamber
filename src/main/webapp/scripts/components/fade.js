@@ -16,12 +16,12 @@ define(
                 this.EvAg.bind("fade/hide", this.hide);
             },
             show: function(){
-                $("html,body").addClass("noScroll");
+                $("body").addClass("noScroll");
                 this.element.fadeIn();
             },
             hide: function(){
                 this.element.fadeOut();
-                $("html,body").removeClass("noScroll");
+                $("body").removeClass("noScroll");
             }
         });
     }
