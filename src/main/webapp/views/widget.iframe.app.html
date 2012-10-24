@@ -59,7 +59,7 @@
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-28093745-1']);
     _gaq.push(['_setDomainName', 'echoed.com']);
-    _gaq.push(['_trackPageview']);
+    _gaq.push(['_trackEvent', 'Widget', 'Load', '{{#partner}}{{id}}{{/partner}}']);
 
     (function() {
         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
