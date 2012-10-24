@@ -14,7 +14,6 @@ define(
                 "_=_" : "fix",
                 "": "explore",
                 "!": "explore",
-                "home": "reload",
                 "story/:id": "story",
                 "write/:type/:id" : "writeStory",
                 "write/" : "writePartner",
@@ -23,6 +22,7 @@ define(
             },
             reload: function(){
                 this.EvAg.trigger('exhibit/init', { endPoint: "/partner/" + this.properties.partnerId });
+                _gaq.push(['_trackPageview', 'widget/open']);
             },
             explore: function(){
 
@@ -42,6 +42,7 @@ define(
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("field/show", id, type);
+                _gaq.push(['_trackPageview', 'widget/write']);
             },
             story: function(id){
                 if(this.page === null) {
@@ -50,6 +51,7 @@ define(
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("story/show", id);
+                _gaq.push(['_trackPageview', 'widget/story']);
             },
             resetHash: function(){
                 window.location.hash = "#!";
