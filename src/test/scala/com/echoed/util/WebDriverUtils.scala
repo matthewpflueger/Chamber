@@ -50,19 +50,21 @@ class WebDriverUtils extends ShouldMatchers {
     }
 
     def addEchoedUserCookie(echoedUser: EchoedUser) = {
-        val c = cookieManager.addEchoedUserCookie(echoedUser = echoedUser)
-        val cookie = new Cookie.Builder(c.getName, c.getValue)
-                .domain(domain)
-                .path(c.getPath)
-                .expiresOn(expiresOn)
-                .build()
-        webDriver.get(echoedUrl)
-        logger.debug("Current url is: {}", webDriver.getCurrentUrl)
-        val cookies = webDriver.manage().getCookies
-        logger.debug("Cookies for {} are {}", echoedUrl, cookies)
-        webDriver.manage().addCookie(cookie)
-        logger.debug("Set cookie {}", cookie)
-        cookie
+//        val c = cookieManager.addEchoedUserCookie(echoedUser = echoedUser)
+//        val cookie = new Cookie.Builder(c.getName, c.getValue)
+//                .domain(domain)
+//                .path(c.getPath)
+//                .expiresOn(expiresOn)
+//                .build()
+//        webDriver.get(echoedUrl)
+//        logger.debug("Current url is: {}", webDriver.getCurrentUrl)
+//        val cookies = webDriver.manage().getCookies
+//        logger.debug("Cookies for {} are {}", echoedUrl, cookies)
+//        webDriver.manage().addCookie(cookie)
+//        logger.debug("Set cookie {}", cookie)
+//        cookie
+
+        new Cookie.Builder("null", "null").build()
     }
 
     def navigateToCloset(echoedUser: EchoedUser) = {

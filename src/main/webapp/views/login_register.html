@@ -6,8 +6,8 @@
     {{$public_content}}
     <div id="content-wide">
         <div class="login-form-title">
-            {{#eucc}} Welcome to Echoed! <br/>We need just a little bit more info... {{/eucc}}
-            {{^eucc}} Create Your Account {{/eucc}}
+            {{#loginRegisterForm.echoedUserId}} Welcome to Echoed! <br/>We need just a little bit more info... {{/loginRegisterForm.echoedUserId}}
+            {{^loginRegisterForm.echoedUserId}} Create Your Account {{/loginRegisterForm.echoedUserId}}
         </div>
         <div id="register-form" class="login-form">
             {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
@@ -42,21 +42,25 @@
                     <label class="error"  for="email">{{.}}</label>
                 </div>
                 {{/errors.loginRegisterForm.email}}
-                {{#password}}
+                {{#loginRegisterForm.originalPassword}}
                     <input type="hidden" id="password" name="password" value="{{.}}" />
-                {{/password}}
-                {{^password}}
+                    <input type="hidden" id="originalPassword" name="originalPassword" value="{{.}}" />
+                {{/loginRegisterForm.originalPassword}}
+                {{^loginRegisterForm.originalPassword}}
                     <div class="login-form-row">
                         <input class="placeholder-input" id="password" name="password" type="password" />
                         <label class="placeholder-text">Password</label>
                         <span class="placeholder-white"></span>
                     </div>
-                {{#errors.loginRegisterForm.password}}
+                    {{#errors.loginRegisterForm.password}}
                     <div>
                         <label class="error" for="password">{{.}}</label>
                     </div>
-                {{/errors.loginRegisterForm.password}}
-                {{/password}}
+                    {{/errors.loginRegisterForm.password}}
+                {{/loginRegisterForm.originalPassword}}
+                {{#loginRegisterForm.echoedUserId}}
+                    <input type="hidden" id="echoedUserId" name="echoedUserId" value="{{.}}" />
+                {{/loginRegisterForm.echoedUserId}}
                 <input id="login" name="register" type="submit" value="Submit">
             </form>
         </div>

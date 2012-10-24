@@ -7,6 +7,7 @@ import com.echoed.chamber.domain.{EchoClick, EchoedUser,AdminUser}
 import com.echoed.util.{Encrypter, ScalaObjectMapper, CookieToString}
 import com.echoed.chamber.domain.partner.PartnerUser
 import org.springframework.beans.factory.annotation.Autowired
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 
 
 class CookieManager {
@@ -50,11 +51,11 @@ class CookieManager {
 
     def addEchoedUserCookie(
             response: HttpServletResponse = null,
-            echoedUser: EchoedUser = null,
+            eucc: EchoedUserClientCredentials = null,
             request: HttpServletRequest = null) = {
         val cookie = makeCookie(
                 echoedUserCookieName,
-                Option(echoedUser).map(eu => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(eu))),
+                Option(eucc).map(c => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(c))),
                 Option(request))
         Option(response).foreach(_.addCookie(cookie))
         cookie
