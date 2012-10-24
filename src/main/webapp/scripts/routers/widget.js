@@ -22,7 +22,7 @@ define(
             },
             reload: function(){
                 this.EvAg.trigger('exhibit/init', { endPoint: "/partner/" + this.properties.partnerId });
-                _gaq.push(['_trackPageview', 'widget/open/' + this.properties.partnerId]);
+                _gaq.push(['_trackEvent', 'Widget', 'Open', this.properties.partnerId]);
             },
             explore: function(){
 
@@ -42,7 +42,7 @@ define(
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("field/show", id, type);
-                _gaq.push(['_trackPageview', 'widget/write/' + this.properties.partnerId]);
+                _gaq.push(['_trackEvent', 'Widget', 'Write', this.properties.partnerId]);
             },
             story: function(id){
                 if(this.page === null) {
@@ -51,7 +51,7 @@ define(
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("story/show", id);
-                _gaq.push(['_trackPageview', 'widget/story' + this.properties.partnerId + "/" + id]);
+                _gaq.push(['_trackEvent', 'Widget', 'Story', this.properties.partnerId + "/" + id]);
             },
             resetHash: function(){
                 window.location.hash = "#!";
