@@ -3,7 +3,7 @@ define(
     function($, Backbone, _){
         return Backbone.Router.extend({
             initialize: function(options) {
-                _.bindAll(this,'me','friends','explore', 'story','resetHash');
+                _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.EvAg.bind("hash/reset", this.resetHash);
@@ -83,7 +83,8 @@ define(
             user: function(id){
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
-                    this.loadPage('user', { endPoint: "/user/" + id });
+                    if(this.properties.echoedUser.id === id ) this.loadPage("exhibit", { endPoint: "/me/exhibit", personal: true, title: "My Stories"});
+                    else this.loadPage('user', { endPoint: "/user/" + id });
                 }
             },
             community: function(communityId){
