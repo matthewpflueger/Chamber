@@ -51,7 +51,7 @@ define(
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("story/show", id);
-                _gaq.push(['_trackPageview', 'widget/story' + this.properties.partnerId]);
+                _gaq.push(['_trackPageview', 'widget/story' + this.properties.partnerId + "/" + id]);
             },
             resetHash: function(){
                 window.location.hash = "#!";
