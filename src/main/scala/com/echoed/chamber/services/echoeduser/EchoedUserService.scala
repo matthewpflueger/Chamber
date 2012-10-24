@@ -751,7 +751,7 @@ class EchoedUserService(
 
         case msg @ GetUserFeed(eucc, page) =>
             val channel = sender
-            mp(GetUserPublicStoryFeed(eucc.id, page)).onSuccess {
+            mp(GetUserPublicStoryFeed(echoedUser.id, page)).onSuccess {
                 case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
                     channel ! GetUserFeedResponse(msg, Right(new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), feed.stories, feed.nextPage)))
             }
