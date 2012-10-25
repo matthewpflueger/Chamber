@@ -13,6 +13,7 @@ define(
             routes:{
                 "_=_" : "fix",
                 "": "explore",
+                "home": "reload",
                 "!": "explore",
                 "story/:id": "story",
                 "write/:type/:id" : "writeStory",
