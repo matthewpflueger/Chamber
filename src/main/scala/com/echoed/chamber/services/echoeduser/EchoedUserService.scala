@@ -72,6 +72,7 @@ import com.echoed.chamber.services.feed.GetUserPublicStoryFeed
 import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
 import com.echoed.chamber.domain.views.EchoedUserStoryFeed
 import com.echoed.chamber.domain.public.EchoedUserPublic
+import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 
 
 class EchoedUserService(
@@ -127,6 +128,17 @@ class EchoedUserService(
         encrypter.encrypt("""{ "password": "%s", "createdOn": "%s" }""" format(password, DateUtils.dateToLong(new Date)))
 
 
+    private def createCredentials(fu: Option[FacebookUser] = None, tu: Option[TwitterUser] = None) =
+        EUCC(
+            echoedUser.id,
+            Option(echoedUser.name),
+            Option(echoedUser.email).orElse(fu.map(_.email)),
+            Option(echoedUser.screenName).orElse(tu.map(_.screenName)),
+            Option(echoedUser.facebookId).orElse(fu.map(_.facebookId)),
+            Option(echoedUser.twitterId).orElse(tu.map(_.twitterId)),
+            Option(echoedUser.password))
+
+
     private def verifyEmail: Unit =
         mp(SendEmail(
             echoedUser.email,
@@ -157,13 +169,15 @@ class EchoedUserService(
             }
 
         becomeOnlineAndRegister
-        msg.correlationSender.foreach(_ ! LoginWithFacebookResponse(msg.correlation, Right(echoedUser)))
+        msg.correlationSender.foreach(_ ! LoginWithFacebookResponse(
+                msg.correlation,
+                Right(createCredentials(facebookUser))))
     }
 
 
     private def handleLoginWithTwitterUser(msg: LoginWithTwitterUser) {
         twitterUser = twitterUser
-            .map{
+            .map {
                 _.copy(
                     name = msg.twitterUser.name,
                     screenName = msg.twitterUser.screenName,
@@ -181,7 +195,9 @@ class EchoedUserService(
             }
 
         becomeOnlineAndRegister
-        msg.correlationSender.foreach(_ ! LoginWithTwitterResponse(msg.correlation, Right(echoedUser)))
+        msg.correlationSender.foreach(_ ! LoginWithTwitterResponse(
+                msg.correlation,
+                Right(createCredentials(tu = twitterUser))))
     }
 
     private def create(eu: EchoedUser, fu: Option[FacebookUser] = None, tu: Option[TwitterUser] = None) {
@@ -239,7 +255,7 @@ class EchoedUserService(
         case QueryUniqueResponse(QueryUnique(_, msg: RegisterLogin, channel), Right(true)) if (msg == initMessage) =>
             try {
                 create(new EchoedUser(msg.name, msg.email, msg.screenName).createPassword(msg.password))
-                channel.get ! RegisterLoginResponse(msg, Right(echoedUser))
+                channel.get ! RegisterLoginResponse(msg, Right(createCredentials()))
                 becomeOnlineAndRegister
                 verifyEmail
             } catch {
@@ -287,7 +303,7 @@ class EchoedUserService(
             map.get("password").filter(_ == echoedUser.password).foreach { _ =>
                 echoedUser = echoedUser.copy(emailVerified = true)
                 updated
-                sender ! VerifyEmailResponse(msg, Right(echoedUser))
+                sender ! VerifyEmailResponse(msg, Right(createCredentials()))
             }
 
 
@@ -296,13 +312,13 @@ class EchoedUserService(
             map.get("password").filter(_ == echoedUser.password).foreach { _ =>
                 echoedUser = echoedUser.createPassword(password)
                 updated
-                sender ! ResetPasswordResponse(msg, Right(echoedUser))
+                sender ! ResetPasswordResponse(msg, Right(createCredentials()))
             }
 
 
         case msg @ LoginWithPassword(eucc) if (eucc.password.isDefined) =>
             if (echoedUser.isCredentials(eucc.id, eucc.password.get)) {
-                sender ! LoginWithPasswordResponse(msg, Right(echoedUser))
+                sender ! LoginWithPasswordResponse(msg, Right(createCredentials()))
             } else sender ! LoginWithPasswordResponse(msg, Left(InvalidCredentials()))
 
 
@@ -333,7 +349,7 @@ class EchoedUserService(
                     echoedUser = echoedUser.copy(name = name, email = email, screenName = screenName, emailVerified = needsVerification)
                     echoedUser = if (echoedUser.password != password) echoedUser.createPassword(password) else echoedUser
                     updated
-                    channel ! RegisterLoginResponse(msg, Right(echoedUser))
+                    channel ! RegisterLoginResponse(msg, Right(createCredentials()))
                     if (needsVerification) verifyEmail
             }
 
@@ -755,7 +771,6 @@ class EchoedUserService(
                 case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
                     channel ! GetUserFeedResponse(msg, Right(new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), feed.stories, feed.nextPage)))
             }
-
 
         case msg: StoryIdentifiable with EchoedUserIdentifiable with Message =>
             forwardToStory(msg, StoryId(msg.storyId))

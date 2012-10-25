@@ -82,10 +82,12 @@ class LoginController extends EchoedController with FormController {
 
         if (Option(eucc).exists(_.isComplete)) new ModelAndView(view)
         else {
+            //this is a hack to get around having every controller know about registration for now...
+            //basically all the login controllers add cookie but we remove it here if the user needs to register...
+            cookieManager.addEchoedUserCookie(response, request = request)
+
             val modelAndView = new ModelAndView(v.loginRegisterView, "loginRegisterForm", new LoginRegisterForm(Option(eucc)))
             modelAndView.addObject("redirect", redirect)
-            modelAndView.addObject("eucc", eucc)
-            modelAndView.addObject("password", Option(eucc).map(_.password))
         }
     }
 
@@ -94,13 +96,10 @@ class LoginController extends EchoedController with FormController {
             @Valid lrf: LoginRegisterForm,
             bindingResult: BindingResult,
             @RequestParam(value = "redirect", required = false) redirect: String,
-            @Nullable eucc: EUCC,
             response: HttpServletResponse,
             request: HttpServletRequest) = {
 
         val errorModelAndView = new ModelAndView(v.loginRegisterView) with Errors
-        errorModelAndView.addObject("eucc", eucc)
-        errorModelAndView.addObject("password", Option(eucc).map(_.password))
         errorModelAndView.addObject("redirect", redirect)
 
         if (bindingResult.hasErrors) {
@@ -112,7 +111,9 @@ class LoginController extends EchoedController with FormController {
                 "redirect:%s/%s" format (v.secureSiteUrl, redirect)
             }.getOrElse("redirect:%s" format v.siteUrl)
 
-            mp(RegisterLogin(lrf.name, lrf.email, lrf.screenName, lrf.password, Option(eucc))).onSuccess {
+            val eucc = Option(lrf.echoedUserId).map(EUCC(_))
+
+            mp(RegisterLogin(lrf.name, lrf.email, lrf.screenName, lrf.password, eucc)).onSuccess {
                 case RegisterLoginResponse(_, Left(e)) =>
                     bindingResult.addAllErrors(e.asErrors(Some("loginRegisterForm")))
 //                    errorModelAndView.addError(e, Some("loginRegisterForm"))

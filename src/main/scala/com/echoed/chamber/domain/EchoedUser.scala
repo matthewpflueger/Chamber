@@ -42,7 +42,7 @@ case class EchoedUser(
         new Date,
         new Date,
         facebookUser.name,
-        facebookUser.email,
+        null,
         null,
         facebookUser.id,
         facebookUser.facebookId,
@@ -58,7 +58,7 @@ case class EchoedUser(
         new Date,
         twitterUser.name,
         null,
-        twitterUser.screenName,
+        null,
         null,
         null,
         twitterUser.id,
@@ -68,10 +68,10 @@ case class EchoedUser(
         false)
 
     def assignFacebookUser(fu: FacebookUser) =
-        this.copy(facebookId = fu.facebookId, facebookUserId = fu.id, email = Option(email).getOrElse(fu.email))
+        this.copy(facebookId = fu.facebookId, facebookUserId = fu.id)
 
     def assignTwitterUser(tu: TwitterUser) =
-        this.copy(twitterId = tu.twitterId, twitterUserId = tu.id, screenName = Option(screenName).getOrElse(tu.screenName))
+        this.copy(twitterId = tu.twitterId, twitterUserId = tu.id)
 
     def createPassword(plainTextPassword: String) = {
         val (s, p) = createSaltAndPassword(plainTextPassword)
@@ -80,6 +80,7 @@ case class EchoedUser(
 
     override def isCredentials(cred: String, password: String) =
         (this.screenName == cred && isPassword(password)) || super.isCredentials(cred, password)
+
 }
 
 

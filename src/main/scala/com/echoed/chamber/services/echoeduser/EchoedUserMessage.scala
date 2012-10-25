@@ -27,8 +27,9 @@ case class EchoedUserClientCredentials(
         twitterId: Option[String] = None,
         password: Option[String] = None) extends EchoedClientCredentials {
 
-    def isComplete = name.isDefined && email.isDefined && screenName.isDefined && password.isDefined
+    def isComplete = id != null && email.isDefined && screenName.isDefined && password.isDefined
 }
+
 
 
 trait EchoedUserIdentifiable {
@@ -77,8 +78,8 @@ private[echoeduser] case class LoginWithFacebookUser(
 
 
 case class LoginWithFacebook(loginInfo: Either[FacebookCode, FacebookAccessToken]) extends EUM
-case class LoginWithFacebookResponse(message: LoginWithFacebook, value: Either[EUE, EchoedUser])
-        extends EUM with MR[EchoedUser, LoginWithFacebook, EUE]
+case class LoginWithFacebookResponse(message: LoginWithFacebook, value: Either[EUE, EUCC])
+        extends EUM with MR[EUCC, LoginWithFacebook, EUE]
 
 
 case class AddTwitter(
@@ -92,8 +93,8 @@ private[echoeduser] case class LoginWithTwitterUser(
         override val correlationSender: Option[ActorRef]) extends EUM with Correlated[LoginWithTwitter]
 
 case class LoginWithTwitter(oAuthToken: String, oAuthVerifier: String) extends EUM
-case class LoginWithTwitterResponse(message: LoginWithTwitter, value: Either[EUE, EchoedUser])
-        extends EUM with MR[EchoedUser, LoginWithTwitter, EUE]
+case class LoginWithTwitterResponse(message: LoginWithTwitter, value: Either[EUE, EUCC])
+        extends EUM with MR[EUCC, LoginWithTwitter, EUE]
 
 case class GetTwitterAuthenticationUrl(callbackUrl: String) extends EUM
 case class GetTwitterAuthenticationUrlResponse(message: GetTwitterAuthenticationUrl, value: Either[EUE, String])
@@ -320,12 +321,12 @@ case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EU
     extends EUM with MR[FriendCloset, GetFriendExhibit, EUE]
 
 case class LoginWithPassword(credentials: EUCC) extends EUM with EUI
-case class LoginWithPasswordResponse(message: LoginWithPassword, value: Either[EUE, EchoedUser])
-    extends EUM with MR[EchoedUser, LoginWithPassword, EUE]
+case class LoginWithPasswordResponse(message: LoginWithPassword, value: Either[EUE, EUCC])
+    extends EUM with MR[EUCC, LoginWithPassword, EUE]
 
 case class VerifyEmail(credentials: EUCC, code: String) extends EUM with EUI
-case class VerifyEmailResponse(message: VerifyEmail, value: Either[EUE, EchoedUser])
-    extends EUM with MR[EchoedUser, VerifyEmail, EUE]
+case class VerifyEmailResponse(message: VerifyEmail, value: Either[EUE, EUCC])
+    extends EUM with MR[EUCC, VerifyEmail, EUE]
 
 case class RegisterLogin(
         name: String,
@@ -333,19 +334,16 @@ case class RegisterLogin(
         screenName: String,
         password: String,
         credentials: Option[EUCC] = None) extends EUM
-case class RegisterLoginResponse(message: RegisterLogin, value: Either[EUE, EchoedUser])
-    extends EUM with MR[EchoedUser, RegisterLogin, EUE]
+case class RegisterLoginResponse(message: RegisterLogin, value: Either[EUE, EUCC])
+    extends EUM with MR[EUCC, RegisterLogin, EUE]
 
 case class ResetLogin(credentials: EUCC) extends EUM with EUI
 case class ResetLoginResponse(message: ResetLogin, value: Either[EUE, Boolean])
     extends EUM with MR[Boolean, ResetLogin, EUE]
 
 case class ResetPassword(credentials: EUCC, code: String, password: String) extends EUM with EUI
-case class ResetPasswordResponse(message: ResetPassword, value: Either[EUE, EchoedUser])
-    extends EUM with MR[EchoedUser, ResetPassword,  EUE]
-
-case class Login(credentials: EUCC) extends EUM with EUI
-case class LoginResponse(message: Login, value: Either[EUE, EchoedUser]) extends EUM with MR[EchoedUser, Login,  EUE]
+case class ResetPasswordResponse(message: ResetPassword, value: Either[EUE, EUCC])
+    extends EUM with MR[EUCC, ResetPassword,  EUE]
 
 case class GetEchoedUser(credentials: EUCC) extends EUM with EUI
 case class GetEchoedUserResponse(message: GetEchoedUser, value: Either[EUE, EchoedUser])
