@@ -15,6 +15,7 @@ define(
                 "": "explore",
                 "home": "reload",
                 "!": "explore",
+                "home": "reload",
                 "story/:id": "story",
                 "write/:type/:id" : "writeStory",
                 "write/" : "writePartner",
