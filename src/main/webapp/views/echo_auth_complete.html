@@ -18,6 +18,9 @@
                     data.twitter = true;
                     data.twitterId = '{{.}}';
                 {{/twitterUserId}}
+                {{#screenName}}
+                    data.screenName = '{{.}}';
+                {{/screenName}}
                 data.success = true;
 
                 var target = "echoed-overlay";
