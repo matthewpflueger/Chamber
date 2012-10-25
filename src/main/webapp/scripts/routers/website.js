@@ -83,7 +83,7 @@ define(
             user: function(id){
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
-                    if(this.properties.echoedUser.id === id ) this.loadPage("exhibit", { endPoint: "/me/exhibit", personal: true, title: "My Stories"});
+                    if(this.properties.echoedUser.id === id || this.properties.echoedUser.screenName === id) this.loadPage("exhibit", { endPoint: "/me/exhibit", personal: true, title: "My Stories"});
                     else this.loadPage('user', { endPoint: "/user/" + id });
                 }
             },
