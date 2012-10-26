@@ -138,6 +138,8 @@ $fontTextColorDefault: #333;
         }
     }
 
+
+
     @mixin whiteButton($size: 14px){
         display: inline-block;
         cursor: pointer;
@@ -168,7 +170,60 @@ $fontTextColorDefault: #333;
         }
     }
 
-    @mixin transition(){
+    @mixin whiteButtonMobile($size: 12px){
+        display: inline-block;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 25px;
+        line-height: 25px;
+        background-color: #CECECE;
+        color: #CCC;
+        @include fontTextBold($size);
+        text-shadow: 0px 1px #FFF;
+        text-align:center;
+        width: 82px;
+        background-color: #f0eded;
+        text-decoration: none;
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#BBBBBB');
+        background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#A0A0A0));
+        background: -moz-linear-gradient(top, #FFF, #A0A0A0);
+        &:hover{
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#BBBBBB');
+            background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#666666));
+            background: -moz-linear-gradient(top, #FFFFFF, #666666);
+            color: #000;
+        }
+        &:active{
+            background: $colorEC;
+            color: #FFF;
+            text-shadow: none;
+        }
+    }
+
+    @mixin redButtonMobile($size: 14px){
+        display: inline-block;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 25px;
+        line-height: 25px;
+        @include fontTextBold($size);
+        width: 82px;
+        background: $colorEC;
+        color: #FFF;
+        text-shadow: 0px -1px #000;
+        border: 1px solid transparent;
+        &:hover{
+            border: 1px solid #FFF;
+        }
+        &:active{
+            text-shadow: none;
+            border-color: transparent;
+        }
+    }
+
+
+
+@mixin transition(){
         -webkit-transition: all 0.5s ease-in-out;
         -moz-transition: all 0.5s ease-in-out;
         -o-transition: all 0.5s ease-in-out;

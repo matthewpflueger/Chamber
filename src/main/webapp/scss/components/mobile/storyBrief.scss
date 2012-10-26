@@ -1,0 +1,141 @@
+.story-brief{
+    -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
+    -o-transition: all 0.5s ease-in-out;
+    -ms-transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
+
+    &:hover{
+        border-color: #333;
+    }
+
+    .story-brief-indicator{
+        border-top: #CCC 1px dotted;
+        padding-top:3px;
+        margin-top: 3px;
+        height: 12px;
+        font-size: 11px;
+        .s-b-i-c{
+            //margin-left: 5px;
+            float:right;
+            font-size: 11px;
+            font-style: italic;
+        }
+        .story-brief-indicator-value{
+            margin-right: 3px;
+            @include fontTextBold(11px);
+
+        }
+        .story-brief-indicator-sprite{
+            width: 12px;
+            height: 12px;
+            top: 3px;
+            margin: 0 2px;
+            display: inline-block;
+        }
+        .sprite-comment{
+            @include sprite(0px, -14px, 12px, 12px);
+            //background-image: image-url("icon_comments.png");
+        }
+        .sprite-photo{
+            @include sprite(0px, 0px, 12px, 12px);
+            //background-image: image-url("icon_photos.png");
+        }
+    }
+    .story-brief-text{
+        position: relative;
+        padding: 7px 5px 2px 5px;
+        line-height: 1.5em;
+        @include fontText(12px, #333);
+        background-color: rgba(255,255,255, 0.8);
+        //width: 260px;
+        .story-brief-text-from, .story-brief-text-title, .story-brief-text-by{
+            //width: 220px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow:hidden;
+        }
+        .story-brief-text-title{
+            font-weight: bold;
+        }
+        .story-brief-text-quote{
+            margin: 10px 0px;
+            font-size: 13px;
+            &.large{
+                font-size: 16px;
+            }
+
+        }
+        .story-brief-text-user{
+            font-weight:bold;
+            &:visited{
+                color: #333;
+            }
+            &:hover{
+                color: $colorEC;
+            }
+        }
+        .story-brief-text-partner{
+            font-weight: bold;
+            &:hover{
+                color: $colorEC;
+            }
+        }
+        .story-brief-text-user-image{
+            display: block;
+            position: absolute;
+            //bottom: 24px;
+            top: 5px;
+            border: 2px solid #CCC;
+            right: 0px;
+            height: 30px;
+            width: 30px;
+        }
+    }
+    .story-brief-image-container{
+        position:relative;
+        border: 6px solid #F0F0F0;
+        border-radius: 3px;
+        cursor: pointer;
+        -webkit-transition: all 0.5s ease-in-out;
+        -moz-transition: all 0.5s ease-in-out;
+        -o-transition: all 0.5s ease-in-out;
+        -ms-transition: all 0.5s ease-in-out;
+        transition: all 0.5s ease-in-out;
+        img{
+            display:block;
+        }
+        &.highlight{
+            border-color: #333;
+        }
+    }
+
+}
+
+.story-brief-edit{
+    text-align: center;
+    height: 25px;
+    display: none;
+}
+
+.story-brief-edit-tab{
+    display: inline-block;
+    padding: 2px 20px 5px;
+    background-color: rgb(200, 45, 45);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    @include fontTextBold(13px, #FFF);
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid #333;
+    border-top: 0px;
+    &:hover{
+        background-color: $colorEC;
+        padding-top: 10px;
+        transition: padding 0.2s linear;
+        -webkit-transition: padding 0.2s linear;
+        -moz-transition: padding 0.2s linear;
+        -o-transition: padding 0.2s linear;
+    }
+}
