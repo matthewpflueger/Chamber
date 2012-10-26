@@ -157,6 +157,7 @@
         <property name="facebookLoginErrorView" value="error" />
         <property name="postLogoutView" value="redirect:${http.urls.site}" />
         <property name="closetView" value="user" />
+        <property name="mobileUserView" value="user.mobile" />
 
         <property name="storyGraphUrl" value="${https.urls.site}/graph/story/" />
 
@@ -241,6 +242,11 @@
         <property name="facebookAppNameSpace" value="${facebook.appNameSpace}" />
     </bean>
 
+    <util:list id="mobileUserAgents">
+        <value>iPhone</value>
+        <value>Android</value>
+        <value>Blackberry</value>
+    </util:list>
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>
 

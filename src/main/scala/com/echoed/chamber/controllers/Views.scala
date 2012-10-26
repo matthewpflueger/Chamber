@@ -44,6 +44,7 @@ class Views {
     @Required @BeanProperty var facebookLoginErrorView: String = _
     @Required @BeanProperty var postLogoutView: String = _
     @Required @BeanProperty var closetView: String = _
+    @Required @BeanProperty var mobileUserView: String = _
     
     @Required @BeanProperty var storyGraphUrl: String = _
     

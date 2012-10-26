@@ -263,7 +263,7 @@ class PartnerService(
                             throw FilteredException("Filtering null UserAgent for EchoClick %s" format ec.id, ec)
                         } else if (ec.echoedUserId == echo.echoedUserId) {
                             throw FilteredException("Filtering user clicking own echo EchoClick %s" format ec.id, ec)
-                        } else if (filteredUserAgents.exists(ec.userAgent.contains(_))) {
+                            } else if (filteredUserAgents.exists(ec.userAgent.contains(_))) {
                             throw FilteredException("Filtering robot EchoClick %s" format ec.id, ec)
                         }
 
