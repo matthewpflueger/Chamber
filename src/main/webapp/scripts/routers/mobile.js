@@ -10,6 +10,7 @@ define(
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
+                this.exhibitLoaded = false;
             },
             routes: {
                 "": "home",
@@ -28,8 +29,14 @@ define(
                 this.loadPage("explore", { endPoint: "/me/feed", title: "" });
             },
             story: function(id){
-                this.EvAg.trigger('story/show', id);
-                this.EvAg.trigger('page/show', 'story');
+                if(this.exhibitLoaded === false) this.EvAg.trigger('exhibit/init', { endPoint: "/me/feed", title: "" });
+                if(this.lastPage ===  'story') {
+                    this.EvAg.trigger('story/change', id);
+                } else {
+                    this.EvAg.trigger('story/show', id);
+                    this.EvAg.trigger('page/show', 'story');
+                }
+                this.lastPage = 'story';
             }
         })
     }

@@ -5,6 +5,7 @@ require.config({
         'jquery': 'libs/jquery-1.8.1.min',
         'jqueryMobile': 'libs/jquery.mobile-1.1.1.min',
         'jqueryMobileConfig': 'libs/jquery.mobile.config',
+        'jqueryUI': 'libs/jquery-ui-1.9.1.custom.min',
         'isotope': 'libs/jquery.isotope.min',
         'expanding' : 'libs/expanding',
         'fileuploader': 'libs/fileuploader',
@@ -13,6 +14,7 @@ require.config({
     },
     shim: {
         'jqueryMobileConfig': ['jquery'],
+
         'jqueryMobile': ['jquery', 'jqueryMobileConfig']
     }
 });
@@ -28,7 +30,8 @@ require(
         'components/mobile/story',
         'components/mobile/login',
         'components/mobile/messageHandler',
-        'jqueryMobile'
+        'jqueryMobile',
+        'jqueryUI'
     ],
     function(require, $, _, Backbone, Router, Exhibit, Story, Login, MessageHandler){
         $(document).ready(function(){
