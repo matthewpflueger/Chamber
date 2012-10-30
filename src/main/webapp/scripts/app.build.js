@@ -27,6 +27,10 @@
     optimize: "uglify",
     modules: [
         {
+            name: 'mobile',
+            include: ['requireLib']
+        },
+        {
             name: "widget",
             include: ['requireLib']
         },
