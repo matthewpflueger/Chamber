@@ -17,6 +17,7 @@ define(
                 if(this.properties.isWidget === true){
                     this.EvAg.bind("user/login", this.login);
                 }
+                this.EvAg.bind('story/change', this.storyChange);
                 this.EvAg.bind('page/show', this.pageLoad);
                 this.EvAg.bind('story/show', this.load);
                 this.EvAg.bind('user/login', this.login);
@@ -26,14 +27,32 @@ define(
                 "click .comment-submit": "createComment",
                 "click .echo-gallery-chapter" : "chapterClick",
                 "click .echo-s-b-thumbnail": "imageClick",
-                "click .echo-s-b-item": "nextImage",
                 "click .story-nav-button": "navClick",
                 "click .upvote": "upVote",
                 "click .downvote": "downVote",
+                "swipeleft": "nextStory",
+                "swiperight": "previousStory",
                 "click #echo-story-gallery-next": "next",
                 "click #echo-story-gallery-prev": "previous",
                 "click #story-follow": "followClick",
-                "click #comments-login": "loginClick"
+                "click #comments-login": "loginClick",
+                "click": "nextStory"
+            },
+            nextStory: function(){
+                this.EvAg.trigger('exhibit/story/next', this.data.story.id);
+            },
+            previousStory: function(){
+                this.EvAg.trigger('exhibit/story/previous', this.data.story.id);
+            },
+            storyChange: function(id){
+                var self = this;
+                self.element.hide('slide', { direction: "left" }, 250,
+                    function(){
+                        self.load(id, function(){
+                            self.element.show('slide', { direction: "right"}, 250 );
+                        })
+                    }
+                )
             },
             pageLoad: function(options){
                 if(options.indexOf('story') >= 0){
@@ -153,7 +172,7 @@ define(
                 var action = target.attr("act");
                 self.EvAg.trigger('exhibit/story/'+ action, self.data.story.id);
             },
-            load: function(id){
+            load: function(id, callback){
                 var self = this;
                 utils.AjaxFactory({
                     url: self.properties.urls.api + "/api/story/" + id,
@@ -161,6 +180,7 @@ define(
                         self.data = data;
                         self.EvAg.trigger('pagetitle/update', data.story.title);
                         self.render();
+                        if(callback !== undefined) callback();
                     }
                 })();
             },
@@ -264,10 +284,10 @@ define(
                     var fromLink = $('<div class="echo-story-from"></div>');
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-                        fromLink.append($('<a class="story-link link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
+                        fromLink.append($('<a class="story-link link-white bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
                         fromLink.append(' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
                     } else if (utils.isUrl(self.data.story.productInfo)){
-                        fromLink.append($('<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo));
+                        fromLink.append($('<a class="link-white bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo));
                     } else {
                         fromLink.text(self.data.story.productInfo);
                     }
@@ -360,13 +380,13 @@ define(
                 var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
                 if(currentImage !== null && currentImage !== undefined){
                     self.gallery.show();
-                    self.img.fadeOut();
+                    //self.img.fadeOut();
                     if(currentImage.storyUrl !== null){
                         self.img.attr('src', currentImage.storyUrl).css({ width: "100%"});
-                        self.img.fadeIn();
+                        //self.img.fadeIn();
                     } else {
                         self.img.attr('src', currentImage.originalUrl).css({ width: "100%"});;
-                        self.img.fadeIn();
+                        //self.img.fadeIn();
                     }
                     self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
                     self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
@@ -436,7 +456,7 @@ define(
                 }
             },
             hide: function(){
-                this.element.fadeOut();
+                this.element.hide();
                 this.element.empty();
             }
         });

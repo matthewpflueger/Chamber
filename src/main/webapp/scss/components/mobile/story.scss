@@ -30,6 +30,7 @@
     border-top-left-radius: 0px;
 
     .echo-story-header{
+        background-color: #000;
         position:relative;
         padding: 10px;
         border-bottom: 1px solid #CCC;
@@ -37,8 +38,8 @@
         .echo-s-h-title{
             @include fontText(16px);
             .echo-s-h-t-t{
-                @include fontTitle(18px, #111);
-                text-shadow: 0px 1px 0px #FFF;
+                @include fontTitle(18px, #FFF);
+                //text-shadow: 0px 1px 0px #FFF;
                 word-wrap: break-word;
             }
             .echo-s-h-i-c{
@@ -79,13 +80,16 @@
         }
     }
     .echo-story-chapter-title{
-        margin: 0px 10px;
-        padding: 10px 0px 5px;
+        //margin: 0px 10px;
+        padding: 10px;
         @include fontTextBold(16px);
         text-shadow: 0px 1px 0px #FFF;
     }
     .echo-story-body{
-        margin: 0px 10px;
+        padding: 0px 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #CCC;
+        box-shadow: 0px 1px #FFF;
         .echo-s-b-text{
             display: inline;
             padding: 0px 0px 0px 5px;
@@ -315,7 +319,7 @@
 }
 
 .echo-story-from{
-    @include fontText(10px);
+    @include fontText(10px, #FFF);
 }
 
 .bold-link{
