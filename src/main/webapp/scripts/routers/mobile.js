@@ -24,6 +24,7 @@ define(
             loadPage: function(page, options){
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/show', 'exhibit');
+                this.exhibitLoaded = true;
             },
             home: function(){
                 this.loadPage("explore", { endPoint: "/me/feed", title: "" });
