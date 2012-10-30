@@ -457,6 +457,7 @@
                                         <include>partner.js</include>
                                         <include>admin.js</include>
                                         <include>static.js</include>
+                                        <include>mobile.js</include>
                                     </includes>
                                 </resource>
                             </resources>
