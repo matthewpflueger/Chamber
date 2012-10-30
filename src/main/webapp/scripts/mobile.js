@@ -14,7 +14,7 @@ require.config({
     },
     shim: {
         'jqueryMobileConfig': ['jquery'],
-
+        'jqueryUI': ['jquery'],
         'jqueryMobile': ['jquery', 'jqueryMobileConfig']
     }
 });
