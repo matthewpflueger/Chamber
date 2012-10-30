@@ -3,10 +3,11 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'text!templates/mobile/story.html',
+        'text!templates/mobile/story/story.html',
+        'text!templates/mobile/story/chapter.html',
         'components/utils'
     ],
-    function($, Backbone, _, templateStory, utils){
+    function($, Backbone, _, templateStory, templateChapter, utils){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -25,9 +26,6 @@ define(
             },
             events: {
                 "click .comment-submit": "createComment",
-                "click .echo-gallery-chapter" : "chapterClick",
-                "click .echo-s-b-thumbnail": "imageClick",
-                "click .story-nav-button": "navClick",
                 "click .upvote": "upVote",
                 "click .downvote": "downVote",
                 "swipeleft": "nextStory",
@@ -36,20 +34,32 @@ define(
                 "click #echo-story-gallery-prev": "previous",
                 "click #story-follow": "followClick",
                 "click #comments-login": "loginClick",
-                "click": "nextStory"
+                "click .echo-chapter": "chapterClick"
+            },
+            chapterClick: function(ev){
+                var target = $(ev.currentTarget);
+                $('.echo-story-chapter-body').slideUp();
+                target.find('.echo-story-chapter-body').slideDown();
             },
             nextStory: function(){
+                this.showDirection = 'right';
+                this.hideDirection = 'left';
                 this.EvAg.trigger('exhibit/story/next', this.data.story.id);
             },
             previousStory: function(){
+                this.showDirection = 'left';
+                this.hideDirection = 'right';
                 this.EvAg.trigger('exhibit/story/previous', this.data.story.id);
+            },
+            showChapter: function(index){
+                console.log(this.chapters[index]);
             },
             storyChange: function(id){
                 var self = this;
-                self.element.hide('slide', { direction: "left" }, 250,
+                self.element.hide('slide', { direction: this.hideDirection }, 250,
                     function(){
                         self.load(id, function(){
-                            self.element.show('slide', { direction: "right"}, 250 );
+                            self.element.show('slide', { direction: this.showDirection }, 250 );
                         })
                     }
                 )
@@ -241,29 +251,6 @@ define(
                 var self = this;
                 var template = _.template(templateStory, self.data);
                 self.element.html(template);
-                self.chapters = {
-                    array: [],
-                    hash: {}
-                };
-
-                $.each(self.data.chapters, function(index,chapter){
-                    var hash = {
-                        chapter: chapter,
-                        images: []
-                    };
-                    if(index === 0 && self.data.story.image){
-                        hash.images.push(self.data.story.image);
-                    }
-                    $.each(self.data.chapterImages, function(index, chapterImage){
-                        if(chapterImage.chapterId === chapter.id) {
-                            hash.images.push(chapterImage.image);
-                        }
-                    });
-                    self.chapters.array.push(hash);
-                    self.chapters.hash[chapter.id] = index;
-                });
-                self.currentChapterIndex = 0;
-                self.currentImageIndex = 0;
 
                 self.text = self.element.find('.echo-s-b-text');
                 if(self.properties.echoedUser !== undefined){
@@ -294,105 +281,32 @@ define(
                     self.element.find('.echo-s-h-title').append(fromLink);
                 }
 
-                self.itemNode = $("<div class='echo-s-b-item'></div>");
-                self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
-                self.img = $("<img />");
-                self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
+                self.mainBody = $('#echo-story-main');
                 self.galleryNode = $("#echo-story-gallery");
-                self.galleryNodeBody = $('#echo-story-gallery-body');
-                self.text.append($("<div class='echo-s-b-t-b'></div>"));
-                self.renderGalleryNav();
                 self.renderComments();
-                self.renderChapter();
-                self.renderVotes();
+                self.renderChapters();
                 self.renderFollowing();
                 self.renderViews();
-                self.scroll(0);
-
+                $('#echo-chapter-0').find('.echo-story-chapter-body').show();
             },
-            renderGalleryNav: function(){
+            renderChapters: function(){
                 var self = this;
-                self.thumbnails = {};
-                self.titles = [];
-                self.galleryChapters = [];
-                $.each(self.chapters.array, function(index, chapter){
-                    self.galleryChapters[index]=  $('<div></div>').addClass('echo-gallery-chapter').attr("index", index);
-                    var title = $('<div></div>').addClass('echo-gallery-title').text(chapter.chapter.title);
-                    self.galleryChapters[index].append(title);
-                    self.galleryNodeBody.append(self.galleryChapters[index]);
-                    $.each(chapter.images, function(index2, image){
-                        var thumbNailHash = index + "-" + index2;
-                        self.thumbnails[thumbNailHash] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css(utils.getImageSizing(image, 90));
-                        self.galleryChapters[index].append(self.thumbnails[thumbNailHash]);
+                self.chapters = [];
+                $.each(self.data.chapters, function(index, chapter){
+                    var template = _.template(templateChapter, chapter);
+                    var c = $('<div></div>').addClass('echo-chapter').appendTo(self.mainBody).attr('id', "echo-chapter-" + index);
+                    self.chapters[index] = c;
+                    c.html(template);
+                    var gallery = c.find('.echo-story-chapter-gallery');
+                    if(index === 0 && self.data.story.image !== null){
+                        $('<img />').attr("src", self.data.story.image.preferredUrl).addClass('echo-story-chapter-image').appendTo(gallery);
+                    }
+                    $.each(self.data.chapterImages, function(index, chapterImage){
+                        if(chapterImage.chapterId === chapter.id){
+                            $('<img />').attr("src", chapterImage.image.preferredUrl).addClass('echo-story-chapter-image').appendTo(gallery);
+                        }
                     });
                 });
-            },
-            nextImage: function(){
-                var self = this;
-                self.currentImageIndex++;
-                if(self.currentImageIndex >= self.chapters.array[self.currentChapterIndex].images.length){
-                    self.nextChapter();
-                } else {
-                    self.renderImage(self.currentImageIndex);
-                }
-            },
-            nextChapter: function(){
-                var self = this;
-                self.currentChapterIndex++;
-                self.currentImageIndex = 0;
-                if(self.currentChapterIndex >= self.chapters.array.length){
-                    self.currentChapterIndex = 0;
-                }
-                self.renderChapter(self.currentChapterIndex);
-            },
-            imageClick: function(e){
-                var self = this;
-                var index = $(e.target).attr("index");
-                self.currentChapterIndex = index.split("-")[0];
-                self.currentImageIndex = index.split("-")[1];
-                self.renderChapter();
-            },
-            chapterClick: function(e){
-                var self = this;
-                var target = $(e.target);
-                if(!target.is("img")){
-                    self.currentChapterIndex = $(e.currentTarget).attr("index");
-                    self.currentImageIndex = 0;
-                    self.renderChapter();
-                }
-            },
-            renderChapter: function(){
-                var self = this;
-                var textArea = self.element.find('.echo-s-b-text');
-                textArea.fadeOut(function(){
-                    self.element.find('.echo-story-chapter-title').text(self.chapters.array[self.currentChapterIndex].chapter.title);
-                    self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(utils.escapeHtml(self.chapters.array[self.currentChapterIndex].chapter.text)).replace(/\n/g, '<br />'));
-                    textArea.fadeIn();
-                });
-
-                self.galleryNode.find('.echo-gallery-chapter').removeClass("highlight");
-                self.galleryChapters[self.currentChapterIndex].addClass("highlight");
-                self.scroll(self.galleryNode.scrollTop() + self.galleryChapters[self.currentChapterIndex].position().top);
-                self.renderImage();
-            },
-            renderImage: function(){
-                var self = this;
-                var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
-                if(currentImage !== null && currentImage !== undefined){
-                    self.gallery.show();
-                    //self.img.fadeOut();
-                    if(currentImage.storyUrl !== null){
-                        self.img.attr('src', currentImage.storyUrl).css({ width: "100%"});
-                        //self.img.fadeIn();
-                    } else {
-                        self.img.attr('src', currentImage.originalUrl).css({ width: "100%"});;
-                        //self.img.fadeIn();
-                    }
-                    self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
-                    self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
-                } else{
-                    self.gallery.hide();
-                }
             },
             renderComments: function(){
                 var self = this;
