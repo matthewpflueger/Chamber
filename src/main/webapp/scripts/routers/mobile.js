@@ -20,6 +20,7 @@ define(
             },
             login: function(){
                 this.EvAg.trigger('page/show', "login");
+                this.lastPage = "login"
             },
             loadPage: function(page, options){
                 this.EvAg.trigger('exhibit/init', options);
@@ -28,6 +29,7 @@ define(
             },
             home: function(){
                 this.loadPage("explore", { endPoint: "/me/feed", title: "" });
+                this.lastPage = ""
             },
             story: function(id){
                 if(this.exhibitLoaded === false) this.EvAg.trigger('exhibit/init', { endPoint: "/me/feed", title: "" });

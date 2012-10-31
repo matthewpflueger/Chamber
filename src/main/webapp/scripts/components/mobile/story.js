@@ -38,8 +38,15 @@ define(
             },
             chapterClick: function(ev){
                 var target = $(ev.currentTarget);
-                $('.echo-story-chapter-body').slideUp();
-                target.find('.echo-story-chapter-body').slideDown();
+                if(target.attr("index") != this.currentChapter){
+                    $('.echo-story-chapter-body').hide();
+                    target.find('.echo-story-chapter-body').slideDown();
+                    var position = $("html").scrollTop() + target.offset().top;
+                    console.log(position)
+                    $("html, body").animate({ scrollTop : position });
+                    this.currentChapter = target.attr("index");
+                }
+
             },
             nextStory: function(){
                 this.showDirection = 'right';
@@ -50,9 +57,6 @@ define(
                 this.showDirection = 'left';
                 this.hideDirection = 'right';
                 this.EvAg.trigger('exhibit/story/previous', this.data.story.id);
-            },
-            showChapter: function(index){
-                console.log(this.chapters[index]);
             },
             storyChange: function(id){
                 var self = this;
@@ -288,13 +292,14 @@ define(
                 self.renderFollowing();
                 self.renderViews();
                 $('#echo-chapter-0').find('.echo-story-chapter-body').show();
+                self.currentChapter = 0;
             },
             renderChapters: function(){
                 var self = this;
                 self.chapters = [];
                 $.each(self.data.chapters, function(index, chapter){
                     var template = _.template(templateChapter, chapter);
-                    var c = $('<div></div>').addClass('echo-chapter').appendTo(self.mainBody).attr('id', "echo-chapter-" + index);
+                    var c = $('<div></div>').addClass('echo-chapter').appendTo(self.mainBody).attr('id', "echo-chapter-" + index).attr("index", index);
                     self.chapters[index] = c;
                     c.html(template);
                     var gallery = c.find('.echo-story-chapter-gallery');
