@@ -4,5 +4,9 @@ define(['jquery'], function ($) {
         $.mobile.linkBindingEnabled = false;
         $.mobile.hashListeningEnabled = false;
         $.mobile.pushStateEnabled = false;
+        $.event.special.swipe.scrollSupressionThreshold = 100;
+        $.event.special.swipe.durationThreshold = 1000;
+        $.event.special.swipe.horizontalDistanceThreshold = 175;
+        $.event.special.swipe.verticalDistanceThreshold = 30;
     });
 });
