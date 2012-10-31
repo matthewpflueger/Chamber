@@ -30,8 +30,9 @@ require(
         'components/mobile/story',
         'components/mobile/login',
         'components/mobile/messageHandler',
-        'jqueryMobile',
-        'jqueryUI'
+        'jqueryMobileConfig',
+        'jqueryUI',
+        'jqueryMobile'
     ],
     function(require, $, _, Backbone, Router, Exhibit, Story, Login, MessageHandler){
         $(document).ready(function(){
