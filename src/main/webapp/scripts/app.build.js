@@ -10,14 +10,26 @@
         'backbone' : 'libs/backbone-amd-0.9.2-min',
         'text' : 'libs/require/text',
         'jquery' : 'libs/jquery-1.8.1.min',
+        'jqueryMobile': 'libs/jquery.mobile-1.1.1.min',
+        'jqueryMobileConfig': 'libs/jquery.mobile.config',
+        'jqueryUI': 'libs/jquery-ui-1.9.1.custom.min',
         'isotope' : 'libs/jquery.isotope.min',
         'imagesLoaded' : 'libs/imagesloaded',
         'fileuploader' : 'libs/fileuploader',
         'expanding' : 'libs/expanding',
         'easyXDM' : 'libs/easyXDM/easyXDM.debug.js'
     },
+    shim: {
+        'jqueryMobileConfig': ['jquery'],
+        'jqueryUI': ['jquery'],
+        'jqueryMobile': ['jquery', 'jqueryMobileConfig']
+    },
     optimize: "uglify",
     modules: [
+        {
+            name: 'mobile',
+            include: ['requireLib']
+        },
         {
             name: "widget",
             include: ['requireLib']

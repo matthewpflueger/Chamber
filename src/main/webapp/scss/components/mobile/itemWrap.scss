@@ -1,0 +1,27 @@
+.item_wrap{
+    margin: 5px 0px;
+}
+
+.item_content{
+    border: 1px solid rgba(90, 90, 90, 0.5);
+    z-index :1;
+    padding: 7px;
+    background-color: #FFF;
+    position:relative;
+    cursor: pointer;
+}
+
+.community{
+    float: left;
+    border: 1px solid rgba(90, 90, 90, 0.5);
+    @include fontTextBold(18px);
+    display: block;
+    cursor: pointer;
+    height: 40px;
+    line-height: 40px;
+    text-decoration: none;
+    &:hover{
+        border-color: #000;
+    }
+
+}

@@ -1,0 +1,58 @@
+@import "base";
+@import "mobile/storyBrief";
+@import "mobile/itemWrap";
+@import "mobile/story";
+@import "mobile/login";
+@import "buttons";
+
+body{
+    background-color: rgba(226,229, 236, 1);
+    background-image: image-url("bk_noise_dark.jpg");
+}
+
+#container{
+    top: 0px;
+
+    #header-container{
+        height: 40px;
+        background: #ffffff; /* Old browsers */
+        @include dropShadowDown;
+
+        #logo{
+            height: 30px;
+            text-align:center;
+            position:absolute;
+            left: 0px;
+            padding-right: 10px;
+            padding: 5px;
+        }
+
+
+        #user{
+            position: absolute;
+            right: 0px;
+            height: 40px;
+            padding-right: 10px;
+            cursor: pointer;
+            background-position: right;
+            background-repeat: no-repeat;
+            #user-text{
+                display: inline-block;
+                padding: 12px 0px 11px 5px;
+                .login-text {
+                    @include fontHeaderBold(15px);
+                    text-shadow: 0px 1px #FFF;
+                    text-decoration: none;
+                }
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-align:left;
+                vertical-align: top;
+            }
+        }
+    }
+
+    #content{
+    }
+}
