@@ -66,10 +66,10 @@ define(
             },
             storyChange: function(id){
                 var self = this;
-                self.element.hide('slide', { direction: this.hideDirection }, 250,
+                self.element.hide('slide', { direction: self.hideDirection }, 250,
                     function(){
                         self.load(id, function(){
-                            self.element.show('slide', { direction: this.showDirection }, 250 );
+                            self.element.show('slide', { direction: self.showDirection }, 250 );
                         })
                     }
                 )
