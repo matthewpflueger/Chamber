@@ -22,21 +22,7 @@ class ExhibitController extends EchoedController {
     def mobileUser(
             @RequestParam(value="app", required = false) appType: String,
             @Nullable eucc: EchoedUserClientCredentials) = {
-        val modelAndView = new ModelAndView(v.mobileUserView)
-        Option(eucc).map { eucc =>
-            val result = new DeferredResult(modelAndView)
-
-            mp(GetExhibit(eucc, 0, Option(appType))).onSuccess {
-                case GetExhibitResponse(_, Right(closet)) =>
-                    //TODO ask Jon about closet echoes not actually being set (should be a different message then)
-
-                    modelAndView.addObject("echoedUser", closet.echoedUser)
-                    modelAndView.addObject("totalCredit", "%.2f\n".format(closet.totalCredit))
-                    result.set(modelAndView)
-            }
-
-            result
-        }.getOrElse(modelAndView)
+        exhibit(appType, eucc, "iPhone")
     }
 
     @RequestMapping(method = Array(RequestMethod.GET))
