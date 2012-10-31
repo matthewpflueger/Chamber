@@ -42,14 +42,15 @@ define(
                 this.openChapter(index);
             },
             openChapter: function(index){
-                if(index != this.currentChapter){
+                if(index !== this.currentChapter){
                     var target = $('#echo-chapter-' + index);
                     this.currentChapter = index;
                     $('.echo-story-chapter-title').removeClass("open");
                     $('.echo-story-chapter-body').hide();
                     target.find('.echo-story-chapter-title').addClass('open');
                     target.find('.echo-story-chapter-body').slideDown();
-                    var position = $("html").scrollTop() + target.offset().top;
+                    var position = 0;
+                    if(index !== 0) position = $("html").scrollTop() + target.offset().top;
                     $("html, body").animate({ scrollTop : position });
                 }
             },
@@ -296,8 +297,9 @@ define(
                 self.renderChapters();
                 self.renderFollowing();
                 self.renderViews();
+                self.currentChapter = false;
                 self.openChapter(0);
-                self.currentChapter = 0;
+
             },
             renderChapters: function(){
                 var self = this;
