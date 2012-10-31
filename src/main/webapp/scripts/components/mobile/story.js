@@ -38,15 +38,20 @@ define(
             },
             chapterClick: function(ev){
                 var target = $(ev.currentTarget);
-                if(target.attr("index") != this.currentChapter){
+                var index = target.attr('index');
+                this.openChapter(index);
+            },
+            openChapter: function(index){
+                if(index != this.currentChapter){
+                    var target = $('#echo-chapter-' + index);
+                    this.currentChapter = index;
+                    $('.echo-story-chapter-title').removeClass("open");
                     $('.echo-story-chapter-body').hide();
+                    target.find('.echo-story-chapter-title').addClass('open');
                     target.find('.echo-story-chapter-body').slideDown();
                     var position = $("html").scrollTop() + target.offset().top;
-                    console.log(position)
                     $("html, body").animate({ scrollTop : position });
-                    this.currentChapter = target.attr("index");
                 }
-
             },
             nextStory: function(){
                 this.showDirection = 'right';
@@ -291,7 +296,7 @@ define(
                 self.renderChapters();
                 self.renderFollowing();
                 self.renderViews();
-                $('#echo-chapter-0').find('.echo-story-chapter-body').show();
+                self.openChapter(0);
                 self.currentChapter = 0;
             },
             renderChapters: function(){
