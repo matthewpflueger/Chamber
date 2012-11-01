@@ -7,7 +7,7 @@ define(['jquery'], function ($) {
         $.mobile.loadingMessage = false;
         $.event.special.swipe.scrollSupressionThreshold = 100;
         //$.event.special.swipe.durationThreshold = 1000;
-        $.event.special.swipe.horizontalDistanceThreshold = 80;
+        //$.event.special.swipe.horizontalDistanceThreshold = 80;
         //$.event.special.swipe.verticalDistanceThreshold = 30;
     });
 });
