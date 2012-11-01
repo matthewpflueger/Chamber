@@ -172,16 +172,17 @@ class ImageService(
                 imageInfo.contentType,
                 imageInfo.metadata).onComplete(_.fold(
             e => {
+                log.error("Received exception of type %s from blob store: %s" format(e.getClass.getName, e))
                 //ugly hack to get the blob store to re-authorize at a maximum rate of once a reloadBlobStoreInterval
                 //this was supposedly fixed in jclouds 1.3.0 but for the life of me I can't see to get it to work
                 //http://code.google.com/p/jclouds/issues/detail?id=731&can=1&q=Authorization&sort=-milestone
                 if (e.isInstanceOf[AuthorizationException]) {
-                    log.debug("Received authorization error - will try to reload blob store")
+                    log.error("Received authorization error - will try to reload blob store")
                     val now = System.currentTimeMillis()
                     val previousReloadBlobStore = reloadBlobStore.get()
                     val nextReloadBlobStore = now + reloadBlobStoreInterval
                     if (now > previousReloadBlobStore && reloadBlobStore.compareAndSet(previousReloadBlobStore, nextReloadBlobStore)) {
-                        log.debug("Sending ReloadBlobStore message")
+                        log.error("Sending ReloadBlobStore message")
                         me ! ReloadBlobStore(image, imageInfo, success)
                         return
                     }
@@ -195,7 +196,7 @@ class ImageService(
     def handle = {
 
         case msg @ ReloadBlobStore(image, imageInfo, success) =>
-            log.debug("Reloading blob store")
+            log.error("Reloading blob store")
             blobStore.destroy()
             blobStore.init()
             store(image, imageInfo)(success)
