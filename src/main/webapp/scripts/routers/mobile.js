@@ -16,7 +16,15 @@ define(
                 "": "home",
                 "story/:id" : "story",
                 "!story/:id" : "story",
-                "login": "login"
+                "login": "login",
+                "user/:id": "user",
+                "partner/:id": "partner"
+            },
+            partner: function(id){
+                this.loadPage('partner', { endPoint: "/partner/" + id });
+            },
+            user: function(id){
+                this.loadPage('user', { endPoint: "/user/" + id });
             },
             login: function(){
                 this.EvAg.trigger('page/show', "login");

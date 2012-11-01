@@ -22,7 +22,7 @@ define(
                 this.EvAg.bind('exhibit/story/previous', this.previousStory);
                 this.EvAg.bind('user/login', this.login);
                 this.element = $(this.el);
-                this.exhibit = $('#exhibit');
+                this.exhibit = $('#exhibit')
             },
             pageLoad: function(options){
                 if(options.indexOf("exhibit") >= 0){
@@ -35,6 +35,7 @@ define(
                 var self = this;
                 self.personal = false;
                 self.EvAg.trigger('infiniteScroll/on');
+                this.exhibit.empty();
                 this.jsonUrl = self.properties.urls.api + "/api/" + options.endPoint;
                 this.personal = options.personal;
                 this.contentTitle = options.title;

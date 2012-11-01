@@ -4,7 +4,7 @@ define(
     function($, Backbone, _){
         return Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this,'triggerScroll', 'lock', 'unlock', 'on', 'off','scrollUp');
+                _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.EvAg.bind("triggerInfiniteScroll", this.triggerScroll);
                 this.EvAg.bind("infiniteScroll/lock", this.lock);
@@ -13,7 +13,6 @@ define(
                 this.EvAg.bind("fade/hide", this.on);
                 this.EvAg.bind("infiniteScroll/on", this.on);
                 this.EvAg.bind("infiniteScroll/off", this.off);
-                this.EvAg.bind('page/change', this.scrollUp);
                 this.element = $(options.el);
                 this.locked = false;
                 var self = this;
@@ -22,9 +21,6 @@ define(
                         self.EvAg.trigger("infiniteScroll");
                     }
                 });
-            },
-            scrollUp: function(){
-                //$("html, body").animate({scrollTop: 0 }, 300);
             },
             on: function(){
                 this.status = true;

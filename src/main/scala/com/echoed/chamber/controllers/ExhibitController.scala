@@ -18,13 +18,6 @@ class ExhibitController extends EchoedController {
 
     @Resource(name = "mobileUserAgents") var mobileUserAgents: JList[String] = _
 
-    @RequestMapping(method = Array(RequestMethod.GET), value = Array("/mobile"))
-    def mobileUser(
-            @RequestParam(value="app", required = false) appType: String,
-            @Nullable eucc: EchoedUserClientCredentials) = {
-        exhibit(appType, eucc, "iPhone")
-    }
-
     @RequestMapping(method = Array(RequestMethod.GET))
     def exhibit(
             @RequestParam(value="app", required = false) appType: String,
