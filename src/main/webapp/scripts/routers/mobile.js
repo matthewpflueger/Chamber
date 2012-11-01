@@ -16,7 +16,11 @@ define(
                 "": "home",
                 "story/:id" : "story",
                 "!story/:id" : "story",
-                "login": "login"
+                "login": "login",
+                "user/:id": "user"
+            },
+            user: function(id){
+                this.loadPage('user', { endPoint: "/user/" + id });
             },
             login: function(){
                 this.EvAg.trigger('page/show', "login");

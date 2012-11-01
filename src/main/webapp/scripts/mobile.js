@@ -30,11 +30,12 @@ require(
         'components/mobile/story',
         'components/mobile/login',
         'components/mobile/messageHandler',
+        'components/infiniteScroll',
         'jqueryMobileConfig',
         'jqueryUI',
         'jqueryMobile'
     ],
-    function(require, $, _, Backbone, Router, Exhibit, Story, Login, MessageHandler){
+    function(require, $, _, Backbone, Router, Exhibit, Story, Login, MessageHandler, InfiniteScroll){
         $(document).ready(function(){
             var properties = {
                 urls: Echoed.urls,
@@ -49,6 +50,7 @@ require(
             this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
             this.login = new Login({ el: '#login', EvAg: EventAggregator, properties: properties });
             this.messageHandler = new MessageHandler({ EvAg: EventAggregator, properties: properties });
+            this.infiniteScroll = new InfiniteScroll({ EvAg: EventAggregator, properties: properties });
             Backbone.history.start();
         });
     }
