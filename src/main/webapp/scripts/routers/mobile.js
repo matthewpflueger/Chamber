@@ -17,7 +17,11 @@ define(
                 "story/:id" : "story",
                 "!story/:id" : "story",
                 "login": "login",
-                "user/:id": "user"
+                "user/:id": "user",
+                "partner/:id": "partner"
+            },
+            partner: function(id){
+                this.loadPage('partner', { endPoint: "/partner/" + id });
             },
             user: function(id){
                 this.loadPage('user', { endPoint: "/user/" + id });
