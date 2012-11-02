@@ -66,8 +66,6 @@ class ServiceConfig {
 
     @Resource(name = "facebookAccessProperties") var facebookAccessProperties: Properties = _
 
-    @Resource(name = "httpClient") var httpClient: Http = _
-
     @Resource(name = "facebookPostDao") var facebookPostDao: FacebookPostDao = _
     @Resource(name = "facebookLikeDao") var facebookLikeDao: FacebookLikeDao = _
     @Resource(name = "facebookCommentDao") var facebookCommentDao: FacebookCommentDao = _
@@ -107,6 +105,7 @@ class ServiceConfig {
     @Resource(name = "squerylDataSource") var squerylDataSource: DataSource = _
     @Resource(name = "filteredUserAgents") var filteredUserAgents: JList[String] = _
 
+    @Bean(destroyMethod = "shutdown") def httpClient = dispatch.Http
     @Bean(destroyMethod = "shutdown") def actorSystem = ActorSystem("Chamber")
 
     @Bean def messageProcessor: MessageProcessor = new MessageProcessorRouter(messageRouter)

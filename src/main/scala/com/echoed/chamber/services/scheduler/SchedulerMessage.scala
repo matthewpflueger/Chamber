@@ -20,6 +20,7 @@ private[services] case class Schedule(
         message: Message)
 
 
+case object StartWeek
 case object StartToday
 case object StartHour
 
@@ -33,6 +34,7 @@ case class SchedulePattern(pattern: String)
 
 object Today extends SchedulePattern("today")
 object Hour extends SchedulePattern("hour")
+object Week extends SchedulePattern("week")
 
 case class ScheduleOnce(
         schedulePattern: SchedulePattern,

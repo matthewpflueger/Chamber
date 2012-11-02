@@ -14,7 +14,8 @@ private[state] case class Notification(
         category: String,
         value: String,
         emailedOn: Option[Long] = None,
-        readOn: Option[Long] = None) extends KeyedEntity[String] {
+        readOn: Option[Long] = None,
+        notificationType: Option[String]) extends KeyedEntity[String] {
 
     def this() = this(
             "",
@@ -25,7 +26,8 @@ private[state] case class Notification(
             "",
             "",
             Some(0L),
-            Some(0L))
+            Some(0L),
+            Some(""))
 
     def convertTo(eu: EchoedUser) = domain.Notification(
             id,
@@ -36,7 +38,8 @@ private[state] case class Notification(
             category,
             ScalaObjectMapper(value, classOf[Map[String, String]]),
             emailedOn,
-            readOn)
+            readOn,
+            notificationType)
 }
 
 
@@ -50,5 +53,6 @@ private[state] object Notification {
             n.category,
             new ScalaObjectMapper().writeValueAsString(n.value),
             n.emailedOn,
-            n.readOn)
+            n.readOn,
+            n.notificationType)
 }

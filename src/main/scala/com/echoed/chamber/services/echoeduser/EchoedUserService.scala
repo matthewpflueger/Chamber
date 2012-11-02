@@ -18,7 +18,7 @@ import java.util.Date
 import com.echoed.util.{ScalaObjectMapper, Encrypter, UUID, DateUtils}
 import akka.util.Timeout
 import scala.collection.immutable.Stack
-import com.echoed.chamber.services.scheduler.Hour
+import com.echoed.chamber.services.scheduler.{Week, Hour, ScheduleOnce}
 import com.echoed.chamber.domain._
 import com.google.common.collect.HashMultimap
 import com.echoed.chamber.services.state._
@@ -32,7 +32,6 @@ import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.FriendCloset
 import com.echoed.chamber.services.twitter.UpdateStatusResponse
 import com.echoed.chamber.domain.EchoedUserSettings
-import com.echoed.chamber.services.scheduler.ScheduleOnce
 import com.echoed.chamber.domain.TwitterStatus
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
@@ -73,6 +72,7 @@ import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
 import com.echoed.chamber.domain.views.EchoedUserStoryFeed
 import com.echoed.chamber.domain.public.EchoedUserPublic
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
+import com.echoed.chamber.services.partner.{AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
 
 
 class EchoedUserService(
@@ -106,6 +106,8 @@ class EchoedUserService(
     private var notifications = Stack[Notification]()
     private var followingUsers = List[Follower]()
     private var followedByUsers = List[Follower]()
+    private var followingPartners = List[PartnerFollower]()
+
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
@@ -231,6 +233,7 @@ class EchoedUserService(
         notifications = euss.notifications
         followingUsers = euss.followingUsers
         followedByUsers = euss.followedByUsers
+        followingPartners = euss.followingPartners
     }
 
     override def preStart() {
@@ -638,7 +641,7 @@ class EchoedUserService(
 
 
         case msg: FetchNotifications =>
-            sender ! FetchNotificationsResponse(msg, Right(notifications.filterNot(_.hasRead)))
+            sender ! FetchNotificationsResponse(msg, Right(notifications.filter(n => !n.hasRead && !n.isWeekly)))
 
 
         case msg @ MarkNotificationsAsRead(_, ids) =>
@@ -659,15 +662,15 @@ class EchoedUserService(
             notifications = notifications.push(n)
             ep(NotificationCreated(n))
             mp(ScheduleOnce(
-                    Hour,
-                    EmailNotifications(EchoedUserClientCredentials(echoedUser.id)),
-                    Option(echoedUser.id)))
+                    if (n.isWeekly) Week else Hour,
+                    EmailNotifications(EchoedUserClientCredentials(echoedUser.id), n.notificationType),
+                    Option(echoedUser.id + n.notificationType.map("-" + _).getOrElse(""))))
 
 
-        case msg: EmailNotifications if (echoedUser.hasEmail && echoedUserSettings.receiveNotificationEmail) =>
+        case EmailNotifications(_, nt) if (echoedUser.hasEmail && echoedUserSettings.receiveNotificationEmail) =>
             val toEmail = MList[Notification]()
             notifications = notifications.map { n =>
-                if (n.canEmail) {
+                if (n.notificationType == nt && n.canEmail) {
                     val emailed = n.markAsEmailed
                     toEmail += emailed
                     ep(NotificationUpdated(emailed))
@@ -675,29 +678,47 @@ class EchoedUserService(
                 } else n
             }
 
-            if (!toEmail.isEmpty)
-                mp(SendEmail(
-                    echoedUser.email,
-                    "%s, you have new notifications on Echoed.com!" format echoedUser.name,
-                    "email_notifications", Map( "notifications" -> toEmail.toList,
-                                                "name" -> echoedUser.name)
-                ))
+            val model = Map("notifications" -> toEmail.toList, "name" -> echoedUser.name)
+
+            if (!toEmail.isEmpty) nt match {
+                case None =>
+                    mp(SendEmail(
+                        echoedUser.email,
+                        "%s, you have new notifications on Echoed.com!" format echoedUser.name,
+                        "email_notifications",
+                        model))
+                case Some("weekly") =>
+                    mp(SendEmail(
+                        echoedUser.email,
+                        "%s, latest stories you maybe interested in on Echoed.com!" format echoedUser.name,
+                        "email_weekly_notifications",
+                        model))
+            }
 
 
         case msg: ListFollowingUsers => sender ! ListFollowingUsersResponse(msg, Right(followingUsers))
         case msg: ListFollowedByUsers => sender ! ListFollowedByUsersResponse(msg, Right(followedByUsers))
+        case msg: ListFollowingPartners => sender ! ListFollowingPartnersResponse(msg, Right(followingPartners))
+
+        case msg @ FollowPartner(_, partnerId) =>
+            sender ! FollowPartnerResponse(msg, Right(true))
+            mp.tell(AddPartnerFollower(PartnerClientCredentials(partnerId), echoedUser), self)
+
+        case AddPartnerFollowerResponse(_, Right(partner)) if (!followingPartners.exists(_.partnerId == partner.id)) =>
+            followingPartners = PartnerFollower(partner.id, partner.name, partner.handle) :: followingPartners
+            ep(PartnerFollowerCreated(echoedUser.id, followingPartners.head))
 
         case msg @ FollowUser(eucc, followerId) if (eucc.id != followerId) =>
-            mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser, msg, Option(context.sender)), self)
+            sender ! FollowUserResponse(msg, Right(true))
+            mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser), self)
 
-        case AddFollowerResponse(AddFollower(_, _, msg, Some(s)), Right(eu)) =>
-            followingUsers = Follower(eu.id, eu.name, Option(eu.facebookId), Option(eu.twitterId)) :: followingUsers
-            s ! FollowUserResponse(msg, Right(true))
+        case AddFollowerResponse(_, Right(eu)) if (!followingUsers.exists(_.echoedUserId == eu.id)) =>
+            followingUsers = Follower(eu.id, eu.name, eu.screenName) :: followingUsers
             ep(FollowerCreated(echoedUser.id, followingUsers.head))
 
-        case msg @ AddFollower(eucc, eu, _, _) =>
+        case msg @ AddFollower(eucc, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! AddFollowerResponse(msg, Right(echoedUser))
-            followedByUsers = Follower(eu.id, eu.name, Option(eu.facebookId), Option(eu.twitterId)) :: followedByUsers
+            followedByUsers = Follower(eu.id, eu.name, eu.screenName) :: followedByUsers
             mp(RegisterNotification(eucc, new Notification(
                 echoedUser.id,
                 eu,
@@ -709,23 +730,25 @@ class EchoedUserService(
                     "followerId" -> eu.id))))
 
         case msg @ UnFollowUser(_, followingUserId) =>
+            sender ! UnFollowUserResponse(msg, Right(true))
             val (fu, fus) = followingUsers.partition(_.echoedUserId == followingUserId)
             followingUsers = fus
             fu.headOption.map { f =>
                 mp(RemoveFollower(EchoedUserClientCredentials(f.echoedUserId), echoedUser))
                 ep(FollowerDeleted(echoedUser.id, f))
             }
-            sender ! UnFollowUserResponse(msg, Right(true))
 
-        case msg @ RemoveFollower(_, eu) =>
-            followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
-            sender ! RemoveFollowerResponse(msg, Right(true))
+        case msg @ RemoveFollower(_, eu) => followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
 
         case NotifyFollowers(_, notification) =>
             followedByUsers.foreach { f =>
                 mp(RegisterNotification(
                     EchoedUserClientCredentials(f.echoedUserId),
-                    new Notification(f.echoedUserId, echoedUser, notification.category, notification.value)))
+                    new Notification(
+                            f.echoedUserId,
+                            echoedUser,
+                            notification.category,
+                            notification.value)))
             }
 
         case RegisterStory(story) =>

@@ -16,7 +16,7 @@ import scala.Right
 import com.echoed.chamber.services.echoeduser.EchoedUserCreated
 import com.echoed.chamber.services.echoeduser.NotificationCreated
 import com.echoed.chamber.domain
-import com.echoed.chamber.domain.{StoryState, EchoedUser}
+import com.echoed.chamber.domain.{TwitterUser, FacebookUser, StoryState, EchoedUser}
 import scala.collection.immutable.Stack
 import com.echoed.chamber.services.scheduler.{ScheduleDeleted, ScheduleCreated}
 import com.echoed.util.TransactionUtils._
@@ -29,7 +29,7 @@ class StateService(
         val ep: EventProcessorActorSystem,
         val dataSource: DataSource) extends EchoedService with SquerylSessionFactory {
 
-    def readNotifications(eu: Option[EchoedUser]) =
+    private def readNotifications(eu: Option[EchoedUser]) =
         eu
             .map(eu => (from(notifications)(n =>
                     where(n.echoedUserId === eu.id)
@@ -39,22 +39,63 @@ class StateService(
             .map(Stack[domain.Notification]().pushAll(_))
             .getOrElse(Stack[domain.Notification]())
 
-    def readEchoedUserSettings(eu: Option[EchoedUser]) = eu.map { eu =>
+    private def readEchoedUserSettings(eu: Option[EchoedUser]) = eu.map { eu =>
             (from(echoedUserSettings)(eus => where(eus.echoedUserId === eu.id) select(eus))).single.convertTo(eu)
     }
 
-    def readFollowingUsers(eu: Option[EchoedUser]) =
+    private def readFollowingUsers(eu: Option[EchoedUser]) =
         eu
             .map(eu => (from(followers)(f => where(f.ref === "EchoedUser" and f.echoedUserId === eu.id) select(f))).toList)
             .map(_.map(f => echoedUsers.lookup(f.refId).map(f.convertTo(_))).filter(_.isDefined).map(_.get))
             .getOrElse(List[echoeduser.Follower]())
 
-    def readFollowedByUsers(eu: Option[EchoedUser]) =
+    private def readFollowedByUsers(eu: Option[EchoedUser]) =
         eu
             .map(eu => (from(followers)(f => where(f.ref === "EchoedUser" and f.refId === eu.id) select(f))).toList)
             .map(_.map(f => echoedUsers.lookup(f.echoedUserId).map(f.convertTo(_))).filter(_.isDefined).map(_.get))
             .getOrElse(List[echoeduser.Follower]())
 
+    private def readFollowingPartners(eu: Option[EchoedUser]) =
+        eu
+            .map(eu => (from(followers)(f => where(f.ref === "Partner" and f.echoedUserId === eu.id) select(f))).toList)
+            .map(_.map(f => partners.lookup(f.refId).map(f.convertToPartnerFollower(_))).filter(_.isDefined).map(_.get))
+            .getOrElse(List[echoeduser.PartnerFollower]())
+
+
+    private def readEchoedUser(
+            credentials: Option[EchoedUserClientCredentials] = None,
+            facebookUser: Option[FacebookUser] = None,
+            twitterUser: Option[TwitterUser] = None) = {
+        val (eu, fu, tu) = ((credentials, facebookUser, twitterUser): @unchecked) match {
+            case (Some(eucc), None, None) =>
+                val eu = from(echoedUsers)(eu =>
+                    where(eu.id === eucc.id or eu.email === eucc.id or eu.screenName === eucc.id)
+                    select(eu)).headOption
+                val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
+                val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
+                (eu, fu, tu)
+
+            case (None, Some(facebookUser), None) =>
+                val fu = from(facebookUsers)(fu => where(fu.facebookId === facebookUser.facebookId) select(fu)).headOption
+                val eu = fu.map(_.echoedUserId).flatMap(echoedUsers.lookup(_))
+                val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
+                (eu, fu, tu)
+
+            case (None, None, Some(twitterUser)) =>
+                val tu = from(twitterUsers)(tu => where(tu.twitterId === twitterUser.twitterId) select(tu)).headOption
+                val eu = tu.map(_.echoedUserId).flatMap(echoedUsers.lookup(_))
+                val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
+                (eu, fu, tu)
+        }
+
+        val eus = readEchoedUserSettings(eu)
+        val nf = readNotifications(eu)
+        val fus = readFollowingUsers(eu)
+        val fbu = readFollowedByUsers(eu)
+        val fp = readFollowingPartners(eu)
+
+        eu.map(EchoedUserServiceState(_, eus.get, fu, tu, nf, fus, fbu, fp))
+    }
 
     override def preStart() {
         super.preStart()
@@ -66,49 +107,21 @@ class StateService(
 
     protected def handle = transactional {
         case msg @ ReadForCredentials(c) =>
-            val eu = from(echoedUsers)(eu =>
-                where(eu.id === c.id or eu.email === c.id or eu.screenName === c.id)
-                select(eu)).headOption
-            val eus = readEchoedUserSettings(eu)
-            val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
-            val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
-            val nf = readNotifications(eu)
-            val fus = readFollowingUsers(eu)
-            val fbu = readFollowedByUsers(eu)
-
-            eu.cata(
-                _ => sender ! ReadForCredentialsResponse(
-                        msg,
-                        Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf, fus, fbu))),
+            readEchoedUser(Option(c)).cata(
+                s => sender ! ReadForCredentialsResponse(msg, Right(s)),
                 sender ! ReadForCredentialsResponse(msg, Left(EchoedUserNotFound(c.id))))
 
 
         case msg @ ReadForFacebookUser(facebookUser) =>
-            val fu = from(facebookUsers)(fu => where(fu.facebookId === facebookUser.facebookId) select(fu)).headOption
-            val eu = fu.map(_.echoedUserId).flatMap(echoedUsers.lookup(_))
-            val eus = readEchoedUserSettings(eu)
-            val tu = eu.map(_.twitterUserId).flatMap(twitterUsers.lookup(_))
-            val nf = readNotifications(eu)
-            val fus = readFollowingUsers(eu)
-            val fbu = readFollowedByUsers(eu)
-
-            fu.cata(
-                _ => context.sender ! ReadForFacebookUserResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf, fus, fbu))),
-                context.sender ! ReadForFacebookUserResponse(msg, Left(FacebookUserNotFound(facebookUser))))
+            readEchoedUser(facebookUser = Option(facebookUser)).cata(
+                s => sender ! ReadForFacebookUserResponse(msg, Right(s)),
+                sender ! ReadForFacebookUserResponse(msg, Left(FacebookUserNotFound(facebookUser))))
 
 
         case msg @ ReadForTwitterUser(twitterUser) =>
-            val tu = from(twitterUsers)(tu => where(tu.twitterId === twitterUser.twitterId) select(tu)).headOption
-            val eu = tu.map(_.echoedUserId).flatMap(echoedUsers.lookup(_))
-            val eus = readEchoedUserSettings(eu)
-            val fu = eu.map(_.facebookUserId).flatMap(facebookUsers.lookup(_))
-            val nf = readNotifications(eu)
-            val fus = readFollowingUsers(eu)
-            val fbu = readFollowedByUsers(eu)
-
-            tu.cata(
-                _ => context.sender ! ReadForTwitterUserResponse(msg, Right(EchoedUserServiceState(eu.get, eus.get, fu, tu, nf, fus, fbu))),
-                context.sender ! ReadForTwitterUserResponse(msg, Left(TwitterUserNotFound(twitterUser))))
+            readEchoedUser(twitterUser = Option(twitterUser)).cata(
+                s => sender ! ReadForTwitterUserResponse(msg, Right(s)),
+                sender ! ReadForTwitterUserResponse(msg, Left(TwitterUserNotFound(twitterUser))))
 
 
         case EchoedUserCreated(echoedUser, eus, facebookUser, twitterUser) =>
@@ -136,6 +149,9 @@ class StateService(
         case NotificationCreated(notification) => notifications.insert(Notification(notification))
         case NotificationUpdated(notification) => notifications.update(Notification(notification.copy(updatedOn = new Date)))
 
+
+        case PartnerFollowerCreated(echoedUserId, follower) =>
+            followers.insert(schema.Follower(UUID(), new Date, new Date, "Partner", follower.partnerId, echoedUserId))
 
         case FollowerCreated(echoedUserId, follower) =>
             followers.insert(schema.Follower(UUID(), new Date, new Date, "EchoedUser", follower.echoedUserId, echoedUserId))

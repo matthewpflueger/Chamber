@@ -14,16 +14,25 @@ case class Notification(
         category: String,
         value: Map[String, String],
         emailedOn: Option[Long] = None,
-        readOn: Option[Long] = None) extends DomainObject {
+        readOn: Option[Long] = None,
+        notificationType: Option[String] = None) extends DomainObject {
 
-    def this(echoedUserId: String, origin: Identifiable, category: String, value: Map[String, String]) = this(
-            UUID(),
-            new Date,
-            new Date,
-            echoedUserId,
-            origin,
-            category,
-            value)
+    def this(
+            echoedUserId: String,
+            origin: Identifiable,
+            category: String,
+            value: Map[String, String],
+            notificationType: Option[String] = None) = this(
+        UUID(),
+        new Date,
+        new Date,
+        echoedUserId,
+        origin,
+        category,
+        value,
+        None,
+        None,
+        notificationType)
 
     def hasRead = readOn.isDefined
     def markAsRead = copy(readOn = new Date)
@@ -32,6 +41,7 @@ case class Notification(
     def markAsEmailed = copy(emailedOn = new Date)
 
     def canEmail = !hasRead && !hasEmailed
+    def isWeekly = notificationType.filter(_ == "weekly").isDefined
 }
 
 

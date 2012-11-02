@@ -1,6 +1,5 @@
 package com.echoed.chamber.services.email
 
-import akka.pattern._
 import com.echoed.util.DateUtils._
 import com.echoed.chamber.services._
 import com.echoed.chamber.services.scheduler._
@@ -21,20 +20,26 @@ class SchedulerService(
         ep: EventProcessorActorSystem,
         todayStartsAtHour: Int = 20,
         hourStartsAtMinute: Int = 30,
+        weekStartsAtDay: Int = 2, //Tuesday, Monday = 1, Sunday = 7
         sendIntervalInSeconds: Int = 5,
         sendImmediately: Boolean = false) extends OnlineOfflineService {
 
+    assert(weekStartsAtDay > 0, "weekStartsAtDay is %s which is not greater than zero" format weekStartsAtDay)
     assert(todayStartsAtHour > 0, "todayStartsAtHour is %s which is not greater than zero" format todayStartsAtHour)
     assert(hourStartsAtMinute > 0, "hourStartsAtMinute is %s which is not greater than zero" format hourStartsAtMinute)
     assert(sendIntervalInSeconds > 0, "sendIntervalInSeconds is %s which is not greater than zero" format sendIntervalInSeconds)
 
     private var schedules: Map[String, Schedule] = _
 
+    private def differenceInMinutes(dt: DateTime) = new JD(DateTime.now(), dt).getStandardMinutes
+
     private def scheduleStartToday {
-        var todayStart = DateTime.now().withHourOfDay(todayStartsAtHour).withMinuteOfHour(0)
-        if (todayStart.isBeforeNow) todayStart = todayStart.plusDays(1)
+        var todayStart = DateTime.now()
+                .withHourOfDay(todayStartsAtHour)
+                .withMinuteOfHour(hourStartsAtMinute)
+        if (differenceInMinutes(todayStart) < 1) todayStart = todayStart.plusDays(1)
         context.system.scheduler.scheduleOnce(
-                new JD(DateTime.now(), todayStart).getStandardMinutes minutes,
+                differenceInMinutes(todayStart) minutes,
                 context.self,
                 StartToday)
     }
@@ -42,9 +47,22 @@ class SchedulerService(
     private def scheduleStartHour {
         val hourStart = DateTime.now().plusHours(1).withMinuteOfHour(hourStartsAtMinute)
         context.system.scheduler.scheduleOnce(
-                new JD(DateTime.now(), hourStart).getStandardMinutes minutes,
+                differenceInMinutes(hourStart) minutes,
                 context.self,
                 StartHour)
+    }
+
+
+    private def scheduleStartWeek {
+        var weekStart = DateTime.now()
+                .withDayOfWeek(weekStartsAtDay)
+                .withHourOfDay(todayStartsAtHour)
+                .withMinuteOfHour(hourStartsAtMinute)
+        if (differenceInMinutes(weekStart) < 1) weekStart = weekStart.plusWeeks(1)
+        context.system.scheduler.scheduleOnce(
+                differenceInMinutes(weekStart) minutes,
+                context.self,
+                StartWeek)
     }
 
 
@@ -52,7 +70,7 @@ class SchedulerService(
 
     override def preStart() {
         super.preStart()
-        mp(ReadSchedulerServiceState()).pipeTo(self)
+        mp.tell(ReadSchedulerServiceState(), self)
     }
 
 
@@ -63,6 +81,7 @@ class SchedulerService(
             if (DateTime.now().hourOfDay().get() == todayStartsAtHour) self ! StartToday
             else scheduleStartToday
             scheduleStartHour
+            scheduleStartWeek
     }
 
 
@@ -74,6 +93,10 @@ class SchedulerService(
         case StartHour =>
             self ! Send(schedules.filter(t => t._2.schedulePattern == Hour))
             scheduleStartHour
+
+        case StartWeek =>
+            self ! Send(schedules.filter(t => t._2.schedulePattern == Week))
+            scheduleStartWeek
 
         case Send(schedulesToSend) => schedulesToSend.headOption.foreach { case (id, _) =>
             schedules.get(id).foreach { schedule =>
@@ -89,7 +112,7 @@ class SchedulerService(
         }
 
 
-        case msg @ ScheduleOnce(pattern, message, id) if (pattern == Today || pattern == Hour) =>
+        case msg @ ScheduleOnce(pattern, message, id) if (pattern == Today || pattern == Hour || pattern == Week) =>
             val sid = id.getOrElse(UUID())
             val schedule = schedules.get(sid).getOrElse {
                 val schedule = Schedule(sid, new Date, new Date, pattern, message)

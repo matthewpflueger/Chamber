@@ -26,11 +26,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.squeryl</groupId>
-            <artifactId>squeryl_${scala.version}</artifactId>
-            <version>0.9.5-3</version>
-        </dependency>
 
         <dependency>
             <groupId>javax.inject</groupId>
@@ -66,7 +61,7 @@
             <version>${org.springframework.version}</version>
 		</dependency>
 
-
+        <!-- Logging dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
@@ -83,6 +78,7 @@
             <version>1.0.6</version>
         </dependency>
         
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -118,8 +114,6 @@
             <artifactId>commons-codec</artifactId>
             <version>1.4</version>
         </dependency>
-
-
         <dependency>
             <groupId>com.github.spullara.mustache.java</groupId>
             <artifactId>compiler</artifactId>
@@ -129,11 +123,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>12.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala</artifactId>
-            <version>2.0.2</version>
         </dependency>
 
 
@@ -158,6 +147,16 @@
 
 
         <!-- Scala dependencies -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-scala</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.squeryl</groupId>
+            <artifactId>squeryl_${scala.version}</artifactId>
+            <version>0.9.5-3</version>
+        </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
@@ -186,12 +185,10 @@
             <artifactId>scalaz-core_${scala.version}</artifactId>
             <version>6.0.3</version>
         </dependency>
-
-
         <dependency>
             <groupId>net.databinder.dispatch</groupId>
             <artifactId>dispatch-core_${scala.version}</artifactId>
-            <version>0.9.2</version>
+            <version>0.9.3</version>
         </dependency>
 
 
@@ -235,6 +232,7 @@
             <artifactId>imgscalr-lib</artifactId>
             <version>4.2</version>
         </dependency>
+
 
         <!-- For rendering a static html snapshot for crawlers -->
         <dependency>
