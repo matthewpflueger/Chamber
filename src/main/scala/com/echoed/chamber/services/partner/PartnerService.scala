@@ -1,9 +1,8 @@
 package com.echoed.chamber.services.partner
 
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
-import com.echoed.chamber.domain.views.EchoPossibilityView
 import java.util.{Collections, Date}
-import akka.dispatch.Future
+import akka.dispatch.{Await, Future}
 import scalaz._
 import Scalaz._
 import org.springframework.transaction.support.TransactionTemplate
@@ -11,14 +10,26 @@ import com.echoed.util.TransactionUtils._
 import org.springframework.transaction.TransactionStatus
 import com.echoed.chamber.dao._
 import com.echoed.chamber.domain._
-import com.echoed.chamber.services.image.{ProcessImage}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.{List => JList}
 import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
 import com.echoed.chamber.services.{MessageProcessor, EchoedService}
 import scala.collection.JavaConversions._
 import com.echoed.util.DateUtils._
-import com.echoed.chamber.domain.partner.PartnerSettings
+import scala.Left
+import scala.Some
+import com.echoed.chamber.services.image.ProcessImage
+import com.echoed.chamber.domain.EchoClick
+import com.echoed.chamber.services.echoeduser.Follower
+import com.echoed.chamber.services.echoeduser.FollowPartner
+import scala.Right
+import com.echoed.chamber.services.echoeduser.RegisterNotification
+import com.echoed.chamber.domain.views.EchoPossibilityView
+import com.echoed.chamber.domain.Notification
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.domain.EchoMetrics
+import com.echoed.chamber.services.state.{QueryFollowersForPartnerResponse, QueryFollowersForPartner}
+import akka.util.duration._
 
 
 class PartnerService(
@@ -38,6 +49,8 @@ class PartnerService(
 
     val viewCounter: AtomicInteger = new AtomicInteger(0)
 
+    private var followedByUsers = List[Follower]()
+
     protected def findInactive(date: Option[Date] = None) =
         Option(partnerSettingsDao.findInactive(partner.id, dateToLong(date.getOrElse(new Date))))
 
@@ -48,6 +61,16 @@ class PartnerService(
 
     protected def findByPartnerId = partnerSettingsDao.findByPartnerId(partner.id)
 
+
+    override def preStart() {
+        super.preStart()
+        //bad, bad, bad :( will correct with cleanup of PartnerServices
+        //necessary at the moment because we need our followedByUser list
+        //before allowing anybody to follow us to avoid duplicates...
+        followedByUsers = Await.result(
+                mp(QueryFollowersForPartner(PartnerClientCredentials(partner.id))).mapTo[QueryFollowersForPartnerResponse],
+                20 seconds).resultOrException
+    }
 
     protected def requestEcho(
             echoRequest: EchoRequest,
@@ -109,6 +132,8 @@ class PartnerService(
 
 
     def handle = {
+
+        case QueryFollowersForPartnerResponse(_, Right(f)) => followedByUsers = followedByUsers ++ f
 
         case msg: FetchPartner =>
             log.debug("Fetching Partner")
@@ -303,6 +328,29 @@ class PartnerService(
                     channel ! RecordEchoClickResponse(msg, Left(EchoNotFound(postId)))
                     log.error("Did not find echo to record click - id {}, {}", id, echoClick)
                 })
+
+
+        case msg @ NotifyPartnerFollowers(_, eucc, notification) =>
+            var sendFollowRequest = true
+            followedByUsers.foreach { f =>
+                if (f.echoedUserId == eucc.id) sendFollowRequest = false
+                else mp(RegisterNotification(
+                        EchoedUserClientCredentials(f.echoedUserId),
+                        new Notification(
+                                f.echoedUserId,
+                                partner,
+                                notification.category,
+                                notification.value,
+                                Some("weekly"))))
+            }
+            if (sendFollowRequest) mp(FollowPartner(eucc, partner.id))
+
+
+        case msg @ AddPartnerFollower(_, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
+            sender ! AddPartnerFollowerResponse(msg, Right(partner))
+            followedByUsers = Follower(eu.id, eu.name, eu.screenName) :: followedByUsers
+
+
     }
 
     def determinePostId(echo: Echo, echoClick: EchoClick, postId: String) =

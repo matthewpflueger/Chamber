@@ -9,6 +9,7 @@ import StateUtils._
 import org.squeryl.PrimitiveTypeMode._
 import com.echoed.chamber.domain.EchoedUser
 import org.springframework.validation.{BindException, FieldError}
+import com.echoed.chamber.services.echoeduser.Follower
 
 
 class QueryService(val dataSource: DataSource) extends EchoedService with SquerylSessionFactory {
@@ -83,5 +84,12 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
                 results.foreach(be.addError(_))
                 sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))//NotUniqueException().copy(errs = Some(be))))
             }
+
+        case msg @ QueryFollowersForPartner(pcc) =>
+            val results = (from(followers)(f => where(f.ref === "Partner" and f.refId === pcc.id) select(f))).toList
+                    .map(f => from(echoedUsers)(eu => where(eu.id === f.echoedUserId) select(eu.id, eu.name, eu.screenName)).single)
+                    .map { case (i, n, s) => Follower(i, n, s) }
+
+            sender ! QueryFollowersForPartnerResponse(msg, Right(results))
     }
 }

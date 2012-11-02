@@ -52,7 +52,8 @@ private[services] case class EchoedUserServiceState(
         twitterUser: Option[TwitterUser],
         notifications: Stack[Notification],
         followingUsers: List[Follower],
-        followedByUsers: List[Follower])
+        followedByUsers: List[Follower],
+        followingPartners: List[PartnerFollower])
 
 
 case class DuplicateEcho(
@@ -111,12 +112,11 @@ case class FollowUser(credentials: EUCC, userToFollowerId: String) extends EUM w
 case class FollowUserResponse(message: FollowUser, value: Either[EUE, Boolean])
         extends EUM with MR[Boolean, FollowUser, EUE]
 
-private[echoeduser] case class AddFollower(
-        credentials: EUCC,
-        echoedUser: EchoedUser,
-        correlation: FollowUser,
-        override val correlationSender: Option[ActorRef]) extends EUM with EUI with Correlated[FollowUser]
+case class FollowPartner(credentials: EUCC, partnerId: String) extends EUM with EUI
+case class FollowPartnerResponse(message: FollowPartner, value: Either[EUE, Boolean])
+        extends EUM with MR[Boolean, FollowPartner, EUE]
 
+private[echoeduser] case class AddFollower(credentials: EUCC, echoedUser: EchoedUser)extends EUM with EUI
 private[echoeduser] case class AddFollowerResponse(message: AddFollower, value: Either[EUE, EchoedUser])
         extends EUM with MR[EchoedUser, AddFollower, EUE]
 
@@ -125,11 +125,12 @@ case class UnFollowUserResponse(message: UnFollowUser, value: Either[EUE, Boolea
         extends EUM with MR[Boolean, UnFollowUser, EUE]
 
 private[echoeduser] case class RemoveFollower(credentials: EUCC, echoedUser: EchoedUser) extends EUM with EUI
-private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, value: Either[EUE, Boolean])
-        extends EUM with MR[Boolean, RemoveFollower, EUE]
 
-case class Follower(echoedUserId: String, name: String, facebookId: Option[String] = None, twitterId: Option[String] = None)
-private[echoeduser] case class FollowerNotification(category: String, value: Map[String, String])
+case class PartnerFollower(partnerId: String, name: String, handle: String)
+case class Follower(echoedUserId: String, name: String, screenName: String)
+private[services] case class FollowerNotification(
+        category: String,
+        value: Map[String, String])
 
 private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: FollowerNotification) extends EUM with EUI
 
@@ -141,6 +142,9 @@ case class ListFollowedByUsers(credentials: EUCC) extends EUM with EUI
 case class ListFollowedByUsersResponse(message: ListFollowedByUsers, value: Either[EUE, List[Follower]])
         extends EUM with MR[List[Follower], ListFollowedByUsers, EUE]
 
+case class ListFollowingPartners(credentials: EUCC) extends EUM with EUI
+case class ListFollowingPartnersResponse(message: ListFollowingPartners, value: Either[EUE, List[PartnerFollower]])
+        extends EUM with MR[List[PartnerFollower], ListFollowingPartners, EUE]
 
 case class FetchNotifications(credentials: EUCC) extends EUM with EUI
 case class FetchNotificationsResponse(message: FetchNotifications, value: Either[EUE, Stack[Notification]])
@@ -164,7 +168,7 @@ case class NewSettingsResponse(message: NewSettings, value: Either[EUE,  EchoedU
 
 case class RegisterNotification(credentials: EUCC, notification: Notification) extends EUM with EUI
 
-case class EmailNotifications(credentials: EUCC) extends EUM with EUI
+case class EmailNotifications(credentials: EUCC, notificationType: Option[String] = None) extends EUM with EUI
 
 private[echoeduser] case class RegisterStory(story: Story)
 
@@ -382,7 +386,6 @@ private[echoeduser] case class RegisterEchoedUserService(echoedUser: EchoedUser)
 
 case class AlreadyRegistered(email: String, m: String = "Echoed user already registered") extends EUE(m)
 
-case class EchoedUserNotFound(id: String, m: String = "Echoed user not found") extends EUE(m)
 
 case class InvalidCredentials(m: String = "Invalid email or password") extends EUE(m)
 

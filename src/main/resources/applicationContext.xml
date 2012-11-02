@@ -21,7 +21,6 @@
     <bean id="applicationContextRef" class="com.echoed.util.ApplicationContextRef" />
 
     <bean class="com.echoed.chamber.services.ServiceConfig" />
-    <!--<context:component-scan base-package="com.echoed.chamber.config" />-->
 
 
     <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
@@ -31,7 +30,6 @@
     </bean>
 
     <bean class="com.echoed.util.XTrustProvider" init-method="install" />
-    <bean id="httpClient" class="dispatch.Http" destroy-method="shutdown" />
 
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <property name="cacheSeconds" value="-1" /> <!-- cache forever -->

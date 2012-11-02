@@ -3,6 +3,7 @@ package com.echoed.chamber.services.state.schema
 import org.squeryl.KeyedEntity
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.echoeduser
+import com.echoed.chamber.domain.partner.Partner
 
 
 private[state] case class Follower(
@@ -15,5 +16,7 @@ private[state] case class Follower(
 
     def this() = this("", 0L, 0L, "", "", "")
 
-    def convertTo(eu: EchoedUser) = echoeduser.Follower(eu.id, eu.name, Option(eu.facebookId), Option(eu.twitterId))
+    def convertTo(eu: EchoedUser) = echoeduser.Follower(eu.id, eu.name, eu.screenName)
+
+    def convertToPartnerFollower(p: Partner) = echoeduser.PartnerFollower(p.id, p.name, p.handle)
 }

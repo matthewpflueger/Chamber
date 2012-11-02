@@ -6,8 +6,9 @@ import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
-import org.springframework.validation.Errors
 import akka.actor.ActorRef
+import com.echoed.chamber.services.partner.PartnerClientCredentials
+import com.echoed.chamber.services.echoeduser.Follower
 
 sealed trait QueryMessage extends Message
 sealed case class QueryException(message: String = "", cause: Throwable = null)
@@ -63,9 +64,13 @@ case class QueryPartnersAndPartnerUsersResponse(
             extends QM with MR[List[PartnerAndPartnerUsers], QueryPartnersAndPartnerUsers, QE]
 
 
-
 case class QueryUnique(ref: Any, correlation: Message, override val correlationSender: Option[ActorRef])
         extends QM with Correlated[Message]
 case class QueryUniqueResponse(message: QueryUnique, value: Either[EchoedException, Boolean])
         extends QM with MR[Boolean, QueryUnique, EchoedException]
 
+
+case class QueryFollowersForPartner(pcc: PartnerClientCredentials) extends QM
+case class QueryFollowersForPartnerResponse(
+        message: QueryFollowersForPartner,
+        value: Either[QE, List[Follower]]) extends QM with MR[List[Follower], QueryFollowersForPartner, QE]

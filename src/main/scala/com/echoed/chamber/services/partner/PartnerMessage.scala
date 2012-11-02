@@ -3,8 +3,9 @@ package com.echoed.chamber.services.partner
 import com.echoed.chamber.services.{MessageResponse => MR, EchoedClientCredentials, EchoedException, Message}
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
-import com.echoed.chamber.domain.partner.{StoryPrompts, PartnerSettings, PartnerUser, Partner}
+import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor.ActorRef
+import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials, FollowerNotification}
 
 
 trait PartnerMessage extends Message
@@ -16,8 +17,6 @@ case class PartnerException(
 
 case class PartnerClientCredentials(partnerId: String) extends EchoedClientCredentials {
     val id = partnerId
-//    this: EchoedClientCredentials =>
-//    def partnerId = id
 }
 
 trait PartnerIdentifiable {
@@ -63,12 +62,24 @@ case class GetPartnerResponse(
         message: GetPartner,
         value: Either[PE, Partner]) extends PM with MR[Partner, GetPartner, PE]
 
-case class FetchPartner(credentials: PartnerClientCredentials) extends PM with PI
+case class FetchPartner(credentials: PCC) extends PM with PI
 case class FetchPartnerResponse(
-                                 message: FetchPartner,
-                                 value: Either[PE, Partner]) extends PM with MR[Partner, FetchPartner, PE]
+        message: FetchPartner,
+        value: Either[PE, Partner]) extends PM with MR[Partner, FetchPartner, PE]
 
 
+private[services] case class AddPartnerFollower(credentials: PCC, echoedUser: EchoedUser) extends PM with PI
+private[services] case class AddPartnerFollowerResponse(
+        message: AddPartnerFollower,
+        value: Either[PE, Partner]) extends PM with MR[Partner, AddPartnerFollower, PE]
+
+
+private[services] case class PartnerFollowerNotification(category: String, value: Map[String, String])
+
+private[services] case class NotifyPartnerFollowers(
+        credentials: PCC,
+        echoedUserClientCredentials: EchoedUserClientCredentials,
+        notification: FollowerNotification) extends PM with PI
 
 
 case class Locate(partnerId: String) extends PM
@@ -92,7 +103,7 @@ case class LocateByDomainResponse(
 case class ViewDescription(view: String, model: Map[String, Any])
 
 
-case class GetView(credentials: PartnerClientCredentials) extends PM with PI
+case class GetView(credentials: PCC) extends PM with PI
 case class GetViewResponse(
         message: GetView,
         value: Either[PE, ViewDescription]) extends PM with MR[ViewDescription, GetView, PE]

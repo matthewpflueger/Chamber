@@ -199,17 +199,13 @@ class PartnerServiceManager(
 
             log.debug("Starting to locate partner {}", partnerId)
 
-            val constructor = findResponseConstructor(msg.asInstanceOf[PartnerMessage])
-
             (me ? Locate(partnerId)).mapTo[LocateResponse].onComplete(_.fold(
                 e => {
                     log.error("Unexpected error in locating partner {}: {}", partnerId, e)
-                    channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating partner %s" format partnerId, e)))
                 },
                 _ match {
                     case LocateResponse(Locate(partnerId), Left(e)) =>
                         log.error("Error locating partner {}: {}", partnerId, e)
-                        channel ! constructor.newInstance(msg, Left(e))
                     case LocateResponse(_, Right(ps)) =>
                         log.debug("Located partner {}, forwarding on message {}", partnerId, msg)
                         ps.tell(msg, channel)
@@ -224,29 +220,19 @@ class PartnerServiceManager(
 
             log.debug("Starting to locate partner for echo {}", echoId)
 
-            val constructor = findResponseConstructor(msg.asInstanceOf[PartnerMessage])
-
             (me ? LocateByEchoId(echoId)).mapTo[LocateByEchoIdResponse].onComplete(_.fold(
                 e => {
                     log.error("Unexpected error in locating partner for echo {}: {}", echoId, e)
-                    channel ! constructor.newInstance(msg, Left(new PartnerException("Error locating with echo id %s" format echoId, e)))
                 },
                 _ match {
                     case LocateByEchoIdResponse(_, Left(e)) =>
                         log.error("Error in locating partner for echo {}: {}", echoId, e)
-                        channel ! constructor.newInstance(msg, Left(e))
                     case LocateByEchoIdResponse(_, Right(ps)) =>
                         log.debug("Located partner for echo {}, forwarding on message {}", echoId, msg)
                         ps.tell(msg, channel)
                 }))
     }
 
-
-    private def findResponseConstructor(msg: PartnerMessage) = {
-        val requestClass = msg.getClass
-        val responseClass = Thread.currentThread.getContextClassLoader.loadClass(requestClass.getName + "Response")
-        responseClass.getConstructor(requestClass, classOf[Either[_, _]])
-    }
 
 }
 
