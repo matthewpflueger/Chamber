@@ -134,7 +134,9 @@ class ServiceConfig {
             javaMailSender = javaMailSender,
             mustacheEngine = mustacheEngine,
             globalsManager = globalsManager,
-            from = mailProperties.getProperty("mail.from"))), "EmailService")
+            from = mailProperties.getProperty("mail.from"),
+            dropMessages = mailProperties.getProperty("mail.drop", "false").toBoolean,
+            authorizedAddresses = mailProperties.getProperty("mail.authorizedAddresses", "*"))), "EmailService")
 
     @Bean
     def feedService = (ac: ActorContext) => ac.actorOf(Props(new FeedService(
