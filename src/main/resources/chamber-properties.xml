@@ -227,7 +227,7 @@
         <prop key="mail.smtp.socketFactory.class">${mail.smtp.socketFactory.class}</prop>
         <prop key="accountManagerEmail">${accountManagerEmail}</prop>
         <prop key="mail.drop">${mail.drop}</prop>
-        <prop kye="mail.authorizedAddresses">${mail.authorizedAddresses}</prop>
+        <prop key="mail.authorizedAddresses">${mail.authorizedAddresses}</prop>
     </util:properties>
 
     <util:properties id="urlsProperties">
