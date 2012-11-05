@@ -11,12 +11,12 @@
             <td style="padding: 10px 10px 10px 40px; color: #111; font-size: 12px;">
                 {{#value}}
                     <p>
-                        <strong>{{subject}}</strong> {{action}} <strong>{{object}}</strong>
-                        {{#partnerName}} for <a href="{{urls.site}}/#partner/{{partnerId}}">{{.}}</a> {{/partnerName}}
+                        <strong>{{subject}}</strong> wrote a story: <strong>{{object}}</strong>
+                        {{#partnerName}} for <a style="color: #111; font-size: 12px;" href="{{urls.site}}/#partner/{{partnerId}}">{{.}}</a> {{/partnerName}}
                     </p>
                     {{#storyId}}
                         <a href="{{urls.site}}/#story/{{.}}" style="font-weight:bold; color: #4099ff;">
-                            See story
+                            Read Story
                         </a>
                     {{/storyId}}
                 {{/value}}
