@@ -186,6 +186,8 @@
         <prop key="mail.smtp.auth">true</prop>
         <prop key="mail.smtp.socketFactory.port">${mail.smtp.port}</prop>
         <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+        <prop key="mail.drop">false</prop>
+        <prop key="mail.authorizedAddresses">*</prop>
 
         <prop key="echoed.secret">PHHabG5MSw6hv4lZJg-Ppg</prop>
 
@@ -224,6 +226,8 @@
         <prop key="mail.smtp.socketFactory.port">${mail.smtp.socketFactory.port}</prop>
         <prop key="mail.smtp.socketFactory.class">${mail.smtp.socketFactory.class}</prop>
         <prop key="accountManagerEmail">${accountManagerEmail}</prop>
+        <prop key="mail.drop">${mail.drop}</prop>
+        <prop kye="mail.authorizedAddresses">${mail.authorizedAddresses}</prop>
     </util:properties>
 
     <util:properties id="urlsProperties">
