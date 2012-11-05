@@ -684,13 +684,13 @@ class EchoedUserService(
                 case None =>
                     mp(SendEmail(
                         echoedUser.email,
-                        "%s, you have new notifications on Echoed.com!" format echoedUser.name,
+                        "%s, you have new notifications on Echoed!" format echoedUser.name,
                         "email_notifications",
                         model))
                 case Some("weekly") =>
                     mp(SendEmail(
                         echoedUser.email,
-                        "%s, latest stories you maybe interested in on Echoed.com!" format echoedUser.name,
+                        "%s, New Stories for you this week on Echoed!" format echoedUser.name,
                         "email_weekly_notifications",
                         model))
             }
