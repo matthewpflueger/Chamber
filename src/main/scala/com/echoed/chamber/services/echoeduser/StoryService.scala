@@ -116,7 +116,7 @@ class StoryService(
 
 
         case msg @ CreateChapter(eucc, storyId, title, text, imageIds, publish) =>
-            val notifyPartnerFollowers = !storyState.isPublished
+            val notifyPartnerFollowers = !storyState.isPublished && !storyState.partner.isEchoed
             val publishedOn: Long = if (publish.isEmpty || !publish.get) 0 else new Date
 
             val chapter = new Chapter(storyState.asStory, title, text).copy(publishedOn = publishedOn)
