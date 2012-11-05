@@ -39,12 +39,14 @@ class WidgetController extends EchoedController {
             produces = Array("application/x-javascript"))
     def js(
             @RequestParam(value = "style", required = false, defaultValue = "black") style: String,
+            @RequestParam(value = "side", required = false, defaultValue = "left") side: String,
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
         val modelAndView =  new ModelAndView(v.widgetAppJsView)
         modelAndView.addObject("partnerId", pcc.partnerId)
         modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
+        modelAndView.addObject("side", side)
 
         if(style.equals("white")){
             modelAndView.addObject("white", true)
