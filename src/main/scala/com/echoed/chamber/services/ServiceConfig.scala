@@ -155,27 +155,27 @@ class ServiceConfig {
             appNameSpace = facebookAccessProperties.getProperty("appNameSpace"),
             httpClient = httpClient)), "FacebookAccess")
 
-    @Bean
-    def facebookPostCrawler = (ac: ActorContext) => ac.actorOf(Props(new FacebookPostCrawler(
-            facebookPostDao,
-            facebookLikeDao,
-            facebookCommentDao,
-            facebookAccess)), "FacebookPostCrawler")
-
-
-    @Bean
-    def magentoGoAccess = (ac: ActorContext) => ac.actorOf(Props(new MagentoGoAccess(
-            httpClient,
-            cacheManager)), "MagentoGoAccess")
+//    @Bean
+//    def facebookPostCrawler = (ac: ActorContext) => ac.actorOf(Props(new FacebookPostCrawler(
+//            facebookPostDao,
+//            facebookLikeDao,
+//            facebookCommentDao,
+//            facebookAccess)), "FacebookPostCrawler")
+//
+//
+//    @Bean
+//    def magentoGoAccess = (ac: ActorContext) => ac.actorOf(Props(new MagentoGoAccess(
+//            httpClient,
+//            cacheManager)), "MagentoGoAccess")
 
     @Bean
     def bigCommerceAccess = (ac: ActorContext) => ac.actorOf(Props(new BigCommerceAccess(httpClient)), "BigCommerceAccess")
 
-    @Bean
-    def networkSolutionsAccess = (ac: ActorContext) => ac.actorOf(Props(new NetworkSolutionsAccess(
-            networkSolutionsProperties.getProperty("application"),
-            networkSolutionsProperties.getProperty("certificate"),
-            httpClient)), "NetworkSolutionsAccess")
+//    @Bean
+//    def networkSolutionsAccess = (ac: ActorContext) => ac.actorOf(Props(new NetworkSolutionsAccess(
+//            networkSolutionsProperties.getProperty("application"),
+//            networkSolutionsProperties.getProperty("certificate"),
+//            httpClient)), "NetworkSolutionsAccess")
 
     @Bean
     def shopifyAccess = (ac: ActorContext) => ac.actorOf(Props(new ShopifyAccess(
@@ -327,45 +327,45 @@ class ServiceConfig {
     }
 
 
-    @Bean
-    def networkSolutionsPartnerService = { (ac: ActorContext, partnerId: String) =>
-        val nspd = Option(networkSolutionsPartnerDao).getOrElse(ctx.getBean("networkSolutionsPartnerDao", classOf[NetworkSolutionsPartnerDao]))
-        ac.actorOf(Props(new NetworkSolutionsPartnerService(
-            mp = messageProcessor,
-            partnerId = partnerId,
-            partnerDao = partnerDao,
-            partnerSettingsDao = partnerSettingsDao,
-            echoDao = echoDao,
-            echoClickDao = echoClickDao,
-            echoMetricsDao = echoMetricsDao,
-            imageDao = imageDao,
-            transactionTemplate = transactionTemplate,
-            encrypter = encrypter,
-            filteredUserAgents = filteredUserAgents,
-
-            networkSolutionsPartnerDao = nspd,
-            networkSolutionsAccessCreator = networkSolutionsAccess)), partnerId)
-    }
-
-
-    @Bean
-    def networkSolutionsPartnerServiceManager = { ac: ActorContext =>
-        val nspd = Option(networkSolutionsPartnerDao).getOrElse(ctx.getBean("networkSolutionsPartnerDao", classOf[NetworkSolutionsPartnerDao]))
-        ac.actorOf(Props(new NetworkSolutionsPartnerServiceManager(
-            mp = messageProcessor,
-            partnerDao = partnerDao,
-            partnerSettingsDao = partnerSettingsDao,
-            partnerUserDao = partnerUserDao,
-            echoDao = echoDao,
-            encrypter = encrypter,
-            transactionTemplate = transactionTemplate,
-            cacheManager = cacheManager,
-            accountManagerEmail = mailProperties.getProperty("accountManagerEmail"),
-
-            networkSolutionsPartnerDao = nspd,
-            networkSolutionsPartnerServiceCreator = networkSolutionsPartnerService,
-            networkSolutionsAccessCreator = networkSolutionsAccess)), "NetworkSolutionsPartners")
-    }
+//    @Bean
+//    def networkSolutionsPartnerService = { (ac: ActorContext, partnerId: String) =>
+//        val nspd = Option(networkSolutionsPartnerDao).getOrElse(ctx.getBean("networkSolutionsPartnerDao", classOf[NetworkSolutionsPartnerDao]))
+//        ac.actorOf(Props(new NetworkSolutionsPartnerService(
+//            mp = messageProcessor,
+//            partnerId = partnerId,
+//            partnerDao = partnerDao,
+//            partnerSettingsDao = partnerSettingsDao,
+//            echoDao = echoDao,
+//            echoClickDao = echoClickDao,
+//            echoMetricsDao = echoMetricsDao,
+//            imageDao = imageDao,
+//            transactionTemplate = transactionTemplate,
+//            encrypter = encrypter,
+//            filteredUserAgents = filteredUserAgents,
+//
+//            networkSolutionsPartnerDao = nspd,
+//            networkSolutionsAccessCreator = networkSolutionsAccess)), partnerId)
+//    }
+//
+//
+//    @Bean
+//    def networkSolutionsPartnerServiceManager = { ac: ActorContext =>
+//        val nspd = Option(networkSolutionsPartnerDao).getOrElse(ctx.getBean("networkSolutionsPartnerDao", classOf[NetworkSolutionsPartnerDao]))
+//        ac.actorOf(Props(new NetworkSolutionsPartnerServiceManager(
+//            mp = messageProcessor,
+//            partnerDao = partnerDao,
+//            partnerSettingsDao = partnerSettingsDao,
+//            partnerUserDao = partnerUserDao,
+//            echoDao = echoDao,
+//            encrypter = encrypter,
+//            transactionTemplate = transactionTemplate,
+//            cacheManager = cacheManager,
+//            accountManagerEmail = mailProperties.getProperty("accountManagerEmail"),
+//
+//            networkSolutionsPartnerDao = nspd,
+//            networkSolutionsPartnerServiceCreator = networkSolutionsPartnerService,
+//            networkSolutionsAccessCreator = networkSolutionsAccess)), "NetworkSolutionsPartners")
+//    }
 
 
     @Bean
@@ -409,45 +409,45 @@ class ServiceConfig {
     }
 
 
-    @Bean
-    def magentoGoPartnerService = { (ac: ActorContext, partnerId: String) =>
-        val mgpd = Option(magentoGoPartnerDao).getOrElse(ctx.getBean("magentoGoPartnerDao", classOf[MagentoGoPartnerDao]))
-        ac.actorOf(Props(new MagentoGoPartnerService(
-            mp = messageProcessor,
-            partnerId = partnerId,
-            partnerDao = partnerDao,
-            partnerSettingsDao = partnerSettingsDao,
-            echoDao = echoDao,
-            echoClickDao = echoClickDao,
-            echoMetricsDao = echoMetricsDao,
-            imageDao = imageDao,
-            transactionTemplate = transactionTemplate,
-            encrypter = encrypter,
-            filteredUserAgents = filteredUserAgents,
-
-            magentoGoPartnerDao = mgpd,
-            magentoGoAccessCreator = magentoGoAccess)), partnerId)
-    }
-
-
-    @Bean
-    def magentoGoPartnerServiceManager: (ActorContext) => ActorRef = { ac: ActorContext =>
-        val mgpd = Option(magentoGoPartnerDao).getOrElse(ctx.getBean("magentoGoPartnerDao", classOf[MagentoGoPartnerDao]))
-        ac.actorOf(Props(new MagentoGoPartnerServiceManager(
-            mp = messageProcessor,
-            partnerDao = partnerDao,
-            partnerSettingsDao = partnerSettingsDao,
-            partnerUserDao = partnerUserDao,
-            echoDao = echoDao,
-            encrypter = encrypter,
-            transactionTemplate = transactionTemplate,
-            cacheManager = cacheManager,
-            accountManagerEmail = mailProperties.getProperty("accountManagerEmail"),
-
-            magentoGoPartnerDao = mgpd,
-            magentoGoPartnerServiceCreator = magentoGoPartnerService,
-            magentoGoAccessCreator = magentoGoAccess)), "MagentoGoPartners")
-    }
+//    @Bean
+//    def magentoGoPartnerService = { (ac: ActorContext, partnerId: String) =>
+//        val mgpd = Option(magentoGoPartnerDao).getOrElse(ctx.getBean("magentoGoPartnerDao", classOf[MagentoGoPartnerDao]))
+//        ac.actorOf(Props(new MagentoGoPartnerService(
+//            mp = messageProcessor,
+//            partnerId = partnerId,
+//            partnerDao = partnerDao,
+//            partnerSettingsDao = partnerSettingsDao,
+//            echoDao = echoDao,
+//            echoClickDao = echoClickDao,
+//            echoMetricsDao = echoMetricsDao,
+//            imageDao = imageDao,
+//            transactionTemplate = transactionTemplate,
+//            encrypter = encrypter,
+//            filteredUserAgents = filteredUserAgents,
+//
+//            magentoGoPartnerDao = mgpd,
+//            magentoGoAccessCreator = magentoGoAccess)), partnerId)
+//    }
+//
+//
+//    @Bean
+//    def magentoGoPartnerServiceManager: (ActorContext) => ActorRef = { ac: ActorContext =>
+//        val mgpd = Option(magentoGoPartnerDao).getOrElse(ctx.getBean("magentoGoPartnerDao", classOf[MagentoGoPartnerDao]))
+//        ac.actorOf(Props(new MagentoGoPartnerServiceManager(
+//            mp = messageProcessor,
+//            partnerDao = partnerDao,
+//            partnerSettingsDao = partnerSettingsDao,
+//            partnerUserDao = partnerUserDao,
+//            echoDao = echoDao,
+//            encrypter = encrypter,
+//            transactionTemplate = transactionTemplate,
+//            cacheManager = cacheManager,
+//            accountManagerEmail = mailProperties.getProperty("accountManagerEmail"),
+//
+//            magentoGoPartnerDao = mgpd,
+//            magentoGoPartnerServiceCreator = magentoGoPartnerService,
+//            magentoGoAccessCreator = magentoGoAccess)), "MagentoGoPartners")
+//    }
 
     @Bean
     def queryService = (ac: ActorContext) => ac.actorOf(Props(new QueryService(squerylDataSource)), "QueryService")
@@ -468,7 +468,7 @@ class ServiceConfig {
             classOf[StateMessage] -> stateService,
             classOf[SchedulerMessage] -> schedulerService,
 //            classOf[GeoLocationMessage] -> geoLocationService,
-            classOf[FacebookPostCrawlerMessage] -> facebookPostCrawler,
+//            classOf[FacebookPostCrawlerMessage] -> facebookPostCrawler,
             classOf[ImageMessage] -> imageService,
             classOf[EventMessage] -> eventService,
             classOf[EmailMessage] -> emailService,
@@ -480,9 +480,9 @@ class ServiceConfig {
             classOf[AdminUserMessage] -> adminUserServiceManager,
             classOf[PartnerMessage] -> partnerServiceManager,
             classOf[ShopifyPartnerMessage] -> shopifyPartnerServiceManager,
-            classOf[NetworkSolutionsPartnerMessage] -> networkSolutionsPartnerServiceManager,
-            classOf[BigCommercePartnerMessage] -> bigCommercePartnerServiceManager,
-            classOf[MagentoGoPartnerMessage] -> magentoGoPartnerServiceManager)
+//            classOf[NetworkSolutionsPartnerMessage] -> networkSolutionsPartnerServiceManager,
+            classOf[BigCommercePartnerMessage] -> bigCommercePartnerServiceManager)
+//            classOf[MagentoGoPartnerMessage] -> magentoGoPartnerServiceManager)
 
     def messageRouter = actorSystem.actorOf(Props.default.withRouter(new MessageRouter(routeMap)), "Services")
 
