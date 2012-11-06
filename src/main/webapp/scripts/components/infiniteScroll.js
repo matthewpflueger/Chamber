@@ -30,7 +30,7 @@ define(
             },
             lock: function(){
                 this.element.show();
-                this.locked = true
+                this.locked = true;
             },
             unlock: function(){
                 var self = this;

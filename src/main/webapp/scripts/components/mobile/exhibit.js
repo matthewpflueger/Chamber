@@ -39,6 +39,7 @@ define(
                 this.jsonUrl = self.properties.urls.api + "/api/" + options.endPoint;
                 this.personal = options.personal;
                 this.contentTitle = options.title;
+                self.EvAg.trigger('infiniteScroll/lock');
                 utils.AjaxFactory({
                     url: self.jsonUrl,
                     dataType: 'json',
@@ -54,6 +55,7 @@ define(
                         self.EvAg.trigger("title/update", titleOpt);
                         self.EvAg.trigger("pagetitle/update", titleOpt.title);
                         self.render(data);
+                        self.EvAg.trigger('infiniteScroll/unlock');
                     }
                 })();
             },
