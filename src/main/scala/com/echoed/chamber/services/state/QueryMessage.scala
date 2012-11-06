@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.state
 
 import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedException, Message}
-import com.echoed.chamber.domain.StoryState
+import com.echoed.chamber.domain.{EchoedUser, StoryState}
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
@@ -35,6 +35,15 @@ case class QueryStoriesForAdminResponse(
                 value: Either[QE, List[StoryState]])
                 extends QM with MR[List[StoryState], QueryStoriesForAdmin, QE]
 
+case class QueryEchoedUsersForAdmin(
+        aucc: AdminUserClientCredentials,
+        page: Int = 0,
+        pageSize: Int = 30) extends QM
+
+case class QueryEchoedUsersForAdminResponse(
+        message: QueryEchoedUsersForAdmin,
+        value: Either[QE, List[EchoedUser]])
+        extends QM with MR[List[EchoedUser], QueryEchoedUsersForAdmin, QE]
 
 case class QueryStoriesForPartner(
         pucc: PUCC,

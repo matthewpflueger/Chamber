@@ -43,7 +43,7 @@ define(
                             }
                         });
 
-                        self.element.append(_.template(templatePaginate))
+                        self.element.append(_.template(templatePaginate));
                         if (self.page == 0) $('#paginate-previous').hide();
                         if (data.length < self.pageSize) $('#paginate-next').hide();
 
@@ -60,8 +60,8 @@ define(
             events: {
                 'click .moderate-cb' : 'check',
                 'click .moderate-preview' : 'preview',
-                'click #paginate-next' : 'paginateNext',
-                'click #paginate-previous' : 'paginatePrevious'
+                'click .paginate-next' : 'paginateNext',
+                'click .paginate-previous' : 'paginatePrevious'
             },
             paginateNext: function() {
                 this.page = this.page + 1;

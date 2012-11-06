@@ -32,6 +32,14 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
 
             sender ! QueryStoriesForAdminResponse(msg, Right(ss))
 
+        case msg @ QueryEchoedUsersForAdmin(aucc, page, pageSize) =>
+            val results = from(echoedUsers)(e =>
+                            select(e)
+                            orderBy(e.createdOn desc))
+                            .page(page * pageSize, pageSize)
+                            .toList
+
+            sender ! QueryEchoedUsersForAdminResponse(msg, Right(results))
 
         case msg @ QueryStoriesForPartner(pucc, page, pageSize, moderated) =>
             val ss = from(stories)(s =>

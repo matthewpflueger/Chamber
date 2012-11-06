@@ -8,17 +8,22 @@
 
 .paginate-buttons {
     position: relative;
-    height: 30px;
+    border-top: 1px solid #CCC;
+    padding: 10px 10px 0px 10px;
 }
 
-#paginate-next {
-    padding: 10px 20px 0px 0px;
+.paginate-next {
     float: right;
     @include paginate-button;
+    &:hover{
+        color: $colorEC;
+    }
 }
 
-#paginate-previous {
-    padding: 10px 0px 0px 20px;
+.paginate-previous {
     float: left;
     @include paginate-button;
+    &:hover{
+        color: $colorEC;
+    }
 }

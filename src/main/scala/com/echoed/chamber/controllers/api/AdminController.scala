@@ -89,6 +89,23 @@ class AdminController extends EchoedController with FormController {
         result
     }
 
+    @RequestMapping(value = Array("/echoedusers"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def queryEchoedUsers(
+            aucc: AdminUserClientCredentials,
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int) = {
+
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(QueryEchoedUsersForAdmin(aucc, page, pageSize)).onSuccess {
+            case QueryEchoedUsersForAdminResponse(_, Right(echoedUsers)) =>
+                result.set(echoedUsers)
+        }
+
+        result
+
+    }
 
     @RequestMapping(value = Array("/partner/{partnerId}"), method = Array(RequestMethod.GET))
     @ResponseBody
