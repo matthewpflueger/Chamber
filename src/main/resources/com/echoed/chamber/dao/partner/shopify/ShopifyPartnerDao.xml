@@ -23,7 +23,9 @@
     </resultMap>
 
     <select id="findByPartnerId" resultMap="shopifyPartnerResult">
-        select * from ShopifyPartner where partnerId=#{partnerId}
+        select * from ShopifyPartner SP
+        join Partner P on SP.partnerId = P.id
+        where P.id = #{partnerId} or P.handle = #{partnerId}
     </select>
     
     <select id="findByShopifyId" resultMap="shopifyPartnerResult">
