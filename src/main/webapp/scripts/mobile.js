@@ -50,7 +50,7 @@ require(
             this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
             this.login = new Login({ el: '#login', EvAg: EventAggregator, properties: properties });
             this.messageHandler = new MessageHandler({ EvAg: EventAggregator, properties: properties });
-            this.infiniteScroll = new InfiniteScroll({ EvAg: EventAggregator, properties: properties });
+            this.infiniteScroll = new InfiniteScroll({ el: "#infiniteScroll", EvAg: EventAggregator, properties: properties });
             Backbone.history.start();
         });
     }
