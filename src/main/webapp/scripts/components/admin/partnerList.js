@@ -23,6 +23,9 @@ define(
                     this.hide();
                 }
             },
+            hide: function(){
+                this.element.hide();
+            },
             events: {
                 "click .partnerList-button" : "clickButton"
             },

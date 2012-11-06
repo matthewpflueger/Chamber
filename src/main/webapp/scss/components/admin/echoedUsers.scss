@@ -1,0 +1,19 @@
+#echoedUsers{
+    display: none;
+}
+
+#echoedUsers-table{
+    width: 100%;
+    border-collapse: collapse;
+    thead{
+        border-bottom: 1px solid #CCC;
+    }
+    th, td{
+        //border: 1px solid #CCC;
+        padding: 8px 3px;
+    }
+}
+
+.echoedUsers-header{
+    font-weight: bold;
+}

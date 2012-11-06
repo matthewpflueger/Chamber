@@ -13,13 +13,18 @@ define(
             },
             routes: {
                 "": "home",
-                "partners": "partners"
+                "partners": "partners",
+                "echoedusers": "echoedUsers"
+
             },
             home: function(){
                 this.EvAg.trigger('page/change','moderate');
             },
             partners: function(){
                 this.EvAg.trigger('page/change','partnerList');
+            },
+            echoedUsers: function(){
+                this.EvAg.trigger('page/change','echoedUsers');
             }
         })
     }
