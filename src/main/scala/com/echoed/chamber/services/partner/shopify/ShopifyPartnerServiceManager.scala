@@ -77,7 +77,7 @@ class ShopifyPartnerServiceManager(
                 },
                 Future {
                     val sp = Option(shopifyPartnerDao.findByPartnerId(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
-                    val p = Option(partnerDao.findById(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
+                    val p = Option(partnerDao.findByIdOrHandle(partnerId)).getOrElse(throw PartnerNotFound(partnerId))
                     (sp, p)
                 }.onComplete(_.fold(
                     _ match {
