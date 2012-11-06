@@ -34,7 +34,7 @@
                 password)
     	values (
     			#{id},
-    			#{updatedOn}
+    			#{updatedOn},
     			#{createdOn},
     			#{partnerId},
                 #{name},
