@@ -32,31 +32,6 @@ require(
             }
         }
 
-        function echoedMessageHandler(message){
-            var hash = window.location.hash;
-            var index = hash.indexOf('echoed');
-            if(index > 0){
-                window.location.hash = hash.substr(0, index);
-            }
-            self.overlay.fadeOut();
-        }
-
-        function showEchoedOverlay(){
-            var hash = window.location.hash;
-            var index = hash.indexOf('echoed');
-            if(index > 0){
-                var iFrameHash = '';
-                var hString = hash.substr(index);
-                if(hString.split('_')[1]) iFrameHash = '#' + hString.split('_')[1];
-                else iFrameHash = "#home";
-                self.xdmOverlay.postMessage({
-                    type: "hash",
-                    data: iFrameHash
-                });
-                self.overlay.fadeIn();
-            }
-        }
-
         $(document).ready(function(){
             var scriptUrl = "";
             if($('script[data-main*="loader.js"]').length > 0){
@@ -89,22 +64,22 @@ require(
             self.overlay = $('#echoed-overlay');
 
             $('#echoed-opener,.echoed-opener').live('click', function(){
-                self.xdmOverlay.postMessage({ type: "hash", data: "home" });
+                self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
                 self.overlay.fadeIn();
             });
 
-            if( EchoedSettings.opener === undefined){
-                var open =$('<div></div>').attr("id","echoed-opener").append($('<img />').attr("src", EchoedSettings.urls.images +  "/bk_opener_dark_left.png").css({"display":"block"})).appendTo(body);
-                open.css({
-                    "left": "0px",
-                    "top": "175px",
-                    "position": "fixed",
-                    "cursor": "pointer",
-                    "box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
-                    "-moz-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
-                    "-webkit-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)"
-                });
-            }
+            var open = '';
+            if( EchoedSettings.opener === undefined && $('#echoed-opener').length === 0) open = $('<div></div>').attr("id","echoed-opener").append($('<img />').attr("src", EchoedSettings.urls.images +  "/bk_opener_dark_left.png").css({"display":"block"})).appendTo(body);
+            else open = $('#echoed-opener');
+            open.css({
+                "left": "0px",
+                "top": "175px",
+                "position": "fixed",
+                "cursor": "pointer",
+                "box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
+                "-moz-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
+                "-webkit-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)"
+            });
 
             if(window.addEventListener) window.addEventListener('message', echoedMessageHandler, false);
             else window.attachEvent('onmessage', echoedMessageHandler);
@@ -125,12 +100,13 @@ require(
                         id: "echoed-gallery-iframe"
                     },
                     onMessage: function(message, origin){
-                        switch(message.type){
+                        var msg = JSON.parse(message);
+                        switch(msg.type){
                             case 'load':
-                                window.location.hash = "#echoed_" + message.data ;
+                                window.location.hash = "#echoed_" + msg.data ;
                                 break;
                             case 'resize':
-                                $('#echoed-gallery-iframe').height(message.data).show();
+                                $('#echoed-gallery-iframe').height(msg.data).show();
                                 break;
                         }
                     }
@@ -140,5 +116,34 @@ require(
             showEchoedOverlay();
 
         });
+
+        function echoedMessageHandler(message){
+
+            if(message.data === "echoed-close"){
+                var hash = window.location.hash;
+                var index = hash.indexOf('echoed');
+                if(index > 0){
+                    window.location.hash = hash.substr(0, index);
+                }
+                self.overlay.fadeOut();
+            }
+        }
+
+        function showEchoedOverlay(){
+            var hash = window.location.hash;
+            var index = hash.indexOf('echoed');
+            if(index > 0){
+                var iFrameHash = '';
+                var hString = hash.substr(index);
+                if(hString.split('_')[1]) iFrameHash = '#' + hString.split('_')[1];
+                else iFrameHash = "#home";
+                var msg = JSON.stringify({
+                    "type": "hash",
+                    "data": iFrameHash
+                });
+                self.xdmOverlay.postMessage(msg);
+                self.overlay.fadeIn();
+            }
+        }
     }
 );

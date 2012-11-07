@@ -23,7 +23,7 @@ define(
                     self.EvAg.trigger('exhibit/init', { endPoint : "/partner/" + this.properties.partnerId });
                     _gaq.push(['_trackEvent', 'Widget', 'Open', this.properties.partnerId]);
                     self.EvAg.trigger('isotope/relayout');
-                } else {
+                } else if(!response.data){
                     var echoedUser = JSON.parse(response.data);
                     this.EvAg.trigger('user/login', echoedUser);
                 }
