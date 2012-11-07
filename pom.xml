@@ -450,6 +450,7 @@
                                     <directory>${basedir}/src/main/webapp/scripts_build</directory>
                                     <filtering>false</filtering>
                                     <includes>
+                                        <include>loader.js</include>
                                         <include>main.js</include>
                                         <include>widget.js</include>
                                         <include>partner.js</include>
