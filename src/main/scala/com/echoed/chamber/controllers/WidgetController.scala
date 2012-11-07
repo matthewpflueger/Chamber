@@ -33,6 +33,25 @@ class WidgetController extends EchoedController {
         result
     }
 
+    @RequestMapping(value = Array("/iframe/gallery"), method = Array(RequestMethod.GET))
+    def iframeGallery(
+            pcc: PartnerClientCredentials,
+            @Nullable eucc: EchoedUserClientCredentials) = {
+
+        val result = new DeferredResult(new ModelAndView(v.errorView))
+
+        mp(FetchPartner(pcc)).onSuccess {
+            case FetchPartnerResponse(_, Right(partner)) =>
+                val modelAndView = new ModelAndView(v.widgetAppIFrameGalleryView)
+                modelAndView.addObject("partner", partner)
+                modelAndView.addObject("partnerId", pcc.partnerId)
+                result.set(modelAndView)
+        }
+
+        result
+
+    }
+
     @RequestMapping(
             value = Array("/js"),
             method = Array(RequestMethod.GET),

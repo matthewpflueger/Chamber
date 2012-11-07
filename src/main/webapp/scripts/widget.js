@@ -8,7 +8,7 @@ require.config({
         'fileuploader': 'libs/fileuploader',
         'text': 'libs/require/text',
         'requireLib': 'libs/require/require',
-        'easyXDM': 'libs/easyXDM.debug.js'
+        'easyXDM': 'libs/easyXDM/easyXDM.min'
     },
     shim: {
         fileuploader: {
@@ -30,9 +30,10 @@ require(
         'components/exhibit',
         'components/story',
         'components/input',
-        'components/messageHandler.widget',
+        'components/widget/messageHandler',
         'components/widgetCloser',
-        'routers/widget'
+        'routers/widget',
+        'easyXDM'
     ],
     function(requireLib, $, Backbone, _, isotope, ErrorLog, Fade, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Router){
 
@@ -96,6 +97,18 @@ require(
 
         $(document).ready(function(){
             var EventAggregator = _.extend({}, Backbone.Events);
+
+            var socket = new easyXDM.Socket({
+                onMessage: function(message, origin){
+                    switch(message.type){
+                        case 'hash':
+                            window.location.hash = message.data;
+                            $('body').show();
+                            break;
+                    }
+                }
+            });
+
             var properties = {
                 urls: Echoed.urls,
                 echoedUser: Echoed.echoedUser,
@@ -122,6 +135,7 @@ require(
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
 
             this.messageHandler = new MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator, properties: properties });
+
             Backbone.history.start();
         });
     }
