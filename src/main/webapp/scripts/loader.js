@@ -2,7 +2,7 @@ require.config({
     paths: {
         'jquery': 'libs/jquery-1.8.1.min',
         'requireLib': 'libs/require/require',
-        'easyXDM': 'libs/easyXDM/easyXDM.debug'
+        'easyXDM': 'libs/easyXDM/easyXDM.min'
 
     }
 });
@@ -64,7 +64,7 @@ require(
             self.overlay = $('#echoed-overlay');
 
             $('#echoed-opener,.echoed-opener').live('click', function(){
-                self.xdmOverlay.postMessage({ type: "hash", data: "home" });
+                self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
                 self.overlay.fadeIn();
             });
 
@@ -100,12 +100,13 @@ require(
                         id: "echoed-gallery-iframe"
                     },
                     onMessage: function(message, origin){
-                        switch(message.type){
+                        var msg = JSON.parse(message);
+                        switch(msg.type){
                             case 'load':
-                                window.location.hash = "#echoed_" + message.data ;
+                                window.location.hash = "#echoed_" + msg.data ;
                                 break;
                             case 'resize':
-                                $('#echoed-gallery-iframe').height(message.data).show();
+                                $('#echoed-gallery-iframe').height(msg.data).show();
                                 break;
                         }
                     }
@@ -117,12 +118,15 @@ require(
         });
 
         function echoedMessageHandler(message){
-            var hash = window.location.hash;
-            var index = hash.indexOf('echoed');
-            if(index > 0){
-                window.location.hash = hash.substr(0, index);
+
+            if(message.data === "echoed-close"){
+                var hash = window.location.hash;
+                var index = hash.indexOf('echoed');
+                if(index > 0){
+                    window.location.hash = hash.substr(0, index);
+                }
+                self.overlay.fadeOut();
             }
-            self.overlay.fadeOut();
         }
 
         function showEchoedOverlay(){
@@ -133,10 +137,11 @@ require(
                 var hString = hash.substr(index);
                 if(hString.split('_')[1]) iFrameHash = '#' + hString.split('_')[1];
                 else iFrameHash = "#home";
-                self.xdmOverlay.postMessage({
-                    type: "hash",
-                    data: iFrameHash
+                var msg = JSON.stringify({
+                    "type": "hash",
+                    "data": iFrameHash
                 });
+                self.xdmOverlay.postMessage(msg);
                 self.overlay.fadeIn();
             }
         }

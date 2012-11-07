@@ -5,7 +5,7 @@ require.config({
         'jquery': 'libs/jquery-1.8.1.min',
         'text': 'libs/require/text',
         'requireLib': 'libs/require/require',
-        'easyXDM': 'libs/easyXDM/easyXDM.debug'
+        'easyXDM': 'libs/easyXDM/easyXDM.min'
     },
     shim: {
         fileuploader: {
@@ -38,10 +38,10 @@ require(
 
             $('.gallery-image-container').live('click', function(){
                 var id = $(this).attr('id');
-                socket.postMessage({
+                socket.postMessage(JSON.stringify({
                     'type': 'load',
                     'data': 'story/' + id
-                })
+                }));
             });
 
             $('#gallery-prev').live('click', function(){
@@ -71,10 +71,10 @@ require(
                             $('<img />').attr('src', image.preferredUrl).css(utils.getImageSizing(image, 200)).appendTo(gic);
                             gic.appendTo(container);
                             container.width(container.width() + width);
-                            socket.postMessage({
+                            socket.postMessage(JSON.stringify({
                                 "type" : "resize",
                                 "data" : document.body.scrollHeight
-                            });
+                            }));
                         }
                     });
                 }
