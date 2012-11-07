@@ -13,14 +13,13 @@
     {{/urls}}
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
-    if("{{envType}}" === "DEV"){
-        es.src = "{{https.js}}/require.js";
-        es.setAttribute('data-main',"{{https.js}}/loader.js?pid={{partnerId}}");
-    } else {
-        es.setAttribute('data-main',"{{https.js}}/loader.js?pid={{partnerId}}");
-        es.src = "{{https.js}}/require.js";
-        //es.src = "{{https.js}}/loader.js?{{partnerId}}"
-    }
+    {{#DEV}}
+    es.src = "{{https.js}}/require.js";
+    es.setAttribute('data-main',"{{https.js}}/loader.js?pid={{partnerId}}");
+    {{/DEV}}
+    {{^DEV}}
+    es.src = "{{https.js}}/loader.js?{{partnerId}}"
+    {{/DEV}}
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
 
 })();
