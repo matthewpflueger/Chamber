@@ -17,7 +17,7 @@
         'imagesLoaded' : 'libs/imagesloaded',
         'fileuploader' : 'libs/fileuploader',
         'expanding' : 'libs/expanding',
-        'easyXDM' : 'libs/easyXDM/easyXDM.min'
+        'easyXDM' : 'libs/easyXDM/easyXDM.debug'
     },
     shim: {
         'jqueryMobileConfig': ['jquery'],

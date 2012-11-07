@@ -8,7 +8,7 @@ require.config({
         'fileuploader': 'libs/fileuploader',
         'text': 'libs/require/text',
         'requireLib': 'libs/require/require',
-        'easyXDM': 'libs/easyXDM/easyXDM.min'
+        'easyXDM': 'libs/easyXDM/easyXDM.debug'
     },
     shim: {
         fileuploader: {
