@@ -129,8 +129,8 @@ require(
                     var msg = JSON.parse(message);
                     switch(msg.type){
                         case 'hash':
-                            window.location.hash = msg.data;
                             $('body').show();
+                            window.location.hash = msg.data;
                             break;
                     }
                 }

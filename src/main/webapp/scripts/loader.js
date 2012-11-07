@@ -48,7 +48,6 @@ require(
                 props: {
                     id: "echoed-overlay",
                     style: {
-                        "z-index": '99999',
                         "top": "0px",
                         "left": "0px",
                         "right": "0px",
@@ -58,15 +57,21 @@ require(
                         "position":"fixed",
                         "overflow-y":"scroll",
                         "display": "none"
+
                     }
+                },
+                onReady: function(){
+                    self.overlay = $('#echoed-overlay').css({ "z-index" : "99999"});
+                    $('#echoed-opener,.echoed-opener').live('click', function(){
+                        self.overlay.fadeIn();
+                        self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
+                    });
+                    showEchoedOverlay();
                 }
             });
-            self.overlay = $('#echoed-overlay');
 
-            $('#echoed-opener,.echoed-opener').live('click', function(){
-                self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
-                self.overlay.fadeIn();
-            });
+
+
 
             var open = '';
             if( EchoedSettings.opener === undefined && $('#echoed-opener').length === 0) open = $('<div></div>').attr("id","echoed-opener").append($('<img />').attr("src", EchoedSettings.urls.images +  "/bk_opener_dark_left.png").css({"display":"block"})).appendTo(body);
@@ -95,7 +100,7 @@ require(
                         style: {
                             width: "100%",
                             overflow: "hidden",
-                            display: "none"
+                            height: "0px"
                         },
                         id: "echoed-gallery-iframe"
                     },
@@ -106,14 +111,14 @@ require(
                                 window.location.hash = "#echoed_" + msg.data ;
                                 break;
                             case 'resize':
-                                $('#echoed-gallery-iframe').height(msg.data).show();
+                                $('#echoed-gallery-iframe').height(msg.data);
                                 break;
                         }
                     }
                 });
             }
 
-            showEchoedOverlay();
+
 
         });
 
@@ -141,8 +146,9 @@ require(
                     "type": "hash",
                     "data": iFrameHash
                 });
-                self.xdmOverlay.postMessage(msg);
                 self.overlay.fadeIn();
+                self.xdmOverlay.postMessage(msg);
+
             }
         }
     }

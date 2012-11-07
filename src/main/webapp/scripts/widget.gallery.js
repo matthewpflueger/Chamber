@@ -71,12 +71,12 @@ require(
                             $('<img />').attr('src', image.preferredUrl).css(utils.getImageSizing(image, 200)).appendTo(gic);
                             gic.appendTo(container);
                             container.width(container.width() + width);
-                            socket.postMessage(JSON.stringify({
-                                "type" : "resize",
-                                "data" : document.body.scrollHeight
-                            }));
                         }
                     });
+                    socket.postMessage(JSON.stringify({
+                        "type" : "resize",
+                        "data" : document.body.scrollHeight
+                    }));
                 }
             })();
 
