@@ -1,0 +1,60 @@
+@import "base";
+
+#container{
+    position:relative;
+    background-image: image-url("bk_noise_dark.jpg");
+    height: 170px;
+}
+
+#gallery-viewport{
+    position:relative;
+    margin: 0px 35px;
+    overflow: hidden;
+}
+
+#gallery-container{
+    height: 170px;
+    position: relative;
+}
+
+.gallery-nav{
+    width: 30px;
+    top: 0px;
+    bottom: 0px;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.3);
+    @include transition;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    &:hover{
+        background-color: rgba(0, 0, 0,0.8);
+    }
+}
+
+#gallery-next{
+    right: 0px;
+    background-image: image-url("bk_rarrow.png");
+}
+
+#gallery-prev{
+    left: 0px;
+    background-image: image-url("bk_larrow.png");
+
+}
+
+.gallery-image-container{
+    height: 150px;
+    overflow: hidden;
+    float:left;
+    border: 5px #FFF solid;
+    border-radius: 3px;
+    margin: 5px;
+    background-color: #FFF;
+    @include transition;
+    cursor: pointer;
+    &:hover{
+        border-color: #333;
+    }
+};

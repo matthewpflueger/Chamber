@@ -17,7 +17,7 @@
         'imagesLoaded' : 'libs/imagesloaded',
         'fileuploader' : 'libs/fileuploader',
         'expanding' : 'libs/expanding',
-        'easyXDM' : 'libs/easyXDM/easyXDM.debug.js'
+        'easyXDM' : 'libs/easyXDM/easyXDM.min'
     },
     shim: {
         'jqueryMobileConfig': ['jquery'],
@@ -49,6 +49,11 @@
         {
             name: "static",
             include: ['requireLib']
+        },
+        {
+            name: "widget.gallery",
+            include: ['requireLib']
+
         }
     ]
 })

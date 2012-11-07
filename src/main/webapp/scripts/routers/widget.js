@@ -13,8 +13,8 @@ define(
             routes:{
                 "_=_" : "fix",
                 "": "explore",
-                "home": "reload",
                 "!": "explore",
+                "home": "reload",
                 "story/:id": "story",
                 "write/:type/:id" : "writeStory",
                 "write/" : "writePartner",
@@ -26,18 +26,13 @@ define(
                 _gaq.push(['_trackEvent', 'Widget', 'Open', this.properties.partnerId]);
             },
             explore: function(){
-
-                if(this.page !== "#!"){
-                    //this.EvAg.trigger('exhibit/init', { endPoint : "/partner/" + this.properties.partnerId });
-                    //this.page = "#!";
-                }
             },
             writePartner: function(){
                 this.writeStory('partner', this.properties.partnerId );
             },
             writeStory: function(type, id){
                 if(this.page === null){
-                    this.explore();
+                    this.reload();
                     this.page = "#!";
                     this.EvAg.trigger('exhibit/init', { endPoint: "/partner/" + this.properties.partnerId });
                 }
@@ -47,7 +42,7 @@ define(
             },
             story: function(id){
                 if(this.page === null) {
-                    this.explore();
+                    this.reload();
                     this.page = "#!";
                 }
                 this.oldPage = this.page;
