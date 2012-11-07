@@ -18,7 +18,7 @@
     es.setAttribute('data-main',"{{https.js}}/loader.js?pid={{partnerId}}");
     {{/DEV}}
     {{^DEV}}
-    es.src = "{{https.js}}/loader.js?{{partnerId}}"
+    es.src = "{{https.js}}/loader.js?pid={{partnerId}}"
     {{/DEV}}
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
 
