@@ -1,5 +1,13 @@
 @import "base";
 
+#header{
+    padding: 10px;
+    @include fontTextBold(14px);
+    background-color: #F0F0F0;
+    @include dropShadowDown;
+    margin-bottom: 5px;
+}
+
 #container{
     position:relative;
     background-image: image-url("bk_noise_dark.jpg");
