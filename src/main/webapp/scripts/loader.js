@@ -100,7 +100,8 @@ require(
                     right: "0px",
                     bottom: "0px",
                     "border-top": "1px solid #acacac",
-                    "box-shadow": "0px -3px 5px rgba(34,25,25,0.2)"
+                    "box-shadow": "0px -3px 5px rgba(34,25,25,0.2)",
+                    "z-index" : "99999"
                 })
 
 
