@@ -1,129 +1,103 @@
 {{<public_super}}
-    {{$title}}Echoed | Partner Register{{/title}}
+    {{$title}}Echoed | Create Your Account{{/title}}
+    {{$jsHead}}
+        {{#scriptTag}}static.js{{/scriptTag}}
+    {{/jsHead}}
     {{$public_content}}
-    <div id="login-content">
+    <div id="content-wide">
+        <div class="login-form-title">
+            Create Your Account for free
+        </div>
         <div id="register-form" class="login-form">
-            <div class="login-form-title">Register New Partner</div>
-            {{#errors.global}}{{this}}{{/errors.global}}
+            {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
             <form action="{{urls.site}}/partner/register" method="POST">
-                <fieldset>
-                    <legend>User Info</legend>
-                    <label  for="userName">Name<em> * </em><span class="error">{{errors.registerForm.userName}}</span></label>
-                    <input  id="userName"
-                            name="userName"
-                            type="text"
-                            placeholder="What is name of the primary contact at the partner?"
-                            value="{{registerForm.userName}}" />
-                    <label  for="email">Email<em> * </em><span class="error">{{errors.registerForm.email}}</span></label>
-                    <input  id="email"
-                            name="email"
-                            type="text"
-                            placeholder="What is email of the primary contact at the partner?"
-                            value="{{registerForm.email}}" />
-                </fieldset>
-                <fieldset>
-                    <legend>Business Info</legend>
-                    <label  for="name">Name<em> * </em><span class="error">{{errors.registerForm.name}}</span></label>
-                    <input  id="name"
-                            name="name"
-                            type="text"
-                            placeholder="What is the business name?"
-                            value="{{registerForm.name}}" />
-                    <label  for="phone">Phone<em> * </em><span class="error">{{errors.registerForm.phone}}</span></label>
-                    <input  id="phone"
-                            name="phone"
-                            type="text"
-                            placeholder="What is the business phone number?"
-                            value="{{registerForm.phone}}" />
-                    <label  for="website">Website<em> * </em><span class="error">{{errors.registerForm.website}}</span></label>
-                    <input  id="website"
-                            name="website"
-                            type="text"
-                            placeholder="What is the business website?"
-                            value="{{registerForm.website}}" />
-                    <label  for="logo">Logo<span class="error">{{errors.registerForm.logo}}</span></label>
-                    <input  id="logo"
-                            name="logo"
-                            type="text"
-                            placeholder="What is the business logo?"
-                            value="{{registerForm.logo}}" />
-                    <label  for="hashTag">Hash Tag <span class="error">{{errors.registerForm.hashTag}}</span></label>
-                    <input  id="hashTag"
-                            name="hashTag"
-                            type="text"
-                            placeholder="What is the business hash tag?"
-                            value="{{registerForm.hashTag}}" />
-                    <label  for="category">Category <span class="error">{{errors.registerForm.category}}</span></label>
-                    <input  id="category"
-                            name="category"
-                            type="text"
-                            placeholder="What is the business category?"
-                            value="{{registerForm.category}}"/>
-                </fieldset>
-                <fieldset>
-                    <legend>Settings</legend>
-                    <label  for="exhibitPercentage">Exhibit Percentage<em> * </em><span class="error">{{errors.registerForm.exhibitPercentage}}</span></label>
-                    <input  id="exhibitPercentage"
-                            name="exhibitPercentage"
-                            type="text"
-                            placeholder="What is the percentage for echoing to exhibit?"
-                            value="{{registerForm.exhibitPercentage}}" />
-                    <label  for="minClicks">Min Clicks<em> * </em><span class="error">{{errors.registerForm.minClicks}}</span></label>
-                    <input  id="minClicks"
-                            name="minClicks"
-                            type="text"
-                            placeholder="What is the minimum number of clicks for credit?"
-                            value="{{registerForm.minClicks}}" />
-                    <label  for="minPercentage">Min Percentage<em> * </em><span class="error">{{errors.registerForm.minPercentage}}</span></label>
-                    <input  id="minPercentage"
-                            name="minPercentage"
-                            type="text"
-                            placeholder="What is the percentage credit for minimum clicks?"
-                            value="{{registerForm.minPercentage}}" />
-                    <label  for="maxClicks">Max Clicks<em> * </em><span class="error">{{errors.registerForm.maxClicks}}</span></label>
-                    <input  id="maxClicks"
-                            name="maxClicks"
-                            type="text"
-                            placeholder="What is the max number for clicks allowed for credit?"
-                            value="{{registerForm.maxClicks}}" />
-                    <label  for="maxPercentage">Max Percentage<em> * </em><span class="error">{{errors.registerForm.maxPercentage}}</span></label>
-                    <input  id="maxPercentage"
-                            name="maxPercentage"
-                            type="text"
-                            placeholder="What is the percentage credit for max clicks?"
-                            value="{{registerForm.maxPercentage}}" />
-                    <label  for="echoedMatchPercentage">Echoed Match Percentage<em> * </em><span class="error">{{errors.registerForm.echoedMatchPercentage}}</span></label>
-                    <input  id="echoedMatchPercentage"
-                            name="echoedMatchPercentage"
-                            type="text"
-                            placeholder="What is Echoed's credit match percentage?"
-                            value="{{registerForm.echoedMatchPercentage}}" />
-                    <label  for="echoedMaxPercentage">Echoed Max Percentage<em> * </em><span class="error">{{errors.registerForm.echoedMaxPercentage}}</span></label>
-                    <input  id="echoedMaxPercentage"
-                            name="echoedMaxPercentage"
-                            type="text"
-                            placeholder="What is Echoed's max credit percentage?"
-                            value="{{registerForm.echoedMaxPercentage}}" />
-                    <label  for="creditWindow">Credit Window<em> * </em><span class="error">{{errors.registerForm.creditWindow}}</span></label>
-                    <input  id="creditWindow"
-                            name="creditWindow"
-                            type="text"
-                            placeholder="What is the time span in hours for credit?"
-                            value="{{registerForm.creditWindow}}" />
-                    <label  for="activeOn">Active On<em> * </em><span class="error">{{errors.registerForm.activeOn}}</span></label>
-                    <input  id="activeOn"
-                            name="activeOn"
-                            type="text"
-                            placeholder="When do you want to make this partner active?"
-                            value="{{registerForm.activeOn}}" />
-                </fieldset>
-                <br/>
-                <input  id="register"
-                        name="register"
-                        type="submit" />
+                <div class="login-form-row">
+                    <input class="placeholder-input" id="userName" name="userName" type="text" value="{{registerForm.userName}}"/>
+                    <label class="placeholder-text">Your Name</label>
+                    <span class="placeholder-white"></span>
+                </div>
+                {{#errors.registerForm.userName}}
+                <div>
+                    <label class="error" for="userName">{{.}}</label>
+                </div>
+                {{/errors.registerForm.userName}}
+
+                <div class="login-form-row">
+                    <input class="placeholder-input" id="email" name="email" type="text" value="{{registerForm.email}}"/>
+                    <label class="placeholder-text">Your Email</label>
+                    <span class="placeholder-white"></span>
+                </div>
+                {{#errors.registerForm.email}}
+                <div>
+                    <label class="error" for="email">{{.}}</label>
+                </div>
+                {{/errors.registerForm.email}}
+
+
+                <div class="login-form-row">
+                    <input class="placeholder-input" id="siteName" name="siteName" type="text" value="{{registerForm.siteName}}"/>
+                    <label class="placeholder-text">Site Name</label>
+                    <span class="placeholder-white"></span>
+                </div>
+                {{#errors.registerForm.siteName}}
+                <div>
+                    <label class="error" for="siteName">{{.}}</label>
+                </div>
+                {{/errors.registerForm.siteName}}
+
+                <div class="login-form-row">
+                    <input class="placeholder-input" id="siteUrl" name="siteUrl" type="text" value="{{registerForm.siteUrl}}"/>
+                    <label class="placeholder-text">Site Url</label>
+                    <span class="placeholder-white"></span>
+                </div>
+                {{#errors.registerForm.siteUrl}}
+                <div>
+                    <label class="error" for="siteUrl">{{.}}</label>
+                </div>
+                {{/errors.registerForm.siteUrl}}
+
+                <div class="login-form-row">
+                    <input class="placeholder-input" id="shortName" name="shortName" type="text" value="{{registerForm.shortName}}"/>
+                    <label class="placeholder-text">Site Shortname</label>
+                    <span class="placeholder-white"></span>
+                </div>
+                {{^errors.registerForm.shortName}}
+                <div>
+                    <label for="shortName">Stories for your business can be seen at http://echoed.com/<strong>shortname</strong></label>
+                </div>
+                {{/errors.registerForm.shortName}}
+                {{#errors.registerForm.shortName}}
+                <div>
+                    <label class="error" for="shortName">{{.}}</label>
+                </div>
+                {{/errors.registerForm.shortName}}
+
+                <div class="login-form-row">
+                    <select class="placeholder-select" id="community" name="community">
+                    <option value=""></option>
+                    {{#registerForm.communities}}
+                        <option value="{{name}}" {{#selected}}selected{{/selected}}>{{name}}</option>
+                    {{/registerForm.communities}}
+                    </select>
+                </div>
+
+                {{^errors.registerForm.community}}
+                <div>
+                    <label for="community">Select a community that describes your site</label>
+                </div>
+                {{/errors.registerForm.community}}
+                {{#errors.registerForm.community}}
+                <div>
+                    <label class="error" for="community">{{.}}</label>
+                </div>
+                {{/errors.registerForm.community}}
+
+                <input id="communitiesList" name="communitiesList" type="hidden" value="{{registerForm.communitiesList}}"/>
+
+                <input id="login" name="register" type="submit" value="Submit">
             </form>
         </div>
     </div>
     {{/public_content}}
-    {{$olark}}{{/olark}}
 {{/public_super}}
+

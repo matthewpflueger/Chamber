@@ -1,11 +1,21 @@
 {{<email_super}}
-
+    {{$title}}Your Echoed account{{/title}}
+    {{$subject}}Your Echoed account{{/subject}}
     {{$content}}
         <div>
-            {{> partial_register_email}}
             <p>
-                After successfully activating your account you will receive your secret key and instructions on how to
-                integrate the Echoed service.
+                Thank you {{partnerUser.name}}, for choosing Echoed to help {{partner.name}} create a community around your website.
+            </p>
+            <p>
+                Click on the following link (or paste it into your browser's location bar) in order to activate your account and
+                set your password.
+                After successfully activating your account you will receive instructions on how to
+                integrate Echoed into your website.
+            </p>
+            <p>
+                <a href="{{https.site}}/partner/activate/{{code}}?id={{partnerUser.id}}">
+                    {{https.site}}/partner/activate/{{code}}?id={{partnerUser.id}}
+                </a>
             </p>
         </div>
     {{/content}}

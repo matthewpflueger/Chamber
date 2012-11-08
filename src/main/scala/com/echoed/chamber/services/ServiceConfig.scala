@@ -232,6 +232,7 @@ class ServiceConfig {
     def partnerUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new PartnerUserService(
             mp = messageProcessor,
             ep = eventProcessor,
+            encrypter = encrypter,
             initMessage = msg)))
 
     @Bean

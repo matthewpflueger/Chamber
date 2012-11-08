@@ -1,0 +1,21 @@
+{{<public_super}}
+{{$title}}Echoed | Your Account is now active{{/title}}
+{{$public_content}}
+<div id="content-wide">
+    <div class="login-form-title">Thanks</div>
+    <div>
+        <h2>
+        Thank you, {{partnerUser.name}} for activating your account.
+        </h2>
+        <p>The code below should be pasted into the front page of your website.
+        An account manager will be reaching out to your shortly.  If you need
+        further assistance, do not hesitate to email us
+        <a href="mailto:accountmanager@echoed.com">accountmanager@echoed.com</a>
+        </p>
+    </div>
+    <div><pre>
+        &lt;script type="text/javascript" src="http://echoed.com/widget/js?pid={{partnerUser.partnerId}}"&gt;&lt;/script&gt;
+    </pre></div>
+</div>
+{{/public_content}}
+{{/public_super}}

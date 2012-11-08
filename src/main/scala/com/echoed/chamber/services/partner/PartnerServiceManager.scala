@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.partner
 
-import com.echoed.util.Encrypter
+import com.echoed.util.{DateUtils, Encrypter}
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.TransactionTemplate
@@ -13,12 +13,13 @@ import com.echoed.chamber.dao._
 import partner.{PartnerDao, PartnerSettingsDao, PartnerUserDao}
 import com.echoed.cache.CacheManager
 import com.echoed.chamber.services.{MessageProcessor, EchoedService}
-import java.util.{UUID, HashMap => JHashMap}
+import java.util.{Date, UUID}
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
 import akka.util.duration._
-import akka.actor.SupervisorStrategy.Restart
+import com.echoed.chamber.services.state.{QueryUniqueResponse, QueryUnique}
+import com.echoed.chamber.domain.partner.{PartnerSettings, Partner, PartnerUser}
 
 
 class PartnerServiceManager(
@@ -31,6 +32,8 @@ class PartnerServiceManager(
         transactionTemplate: TransactionTemplate,
         cacheManager: CacheManager,
         partnerServiceCreator: (ActorContext, String) => ActorRef,
+        accountManagerEmail: String = "accountmanager@echoed.com",
+        accountManagerEmailTemplate: String = "partner_accountManager_email",
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
 
@@ -44,70 +47,48 @@ class PartnerServiceManager(
     def handle = {
         case Terminated(ref) => for ((k, v) <- cache if (v == ref)) cache.remove(k)
 
-        case msg @ RegisterPartner(partner, partnerSettings, partnerUser) =>
-            val me = context.self
-            val channel = context.sender
+        case msg @ RegisterPartner(userName, email, siteName, siteUrl, shortName, community) =>
+            mp.tell(QueryUnique(msg, msg, Option(sender)), self)
 
+        case QueryUniqueResponse(QueryUnique(_, msg: RegisterPartner, Some(channel)), Left(e)) =>
+            channel ! RegisterPartnerResponse(msg, Left(InvalidRegistration(e.asErrors())))
 
-            def error(e: Throwable) {
-                log.error("Unexpected error processing %s" format msg, e)
-                e match {
-                    case e: DataIntegrityViolationException =>
-                        channel ! RegisterPartnerResponse(msg, Left(PartnerException(e.getCause.getMessage, e)))
-                    case e: PartnerException =>
-                        channel ! RegisterPartnerResponse(msg, Left(e))
-                    case e =>
-                        channel ! RegisterPartnerResponse(msg, Left(PartnerException("Could not register %s" format partner.name, e)))
-                }
-            }
+        case QueryUniqueResponse(QueryUnique(_, msg: RegisterPartner, Some(channel)), Right(true)) =>
+            val p = new Partner(msg.siteName, msg.siteUrl, msg.shortName, msg.community).copy(secret = encrypter.generateSecretKey)
+            val ps = new PartnerSettings(p.id, p.handle)
 
-            try {
+            val password = UUID.randomUUID().toString
+            val pu = new PartnerUser(msg.userName, msg.email).copy(partnerId = p.id).createPassword(password)
 
-                (me ? LocateByDomain(partner.domain)).onComplete(_.fold(
-                    error(_),
-                    _ match {
-                        case LocateByDomainResponse(_, Right(partnerService)) =>
-                            log.debug("Partner already exists {}", partner.domain)
-                            channel ! RegisterPartnerResponse(msg, Left(PartnerAlreadyExists(partnerService)))
-                        case LocateByDomainResponse(_, Left(e: PartnerNotFound)) =>
-                            val p = partner.copy(secret = encrypter.generateSecretKey)
-                            val ps = partnerSettings.copy(partnerId = p.id)
+            val code = encrypter.encrypt(
+                    """{ "password": "%s", "createdOn": "%s" }"""
+                    format(password, DateUtils.dateToLong(new Date)))
 
-                            val password = UUID.randomUUID().toString
-                            val pu = partnerUser.copy(partnerId = p.id).createPassword(password)
+            transactionTemplate.execute({status: TransactionStatus =>
+                partnerDao.insert(p)
+                partnerSettingsDao.insert(ps)
+                partnerUserDao.insert(pu)
+            })
 
-                            val code = encrypter.encrypt("""{"email": "%s", "password": "%s"}""" format (pu.email, password))
+            channel ! RegisterPartnerResponse(msg, Right(pu, p))
 
+            val model = Map(
+                "code" -> code,
+                "partner" -> p,
+                "partnerUser" -> pu)
 
-                            transactionTemplate.execute({status: TransactionStatus =>
-                                partnerDao.insert(p)
-                                partnerSettingsDao.insert(ps)
-                                partnerUserDao.insert(pu)
-                            })
+            mp(SendEmail(
+                pu.email,
+                "Your Echoed Account",
+                "partner_email_register",
+                model))
 
-                            val model = Map(
-                                "code" -> code,
-                                "partner" -> p,
-                                "partnerUser" -> pu)
+            mp(SendEmail(
+                accountManagerEmail,
+                "New partner %s" format p.name,
+                accountManagerEmailTemplate,
+                model))
 
-                            mp(SendEmail(
-                                    partnerUser.email,
-                                    "Your Echoed Account",
-                                    "partner_email_register",
-                                    model))
-
-                            (me ? Locate(partner.id)).onComplete(_.fold(
-                                error(_),
-                                _ match {
-                                    case LocateResponse(_, Left(e)) => error(e)
-                                    case LocateResponse(_, Right(partnerService)) =>
-                                        channel ! RegisterPartnerResponse(msg, Right(partnerService))
-                                }))
-                        case LocateByDomainResponse(_, Left(e)) => error(e)
-                    }))
-            } catch {
-                case e => error(e)
-            }
 
         case Create(msg @ Locate(partnerId), channel) =>
             val partnerService = cache.get(partnerId).getOrElse {

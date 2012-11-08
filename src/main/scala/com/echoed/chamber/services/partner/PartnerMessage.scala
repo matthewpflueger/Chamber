@@ -6,6 +6,7 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor.ActorRef
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials, FollowerNotification}
+import org.springframework.validation.Errors
 
 
 trait PartnerMessage extends Message
@@ -13,7 +14,8 @@ case class PartnerException(
         message: String = "",
         cause: Throwable = null,
         code: Option[String] = None,
-        arguments: Option[Array[AnyRef]] = None) extends EchoedException(message, cause, code, arguments)
+        arguments: Option[Array[AnyRef]] = None,
+        errors: Option[Errors] = None) extends EchoedException(message, cause, code, arguments, errors)
 
 case class PartnerClientCredentials(partnerId: String) extends EchoedClientCredentials {
     val id = partnerId
@@ -41,10 +43,17 @@ import com.echoed.chamber.services.partner.{EchoIdentifiable => EI}
 private[partner] case class Create(msg: Locate, channel: ActorRef)
 
 
-case class RegisterPartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM
+case class InvalidRegistration(_errors: Errors, m: String = "Error creating account") extends PE(m, errors = Some(_errors))
+case class RegisterPartner(
+        userName: String,
+        email: String,
+        siteName: String,
+        siteUrl: String,
+        shortName: String,
+        community: String) extends PM
 case class RegisterPartnerResponse(
         message: RegisterPartner,
-        value: Either[PE, ActorRef]) extends PM with MR[ActorRef, RegisterPartner, PE]
+        value: Either[PE, (PartnerUser, Partner)]) extends PM with MR[(PartnerUser, Partner), RegisterPartner, PE]
 
 
 case class UpdatePartner(partner: Partner, partnerSettings: PartnerSettings, partnerUser: PartnerUser) extends PM

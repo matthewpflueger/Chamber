@@ -165,10 +165,10 @@
         <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
 
         <property name="activateView" value="partner_activate" />
-        <property name="postActivateView" value="redirect:${dashboardUrl}" />
+        <property name="postActivateView" value="partner_activate_post" />
 
         <property name="registerView" value="partner_register" />
-        <property name="postRegisterView" value="redirect:partner_register" />
+        <property name="postRegisterView" value="partner_register_post" />
 
         <property name="adminLoginView" value="admin.login"/>
         <property name="adminDashboardUrl"  value="redirect:${adminDashboardUrl}"/>
