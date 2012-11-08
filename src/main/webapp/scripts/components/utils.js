@@ -9,6 +9,21 @@ define(
                     width: width
                 }
             },
+            getMinImageSizing: function(image, minWidth, minHeight){
+                var hwRatio = image.preferredHeight / image.preferredWidth;
+                var minHWRatio = minHeight / minWidth;
+                if(minHWRatio < hwRatio){
+                    return {
+                        height: image.preferredHeight / (image.preferredWidth / minWidth),
+                        width: minWidth
+                    }
+                } else {
+                    return {
+                        height: minHeight,
+                        width: image.preferredWidth / (image.preferredHeight / minHeight)
+                    }
+                }
+            },
             getProfilePhotoUrl: function(echoedUser, urls){
                 if(echoedUser.facebookId !== null){
                     return "http://graph.facebook.com/" + echoedUser.facebookId + "/picture";

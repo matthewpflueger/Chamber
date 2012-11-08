@@ -68,7 +68,7 @@ require(
                         if(storyFull.story.image || storyFull.chapters[0].image){
                             var image = storyFull.story.image ? storyFull.story.image : storyFull.chapters[0].image;
                             var gic = $('<div></div>').addClass('gallery-image-container').attr("id", storyFull.id);
-                            $('<img />').attr('src', image.preferredUrl).css(utils.getImageSizing(image, 200)).appendTo(gic);
+                            $('<img />').attr('src', image.preferredUrl).css(utils.getMinImageSizing(image, 75, 55)).appendTo(gic);
                             gic.appendTo(container);
                             container.width(container.width() + width);
                         }
@@ -80,6 +80,25 @@ require(
                 }
             })();
 
+            $('#close').live('click', function(){
+                socket.postMessage(JSON.stringify({
+                    "type" : "close"
+                }));
+            });
+
+            $('#share').live('click', function(){
+                socket.postMessage(JSON.stringify({
+                    "type" : "load",
+                    "data" : "write"
+                }))
+            });
+
+            $('#view').live('click', function(){
+                socket.postMessage(JSON.stringify({
+                    "type" : "load",
+                    "data" : ""
+                }))
+            })
         });
     }
 );

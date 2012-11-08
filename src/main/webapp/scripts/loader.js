@@ -76,6 +76,7 @@ require(
             var open = '';
             if( EchoedSettings.opener === undefined && $('#echoed-opener').length === 0) open = $('<div></div>').attr("id","echoed-opener").append($('<img />').attr("src", EchoedSettings.urls.images +  "/bk_opener_dark_left.png").css({"display":"block"})).appendTo(body);
             else open = $('#echoed-opener');
+            open.find('img').css({"display": "block"});
             open.css({
                 "left": "0px",
                 "top": "175px",
@@ -93,6 +94,17 @@ require(
 
 
             if($('#echoed-gallery').length > 0){
+                self.echoedGallery  = $('#echoed-gallery').css({
+                    position: "fixed",
+                    left: "0px",
+                    right: "0px",
+                    bottom: "0px",
+                    "border-top": "1px solid #acacac",
+                    "box-shadow": "0px -3px 5px rgba(34,25,25,0.2)"
+                })
+
+
+
                 var XDM1 = new easyXDM.Socket({
                     remote: EchoedSettings.urls.api +  "/widget/iframe/gallery?pid=" + parameters['pid'],
                     container: "echoed-gallery",
@@ -100,7 +112,8 @@ require(
                         style: {
                             width: "100%",
                             overflow: "hidden",
-                            height: "0px"
+                            height: "0px",
+                            display: "block"
                         },
                         id: "echoed-gallery-iframe"
                     },
@@ -111,8 +124,10 @@ require(
                                 window.location.hash = "#echoed_" + msg.data ;
                                 break;
                             case 'resize':
-                                $('#echoed-gallery-iframe').height(msg.data);
+                                $('#echoed-gallery-iframe').hide().height(msg.data).slideDown();
                                 break;
+                            case 'close':
+                                self.echoedGallery.slideUp();
                         }
                     }
                 });
