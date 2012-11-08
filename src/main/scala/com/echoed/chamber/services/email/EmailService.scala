@@ -16,21 +16,19 @@ class EmailService(
         globalsManager: GlobalsManager,
         from: String,
         fromName: String = "Echoed",
-        dropMessages: Boolean = false,
-        authorizedAddresses: String = "*") extends EchoedService {
+        development: Boolean = false,
+        developmentRecipient: String = "developers@echoed.com") extends EchoedService {
 
     require(from != null, "Missing from")
 
     def handle = {
-        case msg @ SendEmail(recipient, subject, templateName, m)
-                if (!dropMessages && (authorizedAddresses == "*" || authorizedAddresses.contains(recipient))) =>
-
+        case msg @ SendEmail(recipient, subject, templateName, m) =>
             val renderedTemplate = mustacheEngine.execute(templateName, globalsManager.globals() ++ m)
 
             javaMailSender.send(new MimeMessagePreparator() {
                 override def prepare(mimeMessage: MimeMessage) {
                     val mimeMessageHelper = new MimeMessageHelper(mimeMessage)
-                    mimeMessageHelper.setTo(recipient)
+                    mimeMessageHelper.setTo(if (development) developmentRecipient else recipient)
                     mimeMessageHelper.setFrom(from, fromName)
                     mimeMessageHelper.setSubject(subject)
                     mimeMessageHelper.setText(renderedTemplate, true)

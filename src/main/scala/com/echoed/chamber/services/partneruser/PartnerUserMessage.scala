@@ -75,11 +75,11 @@ case class GetPartnerSettings(credentials: PUCC) extends PUM with PUI
 case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PUE, List[PartnerSettings]])
         extends PUM with MR[List[PartnerSettings], GetPartnerSettings, PUE]
 
-case class ActivatePartnerUser(credentials: PUCC, password: String) extends PUM with PUI
+case class ActivatePartnerUser(credentials: PUCC, code: String, password: String) extends PUM with PUI
 case class ActivatePartnerUserResponse(
         message: ActivatePartnerUser,
-        value: Either[InvalidPassword, PartnerUser])
-        extends PUM with MR[PartnerUser, ActivatePartnerUser, InvalidPassword]
+        value: Either[InvalidPassword, PUCC])
+        extends PUM with MR[PUCC, ActivatePartnerUser, InvalidPassword]
 
 case class UpdatePartnerUser(credentials: PUCC, name: String, email: String, password: String) extends PUM with PUI
 case class UpdatePartnerUserResponse(

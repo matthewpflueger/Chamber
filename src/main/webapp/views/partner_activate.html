@@ -1,68 +1,27 @@
-    {{> partial_header}}
-    <title>Echoed | Partner Register</title>
-    <link rel="stylesheet" type="text/css" href="{{urls.css}}/echoed-static.css"/>
-</head>
-<body class="nooverflow">
-<img id="mainImage" src="{{urls.images}}/bleed-couch.jpg" style="display:none;"/>
-<div id="container">
-    {{> partial_staticNavBar }}
-    <div id="primary">
-        <div class="center clearfix">
-            <div id="lm">
-                <div id="lm-top" class="clearfix">
-                    <div id="lm-label">Partner Register</div>
-                    <div id="lm-partner-form">
-                        <div id="lm-error">
-                        {{#errors.global}}{{this}}{{/errors.global}}
-                        </div>
-                        <form action="{{urls.site}}/partner/activate" method="POST">
-                            <fieldset>
-                                <legend>Credential Info</legend>
-                                <label  for="password">Password<em> * </em><span class="error">{{errors.activateForm.password}}</span></label>
-                                <input  id="password"
-                                        name="password"
-                                        type="password"
-                                        placeholder="Minimum of six characters..." />
-                                <label  for="passwordConfirm">Password Confirm<em> * </em><span class="error">{{errors.activateForm.passwordConfirm}}</span></label>
-                                <input  id="passwordConfirm"
-                                        name="passwordConfirm"
-                                        type="password"
-                                        placeholder="Password again..." />
-                                <input  id="partnerUserId"
-                                        name="partnerUserId"
-                                        type="hidden"
-                                        value="{{activateForm.partnerUserId}}" />
-                            </fieldset>
-                            <br/>
-                            <input  id="activate"
-                                    name="activate"
-                                    type="submit" />
-                        </form>
-                    </div>
+{{<public_super}}
+    {{$title}}Echoed | Set Your Password{{/title}}
+    {{$jsHead}}
+        {{#scriptTag}}static.js{{/scriptTag}}
+    {{/jsHead}}
+    {{$public_content}}
+    <div id="content-wide">
+        <div id="register-form" class="login-form">
+            <div class="login-form-title">Set Your Password</div>
+            {{#errors}}{{#global}}<div id="lm-error">Error: {{.}}</div>{{/global}}{{/errors}}
+            <form action="{{urls.site}}/partner/activate/{{code}}?id={{id}}" method="POST">
+                <div class="login-form-row">
+                    <input class="placeholder-input" id="password" name="password" type="password" />
+                    <label class="placeholder-text">Must be six characters</label>
+                    <span class="placeholder-white"></span>
                 </div>
-            </div>
+                {{#errors.activateForm.password}}
+                <div>
+                    <label class="error" for="password">{{.}}</label>
+                </div>
+                {{/errors.activateForm.password}}
+                <input id="reset" name="reset" type="submit" value="Submit">
+            </form>
         </div>
     </div>
-    <div id="gap"></div>
-    <div id="footer" class="float">
-        <div class="center clearfix">
-            <div id="footer-nav">
-                <a href="{{urls.site}}/howitworks">How It Works</a>
-                <a href="{{urls.site}}/contactus">Contact Us</a>
-                <div class="copyright" style="float:right;line-height:45px;">
-                    Copyright 2012 - Echoed Inc.
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</body>
-</html>
-<script type="text/javascript">
-    $(document).ready(function(){
-        $('#mainImage').imagesLoaded(function(){
-            var fullBleed = new FullBleed();
-        });
-    });
-</script>
-{{> partial_google}}
+    {{/public_content}}
+{{/public_super}}

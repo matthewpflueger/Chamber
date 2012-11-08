@@ -230,7 +230,7 @@ function service_cmd() {
             ;;
 
         compass_compile)
-            compass compile -f -c src/main/compass/${ENV_TYPE}.rb
+            compass compile --force -c src/main/compass/${ENV_TYPE}.rb
             ;;
 
         requirejs)

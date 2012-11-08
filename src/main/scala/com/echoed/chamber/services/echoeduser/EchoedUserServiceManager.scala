@@ -118,29 +118,6 @@ class EchoedUserServiceManager(
                 context.watch(echoedUserServiceCreator(context, msg)).forward(msg))
 
 
-//        case msg: EmailOrScreenNameIdentifiable with EchoedUserMessage =>
-//            active
-//                    .get(Email(msg.emailOrScreenName))
-//                    .headOption
-//                    .orElse(active.get(ScreenName(msg.emailOrScreenName)).headOption)
-//                    .cata(
-//                _.forward(msg),
-//                {
-//                    val echoedUserService = context.watch(echoedUserServiceCreator(
-//                            context,
-//                            LoginWithEmailOrScreenName(msg.emailOrScreenName, msg, Option(sender))))
-//                    echoedUserService.forward(msg)
-//                    active.put(Email(msg.emailOrScreenName), echoedUserService)
-//                })
-
-
         case msg: EchoedUserIdentifiable with EchoedUserMessage => forwardForCredentials(msg, msg.credentials)
     }
 }
-
-
-//case class EchoedUserId(id: String) extends Identifiable
-//case class Email(id: String) extends Identifiable
-//case class ScreenName(id: String) extends Identifiable
-//case class FacebookId(id: String) extends Identifiable
-//case class TwitterId(id: String) extends Identifiable

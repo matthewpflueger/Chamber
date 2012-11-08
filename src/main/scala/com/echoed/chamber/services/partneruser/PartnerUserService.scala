@@ -11,11 +11,13 @@ import com.echoed.chamber.domain.InvalidPassword
 import com.echoed.chamber.services.partner.PartnerClientCredentials
 import com.echoed.util.DateUtils._
 import java.util.Date
+import com.echoed.util.{Encrypter, ScalaObjectMapper}
 
 
 class PartnerUserService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
+        encrypter: Encrypter,
         initMessage: Message) extends OnlineOfflineService {
 
     private var partnerUser: PartnerUser = _
@@ -29,8 +31,8 @@ class PartnerUserService(
     override def preStart() {
         super.preStart()
         initMessage match {
-            case LoginWithEmail(email, _, _) => mp(ReadPartnerUserForEmail(email)).pipeTo(self)
-            case LoginWithCredentials(credentials) => mp(ReadPartnerUserForCredentials(credentials)).pipeTo(self)
+            case LoginWithEmail(email, _, _) => mp.tell(ReadPartnerUserForEmail(email), self)
+            case LoginWithCredentials(credentials) => mp.tell(ReadPartnerUserForCredentials(credentials), self)
         }
     }
 
@@ -49,11 +51,20 @@ class PartnerUserService(
             if (partnerUser.isCredentials(email, password)) sender ! LoginWithEmailPasswordResponse(msg, Right(partnerUser))
             else sender ! LoginWithEmailPasswordResponse(msg, Left(InvalidCredentials()))
 
-        case msg @ ActivatePartnerUser(_, password) =>
+        case msg @ ActivatePartnerUser(_, code, password) =>
             try {
-                partnerUser = partnerUser.copy(updatedOn = new Date).createPassword(password)
-                sender ! ActivatePartnerUserResponse(msg, Right(partnerUser))
-                ep(PartnerUserUpdated(partnerUser))
+                val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
+                map.get("password").filter(partnerUser.isPassword(_)).foreach { _ =>
+                    partnerUser = partnerUser.copy(updatedOn = new Date).createPassword(password)
+                    sender ! ActivatePartnerUserResponse(
+                        msg,
+                        Right(new PartnerUserClientCredentials(
+                            partnerUser.id,
+                            Option(partnerUser.name),
+                            Option(partnerUser.email),
+                            Option(partnerUser.partnerId))))
+                    ep(PartnerUserUpdated(partnerUser))
+                }
             } catch {
                 case e: InvalidPassword => sender ! ActivatePartnerUserResponse(msg, Left(e))
             }

@@ -109,6 +109,19 @@ case class PartnerSettings(
         new Date,
         activeOn)
 
+    def this(partnerId: String, shortName: String) = this(
+        partnerId,
+        0.01f,
+        20,
+        0.1f,
+        100000,
+        0.2f,
+        1.0f,
+        0.1f,
+        168,
+        "echo.js.0, echo.js.1",
+        "@%s" format shortName,
+        new Date)
 
     @Transient lazy val viewsList = views.split(",").map(_.trim)
 

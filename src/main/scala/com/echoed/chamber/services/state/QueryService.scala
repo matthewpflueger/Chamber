@@ -10,6 +10,8 @@ import org.squeryl.PrimitiveTypeMode._
 import com.echoed.chamber.domain.EchoedUser
 import org.springframework.validation.{BindException, FieldError}
 import com.echoed.chamber.services.echoeduser.Follower
+import com.echoed.chamber.domain.partner.{Partner, PartnerUser}
+import com.echoed.chamber.services.partner.RegisterPartner
 
 
 class QueryService(val dataSource: DataSource) extends EchoedService with SquerylSessionFactory {
@@ -90,7 +92,31 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             else {
                 val be = new BindException(ref, "EchoedUser")
                 results.foreach(be.addError(_))
-                sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))//NotUniqueException().copy(errs = Some(be))))
+                sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))
+            }
+
+        case msg @ QueryUnique(ref: RegisterPartner, _, _) =>
+            val results = List(
+                    (from(partnerUsers)(pu => where(pu.email === ref.email) compute(count)).single.measures,
+                    "email",
+                    "Email already taken"),
+                    (from(partners)(p => where(p.name === ref.siteName) compute(count)).single.measures,
+                    "siteName",
+                    "Site name already taken"),
+                    (from(partners)(p => where(p.handle === ref.shortName) compute(count)).single.measures,
+                    "shortName",
+                    "Shortname already taken"),
+                    (from(partners)(p => where(p.domain === ref.siteUrl) compute(count)).single.measures,
+                    "siteUrl",
+                    "Site url already taken"))
+                .filter(_._1 > 0)
+                .map(t3 => new FieldError("RegisterPartner", t3._2, t3._3))
+
+            if (results.isEmpty) sender ! QueryUniqueResponse(msg, Right(true))
+            else {
+                val be = new BindException(ref, "RegisterPartner")
+                results.foreach(be.addError(_))
+                sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))
             }
 
         case msg @ QueryFollowersForPartner(pcc) =>

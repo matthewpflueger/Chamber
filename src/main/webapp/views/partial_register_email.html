@@ -1,10 +1,12 @@
 <p>
-Thank you {{partnerUser.name}}, for choosing Echoed to help {{partner.name}} create your brand community.
+Thank you {{partnerUser.name}}, for choosing Echoed to help {{partner.name}} create a community around your website.
 </p>
 <p>
     Click on the following link (or paste it into your browser's location bar) in order to activate your account and
     set your password.
 </p>
 <p>
-    <a href="{{https.site}}/partner/activate/{{code}}">{{https.site}}/partner/activate/{{code}}</a>
+    <a href="{{https.site}}/partner/activate/{{code}}?id={{partnerUser.id}}">
+        {{https.site}}/partner/activate/{{code}}?id={{partnerUser.id}}
+    </a>
 </p>

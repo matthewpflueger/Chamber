@@ -49,6 +49,15 @@ case class Partner(
         UUID(),
         UUID())
 
+    def this(siteName: String, siteUrl: String, shortName: String, community: String) = this(
+        siteName,
+        siteUrl,
+        UUID(),
+        shortName,
+        UUID(),
+        community)
+
+
 
     @Transient val isEchoed = "Echoed" == handle
 }

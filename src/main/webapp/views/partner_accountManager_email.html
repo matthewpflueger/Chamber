@@ -1,0 +1,12 @@
+{{<email_super}}
+    {{$title}}New partner {{partner.name}}{{/title}}
+    {{$subject}}New partner {{partner.name}}{{/subject}}
+    {{$content}}
+        <div>
+            <p>
+                {{partnerUser.name}} has created an account for <a href="http://{{partner.domain}}">{{partner.name}}</a>.
+                Please contact them at <a href="mailto:{{partnerUser.email}}">{{partnerUser.email}}</a>.
+            </p>
+        </div>
+    {{/content}}
+{{/email_super}}
