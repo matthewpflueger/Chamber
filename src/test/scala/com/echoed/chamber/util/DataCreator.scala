@@ -422,6 +422,7 @@ class DataCreator {
             couponDescription = null,
             couponExpiresOn = new Date,
             storyPrompts = null,
+            customization = null,
             moderateAll = false)
 
     val partnerSettingsList = partnerSettingsFuture :: partners.map { r =>

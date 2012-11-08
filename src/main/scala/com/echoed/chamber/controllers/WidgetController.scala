@@ -6,8 +6,15 @@ import org.springframework.web.servlet.ModelAndView
 import com.echoed.chamber.services.event.WidgetRequested
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import javax.annotation.Nullable
-import com.echoed.chamber.services.partner.{FetchPartnerResponse, FetchPartner, PartnerClientCredentials}
+import com.echoed.chamber.services.partner._
 import org.springframework.web.context.request.async.DeferredResult
+import com.echoed.chamber.services.partner.FetchPartnerAndPartnerSettings
+import com.echoed.chamber.services.event.WidgetRequested
+import com.echoed.chamber.services.partner.FetchPartnerResponse
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.partner.FetchPartner
+import com.echoed.chamber.services.partner.PartnerClientCredentials
+import scala.Right
 
 
 @Controller
@@ -21,10 +28,11 @@ class WidgetController extends EchoedController {
 
         val result = new DeferredResult(new ModelAndView(v.errorView))
 
-        mp(FetchPartner(pcc)).onSuccess {
-            case FetchPartnerResponse(_, Right(partner)) =>
+        mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
+            case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
                 val modelAndView = new ModelAndView(v.widgetAppIFrameView)
-                modelAndView.addObject("partner", partner)
+                modelAndView.addObject("partner", p.partner)
+                modelAndView.addObject("customization", p.partnerSettings.makeCustomizationOptions)
                 modelAndView.addObject("partnerId", pcc.partnerId)
                 modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                 result.set(modelAndView)
@@ -40,10 +48,11 @@ class WidgetController extends EchoedController {
 
         val result = new DeferredResult(new ModelAndView(v.errorView))
 
-        mp(FetchPartner(pcc)).onSuccess {
-            case FetchPartnerResponse(_, Right(partner)) =>
+        mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
+            case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
                 val modelAndView = new ModelAndView(v.widgetAppIFrameGalleryView)
-                modelAndView.addObject("partner", partner)
+                modelAndView.addObject("customization", p.partnerSettings.makeCustomizationOptions)
+                modelAndView.addObject("partner", p.partner)
                 modelAndView.addObject("partnerId", pcc.partnerId)
                 result.set(modelAndView)
         }

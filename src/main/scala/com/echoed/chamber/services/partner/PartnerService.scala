@@ -140,6 +140,11 @@ class PartnerService(
             val channel = context.sender
             channel ! FetchPartnerResponse(msg, Right(partner))
 
+        case msg: FetchPartnerAndPartnerSettings =>
+            val channel = context.sender
+            val partnerSettings = findActive().orElse(findInactive()).orElse(throw new PartnerNotActive(partner)).get
+            channel ! FetchPartnerAndPartnerSettingsResponse(msg, Right(new PartnerAndPartnerSettings(partner, partnerSettings)))
+
         case msg: GetPartner =>
             val channel = context.sender
             channel ! GetPartnerResponse(msg, Right(partner))

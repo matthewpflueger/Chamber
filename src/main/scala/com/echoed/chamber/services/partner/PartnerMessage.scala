@@ -76,6 +76,12 @@ case class FetchPartnerResponse(
         message: FetchPartner,
         value: Either[PE, Partner]) extends PM with MR[Partner, FetchPartner, PE]
 
+case class PartnerAndPartnerSettings(partner: Partner, partnerSettings: PartnerSettings)
+case class FetchPartnerAndPartnerSettings(credentials: PCC) extends PM with PI
+case class FetchPartnerAndPartnerSettingsResponse(
+        message: FetchPartnerAndPartnerSettings,
+        value: Either[PE, PartnerAndPartnerSettings]) extends PM with MR[PartnerAndPartnerSettings, FetchPartnerAndPartnerSettings, PE]
+
 
 private[services] case class AddPartnerFollower(credentials: PCC, echoedUser: EchoedUser) extends PM with PI
 private[services] case class AddPartnerFollowerResponse(

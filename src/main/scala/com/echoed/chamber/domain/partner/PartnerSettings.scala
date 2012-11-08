@@ -5,6 +5,7 @@ import com.echoed.util.{ScalaObjectMapper, UUID}
 import com.echoed.util.DateUtils._
 import com.echoed.chamber.domain.DomainObject
 import org.squeryl.annotations.Transient
+import java.util
 
 
 case class PartnerSettings(
@@ -27,6 +28,7 @@ case class PartnerSettings(
         couponExpiresOn: Long,
         activeOn: Long,
         storyPrompts: String,
+        customization: String,
         moderateAll: Boolean) extends DomainObject {
 
     require(closetPercentage >= 0, "Closet percentage is less than 0")
@@ -41,7 +43,7 @@ case class PartnerSettings(
 
     require(views != null, "Views is null")
 
-    def this() = this("", 0L, 0L, "", 0f, 0, 0f, 0, 0f, 0f, 0f, 0, "", "", "", "", 0L, 0L, "", false)
+    def this() = this("", 0L, 0L, "", 0f, 0, 0f, 0, 0f, 0f, 0f, 0, "", "", "", "", 0L, 0L, "", null, false)
 
     def this(
             partnerId: String,
@@ -77,6 +79,7 @@ case class PartnerSettings(
         couponDescription: String,
         couponExpiresOn: Date,
         activeOn,
+        null,
         null,
         false)
 
@@ -137,6 +140,10 @@ case class PartnerSettings(
             if (storyPrompts == null || storyPrompts.length < 1) StoryPrompts()
             else new ScalaObjectMapper().readValue(storyPrompts, classOf[StoryPrompts])
 
+    def makeCustomizationOptions =
+            if (customization == null || customization.length < 0) Map[String, String]()
+            else new ScalaObjectMapper().readValue(customization, classOf[util.Map[String, String]])
+
     def couponExpiresOnDate: Date = couponExpiresOn
 }
 
@@ -162,6 +169,7 @@ object PartnerSettings {
             couponExpiresOn = new Date,
             activeOn = new Date,
             storyPrompts = null,
+            customization = null,
             moderateAll = false)
 
     }
