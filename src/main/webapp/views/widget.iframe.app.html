@@ -27,7 +27,12 @@
 <div id='echoed-head'>
     <!--Real Stories From Our Customers-->
     <div id="title">
-        Stories From The {{#partner}}{{name}}{{/partner}} Community
+        {{#customization.title}}
+            {{.}}
+        {{/customization.title}}
+        {{^customization.title}}
+            Stories From The {{#partner}}{{name}}{{/partner}} Community
+        {{/customization.title}}
     </div>
     <div id="close">
     </div>
@@ -39,7 +44,14 @@
 </div>
 <div id="echoed-exhibit-container">
     <div class="echoed-share-container">
-        <a class='echoed-share' href='#write/'>Share Your Story</a>
+        <a class='echoed-share' href='#write/'>
+            {{#customization.shareButton}}
+                {{.}}
+            {{/customization.shareButton}}
+            {{^customization.shareButton}}
+                Share Your Story
+            {{/customization.shareButton}}
+        </a>
     </div>
     <div id="content">
         <div id='exhibit'></div>
