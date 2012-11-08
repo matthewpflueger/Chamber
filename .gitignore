@@ -40,3 +40,5 @@ dump-*.sql.gz
 .cache
 src/main/webapp/scripts_build
 src/main/webapp/scripts_release
+src/text/webapp/html/clients
+src/test/webapp/html/clients/
