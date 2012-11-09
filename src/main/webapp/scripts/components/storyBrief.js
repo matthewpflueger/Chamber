@@ -36,7 +36,7 @@ define(
                         c = c + chapterText.substr(c.length, 1); //Append Split Character
                         self.data.chapterText = c;
                     } else {
-                        var len = 200;
+                        var len = 300;
                         if(chapterText.length > len){
                             c = chapterText.substr(len).split(/[.!?]/)[0];
                             c = chapterText.substr(0, len) + c + chapterText.substr(len +c.length, 1);
