@@ -36,7 +36,7 @@ define(
                         c = c + chapterText.substr(c.length, 1); //Append Split Character
                         self.data.chapterText = c;
                     } else {
-                        var len = 200;
+                        var len = 300;
                         if(chapterText.length > len){
                             c = chapterText.substr(len).split(/[.!?]/)[0];
                             c = chapterText.substr(0, len) + c + chapterText.substr(len +c.length, 1);
@@ -66,8 +66,6 @@ define(
 
 
 
-                self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));
-
                 if(image !== null){
                     self.element.html(_.template(templateStoryBrief, self.data));
                     var imageNode = self.element.find(".story-brief-image");
@@ -87,6 +85,7 @@ define(
                     }
                 }
 
+                self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));
                 if(self.properties.isWidget) self.element.find('.story-brief-text-user').attr("target","_blank").attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id);
 
                 self.element.attr("id", self.data.story.id);
