@@ -37,7 +37,7 @@ require(
             var viewPort = $('#gallery-viewport');
             var width = 220;
 
-            $('.gallery-image-container').live('click', function(){
+            $('.gallery-image-container, .gallery-text-container').live('click', function(){
                 var id = $(this).attr('id');
                 socket.postMessage(JSON.stringify({
                     'type': 'load',
@@ -47,7 +47,7 @@ require(
 
             $('#gallery-prev').live('click', function(){
                 var left = container.position().left;
-                if(left < 0 && container.width() < viewPort.width()){
+                if(left < 0 && container.width() > viewPort.width()){
                     container.animate({
                         left: Math.min(left + width, 0)
                     }, 'fast');
@@ -74,7 +74,12 @@ require(
                             var gic = $('<div></div>').addClass('gallery-image-container').attr("id", storyFull.id);
                             $('<img />').attr('src', image.preferredUrl).css(utils.getMinImageSizing(image, 75, 55)).appendTo(gic);
                             gic.appendTo(container);
-                            container.width(container.width() + 91);
+                            container.width(container.width() + gic.width() + 16);
+                        } else{
+                            var gic = $('<div></div>').addClass('gallery-text-container').attr("id", storyFull.id);
+                            var ic = $('<div></div>').addClass('gallery-text').text(storyFull.story.title);
+                            gic.append(ic).appendTo(container);
+                            container.width(container.width() + gic.width() + 16);
                         }
                     });
                     if(container.width() < viewPort.width()){
