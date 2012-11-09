@@ -22,6 +22,7 @@ define(
                 this.EvAg.bind('user/login', this.login);
                 this.EvAg.bind('story/hide', this.hide);
                 this.EvAg.bind('field/show', this.hide);
+                this.EvAg.bind('fade/click', this.close);
                 this.locked = false;
             },
             events: {

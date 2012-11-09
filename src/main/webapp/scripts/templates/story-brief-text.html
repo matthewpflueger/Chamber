@@ -1,0 +1,28 @@
+<div class="item_content story-brieftext">
+    <div class="story-brief-text">
+        <!--<img class="story-brief-text-user-image" height="35px" width="35px" src="{{ profilePhotoUrl }}"/>-->
+        <div class="story-brief-text-title">
+            {{ story.title }}
+        </div>
+        <div class="story-brief-text-by">
+            by <a class="link-black story-brief-text-user" href="#user/{{echoedUser.id}}">{{ echoedUser.name }}</a>
+        </div>
+        <div class="story-brief-text-quote">{{ chapterText }}</div>
+        <div class="story-brief-indicator">
+            <span>Upvotes: </span>
+            <span class="story-brief-indicator-value vote-counter"></span>
+            <span>Comments: </span>
+            <span class="story-brief-indicator-value">{{ comments.length }}</span>
+            <span>Photos: </span>
+            <span class="story-brief-indicator-value">{{ imageCount }}</span>
+            <span class="s-b-i-c">
+                {{ elapsedString }}
+            </span>
+        </div>
+    </div>
+</div>
+<div class="story-brief-edit" style="text-align: center;">
+    <a href="#write/story/{{ story.id }}" class="story-brief-edit-tab">
+        Edit Story
+    </a>
+</div>

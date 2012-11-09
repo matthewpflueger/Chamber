@@ -22,6 +22,7 @@ define(
                 "!story/:id": "story"
             },
             reload: function(){
+                this.EvAg.trigger("fade/hide");
                 this.EvAg.trigger('exhibit/init', { endPoint: "/partner/" + this.properties.partnerId });
                 _gaq.push(['_trackEvent', 'Widget', 'Open', this.properties.partnerId]);
             },
