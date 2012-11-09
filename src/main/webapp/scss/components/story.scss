@@ -3,17 +3,19 @@
     left: 50%;
     z-index: 99999;
     width: 876px;
-    padding-bottom: 50px;
+    margin-top: 35px;
+    margin-bottom: 35px;
 }
 
-#story-nav{
-    .story-nav-button{
-        padding: 0px 0px 15px 0px;
-        @include fontTextBold(16px, #F0F0F0);
-        cursor: pointer;
-        &:hover{
-            color: #FFF;
-        }
+.story-nav-button{
+    position: absolute;
+    top: 0px;
+    margin-top: -32px;
+    padding: 10px 0px;
+    @include fontTextBold(16px, #F0F0F0);
+    cursor: pointer;
+    &:hover{
+        color: #FFF;
     }
 }
 
