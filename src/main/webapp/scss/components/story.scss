@@ -269,13 +269,15 @@
         margin-bottom: 5px;
         cursor: pointer;
         border: 1px solid #666;
+        background-color: rgba(255, 255, 255, 0.8);
         &.highlight, &:hover{
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.9);
             border-color: #FFF;
         }
     }
     .echo-gallery-title{
-        @include fontTextBold(12px, #FFF);
+        @include fontTextBold(12px, #000);
+        text-shadow: 0px 1px #FFF;
         margin-bottom: 5px;
     }
     .echo-s-b-thumbnail{
@@ -283,7 +285,7 @@
         border: 2px solid #666;
         cursor: pointer;
         &:hover, &.highlight{
-            border-color: #FFF;
+            border-color: #000;
         }
     }
 }

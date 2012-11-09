@@ -23,6 +23,7 @@
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
                 this.EvAg.bind("field/show", this.load);
+                this.EvAg.bind("fade/click", this.close);
                 if(this.properties.isWidget === true){
                     this.EvAg.bind("user/login", this.login);
                 }

@@ -4,12 +4,13 @@ define(
         'backbone',
         'underscore',
         'text!templates/story-brief.html',
+        'text!templates/story-brief-text.html',
         'components/utils'
     ],
-    function($, Backbone, _, templateStoryBrief, utils){
+    function($, Backbone, _, templateStoryBrief, templateStoryBriefText, utils){
         return  Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this,'render','click','hideOverlay','showOverlay');
+                _.bindAll(this);
                 this.el = options.el;
                 this.element = $(this.el);
                 this.properties = options.properties;
@@ -57,28 +58,28 @@ define(
                 self.data.profilePhotoUrl = utils.getProfilePhotoUrl(self.data.echoedUser, self.properties.urls);
 
                 self.data.imageCount = self.data.chapterImages.length + (self.data.story.image ? 1 : 0);
-                var template = _.template(templateStoryBrief, self.data);
-                self.element.html(template);
-
-                self.imageContainer = self.element.find('.story-brief-image-container');
-                self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));
                 var image = function(){
                     if(self.data.story.image) return self.data.story.image;
                     else if (self.data.chapterImages.length > 0) return self.data.chapterImages[0].image;
                     else return null;
                 }();
 
-                var imageNode = self.element.find(".story-brief-image");
+
+
+                self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));
+
                 if(image !== null){
+                    self.element.html(_.template(templateStoryBrief, self.data));
+                    var imageNode = self.element.find(".story-brief-image");
+                    self.imageContainer = self.element.find('.story-brief-image-container');
                     self.data.storyImage = {
                         url: image.preferedUrl,
                         size: utils.getImageSizing(image, 260)
                     };
                     imageNode.attr('src', image.preferredUrl).css(utils.getImageSizing(image,260))
                 } else{
-                    self.imageContainer.hide();
+                    self.element.html(_.template(templateStoryBriefText, self.data));
                 }
-
 
                 if(self.properties.echoedUser !== undefined){
                     if(self.data.echoedUser.id === Echoed.echoedUser.id){
@@ -91,10 +92,10 @@ define(
                 self.element.attr("id", self.data.story.id);
             },
             showOverlay: function(){
-                this.imageContainer.addClass('highlight');
+                if(this.imageContainer) this.imageContainer.addClass('highlight');
             },
             hideOverlay: function(){
-                this.imageContainer.removeClass('highlight');
+                if(this.imageContainer) this.imageContainer.removeClass('highlight');
             },
             click: function(ev){
                 var self = this;
