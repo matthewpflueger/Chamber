@@ -34,6 +34,7 @@ require(
 
             var socket = new easyXDM.Socket({});
             var container = $('#gallery-container');
+            var viewPort = $('#gallery-viewport');
             var width = 220;
 
             $('.gallery-image-container').live('click', function(){
@@ -46,7 +47,7 @@ require(
 
             $('#gallery-prev').live('click', function(){
                 var left = container.position().left;
-                if(left < 0){
+                if(left < 0 && container.width() < viewPort.width()){
                     container.animate({
                         left: Math.min(left + width, 0)
                     }, 'fast');
@@ -55,24 +56,30 @@ require(
 
 
             $('#gallery-next').live('click', function(){
-                container.animate({
-                    left: '-=' + width
-                }, 'fast');
+                if(container.width() > viewPort.width()){
+                    container.animate({
+                        left: '-=' + width
+                    }, 'fast');
+                }
             });
 
             utils.AjaxFactory({
                 url: properties.urls.api + "/api/partner/" + Echoed.partnerId,
                 dataType: 'json',
                 success: function(response){
+                    container.width(0);
                     $.each(response.stories, function(index, storyFull){
                         if(storyFull.story.image || storyFull.chapters[0].image){
                             var image = storyFull.story.image ? storyFull.story.image : storyFull.chapters[0].image;
                             var gic = $('<div></div>').addClass('gallery-image-container').attr("id", storyFull.id);
                             $('<img />').attr('src', image.preferredUrl).css(utils.getMinImageSizing(image, 75, 55)).appendTo(gic);
                             gic.appendTo(container);
-                            container.width(container.width() + width);
+                            container.width(container.width() + 91);
                         }
                     });
+                    if(container.width() < viewPort.width()){
+                        container.css({"left" : (viewPort.width() / 2) - (container.width() / 2)});
+                    }
                     socket.postMessage(JSON.stringify({
                         "type" : "resize",
                         "data" : document.body.scrollHeight
