@@ -44,17 +44,14 @@
     }
     .echo-story-header{
         position:relative;
-        padding: 10px;
-        border-bottom: 1px solid #CCC;
-        box-shadow: 0px 1px 0px #FFF;
         .echo-s-h-title{
             @include fontText(16px);
             .echo-s-h-t-t{
-                @include fontTitle(36px, #111);
-                text-shadow: 0px 1px 0px #FFF;
-                margin: 0px 30px;
-                text-align: center;
+                @include fontTitle(30px, #FFF);
+                background-color: #222;
+                padding: 10px;
                 word-wrap: break-word;
+                border-bottom: 1px solid #CCC;
             }
             .echo-s-h-i-c{
                 float:left;
@@ -101,14 +98,17 @@
     }
     .echo-story-body{
         position: relative;
-        margin: 0px 10px;
+        padding: 0px 10px 10px;
         min-height: 290px;
+        border-bottom: 1px solid #CCC;
+        box-shadow: 0px 1px #FFF;
+
+
         .echo-s-b-text{
             display: inline;
             padding: 0px 0px 0px 5px;
 
             .echo-s-b-t-b{
-                padding-bottom: 20px;
                 @include fontText(13px, #333);
                 line-height: 1.5em;
                 word-wrap: break-word;
@@ -154,7 +154,7 @@
 
     }
     .echo-story-footer{
-        padding: 0px 10px;
+        padding: 10px;
         .echo-story-nav{
             margin: 5px 0px 10px 0px;
             .echo-s-n-s{
@@ -372,9 +372,28 @@
     text-decoration: underline;
 }
 
-.echo-story-from{
-    @include fontText(14px);
-    text-align: center;
+#echo-story-from{
+    display: none;
+    padding: 5px;
+    text-align: left;
+    border-bottom: 1px solid #CCC;
+    box-shadow: 0px 1px #FFF;
+    &:hover{
+        background-color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+    }
+
+    #echo-story-from-logo-container{
+        height: 40px;
+        width: 40px;
+        margin-right: 10px;
+        border: 1px solid #666;
+        float:left;
+    }
+    #echo-story-from-text{
+        @include fontTextBold(18px);
+        line-height: 40px;
+    }
 }
 
 .bold-link{

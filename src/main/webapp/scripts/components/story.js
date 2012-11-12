@@ -35,6 +35,7 @@ define(
                 "click .story-nav-button": "navClick",
                 "click .upvote": "upVote",
                 "click .downvote": "downVote",
+                "click #echo-story-from": "fromClick",
                 "click #echo-story-gallery-next": "next",
                 "click #echo-story-gallery-prev": "previous",
                 "click .story-share": "share",
@@ -76,6 +77,9 @@ define(
                 } else{
                     self.showLogin();
                 }
+            },
+            fromClick: function(ev){
+                window.open(this.properties.urls.api + "/redirect/partner/" + this.data.story.partnerId);
             },
             loginClick: function(ev){
                 var self = this;
@@ -323,17 +327,13 @@ define(
                 else $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id)
 
                 if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
-                    var fromLink = $('<div class="echo-story-from"></div>');
+                    var from = $('#echo-story-from');
+                    var fromText = $('#echo-story-from-text');
                     if(self.data.story.partnerHandle !== "Echoed"){
                         var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-                        fromLink.append($('<a class="story-link link-black bold-link"></a>').attr("href","#partner/" + p).text(self.data.story.productInfo));
-                        fromLink.append(' (<a target="_blank" class="echo-s-h-t-n-t-l" href="' + self.properties.urls.api + "/redirect/partner/" + self.data.story.partnerId + '">' + 'Visit Website' + '</a>)');
-                    } else if (utils.isUrl(self.data.story.productInfo)){
-                        fromLink.append($('<a class="link-black bold-link"  target="_blank" href="' + utils.makeUrl(self.data.story.productInfo) + '"></a>').text(self.data.story.productInfo));
-                    } else {
-                        fromLink.text(self.data.story.productInfo);
+                        fromText.text(self.data.story.productInfo);
+                        from.show();
                     }
-                    self.element.find('.echo-s-h-title').append(fromLink);
                 }
 
                 self.itemNode = $("<div class='echo-s-b-item'></div>");
