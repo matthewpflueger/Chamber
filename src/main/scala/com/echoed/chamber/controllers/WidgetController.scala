@@ -71,19 +71,28 @@ class WidgetController extends EchoedController {
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val modelAndView =  new ModelAndView(v.widgetAppJsView)
-        modelAndView.addObject("partnerId", pcc.partnerId)
-        modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
-        modelAndView.addObject("side", side)
+        val result = new DeferredResult(new ModelAndView(v.errorView))
 
-        if(style.equals("white")){
-            modelAndView.addObject("white", true)
-        } else {
-            modelAndView.addObject("black", true)
+        mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
+            case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
+                val modelAndView =  new ModelAndView(v.widgetAppJsView)
+                modelAndView.addObject("partnerId", pcc.partnerId)
+                modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
+                modelAndView.addObject("customization", p.partnerSettings.makeCustomizationOptions)
+                modelAndView.addObject("side", side)
+                if(style.equals("white")){
+                    modelAndView.addObject("white", true)
+                } else {
+                    modelAndView.addObject("black", true)
+                }
+                //ep.publish(WidgetRequested(pcc.partnerId))
+                result.set(modelAndView)
+
+
         }
-        //FIXME should be requesting the widget view from the service which then publishes the event
-        ep.publish(WidgetRequested(pcc.partnerId))
-        modelAndView
+
+        result
+
     }
 
 }

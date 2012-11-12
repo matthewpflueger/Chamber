@@ -16,6 +16,17 @@
     EchoedSettings.openerSide = '{{.}}';
     {{/side}}
 
+    {{#customization}}
+        {{#useGallery}}
+            EchoedSettings.useGallery = true;
+        {{/useGallery}}
+        {{^useGallery}}
+            EchoedSettings.useGallery = false;
+        {{/useGallery}}
+    {{/customization}}
+
+
+
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#DEV}}
