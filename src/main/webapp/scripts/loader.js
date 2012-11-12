@@ -94,6 +94,7 @@ require(
 
             window.onhashchange = showEchoedOverlay;
 
+            if(EchoedSettings.useGallery === true && $('#echoed-gallery').length === 0) $('<div id="echoed-gallery"></div>').appendTo($('body'));
 
             if($('#echoed-gallery').length > 0){
                 self.echoedGallery  = $('#echoed-gallery').css({
