@@ -22,7 +22,7 @@ class EmailService(
     require(from != null, "Missing from")
 
     def handle = {
-        case msg @ SendEmail(recipient, subject, templateName, m) =>
+        case msg @ SendEmail(recipient, subject, templateName, m) if (recipient != null) =>
             val renderedTemplate = mustacheEngine.execute(templateName, globalsManager.globals() ++ m)
 
             javaMailSender.send(new MimeMessagePreparator() {
