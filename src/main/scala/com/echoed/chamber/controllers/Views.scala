@@ -101,4 +101,6 @@ class Views {
     @Required @BeanProperty var loginResetPostView: String = _
     @Required @BeanProperty var loginResetPasswordView: String = _
 
+    @Required @BeanProperty var redirectView: String = _
+
 }
