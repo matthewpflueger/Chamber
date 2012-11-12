@@ -78,7 +78,6 @@ require(
             else open = $('#echoed-opener');
             open.find('img').css({"display": "block"});
             open.css({
-                "left": "0px",
                 "top": "175px",
                 "position": "fixed",
                 "cursor": "pointer",
@@ -86,6 +85,9 @@ require(
                 "-moz-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
                 "-webkit-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)"
             });
+
+            if(EchoedSettings.openerSide === 'right') open.css({ "right" : "0px" });
+            else open.css({ "left": "0px" });
 
             if(window.addEventListener) window.addEventListener('message', echoedMessageHandler, false);
             else window.attachEvent('onmessage', echoedMessageHandler);

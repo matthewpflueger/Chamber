@@ -12,6 +12,11 @@
     EchoedSettings.urls.site = "{{site}}";
     {{/urls}}
 
+    {{#side}}
+    EchoedSettings.openerSide = '{{.}}';
+    {{/side}}
+
+
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#DEV}}
     es.src = "{{https.js}}/require.js";
