@@ -49,10 +49,13 @@ class FeedService(
     }
 
 
-
     val storyMap = HashMap.empty[String, StoryPublic]
     var storyTree = new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
+
+
+    var partnerMap = HashMap.empty[String, TreeMap[(Long, String), StoryPublic]]
+    var echoedUserMap = HashMap.empty[String, TreeMap[(Long, String), StoryPublic]]
 
     var communityTree = new TreeMap[String, Community]()
 
@@ -61,7 +64,6 @@ class FeedService(
         storyMap.get(storyFull.id).map { s =>
             topStoryTree -= ((s.comments.length + s.chapterImages.length, s.story.id))
             storyTree -= ((s.story.updatedOn, s.story.id))
-
             if(s.isPublished && !s.isEchoedModerated && s.story.community != null && s.story.community != ""){
                 communityTree.get(s.story.community).map {
                     c => {
@@ -69,6 +71,21 @@ class FeedService(
                     }
                 }
             }
+
+            partnerMap.get(storyFull.story.partnerId).map {
+                p => {
+                    val pTree = p - ((s.story.updatedOn, s.story.id))
+                    partnerMap += (storyFull.story.partnerId -> pTree)
+                }
+            }
+
+            echoedUserMap.get(storyFull.story.echoedUserId).map {
+                e => {
+                    val eTree = e - ((s.story.updatedOn, s.story.id))
+                    echoedUserMap += (storyFull.story.partnerId -> eTree)
+                }
+            }
+
         }
 
         if(storyFull.isPublished && !storyFull.isEchoedModerated && storyFull.story.community != null && storyFull.story.community != ""){
@@ -80,7 +97,14 @@ class FeedService(
         storyMap += (storyFull.id -> storyFull)
         storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
 
+        val eTree = echoedUserMap.get(storyFull.story.echoedUserId).getOrElse(new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)) + ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
+        echoedUserMap += (storyFull.story.echoedUserId -> eTree)
+
         if (!storyFull.isEchoedModerated && storyFull.isPublished) {
+
+            val pTree = partnerMap.get(storyFull.story.partnerId).getOrElse(new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)) + ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
+            partnerMap += (storyFull.story.partnerId -> pTree)
+
             topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
         }
     }
@@ -158,9 +182,11 @@ class FeedService(
 
         case msg @ GetUserPublicStoryFeed(echoedUserId, page) =>
             val start = msg.page * pageSize
-            val stories = storyTree.values
-                    .filter(s => !s.isSelfModerated && s.isOwnedBy(echoedUserId))
-                    .map(_.published).toList
+//            val stories = storyTree.values
+//                    .filter(s => !s.isSelfModerated && s.isOwnedBy(echoedUserId))
+//                    .map(_.published).toList
+
+            val stories = echoedUserMap.get(echoedUserId).map { sTree => sTree.values.map(_.published).filter(!_.isSelfModerated).toList }.getOrElse(List())
 
             val nextPage =
                 if (start + pageSize <= stories.length) (msg.page + 1).toString
@@ -178,7 +204,9 @@ class FeedService(
                 val start = msg.page * pageSize
                 val partner = partnerDao.findByIdOrHandle(msg.partnerId)
                 log.debug("Looking up stories for Partner Id {}", partner.id)
-                val stories = storyTree.values.filter(s => s.story.partnerId.equals(partner.id) && !s.isModerated && s.isPublished).map(_.published).toList
+                val stories = partnerMap.get(partner.id).map { sTree => sTree.values.map(_.published).toList }.getOrElse(List())
+
+                //val stories = storyTree.values.filter(s => s.story.partnerId.equals(partner.id) && !s.isModerated && s.isPublished).map(_.published).toList
                 val nextPage = {
                     if(start + pageSize <= stories.length)
                         (msg.page + 1).toString
