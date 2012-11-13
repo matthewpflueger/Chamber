@@ -56,6 +56,7 @@ class FeedService(
 
     var partnerMap = HashMap.empty[String, TreeMap[(Long, String), StoryPublic]]
     var echoedUserMap = HashMap.empty[String, TreeMap[(Long, String), StoryPublic]]
+    var communityMap = HashMap.empty[String, TreeMap[(Long, String), StoryPublic]]
 
     var communityTree = new TreeMap[String, Community]()
 
@@ -82,7 +83,7 @@ class FeedService(
             echoedUserMap.get(storyFull.story.echoedUserId).map {
                 e => {
                     val eTree = e - ((s.story.updatedOn, s.story.id))
-                    echoedUserMap += (storyFull.story.partnerId -> eTree)
+                    echoedUserMap += (storyFull.story.echoedUserId -> eTree)
                 }
             }
 
