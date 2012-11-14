@@ -61,7 +61,7 @@ require(
                     }
                 },
                 onReady: function(){
-                    self.overlay = $('#echoed-overlay').css({ "z-index" : "99999"});
+                    self.overlay = $('#echoed-overlay').css({ "z-index" : "999999999"});
                     $('#echoed-opener,.echoed-opener').live('click', function(){
                         self.overlay.fadeIn();
                         self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
@@ -69,25 +69,6 @@ require(
                     showEchoedOverlay();
                 }
             });
-
-
-
-
-            var open = '';
-            if( EchoedSettings.opener === undefined && $('#echoed-opener').length === 0) open = $('<div></div>').attr("id","echoed-opener").append($('<img />').attr("src", EchoedSettings.urls.images +  "/bk_opener_dark_left.png").css({"display":"block"})).appendTo(body);
-            else open = $('#echoed-opener');
-            open.find('img').css({"display": "block"});
-            open.css({
-                "top": "175px",
-                "position": "fixed",
-                "cursor": "pointer",
-                "box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
-                "-moz-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
-                "-webkit-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)"
-            });
-
-            if(EchoedSettings.openerSide === 'right') open.css({ "right" : "0px" });
-            else open.css({ "left": "0px" });
 
             if(window.addEventListener) window.addEventListener('message', echoedMessageHandler, false);
             else window.attachEvent('onmessage', echoedMessageHandler);
@@ -104,7 +85,7 @@ require(
                     bottom: "0px",
                     "border-top": "1px solid #acacac",
                     "box-shadow": "0px -3px 5px rgba(34,25,25,0.2)",
-                    "z-index" : "99999"
+                    "z-index" : "1000000"
                 })
 
 
@@ -135,6 +116,23 @@ require(
                         }
                     }
                 });
+            } else {
+                var open = '';
+                if( EchoedSettings.opener === undefined && $('#echoed-opener').length === 0) open = $('<div></div>').attr("id","echoed-opener").append($('<img />').attr("src", EchoedSettings.urls.images +  "/bk_opener_dark_left.png").css({"display":"block"})).appendTo(body);
+                else open = $('#echoed-opener');
+                open.find('img').css({"display": "block"});
+                open.css({
+                    "top": "175px",
+                    "position": "fixed",
+                    "cursor": "pointer",
+                    "box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
+                    "-moz-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
+                    "-webkit-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)"
+                });
+
+                if(EchoedSettings.openerSide === 'right') open.css({ "right" : "0px" });
+                else open.css({ "left": "0px" });
+
             }
 
 
