@@ -319,7 +319,7 @@ define(
                     }
                 }
 
-                self.gallery = self.element.find('.echo-s-b-gallery');
+                self.gallery = $('#echo-s-b-gallery');
 
                 $('#echo-s-h-t-n-i').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser, self.properties.urls));
                 $('#story-follow').attr("echoedUserId", self.data.echoedUser.id);
@@ -342,7 +342,8 @@ define(
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
                 self.galleryNodeBody = $('#echo-story-gallery-body');
-                self.text.append($("<div class='echo-s-b-t-b'></div>"));
+                self.chapterText = $("<div class='echo-s-b-t-b'></div>")
+                self.text.append(self.chapterText);
                 self.renderGalleryNav();
                 self.renderComments();
                 self.renderChapter();
@@ -411,9 +412,23 @@ define(
             renderChapter: function(){
                 var self = this;
                 var textArea = self.element.find('.echo-s-b-text');
+                var chapterText = self.chapters.array[self.currentChapterIndex].chapter.text;
+
+                if (chapterText.length < 300){
+                    this.chapterType = 'photo';
+                    self.gallery.addClass("gallery-photo");
+                    self.gallery.removeClass('gallery-text');
+                    self.chapterText.addClass('caption')
+                } else {
+                    this.chapterType = 'text';
+                    self.gallery.addClass("gallery-text");
+                    self.gallery.removeClass('gallery-photo');
+                    self.chapterText.removeClass('caption')
+                }
+
                 textArea.fadeOut(function(){
                     self.element.find('.echo-story-chapter-title').text(self.chapters.array[self.currentChapterIndex].chapter.title);
-                    self.element.find('.echo-s-b-t-b').html(utils.replaceUrlsWithLink(utils.escapeHtml(self.chapters.array[self.currentChapterIndex].chapter.text)).replace(/\n/g, '<br />'));
+                    self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(self.chapters.array[self.currentChapterIndex].chapter.text)).replace(/\n/g, '<br />'));
                     textArea.fadeIn();
                 });
 
@@ -425,22 +440,30 @@ define(
             renderImage: function(){
                 var self = this;
                 var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
+                var imageSizing = {};
+                if(this.chapterType === 'photo') {
+                    imageSizing = utils.getMaxImageSizing(currentImage, 842, 900)
+
+                } else {
+                    imageSizing = utils.getImageSizing(currentImage, 450);
+                }
+
                 if(currentImage !== null && currentImage !== undefined){
                     self.gallery.show();
-                    self.img.fadeOut();
-                    self.itemImageContainer.animate(
-                        utils.getImageSizing(currentImage, 450),
-                        function(){
-                            if(currentImage.storyUrl !== null){
-                                self.img.attr('src', currentImage.storyUrl);
-                                self.img.fadeIn();
-                            } else {
-                                self.img.attr('src', currentImage.originalUrl);
-                                self.img.fadeIn();
-                            }
-                        });
-                    self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
-                    self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
+                    self.img.fadeOut(function(){
+                        self.itemImageContainer.animate(
+                            imageSizing,
+                            function(){
+                                if(currentImage.storyUrl !== null){
+                                    self.img.css(imageSizing).attr('src', currentImage.storyUrl).fadeIn();
+                                } else {
+                                    self.img.css(imageSizing).attr('src', currentImage.originalUrl).fadeIn();
+                                }
+                                self.img.attr('src', currentImage.originalUrl).fadeIn();
+                                self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
+                                self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
+                            });
+                    });
                 } else{
                     self.gallery.hide();
                 }
