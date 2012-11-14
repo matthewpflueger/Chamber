@@ -25,7 +25,8 @@ class RedirectController extends EchoedController {
             case FetchPartnerResponse(_, Right(p)) =>
                 log.debug("Redirecting to {}", p.domain)
                 val domain = if (p.domain.startsWith("http")) p.domain else "http://" + p.domain
-                val modelAndView = new ModelAndView("redirect:" + domain)
+                val modelAndView = new ModelAndView(v.redirectView)
+                modelAndView.addObject("redirectUrl" , domain + "/#echoed")
                 result.set(modelAndView)
         }
 
