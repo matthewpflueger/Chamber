@@ -389,6 +389,7 @@
         margin-right: 10px;
         border: 1px solid #666;
         float:left;
+        display:none;
     }
     #echo-story-from-text{
         @include fontTextBold(18px);
