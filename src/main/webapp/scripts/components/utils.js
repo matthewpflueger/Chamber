@@ -9,6 +9,21 @@ define(
                     width: width
                 }
             },
+            getMaxImageSizing: function(image, maxWidth, maxHeight){
+                var hwRatio = image.preferredHeight / image.preferredWidth;
+                var maxHWRatio = maxHeight / maxWidth;
+                if(hwRatio >= maxHWRatio){
+                    return {
+                        height: maxHeight,
+                        width: image.preferredWidth / (image.preferredHeight / maxHeight)
+                    }
+                } else {
+                    return {
+                        height: image.preferredHeight / (image.preferredWidth / maxWidth),
+                        width: maxWidth
+                    }
+                }
+            },
             getMinImageSizing: function(image, minWidth, minHeight){
                 var hwRatio = image.preferredHeight / image.preferredWidth;
                 var minHWRatio = minHeight / minWidth;

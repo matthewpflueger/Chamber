@@ -109,9 +109,17 @@
             padding: 0px 0px 0px 5px;
 
             .echo-s-b-t-b{
+                @include transition;
                 @include fontText(13px, #333);
                 line-height: 1.5em;
                 word-wrap: break-word;
+                &.caption{
+                    @include fontTitle(16px, #111);
+                    padding: 5px;
+                    margin-top: 5px;
+                    background-color: #FFF;
+                    @include dropShadowDown;
+                }
             }
         }
         .echo-s-b-segment{
@@ -125,31 +133,55 @@
                 @include fontTextBold(14px);
             }
         }
-        .echo-s-b-gallery{
-            float: right;
-            width: 460px;
-            margin-left: 10px;
-            text-align:center;
-            .echo-s-b-item{
-                cursor: pointer;
-                display: table-cell;
-                vertical-align: middle;
-                text-align: left;
-                border: 5px solid #FFF;
+        #echo-s-b-gallery{
+            @include transition;
+            &.gallery-photo{
+                display: block;
+                text-align: center;
+                .echo-s-b-item{
+                    cursor: pointer;
+                    display: inline-block;
+                    background-color:#FFF;
+                }
                 .echo-s-b-i-c{
-                    margin: auto;
-                    width: 450px;
-                    overflow:hidden;
-                    text-align: center;
-
+                    max-height: 700px;
                     img{
-                        width: 450px;
+                        max-height: 700px;
+                        max-width: 842px;
                         display: block;
-                        margin: auto;
-
+                        @include dropShadowDown;
                     }
                 }
             }
+            &.gallery-text{
+                float: right;
+                width: 460px;
+                margin-left: 10px;
+                text-align:center;
+                .echo-s-b-item{
+                    cursor: pointer;
+                    display: table-cell;
+                    vertical-align: middle;
+                    text-align: left;
+                    //border: 5px solid #FFF;
+                    background-color:#FFF;
+                    .echo-s-b-i-c{
+                        margin: auto;
+                        width: 450px;
+                        overflow:hidden;
+                        text-align: center;
+                        @include dropShadowDown;
+
+                        img{
+                            width: 450px;
+                            display: block;
+                            margin: auto;
+                        }
+                    }
+                }
+            }
+
+
         }
 
     }

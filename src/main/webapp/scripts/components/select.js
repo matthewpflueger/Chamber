@@ -42,7 +42,7 @@ define(
                     self.input = $("<input type='text' class='field-text-input'>");
                     self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");
                     $.each(self.optionsArray, function(index, option){
-                        self.options[index] = $("<div class='field-question-option'></div>").append(option);
+                        self.options[index] = $("<div class='field-question-option'></div>").text(option);
                         self.optionsList.append(self.options[index]);
                     });
                     if(self.default !== null) self.input.val(self.default);
@@ -50,7 +50,7 @@ define(
 
                     if(self.edit === false) self.input.attr('readonly', "true");
 
-                    if(self.freeForm !== null) self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").append(self.freeForm);
+                    if(self.freeForm !== null) self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").text(self.freeForm);
 
                     self.optionsList.append(self.options[self.optionsArray.length]);
 
