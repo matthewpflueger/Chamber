@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedExceptio
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.domain.Community
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 
 sealed trait FeedMessage extends Message
 
@@ -43,6 +44,11 @@ case class GetUserPublicStoryFeed(echoedUserId: String, page: Int) extends FM
 case class GetUserPublicStoryFeedResponse(
             message: GetUserPublicStoryFeed,
             value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, GetUserPublicStoryFeed, FE]
+
+case class GetUserPrivateStoryFeed(echoedUserId: String, page: Int) extends FM
+case class GetUserPrivateStoryFeedResponse(
+            message: GetUserPrivateStoryFeed,
+            value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, GetUserPrivateStoryFeed, FE]
 
 case class GetPartnerStoryFeed(partnerId: String, page: Int, origin: String) extends FM
 case class GetPartnerStoryFeedResponse(

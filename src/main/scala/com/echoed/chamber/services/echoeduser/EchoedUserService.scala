@@ -67,8 +67,7 @@ import com.echoed.chamber.services.Scatter
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
-import com.echoed.chamber.services.feed.GetUserPublicStoryFeed
-import com.echoed.chamber.services.feed.GetUserPublicStoryFeedResponse
+import feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
 import com.echoed.chamber.domain.views.EchoedUserStoryFeed
 import com.echoed.chamber.domain.public.EchoedUserPublic
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
@@ -595,8 +594,8 @@ class EchoedUserService(
                 val start = msg.page * limit
 
                 val closet = Option(closetDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new Closet(echoedUser.id, echoedUser))
-                mp(GetUserPublicStoryFeed(echoedUser.id, msg.page)).onSuccess({
-                    case GetUserPublicStoryFeedResponse(_ , Right(storyFeed)) =>
+                mp(GetUserPrivateStoryFeed(echoedUser.id, msg.page)).onSuccess({
+                    case GetUserPrivateStoryFeedResponse(_ , Right(storyFeed)) =>
                         if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
                             log.debug("Echoed user {} has zero echoes", echoedUser.id)
                             channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(

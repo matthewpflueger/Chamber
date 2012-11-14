@@ -48,19 +48,57 @@ class FeedService(
         }
     }
 
+    case class IndexKey(id: String, published: Boolean = true)
+    case class EchoedUserPublicKey(_id: String) extends IndexKey(_id)
+    case class EchoedUserPrivateKey(_id: String) extends IndexKey(_id, false)
+    case class PartnerKey(_id: String) extends IndexKey(_id)
+    case class CommunityKey(_id: String) extends IndexKey(_id)
+    case class MainTreeKey() extends IndexKey(null)
 
+    var lookup = HashMap.empty[IndexKey, TreeMap[(Long, String), StoryPublic]]
 
     val storyMap = HashMap.empty[String, StoryPublic]
-    var storyTree = new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)
+
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
 
     var communityTree = new TreeMap[String, Community]()
+
+    private def addToLookup(indexKey: IndexKey, s: StoryPublic){
+        val tree =  lookup.get(indexKey).getOrElse(new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)) + ((s.story.updatedOn, s.story.id) -> s)
+        lookup += (indexKey -> tree)
+    }
+
+    private def removeFromLookup(indexKey: IndexKey, s: StoryPublic){
+        lookup.get(indexKey).map{
+            t =>
+                val tree = t - ((s.story.updatedOn, s.story.id))
+                lookup += (indexKey -> tree)
+        }
+    }
+
+    private def getStoriesFromLookup(indexKey: IndexKey) = {
+        lookup.get(indexKey).map(_.values.map{
+            s =>
+                if(indexKey.published) s.published
+                else s
+        }).flatten.toList
+    }
+
+    private def getStoryIdsFromLookup(indexKey: IndexKey) = {
+        lookup.get(indexKey).map {
+            _.keys.map(_._2)
+        }.flatten.toArray
+    }
+
+    private def getNextPage(start: Int, page: Int, list: List[StoryPublic]) = {
+        if(start + pageSize <= list .length) (page + 1).toString
+        else null
+    }
 
     def updateStory(storyFull: StoryPublic) {
 
         storyMap.get(storyFull.id).map { s =>
             topStoryTree -= ((s.comments.length + s.chapterImages.length, s.story.id))
-            storyTree -= ((s.story.updatedOn, s.story.id))
 
             if(s.isPublished && !s.isEchoedModerated && s.story.community != null && s.story.community != ""){
                 communityTree.get(s.story.community).map {
@@ -69,6 +107,12 @@ class FeedService(
                     }
                 }
             }
+
+            removeFromLookup(MainTreeKey(), s)
+            removeFromLookup(EchoedUserPrivateKey(s.story.echoedUserId), s)
+            removeFromLookup(EchoedUserPublicKey(s.story.echoedUserId), s)
+            removeFromLookup(PartnerKey(s.story.partnerId), s)
+            removeFromLookup(CommunityKey(s.story.community), s)
         }
 
         if(storyFull.isPublished && !storyFull.isEchoedModerated && storyFull.story.community != null && storyFull.story.community != ""){
@@ -78,10 +122,24 @@ class FeedService(
         }
 
         storyMap += (storyFull.id -> storyFull)
-        storyTree += ((storyFull.story.updatedOn, storyFull.story.id) -> storyFull)
 
-        if (!storyFull.isEchoedModerated && storyFull.isPublished) {
-            topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
+        if(!storyFull.isSelfModerated){
+            addToLookup(EchoedUserPrivateKey(storyFull.story.echoedUserId), storyFull)
+
+            if(storyFull.isPublished){
+
+                addToLookup(EchoedUserPublicKey(storyFull.story.echoedUserId), storyFull)
+
+                if(!storyFull.isEchoedModerated) {
+                    addToLookup(MainTreeKey(), storyFull)
+                    addToLookup(CommunityKey(storyFull.story.community), storyFull)
+                    topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
+                }
+
+                if (!storyFull.isModerated) {
+                    addToLookup(PartnerKey(storyFull.story.partnerId), storyFull)
+                }
+            }
         }
     }
 
@@ -113,13 +171,9 @@ class FeedService(
             val start = msg.page * pageSize
             try {
                 log.debug("Attempting to retrieve Public Story Feed")
-                val stories = storyTree.values.filter(s => !s.isEchoedModerated).map(_.published).toList
-                val nextPage = {
-                    if(start + pageSize <= stories.length)
-                        (msg.page + 1).toString
-                    else
-                        null
-                }
+                val stories = getStoriesFromLookup(MainTreeKey())
+                val nextPage = getNextPage(start, page, stories)
+
                 val feed = PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
                 channel ! GetPublicStoryFeedResponse(msg, Right(feed))
             } catch {
@@ -136,16 +190,9 @@ class FeedService(
 
             try {
                 log.debug("Attempting to retrieve Stories for Category: {}", catId)
-                val stories = storyTree.values.filter { s =>
-                    !s.isEchoedModerated && Option(s.story.community).map(_.toLowerCase == catId).getOrElse(false)
-                }.toList
-                log.debug("Stores Tagged: {}", stories)
-                val nextPage = {
-                    if(start + pageSize <= stories.length)
-                        (msg.page + 1).toString
-                    else
-                        null
-                }
+
+                val stories = getStoriesFromLookup(CommunityKey(categoryId))
+                val nextPage = getNextPage(start, page, stories)
                 val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
 
                 channel ! GetCategoryStoryFeedResponse(msg, Right(feed))
@@ -155,16 +202,18 @@ class FeedService(
                     log.error("Unexpected Error processing {}, {}", msg , e)
             }
 
+        case msg @ GetUserPrivateStoryFeed(echoedUserId, page) =>
+            val start = msg.page * pageSize
+            val stories = getStoriesFromLookup(EchoedUserPrivateKey(echoedUserId))
+            val nextPage = getNextPage(start, page, stories)
+            val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
+            sender ! GetUserPrivateStoryFeedResponse(msg, Right(feed))
 
         case msg @ GetUserPublicStoryFeed(echoedUserId, page) =>
             val start = msg.page * pageSize
-            val stories = storyTree.values
-                    .filter(s => !s.isSelfModerated && s.isOwnedBy(echoedUserId))
-                    .map(_.published).toList
 
-            val nextPage =
-                if (start + pageSize <= stories.length) (msg.page + 1).toString
-                else null
+            val stories = getStoriesFromLookup(EchoedUserPublicKey(echoedUserId))
+            val nextPage = getNextPage(start, page, stories)
 
             val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
             sender ! GetUserPublicStoryFeedResponse(msg, Right(feed))
@@ -178,14 +227,12 @@ class FeedService(
                 val start = msg.page * pageSize
                 val partner = partnerDao.findByIdOrHandle(msg.partnerId)
                 log.debug("Looking up stories for Partner Id {}", partner.id)
-                val stories = storyTree.values.filter(s => s.story.partnerId.equals(partner.id) && !s.isModerated && s.isPublished).map(_.published).toList
-                val nextPage = {
-                    if(start + pageSize <= stories.length)
-                        (msg.page + 1).toString
-                    else
-                        null
-                }
-                val partnerFeed = new PartnerStoryFeed(new PartnerPublic(partner), stories.slice(start, start + pageSize), nextPage)
+
+                val stories = getStoriesFromLookup(PartnerKey(partner.id))
+                val nextPage = getNextPage(start, page, stories)
+
+
+            val partnerFeed = new PartnerStoryFeed(new PartnerPublic(partner), stories.slice(start, start + pageSize), nextPage)
                 channel ! GetPartnerStoryFeedResponse(msg, Right(partnerFeed))
             } catch {
                 case e =>
@@ -201,7 +248,7 @@ class FeedService(
 
         case msg: GetStoryIds =>
             val channel = context.sender
-            channel ! GetStoryIdsResponse(msg, Right(storyTree.keys.map(_._2).toArray))
+            channel ! GetStoryIdsResponse(msg, Right(getStoryIdsFromLookup(MainTreeKey())))
 
         case msg: GetPartnerIds =>
             val channel = context.sender
