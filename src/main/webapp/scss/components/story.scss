@@ -109,6 +109,7 @@
             padding: 0px 0px 0px 5px;
 
             .echo-s-b-t-b{
+                @include transition;
                 @include fontText(13px, #333);
                 line-height: 1.5em;
                 word-wrap: break-word;
@@ -133,6 +134,7 @@
             }
         }
         #echo-s-b-gallery{
+            @include transition;
             &.gallery-photo{
                 display: block;
                 text-align: center;

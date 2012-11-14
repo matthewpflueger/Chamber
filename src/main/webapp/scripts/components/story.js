@@ -414,17 +414,8 @@ define(
                 var textArea = self.element.find('.echo-s-b-text');
                 var chapterText = self.chapters.array[self.currentChapterIndex].chapter.text;
 
-                if (chapterText.length < 300){
-                    this.chapterType = 'photo';
-                    self.gallery.addClass("gallery-photo");
-                    self.gallery.removeClass('gallery-text');
-                    self.chapterText.addClass('caption')
-                } else {
-                    this.chapterType = 'text';
-                    self.gallery.addClass("gallery-text");
-                    self.gallery.removeClass('gallery-photo');
-                    self.chapterText.removeClass('caption')
-                }
+                if (chapterText.length < 300) this.chapterType = 'photo';
+                else this.chapterType = 'text';
 
                 textArea.fadeOut(function(){
                     self.element.find('.echo-story-chapter-title').text(self.chapters.array[self.currentChapterIndex].chapter.title);
@@ -441,18 +432,25 @@ define(
                 var self = this;
                 var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
                 var imageSizing = {};
-                if(this.chapterType === 'photo') {
-                    imageSizing = utils.getMaxImageSizing(currentImage, 842, 900)
-
-                } else {
-                    imageSizing = utils.getImageSizing(currentImage, 450);
-                }
 
                 if(currentImage !== null && currentImage !== undefined){
+                    if(this.chapterType === 'photo') {
+                        imageSizing = utils.getMaxImageSizing(currentImage, 842, 700)
+                        self.gallery.addClass("gallery-photo");
+                        self.gallery.removeClass('gallery-text');
+                        self.chapterText.addClass('caption')
+                    } else {
+                        imageSizing = utils.getImageSizing(currentImage, 450);
+                        self.gallery.addClass("gallery-text");
+                        self.gallery.removeClass('gallery-photo');
+                        self.chapterText.removeClass('caption')
+                    }
+
                     self.gallery.show();
                     self.img.fadeOut(function(){
                         self.itemImageContainer.animate(
                             imageSizing,
+                            'fast',
                             function(){
                                 if(currentImage.storyUrl !== null){
                                     self.img.css(imageSizing).attr('src', currentImage.storyUrl).fadeIn();
@@ -464,7 +462,11 @@ define(
                                 self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
                             });
                     });
+
                 } else{
+                    self.gallery.addClass("gallery-text");
+                    self.gallery.removeClass('gallery-photo');
+                    self.chapterText.removeClass('caption')
                     self.gallery.hide();
                 }
             },
