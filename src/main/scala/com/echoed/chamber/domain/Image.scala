@@ -78,7 +78,29 @@ case class Image(
         null,
         0)
 
-    require(url != null)
+    def this(id: String, url: String, width: Int, height: Int, cloudName: String) = this(
+        id,
+        new Date,
+        new Date,
+        url,
+        url,
+        width,
+        height,
+        url,
+        width,
+        height,
+        url,
+        width,
+        height,
+        url,
+        width,
+        height,
+        url,
+        width,
+        height,
+        new Date,
+        cloudName,
+        0)
 
 
     private def findFileName(url: String) =
@@ -117,9 +139,12 @@ case class Image(
     val preferredWidth = if (hasExhibit) exhibitWidth else if (hasSized) sizedWidth else if (hasStory) storyWidth else if (hasOriginal) originalWidth else 0
     val preferredHeight = if (hasExhibit) exhibitHeight else if (hasSized) sizedHeight else if (hasStory) storyHeight else if (hasOriginal) originalHeight else 0
 
+    val isCloudinary = processedStatus != null && processedStatus.startsWith("echoed")
+    val cloudName = if (isCloudinary) processedStatus else null
 }
 
 
 object Image {
     val imageFormats = List("jpeg", "jpg", "png", "gif")
 }
+

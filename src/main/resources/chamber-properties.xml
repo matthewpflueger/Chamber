@@ -205,6 +205,11 @@
         <!-- cache expiration configs zero or less does not expire -->
         <prop key="cache.PartnerServices">-1</prop>
         <prop key="cache.MagentoGoSessions">14</prop>
+
+        <prop key="cloudinary.name">echoed</prop>
+        <prop key="cloudinary.apiKey">921488723881834</prop>
+        <prop key="cloudinary.secret">3t7CPs_VOcKQa7kGIloKpBI8Tk4</prop>
+        <prop key="cloudinary.callback">${http.urls.site}/story/image/callback</prop>
     </util:properties>
 
 
@@ -315,6 +320,14 @@
     <util:properties id="geoLocationProperties">
         <prop key="geoLocationServiceUrl">${geolocation.serviceUrl}</prop>
         <prop key="lastUpdatedBeforeHours">${geolocation.lastUpdatedBeforeHours}</prop>
+    </util:properties>
+
+
+    <util:properties id="cloudinaryProperties">
+        <prop key="name">${cloudinary.name}</prop>
+        <prop key="apiKey">${cloudinary.apiKey}</prop>
+        <prop key="secret">${cloudinary.secret}</prop>
+        <prop key="callback">${cloudinary.callback}</prop>
     </util:properties>
 </beans>
 

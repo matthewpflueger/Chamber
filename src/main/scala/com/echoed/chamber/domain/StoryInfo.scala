@@ -9,5 +9,8 @@ case class StoryInfo(
         partner: Partner,
         storyPrompts: StoryPrompts,
         communities: StoryCommunities,
-        storyFull: StoryFull)
+        storyFull: StoryFull) {
+
+    val isNew = Option(storyFull).map(_.story).map(_.createdOn).filter(_ > 0).isEmpty
+}
 

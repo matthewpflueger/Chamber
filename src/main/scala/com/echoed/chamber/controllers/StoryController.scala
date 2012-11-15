@@ -13,6 +13,7 @@ import com.echoed.chamber.services.echoeduser.CreateStoryResponse
 import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
 import javax.annotation.Nullable
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
+import org.springframework.web.servlet.ModelAndView
 
 
 @Controller
@@ -44,6 +45,7 @@ class StoryController extends EchoedController {
     @RequestMapping(method = Array(RequestMethod.POST))
     @ResponseBody
     def createStory(
+            @RequestParam(value = "storyId", required = true) storyId: String,
             @RequestParam(value = "title", required = true) title: String,
             @RequestParam(value = "imageId", required = false) imageId: String,
             @RequestParam(value = "partnerId", required = false) partnerId: String,
@@ -58,6 +60,7 @@ class StoryController extends EchoedController {
 
         mp(CreateStory(
                 eucc,
+                storyId,
                 title,
                 Option(imageId),
                 Option(partnerId),
@@ -104,9 +107,9 @@ class StoryController extends EchoedController {
     @RequestMapping(value = Array("/{storyId}/community/update"), method = Array(RequestMethod.POST))
     @ResponseBody
     def updateCommunity(
-        eucc: EchoedUserClientCredentials,
-        @RequestParam(value = "communityId", required = true) communityId: String,
-        @PathVariable(value = "storyId") storyId: String) = {
+            eucc: EchoedUserClientCredentials,
+            @RequestParam(value = "communityId", required = true) communityId: String,
+            @PathVariable(value = "storyId") storyId: String) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
@@ -226,6 +229,25 @@ class StoryController extends EchoedController {
         result
     }
 
+
+    @RequestMapping(value = Array("/{storyId}/image"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def uploadImage(
+            @PathVariable("storyId") storyId: String,
+            eucc: EchoedUserClientCredentials) = {
+
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(RequestImageUpload(eucc, storyId)).onSuccess {
+            case RequestImageUploadResponse(_, Right(params)) => result.set(params)
+        }
+
+        result
+    }
+
+
+    @RequestMapping(value = Array("/image/callback"), method = Array(RequestMethod.GET))
+    def imageCallback = new ModelAndView(v.cloudinaryCallback)
 }
 
 class ChapterParams(

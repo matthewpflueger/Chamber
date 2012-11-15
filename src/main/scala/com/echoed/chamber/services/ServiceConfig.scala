@@ -46,6 +46,8 @@ class ServiceConfig {
 
     private val ctx = ApplicationContextRef.applicationContext
 
+    @Resource(name = "cloudinaryProperties") var cloudinaryProperties: Properties = _
+
     @Resource(name = "geoLocationDao") var geoLocationDao: GeoLocationDao = _
     @Resource(name = "geoLocationProperties") var geoLocationProperties: Properties = _
 
@@ -194,7 +196,8 @@ class ServiceConfig {
             mp = messageProcessor,
             ep = eventProcessor,
             initMessage = msg,
-            echoedUser = eu)))
+            echoedUser = eu,
+            cloudinaryProperties = cloudinaryProperties)))
 
     @Bean
     def echoedUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new EchoedUserService(

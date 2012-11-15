@@ -79,12 +79,46 @@
             id,
             updatedOn,
             createdOn,
-            url)
+            url,
+            originalUrl,
+            originalWidth,
+            originalHeight,
+            sizedUrl,
+            sizedWidth,
+            sizedHeight,
+            exhibitUrl,
+            exhibitWidth,
+            exhibitHeight,
+            storyUrl,
+            storyWidth,
+            storyHeight,
+            thumbnailUrl,
+            thumbnailWidth,
+            thumbnailHeight,
+            processedOn,
+            processedStatus)
         values (
             #{id},
             #{updatedOn},
             #{createdOn},
-            #{url})
+            #{url},
+            #{originalUrl},
+            #{originalWidth},
+            #{originalHeight},
+            #{sizedUrl},
+            #{sizedWidth},
+            #{sizedHeight},
+            #{exhibitUrl},
+            #{exhibitWidth},
+            #{exhibitHeight},
+            #{storyUrl},
+            #{storyWidth},
+            #{storyHeight},
+            #{thumbnailUrl},
+            #{thumbnailWidth},
+            #{thumbnailHeight},
+            #{processedOn},
+            #{processedStatus})
     </insert>
 
     <update id="update" parameterType="com.echoed.chamber.domain.Image">

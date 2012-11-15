@@ -13,7 +13,8 @@
         'text!templates/input/storyCover.html',
         'text!templates/input/storyChapter.html',
         'text!templates/input/storyChapterInput.html',
-        'text!templates/input/storyLogin.html'
+        'text!templates/input/storyLogin.html',
+        'jqueryCloudinary'
     ],
     function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput, templateStoryLogin){
         return Backbone.View.extend({
@@ -28,7 +29,6 @@
                     this.EvAg.bind("user/login", this.login);
                 }
                 this.locked = false;
-                this.imageMap = {};
                 this.prompts = [];
             },
             events: {
@@ -147,7 +147,7 @@
                 self.cover = $('#field-summary-cover');
                 self.body = $('#story-summary-body');
 
-                if(!self.data.storyFull){
+                if(self.data.storyFull.isNew){
                     self.loadStoryInputTemplate({ type: "Add" });
                 } else if(self.data.storyFull.chapters.length > 0){
                     self.loadStoryCoverTemplate();
@@ -164,7 +164,7 @@
                 var id = target.attr("imageId");
                 var i = 0;
                 for(i = 0; i < self.currentChapter.images.length; i++){
-                    if(self.currentChapter.images[i] === id) self.currentChapter.images.splice(i, 1);
+                    if(self.currentChapter.images[i].id === id) self.currentChapter.images.splice(i, 1);
                 }
                 target.fadeOut(function(){$(this).remove()});
             },
@@ -182,23 +182,17 @@
                 var template = _.template(templateStoryCover, story);
                 self.cover.html(template);
 
-                if(story.image !== null) $('<img class="story-summary-photo"/>').attr("height", 50).attr("src", self.getImageUrl(story.image)).appendTo(self.cover.find('.story-input-photo'));
-                else self.cover.find('.story-input-photo-row').hide();
+                if (story.image !== null) {
+                    utils.scaleByHeight(story.image, 50)
+                            .addClass("story-summary-photo")
+                            .appendTo(self.cover.find('.story-input-photo'));
+                } else self.cover.find('.story-input-photo-row').hide();
 
                 if(!story.community) $('#story-community').hide();
 
                 if(story.productInfo !== null) $('#story-info').show();
                 else $('#story-info').hide();
 
-            },
-            getImageUrl: function(image){
-                if(image.preferredUrl){
-                    return image.preferredUrl;
-                } else if(image.originalUrl){
-                    return image.originalUrl;
-                } else {
-                    return this.imageMap[image.id];
-                }
             },
             loadChapterInputTemplate: function(option){
                 var self = this;
@@ -233,15 +227,62 @@
                                 var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index).attr("imageId",chapterImage.image.id);
                                 var thumbX = $('<div></div>').addClass('chapter-thumb-x');
                                 thumbDiv.append(thumbX);
-                                var photo = $('<img />').attr('src', self.getImageUrl(chapterImage.image)).css(utils.getImageSizing(chapterImage.image));
+                                var photo = utils.scaleByHeight(chapterImage.image, 75);
                                 thumbDiv.append(photo).appendTo(self.chapterPhotos).fadeIn();
-                                self.currentChapter.images.push(chapterImage.image.id);
+                                self.currentChapter.images.push(chapterImage.image);
                             }
                         });
                     }
 
                     $("#chapter-text").expandingTextarea();
 
+                    $('#photo-upload').cloudinary_fileupload({
+                        submit: function(e, data) {
+                            var storyId = self.data.storyFull.id;
+                            var url = "/story/" + storyId + "/image";
+                            var e = $(this);
+                            $.ajax({
+                                url: url,
+                                type: "POST",
+                                dataType: "json",
+                                success: function(result) {
+                                    e.fileupload('option', 'url', result.uploadUrl);
+                                    data.formData = result;
+                                    e.fileupload('send', data);
+                                }
+                            });
+                            return false;
+                        }
+                    }).bind('fileuploaddone', function(e, data) {
+                        if (data.result.error) return;
+
+                        var image = {
+                            id : data.result.public_id,
+                            url : data.result.url,
+                            width : data.result.width,
+                            height : data.result.height,
+                            originalWidth : data.result.width,
+                            originalHeight : data.result.height,
+                            originalUrl : data.result.url,
+                            preferredWidth : data.result.width,
+                            preferredHeight : data.result.height,
+                            preferredUrl : data.result.url,
+                            cloud_name: data.formData.cloud_name
+                        }
+
+                        $('<div></div>')
+                                .addClass("thumb")
+                                .append(utils.scaleByHeight(image, 75))
+                                .hide()
+                                .appendTo(self.chapterPhotos)
+                                .fadeIn();
+
+                        self.currentChapter.images.push(image);
+                    }).bind('fileuploadfailed', function(e, data) {
+                        console.log("Upload failed :(");
+                    });
+
+                    /*
                     var uploader = new qq.FileUploader({
                         element: document.getElementById('photo-upload'),
                         action: '/image',
@@ -257,6 +298,7 @@
                             }
                         }
                     });
+                    */
 
                     $.each(self.data.storyPrompts.prompts, function(index, prompt){
                         var inChapters = false;
@@ -280,12 +322,15 @@
                 $.each(self.data.storyFull.chapters, function(index, chapter){
                     chapter.index = index;
                     var template = _.template(templateChapter, chapter);
-                    var chapterRow = $('<div class="field-main-row clearfix"></div>').html(template).appendTo(self.body).attr('id','chapter-row-' + index);
+                    var chapterRow = $('<div class="field-main-row clearfix"></div>')
+                            .html(template)
+                            .appendTo(self.body)
+                            .attr('id','chapter-row-' + index);
                     var photos = chapterRow.find('.story-input-photos');
                     var imagesFound = false;
                     $.each(self.data.storyFull.chapterImages, function(index, chapterImage){
                         if(chapterImage.chapterId === chapter.id){
-                            var chapterImg = $('<img class="story-summary-photo"/>').attr("height", 50).attr("src",self.getImageUrl(chapterImage.image));
+                            var chapterImg = utils.scaleByHeight(chapterImage.image, 50).addClass('story-summary-photo');
                             photos.append(chapterImg);
                             imagesFound = true
                         }
@@ -347,6 +392,48 @@
                         }
                     }
 
+                    $('#field-photo-upload').cloudinary_fileupload({
+                        submit: function(e, data) {
+                            var storyId = self.data.storyFull.id;
+                            var url = "/story/" + storyId + "/image";
+                            var e = $(this);
+                            $.ajax({
+                                url: url,
+                                type: "POST",
+                                dataType: "json",
+                                success: function(result) {
+                                    e.fileupload('option', 'url', result.uploadUrl);
+                                    data.formData = result;
+                                    e.fileupload('send', data);
+                                }
+                            });
+                            return false;
+                        }
+                    }).bind('fileuploaddone', function(e, data) {
+                        if (data.result.error) return;
+
+                        var image = {
+                            id : data.result.public_id,
+                            url : data.result.url,
+                            width : data.result.width,
+                            height : data.result.height,
+                            originalWidth : data.result.width,
+                            originalHeight : data.result.height,
+                            originalUrl : data.result.url,
+                            preferredWidth : data.result.width,
+                            preferredHeight : data.result.height,
+                            preferredUrl : data.result.url,
+                            cloud_name: data.formData.cloud_name
+                        }
+                        var photo = utils.fit(image, 120, 120);
+
+                        $("#story-input-photo").fadeOut().attr("src", photo.attr("src")).fadeIn();
+                        $('#story-input-imageId').val(JSON.stringify(image));
+                        self.data.imageId = image.id;
+                    }).bind('fileuploadfailed', function(e, data) {
+                        console.log("Upload failed :(");
+                    });
+                    /*
                     var uploader = new qq.FileUploader({
                         element: document.getElementById('field-photo-upload'),
                         action: '/image',
@@ -361,6 +448,7 @@
                             }
                         }
                     });
+                    */
 
                     self.hideSubmits();
                     $(this).addClass("highlight").fadeIn();
@@ -381,6 +469,7 @@
                     var community = self.communitySelect.val() ? self.communitySelect.val() : null;
 
                     storyData = {
+                        storyId: self.data.storyFull.id,
                         title: title
                     };
 
@@ -449,6 +538,7 @@
                 var text = $.trim($('#chapter-text').val());
 
                 var images = self.currentChapter.images ? self.currentChapter.images : [];
+                images = _.map(images, function(img) { return JSON.stringify(img); });
 
                 if(title === ""){
                     alert("Please write or choose a topic");
@@ -506,7 +596,6 @@
             close: function(){
                 var self = this;
                 self.element.fadeOut().empty();
-                self.imageMap = {};
                 self.EvAg.trigger('fade/hide');
                 self.EvAg.trigger('hash/reset');
             }

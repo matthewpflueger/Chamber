@@ -103,4 +103,6 @@ class Views {
 
     @Required @BeanProperty var redirectView: String = _
 
+    @Required @BeanProperty var cloudinaryCallback: String = _
+
 }

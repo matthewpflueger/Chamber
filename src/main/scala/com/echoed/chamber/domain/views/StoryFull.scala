@@ -27,5 +27,7 @@ case class StoryFull(
             new ModerationDescription())
 
     def convertCommentsToPublic = comments.map(new CommentPublic(_)).toList
+
+    val isNew = Option(story).map(_.createdOn).filter(_ > 0).isEmpty
 }
 

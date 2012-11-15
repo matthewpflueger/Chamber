@@ -1,44 +1,128 @@
 define(
     'components/utils',
-    ['jquery'],
+    ['jquery', 'jqueryCloudinary'],
     function($){
         return {
-            getImageSizing: function(image, width){
-                return {
-                    height: image.preferredHeight / image.preferredWidth * width,
+            scaleByWidth: function(image, width) {
+                var wh = {
+                    height: parseInt(image.originalHeight / image.originalWidth * width),
                     width: width
                 }
+                if (image.isCloudinary) return $.cloudinary.image(image.id, {
+                    format: "jpg",
+                    crop: "scale",
+                    width: wh.width,
+                    height: wh.height,
+                    cloud_name: image.cloudName,
+                    cdn_subdomain: true});
+                else return $('<img />').attr('src', image.preferredUrl).attr('width', wh.width).attr('height', wh.height);
             },
-            getMaxImageSizing: function(image, maxWidth, maxHeight){
-                var hwRatio = image.preferredHeight / image.preferredWidth;
-                var maxHWRatio = maxHeight / maxWidth;
+            scaleByHeight: function(image, height) {
+                var wh = {
+                    height: height, //image.originalHeight / image.originalWidth * width,
+                    width: parseInt(image.originalWidth / image.originalHeight * height)
+                }
+                if (image.isCloudinary) return $.cloudinary.image(image.id, {
+                    format: "jpg",
+                    crop: "scale",
+                    width: wh.width,
+                    height: wh.height,
+                    cloud_name: image.cloudName,
+                    cdn_subdomain: true});
+                else return $('<img />').attr('src', image.preferredUrl).attr('width', wh.width).attr('height', wh.height);
+            },
+//            getImageSizing: function(image, width){
+//                return {
+//                    height: image.preferredHeight / image.preferredWidth * width,
+//                    width: width
+//                }
+//            },
+            fit: function(image, width, height) {
+                var hwRatio = image.originalHeight / image.originalWidth;
+                var maxHWRatio = height / width;
                 if(hwRatio >= maxHWRatio){
-                    return {
-                        height: maxHeight,
-                        width: image.preferredWidth / (image.preferredHeight / maxHeight)
+                    var wh = {
+                        height: height,
+                        width: parseInt(image.originalWidth / (image.originalHeight / height))
                     }
                 } else {
-                    return {
-                        height: image.preferredHeight / (image.preferredWidth / maxWidth),
-                        width: maxWidth
+                    var wh = {
+                        height: parseInt(image.originalHeight / (image.originalWidth / width)),
+                        width: width
                     }
                 }
+                if (image.isCloudinary) return $.cloudinary.image(image.id, {
+                    format: "jpg",
+                    crop: "fit",
+                    width: wh.width,
+                    height: wh.height,
+                    cloud_name: image.cloudName,
+                    cdn_subdomain: true});
+                else return $('<img />').attr('src', image.preferredUrl).attr('width', wh.width).attr('height', wh.height);
             },
-            getMinImageSizing: function(image, minWidth, minHeight){
-                var hwRatio = image.preferredHeight / image.preferredWidth;
-                var minHWRatio = minHeight / minWidth;
-                if(minHWRatio < hwRatio){
-                    return {
-                        height: image.preferredHeight / (image.preferredWidth / minWidth),
-                        width: minWidth
+//            getMaxImageSizing: function(image, maxWidth, maxHeight){
+//                var hwRatio = image.preferredHeight / image.preferredWidth;
+//                var maxHWRatio = maxHeight / maxWidth;
+//                if(hwRatio >= maxHWRatio){
+//                    return {
+//                        height: maxHeight,
+//                        width: image.preferredWidth / (image.preferredHeight / maxHeight)
+//                    }
+//                } else {
+//                    return {
+//                        height: image.preferredHeight / (image.preferredWidth / maxWidth),
+//                        width: maxWidth
+//                    }
+//                }
+//            },
+            fill: function(image, width, height) {
+                var hwRatio = image.originalHeight / image.originalWidth;
+                var minHWRatio = height / width;
+                if (minHWRatio < hwRatio) {
+                    var wh = {
+                        height: parseInt(image.originalHeight / (image.originalWidth / width)),
+                        width: width
                     }
                 } else {
-                    return {
-                        height: minHeight,
-                        width: image.preferredWidth / (image.preferredHeight / minHeight)
+                    var wh = {
+                        height: height,
+                        width: parseInt(image.originalWidth / (image.originalHeight / height))
                     }
                 }
+                if (image.isCloudinary) return $.cloudinary.image(image.id, {
+                    format: "jpg",
+                    crop: "fill",
+                    width: wh.width,
+                    height: wh.height,
+                    cloud_name: image.cloudName,
+                    cdn_subdomain: true});
+                else return $('<img />').attr('src', image.preferredUrl).attr('width', wh.width).attr('height', wh.height);
             },
+//            getMinImageSizing: function(image, minWidth, minHeight){
+//                var hwRatio = image.preferredHeight / image.preferredWidth;
+//                var minHWRatio = minHeight / minWidth;
+//                if(minHWRatio < hwRatio){
+//                    return {
+//                        height: image.preferredHeight / (image.preferredWidth / minWidth),
+//                        width: minWidth
+//                    }
+//                } else {
+//                    return {
+//                        height: minHeight,
+//                        width: image.preferredWidth / (image.preferredHeight / minHeight)
+//                    }
+//                }
+//            },
+//            getGalleryImage: function(image) {
+//                if (image.isCloudinary) $.cloudinary.image(image.id, {
+//                    format: "jpg",
+//                    crop: "fill",
+//                    width: "75",
+//                    height: "55",
+//                    cloud_name: image.cloudName,
+//                    cdn_subdomain: true});
+//                else $('<img />').attr('src', image.preferredUrl).css(this.getMinImageSizing(image, 75, 55));
+//            },
             getProfilePhotoUrl: function(echoedUser, urls){
                 if(echoedUser.facebookId !== null){
                     return "http://graph.facebook.com/" + echoedUser.facebookId + "/picture";

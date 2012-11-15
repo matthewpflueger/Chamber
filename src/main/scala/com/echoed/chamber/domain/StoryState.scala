@@ -33,7 +33,7 @@ case class StoryState(
             ps: PartnerSettings,
             e: Option[Echo] = None,
             img: Option[Image] = None) = this(
-        null,
+        UUID(),
         0L,
         0L,
         null,
@@ -52,16 +52,16 @@ case class StoryState(
         List.empty[Moderation],
         Map.empty[String, Vote])
 
-    def isCreated = id != null && createdOn > 0
-    def create(title: String, productInfo: String, community: String, imageId: String) = {
+    def isCreated = createdOn > 0
+    def create(title: String, productInfo: String, community: String, image: Option[Image]) = {
         val storyState = copy(
-            id = UUID(),
             updatedOn = new Date,
             createdOn = new Date,
             title = title,
             productInfo = productInfo,
             community = community,
-            imageId = imageId)
+            imageId = image.map(_.id).orNull,
+            image = image)
         if (partnerSettings.moderateAll) storyState.moderate(partner.name, "Partner", partner.id)
         else storyState
     }
@@ -74,7 +74,7 @@ case class StoryState(
             partner.id,
             partner.handle,
             partnerSettings.id,
-            image.map(_.id).orNull,
+            imageId,
             image.orNull,
             title,
             echo.map(_.id).orNull,
@@ -86,10 +86,15 @@ case class StoryState(
             downVotes,
             community)
 
-    def asStoryInfo = StoryInfo(echoedUser, echo.orNull, partner, partnerSettings.makeStoryPrompts, new StoryCommunities(), asStoryFull.orNull)
-    def asStoryFull =
-            if (!isCreated) None
-            else Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription))
+    def asStoryInfo = StoryInfo(
+            echoedUser,
+            echo.orNull,
+            partner,
+            partnerSettings.makeStoryPrompts,
+            new StoryCommunities(),
+            asStoryFull.orNull)
+
+    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription))
 
     private def selfModeratedPredicate: Moderation => Boolean = _.moderatedRef == "EchoedUser"
     private def echoedModeratedPredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"

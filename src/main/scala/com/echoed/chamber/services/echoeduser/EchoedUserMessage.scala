@@ -210,12 +210,13 @@ case class NewVoteResponse(message: NewVote, value: Either[EUE, Story])
 
 case class CreateStory(
         credentials: EUCC,
+        storyId: String,
         title: String,
         imageId: Option[String] = None,
         partnerId: Option[String] = None,
         productInfo: Option[String] = None,
         community: Option[String] = None,
-        echoId: Option[String] = None) extends EUM with EUI
+        echoId: Option[String] = None) extends EUM with EUI with SI
 
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, CreateStory, EUE]
@@ -295,6 +296,12 @@ case class ModerateStory(
         moderated: Boolean = true) extends EUM with EUI with SI
 case class ModerateStoryResponse(message: ModerateStory, value: Either[EUE, ModerationDescription])
         extends EUM with MR[ModerationDescription, ModerateStory, EUE]
+
+
+case class RequestImageUpload(credentials: EUCC, storyId: String) extends EUM with EUI with SI
+case class RequestImageUploadResponse(
+        message: RequestImageUpload,
+        value: Either[EUE, Map[String, String]]) extends EUM with MR[Map[String, String], RequestImageUpload, EUE]
 
 
 case class StoryViewed(credentials: EUCC, storyId: String) extends EUM with EUI with SI

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation._
 import com.echoed.util.BlobStore
 import javax.servlet.http.HttpServletRequest
 import com.echoed.chamber.domain.Image
-import com.echoed.chamber.services.image.{StartProcessImage, StartProcessImageResponse}
+import com.echoed.chamber.services.image.ProcessImage
 import org.springframework.web.context.request.async.DeferredResult
 import io.Source
 import java.util.Date
@@ -65,11 +65,9 @@ class ImageUploadController extends EchoedController {
                 contentType).onSuccess {
             case url =>
                 log.debug("Successfully stored %s of type %s for %s" format(fileName, contentType, eucc))
-                mp(StartProcessImage(new Image(url))).onSuccess {
-                    case StartProcessImageResponse(_, Right(image)) =>
-                        log.debug("Successfully processed {} for {}", fileName, eucc)
-                        result.set(ImageUploadStatus(true, image.preferredUrl, image.id))
-            }
+                val image = new Image(url)
+                mp(ProcessImage(Left(image)))
+                result.set(ImageUploadStatus(true, image.preferredUrl, image.id))
         }
 
         result
