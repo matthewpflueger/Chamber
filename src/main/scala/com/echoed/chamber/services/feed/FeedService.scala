@@ -50,7 +50,7 @@ class FeedService(
 
     case class IndexKey(id: String, published: Boolean = true)
     case class EchoedUserPublicKey(_id: String) extends IndexKey(_id)
-    case class EchoedUserPrivateKey(_id: String) extends IndexKey(_id, false)
+    case class EchoedUserPrivateKey(_id: String) extends IndexKey(_id) //, false)
     case class PartnerKey(_id: String) extends IndexKey(_id)
     case class CommunityKey(_id: String) extends IndexKey(_id)
     case class MainTreeKey() extends IndexKey(null)

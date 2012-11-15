@@ -66,7 +66,6 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             val results = join(partners, partnerUsers)((p, pu) =>
                 select(p, pu)
                 on(p.id === pu.partnerId)).map( r => new PartnerAndPartnerUsers(r.a1, r.a2)).toList
-            log.error("Results: {}", results)
             sender ! QueryPartnersAndPartnerUsersResponse(msg, Right(results))
 
         case msg @ QueryPartners(aucc, page, pageSize) =>
