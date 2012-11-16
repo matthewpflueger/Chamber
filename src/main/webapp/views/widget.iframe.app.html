@@ -8,6 +8,7 @@
         {{#scriptTag}}widget.js{{/scriptTag}}
     {{/jsHead}}
     <script>
+        {{>partial_requirejs}}
         {{>partial_urls}}
         Echoed.partnerId = '{{partnerId}}';
         Echoed.facebookLogin ={};

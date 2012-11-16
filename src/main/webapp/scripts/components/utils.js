@@ -1,6 +1,9 @@
 define(
     'components/utils',
-    ['jquery', 'jqueryCloudinary'],
+    [
+        'jquery',
+        'cloudinary'
+    ],
     function($){
         return {
             scaleByWidth: function(image, width) {

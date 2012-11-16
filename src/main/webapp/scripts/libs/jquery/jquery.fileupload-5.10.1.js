@@ -17,7 +17,9 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'jquery' //,
+            'jquery',
+            'jqueryUI',
+            'iFrameTransport' //,
 //            'jquery.ui.widget'
         ], factory);
     } else {

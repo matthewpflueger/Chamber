@@ -3,7 +3,6 @@
         'jquery',
         'backbone',
         'underscore',
-        'fileuploader',
         'expanding',
         'components/utils',
         'components/select',
@@ -14,9 +13,9 @@
         'text!templates/input/storyChapter.html',
         'text!templates/input/storyChapterInput.html',
         'text!templates/input/storyLogin.html',
-        'jqueryCloudinary'
+        'cloudinary'
     ],
-    function($, Backbone, _, qq, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput, templateStoryLogin){
+    function($, Backbone, _, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput, templateStoryLogin){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
