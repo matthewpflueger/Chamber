@@ -209,7 +209,6 @@ define(
                 this.element.find('.comment-login').fadeOut(function(){
                     self.element.find('.comment-submit').fadeIn();
                 });
-                console.log(this.properties);
                 $('#story-login-container').fadeOut();
                 self.renderVotes();
                 self.renderFollowing();
