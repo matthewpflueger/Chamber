@@ -209,6 +209,7 @@ define(
                 this.element.find('.comment-login').fadeOut(function(){
                     self.element.find('.comment-submit').fadeIn();
                 });
+                console.log(this.properties);
                 $('#story-login-container').fadeOut();
                 self.renderVotes();
                 self.renderFollowing();
@@ -518,7 +519,7 @@ define(
                     commentListNode.append(commentNode);
                 });
                 $('#echo-s-c-t-count').text("(" + self.data.comments.length + ")");
-                if(Echoed.echoedUser) {
+                if(this.properties.echoedUser) {
                     self.element.find('.comment-submit').fadeIn();
                 } else{
                     self.element.find('.comment-login-fb').attr("href", utils.getFacebookLoginUrl("redirect/close"));

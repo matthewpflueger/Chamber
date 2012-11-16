@@ -15,7 +15,7 @@ var requirejs, require, define;
         version = '2.1.1',
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
-        jsSuffixRegExp = /\.js$/,
+        jsSuffixRegExp = /\.js??.*$/,
         currDirRegExp = /^\.\//,
         op = Object.prototype,
         ostring = op.toString,

@@ -4,9 +4,6 @@
 <head>
     <title></title>
     <link rel="stylesheet" href="{{urls.css}}/widget.css"/>
-    {{$jsHead}}
-        {{#scriptTag}}widget.js{{/scriptTag}}
-    {{/jsHead}}
     <script>
         {{>partial_requirejs}}
         {{>partial_urls}}
@@ -23,6 +20,10 @@
         {{/echoedUserId}}
 
     </script>
+
+    {{$jsHead}}
+        {{#scriptTag}}widget.js{{/scriptTag}}
+    {{/jsHead}}
 </head>
 <body>
 <div id='echoed-head'>
