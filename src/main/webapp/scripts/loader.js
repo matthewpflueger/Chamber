@@ -1,12 +1,3 @@
-require.config({
-    paths: {
-        'jquery': 'libs/jquery-1.8.1.min',
-        'requireLib': 'libs/require/require',
-        'easyXDM': 'libs/easyXDM/easyXDM.min'
-
-    }
-});
-
 require(
     [
         'requireLib',

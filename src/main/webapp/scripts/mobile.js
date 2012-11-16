@@ -1,24 +1,3 @@
-require.config({
-    paths: {
-        'backbone': 'libs/backbone-amd-0.9.2-min',
-        'underscore': 'libs/underscore-amd-1.4.1-min',
-        'jquery': 'libs/jquery-1.8.1.min',
-        'jqueryMobile': 'libs/jquery.mobile-1.1.1.min',
-        'jqueryMobileConfig': 'libs/jquery.mobile.config',
-        'jqueryUI': 'libs/jquery-ui-1.9.1.custom.min',
-        'isotope': 'libs/jquery.isotope.min',
-        'expanding' : 'libs/expanding',
-        'fileuploader': 'libs/fileuploader',
-        'text': 'libs/require/text',
-        'requireLib': 'libs/require/require'
-    },
-    shim: {
-        'jqueryMobileConfig': ['jquery'],
-        'jqueryUI': ['jquery'],
-        'jqueryMobile': ['jquery', 'jqueryMobileConfig']
-    }
-});
-
 require(
     [
         'requireLib',
@@ -31,9 +10,9 @@ require(
         'components/mobile/login',
         'components/mobile/messageHandler',
         'components/infiniteScroll',
-        'jqueryMobileConfig',
+        'mobileConfig',
         'jqueryUI',
-        'jqueryMobile'
+        'mobile'
     ],
     function(require, $, _, Backbone, Router, Exhibit, Story, Login, MessageHandler, InfiniteScroll){
         $(document).ready(function(){

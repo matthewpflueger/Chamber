@@ -1,6 +1,8 @@
 (function(){
     if(typeof(window.EchoedSettings) ==='undefined') EchoedSettings = {};
 
+    {{>partial_requirejs}}
+
     EchoedSettings.urls = {};
     {{#urls}}
     EchoedSettings.urls.api = "{{api}}";
