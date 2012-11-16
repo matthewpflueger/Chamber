@@ -32,7 +32,7 @@
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#DEV}}
-    es.src = "{{https.js}}/require.js";
+    es.src = "{{https.js}}/libs/require/require-2.1.1.js";
     es.setAttribute('data-main',"{{https.js}}/loader.js?pid={{partnerId}}");
     {{/DEV}}
     {{^DEV}}

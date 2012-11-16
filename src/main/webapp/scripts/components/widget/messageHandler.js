@@ -18,7 +18,6 @@ define(
             },
             receiveMessageResponse:function (response) {
                 var self = this;
-                console.log(response);
                 if(response.data === "echoed-open"){
                     $('body').show();
                     self.EvAg.trigger('exhibit/init', { endPoint : "/partner/" + this.properties.partnerId });

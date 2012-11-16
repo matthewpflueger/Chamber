@@ -518,7 +518,7 @@ define(
                     commentListNode.append(commentNode);
                 });
                 $('#echo-s-c-t-count').text("(" + self.data.comments.length + ")");
-                if(Echoed.echoedUser) {
+                if(this.properties.echoedUser) {
                     self.element.find('.comment-submit').fadeIn();
                 } else{
                     self.element.find('.comment-login-fb').attr("href", utils.getFacebookLoginUrl("redirect/close"));
