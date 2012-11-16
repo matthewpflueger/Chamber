@@ -5,7 +5,7 @@
  */
 
 define(
-    ['jquery'],
+    ['jquery', 'jqueryFileUploader'],
     function(jQuery){
 
 
