@@ -358,7 +358,11 @@
 
                         if(self.data.storyFull.story.image !== null){
                             var image = self.data.storyFull.story.image;
-                            $('#story-input-photo').attr('src', image.preferredUrl).css(utils.getImageSizing(image, 75));
+                            var photo = utils.scaleByWidth(image, 75);
+                            $('#story-input-photo').attr({
+                                    src: photo.attr('src'),
+                                    width: photo.attr('width'),
+                                    height: photo.attr('height')});
                             $('#story-input-imageId').val(self.data.storyFull.story.image.id);
                         }
                     }
