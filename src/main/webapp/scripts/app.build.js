@@ -17,12 +17,16 @@
         'imagesLoaded' : 'libs/imagesloaded',
         'fileuploader' : 'libs/fileuploader',
         'expanding' : 'libs/expanding',
-        'easyXDM' : 'libs/easyXDM/easyXDM.min'
+        'easyXDM' : 'libs/easyXDM/easyXDM.min',
+        'jqueryFileUploader' : 'libs/jquery.fileupload',
+        'jqueryIframeTransport' : 'libs/jquery.iframe-transport',
+        'jqueryCloudinary' : 'libs/jquery.cloudinary'
     },
     shim: {
         'jqueryMobileConfig': ['jquery'],
         'jqueryUI': ['jquery'],
-        'jqueryMobile': ['jquery', 'jqueryMobileConfig']
+        'jqueryMobile': ['jquery', 'jqueryMobileConfig'],
+        'jqueryCloudinary': ['jquery', 'jqueryUI', 'jqueryIframeTransport', 'jqueryFileUploader']
     },
     optimize: "uglify",
     modules: [

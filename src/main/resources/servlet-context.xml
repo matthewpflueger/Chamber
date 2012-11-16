@@ -214,6 +214,8 @@
         <property name="widgetAppIFrameGalleryView" value="widget.iframe.gallery" />
 
         <property name="redirectView" value="redirectView"/>
+
+        <property name="cloudinaryCallback" value="cloudinary_callback" />
     </bean>
 
 

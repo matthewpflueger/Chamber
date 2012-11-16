@@ -13,11 +13,6 @@ import com.echoed.chamber.services.image.{ImageMessage => IM}
 import com.echoed.chamber.services.image.{ImageException => IE}
 
 
-case class StartProcessImage(image: Image) extends IM
-case class StartProcessImageResponse(
-        message: StartProcessImage,
-        value: Either[IE, Image]) extends IM with MR[Image, StartProcessImage, IE]
-
 case class ProcessImage(either: Either[Image, String]) extends IM
 case class ProcessImageResponse(
         message: ProcessImage,

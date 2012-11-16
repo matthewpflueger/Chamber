@@ -7,12 +7,18 @@ require.config({
         'expanding' : 'libs/expanding',
         'fileuploader': 'libs/fileuploader',
         'text': 'libs/require/text',
-        'requireLib': 'libs/require/require'
+        'requireLib': 'libs/require/require',
+
+        'jquery.ui.widget': 'libs/jquery-ui-1.9.1.custom.min',
+        'jqueryFileUploader' : 'libs/jquery.fileupload',
+        'jqueryIframeTransport' : 'libs/jquery.iframe-transport',
+        'jqueryCloudinary' : 'libs/jquery.cloudinary'
     },
     shim: {
         fileuploader: {
             exports: 'qq'
-        }
+        },
+        'jqueryCloudinary': ['jquery', 'jquery.ui.widget', 'jqueryIframeTransport', 'jqueryFileUploader']
     }
 });
 

@@ -756,12 +756,7 @@ class EchoedUserService(
 
         case msg @ InitStory(_, Some(storyId), _, _) => forwardToStory(msg, StoryId(storyId))
         case msg @ InitStory(_, _, Some(echoId), _) => forwardToStory(msg, EchoId(echoId))
-        case msg @ InitStory(_, _, _, partnerId) => forwardToStory(msg, PartnerId(partnerId.getOrElse("Echoed")))
-
-        case msg @ CreateStory(_, _, _, _, _, _, Some(echoId)) => forwardToStory(msg, EchoId(echoId))
-        case msg: CreateStory =>
-            //create a fresh actor for non-echo related stories
-            context.watch(storyServiceCreator(context, msg, echoedUser)).forward(msg)
+        case msg @ InitStory(_, _, _, partnerId) => createStoryService(msg).forward(msg)
 
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
             mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value))
@@ -803,13 +798,15 @@ class EchoedUserService(
         activeStories.get(identifiable).headOption.cata(
             _.forward(msg),
             {
-                val storyService = context.watch(storyServiceCreator(context, msg, echoedUser))
+                val storyService = createStoryService(msg)
                 storyService.forward(msg)
                 activeStories.put(identifiable, storyService)
             })
     }
+
+    private def createStoryService(msg: Message) =
+            context.watch(storyServiceCreator(context, msg, echoedUser.copy(password = null, salt = null)))
 }
 
 private case class StoryId(id: String) extends Identifiable
 private case class EchoId(id: String) extends Identifiable
-private case class PartnerId(id: String) extends Identifiable

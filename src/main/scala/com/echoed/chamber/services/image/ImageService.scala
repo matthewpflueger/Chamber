@@ -201,23 +201,6 @@ class ImageService(
             blobStore.init()
             store(image, imageInfo)(success)
 
-
-        case msg @ StartProcessImage(image) =>
-            val me = context.self
-            val channel = context.sender
-
-            try {
-                imageDao.insert(image)
-                channel ! StartProcessImageResponse(msg, Right(image))
-                (me ? ProcessImage(Left(image))).onComplete(_.fold(
-                    log.debug("Problem processing image {}: {}", msg, _),
-                    log.debug("Successfully processed image {}", _)))
-            } catch {
-                case e =>
-                    log.error("Error inserting image {}: {}", image, e)
-                    channel ! StartProcessImageResponse(msg, Left(ImageException(image, "Error inserting image", e)))
-            }
-
         case msg @ ProcessImage(Right(imageId)) =>
             Option(imageDao.findById(imageId)).map { image =>
                 sender ! ProcessImageResponse(msg, Right(image))
@@ -229,24 +212,40 @@ class ImageService(
             val channel = context.sender
 
             log.debug("Starting to process {}", image.url)
-            if (image.isProcessed) {
-                log.debug("Image has already been processed {}", image)
-                future.foreach(_.success(ProcessImageResponse(msg, Right(image))))
-                channel ! ProcessImageResponse(msg, Right(image))
-            } else if (!responses.containsKey(image.id)) {
-                responses.put(image.id, channel)
 
-                if (!image.hasOriginal) me ! ProcessOriginalImage(image)
-                else if (!image.hasStory) me ! ProcessStoryImage(image)
-                else if (!image.hasExhibit) me ! ProcessExhibitImage(image)
-                else if (!image.hasSized) me ! ProcessSizedImage(image)
-                else if (!image.hasThumbnail) me ! ProcessThumbnailImage(image)
-                else {
-                    //sanity check...
-                    log.error("Image already processed!?!? {}", image.url)
-                    sendResponse(image, Right(image))
-                }
-            } else responses.put(image.id, channel)
+            val img = Option(
+                    try {
+                        imageDao.insert(image)
+                        image
+                    } catch {
+                        case e =>
+                            log.debug("Error inserting image {}: {}", image, e)
+                            imageDao.findById(image.id)
+                    })
+
+            img.map { i =>
+                if (i.isProcessed) {
+                    log.debug("Image has already been processed {}", i)
+                    future.foreach(_.success(ProcessImageResponse(msg, Right(i))))
+                    channel ! ProcessImageResponse(msg, Right(i))
+                } else if (!responses.containsKey(i.id)) {
+                    responses.put(i.id, channel)
+
+                    if (!i.hasOriginal) me ! ProcessOriginalImage(i)
+                    else if (!i.hasStory) me ! ProcessStoryImage(i)
+                    else if (!i.hasExhibit) me ! ProcessExhibitImage(i)
+                    else if (!i.hasSized) me ! ProcessSizedImage(i)
+                    else if (!i.hasThumbnail) me ! ProcessThumbnailImage(i)
+                    else {
+                        //sanity check...
+                        log.error("Image already processed!?!? {}", i.url)
+                        sendResponse(i, Right(i))
+                    }
+                } else responses.put(i.id, channel)
+            }.orElse {
+                log.error("Could not process image due to failed insert or lookup: {}", image)
+                None
+            }
 
 
         case msg @ ProcessOriginalImage(image) =>

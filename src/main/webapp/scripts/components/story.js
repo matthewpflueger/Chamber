@@ -370,7 +370,7 @@ define(
                     self.galleryNodeBody.append(self.galleryChapters[index]);
                     $.each(chapter.images, function(index2, image){
                         var thumbNailHash = index + "-" + index2;
-                        self.thumbnails[thumbNailHash] = $('<img />').addClass("echo-s-b-thumbnail").attr("index", thumbNailHash).attr("src", image.preferredUrl).css(utils.getImageSizing(image, 90));
+                        self.thumbnails[thumbNailHash] = utils.scaleByWidth(image, 90).addClass("echo-s-b-thumbnail").attr("index", thumbNailHash);
                         self.galleryChapters[index].append(self.thumbnails[thumbNailHash]);
                     });
                 });
@@ -432,15 +432,28 @@ define(
                 var self = this;
                 var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
                 var imageSizing = {};
+                var imageUrl = "";
 
                 if(currentImage !== null && currentImage !== undefined){
                     if(this.chapterType === 'photo') {
-                        imageSizing = utils.getMaxImageSizing(currentImage, 842, 700)
+                        var i = utils.fit(currentImage, 842, 700)
+                        imageSizing = {
+                            width:i.attr('width'),
+                            height:i.attr('height')
+                        }
+                        imageUrl = i.attr('src')
+//                        utils.getMaxImageSizing(currentImage, 842, 700)
                         self.gallery.addClass("gallery-photo");
                         self.gallery.removeClass('gallery-text');
                         self.chapterText.addClass('caption')
                     } else {
-                        imageSizing = utils.getImageSizing(currentImage, 450);
+                        var i = utils.scaleByWidth(currentImage, 450)
+                        imageSizing = {
+                            width: i.attr('width'),
+                            height: i.attr('height')
+                        }
+                        imageUrl = i.attr('src')
+//                        imageSizing = utils.getImageSizing(currentImage, 450);
                         self.gallery.addClass("gallery-text");
                         self.gallery.removeClass('gallery-photo');
                         self.chapterText.removeClass('caption')
@@ -452,12 +465,13 @@ define(
                             imageSizing,
                             'fast',
                             function(){
-                                if(currentImage.storyUrl !== null){
-                                    self.img.css(imageSizing).attr('src', currentImage.storyUrl).fadeIn();
-                                } else {
-                                    self.img.css(imageSizing).attr('src', currentImage.originalUrl).fadeIn();
-                                }
-                                self.img.attr('src', currentImage.originalUrl).fadeIn();
+                                self.img.css(imageSizing).attr('src', imageUrl).fadeIn();
+//                                if(currentImage.storyUrl !== null){
+//                                    self.img.css(imageSizing).attr('src', currentImage.storyUrl).fadeIn();
+//                                } else {
+//                                    self.img.css(imageSizing).attr('src', currentImage.originalUrl).fadeIn();
+//                                }
+//                                self.img.attr('src', currentImage.originalUrl).fadeIn();
                                 self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
                                 self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
                             });

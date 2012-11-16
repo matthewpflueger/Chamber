@@ -66,15 +66,16 @@ define(
 
 
 
-                if(image !== null){
+                if (image !== null) {
                     self.element.html(_.template(templateStoryBrief, self.data));
                     var imageNode = self.element.find(".story-brief-image");
                     self.imageContainer = self.element.find('.story-brief-image-container');
+                    var i = utils.scaleByWidth(image, 260)
                     self.data.storyImage = {
-                        url: image.preferedUrl,
-                        size: utils.getImageSizing(image, 260)
+                        url: i.attr('src'),
+                        size: { width: i.attr('width'), height: i.attr('height') }
                     };
-                    imageNode.attr('src', image.preferredUrl).css(utils.getImageSizing(image,260))
+                    imageNode.attr('src', self.data.storyImage.url).css(self.data.storyImage.size)
                 } else{
                     self.element.html(_.template(templateStoryBriefText, self.data));
                 }

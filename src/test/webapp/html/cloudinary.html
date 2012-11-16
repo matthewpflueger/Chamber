@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="http://localhost.com:8080/scripts/libs/json2.js"></script>
+    <script type="text/javascript" src="http://localhost.com:8080/scripts/libs/jquery-1.8.1.min.js"></script>
+    <script type="text/javascript" src="http://localhost.com:8080/scripts/libs/jquery-ui-1.9.1.custom.min.js"></script>
+    <script type="text/javascript" src="http://localhost.com:8080/scripts/libs/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="http://localhost.com:8080/scripts/libs/jquery.fileupload.js"></script>
+    <script type="text/javascript" src="http://localhost.com:8080/scripts/libs/jquery.cloudinary.js"></script>
+    <script type="text/javascript">
+//        $.cloudinary.config({
+//            cloud_name: "echoed-dev",
+//            cdn_subdomain: true
+//        });
+
+        $(document).ready(function(){
+//{
+//  "public_id":"4ec5f7e9-624d-4adf-8dbf-a191df87d1ed_04d5fb7c-875f-4855-86a0-461d6dd093ef_1_1352673887168",
+//  "version":1352673918,
+//  "signature":"0b8ac3d6340dc24e2cff730e9be7f4f55c59360d",
+//  "width":475,
+//  "height":633,
+//  "format":"jpg",
+//  "resource_type":"image",
+//  "url":"http://res.cloudinary.com/echoed/image/upload/v1352673918/4ec5f7e9-624d-4adf-8dbf-a191df87d1ed_04d5fb7c-875f-4855-86a0-461d6dd093ef_1_1352673887168.jpg",
+//  "secure_url":"https://d3jpl91pxevbkh.cloudfront.net/echoed/image/upload/v1352673918/4ec5f7e9-624d-4adf-8dbf-a191df87d1ed_04d5fb7c-875f-4855-86a0-461d6dd093ef_1_1352673887168.jpg"
+//}
+            $('.echoed-fileupload').cloudinary_fileupload({
+                submit: function(e, data) {
+                    var storyId = "04d5fb7c-875f-4855-86a0-461d6dd093ef";
+                    var self = $(this);
+                    var fileName = data.files[0].name.substring(0, data.files[0].name.lastIndexOf("."));
+                    $.ajax({
+                        url: "/story/" + storyId + "/image?fileName=" + fileName,
+                        type: "POST",
+                        dataType: "json",
+                        success: function(result) {
+                            self.fileupload('option', 'url', result.uploadUrl);
+                            data.formData = result;
+                            self.fileupload('send', data);
+                        }
+                    });
+                    return false;
+                }
+            }).bind('fileuploaddone', function(e, data) {
+                if (data.result.error) return;
+                var fileName = data.result.public_id + "." + data.result.format;
+                var width = data.result.width;
+                var height = data.result.height;
+
+                var img = $.cloudinary.image( data.result.public_id, {
+                        format: "jpg",
+                        crop: "scale",
+                        width: "600",
+                        cloud_name: data.formData.cloud_name,
+                        cdn_subdomain: true});
+                $("#photo-preview").append(img);
+                console.log("Success :)");
+            }).bind('fileuploadfailed', function(e, data) {
+                console.log("Upload failed :(");
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <div id="photo-upload" class="photo-upload">
+    <form method="post" enctype="multipart/form-data">
+        <input  name="file" type="file" class="echoed-fileupload"/>
+    </form>
+    </div>
+    <div id="photo-preview"></div>
+</body>
+</html>
