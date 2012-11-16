@@ -237,6 +237,8 @@
 
                     $('#photo-upload').cloudinary_fileupload({
                         submit: function(e, data) {
+                            $('.qq-upload-list').addClass('qq-upload-spinner');
+
                             var storyId = self.data.storyFull.id;
                             var url = "/story/" + storyId + "/image";
                             var e = $(this);
@@ -254,6 +256,7 @@
                         }
                     }).bind('fileuploaddone', function(e, data) {
                         if (data.result.error) return;
+                        $('.qq-upload-list').removeClass('qq-upload-spinner').text("Success!");
 
                         var image = {
                             id : data.result.public_id,
@@ -278,26 +281,9 @@
 
                         self.currentChapter.images.push(image);
                     }).bind('fileuploadfailed', function(e, data) {
-                        console.log("Upload failed :(");
+                        $('.qq-upload-list').removeClass('qq-upload-spinner').text("Failed :(");
                     });
 
-                    /*
-                    var uploader = new qq.FileUploader({
-                        element: document.getElementById('photo-upload'),
-                        action: '/image',
-                        debug: true,
-                        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-                        onComplete: function(id, fileName, response) {
-                            if(response.success === true){
-                                var thumbDiv = $('<div></div>').addClass("thumb");
-                                var photo = $('<img />').attr('src', response.url);
-                                thumbDiv.append(photo).hide().appendTo(self.chapterPhotos).fadeIn();
-                                self.currentChapter.images.push(response.id);
-                                self.imageMap[response.id] = response.url;
-                            }
-                        }
-                    });
-                    */
 
                     $.each(self.data.storyPrompts.prompts, function(index, prompt){
                         var inChapters = false;
@@ -393,6 +379,8 @@
 
                     $('#field-photo-upload').cloudinary_fileupload({
                         submit: function(e, data) {
+                            $('.qq-upload-list').addClass('qq-upload-spinner');
+
                             var storyId = self.data.storyFull.id;
                             var url = "/story/" + storyId + "/image";
                             var e = $(this);
@@ -410,6 +398,7 @@
                         }
                     }).bind('fileuploaddone', function(e, data) {
                         if (data.result.error) return;
+                        $('.qq-upload-list').removeClass('qq-upload-spinner').text("Success!");
 
                         var image = {
                             id : data.result.public_id,
@@ -430,24 +419,8 @@
                         $('#story-input-imageId').val(JSON.stringify(image));
                         self.data.imageId = image.id;
                     }).bind('fileuploadfailed', function(e, data) {
-                        console.log("Upload failed :(");
+                        $('.qq-upload-list').removeClass('qq-upload-spinner').text("Failed :(");
                     });
-                    /*
-                    var uploader = new qq.FileUploader({
-                        element: document.getElementById('field-photo-upload'),
-                        action: '/image',
-                        debug: true,
-                        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-                        onComplete: function(id, fileName, response) {
-                            if(response.success === true){
-                                $("#story-input-photo").fadeOut().attr("src", response.url).fadeIn();
-                                $('#story-input-imageId').val(response.id);
-                                self.data.imageId = response.id;
-                                self.imageMap[response.id] = response.url;
-                            }
-                        }
-                    });
-                    */
 
                     self.hideSubmits();
                     $(this).addClass("highlight").fadeIn();
