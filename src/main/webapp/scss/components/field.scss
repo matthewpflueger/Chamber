@@ -202,7 +202,6 @@
     overflow: hidden;
     #preview{
         display:inline-block;
-        max-width: 200px;
         overflow: hidden;
         #field-photo{
         }
@@ -236,9 +235,13 @@
     }
 }
 
-.thumbnail-placeholder{
+#thumbnail-placeholder{
     float:left;
     img{
-        height: 81px
+        height: 75px;
+        background-color: #777;
+        &.in{
+            background-color: #000;
+        }
     }
 }

@@ -26,24 +26,31 @@
     <div class="story-detail-row">
         <div class="story-input-label">
             Cover Photo<br/>
-            <div id="field-photo-upload">
-                <div class="qq-uploader">
-                    <div class="qq-upload-drop-area" style="display: none;">
-                        <span>Drop photos here to upload</span>
-                    </div>
-                    <div class="qq-upload-button">
-                        Upload a photo
-                        <input multiple="multiple" type="file" name="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
-                    </div>
-                    <ul class="qq-upload-list"></ul>
-                </div>
-            </div>
         </div>
         <div class="story-input-content clearfix" style="vertical-align: top;">
-            <div class="field-photo-container">
-                <div id="preview">
-                    <img height="75px" id="story-input-photo">
+            <div class="photo-upload">
+                <div style="text-align: center;">
+                    <div id="photo-upload-button">
+                        Browse Computer
+                        <input multiple="multiple" type="file" name="file" style="position: absolute; left:0px; bottom:0px;right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
+                    </div>
+                    <div id="photo-upload-drag-text">
+                        or <span class="photo-drag-text">Drag and Drop</span>
+                    </div>
                 </div>
+                <div id="photo-upload-progress">
+                    <div id="photo-upload-progress-fill">
+                    </div>
+                    <div id="photo-upload-progress-text">
+                        Uploading...
+                    </div>
+                </div>
+            </div>
+            <div id="photo-preview">
+                <img height="75px" id="story-input-photo" />
+            </div>
+            <div class="field-photo-container">
+
             </div>
         </div>
         <input name="echoId" type="hidden" id="story-input-echoId"/>

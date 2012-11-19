@@ -18,24 +18,30 @@
     <div class="story-detail-row">
         <div class="story-input-label">
             Photos<br/>
-            <div id="photo-upload" class="photo-upload">
-                <div class="qq-uploader">
-                    <div class="qq-upload-drop-area" style="display: none;">
-                        <span>Drop photos here to upload</span>
-                    </div>
-                    <div class="qq-upload-button">
-                        Upload a photo
-                        <input multiple="multiple" type="file" name="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
-                    </div>
-                    <ul class="qq-upload-list"></ul>
-                </div>
-            </div>
         </div>
         <div class="story-input-content" style="vertical-align: top">
-            <div id="story-input-thumbnails" class="thumbnails">
+            <div class="photo-upload">
+                <div style="text-align: center;">
+                    <div id="photo-upload-button">
+                        Browse Computer
+                        <input multiple="multiple" type="file" name="file" style="position: absolute; left:0px; bottom:0px;right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
+                    </div>
+                    <div id="photo-upload-drag-text">
+                        or <span class="photo-drag-text">Drag and Drop</span>
+                    </div>
+                </div>
+                <div id="photo-upload-progress">
+                    <div id="photo-upload-progress-fill">
+                    </div>
+                    <div id="photo-upload-progress-text">
+                        Uploading...
+                    </div>
+                </div>
             </div>
-            <div class="thumbnail-placeholder">
-                <img id="thumb-placeholder" height="75px" class="thumb" />
+            <div id="story-input-thumbnails" class="thumbnails">
+                <div id="thumbnail-placeholder">
+                    <img id="thumb-placeholder" height="75px" class="thumb" />
+                </div>
             </div>
         </div>
     </div>

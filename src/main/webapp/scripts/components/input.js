@@ -215,7 +215,8 @@
                     };
 
                     self.chapterPhotos = $('#story-input-thumbnails');
-
+                    self.placeholder= $('#thumbnail-placeholder');
+                    console.log(self.placeholder);
                     if(option.type==="Edit"){
                         self.currentChapter = self.data.storyFull.chapters[option.index];
                         self.currentChapter.images = [];
@@ -227,7 +228,7 @@
                                 var thumbX = $('<div></div>').addClass('chapter-thumb-x');
                                 thumbDiv.append(thumbX);
                                 var photo = utils.scaleByHeight(chapterImage.image, 75);
-                                thumbDiv.append(photo).appendTo(self.chapterPhotos).fadeIn();
+                                self.placeholder.before(thumbDiv.append(photo));
                                 self.currentChapter.images.push(chapterImage.image);
                             }
                         });
@@ -235,9 +236,33 @@
 
                     $("#chapter-text").expandingTextarea();
 
-                    $('#photo-upload').cloudinary_fileupload({
+                    $('#photo-upload-button').cloudinary_fileupload({
+                        dragover: function(e){
+                            var dropZone = $('#thumb-placeholder'),
+                                timeout = window.dropZoneTimeout;
+                            if (!timeout) {
+                                dropZone.addClass('in');
+                            } else {
+                                clearTimeout(timeout);
+                            }
+                            if (e.target === dropZone[0]) {
+                                dropZone.addClass('hover');
+                            } else {
+                                dropZone.removeClass('hover');
+                            }
+                            window.dropZoneTimeout = setTimeout(function () {
+                                window.dropZoneTimeout = null;
+                                dropZone.removeClass('in hover');
+                            }, 100);
+                        },
+                        progress: function(e,data){
+                            var pct = data.loaded / data.total * 100;
+                            $('#photo-upload-progress-fill').css({
+                                width: pct + "%"
+                            });
+                        },
                         submit: function(e, data) {
-                            $('.qq-upload-list').addClass('qq-upload-spinner');
+                            $('#photo-upload-progress').show();
 
                             var storyId = self.data.storyFull.id;
                             var url = "/story/" + storyId + "/image";
@@ -256,7 +281,6 @@
                         }
                     }).bind('fileuploaddone', function(e, data) {
                         if (data.result.error) return;
-                        $('.qq-upload-list').removeClass('qq-upload-spinner').text("Success!");
 
                         var image = {
                             id : data.result.public_id,
@@ -269,19 +293,24 @@
                             preferredWidth : data.result.width,
                             preferredHeight : data.result.height,
                             preferredUrl : data.result.url,
+                            storyUrl: data.result.url,
                             cloud_name: data.formData.cloud_name
-                        }
+                        };
 
+                        self.placeholder.before(
                         $('<div></div>')
                                 .addClass("thumb")
                                 .append(utils.scaleByHeight(image, 75))
                                 .hide()
                                 .appendTo(self.chapterPhotos)
-                                .fadeIn();
+                                .fadeIn(function(){
+                                $('#photo-upload-progress').hide();
+                            }));
 
                         self.currentChapter.images.push(image);
                     }).bind('fileuploadfailed', function(e, data) {
-                        $('.qq-upload-list').removeClass('qq-upload-spinner').text("Failed :(");
+                        $('#photo-upload-progress-fill').addClass('failed');
+                        $('#pohto-upload-progress-text').text('Failed')
                     });
 
 
@@ -381,10 +410,34 @@
                         }
                     }
 
-                    $('#field-photo-upload').cloudinary_fileupload({
+                    $('#photo-upload-button').cloudinary_fileupload({
+                        //dropZone: $('#photo-drop'),
+                        dragover: function(e){
+                            var dropZone = $('#photo-upload, #photo-preview'),
+                                timeout = window.dropZoneTimeout;
+                            if (!timeout) {
+                                dropZone.addClass('in');
+                            } else {
+                                clearTimeout(timeout);
+                            }
+                            if (e.target === dropZone[0]) {
+                                dropZone.addClass('hover');
+                            } else {
+                                dropZone.removeClass('hover');
+                            }
+                            window.dropZoneTimeout = setTimeout(function () {
+                                window.dropZoneTimeout = null;
+                                dropZone.removeClass('in hover');
+                            }, 100);
+                        },
+                        progress: function(e,data){
+                            var pct = data.loaded / data.total * 100;
+                            $('#photo-upload-progress-fill').css({
+                                width: pct + "%"
+                            });
+                        },
                         submit: function(e, data) {
-                            $('.qq-upload-list').addClass('qq-upload-spinner');
-
+                            $('#photo-upload-progress').show();
                             var storyId = self.data.storyFull.id;
                             var url = "/story/" + storyId + "/image";
                             var e = $(this);
@@ -401,9 +454,8 @@
                             return false;
                         }
                     }).bind('fileuploaddone', function(e, data) {
-                        if (data.result.error) return;
-                        $('.qq-upload-list').removeClass('qq-upload-spinner').text("Success!");
 
+                        if (data.result.error) return;
                         var image = {
                             id : data.result.public_id,
                             url : data.result.url,
@@ -415,15 +467,18 @@
                             preferredWidth : data.result.width,
                             preferredHeight : data.result.height,
                             preferredUrl : data.result.url,
+                            storyUrl: data.result.url,
                             cloud_name: data.formData.cloud_name
-                        }
+                        };
                         var photo = utils.fit(image, 120, 120);
-
-                        $("#story-input-photo").fadeOut().attr("src", photo.attr("src")).fadeIn();
+                        $("#story-input-photo").fadeOut().attr("src", photo.attr("src")).fadeIn(function(){
+                            $('#photo-upload-progress').hide();
+                        });
                         $('#story-input-imageId').val(JSON.stringify(image));
                         self.data.imageId = image.id;
                     }).bind('fileuploadfailed', function(e, data) {
-                        $('.qq-upload-list').removeClass('qq-upload-spinner').text("Failed :(");
+                        $('#photo-upload-progress-fill').addClass('failed');
+                        $('#pohto-upload-progress-text').text('Failed')
                     });
 
                     self.hideSubmits();
