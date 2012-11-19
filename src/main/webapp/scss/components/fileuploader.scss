@@ -12,9 +12,6 @@
     padding: 5px;
     background-color: #E0E0E0;
     @include dropShadowDown;
-    &.in{
-        background-color: #CCC;
-    }
 
     #photo-upload-button{
         position: relative;
