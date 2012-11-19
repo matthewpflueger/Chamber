@@ -10,7 +10,7 @@ define(
                 var wh = {
                     height: parseInt(image.originalHeight / image.originalWidth * width),
                     width: width
-                }
+                };
                 if (image.isCloudinary) return $.cloudinary.image(image.id, {
                     format: "jpg",
                     crop: "scale",
@@ -24,7 +24,7 @@ define(
                 var wh = {
                     height: height, //image.originalHeight / image.originalWidth * width,
                     width: parseInt(image.originalWidth / image.originalHeight * height)
-                }
+                };
                 if (image.isCloudinary) return $.cloudinary.image(image.id, {
                     format: "jpg",
                     crop: "scale",
@@ -41,12 +41,12 @@ define(
                     var wh = {
                         height: height,
                         width: parseInt(image.originalWidth / (image.originalHeight / height))
-                    }
+                    };
                 } else {
                     var wh = {
                         height: parseInt(image.originalHeight / (image.originalWidth / width)),
                         width: width
-                    }
+                    };
                 }
                 if (image.isCloudinary) return $.cloudinary.image(image.id, {
                     format: "jpg",
