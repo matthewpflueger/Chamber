@@ -17,7 +17,7 @@ define(
                     width: wh.width,
                     height: wh.height,
                     cloud_name: image.cloudName,
-                    cdn_subdomain: true});
+                    cdn_subdomain: true}).attr('width', wh.width).attr('height', wh.height);
                 else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             scaleByHeight: function(image, height) {
@@ -31,7 +31,7 @@ define(
                     width: wh.width,
                     height: wh.height,
                     cloud_name: image.cloudName,
-                    cdn_subdomain: true});
+                    cdn_subdomain: true}).attr('width', wh.width).attr('height', wh.height);
                 else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             fit: function(image, width, height) {
@@ -54,7 +54,7 @@ define(
                     width: wh.width,
                     height: wh.height,
                     cloud_name: image.cloudName,
-                    cdn_subdomain: true});
+                    cdn_subdomain: true}).attr('width', wh.width).attr('height', wh.height);
                 else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             fill: function(image, width, height) {
@@ -77,7 +77,7 @@ define(
                     width: wh.width,
                     height: wh.height,
                     cloud_name: image.cloudName,
-                    cdn_subdomain: true});
+                    cdn_subdomain: true}).attr('width', wh.width).attr('height', wh.height);
                 else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             getProfilePhotoUrl: function(echoedUser, urls){
