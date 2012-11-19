@@ -255,23 +255,6 @@
                                 dropZone.removeClass('in hover');
                             }, 100);
                         },
-                        drop: function(e, data){
-                            $('#photo-upload-progress').show();
-                            var storyId = self.data.storyFull.id;
-                            var url = "/story/" + storyId + "/image";
-                            var e = $(this);
-                            $.ajax({
-                                url: url,
-                                type: "POST",
-                                dataType: "json",
-                                success: function(result) {
-                                    e.fileupload('option', 'url', result.uploadUrl);
-                                    data.formData = result;
-                                    e.fileupload('send', data);
-                                }
-                            });
-                            return false;
-                        },
                         progress: function(e,data){
                             var pct = data.loaded / data.total * 100;
                             $('#photo-upload-progress-fill').css({
@@ -326,6 +309,8 @@
 
                         self.currentChapter.images.push(image);
                     }).bind('fileuploadfailed', function(e, data) {
+                        $('#photo-upload-progress-fill').addClass('failed');
+                        $('#pohto-upload-progress-text').text('Failed')
                     });
 
 
@@ -445,23 +430,6 @@
                                 dropZone.removeClass('in hover');
                             }, 100);
                         },
-                        drop: function(e, data){
-                            $('#photo-upload-progress').show();
-                            var storyId = self.data.storyFull.id;
-                            var url = "/story/" + storyId + "/image";
-                            var e = $(this);
-                            $.ajax({
-                                url: url,
-                                type: "POST",
-                                dataType: "json",
-                                success: function(result) {
-                                    e.fileupload('option', 'url', result.uploadUrl);
-                                    data.formData = result;
-                                    e.fileupload('send', data);
-                                }
-                            });
-                            return false;
-                        },
                         progress: function(e,data){
                             var pct = data.loaded / data.total * 100;
                             $('#photo-upload-progress-fill').css({
@@ -509,7 +477,7 @@
                         $('#story-input-imageId').val(JSON.stringify(image));
                         self.data.imageId = image.id;
                     }).bind('fileuploadfailed', function(e, data) {
-                        $('#photo-upload-progress-fill').addClass('Failed');
+                        $('#photo-upload-progress-fill').addClass('failed');
                         $('#pohto-upload-progress-text').text('Failed')
                     });
 
