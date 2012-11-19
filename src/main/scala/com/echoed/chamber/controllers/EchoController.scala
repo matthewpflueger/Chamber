@@ -25,23 +25,24 @@ class EchoController extends EchoedController {
     @BeanProperty var networkControllers: JMap[String, NetworkController] = _
 
     @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
-    def js(pcc: PartnerClientCredentials) = {
-        val result = new DeferredResult(new ModelAndView(v.echoJsErrorView))
-
-        mp(GetView(pcc)).onSuccess {
-            case GetViewResponse(_, Left(e: PartnerNotActive)) =>
-                log.debug("Partner Not Active: Serving Partner Not Active JS template")
-                val modelAndView = new ModelAndView(v.echoJsNotActiveView)
-                modelAndView.addObject("pid", pcc.partnerId)
-                modelAndView.addObject("view", v.echoJsNotActiveView)
-                result.set(modelAndView)
-            case GetViewResponse(_, Right(vd)) =>
-                val modelAndView = new ModelAndView(vd.view, vd.model)
-                result.set(modelAndView)
-        }
-
-        result
-    }
+    def js(pcc: PartnerClientCredentials) = new ModelAndView(v.echoJsErrorView)
+//
+//        val result = new DeferredResult(new ModelAndView(v.echoJsErrorView))
+//
+//        mp(GetView(pcc)).onSuccess {
+//            case GetViewResponse(_, Left(e: PartnerNotActive)) =>
+//                log.debug("Partner Not Active: Serving Partner Not Active JS template")
+//                val modelAndView = new ModelAndView(v.echoJsNotActiveView)
+//                modelAndView.addObject("pid", pcc.partnerId)
+//                modelAndView.addObject("view", v.echoJsNotActiveView)
+//                result.set(modelAndView)
+//            case GetViewResponse(_, Right(vd)) =>
+//                val modelAndView = new ModelAndView(vd.view, vd.model)
+//                result.set(modelAndView)
+//        }
+//
+//        result
+//    }
 
 
     @RequestMapping(value = Array("/request"), method = Array(RequestMethod.GET), produces = Array("application/json"))
