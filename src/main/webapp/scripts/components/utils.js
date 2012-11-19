@@ -18,7 +18,7 @@ define(
                     height: wh.height,
                     cloud_name: image.cloudName,
                     cdn_subdomain: true});
-                else return $('<img />').attr('src', image.originalUrl).attr('width', wh.width).attr('height', wh.height);
+                else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             scaleByHeight: function(image, height) {
                 var wh = {
@@ -32,7 +32,7 @@ define(
                     height: wh.height,
                     cloud_name: image.cloudName,
                     cdn_subdomain: true});
-                else return $('<img />').attr('src', image.originalUrl).attr('width', wh.width).attr('height', wh.height);
+                else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             fit: function(image, width, height) {
                 var hwRatio = image.originalHeight / image.originalWidth;
@@ -55,7 +55,7 @@ define(
                     height: wh.height,
                     cloud_name: image.cloudName,
                     cdn_subdomain: true});
-                else return $('<img />').attr('src', image.originalUrl).attr('width', wh.width).attr('height', wh.height);
+                else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             fill: function(image, width, height) {
                 var hwRatio = image.originalHeight / image.originalWidth;
@@ -78,7 +78,7 @@ define(
                     height: wh.height,
                     cloud_name: image.cloudName,
                     cdn_subdomain: true});
-                else return $('<img />').attr('src', image.preferredUrl).attr('width', wh.width).attr('height', wh.height);
+                else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             getProfilePhotoUrl: function(echoedUser, urls){
                 if(echoedUser.facebookId !== null){
