@@ -8,6 +8,7 @@ import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.EchoedException
 import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
 import com.echoed.chamber.services.scheduler.Schedule
+import com.echoed.chamber.services.partner.{PartnerServiceState, PartnerClientCredentials}
 
 
 private[services] sealed trait StateMessage extends Message
@@ -123,3 +124,10 @@ private[services] case class ReadStoryForEchoResponse(
                 message: ReadStoryForEcho,
                 value: Either[SE, domain.StoryState])
                 extends SM with MR[domain.StoryState, ReadStoryForEcho, SE]
+
+
+private[services] case class ReadPartner(credentials: PartnerClientCredentials) extends SM
+private[services] case class ReadPartnerResponse(
+                message: ReadPartner,
+                value: Either[SE, PartnerServiceState])
+                extends SM with MR[PartnerServiceState, ReadPartner, SE]

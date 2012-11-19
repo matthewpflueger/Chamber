@@ -8,7 +8,7 @@ import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC
 import com.echoed.chamber.domain.partner.{PartnerUser, Partner}
 import akka.actor.ActorRef
 import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.echoeduser.Follower
+import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials, Follower}
 
 sealed trait QueryMessage extends Message
 sealed case class QueryException(message: String = "", cause: Throwable = null)
@@ -20,30 +20,45 @@ import com.echoed.chamber.services.state.{QueryException => QE}
 
 case class FindAllStories(page: Int = 0, pageSize: Int = 30) extends QM
 case class FindAllStoriesResponse(
-                message: FindAllStories,
-                value: Either[QE, List[StoryState]])
-                extends QM with MR[List[StoryState], FindAllStories, QE]
+        message: FindAllStories,
+        value: Either[QE, List[StoryState]])
+        extends QM with MR[List[StoryState], FindAllStories, QE]
 
 case class QueryStoriesForAdmin(
         aucc: AdminUserClientCredentials,
         page: Int = 0,
         pageSize: Int = 30,
         moderated: Option[Boolean] = None) extends QM
-
 case class QueryStoriesForAdminResponse(
-                message: QueryStoriesForAdmin,
-                value: Either[QE, List[StoryState]])
-                extends QM with MR[List[StoryState], QueryStoriesForAdmin, QE]
+        message: QueryStoriesForAdmin,
+        value: Either[QE, List[StoryState]])
+        extends QM with MR[List[StoryState], QueryStoriesForAdmin, QE]
 
 case class QueryEchoedUsersForAdmin(
         aucc: AdminUserClientCredentials,
         page: Int = 0,
         pageSize: Int = 30) extends QM
-
 case class QueryEchoedUsersForAdminResponse(
         message: QueryEchoedUsersForAdmin,
         value: Either[QE, List[EchoedUser]])
         extends QM with MR[List[EchoedUser], QueryEchoedUsersForAdmin, QE]
+
+case class QueryEchoedUsersByFacebookId(
+        eucc: EchoedUserClientCredentials,
+        facebookIds: List[String]) extends QM
+case class QueryEchoedUsersByFacebookIdResponse(
+        message: QueryEchoedUsersByFacebookId,
+        value: Either[QE, List[String]])
+        extends QM with MR[List[String], QueryEchoedUsersByFacebookId, QE]
+
+case class QueryEchoedUsersByTwitterId(
+        eucc: EchoedUserClientCredentials,
+        facebookIds: List[String]) extends QM
+case class QueryEchoedUsersByTwitterIdResponse(
+        message: QueryEchoedUsersByTwitterId,
+        value: Either[QE, List[String]])
+        extends QM with MR[List[String], QueryEchoedUsersByTwitterId, QE]
+
 
 case class QueryStoriesForPartner(
         pucc: PUCC,
@@ -51,9 +66,9 @@ case class QueryStoriesForPartner(
         pageSize: Int = 30,
         moderated: Option[Boolean] = None) extends QM
 case class QueryStoriesForPartnerResponse(
-                message: QueryStoriesForPartner,
-                value: Either[QE, List[StoryState]])
-                extends QM with MR[List[StoryState], QueryStoriesForPartner, QE]
+        message: QueryStoriesForPartner,
+        value: Either[QE, List[StoryState]])
+        extends QM with MR[List[StoryState], QueryStoriesForPartner, QE]
 
 
 case class QueryPartners(aucc: AUCC, page: Int = 0, pageSize: Int = 30) extends QM
@@ -68,9 +83,9 @@ case class QueryPartnerUsersResponse(message: QueryPartnerUsers, value: Either[Q
 case class PartnerAndPartnerUsers(partner: Partner, partnerUser: PartnerUser)
 case class QueryPartnersAndPartnerUsers(aucc: AUCC, page: Int = 0, pageSize: Int = 30) extends QM
 case class QueryPartnersAndPartnerUsersResponse(
-            message: QueryPartnersAndPartnerUsers,
-            value: Either[QE, List[PartnerAndPartnerUsers]])
-            extends QM with MR[List[PartnerAndPartnerUsers], QueryPartnersAndPartnerUsers, QE]
+        message: QueryPartnersAndPartnerUsers,
+        value: Either[QE, List[PartnerAndPartnerUsers]])
+        extends QM with MR[List[PartnerAndPartnerUsers], QueryPartnersAndPartnerUsers, QE]
 
 
 case class QueryUnique(ref: Any, correlation: Message, override val correlationSender: Option[ActorRef])
@@ -83,3 +98,14 @@ case class QueryFollowersForPartner(pcc: PartnerClientCredentials) extends QM
 case class QueryFollowersForPartnerResponse(
         message: QueryFollowersForPartner,
         value: Either[QE, List[Follower]]) extends QM with MR[List[Follower], QueryFollowersForPartner, QE]
+
+case class QueryPartnerIds() extends QM
+case class QueryPartnerIdsResponse(
+        message: QueryPartnerIds,
+        value: Either[QE, List[String]]) extends QM with MR[List[String], QueryPartnerIds, QE]
+
+case class QueryPartnerByIdOrHandle(partnerIdOrHandle: String) extends QM
+case class QueryPartnerByIdOrHandleResponse(
+        message: QueryPartnerByIdOrHandle,
+        value: Either[QE, Partner]) extends QM with MR[Partner, QueryPartnerByIdOrHandle, QE]
+

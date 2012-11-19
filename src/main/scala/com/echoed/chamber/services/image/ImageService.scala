@@ -2,7 +2,6 @@ package com.echoed.chamber.services.image
 
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.dao._
 import com.echoed.util.BlobStore
 import akka.actor._
 import java.awt.image.BufferedImage
@@ -20,7 +19,7 @@ import scala.collection.JavaConversions._
 import akka.dispatch.Promise
 import akka.util.duration._
 import akka.util.Timeout
-import com.echoed.chamber.services.EchoedService
+import com.echoed.chamber.services.{MessageProcessor, EchoedService}
 import com.echoed.util.DateUtils._
 import com.google.common.collect.HashMultimap
 import akka.pattern._
@@ -28,7 +27,7 @@ import akka.pattern._
 
 class ImageService(
         blobStore: BlobStore,
-        imageDao: ImageDao,
+        mp: MessageProcessor,
         minimumValidImageWidth: Int = 120,
         sizedImageTargetWidth: Int = 230,
         exhibitImageTargetWidth: Int= 260,
@@ -52,18 +51,18 @@ class ImageService(
 
 
 
-    override def preStart() {
-        val me = self
-        me ! FindUnprocessedImage()
-
-        //this is a hack to make sure we continue to process failed images as we have a bug (API-67) that causes the
-        //original Scheduler call to never happen again if a low priority image bugs out :(
-        context.system.scheduler.schedule(
-                findUnprocessedImagesInterval milliseconds,
-                findUnprocessedImagesInterval milliseconds,
-                me,
-                FindUnprocessedImage())
-    }
+//    override def preStart() {
+//        val me = self
+//        me ! FindUnprocessedImage()
+//
+//        //this is a hack to make sure we continue to process failed images as we have a bug (API-67) that causes the
+//        //original Scheduler call to never happen again if a low priority image bugs out :(
+//        context.system.scheduler.schedule(
+//                findUnprocessedImagesInterval milliseconds,
+//                findUnprocessedImagesInterval milliseconds,
+//                me,
+//                FindUnprocessedImage())
+//    }
 
 
 
@@ -140,7 +139,7 @@ class ImageService(
 
     private def update(image: Image) = {
         val img = image.copy(processedOn = new Date, processedStatus = image.processedStatus.take(510))
-        try { imageDao.update(img) } catch { case e => log.error("Error persisting {}, {}", image, e) }
+//        try { imageDao.update(img) } catch { case e => log.error("Error persisting {}, {}", image, e) }
         img
     }
 
@@ -202,50 +201,52 @@ class ImageService(
             store(image, imageInfo)(success)
 
         case msg @ ProcessImage(Right(imageId)) =>
-            Option(imageDao.findById(imageId)).map { image =>
-                sender ! ProcessImageResponse(msg, Right(image))
-                if (!image.isProcessed) self.forward(ProcessImage(Left(image)))
-            }
+            log.error("Received {} but not processing!!!", msg)
+//            Option(imageDao.findById(imageId)).map { image =>
+//                sender ! ProcessImageResponse(msg, Right(image))
+//                if (!image.isProcessed) self.forward(ProcessImage(Left(image)))
+//            }
 
         case msg @ ProcessImage(Left(image)) =>
-            val me = context.self
-            val channel = context.sender
-
-            log.debug("Starting to process {}", image.url)
-
-            val img = Option(
-                    try {
-                        imageDao.insert(image)
-                        image
-                    } catch {
-                        case e =>
-                            log.debug("Error inserting image {}: {}", image, e)
-                            imageDao.findById(image.id)
-                    })
-
-            img.map { i =>
-                if (i.isProcessed) {
-                    log.debug("Image has already been processed {}", i)
-                    future.foreach(_.success(ProcessImageResponse(msg, Right(i))))
-                    channel ! ProcessImageResponse(msg, Right(i))
-                } else if (!responses.containsKey(i.id)) {
-                    responses.put(i.id, channel)
-
-                    if (!i.hasOriginal) me ! ProcessOriginalImage(i)
-                    else if (!i.hasStory) me ! ProcessStoryImage(i)
-                    else if (!i.hasExhibit) me ! ProcessExhibitImage(i)
-                    else if (!i.hasSized) me ! ProcessSizedImage(i)
-                    else if (!i.hasThumbnail) me ! ProcessThumbnailImage(i)
-                    else {
-                        //sanity check...
-                        log.error("Image already processed!?!? {}", i.url)
-                        sendResponse(i, Right(i))
-                    }
-                } else responses.put(i.id, channel)
-            }.orElse {
-                log.error("Could not process image due to failed insert or lookup: {}", image)
-                None
-            }
+            log.error("Received {} but not processing!!!", msg)
+//            val me = context.self
+//            val channel = context.sender
+//
+//            log.debug("Starting to process {}", image.url)
+//
+//            val img = Option(
+//                    try {
+//                        imageDao.insert(image)
+//                        image
+//                    } catch {
+//                        case e =>
+//                            log.debug("Error inserting image {}: {}", image, e)
+//                            imageDao.findById(image.id)
+//                    })
+//
+//            img.map { i =>
+//                if (i.isProcessed) {
+//                    log.debug("Image has already been processed {}", i)
+//                    future.foreach(_.success(ProcessImageResponse(msg, Right(i))))
+//                    channel ! ProcessImageResponse(msg, Right(i))
+//                } else if (!responses.containsKey(i.id)) {
+//                    responses.put(i.id, channel)
+//
+//                    if (!i.hasOriginal) me ! ProcessOriginalImage(i)
+//                    else if (!i.hasStory) me ! ProcessStoryImage(i)
+//                    else if (!i.hasExhibit) me ! ProcessExhibitImage(i)
+//                    else if (!i.hasSized) me ! ProcessSizedImage(i)
+//                    else if (!i.hasThumbnail) me ! ProcessThumbnailImage(i)
+//                    else {
+//                        //sanity check...
+//                        log.error("Image already processed!?!? {}", i.url)
+//                        sendResponse(i, Right(i))
+//                    }
+//                } else responses.put(i.id, channel)
+//            }.orElse {
+//                log.error("Could not process image due to failed insert or lookup: {}", image)
+//                None
+//            }
 
 
         case msg @ ProcessOriginalImage(image) =>
@@ -420,33 +421,33 @@ class ImageService(
             me ! ProcessImage(Left(image))
 
 
-        case msg @ FindUnprocessedImage() =>
-            val me = self
-
-            if (findUnprocessedImagesInterval > 0 && lastProcessedBeforeMinutes > 0) {
-                val lastProcessedBeforeDate = {
-                    val cal = Calendar.getInstance()
-                    cal.add(Calendar.MINUTE, lastProcessedBeforeMinutes * -1)
-                    cal.getTime
-                }
-
-                log.debug("Looking for unprocessed images last processed before {}", lastProcessedBeforeDate)
-                Option(imageDao.findUnprocessed(lastProcessedBeforeDate)).cata(
-                    image => {
-                        me ! ProcessLowPriorityImage(image)
-                        unprocessedFuture.foreach(_.success(Some(image)))
-                    },
-                    {
-                        //Scheduler.scheduleOnce(me, FindUnprocessedImage(), findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
-                        unprocessedFuture.foreach(_.success(None))
-                    })
-            } else {
-                log.info(
-                    "Not finding unprocessed images because findUnprocessedImagesInterval {} or lastProcessWithinMinutes {} less than or equal to zero",
-                    findUnprocessedImagesInterval,
-                    lastProcessedBeforeMinutes)
-                unprocessedFuture.foreach(_.success(None))
-            }
+//        case msg @ FindUnprocessedImage() =>
+//            val me = self
+//
+//            if (findUnprocessedImagesInterval > 0 && lastProcessedBeforeMinutes > 0) {
+//                val lastProcessedBeforeDate = {
+//                    val cal = Calendar.getInstance()
+//                    cal.add(Calendar.MINUTE, lastProcessedBeforeMinutes * -1)
+//                    cal.getTime
+//                }
+//
+//                log.debug("Looking for unprocessed images last processed before {}", lastProcessedBeforeDate)
+//                Option(imageDao.findUnprocessed(lastProcessedBeforeDate)).cata(
+//                    image => {
+//                        me ! ProcessLowPriorityImage(image)
+//                        unprocessedFuture.foreach(_.success(Some(image)))
+//                    },
+//                    {
+//                        //Scheduler.scheduleOnce(me, FindUnprocessedImage(), findUnprocessedImagesInterval, TimeUnit.MILLISECONDS)
+//                        unprocessedFuture.foreach(_.success(None))
+//                    })
+//            } else {
+//                log.info(
+//                    "Not finding unprocessed images because findUnprocessedImagesInterval {} or lastProcessWithinMinutes {} less than or equal to zero",
+//                    findUnprocessedImagesInterval,
+//                    lastProcessedBeforeMinutes)
+//                unprocessedFuture.foreach(_.success(None))
+//            }
 
 
         case msg @ ImageError(image, e, message) => error(image, e, message)

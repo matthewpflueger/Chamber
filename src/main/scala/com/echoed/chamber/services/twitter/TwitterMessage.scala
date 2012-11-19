@@ -47,10 +47,10 @@ case class FetchUserResponse(message: FetchUser, value: Either[TE, TwitterUser])
         extends TM
         with MR[TwitterUser, FetchUser, TE]
 
-case class GetFollowers(twitterUserId: String) extends TM
-case class GetFollowersResponse(message: GetFollowers, value: Either[TE, List[TwitterFollower]])
-        extends TM
-        with MR[List[TwitterFollower], GetFollowers, TE]
+//case class GetFollowers(twitterUserId: String) extends TM
+//case class GetFollowersResponse(message: GetFollowers, value: Either[TE, List[TwitterFollower]])
+//        extends TM
+//        with MR[List[TwitterFollower], GetFollowers, TE]
 
 case class FetchFollowers(accessToken: String, accessTokenSecret: String, twitterUserId: String, twitterId: Long) extends TM
 case class FetchFollowersResponse(message: FetchFollowers, value: Either[TE, List[TwitterFollower]])

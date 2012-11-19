@@ -6,17 +6,15 @@ import akka.actor._
 import akka.pattern._
 import com.echoed.chamber.services._
 import akka.util.Timeout
-import com.echoed.chamber.domain.Identifiable
 import com.google.common.collect.HashMultimap
 import scala.collection.JavaConversions._
-import scala.Left
 import scala.Right
 import com.echoed.chamber.services.twitter.FetchUserForAuthToken
 import com.echoed.chamber.services.twitter.FetchUserForAuthTokenResponse
 import com.echoed.chamber.services.facebook.FetchMe
 import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FetchMeResponse
-import com.echoed.util.{ScalaObjectMapper, Encrypter}
+import com.echoed.util.Encrypter
 import akka.actor.SupervisorStrategy.Stop
 
 

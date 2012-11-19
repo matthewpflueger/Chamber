@@ -252,6 +252,7 @@
         <value>Android</value>
         <value>Blackberry</value>
     </util:list>
+
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler default-servlet-name="default"/>
 

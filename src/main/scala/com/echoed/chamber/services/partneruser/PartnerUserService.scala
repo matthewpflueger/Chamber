@@ -8,7 +8,7 @@ import scala.Left
 import scala.Right
 import com.echoed.chamber.services.state.{ReadPartnerUserForCredentialsResponse, ReadPartnerUserForEmailResponse, ReadPartnerUserForCredentials, ReadPartnerUserForEmail}
 import com.echoed.chamber.domain.InvalidPassword
-import com.echoed.chamber.services.partner.PartnerClientCredentials
+import com.echoed.chamber.services.partner.{FetchPartnerAndPartnerSettingsResponse, FetchPartnerAndPartnerSettings, PartnerClientCredentials}
 import com.echoed.util.DateUtils._
 import java.util.Date
 import com.echoed.util.{Encrypter, ScalaObjectMapper}
@@ -85,12 +85,11 @@ class PartnerUserService(
             sender ! GetPartnerUserResponse(msg, Right(partnerUser))
 
         case msg: GetPartnerSettings =>
-            val channel = sender
-
-            mp(partner.GetPartnerSettings(PartnerClientCredentials(partnerUser.partnerId))).onSuccess {
-                case GetPartnerSettingsResponse(_, Right(ps)) => channel ! GetPartnerSettingsResponse(msg, Right(ps))
-            }
-
+            mp(FetchPartnerAndPartnerSettings(PartnerClientCredentials(partnerUser.partnerId)))
+                .mapTo[FetchPartnerAndPartnerSettingsResponse]
+                .map(_.resultOrException)
+                .map(r => GetPartnerSettingsResponse(msg, Right(List(r.partnerSettings))))
+                .pipeTo(sender)
     }
 
 }

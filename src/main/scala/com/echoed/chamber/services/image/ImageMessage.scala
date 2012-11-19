@@ -47,9 +47,9 @@ case class ImageNotFound(
         _cause: Throwable = null) extends IE(_image, _message, _cause)
 
 
-case class ProcessLowPriorityImage(image: Image) extends IM
+private[image] case class ProcessLowPriorityImage(image: Image) extends IM
 
-case class ProcessLowPriorityImageResponse(
+private[image] case class ProcessLowPriorityImageResponse(
         message: ProcessLowPriorityImage,
         value: Either[IE, Image]) extends IM with MR[Image, ProcessLowPriorityImage, IE]
 

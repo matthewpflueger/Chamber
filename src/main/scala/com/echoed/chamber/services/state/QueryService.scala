@@ -120,9 +120,27 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
 
         case msg @ QueryFollowersForPartner(pcc) =>
             val results = (from(followers)(f => where(f.ref === "Partner" and f.refId === pcc.id) select(f))).toList
-                    .map(f => from(echoedUsers)(eu => where(eu.id === f.echoedUserId) select(eu.id, eu.name, eu.screenName)).single)
-                    .map { case (i, n, s) => Follower(i, n, s) }
+                    .map(f => from(echoedUsers)(eu =>
+                        where(eu.id === f.echoedUserId)
+                        select(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)).single)
+                    .map { case (i, n, s, f, t) => Follower(i, n, s, f, t) }
 
             sender ! QueryFollowersForPartnerResponse(msg, Right(results))
+
+
+        case msg: QueryPartnerIds =>
+            sender ! QueryPartnerIdsResponse(msg, Right(from(partners)(p => select(p.id)).toList))
+
+        case msg @ QueryPartnerByIdOrHandle(idOrHandle) =>
+            sender ! QueryPartnerByIdOrHandleResponse(msg, Right(
+                    from(partners)(p => where(p.id === idOrHandle or p.handle === idOrHandle) select(p)).single))
+
+        case msg @ QueryEchoedUsersByFacebookId(_, ids) =>
+            sender ! QueryEchoedUsersByFacebookIdResponse(msg, Right(
+                    from(echoedUsers)(eu => where(eu.facebookId in ids) select(eu.id)).toList))
+
+        case msg @ QueryEchoedUsersByTwitterId(_, ids) =>
+            sender ! QueryEchoedUsersByTwitterIdResponse(msg, Right(
+                    from(echoedUsers)(eu => where(eu.twitterId in ids) select(eu.id)).toList))
     }
 }

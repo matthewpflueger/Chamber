@@ -5,7 +5,7 @@ import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor.ActorRef
-import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials, FollowerNotification}
+import com.echoed.chamber.services.echoeduser.{Follower, EchoedUserClientCredentials, FollowerNotification}
 import org.springframework.validation.Errors
 
 
@@ -39,6 +39,13 @@ import com.echoed.chamber.services.partner.{PartnerIdentifiable => PI}
 import com.echoed.chamber.services.partner.{EchoIdentifiable => EI}
 
 
+private[services] case class PartnerServiceState(
+        partner: Partner,
+        partnerSettings: PartnerSettings,
+        partnerUser: Option[PartnerUser],
+        followedByUsers: List[Follower])
+
+private[partner] case class RegisterPartnerService(partner: Partner)
 
 private[partner] case class Create(msg: Locate, channel: ActorRef)
 
@@ -62,9 +69,9 @@ case class UpdatePartnerResponse(
         value: Either[PE, Partner]) extends PM with MR[Partner, UpdatePartner, PE]
 
 
-private[services] case class GetPartnerSettings(credentials: PCC) extends PM with PI
-private[services] case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerException, List[PartnerSettings]])
-        extends PM with MR[List[PartnerSettings], GetPartnerSettings, PE]
+//private[services] case class GetPartnerSettings(credentials: PCC) extends PM with PI
+//private[services] case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerException, List[PartnerSettings]])
+//        extends PM with MR[List[PartnerSettings], GetPartnerSettings, PE]
 
 case class GetPartner() extends PM
 case class GetPartnerResponse(

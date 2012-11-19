@@ -122,21 +122,21 @@ class UserController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/me/friends"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def friends(
-            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
-            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-            eucc: EchoedUserClientCredentials) = {
-
-        val result = new DeferredResult(ErrorResult.timeout)
-
-        mp(GetEchoedFriends(eucc)).onSuccess {
-            case GetEchoedFriendsResponse(_, Right(friends)) => result.set(friends)
-        }
-
-        result
-    }
+//    @RequestMapping(value = Array("/me/friends"), method = Array(RequestMethod.GET))
+//    @ResponseBody
+//    def friends(
+//            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
+//            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
+//            eucc: EchoedUserClientCredentials) = {
+//
+//        val result = new DeferredResult(ErrorResult.timeout)
+//
+//        mp(GetEchoedFriends(eucc)).onSuccess {
+//            case GetEchoedFriendsResponse(_, Right(friends)) => result.set(friends)
+//        }
+//
+//        result
+//    }
 
     @RequestMapping(value = Array("/me/following"), method = Array(RequestMethod.GET))
     @ResponseBody

@@ -32,20 +32,7 @@ class ExhibitController extends EchoedController {
             new ModelAndView(v.closetView)
         }
 
-        Option(eucc).map { eucc =>
-            val result = new DeferredResult(modelAndView)
-
-            mp(GetExhibit(eucc, 0, Option(appType))).onSuccess {
-                case GetExhibitResponse(_, Right(closet)) =>
-                    //TODO ask Jon about closet echoes not actually being set (should be a different message then)
-
-                    modelAndView.addObject("echoedUser", closet.echoedUser)
-                    modelAndView.addObject("totalCredit", "%.2f\n".format(closet.totalCredit))
-                    result.set(modelAndView)
-            }
-
-            result
-        }.getOrElse(modelAndView)
+        Option(eucc).map(modelAndView.addObject("echoedUser", _)).getOrElse(modelAndView)
     }
 
     @RequestMapping(method = Array(RequestMethod.GET), value = Array("/{partnerHandle}"))

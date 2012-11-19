@@ -20,7 +20,7 @@ import com.echoed.chamber.services.feed.{FeedException => FE}
 case class GetPartnerIds() extends FM
 case class GetPartnerIdsResponse(
         message: GetPartnerIds,
-        value: Either[FE, Array[String]]) extends FM with MR[Array[String], GetPartnerIds, FE]
+        value: Either[FE, List[String]]) extends FM with MR[List[String], GetPartnerIds, FE]
 
 case class GetStoryIds() extends FM
 case class GetStoryIdsResponse(message: GetStoryIds, value: Either[FE, Array[String]])

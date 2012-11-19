@@ -14,6 +14,8 @@
        default-destroy-method="destroy">
 
 
+    <context:annotation-config/>
+
     <import resource="classpath:chamber-properties.xml" />
 
     <import resource="classpath:database.xml" />
@@ -123,4 +125,4 @@
         <value>FlipboardProxy</value>
     </util:list>
 
-    </beans>
+</beans>
