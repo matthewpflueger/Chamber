@@ -12,7 +12,7 @@ require(
         'components/infiniteScroll',
         'mobileConfig',
         'jqueryUI',
-        'mobile'
+        'jqueryMobile'
     ],
     function(require, $, _, Backbone, Router, Exhibit, Story, Login, MessageHandler, InfiniteScroll){
         $(document).ready(function(){
