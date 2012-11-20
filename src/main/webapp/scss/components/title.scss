@@ -1,42 +1,56 @@
 #title-container{
     margin: 5px auto 5px;
+    @include dropShadowDown;
     display: none;
+    background-color: rgb(172, 211, 236);
+    .title-label{
+        @include fontTextBold(20px, #000);
+        text-shadow: 0px 1px #FFF;
+        margin-bottom: 5px;
+    }
     #title{
-        background-color: rgba(0, 0, 0, 0.5);
-        margin-bottom: 10px;
         #title-text{
             @include fontTextBold(24px, #FFF);
-            padding: 10px;
-            float: left;
-            display: none;
-            //height: 75px;
-            //width: 200px;
+            padding: 5px 20px;
             text-shadow: 0px -1px rgba(0, 0, 0, 0.8);
+            background-color: #262626;
         }
-        #title-actions{
-            @include fontTextBold(24px, #FFF);
-            padding: 10px;
-            #title-topic-list{
-                margin-top: 10px;
-                //text-align: center;
-            }
+        #title-body{
+            padding: 10px 10px 5px;
             ul{
-                display: inline-block;
+
             }
             li{
-                width: 150px;
-                height: 75px;
-                margin-right: 10px;
-                padding: 5px;
-                border: 1px solid #FFF;
-                @include fontTextBold(16px, #FFF);
-                float:left;
+                @include fontTextBold(14px, #000);
                 list-style:none;
+                display: inline-block;
+                background: -webkit-gradient(linear, center top, center bottom, from(rgba(255,255,255,0.95)), to(rgba(255,255,255,0.75)));
+                padding: 5px 12px;
+                margin: 0 8px 11px;
+                border-radius: 5px;
+                text-shadow: 0px 1px #FFF;
+                @include dropShadowDown;
             }
-            #title-share{
-                @include shareButton;
+            .title-action{
+                border-left: 1px solid rgba(0, 0, 0, 0.1);
+                display: inline-block;
+                width: 50px;
+                height: 100%;
+            }
+            .title-share{
+                float:right;
+                background-color: $colorEC;
+                @include fontText(13px, #FFF);
+                text-shadow: 0px -1px rgba(0,0,0,0.4);
+                padding: 3px 15px;
+                border-radius: 3px;
+                border: 1px solid #000;
             }
         }
+    }
+    #subnav{
+        height: 30px;
+        background-color: #F0F0F0;
     }
 }
 

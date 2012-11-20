@@ -55,7 +55,7 @@ define(
                         if(data.echoedUser && self.personal !== true) titleOpt = { title: data.echoedUser.name, href: "" };
                         self.EvAg.trigger("title/update", titleOpt);
                         self.EvAg.trigger("pagetitle/update", titleOpt.title);
-                        if(!self.properties.echoedUser && self.properties.exhibitShowLogin === true) self.addLogin();
+                        //if(!self.properties.echoedUser && self.properties.exhibitShowLogin === true) self.addLogin();
                         self.render(data);
                     }
                 })();
