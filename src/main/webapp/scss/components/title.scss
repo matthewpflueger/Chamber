@@ -4,23 +4,35 @@
     #title{
         background-color: rgba(0, 0, 0, 0.5);
         margin-bottom: 10px;
-        -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.15);
-        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.15);
-        box-shadow: 0 1px 1px rgba(0,0,0,0.15);
         #title-text{
             @include fontTextBold(24px, #FFF);
-            background-color: rgba(0, 0, 0, 0.4);
             padding: 10px;
             float: left;
-            width: 268px;
-            height: 75px;
-
+            display: none;
+            //height: 75px;
+            //width: 200px;
+            text-shadow: 0px -1px rgba(0, 0, 0, 0.8);
         }
         #title-actions{
-            float:right;
+            @include fontTextBold(24px, #FFF);
             padding: 10px;
-            text-align: right;
-
+            #title-topic-list{
+                margin-top: 10px;
+                //text-align: center;
+            }
+            ul{
+                display: inline-block;
+            }
+            li{
+                width: 150px;
+                height: 75px;
+                margin-right: 10px;
+                padding: 5px;
+                border: 1px solid #FFF;
+                @include fontTextBold(16px, #FFF);
+                float:left;
+                list-style:none;
+            }
             #title-share{
                 @include shareButton;
             }
