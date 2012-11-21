@@ -21,8 +21,10 @@ class SecureInterceptor extends HandlerInterceptor {
         val isHttps = request.isSecure || Option(request.getHeader("X-Scheme")).filter(_.equals("https")).isDefined
         val isGet = request.getMethod == "GET"
 
-        if (optSecure.isEmpty || isHttps) true
-        else {
+        if (optSecure.isEmpty || isHttps) {
+            request.setAttribute("isSecure", isHttps)
+            true
+        } else {
             val secure = optSecure.get
             val path = request.getRequestURI
             logger.debug("Invalid access to secure resource {}", path)

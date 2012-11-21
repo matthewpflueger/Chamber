@@ -240,7 +240,10 @@ class StoryController extends EchoedController {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        val callback = "%s://%s:%s/%s" format (request.getScheme, request.getServerName, request.getServerPort, "story/image/callback")
+        val callback = Option(request.getAttribute("isSecure"))
+                .filter(_ == true)
+                .map(_ => "%s/%s" format(v.secureSiteUrl, "story/image/callback"))
+                .getOrElse("%s/%s" format(v.siteUrl, "story/image/callback"))
         mp(RequestImageUpload(eucc, storyId, callback)).onSuccess {
             case RequestImageUploadResponse(_, Right(params)) => result.set(params)
         }
