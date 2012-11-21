@@ -298,7 +298,7 @@ case class ModerateStoryResponse(message: ModerateStory, value: Either[EUE, Mode
         extends EUM with MR[ModerationDescription, ModerateStory, EUE]
 
 
-case class RequestImageUpload(credentials: EUCC, storyId: String) extends EUM with EUI with SI
+case class RequestImageUpload(credentials: EUCC, storyId: String, callback: String) extends EUM with EUI with SI
 case class RequestImageUploadResponse(
         message: RequestImageUpload,
         value: Either[EUE, Map[String, String]]) extends EUM with MR[Map[String, String], RequestImageUpload, EUE]
