@@ -278,41 +278,42 @@
                                 }
                             });
                             return false;
-                        }
-                    }).bind('fileuploaddone', function(e, data) {
-                        if (data.result.error) return;
+                        },
+                        done: function(e, data) {
+                            if (data.result.error) return;
 
-                        var image = {
-                            id : data.result.public_id,
-                            url : data.result.url,
-                            width : data.result.width,
-                            height : data.result.height,
-                            originalWidth : data.result.width,
-                            originalHeight : data.result.height,
-                            originalUrl : data.result.url,
-                            preferredWidth : data.result.width,
-                            preferredHeight : data.result.height,
-                            preferredUrl : data.result.url,
-                            storyUrl: data.result.url,
-                            cloudName: data.formData.cloud_name,
-                            isCloudinary: true
-                        };
+                            var image = {
+                                id : data.result.public_id,
+                                url : data.result.url,
+                                width : data.result.width,
+                                height : data.result.height,
+                                originalWidth : data.result.width,
+                                originalHeight : data.result.height,
+                                originalUrl : data.result.url,
+                                preferredWidth : data.result.width,
+                                preferredHeight : data.result.height,
+                                preferredUrl : data.result.url,
+                                storyUrl: data.result.url,
+                                cloudName: data.formData.cloudName,
+                                isCloudinary: true
+                            };
 
-                        self.placeholder.before(
-                        $('<div></div>')
-                                .addClass("thumb")
-                                .append(utils.scaleByHeight(image, 75))
-                                .hide()
-                                .appendTo(self.chapterPhotos)
-                                .fadeIn(function(){
-                                $('#photo-upload-progress').hide();
-                            }));
+                            self.placeholder.before(
+                            $('<div></div>')
+                                    .addClass("thumb")
+                                    .append(utils.scaleByHeight(image, 75))
+                                    .hide()
+                                    .appendTo(self.chapterPhotos)
+                                    .fadeIn(function(){
+                                    $('#photo-upload-progress').hide();
+                                }));
 
-                        self.currentChapter.images.push(image);
-                    }).bind('fileuploadfailed', function(e, data) {
-                        $('#photo-upload-progress-fill').addClass('failed');
-                        $('#pohto-upload-progress-text').text('Failed')
-                    });
+                            self.currentChapter.images.push(image);
+                        },
+                        failed: function(e, data) {
+                            $('#photo-upload-progress-fill').addClass('failed');
+                            $('#pohto-upload-progress-text').text('Failed')
+                        }});
 
 
                     $.each(self.data.storyPrompts.prompts, function(index, prompt){
@@ -453,35 +454,36 @@
                                 }
                             });
                             return false;
-                        }
-                    }).bind('fileuploaddone', function(e, data) {
+                        },
+                        done: function(e, data) {
 
-                        if (data.result.error) return;
-                        var image = {
-                            id : data.result.public_id,
-                            url : data.result.url,
-                            width : data.result.width,
-                            height : data.result.height,
-                            originalWidth : data.result.width,
-                            originalHeight : data.result.height,
-                            originalUrl : data.result.url,
-                            preferredWidth : data.result.width,
-                            preferredHeight : data.result.height,
-                            preferredUrl : data.result.url,
-                            storyUrl: data.result.url,
-                            cloudName: data.formData.cloud_name,
-                            isCloudinary: true
-                        };
-                        var photo = utils.fit(image, 120, 120);
-                        $("#story-input-photo").fadeOut().attr("src", photo.attr("src")).fadeIn(function(){
-                            $('#photo-upload-progress').hide();
-                        });
-                        $('#story-input-imageId').val(JSON.stringify(image));
-                        self.data.imageId = image.id;
-                    }).bind('fileuploadfailed', function(e, data) {
-                        $('#photo-upload-progress-fill').addClass('failed');
-                        $('#pohto-upload-progress-text').text('Failed')
-                    });
+                            if (data.result.error) return;
+                            var image = {
+                                id : data.result.public_id,
+                                url : data.result.url,
+                                width : data.result.width,
+                                height : data.result.height,
+                                originalWidth : data.result.width,
+                                originalHeight : data.result.height,
+                                originalUrl : data.result.url,
+                                preferredWidth : data.result.width,
+                                preferredHeight : data.result.height,
+                                preferredUrl : data.result.url,
+                                storyUrl: data.result.url,
+                                cloudName: data.formData.cloudName,
+                                isCloudinary: true
+                            };
+                            var photo = utils.fit(image, 120, 120);
+                            $("#story-input-photo").fadeOut().attr("src", photo.attr("src")).fadeIn(function(){
+                                $('#photo-upload-progress').hide();
+                            });
+                            $('#story-input-imageId').val(JSON.stringify(image));
+                            self.data.imageId = image.id;
+                        },
+                        failed: function(e, data) {
+                            $('#photo-upload-progress-fill').addClass('failed');
+                            $('#pohto-upload-progress-text').text('Failed')
+                        }});
 
                     self.hideSubmits();
                     $(this).addClass("highlight").fadeIn();
