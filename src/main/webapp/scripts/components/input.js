@@ -28,6 +28,7 @@
                     this.EvAg.bind("user/login", this.login);
                 }
                 this.locked = false;
+                this.cloudName = "";
                 this.prompts = [];
             },
             events: {
@@ -216,7 +217,6 @@
 
                     self.chapterPhotos = $('#story-input-thumbnails');
                     self.placeholder= $('#thumbnail-placeholder');
-                    console.log(self.placeholder);
                     if(option.type==="Edit"){
                         self.currentChapter = self.data.storyFull.chapters[option.index];
                         self.currentChapter.images = [];
@@ -274,6 +274,7 @@
                                 success: function(result) {
                                     e.fileupload('option', 'url', result.uploadUrl);
                                     data.formData = result;
+                                    self.cloudName = result.cloudName;
                                     e.fileupload('send', data);
                                 }
                             });
@@ -294,7 +295,7 @@
                                 preferredHeight : data.result.height,
                                 preferredUrl : data.result.url,
                                 storyUrl: data.result.url,
-                                cloudName: data.formData.cloudName,
+                                cloudName: self.cloudName,
                                 isCloudinary: true
                             };
 
@@ -450,6 +451,7 @@
                                 success: function(result) {
                                     e.fileupload('option', 'url', result.uploadUrl);
                                     data.formData = result;
+                                    self.cloudName = result.cloudName;
                                     e.fileupload('send', data);
                                 }
                             });
@@ -470,7 +472,7 @@
                                 preferredHeight : data.result.height,
                                 preferredUrl : data.result.url,
                                 storyUrl: data.result.url,
-                                cloudName: data.formData.cloudName,
+                                cloudName: self.cloudName,
                                 isCloudinary: true
                             };
                             var photo = utils.fit(image, 120, 120);
