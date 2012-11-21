@@ -14,7 +14,7 @@ define(
                 if (image.isCloudinary) return $.cloudinary.image(image.id, {
                     format: "jpg",
                     crop: "scale",
-                    angle: "auto",
+                    angle: "exif",
                     width: wh.width,
                     height: wh.height,
                     cloud_name: image.cloudName,
@@ -29,7 +29,7 @@ define(
                 if (image.isCloudinary) return $.cloudinary.image(image.id, {
                     format: "jpg",
                     crop: "scale",
-                    angle: "auto",
+                    angle: "exif",
                     width: wh.width,
                     height: wh.height,
                     cloud_name: image.cloudName,
@@ -53,7 +53,7 @@ define(
                 if (image.isCloudinary) return $.cloudinary.image(image.id, {
                     format: "jpg",
                     crop: "fit",
-                    angle: "auto",
+                    angle: "exif",
                     width: wh.width,
                     height: wh.height,
                     cloud_name: image.cloudName,
@@ -77,7 +77,7 @@ define(
                 if (image.isCloudinary) return $.cloudinary.image(image.id, {
                     format: "jpg",
                     crop: "fill",
-                    angle: "auto",
+                    angle: "exif",
                     width: wh.width,
                     height: wh.height,
                     cloud_name: image.cloudName,

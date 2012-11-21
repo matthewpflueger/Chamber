@@ -294,7 +294,8 @@
                             preferredHeight : data.result.height,
                             preferredUrl : data.result.url,
                             storyUrl: data.result.url,
-                            cloud_name: data.formData.cloud_name
+                            cloudName: data.formData.cloud_name,
+                            isCloudinary: true
                         };
 
                         self.placeholder.before(
@@ -468,7 +469,8 @@
                             preferredHeight : data.result.height,
                             preferredUrl : data.result.url,
                             storyUrl: data.result.url,
-                            cloud_name: data.formData.cloud_name
+                            cloudName: data.formData.cloud_name,
+                            isCloudinary: true
                         };
                         var photo = utils.fit(image, 120, 120);
                         $("#story-input-photo").fadeOut().attr("src", photo.attr("src")).fadeIn(function(){
