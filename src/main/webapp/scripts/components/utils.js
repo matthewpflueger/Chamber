@@ -6,6 +6,9 @@ define(
     ],
     function($){
         return {
+            imageUrl: function(imageId, cloudName) {
+                return $.cloudinary.url(imageId, { cloud_name: cloudName, cdn_subdomain: true});
+            },
             scaleByWidth: function(image, width) {
                 var wh = {
                     height: parseInt(image.originalHeight / image.originalWidth * width),

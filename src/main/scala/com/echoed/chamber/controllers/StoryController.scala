@@ -14,6 +14,7 @@ import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
 import javax.annotation.Nullable
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import org.springframework.web.servlet.ModelAndView
+import javax.servlet.http.HttpServletRequest
 
 
 @Controller
@@ -234,11 +235,13 @@ class StoryController extends EchoedController {
     @ResponseBody
     def uploadImage(
             @PathVariable("storyId") storyId: String,
-            eucc: EchoedUserClientCredentials) = {
+            eucc: EchoedUserClientCredentials,
+            request: HttpServletRequest) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(RequestImageUpload(eucc, storyId)).onSuccess {
+        val callback = "%s://%s:%s/%s" format (request.getScheme, request.getServerName, request.getServerPort, "story/image/callback")
+        mp(RequestImageUpload(eucc, storyId, callback)).onSuccess {
             case RequestImageUploadResponse(_, Right(params)) => result.set(params)
         }
 

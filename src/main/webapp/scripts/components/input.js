@@ -283,18 +283,21 @@
                         done: function(e, data) {
                             if (data.result.error) return;
 
+                            var imageUrl = utils.imageUrl(data.result.public_id, self.cloudName);
+                            var width = parseInt(data.result.width);
+                            var height = parseInt(data.result.height);
                             var image = {
                                 id : data.result.public_id,
-                                url : data.result.url,
-                                width : data.result.width,
-                                height : data.result.height,
-                                originalWidth : data.result.width,
-                                originalHeight : data.result.height,
-                                originalUrl : data.result.url,
-                                preferredWidth : data.result.width,
-                                preferredHeight : data.result.height,
-                                preferredUrl : data.result.url,
-                                storyUrl: data.result.url,
+                                url : imageUrl,
+                                width : width,
+                                height : height,
+                                originalWidth : width,
+                                originalHeight : height,
+                                originalUrl : imageUrl,
+                                preferredWidth : width,
+                                preferredHeight : height,
+                                preferredUrl : imageUrl,
+                                storyUrl: imageUrl,
                                 cloudName: self.cloudName,
                                 isCloudinary: true
                             };
@@ -458,20 +461,23 @@
                             return false;
                         },
                         done: function(e, data) {
-
                             if (data.result.error) return;
+
+                            var imageUrl = utils.imageUrl(data.result.public_id, self.cloudName);
+                            var width = parseInt(data.result.width);
+                            var height = parseInt(data.result.height);
                             var image = {
                                 id : data.result.public_id,
-                                url : data.result.url,
-                                width : data.result.width,
-                                height : data.result.height,
-                                originalWidth : data.result.width,
-                                originalHeight : data.result.height,
-                                originalUrl : data.result.url,
-                                preferredWidth : data.result.width,
-                                preferredHeight : data.result.height,
-                                preferredUrl : data.result.url,
-                                storyUrl: data.result.url,
+                                url : imageUrl,
+                                width : width,
+                                height : height,
+                                originalWidth : width,
+                                originalHeight : height,
+                                originalUrl : imageUrl,
+                                preferredWidth : width,
+                                preferredHeight : height,
+                                preferredUrl : imageUrl,
+                                storyUrl: imageUrl,
                                 cloudName: self.cloudName,
                                 isCloudinary: true
                             };

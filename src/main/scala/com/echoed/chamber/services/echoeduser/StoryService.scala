@@ -262,10 +262,10 @@ class StoryService(
             ep(StoryUpdated(storyState))
 
 
-        case msg @ RequestImageUpload(eucc, storyId) =>
+        case msg @ RequestImageUpload(eucc, storyId, callback) =>
             val timestamp = System.currentTimeMillis
             val name = cloudinaryProperties.getProperty("name")
-            val callback = cloudinaryProperties.getProperty("callback")
+//            val callback = cloudinaryProperties.getProperty("callback")
             val apiKey = cloudinaryProperties.getProperty("apiKey")
             val secret = cloudinaryProperties.getProperty("secret")
             val publicId = UUID()
