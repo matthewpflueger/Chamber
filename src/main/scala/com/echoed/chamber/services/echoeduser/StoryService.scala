@@ -284,7 +284,7 @@ class StoryService(
                     "timestamp" -> timestamp.toString,
                     "callback" -> callback,
                     "api_key" -> apiKey,
-                    "cloud_name" -> name,
+                    "cloudName" -> name,
                     "public_id" -> publicId,
                     "tags" -> tags,
                     "signature" -> signature)))
@@ -326,7 +326,7 @@ class StoryService(
                     m("url").toString,
                     m("width").asInstanceOf[Int],
                     m("height").asInstanceOf[Int],
-                    m("cloud_name").toString)
+                    m("cloudName").toString)
             mp.tell(ProcessImage(Left(image)), self)
             image
         } else {
