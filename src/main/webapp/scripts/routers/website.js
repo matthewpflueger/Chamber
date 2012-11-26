@@ -30,6 +30,7 @@ define(
                 "write/" : "writeStory",
                 "write": "writeStory",
                 "communities" : "cList",
+                "topic/:topic": "topic",
                 "!": "explore",
                 "!me/friends": "friends",
                 "!me/": "me",
@@ -91,6 +92,16 @@ define(
                         self.loadPage("partner", { jsonUrl: jsonUrl, data: data});
                         self.EvAg.trigger('title/update', { title: "Stories from " + data.partner.name });
                     });
+                }
+            },
+            topic: function(topicId){
+                var self = this;
+                if(this.page != window.location.hash){
+                    this.page = window.location.hash;
+                    this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
+                        self.loadPage("topic", { jsonUrl: jsonUrl, data: data});
+                        self.EvAg.trigger('title/update', { title: "Topic!"})
+                    })
                 }
             },
             me: function() {

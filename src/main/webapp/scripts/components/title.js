@@ -12,6 +12,7 @@ define(
             initialize: function(options){
                 _.bindAll(this);
                 this.element = $(options.el);
+                this.properties = options.properties;
                 this.EvAg = options.EvAg;
                 this.EvAg.bind('title/update', this.update);
                 this.render(options);
@@ -19,15 +20,18 @@ define(
             events: {
             },
             loadTopics: function(){
+                var self = this;
                 utils.AjaxFactory({
-                    url: null,
+                    url: this.properties.urls.api + "/api/topics",
+                    dataType: 'json',
                     success: function(response){
                         var ul = $('<ul></ul>');
                         $.each(response, function(index, topic){
+                            console.log(topic);
                             var template = _.template(templateTopic, topic);
                             $('<li></li>').html(template).appendTo(ul);
                         });
-                        ul.appendTo(this.titleBody);
+                        ul.appendTo(self.titleBody);
                     }
                 })();
             },
@@ -40,6 +44,7 @@ define(
             update: function(options){
                 this.titleText.text(options.title);
                 this.titleBody.empty();
+                this.loadTopics();
                 this.titleBody.show();
             }
         });

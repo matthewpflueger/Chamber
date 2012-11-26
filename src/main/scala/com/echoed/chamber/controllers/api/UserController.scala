@@ -199,6 +199,18 @@ class UserController extends EchoedController {
         result
     }
 
+    @RequestMapping(value = Array("/topic/{topicId}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def topicFeed(
+            @PathVariable(value = "topicId") topicId: String,
+            @RequestParam(value = "page", required = false) page: String) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+        log.debug("Requesting Topic Feed for Topic {}", topicId)
+        mp(GetTopicStoryFeed(topicId, parse(page))).onSuccess {
+            case GetTopicStoryFeedResponse(_, Right(feed)) => result.set(feed)
+        }
+        result
+    }
 
     @RequestMapping(value = Array("/partner/{partnerId}"), method=Array(RequestMethod.GET))
     @ResponseBody
@@ -265,7 +277,6 @@ class UserController extends EchoedController {
 
         mp(GetCommunities()).onSuccess {
             case GetCommunitiesResponse(_, Right(communities)) =>
-                log.debug("Communities Returned: {}", communities)
                 result.set(communities)
 
         }
@@ -293,4 +304,30 @@ class UserController extends EchoedController {
         true
     }
 
+    @RequestMapping(value = Array("/topics"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def topics = {
+        List(
+            Map("id" -> "01",
+                "title" -> "Show Your DIY")
+        )
+    }
+
+    @RequestMapping(value = Array("/topics/community/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def communityTopics = {
+        List(
+            Map("id" -> "02",
+                "title" -> "What is your name?")
+        )
+    }
+
+    @RequestMapping(value = Array("/topics/partners/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def partnerTopics = {
+        List(
+            Map("id" -> "02",
+                "title" -> "What is your name?")
+        )
+    }
 }

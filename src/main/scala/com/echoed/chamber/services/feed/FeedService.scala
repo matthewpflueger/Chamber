@@ -8,15 +8,16 @@ import com.echoed.chamber.services.echoeduser.StoryEvent
 import scala.collection.mutable.HashMap
 import com.echoed.chamber.services.state._
 import akka.pattern._
+import com.echoed.chamber.services.event.WidgetStoryOpened
+import com.echoed.chamber.services.state.QueryPartnerIdsResponse
+import com.echoed.chamber.services.event.WidgetOpened
+import com.echoed.chamber.domain.views._
 import scala.Left
 import com.echoed.chamber.domain.Community
-import com.echoed.chamber.services.event.WidgetStoryOpened
 import com.echoed.chamber.domain.views.CommunityFeed
 import com.echoed.chamber.domain.views.PublicStoryFeed
 import com.echoed.chamber.domain.public.PartnerPublic
-import com.echoed.chamber.services.state.QueryPartnerIdsResponse
-import com.echoed.chamber.services.state.FindAllStoriesResponse
-import com.echoed.chamber.services.event.WidgetOpened
+import state.FindAllStoriesResponse
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.echoeduser.StoryViewed
 import com.echoed.chamber.domain.views.PartnerStoryFeed
@@ -55,6 +56,7 @@ class FeedService(
     case class EchoedUserPrivateKey(_id: String) extends IndexKey(_id) //, false)
     case class PartnerKey(_id: String) extends IndexKey(_id)
     case class CommunityKey(_id: String) extends IndexKey(_id)
+    case class TopicKey(_id: String) extends IndexKey(_id)
     case class MainTreeKey() extends IndexKey(null)
 
     var lookup = HashMap.empty[IndexKey, TreeMap[(Long, String), StoryPublic]]
@@ -114,6 +116,7 @@ class FeedService(
             removeFromLookup(EchoedUserPrivateKey(s.story.echoedUserId), s)
             removeFromLookup(EchoedUserPublicKey(s.story.echoedUserId), s)
             removeFromLookup(PartnerKey(s.story.partnerId), s)
+            removeFromLookup(TopicKey("01"), s)
             removeFromLookup(CommunityKey(s.story.community), s)
         }
 
@@ -134,6 +137,7 @@ class FeedService(
 
                 if(!storyFull.isEchoedModerated) {
                     addToLookup(MainTreeKey(), storyFull)
+                    addToLookup(TopicKey("01"), storyFull)
                     addToLookup(CommunityKey(storyFull.story.community), storyFull)
 //                    topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
                 }
@@ -182,6 +186,20 @@ class FeedService(
                 case e =>
                     channel ! GetPublicStoryFeedResponse(msg, Left(new FeedException("Cannot get public story feed", e)))
                     log.error("Unexpected error processing {}, {}", msg, e)
+            }
+
+        case msg @ GetTopicStoryFeed(topicId, page) =>
+            val channel = context.sender
+            val start = msg.page * pageSize
+            try {
+                val stories = getStoriesFromLookup(TopicKey(topicId))
+                val nextPage = getNextPage(start, page, stories)
+                val feed = new TopicStoryFeed(null, stories.slice(start, start + pageSize), nextPage)
+                channel ! GetTopicStoryFeedResponse(msg, Right(feed))
+            } catch {
+                case e =>
+                    channel ! GetTopicStoryFeedResponse(msg, Left(new FeedException("Cannot get topic feed", e)))
+                    log.error("Unpexpected Error processing {}, {}", msg, e)
             }
 
         case msg @ GetCategoryStoryFeed(categoryId, page) =>

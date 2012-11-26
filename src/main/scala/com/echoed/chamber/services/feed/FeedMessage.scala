@@ -61,3 +61,7 @@ case class GetCommunitiesResponse(
             message: GetCommunities,
             value: Either[FE, CommunityFeed]) extends FM with MR[CommunityFeed,GetCommunities, FE]
 
+case class GetTopicStoryFeed(topicId: String, page: Int) extends FM
+case class GetTopicStoryFeedResponse(
+            message: GetTopicStoryFeed,
+            value: Either[FE, TopicStoryFeed]) extends FM with MR[TopicStoryFeed, GetTopicStoryFeed, FE]
