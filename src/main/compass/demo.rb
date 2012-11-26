@@ -7,7 +7,7 @@ css_dir = "src/main/webapp/css"
 sass_dir = "src/main/webapp/scss/main"
 images_dir = "src/main/webapp/images"
 javascripts_dir = "src/main/webapp/js"
-additional_import_paths = "src/main/webapp/scss/components"
+add_import_path "src/main/webapp/scss/components"
 
 # You can select your preferred output style here (can be overridden via the command line):
 # output_style = :expanded or :nested or :compact or :compressed
