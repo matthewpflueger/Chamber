@@ -196,7 +196,7 @@ class StoryService(
 
             chapter =
                 if (!chapter.isPublished && publish.getOrElse(false)) {
-                    notifyFollowersOfStoryUpdate(eucc)
+                    notifyFollowersOfStoryUpdate(eucc, !storyState.isPublished && !storyState.partner.isEchoed)
                     chapter.copy(publishedOn = new Date)
                 } else chapter
 
