@@ -6,6 +6,7 @@ case class Topic(
     updatedOn: Long,
     refType: String,
     refId: String,
+    customId: String,
     title: String,
     description: String,
     beginOn: Long,

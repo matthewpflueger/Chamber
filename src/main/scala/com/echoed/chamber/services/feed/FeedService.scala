@@ -13,12 +13,13 @@ import com.echoed.chamber.services.state.QueryPartnerIdsResponse
 import com.echoed.chamber.services.event.WidgetOpened
 import com.echoed.chamber.domain.views._
 import scala.Left
-import com.echoed.chamber.domain.Community
+import com.echoed.chamber.domain.{Topic, Community}
 import com.echoed.chamber.domain.views.CommunityFeed
 import com.echoed.chamber.domain.views.PublicStoryFeed
 import com.echoed.chamber.domain.public.PartnerPublic
+import com.echoed.chamber.domain.public.{TopicPublic, PartnerPublic, StoryPublic}
+import state.FindAllStories
 import state.FindAllStoriesResponse
-import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.echoeduser.StoryViewed
 import com.echoed.chamber.domain.views.PartnerStoryFeed
 import scala.Right
@@ -32,6 +33,15 @@ class FeedService(
         ep: EventProcessorActorSystem) extends EchoedService {
 
     val pageSize = 30
+
+    implicit object TopicOrdering extends Ordering[(String, String)] {
+        def compare(a:(String, String), b:(String, String)) = {
+            if((b._1 compare a._1) != 0)
+                b._1 compare a._1
+            else
+                b._2 compare a._2
+        }
+    }
 
     implicit object StoryOrdering extends Ordering[(Long, String)] {
         def compare(a:(Long, String), b:(Long, String)) = {
@@ -59,12 +69,24 @@ class FeedService(
     case class TopicKey(_id: String) extends IndexKey(_id)
     case class MainTreeKey() extends IndexKey(null)
 
+    var topicLookup = HashMap.empty[IndexKey, TreeMap[(String, String), Topic]]
+
+    private def addToTopicLookup(indexKey: IndexKey, t: Topic){
+        val tree = topicLookup.get(indexKey).getOrElse(new TreeMap[(String, String), Topic]()(TopicOrdering)) + ((t.title, t.id) -> t)
+        topicLookup += (indexKey -> tree)
+    }
+
+    private def removeFromTopicLookup(indexKey: IndexKey, t: Topic){
+        topicLookup.get(indexKey).map {
+            t2 =>
+                val tree = t2 - ((t.title, t.id))
+                topicLookup += (indexKey -> tree)
+        }
+    }
+
     var lookup = HashMap.empty[IndexKey, TreeMap[(Long, String), StoryPublic]]
-
     val storyMap = HashMap.empty[String, StoryPublic]
-
-//    var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
-
+    var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
     var communityTree = new TreeMap[String, Community]()
 
     private def addToLookup(indexKey: IndexKey, s: StoryPublic){

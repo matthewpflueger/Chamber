@@ -27,7 +27,6 @@ define(
                     success: function(response){
                         var ul = $('<ul></ul>');
                         $.each(response, function(index, topic){
-                            console.log(topic);
                             var template = _.template(templateTopic, topic);
                             $('<li></li>').html(template).appendTo(ul);
                         });
