@@ -34,15 +34,6 @@ class FeedService(
 
     val pageSize = 30
 
-    implicit object TopicOrdering extends Ordering[(String, String)] {
-        def compare(a:(String, String), b:(String, String)) = {
-            if((b._1 compare a._1) != 0)
-                b._1 compare a._1
-            else
-                b._2 compare a._2
-        }
-    }
-
     implicit object StoryOrdering extends Ordering[(Long, String)] {
         def compare(a:(Long, String), b:(Long, String)) = {
             if((b._1 compare a._1) != 0)
@@ -68,21 +59,6 @@ class FeedService(
     case class CommunityKey(_id: String) extends IndexKey(_id)
     case class TopicKey(_id: String) extends IndexKey(_id)
     case class MainTreeKey() extends IndexKey(null)
-
-    var topicLookup = HashMap.empty[IndexKey, TreeMap[(String, String), Topic]]
-
-    private def addToTopicLookup(indexKey: IndexKey, t: Topic){
-        val tree = topicLookup.get(indexKey).getOrElse(new TreeMap[(String, String), Topic]()(TopicOrdering)) + ((t.title, t.id) -> t)
-        topicLookup += (indexKey -> tree)
-    }
-
-    private def removeFromTopicLookup(indexKey: IndexKey, t: Topic){
-        topicLookup.get(indexKey).map {
-            t2 =>
-                val tree = t2 - ((t.title, t.id))
-                topicLookup += (indexKey -> tree)
-        }
-    }
 
     var lookup = HashMap.empty[IndexKey, TreeMap[(Long, String), StoryPublic]]
     val storyMap = HashMap.empty[String, StoryPublic]
@@ -124,7 +100,6 @@ class FeedService(
     def updateStory(storyFull: StoryPublic) {
 
         storyMap.get(storyFull.id).map { s =>
-//            topStoryTree -= ((s.comments.length + s.chapterImages.length, s.story.id))
 
             if(s.isPublished && !s.isEchoedModerated && s.story.community != null && s.story.community != ""){
                 communityTree.get(s.story.community).map {
@@ -161,7 +136,6 @@ class FeedService(
                     addToLookup(MainTreeKey(), storyFull)
                     addToLookup(TopicKey("01"), storyFull)
                     addToLookup(CommunityKey(storyFull.story.community), storyFull)
-//                    topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
                 }
 
                 if (!storyFull.isModerated) {
@@ -185,44 +159,24 @@ class FeedService(
 
         case msg @ GetCommunities() =>
             val channel = context.sender
-            try {
-                val communities = communityTree.values.toList
-                channel ! GetCommunitiesResponse(msg, Right(new CommunityFeed(communities)))
-            } catch {
-                case e =>
-                    channel ! GetCommunitiesResponse(msg, Left(new FeedException("Cannot Get Communities", e)))
-                    log.error("Unexpected error processing {}, {}", msg, e)
-            }
+            val communities = communityTree.values.toList
+            channel ! GetCommunitiesResponse(msg, Right(new CommunityFeed(communities)))
 
         case msg @ GetPublicStoryFeed(page: Int) =>
             val channel = context.sender
             val start = msg.page * pageSize
-            try {
-                log.debug("Attempting to retrieve Public Story Feed")
-                val stories = getStoriesFromLookup(MainTreeKey())
-                val nextPage = getNextPage(start, page, stories)
-
-                val feed = PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
-                channel ! GetPublicStoryFeedResponse(msg, Right(feed))
-            } catch {
-                case e =>
-                    channel ! GetPublicStoryFeedResponse(msg, Left(new FeedException("Cannot get public story feed", e)))
-                    log.error("Unexpected error processing {}, {}", msg, e)
-            }
+            val stories = getStoriesFromLookup(MainTreeKey())
+            val nextPage = getNextPage(start, page, stories)
+            val feed = PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
+            channel ! GetPublicStoryFeedResponse(msg, Right(feed))
 
         case msg @ GetTopicStoryFeed(topicId, page) =>
             val channel = context.sender
             val start = msg.page * pageSize
-            try {
-                val stories = getStoriesFromLookup(TopicKey(topicId))
-                val nextPage = getNextPage(start, page, stories)
-                val feed = new TopicStoryFeed(null, stories.slice(start, start + pageSize), nextPage)
-                channel ! GetTopicStoryFeedResponse(msg, Right(feed))
-            } catch {
-                case e =>
-                    channel ! GetTopicStoryFeedResponse(msg, Left(new FeedException("Cannot get topic feed", e)))
-                    log.error("Unpexpected Error processing {}, {}", msg, e)
-            }
+            val stories = getStoriesFromLookup(TopicKey(topicId))
+            val nextPage = getNextPage(start, page, stories)
+            val feed = new TopicStoryFeed(null, stories.slice(start, start + pageSize), nextPage)
+            channel ! GetTopicStoryFeedResponse(msg, Right(feed))
 
         case msg @ GetCategoryStoryFeed(categoryId, page) =>
             val channel = context.sender
@@ -230,19 +184,10 @@ class FeedService(
 
             val catId = categoryId.toLowerCase
 
-            try {
-                log.debug("Attempting to retrieve Stories for Category: {}", catId)
-
-                val stories = getStoriesFromLookup(CommunityKey(categoryId))
-                val nextPage = getNextPage(start, page, stories)
-                val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
-
-                channel ! GetCategoryStoryFeedResponse(msg, Right(feed))
-            } catch {
-                case e =>
-                    channel ! GetCategoryStoryFeedResponse(msg, Left(new FeedException("Cannot get public category feed", e)))
-                    log.error("Unexpected Error processing {}, {}", msg , e)
-            }
+            val stories = getStoriesFromLookup(CommunityKey(categoryId))
+            val nextPage = getNextPage(start, page, stories)
+            val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
+            channel ! GetCategoryStoryFeedResponse(msg, Right(feed))
 
         case msg @ GetUserPrivateStoryFeed(echoedUserId, page) =>
             val start = msg.page * pageSize

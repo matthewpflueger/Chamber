@@ -6,9 +6,11 @@ import com.echoed.chamber.services.echoeduser._
 import org.springframework.web.bind.annotation._
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.feed._
+import com.echoed.chamber.services.topic._
 import scala.util.control.Exception._
 import java.lang.{NumberFormatException => NFE}
 import javax.annotation.Nullable
+import com.echoed.chamber.services.partner.{ReadPartnerTopicsResponse, PartnerClientCredentials, ReadPartnerTopics}
 
 
 @Controller
@@ -307,27 +309,35 @@ class UserController extends EchoedController {
     @RequestMapping(value = Array("/topics"), method = Array(RequestMethod.GET))
     @ResponseBody
     def topics = {
-        List(
-            Map("id" -> "01",
-                "title" -> "Show Your DIY")
-        )
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(GetTopics()).onSuccess {
+            case GetTopicsResponse(_, Right(topics)) => result.set(topics)
+        }
+
+        result
+    }
+
+    @RequestMapping(value = Array("/topics/partner/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def topics(@PathVariable(value = "id") partnerId: String)= {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(ReadPartnerTopics(new PartnerClientCredentials(partnerId))).onSuccess {
+            case ReadPartnerTopicsResponse(_, Right(topics)) => result.set(topics)
+        }
+        result
     }
 
     @RequestMapping(value = Array("/topics/community/{id}"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def communityTopics = {
-        List(
-            Map("id" -> "02",
-                "title" -> "What is your name?")
-        )
+    def communityTopics(@PathVariable(value = "id") communityId: String) = {
+
+        val result = new DeferredResult(ErrorResult.timeout)
+        mp(ReadCommunityTopics(communityId)).onSuccess {
+            case ReadCommunityTopicsResponse(_, Right(topics)) => result.set(topics)
+        }
+        result
     }
 
-    @RequestMapping(value = Array("/topics/partners/{id}"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def partnerTopics = {
-        List(
-            Map("id" -> "02",
-                "title" -> "What is your name?")
-        )
-    }
 }

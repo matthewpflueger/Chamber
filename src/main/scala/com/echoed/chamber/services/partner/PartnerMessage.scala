@@ -78,6 +78,11 @@ case class GetPartnerResponse(
         message: GetPartner,
         value: Either[PE, Partner]) extends PM with MR[Partner, GetPartner, PE]
 
+case class ReadPartnerTopics(credentials: PCC) extends PM with PI
+case class ReadPartnerTopicsResponse(
+        message: ReadPartnerTopics,
+        value: Either[PE, List[Topic]]) extends PM with MR[List[Topic], ReadPartnerTopics, PE]
+
 case class FetchPartner(credentials: PCC) extends PM with PI
 case class FetchPartnerResponse(
         message: FetchPartner,

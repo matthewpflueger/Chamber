@@ -2,7 +2,7 @@ package com.echoed.chamber.services.state.schema
 
 import org.squeryl.Schema
 import com.echoed.chamber.domain
-
+import domain.Topic
 
 
 private[state] object ChamberSchema extends Schema {
@@ -33,6 +33,8 @@ private[state] object ChamberSchema extends Schema {
     val votes = table[domain.Vote]
 
     val followers = table[Follower]
+
+    var topics = table[Topic]
 
     //    val echoClicks = table[EchoClick]
     //    val echoedFriend = table[EchoedFriend]

@@ -22,7 +22,7 @@ define(
             loadTopics: function(){
                 var self = this;
                 utils.AjaxFactory({
-                    url: this.properties.urls.api + "/api/topics",
+                    url: this.properties.urls.api + "/api/topics/" + this.topicEndPoint,
                     dataType: 'json',
                     success: function(response){
                         var ul = $('<ul></ul>');
@@ -43,6 +43,17 @@ define(
             update: function(options){
                 this.titleText.text(options.title);
                 this.titleBody.empty();
+                switch(options.type){
+                    case "partner":
+                        this.topicEndPoint = "partner/" + options.partnerId;
+                        break;
+                    case "community":
+                        this.topicEndPoint = "community/" + options.communityId;
+                        break;
+                    default:
+                        this.topicEndPoint = "";
+                        break;
+                }
                 this.loadTopics();
                 this.titleBody.show();
             }

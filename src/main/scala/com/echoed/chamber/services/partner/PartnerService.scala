@@ -17,6 +17,7 @@ import java.util.{Date, UUID}
 import scala.Left
 import scala.Right
 import scala.Some
+import topic.{RequestPartnerTopicsResponse, RequestPartnerTopics}
 
 
 class PartnerService(
@@ -110,6 +111,12 @@ class PartnerService(
             sender ! FetchPartnerAndPartnerSettingsResponse(
                     msg,
                     Right(new PartnerAndPartnerSettings(partner, partnerSettings)))
+
+        case msg: ReadPartnerTopics =>
+            val channel = sender
+            mp(RequestPartnerTopics(partner.id)).onSuccess{
+                case RequestPartnerTopicsResponse(_, Right(topics)) => channel ! ReadPartnerTopicsResponse(msg, Right(topics))
+            }
 
         case msg @ RequestStory(_) =>
             sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(partner, partnerSettings)))

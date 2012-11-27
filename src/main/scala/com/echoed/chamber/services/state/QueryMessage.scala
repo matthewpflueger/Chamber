@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.state
 
 import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedException, Message}
-import com.echoed.chamber.domain.{EchoedUser, StoryState}
+import com.echoed.chamber.domain.{Topic, EchoedUser, StoryState}
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
@@ -16,6 +16,13 @@ sealed case class QueryException(message: String = "", cause: Throwable = null)
 
 import com.echoed.chamber.services.state.{QueryMessage => QM}
 import com.echoed.chamber.services.state.{QueryException => QE}
+
+
+case class FindAllTopics(page: Int = 0, pageSize: Int = 30) extends QM
+case class FindAllTopicsResponse(
+        message: FindAllTopics,
+        value: Either[QE, List[Topic]])
+        extends QM with MR[List[Topic], FindAllTopics, QE]
 
 
 case class FindAllStories(page: Int = 0, pageSize: Int = 30) extends QM

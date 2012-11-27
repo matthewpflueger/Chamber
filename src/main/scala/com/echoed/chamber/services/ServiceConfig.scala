@@ -17,6 +17,7 @@ import com.echoed.chamber.services.partneruser.{PartnerUserService, PartnerUserM
 import com.echoed.chamber.services.scheduler.SchedulerMessage
 import com.echoed.chamber.services.state.{QueryMessage, QueryService, StateMessage, StateService}
 import com.echoed.chamber.services.twitter.{TwitterMessage, TwitterAccess}
+import com.echoed.chamber.services.topic.{TopicService, TopicMessage}
 import com.echoed.util.mustache.MustacheEngine
 import com.echoed.util.{ApplicationContextRef, Encrypter, BlobStore}
 import java.util.{List => JList, Properties}
@@ -25,6 +26,7 @@ import javax.sql.DataSource
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.mail.javamail.JavaMailSender
 import scala.collection.mutable.LinkedHashMap
+import topic.TopicService
 
 
 @Configuration
@@ -91,6 +93,12 @@ class ServiceConfig {
     def feedService = (ac: ActorContext) => ac.actorOf(Props(new FeedService(
             messageProcessor,
             eventProcessor)), "FeedService")
+
+    @Bean
+    def topicService = (ac: ActorContext) => ac.actorOf(Props(new TopicService(
+            messageProcessor,
+            eventProcessor)), "TopicService")
+
 
     @Bean
     def facebookAccess = (ac: ActorContext) => ac.actorOf(Props(new FacebookAccess(
@@ -199,12 +207,14 @@ class ServiceConfig {
             classOf[EventMessage] -> eventService,
             classOf[EmailMessage] -> emailService,
             classOf[FeedMessage] -> feedService,
+            classOf[TopicMessage] -> topicService,
             classOf[FacebookMessage] -> facebookAccess,
             classOf[TwitterMessage] -> twitterAccess,
             classOf[EchoedUserMessage] -> echoedUserServiceManager,
             classOf[PartnerUserMessage] -> partnerUserServiceManager,
             classOf[AdminUserMessage] -> adminUserServiceManager,
-            classOf[PartnerMessage] -> partnerServiceManager)
+            classOf[PartnerMessage] -> partnerServiceManager
+            )
 
     def messageRouter = actorSystem.actorOf(Props.default.withRouter(new MessageRouter(routeMap)), "Services")
 

@@ -90,7 +90,7 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/partner/" + partnerId, function(jsonUrl, data){
                         self.loadPage("partner", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { title: "Stories from " + data.partner.name });
+                        self.EvAg.trigger('title/update', { type: "partner", partnerId: partnerId, title: "Stories from " + data.partner.name });
                     });
                 }
             },
@@ -154,7 +154,7 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/category/" + communityId, function(jsonUrl, data){
                         self.loadPage("category", {jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { title: "Stories in the " + communityId + " community"});
+                        self.EvAg.trigger('title/update', { type: "community", communityId: communityId, title: "Stories in the " + communityId + " community"});
                     });
                 }
             },

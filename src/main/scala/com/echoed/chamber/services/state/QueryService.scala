@@ -23,6 +23,10 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
 //            sender ! FindAllStoriesResponse(msg, Right(from(stories)(s => select(s)).map(readStory(_)).toList))
             log.error("Querying all stories took %s" format System.currentTimeMillis() - now)
 
+        case msg @ FindAllTopics(page, pageSize) =>
+            val results = from(topics)(t => select(t)).toList
+            sender ! FindAllTopicsResponse(msg, Right(results))
+
         case msg @ QueryStoriesForAdmin(aucc, page, pageSize, moderated) =>
             val ss = from(stories)(s =>
                         select(s)
