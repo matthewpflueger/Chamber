@@ -5,7 +5,7 @@ import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor.ActorRef
-import com.echoed.chamber.services.echoeduser.{Follower, EchoedUserClientCredentials, FollowerNotification}
+import com.echoed.chamber.services.echoeduser.{Follower, EchoedUserClientCredentials}
 import org.springframework.validation.Errors
 
 
@@ -101,7 +101,7 @@ private[services] case class PartnerFollowerNotification(category: String, value
 private[services] case class NotifyPartnerFollowers(
         credentials: PCC,
         echoedUserClientCredentials: EchoedUserClientCredentials,
-        notification: FollowerNotification) extends PM with PI
+        notification: Notification) extends PM with PI
 
 
 case class Locate(partnerId: String) extends PM

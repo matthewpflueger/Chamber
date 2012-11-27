@@ -115,18 +115,12 @@ class PartnerService(
             sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(partner, partnerSettings)))
 
 
-        case msg @ NotifyPartnerFollowers(_, eucc, notification) =>
+        case msg @ NotifyPartnerFollowers(_, eucc, n) =>
+            val notification = n.copy(origin = partner, notificationType = Some("weekly"))
             var sendFollowRequest = true
             followedByUsers.foreach { f =>
                 if (f.echoedUserId == eucc.id) sendFollowRequest = false
-                else mp(RegisterNotification(
-                        EchoedUserClientCredentials(f.echoedUserId),
-                        new Notification(
-                                f.echoedUserId,
-                                partner,
-                                notification.category,
-                                notification.value,
-                                Some("weekly"))))
+                else mp.tell(RegisterNotification(EchoedUserClientCredentials(f.echoedUserId), notification), self)
             }
             if (sendFollowRequest) mp(FollowPartner(eucc, partner.id))
 

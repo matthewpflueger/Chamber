@@ -471,15 +471,9 @@ class EchoedUserService(
 
         case msg @ RemoveFollower(_, eu) => followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
 
-        case NotifyFollowers(_, notification) =>
-            followedByUsers.foreach { f =>
-                mp(RegisterNotification(
-                    EchoedUserClientCredentials(f.echoedUserId),
-                    new Notification(
-                            echoedUser,
-                            notification.category,
-                            notification.value)))
-            }
+        case NotifyFollowers(_, n) =>
+            val notification = n.copy(origin = echoedUser)
+            followedByUsers.map(f => mp.tell(RegisterNotification(EUCC(f.echoedUserId), notification), self))
 
         case RegisterStory(story) =>
             activeStories.put(StoryId(story.id), sender)

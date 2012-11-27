@@ -25,7 +25,7 @@ case class Notification(
         UUID(),
         new Date,
         new Date,
-        echoedUserId,
+        null,
         origin,
         category,
         value,
