@@ -390,8 +390,9 @@ class EchoedUserService(
 
 
         case RegisterNotification(_, n) =>
-            notifications = notifications.push(n)
-            ep(NotificationCreated(n))
+            val notification = n.copy(echoedUserId = echoedUser.id)
+            notifications = notifications.push(notification)
+            ep(NotificationCreated(notification))
             mp(ScheduleOnce(
                     if (n.isWeekly) Week else Hour,
                     EmailNotifications(EchoedUserClientCredentials(echoedUser.id), n.notificationType),
@@ -451,7 +452,6 @@ class EchoedUserService(
             sender ! AddFollowerResponse(msg, Right(echoedUser))
             followedByUsers = Follower(eu) :: followedByUsers
             mp(RegisterNotification(eucc, new Notification(
-                echoedUser.id,
                 eu,
                 "follower",
                 Map(
@@ -471,16 +471,9 @@ class EchoedUserService(
 
         case msg @ RemoveFollower(_, eu) => followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
 
-        case NotifyFollowers(_, notification) =>
-            followedByUsers.foreach { f =>
-                mp(RegisterNotification(
-                    EchoedUserClientCredentials(f.echoedUserId),
-                    new Notification(
-                            f.echoedUserId,
-                            echoedUser,
-                            notification.category,
-                            notification.value)))
-            }
+        case NotifyFollowers(_, n) =>
+            val notification = n.copy(origin = echoedUser)
+            followedByUsers.map(f => mp.tell(RegisterNotification(EUCC(f.echoedUserId), notification), self))
 
         case RegisterStory(story) =>
             activeStories.put(StoryId(story.id), sender)

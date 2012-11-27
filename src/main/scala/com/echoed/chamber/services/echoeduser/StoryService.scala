@@ -1,72 +1,32 @@
 package com.echoed.chamber.services.echoeduser.story
 
 
-import com.echoed.chamber.services._
-import com.echoed.chamber.services.echoeduser._
-import java.util.{Properties, Date}
-import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
-import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
-import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
-import com.echoed.util.DateUtils._
 import com.echoed.chamber.domain._
-import org.apache.commons.codec.digest.DigestUtils
-import com.echoed.util.{ScalaObjectMapper, UUID}
-import scala.Left
-import com.echoed.chamber.services.echoeduser.NewCommentResponse
-import com.echoed.chamber.domain.ChapterInfo
-import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.services._
+import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
+import com.echoed.chamber.services.echoeduser._
+import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.image.{ProcessImageResponse, ProcessImage}
-import com.echoed.chamber.services.echoeduser.CreateStory
-import com.echoed.chamber.services.echoeduser.VoteUpdated
-import com.echoed.chamber.services.echoeduser.ChapterCreated
-import com.echoed.chamber.services.echoeduser.RegisterStory
-import com.echoed.chamber.services.echoeduser.UpdateCommunityResponse
-import com.echoed.chamber.services.partner.RequestStory
-import com.echoed.chamber.services.echoeduser.ModerateStory
-import com.echoed.chamber.services.echoeduser.NewVote
-import com.echoed.chamber.services.echoeduser.CreateStoryResponse
 import com.echoed.chamber.services.partner.NotifyPartnerFollowers
-import com.echoed.chamber.services.echoeduser.UpdateStory
-import com.echoed.chamber.services.echoeduser.InitStoryResponse
-import com.echoed.chamber.services.state.ReadStoryResponse
-import com.echoed.chamber.services.echoeduser.StoryUpdated
-import com.echoed.chamber.services.echoeduser.CreateChapter
-import scala.Some
-import com.echoed.chamber.services.echoeduser.InitStory
-import com.echoed.chamber.domain.Vote
-import com.echoed.chamber.domain.StoryState
-import com.echoed.chamber.services.echoeduser.StoryModerated
-import com.echoed.chamber.services.echoeduser.CreateChapterResponse
-import com.echoed.chamber.services.state.ReadStoryForEchoResponse
-import com.echoed.chamber.services.echoeduser.RequestImageUpload
-import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
-import com.echoed.chamber.services.echoeduser.VoteCreated
 import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.echoeduser.NewComment
-import com.echoed.chamber.services.state.StoryForEchoNotFound
-import com.echoed.chamber.services.echoeduser.UpdateChapter
-import com.echoed.chamber.services.echoeduser.UpdateStoryResponse
-import com.echoed.chamber.services.echoeduser.StoryCreated
-import com.echoed.chamber.services.echoeduser.FollowerNotification
-import com.echoed.chamber.services.echoeduser.NotifyFollowers
-import com.echoed.chamber.services.state.StoryNotFound
-import com.echoed.chamber.domain.Chapter
-import com.echoed.chamber.services.echoeduser.ModerateStoryResponse
-import com.echoed.chamber.services.echoeduser.RequestImageUploadResponse
-import com.echoed.chamber.services.echoeduser.StoryViewed
-import scala.Right
-import com.echoed.chamber.services.echoeduser.RegisterNotification
-import com.echoed.chamber.domain.Notification
-import com.echoed.chamber.services.echoeduser.ChapterUpdated
-import com.echoed.chamber.services.echoeduser.UpdateCommunity
-import com.echoed.chamber.domain.ChapterImage
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import com.echoed.chamber.services.echoeduser.NewVoteResponse
+import com.echoed.chamber.services.partner.RequestStory
 import com.echoed.chamber.services.partner.RequestStoryResponse
-import com.echoed.chamber.services.echoeduser.UpdateChapterResponse
-import com.echoed.chamber.services.state.ReadStoryForEcho
+import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
+import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.chamber.services.state.ReadStory
-import com.echoed.chamber.services.echoeduser.CommentCreated
+import com.echoed.chamber.services.state.ReadStoryForEcho
+import com.echoed.chamber.services.state.ReadStoryForEchoResponse
+import com.echoed.chamber.services.state.ReadStoryResponse
+import com.echoed.chamber.services.state.StoryForEchoNotFound
+import com.echoed.chamber.services.state.StoryNotFound
+import com.echoed.util.DateUtils._
+import com.echoed.util.{ScalaObjectMapper, UUID}
+import java.util.{Properties, Date}
+import org.apache.commons.codec.digest.DigestUtils
+import scala.Left
+import scala.Right
+import scala.Some
+import scala.collection.mutable.{Set => MSet}
 
 
 class StoryService(
@@ -148,7 +108,6 @@ class StoryService(
             if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
             if (value > 0 && !vote.isUpdated && (eucc.id != byEchoedUser.id)) {
                 mp(RegisterNotification(eucc, new Notification(
-                    echoedUser.id,
                     byEchoedUser,
                     "upvoted",
                     Map(
@@ -167,8 +126,7 @@ class StoryService(
 
             val chapter = new Chapter(storyState.asStory, title, text).copy(publishedOn = publishedOn)
 
-            val chapterImages = imageIds.map(i => processImage(i)).map { img =>
-//                mp.tell(ProcessImage(Right(id)), self)
+            val chapterImages = imageIds.map(processImage(_)).map { img =>
                 new ChapterImage(chapter, img.id)
             }
 
@@ -179,7 +137,7 @@ class StoryService(
 
             ep(ChapterCreated(storyState, chapter, chapterImages))
             sender ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
-            if (publishedOn > 0)  notifyFollowersOfStoryUpdate(eucc, notifyPartnerFollowers)
+            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc, notifyPartnerFollowers)
 
 
         case msg @ UpdateCommunity(eucc, storyId, communityId) =>
@@ -196,7 +154,7 @@ class StoryService(
 
             chapter =
                 if (!chapter.isPublished && publish.getOrElse(false)) {
-                    notifyFollowersOfStoryUpdate(eucc)
+                    notifyFollowersOfStoryUpdate(eucc, !storyState.isPublished && !storyState.partner.isEchoed)
                     chapter.copy(publishedOn = new Date)
                 } else chapter
 
@@ -206,12 +164,6 @@ class StoryService(
                     new ChapterImage(chapter, processImage(id).id)
                 }
             }
-//            val chapterImages = imageIds.map { id =>
-//                existingChapterImages.find(_.imageId == id).getOrElse {
-//                    mp.tell(ProcessImage(Right(id)), self)
-//                    new ChapterImage(chapter, id)
-//                }
-//            }
 
             storyState = storyState.copy(
                     chapters = storyState.chapters.map(c => if (c.id == chapter.id) chapter else c),
@@ -236,17 +188,14 @@ class StoryService(
 
             sender ! NewCommentResponse(msg, Right(comment))
 
-            if (echoedUser.id != byEchoedUser.id) {
-                mp(RegisterNotification(eucc, new Notification(
-                    echoedUser.id,
+            notifyStoryFollowers(new Notification(
                     byEchoedUser,
                     "comment",
                     Map(
                         "subject" -> byEchoedUser.name,
                         "action" -> "commented on",
                         "object" -> storyState.title,
-                        "storyId" -> storyState.id))))
-            }
+                        "storyId" -> storyState.id)))
 
 
         case msg @ ModerateStory(_, _, eucc: EUCC, mo) if (eucc.id == echoedUser.id) =>
@@ -265,7 +214,6 @@ class StoryService(
         case msg @ RequestImageUpload(eucc, storyId, callback) =>
             val timestamp = System.currentTimeMillis
             val name = cloudinaryProperties.getProperty("name")
-//            val callback = cloudinaryProperties.getProperty("callback")
             val apiKey = cloudinaryProperties.getProperty("apiKey")
             val secret = cloudinaryProperties.getProperty("secret")
             val publicId = UUID()
@@ -349,10 +297,20 @@ class StoryService(
         sender ! ModerateStoryResponse(msg, Right(storyState.moderationDescription))
     }
 
+
+    private def notifyStoryFollowers(notification: Notification) {
+        //anybody that has commented on a Story implicitly follows the Story...
+        storyState.comments
+            .foldLeft(MSet[String]() += echoedUser.id)((eus: MSet[String], c: Comment) => eus += c.byEchoedUserId)
+            .filterNot(_ == notification.origin.id)
+            .map(id => mp.tell(RegisterNotification(EUCC(id), notification), self))
+    }
+
     private def notifyFollowersOfStoryUpdate(
             eucc: EchoedUserClientCredentials,
             notifyPartnerFollowers: Boolean = false) {
-        val notification = new FollowerNotification(
+        val notification = new Notification(
+                echoedUser,
                 "story updated",
                 Map(
                     "subject" -> echoedUser.name,
@@ -364,5 +322,7 @@ class StoryService(
         mp(NotifyFollowers(eucc, notification))
         if (notifyPartnerFollowers)
             mp(NotifyPartnerFollowers(PartnerClientCredentials(storyState.partner.id), eucc, notification))
+
+        notifyStoryFollowers(notification)
     }
 }

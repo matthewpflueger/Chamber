@@ -133,11 +133,8 @@ object Follower {
     def apply(eu: EchoedUser): Follower = Follower(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)
 }
 
-private[services] case class FollowerNotification(
-        category: String,
-        value: Map[String, String])
 
-private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: FollowerNotification) extends EUM with EUI
+private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: Notification) extends EUM with EUI
 
 case class ListFollowingUsers(credentials: EUCC) extends EUM with EUI
 case class ListFollowingUsersResponse(message: ListFollowingUsers, value: Either[EUE, List[Follower]])

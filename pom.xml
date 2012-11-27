@@ -155,7 +155,7 @@
         <dependency>
             <groupId>org.squeryl</groupId>
             <artifactId>squeryl_${scala.version}</artifactId>
-            <version>0.9.5-3</version>
+            <version>0.9.5-5</version>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
