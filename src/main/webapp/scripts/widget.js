@@ -13,10 +13,11 @@ require(
         'components/input',
         'components/widget/messageHandler',
         'components/widgetCloser',
+        'components/title',
         'routers/widget',
         'easyXDM'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, Fade, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Router){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, Fade, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Router){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -37,6 +38,10 @@ require(
             this.masonry.cols = cols;
             // i.e. this.masonry.columnWidth = ...
             this.masonry.columnWidth = colW;
+            //Title Container Resizing
+            $('#title-container').animate({
+                width: Math.max(cols * colW - 10, 890)
+            });
         };
 
         $.Isotope.prototype._masonryReset = function() {
@@ -93,6 +98,7 @@ require(
             this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
             this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
             this.closer = new WidgetCloser( { el: '#close', EvAg: EventAggregator, properties: properties });
+            this.titleNav = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
             this.router = new Router({ EvAg: EventAggregator, properties: properties });
 
             var iFrameNode = document.createElement('iframe');

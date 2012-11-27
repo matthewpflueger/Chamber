@@ -18,6 +18,12 @@
             id: '{{.}}'
         }
         {{/echoedUserId}}
+        {{#customization.title}}
+            Echoed.title = '{{.}}';
+        {{/customization.title}}
+        {{^customization.title}}
+            Echoed.title = 'Stories By The {{#partner}}{{name}}{{/partner}} Community';
+        {{/customization.title}}
 
     </script>
 
@@ -28,34 +34,26 @@
 <body>
 <div id='echoed-head'>
     <!--Real Stories From Our Customers-->
-    <div id="title">
-        {{#customization.title}}
+    <div class="echoed-share-container">
+        <a class='echoed-share' href='#write/'>
+            {{#customization.shareButton}}
             {{.}}
-        {{/customization.title}}
-        {{^customization.title}}
-            Stories From The {{#partner}}{{name}}{{/partner}} Community
-        {{/customization.title}}
+            {{/customization.shareButton}}
+            {{^customization.shareButton}}
+            Share Your Story
+            {{/customization.shareButton}}
+        </a>
     </div>
     <div id="close">
     </div>
 </div>
-
 <div id="fade">
     <div id="story"></div>
     <div id="field"></div>
 </div>
 <div id="echoed-exhibit-container">
-    <div class="echoed-share-container">
-        <a class='echoed-share' href='#write/'>
-            {{#customization.shareButton}}
-                {{.}}
-            {{/customization.shareButton}}
-            {{^customization.shareButton}}
-                Share Your Story
-            {{/customization.shareButton}}
-        </a>
-    </div>
     <div id="content">
+        <div id="title-container"></div>
         <div id='exhibit'></div>
         <div id="infiniteScroll" style="display:none;">
             Loading <img align="absmiddle" src="{{urls.images}}/bk_loader_circle.gif" />

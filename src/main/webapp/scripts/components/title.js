@@ -43,19 +43,31 @@ define(
             update: function(options){
                 this.titleText.text(options.title);
                 this.titleBody.empty();
+                if(options.imageUrl) {
+                    this.element.css('background-image', 'url("' + options.imageUrl + '")');
+                } else {
+                    this.element.css('background-image','');
+                }
                 switch(options.type){
                     case "partner":
                         this.topicEndPoint = "partner/" + options.partnerId;
+                        this.loadTopics();
+                        this.titleBody.show();
                         break;
                     case "community":
                         this.topicEndPoint = "community/" + options.communityId;
+                        this.loadTopics();
+                        this.titleBody.show();
+                        break;
+                    case "echoed":
+                        this.topicEndPoint = "";
+                        this.loadTopics();
+                        this.titleBody.show();
                         break;
                     default:
-                        this.topicEndPoint = "";
+                        this.titleBody.hide();
                         break;
                 }
-                this.loadTopics();
-                this.titleBody.show();
             }
         });
     }

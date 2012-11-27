@@ -28,6 +28,11 @@ private[state] object StateUtils {
                     .toList
                     .foldLeft(MMap.empty[String, Vote])((map, vote) => map + (vote.echoedUserId -> vote))
 
+        val t = Option(s.topicId).map {
+            tId =>
+                from(topics)(t => where(t.id === tId) select(t)).head
+        }
+
 
         StoryState(
                 s.id,
@@ -47,7 +52,8 @@ private[state] object StateUtils {
                 ps,
                 e.map(_.convertTo(img.get)),
                 m,
-                v)
+                v,
+                t)
     }
 }
 

@@ -16,7 +16,8 @@ case class StoryPublic(
         chapterImages: JList[ChapterImage],
         comments: List[CommentPublic],
         votes: Map[String, Vote],
-        moderation: ModerationDescription) {
+        moderation: ModerationDescription,
+        topic: TopicPublic) {
 
     def this(story: StoryFull) = this(
         story.id,
@@ -26,7 +27,8 @@ case class StoryPublic(
         story.chapterImages,
         story.convertCommentsToPublic,
         story.votes,
-        story.moderation)
+        story.moderation,
+        Option(story.topic).map(new TopicPublic(_)).orNull)
 
     def published = this.copy(chapters = chapters.filter(c => c.publishedOn != 0))
 

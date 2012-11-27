@@ -10,7 +10,49 @@ import com.echoed.chamber.services.topic._
 import scala.util.control.Exception._
 import java.lang.{NumberFormatException => NFE}
 import javax.annotation.Nullable
-import com.echoed.chamber.services.partner.{ReadPartnerTopicsResponse, PartnerClientCredentials, ReadPartnerTopics}
+import com.echoed.chamber.services.partner._
+import com.echoed.chamber.services.feed.GetCommunitiesResponse
+import com.echoed.chamber.services.feed.GetStoryResponse
+import com.echoed.chamber.services.echoeduser.GetFeedResponse
+import com.echoed.chamber.services.echoeduser.FetchNotifications
+import com.echoed.chamber.services.echoeduser.UnFollowUser
+import com.echoed.chamber.services.feed.GetPublicStoryFeed
+import com.echoed.chamber.services.echoeduser.GetUserFeedResponse
+import com.echoed.chamber.services.echoeduser.ReadSettingsResponse
+import com.echoed.chamber.services.topic.GetTopicsResponse
+import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
+import com.echoed.chamber.services.feed.GetCategoryStoryFeedResponse
+import com.echoed.chamber.services.topic.GetTopics
+import com.echoed.chamber.services.feed.GetCategoryStoryFeed
+import com.echoed.chamber.services.topic.ReadCommunityTopicsResponse
+import scala.Right
+import com.echoed.chamber.services.partner.ReadPartnerFeed
+import com.echoed.chamber.services.echoeduser.NewSettingsResponse
+import com.echoed.chamber.services.echoeduser.MarkNotificationsAsReadResponse
+import com.echoed.chamber.services.topic.ReadTopicFeed
+import com.echoed.chamber.services.echoeduser.ListFollowedByUsersResponse
+import com.echoed.chamber.services.feed.GetCommunities
+import com.echoed.chamber.services.feed.GetStory
+import com.echoed.chamber.services.echoeduser.ReadSettings
+import com.echoed.chamber.services.feed.GetPublicStoryFeedResponse
+import com.echoed.chamber.services.echoeduser.GetExhibitResponse
+import com.echoed.chamber.services.echoeduser.FetchNotificationsResponse
+import com.echoed.chamber.services.echoeduser.ListFollowingUsers
+import com.echoed.chamber.services.echoeduser.GetFeed
+import com.echoed.chamber.services.echoeduser.MarkNotificationsAsRead
+import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
+import com.echoed.chamber.services.echoeduser.GetUserFeed
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.echoeduser.NewSettings
+import com.echoed.chamber.services.topic.ReadCommunityTopics
+import com.echoed.chamber.services.echoeduser.VoteStory
+import com.echoed.chamber.services.topic.ReadTopicFeedResponse
+import com.echoed.chamber.services.echoeduser.GetExhibit
+import com.echoed.chamber.services.echoeduser.FollowUser
+import com.echoed.chamber.services.partner.PartnerClientCredentials
+import com.echoed.chamber.services.partner.ReadPartnerTopics
+import com.echoed.chamber.services.partner.ReadPartnerTopicsResponse
+import com.echoed.chamber.services.echoeduser.PublishFacebookAction
 
 
 @Controller
@@ -208,8 +250,8 @@ class UserController extends EchoedController {
             @RequestParam(value = "page", required = false) page: String) = {
         val result = new DeferredResult(ErrorResult.timeout)
         log.debug("Requesting Topic Feed for Topic {}", topicId)
-        mp(GetTopicStoryFeed(topicId, parse(page))).onSuccess {
-            case GetTopicStoryFeedResponse(_, Right(feed)) => result.set(feed)
+        mp(ReadTopicFeed(topicId, parse(page))).onSuccess {
+            case ReadTopicFeedResponse(_, Right(feed)) => result.set(feed)
         }
         result
     }
@@ -225,8 +267,8 @@ class UserController extends EchoedController {
 
         log.debug("Requesting for Partner Feed for Partner {}", partnerId )
 
-        mp(GetPartnerStoryFeed(partnerId, parse(page), origin)).onSuccess {
-            case GetPartnerStoryFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
+        mp(ReadPartnerFeed(new PartnerClientCredentials(partnerId), parse(page), origin)).onSuccess {
+            case ReadPartnerFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
         }
 
         result

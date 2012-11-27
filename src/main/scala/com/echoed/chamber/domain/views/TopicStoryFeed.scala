@@ -9,4 +9,5 @@ case class TopicStoryFeed(
     nextPage: String){
 
     def this(topic: Topic) = this(topic, List[StoryPublic](), null)
+    def this(topic: Topic, feed: PublicStoryFeed) = this(topic, feed.stories, feed.nextPage)
 }

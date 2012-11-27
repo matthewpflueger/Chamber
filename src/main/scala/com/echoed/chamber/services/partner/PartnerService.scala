@@ -13,11 +13,13 @@ import com.echoed.chamber.services.echoeduser.RegisterNotification
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state._
 import com.echoed.util.{DateUtils, Encrypter}
+import feed.{RequestPartnerStoryFeedResponse, RequestPartnerStoryFeed}
 import java.util.{Date, UUID}
 import scala.Left
 import scala.Right
 import scala.Some
 import topic.{RequestPartnerTopicsResponse, RequestPartnerTopics}
+import com.echoed.chamber.domain.views.{PartnerStoryFeed, PartnerFeed}
 
 
 class PartnerService(
@@ -111,6 +113,13 @@ class PartnerService(
             sender ! FetchPartnerAndPartnerSettingsResponse(
                     msg,
                     Right(new PartnerAndPartnerSettings(partner, partnerSettings)))
+
+        case msg @ ReadPartnerFeed(_, page, origin) =>
+            val channel = sender
+            mp(RequestPartnerStoryFeed(partner.id, page, origin)).onSuccess {
+                case RequestPartnerStoryFeedResponse(_, Right(feed)) =>
+                    channel ! ReadPartnerFeedResponse(msg, Right(new PartnerStoryFeed(partner, feed)))
+            }
 
         case msg: ReadPartnerTopics =>
             val channel = sender

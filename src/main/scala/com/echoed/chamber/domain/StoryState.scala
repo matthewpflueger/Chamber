@@ -25,7 +25,8 @@ case class StoryState(
         partnerSettings: PartnerSettings,
         echo: Option[Echo],
         moderations: List[Moderation],
-        votes: Map[String, Vote]) extends DomainObject {
+        votes: Map[String, Vote],
+        topic: Option[Topic]) extends DomainObject {
 
     def this(
             eu: EchoedUser,
@@ -50,7 +51,8 @@ case class StoryState(
         ps,
         e,
         List.empty[Moderation],
-        Map.empty[String, Vote])
+        Map.empty[String, Vote],
+        null)
 
     def isCreated = createdOn > 0
     def create(title: String, productInfo: String, community: String, image: Option[Image]) = {
@@ -84,7 +86,8 @@ case class StoryState(
             numComments,
             upVotes,
             downVotes,
-            community)
+            community,
+            topic.map(_.id).orNull)
 
     def asStoryInfo = StoryInfo(
             echoedUser,
@@ -94,7 +97,7 @@ case class StoryState(
             new StoryCommunities(),
             asStoryFull.orNull)
 
-    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription))
+    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription, topic.orNull))
 
     private def selfModeratedPredicate: Moderation => Boolean = _.moderatedRef == "EchoedUser"
     private def echoedModeratedPredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"

@@ -13,6 +13,7 @@
 @import "ajaxInput";
 @import "infiniteScroll";
 @import "select";
+@import "title";
 
 body, html{
     height: 100%;
@@ -82,7 +83,7 @@ body {
 .echoed-share-container{
     width: 200px;
     text-align: center;
-    margin: auto;
+    margin: 3px auto;
     .echoed-share{
         @include button(16px);
     }

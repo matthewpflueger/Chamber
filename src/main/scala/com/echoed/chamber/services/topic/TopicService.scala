@@ -3,10 +3,12 @@ package com.echoed.chamber.services.topic
 import com.echoed.chamber.services._
 import collection.mutable.HashMap
 import collection.immutable.TreeMap
+import feed.{RequestTopicStoryFeedResponse, RequestTopicStoryFeed}
 import state.FindAllTopics
 import state.FindAllTopicsResponse
 import scala.Right
 import com.echoed.chamber.domain.Topic
+import com.echoed.chamber.domain.views.TopicStoryFeed
 
 class TopicService(
     mp: MessageProcessor,
@@ -86,6 +88,15 @@ class TopicService(
             val topics = getTopicsFromLookup(CommunityKey(communityId))
             channel ! ReadCommunityTopicsResponse(msg, Right(topics))
 
+        case msg @ ReadTopicFeed(topicId, page) =>
+            val channel = context.sender
+            topicMap.get(topicId).map {
+                topic =>
+                    mp(RequestTopicStoryFeed(topicId, page)).onSuccess {
+                        case RequestTopicStoryFeedResponse(_, Right(feed)) =>
+                            channel ! ReadTopicFeedResponse(msg, Right(new TopicStoryFeed(topic, feed)))
+                    }
+            }
     }
 
 }

@@ -23,6 +23,8 @@
             @include fontTextBold(24px, #FFF);
         }
         #title-body{
+            min-height: 124px;
+
             #title-body-title{
                 text-align: center;
                 @include fontTextBold(20px, #FFF);
@@ -30,7 +32,8 @@
                 padding: 5px 0px 10px;
             }
 
-            background-color: rgba(0,0,0, 0.5);
+            background-color: rgba(0,0,0, 0.7);
+
 
             padding: 30px 10px 30px;
             display: none;
@@ -68,7 +71,7 @@
                     text-align: center;
                     display: table-cell;
                     text-decoration: none;
-                    @include fontTextBold(14px, #111);
+                    @include fontTextBold(18px, #333);
                     vertical-align: middle;
                 }
             }

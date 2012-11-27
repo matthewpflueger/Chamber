@@ -65,9 +65,15 @@ class FeedService(
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
     var communityTree = new TreeMap[String, Community]()
 
+    var imageMap = HashMap.empty[IndexKey, String]
+
     private def addToLookup(indexKey: IndexKey, s: StoryPublic){
         val tree =  lookup.get(indexKey).getOrElse(new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)) + ((s.story.updatedOn, s.story.id) -> s)
         lookup += (indexKey -> tree)
+
+        Option(s.story.image).map(_.storyUrl).map {
+            url => imageMap += (indexKey -> url)
+        }
     }
 
     private def removeFromLookup(indexKey: IndexKey, s: StoryPublic){
@@ -78,12 +84,20 @@ class FeedService(
         }
     }
 
-    private def getStoriesFromLookup(indexKey: IndexKey) = {
-        lookup.get(indexKey).map(_.values.map{
+    private def getStoriesFromLookup(indexKey: IndexKey, page: Int) = {
+        val start = page * pageSize
+        val stories =lookup.get(indexKey).map(_.values.map{
             s =>
                 if(indexKey.published) s.published
                 else s
         }).flatten.toList
+        val nextPage = getNextPage(start, page, stories)
+        val image = getImageForKey(indexKey)
+        PublicStoryFeed(image, stories.slice(start, start + pageSize), nextPage)
+    }
+
+    private def getImageForKey(indexKey: IndexKey) = {
+        imageMap.get(indexKey).orNull
     }
 
     private def getStoryIdsFromLookup(indexKey: IndexKey) = {
@@ -113,7 +127,7 @@ class FeedService(
             removeFromLookup(EchoedUserPrivateKey(s.story.echoedUserId), s)
             removeFromLookup(EchoedUserPublicKey(s.story.echoedUserId), s)
             removeFromLookup(PartnerKey(s.story.partnerId), s)
-            removeFromLookup(TopicKey("01"), s)
+            Option(s.story.topicId).map{ tId => removeFromLookup(TopicKey(tId), s) }
             removeFromLookup(CommunityKey(s.story.community), s)
         }
 
@@ -134,7 +148,7 @@ class FeedService(
 
                 if(!storyFull.isEchoedModerated) {
                     addToLookup(MainTreeKey(), storyFull)
-                    addToLookup(TopicKey("01"), storyFull)
+                    Option(storyFull.story.topicId).map ( tId => addToLookup(TopicKey(tId), storyFull))
                     addToLookup(CommunityKey(storyFull.story.community), storyFull)
                 }
 
@@ -164,63 +178,36 @@ class FeedService(
 
         case msg @ GetPublicStoryFeed(page: Int) =>
             val channel = context.sender
-            val start = msg.page * pageSize
-            val stories = getStoriesFromLookup(MainTreeKey())
-            val nextPage = getNextPage(start, page, stories)
-            val feed = PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
+            val feed = getStoriesFromLookup(MainTreeKey(), msg.page)
             channel ! GetPublicStoryFeedResponse(msg, Right(feed))
-
-        case msg @ GetTopicStoryFeed(topicId, page) =>
-            val channel = context.sender
-            val start = msg.page * pageSize
-            val stories = getStoriesFromLookup(TopicKey(topicId))
-            val nextPage = getNextPage(start, page, stories)
-            val feed = new TopicStoryFeed(null, stories.slice(start, start + pageSize), nextPage)
-            channel ! GetTopicStoryFeedResponse(msg, Right(feed))
 
         case msg @ GetCategoryStoryFeed(categoryId, page) =>
             val channel = context.sender
-            val start = msg.page * pageSize
-
             val catId = categoryId.toLowerCase
-
-            val stories = getStoriesFromLookup(CommunityKey(categoryId))
-            val nextPage = getNextPage(start, page, stories)
-            val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
+            val feed = getStoriesFromLookup(CommunityKey(categoryId), msg.page)
             channel ! GetCategoryStoryFeedResponse(msg, Right(feed))
 
         case msg @ GetUserPrivateStoryFeed(echoedUserId, page) =>
             val start = msg.page * pageSize
-            val stories = getStoriesFromLookup(EchoedUserPrivateKey(echoedUserId))
-            val nextPage = getNextPage(start, page, stories)
-            val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
+            val feed = getStoriesFromLookup(EchoedUserPrivateKey(echoedUserId), msg.page)
             sender ! GetUserPrivateStoryFeedResponse(msg, Right(feed))
 
         case msg @ GetUserPublicStoryFeed(echoedUserId, page) =>
             val start = msg.page * pageSize
-
-            val stories = getStoriesFromLookup(EchoedUserPublicKey(echoedUserId))
-            val nextPage = getNextPage(start, page, stories)
-
-            val feed = new PublicStoryFeed(stories.slice(start, start + pageSize), nextPage)
+            val feed = getStoriesFromLookup(EchoedUserPublicKey(echoedUserId), msg.page)
             sender ! GetUserPublicStoryFeedResponse(msg, Right(feed))
 
+        case msg @ RequestTopicStoryFeed(topicId, page) =>
+            val start = msg.page * pageSize
+            val feed = getStoriesFromLookup(TopicKey(topicId), msg.page)
+            sender ! RequestTopicStoryFeedResponse(msg, Right(feed))
 
-        case msg @ GetPartnerStoryFeed(partnerId, page, origin) =>
+        case msg @ RequestPartnerStoryFeed(partnerId, page, origin) =>
             if (origin != "echoed") mp(WidgetOpened(partnerId))
 
-            mp(QueryPartnerByIdOrHandle(msg.partnerId))
-                    .mapTo[QueryPartnerByIdOrHandleResponse]
-                    .map(_.resultOrException)
-                    .map { p =>
-                        val start = msg.page * pageSize
-                        val stories = getStoriesFromLookup(PartnerKey(p.id))
-                        val nextPage = getNextPage(start, page, stories)
-                        GetPartnerStoryFeedResponse(msg,  Right(new PartnerStoryFeed(
-                                new PartnerPublic(p),
-                                stories.slice(start, start + pageSize),
-                                nextPage)))
-                    }.pipeTo(sender)
+            val start = msg.page * pageSize
+            val feed = getStoriesFromLookup(PartnerKey(partnerId), msg.page)
+            sender ! RequestPartnerStoryFeedResponse(msg,  Right(feed))
 
 
         case msg @ GetStory(storyId, origin) =>
