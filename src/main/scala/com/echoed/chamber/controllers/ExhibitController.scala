@@ -22,17 +22,23 @@ class ExhibitController extends EchoedController {
     def exhibit(
             @RequestParam(value="app", required = false) appType: String,
             @Nullable eucc: EchoedUserClientCredentials,
-            @RequestHeader("User-Agent") userAgent: String) = {
+            @RequestHeader("User-Agent") userAgent: String,
+            request: HttpServletRequest) = {
 
-        log.debug("User Agent: {}", userAgent)
+        Option(request.getAttribute("isSecure"))
+            .filter(_ == true)
+            .map(_ => new ModelAndView("redirect:%s" format v.siteUrl))
+            .getOrElse {
+                log.debug("User Agent: {}", userAgent)
 
-        val modelAndView = if(mobileUserAgents.exists(userAgent.contains(_))){
-            new ModelAndView(v.mobileUserView)
-        } else {
-            new ModelAndView(v.closetView)
-        }
+                val modelAndView = if(mobileUserAgents.exists(userAgent.contains(_))){
+                    new ModelAndView(v.mobileUserView)
+                } else {
+                    new ModelAndView(v.closetView)
+                }
 
-        Option(eucc).map(modelAndView.addObject("echoedUser", _)).getOrElse(modelAndView)
+                Option(eucc).map(modelAndView.addObject("echoedUser", _)).getOrElse(modelAndView)
+            }
     }
 
     @RequestMapping(method = Array(RequestMethod.GET), value = Array("/{partnerHandle}"))
