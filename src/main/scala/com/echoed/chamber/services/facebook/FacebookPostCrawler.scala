@@ -1,20 +1,12 @@
 package com.echoed.chamber.services.facebook
 
-import scalaz._
-import Scalaz._
 import com.echoed.chamber.services.EchoedService
-import java.util.{Calendar, Date}
-import com.echoed.chamber.dao.{FacebookCommentDao, FacebookLikeDao, FacebookPostDao}
 import com.echoed.chamber.domain.FacebookPost
 import akka.dispatch.Promise
-import akka.util.duration._
 import akka.actor._
 
 
 class FacebookPostCrawler(
-        facebookPostDao: FacebookPostDao,
-        facebookLikeDao: FacebookLikeDao,
-        facebookCommentDao: FacebookCommentDao,
         facebookAccessCreator: ActorContext => ActorRef,
         interval: Long = 60000,
         postedOnDaysBefore: Int = -8,
@@ -40,25 +32,25 @@ class FacebookPostCrawler(
         if (interval > 0) self ! CrawlNext
     }
 
-    def findFacebookPostToCrawl = {
-        val postedOnStartDate = {
-            val cal = Calendar.getInstance()
-            cal.add(Calendar.DAY_OF_MONTH, postedOnDaysBefore)
-            cal.getTime
-        }
-
-        val postedOnEndDate = {
-            val cal = Calendar.getInstance()
-            cal.add(Calendar.HOUR, postedOnHoursBefore)
-            cal.getTime
-        }
-
-        val crawledOnEndDate = postedOnEndDate
-
-        Option(facebookPostDao.findPostToCrawl(postedOnStartDate, postedOnEndDate, crawledOnEndDate, null)).getOrElse {
-            Option(facebookPostDao.findOldPostToCrawl(postedOnStartDate, postedOnStartDate, null)).orNull
-        }
-    }
+//    def findFacebookPostToCrawl = {
+//        val postedOnStartDate = {
+//            val cal = Calendar.getInstance()
+//            cal.add(Calendar.DAY_OF_MONTH, postedOnDaysBefore)
+//            cal.getTime
+//        }
+//
+//        val postedOnEndDate = {
+//            val cal = Calendar.getInstance()
+//            cal.add(Calendar.HOUR, postedOnHoursBefore)
+//            cal.getTime
+//        }
+//
+//        val crawledOnEndDate = postedOnEndDate
+//
+//        Option(facebookPostDao.findPostToCrawl(postedOnStartDate, postedOnEndDate, crawledOnEndDate, null)).getOrElse {
+//            Option(facebookPostDao.findOldPostToCrawl(postedOnStartDate, postedOnStartDate, null)).orNull
+//        }
+//    }
 
     protected def updateForCrawl(
             msg: GetPostDataResponse,
@@ -68,7 +60,7 @@ class FacebookPostCrawler(
         try {
             log.debug("Updating post {} for crawl status {}, retries {}", facebookPost.id, crawlStatus, retries)
             scheduledMessage.foreach(_.cancel)
-            facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = crawlStatus, crawledOn = new Date, retries = retries))
+//            facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = crawlStatus, crawledOn = new Date, retries = retries))
             f()
         } finally {
             next(msg)
@@ -76,28 +68,28 @@ class FacebookPostCrawler(
     }
 
     def handle = {
-        case CrawlNext =>
-            try {
-                Option(findFacebookPostToCrawl).cata({ facebookPostToCrawl =>
-                    log.debug("Found for crawling {}", facebookPostToCrawl)
-                    facebookAccess ! GetPostData(facebookPostToCrawl)
-                    facebookPostDao.updatePostForCrawl(facebookPostToCrawl.facebookPost.copy(
-                            crawledStatus = "started", crawledOn = new Date))
-                },
-                { log.debug("No posts found for crawling") })
-            } finally {
-                //always make sure we are looking for posts to crawl (less than one interval for testing)
-                if (interval > 0) scheduledMessage =
-                    Option(context.system.scheduler.scheduleOnce(interval milliseconds, context.self, CrawlNext))
-            }
-
-
-        case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Right(facebookPostData)) =>
-            updateForCrawl(msg, facebookPostToCrawl.facebookPost, "crawled", 0) { _ =>
-                facebookPostData.likes.foreach { facebookLikeDao.insertOrUpdate(_) }
-                facebookPostData.comments.foreach { fc => facebookCommentDao.insertOrUpdate(fc.copy(message = fc.message.take(1024))) }
-                log.debug("Received good response for FacebookPost {}", facebookPostData.facebookPost.id)
-            }
+//        case CrawlNext =>
+//            try {
+//                Option(findFacebookPostToCrawl).cata({ facebookPostToCrawl =>
+//                    log.debug("Found for crawling {}", facebookPostToCrawl)
+//                    facebookAccess ! GetPostData(facebookPostToCrawl)
+//                    facebookPostDao.updatePostForCrawl(facebookPostToCrawl.facebookPost.copy(
+//                            crawledStatus = "started", crawledOn = new Date))
+//                },
+//                { log.debug("No posts found for crawling") })
+//            } finally {
+//                //always make sure we are looking for posts to crawl (less than one interval for testing)
+//                if (interval > 0) scheduledMessage =
+//                    Option(context.system.scheduler.scheduleOnce(interval milliseconds, context.self, CrawlNext))
+//            }
+//
+//
+//        case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Right(facebookPostData)) =>
+//            updateForCrawl(msg, facebookPostToCrawl.facebookPost, "crawled", 0) { _ =>
+//                facebookPostData.likes.foreach { facebookLikeDao.insertOrUpdate(_) }
+//                facebookPostData.comments.foreach { fc => facebookCommentDao.insertOrUpdate(fc.copy(message = fc.message.take(1024))) }
+//                log.debug("Received good response for FacebookPost {}", facebookPostData.facebookPost.id)
+//            }
 
         case msg @ GetPostDataResponse(_, Left(GetPostDataOAuthError(facebookPost, _, _, message))) =>
             //don't bother retrying this crawl

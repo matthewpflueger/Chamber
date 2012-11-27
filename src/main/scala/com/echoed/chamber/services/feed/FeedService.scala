@@ -1,30 +1,32 @@
 package com.echoed.chamber.services.feed
 
 import scala.collection.JavaConversions._
-import com.echoed.chamber.dao.views._
 import akka.actor._
-import com.echoed.chamber.dao.partner.PartnerDao
-import com.echoed.chamber.dao.EchoedUserDao
 import com.echoed.chamber.services._
 import collection.immutable.TreeMap
-import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials, StoryViewed, StoryEvent}
+import com.echoed.chamber.services.echoeduser.StoryEvent
 import scala.collection.mutable.HashMap
+import com.echoed.chamber.services.state._
+import akka.pattern._
 import scala.Left
-import com.echoed.chamber.services.state.FindAllStoriesResponse
-import com.echoed.chamber.services.event.WidgetStoryOpened
-import com.echoed.chamber.services.event.WidgetOpened
-import com.echoed.chamber.domain.views.{CommunityFeed, PublicStoryFeed, EchoedUserStoryFeed, PartnerStoryFeed}
-import com.echoed.chamber.domain.public.StoryPublic
-import scala.Right
-import com.echoed.chamber.services.state.FindAllStories
-import com.echoed.chamber.domain.public.PartnerPublic
 import com.echoed.chamber.domain.Community
+import com.echoed.chamber.services.event.WidgetStoryOpened
+import com.echoed.chamber.domain.views.CommunityFeed
+import com.echoed.chamber.domain.views.PublicStoryFeed
+import com.echoed.chamber.domain.public.PartnerPublic
+import com.echoed.chamber.services.state.QueryPartnerIdsResponse
+import com.echoed.chamber.services.state.FindAllStoriesResponse
+import com.echoed.chamber.services.event.WidgetOpened
+import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.services.echoeduser.StoryViewed
+import com.echoed.chamber.domain.views.PartnerStoryFeed
+import scala.Right
+import com.echoed.chamber.services.state.QueryPartnerIds
+import com.echoed.chamber.services.state.FindAllStories
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 
 
 class FeedService(
-        feedDao: FeedDao,
-        partnerDao: PartnerDao,
-        echoedUserDao: EchoedUserDao,
         mp: MessageProcessor,
         ep: EventProcessorActorSystem) extends EchoedService {
 
@@ -59,7 +61,7 @@ class FeedService(
 
     val storyMap = HashMap.empty[String, StoryPublic]
 
-    var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
+//    var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
 
     var communityTree = new TreeMap[String, Community]()
 
@@ -98,7 +100,7 @@ class FeedService(
     def updateStory(storyFull: StoryPublic) {
 
         storyMap.get(storyFull.id).map { s =>
-            topStoryTree -= ((s.comments.length + s.chapterImages.length, s.story.id))
+//            topStoryTree -= ((s.comments.length + s.chapterImages.length, s.story.id))
 
             if(s.isPublished && !s.isEchoedModerated && s.story.community != null && s.story.community != ""){
                 communityTree.get(s.story.community).map {
@@ -133,7 +135,7 @@ class FeedService(
                 if(!storyFull.isEchoedModerated) {
                     addToLookup(MainTreeKey(), storyFull)
                     addToLookup(CommunityKey(storyFull.story.community), storyFull)
-                    topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
+//                    topStoryTree += ((storyFull.comments.length + storyFull.chapterImages.length, storyFull.story.id) -> storyFull)
                 }
 
                 if (!storyFull.isModerated) {
@@ -222,23 +224,19 @@ class FeedService(
         case msg @ GetPartnerStoryFeed(partnerId, page, origin) =>
             if (origin != "echoed") mp(WidgetOpened(partnerId))
 
-            val channel = context.sender
-            try {
-                val start = msg.page * pageSize
-                val partner = partnerDao.findByIdOrHandle(msg.partnerId)
-                log.debug("Looking up stories for Partner Id {}", partner.id)
+            mp(QueryPartnerByIdOrHandle(msg.partnerId))
+                    .mapTo[QueryPartnerByIdOrHandleResponse]
+                    .map(_.resultOrException)
+                    .map { p =>
+                        val start = msg.page * pageSize
+                        val stories = getStoriesFromLookup(PartnerKey(p.id))
+                        val nextPage = getNextPage(start, page, stories)
+                        GetPartnerStoryFeedResponse(msg,  Right(new PartnerStoryFeed(
+                                new PartnerPublic(p),
+                                stories.slice(start, start + pageSize),
+                                nextPage)))
+                    }.pipeTo(sender)
 
-                val stories = getStoriesFromLookup(PartnerKey(partner.id))
-                val nextPage = getNextPage(start, page, stories)
-
-
-            val partnerFeed = new PartnerStoryFeed(new PartnerPublic(partner), stories.slice(start, start + pageSize), nextPage)
-                channel ! GetPartnerStoryFeedResponse(msg, Right(partnerFeed))
-            } catch {
-                case e =>
-                    channel ! GetPartnerStoryFeedResponse(msg, Left(new FeedException("Cannot get partner story feed", e)))
-                    log.error("Unexpected error processing {} , {}", msg, e)
-            }
 
         case msg @ GetStory(storyId, origin) =>
             if (origin != "echoed") mp(WidgetStoryOpened(storyId))
@@ -247,12 +245,14 @@ class FeedService(
             }))
 
         case msg: GetStoryIds =>
-            val channel = context.sender
-            channel ! GetStoryIdsResponse(msg, Right(getStoryIdsFromLookup(MainTreeKey())))
+            sender ! GetStoryIdsResponse(msg, Right(getStoryIdsFromLookup(MainTreeKey())))
 
         case msg: GetPartnerIds =>
-            val channel = context.sender
-            channel ! GetPartnerIdsResponse(msg, Right(feedDao.getPartnerIds))
+            mp(QueryPartnerIds())
+                    .mapTo[QueryPartnerIdsResponse]
+                    .map(_.resultOrException)
+                    .map(r => GetPartnerIdsResponse(msg, Right(r)))
+                    .pipeTo(sender)
     }
 
 }

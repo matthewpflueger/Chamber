@@ -327,7 +327,8 @@ class StoryService(
                     m("width").asInstanceOf[Int],
                     m("height").asInstanceOf[Int],
                     m("cloudName").toString)
-            mp.tell(ProcessImage(Left(image)), self)
+            ep(StoryImageCreated(image))
+            self ! ProcessImageResponse(ProcessImage(Left(image)), Right(image))
             image
         } else {
             mp.tell(ProcessImage(Right(imageString)), self)

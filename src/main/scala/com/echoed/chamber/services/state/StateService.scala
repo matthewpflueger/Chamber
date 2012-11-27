@@ -22,7 +22,8 @@ import com.echoed.chamber.services.scheduler.{ScheduleDeleted, ScheduleCreated}
 import com.echoed.util.TransactionUtils._
 import com.echoed.chamber.services.partneruser.PartnerUserUpdated
 import StateUtils._
-import com.echoed.util.UUID
+import com.echoed.util.{DateUtils, UUID}
+import com.echoed.chamber.services.partner.PartnerServiceState
 
 
 class StateService(
@@ -242,6 +243,26 @@ class StateService(
         case CommentCreated(storyState, c) =>
             comments.insert(c)
             stories.update(storyState.asStory)
+
+        case StoryImageCreated(image) => images.insert(Image(image))
+
+        case msg @ ReadPartner(pcc) =>
+            val activeOn = DateUtils.dateToLong(new Date())
+
+            val p = from(partners)(p => where(p.id === pcc.partnerId or p.handle === pcc.partnerId) select(p)).single
+            val ps = from(partnerSettings)(ps =>
+                    where((ps.partnerId === p.id) and (ps.activeOn lte activeOn))
+                    select(ps)
+                    orderBy(ps.activeOn desc)).page(0,1).toList.head
+            val pu = from(partnerUsers)(pu => where(pu.partnerId === p.id) select(pu)).toList.headOption
+
+            val fbus = (from(followers)(f => where(f.ref === "Partner" and f.refId === p.id) select(f))).toList
+                    .map(f => from(echoedUsers)(eu =>
+                        where(eu.id === f.echoedUserId)
+                        select(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)).single)
+                    .map { case (i, n, s, f, t) => echoeduser.Follower(i, n, s, f, t) }
+
+            sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus)))
     }
 
 }

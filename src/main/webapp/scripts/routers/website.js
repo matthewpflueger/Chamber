@@ -77,7 +77,7 @@ define(
             friends: function() {
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
-                    this.loadPage("friends",  { endPoint: "/me/friends", title: "My Friends"});
+                    this.loadPage("friends",  { endPoint: "/me/following", title: "Storytellers"});
                 }
             },
             user: function(id){

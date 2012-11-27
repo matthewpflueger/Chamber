@@ -78,3 +78,29 @@ case class Image (
 }
 
 
+private[state] object Image {
+
+    def apply(image: domain.Image): Image = Image(
+            image.id,
+            image.updatedOn,
+            image.createdOn,
+            image.url,
+            image.originalUrl,
+            image.originalWidth,
+            image.originalHeight,
+            image.sizedUrl,
+            image.sizedWidth,
+            image.sizedHeight,
+            image.exhibitUrl,
+            image.exhibitWidth,
+            image.exhibitHeight,
+            image.storyUrl,
+            image.storyWidth,
+            image.storyHeight,
+            image.thumbnailUrl,
+            image.thumbnailWidth,
+            image.thumbnailHeight,
+            image.processedOn,
+            image.processedStatus,
+            image.retries)
+}

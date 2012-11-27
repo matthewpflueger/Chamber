@@ -45,3 +45,5 @@ private[services] case class FollowerCreated(echoedUserId: String, follower: Fol
 private[services] case class FollowerDeleted(echoedUserId: String, follower: Follower) extends EUE with DeletedEvent
 
 private[services] case class PartnerFollowerCreated(echoedUserId: String, follower: PartnerFollower) extends EUE with CreatedEvent
+
+private[services] case class StoryImageCreated(image: Image) extends EUE with CreatedEvent

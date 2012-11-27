@@ -127,7 +127,12 @@ case class UnFollowUserResponse(message: UnFollowUser, value: Either[EUE, Boolea
 private[echoeduser] case class RemoveFollower(credentials: EUCC, echoedUser: EchoedUser) extends EUM with EUI
 
 case class PartnerFollower(partnerId: String, name: String, handle: String)
-case class Follower(echoedUserId: String, name: String, screenName: String)
+
+case class Follower(echoedUserId: String, name: String, screenName: String, facebookId: String, twitterId: String)
+object Follower {
+    def apply(eu: EchoedUser): Follower = Follower(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)
+}
+
 private[services] case class FollowerNotification(
         category: String,
         value: Map[String, String])
@@ -327,8 +332,8 @@ case class PublishFacebookAction(credentials: EUCC, action: String,  obj: String
 case class PublishFacebookActionResponse(message: PublishFacebookAction, value: Either[EUE, Boolean])
     extends EUM with MR[Boolean, PublishFacebookAction, EUE]
 
-case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
-case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
+private[echoeduser] case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
+private[echoeduser] case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
     extends EUM with MR[FriendCloset, GetFriendExhibit, EUE]
 
 case class LoginWithPassword(credentials: EUCC) extends EUM with EUI

@@ -10,11 +10,11 @@ object DataCreatorMain {
         ctx.registerShutdownHook
         ctx.refresh
 
-        val dataCreator = ctx.getBean("dataCreator").asInstanceOf[DataCreator]
+//        val dataCreator = ctx.getBean("dataCreator").asInstanceOf[DataCreator]
         //dataCreator.importFacebookTestUsers()
         //dataCreator.linkFacebookTestUsers()
 //        dataCreator.addFacebookTestUsersToApps()
-        dataCreator.removeFacebookTestUsersFromApps()
+//        dataCreator.removeFacebookTestUsersFromApps()
 //        dataCreator.generateDataSet()
 
     }

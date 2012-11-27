@@ -1,19 +1,14 @@
 package com.echoed.chamber.services.echoeduser
 
-import com.echoed.chamber.dao.views.{ClosetDao,FeedDao}
 import scalaz._
 import Scalaz._
 import scala.collection.JavaConversions._
-import java.util.ArrayList
-import com.echoed.chamber.dao._
 import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
 import akka.pattern._
 import akka.util.duration._
 import akka.actor.SupervisorStrategy.Stop
-import com.echoed.chamber.dao.partner.{PartnerDao, PartnerSettingsDao}
-import org.springframework.transaction.support.TransactionTemplate
 import java.util.Date
 import com.echoed.util.{ScalaObjectMapper, Encrypter, UUID, DateUtils}
 import akka.util.Timeout
@@ -24,19 +19,12 @@ import com.google.common.collect.HashMultimap
 import com.echoed.chamber.services.state._
 import com.echoed.chamber.domain.EchoedUser
 import com.echoed.chamber.services.twitter.FetchFollowersResponse
-import com.echoed.chamber.domain.views.EchoViewDetail
 import com.echoed.chamber.domain.TwitterUser
 import scala.Some
 import com.echoed.chamber.domain.InvalidPassword
-import com.echoed.chamber.domain.views.Feed
-import com.echoed.chamber.domain.views.FriendCloset
-import com.echoed.chamber.services.twitter.UpdateStatusResponse
 import com.echoed.chamber.domain.EchoedUserSettings
-import com.echoed.chamber.domain.TwitterStatus
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
-import com.echoed.chamber.domain.EchoedFriend
-import com.echoed.chamber.services.twitter.GetFollowersResponse
 import com.echoed.chamber.domain.FacebookUser
 import com.echoed.chamber.services.state.FacebookUserNotFound
 import akka.actor.Terminated
@@ -45,20 +33,11 @@ import com.echoed.chamber.services.ScatterResponse
 import com.echoed.chamber.services.state.ReadForCredentials
 import scala.Left
 import com.echoed.chamber.services.twitter.FetchFollowers
-import com.echoed.chamber.domain.views.EchoView
-import com.echoed.chamber.domain.views.FriendFeed
 import com.echoed.chamber.services.facebook.FetchFriends
 import com.echoed.chamber.services.state.TwitterUserNotFound
 import akka.actor.OneForOneStrategy
-import com.echoed.chamber.domain.views.StoryFull
-import com.echoed.chamber.services.twitter.UpdateStatus
-import com.echoed.chamber.domain.FacebookPost
-import com.echoed.chamber.services.facebook.Post
-import com.echoed.chamber.services.facebook.PostResponse
 import com.echoed.chamber.services.facebook.PublishAction
-import com.echoed.chamber.domain.views.EchoFull
-import com.echoed.chamber.domain.views.ClosetPersonal
-import com.echoed.chamber.domain.views.Closet
+import com.echoed.chamber.domain.views.{ClosetPersonal, Closet, EchoFull, EchoedUserStoryFeed}
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state.ReadForCredentialsResponse
 import scala.Right
@@ -67,8 +46,7 @@ import com.echoed.chamber.services.Scatter
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
-import feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
-import com.echoed.chamber.domain.views.EchoedUserStoryFeed
+import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
 import com.echoed.chamber.domain.public.EchoedUserPublic
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
@@ -79,19 +57,6 @@ class EchoedUserService(
         ep: EventProcessorActorSystem,
         initMessage: Message,
         storyServiceCreator: (ActorContext, Message, EchoedUser) => ActorRef,
-        echoedUserDao: EchoedUserDao,
-        closetDao: ClosetDao,
-        echoedFriendDao: EchoedFriendDao,
-        feedDao: FeedDao,
-        partnerSettingsDao: PartnerSettingsDao,
-        echoDao: EchoDao,
-        echoMetricsDao: EchoMetricsDao,
-        partnerDao: PartnerDao,
-        facebookFriendDao: FacebookFriendDao,
-        twitterFollowerDao: TwitterFollowerDao,
-        facebookPostDao: FacebookPostDao,
-        twitterStatusDao: TwitterStatusDao,
-        transactionTemplate: TransactionTemplate,
         storyGraphUrl: String,
         echoClickUrl: String,
         encrypter: Encrypter,
@@ -112,16 +77,6 @@ class EchoedUserService(
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1 minute) {
         case _: Throwable ⇒ Stop
-    }
-
-
-    private def createEchoedFriends(echoedUsers: List[EchoedUser]) {
-        log.debug("Creating {} EchoedFriends for EchoedUser {}", echoedUsers.length, echoedUser.id)
-        echoedUsers.foreach { eu =>
-            echoedFriendDao.insertOrUpdate(new EchoedFriend(echoedUser, eu))
-            echoedFriendDao.insertOrUpdate(new EchoedFriend(eu, echoedUser))
-        }
-        log.debug("Saved {} EchoedFriends for {}", echoedUsers.length, echoedUser)
     }
 
 
@@ -165,7 +120,7 @@ class EchoedUserService(
             }.map { fu =>
                 mp.tell(FetchFriends(FacebookAccessToken(fu.accessToken, Some(fu.facebookId)), fu.id), self)
                 //hack to reset our posts to be crawled - really should send a message to FacebookPostCrawler to crawl our posts...
-                facebookPostDao.resetPostsToCrawl(fu.id)
+//                facebookPostDao.resetPostsToCrawl(fu.id)
                 fu
             }
 
@@ -377,25 +332,19 @@ class EchoedUserService(
 
 
         case msg @ FetchFriendsResponse(_, Right(ffs)) =>
-            ffs.foreach(facebookFriendDao.insertOrUpdate(_))
-            log.debug("Fetched {} FacebookFriends for EchoedUser {}", ffs.length, echoedUser.id)
-            val facebookEchoedUsers = ffs
-                .map(ff => Option(echoedUserDao.findByFacebookId(ff.facebookId)))
-                .filter(_.isDefined)
-                .map(_.get)
-            log.debug("Found {} friends via Facebook for EchoedUser {}", facebookEchoedUsers.length, echoedUser.id)
-            createEchoedFriends(facebookEchoedUsers)
+            mp.tell(QueryEchoedUsersByFacebookId(createCredentials(), ffs.map(_.facebookId)), self)
+
+        case QueryEchoedUsersByFacebookIdResponse(_, Right(list)) =>
+            val set = followingUsers.map(_.echoedUserId).toSet
+            list.filterNot(set.contains(_)).foreach(self ! FollowUser(createCredentials(), _))
 
 
         case msg @ FetchFollowersResponse(_, Right(tfs)) =>
-            tfs.foreach(twitterFollowerDao.insertOrUpdate(_))
-            log.debug("Fetched {} TwitterFollowers for EchoedUser {}", tfs.length, echoedUser.id)
-            val twitterEchoedUsers = tfs
-                .map(tf => Option(echoedUserDao.findByTwitterId(tf.twitterId)))
-                .filter(_.isDefined)
-                .map(_.get)
-            log.debug("Found {} friends via Twitter for EchoedUser {}", twitterEchoedUsers.length, echoedUser.id)
-            createEchoedFriends(twitterEchoedUsers)
+            mp.tell(QueryEchoedUsersByTwitterId(createCredentials(), tfs.map(_.twitterId)), self)
+
+        case QueryEchoedUsersByTwitterIdResponse(_, Right(list)) =>
+            val set = followingUsers.map(_.echoedUserId).toSet
+            list.filterNot(set.contains(_)).foreach(self ! FollowUser(createCredentials(), _))
 
 
         case msg: GetEchoedUser =>
@@ -403,240 +352,23 @@ class EchoedUserService(
             channel ! GetEchoedUserResponse(msg, Right(echoedUser))
 
 
-        case msg @ UpdateEchoedUserEmail(eucc, em) =>
-            val channel = context.sender
-            log.debug("Updating Email for EchoedUser {} with {}", echoedUser, em )
-            Option(echoedUserDao.findByEmail(em)).getOrElse(None) match {
-                case None =>
-                    log.debug("Echoed User {} attempting to register existing email {}", echoedUser, em)
-                    echoedUser = echoedUser.copy(email = em)
-                    echoedUserDao.update(echoedUser)
-                    channel ! UpdateEchoedUserEmailResponse(msg, Right(echoedUser))
-                case eu =>
-                    channel ! UpdateEchoedUserEmailResponse(msg, Left(EmailAlreadyExists(em)))
-            }
-
-
         case msg @ PublishFacebookAction(eucc, action, obj, objUrl) =>
             facebookUser.foreach { fu =>
                 mp(PublishAction(FacebookAccessToken(fu.accessToken, Some(fu.facebookId)), action, obj, objUrl))
             }
 
-
         case msg @ Logout(eucc) =>
             self ! PoisonPill
-            log.debug("Logged out Echoed user {}", echoedUser)
-
-
-        case msg @ GetEcho(eucc, echoId) =>
-            Option(echoDao.findByIdAndEchoedUserId(echoId, echoedUser.id)).cata(
-                echo => context.sender ! GetEchoResponse(msg, Right((echo, echoedUser, partnerDao.findById(echo.partnerId)))),
-                context.sender ! GetEchoResponse(msg, Left(EchoNotFound(echoId))))
-
-
-        case msg @ EchoTo(_, echoId, facebookMessage, echoToFacebook, twitterMessage, echoToTwitter) =>
-            val me = self
-            val channel = context.sender
-
-            Option(echoDao.findById(echoId)).cata( ep =>
-                if (ep.isEchoed) channel ! EchoToResponse(msg, Left(DuplicateEcho(ep,"Duplicate Echo")))
-                else {
-                    val partnerSettings = partnerSettingsDao.findById(ep.partnerSettingsId)
-                    var echo = ep.copy(echoedUserId = echoedUser.id, step = ("%s,echoed" format ep.step).takeRight(254))
-                    val echoMetrics = echoMetricsDao
-                            .findById(echo.echoMetricsId)
-                            .copy(echoedUserId = echoedUser.id)
-                            .echoed(partnerSettings)
-                    echoMetricsDao.updateForEcho(echoMetrics)
-                    echo = echo.copy(echoMetricsId = echoMetrics.id)
-                    echoDao.updateForEcho(echo)
-
-                    val requestList = MList[(ActorRef, Message)]()
-
-                    if (echoToFacebook) requestList += ((me, EchoToFacebook(echo, facebookMessage)))
-                    if (echoToTwitter) requestList += ((me, EchoToTwitter(echo, twitterMessage, Option(partnerSettings.hashTag))))
-
-                    val ctx = (channel, new EchoFull(echo, echoedUser, partnerSettings), msg)
-                    context.actorOf(Props(classOf[ScatterGather])) ! Scatter(
-                            requestList.toList,
-                            Some(ctx),
-                            20 seconds)
-                },
-                {
-                    channel ! EchoToResponse(msg, Left(EchoNotFound(echoId)))
-                    log.debug("Did not find Echo {}", echoId)
-                })
-
-
-        case msg @ ScatterResponse(
-                Scatter(_, ctx: Some[(ActorRef, EchoFull, EchoTo)], _, _, _),
-                either) =>
-
-            var (channel: ActorRef, echoFull: EchoFull, echoTo: EchoTo) = ctx.get
-
-            def sendResponse(responses: List[Message]) {
-                log.debug("Scatter response size {}", responses.size)
-                responses.foreach(message => message match {
-                    case EchoToFacebookResponse(_, Right(fp)) =>
-                        echoFull = echoFull.copy(facebookPost = fp)
-                        log.debug("Successfull Facebook echo {}", fp)
-                    case EchoToTwitterResponse(_, Right(ts)) =>
-                        echoFull = echoFull.copy(twitterStatus = ts)
-                        log.debug("Successfull Twitter echo {}", ts)
-                })
-                channel ! EchoToResponse(echoTo, Right(echoFull))
-                log.debug("Sent successful Echo response {}", echoFull)
-            }
-
-            log.debug("Received response from echo scatter:  channel {}", channel)
-            log.debug("Received response from echo scatter {}", msg)
-
-            either.fold(log.error(_, "Received error responses"), sendResponse(_))
-
-
-        case msg @ EchoToFacebook(echo, echoMessage) =>
-            val fu = facebookUser.get
-            val em = echoMessage.getOrElse("Checkout my recent purchase of %s" format echo.productName)
-            log.debug("Creating new FacebookPost with message {} for {}", echo, em)
-            val name = "%s from %s<center></center>" format(echo.productName, echo.brand)
-            val caption = "%s<center></center>%s" format(echo.brand, echo.productName)
-            var fp = new FacebookPost(
-                    name,
-                    em.take(254),
-                    caption,
-                    echo.imageUrl,
-                    null,
-                    fu.id,
-                    echo.echoedUserId,
-                    echo.id)
-            fp = fp.copy(link = "%s/%s" format(echoClickUrl, fp.id))
-            facebookPostDao.insert(fp)
-            echoDao.updateFacebookPostId(echo.copy(facebookPostId = fp.id))
-
-            context.sender ! EchoToFacebookResponse(msg, Right(fp))
-
-            mp(Post(FacebookAccessToken(fu.accessToken, Option(fu.facebookId)), fp)).onSuccess {
-                case PostResponse(_, Right(fp)) => facebookPostDao.updatePostedOn(fp.copy(postedOn = new Date))
-            }
-
-
-        case msg @ EchoToTwitter(echo, echoMessage, hashTag) =>
-            val tu = twitterUser.get
-            var em = echoMessage.getOrElse("Checkout my recent purchase of %s" format echo.productName)
-            em = hashTag.map(t => if (!em.contains(t)) "%s %s" format (em.take(115 - (t.size + 1)), t) else em).get
-            em = "%s %s/" format(em.take(115), echoClickUrl)
-            var twitterStatus = new TwitterStatus(
-                echo.id,
-                echo.echoedUserId,
-                em)
-            em = em + twitterStatus.id
-            twitterStatus = twitterStatus.copy(message = em)
-            twitterStatusDao.insert(twitterStatus)
-            echoDao.updateTwitterStatusId(echo.copy(twitterStatusId = twitterStatus.id))
-
-            context.sender ! EchoToTwitterResponse(msg, Right(twitterStatus))
-
-            mp(UpdateStatus(tu.accessToken, tu.accessTokenSecret, twitterStatus)).onSuccess {
-                case UpdateStatusResponse(_, Right(ts)) => twitterStatusDao.updatePostedOn(ts.copy(postedOn = new Date))
-            }
-
-
-        case msg @ GetFriendExhibit(echoedFriendUserId, page) =>
-            val channel = context.sender
-
-            try {
-                val echoedFriend = echoedFriendDao.findFriendByEchoedUserId(echoedUser.id, echoedFriendUserId)
-                val limit = 30
-                val start = msg.page * limit
-
-                val closet = Option(closetDao.findByEchoedUserId(echoedFriend.toEchoedUserId, start, limit))
-                                .getOrElse(Closet(echoedFriend.toEchoedUserId, echoedUserDao.findById(echoedFriend.toEchoedUserId), null, null, 0))
-                if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
-                    channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet.copy(echoes = new ArrayList[EchoView]))))
-                } else {
-                    channel ! GetFriendExhibitResponse(msg, Right(new FriendCloset(closet)))
-                }
-            } catch {
-                case e =>
-                    channel ! GetFriendExhibitResponse(msg, Left(EchoedUserException("Cannot get friend exhibit", e)))
-                    log.error("Unexpected error processing {}, {}", msg, e)
-            }
-
-
-        case msg: GetFeed =>
-            val channel = context.sender
-
-            try {
-                log.debug("Attempting to retrieve Feed for EchoedUser {}", echoedUser.id)
-                val limit = 30
-                val start = msg.page * limit
-                val feed = Option(feedDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(Feed(echoedUser.id, echoedUser, null, null))
-                if (feed.echoes == null || (feed.echoes.size == 1 && feed.echoes.head.echoId == null)) {
-                    channel ! GetFeedResponse(msg, Right(feed.copy(echoes = new ArrayList[EchoViewDetail])))
-                } else {
-                    channel ! GetFeedResponse(msg, Right(feed))
-                }
-            } catch {
-                case e =>
-                    channel ! GetFeedResponse(msg, Left(new EchoedUserException("Cannot get feed", e)))
-                    log.error("Unexpected error when fetching feed for EchoedUser {}, {}", echoedUser.id, e)
-            }
 
 
         case msg: GetExhibit =>
-            val channel = context.sender
-
-            try {
-                log.debug("Fetching exhibit for EchoedUser {}", echoedUser.id)
-                val credit = closetDao.totalCreditByEchoedUserId(echoedUser.id)
-
-                val limit = 30;
-                val start = msg.page * limit
-
-                val closet = Option(closetDao.findByEchoedUserId(echoedUser.id, start, limit)).getOrElse(new Closet(echoedUser.id, echoedUser))
-                mp(GetUserPrivateStoryFeed(echoedUser.id, msg.page)).onSuccess({
-                    case GetUserPrivateStoryFeedResponse(_ , Right(storyFeed)) =>
-                        if (closet.echoes == null || (closet.echoes.size == 1 && closet.echoes.head.echoId == null)) {
-                            log.debug("Echoed user {} has zero echoes", echoedUser.id)
-                            channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(
-                                totalCredit = credit, stories = storyFeed.stories, echoes = new ArrayList[EchoView]))))
-                        } else {
-                            log.debug("Echoed user {} has {} echoes", echoedUser.id, closet.echoes.size)
-                            channel ! GetExhibitResponse(msg, Right(new ClosetPersonal(closet.copy(totalCredit = credit, stories = storyFeed.stories))))
-                        }
-                        log.debug("Fetched exhibit with total credit {} for EchoedUser {}", credit, echoedUser.id)
-                })
-                (new ArrayList[StoryFull])
-            } catch {
-                case e =>
-                    channel ! GetExhibitResponse(msg, Left(new EchoedUserException("Cannot get exhibit", e)))
-                    log.error("Unexpected error when fetching exhibit for EchoedUser {}, {}", echoedUser.id, e)
-            }
-
-
-        case msg: GetEchoedFriends =>
-            val channel = context.sender
-
-            try {
-                log.debug("Loading EchoedFriends from database for EchoedUser {}", echoedUser.id)
-                val echoedFriends = asScalaBuffer(echoedFriendDao.findByEchoedUserId(echoedUser.id)).toList
-                channel ! GetEchoedFriendsResponse(msg, Right(new FriendFeed(echoedFriends)))
-                log.debug("Found {} EchoedFriends in database for EchoedUser {}", echoedFriends.length, echoedUser.id)
-            } catch {
-                case e =>
-                    channel ! GetEchoedFriendsResponse(msg, Left(EchoedUserException("Cannot get friends", e)))
-                    log.error("Unexpected error fetching friends for EchoedUser {}, {}", echoedUser.id, e)
-            }
-
-
-        case GetFollowersResponse(_, Right(twitterFollowers)) =>
-            log.debug("Fetched {} TwitterFollowers for EchoedUser {}", twitterFollowers.length, echoedUser.id)
-            val twitterEchoedUsers = twitterFollowers
-                .map(tf => Option(echoedUserDao.findByTwitterId(tf.twitterId)))
-                .filter(_.isDefined)
-                .map(_.get)
-            log.debug("Found {} friends via Twitter for EchoedUser {}", twitterEchoedUsers.length, echoedUser.id)
-            createEchoedFriends(twitterEchoedUsers)
+            mp(GetUserPrivateStoryFeed(echoedUser.id, msg.page))
+                    .mapTo[GetUserPrivateStoryFeedResponse]
+                    .map(_.resultOrException)
+                    .map { r =>
+                        val closet = new Closet(echoedUser.id, echoedUser).copy(stories = r.stories)
+                        GetExhibitResponse(msg, Right(new ClosetPersonal(closet)))
+                    }.pipeTo(sender)
 
 
         case msg: FetchNotifications =>
@@ -712,12 +444,12 @@ class EchoedUserService(
             mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser), self)
 
         case AddFollowerResponse(_, Right(eu)) if (!followingUsers.exists(_.echoedUserId == eu.id)) =>
-            followingUsers = Follower(eu.id, eu.name, eu.screenName) :: followingUsers
+            followingUsers = Follower(eu) :: followingUsers
             ep(FollowerCreated(echoedUser.id, followingUsers.head))
 
         case msg @ AddFollower(eucc, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! AddFollowerResponse(msg, Right(echoedUser))
-            followedByUsers = Follower(eu.id, eu.name, eu.screenName) :: followedByUsers
+            followedByUsers = Follower(eu) :: followedByUsers
             mp(RegisterNotification(eucc, new Notification(
                 echoedUser.id,
                 eu,

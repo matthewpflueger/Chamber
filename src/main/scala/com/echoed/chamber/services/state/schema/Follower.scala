@@ -16,7 +16,7 @@ private[state] case class Follower(
 
     def this() = this("", 0L, 0L, "", "", "")
 
-    def convertTo(eu: EchoedUser) = echoeduser.Follower(eu.id, eu.name, eu.screenName)
+    def convertTo(eu: EchoedUser) = echoeduser.Follower(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)
 
     def convertToPartnerFollower(p: Partner) = echoeduser.PartnerFollower(p.id, p.name, p.handle)
 }
