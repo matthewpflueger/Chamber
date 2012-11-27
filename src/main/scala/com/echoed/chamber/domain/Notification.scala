@@ -18,7 +18,6 @@ case class Notification(
         notificationType: Option[String] = None) extends DomainObject {
 
     def this(
-            echoedUserId: String,
             origin: Identifiable,
             category: String,
             value: Map[String, String],

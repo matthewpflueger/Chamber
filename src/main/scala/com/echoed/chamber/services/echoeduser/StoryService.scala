@@ -148,7 +148,6 @@ class StoryService(
             if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
             if (value > 0 && !vote.isUpdated && (eucc.id != byEchoedUser.id)) {
                 mp(RegisterNotification(eucc, new Notification(
-                    echoedUser.id,
                     byEchoedUser,
                     "upvoted",
                     Map(
@@ -238,7 +237,6 @@ class StoryService(
 
             if (echoedUser.id != byEchoedUser.id) {
                 mp(RegisterNotification(eucc, new Notification(
-                    echoedUser.id,
                     byEchoedUser,
                     "comment",
                     Map(

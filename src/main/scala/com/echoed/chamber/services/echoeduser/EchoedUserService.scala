@@ -390,8 +390,9 @@ class EchoedUserService(
 
 
         case RegisterNotification(_, n) =>
-            notifications = notifications.push(n)
-            ep(NotificationCreated(n))
+            val notification = n.copy(echoedUserId = echoedUser.id)
+            notifications = notifications.push(notification)
+            ep(NotificationCreated(notification))
             mp(ScheduleOnce(
                     if (n.isWeekly) Week else Hour,
                     EmailNotifications(EchoedUserClientCredentials(echoedUser.id), n.notificationType),
@@ -451,7 +452,6 @@ class EchoedUserService(
             sender ! AddFollowerResponse(msg, Right(echoedUser))
             followedByUsers = Follower(eu) :: followedByUsers
             mp(RegisterNotification(eucc, new Notification(
-                echoedUser.id,
                 eu,
                 "follower",
                 Map(
@@ -476,7 +476,6 @@ class EchoedUserService(
                 mp(RegisterNotification(
                     EchoedUserClientCredentials(f.echoedUserId),
                     new Notification(
-                            f.echoedUserId,
                             echoedUser,
                             notification.category,
                             notification.value)))
