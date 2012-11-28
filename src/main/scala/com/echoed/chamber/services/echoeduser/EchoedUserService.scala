@@ -479,9 +479,10 @@ class EchoedUserService(
             activeStories.put(StoryId(story.id), sender)
             Option(story.echoId).map(e => activeStories.put(EchoId(e), sender))
 
-        case msg @ InitStory(_, Some(storyId), _, _) => forwardToStory(msg, StoryId(storyId))
-        case msg @ InitStory(_, _, Some(echoId), _) => forwardToStory(msg, EchoId(echoId))
-        case msg @ InitStory(_, _, _, partnerId) => createStoryService(msg).forward(msg)
+        case msg @ InitStory(_, Some(storyId), _, _, _) => forwardToStory(msg, StoryId(storyId))
+        case msg @ InitStory(_, _, Some(echoId), _, _) => forwardToStory(msg, EchoId(echoId))
+        case msg @ InitStory(_, _, _, partnerId, _) => createStoryService(msg).forward(msg)
+
 
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
             mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value))

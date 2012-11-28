@@ -29,6 +29,11 @@ case class ReadCommunityTopicsResponse(
             message: ReadCommunityTopics,
             value: Either[TE, List[Topic]]) extends TM with MR [List[Topic], ReadCommunityTopics, TE]
 
+private[services] case class RequestTopic(topicId: String) extends TM
+private[services] case class RequestTopicResponse(
+            message: RequestTopic,
+            value: Either[TE, Topic]) extends TM with MR[Topic, RequestTopic, TE]
+
 private[services] case class RequestPartnerTopics(partnerId: String) extends TM
 private[services] case class RequestPartnerTopicsResponse(
             message: RequestPartnerTopics,

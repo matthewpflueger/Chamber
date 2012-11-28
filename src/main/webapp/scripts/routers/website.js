@@ -60,10 +60,11 @@ define(
                 })();
             },
             loadPage: function(page, options){
+                this.EvAg.trigger('fade/hide');
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
                 this.EvAg.trigger("story/hide");
-                this.EvAg.trigger('fade/hide');
+
                 _gaq.push(['_trackPageview', this.page]);
             },
             cList: function(){
@@ -120,7 +121,7 @@ define(
                 var self = this;
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
-                    this.requestFeed("/me/friends", function(jsonUrl, data){
+                    this.requestFeed("/me/following", function(jsonUrl, data){
                         self.loadPage("friends", { jsonUrl: jsonUrl, data: data});
                         self.EvAg.trigger("title/update", { title: "My Friends"});
                     });

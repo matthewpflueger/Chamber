@@ -83,6 +83,10 @@ class TopicService(
             val topics = getTopicsFromLookup(PartnerKey(partnerId))
             channel ! RequestPartnerTopicsResponse(msg, Right(topics))
 
+        case msg @ RequestTopic(topicId) =>
+            val channel = context.sender
+            topicMap.get(topicId).map { t => channel ! RequestTopicResponse(msg, Right(t)) }
+
         case msg @ ReadCommunityTopics(communityId) =>
             val channel = context.sender
             val topics = getTopicsFromLookup(CommunityKey(communityId))

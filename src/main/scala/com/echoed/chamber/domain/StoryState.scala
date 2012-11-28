@@ -33,7 +33,8 @@ case class StoryState(
             p: Partner,
             ps: PartnerSettings,
             e: Option[Echo] = None,
-            img: Option[Image] = None) = this(
+            img: Option[Image] = None,
+            topic: Option[Topic] = None) = this(
         UUID(),
         0L,
         0L,
@@ -52,7 +53,7 @@ case class StoryState(
         e,
         List.empty[Moderation],
         Map.empty[String, Vote],
-        null)
+        topic)
 
     def isCreated = createdOn > 0
     def create(title: String, productInfo: String, community: String, image: Option[Image]) = {

@@ -366,11 +366,12 @@
             loadStoryInputTemplate: function(option){
                 var self = this;
                 var template = _.template(templateStoryCoverInput);
+                if(self.data.storyFull.topic) $('#field-title').text(self.data.storyFull.topic.title);
+
                 self.cover.fadeOut(function(){
                     $(this).html(template);
                     $('#story-input-photo').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
                     $('#submit-type').val("POST");
-
                     var defaultCommunity = self.data.partner.category;
                     if(self.data.storyFull){
                         if(self.data.storyFull.story.community) defaultCommunity = self.data.storyFull.story.community;

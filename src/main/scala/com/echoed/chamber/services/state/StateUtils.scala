@@ -1,13 +1,13 @@
 package com.echoed.chamber.services.state
 
-import com.echoed.chamber.domain.{StoryState, Story, Vote}
+import com.echoed.chamber.domain.{Topic, StoryState, Story, Vote}
 import org.squeryl.PrimitiveTypeMode._
 import com.echoed.chamber.services.state.schema.ChamberSchema._
 import collection.mutable.{Map => MMap}
 
 private[state] object StateUtils {
 
-    def readStory(s: Story, echo: Option[schema.Echo] = None) = {
+    def readStory(s: Story, echo: Option[schema.Echo] = None, topic: Option[Topic] = None) = {
         val c = from(chapters)(c => where(c.storyId === s.id) select(c)).toList
         val ci = from(chapterImages)(ci => where(ci.storyId === s.id) select(ci)).map { ci =>
             images.lookup(ci.imageId).map(img => ci.copy(image = img.convertTo))
@@ -31,7 +31,7 @@ private[state] object StateUtils {
         val t = Option(s.topicId).map {
             tId =>
                 from(topics)(t => where(t.id === tId) select(t)).head
-        }
+        }.orElse(topic)
 
 
         StoryState(

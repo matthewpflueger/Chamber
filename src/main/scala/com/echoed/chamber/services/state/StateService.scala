@@ -203,6 +203,26 @@ class StateService(
         case msg @ ReadStory(id) =>
             stories.lookup(id).map(readStory(_)).foreach(s => sender ! ReadStoryResponse(msg, Right(s)))
 
+        case msg @ ReadStoryForTopic(topicId, echoedUserId) =>
+            from(topics)(t => where(t.id === topicId) select(t)).headOption.map{
+                t =>
+                    val activeOn = DateUtils.dateToLong(new Date())
+                    val eu = echoedUsers.lookup(echoedUserId).get
+                    val pId = t.refType match {
+                        case "partner" => t.refId
+                        case _ => "Echoed"
+                    }
+                    val p = from(partners)(p =>
+                        where(p.id === pId or p.handle === pId)
+                        select(p)).toList.head
+                    val ps = from(partnerSettings)(ps =>
+                        where((ps.partnerId === p.id) and (ps.activeOn lte activeOn))
+                            select(ps)
+                            orderBy(ps.activeOn desc)).page(0,1).toList.head
+
+                    sender ! ReadStoryForTopicResponse(msg, Right(new StoryState(eu, p, ps, none, None, Option(t))))
+            }
+
         case msg @ ReadStoryForEcho(echoId, echoedUserId) =>
             from(echoes)(e => where(e.id === echoId and e.echoedUserId === echoedUserId) select(e)).headOption.map { e =>
                 from(stories)(s => where(s.echoId === e.id) select(s)).map { s =>

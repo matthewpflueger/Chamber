@@ -27,13 +27,14 @@ class StoryController extends EchoedController {
             @RequestParam(value = "storyId", required = false) storyId: String,
             @RequestParam(value = "echoId", required = false) echoId: String,
             @RequestParam(value = "partnerId", required = false) partnerId: String,
+            @RequestParam(value = "topicId", required = false) topicId: String,
             eucc: EchoedUserClientCredentials) = {
 
         log.debug("Initializing story for {}", eucc.id)
 
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(InitStory(eucc, Option(storyId), Option(echoId), Option(partnerId))).onSuccess {
+        mp(InitStory(eucc, Option(storyId), Option(echoId), Option(partnerId), Option(topicId))).onSuccess {
             case InitStoryResponse(_, Right(storyInfo)) =>
                 log.debug("Successfully initialized story for {}", eucc)
                 result.set(storyInfo)
@@ -53,6 +54,7 @@ class StoryController extends EchoedController {
             @RequestParam(value = "productInfo", required = false) productInfo: String,
             @RequestParam(value = "community", required = false) community: String,
             @RequestParam(value = "echoId", required = false) echoId: String,
+            @RequestParam(value = "topicId", required = false) topicId: String,
             eucc: EchoedUserClientCredentials) = {
 
         log.debug("Making story {} for {}", title, eucc)
@@ -67,7 +69,8 @@ class StoryController extends EchoedController {
                 Option(partnerId),
                 Option(productInfo),
                 Option(community),
-                Option(echoId))).onSuccess {
+                Option(echoId),
+                Option(topicId))).onSuccess {
             case CreateStoryResponse(_, Right(story)) =>
                 log.debug("Successfully made story {} for {}", title, eucc)
                 result.set(story)
