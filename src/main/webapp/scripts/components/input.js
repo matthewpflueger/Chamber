@@ -181,7 +181,7 @@
                 var story = self.data.storyFull.story;
                 var template = _.template(templateStoryCover, story);
                 self.cover.html(template);
-
+                console.log("Cover!");
                 if (story.image !== null) {
                     utils.scaleByHeight(story.image, 50)
                             .addClass("story-summary-photo")
@@ -372,7 +372,7 @@
                     $(this).html(template);
                     $('#story-input-photo').attr("src", self.properties.urls.images + "/bk_img_upload_ph.png");
                     $('#submit-type').val("POST");
-                    var defaultCommunity = self.data.partner.category;
+                    var defaultCommunity = self.data.storyFull.story.community;
                     if(self.data.storyFull){
                         if(self.data.storyFull.story.community) defaultCommunity = self.data.storyFull.story.community;
                     }
@@ -385,7 +385,8 @@
                         edit: false
                     };
 
-                    if(self.data.partner.name !== "Echoed") selectOptions.locked = true;
+                    console.log(self.data);
+                    if(self.data.partner.name !== "Echoed" || self.data.storyFull.topic) selectOptions.locked = true;
                     self.communitySelect = new Select(selectOptions);
 
                     if(option.type === "Edit"){

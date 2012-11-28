@@ -30,6 +30,7 @@ define(
                             var template = _.template(templateTopic, topic);
                             $('<li></li>').html(template).appendTo(ul);
                         });
+                        self.titleBody.append($('<div id="title-body-title">Suggested Topics</div>'));
                         ul.appendTo(self.titleBody);
                     }
                 })();

@@ -82,7 +82,7 @@ class StoryService(
 
     def init = {
         case ReadStoryResponse(_, Left(StoryNotFound(_, _))) if (initMessage.isInstanceOf[CreateStory]) =>
-            requestStory(initMessage.asInstanceOf[CreateStory].partnerId)
+             requestStory(initMessage.asInstanceOf[CreateStory].partnerId)
         case RequestStoryResponse(_, Right(RequestStoryResponseEnvelope(p, ps))) if (initMessage.isInstanceOf[CreateStory]) =>
             initStory(new StoryState(echoedUser, p, ps).copy(id = initMessage.asInstanceOf[CreateStory].storyId))
 

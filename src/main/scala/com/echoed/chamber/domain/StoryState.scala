@@ -34,14 +34,15 @@ case class StoryState(
             ps: PartnerSettings,
             e: Option[Echo] = None,
             img: Option[Image] = None,
-            topic: Option[Topic] = None) = this(
+            topic: Option[Topic] = None,
+            community: Option[String] = None) = this(
         UUID(),
         0L,
         0L,
         null,
         null,
         0,
-        p.category,
+        community.getOrElse(p.category),
         eu,
         img.map(_.id).orNull,
         img,

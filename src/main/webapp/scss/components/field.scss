@@ -163,6 +163,10 @@
     @include button;
 }
 
+.field-question-label{
+    @include fontTextBold(14px);
+}
+
 
 .story-detail-row{
     display: table;

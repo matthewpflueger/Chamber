@@ -209,7 +209,7 @@ class StateService(
                     val activeOn = DateUtils.dateToLong(new Date())
                     val eu = echoedUsers.lookup(echoedUserId).get
                     val pId = t.refType match {
-                        case "partner" => t.refId
+                        case "Partner" => t.refId
                         case _ => "Echoed"
                     }
                     val p = from(partners)(p =>
@@ -220,7 +220,13 @@ class StateService(
                             select(ps)
                             orderBy(ps.activeOn desc)).page(0,1).toList.head
 
-                    sender ! ReadStoryForTopicResponse(msg, Right(new StoryState(eu, p, ps, none, None, Option(t))))
+                    val community = t.refType match{
+                        case "partner" => Option(p.category)
+                        case "community" => Option(t.refId)
+                        case _ => None
+                    }
+
+                    sender ! ReadStoryForTopicResponse(msg, Right(new StoryState(eu, p, ps, none, None, Option(t), community)))
             }
 
         case msg @ ReadStoryForEcho(echoId, echoedUserId) =>
