@@ -36,7 +36,9 @@ class StateService(
                     where(n.echoedUserId === eu.id)
                     select(n)
                     orderBy(n.createdOn asc))).toList)
-            .map(_.map(_.convertTo(eu.get)))
+//            .map(_.map(_.convertTo(eu.get)))
+            .map(_.map(n => try { n.convertTo(eu.get) } catch { case e => log.error(e, "%s" format n); new com.echoed.chamber.domain.Notification() }))
+            .filter(_.id != "")
             .map(Stack[domain.Notification]().pushAll(_))
             .getOrElse(Stack[domain.Notification]())
 
