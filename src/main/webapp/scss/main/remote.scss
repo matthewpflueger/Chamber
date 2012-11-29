@@ -74,6 +74,13 @@ $optionSize: 36px;
     width: $loaderSize;
 }
 
+#echoed-preview-iframe{
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 5px;
+    height: 45px;
+    width: 200px;
+}
+
 #echoed-icon{
     background-image: image-url("logo-inset.png");
     width: 37px;

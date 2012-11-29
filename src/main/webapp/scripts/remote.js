@@ -75,12 +75,7 @@ require(
             remote: EchoedSettings.urls.api + "/widget/iframe/preview?pid=" + parameters['pid'],
             container: "echoed-preview",
             props:{
-                style: {
-                    "background-color" : "rgba(0, 0, 0, 0.8)",
-                    "border-radius" : "5px",
-                    "height" : "45px",
-                    "width" : "200px"
-                }
+                id: 'echoed-preview-iframe'
             },
             onReady: function(){
                 utils.AjaxFactory({
