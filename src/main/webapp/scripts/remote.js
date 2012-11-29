@@ -99,21 +99,25 @@ require(
                             }
                             i++;
                         }
+                        $('#echoed-options').append($('<a></a>').attr("href","#echoed_write").append($('<span id="echoed-add"></span>')));
+                        $('#echoed-add').live("mouseenter", function(){
+                            self.xdmPreview.postMessage(JSON.stringify({ type: "text", data: "Add Your Story" }));
+                        });
                         $('.echoed-story').live("mouseenter",function(){
                             var index = $(this).attr("index");
                             var msg = { type: "story", data: self.stories[index] };
                             self.xdmPreview.postMessage(JSON.stringify(msg));
                         });
                         $('.echoed-story').live("mouseleave",function(){
-                            self.preview.fadeOut();
+                            self.preview.hide();
                         });
                     }
                 })();
                 self.xdmPreview.postMessage(JSON.stringify({ type: "text", data: "Click Here to Share Your DIYs"}));
-                window.setTimeout(function(){self.preview.fadeOut();}, 2000);
             },
             onMessage: function(message, origin){
-                self.preview.slideDown();
+                self.preview.show();
+                window.setTimeout(function(){self.preview.hide();}, 2000);
             }
         });
 
