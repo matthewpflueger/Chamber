@@ -3,14 +3,7 @@
 <html>
 <head>
     <title></title>
-    <style>
-        #content{
-            margin: 5px;
-        }
-        #content-text{
-            color: #FFF;
-        }
-    </style>
+    <link rel="stylesheet" href="{{urls.css}}/widget.preview.css"/>
     <script>
         {{>partial_requirejs}}
         {{>partial_urls}}
@@ -24,11 +17,12 @@
     {{$jsHead}}
     {{#scriptTag}}widget.preview.js{{/scriptTag}}
     {{/jsHead}}
+
 </head>
 <body style="overflow:hidden; margin: 0px; padding: 0px;">
 <div id="content">
     <img height="35px" width="35px" id="content-image"/>
-    <div style="display:inline-block;vertical-align: top" id="content-text"></div>
+    <div id="content-text"></div>
 </div>
 </body>
 </html>

@@ -32,19 +32,16 @@ require(
 
         if(window.addEventListener) window.addEventListener('message', echoedMessageHandler, false);
         else window.attachEvent('onmessage', echoedMessageHandler);
+        window.onhashchange = showEchoedOverlay;
 
         var parameters = gup(scriptUrl);
         var hash = window.location.hash;
         var body = $('body');
         body.append($('<link rel="stylesheet" type="text/css"/>').attr("href", EchoedSettings.urls.css + "/remote.css"));
-        var loader = $('<div id="echoed-loader"></div>').addClass('ech-topleft').appendTo(body);
-        var preview = $('<div id="echoed-preview"></div>').appendTo(body).css({
-            position: "fixed",
-            left: "0px",
-            top: "45px"
-        });
-        self.remote = new Remote({ el: "#echoed-loader" });
+        var loader = $('<div id="echoed-loader"></div>').appendTo(body).addClass('ech-top-left').addClass("ech-hor");
+        self.preview = $('<div id="echoed-preview"></div>').appendTo(loader).css("display", "none");
 
+        self.remote = new Remote({ el: "#echoed-loader" });
 
         self.xdmOverlay = new easyXDM.Socket({
             remote: EchoedSettings.urls.api +  "/widget/iframe/?pid=" + parameters['pid'],
@@ -59,15 +56,15 @@ require(
                     "height": "100%",
                     "width": "100%",
                     "position":"fixed",
-                    "overflow-y":"scroll",
                     "display": "none"
-
                 }
             },
             onReady: function(){
                 self.overlay = $('#echoed-overlay').css({ "z-index" : "999999999"});
-                $('#echoed-opener,.echoed-opener, #echoed-loader').live('click', function(){
-                    self.overlay.fadeIn();
+                $('#echoed-opener,.echoed-opener, #ech-icon-container').live('click', function(){
+                    self.overlay.fadeIn(function(){
+                        $('html').css({"overflow-y": "hidden"});
+                    });
                     self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
                 });
                 showEchoedOverlay();
@@ -82,7 +79,7 @@ require(
                     "background-color" : "rgba(0, 0, 0, 0.8)",
                     "border-radius" : "5px",
                     "height" : "45px",
-                    "width" : "250px"
+                    "width" : "200px"
                 }
             },
             onReady: function(){
@@ -92,21 +89,31 @@ require(
                     success: function(response){
                         self.stories = response.stories;
                         self.storyIndex = 0;
-                        $.each(self.stories, function(index, story){
-                            if(index <= 3) if(story.story.image) $('#echoed-options').append($('<img />').attr("src",story.story.image.preferredUrl));
+                        var i = 0, counter = 0;
+                        while(i < self.stories.length && counter < 4){
+                            var story = self.stories[i];
+                            if(story.story.image) {
+                                var link = $('<a></a>').attr("href", "#echoed_story/" + story.id).append($('<img />').attr("src",story.story.image.preferredUrl)).attr('index', i).addClass("echoed-story");
+                                $('#echoed-options').append(link);
+                                counter++;
+                            }
+                            i++;
+                        }
+                        $('.echoed-story').live("mouseenter",function(){
+                            var index = $(this).attr("index");
+                            var msg = { type: "story", data: self.stories[index] };
+                            self.xdmPreview.postMessage(JSON.stringify(msg));
                         });
-                        window.setInterval(function(){
-                            if(self.storyIndex >= self.stories.length) self.storyIndex = 0;
-                            preview.fadeOut(function(){
-                                self.xdmPreview.postMessage(JSON.stringify(self.stories[self.storyIndex]));
-                                self.storyIndex++;
-                            });
-                        }, 6000);
+                        $('.echoed-story').live("mouseleave",function(){
+                            self.preview.fadeOut();
+                        });
                     }
                 })();
+                self.xdmPreview.postMessage(JSON.stringify({ type: "text", data: "Click Here to Share Your DIYs"}));
+                window.setTimeout(function(){self.preview.fadeOut();}, 2000);
             },
             onMessage: function(message, origin){
-                preview.fadeIn();
+                self.preview.slideDown();
             }
         });
 
@@ -118,7 +125,9 @@ require(
                 if(index > 0){
                     window.location.hash = hash.substr(0, index);
                 }
-                self.overlay.fadeOut();
+                self.overlay.fadeOut(function(){
+                    $('html').css({"overflow-y": "auto"});
+                });
             }
         }
 
@@ -134,14 +143,12 @@ require(
                     "type": "hash",
                     "data": iFrameHash
                 });
-                self.overlay.fadeIn();
+                self.overlay.fadeIn(function(){
+                    $('html').css({"overflow-y": "hidden"});
+                });
                 self.xdmOverlay.postMessage(msg);
 
             }
         }
-
-
-
-
     }
 );

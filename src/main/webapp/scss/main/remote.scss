@@ -1,37 +1,73 @@
+$loaderSize: 45px;
+$iconSize: 37px;
+$optionSize: 36px;
+
+@mixin position($vert, $side, $offset, $oppV, $oppS){
+    &.ech-#{$vert}-#{$side}{
+        #ech-icon-container{
+            #{$side}: 0px;
+            #{$vert}: 0px;
+            border-#{$oppV}-#{$oppS}-radius: 5px;
+        }
+        #echoed-options{
+            border-#{$oppV}-#{$oppS}-radius: 5px;
+        }
+        &.ech-ver{
+            #echoed-options{
+                #{$vert}: $offset;
+                #{$side}: 0px;
+                border-#{$vert}: 1px solid #FFF;
+                padding: 2px 0px;
+                width: 36px;
+            }
+
+            #echoed-preview{
+                position:fixed;
+                #{$vert}: 5px;
+                #{$side}: $offset + 5;
+            }
+        }
+        &.ech-hor{
+            #echoed-options{
+                #{$side}: $offset;
+                #{$vert}: 0px;
+                border-#{$side}: 1px solid #FFF;
+                padding: 0px 2px;
+                height: 36px;
+            }
+            #echoed-preview{
+                position:fixed;
+                #{$side}: 5px;
+                #{$vert}: $offset + 5;
+            }
+        }
+    }
+
+}
+
 #echoed-loader{
+    z-index: 10000000;
+    @include position(top, left, $loaderSize, bottom, right);
+    @include position(top, right, $loaderSize, bottom, left);
+    @include position(bottom, left, $loaderSize, top, right);
+    @include position(bottom, right, $loaderSize, top, left);
+}
+
+
+#ech-icon-container{
+    z-index: 2;
     position: fixed;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4C4C4C',endColorstr='#363636');
     background: -webkit-gradient(linear,left top,left bottom,from(#4C4C4C),to(#363636));
     background: -moz-linear-gradient(top,#4C4C4C,#363636);
     border-color: rgba(80, 80, 80, 0.8);
-    z-index: 10000000;
-    -o-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-    -moz-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-    -webkit-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    -o-box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    -moz-box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    -webkit-box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     cursor: pointer;
-    height: 45px;
-    width: 45px;
-    &.ech-topleft{
-        left: 0px;
-        top: 0px;
-        border-radius: 0px 0px 5px 0px;
-    }
-    &.ech-topright{
-        top: 0px;
-        right: 0px;
-        border-radius: 0px 0px 0px 5px;
-    }
-    &.ech-botleft{
-        bottom: 0px;
-        left: 0px;
-        border-radius: 5px 0px 0px 0px;
-    }
-    &.ech-botright{
-        bottom: 0px;
-        right: 0px;
-        border-radius: 0px 5px 0px 0px;
-    }
+    height: $loaderSize;
+    width: $loaderSize;
 }
 
 #echoed-icon{
@@ -44,29 +80,30 @@
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    &:hover{
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 }
-.echoed-options{
-    position: fixed;
-    left: 0px;
-    border-top: 1px solid #FFF;
-    top: 45px;
-    width: 36px;
-    padding: 2px;
-    box-shadow: -1px 0px rgba(120, 120, 120, 0.5);
-    list-style: none;
-    border-radius: 0px 0px 5px 0px;
-    color: #FFF;
+
+#echoed-options{
+    z-index: 1;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4C4C4C',endColorstr='#363636');
     background: -webkit-gradient(linear,left top,left bottom,from(#4C4C4C),to(#363636));
     background: -moz-linear-gradient(top,#4C4C4C,#363636);
+    color: #FFF;
+    position: fixed;
+
     img{
-        display: block;
         margin: 2px 2px;
         height: 28px;
         width: 28px;
         border: 1px solid #CCC;
+        cursor:pointer;
+        &:hover{
+            border-color: #FFF;
+        }
     }
-    &:hover{
-        background-color: rgba(255, 255, 255, 0.1);
-    }
+
+
+
 }

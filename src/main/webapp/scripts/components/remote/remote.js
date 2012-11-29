@@ -14,7 +14,8 @@ define(
                 this.render();
             },
             render: function(){
-                this.element.html('<div id="echoed-icon"></div><div id="echoed-options-container"><div id="echoed-options" class="echoed-options"></div></div>');
+                this.element.append($('<div id="ech-icon-container"><div id="echoed-icon"></div></div>'));
+                this.element.append($('<div id="echoed-options" class="echoed-options"></div>'));
             }
         });
     });
