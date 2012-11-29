@@ -1,0 +1,72 @@
+#echoed-loader{
+    position: fixed;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4C4C4C',endColorstr='#363636');
+    background: -webkit-gradient(linear,left top,left bottom,from(#4C4C4C),to(#363636));
+    background: -moz-linear-gradient(top,#4C4C4C,#363636);
+    border-color: rgba(80, 80, 80, 0.8);
+    z-index: 10000000;
+    -o-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    -moz-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    -webkit-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    cursor: pointer;
+    height: 45px;
+    width: 45px;
+    &.ech-topleft{
+        left: 0px;
+        top: 0px;
+        border-radius: 0px 0px 5px 0px;
+    }
+    &.ech-topright{
+        top: 0px;
+        right: 0px;
+        border-radius: 0px 0px 0px 5px;
+    }
+    &.ech-botleft{
+        bottom: 0px;
+        left: 0px;
+        border-radius: 5px 0px 0px 0px;
+    }
+    &.ech-botright{
+        bottom: 0px;
+        right: 0px;
+        border-radius: 0px 5px 0px 0px;
+    }
+}
+
+#echoed-icon{
+    background-image: image-url("logo-inset.png");
+    width: 37px;
+    height: 37px;
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.echoed-options{
+    position: fixed;
+    left: 0px;
+    border-top: 1px solid #FFF;
+    top: 45px;
+    width: 36px;
+    padding: 2px;
+    box-shadow: -1px 0px rgba(120, 120, 120, 0.5);
+    list-style: none;
+    border-radius: 0px 0px 5px 0px;
+    color: #FFF;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4C4C4C',endColorstr='#363636');
+    background: -webkit-gradient(linear,left top,left bottom,from(#4C4C4C),to(#363636));
+    background: -moz-linear-gradient(top,#4C4C4C,#363636);
+    img{
+        display: block;
+        margin: 2px 2px;
+        height: 28px;
+        width: 28px;
+        border: 1px solid #CCC;
+    }
+    &:hover{
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}

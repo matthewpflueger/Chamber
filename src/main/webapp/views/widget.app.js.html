@@ -36,11 +36,10 @@
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#DEV}}
     es.src = "{{https.js}}/libs/require/require-2.1.1.js";
-    es.setAttribute('data-main',"{{https.js}}/loader.js?pid={{partnerId}}");
+    es.setAttribute('data-main',"{{https.js}}/remote.js?pid={{partnerId}}");
     {{/DEV}}
     {{^DEV}}
-    es.src = "{{https.js}}/loader.js?pid={{partnerId}}"
+    es.src = "{{https.js}}/remote.js?pid={{partnerId}}"
     {{/DEV}}
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
-
 })();
