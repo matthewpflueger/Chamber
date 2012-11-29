@@ -390,7 +390,7 @@ class EchoedUserService(
 
 
         case RegisterNotification(_, n) =>
-            val notification = n.copy(echoedUserId = echoedUser.id)
+            val notification = n.copy(id = UUID(), echoedUserId = echoedUser.id)
             notifications = notifications.push(notification)
             ep(NotificationCreated(notification))
             mp(ScheduleOnce(

@@ -17,6 +17,8 @@ case class Notification(
         readOn: Option[Long] = None,
         notificationType: Option[String] = None) extends DomainObject {
 
+    def this() = this("", 0L, 0L, "", null, "", null, Some(0L), Some(0L), None)
+
     def this(
             origin: Identifiable,
             category: String,
