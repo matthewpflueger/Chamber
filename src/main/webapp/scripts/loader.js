@@ -77,8 +77,7 @@ require(
                     "border-top": "1px solid #acacac",
                     "box-shadow": "0px -3px 5px rgba(34,25,25,0.2)",
                     "z-index" : "1000000"
-                })
-
+                });
 
 
                 var XDM1 = new easyXDM.Socket({
@@ -112,18 +111,20 @@ require(
                 if( EchoedSettings.opener === undefined && $('#echoed-opener').length === 0) open = $('<div></div>').attr("id","echoed-opener").append($('<img />').attr("src", EchoedSettings.urls.images +  "/bk_opener_dark_left.png").css({"display":"block"})).appendTo(body);
                 else open = $('#echoed-opener');
                 open.find('img').css({"display": "block"});
-                open.css({
-                    "top": "175px",
-                    "position": "fixed",
-                    "cursor": "pointer",
-                    "box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
-                    "-moz-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
-                    "-webkit-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)"
-                });
-
-                if(EchoedSettings.openerSide === 'right') open.css({ "right" : "0px" });
-                else open.css({ "left": "0px" });
-
+                if( EchoedSettings.hideOpener === true ){
+                    open.css({ "display": "none"});
+                } else {
+                    open.css({
+                        "top": "175px",
+                        "position": "fixed",
+                        "cursor": "pointer",
+                        "box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
+                        "-moz-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)",
+                        "-webkit-box-shadow": "1px 1px 2px rgba(34,25,25,0.4)"
+                    });
+                    if(EchoedSettings.openerSide === 'right') open.css({ "right" : "0px" });
+                    else open.css({ "left": "0px" });
+                }
             }
 
 
