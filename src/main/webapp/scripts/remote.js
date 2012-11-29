@@ -63,7 +63,7 @@ require(
                 self.overlay = $('#echoed-overlay').css({ "z-index" : "999999999"});
                 $('#echoed-opener,.echoed-opener, #ech-icon-container').live('click', function(){
                     self.overlay.fadeIn(function(){
-                        $('html').css({"overflow-y": "hidden"});
+                        $('html').css({"overflow": "hidden"});
                     });
                     self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
                 });
@@ -126,7 +126,7 @@ require(
                     window.location.hash = hash.substr(0, index);
                 }
                 self.overlay.fadeOut(function(){
-                    $('html').css({"overflow-y": "auto"});
+                    $('html').css({"overflow": "auto"});
                 });
             }
         }
@@ -144,7 +144,7 @@ require(
                     "data": iFrameHash
                 });
                 self.overlay.fadeIn(function(){
-                    $('html').css({"overflow-y": "hidden"});
+                    $('html').css({"overflow": "hidden"});
                 });
                 self.xdmOverlay.postMessage(msg);
 
