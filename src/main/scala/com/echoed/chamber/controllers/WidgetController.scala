@@ -58,7 +58,16 @@ class WidgetController extends EchoedController {
         }
 
         result
+    }
 
+    @RequestMapping(value = Array("/iframe/preview"), method = Array(RequestMethod.GET))
+    def iframePreview(
+            pcc: PartnerClientCredentials,
+            @Nullable eucc: EchoedUserClientCredentials) = {
+
+        //val result = new DeferredResult(new ModelAndView(v.errorView))
+        val modelAndView = new ModelAndView(v.widgetAppIFramePreviewView)
+        modelAndView
     }
 
     @RequestMapping(

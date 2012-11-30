@@ -1,0 +1,20 @@
+@import "base";
+
+#content{
+}
+
+#content-image{
+    float: left;
+    display: block;
+    margin: 5px;
+}
+
+#content-text{
+    color: #FFF;
+    line-height: 45px;
+    @include fontTextBold(13px, #FFF);
+    padding: 0px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

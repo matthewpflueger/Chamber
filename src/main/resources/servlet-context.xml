@@ -212,6 +212,7 @@
         <property name="widgetAppJsView" value="widget.app.js"/>
         <property name="widgetAppIFrameView" value="widget.iframe.app" />
         <property name="widgetAppIFrameGalleryView" value="widget.iframe.gallery" />
+        <property name="widgetAppIFramePreviewView" value="widget.iframe.preview" />
 
         <property name="redirectView" value="redirectView"/>
 
