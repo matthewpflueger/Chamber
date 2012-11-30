@@ -53,8 +53,8 @@ require(
                 success: function(response){
                     container.width(0);
                     $.each(response.stories, function(index, storyFull){
-                        if(storyFull.story.image || storyFull.chapters[0].image){
-                            var image = storyFull.story.image ? storyFull.story.image : storyFull.chapters[0].image;
+                        if(storyFull.story.image || storyFull.chapterImages.length > 0){
+                            var image = storyFull.story.image ? storyFull.story.image : storyFull.chapterImages[0].image;
                             var gic = $('<div></div>').addClass('gallery-image-container').attr("id", storyFull.id);
                             utils.fill(image, 75, 55).appendTo(gic);
 //                            $('<img />').attr('src', image.preferredUrl).css(utils.getMinImageSizing(image, 75, 55)).appendTo(gic);
