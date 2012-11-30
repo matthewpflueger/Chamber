@@ -32,17 +32,17 @@
             EchoedSettings.loaderType = "{{.}}";
         {{/loaderType}}
         {{^loaderType}}
-            EchoedSettings.loaderType = "loader";
+            EchoedSettings.loaderType = "loader.js";
         {{/loaderType}}
     {{/customization}}
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#DEV}}
     es.src = "{{https.js}}/libs/require/require-2.1.1.js";
-    es.setAttribute('data-main',"{{https.js}}/" + EchoedSettings.loaderType + ".js?pid={{partnerId}}");
+    es.setAttribute('data-main',"{{https.js}}/" + EchoedSettings.loaderType + "?pid={{partnerId}}");
     {{/DEV}}
     {{^DEV}}
-    es.src = "{{https.js}}/" + EchoedSettings.loaderType + ".js?pid={{partnerId}}"
+    es.src = "{{https.js}}/" + EchoedSettings.loaderType + "?pid={{partnerId}}"
     {{/DEV}}
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
 })();
