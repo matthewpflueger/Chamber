@@ -29,7 +29,7 @@
             EchoedSettings.hideOpener = true;
         {{/hideOpener}}
         {{#loaderType}}
-            EchoedSettings.loaderType = "{{.}}";
+            EchoedSettings.loaderType = "{{version}}{{.}}";
         {{/loaderType}}
         {{^loaderType}}
             EchoedSettings.loaderType = "loader.js";
