@@ -56,7 +56,8 @@ class CookieManager {
         val cookie = makeCookie(
                 echoedUserCookieName,
                 Option(eucc).map(c => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(c))),
-                Option(request))
+                Option(request),
+                Option(persistentAge))
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }
