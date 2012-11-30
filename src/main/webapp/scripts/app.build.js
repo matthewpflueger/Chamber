@@ -58,9 +58,12 @@
             include: ['requireLib']
         },
         {
+            name: "widget.preview",
+            include: ['requireLib']
+        },
+        {
             name: "widget.gallery",
             include: ['requireLib']
-
         }
     ]
 })
