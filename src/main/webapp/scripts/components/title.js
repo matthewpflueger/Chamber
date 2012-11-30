@@ -25,6 +25,11 @@ define(
                     url: this.properties.urls.api + "/api/topics/" + this.topicEndPoint,
                     dataType: 'json',
                     success: function(response){
+                        if (response.length == 0) {
+                            self.titleBody.hide();
+                            return;
+                        }
+                        
                         var ul = $('<ul></ul>');
                         $.each(response, function(index, topic){
                             var template = _.template(templateTopic, topic);
@@ -32,6 +37,7 @@ define(
                         });
                         self.titleBody.append($('<div id="title-body-title">Suggested Topics</div>'));
                         ul.appendTo(self.titleBody);
+                        self.titleBody.show();
                     }
                 })();
             },
@@ -44,8 +50,8 @@ define(
             update: function(options){
                 this.titleText.text(options.title);
                 this.titleBody.empty();
-                if(options.imageUrl) {
-                    this.element.css('background-image', 'url("' + options.imageUrl + '")');
+                if(options.image) {
+                    this.element.css('background-image', 'url("' + utils.scaleByWidth(options.image, 260).attr('src') + '")');
                 } else {
                     this.element.css('background-image','');
                 }
@@ -53,17 +59,15 @@ define(
                     case "partner":
                         this.topicEndPoint = "partner/" + options.partnerId;
                         this.loadTopics();
-                        this.titleBody.show();
                         break;
                     case "community":
                         this.topicEndPoint = "community/" + options.communityId;
                         this.loadTopics();
-                        this.titleBody.show();
                         break;
                     case "echoed":
                         this.topicEndPoint = "";
                         this.loadTopics();
-                        this.titleBody.show();
+
                         break;
                     default:
                         this.titleBody.hide();

@@ -14,10 +14,10 @@ import com.echoed.chamber.services.topic.{TopicMessage => TM}
 import com.echoed.chamber.services.topic.{TopicException => TE}
 
 
-case class GetTopics() extends TM
-case class GetTopicsResponse(
-            message: GetTopics,
-            value: Either[TE, List[Topic]]) extends TM with MR [List[Topic], GetTopics, TE]
+case class ReadTopics() extends TM
+case class ReadTopicsResponse(
+            message: ReadTopics,
+            value: Either[TE, List[Topic]]) extends TM with MR [List[Topic], ReadTopics, TE]
 
 case class ReadTopicFeed(topicId: String, page: Int) extends TM
 case class ReadTopicFeedResponse(
@@ -34,8 +34,4 @@ private[services] case class RequestTopicResponse(
             message: RequestTopic,
             value: Either[TE, Topic]) extends TM with MR[Topic, RequestTopic, TE]
 
-private[services] case class RequestPartnerTopics(partnerId: String) extends TM
-private[services] case class RequestPartnerTopicsResponse(
-            message: RequestPartnerTopics,
-            value: Either[TE, List[Topic]]) extends TM with MR [List[Topic], RequestPartnerTopics, TE]
 

@@ -213,8 +213,7 @@ class ServiceConfig {
             classOf[EchoedUserMessage] -> echoedUserServiceManager,
             classOf[PartnerUserMessage] -> partnerUserServiceManager,
             classOf[AdminUserMessage] -> adminUserServiceManager,
-            classOf[PartnerMessage] -> partnerServiceManager
-            )
+            classOf[PartnerMessage] -> partnerServiceManager)
 
     def messageRouter = actorSystem.actorOf(Props.default.withRouter(new MessageRouter(routeMap)), "Services")
 

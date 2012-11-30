@@ -9,6 +9,7 @@ import state.FindAllTopicsResponse
 import scala.Right
 import com.echoed.chamber.domain.Topic
 import com.echoed.chamber.domain.views.TopicStoryFeed
+import com.echoed.chamber.services.partner.{TopicEvent, TopicUpdated, TopicCreated}
 
 class TopicService(
     mp: MessageProcessor,
@@ -44,19 +45,15 @@ class TopicService(
         }
     }
 
-    private def updateTopic(t: Topic){
-        val key = t.refType match {
-            case "Echoed" => MainTreeKey()
-            case "Partner" => PartnerKey(t.refId)
-            case "Community" => CommunityKey(t.refId)
+    private def updateTopic(topic: Topic){
+        topicMap.get(topic.id).map { t =>
+            removeFromTopicLookup(PartnerKey(t.id), t)
+            removeFromTopicLookup(CommunityKey(t.id), t)
         }
 
-        topicMap.get(t.id).map {
-            t2 => removeFromTopicLookup(key, t2)
-        }
-
-        topicMap += (t.id -> t)
-        addToTopicLookup(key, t)
+        topicMap += (topic.id -> topic)
+        addToTopicLookup(PartnerKey(topic.id), topic)
+        addToTopicLookup(CommunityKey(topic.id), topic)
     }
 
     private def getTopicsFromLookup(indexKey: IndexKey) = {
@@ -71,35 +68,27 @@ class TopicService(
 
     def handle = {
 
-        case FindAllTopicsResponse(_, Right(topics)) => topics.map( t => updateTopic(t))
+        case msg: TopicEvent => updateTopic(msg.topic)
 
-        case msg @ GetTopics() =>
-            val channel = context.sender
+        case FindAllTopicsResponse(_, Right(topics)) => topics.map(t => updateTopic(t))
+
+        case msg @ ReadTopics() =>
             val topics = getTopicsFromLookup(MainTreeKey())
-            channel ! GetTopicsResponse(msg, Right(topics))
-
-        case msg @ RequestPartnerTopics(partnerId) =>
-            val channel = context.sender
-            val topics = getTopicsFromLookup(PartnerKey(partnerId))
-            channel ! RequestPartnerTopicsResponse(msg, Right(topics))
+            sender ! ReadTopicsResponse(msg, Right(topics))
 
         case msg @ RequestTopic(topicId) =>
-            val channel = context.sender
-            topicMap.get(topicId).map { t => channel ! RequestTopicResponse(msg, Right(t)) }
+            topicMap.get(topicId).map(t => sender ! RequestTopicResponse(msg, Right(t)))
 
         case msg @ ReadCommunityTopics(communityId) =>
-            val channel = context.sender
             val topics = getTopicsFromLookup(CommunityKey(communityId))
-            channel ! ReadCommunityTopicsResponse(msg, Right(topics))
+            sender ! ReadCommunityTopicsResponse(msg, Right(topics))
 
         case msg @ ReadTopicFeed(topicId, page) =>
-            val channel = context.sender
-            topicMap.get(topicId).map {
-                topic =>
-                    mp(RequestTopicStoryFeed(topicId, page)).onSuccess {
-                        case RequestTopicStoryFeedResponse(_, Right(feed)) =>
-                            channel ! ReadTopicFeedResponse(msg, Right(new TopicStoryFeed(topic, feed)))
-                    }
+            topicMap.get(topicId).map { topic =>
+                mp(RequestTopicStoryFeed(topicId, page))
+                    .mapTo[RequestTopicStoryFeedResponse]
+                    .map(_.resultOrException)
+                    .map(feed => sender ! ReadTopicFeedResponse(msg, Right(new TopicStoryFeed(topic, feed))))
             }
     }
 

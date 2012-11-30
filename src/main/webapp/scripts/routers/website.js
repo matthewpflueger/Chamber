@@ -73,7 +73,7 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/tags", function(jsonUrl, data){
                         self.loadPage("communities", { jsonUrl: jsonUrl, data: data });
-                        self.EvAg.trigger('title/update', { title: "Communities", imageUrl: data.headerImageUrl });
+                        self.EvAg.trigger('title/update', { title: "Communities", image: data.headerImage });
                     });
                 }
             },
@@ -83,7 +83,7 @@ define(
                     this.page = "#!";
                     this.requestFeed("/me/feed", function(jsonUrl, data){
                         self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
-                        self.EvAg.trigger('title/update', { type:"echoed", title: "Share Your Stories With the World", imageUrl: data.headerImageUrl });
+                        self.EvAg.trigger('title/update', { type:"echoed", title: "Share Your Stories With the World", image: data.headerImage });
                     });
                 }
             },
@@ -93,7 +93,7 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/partner/" + partnerId, function(jsonUrl, data){
                         self.loadPage("partner", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "partner", partnerId: partnerId, title: "Stories from " + data.partner.name, imageUrl: data.headerImageUrl });
+                        self.EvAg.trigger('title/update', { type: "partner", partnerId: partnerId, title: "Stories from " + data.partner.name, image: data.headerImage });
                     });
                 }
             },
@@ -103,7 +103,7 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
                         self.loadPage("topic", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "topic", title: "Topic: " + data.topic.title, imageUrl: data.headerImageUrl })
+                        self.EvAg.trigger('title/update', { type: "topic", title: "Topic: " + data.topic.title, image: data.headerImage })
                     })
                 }
             },
@@ -157,7 +157,7 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/category/" + communityId, function(jsonUrl, data){
                         self.loadPage("category", {jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "community", communityId: communityId, title: "Stories in the " + communityId + " community", imageUrl: data.headerImageUrl});
+                        self.EvAg.trigger('title/update', { type: "community", communityId: communityId, title: "Stories in the " + communityId + " community", image: data.headerImage});
                     });
                 }
             },

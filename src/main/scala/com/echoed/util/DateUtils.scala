@@ -25,4 +25,8 @@ object DateUtils {
     implicit def optionDateToOptionLong(date: Option[Date]) = failWithNone { date.map(parseToLong(_)) }
     implicit def optionLongToOptionDate(long: Option[Long]) = failWithNone { long.map(parseToDate(_)) }
 
+    def maxDate = 20371231120000L
 }
+
+
+

@@ -7,6 +7,7 @@ import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor.ActorRef
 import com.echoed.chamber.services.echoeduser.{Follower, EchoedUserClientCredentials}
 import org.springframework.validation.Errors
+import java.util.Date
 
 
 trait PartnerMessage extends Message
@@ -43,7 +44,8 @@ private[services] case class PartnerServiceState(
         partner: Partner,
         partnerSettings: PartnerSettings,
         partnerUser: Option[PartnerUser],
-        followedByUsers: List[Follower])
+        followedByUsers: List[Follower],
+        topics: List[Topic])
 
 private[partner] case class RegisterPartnerService(partner: Partner)
 
@@ -87,6 +89,22 @@ case class ReadPartnerTopics(credentials: PCC) extends PM with PI
 case class ReadPartnerTopicsResponse(
         message: ReadPartnerTopics,
         value: Either[PE, List[Topic]]) extends PM with MR[List[Topic], ReadPartnerTopics, PE]
+
+case class PutTopic(
+        credentials: PCC,
+        title: String,
+        description: Option[String] = None,
+        beginOn: Option[Date] = None,
+        endOn: Option[Date] = None,
+        topicId: Option[String] = None,
+        community: Option[String] = None) extends PM with PI
+case class PutTopicResponse(
+        message: PutTopic,
+        value: Either[PE, Topic]) extends PM with MR[Topic, PutTopic, PE]
+
+case class InvalidDateRange(
+        m: String = "Invalid date range",
+        c: Option[String] = Some("date.range.invalid")) extends PartnerException(m, code = c)
 
 case class FetchPartner(credentials: PCC) extends PM with PI
 case class FetchPartnerResponse(
@@ -186,8 +204,11 @@ case class RecordEchoClickResponse(message: RecordEchoClick, value: Either[PE, E
 
 
 
-case class RequestStory(credentials: PCC) extends PM with PI
-case class RequestStoryResponseEnvelope(partner: Partner, partnerSettings: PartnerSettings)
+case class RequestStory(credentials: PCC, topicId: Option[String] = None) extends PM with PI
+case class RequestStoryResponseEnvelope(
+        partner: Partner,
+        partnerSettings: PartnerSettings,
+        topic: Option[Topic] = None)
 case class RequestStoryResponse(message: RequestStory, value: Either[PE, RequestStoryResponseEnvelope])
         extends PM with MR[RequestStoryResponseEnvelope, RequestStory, PE]
 

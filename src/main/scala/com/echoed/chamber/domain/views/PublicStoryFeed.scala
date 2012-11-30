@@ -1,9 +1,10 @@
 package com.echoed.chamber.domain.views
 
 import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.Image
 
 case class PublicStoryFeed(
-        headerImageUrl: String,
+        headerImage: Image,
         stories: List[StoryPublic],
         nextPage: String) {
 

@@ -119,11 +119,6 @@ private[services] case class ReadStoryResponse(
                 value: Either[SE, domain.StoryState])
                 extends SM with MR[domain.StoryState, ReadStory, SE]
 
-private[services] case class ReadStoryForTopic(topicId: String, echoedUserId: String) extends SM
-private[services] case class ReadStoryForTopicResponse(
-                message: ReadStoryForTopic,
-                value: Either[SE, domain.StoryState])
-                extends SM with MR[domain.StoryState, ReadStoryForTopic, SE]
 
 private[services] case class ReadStoryForEcho(echoId: String, echoedUserId: String) extends SM
 private[services] case class ReadStoryForEchoResponse(

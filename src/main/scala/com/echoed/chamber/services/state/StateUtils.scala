@@ -28,10 +28,7 @@ private[state] object StateUtils {
                     .toList
                     .foldLeft(MMap.empty[String, Vote])((map, vote) => map + (vote.echoedUserId -> vote))
 
-        val t = Option(s.topicId).map {
-            tId =>
-                from(topics)(t => where(t.id === tId) select(t)).head
-        }.orElse(topic)
+        val t = Option(s.topicId).map { id => from(topics)(t => where(t.id === id) select(t)).head }.orElse(topic)
 
 
         StoryState(

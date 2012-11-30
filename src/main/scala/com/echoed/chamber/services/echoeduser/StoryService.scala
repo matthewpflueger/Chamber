@@ -5,49 +5,29 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.services._
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.services.echoeduser._
-import echoeduser.StoryImageCreated
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.image.{ProcessImageResponse, ProcessImage}
+import com.echoed.chamber.services.partner.NotifyPartnerFollowers
+import com.echoed.chamber.services.partner.PartnerClientCredentials
+import com.echoed.chamber.services.partner.RequestStory
+import com.echoed.chamber.services.partner.RequestStoryResponse
+import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.util.DateUtils._
 import com.echoed.util.{ScalaObjectMapper, UUID}
+import echoeduser.StoryImageCreated
 import java.util.{Properties, Date}
 import org.apache.commons.codec.digest.DigestUtils
-import scala.collection.mutable.{Set => MSet}
-import com.echoed.chamber.services.echoeduser.UpdateStory
-import com.echoed.chamber.services.echoeduser.InitStoryResponse
-import state._
-import com.echoed.chamber.services.echoeduser.StoryUpdated
-import com.echoed.chamber.services.echoeduser.CreateChapter
-import com.echoed.chamber.services.echoeduser.InitStory
-import com.echoed.chamber.services.echoeduser.RegisterNotification
-import com.echoed.chamber.services.echoeduser.ChapterUpdated
-import com.echoed.chamber.services.echoeduser.UpdateCommunity
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import com.echoed.chamber.services.echoeduser.NewVoteResponse
-import com.echoed.chamber.services.echoeduser.UpdateChapterResponse
-import com.echoed.chamber.services.echoeduser.CommentCreated
 import scala.Left
-import com.echoed.chamber.domain.ChapterInfo
-import com.echoed.chamber.domain.EchoedUser
-import com.echoed.chamber.services.partner.RequestStory
-import com.echoed.chamber.services.partner.NotifyPartnerFollowers
+import scala.Right
+import scala.Some
+import scala.collection.mutable.{Set => MSet}
 import state.ReadStory
 import state.ReadStoryForEcho
 import state.ReadStoryForEchoResponse
 import state.ReadStoryResponse
-import scala.Some
-import com.echoed.chamber.domain.Vote
-import com.echoed.chamber.domain.StoryState
-import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
-import com.echoed.chamber.services.partner.PartnerClientCredentials
 import state.StoryForEchoNotFound
 import state.StoryNotFound
-import com.echoed.chamber.domain.Chapter
-import scala.Right
-import com.echoed.chamber.domain.Notification
-import com.echoed.chamber.domain.ChapterImage
-import com.echoed.chamber.services.partner.RequestStoryResponse
 
 
 class StoryService(
@@ -59,8 +39,9 @@ class StoryService(
 
     private var storyState: StoryState = _
 
-    private def requestStory(partnerId: Option[String]): Unit =
-            mp.tell(RequestStory(PartnerClientCredentials(partnerId.getOrElse("Echoed"))), self)
+    private def requestStory(partnerId: Option[String], topicId: Option[String] = None): Unit =
+            mp.tell(RequestStory(PartnerClientCredentials(partnerId.getOrElse("Echoed")), topicId), self)
+
     private def readStory(storyId: String): Unit = mp.tell(ReadStory(storyId), self)
 
     override def preStart() {
@@ -68,8 +49,7 @@ class StoryService(
         initMessage match {
             case msg @ InitStory(_, Some(storyId), _, _, _) => readStory(storyId)
             case msg @ InitStory(_, _, Some(echoId), _, _) => mp.tell(ReadStoryForEcho(echoId, echoedUser.id), self)
-            case msg @ InitStory(_, _, _, _, Some(topicId)) => mp.tell(ReadStoryForTopic(topicId, echoedUser.id), self)
-            case msg @ InitStory(_, _, _, partnerId, _) => requestStory(partnerId)
+            case msg @ InitStory(_, _, _, partnerId, topicId) => requestStory(partnerId, topicId)
             case msg: StoryIdentifiable => readStory(msg.storyId)
         }
     }
@@ -83,15 +63,14 @@ class StoryService(
     def init = {
         case ReadStoryResponse(_, Left(StoryNotFound(_, _))) if (initMessage.isInstanceOf[CreateStory]) =>
              requestStory(initMessage.asInstanceOf[CreateStory].partnerId)
-        case RequestStoryResponse(_, Right(RequestStoryResponseEnvelope(p, ps))) if (initMessage.isInstanceOf[CreateStory]) =>
-            initStory(new StoryState(echoedUser, p, ps).copy(id = initMessage.asInstanceOf[CreateStory].storyId))
+        case RequestStoryResponse(_, Right(RequestStoryResponseEnvelope(p, ps, t))) if (initMessage.isInstanceOf[CreateStory]) =>
+            initStory(new StoryState(echoedUser, p, ps, topic = t).copy(id = initMessage.asInstanceOf[CreateStory].storyId))
 
         case ReadStoryResponse(_, Right(s)) => initStory(s)
-        case ReadStoryForTopicResponse(_, Right(s)) => initStory(s)
         case ReadStoryForEchoResponse(_, Right(s)) => initStory(s)
         case ReadStoryForEchoResponse(_, Left(StoryForEchoNotFound(s, _))) => initStory(s)
-        case RequestStoryResponse(_, Right(RequestStoryResponseEnvelope(p, ps))) =>
-            initStory(new StoryState(echoedUser, p, ps))
+        case RequestStoryResponse(_, Right(RequestStoryResponseEnvelope(p, ps, t))) =>
+            initStory(new StoryState(echoedUser, p, ps, topic = t))
     }
 
     def online = {

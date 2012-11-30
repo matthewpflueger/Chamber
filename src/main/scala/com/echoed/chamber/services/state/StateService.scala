@@ -23,7 +23,7 @@ import com.echoed.util.TransactionUtils._
 import com.echoed.chamber.services.partneruser.PartnerUserUpdated
 import StateUtils._
 import com.echoed.util.{DateUtils, UUID}
-import com.echoed.chamber.services.partner.PartnerServiceState
+import com.echoed.chamber.services.partner.{TopicUpdated, TopicCreated, PartnerServiceState}
 
 
 class StateService(
@@ -203,31 +203,6 @@ class StateService(
         case msg @ ReadStory(id) =>
             stories.lookup(id).map(readStory(_)).foreach(s => sender ! ReadStoryResponse(msg, Right(s)))
 
-        case msg @ ReadStoryForTopic(topicId, echoedUserId) =>
-            from(topics)(t => where(t.id === topicId) select(t)).headOption.map{
-                t =>
-                    val activeOn = DateUtils.dateToLong(new Date())
-                    val eu = echoedUsers.lookup(echoedUserId).get
-                    val pId = t.refType match {
-                        case "Partner" => t.refId
-                        case _ => "Echoed"
-                    }
-                    val p = from(partners)(p =>
-                        where(p.id === pId or p.handle === pId)
-                        select(p)).toList.head
-                    val ps = from(partnerSettings)(ps =>
-                        where((ps.partnerId === p.id) and (ps.activeOn lte activeOn))
-                            select(ps)
-                            orderBy(ps.activeOn desc)).page(0,1).toList.head
-
-                    val community = t.refType match{
-                        case "partner" => Option(p.category)
-                        case "community" => Option(t.refId)
-                        case _ => None
-                    }
-
-                    sender ! ReadStoryForTopicResponse(msg, Right(new StoryState(eu, p, ps, none, None, Option(t), community)))
-            }
 
         case msg @ ReadStoryForEcho(echoId, echoedUserId) =>
             from(echoes)(e => where(e.id === echoId and e.echoedUserId === echoedUserId) select(e)).headOption.map { e =>
@@ -290,7 +265,12 @@ class StateService(
                         select(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)).single)
                     .map { case (i, n, s, f, t) => echoeduser.Follower(i, n, s, f, t) }
 
-            sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus)))
+            val t = (from(topics)(t => where(t.partnerId === p.id) select(t))).toList
+
+            sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus, t)))
+
+        case msg @ TopicCreated(topic) => topics.insert(topic)
+        case msg @ TopicUpdated(topic) => topics.update(topic)
     }
 
 }

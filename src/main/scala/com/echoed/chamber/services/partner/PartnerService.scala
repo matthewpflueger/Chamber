@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.partner
 
 import akka.actor.PoisonPill
-import com.echoed.chamber.domain.Notification
+import com.echoed.chamber.domain.{Topic, Notification}
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.partner.PartnerSettings
 import com.echoed.chamber.domain.partner.PartnerUser
@@ -12,14 +12,14 @@ import com.echoed.chamber.services.echoeduser.Follower
 import com.echoed.chamber.services.echoeduser.RegisterNotification
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state._
-import com.echoed.util.{DateUtils, Encrypter}
+import com.echoed.util.DateUtils._
+import com.echoed.util.Encrypter
 import feed.{RequestPartnerStoryFeedResponse, RequestPartnerStoryFeed}
 import java.util.{Date, UUID}
 import scala.Left
 import scala.Right
 import scala.Some
-import topic.{RequestPartnerTopicsResponse, RequestPartnerTopics}
-import com.echoed.chamber.domain.views.{PartnerStoryFeed, PartnerFeed}
+import com.echoed.chamber.domain.views.PartnerStoryFeed
 
 
 class PartnerService(
@@ -33,6 +33,7 @@ class PartnerService(
     protected var partner: Partner = _
     private var partnerSettings: PartnerSettings = _
     private var partnerUser: Option[PartnerUser] = None
+    private var topics = List[Topic]()
 
 
     private var followedByUsers = List[Follower]()
@@ -70,7 +71,7 @@ class PartnerService(
 
             val code = encrypter.encrypt(
                     """{ "password": "%s", "createdOn": "%s" }"""
-                    format(password, DateUtils.dateToLong(new Date)))
+                    format(password, dateToLong(new Date)))
 
 
             channel ! RegisterPartnerResponse(msg, Right(partnerUser.get, partner))
@@ -100,6 +101,7 @@ class PartnerService(
             partnerSettings = pss.partnerSettings
             partnerUser = pss.partnerUser
             followedByUsers = pss.followedByUsers
+            topics = pss.topics
             becomeOnlineAndRegister
     }
 
@@ -122,13 +124,14 @@ class PartnerService(
             }
 
         case msg: ReadPartnerTopics =>
-            val channel = sender
-            mp(RequestPartnerTopics(partner.id)).onSuccess{
-                case RequestPartnerTopicsResponse(_, Right(topics)) => channel ! ReadPartnerTopicsResponse(msg, Right(topics))
-            }
+            val now = new Date
+            sender ! ReadPartnerTopicsResponse(msg, Right(topics.filter(t => t.beginOn < now && t.endOn > now)))
 
-        case msg @ RequestStory(_) =>
-            sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(partner, partnerSettings)))
+        case msg @ RequestStory(_, topicId) =>
+            sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(
+                    partner,
+                    partnerSettings,
+                    topicId.flatMap(id => topics.find(_.id == id)))))
 
 
         case msg @ NotifyPartnerFollowers(_, eucc, n) =>
@@ -145,8 +148,35 @@ class PartnerService(
             sender ! AddPartnerFollowerResponse(msg, Right(partner))
             followedByUsers = Follower(eu) :: followedByUsers
 
-    }
+        case msg @ PutTopic(_, title, description, beginOn, endOn, topicId, community) =>
+            try {
+                val topic = topicId.flatMap(id => topics.find(_.id == id)).map { t =>
+                        t.copy(
+                                title = title,
+                                description = description.orElse(t.description),
+                                beginOn = beginOn.map(dateToLong(_)).getOrElse(t.beginOn),
+                                endOn = endOn.map(dateToLong(_)).getOrElse(t.endOn),
+                                updatedOn = new Date)
+                    }.orElse(Some(new Topic(partner, title, description, beginOn, endOn)))
+                    .map(t => t.copy(community = if (partner.isEchoed) community.getOrElse(t.community) else partner.category))
+                    .map(t => if (t.beginOn > t.endOn) throw new InvalidDateRange() else t)
+                    .map { topic =>
+                        topics = if (topic.isUpdated) {
+                            ep(TopicUpdated(topic))
+                            topics.map(t => if (t.id == topic.id) topic else t)
+                        } else {
+                            ep(TopicCreated(topic))
+                            topic :: topics
+                        }
+                        topic
+                    }.get
 
+                sender ! PutTopicResponse(msg, Right(topic))
+            } catch {
+                case e: InvalidDateRange => sender ! PutTopicResponse(msg, Left(e))
+            }
+
+    }
 }
 
 

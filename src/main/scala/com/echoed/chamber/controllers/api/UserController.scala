@@ -19,10 +19,10 @@ import com.echoed.chamber.services.echoeduser.UnFollowUser
 import com.echoed.chamber.services.feed.GetPublicStoryFeed
 import com.echoed.chamber.services.echoeduser.GetUserFeedResponse
 import com.echoed.chamber.services.echoeduser.ReadSettingsResponse
-import com.echoed.chamber.services.topic.GetTopicsResponse
+import com.echoed.chamber.services.topic.ReadTopicsResponse
 import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
 import com.echoed.chamber.services.feed.GetCategoryStoryFeedResponse
-import com.echoed.chamber.services.topic.GetTopics
+import com.echoed.chamber.services.topic.ReadTopics
 import com.echoed.chamber.services.feed.GetCategoryStoryFeed
 import com.echoed.chamber.services.topic.ReadCommunityTopicsResponse
 import scala.Right
@@ -353,8 +353,8 @@ class UserController extends EchoedController {
     def topics = {
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(GetTopics()).onSuccess {
-            case GetTopicsResponse(_, Right(topics)) => result.set(topics)
+        mp(ReadTopics()).onSuccess {
+            case ReadTopicsResponse(_, Right(topics)) => result.set(topics)
         }
 
         result
