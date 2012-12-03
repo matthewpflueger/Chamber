@@ -34,6 +34,12 @@
         {{^loaderType}}
             EchoedSettings.loaderType = "loader.js";
         {{/loaderType}}
+        {{#loaderOrientation}}
+            EchoedSettings.loaderOrientation = "{{.}}";
+        {{/#loaderOrientation}}
+        {{#loaderPosition}}
+            EchoedSettings.loaderPosition = "{{.}}";
+        {{/loaderPosition}}
     {{/customization}}
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;

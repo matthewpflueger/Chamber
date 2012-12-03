@@ -88,7 +88,7 @@ require(
                         while(i < self.stories.length && counter < 4){
                             var story = self.stories[i];
                             if(story.story.image) {
-                                var link = $('<a></a>').attr("href", "#echoed_story/" + story.id).append($('<img />').attr("src",story.story.image.preferredUrl)).attr('index', i).addClass("echoed-story");
+                                var link = $('<a></a>').attr("href", "#echoed_story/" + story.id).append(utils.fit(story.story.image, 40 , 40)).attr('index', i).addClass("echoed-story");
                                 $('#echoed-options').append(link);
                                 counter++;
                             }
