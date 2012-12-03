@@ -563,19 +563,22 @@
                 var self = this;
                 var id = self.data.storyFull.story.id
                 var echoedUserId = self.properties.echoedUser.id
-                utils.AjaxFactory({
-                    url: this.properties.urls.api + "/story/" + id + "/moderate",
-                    type: "POST",
-                    data: {
-                        moderated: true,
-                        storyOwnerId : echoedUserId
-                    },
-                    success: function() {
-                        self.unload(function() {
-                            self.EvAg.trigger('router/me');
-                        });
-                    }
-                })();
+                var v = confirm("Are you sure you want to hide this story?");
+                if(v === true){
+                    utils.AjaxFactory({
+                        url: this.properties.urls.api + "/story/" + id + "/moderate",
+                        type: "POST",
+                        data: {
+                            moderated: true,
+                            storyOwnerId : echoedUserId
+                        },
+                        success: function() {
+                            self.unload(function() {
+                                self.EvAg.trigger('router/me');
+                            });
+                        }
+                    })();
+                }
             },
             updateChapter: function(publishOption){
                 var self = this;
