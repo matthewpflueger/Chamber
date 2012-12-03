@@ -3,12 +3,12 @@ define(
         'jquery',
         'backbone',
         'underscore',
+        'mustache',
         'components/utils',
         'text!templates/admin/echoedUsers.html',
-        'text!templates/admin/echoedUserRow.html',
         'text!templates/admin/paginate.html'
     ],
-    function($, Backbone, _, utils, templatesEchoedUsers, templatesEchoedUserRow, templatePaginate){
+    function($, Backbone, _, Mustache, utils, templatesEchoedUsers, templatePaginate){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -46,20 +46,12 @@ define(
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/admin/echoedusers?page=" + self.page + "&pageSize=" + self.pageSize,
                     success: function(data){
-                        var tableTemplate = _.template(templatesEchoedUsers);
+                        var view = { echoedUsers: data };
+                        var tableTemplate = Mustache.render(templatesEchoedUsers, view);
                         self.element.html(tableTemplate);
-                        var body = self.element.find('tbody');
-                        $.each(data, function(index, echoedUser){
-                            var rowTemplate = _.template(templatesEchoedUserRow, echoedUser);
-                            var tr = $('<tr></tr>').html(rowTemplate);
-                            body.append(tr);
-                        });
-
-
-                        self.element.append(_.template(templatePaginate));
+                        self.element.append(Mustache.render(templatePaginate));
                         if (self.page == 0) $('.paginate-previous').hide();
                         if (data.length < self.pageSize) $('.paginate-next').hide();
-
                         self.element.show();
                     }
                 })();

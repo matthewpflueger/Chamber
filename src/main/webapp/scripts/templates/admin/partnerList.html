@@ -8,5 +8,18 @@
         </tr>
     </thead>
     <tbody>
+    {{#partners}}
+    <tr>
+        <td>
+            {{ partner.name }}
+        </td>
+        <td>
+            {{ partner.domain }}
+        </td>
+        <td align="center">
+            <span partnerUserId="{{ partnerUser.id }}" class="partnerList-button">Act as Partner</span>
+        </td>
+    </tr>
+    {{/partners}}
     </tbody>
 </table>

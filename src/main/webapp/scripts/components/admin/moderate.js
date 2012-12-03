@@ -3,12 +3,12 @@ define(
         'jquery',
         'backbone',
         'underscore',
+        'mustache',
         'components/utils',
-        'text!templates/admin/moderateStory.html',
         'text!templates/admin/moderateStoryTable.html',
         'text!templates/admin/paginate.html'
     ],
-    function($, Backbone, _, utils, templateModerateStory, templateModerateStoryTable, templatePaginate){
+    function($, Backbone, _, Mustache, utils, templateModerateStoryTable, templatePaginate){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -28,25 +28,15 @@ define(
             },
             render: function(){
                 var self = this;
-                var tableTemplate = _.template(templateModerateStoryTable);
-                self.element.html(tableTemplate);
-                var body = self.element.find('tbody');
-
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/admin/stories?page=" + self.page + "&pageSize=" + self.pageSize,
                     success: function(data){
-                        $.each(data, function(index, story){
-                            var template = _.template(templateModerateStory, story);
-                            var tr = $('<tr></tr>').html(template).appendTo(body);
-                            if(story.isEchoedModerated){
-                                tr.find('.moderate-cb').attr("checked","checked");
-                            }
-                        });
-
-                        self.element.append(_.template(templatePaginate));
+                        var view = { stories: data };
+                        var tableTemplate = Mustache.render(templateModerateStoryTable, view);
+                        self.element.html(tableTemplate);
+                        self.element.append(Mustache.render(templatePaginate));
                         if (self.page == 0) $('#paginate-previous').hide();
                         if (data.length < self.pageSize) $('#paginate-next').hide();
-
                         self.show();
                     }
                 })();
