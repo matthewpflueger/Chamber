@@ -34,7 +34,7 @@
                 {{ views }}
             </td>
             <td align="center">
-                <input class="moderate-cb" id="{{ id }}" storyOwnerId="{{ echoedUser.id }}" type="checkbox" />
+                <input class="moderate-cb" id="{{ id }}" storyOwnerId="{{ echoedUser.id }}" type="checkbox" {{#isEchoedModerated}}checked="checked"{{/isEchoedModerated}} />
             </td>
             <td>
                 <span storyId="{{ id }}" class="moderate-preview">Preview Story</span>
