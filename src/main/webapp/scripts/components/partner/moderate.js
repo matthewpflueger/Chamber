@@ -3,11 +3,12 @@ define(
         'jquery',
         'backbone',
         'underscore',
+        'mustache',
         'components/utils',
         'text!templates/partner/moderateStory.html',
         'text!templates/partner/moderateStoryTable.html'
     ],
-    function($, Backbone, _, utils, templateModerateStory, templateModerateStoryTable){
+    function($, Backbone, _, Mustache, utils, templateModerateStory, templateModerateStoryTable){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -19,20 +20,12 @@ define(
             },
             render: function(){
                 var self = this;
-                var tableTemplate = _.template(templateModerateStoryTable);
-                self.element.html(tableTemplate);
-                var body = self.element.find('tbody');
-
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/partner/stories",
                     success: function(data){
-                        $.each(data, function(index, story){
-                            var template = _.template(templateModerateStory, story);
-                            var tr = $('<tr></tr>').html(template).appendTo(body);
-                            if(story.isModerated){
-                                tr.find('.moderate-cb').attr("checked","checked");
-                            }
-                        });
+                        var view = { stories: data };
+                        var template = Mustache.render(templateModerateStory, view);
+                        self.element.html(template);
                         self.show();
                     }
                 })();
