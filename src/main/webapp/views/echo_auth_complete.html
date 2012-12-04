@@ -23,17 +23,16 @@
                 {{/screenName}}
                 data.success = true;
 
-                var target = "echoed-overlay";
                 var dataString = JSON.stringify(data);
                 var host = null;
                 try {
-                    host = window.opener.frames[target];
+                    if(window.opener.frames['echoed-iframe'] !== undefined) host = window.opener.frames['echoed-iframe'];
+                    else host = window.opener.frames['echoed-overlay'];
                     host.postMessageInterface(dataString);
                 } catch (error) {
                     try{
                         window.opener.postMessage(dataString, "*");
                     } catch(error){
-                        //FIX FOR IE IN IFRAME
                         window.opener.postMessageInterface(dataString);
                     }
                 }

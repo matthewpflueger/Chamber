@@ -18,9 +18,10 @@ require(
         'components/actions',
         'components/infiniteScroll',
         'components/nav',
-        'components/login'
+        'components/login',
+        'models/user'
     ],
-    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, PageTitle, Title, Input, User, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav, Login){
+    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, PageTitle, Title, Input, User, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav, Login, ModelUser){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -87,25 +88,40 @@ require(
         };
 
         $(document).ready(function(){
-            var EventAggregator = _.extend({}, Backbone.Events);
-
-            var properties = {
+            this.EventAggregator = _.extend({}, Backbone.Events);
+            this.properties = {
                 urls: Echoed.urls,
-                echoedUser: Echoed.echoedUser,
                 exhibitShowLogin: true
             };
 
+            //Initialize Models
+            this.modelUser = new ModelUser({ echoedUser: Echoed.echoedUser });
 
-            this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
+            //Options
+            this.options = function(el){
+                return {
+                    el: el,
+                    properties: this.properties,
+                    modelUser: this.modelUser,
+                    EvAg: this.EventAggregator
+                }
+            };
 
-            this.router = new Router({ EvAg: EventAggregator, properties: properties });
-            this.infiniteScroll = new InfiniteScroll({ el: '#infiniteScroll', EvAg: EventAggregator, properties: properties})
-            this.nav = new Nav({ EvAg: EventAggregator, properties: properties});
-            this.story = new Story({ el: '#story-container', EvAg: EventAggregator, properties: properties });
-            this.exhibit = new Exhibit({ el: '#content', EvAg: EventAggregator, properties: properties });
-            this.pageTitle = new PageTitle({ el: 'title', EvAg: EventAggregator, properties: properties });
-            this.contentTitle = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
-            this.actions = new Actions({ el: '#actions', EvAg: EventAggregator, properties: properties });
+
+
+
+
+            this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties, modelUser: this.modelUser });
+
+
+            this.router = new Router({ EvAg: EventAggregator, properties: properties, modelUser: this.modelUser });
+            this.infiniteScroll = new InfiniteScroll({ el: '#infiniteScroll', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser});
+            this.nav = new Nav({ EvAg: EventAggregator, properties: properties, modelUser: this.modelUser});
+            this.story = new Story({ el: '#story-container', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser });
+            this.exhibit = new Exhibit({ el: '#content', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser });
+            this.pageTitle = new PageTitle({ el: 'title', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser });
+            this.contentTitle = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser });
+            this.actions = new Actions({ el: '#actions', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser });
             this.input = new Input({ el: '#field-container', EvAg: EventAggregator, properties: properties });
             this.user = new User({ el: '#user', EvAg: EventAggregator, properties: properties });
             this.notifications = new Notifications({ el: '#notifications-container', EvAg: EventAggregator, properties: properties });

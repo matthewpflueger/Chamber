@@ -98,7 +98,7 @@ require(
             this.story = new Story({ el: '#story-container', EvAg: EventAggregator, properties: properties });
             this.closer = new WidgetCloser( { el: '#close', EvAg: EventAggregator, properties: properties });
             this.titleNav = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
-            this.login = new Login({ el: "login-container", EvAg: EventAggregator, properties: properties });
+            this.login = new Login({ el: "#login-container", EvAg: EventAggregator, properties: properties });
             this.router = new Router({ EvAg: EventAggregator, properties: properties });
 
             var iFrameNode = document.createElement('iframe');
@@ -107,7 +107,7 @@ require(
             iFrameNode.width = '0px';
             iFrameNode.style.border = "none";
             iFrameNode.id = "echoed-iframe";
-            iFrameNode.src = Echoed.urls.api + "/echo/iframe";
+            iFrameNode.src = Echoed.urls.api.replace("http://","https://") + "/echo/iframe";
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
 
             this.messageHandler = new MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator, properties: properties });
@@ -126,5 +126,5 @@ require(
             Backbone.history.start();
         });
     }
-)
+);
 

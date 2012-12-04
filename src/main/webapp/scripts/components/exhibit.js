@@ -11,14 +11,13 @@ define(
         return Backbone.View.extend({
             el: '#content',
             initialize: function(options){
-                _.bindAll(this,'render','next','init', 'nextStory', 'previousStory', 'login');
+                _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.EvAg.bind('exhibit/init', this.init);
                 this.EvAg.bind('infiniteScroll', this.next);
                 this.EvAg.bind('exhibit/story/next', this.nextStory);
                 this.EvAg.bind('exhibit/story/previous', this.previousStory);
-                this.EvAg.bind('user/login', this.login);
                 this.element = $(this.el);
                 this.exhibit = $('#exhibit');
             },
@@ -46,10 +45,6 @@ define(
                 });
                 self.isotopeOn = true;
                 self.render(data);
-            },
-            login: function(){
-                var self = this;
-                self.exhibit.isotope('remove', $('#login'))
             },
             nextStory: function(storyId){
                 var self = this;
