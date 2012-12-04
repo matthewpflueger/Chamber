@@ -7,11 +7,11 @@
         'components/utils',
         'components/select',
         'components/ajaxInput',
-        'text!templates/input/storySummary.html',
-        'text!templates/input/storyCoverInput.html',
-        'text!templates/input/storyCover.html',
-        'text!templates/input/storyChapter.html',
-        'text!templates/input/storyChapterInput.html',
+        'hgn!templates/input/storySummary',
+        'hgn!templates/input/storyCoverInput',
+        'hgn!templates/input/storyCover',
+        'hgn!templates/input/storyChapter',
+        'hgn!templates/input/storyChapterInput',
         'cloudinary'
     ],
     function($, Backbone, _, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput){
@@ -99,7 +99,7 @@
                 var self = this;
                 self.element.empty();
                 self.locked = false;
-                self.template = _.template(templateSummary);
+                self.template = templateSummary();
                 self.element.removeClass("small");
                 self.element.html(self.template);
 
@@ -138,9 +138,8 @@
             loadStoryCoverTemplate: function(){
                 var self = this;
                 var story = self.data.storyFull.story;
-                var template = _.template(templateStoryCover, story);
+                var template = templateStoryCover(story);
                 self.cover.html(template);
-                console.log("Cover!");
                 if (story.image !== null) {
                     utils.scaleByHeight(story.image, 50)
                             .addClass("story-summary-photo")
@@ -155,7 +154,7 @@
             },
             loadChapterInputTemplate: function(option){
                 var self = this;
-                var template = _.template(templateChapterInput);
+                var template =templateChapterInput();
                 var chapter = function(opt){
                     if(opt.type ==="Edit") return $("#chapter-row-" + opt.index);
                     else return $('<div class="field-main-row clearfix"></div>').appendTo(self.body);
@@ -300,7 +299,7 @@
                 var self = this;
                 $.each(self.data.storyFull.chapters, function(index, chapter){
                     chapter.index = index;
-                    var template = _.template(templateChapter, chapter);
+                    var template = templateChapter(chapter);
                     var chapterRow = $('<div class="field-main-row clearfix"></div>')
                             .html(template)
                             .appendTo(self.body)
@@ -324,7 +323,7 @@
             },
             loadStoryInputTemplate: function(option){
                 var self = this;
-                var template = _.template(templateStoryCoverInput);
+                var template = templateStoryCoverInput();
                 if(self.data.storyFull.topic) $('#field-title').text(self.data.storyFull.topic.title);
 
                 self.cover.fadeOut(function(){
