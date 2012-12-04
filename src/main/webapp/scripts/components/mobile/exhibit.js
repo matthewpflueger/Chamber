@@ -4,11 +4,9 @@ define(
         'backbone',
         'underscore',
         'components/mobile/storyBrief',
-        'components/utils',
-        'text!templates/login.html',
-        'isotope'
+        'components/utils'
     ],
-    function($, Backbone, _, StoryBrief, utils, templateLogin, isotope ){
+    function($, Backbone, _, StoryBrief, utils){
         return Backbone.View.extend({
             el: '#content',
             initialize: function(options){
