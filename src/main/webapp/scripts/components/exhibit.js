@@ -14,6 +14,7 @@ define(
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
+                this.modelUser = options.modelUser;
                 this.EvAg.bind('exhibit/init', this.init);
                 this.EvAg.bind('infiniteScroll', this.next);
                 this.EvAg.bind('exhibit/story/next', this.nextStory);
