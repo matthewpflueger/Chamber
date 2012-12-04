@@ -3,11 +3,10 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'mustache',
         'components/utils',
-        'text!templates/admin/partnerList.html'
+        'hgn!templates/admin/partnerList'
     ],
-    function($, Backbone, _, Mustache, utils, templatePartnerList){
+    function($, Backbone, _, utils, templatePartnerList){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -39,7 +38,7 @@ define(
                     url: this.properties.urls.api + "/admin/partners",
                     success: function(data){
                         var view = { partners : data };
-                        var tableTemplate = Mustache.render(templatePartnerList, view);
+                        var tableTemplate = templatePartnerList(view);
                         self.element.html(tableTemplate);
                         self.element.show();
                     }

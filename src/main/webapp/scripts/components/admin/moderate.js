@@ -3,12 +3,11 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'mustache',
         'components/utils',
-        'text!templates/admin/moderateStoryTable.html',
-        'text!templates/admin/paginate.html'
+        'hgn!templates/admin/moderateStoryTable',
+        'hgn!templates/admin/paginate'
     ],
-    function($, Backbone, _, Mustache, utils, templateModerateStoryTable, templatePaginate){
+    function($, Backbone, _, utils, templateModerateStoryTable, templatePaginate){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -32,9 +31,9 @@ define(
                     url: this.properties.urls.api + "/admin/stories?page=" + self.page + "&pageSize=" + self.pageSize,
                     success: function(data){
                         var view = { stories: data };
-                        var tableTemplate = Mustache.render(templateModerateStoryTable, view);
+                        var tableTemplate = templateModerateStoryTable(view);
                         self.element.html(tableTemplate);
-                        self.element.append(Mustache.render(templatePaginate));
+                        self.element.append(templatePaginate());
                         if (self.page == 0) $('#paginate-previous').hide();
                         if (data.length < self.pageSize) $('#paginate-next').hide();
                         self.show();

@@ -3,12 +3,11 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'mustache',
         'components/utils',
-        'text!templates/admin/echoedUsers.html',
-        'text!templates/admin/paginate.html'
+        'hgn!templates/admin/echoedUsers',
+        'hgn!templates/admin/paginate'
     ],
-    function($, Backbone, _, Mustache, utils, templatesEchoedUsers, templatePaginate){
+    function($, Backbone, _, utils, templateEchoedUsers, templatePaginate){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -47,9 +46,9 @@ define(
                     url: this.properties.urls.api + "/admin/echoedusers?page=" + self.page + "&pageSize=" + self.pageSize,
                     success: function(data){
                         var view = { echoedUsers: data };
-                        var tableTemplate = Mustache.render(templatesEchoedUsers, view);
-                        self.element.html(tableTemplate);
-                        self.element.append(Mustache.render(templatePaginate));
+                        var template = templateEchoedUsers(view);
+                        self.element.html(template);
+                        self.element.append(templatePaginate());
                         if (self.page == 0) $('.paginate-previous').hide();
                         if (data.length < self.pageSize) $('.paginate-next').hide();
                         self.element.show();
