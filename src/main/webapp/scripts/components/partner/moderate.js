@@ -3,12 +3,10 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'mustache',
         'components/utils',
-        'text!templates/partner/moderateStory.html',
-        'text!templates/partner/moderateStoryTable.html'
+        'hgn!templates/partner/moderateStory'
     ],
-    function($, Backbone, _, Mustache, utils, templateModerateStory, templateModerateStoryTable){
+    function($, Backbone, _, utils, templateModerateStory){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -24,7 +22,7 @@ define(
                     url: this.properties.urls.api + "/partner/stories",
                     success: function(data){
                         var view = { stories: data };
-                        var template = Mustache.render(templateModerateStory, view);
+                        var template = templateModerateStory(view);
                         self.element.html(template);
                         self.show();
                     }
