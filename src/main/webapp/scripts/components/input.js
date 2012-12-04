@@ -343,7 +343,6 @@
                         edit: false
                     };
 
-                    console.log(self.data);
                     if(self.data.partner.name !== "Echoed" || self.data.storyFull.topic) selectOptions.locked = true;
                     self.communitySelect = new Select(selectOptions);
 
