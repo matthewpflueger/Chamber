@@ -8,10 +8,9 @@ require(
         'components/errorLog',
         'components/partner/howToInstall',
         'components/partner/moderate',
-        'components/story',
-        'components/fade'
+        'components/story'
     ],
-    function(require, $, _, Backbone, Router, ErrorLog, HowToInstall, Moderate, Story, Fade){
+    function(require, $, _, Backbone, Router, ErrorLog, HowToInstall, Moderate, Story){
 
         $(document).ready(function(){
                 var EventAggregator = _.extend({}, Backbone.Events);
@@ -27,7 +26,6 @@ require(
                 this.howToInstall = new HowToInstall({ el: '#howToInstall', EvAg: EventAggregator, properties: properties });
                 this.moderate = new Moderate({ el: '#moderate', EvAg: EventAggregator, properties: properties });
                 this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
-                this.fade = new Fade({ el : '#fade', EvAg: EventAggregator, properties: properties });
                 Backbone.history.start();
             }
         );

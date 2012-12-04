@@ -3,7 +3,7 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'hgn!templates/storyBrief',
+        'hgn!templates/storyBrief/storyBrief',
         'components/utils'
     ],
     function($, Backbone, _, templateStoryBrief, utils){
