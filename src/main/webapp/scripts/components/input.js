@@ -12,10 +12,9 @@
         'text!templates/input/storyCover.html',
         'text!templates/input/storyChapter.html',
         'text!templates/input/storyChapterInput.html',
-        'text!templates/input/storyLogin.html',
         'cloudinary'
     ],
-    function($, Backbone, _, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput, templateStoryLogin){
+    function($, Backbone, _, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -23,10 +22,6 @@
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
                 this.EvAg.bind("field/show", this.load);
-                this.EvAg.bind("fade/click", this.close);
-                if(this.properties.isWidget === true){
-                    this.EvAg.bind("user/login", this.login);
-                }
                 this.locked = false;
                 this.cloudName = "";
                 this.prompts = [];
@@ -43,7 +38,7 @@
                 'click #story-hide': "hideStoryClick",
                 'click #chapter-cancel': 'cancelChapterClick',
                 'click .chapter-thumb-x': 'removeChapterThumb',
-                "click .input-login-button": "loginClick"
+                'click .fade': "close"
             },
             login: function(echoedUser){
                 this.properties.echoedUser = echoedUser;
@@ -82,54 +77,17 @@
                             url: self.properties.urls.api + "/api/partner/" + id,
                             dataType: 'jsonp',
                             success: function(data){
-                                self.renderLogin(data);
+                                var text = data.partner.name + " wants to hear your story. Share your story and have it featured.";
+                                self.EvAg.trigger("login/init", "input/show", text);
                             }
                         })();
                     } else {
-                        self.renderLogin();
+                        self.EvAg.trigger("login/init", "input/show", "Test");
                     }
                 }
             },
-            loginClick: function(ev){
-                var self = this;
-                if(self.properties.isWidget){
-                    var target = $(ev.currentTarget);
-                    var href = target.attr('href');
-                    window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-                    return false;
-                }
-            },
-            renderLogin: function(data){
-                var self = this;
-                self.template = _.template(templateStoryLogin);
-                self.element.html(self.template).addClass('small');
-                $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
-
-                if(self.properties.isWidget){
-                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
-                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close"));
-                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl("redirect/close"));
-                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl("redirect/close"));
-
-                } else {
-                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
-                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl());
-                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
-                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
-                }
-                var body = self.element.find(".field-login-body");
-
-                if(data){
-                    var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
-                    var bodyTextNode = $('<div class="field-login-body-text"></div>').text(bodyText);
-                    body.append(bodyTextNode);
-                }
-
-                self.show();
-            },
             unload: function(callback){
                 var self = this;
-                self.EvAg.trigger('fade/hide');
                 self.element.fadeOut(function(){
                     callback();
                     self.element.empty();
@@ -565,19 +523,7 @@
                 var echoedUserId = self.properties.echoedUser.id
                 var v = confirm("Are you sure you want to hide this story?");
                 if(v === true){
-                    utils.AjaxFactory({
-                        url: this.properties.urls.api + "/story/" + id + "/moderate",
-                        type: "POST",
-                        data: {
-                            moderated: true,
-                            storyOwnerId : echoedUserId
-                        },
-                        success: function() {
-                            self.unload(function() {
-                                self.EvAg.trigger('router/me');
-                            });
-                        }
-                    })();
+
                 }
             },
             updateChapter: function(publishOption){
@@ -637,14 +583,12 @@
             },
             show: function(){
                 var self = this;
-                self.EvAg.trigger('fade/show');
                 self.element.fadeIn();
                 $("#story-name").focus();
             },
             close: function(){
                 var self = this;
                 self.element.fadeOut().empty();
-                self.EvAg.trigger('fade/hide');
                 self.EvAg.trigger('hash/reset');
             }
         });

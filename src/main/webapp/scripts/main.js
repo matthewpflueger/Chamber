@@ -8,19 +8,19 @@ require(
         'routers/website',
         'components/exhibit',
         'components/story',
-        'components/fade',
         'components/pageTitle',
         'components/title',
         'components/input',
-        'components/login',
+        'components/user',
         'components/messageHandler',
         'components/notifications',
         'components/errorLog',
         'components/actions',
         'components/infiniteScroll',
-        'components/nav'
+        'components/nav',
+        'components/login'
     ],
-    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, Fade, PageTitle, Title, Input, Login, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav){
+    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, PageTitle, Title, Input, User, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav, Login){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -101,15 +101,16 @@ require(
             this.router = new Router({ EvAg: EventAggregator, properties: properties });
             this.infiniteScroll = new InfiniteScroll({ el: '#infiniteScroll', EvAg: EventAggregator, properties: properties})
             this.nav = new Nav({ EvAg: EventAggregator, properties: properties});
-            this.fade = new Fade({ el: '#fade', EvAg: EventAggregator, properties: properties });
-            this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
+            this.story = new Story({ el: '#story-container', EvAg: EventAggregator, properties: properties });
             this.exhibit = new Exhibit({ el: '#content', EvAg: EventAggregator, properties: properties });
             this.pageTitle = new PageTitle({ el: 'title', EvAg: EventAggregator, properties: properties });
             this.contentTitle = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
             this.actions = new Actions({ el: '#actions', EvAg: EventAggregator, properties: properties });
-            this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
-            this.login = new Login({ el: '#user', EvAg: EventAggregator, properties: properties });
+            this.input = new Input({ el: '#field-container', EvAg: EventAggregator, properties: properties });
+            this.user = new User({ el: '#user', EvAg: EventAggregator, properties: properties });
             this.notifications = new Notifications({ el: '#notifications-container', EvAg: EventAggregator, properties: properties });
+            this.login = new Login({ el: '#login-container', EvAg: EventAggregator, properties: properties });
+
 
             var iFrameNode = document.createElement('iframe');
 
@@ -117,7 +118,7 @@ require(
             iFrameNode.width = '0px';
             iFrameNode.style.border = "none";
             iFrameNode.id = "echoed-iframe";
-            iFrameNode.src = Echoed.urls.api + "/echo/iframe";
+            iFrameNode.src = Echoed.urls.api.replace("http") + "/echo/iframe";
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
             this.messageHandler = new MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator, properties: properties });
 

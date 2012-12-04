@@ -6,7 +6,6 @@ require(
         'underscore',
         'isotope',
         'components/errorLog',
-        'components/fade',
         'components/infiniteScroll',
         'components/exhibit',
         'components/story',
@@ -14,10 +13,11 @@ require(
         'components/widget/messageHandler',
         'components/widgetCloser',
         'components/title',
+        'components/login',
         'routers/widget',
         'easyXDM'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, Fade, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Router){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Login, Router){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -92,13 +92,13 @@ require(
             };
 
             this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
-            this.fade = new Fade({ el: '#fade', EvAg: EventAggregator, properties: properties });
             this.exhibit = new Exhibit({ el:'#exhibit', EvAg:EventAggregator, properties: properties });
             this.infiniteScroll = new InfiniteScroll({ el:'#infiniteScroll', EvAg:EventAggregator, properties: properties});
-            this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
-            this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
+            this.input = new Input({ el: '#field-container', EvAg: EventAggregator, properties: properties });
+            this.story = new Story({ el: '#story-container', EvAg: EventAggregator, properties: properties });
             this.closer = new WidgetCloser( { el: '#close', EvAg: EventAggregator, properties: properties });
             this.titleNav = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
+            this.login = new Login({ el: "login-container", EvAg: EventAggregator, properties: properties });
             this.router = new Router({ EvAg: EventAggregator, properties: properties });
 
             var iFrameNode = document.createElement('iframe');

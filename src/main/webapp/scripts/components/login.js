@@ -3,41 +3,57 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'components/utils'
+        'components/utils',
+        'hgn!templates/login/login'
+
     ],
-    function($, Backbone, _, utils){
+    function($, Backbone, _, utils, templateLogin){
         return Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this, 'login');
+                _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
-                this.EvAg.bind('user/login', this.login);
-                this.list = $('#user-list');
-                this.el = options.el;
+                this.EvAg.bind('login/complete', this.login);
+                this.EvAg.bind('login/init', this.init);
                 this.element = $(this.el);
             },
-            events: {
-                "click li": "click",
-                "mouseenter": "show",
-                "mouseleave": "hide"
-            },
-            show: function(){
-                this.list.show();
-            },
-            hide: function(){
-                this.list.hide();
-            },
-            click: function(ev){
-                window.location = $(ev.currentTarget).attr('href');
-            },
             login: function(echoedUser){
-                this.properties.echoedUser = echoedUser;
-                var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', utils.getProfilePhotoUrl(echoedUser, self.properties.urls));
-                var ui = $('<div id="user-image"></div>').append(image);
-                $("#user-text").text(this.properties.echoedUser.name);
-                $('#user-list').find('ul').append('<li class="user-list-item" href="logout">Logout</li>');
-                this.element.prepend(ui);
-                this.element.show();
+                this.EvAg.trigger(this.options.callback);
+                this.options.callback = null;
+                this.element.fadeOut();
+            },
+            init: function(callback, text){
+                this.options.callback = callback;
+                this.options.loginText = text;
+                this.render();
+            },
+            render: function(){
+                var view = {
+                    fbUrl : utils.getFacebookLoginUrl("redirect/close"),
+                    twUrl : utils.getTwitterLoginUrl("redirect/close"),
+                    loginUrl : this.properties.urls.api + "/" + utils.getLoginRedirectUrl("redirect/close"),
+                    signUpUrl :  this.properties.urls.api + "/" + utils.getSignUpRedirectUrl("redirect/close"),
+                    imgUrl : this.properties.urls.images + "/logo_large.png",
+                    loginText: this.options.loginText
+                };
+                var template = templateLogin(view);
+                this.element.html(template);
+                this.element.fadeIn();
+            },
+            events: {
+                "click .login-button": "loginClick",
+                "click .login-email": "loginClick",
+                "click .fade": "close"
+            },
+            close: function(){
+                this.element.fadeOut();
+                this.element.empty();
+            },
+            loginClick: function(ev){
+                var target = $(ev.currentTarget);
+                var href = target.attr('href');
+                window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                return false;
             }
         });
     }

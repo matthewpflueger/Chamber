@@ -15,14 +15,9 @@ define(
                 this.element = $(this.el);
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
-                if(this.properties.isWidget === true){
-                    this.EvAg.bind("user/login", this.login);
-                }
                 this.EvAg.bind('story/show', this.load);
-                this.EvAg.bind('user/login', this.login);
                 this.EvAg.bind('story/hide', this.hide);
-                this.EvAg.bind('field/show', this.hide);
-                this.EvAg.bind('fade/click', this.close);
+                this.EvAg.bind('story/login', this.login);
                 this.locked = false;
             },
             events: {
@@ -41,10 +36,9 @@ define(
                 "click .story-share": "share",
                 "click #story-follow": "followClick",
                 "click #story-login-container": "closeLogin",
-                "click .story-login-button": "loginClick",
-                "click .story-login-email": "loginClick",
                 "click #comments-login": "showLogin",
-                "click .story-link": "redirect"
+                "click .story-link": "redirect",
+                "click .fade" : "hide"
             },
             followClick: function(ev){
                 var self = this;
@@ -81,23 +75,8 @@ define(
             fromClick: function(ev){
                 window.open(this.properties.urls.api + "/redirect/partner/" + this.data.story.partnerId);
             },
-            loginClick: function(ev){
-                var self = this;
-                var target = $(ev.currentTarget);
-                var href = target.attr('href');
-                window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-                return false;
-            },
             showLogin: function(){
-                var self = this;
-                var view = {};
-                view.fbUrl = utils.getFacebookLoginUrl("redirect/close");
-                view.twUrl = utils.getTwitterLoginUrl("redirect/close");
-                view.loginUrl = self.properties.urls.api + "/" + utils.getLoginRedirectUrl("redirect/close");
-                view.signupUrl = self.properties.urls.api + "/" + utils.getSignUpRedirectUrl("redirect/close");
-                view.imgUrl = self.properties.urls.images + "/logo_large.png";
-                $('#story-login-container').html(templateLogin(view));
-                $('#story-login-container').fadeIn();
+                this.EvAg.trigger("login/init", "story/login");
             },
             closeLogin: function(ev){
                 var self = this;
@@ -330,8 +309,9 @@ define(
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
                 self.galleryNodeBody = $('#echo-story-gallery-body');
-                self.chapterText = $("<div class='echo-s-b-t-b'></div>")
+                self.chapterText = $("<div class='echo-s-b-t-b'></div>");
                 self.text.append(self.chapterText);
+                self.story = $('#story');
                 self.renderGalleryNav();
                 self.renderComments();
                 self.renderChapter();
@@ -340,11 +320,9 @@ define(
                 self.renderViews();
                 self.scroll(0);
 
-                self.EvAg.trigger('fade/show');
-                self.element.css({
-                    "margin-left": -(self.element.width() / 2)
-                });
+                self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
+                $("body").addClass("noScroll");
             },
             renderGalleryNav: function(){
                 var self = this;
@@ -441,7 +419,6 @@ define(
                             height: i.attr('height')
                         }
                         imageUrl = i.attr('src')
-//                        imageSizing = utils.getImageSizing(currentImage, 450);
                         self.gallery.addClass("gallery-text");
                         self.gallery.removeClass('gallery-photo');
                         self.chapterText.removeClass('caption')
@@ -454,12 +431,6 @@ define(
                             'fast',
                             function(){
                                 self.img.css(imageSizing).attr('src', imageUrl).fadeIn();
-//                                if(currentImage.storyUrl !== null){
-//                                    self.img.css(imageSizing).attr('src', currentImage.storyUrl).fadeIn();
-//                                } else {
-//                                    self.img.css(imageSizing).attr('src', currentImage.originalUrl).fadeIn();
-//                                }
-//                                self.img.attr('src', currentImage.originalUrl).fadeIn();
                                 self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
                                 self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
                             });
@@ -546,17 +517,16 @@ define(
             hide: function(){
                 this.element.fadeOut();
                 this.element.empty();
+                $("body").removeClass("noScroll");
             },
             redirect: function(){
                 var self = this;
                 this.element.fadeOut(function(){
                     self.element.empty();
-                })
-                this.EvAg.trigger('fade/hide');
+                });
             },
             close: function(){
                 this.element.fadeOut();
-                this.EvAg.trigger("fade/hide");
                 this.EvAg.trigger("hash/reset");
             }
         });
