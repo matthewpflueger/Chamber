@@ -3,10 +3,9 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'mustache',
-        'text!templates/select/select.html'
+        'hgn!templates/select/select'
     ],
-    function($, Backbone, _, Mustache, templateSelect){
+    function($, Backbone, _, templateSelect){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this,'render','click','open','selectOption','close');
@@ -26,7 +25,7 @@ define(
             },
             render: function(){
                 var self = this;
-                var template = Mustache.render(templateSelect, self.options);
+                var template = templateSelect(self.options);
                 self.element.html(template);
                 if(this.locked !== true) self.element.addClass('input-select');
                 this.input = $('#field-text-input');
