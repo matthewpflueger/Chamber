@@ -14,6 +14,7 @@ define(
                 this.el = options.el;
                 this.element = $(this.el);
                 this.properties = options.properties;
+                this.modelUser = options.modelUser;
                 this.EvAg = options.EvAg;
                 this.personal = options.Personal;
                 this.data = options.data;
@@ -83,11 +84,7 @@ define(
                     self.element.html(templateStoryBriefText(self.data));
                 }
 
-                if(self.properties.echoedUser !== undefined){
-                    if(self.data.echoedUser.id === Echoed.echoedUser.id){
-                        self.element.find('.story-brief-edit').show();
-                    }
-                }
+                if(this.modelUser.is(self.data.echoedUser.id)) self.element.find('.story-brief-edit').show();
 
                 self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));
                 if(self.properties.isWidget) self.element.find('.story-brief-text-user').attr("target","_blank").attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id);

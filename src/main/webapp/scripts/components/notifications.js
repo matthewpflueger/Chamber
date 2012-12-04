@@ -13,7 +13,8 @@ define(
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.element = $(options.el);
-                this.EvAg.bind('user/login', this.init);
+                this.modelUser = options.modelUser;
+                this.modelUser.on("change:id", this.init);
                 this.list = $('#notifications-list');
                 this.menu = $('#notifications-menu');
                 this.header = $('#notifications-list-header');
@@ -23,7 +24,7 @@ define(
             },
             init: function(){
                 var self = this;
-                if(self.properties.echoedUser !== undefined){
+                if(this.modelUser.isLoggedIn()){
                     utils.AjaxFactory({
                         url: Echoed.urls.api + "/api/me/settings",
                         success: function(settings){

@@ -158,8 +158,8 @@ define(
                             storyOwnerId: self.data.echoedUser.id
                         },
                         success: function(data){
-                            self.data.votes[self.properties.echoedUser.id] = {
-                                echoedUserId: self.properties.echoedUser.id,
+                            self.data.votes[self.modelUser.get('id')] = {
+                                echoedUserId: self.modelUser.get('id'),
                                 value: -1
                             };
                             self.renderVotes();
@@ -214,9 +214,8 @@ define(
                 }
                 $('#upvote-counter').text(upVotes);
                 $('#downvote-counter').text(downVotes);
-
-                if(self.properties.echoedUser !== undefined){
-                    var vote = self.data.votes[self.properties.echoedUser.id];
+                if(this.modelUser.isLoggedIn()){
+                    var vote = self.data.votes[this.modelUser.get("id")];
                     if(vote !== undefined){
                         if(vote.value > 0) self.element.find('.upvote').addClass('on');
                         else if(vote.value < 0) self.element.find('.downvote').addClass('on');
