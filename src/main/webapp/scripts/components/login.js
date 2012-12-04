@@ -13,11 +13,13 @@ define(
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
+                this.modelUser = options.modelUser;
                 this.EvAg.bind('login/complete', this.login);
                 this.EvAg.bind('login/init', this.init);
                 this.element = $(this.el);
             },
             login: function(echoedUser){
+                this.modelUser.login(echoedUser);
                 this.EvAg.trigger(this.options.callback);
                 this.options.callback = null;
                 this.element.fadeOut();

@@ -15,9 +15,11 @@ define(
                 this.element = $(this.el);
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
+                this.modelUser = options.modelUser;
                 this.EvAg.bind('story/show', this.load);
                 this.EvAg.bind('story/hide', this.hide);
                 this.EvAg.bind('story/login', this.login);
+                this.modelUser.on("change:id", this.login);
                 this.locked = false;
             },
             events: {
@@ -45,8 +47,8 @@ define(
                 var request = {};
                 var currentTarget = $(ev.currentTarget);
                 var followId = currentTarget.attr("echoedUserId");
-                if(self.properties.echoedUser !== undefined ){
-                    if(self.properties.echoedUser.id !== followId) {
+                if(this.modelUser.isLoggedIn()){
+                    if(!this.modelUser.is(followId)) {
                         if(self.following === false){
                             request = {
                                 url: self.properties.urls.api + "/api/me/following/" + followId,
@@ -79,7 +81,6 @@ define(
                 this.EvAg.trigger("login/init", "story/login");
             },
             closeLogin: function(ev){
-                var self = this;
                 if($(ev.target).attr("id") === "story-login-container"){
                     $('#story-login-container').fadeOut();
                 }
@@ -127,8 +128,7 @@ define(
             },
             upVote: function(ev){
                 var self = this;
-                var target = $(ev.currentTarget);
-                if(self.properties.echoedUser !== undefined){
+                if(this.modelUser.isLoggedIn()){
                     utils.AjaxFactory({
                         url: self.properties.urls.api + "/api/upvote",
                         data: {
@@ -136,8 +136,8 @@ define(
                             storyOwnerId: self.data.echoedUser.id
                         },
                         success: function(data){
-                            self.data.votes[self.properties.echoedUser.id] = {
-                                echoedUserId: self.properties.echoedUser.id,
+                            self.data.votes[self.modelUser.get("id")] = {
+                                echoedUserId: self.modelUser.get("id"),
                                 value: 1
                             };
                             self.renderVotes();
@@ -150,7 +150,7 @@ define(
             downVote: function(ev){
                 var self = this;
                 var target = $(ev.currentTarget);
-                if(self.properties.echoedUser !== undefined){
+                if(this.modelUser.isLoggedIn()){
                     utils.AjaxFactory({
                         url: self.properties.urls.api + "/api/downvote",
                         data: {
@@ -170,15 +170,16 @@ define(
                     self.showLogin();
                 }
             },
-            login: function(echoedUser){
+            login: function(){
                 var self = this;
-                this.properties.echoedUser = echoedUser;
-                this.element.find('.comment-login').fadeOut(function(){
-                    self.element.find('.comment-submit').fadeIn();
-                });
-                $('#story-login-container').fadeOut();
-                self.renderVotes();
-                self.renderFollowing();
+                if(self.data){
+                    this.element.find('.comment-login').fadeOut(function(){
+                        self.element.find('.comment-submit').fadeIn();
+                    });
+                    $('#story-login-container').fadeOut();
+                    self.renderVotes();
+                    self.renderFollowing();
+                }
             },
             navClick: function(ev){
                 var self = this;
@@ -226,8 +227,8 @@ define(
                 var self = this;
                 self.following = false;
                 $('#story-follow').attr("echoedUserId", self.data.echoedUserId);
-                if(self.properties.echoedUser !== undefined){
-                    if(self.properties.echoedUser.id !== self.data.echoedUser.id){
+                if(this.modelUser.isLoggedIn()){
+                    if(!this.modelUser.is(self.data.echoedUser.id)){
                         utils.AjaxFactory({
                             url: self.properties.urls.api + "/api/me/following",
                             success: function(data){
@@ -279,11 +280,9 @@ define(
                 self.currentImageIndex = 0;
 
                 self.text = self.element.find('.echo-s-b-text');
-                if(self.properties.echoedUser !== undefined){
-                    if(self.data.echoedUser.id === self.properties.echoedUser.id){
+                if(this.modelUser.is(self.data.echoedUser.id)){
                         var header = self.element.find('.echo-story-header');
                         $('#story-edit-tab').attr("href","#write/story/" + self.data.story.id).css("display","inline-block");
-                    }
                 }
 
                 self.gallery = $('#echo-s-b-gallery');
@@ -477,7 +476,7 @@ define(
                     commentListNode.append(commentNode);
                 });
                 $('#echo-s-c-t-count').text("(" + self.data.comments.length + ")");
-                if(this.properties.echoedUser) {
+                if(this.modelUser.isLoggedIn()) {
                     self.element.find('.comment-submit').fadeIn();
                 } else{
                     self.element.find('.comment-login-fb').attr("href", utils.getFacebookLoginUrl("redirect/close"));

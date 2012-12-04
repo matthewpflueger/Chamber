@@ -20,8 +20,10 @@
                 _.bindAll(this);
                 this.element = $(options.el);
                 this.properties = options.properties;
+                this.modelUser = options.modelUser;
                 this.EvAg = options.EvAg;
                 this.EvAg.bind("field/show", this.load);
+                this.modelUser.on("change:id", this.login);
                 this.locked = false;
                 this.cloudName = "";
                 this.prompts = [];
@@ -40,8 +42,7 @@
                 'click .chapter-thumb-x': 'removeChapterThumb',
                 'click .fade': "close"
             },
-            login: function(echoedUser){
-                this.properties.echoedUser = echoedUser;
+            login: function(){
                 this.loadPartner();
             },
             loadPartner: function(){
@@ -60,7 +61,7 @@
                 self.data = {};
                 loadData[type + "Id"] = id;
                 self[type+"Id"] = id;
-                if(self.properties.echoedUser){
+                if(this.modelUser.isLoggedIn()){
                     utils.AjaxFactory({
                         url: jsonUrl,
                         data: loadData,
@@ -520,10 +521,21 @@
             hideStoryClick: function() {
                 var self = this;
                 var id = self.data.storyFull.story.id
-                var echoedUserId = self.properties.echoedUser.id
-                var v = confirm("Are you sure you want to hide this story?");
+                                var v = confirm("Are you sure you want to hide this story?");
                 if(v === true){
-
+                    utils.AjaxFactory({
+                        url: this.properties.urls.api + "/story/" + id + "/moderate",
+                        type: "POST",
+                        data: {
+                            moderated: true,
+                            storyOwnerId : self.modelUser.get('id')
+                        },
+                        success: function() {
+                            self.unload(function() {
+                                self.EvAg.trigger('router/me');
+                            });
+                        }
+                    })();
                 }
             },
             updateChapter: function(publishOption){
