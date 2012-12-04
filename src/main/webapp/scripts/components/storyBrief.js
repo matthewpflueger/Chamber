@@ -3,8 +3,8 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'text!templates/story-brief.html',
-        'text!templates/story-brief-text.html',
+        'hgn!templates/storyBrief/storyBrief',
+        'hgn!templates/storyBrief/storyBriefText',
         'components/utils'
     ],
     function($, Backbone, _, templateStoryBrief, templateStoryBriefText, utils){
@@ -26,8 +26,8 @@ define(
             },
             render: function(){
                 var self = this;
+
                 self.element.addClass('item-story');
-                var textNode = self.element.find(".story-brief-text");
 
                 if(self.data.chapters.length > 0){
                     var chapterText = self.data.chapters[0].text;
@@ -44,12 +44,10 @@ define(
                         } else {
                             self.data.chapterText = chapterText;
                         }
-
                     }
-
-
                 } else {
-                    textNode.append("<strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>");
+                    self.data.inComplete = true;
+                    self.data.chapterText = "";
                     self.data.chapterText = "";
                 }
 
@@ -67,17 +65,22 @@ define(
 
 
                 if (image !== null) {
-                    self.element.html(_.template(templateStoryBrief, self.data));
+
+
+
+                    var template = templateStoryBrief(self.data);
+                    self.element.html(template);
+
                     var imageNode = self.element.find(".story-brief-image");
                     self.imageContainer = self.element.find('.story-brief-image-container');
-                    var i = utils.scaleByWidth(image, 260)
+                    var i = utils.scaleByWidth(image, 260);
                     self.data.storyImage = {
                         url: i.attr('src'),
                         size: { width: i.attr('width'), height: i.attr('height') }
                     };
                     imageNode.attr('src', self.data.storyImage.url).css(self.data.storyImage.size)
                 } else{
-                    self.element.html(_.template(templateStoryBriefText, self.data));
+                    self.element.html(templateStoryBriefText(self.data));
                 }
 
                 if(self.properties.echoedUser !== undefined){
