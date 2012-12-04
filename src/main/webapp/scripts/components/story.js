@@ -3,8 +3,8 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'text!templates/story/story.html',
-        'text!templates/story/login.html',
+        'hgn!templates/story/story',
+        'hgn!templates/story/login',
         'components/utils'
     ],
     function($, Backbone, _, templateStory, templateLogin, utils){
@@ -83,32 +83,20 @@ define(
             },
             loginClick: function(ev){
                 var self = this;
-                if(self.properties.isWidget){
-                    var target = $(ev.currentTarget);
-                    var href = target.attr('href');
-                    window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-                    return false;
-                }
+                var target = $(ev.currentTarget);
+                var href = target.attr('href');
+                window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                return false;
             },
             showLogin: function(){
                 var self = this;
-                var login = $('<div id="story-login"></div>').html(templateLogin);
-                $('#story-login-container').html(login);
-                $('#story-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
-                if(self.properties.isWidget){
-                    $("#story-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
-                    $("#story-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close"));
-                    $('#story-user-login').attr('href', self.properties.urls.api + "/" +utils.getLoginRedirectUrl("redirect/close"));
-                    $('#story-user-signup').attr("href", self.properties.urls.api + "/" +utils.getSignUpRedirectUrl("redirect/close"));
-
-                } else {
-                    $("#story-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
-                    $("#story-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
-                    $('#story-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
-                    $('#story-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl());
-
-
-                }
+                var view = {};
+                view.fbUrl = utils.getFacebookLoginUrl("redirect/close");
+                view.twUrl = utils.getTwitterLoginUrl("redirect/close");
+                view.loginUrl = self.properties.urls.api + "/" + utils.getLoginRedirectUrl("redirect/close");
+                view.signupUrl = self.properties.urls.api + "/" + utils.getSignUpRedirectUrl("redirect/close");
+                view.imgUrl = self.properties.urls.images + "/logo_large.png";
+                $('#story-login-container').html(templateLogin(view));
                 $('#story-login-container').fadeIn();
             },
             closeLogin: function(ev){
@@ -123,7 +111,7 @@ define(
                 var href = "";
                 switch(target.attr("type")){
                     case "fb":
-                        href = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(self.properties.urls.api + "/graph/story/" + self.data.story.id)
+                        href = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(self.properties.urls.api + "/graph/story/" + self.data.story.id);
                         break;
                     case "tw":
                         href = "http://twitter.com/intent/tweet?original_referer="
@@ -285,7 +273,7 @@ define(
             render: function(){
 
                 var self = this;
-                var template = _.template(templateStory, self.data);
+                var template = templateStory(self.data);
                 self.element.html(template);
                 self.chapters = {
                     array: [],
