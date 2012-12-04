@@ -5,7 +5,7 @@ define(
         'underscore',
         'components/storyBrief',
         'components/utils',
-        'text!templates/login.html',
+        'hgn!templates/login',
         'isotope'
     ],
     function($, Backbone, _, StoryBrief, utils, templateLogin, isotope ){
@@ -91,15 +91,6 @@ define(
                         }
                     })();
                 }
-            },
-            addLogin: function(){
-                var self = this;
-                self.loginDiv = $('<div></div>').addClass('item_wrap').attr("id","login");
-                var template = _.template(templateLogin);
-                self.loginDiv.html(template);
-                self.loginDiv.find("#facebookLogin").attr("href", utils.getFacebookLoginUrl(window.location.hash));
-                self.loginDiv.find("#twitterLogin").attr("href", utils.getTwitterLoginUrl(window.location.hash));
-                self.exhibit.isotope('insert', self.loginDiv)
             },
             addCommunities: function(data){
                 var self = this;
