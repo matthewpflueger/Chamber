@@ -5,10 +5,9 @@ define(
         'underscore',
         'components/storyBrief',
         'components/utils',
-        'hgn!templates/login',
         'isotope'
     ],
-    function($, Backbone, _, StoryBrief, utils, templateLogin, isotope ){
+    function($, Backbone, _, StoryBrief, utils, isotope ){
         return Backbone.View.extend({
             el: '#content',
             initialize: function(options){

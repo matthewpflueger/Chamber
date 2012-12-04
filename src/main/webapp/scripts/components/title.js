@@ -4,8 +4,8 @@ define(
         'backbone',
         'underscore',
         'components/utils',
-        'text!templates/title.html',
-        'text!templates/title/topic.html'
+        'hgn!templates/title/title',
+        'hgn!templates/title/topic'
     ],
     function($, Backbone, _, utils, templateTitle, templateTopic){
         return Backbone.View.extend({
@@ -32,8 +32,9 @@ define(
                         
                         var ul = $('<ul></ul>');
                         $.each(response, function(index, topic){
-                            var template = _.template(templateTopic, topic);
-                            $('<li></li>').html(template).appendTo(ul);
+                            var view = { topic: topic };
+                            var template = templateTopic(view);
+                            $(template).appendTo(ul);
                         });
                         self.titleBody.append($('<div id="title-body-title">Suggested Topics</div>'));
                         ul.appendTo(self.titleBody);
@@ -42,7 +43,7 @@ define(
                 })();
             },
             render: function(options){
-                this.element.html(_.template(templateTitle));
+                this.element.html(templateTitle());
                 this.titleText = $('#title-text');
                 this.titleBody = $('#title-body');
                 this.element.show();
