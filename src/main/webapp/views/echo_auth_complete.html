@@ -4,23 +4,23 @@
         <script type="text/javascript">
             window.setTimeout( function(){
                 var data = {};
-                {{#echoedUserName}}
+                //{{#echoedUserName}}
                     data.name = '{{.}}';
-                {{/echoedUserName}}
-                {{#echoedUserId}}
+                //{{/echoedUserName}}
+                //{{#echoedUserId}}
                     data.id = '{{.}}';
-                {{/echoedUserId}}
-                {{#facebookUserId}}
+                //{{/echoedUserId}}
+                //{{#facebookUserId}}
                     data.facebook = true;
                     data.facebookId = '{{.}}';
-                {{/facebookUserId}}
-                {{#twitterUserId}}
+                //{{/facebookUserId}}
+                //{{#twitterUserId}}
                     data.twitter = true;
                     data.twitterId = '{{.}}';
-                {{/twitterUserId}}
-                {{#screenName}}
+                //{{/twitterUserId}}
+                //{{#screenName}}
                     data.screenName = '{{.}}';
-                {{/screenName}}
+                //{{/screenName}}
                 data.success = true;
 
                 var dataString = JSON.stringify(data);
@@ -36,7 +36,8 @@
                     try{
                         window.opener.postMessage(dataString, "*");
                     } catch(error){
-                        window.opener.postMessageInterface(dataString);
+                        host = window.opener.frames['echoed-iframe'];
+                        host.postMessageInterface(dataString);
                     }
                 }
                 window.close();
