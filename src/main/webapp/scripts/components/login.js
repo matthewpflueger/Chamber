@@ -22,12 +22,18 @@ define(
                 this.modelUser.login(echoedUser);
                 if(this.options.callback) {
                     this.EvAg.trigger(this.options.callback);
-                    this.options.callback = null;
+                    this.reset();
                 }
                 this.element.fadeOut();
             },
-            init: function(callback, text){
+            reset: function(){
+                this.options.loginText = null;
+                this.options.callback = null;
+                this.options.failCallback = null;
+            },
+            init: function(callback, text, failCallback){
                 this.options.callback = callback;
+                this.options.failCallback = failCallback;
                 this.options.loginText = text;
                 this.render();
             },
@@ -50,6 +56,7 @@ define(
                 "click .fade": "close"
             },
             close: function(){
+
                 this.element.fadeOut();
                 this.element.empty();
             },
