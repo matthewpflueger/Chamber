@@ -27,8 +27,12 @@ define(
             },
             events: {
                 "click li": "click",
+                "click .user-login": "showLogin",
                 "mouseenter": "show",
                 "mouseleave": "hide"
+            },
+            showLogin: function(){
+                this.EvAg.trigger('login/init');
             },
             show: function(){
                 this.list.show();

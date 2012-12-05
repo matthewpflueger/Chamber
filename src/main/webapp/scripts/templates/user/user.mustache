@@ -3,22 +3,21 @@
     <img id="u-i-i" height="30px" width="30px" src="{{imageUrl}}" />
 </div>
 {{/id}}
-<div id="user-text">
+<div id="user-text" {{^id}}class="user-login"{{/id}}>
     {{#id}}
         {{name}}
     {{/id}}
     {{^id}}
-    Learn More
+    Login
     {{/id}}
 </div>
+{{#id}}
 <span class="downarrow"></span>
 <div id="user-list">
     <ul>
-        <li class="user-list-item" href="guidelines">Story Guidelines</li>
-        <li class="user-list-item" href="privacy">Privacy Policy</li>
-        <li class="user-list-item" href="terms">Terms of Service</li>
         {{#id}}
         <li class="user-list-item" href="logout"><strong>Logout</strong></li>
         {{/id}}
     </ul>
 </div>
+{{/id}}
