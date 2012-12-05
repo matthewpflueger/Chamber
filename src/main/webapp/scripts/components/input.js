@@ -43,17 +43,12 @@
                 'click .fade': "close"
             },
             login: function(){
-                this.loadPartner();
-            },
-            loadPartner: function(){
-                var self = this;
-                if(self.loaded === true){
-                    self.element.fadeOut(function(){
-                        self.load(self.properties.partnerId, "partner");
-                    });
-                }
+                if(this.loaded = true) this.load(this.id, this.type);
             },
             load: function(id, type){
+                this.id = id;
+                this.type = type;
+
                 var self = this;
                 var jsonUrl =  self.properties.urls.api + "/story";
                 var loadData = {};

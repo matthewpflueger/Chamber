@@ -18,7 +18,6 @@ define(
                 this.modelUser = options.modelUser;
                 this.EvAg.bind('story/show', this.load);
                 this.EvAg.bind('story/hide', this.hide);
-                this.EvAg.bind('story/login', this.login);
                 this.modelUser.on("change:id", this.login);
                 this.locked = false;
             },
@@ -400,7 +399,7 @@ define(
 
                 if(currentImage !== null && currentImage !== undefined){
                     if(this.chapterType === 'photo') {
-                        var i = utils.fit(currentImage, 842, 700)
+                        var i = utils.fit(currentImage, 842, 700);
                         imageSizing = {
                             width:i.attr('width'),
                             height:i.attr('height')
@@ -411,7 +410,7 @@ define(
                         self.gallery.removeClass('gallery-text');
                         self.chapterText.addClass('caption')
                     } else {
-                        var i = utils.scaleByWidth(currentImage, 450)
+                        var i = utils.scaleByWidth(currentImage, 450);
                         imageSizing = {
                             width: i.attr('width'),
                             height: i.attr('height')
@@ -437,7 +436,7 @@ define(
                 } else{
                     self.gallery.addClass("gallery-text");
                     self.gallery.removeClass('gallery-photo');
-                    self.chapterText.removeClass('caption')
+                    self.chapterText.removeClass('caption');
                     self.gallery.hide();
                 }
             },
