@@ -63,7 +63,7 @@ define(
             loginClick: function(ev){
                 var target = $(ev.currentTarget);
                 var href = target.attr('href');
-                window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                window.open(href, "Echoed",'width=800,height=440,toolbar=1,menubar=1,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
                 return false;
             }
         });

@@ -99,7 +99,11 @@
         {{/echoedUser}}
     </script>
     <script type="text/javascript">
-
+        function postMessageInterface(data){
+            window.setTimeout(function(){
+                window.top.postMessage(data,"*");
+            }, 0);
+        }
     </script>
 {{/content}}
 
