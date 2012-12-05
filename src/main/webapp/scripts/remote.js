@@ -43,33 +43,33 @@ require(
 
         self.remote = new Remote({ el: "#echoed-loader" });
 
-//        self.xdmOverlay = new easyXDM.Socket({
-//            remote: EchoedSettings.urls.api +  "/widget/iframe/?pid=" + parameters['pid'],
-//            container: document.getElementsByTagName('body')[0],
-//            props: {
-//                id: "echoed-overlay",
-//                style: {
-//                    "top": "0px",
-//                    "left": "0px",
-//                    "right": "0px",
-//                    "bottom": "0px",
-//                    "height": "100%",
-//                    "width": "100%",
-//                    "position":"fixed",
-//                    "display": "none"
-//                }
-//            },
-//            onReady: function(){
-//                self.overlay = $('#echoed-overlay').css({ "z-index" : "999999999"});
-//                $('#echoed-opener,.echoed-opener, #ech-icon-container').live('click', function(){
-//                    self.overlay.fadeIn(function(){
-//                        $('html').css({"overflow": "hidden"});
-//                    });
-//                    self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
-//                });
-//                showEchoedOverlay();
-//            }
-//        });
+        self.xdmOverlay = new easyXDM.Socket({
+            remote: EchoedSettings.urls.api +  "/widget/iframe/?pid=" + parameters['pid'],
+            container: document.getElementsByTagName('body')[0],
+            props: {
+                id: "echoed-overlay",
+                style: {
+                    "top": "0px",
+                    "left": "0px",
+                    "right": "0px",
+                    "bottom": "0px",
+                    "height": "100%",
+                    "width": "100%",
+                    "position":"fixed",
+                    "display": "none"
+                }
+            },
+            onReady: function(){
+                self.overlay = $('#echoed-overlay').css({ "z-index" : "999999999"});
+                $('#echoed-opener,.echoed-opener, #ech-icon-container').live('click', function(){
+                    self.overlay.fadeIn(function(){
+                        $('html').css({"overflow": "hidden"});
+                    });
+                    self.xdmOverlay.postMessage(JSON.stringify({ type: "hash", data: "home" }));
+                });
+                showEchoedOverlay();
+            }
+        });
 
         self.xdmPreview = new easyXDM.Socket({
             remote: EchoedSettings.urls.api + "/widget/iframe/preview?pid=" + parameters['pid'],
