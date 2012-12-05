@@ -14,6 +14,7 @@ define(
                 this.modelUser = options.modelUser;
                 this.EvAg.bind("hash/reset", this.resetHash);
                 this.EvAg.bind("router/me", this.me);
+                this.currentRequest = null;
                 this.page = null;
             },
             routes:{
@@ -51,21 +52,22 @@ define(
                 window.location.href = "#";
             },
             requestFeed: function(endPoint, callback){
+                var self = this;
                 var jsonUrl = this.properties.urls.api + '/api/' + endPoint;
+                var timeStamp = new Date().getTime().toString();
+                self.currentRequest = timeStamp;
                 utils.AjaxFactory({
                         url: jsonUrl,
                         dataType: 'json',
                         success: function(data){
-                            callback(jsonUrl, data);
+                            if(self.currentRequest === timeStamp) callback(jsonUrl, data, timeStamp);
                         }
                 })();
             },
             loadPage: function(page, options){
-                this.EvAg.trigger('fade/hide');
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
                 this.EvAg.trigger("story/hide");
-
                 _gaq.push(['_trackPageview', this.page]);
             },
             cList: function(){
