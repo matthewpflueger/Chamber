@@ -1,6 +1,5 @@
-#fade {
-    z-index: 9999;
-    background-color: rgba(0,0,0,0.9);
+.fade {
+    background-color: rgba(0,0,0,0.7);
     top: 0px;
     left: 0px;
     bottom: 0px;
@@ -9,6 +8,4 @@
     position: fixed;
     width: 100%;
     min-width: 1200px;
-    display: none;
-    overflow-y: scroll;
 }

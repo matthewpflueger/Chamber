@@ -3,7 +3,7 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'text!templates/partner/howToInstall.html'
+        'hgn!templates/partner/howToInstall'
     ],
     function($, Backbone, _, templatesHowToInstall){
         return Backbone.View.extend({
@@ -19,7 +19,7 @@ define(
                 this.render();
             },
             render: function(){
-                var template = _.template(templatesHowToInstall, this.properties);
+                var template = templatesHowToInstall(this.properties);
                 this.element.html(template);
             },
             show: function(){

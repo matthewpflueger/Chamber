@@ -3,7 +3,7 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'text!templates/story-brief.html',
+        'hgn!templates/storyBrief/storyBrief',
         'components/utils'
     ],
     function($, Backbone, _, templateStoryBrief, utils){
@@ -57,8 +57,8 @@ define(
                 self.data.profilePhotoUrl = utils.getProfilePhotoUrl(self.data.echoedUser, self.properties.urls);
 
                 self.data.imageCount = self.data.chapterImages.length + (self.data.story.image ? 1 : 0);
-                var template = _.template(templateStoryBrief, self.data);
-                self.element.html(template);
+
+                self.element.html(templateStoryBrief(self.data));
 
                 self.imageContainer = self.element.find('.story-brief-image-container');
                 self.element.find('.vote-counter').text(utils.arraySize(self.data.votes));

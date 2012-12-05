@@ -7,26 +7,23 @@
         'components/utils',
         'components/select',
         'components/ajaxInput',
-        'text!templates/input/storySummary.html',
-        'text!templates/input/storyCoverInput.html',
-        'text!templates/input/storyCover.html',
-        'text!templates/input/storyChapter.html',
-        'text!templates/input/storyChapterInput.html',
-        'text!templates/input/storyLogin.html',
+        'hgn!templates/input/storySummary',
+        'hgn!templates/input/storyCoverInput',
+        'hgn!templates/input/storyCover',
+        'hgn!templates/input/storyChapter',
+        'hgn!templates/input/storyChapterInput',
         'cloudinary'
     ],
-    function($, Backbone, _, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput, templateStoryLogin){
+    function($, Backbone, _, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
                 this.element = $(options.el);
                 this.properties = options.properties;
+                this.modelUser = options.modelUser;
                 this.EvAg = options.EvAg;
                 this.EvAg.bind("field/show", this.load);
-                this.EvAg.bind("fade/click", this.close);
-                if(this.properties.isWidget === true){
-                    this.EvAg.bind("user/login", this.login);
-                }
+                this.modelUser.on("change:id", this.login);
                 this.locked = false;
                 this.cloudName = "";
                 this.prompts = [];
@@ -43,10 +40,9 @@
                 'click #story-hide': "hideStoryClick",
                 'click #chapter-cancel': 'cancelChapterClick',
                 'click .chapter-thumb-x': 'removeChapterThumb',
-                "click .input-login-button": "loginClick"
+                'click .fade': "close"
             },
-            login: function(echoedUser){
-                this.properties.echoedUser = echoedUser;
+            login: function(){
                 this.loadPartner();
             },
             loadPartner: function(){
@@ -65,7 +61,7 @@
                 self.data = {};
                 loadData[type + "Id"] = id;
                 self[type+"Id"] = id;
-                if(self.properties.echoedUser){
+                if(this.modelUser.isLoggedIn()){
                     utils.AjaxFactory({
                         url: jsonUrl,
                         data: loadData,
@@ -82,54 +78,17 @@
                             url: self.properties.urls.api + "/api/partner/" + id,
                             dataType: 'jsonp',
                             success: function(data){
-                                self.renderLogin(data);
+                                var text = data.partner.name + " wants to hear your story. Share your story and have it featured.";
+                                self.EvAg.trigger("login/init", "input/show", text);
                             }
                         })();
                     } else {
-                        self.renderLogin();
+                        self.EvAg.trigger("login/init", "input/show", "Test");
                     }
                 }
             },
-            loginClick: function(ev){
-                var self = this;
-                if(self.properties.isWidget){
-                    var target = $(ev.currentTarget);
-                    var href = target.attr('href');
-                    window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-                    return false;
-                }
-            },
-            renderLogin: function(data){
-                var self = this;
-                self.template = _.template(templateStoryLogin);
-                self.element.html(self.template).addClass('small');
-                $('#field-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
-
-                if(self.properties.isWidget){
-                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
-                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close"));
-                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl("redirect/close"));
-                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl("redirect/close"));
-
-                } else {
-                    $('#field-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
-                    $('#field-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl());
-                    $("#field-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
-                    $("#field-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
-                }
-                var body = self.element.find(".field-login-body");
-
-                if(data){
-                    var bodyText = data.partner.name + " wants to hear your story. Share your story and have it featured on the " + data.partner.name + " page.";
-                    var bodyTextNode = $('<div class="field-login-body-text"></div>').text(bodyText);
-                    body.append(bodyTextNode);
-                }
-
-                self.show();
-            },
             unload: function(callback){
                 var self = this;
-                self.EvAg.trigger('fade/hide');
                 self.element.fadeOut(function(){
                     callback();
                     self.element.empty();
@@ -140,7 +99,7 @@
                 var self = this;
                 self.element.empty();
                 self.locked = false;
-                self.template = _.template(templateSummary);
+                self.template = templateSummary();
                 self.element.removeClass("small");
                 self.element.html(self.template);
 
@@ -179,9 +138,8 @@
             loadStoryCoverTemplate: function(){
                 var self = this;
                 var story = self.data.storyFull.story;
-                var template = _.template(templateStoryCover, story);
+                var template = templateStoryCover(story);
                 self.cover.html(template);
-                console.log("Cover!");
                 if (story.image !== null) {
                     utils.scaleByHeight(story.image, 50)
                             .addClass("story-summary-photo")
@@ -196,7 +154,7 @@
             },
             loadChapterInputTemplate: function(option){
                 var self = this;
-                var template = _.template(templateChapterInput);
+                var template =templateChapterInput();
                 var chapter = function(opt){
                     if(opt.type ==="Edit") return $("#chapter-row-" + opt.index);
                     else return $('<div class="field-main-row clearfix"></div>').appendTo(self.body);
@@ -341,7 +299,7 @@
                 var self = this;
                 $.each(self.data.storyFull.chapters, function(index, chapter){
                     chapter.index = index;
-                    var template = _.template(templateChapter, chapter);
+                    var template = templateChapter(chapter);
                     var chapterRow = $('<div class="field-main-row clearfix"></div>')
                             .html(template)
                             .appendTo(self.body)
@@ -365,7 +323,7 @@
             },
             loadStoryInputTemplate: function(option){
                 var self = this;
-                var template = _.template(templateStoryCoverInput);
+                var template = templateStoryCoverInput();
                 if(self.data.storyFull.topic) $('#field-title').text(self.data.storyFull.topic.title);
 
                 self.cover.fadeOut(function(){
@@ -385,7 +343,6 @@
                         edit: false
                     };
 
-                    console.log(self.data);
                     if(self.data.partner.name !== "Echoed" || self.data.storyFull.topic) selectOptions.locked = true;
                     self.communitySelect = new Select(selectOptions);
 
@@ -562,15 +519,14 @@
             hideStoryClick: function() {
                 var self = this;
                 var id = self.data.storyFull.story.id
-                var echoedUserId = self.properties.echoedUser.id
-                var v = confirm("Are you sure you want to hide this story?");
+                                var v = confirm("Are you sure you want to hide this story?");
                 if(v === true){
                     utils.AjaxFactory({
                         url: this.properties.urls.api + "/story/" + id + "/moderate",
                         type: "POST",
                         data: {
                             moderated: true,
-                            storyOwnerId : echoedUserId
+                            storyOwnerId : self.modelUser.get('id')
                         },
                         success: function() {
                             self.unload(function() {
@@ -637,14 +593,12 @@
             },
             show: function(){
                 var self = this;
-                self.EvAg.trigger('fade/show');
                 self.element.fadeIn();
                 $("#story-name").focus();
             },
             close: function(){
                 var self = this;
                 self.element.fadeOut().empty();
-                self.EvAg.trigger('fade/hide');
                 self.EvAg.trigger('hash/reset');
             }
         });

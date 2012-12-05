@@ -26,7 +26,7 @@ define(
                 } else if(response.data){
                     try {
                         var echoedUser = JSON.parse(response.data);
-                        this.EvAg.trigger('user/login', echoedUser);
+                        this.EvAg.trigger('login/complete', echoedUser);
                     } catch(e){
 
                     }

@@ -6,7 +6,6 @@ require(
         'underscore',
         'isotope',
         'components/errorLog',
-        'components/fade',
         'components/infiniteScroll',
         'components/exhibit',
         'components/story',
@@ -14,10 +13,12 @@ require(
         'components/widget/messageHandler',
         'components/widgetCloser',
         'components/title',
+        'components/login',
         'routers/widget',
+        'models/user',
         'easyXDM'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, Fade, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Router){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -82,24 +83,40 @@ require(
         };
 
         $(document).ready(function(){
-            var EventAggregator = _.extend({}, Backbone.Events);
+            this.EventAggregator = _.extend({}, Backbone.Events);
 
-            var properties = {
+            this.properties = {
                 urls: Echoed.urls,
                 echoedUser: Echoed.echoedUser,
                 partnerId: Echoed.partnerId,
                 isWidget: true
             };
 
-            this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
-            this.fade = new Fade({ el: '#fade', EvAg: EventAggregator, properties: properties });
-            this.exhibit = new Exhibit({ el:'#exhibit', EvAg:EventAggregator, properties: properties });
-            this.infiniteScroll = new InfiniteScroll({ el:'#infiniteScroll', EvAg:EventAggregator, properties: properties});
-            this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
-            this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
-            this.closer = new WidgetCloser( { el: '#close', EvAg: EventAggregator, properties: properties });
-            this.titleNav = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
-            this.router = new Router({ EvAg: EventAggregator, properties: properties });
+            //Initialize Models
+            this.modelUser = new ModelUser(Echoed.echoedUser);
+
+            this.modelUser.isLoggedIn();
+
+            //Options
+            this.options = function(el){
+                var opt = {
+                    properties: this.properties,
+                    modelUser: this.modelUser,
+                    EvAg: this.EventAggregator
+                };
+                if(el) opt.el = el;
+                return opt;
+            };
+
+            this.errorLog = new ErrorLog(this.options());
+            this.exhibit = new Exhibit(this.options('#exhibit'));
+            this.infiniteScroll = new InfiniteScroll(this.options('#infiniteScroll'));
+            this.input = new Input(this.options('#field-container'));
+            this.story = new Story(this.options('#story-container'));
+            this.closer = new WidgetCloser(this.options('#close'));
+            this.titleNav = new Title(this.options('#title-container'));
+            this.login = new Login(this.options("#login-container"));
+            this.router = new Router(this.options());
 
             var iFrameNode = document.createElement('iframe');
 
@@ -107,10 +124,10 @@ require(
             iFrameNode.width = '0px';
             iFrameNode.style.border = "none";
             iFrameNode.id = "echoed-iframe";
-            iFrameNode.src = Echoed.urls.api + "/echo/iframe";
+            iFrameNode.src = Echoed.urls.api.replace("http://","https://") + "/echo/iframe";
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
 
-            this.messageHandler = new MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator, properties: properties });
+            this.messageHandler = new MessageHandler(this.options('#echoed-iframe'));
             var socket = new easyXDM.Socket({
                 onMessage: function(message, origin){
                     var msg = JSON.parse(message);
@@ -126,5 +143,5 @@ require(
             Backbone.history.start();
         });
     }
-)
+);
 

@@ -8,19 +8,20 @@ require(
         'routers/website',
         'components/exhibit',
         'components/story',
-        'components/fade',
         'components/pageTitle',
         'components/title',
         'components/input',
-        'components/login',
+        'components/user',
         'components/messageHandler',
         'components/notifications',
         'components/errorLog',
         'components/actions',
         'components/infiniteScroll',
-        'components/nav'
+        'components/nav',
+        'components/login',
+        'models/user'
     ],
-    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, Fade, PageTitle, Title, Input, Login, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav){
+    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, PageTitle, Title, Input, User, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav, Login, ModelUser){
 
         $.Isotope.prototype._getCenteredMasonryColumns = function() {
             this.width = this.element.width();
@@ -87,29 +88,42 @@ require(
         };
 
         $(document).ready(function(){
-            var EventAggregator = _.extend({}, Backbone.Events);
-
-            var properties = {
+            this.EventAggregator = _.extend({}, Backbone.Events);
+            this.properties = {
                 urls: Echoed.urls,
-                echoedUser: Echoed.echoedUser,
                 exhibitShowLogin: true
             };
 
+            //Initialize Models
+            this.modelUser = new ModelUser(Echoed.echoedUser);
 
-            this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
+            this.modelUser.isLoggedIn();
 
-            this.router = new Router({ EvAg: EventAggregator, properties: properties });
-            this.infiniteScroll = new InfiniteScroll({ el: '#infiniteScroll', EvAg: EventAggregator, properties: properties})
-            this.nav = new Nav({ EvAg: EventAggregator, properties: properties});
-            this.fade = new Fade({ el: '#fade', EvAg: EventAggregator, properties: properties });
-            this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
-            this.exhibit = new Exhibit({ el: '#content', EvAg: EventAggregator, properties: properties });
-            this.pageTitle = new PageTitle({ el: 'title', EvAg: EventAggregator, properties: properties });
-            this.contentTitle = new Title({ el: '#title-container', EvAg: EventAggregator, properties: properties });
-            this.actions = new Actions({ el: '#actions', EvAg: EventAggregator, properties: properties });
-            this.input = new Input({ el: '#field', EvAg: EventAggregator, properties: properties });
-            this.login = new Login({ el: '#user', EvAg: EventAggregator, properties: properties });
-            this.notifications = new Notifications({ el: '#notifications-container', EvAg: EventAggregator, properties: properties });
+            //Options
+            this.options = function(el){
+                var opt = {
+                    properties: this.properties,
+                    modelUser: this.modelUser,
+                    EvAg: this.EventAggregator
+                };
+                if(el) opt.el = el;
+                return opt;
+            };
+
+            this.errorLog = new ErrorLog(this.options());
+            this.router = new Router(this.options());
+            this.infiniteScroll = new InfiniteScroll(this.options('#infiniteScroll'));
+            this.nav = new Nav(this.options());
+            this.story = new Story(this.options('#story-container'));
+            this.exhibit = new Exhibit(this.options('#content'));
+            this.pageTitle = new PageTitle(this.options('title'));
+            this.contentTitle = new Title(this.options('#title-container'));
+            this.actions = new Actions(this.options('#actions'));
+            this.input = new Input(this.options('#field-container'));
+            this.user = new User(this.options('#user'));
+            this.notifications = new Notifications(this.options("#notifications-container"));
+            this.login = new Login(this.options("#login-container"));
+
 
             var iFrameNode = document.createElement('iframe');
 
@@ -117,9 +131,9 @@ require(
             iFrameNode.width = '0px';
             iFrameNode.style.border = "none";
             iFrameNode.id = "echoed-iframe";
-            iFrameNode.src = Echoed.urls.api + "/echo/iframe";
+            iFrameNode.src = Echoed.urls.api.replace("http") + "/echo/iframe";
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
-            this.messageHandler = new MessageHandler({ el: '#echoed-iframe', EvAg: EventAggregator, properties: properties });
+            this.messageHandler = new MessageHandler(this.options('#echoed-iframe'));
 
             Backbone.history.start();
             }

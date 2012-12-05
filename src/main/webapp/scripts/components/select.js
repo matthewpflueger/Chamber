@@ -2,20 +2,15 @@ define(
     [
         'jquery',
         'backbone',
-        'underscore'
+        'underscore',
+        'hgn!templates/select/select'
     ],
-    function($, Backbone, _){
+    function($, Backbone, _, templateSelect){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this,'render','click','open','selectOption','close');
                 this.el = options.el;
                 this.element = $(options.el);
-                this.optionsArray = options.optionsArray;
-                this.currentTitle = options.currentTitle;
-                this.default = options.default;
-                this.freeForm = options.freeForm;
-                this.edit = options.edit;
-                this.locked = options.locked;
                 this.openState = false;
                 this.render();
             },
@@ -30,39 +25,11 @@ define(
             },
             render: function(){
                 var self = this;
-
-
-                self.label = $("<div class='field-question-label'></div>");
-
-
-                if(this.locked !== true){
-                    self.downArrow = $("<div class='downarrow'></div>");
-                    self.label.append(self.downArrow);
-                    self.element.addClass('input-select');
-                    self.input = $("<input type='text' class='field-text-input'>");
-                    self.optionsList = $("<div class='field-question-options-list'></div>").css("display", "none");
-                    $.each(self.optionsArray, function(index, option){
-                        self.options[index] = $("<div class='field-question-option'></div>").text(option);
-                        self.optionsList.append(self.options[index]);
-                    });
-                    if(self.default !== null) self.input.val(self.default);
-                    else self.input.val(self.options[0].text());
-
-                    if(self.edit === false) self.input.attr('readonly', "true");
-
-                    if(self.freeForm !== null) self.options[self.optionsArray.length] = $("<div class='field-question-option'></div>").text(self.freeForm);
-
-                    self.optionsList.append(self.options[self.optionsArray.length]);
-
-
-                } else{
-                    self.input = $("<span></span>").text(self.default);
-                }
-
-                self.label.append(self.input);
-                self.element.append(self.label);
-                self.element.append(self.optionsList);
-
+                var template = templateSelect(self.options);
+                self.element.html(template);
+                if(this.locked !== true) self.element.addClass('input-select');
+                this.input = $('#field-text-input');
+                this.optionsList = $('#field-question-options-list');
             },
             keyPress: function(e){
                 switch(e.keyCode){
@@ -89,7 +56,7 @@ define(
             close: function(){
                 this.openState = false;
                 this.optionsList.hide();
-                if(this.input.val() === this.freeForm) this.input.val("");
+                if(this.input.val() === this.options.freeForm) this.input.val("");
                 if(this.edit === true) this.input.select();
             },
             open: function(){

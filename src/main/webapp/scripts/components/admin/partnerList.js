@@ -4,10 +4,9 @@ define(
         'backbone',
         'underscore',
         'components/utils',
-        'text!templates/admin/partnerList.html',
-        'text!templates/admin/partnerListRow.html'
+        'hgn!templates/admin/partnerList'
     ],
-    function($, Backbone, _, utils, templatePartnerList, templatePartnerRow){
+    function($, Backbone, _, utils, templatePartnerList){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -38,15 +37,9 @@ define(
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/admin/partners",
                     success: function(data){
-                        var tableTemplate = _.template(templatePartnerList);
+                        var view = { partners : data };
+                        var tableTemplate = templatePartnerList(view);
                         self.element.html(tableTemplate);
-                        var body = self.element.find('tbody');
-                        $.each(data, function(index, partner){
-                            console.log(partner);
-                            var rowTemplate = _.template(templatePartnerRow, partner);
-                            var tr = $('<tr></tr>').html(rowTemplate);
-                            body.append(tr);
-                        });
                         self.element.show();
                     }
                 })();
@@ -54,4 +47,4 @@ define(
             }
         });
     }
-)
+);

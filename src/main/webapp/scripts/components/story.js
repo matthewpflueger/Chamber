@@ -3,8 +3,8 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'text!templates/story/story.html',
-        'text!templates/story/login.html',
+        'hgn!templates/story/story',
+        'hgn!templates/story/login',
         'components/utils'
     ],
     function($, Backbone, _, templateStory, templateLogin, utils){
@@ -15,14 +15,11 @@ define(
                 this.element = $(this.el);
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
-                if(this.properties.isWidget === true){
-                    this.EvAg.bind("user/login", this.login);
-                }
+                this.modelUser = options.modelUser;
                 this.EvAg.bind('story/show', this.load);
-                this.EvAg.bind('user/login', this.login);
                 this.EvAg.bind('story/hide', this.hide);
-                this.EvAg.bind('field/show', this.hide);
-                this.EvAg.bind('fade/click', this.close);
+                this.EvAg.bind('story/login', this.login);
+                this.modelUser.on("change:id", this.login);
                 this.locked = false;
             },
             events: {
@@ -41,18 +38,17 @@ define(
                 "click .story-share": "share",
                 "click #story-follow": "followClick",
                 "click #story-login-container": "closeLogin",
-                "click .story-login-button": "loginClick",
-                "click .story-login-email": "loginClick",
                 "click #comments-login": "showLogin",
-                "click .story-link": "redirect"
+                "click .story-link": "redirect",
+                "click .fade" : "hide"
             },
             followClick: function(ev){
                 var self = this;
                 var request = {};
                 var currentTarget = $(ev.currentTarget);
                 var followId = currentTarget.attr("echoedUserId");
-                if(self.properties.echoedUser !== undefined ){
-                    if(self.properties.echoedUser.id !== followId) {
+                if(this.modelUser.isLoggedIn()){
+                    if(!this.modelUser.is(followId)) {
                         if(self.following === false){
                             request = {
                                 url: self.properties.urls.api + "/api/me/following/" + followId,
@@ -81,38 +77,10 @@ define(
             fromClick: function(ev){
                 window.open(this.properties.urls.api + "/redirect/partner/" + this.data.story.partnerId);
             },
-            loginClick: function(ev){
-                var self = this;
-                if(self.properties.isWidget){
-                    var target = $(ev.currentTarget);
-                    var href = target.attr('href');
-                    window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
-                    return false;
-                }
-            },
             showLogin: function(){
-                var self = this;
-                var login = $('<div id="story-login"></div>').html(templateLogin);
-                $('#story-login-container').html(login);
-                $('#story-logo-img').attr("src", self.properties.urls.images + "/logo_large.png");
-                if(self.properties.isWidget){
-                    $("#story-fb-login").attr("href", utils.getFacebookLoginUrl("redirect/close"));
-                    $("#story-tw-login").attr("href", utils.getTwitterLoginUrl("redirect/close"));
-                    $('#story-user-login').attr('href', self.properties.urls.api + "/" +utils.getLoginRedirectUrl("redirect/close"));
-                    $('#story-user-signup').attr("href", self.properties.urls.api + "/" +utils.getSignUpRedirectUrl("redirect/close"));
-
-                } else {
-                    $("#story-fb-login").attr("href", utils.getFacebookLoginUrl(window.location.hash));
-                    $("#story-tw-login").attr("href", utils.getTwitterLoginUrl(window.location.hash));
-                    $('#story-user-login').attr('href', self.properties.urls.api + "/" + utils.getLoginRedirectUrl());
-                    $('#story-user-signup').attr("href", self.properties.urls.api + "/" + utils.getSignUpRedirectUrl());
-
-
-                }
-                $('#story-login-container').fadeIn();
+                this.EvAg.trigger("login/init", "story/login");
             },
             closeLogin: function(ev){
-                var self = this;
                 if($(ev.target).attr("id") === "story-login-container"){
                     $('#story-login-container').fadeOut();
                 }
@@ -123,7 +91,7 @@ define(
                 var href = "";
                 switch(target.attr("type")){
                     case "fb":
-                        href = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(self.properties.urls.api + "/graph/story/" + self.data.story.id)
+                        href = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(self.properties.urls.api + "/graph/story/" + self.data.story.id);
                         break;
                     case "tw":
                         href = "http://twitter.com/intent/tweet?original_referer="
@@ -160,8 +128,7 @@ define(
             },
             upVote: function(ev){
                 var self = this;
-                var target = $(ev.currentTarget);
-                if(self.properties.echoedUser !== undefined){
+                if(this.modelUser.isLoggedIn()){
                     utils.AjaxFactory({
                         url: self.properties.urls.api + "/api/upvote",
                         data: {
@@ -169,8 +136,8 @@ define(
                             storyOwnerId: self.data.echoedUser.id
                         },
                         success: function(data){
-                            self.data.votes[self.properties.echoedUser.id] = {
-                                echoedUserId: self.properties.echoedUser.id,
+                            self.data.votes[self.modelUser.get("id")] = {
+                                echoedUserId: self.modelUser.get("id"),
                                 value: 1
                             };
                             self.renderVotes();
@@ -183,7 +150,7 @@ define(
             downVote: function(ev){
                 var self = this;
                 var target = $(ev.currentTarget);
-                if(self.properties.echoedUser !== undefined){
+                if(this.modelUser.isLoggedIn()){
                     utils.AjaxFactory({
                         url: self.properties.urls.api + "/api/downvote",
                         data: {
@@ -191,8 +158,8 @@ define(
                             storyOwnerId: self.data.echoedUser.id
                         },
                         success: function(data){
-                            self.data.votes[self.properties.echoedUser.id] = {
-                                echoedUserId: self.properties.echoedUser.id,
+                            self.data.votes[self.modelUser.get('id')] = {
+                                echoedUserId: self.modelUser.get('id'),
                                 value: -1
                             };
                             self.renderVotes();
@@ -203,15 +170,16 @@ define(
                     self.showLogin();
                 }
             },
-            login: function(echoedUser){
+            login: function(){
                 var self = this;
-                this.properties.echoedUser = echoedUser;
-                this.element.find('.comment-login').fadeOut(function(){
-                    self.element.find('.comment-submit').fadeIn();
-                });
-                $('#story-login-container').fadeOut();
-                self.renderVotes();
-                self.renderFollowing();
+                if(self.data){
+                    this.element.find('.comment-login').fadeOut(function(){
+                        self.element.find('.comment-submit').fadeIn();
+                    });
+                    $('#story-login-container').fadeOut();
+                    self.renderVotes();
+                    self.renderFollowing();
+                }
             },
             navClick: function(ev){
                 var self = this;
@@ -246,9 +214,8 @@ define(
                 }
                 $('#upvote-counter').text(upVotes);
                 $('#downvote-counter').text(downVotes);
-
-                if(self.properties.echoedUser !== undefined){
-                    var vote = self.data.votes[self.properties.echoedUser.id];
+                if(this.modelUser.isLoggedIn()){
+                    var vote = self.data.votes[this.modelUser.get("id")];
                     if(vote !== undefined){
                         if(vote.value > 0) self.element.find('.upvote').addClass('on');
                         else if(vote.value < 0) self.element.find('.downvote').addClass('on');
@@ -259,8 +226,8 @@ define(
                 var self = this;
                 self.following = false;
                 $('#story-follow').attr("echoedUserId", self.data.echoedUserId);
-                if(self.properties.echoedUser !== undefined){
-                    if(self.properties.echoedUser.id !== self.data.echoedUser.id){
+                if(this.modelUser.isLoggedIn()){
+                    if(!this.modelUser.is(self.data.echoedUser.id)){
                         utils.AjaxFactory({
                             url: self.properties.urls.api + "/api/me/following",
                             success: function(data){
@@ -285,7 +252,7 @@ define(
             render: function(){
 
                 var self = this;
-                var template = _.template(templateStory, self.data);
+                var template = templateStory(self.data);
                 self.element.html(template);
                 self.chapters = {
                     array: [],
@@ -312,11 +279,9 @@ define(
                 self.currentImageIndex = 0;
 
                 self.text = self.element.find('.echo-s-b-text');
-                if(self.properties.echoedUser !== undefined){
-                    if(self.data.echoedUser.id === self.properties.echoedUser.id){
+                if(this.modelUser.is(self.data.echoedUser.id)){
                         var header = self.element.find('.echo-story-header');
                         $('#story-edit-tab').attr("href","#write/story/" + self.data.story.id).css("display","inline-block");
-                    }
                 }
 
                 self.gallery = $('#echo-s-b-gallery');
@@ -342,8 +307,9 @@ define(
                 self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
                 self.galleryNode = $("#echo-story-gallery");
                 self.galleryNodeBody = $('#echo-story-gallery-body');
-                self.chapterText = $("<div class='echo-s-b-t-b'></div>")
+                self.chapterText = $("<div class='echo-s-b-t-b'></div>");
                 self.text.append(self.chapterText);
+                self.story = $('#story');
                 self.renderGalleryNav();
                 self.renderComments();
                 self.renderChapter();
@@ -352,11 +318,9 @@ define(
                 self.renderViews();
                 self.scroll(0);
 
-                self.EvAg.trigger('fade/show');
-                self.element.css({
-                    "margin-left": -(self.element.width() / 2)
-                });
+                self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
+                $("body").addClass("noScroll");
             },
             renderGalleryNav: function(){
                 var self = this;
@@ -453,7 +417,6 @@ define(
                             height: i.attr('height')
                         }
                         imageUrl = i.attr('src')
-//                        imageSizing = utils.getImageSizing(currentImage, 450);
                         self.gallery.addClass("gallery-text");
                         self.gallery.removeClass('gallery-photo');
                         self.chapterText.removeClass('caption')
@@ -466,12 +429,6 @@ define(
                             'fast',
                             function(){
                                 self.img.css(imageSizing).attr('src', imageUrl).fadeIn();
-//                                if(currentImage.storyUrl !== null){
-//                                    self.img.css(imageSizing).attr('src', currentImage.storyUrl).fadeIn();
-//                                } else {
-//                                    self.img.css(imageSizing).attr('src', currentImage.originalUrl).fadeIn();
-//                                }
-//                                self.img.attr('src', currentImage.originalUrl).fadeIn();
                                 self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
                                 self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
                             });
@@ -518,7 +475,7 @@ define(
                     commentListNode.append(commentNode);
                 });
                 $('#echo-s-c-t-count').text("(" + self.data.comments.length + ")");
-                if(this.properties.echoedUser) {
+                if(this.modelUser.isLoggedIn()) {
                     self.element.find('.comment-submit').fadeIn();
                 } else{
                     self.element.find('.comment-login-fb').attr("href", utils.getFacebookLoginUrl("redirect/close"));
@@ -558,17 +515,16 @@ define(
             hide: function(){
                 this.element.fadeOut();
                 this.element.empty();
+                $("body").removeClass("noScroll");
             },
             redirect: function(){
                 var self = this;
                 this.element.fadeOut(function(){
                     self.element.empty();
-                })
-                this.EvAg.trigger('fade/hide');
+                });
             },
             close: function(){
                 this.element.fadeOut();
-                this.EvAg.trigger("fade/hide");
                 this.EvAg.trigger("hash/reset");
             }
         });

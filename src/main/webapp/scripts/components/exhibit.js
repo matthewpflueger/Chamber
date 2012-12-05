@@ -5,21 +5,20 @@ define(
         'underscore',
         'components/storyBrief',
         'components/utils',
-        'text!templates/login.html',
         'isotope'
     ],
-    function($, Backbone, _, StoryBrief, utils, templateLogin, isotope ){
+    function($, Backbone, _, StoryBrief, utils, isotope ){
         return Backbone.View.extend({
             el: '#content',
             initialize: function(options){
-                _.bindAll(this,'render','next','init', 'nextStory', 'previousStory', 'login');
+                _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
+                this.modelUser = options.modelUser;
                 this.EvAg.bind('exhibit/init', this.init);
                 this.EvAg.bind('infiniteScroll', this.next);
                 this.EvAg.bind('exhibit/story/next', this.nextStory);
                 this.EvAg.bind('exhibit/story/previous', this.previousStory);
-                this.EvAg.bind('user/login', this.login);
                 this.element = $(this.el);
                 this.exhibit = $('#exhibit');
             },
@@ -47,10 +46,6 @@ define(
                 });
                 self.isotopeOn = true;
                 self.render(data);
-            },
-            login: function(){
-                var self = this;
-                self.exhibit.isotope('remove', $('#login'))
             },
             nextStory: function(storyId){
                 var self = this;
@@ -91,15 +86,6 @@ define(
                         }
                     })();
                 }
-            },
-            addLogin: function(){
-                var self = this;
-                self.loginDiv = $('<div></div>').addClass('item_wrap').attr("id","login");
-                var template = _.template(templateLogin);
-                self.loginDiv.html(template);
-                self.loginDiv.find("#facebookLogin").attr("href", utils.getFacebookLoginUrl(window.location.hash));
-                self.loginDiv.find("#twitterLogin").attr("href", utils.getTwitterLoginUrl(window.location.hash));
-                self.exhibit.isotope('insert', self.loginDiv)
             },
             addCommunities: function(data){
                 var self = this;
@@ -143,7 +129,7 @@ define(
                             self.stories.hash[story.id] = self.stories.array.length;
                             self.stories.array.push(story.id);
                             var storyDiv = $('<div></div>').addClass('item_wrap');
-                            var storyComponent = new StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal, properties: self.properties});
+                            var storyComponent = new StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal, properties: self.properties, modelUser: self.modelUser});
                             if(story.story.image !== null){
                                 if(story.story.image.originalUrl !== null){
                                     storiesFragment.append(storyDiv)

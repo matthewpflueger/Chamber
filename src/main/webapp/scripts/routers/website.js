@@ -11,6 +11,7 @@ define(
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
+                this.modelUser = options.modelUser;
                 this.EvAg.bind("hash/reset", this.resetHash);
                 this.EvAg.bind("router/me", this.me);
                 this.page = null;
@@ -127,18 +128,11 @@ define(
                     });
                 }
             },
-            isSelf: function(id){
-                var bool = false;
-                if(this.properties.echoedUser){
-                    if(this.properties.echoedUser.id === id || this.properties.echoedUser.screenName === id) bool = true;
-                }
-                return bool;
-            },
             user: function(id){
                 var self = this;
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
-                    if(this.isSelf(id)){
+                    if(this.modelUser.is(id)){
                         this.requestFeed("/me/exhibit", function(jsonUrl, data){
                             self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal : true});
                             self.EvAg.trigger('title/update', { title : "My Stories"});
@@ -169,7 +163,7 @@ define(
                             this.page = "#!partner/" + id;
                             break;
                         default:
-                            if(this.properties.echoedUser !== undefined){
+                            if(this.modelUser.isLoggedIn()){
                                 this.me();
                                 this.page = "#!me";
                             } else {

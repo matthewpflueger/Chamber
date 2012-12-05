@@ -1,0 +1,33 @@
+<h2>Partner List</h2>
+<table id="echoedUsers-table">
+    <thead>
+    <tr>
+        <th class="echoedUsers-header">Name</th>
+        <th class="echoedUsers-header">E-mail</th>
+        <th class="echoedUsers-header">Screenname</th>
+        <th class="echoedUsers-header">Id</th>
+        <th class="echoedUsers-header">Created On</th>
+    </tr>
+    </thead>
+    <tbody>
+        {{#echoedUsers}}
+        <tr>
+            <td>
+                {{ name }}
+            </td>
+            <td>
+                {{ email }}
+            </td>
+            <td>
+                {{ screenName }}
+            </td>
+            <td>
+                {{ id }}
+            </td>
+            <td>
+                {{ createdOn }}
+            </td>
+        </tr>
+        {{/echoedUsers}}
+    </tbody>
+</table>

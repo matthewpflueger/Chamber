@@ -17,6 +17,8 @@ require.config({
         'jqueryUI'          : 'libs/jquery/jquery-ui-1.9.1.custom',
 
         'requireLib'        : 'libs/require/require-2.1.1',
+        'hogan'             : 'libs/require/hogan-0.2.0',
+        'hgn'               : 'libs/require/hgn-0.2.0',
         'text'              : 'libs/require/text-2.0.3'
     }
 });

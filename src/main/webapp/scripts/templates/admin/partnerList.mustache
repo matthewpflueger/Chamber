@@ -1,0 +1,25 @@
+<h2>Partner List</h2>
+<table id="partnerList-table">
+    <thead>
+        <tr>
+            <th class="partner-header">Partner</th>
+            <th class="partner-header">Domain</th>
+            <th class="partner-header"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#partners}}
+    <tr>
+        <td>
+            {{ partner.name }}
+        </td>
+        <td>
+            {{ partner.domain }}
+        </td>
+        <td align="center">
+            <span partnerUserId="{{ partnerUser.id }}" class="partnerList-button">Act as Partner</span>
+        </td>
+    </tr>
+    {{/partners}}
+    </tbody>
+</table>
