@@ -131,7 +131,7 @@ require(
             iFrameNode.width = '0px';
             iFrameNode.style.border = "none";
             iFrameNode.id = "echoed-iframe";
-            iFrameNode.src = Echoed.urls.api.replace("http") + "/echo/iframe";
+            iFrameNode.src = Echoed.urls.api + "/echo/iframe";
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
             this.messageHandler = new MessageHandler(this.options('#echoed-iframe'));
 
