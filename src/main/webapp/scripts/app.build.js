@@ -5,6 +5,13 @@
     keepBuildDir: false,
     mainConfigFile: 'app.config.js',
     optimize: "uglify",
+    //stubModules can be used to remove unneeded plugins after build
+    stubModules : ['text', 'hgn'],
+    pragmasOnSave : {
+        // you can use this pragma to exclude compiler logic from Hogan.js in
+        // case you don't need to compile any templates after buid
+        excludeHogan : true
+    },
     modules: [
         {
             name: "loader",
