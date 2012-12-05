@@ -74,11 +74,11 @@
                             dataType: 'jsonp',
                             success: function(data){
                                 var text = data.partner.name + " wants to hear your story. Share your story and have it featured.";
-                                self.EvAg.trigger("login/init", null, text, function(){ self.EvAg.trigger('reset/hash') });
+                                self.EvAg.trigger("login/init", null, text, self.close);
                             }
                         })();
                     } else {
-                        self.EvAg.trigger("login/init", null, "Login to Share Your Story", function(){ self.EvAg.trigger('reset/hash'); });
+                        self.EvAg.trigger("login/init", null, "Login to Share Your Story", self.close);
                     }
                 }
             },

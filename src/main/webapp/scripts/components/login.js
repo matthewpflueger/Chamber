@@ -56,7 +56,7 @@ define(
                 "click .fade": "close"
             },
             close: function(){
-
+                this.options.failCallback();
                 this.element.fadeOut();
                 this.element.empty();
             },
