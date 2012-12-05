@@ -1,0 +1,23 @@
+{{#id}}
+<div id="user-image">
+    <img id="u-i-i" height="30px" width="30px" src="{{imageUrl}}" />
+</div>
+{{/id}}
+<div id="user-text" {{^id}}class="user-login"{{/id}}>
+    {{#id}}
+        {{name}}
+    {{/id}}
+    {{^id}}
+    Login
+    {{/id}}
+</div>
+{{#id}}
+<span class="downarrow"></span>
+<div id="user-list">
+    <ul>
+        {{#id}}
+        <li class="user-list-item" href="logout"><strong>Logout</strong></li>
+        {{/id}}
+    </ul>
+</div>
+{{/id}}

@@ -20,8 +20,10 @@ define(
             },
             login: function(echoedUser){
                 this.modelUser.login(echoedUser);
-                this.EvAg.trigger(this.options.callback);
-                this.options.callback = null;
+                if(this.options.callback) {
+                    this.EvAg.trigger(this.options.callback);
+                    this.options.callback = null;
+                }
                 this.element.fadeOut();
             },
             init: function(callback, text){
