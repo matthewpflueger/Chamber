@@ -50,8 +50,6 @@ import com.echoed.chamber.services.topic.ReadTopicFeedResponse
 import com.echoed.chamber.services.echoeduser.GetExhibit
 import com.echoed.chamber.services.echoeduser.FollowUser
 import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.partner.ReadPartnerTopics
-import com.echoed.chamber.services.partner.ReadPartnerTopicsResponse
 import com.echoed.chamber.services.echoeduser.PublishFacebookAction
 import javax.servlet.http.HttpServletResponse
 
@@ -349,8 +347,8 @@ class UserController extends EchoedController {
     def topics(@PathVariable(value = "id") partnerId: String)= {
         val result = new DeferredResult(ErrorResult.timeout)
 
-        mp(ReadPartnerTopics(new PartnerClientCredentials(partnerId))).onSuccess {
-            case ReadPartnerTopicsResponse(_, Right(topics)) => result.trySet(topics)
+        mp(GetTopics(new PartnerClientCredentials(partnerId))).onSuccess {
+            case GetTopicsResponse(_, Right(topics)) => result.trySet(topics)
         }
         result
     }

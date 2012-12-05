@@ -16,6 +16,10 @@ import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
 import com.echoed.chamber.services.partneruser.GetPartnerSettings
 import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
 import scala.Right
+import com.echoed.chamber.services.partner.{GetTopicsResponse, GetTopics, PutTopicResponse, PartnerClientCredentials, PutTopic}
+import java.util.Date
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.echoed.chamber.services.topic.ReadTopics
 
 
 @Controller
@@ -37,7 +41,59 @@ class PartnerController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/settings/customization"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/settings/topics"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getTopics(pucc: PartnerUserClientCredentials) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+
+        mp(GetTopics(PartnerClientCredentials(pucc.partnerId.get))).onSuccess {
+            case GetTopicsResponse(_, Right(topics)) => result.set(topics)
+        }
+
+        result
+    }
+
+    @RequestMapping(
+            value = Array("/settings/topics"),
+            method = Array(RequestMethod.POST),
+            consumes = Array("application/json"))
+    @ResponseBody
+    def postTopic(
+            @RequestBody topic: TopicParams,
+            pucc: PartnerUserClientCredentials) = updateTopic(pucc, topic)
+
+
+    @RequestMapping(
+        value = Array("/settings/topics/{id}"),
+        method = Array(RequestMethod.PUT),
+        consumes = Array("application/json"))
+    @ResponseBody
+    def putTopic(
+            @PathVariable id: String,
+            @RequestBody topic: TopicParams,
+            pucc: PartnerUserClientCredentials) = updateTopic(pucc, topic, Option(id))
+
+
+    private def updateTopic(
+            pucc: PartnerUserClientCredentials,
+            topic: TopicParams,
+            id: Option[String] = None) = {
+        val result = new DeferredResult(ErrorResult.timeout)
+        mp(PutTopic(
+                PartnerClientCredentials(pucc.partnerId.get),
+                topic.title,
+                Option(topic.description),
+                Option(topic.beginOn),
+                Option(topic.endOn),
+                id.orElse(Option(topic.id)),
+                Option(topic.community))).onSuccess {
+            case PutTopicResponse(_, Right(topic)) =>
+                result.set(topic)
+        }
+        result
+    }
+
+    @RequestMapping(value = Array("/settings/customization/*"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getCustomization(pucc: PartnerUserClientCredentials) = {
         val result = new DeferredResult(ErrorResult.timeout)
@@ -50,24 +106,24 @@ class PartnerController extends EchoedController {
     }
 
     @RequestMapping(
-        value = Array("/settings/customization"),
-        method = Array(RequestMethod.PUT),
-        consumes = Array("application/json"))
+            value = Array("/settings/customization/*"),
+            method = Array(RequestMethod.PUT),
+            consumes = Array("application/json"))
     @ResponseBody
     def putCustomization(
-        @RequestBody cParams: CustomizationParams,
-        pucc: PartnerUserClientCredentials) = {
+            @RequestBody cParams: CustomizationParams,
+            pucc: PartnerUserClientCredentials) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
         mp(UpdatePartnerCustomization(
-            pucc,
-            cParams.useGallery,
-            cParams.useRemote,
-            cParams.remoteVertical,
-            cParams.remoteHorizontal,
-            cParams.remoteOrientation,
-            cParams.widgetTitle,
-            cParams.widgetShareMessage)).onSuccess {
+                pucc,
+                cParams.useGallery,
+                cParams.useRemote,
+                cParams.remoteVertical,
+                cParams.remoteHorizontal,
+                cParams.remoteOrientation,
+                cParams.widgetTitle,
+                cParams.widgetShareMessage)).onSuccess {
             case UpdatePartnerCustomizationResponse(_, Right(customization)) =>
                 result.set(customization)
         }
@@ -95,14 +151,26 @@ class PartnerController extends EchoedController {
 }
 
 class CustomizationParams(
-            @BeanProperty var useGallery: Boolean,
-            @BeanProperty var useRemote: Boolean,
-            @BeanProperty var remoteVertical: String,
-            @BeanProperty var remoteHorizontal: String,
-            @BeanProperty var remoteOrientation: String,
-            @BeanProperty var widgetTitle: String,
-            @BeanProperty var widgetShareMessage: String) {
+        @BeanProperty var useGallery: Boolean,
+        @BeanProperty var useRemote: Boolean,
+        @BeanProperty var remoteVertical: String,
+        @BeanProperty var remoteHorizontal: String,
+        @BeanProperty var remoteOrientation: String,
+        @BeanProperty var widgetTitle: String,
+        @BeanProperty var widgetShareMessage: String) {
 
     def this() = this(false, true, null, null, null, null, null)
 
 }
+
+class TopicParams(
+        @BeanProperty var title: String,
+        @BeanProperty var description: String,
+        @BeanProperty var beginOn: Date,
+        @BeanProperty var endOn: Date,
+        @BeanProperty var id: String,
+        @BeanProperty var community: String) {
+
+    def this() = this(null, null, null, null, null, null)
+}
+

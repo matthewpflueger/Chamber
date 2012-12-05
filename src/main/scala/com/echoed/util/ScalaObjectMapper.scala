@@ -3,6 +3,7 @@ package com.echoed.util
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat
 
 
 object ScalaObjectMapper {
@@ -17,6 +18,7 @@ class ScalaObjectMapper(unwrap: Boolean = false) extends ObjectMapper {
     configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
     configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
     configure(DeserializationFeature.UNWRAP_ROOT_VALUE, unwrap)
+    setDateFormat(new ISO8601DateFormat())
 
     registerModule(DefaultScalaModule)
 

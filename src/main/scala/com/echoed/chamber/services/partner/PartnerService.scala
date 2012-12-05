@@ -123,9 +123,10 @@ class PartnerService(
                     channel ! ReadPartnerFeedResponse(msg, Right(new PartnerStoryFeed(partner, feed)))
             }
 
-        case msg: ReadPartnerTopics =>
+        case msg: GetTopics =>
             val now = new Date
-            sender ! ReadPartnerTopicsResponse(msg, Right(topics.filter(t => t.beginOn < now && t.endOn > now)))
+//            sender ! GetTopicsResponse(msg, Right(topics.filter(t => t.beginOn < now && t.endOn > now)))
+            sender ! GetTopicsResponse(msg, Right(topics))
 
         case msg @ RequestStory(_, topicId) =>
             sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(
