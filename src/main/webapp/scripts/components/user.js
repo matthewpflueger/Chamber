@@ -3,19 +3,27 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'components/utils'
+        'components/utils',
+        'hgn!templates/user/user'
     ],
-    function($, Backbone, _, utils){
+    function($, Backbone, _, utils, templateUser){
         return Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this, 'login');
+                _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.modelUser = options.modelUser;
-                this.modelUser.on("change:id", this.login);
-                this.list = $('#user-list');
+                this.modelUser.on("change:id", this.render);
                 this.el = options.el;
                 this.element = $(this.el);
+                this.render();
+            },
+            render: function(){
+                var echoedUser = this.modelUser.toJSON();
+                echoedUser.imageUrl = utils.getProfilePhotoUrl(echoedUser);
+                this.element.html(templateUser(echoedUser));
+                this.list = $('#user-list');
+                console.log(this.list);
             },
             events: {
                 "click li": "click",
@@ -30,15 +38,6 @@ define(
             },
             click: function(ev){
                 window.location = $(ev.currentTarget).attr('href');
-            },
-            login: function(){
-                var echoedUser = this.modelUser.toJSON();
-                var image = $('<img id="u-i-i" height="30px" width="30px" />').attr('src', utils.getProfilePhotoUrl(echoedUser, this.properties.urls));
-                var ui = $('<div id="user-image"></div>').append(image);
-                $("#user-text").text(echoedUser.name);
-                $('#user-list').find('ul').append('<li class="user-list-item" href="logout">Logout</li>');
-                this.element.prepend(ui);
-                this.element.show();
             }
         });
     }

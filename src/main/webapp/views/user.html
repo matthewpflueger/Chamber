@@ -35,37 +35,6 @@
                 </ul>
             </div>
             <div id="user" class="clearfix">
-                {{#echoedUser}}
-                <div id="user-image">
-                    {{#facebookId}}
-                    <img id="u-i-i" height="30px" width="30px" src="http://graph.facebook.com/{{.}}/picture" />
-                    {{/facebookId}}
-                    {{^facebookId}}
-                        {{#twitterId}}
-                        <img id="u-i-i" height="30px" width="30px" src="http://api.twitter.com/1/users/profile_image/{{.}}" />
-                        {{/twitterId}}
-                    {{/facebookId}}
-                </div>
-                {{/echoedUser}}
-                <div id="user-text">
-                    {{#echoedUser}}
-                        {{name}}
-                    {{/echoedUser}}
-                    {{^echoedUser}}
-                        Learn More
-                    {{/echoedUser}}
-                </div>
-                <span class="downarrow"></span>
-                <div id="user-list">
-                    <ul>
-                        <li class="user-list-item" href="guidelines">Story Guidelines</li>
-                        <li class="user-list-item" href="privacy">Privacy Policy</li>
-                        <li class="user-list-item" href="terms">Terms of Service</li>
-                        {{#echoedUser}}
-                        <li class="user-list-item" href="logout"><strong>Logout</strong></li>
-                        {{/echoedUser}}
-                    </ul>
-                </div>
             </div>
             <div id="actions">
             </div>
@@ -124,6 +93,9 @@
         {{#echoedUser}}
         Echoed.echoedUser.id = '{{id}}';
         Echoed.echoedUser.screenName = '{{screenName}}';
+        Echoed.echoedUser.facebookId = '{{facebookId}}';
+        Echoed.echoedUser.twitterId = '{{twitterId}}';
+        Echoed.echoedUser.name = '{{name}}';
         {{/echoedUser}}
     </script>
     <script type="text/javascript">
