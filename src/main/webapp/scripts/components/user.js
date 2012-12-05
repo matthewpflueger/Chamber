@@ -23,7 +23,6 @@ define(
                 echoedUser.imageUrl = utils.getProfilePhotoUrl(echoedUser);
                 this.element.html(templateUser(echoedUser));
                 this.list = $('#user-list');
-                console.log(this.list);
             },
             events: {
                 "click li": "click",
