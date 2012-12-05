@@ -78,7 +78,7 @@
                             }
                         })();
                     } else {
-                        self.EvAg.trigger("login/init", "input/show", "Test");
+                        self.EvAg.trigger("login/init", "input/show", "Login to Share Your Story");
                     }
                 }
             },
