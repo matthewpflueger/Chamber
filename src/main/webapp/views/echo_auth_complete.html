@@ -26,8 +26,11 @@
                 var dataString = JSON.stringify(data);
                 var host = null;
                 try {
-                    if(window.opener.frames['echoed-iframe'] !== undefined) host = window.opener.frames['echoed-iframe'];
-                    else host = window.opener.frames['echoed-overlay'];
+                    if(window.opener.postMessageInterface !== undefined){
+                        host = window.opener;
+                    } else {
+                        host = window.opener.frames['echoed-iframe'];
+                    }
                     host.postMessageInterface(dataString);
                 } catch (error) {
                     try{
