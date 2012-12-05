@@ -17,6 +17,7 @@ define(
                 }
             },
             receiveMessageResponse: function(response) {
+                console.log(response);
                 var echoedUser = JSON.parse(response.data);
                 this.EvAg.trigger('login/complete', echoedUser);
             }
