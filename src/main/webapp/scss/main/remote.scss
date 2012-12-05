@@ -127,8 +127,26 @@ $optionSize: 36px;
         border: 1px solid #FFF;
         display: inline-block;
         margin: 2px;
+        border-radius: 3px;
         &:hover{
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+    }
+    #echoed-i{
+        background-image: image-url("bk_i.png");
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        width: 15px;
+        height: 28px;
+        //border: 1px solid #CCC;
+        display: inline-block;
+        margin: 2px;
+        border-radius: 3px;
+        background-color: rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        &:hover{
+            background-color: rgba(255, 255, 255, 0.5);
         }
     }
 }

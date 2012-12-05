@@ -94,27 +94,46 @@ require(
                             }
                             i++;
                         }
-                        $('#echoed-options').append($('<a></a>').attr("href","#echoed_write").append($('<span id="echoed-add"></span>')));
+                        $('#echoed-options')
+                            .append($('<a></a>')
+                            .attr("href","#echoed_write")
+                            .append($('<span id="echoed-add"></span>')))
+                            .append($('<span id="echoed-i"></span>'));
+
                         $('#echoed-add').live("mouseenter", function(){
+                            self.previewHidden = false;
                             self.xdmPreview.postMessage(JSON.stringify({ type: "text", data: "Add Your Story" }));
                         });
+
                         $('.echoed-story').live("mouseenter",function(){
                             var index = $(this).attr("index");
+                            self.previewHidden = false;
                             var msg = { type: "story", data: self.stories[index] };
                             self.xdmPreview.postMessage(JSON.stringify(msg));
                         });
-                        $('.echoed-story').live("mouseleave",function(){
-                            self.preview.hide();
+
+                        $('.echoed-story, #echoed-add').live("mouseleave",function(){
+                            self.previewHidden = true;
+                            window.setTimeout(function(){
+                                hidePreview();
+                            }, 2000);
                         });
                     }
                 })();
+                self.previewHidden = true;
                 self.xdmPreview.postMessage(JSON.stringify({ type: "text", data: "Click Here to Share Your DIYs"}));
+                window.setTimeout(function(){
+                    hidePreview();
+                }, 2000);
             },
             onMessage: function(message, origin){
                 self.preview.show();
-                window.setTimeout(function(){self.preview.hide();}, 2000);
             }
         });
+
+        function hidePreview(){
+            if(self.previewHidden === true) self.preview.fadeOut();
+        }
 
         function echoedMessageHandler(message){
 
