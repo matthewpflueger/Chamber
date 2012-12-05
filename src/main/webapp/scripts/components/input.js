@@ -43,7 +43,7 @@
                 'click .fade': "close"
             },
             login: function(){
-                if(this.loaded = true) this.load(this.id, this.type);
+                if(this.loaded === true) this.load(this.id, this.type);
             },
             load: function(id, type){
                 this.id = id;
