@@ -35,6 +35,7 @@ require(
         var parameters = gup(scriptUrl);
 
         var body = $('body');
+        EchoedSettings.useOpener = true;
         self.properties = EchoedSettings;
         self.properties.partnerId = parameters['pid'];
 
