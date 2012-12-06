@@ -13,6 +13,7 @@
     color: #FFF;
     line-height: 45px;
     @include fontTextBold(13px, #FFF);
+    text-align:center;
     padding: 0px 5px;
     white-space: nowrap;
     overflow: hidden;

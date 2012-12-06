@@ -19,7 +19,7 @@ require(
         'easyXDM',
         'isotopeConfig'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser, easyXDM){
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
@@ -63,7 +63,7 @@ require(
             iFrameNode.width = '0px';
             iFrameNode.style.border = "none";
             iFrameNode.id = "echoed-iframe";
-            iFrameNode.src = Echoed.urls.api.replace("http://","https://") + "/echo/iframe";
+            iFrameNode.src = Echoed.https.site + "/echo/iframe";
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
 
             this.messageHandler = new MessageHandler(this.options('#echoed-iframe'));

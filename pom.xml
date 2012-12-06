@@ -459,7 +459,6 @@
                                         <include>mobile.js</include>
                                         <include>widget.gallery.js</include>
                                         <include>widget.preview.js</include>
-                                        <include>remote.js</include>
                                     </includes>
                                 </resource>
                             </resources>

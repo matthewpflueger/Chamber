@@ -2572,5 +2572,12 @@ easyXDM.stack.RpcBehavior = function(proxy, config){
         }
     });
 };
+
+
 global.easyXDM = easyXDM;
+if ( typeof define === "function" && define.amd && define.amd ) {
+        define( "easyXDM", [], function () { return easyXDM; } );
+}
+
+
 })(window, document, location, window.setTimeout, decodeURIComponent, encodeURIComponent);
