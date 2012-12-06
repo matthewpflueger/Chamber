@@ -140,6 +140,7 @@ $optionSize: 36px;
     color: #FFF;
     position: fixed;
     @include dropShadow;
+    font-size: 0px;
 
     .echoed-story{
         display: inline-block;
