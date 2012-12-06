@@ -50,7 +50,7 @@ require(
 
         if(self.properties.useGallery){
             $('<div id="echoed-gallery"></div>').appendTo(body);
-            this.gallery = new Gallery({ properties: self.properties });
+            this.gallery = new Gallery({ el: "#echoed-gallery", properties: self.properties });
         }
 
         this.opener = new Opener({ el: "body", properties: self.properties, EvAg: self.EventAggregator});
