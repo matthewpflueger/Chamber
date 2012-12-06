@@ -6,7 +6,7 @@ require(
         'components/remote/remote',
         'components/utils'
     ],
-    function(require, $, _, Remote, utils){
+    function(require, $, easyXDM, Remote, utils){
 
         var self = this;
 
@@ -33,15 +33,18 @@ require(
         if(window.addEventListener) window.addEventListener('message', echoedMessageHandler, false);
         else window.attachEvent('onmessage', echoedMessageHandler);
         window.onhashchange = showEchoedOverlay;
-
         var parameters = gup(scriptUrl);
         var hash = window.location.hash;
         var body = $('body');
-        body.append($('<link rel="stylesheet" type="text/css"/>').attr("href", EchoedSettings.urls.css + "/remote.css"));
-        var loader = $('<div id="echoed-loader"></div>').appendTo(body).addClass('ech-top-left').addClass("ech-hor");
-        self.preview = $('<div id="echoed-preview"></div>').appendTo(loader).css("display", "none");
 
-        self.remote = new Remote({ el: "#echoed-loader" });
+        self.properties = EchoedSettings;
+        self.properties.partnerId = parameters['pid'];
+        body.append($('<link rel="stylesheet" type="text/css"/>').attr("href", self.properties.urls.css + "/remote.css"));
+
+        var loader = $('<div id="echoed-loader" class="ech-top-left ech-hor"></div>').appendTo(body);
+        self.preview = $('<div id="echoed-preview" style="display:none;"></div>').appendTo(loader);
+
+
 
         self.xdmOverlay = new easyXDM.Socket({
             remote: EchoedSettings.urls.api +  "/widget/iframe/?pid=" + parameters['pid'],
@@ -78,48 +81,6 @@ require(
                 id: 'echoed-preview-iframe'
             },
             onReady: function(){
-                utils.AjaxFactory({
-                    url: EchoedSettings.urls.api + "/api/partner/" + parameters['pid'],
-                    dataType: 'jsonp',
-                    success: function(response){
-                        self.stories = response.stories;
-                        self.storyIndex = 0;
-                        var i = 0, counter = 0;
-                        while(i < self.stories.length && counter < 4){
-                            var story = self.stories[i];
-                            if(story.story.image) {
-                                var link = $('<a></a>').attr("href", "#echoed_story/" + story.id).append(utils.fit(story.story.image, 40 , 40)).attr('index', i).addClass("echoed-story");
-                                $('#echoed-options').append(link);
-                                counter++;
-                            }
-                            i++;
-                        }
-                        $('#echoed-options')
-                            .append($('<a></a>')
-                            .attr("href","#echoed_write")
-                            .append($('<span id="echoed-add"></span>')))
-                            .append($('<span id="echoed-i"></span>'));
-
-                        $('#echoed-add').live("mouseenter", function(){
-                            self.previewHidden = false;
-                            self.xdmPreview.postMessage(JSON.stringify({ type: "text", data: "Add Your Story" }));
-                        });
-
-                        $('.echoed-story').live("mouseenter",function(){
-                            var index = $(this).attr("index");
-                            self.previewHidden = false;
-                            var msg = { type: "story", data: self.stories[index] };
-                            self.xdmPreview.postMessage(JSON.stringify(msg));
-                        });
-
-                        $('.echoed-story, #echoed-add').live("mouseleave",function(){
-                            self.previewHidden = true;
-                            window.setTimeout(function(){
-                                hidePreview();
-                            }, 2000);
-                        });
-                    }
-                })();
                 self.previewHidden = true;
                 self.xdmPreview.postMessage(JSON.stringify({ type: "text", data: "Click Here to Share Your DIYs"}));
                 window.setTimeout(function(){
@@ -130,6 +91,8 @@ require(
                 self.preview.show();
             }
         });
+
+        self.remote = new Remote({ el: "#echoed-loader", properties: self.properties });
 
         function hidePreview(){
             if(self.previewHidden === true) self.preview.fadeOut();

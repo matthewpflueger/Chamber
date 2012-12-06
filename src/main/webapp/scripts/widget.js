@@ -19,7 +19,7 @@ require(
         'easyXDM',
         'isotopeConfig'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser, easyXDM){
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
