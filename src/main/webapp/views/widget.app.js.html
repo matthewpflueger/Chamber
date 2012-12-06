@@ -27,10 +27,15 @@
         {{/useGallery}}
         {{#useRemote}}
             EchoedSettings.useRemote = true;
+            EchoedSettings.remote = {};
+            EchoedSettings.remote.vert = "top";
+            EchoedSettings.remote.hor = "right";
+            EchoedSettings.remote.orientation = "ver";
         {{/useRemote}}
         {{^useRemote}}
             EchoedSettings.useRemote = false;
         {{/useRemote}}
+
         {{#hideOpener}}
             EchoedSettings.hideOpener = true;
         {{/hideOpener}}

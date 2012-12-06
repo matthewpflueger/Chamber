@@ -44,7 +44,7 @@ require(
         this.overlay = new Overlay({ properties: self.properties, EvAg: self.EventAggregator });
 
         if(self.properties.useRemote){
-            $('<div id="echoed-loader" class="ech-top-left ech-hor"></div>').appendTo(body);
+            $('<div id="echoed-loader"></div>').appendTo(body);
             this.remote = new Remote({ el: "#echoed-loader", properties: self.properties, EvAg: self.EventAggregator});
         }
 

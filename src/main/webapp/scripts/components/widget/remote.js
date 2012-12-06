@@ -14,6 +14,8 @@ define(
                 this.EvAg = options.EvAg;
                 this.element = $(this.el);
                 this.properties = options.properties;
+                this.element.addClass("ech-" + this.properties.remote.vert + "-" + this.properties.remote.hor);
+                this.element.addClass("ech-" + this.properties.remote.orientation);
                 this.render();
             },
             events: {
