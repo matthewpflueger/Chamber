@@ -28,6 +28,8 @@ class CookieManager {
     @BeanProperty var adminUserCookieName = "aucc"
     @BeanProperty var browserIdCookieName = "bi"
 
+    @BeanProperty var disableSecure = false
+
 
     private var baseDomain: String = "echoed.com"
 
@@ -89,7 +91,7 @@ class CookieManager {
                 Option(adminUser).map(au => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(au))),
                 Option(request),
                 None,
-                true)
+                !disableSecure)
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }
@@ -107,7 +109,7 @@ class CookieManager {
                 Option(partnerUser).map(pu => encrypter.encrypt(new ScalaObjectMapper().writeValueAsString(pu))),
                 Option(request),
                 None,
-                true)
+                !disableSecure)
         Option(response).foreach(_.addCookie(cookie))
         cookie
     }

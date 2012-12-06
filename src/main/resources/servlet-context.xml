@@ -25,7 +25,9 @@
         <property name="defaultLocale" value="en"/>
     </bean>
 
-    <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager" />
+    <bean id="cookieManager" class="com.echoed.chamber.controllers.CookieManager">
+        <property name="disableSecure" value="${ssl.disableInterceptor}" />
+    </bean>
 
 
     <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
@@ -37,6 +39,7 @@
                 </bean>
                 <bean class="com.echoed.chamber.interceptors.SecureInterceptor">
                     <property name="httpsUrl" value="${https.urls.site}" />
+                    <property name="disable" value="${ssl.disableInterceptor}" />
                 </bean>
                 <bean class="com.echoed.chamber.interceptors.PreflightArgumentResolverInterceptor" />
                 <bean class="com.echoed.chamber.interceptors.GlobalsInterceptor">
@@ -162,7 +165,7 @@
         <property name="storyGraphUrl" value="${https.urls.site}/graph/story/" />
 
         <property name="partnerLoginErrorView" value="partner_login" />
-        <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
+        <property name="partnerLoginView" value="redirect:dashboard" />
 
         <property name="activateView" value="partner_activate" />
         <property name="postActivateView" value="partner_activate_post" />

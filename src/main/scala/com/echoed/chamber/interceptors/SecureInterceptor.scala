@@ -13,6 +13,7 @@ class SecureInterceptor extends HandlerInterceptor {
     val logger = LoggerFactory.getLogger(classOf[SecureInterceptor])
 
     @BeanProperty var httpsUrl: String = _
+    @BeanProperty var disable: Boolean = false
 
     def preHandle(request: HttpServletRequest, response: HttpServletResponse, h: Object) = {
         val handler = h.asInstanceOf[HandlerMethod]
@@ -21,7 +22,7 @@ class SecureInterceptor extends HandlerInterceptor {
         val isHttps = request.isSecure || Option(request.getHeader("X-Scheme")).filter(_.equals("https")).isDefined
         val isGet = request.getMethod == "GET"
 
-        if (optSecure.isEmpty || isHttps) {
+        if (disable || optSecure.isEmpty || isHttps) {
             request.setAttribute("isSecure", isHttps)
             true
         } else {
