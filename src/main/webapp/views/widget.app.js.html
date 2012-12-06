@@ -20,7 +20,7 @@
 
     {{#customization}}
         {{#useGallery}}
-            EchoedSettings.useGallery = true;
+            EchoedSettings.useGallery = {{.}};
         {{/useGallery}}
         {{^useGallery}}
             EchoedSettings.useGallery = false;
@@ -28,23 +28,17 @@
         {{#useRemote}}
             EchoedSettings.useRemote = true;
             EchoedSettings.remote = {};
-            EchoedSettings.remote.vert = "top";
-            EchoedSettings.remote.hor = "right";
-            EchoedSettings.remote.orientation = "ver";
+            EchoedSettings.remote.vert = "{{remoteVertical}}";
+            EchoedSettings.remote.hor = "{{remoteHorizontal}}";
+            EchoedSettings.remote.orientation = "{{remoteOrientation}}";
         {{/useRemote}}
         {{^useRemote}}
             EchoedSettings.useRemote = false;
         {{/useRemote}}
 
         {{#hideOpener}}
-            EchoedSettings.hideOpener = true;
+            EchoedSettings.hideOpener = {{.}};
         {{/hideOpener}}
-        {{#loaderOrientation}}
-            EchoedSettings.loaderOrientation = "{{.}}";
-        {{/loaderOrientation}}
-        {{#loaderPosition}}
-            EchoedSettings.loaderPosition = "{{.}}";
-        {{/loaderPosition}}
     {{/customization}}
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
