@@ -145,7 +145,7 @@ case class PartnerSettings(
                 "useGallery" -> "false",
                 "useRemote" -> "true",
                 "hideOpener" -> "false",
-                "remoteVertical" -> "top",
+                "remoteVertical" -> "bottom",
                 "remoteHorizontal" -> "left",
                 "remoteOrientation" -> "ver",
                 "hideOpener" -> "true"
