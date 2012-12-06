@@ -4,18 +4,25 @@ define(
         'backbone',
         'underscore',
         'components/utils',
-        'hgn!templates/remote/remote',
-        'hgn!templates/remote/stories'
+        'components/widget/messageDialog',
+        'hgn!templates/remote/remote'
     ],
-    function($, Backbone, _, utils, templateRemote, templateStories){
+    function($, Backbone, _, utils, MessageDialog, templateRemote){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
-                this.el = options.el;
-                this.properties = options.properties;
                 this.element = $(this.el);
-                var self = this;
+                this.properties = options.properties;
                 this.render();
+            },
+            events: {
+            },
+            render: function(){
+                var self = this;
+                var template = templateRemote();
+                this.element.html(template);
+                this.options = $('#echoed-options');
+                this.messageDialog = new MessageDialog({ el: "#echoed-preview", properties: this.properties });
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/api/partner/" + this.properties.partnerId,
                     dataType: 'json',
@@ -34,16 +41,6 @@ define(
                         }
                     }
                 })();
-            },
-            events: {
-                "click .echoed-story" : "",
-                "mouseenter #echoed-add": "",
-                "mouseleave #echoed-add": ""
-            },
-            render: function(){
-                var template = templateRemote();
-                this.element.html(template);
-                this.options = $('#echoed-options');
             }
         });
     });
