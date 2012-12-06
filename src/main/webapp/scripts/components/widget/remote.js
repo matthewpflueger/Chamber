@@ -11,18 +11,64 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
+                this.EvAg = options.EvAg;
                 this.element = $(this.el);
                 this.properties = options.properties;
                 this.render();
             },
             events: {
+                "mouseenter #echoed-i": "info",
+                "mouseenter #echoed-add": "add",
+                "mouseenter .echoed-story": "story",
+                "mouseenter #echoed-icon-overlay": "browse",
+                "mouseleave .echoed-option": "leave",
+                "click .echoed-story": "clickStory",
+                "click #echoed-add": "clickAdd",
+                "click #echoed-i": "clickInfo",
+                "click #echoed-icon-overlay": "clickBrowse"
+            },
+            clickBrowse: function(ev){
+                window.location.hash = '#echoed';
+            },
+            clickStory: function(ev){
+                window.location.hash = $(ev.currentTarget).attr('href');
+            },
+            clickAdd: function(ev){
+                window.location.hash = "#echoed_write";
+            },
+            clickInfo: function(ev){
+                window.open(this.properties.urls.site + "/websites");
+            },
+            triggerPreview: function(msgObj){
+                this.EvAg.trigger("preview/show", msgObj);
+            },
+            info: function(){
+                this.triggerPreview({ type: "text", data: "What is this?" });
+            },
+            add: function(){
+                this.triggerPreview({ type: "text", data: "Click here to share your Stories" });
+            },
+            browse: function(){
+                this.triggerPreview({ type: "text", data: "See all our stories"})
+            },
+            leave: function(){
+                this.EvAg.trigger("preview/leave");
+            },
+            story: function(ev){
+                var index = $(ev.currentTarget).attr("index");
+                var storyFull =this.stories[index];
+                var msg = {
+                    type: "story",
+                    data: storyFull
+                };
+                this.triggerPreview(msg);
             },
             render: function(){
                 var self = this;
                 var template = templateRemote();
                 this.element.html(template);
                 this.options = $('#echoed-options');
-                this.messageDialog = new MessageDialog({ el: "#echoed-preview", properties: this.properties });
+                this.messageDialog = new MessageDialog({ el: "#echoed-preview", properties: this.properties, EvAg: this.EvAg});
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/api/partner/" + this.properties.partnerId,
                     dataType: 'json',
@@ -33,7 +79,7 @@ define(
                         while(i < self.stories.length && counter < 4){
                             var story = self.stories[i];
                             if(story.story.image) {
-                                var link = $('<a></a>').attr("href", "#echoed_story/" + story.id).append(utils.fit(story.story.image, 40 , 40)).attr('index', i).addClass("echoed-story");
+                                var link = $('<div></div>').attr("href", "#echoed_story/" + story.id).append(utils.fit(story.story.image, 40 , 40)).attr('index', i).addClass("echoed-story").addClass('echoed-option');
                                 $('#echoed-options').prepend(link);
                                 counter++;
                             }

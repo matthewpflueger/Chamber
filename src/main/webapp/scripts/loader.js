@@ -45,14 +45,14 @@ require(
 
         if(self.properties.useRemote){
             $('<div id="echoed-loader" class="ech-top-left ech-hor"></div>').appendTo(body);
-            this.remote = new Remote({ el: "#echoed-loader", properties: self.properties });
+            this.remote = new Remote({ el: "#echoed-loader", properties: self.properties, EvAg: self.EventAggregator});
         }
 
         if(self.properties.useGallery){
             $('<div id="echoed-gallery"></div>').appendTo(body);
-            this.gallery = new Gallery({ el: "#echoed-gallery", properties: self.properties });
+            this.gallery = new Gallery({ el: "#echoed-gallery", properties: self.properties, EvAg: self.EventAggregator });
         }
 
-        this.opener = new Opener({ el: "body", properties: self.properties, EvAg: self.EventAggregator});
+        this.opener = new Opener({ el: "body", properties: self.properties, EvAg: self.EventAggregator });
     }
 );

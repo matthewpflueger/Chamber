@@ -3,17 +3,23 @@
 #content{
 }
 
-#content-image{
+#image-container{
     float: left;
     display: block;
+    height: 35px;
+    width: 35px;
+    overflow: hidden;
     margin: 5px;
+    img {
+        display: block;
+    }
 }
 
 #content-text{
     color: #FFF;
     line-height: 45px;
     @include fontTextBold(13px, #FFF);
-    text-align:center;
+    text-align:left;
     padding: 0px 5px;
     white-space: nowrap;
     overflow: hidden;

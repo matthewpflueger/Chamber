@@ -57,6 +57,7 @@ $optionSize: 36px;
     @include position(top, right, $loaderSize, bottom, left);
     @include position(bottom, left, $loaderSize, top, right);
     @include position(bottom, right, $loaderSize, top, left);
+
 }
 
 
@@ -82,20 +83,25 @@ $optionSize: 36px;
     z-index: 10000000;
 }
 
-#echoed-icon{
-    background-image: image-url("logo-inset.png");
-    width: 37px;
-    height: 37px;
-    position: absolute;
-    left: 3px;
-    top: 3px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+#echoed-icon-overlay{
+    width: 45px;
+    height: 45px;
     &:hover{
         background-color: rgba(255, 255, 255, 0.1);
     }
+    #echoed-icon{
+        background-image: image-url("logo-inset.png");
+        width: 37px;
+        height: 37px;
+        position: absolute;
+        left: 3px;
+        top: 3px;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
 }
+
 
 #echoed-overlay{
     top: 0px;
@@ -135,16 +141,21 @@ $optionSize: 36px;
     position: fixed;
     @include dropShadow;
 
-    img{
-        margin: 2px 2px;
-        height: 28px;
-        width: 28px;
-        border: 1px solid #CCC;
-        cursor:pointer;
-        &:hover{
-            border-color: #FFF;
+    .echoed-story{
+        display: inline-block;
+        img{
+            display: block;
+            margin: 2px 2px;
+            height: 28px;
+            width: 28px;
+            border: 1px solid #CCC;
+            cursor:pointer;
+            &:hover{
+                border-color: #FFF;
+            }
         }
     }
+
 
     #echoed-add{
         background-image: image-url("bk_plus.png");
@@ -157,6 +168,7 @@ $optionSize: 36px;
         display: inline-block;
         margin: 2px;
         border-radius: 3px;
+        cursor: pointer;
         &:hover{
             background-color: rgba(255, 255, 255, 0.3);
         }
