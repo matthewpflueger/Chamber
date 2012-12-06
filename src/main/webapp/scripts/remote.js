@@ -80,7 +80,7 @@ require(
             onReady: function(){
                 utils.AjaxFactory({
                     url: EchoedSettings.urls.api + "/api/partner/" + parameters['pid'],
-                    dataType: 'json',
+                    dataType: 'jsonp',
                     success: function(response){
                         self.stories = response.stories;
                         self.storyIndex = 0;

@@ -43,7 +43,7 @@
                 'click .fade': "close"
             },
             login: function(){
-                if(this.loaded = true) this.load(this.id, this.type);
+                if(this.loaded === true) this.load(this.id, this.type);
             },
             load: function(id, type){
                 this.id = id;
@@ -74,11 +74,11 @@
                             dataType: 'jsonp',
                             success: function(data){
                                 var text = data.partner.name + " wants to hear your story. Share your story and have it featured.";
-                                self.EvAg.trigger("login/init", "input/show", text);
+                                self.EvAg.trigger("login/init", null, text, self.close);
                             }
                         })();
                     } else {
-                        self.EvAg.trigger("login/init", "input/show", "Test");
+                        self.EvAg.trigger("login/init", null, "Login to Share Your Story", self.close);
                     }
                 }
             },

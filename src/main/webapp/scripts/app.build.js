@@ -1,4 +1,4 @@
-({
+    ({
     appDir: "./",
     baseUrl: "./",
     dir: "../scripts_build",

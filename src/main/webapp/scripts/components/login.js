@@ -22,12 +22,18 @@ define(
                 this.modelUser.login(echoedUser);
                 if(this.options.callback) {
                     this.EvAg.trigger(this.options.callback);
-                    this.options.callback = null;
+                    this.reset();
                 }
                 this.element.fadeOut();
             },
-            init: function(callback, text){
+            reset: function(){
+                this.options.loginText = null;
+                this.options.callback = null;
+                this.options.failCallback = null;
+            },
+            init: function(callback, text, failCallback){
                 this.options.callback = callback;
+                this.options.failCallback = failCallback;
                 this.options.loginText = text;
                 this.render();
             },
@@ -50,13 +56,14 @@ define(
                 "click .fade": "close"
             },
             close: function(){
+                this.options.failCallback();
                 this.element.fadeOut();
                 this.element.empty();
             },
             loginClick: function(ev){
                 var target = $(ev.currentTarget);
                 var href = target.attr('href');
-                window.open(href, "Echoed",'width=800,height=440,toolbar=0,menubar=0,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
+                window.open(href, "Echoed",'width=800,height=440,toolbar=1,menubar=1,location=0,status=1,scrollbars=0,resizable=0,left=0,top=0');
                 return false;
             }
         });
