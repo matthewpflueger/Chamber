@@ -18,10 +18,6 @@
             include: ['requireLib']
         },
         {
-            name: "remote",
-            include: ['requireLib']
-        },
-        {
             name: 'mobile',
             include: ['requireLib']
         },
