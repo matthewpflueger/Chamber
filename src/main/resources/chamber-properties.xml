@@ -28,6 +28,7 @@
         <prop key="ssl.port">8443</prop>
         <prop key="ssl.keyPassword">Ech0ed1nc</prop>
         <prop key="ssl.keystore">/etc/keystore/Echoed20120224.keystore</prop>
+        <prop key="ssl.disableInterceptor">false</prop>
 
 
         <prop key="context"></prop>
