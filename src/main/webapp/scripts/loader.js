@@ -29,8 +29,8 @@ require(
             }
         }
 
-        if($('script[data-main*="remote.js"]').length > 0) scriptUrl = $('script[data-main*="remote.js"]').attr("data-main");
-        else if($('script[src*="remote.js"]').length > 0) scriptUrl = $('script[src*="remote.js"]').attr('src');
+        if($('script[data-main*="loader.js"]').length > 0) scriptUrl = $('script[data-main*="loader.js"]').attr("data-main");
+        else if($('script[src*="loader.js"]').length > 0) scriptUrl = $('script[src*="loader.js"]').attr('src');
 
         var parameters = gup(scriptUrl);
 
