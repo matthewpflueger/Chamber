@@ -4,14 +4,23 @@ import com.echoed.chamber.domain.partner.{PartnerUser}
 import akka.actor.PoisonPill
 import akka.pattern._
 import com.echoed.chamber.services._
+import com.echoed.chamber.services.partner.{FetchPartnerAndPartnerSettingsResponse, FetchPartnerAndPartnerSettings, PartnerClientCredentials, PutPartnerCustomization}
 import scala.Left
 import scala.Right
 import com.echoed.chamber.services.state.{ReadPartnerUserForCredentialsResponse, ReadPartnerUserForEmailResponse, ReadPartnerUserForCredentials, ReadPartnerUserForEmail}
 import com.echoed.chamber.domain.InvalidPassword
-import com.echoed.chamber.services.partner.{FetchPartnerAndPartnerSettingsResponse, FetchPartnerAndPartnerSettings, PartnerClientCredentials}
+import partner._
 import com.echoed.util.DateUtils._
 import java.util.Date
 import com.echoed.util.{Encrypter, ScalaObjectMapper}
+import scala.Left
+import com.echoed.chamber.domain.partner.PartnerUser
+import state.ReadPartnerUserForCredentials
+import state.ReadPartnerUserForCredentialsResponse
+import scala.Right
+import com.echoed.chamber.domain.InvalidPassword
+import state.ReadPartnerUserForEmail
+import state.ReadPartnerUserForEmailResponse
 
 
 class PartnerUserService(
@@ -90,6 +99,20 @@ class PartnerUserService(
                 .map(_.resultOrException)
                 .map(r => GetPartnerSettingsResponse(msg, Right(List(r.partnerSettings))))
                 .pipeTo(sender)
+
+        case msg @ UpdatePartnerCustomization(_, useGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation) =>
+            val channel = context.sender
+            mp(PutPartnerCustomization(
+                PartnerClientCredentials(partnerUser.partnerId),
+                useGallery,
+                useRemote,
+                remoteVertical,
+                remoteHorizontal,
+                remoteOrientation)).onSuccess {
+                case PutPartnerCustomizationResponse(_, Right(customization)) =>
+                    channel ! UpdatePartnerCustomizationResponse(msg, Right(customization))
+
+            }
     }
 
 }

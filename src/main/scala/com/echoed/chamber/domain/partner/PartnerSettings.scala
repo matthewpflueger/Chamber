@@ -142,18 +142,17 @@ case class PartnerSettings(
 
     def makeCustomizationOptions = {
             var customMap = Map(
-                "useGallery" -> "false",
-                "useRemote" -> "true",
-                "hideOpener" -> "false",
+                "useGallery" -> false,
+                "useRemote" -> true,
+                "hideOpener" -> false,
                 "remoteVertical" -> "bottom",
                 "remoteHorizontal" -> "left",
                 "remoteOrientation" -> "ver",
-                "hideOpener" -> "true"
+                "hideOpener" -> true
             )
-            if (customization != null || customization.length > 0){
-                val map = new ScalaObjectMapper().readValue(customization, classOf[Map[String, String]])
+            if (customization != null && customization.length > 0){
+                val map = new ScalaObjectMapper().readValue(customization, classOf[Map[String, Any]])
                 for ((key, value) <- map) customMap += (key -> value)
-
             }
             customMap
     }

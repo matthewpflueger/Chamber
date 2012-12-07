@@ -13,7 +13,7 @@ import com.echoed.chamber.services.echoeduser.RegisterNotification
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state._
 import com.echoed.util.DateUtils._
-import com.echoed.util.Encrypter
+import com.echoed.util.{ScalaObjectMapper, Encrypter}
 import feed.{RequestPartnerStoryFeedResponse, RequestPartnerStoryFeed}
 import java.util.{Date, UUID}
 import scala.Left
@@ -175,6 +175,18 @@ class PartnerService(
             } catch {
                 case e: InvalidDateRange => sender ! PutTopicResponse(msg, Left(e))
             }
+
+
+        case msg @ PutPartnerCustomization(_, useGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation) =>
+            var customization = partnerSettings.makeCustomizationOptions
+            customization += ("useGallery" -> useGallery)
+            customization += ("useRemote" -> useRemote)
+            customization += ("remoteVertical" -> remoteVertical)
+            customization += ("remoteHorizontal" -> remoteHorizontal)
+            customization += ("remoteOrientation" -> remoteOrientation)
+            partnerSettings = partnerSettings.copy(updatedOn = new Date, customization = new ScalaObjectMapper().writeValueAsString(customization))
+            ep(PartnerSettingsUpdated(partnerSettings))
+            sender ! PutPartnerCustomizationResponse(msg, Right(partnerSettings.makeCustomizationOptions))
 
     }
 }

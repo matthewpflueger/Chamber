@@ -17,3 +17,5 @@ private[services] case class PartnerCreated(
 private[services] trait TopicEvent { def topic: Topic }
 private[services] case class TopicCreated(topic: Topic) extends PE with CreatedEvent with TopicEvent
 private[services] case class TopicUpdated(topic: Topic) extends PE with UpdatedEvent with TopicEvent
+
+private[services] case class PartnerSettingsUpdated(ps: PartnerSettings) extends PE with UpdatedEvent

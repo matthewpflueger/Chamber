@@ -1,0 +1,16 @@
+#partner-customize-table{
+    width: 100%;
+    border-collapse: collapse;
+
+    .table-label{
+        @include fontTitleLight(18px);
+    }
+    tr{
+        border-bottom: 1px solid #CCC;
+    }
+    td{
+        width: 50%;
+        padding: 10px 20px;
+    }
+
+}
