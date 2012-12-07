@@ -259,22 +259,24 @@ class StateService(
         case msg @ ReadPartner(pcc) =>
             val activeOn = DateUtils.dateToLong(new Date())
 
-            val p = from(partners)(p => where(p.id === pcc.partnerId or p.handle === pcc.partnerId) select(p)).single
-            val ps = from(partnerSettings)(ps =>
+            from(partners)(p => where(p.id === pcc.partnerId or p.handle === pcc.partnerId) select(p)).headOption.map { p =>
+                val ps = from(partnerSettings)(ps =>
                     where((ps.partnerId === p.id) and (ps.activeOn lte activeOn))
-                    select(ps)
-                    orderBy(ps.activeOn desc)).page(0,1).toList.head
-            val pu = from(partnerUsers)(pu => where(pu.partnerId === p.id) select(pu)).toList.headOption
+                        select(ps)
+                        orderBy(ps.activeOn desc)).page(0,1).toList.head
+                val pu = from(partnerUsers)(pu => where(pu.partnerId === p.id) select(pu)).toList.headOption
 
-            val fbus = (from(followers)(f => where(f.ref === "Partner" and f.refId === p.id) select(f))).toList
+                val fbus = (from(followers)(f => where(f.ref === "Partner" and f.refId === p.id) select(f))).toList
                     .map(f => from(echoedUsers)(eu =>
-                        where(eu.id === f.echoedUserId)
+                    where(eu.id === f.echoedUserId)
                         select(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)).single)
                     .map { case (i, n, s, f, t) => echoeduser.Follower(i, n, s, f, t) }
 
-            val t = (from(topics)(t => where(t.partnerId === p.id) select(t))).toList
+                val t = (from(topics)(t => where(t.partnerId === p.id) select(t))).toList
 
-            sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus, t)))
+                sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus, t)))
+            }
+
 
         case msg @ TopicCreated(topic) => topics.insert(topic)
         case msg @ TopicUpdated(topic) => topics.update(topic)

@@ -136,8 +136,9 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             sender ! QueryPartnerIdsResponse(msg, Right(from(partners)(p => select(p.id)).toList))
 
         case msg @ QueryPartnerByIdOrHandle(idOrHandle) =>
-            sender ! QueryPartnerByIdOrHandleResponse(msg, Right(
-                    from(partners)(p => where(p.id === idOrHandle or p.handle === idOrHandle) select(p)).single))
+            from(partners)(p => where(p.id === idOrHandle or p.handle === idOrHandle) select(p)).headOption.map { p =>
+                sender ! QueryPartnerByIdOrHandleResponse(msg, Right(p))
+            }
 
         case msg @ QueryEchoedUsersByFacebookId(_, ids) =>
             sender ! QueryEchoedUsersByFacebookIdResponse(msg, Right(
