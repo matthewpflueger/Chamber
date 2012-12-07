@@ -195,6 +195,7 @@
         text-align:right;
         @include fontTextBold(14px);
         padding-right: 10px;
+        vertical-align: top;
     }
     .story-input-content{
         display:table-cell;
