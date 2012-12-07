@@ -6,7 +6,7 @@
 
 
     <script type="text/javascript">
-        {{>partial_requirejs}}
+        {{#dev}} {{>partial_requirejs}} {{/dev}}
         {{>partial_urls}}
 
         Echoed.errors = {};
