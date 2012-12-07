@@ -18,24 +18,30 @@
         <tr>
             <td class="table-label">Loader Vertical Position</td>
             <td>
-                <input type="radio" name="remoteVertical" value="top" checked/>Top
-                <input type="radio" name="remoteVertical" value="bottom" />Bottom
+                <input type="radio" name="remoteVertical" value="top" {{#isTop}}checked{{/isTop}}/>Top
+                <input type="radio" name="remoteVertical" value="bottom" {{^isTop}}checked{{/isTop}}/>Bottom
             </td>
         </tr>
         <tr>
             <td class="table-label">Loader Horizontal Position</td>
             <td>
-                <input type="radio" name="remoteHorizontal" value="left" checked/>Left
-                <input type="radio" name="remoteHorizontal" value="right" />Right<br/>
+                <input type="radio" name="remoteHorizontal" value="left" {{#isLeft}}checked{{/isLeft}}/>Left
+                <input type="radio" name="remoteHorizontal" value="right" {{^isLeft}}checked{{/isLeft}}/>Right
             </td>
         </tr>
         <tr>
             <td class="table-label">Loader Orientation</td>
             <td>
-                <input type="radio" name="remoteOrientation" value="ver" checked/>Vertical
-                <input type="radio" name="remoteOrientation" value="hor" />Horizontal<br/>
+                <input type="radio" name="remoteOrientation" value="ver" {{^isHor}}checked{{/isHor}}/>Vertical
+                <input type="radio" name="remoteOrientation" value="hor" {{#isHor}}checked{{/isHor}}/>Horizontal
             </td>
         </tr>
+        <tr>
+            <td>
+                <div id="customize-save">Save</div>
+            </td>
+            <td></td>
+        </tr>
     </table>
-    <div id="customize-save">Save</div>
+
 </form>
