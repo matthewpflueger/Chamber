@@ -227,6 +227,9 @@ class EchoedUserService(
                     channel.get ! LoginWithPasswordResponse(msg, Left(InvalidCredentials()))
                 case LoginWithCredentials(_, msg @ ResetLogin(_), channel) =>
                     channel.get ! ResetLoginResponse(msg, Left(InvalidCredentials()))
+                case msg: LoginWithCredentials =>
+                    //this is here to catch staging credentials being transmitted to production :(
+                    log.debug("Invalid credentials %s" format(msg))
             }
             self ! PoisonPill
 
