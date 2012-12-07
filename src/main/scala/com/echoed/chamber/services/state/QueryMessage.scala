@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.state
 
 import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedException, Message}
-import com.echoed.chamber.domain.{Topic, EchoedUser, StoryState}
+import com.echoed.chamber.domain.{Topic, EchoedUser, StoryState, Image}
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
@@ -116,3 +116,7 @@ case class QueryPartnerByIdOrHandleResponse(
         message: QueryPartnerByIdOrHandle,
         value: Either[QE, Partner]) extends QM with MR[Partner, QueryPartnerByIdOrHandle, QE]
 
+case class LookupImage(imageId: String) extends QM
+case class LookupImageResponse(
+        message: LookupImage,
+        value: Either[QE, Image]) extends QM with MR[Image, LookupImage, QE]

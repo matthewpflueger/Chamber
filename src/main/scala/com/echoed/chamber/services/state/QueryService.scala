@@ -17,6 +17,14 @@ import com.echoed.chamber.services.partner.RegisterPartner
 class QueryService(val dataSource: DataSource) extends EchoedService with SquerylSessionFactory {
 
     protected def handle = transactional {
+
+        case msg @ LookupImage(imageId) =>
+            images.lookup(imageId).map{
+                i =>
+                    sender ! LookupImageResponse(msg, Right(i.convertTo))
+            }
+
+
         case msg @ FindAllStories(page, pageSize) =>
             val now = System.currentTimeMillis()
             from(stories)(s => select(s)).foreach(s => sender ! FindAllStoriesResponse(msg, Right(List(readStory(s)))))
