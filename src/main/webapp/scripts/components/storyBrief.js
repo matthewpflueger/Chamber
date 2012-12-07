@@ -65,7 +65,6 @@ define(
 
 
                 if(self.data.chapters.length === 0) self.data.inComplete =true;
-                console.log(self.data);
 
                 if (image !== null) {
 
