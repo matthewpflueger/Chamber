@@ -39,7 +39,7 @@ class PartnerServiceManager(
                     active.put(msg.credentials.id, partnerService)
                 })
 
-        case msg: RegisterPartner => context.watch(partnerServiceCreator(context, msg))
+        case msg: RegisterPartner => context.watch(partnerServiceCreator(context, msg)).forward(msg)
     }
 
 
