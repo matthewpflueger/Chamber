@@ -10,7 +10,10 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
+                var self = this;
                 this.properties = options.properties;
+                this.element =$(this.el);
+
                 this.socket = new easyXDM.Socket({
                     remote: this.properties.urls.api +  "/widget/iframe/gallery?pid=" + this.properties.partnerId,
                     container: "echoed-gallery",
@@ -25,7 +28,7 @@ define(
                                 $('#echoed-gallery-iframe').hide().height(msg.data).slideDown();
                                 break;
                             case 'close':
-                                self.echoedGallery.slideUp();
+                                self.element.slideUp();
                         }
                     }
                 });

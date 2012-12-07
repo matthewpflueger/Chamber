@@ -18,7 +18,7 @@ define(
                 this.modelUser = options.modelUser;
                 this.EvAg.bind('story/show', this.load);
                 this.EvAg.bind('story/hide', this.hide);
-                this.modelUser.on("change:id", this.login);
+                if(this.modelUser) this.modelUser.on("change:id", this.login);
                 this.locked = false;
             },
             events: {

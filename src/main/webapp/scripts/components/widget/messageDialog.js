@@ -11,6 +11,10 @@ define(
                 _.bindAll(this);
                 var self = this;
                 this.element = $(this.el);
+                this.EvAg = options.EvAg;
+                this.EvAg.bind("preview/show", this.showInfo);
+                this.EvAg.bind("preview/leave", this.leave);
+
                 this.socket = new easyXDM.Socket({
                     remote: this.options.properties.urls.api + "/widget/iframe/preview?pid=" + this.options.properties.partnerId,
                     container: this.element.attr("id"),
@@ -19,12 +23,25 @@ define(
                     },
                     onReady: function(){
                         self.previewHidden = true;
-                        self.socket.postMessage(JSON.stringify({ type: "text", data: "Click Here To Share Your DIYs"}));
+                        self.showInfo({ type: "text", data: "Click Here To Share Your DIYs"});
                     },
                     onMessage: function(message, origin){
                         self.element.fadeIn();
                     }
                 });
+            },
+            leave: function(){
+                var self = this;
+                self.previewHidden = true;
+                window.setTimeout(function(){
+                    if(self.previewHidden === true){
+                        self.element.fadeOut();
+                    }
+                }, 1500);
+            },
+            showInfo: function(msgObj){
+                this.previewHidden = false;
+                this.socket.postMessage(JSON.stringify(msgObj));
             },
             hide: function(){
 

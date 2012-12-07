@@ -140,9 +140,23 @@ case class PartnerSettings(
             if (storyPrompts == null || storyPrompts.length < 1) StoryPrompts()
             else new ScalaObjectMapper().readValue(storyPrompts, classOf[StoryPrompts])
 
-    def makeCustomizationOptions =
-            if (customization == null || customization.length < 0) Map[String, String]()
-            else new ScalaObjectMapper().readValue(customization, classOf[util.Map[String, String]])
+    def makeCustomizationOptions = {
+            var customMap = Map(
+                "useGallery" -> false,
+                "useRemote" -> true,
+                "hideOpener" -> false,
+                "remoteVertical" -> "bottom",
+                "remoteHorizontal" -> "left",
+                "remoteOrientation" -> "ver",
+                "hideOpener" -> true
+            )
+            if (customization != null && customization.length > 0){
+                val map = new ScalaObjectMapper().readValue(customization, classOf[Map[String, Any]])
+                for ((key, value) <- map) customMap += (key -> value)
+            }
+            customMap
+    }
+
 
     def couponExpiresOnDate: Date = couponExpiresOn
 }

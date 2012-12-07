@@ -90,6 +90,17 @@ case class ReadPartnerTopicsResponse(
         message: ReadPartnerTopics,
         value: Either[PE, List[Topic]]) extends PM with MR[List[Topic], ReadPartnerTopics, PE]
 
+case class PutPartnerCustomization(
+        credentials: PCC,
+        useGallery: Boolean,
+        useRemote: Boolean,
+        remoteVertical: String,
+        remoteHorizontal: String,
+        remoteOrientation: String) extends PM with PI
+case class PutPartnerCustomizationResponse(
+        message: PutPartnerCustomization,
+        value: Either[PE, Map[String, Any]]) extends PM with MR[Map[String, Any], PutPartnerCustomization, PE]
+
 case class PutTopic(
         credentials: PCC,
         title: String,

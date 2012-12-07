@@ -2,12 +2,13 @@ require(
     [
         'requireLib',
         'jquery',
-        'easyXDM'
+        'easyXDM',
+        'components/utils'
     ],
-    function(requireLib, $){
+    function(requireLib, $, easyXDM, utils){
         $(document).ready(function(){
             var self = this;
-            self.img = $("#content-image");
+            self.img = $('#image-container');
             self.contentText = $("#content-text");
             self.socket = new easyXDM.Socket({
                 onMessage: function(message, origin){
@@ -16,7 +17,7 @@ require(
                         switch(msg.type){
                             case "story":
                                 var story = msg.data;
-                                if(story.story.image) self.img.attr("src", story.story.image.preferredUrl);
+                                if(story.story.image) self.img.html(utils.fill(story.story.image, 40, 40));
                                 self.img.show();
                                 self.contentText.text(story.story.title);
                                 break;

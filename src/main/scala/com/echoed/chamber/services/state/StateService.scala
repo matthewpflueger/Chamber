@@ -23,7 +23,7 @@ import com.echoed.util.TransactionUtils._
 import com.echoed.chamber.services.partneruser.PartnerUserUpdated
 import StateUtils._
 import com.echoed.util.{DateUtils, UUID}
-import com.echoed.chamber.services.partner.{TopicUpdated, TopicCreated, PartnerServiceState}
+import com.echoed.chamber.services.partner.{TopicUpdated, TopicCreated, PartnerServiceState, PartnerSettingsUpdated}
 
 
 class StateService(
@@ -271,6 +271,8 @@ class StateService(
 
         case msg @ TopicCreated(topic) => topics.insert(topic)
         case msg @ TopicUpdated(topic) => topics.update(topic)
+
+        case msg @ PartnerSettingsUpdated(ps) => partnerSettings.update(ps)
     }
 
 }

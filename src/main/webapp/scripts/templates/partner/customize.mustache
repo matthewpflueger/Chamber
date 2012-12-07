@@ -1,0 +1,47 @@
+<h2>Customize Echoed For Your Website</h2>
+<form name="partner-customize" id="partner-customize">
+    <table id="partner-customize-table">
+        <tr>
+            <td class="table-label">Use Gallery</td>
+            <td>
+                <input type="radio" name="useGallery" value="true" {{#useGallery}}checked{{/useGallery}}/>Yes
+                <input type="radio" name="useGallery" value="false" {{^useGallery}}checked{{/useGallery}}/>No
+            </td>
+        </tr>
+        <tr>
+            <td class="table-label">Use Loader</td>
+            <td>
+                <input type="radio" name="useRemote" value="true" {{#useRemote}}checked{{/useRemote}}/>Yes
+                <input type="radio" name="useRemote" value="false" {{^useRemote}}checked{{/useRemote}}/>No
+            </td>
+        </tr>
+        <tr>
+            <td class="table-label">Loader Vertical Position</td>
+            <td>
+                <input type="radio" name="remoteVertical" value="top" {{#isTop}}checked{{/isTop}}/>Top
+                <input type="radio" name="remoteVertical" value="bottom" {{^isTop}}checked{{/isTop}}/>Bottom
+            </td>
+        </tr>
+        <tr>
+            <td class="table-label">Loader Horizontal Position</td>
+            <td>
+                <input type="radio" name="remoteHorizontal" value="left" {{#isLeft}}checked{{/isLeft}}/>Left
+                <input type="radio" name="remoteHorizontal" value="right" {{^isLeft}}checked{{/isLeft}}/>Right
+            </td>
+        </tr>
+        <tr>
+            <td class="table-label">Loader Orientation</td>
+            <td>
+                <input type="radio" name="remoteOrientation" value="ver" {{^isHor}}checked{{/isHor}}/>Vertical
+                <input type="radio" name="remoteOrientation" value="hor" {{#isHor}}checked{{/isHor}}/>Horizontal
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div id="customize-save">Save</div>
+            </td>
+            <td></td>
+        </tr>
+    </table>
+
+</form>
