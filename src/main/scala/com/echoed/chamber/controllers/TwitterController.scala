@@ -25,10 +25,10 @@ class TwitterController extends EchoedController with NetworkController {
         val result = new DeferredResult(new ModelAndView(v.errorView))
 
 
-        val callbackUrl = "%s/twitter/%s?redirect=%s" format(
+        val callbackUrl = "%s/twitter/%s%s" format(
                 v.secureSiteUrl,
                 Option(eucc).map(_ => "add").getOrElse("login"),
-                URLEncoder.encode(redirect, "UTF-8"))
+                Option(redirect).map("?redirect=" + URLEncoder.encode(_, "UTF-8")).getOrElse(""))
 
         log.debug("Twitter Callback Url: {} ", URLEncoder.encode(callbackUrl,"UTF-8"));
 
