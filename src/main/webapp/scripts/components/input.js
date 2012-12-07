@@ -40,7 +40,12 @@
                 'click #story-hide': "hideStoryClick",
                 'click #chapter-cancel': 'cancelChapterClick',
                 'click .chapter-thumb-x': 'removeChapterThumb',
-                'click .fade': "close"
+                'click .fade': "fadeClick"
+            },
+            fadeClick: function(ev){
+                if($(ev.target).hasClass("fade")){
+                    this.close();
+                }
             },
             login: function(){
                 if(this.loaded === true) this.load(this.id, this.type);

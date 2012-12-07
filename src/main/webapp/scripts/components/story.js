@@ -39,7 +39,12 @@ define(
                 "click #story-login-container": "closeLogin",
                 "click #comments-login": "showLogin",
                 "click .story-link": "redirect",
-                "click .fade" : "close"
+                "click .fade" : "fadeClick"
+            },
+            fadeClick: function(ev){
+                if($(ev.target).hasClass("fade")){
+                    this.close();
+                }
             },
             followClick: function(ev){
                 var self = this;

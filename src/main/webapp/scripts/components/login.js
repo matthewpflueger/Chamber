@@ -53,7 +53,12 @@ define(
             events: {
                 "click .login-button": "loginClick",
                 "click .login-email": "loginClick",
-                "click .fade": "close"
+                "click .fade": "fadeClick"
+            },
+            fadeClick: function(ev){
+                if($(ev.target).hasClass("fade")){
+                    this.close();
+                }
             },
             close: function(){
                 this.options.failCallback();
