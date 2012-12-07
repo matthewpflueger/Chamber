@@ -190,7 +190,6 @@ define(
                 this.EvAg.trigger("page/change", "story");
             },
             resetHash: function(){
-
                 if(this.oldPage){
                     $('title').html(this.oldTitle);
                     window.location.hash = this.oldPage;

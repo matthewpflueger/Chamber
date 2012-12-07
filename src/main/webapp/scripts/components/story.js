@@ -39,7 +39,7 @@ define(
                 "click #story-login-container": "closeLogin",
                 "click #comments-login": "showLogin",
                 "click .story-link": "redirect",
-                "click .fade" : "hide"
+                "click .fade" : "close"
             },
             followClick: function(ev){
                 var self = this;
