@@ -25,6 +25,7 @@ $optionSize: 36px;
                 position:fixed;
                 #{$vert}: 5px;
                 #{$side}: $offset + 5;
+                z-index: 10000000;
             }
         }
         &.ech-hor{
@@ -39,6 +40,7 @@ $optionSize: 36px;
                 position:fixed;
                 #{$side}: 5px;
                 #{$vert}: $offset + 5;
+                z-index: 10000000;
             }
         }
     }
