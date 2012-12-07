@@ -17,7 +17,7 @@ define(
                 this.EvAg = options.EvAg;
                 this.modelUser = options.modelUser;
                 this.EvAg.bind('story/show', this.load);
-                this.EvAg.bind('story/hide', this.hide);
+                this.EvAg.bind('story/hide', this.close);
                 if(this.modelUser) this.modelUser.on("change:id", this.login);
                 this.locked = false;
             },
@@ -511,11 +511,6 @@ define(
                     })();
                 }
             },
-            hide: function(){
-                this.element.fadeOut();
-                this.element.empty();
-                $("body").removeClass("noScroll");
-            },
             redirect: function(){
                 var self = this;
                 this.element.fadeOut(function(){
@@ -524,6 +519,8 @@ define(
             },
             close: function(){
                 this.element.fadeOut();
+                this.element.empty();
+                $("body").removeClass("noScroll");
                 this.EvAg.trigger("hash/reset");
             }
         });

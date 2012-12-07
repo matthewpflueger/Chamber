@@ -589,11 +589,13 @@
             show: function(){
                 var self = this;
                 self.element.fadeIn();
+                $("body").addClass("noScroll");
                 $("#story-name").focus();
             },
             close: function(){
                 var self = this;
                 self.element.fadeOut().empty();
+                $("body").removeClass("noScroll");
                 self.EvAg.trigger('hash/reset');
             }
         });
