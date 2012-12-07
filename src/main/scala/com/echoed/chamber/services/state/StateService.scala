@@ -23,7 +23,7 @@ import com.echoed.util.TransactionUtils._
 import com.echoed.chamber.services.partneruser.PartnerUserUpdated
 import StateUtils._
 import com.echoed.util.{DateUtils, UUID}
-import com.echoed.chamber.services.partner.{TopicUpdated, TopicCreated, PartnerServiceState, PartnerSettingsUpdated}
+import com.echoed.chamber.services.partner.{PartnerCreated, TopicUpdated, TopicCreated, PartnerServiceState, PartnerSettingsUpdated}
 
 
 class StateService(
@@ -248,6 +248,13 @@ class StateService(
             stories.update(storyState.asStory)
 
         case StoryImageCreated(image) => images.insert(Image(image))
+
+
+        case msg @ PartnerCreated(p, ps, pu) =>
+            partners.insert(p)
+            partnerSettings.insert(ps)
+            partnerUsers.insert(pu)
+
 
         case msg @ ReadPartner(pcc) =>
             val activeOn = DateUtils.dateToLong(new Date())
