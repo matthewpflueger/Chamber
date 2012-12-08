@@ -85,16 +85,6 @@
     </bean>
 
 
-    <bean id="blobStore" class="com.echoed.util.BlobStore">
-        <property name="provider" value="${blobstore.provider}" />
-        <property name="username" value="${blobstore.identity}" />
-        <property name="credential" value="${blobstore.credential}" />
-        <property name="container" value="${blobstore.container}" />
-        <property name="containerUrl" value="${blobstore.containerUrl}" />
-        <property name="actorSystem" ref="actorSystem" />
-    </bean>
-
-
     <util:list id="filteredUserAgents">
         <value>AppEngine-Google</value>
         <value>bitlybot</value>
