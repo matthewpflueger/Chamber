@@ -14,11 +14,9 @@ define(
                 "click": "close"
             },
             close: function(){
-                $('body').fadeOut(function(){
-                    window.setTimeout(function(){
-                        window.top.postMessage("echoed-close","*");
-                    }, 0);
-                });
+                window.setTimeout(function(){
+                    window.top.postMessage("echoed-close","*");
+                }, 0);
             }
         });
     }
