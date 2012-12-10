@@ -34,7 +34,6 @@ define(
             },
             topic: function(topicId){
                 var self = this;
-                self.EvAg.trigger();
                 this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
                     self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
                     self.EvAg.trigger("title/update", { title: data.topic.title, type: "topic", topicId: data.topic.id, imageUrl: data.headerImageUrl });
