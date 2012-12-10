@@ -3,6 +3,7 @@
     margin-top: 40px;
     //background-color: rgb(30, 85, 120);
     //background-image: url(http://c10415403.r3.cf2.rackcdn.com/JzyyeNrrNqhgVctL7sN_6A-600x916-story.jpg);
+    background-image: image-url("bk_noise.jpg");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -54,7 +55,7 @@ img{
 
 body{
     &.dark-grey{
-        background-color: #666;
+        background-color: #333;
         background-image: none;
     }
     &.white{
@@ -76,10 +77,12 @@ body{
 }
 
 .static-plans{
-    //background-color: rgb(226, 238, 253);
-    background-color: #666;
-    margin-top: 40px;
-    border-bottom: 10px solid #8E98AC;
+    background-color: #FFF;
+    h2{
+        @include fontTitle(36px, #FFF);
+        text-shadow: 0px 1px #000;
+        margin-bottom: 10px;
+    }
 }
 
 .static-blue{
@@ -215,12 +218,13 @@ body{
         .pricing-title{
             text-align: center;
             padding: 10px 15px;
-            @include fontTextBold(24px, #111);
+            background-color: #333;
+            @include fontTextBold(24px, #FFF);
         }
 
         .section-title{
             padding: 10px 15px;
-            background-color: #AAA;
+            background-color: rgb(57, 157, 255);
             @include fontTextBold(12px, #FFF);
             text-align: center;
         }
@@ -237,6 +241,30 @@ body{
                     font-weight: normal;
                 }
             }
+        }
+    }
+}
+
+#header-tabs{
+    height: 40px;
+    position:absolute;
+    left: 250px;
+    border-left: 1px solid #CCC;
+    li{
+        float:left;
+        border-right: 1px solid #CCC;
+        box-shadow: 1px 0px #FFF;
+        list-style: none;
+        cursor: pointer;
+        &:hover{
+            background-color: rgba(100, 100, 100, 0.1);
+        }
+        a{
+            display: inline-block;
+            padding: 11px 10px 11px 10px;
+            @include fontTitle(15px);
+            text-shadow: 0px 1px #FFF;
+            text-decoration: none;
         }
     }
 }
