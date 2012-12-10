@@ -218,12 +218,14 @@ class StoryService(
             val secret = cloudinaryProperties.getProperty("secret")
             val publicId = UUID()
             val tags = "%s,%s" format(eucc.id, storyId)
+            val transformation = "a_exif"
 
-            val data = "callback=%s&public_id=%s&tags=%s&timestamp=%s%s" format(
+            val data = "callback=%s&public_id=%s&tags=%s&timestamp=%s&transformation=%s%s" format(
                     callback,
                     publicId,
                     tags,
                     timestamp,
+                    transformation,
                     secret)
             val signature = DigestUtils.shaHex(data)
 
@@ -235,6 +237,7 @@ class StoryService(
                     "cloudName" -> name,
                     "public_id" -> publicId,
                     "tags" -> tags,
+                    "transformation" -> transformation,
                     "signature" -> signature)))
 
         case msg @ ProcessImageResponse(_, Right(img)) =>
