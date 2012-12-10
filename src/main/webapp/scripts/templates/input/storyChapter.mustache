@@ -3,7 +3,7 @@
 </div>
 <div class="story-detail-row">
     <div class="story-input-label">
-        Topic
+        Subtitle
     </div>
     <div class="story-input-content">
         {{ title }}
@@ -18,12 +18,14 @@
     </div>
 </div>
 <div class="story-detail-row">
+    {{#text}}
     <div class="story-input-label">
-        Description
+        Text
     </div>
     <div class="story-input-content">
-        {{ text.substr(0, 200) }}
+        {{ text }}
     </div>
+    {{/text}}
 </div>
 <div class="story-detail-row story-input-photo-row">
     <div class="story-input-label">

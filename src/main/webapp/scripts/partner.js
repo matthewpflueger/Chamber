@@ -9,9 +9,10 @@ require(
         'components/partner/howToInstall',
         'components/partner/moderate',
         'components/story',
-        'components/partner/customize'
+        'components/partner/customize',
+        'models/user'
     ],
-    function(require, $, _, Backbone, Router, ErrorLog, HowToInstall, Moderate, Story, Customize){
+    function(require, $, _, Backbone, Router, ErrorLog, HowToInstall, Moderate, Story, Customize, ModelUser){
 
         $(document).ready(function(){
                 var EventAggregator = _.extend({}, Backbone.Events);
@@ -22,11 +23,12 @@ require(
                     exhibitShowLogin: true
                 };
 
+                this.modelUser = new ModelUser({});
                 this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
                 this.router = new Router({ EvAg: EventAggregator, properties: properties });
                 this.howToInstall = new HowToInstall({ el: '#howToInstall', EvAg: EventAggregator, properties: properties });
                 this.moderate = new Moderate({ el: '#moderate', EvAg: EventAggregator, properties: properties });
-                this.story = new Story({ el: '#story', EvAg: EventAggregator, properties: properties });
+                this.story = new Story({ el: '#story-container', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser});
                 this.customize = new Customize({ el: '#customize', EvAg: EventAggregator, properties: properties });
                 Backbone.history.start();
             }

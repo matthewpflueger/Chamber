@@ -2,26 +2,8 @@
 <ol>
     <li>
         Embed Script<br/><br/>
-        Place the following HTML into the pages you want the Echoed Opener<br/><br/>
-        <textarea readonly="true" style="width:800px; height:20px;"><script type='text/javascript' src="{{ urls.site }}/widget/js?pid={{ partnerUser.partnerId }}"></script></textarea>
-        <br/><br/>
-    </li>
-</ol>
-<div class="content-header">Using A Customized Launcher</div>
-<ol>
-    <li>
-        If you already have an html element that you would like to use to trigger the opening of the script. Insert the following into the HTML of your page.<br/><br/>
-        <textarea readonly="true" style="width:800px; height:85px;">
-            <script type='text/javascript'>
-                EchoedSettings = {
-                    "opener": "#<ELEMENT ID HERE>"
-                };
-            </script></textarea>
-    </li>
-    <li>
-        Embed Script<br/><br/>
-        Place the following HTML into the pages you want the Echoed Opener<br/><br/>
-        <textarea readonly="true" style="width:800px; height:20px;"><script type='text/javascript' src="{{ urls.site }}/widget/js?pid={{ partnerUser.partnerId }}"></script></textarea>
+        Place the following HTML into the pages you want to use the Echoed App<br/><br/>
+        <textarea readonly="true" style="width:800px; height:20px;"><script type='text/javascript' src="{{ urls.site }}/widget/js?pid={{ partnerUser.partnerId }}" async></script></textarea>
         <br/><br/>
     </li>
 </ol>

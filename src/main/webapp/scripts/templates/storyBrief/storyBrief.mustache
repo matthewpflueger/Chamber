@@ -3,6 +3,7 @@
         <img class="story-brief-image" />
     </div>
     <div class="story-brief-text">
+
         <img class="story-brief-text-user-image" height="35px" width="35px" src="{{ profilePhotoUrl }}"/>
         <div class="story-brief-text-title">
             {{ story.title }}
@@ -10,9 +11,10 @@
         <div class="story-brief-text-by">
             by <a class="link-black story-brief-text-user" href="#user/{{echoedUser.id}}">{{ echoedUser.name }}</a>
         </div>
+        {{^inComplete}}
         <div class="story-brief-text-quote">{{ chapterText }}</div>
         <div class="story-brief-indicator">
-            <span>Upvotes: </span>
+            <span>Votes: </span>
             <span class="story-brief-indicator-value vote-counter"></span>
             <span>Comments: </span>
             <span class="story-brief-indicator-value">{{ comments.length }}</span>
@@ -22,13 +24,14 @@
                 {{ elapsedString }}
             </span>
         </div>
+        {{/inComplete}}
         {{#inComplete}}
-        <strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/>
+        <div class="story-brief-text-quote"><strong><span class='highlight'>Your Story is Incomplete. Please add a topic.</span></strong><br/></div>
         {{/inComplete}}
     </div>
 </div>
 <div class="story-brief-edit" style="text-align: center;">
     <a href="#write/story/{{ story.id }}" class="story-brief-edit-tab">
-        Edit Story
+        {{^inComplete}}Edit Story{{/inComplete}}{{#inComplete}}Finish Story{{/inComplete}}
     </a>
 </div>

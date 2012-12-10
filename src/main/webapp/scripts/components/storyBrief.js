@@ -64,10 +64,9 @@ define(
                 }();
 
 
+                if(self.data.chapters.length === 0) self.data.inComplete =true;
 
                 if (image !== null) {
-
-
 
                     var template = templateStoryBrief(self.data);
                     self.element.html(template);

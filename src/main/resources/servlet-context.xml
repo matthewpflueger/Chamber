@@ -165,7 +165,7 @@
         <property name="storyGraphUrl" value="${https.urls.site}/graph/story/" />
 
         <property name="partnerLoginErrorView" value="partner_login" />
-        <property name="partnerLoginView" value="redirect:dashboard" />
+        <property name="partnerLoginView" value="redirect:${dashboardUrl}" />
 
         <property name="activateView" value="partner_activate" />
         <property name="postActivateView" value="partner_activate_post" />

@@ -49,7 +49,7 @@ define(
                 this.element.show();
             },
             update: function(options){
-                this.titleText.text(options.title);
+                this.titleText.text(decodeURIComponent(options.title));
                 this.titleBody.empty();
                 if(options.image) {
                     this.element.css('background-image', 'url("' + utils.scaleByWidth(options.image, 260).attr('src') + '")');

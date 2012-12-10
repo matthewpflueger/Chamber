@@ -25,6 +25,7 @@ define(
             },
             render: function(){
                 var self = this;
+                if(self.options.default === null) self.options.default = self.options.optionsArray[0];
                 var template = templateSelect(self.options);
                 self.element.html(template);
                 if(this.locked !== true) self.element.addClass('input-select');
@@ -57,7 +58,7 @@ define(
                 this.openState = false;
                 this.optionsList.hide();
                 if(this.input.val() === this.options.freeForm) this.input.val("");
-                if(this.edit === true) this.input.select();
+                if(this.options.edit === true) this.input.focus();
             },
             open: function(){
                 if(this.locked !== true){

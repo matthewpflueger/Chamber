@@ -67,7 +67,6 @@ define(
             loadPage: function(page, options){
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
-                this.EvAg.trigger("story/hide");
                 _gaq.push(['_trackPageview', this.page]);
             },
             cList: function(){
@@ -153,7 +152,7 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/category/" + communityId, function(jsonUrl, data){
                         self.loadPage("category", {jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "community", communityId: communityId, title: "Stories in the " + communityId + " community", image: data.headerImage});
+                        self.EvAg.trigger('title/update', { type: "community", communityId: communityId, title: "Stories in the " + communityId + " Community", image: data.headerImage});
                     });
                 }
             },
@@ -191,7 +190,6 @@ define(
                 this.EvAg.trigger("page/change", "story");
             },
             resetHash: function(){
-
                 if(this.oldPage){
                     $('title').html(this.oldTitle);
                     window.location.hash = this.oldPage;

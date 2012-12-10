@@ -6,14 +6,14 @@
 {{^isLocked}}
 <div class="field-question-label">
     <div class='downarrow'></div>
-    <input id="field-text-input" type="text" class="field-text-input" {{#default}}value="{{default}}"{{/default}} {{#edit}}readonly="true"{{/edit}}/>
+    <input id="field-text-input" type="text" class="field-text-input" {{#default}}value="{{default}}"{{/default}} {{^edit}}readonly="true"{{/edit}}/>
 </div>
 <div id="field-question-options-list" class="field-question-options-list" style="display: none;">
     {{#optionsArray}}
     <div class="field-question-option">{{.}}</div>
     {{/optionsArray}}
     {{#freeForm}}
-    <div class="field-question-option">{{.}}</div>
+    <div class="field-question-option">{{freeForm}}</div>
     {{/freeForm}}
 </div>
 {{/isLocked}}

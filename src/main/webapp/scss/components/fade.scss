@@ -8,4 +8,7 @@
     position: fixed;
     width: 100%;
     min-width: 1200px;
+    overflow-y: scroll;
+    z-index: 9999;
 }
+

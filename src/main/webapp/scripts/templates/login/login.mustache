@@ -1,32 +1,33 @@
-<div class="fade"></div>
-<div id="login">
-    <div class="field-close"></div>
-    <div class="login">
-        <div class="login-logo">
-            <img id="logo-img" height="50px" src="{{ imgUrl }}"/>
-        </div>
-        <div class="login-body">
-            {{#loginText}}
-                {{loginText}}
-            {{/loginText}}
-            {{^loginText}}
-                You'll need to login to do that
-            {{/loginText}}
-        </div>
-        <div class="login-buttons">
-            <span></span>
-            <a id="fb-login" class="login-button facebook-button" href="{{ fbUrl }}" target="_blank">
-                <span class="fb-login-logo"></span>
-                <span class="login-button-text">Login With Facebook</span>
-            </a>
-            <a id="tw-login" class="login-button twitter-button" href="{{ twUrl }}" target="_blank">
-                <span class="tw-login-logo"></span>
-                <span class="login-button-text">Login With Twitter</span>
-            </a>
-        </div>
-        <div style="text-align: center;">
-            <div>- or -</div>
-            <a class="login-email" id="user-login" href="{{ loginUrl }}" target="_blank">Login</a> / <a class="login-email" id="user-signup" href="{{ signupUrl }}" target="_blank">Sign-up</a> With E-mail Address
+<div class="fade">
+    <div id="login">
+        <div class="field-close"></div>
+        <div class="login">
+            <div class="login-logo">
+                <img id="logo-img" height="50px" src="{{ imgUrl }}"/>
+            </div>
+            <div class="login-body">
+                {{#loginText}}
+                    {{loginText}}
+                {{/loginText}}
+                {{^loginText}}
+                    You'll need to login to do that
+                {{/loginText}}
+            </div>
+            <div class="login-buttons">
+                <span></span>
+                <a id="fb-login" class="login-button facebook-button" href="{{ fbUrl }}" target="_blank">
+                    <span class="fb-login-logo"></span>
+                    <span class="login-button-text">Login With Facebook</span>
+                </a>
+                <a id="tw-login" class="login-button twitter-button" href="{{ twUrl }}" target="_blank">
+                    <span class="tw-login-logo"></span>
+                    <span class="login-button-text">Login With Twitter</span>
+                </a>
+            </div>
+            <div style="text-align: center;">
+                <div>- or -</div>
+                <a class="login-email" id="user-login" href="{{ loginUrl }}" target="_blank">Login</a> / <a class="login-email" id="user-signup" href="{{ signUpUrl }}" target="_blank">Sign-up</a> With E-mail Address
+            </div>
         </div>
     </div>
 </div>

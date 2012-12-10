@@ -73,7 +73,7 @@ define(
                 this.messageDialog = new MessageDialog({ el: "#echoed-preview", properties: this.properties, EvAg: this.EvAg});
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/api/partner/" + this.properties.partnerId,
-                    dataType: 'json',
+                    dataType: 'jsonp',
                     success: function(response){
                         self.stories = response.stories;
                         self.storyIndex = 0;
