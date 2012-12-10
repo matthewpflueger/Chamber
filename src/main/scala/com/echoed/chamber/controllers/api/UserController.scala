@@ -53,6 +53,7 @@ import com.echoed.chamber.services.partner.PartnerClientCredentials
 import com.echoed.chamber.services.partner.ReadPartnerTopics
 import com.echoed.chamber.services.partner.ReadPartnerTopicsResponse
 import com.echoed.chamber.services.echoeduser.PublishFacebookAction
+import javax.servlet.http.HttpServletResponse
 
 
 @Controller
@@ -166,22 +167,6 @@ class UserController extends EchoedController {
         result
     }
 
-//    @RequestMapping(value = Array("/me/friends"), method = Array(RequestMethod.GET))
-//    @ResponseBody
-//    def friends(
-//            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam: String,
-//            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-//            eucc: EchoedUserClientCredentials) = {
-//
-//        val result = new DeferredResult(ErrorResult.timeout)
-//
-//        mp(GetEchoedFriends(eucc)).onSuccess {
-//            case GetEchoedFriendsResponse(_, Right(friends)) => result.set(friends)
-//        }
-//
-//        result
-//    }
-
     @RequestMapping(value = Array("/me/following"), method = Array(RequestMethod.GET))
     @ResponseBody
     def listFollowingUsers(eucc: EchoedUserClientCredentials) = {
@@ -207,21 +192,21 @@ class UserController extends EchoedController {
     }
 
     @RequestMapping(value = Array("/me/following/{userToFollowId}"), method = Array(RequestMethod.PUT))
-    @ResponseBody
     def followUser(
             @PathVariable(value = "userToFollowId") userToFollowId: String,
-            eucc: EchoedUserClientCredentials) = {
+            response: HttpServletResponse,
+            eucc: EchoedUserClientCredentials) {
         mp(FollowUser(eucc, userToFollowId))
-        true
+        response.setStatus(200)
     }
 
     @RequestMapping(value = Array("/me/following/{userToUnFollowId}"), method = Array(RequestMethod.DELETE))
-    @ResponseBody
     def unFollowUser(
             @PathVariable(value = "userToUnFollowId") userToUnFollowId: String,
-            eucc: EchoedUserClientCredentials) = {
+            response: HttpServletResponse,
+            eucc: EchoedUserClientCredentials) {
         mp(UnFollowUser(eucc, userToUnFollowId))
-        true
+        response.setStatus(200)
     }
 
 
@@ -329,23 +314,23 @@ class UserController extends EchoedController {
     }
 
     @RequestMapping(value = Array("/upvote"), method = Array(RequestMethod.GET))
-    @ResponseBody
     def upVote(
               eucc: EchoedUserClientCredentials,
+              response: HttpServletResponse,
               @RequestParam(value = "storyId", required = true) storyId: String,
-              @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
+              @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) {
         mp(VoteStory(eucc, storyOwnerId, storyId, 1))
-        true
+        response.setStatus(200)
     }
 
     @RequestMapping(value = Array("/downvote"), method = Array(RequestMethod.GET))
-    @ResponseBody
     def downVote(
                 eucc: EchoedUserClientCredentials,
+                response: HttpServletResponse,
                 @RequestParam(value = "storyId", required = true) storyId: String,
-                @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
+                @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) {
         mp(VoteStory(eucc, storyOwnerId, storyId, -1))
-        true
+        response.setStatus(200)
     }
 
     @RequestMapping(value = Array("/topics"), method = Array(RequestMethod.GET))
