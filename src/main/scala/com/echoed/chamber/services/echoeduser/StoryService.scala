@@ -14,19 +14,72 @@ import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.util.DateUtils._
 import com.echoed.util.{ScalaObjectMapper, UUID}
+import echoeduser.ChapterCreated
+import echoeduser.ChapterUpdated
+import echoeduser.CommentCreated
+import echoeduser.CreateChapter
+import echoeduser.CreateChapterResponse
+import echoeduser.CreateStory
+import echoeduser.CreateStoryResponse
+import echoeduser.EchoedUserClientCredentials
+import echoeduser.InitStory
+import echoeduser.InitStoryResponse
+import echoeduser.ModerateStory
+import echoeduser.ModerateStoryResponse
+import echoeduser.NewComment
+import echoeduser.NewCommentResponse
+import echoeduser.NewVote
+import echoeduser.NewVoteResponse
+import echoeduser.NotifyFollowers
+import echoeduser.ProcessImage
+import echoeduser.ProcessImageResponse
+import echoeduser.RegisterNotification
+import echoeduser.RegisterStory
+import echoeduser.RequestImageUpload
+import echoeduser.RequestImageUploadResponse
+import echoeduser.StoryCreated
 import echoeduser.StoryImageCreated
+import echoeduser.StoryImageCreated
+import echoeduser.StoryModerated
+import echoeduser.StoryUpdated
+import echoeduser.StoryViewed
+import echoeduser.UpdateChapter
+import echoeduser.UpdateChapterResponse
+import echoeduser.UpdateCommunity
+import echoeduser.UpdateCommunityResponse
+import echoeduser.UpdateStory
+import echoeduser.UpdateStoryResponse
+import echoeduser.VoteCreated
+import echoeduser.VoteUpdated
 import java.util.{Properties, Date}
 import org.apache.commons.codec.digest.DigestUtils
 import scala.Left
 import scala.Right
 import scala.Some
 import scala.collection.mutable.{Set => MSet}
+import state._
+import scala.Left
+import com.echoed.chamber.domain.ChapterInfo
+import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.services.partner.RequestStory
+import com.echoed.chamber.services.partner.NotifyPartnerFollowers
 import state.ReadStory
 import state.ReadStoryForEcho
 import state.ReadStoryForEchoResponse
 import state.ReadStoryResponse
+import scala.Some
+import com.echoed.chamber.domain.Vote
+import com.echoed.chamber.domain.StoryState
+import com.echoed.chamber.domain.Comment
+import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
+import com.echoed.chamber.services.partner.PartnerClientCredentials
 import state.StoryForEchoNotFound
 import state.StoryNotFound
+import com.echoed.chamber.domain.Chapter
+import scala.Right
+import com.echoed.chamber.domain.Notification
+import com.echoed.chamber.domain.ChapterImage
+import com.echoed.chamber.services.partner.RequestStoryResponse
 
 
 class StoryService(
@@ -279,9 +332,12 @@ class StoryService(
             self ! ProcessImageResponse(ProcessImage(Left(image)), Right(image))
             image
         } else {
-            throw new UnsupportedOperationException("Image processing no longer supported")
-//            mp.tell(ProcessImage(Right(imageString)), self)
-//            new Image().copy(id = imageString)
+            //throw new UnsupportedOperationException("Image processing no longer supported")
+            mp(LookupImage(imageString)).onSuccess {
+              case LookupImageResponse(msg, Right(image)) =>
+                self ! ProcessImageResponse(ProcessImage(Left(image)), Right(image))
+            }
+            new Image().copy(id = imageString)
         }
     }
 
