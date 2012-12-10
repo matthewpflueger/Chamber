@@ -23,6 +23,9 @@ class StaticController extends EchoedController {
     @RequestMapping(value = Array("/websites*"), method = Array(RequestMethod.GET))
     def business = new ModelAndView(v.websitesView)
 
+    @RequestMapping(value = Array("/plans*"), method = Array(RequestMethod.GET))
+    def plans = new ModelAndView(v.plansView)
+
     @RequestMapping(value = Array("/privacy*"), method = Array(RequestMethod.GET))
     def privacy = new ModelAndView(v.privacyView)
 

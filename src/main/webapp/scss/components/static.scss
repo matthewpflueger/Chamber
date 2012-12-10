@@ -2,7 +2,7 @@
 #static-masthead{
     margin-top: 40px;
     //background-color: rgb(30, 85, 120);
-    background-image: url(http://c10415403.r3.cf2.rackcdn.com/JzyyeNrrNqhgVctL7sN_6A-600x916-story.jpg);
+    //background-image: url(http://c10415403.r3.cf2.rackcdn.com/JzyyeNrrNqhgVctL7sN_6A-600x916-story.jpg);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -53,6 +53,10 @@ img{
 }
 
 body{
+    &.dark-grey{
+        background-color: #666;
+        background-image: none;
+    }
     &.white{
         background-color: #FFF;
         background-image: none;
@@ -65,6 +69,17 @@ body{
 
 .static-body{
     padding: 20px;
+    &.white{
+        background-color: #FFF;
+        border-bottom: 1px solid #CCC;
+    }
+}
+
+.static-plans{
+    //background-color: rgb(226, 238, 253);
+    background-color: #666;
+    margin-top: 40px;
+    border-bottom: 10px solid #8E98AC;
 }
 
 .static-blue{
@@ -81,7 +96,7 @@ body{
 }
 
 .static-section{
-    margin-bottom: 30px;
+    //margin-bottom: 30px;
     @include fontText(16px);
     background-position: center bottom;
     background-repeat: no-repeat;
@@ -98,6 +113,11 @@ body{
             }
             h4{
                 @include fontTitle(17px);
+            }
+            h5{
+                margin-bottom: 10px;
+                @include fontTextBold(18px);
+                text-align: center;
             }
         }
     }
@@ -182,7 +202,6 @@ body{
 }
 
 #pricing-table{
-    padding: 20px 0px;
     .pricing-column{
         float: left;
         width: 225px;
@@ -212,7 +231,7 @@ body{
                 list-style:none;
                 padding: 10px 15px;
                 background-color: #EEE;
-                border-bottom: 1px solid #FFF;
+                border-top: 1px solid #FFF;
                 &.feature-off{
                     color: #999;
                     font-weight: normal;
