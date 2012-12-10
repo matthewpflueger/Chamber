@@ -1,22 +1,33 @@
+
 #static-masthead{
     margin-top: 40px;
-    padding: 20px 0px;
-    background-color: rgb(30, 85, 120);
+    //background-color: rgb(30, 85, 120);
+    //background-image: url(http://c10415403.r3.cf2.rackcdn.com/JzyyeNrrNqhgVctL7sN_6A-600x916-story.jpg);
+    background-image: image-url("bk_noise.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     border-bottom: 10px solid #8E98AC;
+    .masthead-overlay{
+        padding: 60px 0px;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
     .masthead-subtitle{
         padding: 20px 0px;
         width: 750px;
         line-height: 1.5em;
-        @include fontTitleLight(24px, #FFF);
+        @include fontTitleLight(28px, #FFF);
     }
 }
 
 h1{
     &.static-h1{
-        @include fontTextBold(44px);
+        @include fontTextBold(44px,#FFF);
         text-shadow: 0px 1px #FFF;
     }
 }
+
+
 
 .title{
     padding-bottom: 10px;
@@ -43,6 +54,10 @@ img{
 }
 
 body{
+    &.dark-grey{
+        background-color: #333;
+        background-image: none;
+    }
     &.white{
         background-color: #FFF;
         background-image: none;
@@ -53,13 +68,29 @@ body{
     }
 }
 
-#static-body{
+.static-body{
     padding: 20px;
+    &.white{
+        background-color: #FFF;
+        border-bottom: 1px solid #CCC;
+    }
+}
+
+.static-plans{
     background-color: #FFF;
+    h2{
+        @include fontTitle(36px, #FFF);
+        text-shadow: 0px 1px #000;
+        margin-bottom: 10px;
+    }
+}
+
+.static-blue{
+    background-color: rgb(226, 238, 253);
 }
 
 .white-h1{
-    @include fontTitleLight(48px, #FFF)
+    @include fontTitleLight(54px, #FFF);
 }
 
 .center{
@@ -68,13 +99,34 @@ body{
 }
 
 .static-section{
-    margin-bottom: 30px;
+    //margin-bottom: 30px;
     @include fontText(16px);
     background-position: center bottom;
     background-repeat: no-repeat;
+    ul{
+        margin-top: 20px;
+        li{
+            list-style: none;
+            width: 300px;
+            float:left;
+            margin-left: 30px;
+            margin-bottom: 20px;
+            &:first-child, &:nth-child(4){
+                margin-left: 0px;
+            }
+            h4{
+                @include fontTitle(17px);
+            }
+            h5{
+                margin-bottom: 10px;
+                @include fontTextBold(18px);
+                text-align: center;
+            }
+        }
+    }
     p{
         line-height: 1.8em;
-        @include fontTitleLight(17px);
+        @include fontTitleLight(15px);
     }
 }
 
@@ -150,4 +202,69 @@ body{
         padding: 10px;
     }
 
+}
+
+#pricing-table{
+    .pricing-column{
+        float: left;
+        width: 225px;
+        margin-left: 20px;
+
+        &.first{
+            margin-left: 0px;
+        }
+
+
+        .pricing-title{
+            text-align: center;
+            padding: 10px 15px;
+            background-color: #333;
+            @include fontTextBold(24px, #FFF);
+        }
+
+        .section-title{
+            padding: 10px 15px;
+            background-color: rgb(57, 157, 255);
+            @include fontTextBold(12px, #FFF);
+            text-align: center;
+        }
+
+        ul{
+
+            li{
+                list-style:none;
+                padding: 10px 15px;
+                background-color: #EEE;
+                border-top: 1px solid #FFF;
+                &.feature-off{
+                    color: #999;
+                    font-weight: normal;
+                }
+            }
+        }
+    }
+}
+
+#header-tabs{
+    height: 40px;
+    position:absolute;
+    left: 250px;
+    border-left: 1px solid #CCC;
+    li{
+        float:left;
+        border-right: 1px solid #CCC;
+        box-shadow: 1px 0px #FFF;
+        list-style: none;
+        cursor: pointer;
+        &:hover{
+            background-color: rgba(100, 100, 100, 0.1);
+        }
+        a{
+            display: inline-block;
+            padding: 11px 10px 11px 10px;
+            @include fontTitle(15px);
+            text-shadow: 0px 1px #FFF;
+            text-decoration: none;
+        }
+    }
 }
