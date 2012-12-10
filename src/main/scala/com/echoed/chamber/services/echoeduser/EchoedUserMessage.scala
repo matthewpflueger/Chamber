@@ -395,6 +395,11 @@ case class LogoutResponse(message: Logout, value: Either[EUE, Boolean])
 private[echoeduser] case class RegisterEchoedUserService(echoedUser: EchoedUser) extends EUM
 
 
+private[echoeduser] case class ProcessImage(either: Either[Image, String]) extends EUM
+private[echoeduser] case class ProcessImageResponse(
+        message: ProcessImage,
+        value: Either[EUE, Image]) extends EUM with MR[Image, ProcessImage, EUE]
+
 case class AlreadyRegistered(email: String, m: String = "Echoed user already registered") extends EUE(m)
 
 

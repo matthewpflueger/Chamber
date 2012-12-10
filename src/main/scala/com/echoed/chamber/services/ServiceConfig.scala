@@ -11,15 +11,14 @@ import com.echoed.chamber.services.email.{SchedulerService, EmailMessage, EmailS
 import com.echoed.chamber.services.event.{EventMessage, EventService}
 import com.echoed.chamber.services.facebook._
 import com.echoed.chamber.services.feed.{FeedMessage, FeedService}
-import com.echoed.chamber.services.image.{ImageMessage, ImageService}
 import com.echoed.chamber.services.partner.{PartnerService, PartnerMessage, PartnerServiceManager}
 import com.echoed.chamber.services.partneruser.{PartnerUserService, PartnerUserMessage, PartnerUserServiceManager}
 import com.echoed.chamber.services.scheduler.SchedulerMessage
 import com.echoed.chamber.services.state.{QueryMessage, QueryService, StateMessage, StateService}
+import com.echoed.chamber.services.topic.TopicMessage
 import com.echoed.chamber.services.twitter.{TwitterMessage, TwitterAccess}
-import com.echoed.chamber.services.topic.{TopicService, TopicMessage}
 import com.echoed.util.mustache.MustacheEngine
-import com.echoed.util.{ApplicationContextRef, Encrypter, BlobStore}
+import com.echoed.util.{ApplicationContextRef, Encrypter}
 import java.util.{List => JList, Properties}
 import javax.annotation.Resource
 import javax.sql.DataSource
@@ -37,8 +36,6 @@ class ServiceConfig {
     @Resource(name = "cloudinaryProperties") var cloudinaryProperties: Properties = _
 
     @Resource(name = "geoLocationProperties") var geoLocationProperties: Properties = _
-
-    @Resource(name = "blobStore") var blobStore: BlobStore = _
 
     @Resource(name = "javaMailSender") var javaMailSender: JavaMailSender = _
     @Resource(name = "globalsManager") var globalsManager: GlobalsManager = _
@@ -71,11 +68,6 @@ class ServiceConfig {
 
     @Bean def log = new LoggingActorSystem(actorSystem)
 
-
-    @Bean
-    def imageService = (ac: ActorContext) => ac.actorOf(Props(new ImageService(
-            blobStore,
-            messageProcessor)), "ImageService")
 
     @Bean
     def eventService = (ac: ActorContext) => ac.actorOf(Props(new EventService()), "EventService")
@@ -203,7 +195,6 @@ class ServiceConfig {
             classOf[QueryMessage] -> queryService,
             classOf[StateMessage] -> stateService,
             classOf[SchedulerMessage] -> schedulerService,
-            classOf[ImageMessage] -> imageService,
             classOf[EventMessage] -> eventService,
             classOf[EmailMessage] -> emailService,
             classOf[FeedMessage] -> feedService,

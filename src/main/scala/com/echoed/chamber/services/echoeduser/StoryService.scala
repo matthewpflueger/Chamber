@@ -6,7 +6,6 @@ import com.echoed.chamber.services._
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
-import com.echoed.chamber.services.image.{ProcessImageResponse, ProcessImage}
 import com.echoed.chamber.services.partner.NotifyPartnerFollowers
 import com.echoed.chamber.services.partner.PartnerClientCredentials
 import com.echoed.chamber.services.partner.RequestStory
@@ -280,8 +279,9 @@ class StoryService(
             self ! ProcessImageResponse(ProcessImage(Left(image)), Right(image))
             image
         } else {
-            mp.tell(ProcessImage(Right(imageString)), self)
-            new Image().copy(id = imageString)
+            throw new UnsupportedOperationException("Image processing no longer supported")
+//            mp.tell(ProcessImage(Right(imageString)), self)
+//            new Image().copy(id = imageString)
         }
     }
 
