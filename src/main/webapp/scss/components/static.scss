@@ -180,3 +180,44 @@ body{
     }
 
 }
+
+#pricing-table{
+    padding: 20px 0px;
+    .pricing-column{
+        float: left;
+        width: 225px;
+        margin-left: 20px;
+
+        &.first{
+            margin-left: 0px;
+        }
+
+
+        .pricing-title{
+            text-align: center;
+            padding: 10px 15px;
+            @include fontTextBold(24px, #111);
+        }
+
+        .section-title{
+            padding: 10px 15px;
+            background-color: #AAA;
+            @include fontTextBold(12px, #FFF);
+            text-align: center;
+        }
+
+        ul{
+
+            li{
+                list-style:none;
+                padding: 10px 15px;
+                background-color: #EEE;
+                border-bottom: 1px solid #FFF;
+                &.feature-off{
+                    color: #999;
+                    font-weight: normal;
+                }
+            }
+        }
+    }
+}
