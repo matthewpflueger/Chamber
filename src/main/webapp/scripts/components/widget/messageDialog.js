@@ -23,7 +23,7 @@ define(
                     },
                     onReady: function(){
                         self.previewHidden = true;
-                        self.showInfo({ type: "text", data: "Click Here To Share"});
+                        self.showInfo({ type: "text", data: this.properties.title });
                         self.leave();
                     },
                     onMessage: function(message, origin){

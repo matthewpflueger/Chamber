@@ -35,11 +35,22 @@
         {{^useRemote}}
             EchoedSettings.useRemote = false;
         {{/useRemote}}
-
         {{#hideOpener}}
             EchoedSettings.hideOpener = {{.}};
         {{/hideOpener}}
-    {{/customization}}
+        {{#title}}
+            EchoedSettings.title = '{{.}}';
+        {{/title}}
+        {{^title}}
+            EchoedSettings.title = 'Stories By The {{#partner}}{{name}}{{/partner}} Community';
+        {{/title}}
+        {{#shareButton}}
+        {{.}}
+        {{/shareButton}}
+        {{^shareButton}}
+            EchoedSettings.shareButton = 'Share Your Story';
+        {{/shareButton}}
+{{/customization}}
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#dev}}

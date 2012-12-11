@@ -86,6 +86,7 @@ class WidgetController extends EchoedController {
             case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
                 val modelAndView =  new ModelAndView(v.widgetAppJsView)
                 modelAndView.addObject("partnerId", pcc.partnerId)
+                modelAndView.addObject("partner", p.partner)
                 modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                 modelAndView.addObject("customization", p.partnerSettings.makeCustomizationOptions)
                 modelAndView.addObject("side", side)
