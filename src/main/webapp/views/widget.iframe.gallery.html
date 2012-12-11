@@ -20,21 +20,21 @@
 </head>
 <body style="overflow: hidden">
     <div id="header" class="clearfix">
-        {{#customization.title}}
+        {{#customization.widgetTitle}}
             {{.}}
-        {{/customization.title}}
-        {{^customization.title}}
+        {{/customization.widgetTitle}}
+        {{^customization.widgetTitle}}
             Stories by the {{partner.name}} Community
-        {{/customization.title}}
+        {{/customization.widgetTitle}}
         <div id="close">
         </div>
         <div id="share">
-        {{#customization.shareButton}}
+        {{#customization.widgetShareMessage}}
             {{.}}
-        {{/customization.shareButton}}
-        {{^customization.shareButton}}
+        {{/customization.widgetShareMessage}}
+        {{^customization.widgetShareMessage}}
             Add Your Story
-        {{/customization.shareButton}}
+        {{/customization.widgetShareMessage}}
         </div>
         <div id="view">
         {{#customization.viewButton}}
