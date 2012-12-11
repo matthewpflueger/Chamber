@@ -38,7 +38,6 @@ define(
                 $.each(data, function(index, item){
                     json[item.name] = item.value;
                 });
-                console.log(json);
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/partner/settings/customization",
                     type: "PUT",

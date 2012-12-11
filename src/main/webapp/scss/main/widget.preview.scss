@@ -18,6 +18,9 @@
 #content-text-container{
     height: 45px;
     display: table;
+    &.text-only{
+        width: 100%;
+    }
     #content-text{
         display: table-cell;
         @include fontTextBold(13px, #FFF);
