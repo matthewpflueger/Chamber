@@ -1,26 +1,26 @@
 define(
-    ['jquery', 'backbone', 'underscore'],
-    function($, Backbone, _){
+    ['jquery', 'backbone', 'underscore', 'hgn!templates/nav/nav'],
+    function($, Backbone, _, templateNav){
         return Backbone.View.extend({
             el: "#header-nav",
             initialize: function(options){
-                _.bindAll(this, 'click', 'login');
+                _.bindAll(this);
                 this.element = $(this.el);
                 this.EvAg = options.EvAg;
-                this.EvAg.bind('user/login', this.login);
-                this.li = this.element.find('li');
-                this.ul = this.element.find('ul');
+                this.modelUser = options.modelUser;
+                this.modelUser.on("change:id", this.render);
+                this.render();
             },
             events:{
                 "click li": "click"
             },
-            login: function(){
-                $('<li class="icon_friends" href="#!me/friends" id="friends_nav"></li>').text('My Friends').hide().appendTo(this.ul).fadeIn();
-                $('<li class="icon_me" href="#!me" id="me_nav"></li>').text('My Stories').hide().appendTo(this.ul).fadeIn();
-
+            render: function(){
+                var view = this.modelUser.toJSON();
+                var template = templateNav(view);
+                this.element.html(template);
             },
             click: function(e){
-                this.li.removeClass("current");
+                this.element.find("li").removeClass("current");
                 $(e.target).addClass("current");
                 window.location.hash = $(e.target).attr("href");
             }
