@@ -24,7 +24,7 @@ define(
                     url: this.properties.urls.api + "/partner/settings/customization",
                     success: function(customization){
                         if(customization.remoteVertical === "top") customization.isTop = true;
-                        if(customization.remoteHorizontal ===" left") customization.isLeft = true;
+                        if(customization.remoteHorizontal === "left") customization.isLeft = true;
                         if(customization.remoteOrientation === "hor") customzation.isHor = true;
                         var template = templateCustomize(customization);
                         self.element.html(template);
@@ -46,6 +46,7 @@ define(
                     contentType: "application/json",
                     data: JSON.stringify(json),
                     success: function(chapterSubmitResponse) {
+                        alert("Customized Settings Saved")
                     }
                 })();
             }

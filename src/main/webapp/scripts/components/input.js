@@ -599,6 +599,7 @@
             },
             close: function(){
                 var self = this;
+                this.loaded = false;
                 self.element.fadeOut().empty();
                 $("body").removeClass("noScroll");
                 self.EvAg.trigger('hash/reset');

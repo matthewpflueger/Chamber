@@ -148,7 +148,7 @@ case class PartnerSettings(
                 "remoteVertical" -> "top",
                 "remoteHorizontal" -> "left",
                 "remoteOrientation" -> "ver",
-                "hideOpener" -> true
+                "hideOpener" -> false
             )
             if (customization != null && customization.length > 0){
                 val map = new ScalaObjectMapper().readValue(customization, classOf[Map[String, Any]])

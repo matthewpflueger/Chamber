@@ -29,6 +29,7 @@ class PartnerServiceManager(
 
         case msg @ RegisterPartnerService(partner) =>
             active.put(partner.id, sender)
+            active.put(partner.handle, sender)
 
         case msg: PartnerIdentifiable with PartnerMessage =>
             active.get(msg.credentials.id).headOption.cata(
