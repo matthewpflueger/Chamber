@@ -25,7 +25,6 @@ define(
             },
             reload: function(){
                 var self = this;
-                self.EvAg.trigger("fade/hide");
                 this.requestFeed("/partner/" + this.properties.partnerId, function(jsonUrl, data){
                     self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
                     self.EvAg.trigger('title/update', { title: Echoed.title, type: "partner", partnerId: self.properties.partnerId, imageUrl: data.headerImageUrl});
@@ -35,7 +34,6 @@ define(
             },
             topic: function(topicId){
                 var self = this;
-                self.EvAg.trigger('fade/hide');
                 this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
                     self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
                     self.EvAg.trigger("title/update", { title: data.topic.title, type: "topic", topicId: data.topic.id, imageUrl: data.headerImageUrl });
@@ -60,7 +58,6 @@ define(
                 if(this.page === null){
                     this.reload();
                     this.page = "#!";
-                    this.EvAg.trigger('exhibit/init', { endPoint: "/partner/" + this.properties.partnerId });
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("field/show", id, type);

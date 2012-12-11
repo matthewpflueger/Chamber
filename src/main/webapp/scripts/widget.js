@@ -72,7 +72,6 @@ require(
                     var msg = JSON.parse(message);
                     switch(msg.type){
                         case 'hash':
-                            $('body').show();
                             window.location.hash = msg.data;
                             break;
                     }
