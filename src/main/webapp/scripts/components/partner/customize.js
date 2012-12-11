@@ -46,6 +46,7 @@ define(
                     contentType: "application/json",
                     data: JSON.stringify(json),
                     success: function(chapterSubmitResponse) {
+                        alert("Customized Settings Saved")
                     }
                 })();
             }
