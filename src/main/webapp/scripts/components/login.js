@@ -61,7 +61,7 @@ define(
                 }
             },
             close: function(){
-                this.options.failCallback();
+                if(this.options.failCallback) this.options.failCallback();
                 this.element.fadeOut();
                 this.element.empty();
             },
