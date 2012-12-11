@@ -11,6 +11,7 @@ $optionSize: 36px;
         }
         #echoed-options{
             border-#{$oppV}-#{$oppS}-radius: 5px;
+            line-height: 0;
         }
         &.ech-ver{
             #echoed-options{
