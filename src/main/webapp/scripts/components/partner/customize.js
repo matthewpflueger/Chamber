@@ -26,6 +26,7 @@ define(
                         if(customization.remoteVertical === "top") customization.isTop = true;
                         if(customization.remoteHorizontal ===" left") customization.isLeft = true;
                         if(customization.remoteOrientation === "hor") customzation.isHor = true;
+                        console.log(customization);
                         var template = templateCustomize(customization);
                         self.element.html(template);
                         self.form = $('#partner-customize');

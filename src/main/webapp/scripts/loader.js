@@ -53,6 +53,7 @@ require(
             this.gallery = new Gallery({ el: "#echoed-gallery", properties: self.properties, EvAg: self.EventAggregator });
         }
 
+        if(self.properties.useRemote === false && self.properties.useGallery === false) self.properties.useOpener = true;
         this.opener = new Opener({ el: "body", properties: self.properties, EvAg: self.EventAggregator });
     }
 );
