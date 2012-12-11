@@ -43,6 +43,7 @@ require(
 
         this.overlay = new Overlay({ properties: self.properties, EvAg: self.EventAggregator });
 
+
         if(self.properties.useRemote){
             $('<div id="echoed-loader"></div>').appendTo(body);
             this.remote = new Remote({ el: "#echoed-loader", properties: self.properties, EvAg: self.EventAggregator});
@@ -53,7 +54,7 @@ require(
             this.gallery = new Gallery({ el: "#echoed-gallery", properties: self.properties, EvAg: self.EventAggregator });
         }
 
-        if(self.properties.useRemote === false && self.properties.useGallery === false) self.properties.useOpener = true;
+        if(self.properties.useRemote === true || self.properties.useGallery === true) self.properties.useOpener = false;
         this.opener = new Opener({ el: "body", properties: self.properties, EvAg: self.EventAggregator });
     }
 );
