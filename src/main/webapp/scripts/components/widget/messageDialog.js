@@ -23,7 +23,8 @@ define(
                     },
                     onReady: function(){
                         self.previewHidden = true;
-                        self.showInfo({ type: "text", data: "Click Here To Share Your DIYs"});
+                        self.showInfo({ type: "text", data: "Click Here To Share"});
+                        self.leave();
                     },
                     onMessage: function(message, origin){
                         self.element.fadeIn();
