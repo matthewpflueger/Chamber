@@ -96,7 +96,9 @@ case class PutPartnerCustomization(
         useRemote: Boolean,
         remoteVertical: String,
         remoteHorizontal: String,
-        remoteOrientation: String) extends PM with PI
+        remoteOrientation: String,
+        widgetTitle: String,
+        widgetShareMessage: String) extends PM with PI
 case class PutPartnerCustomizationResponse(
         message: PutPartnerCustomization,
         value: Either[PE, Map[String, Any]]) extends PM with MR[Map[String, Any], PutPartnerCustomization, PE]

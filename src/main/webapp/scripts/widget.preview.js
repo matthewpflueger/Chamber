@@ -21,7 +21,7 @@ require(
                                 if(story.story.image) self.img.html(utils.fill(story.story.image, 40, 40));
                                 self.img.show();
                                 self.contentText.text(story.story.title);
-                                self.contentText.removeClass("text-only");
+                                self.contentTextContainer.removeClass("text-only");
                                 break;
                             case "text":
                                 var text = msg.data;

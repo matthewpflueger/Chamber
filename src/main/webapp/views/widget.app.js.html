@@ -38,18 +38,18 @@
         {{#hideOpener}}
             EchoedSettings.hideOpener = {{.}};
         {{/hideOpener}}
-        {{#title}}
-            EchoedSettings.title = '{{.}}';
-        {{/title}}
-        {{^title}}
-            EchoedSettings.title = 'Stories By The {{#partner}}{{name}}{{/partner}} Community';
-        {{/title}}
-        {{#shareButton}}
-        {{.}}
-        {{/shareButton}}
-        {{^shareButton}}
-            EchoedSettings.shareButton = 'Share Your Story';
-        {{/shareButton}}
+        {{#widgetTitle}}
+            EchoedSettings.widgetTitle = '{{.}}';
+        {{/widgetTitle}}
+        {{^widgetTitle}}
+            EchoedSettings.widgetTitle = 'Stories By The {{#partner}}{{name}}{{/partner}} Community';
+        {{/widgetTitle}}
+        {{#widgetShareMessage}}
+            EchoedSettings.widgetShareMessage = '{{.}}';
+        {{/widgetShareMessage}}
+        {{^widgetShareMessage}}
+            EchoedSettings.widgetShareMessage = 'Share Your Story';
+        {{/widgetShareMessage}}
 {{/customization}}
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;

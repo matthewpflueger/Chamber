@@ -48,10 +48,10 @@ define(
                 this.triggerPreview({ type: "text", data: "What is this?" });
             },
             add: function(){
-                this.triggerPreview({ type: "text", data: this.properties.shareButton });
+                this.triggerPreview({ type: "text", data: this.properties.widgetShareMessage });
             },
             browse: function(){
-                this.triggerPreview({ type: "text", data: this.properties.title })
+                this.triggerPreview({ type: "text", data: this.properties.widgetTitle })
             },
             leave: function(){
                 this.EvAg.trigger("preview/leave");

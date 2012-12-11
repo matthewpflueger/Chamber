@@ -177,13 +177,15 @@ class PartnerService(
             }
 
 
-        case msg @ PutPartnerCustomization(_, useGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation) =>
+        case msg @ PutPartnerCustomization(_, useGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation, widgetTitle, widgetShareMessage) =>
             var customization = partnerSettings.makeCustomizationOptions
             customization += ("useGallery" -> useGallery)
             customization += ("useRemote" -> useRemote)
             customization += ("remoteVertical" -> remoteVertical)
             customization += ("remoteHorizontal" -> remoteHorizontal)
             customization += ("remoteOrientation" -> remoteOrientation)
+            customization += ("widgetTitle" -> widgetTitle)
+            customization += ("widgetShareMessage" -> widgetShareMessage)
             partnerSettings = partnerSettings.copy(updatedOn = new Date, customization = new ScalaObjectMapper().writeValueAsString(customization))
             ep(PartnerSettingsUpdated(partnerSettings))
             sender ! PutPartnerCustomizationResponse(msg, Right(partnerSettings.makeCustomizationOptions))

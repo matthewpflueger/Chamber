@@ -100,7 +100,7 @@ class PartnerUserService(
                 .map(r => GetPartnerSettingsResponse(msg, Right(List(r.partnerSettings))))
                 .pipeTo(sender)
 
-        case msg @ UpdatePartnerCustomization(_, useGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation) =>
+        case msg @ UpdatePartnerCustomization(_, useGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation, widgetTitle, widgetShareMessage) =>
             val channel = context.sender
             mp(PutPartnerCustomization(
                 PartnerClientCredentials(partnerUser.partnerId),
@@ -108,7 +108,9 @@ class PartnerUserService(
                 useRemote,
                 remoteVertical,
                 remoteHorizontal,
-                remoteOrientation)).onSuccess {
+                remoteOrientation,
+                widgetTitle,
+                widgetShareMessage)).onSuccess {
                 case PutPartnerCustomizationResponse(_, Right(customization)) =>
                     channel ! UpdatePartnerCustomizationResponse(msg, Right(customization))
 
