@@ -24,9 +24,8 @@ define(
                     url: this.properties.urls.api + "/partner/settings/customization",
                     success: function(customization){
                         if(customization.remoteVertical === "top") customization.isTop = true;
-                        if(customization.remoteHorizontal ===" left") customization.isLeft = true;
+                        if(customization.remoteHorizontal === "left") customization.isLeft = true;
                         if(customization.remoteOrientation === "hor") customzation.isHor = true;
-                        console.log(customization);
                         var template = templateCustomize(customization);
                         self.element.html(template);
                         self.form = $('#partner-customize');
