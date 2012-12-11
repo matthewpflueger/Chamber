@@ -1,11 +1,11 @@
 @import "base";
 
 #content{
+    width: 100%;
 }
 
 #image-container{
-    float: left;
-    display: block;
+    float:left;
     height: 35px;
     width: 35px;
     overflow: hidden;
@@ -15,13 +15,18 @@
     }
 }
 
-#content-text{
-    color: #FFF;
-    line-height: 45px;
-    @include fontTextBold(13px, #FFF);
-    text-align:left;
-    padding: 0px 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+#content-text-container{
+    height: 45px;
+    display: table;
+    #content-text{
+        display: table-cell;
+        @include fontTextBold(13px, #FFF);
+        text-align:left;
+        padding: 0px 5px;
+        overflow: hidden;
+        vertical-align: middle;
+        text-align:center;
+        height: 45px;
+    }
 }
+
