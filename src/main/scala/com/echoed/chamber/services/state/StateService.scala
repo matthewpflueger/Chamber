@@ -263,7 +263,7 @@ class StateService(
                 val ps = from(partnerSettings)(ps =>
                     where((ps.partnerId === p.id) and (ps.activeOn lte activeOn))
                         select(ps)
-                        orderBy(ps.activeOn desc)).page(0,1).toList.head
+                        orderBy(ps.activeOn desc)).page(0,1).toList.headOption
                 val pu = from(partnerUsers)(pu => where(pu.partnerId === p.id) select(pu)).toList.headOption
 
                 val fbus = (from(followers)(f => where(f.ref === "Partner" and f.refId === p.id) select(f))).toList
@@ -274,7 +274,7 @@ class StateService(
 
                 val t = (from(topics)(t => where(t.partnerId === p.id) select(t))).toList
 
-                sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus, t)))
+                ps.map(ps => sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus, t))))
             }
 
 
