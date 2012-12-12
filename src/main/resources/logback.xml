@@ -31,11 +31,11 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
             <fileNamePattern>all.%i.log.gz</fileNamePattern>
             <minIndex>1</minIndex>
-            <maxIndex>3</maxIndex>
+            <maxIndex>10</maxIndex>
         </rollingPolicy>
 
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>50MB</maxFileSize>
+            <maxFileSize>100MB</maxFileSize>
         </triggeringPolicy>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-15.15t %-35.-35replace(%logger{0}){'\$.*$',''} %msg    %X{akkaSource}%n</pattern>
