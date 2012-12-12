@@ -213,6 +213,8 @@
         <property name="loginResetPostView" value="login_reset_post" />
         <property name="loginResetPasswordView" value="login_reset_password" />
 
+        <property name="bookmarkletJsView" value="bookmarklet.js" />
+
         <property name="widgetAppJsView" value="widget.app.js"/>
         <property name="widgetAppIFrameView" value="widget.iframe.app" />
         <property name="widgetAppIFrameGalleryView" value="widget.iframe.gallery" />
