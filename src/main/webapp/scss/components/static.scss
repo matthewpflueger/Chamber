@@ -245,6 +245,33 @@ body{
     }
 }
 
+#cu-form{
+    .cu-row{
+        margin-bottom: 5px;
+    }
+    label{
+        width: 160px;
+        display: inline-block;
+        text-align: right;
+        @include fontTitle(15px);
+        margin-right: 10px;
+    }
+    input[type="text"], textarea{
+        width: 300px;
+        @include fontText(13px);
+        padding: 7px 10px;
+        border: 1px solid #CCC;
+        border-radius: 3px;
+    }
+
+    textarea{
+        vertical-align: top;
+        height: 200px;
+        resize: none;
+    }
+
+}
+
 #header-tabs{
     height: 40px;
     position:absolute;
