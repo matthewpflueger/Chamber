@@ -12,7 +12,12 @@
         width: 50%;
         padding: 10px 20px;
     }
-
+    .customize-input{
+        outline: none;
+        padding: 3px 10px;
+        @include fontText(13px);
+        width: 250px;
+    }
 }
 
 #customize-save{

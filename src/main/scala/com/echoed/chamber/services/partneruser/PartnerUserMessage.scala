@@ -91,7 +91,15 @@ case class UpdatePartnerUserResponse(
         value: Either[InvalidPassword, PartnerUser])
         extends PUM with MR[PartnerUser, UpdatePartnerUser, InvalidPassword]
 
-case class UpdatePartnerCustomization(credentials: PUCC, useGallery: Boolean, useRemote: Boolean, remoteVertical: String, remoteHorizontal: String, remoteOrientation: String) extends PUM with PUI
+case class UpdatePartnerCustomization(
+        credentials: PUCC,
+        useGallery: Boolean,
+        useRemote: Boolean,
+        remoteVertical: String,
+        remoteHorizontal: String,
+        remoteOrientation: String,
+        widgetTitle: String,
+        widgetShareMessage: String) extends PUM with PUI
 case class UpdatePartnerCustomizationResponse(
         message: UpdatePartnerCustomization,
         value: Either[PUE, Map[String, Any]])

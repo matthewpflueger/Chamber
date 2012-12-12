@@ -11,6 +11,7 @@ $optionSize: 36px;
         }
         #echoed-options{
             border-#{$oppV}-#{$oppS}-radius: 5px;
+            line-height: 0;
         }
         &.ech-ver{
             #echoed-options{
@@ -81,7 +82,7 @@ $optionSize: 36px;
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 5px;
     height: 45px;
-    width: 200px;
+    width: 250px;
     z-index: 10000000;
 }
 
@@ -119,13 +120,15 @@ $optionSize: 36px;
 
 #echoed-gallery{
     position: fixed;
-    left: 0px;
-    right: 0px;
+    left: 10px;
+    right: 10px;
     bottom: 0px;
     border-top: 1px solid #acacac;
     box-shadow: 0px -3px 5px rgba(34,25,25,0.2);
     z-index: 1000000;
+    border-radius: 5px 5px 0px 0px;
     #echoed-gallery-iframe{
+        border-radius: 5px 5px 0px 0px;
         width: 100%;
         overflow: hidden;
         height: 0px;

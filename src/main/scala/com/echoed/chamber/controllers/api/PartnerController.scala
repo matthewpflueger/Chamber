@@ -65,7 +65,9 @@ class PartnerController extends EchoedController {
             cParams.useRemote,
             cParams.remoteVertical,
             cParams.remoteHorizontal,
-            cParams.remoteOrientation)).onSuccess {
+            cParams.remoteOrientation,
+            cParams.widgetTitle,
+            cParams.widgetShareMessage)).onSuccess {
             case UpdatePartnerCustomizationResponse(_, Right(customization)) =>
                 result.set(customization)
         }
@@ -97,8 +99,10 @@ class CustomizationParams(
             @BeanProperty var useRemote: Boolean,
             @BeanProperty var remoteVertical: String,
             @BeanProperty var remoteHorizontal: String,
-            @BeanProperty var remoteOrientation: String) {
+            @BeanProperty var remoteOrientation: String,
+            @BeanProperty var widgetTitle: String,
+            @BeanProperty var widgetShareMessage: String) {
 
-    def this() = this(false, true, null, null, null)
+    def this() = this(false, true, null, null, null, null, null)
 
 }

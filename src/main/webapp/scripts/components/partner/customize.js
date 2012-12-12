@@ -25,7 +25,8 @@ define(
                     success: function(customization){
                         if(customization.remoteVertical === "top") customization.isTop = true;
                         if(customization.remoteHorizontal === "left") customization.isLeft = true;
-                        if(customization.remoteOrientation === "hor") customzation.isHor = true;
+                        if(customization.remoteOrientation === "hor") customization.isHor = true;
+
                         var template = templateCustomize(customization);
                         self.element.html(template);
                         self.form = $('#partner-customize');
@@ -38,7 +39,6 @@ define(
                 $.each(data, function(index, item){
                     json[item.name] = item.value;
                 });
-                console.log(json);
                 utils.AjaxFactory({
                     url: this.properties.urls.api + "/partner/settings/customization",
                     type: "PUT",

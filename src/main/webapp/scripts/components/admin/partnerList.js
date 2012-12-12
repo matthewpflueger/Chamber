@@ -30,7 +30,7 @@ define(
             },
             clickButton: function(ev){
                 var target = $(ev.currentTarget);
-                window.location = this.properties.urls.api + "/admin/become?partnerUserId=" + target.attr('partnerUserId');
+                window.open(this.properties.urls.api + "/admin/become?partnerUserId=" + target.attr('partnerUserId'));
             },
             render: function(){
                 var self = this;

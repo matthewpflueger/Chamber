@@ -2,10 +2,11 @@
 
 #header{
     padding: 3px;
-    @include fontTextBold(16px);
-    background-color: #F0F0F0;
-    text-shadow: 0px 1px #FFF;
-    border-bottom: #ACACAC solid 1px;
+    @include fontTextBold(16px, #FFF);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4C4C4C',endColorstr='#363636');
+    background: -webkit-gradient(linear,left top,left bottom,from(#4C4C4C),to(#363636));
+    background: -moz-linear-gradient(top,#4C4C4C,#363636);
+    border-bottom: 1px solid #CCC;
     position: relative;
 }
 
@@ -20,6 +21,7 @@
     background-repeat: no-repeat;
     background-position: center;
     border-left: 1px solid #CCC;
+    background-color: #CCC;
     &:hover{
         background-color: #FFF;
     }
@@ -59,7 +61,7 @@
 
 #container{
     position:relative;
-    background-image: image-url("bk_noise_dark.jpg");
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 #gallery-viewport{
@@ -69,7 +71,7 @@
 }
 
 #gallery-container{
-    height: 71px;
+    height: 62px;
     position: relative;
 }
 
@@ -78,14 +80,14 @@
     top: 0px;
     bottom: 0px;
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(255 , 255, 255, 0.1);
     @include transition;
     cursor: pointer;
     background-repeat: no-repeat;
     background-position: center;
 
     &:hover{
-        background-color: rgba(0, 0, 0,0.8);
+        background-color: rgba(255, 255, 255, 0.5);
     }
 }
 
@@ -101,40 +103,41 @@
 }
 
 .gallery-text-container{
-    height: 55px;
+    height: 51px;
     width: 100px;
     overflow: hidden;
     float:left;
-    border: 5px #F8F8F8 solid;
+    border: 2px #999 solid;
     border-radius: 3px;
     margin: 3px;
     background-color: #222;
     @include transition;
     cursor: pointer;
     &:hover{
-        border-color: #333;
+        border-color: #FEFEFE;
     }
 }
 .gallery-text{
     display: table-cell;
     width: 100px;
+    height: 51px;
     text-align: center;
     vertical-align: middle;
     @include fontTextBold(12px, #FFF);
 }
 
 .gallery-image-container{
-    height: 55px;
+    height: 51px;
     width: 75px;
     overflow: hidden;
     float:left;
-    border: 5px #F8F8F8 solid;
+    border: 2px #999 solid;
     border-radius: 3px;
     margin: 3px;
     background-color: #FFF;
     @include transition;
     cursor: pointer;
     &:hover{
-        border-color: #333;
+        border-color: #FEFEFE;
     }
 };

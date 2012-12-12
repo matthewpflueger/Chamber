@@ -12,6 +12,7 @@ define(
                 var self = this;
                 this.element = $(this.el);
                 this.EvAg = options.EvAg;
+                this.properties = options.properties;
                 this.EvAg.bind("preview/show", this.showInfo);
                 this.EvAg.bind("preview/leave", this.leave);
 
@@ -23,7 +24,7 @@ define(
                     },
                     onReady: function(){
                         self.previewHidden = true;
-                        self.showInfo({ type: "text", data: "Click Here To Share"});
+                        self.showInfo({ type: "text", data: self.properties.widgetTitle });
                         self.leave();
                     },
                     onMessage: function(message, origin){
