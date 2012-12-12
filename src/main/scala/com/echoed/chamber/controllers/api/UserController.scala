@@ -70,7 +70,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(FetchNotifications(eucc)).onSuccess {
-            case FetchNotificationsResponse(_, Right(notifications)) => result.set(notifications)
+            case FetchNotificationsResponse(_, Right(notifications)) => result.trySet(notifications)
         }
 
         result
@@ -84,7 +84,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(MarkNotificationsAsRead(eucc, ids.toSet)).onSuccess {
-            case MarkNotificationsAsReadResponse(_, Right(boolean)) => result.set(boolean)
+            case MarkNotificationsAsReadResponse(_, Right(boolean)) => result.trySet(boolean)
         }
 
         result
@@ -97,7 +97,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(ReadSettings(eucc)).onSuccess {
-            case ReadSettingsResponse(_, Right(eus)) => result.set(eus)
+            case ReadSettingsResponse(_, Right(eus)) => result.trySet(eus)
         }
 
         result
@@ -112,7 +112,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(NewSettings(eucc, settings)).onSuccess {
-            case NewSettingsResponse(_, Right(eus)) => result.set(eus)
+            case NewSettingsResponse(_, Right(eus)) => result.trySet(eus)
         }
 
         result
@@ -126,7 +126,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(GetPublicStoryFeed(parse(page))).onSuccess {
-            case GetPublicStoryFeedResponse(_, Right(feed)) => result.set(feed)
+            case GetPublicStoryFeedResponse(_, Right(feed)) => result.trySet(feed)
         }
 
         result
@@ -144,7 +144,7 @@ class UserController extends EchoedController {
 
         //FIXME WTF this returns the user's feed, not a friend's feed?!?!
         mp(GetFeed(eucc, parse(page))).onSuccess {
-            case GetFeedResponse(_, Right(feed)) => result.set(feed)
+            case GetFeedResponse(_, Right(feed)) => result.trySet(feed)
         }
 
         result
@@ -161,7 +161,7 @@ class UserController extends EchoedController {
         mp(GetExhibit(eucc, parse(page))).onSuccess {
             case GetExhibitResponse(_, Right(closet)) =>
                 log.debug("Received for {} exhibit of {} echoes", eucc, closet.echoes.size)
-                result.set(closet)
+                result.trySet(closet)
         }
 
         result
@@ -173,7 +173,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(ListFollowingUsers(eucc)).onSuccess {
-            case ListFollowingUsersResponse(_, Right(fus)) => result.set(fus)
+            case ListFollowingUsersResponse(_, Right(fus)) => result.trySet(fus)
         }
 
         result
@@ -185,7 +185,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(ListFollowedByUsers(eucc)).onSuccess {
-            case ListFollowedByUsersResponse(_, Right(fbu)) => result.set(fbu)
+            case ListFollowedByUsersResponse(_, Right(fbu)) => result.trySet(fbu)
         }
 
         result
@@ -222,7 +222,7 @@ class UserController extends EchoedController {
         log.debug("Requesting for Category Feed for Category {}", categoryId )
 
         mp(GetCategoryStoryFeed(categoryId, parse(page))).onSuccess {
-            case GetCategoryStoryFeedResponse(_, Right(feed)) => result.set(feed)
+            case GetCategoryStoryFeedResponse(_, Right(feed)) => result.trySet(feed)
         }
 
         result
@@ -236,7 +236,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
         log.debug("Requesting Topic Feed for Topic {}", topicId)
         mp(ReadTopicFeed(topicId, parse(page))).onSuccess {
-            case ReadTopicFeedResponse(_, Right(feed)) => result.set(feed)
+            case ReadTopicFeedResponse(_, Right(feed)) => result.trySet(feed)
         }
         result
     }
@@ -253,7 +253,7 @@ class UserController extends EchoedController {
         log.debug("Requesting for Partner Feed for Partner {}", partnerId )
 
         mp(ReadPartnerFeed(new PartnerClientCredentials(partnerId), parse(page), origin)).onSuccess {
-            case ReadPartnerFeedResponse(_, Right(partnerFeed)) => result.set(partnerFeed)
+            case ReadPartnerFeedResponse(_, Right(partnerFeed)) => result.trySet(partnerFeed)
         }
 
         result
@@ -271,8 +271,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(GetUserFeed(new EchoedUserClientCredentials(id), parse(page))).onSuccess {
-            case GetUserFeedResponse(_, Right(feed)) =>
-                result.set(feed)
+            case GetUserFeedResponse(_, Right(feed)) => result.trySet(feed)
         }
 
         result
@@ -290,7 +289,7 @@ class UserController extends EchoedController {
         log.debug("Requesting Story {}", id )
 
         mp(GetStory(id, origin)).onSuccess {
-            case GetStoryResponse(_, Right(story)) => result.set(story)
+            case GetStoryResponse(_, Right(story)) => result.trySet(story)
         }
 
         Option(eucc).map(c => mp(PublishFacebookAction(c, "browse", "story", v.storyGraphUrl + id)))
@@ -306,7 +305,7 @@ class UserController extends EchoedController {
 
         mp(GetCommunities()).onSuccess {
             case GetCommunitiesResponse(_, Right(communities)) =>
-                result.set(communities)
+                result.trySet(communities)
 
         }
 
@@ -339,7 +338,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(ReadTopics()).onSuccess {
-            case ReadTopicsResponse(_, Right(topics)) => result.set(topics)
+            case ReadTopicsResponse(_, Right(topics)) => result.trySet(topics)
         }
 
         result
@@ -351,7 +350,7 @@ class UserController extends EchoedController {
         val result = new DeferredResult(ErrorResult.timeout)
 
         mp(ReadPartnerTopics(new PartnerClientCredentials(partnerId))).onSuccess {
-            case ReadPartnerTopicsResponse(_, Right(topics)) => result.set(topics)
+            case ReadPartnerTopicsResponse(_, Right(topics)) => result.trySet(topics)
         }
         result
     }
@@ -362,7 +361,7 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult(ErrorResult.timeout)
         mp(ReadCommunityTopics(communityId)).onSuccess {
-            case ReadCommunityTopicsResponse(_, Right(topics)) => result.set(topics)
+            case ReadCommunityTopicsResponse(_, Right(topics)) => result.trySet(topics)
         }
         result
     }
