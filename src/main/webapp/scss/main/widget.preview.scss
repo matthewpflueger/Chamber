@@ -25,7 +25,7 @@
     &.text-only{
         width: 100%;
         #content-text{
-            @include fontTextBold(15px, #FFF);
+            @include fontTextBold(14px, #FFF);
         }
     }
     #content-text{
