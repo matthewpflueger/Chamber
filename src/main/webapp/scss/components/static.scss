@@ -13,7 +13,7 @@
         background-color: rgba(0, 0, 0, 0.7);
     }
     .masthead-subtitle{
-        padding: 20px 0px;
+        padding-bottom: 20px;
         width: 750px;
         line-height: 1.5em;
         @include fontTitleLight(28px, #FFF);
@@ -250,18 +250,19 @@ body{
         margin-bottom: 5px;
     }
     label{
-        width: 160px;
+        width: 100px;
         display: inline-block;
         text-align: right;
-        @include fontTitle(15px);
+        @include fontText(14px, #666);
         margin-right: 10px;
     }
     input[type="text"], textarea{
-        width: 300px;
-        @include fontText(13px);
-        padding: 7px 10px;
+        width: 350px;
+        @include fontText(14px);
+        padding: 5px 10px;
         border: 1px solid #CCC;
         border-radius: 3px;
+        outline: none;
     }
 
     textarea{
