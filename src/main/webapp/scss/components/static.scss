@@ -11,12 +11,18 @@
         width: 750px;
         line-height: 1.5em;
         @include fontTitleLight(28px, #FFF);
-        a {
-            @include button;
-            @include fontTextBold(16px, #FFF);
+        .red-button{
+            @include buttonRed(15px);
             text-decoration: none;
             line-height: 1.2em;
         }
+        .green-button{
+            @include buttonGreen(15px);
+            text-decoration: none;
+            line-height: 1.2em;
+            margin-right: 10px;
+        }
+
     }
 }
 
