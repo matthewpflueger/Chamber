@@ -1,38 +1,34 @@
 require(
     [
-        'requireLib',
-        'jquery',
-        'underscore',
         'backbone',
-        'routers/partner',
-        'components/errorLog',
-        'components/partner/howToInstall',
-        'components/partner/moderate',
-        'components/story',
-        'components/partner/customize',
-        'models/user'
+        'marionette',
+        'controllers/partnerController'
     ],
-    function(require, $, _, Backbone, Router, ErrorLog, HowToInstall, Moderate, Story, Customize, ModelUser){
+    function(Backbone, Marionette, PartnerController) {
+        var PartnerDashboard = new Marionette.Application();
+        PartnerDashboard.addRegions({ content: "#content" });
 
-        $(document).ready(function(){
-                var EventAggregator = _.extend({}, Backbone.Events);
+        var properties = {
+            urls: Echoed.urls,
+            partnerUser: Echoed.partnerUser,
+            exhibitShowLogin: true,
+            contentRegion: PartnerDashboard.content,
+            vent: PartnerDashboard.vent
+        };
 
-                var properties = {
-                    urls: Echoed.urls,
-                    partnerUser: Echoed.partnerUser,
-                    exhibitShowLogin: true
-                };
-
-                this.modelUser = new ModelUser({});
-                this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
-                this.router = new Router({ EvAg: EventAggregator, properties: properties });
-                this.howToInstall = new HowToInstall({ el: '#howToInstall', EvAg: EventAggregator, properties: properties });
-                this.moderate = new Moderate({ el: '#moderate', EvAg: EventAggregator, properties: properties });
-                this.story = new Story({ el: '#story-container', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser});
-                this.customize = new Customize({ el: '#customize', EvAg: EventAggregator, properties: properties });
-                Backbone.history.start();
-            }
-        );
+        PartnerDashboard.addInitializer(function(options){
+            new (Marionette.AppRouter.extend({
+                appRoutes: {
+                    "": "showModerationTab",
+                    "topics": "showTopicTab",
+                    "customize": "showCustomizationTab",
+                    "install": "showHowToInstallTab"
+                },
+                controller: new PartnerController(options)
+            }))();
+        });
+        PartnerDashboard.on("initialize:after", function(options) { Backbone.history.start(); });
+        PartnerDashboard.start(properties);
     }
 );
 
