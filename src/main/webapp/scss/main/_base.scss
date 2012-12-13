@@ -90,7 +90,7 @@ $fontTextColorDefault: #333;
     @mixin button($size: 13px){
         display: inline-block;
         cursor:pointer;
-        //background-color: rgb(200, 45, 45);
+        background-color: rgb(200, 45, 45);
         border: 1px solid #000;
         border-radius: 5px;
         padding: 5px 10px;
@@ -98,7 +98,7 @@ $fontTextColorDefault: #333;
         @include fontTextBold($size, #FFF);
         text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
         &:hover{
-            //background-color: $colorEC;
+            background-color: $colorEC;
         }
     }
 
@@ -112,7 +112,10 @@ $fontTextColorDefault: #333;
 
     @mixin buttonGreen($size: 13px){
         @include button($size);
-        background-color: rgb(38, 200, 52);
+        background-color: rgb(31, 148, 38);
+        &:hover{
+            background-color: rgb(38, 200, 52);
+        }
     }
 
 

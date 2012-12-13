@@ -14,7 +14,11 @@
 </div>
 <div class="static-body white">
     <div class="center">
-        <div class="static-section clearfix">
+        <div class="static-section clearfix" style="min-height: 400px">
+            {{#submit}}
+            <h2>Thank You! Your inquiry has been successfully submitted. You will hear from us shortly.</h2>
+            {{/submit}}
+            {{^submit}}
             <h2>Contact Us</h2>
             <form id="cu-form" name="contactus" action="contactus" method="POST">
                 <div class="cu-row">
@@ -35,9 +39,10 @@
                 </div>
                 <div class="cu-row">
                     <label></label>
-                    <input type="submit" value="submit"/>
+                    <input type="submit" value="Submit"/>
                 </div>
             </form>
+            {{/submit}}
         </div>
     </div>
 </div>

@@ -272,6 +272,10 @@ body{
         outline: none;
     }
 
+    input[type="submit"]{
+        @include buttonGreen;
+    }
+
     textarea{
         vertical-align: top;
         height: 200px;
