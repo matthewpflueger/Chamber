@@ -5,7 +5,6 @@
     border-bottom: 10px solid #8E98AC;
     .masthead-overlay{
         padding: 60px 0px;
-        //background-color: rgba(0, 0, 0, 0.7);
     }
     .masthead-subtitle{
         width: 750px;
@@ -117,6 +116,7 @@ body{
             float:left;
             margin-left: 30px;
             margin-bottom: 20px;
+            min-height: 175px;
             &:first-child, &:nth-child(4){
                 margin-left: 0px;
             }
