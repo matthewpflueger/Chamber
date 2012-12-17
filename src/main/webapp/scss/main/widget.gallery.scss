@@ -1,7 +1,7 @@
 @import "base";
 
 #header{
-    padding: 3px;
+    padding: 3px 3px 3px 15px;
     @include fontTextBold(16px, #FFF);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4C4C4C',endColorstr='#363636');
     background: -webkit-gradient(linear,left top,left bottom,from(#4C4C4C),to(#363636));

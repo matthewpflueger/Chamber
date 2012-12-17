@@ -1,22 +1,28 @@
 
 #static-masthead{
     margin-top: 40px;
-    //background-color: rgb(30, 85, 120);
-    //background-image: url(http://c10415403.r3.cf2.rackcdn.com/JzyyeNrrNqhgVctL7sN_6A-600x916-story.jpg);
-    background-image: image-url("bk_noise.jpg");
-    //background-position: center;
-    //background-repeat: repeat;
-    //background-size: cover;
+    background-image: image-url("bk_hexabump.png");
     border-bottom: 10px solid #8E98AC;
     .masthead-overlay{
         padding: 60px 0px;
-        background-color: rgba(0, 0, 0, 0.7);
+        //background-color: rgba(0, 0, 0, 0.7);
     }
     .masthead-subtitle{
-        padding: 20px 0px;
         width: 750px;
         line-height: 1.5em;
         @include fontTitleLight(28px, #FFF);
+        .red-button{
+            @include buttonRed(15px);
+            text-decoration: none;
+            line-height: 1.2em;
+        }
+        .green-button{
+            @include buttonGreen(15px);
+            text-decoration: none;
+            line-height: 1.2em;
+            margin-right: 10px;
+        }
+
     }
 }
 
@@ -243,6 +249,39 @@ body{
             }
         }
     }
+}
+
+#cu-form{
+    margin-top: 20px;
+    .cu-row{
+        margin-bottom: 5px;
+    }
+    label{
+        width: 100px;
+        display: inline-block;
+        text-align: right;
+        @include fontText(14px, #666);
+        margin-right: 10px;
+    }
+    input[type="text"], textarea{
+        width: 350px;
+        @include fontText(14px);
+        padding: 5px 10px;
+        border: 1px solid #CCC;
+        border-radius: 3px;
+        outline: none;
+    }
+
+    input[type="submit"]{
+        @include buttonGreen;
+    }
+
+    textarea{
+        vertical-align: top;
+        height: 200px;
+        resize: none;
+    }
+
 }
 
 #header-tabs{

@@ -6,20 +6,27 @@
 
 #image-container{
     float:left;
-    height: 35px;
-    width: 35px;
+    height: 45px;
+    width: 60px;
     overflow: hidden;
     margin: 5px;
+    border: 1px solid #CCC;
+    border-radius: 3px;
     img {
+        height: 45px;
+        width: 60px;
         display: block;
     }
 }
 
 #content-text-container{
-    height: 45px;
+    height: 55px;
     display: table;
     &.text-only{
         width: 100%;
+        #content-text{
+            @include fontTextBold(14px, #FFF);
+        }
     }
     #content-text{
         display: table-cell;
@@ -29,7 +36,7 @@
         overflow: hidden;
         vertical-align: middle;
         text-align:center;
-        height: 45px;
+        height: 55px;
     }
 }
 

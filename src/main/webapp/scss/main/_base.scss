@@ -102,6 +102,23 @@ $fontTextColorDefault: #333;
         }
     }
 
+    @mixin buttonRed($size: 13px){
+        @include button($size);
+        background-color: rgb(200, 45, 45);
+        &:hover{
+            background-color: $colorEC;
+        }
+    }
+
+    @mixin buttonGreen($size: 13px){
+        @include button($size);
+        background-color: rgb(31, 148, 38);
+        &:hover{
+            background-color: rgb(38, 200, 52);
+        }
+    }
+
+
     @mixin shareButton($size: 13px){
         display: inline-block;
         cursor: pointer;

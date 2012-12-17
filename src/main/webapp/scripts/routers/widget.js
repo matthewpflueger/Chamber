@@ -70,7 +70,8 @@ define(
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("story/show", id);
-                _gaq.push(['_trackEvent', 'Widget', 'Story', this.properties.partnerId + "/" + id]);
+                _gaq.push(['_trackEvent', 'Widget', 'Story', this.properties.partnerId]);
+                _gaq.push(['_trackEvent', 'Story', 'Open', this.properties.partnerId]);
             },
             resetHash: function(){
                 window.location.hash = "#!";
