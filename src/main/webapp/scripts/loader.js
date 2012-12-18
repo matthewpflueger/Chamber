@@ -6,7 +6,7 @@ require(
         'underscore',
         'components/widget/remote',
         'components/widget/overlay',
-        'components/widget/gallery',
+        'components/widget/iframe.gallery',
         'components/widget/opener'
     ],
     function(require, $, Backbone, _,  Remote, Overlay, Gallery, Opener){

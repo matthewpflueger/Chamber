@@ -118,6 +118,7 @@ class PartnerController extends EchoedController {
         mp(UpdatePartnerCustomization(
                 pucc,
                 cParams.useGallery,
+                cParams.showGallery,
                 cParams.useRemote,
                 cParams.remoteVertical,
                 cParams.remoteHorizontal,
@@ -152,6 +153,7 @@ class PartnerController extends EchoedController {
 
 class CustomizationParams(
         @BeanProperty var useGallery: Boolean,
+        @BeanProperty var showGallery: Boolean,
         @BeanProperty var useRemote: Boolean,
         @BeanProperty var remoteVertical: String,
         @BeanProperty var remoteHorizontal: String,
@@ -159,7 +161,7 @@ class CustomizationParams(
         @BeanProperty var widgetTitle: String,
         @BeanProperty var widgetShareMessage: String) {
 
-    def this() = this(false, true, null, null, null, null, null)
+    def this() = this(false, true, true, null, null, null, null, null)
 
 }
 

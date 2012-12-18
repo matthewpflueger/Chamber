@@ -17,11 +17,18 @@
     top: 0px;
     bottom: 0px;
     width: 20px;
-    background-image: image-url("bk-downcarrot.png");
+
     background-repeat: no-repeat;
     background-position: center;
     border-left: 1px solid #CCC;
     background-color: #CCC;
+    &.down{
+        background-image: image-url("bk-downcarrot.png");
+    }
+    &.up{
+        background-image: image-url("bk-upcarrot.png");
+    }
+
     &:hover{
         background-color: #FFF;
     }

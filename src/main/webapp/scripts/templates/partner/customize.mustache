@@ -7,6 +7,14 @@
                 <input type="radio" name="useGallery" value="true" {{#useGallery}}checked{{/useGallery}}/>Yes
                 <input type="radio" name="useGallery" value="false" {{^useGallery}}checked{{/useGallery}}/>No
             </td>
+
+        </tr>
+        <tr>
+            <td class="table-label">Show Gallery By Default</td>
+            <td>
+                <input type="radio" name="showGallery" value="true" {{#showGallery}}checked{{/showGallery}}/>Yes
+                <input type="radio" name="showGallery" value="false" {{^showGallery}}checked{{/showGallery}}/>No
+            </td>
         </tr>
         <tr>
             <td class="table-label">Use Loader</td>
@@ -18,8 +26,6 @@
         <tr>
             <td class="table-label">Loader Vertical Position</td>
             <td>
-                <!-- input type="radio" name="remoteVertical" value="top" {{#isTop}}checked{{/isTop}}/>Top
-                <input type="radio" name="remoteVertical" value="bottom" {{^isTop}}checked{{/isTop}}/>Bottom -->
                 <input type="radio" name="remoteVertical" value="top" {{isTop}}/>Top
                 <input type="radio" name="remoteVertical" value="bottom" {{isBottom}}/>Bottom
             </td>
@@ -27,8 +33,6 @@
         <tr>
             <td class="table-label">Loader Horizontal Position</td>
             <td>
-                <!-- input type="radio" name="remoteHorizontal" value="left" {{#isLeft}}checked{{/isLeft}}/>Left
-                <input type="radio" name="remoteHorizontal" value="right" {{^isLeft}}checked{{/isLeft}}/>Right -->
                 <input type="radio" name="remoteHorizontal" value="left" {{isLeft}}/>Left
                 <input type="radio" name="remoteHorizontal" value="right" {{isRight}}/>Right
             </td>
@@ -36,8 +40,6 @@
         <tr>
             <td class="table-label">Loader Orientation</td>
             <td>
-                <!-- input type="radio" name="remoteOrientation" value="ver" {{^isHor}}checked{{/isHor}}/>Vertical
-                <input type="radio" name="remoteOrientation" value="hor" {{#isHor}}checked{{/isHor}}/>Horizontal -->
                 <input type="radio" name="remoteOrientation" value="ver" {{isVer}}/>Vertical
                 <input type="radio" name="remoteOrientation" value="hor" {{isHor}}/>Horizontal
             </td>

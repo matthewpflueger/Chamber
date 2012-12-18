@@ -100,11 +100,12 @@ class PartnerUserService(
                 .map(r => GetPartnerSettingsResponse(msg, Right(List(r.partnerSettings))))
                 .pipeTo(sender)
 
-        case msg @ UpdatePartnerCustomization(_, useGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation, widgetTitle, widgetShareMessage) =>
+        case msg @ UpdatePartnerCustomization(_, useGallery, showGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation, widgetTitle, widgetShareMessage) =>
             val channel = context.sender
             mp(PutPartnerCustomization(
                 PartnerClientCredentials(partnerUser.partnerId),
                 useGallery,
+                showGallery,
                 useRemote,
                 remoteVertical,
                 remoteHorizontal,

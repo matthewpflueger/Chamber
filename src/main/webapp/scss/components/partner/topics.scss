@@ -1,0 +1,30 @@
+#topics{
+    .title, .beginOn, .endOn{
+        margin-right: 10px;
+        outline: none;
+        padding: 5px 5px;
+        @include fontText(13px);
+        border: 1px solid #CCC;
+        border-radius: 3px;
+    }
+
+    .title{
+        width: 250px;
+    }
+
+    .beginOn, .endOn{
+        width: 150px;
+    }
+
+    .save{
+        @include buttonGreen;
+        margin-right: 10px;
+    }
+    .cancel{
+        @include buttonRed;
+    }
+
+    .edit{
+        @include buttonGreen;
+    }
+}

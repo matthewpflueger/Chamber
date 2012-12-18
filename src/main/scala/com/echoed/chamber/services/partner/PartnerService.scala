@@ -178,9 +178,10 @@ class PartnerService(
             }
 
 
-        case msg @ PutPartnerCustomization(_, useGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation, widgetTitle, widgetShareMessage) =>
+        case msg @ PutPartnerCustomization(_, useGallery, showGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation, widgetTitle, widgetShareMessage) =>
             var customization = partnerSettings.makeCustomizationOptions
             customization += ("useGallery" -> useGallery)
+            customization += ("showGallery" -> showGallery)
             customization += ("useRemote" -> useRemote)
             customization += ("remoteVertical" -> remoteVertical)
             customization += ("remoteHorizontal" -> remoteHorizontal)
