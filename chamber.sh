@@ -22,8 +22,8 @@ MAIN=com.echoed.chamber.Main
 NEWRELIC=${BASEDIR}/src/main/ops/opt/newrelic/newrelic.jar
 MVN="mvn -Dmaven.test.skip=true -Dsun.net.client.defaultConnectTimeout=1000 -Dsun.net.client.defaultReadTimeout=1000"
 MIN_MEM="1024m"
-MAX_MEM="2048m"
-PERM_SIZE="256m"
+MAX_MEM="2564m"
+PERM_SIZE="192m"
 CONNECT_TIMEOUT="10000"
 READ_TIMEOUT="10000"
 CLASSPATH=".:${TARGET}"
@@ -72,7 +72,7 @@ function service_cmd() {
             shift
 
 
-            ARGS="-server -Xms${MIN_MEM} -Xmx${MAX_MEM} -XX:PermSize=${PERM_SIZE} -Djava.net.preferIPv4Stack=true -Dsun.net.client.defaultConnectTimeout=${CONNECT_TIMEOUT} -Dsun.net.client.defaultReadTimeout=${READ_TIMEOUT}"
+            ARGS="-server -Xms${MIN_MEM} -Xmx${MAX_MEM} -XX:PermSize=${PERM_SIZE} -XX:OnError=\"./chamber.sh restart\" -XX:OnOutOfMemoryError=\"./chamber.sh restart\" -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true -Dsun.net.client.defaultConnectTimeout=${CONNECT_TIMEOUT} -Dsun.net.client.defaultReadTimeout=${READ_TIMEOUT}"
 
 
             if [[ "$1" == "-o" ]]; then
