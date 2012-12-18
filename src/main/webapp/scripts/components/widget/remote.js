@@ -45,13 +45,13 @@ define(
                 this.EvAg.trigger("preview/show", msgObj);
             },
             info: function(){
-                this.triggerPreview({ type: "text", data: "What is this?" });
+                this.triggerPreview({ "type": "text", "data": "What is this?" });
             },
             add: function(){
-                this.triggerPreview({ type: "text", data: this.properties.widgetShareMessage });
+                this.triggerPreview({ "type": "text", "data": this.properties.widgetShareMessage });
             },
             browse: function(){
-                this.triggerPreview({ type: "text", data: this.properties.widgetTitle })
+                this.triggerPreview({ "type": "text", "data": this.properties.widgetTitle })
             },
             leave: function(){
                 this.EvAg.trigger("preview/leave");
@@ -60,8 +60,8 @@ define(
                 var index = $(ev.currentTarget).attr("index");
                 var storyFull =this.stories[index];
                 var msg = {
-                    type: "story",
-                    data: storyFull
+                    "type" : "story",
+                    "data" : storyFull
                 };
                 this.triggerPreview(msg);
             },

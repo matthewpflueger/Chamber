@@ -259,7 +259,7 @@ class StateService(
         case msg @ ReadPartner(pcc) =>
             val activeOn = DateUtils.dateToLong(new Date())
 
-            from(partners)(p => where(p.id === pcc.partnerId or p.handle === pcc.partnerId) select(p)).headOption.map { p =>
+            from(partners)(p => where(p.id === pcc.partnerId or p.handle === pcc.partnerId or p.domain === pcc.partnerId) select(p)).headOption.map { p =>
                 val ps = from(partnerSettings)(ps =>
                     where((ps.partnerId === p.id) and (ps.activeOn lte activeOn))
                         select(ps)
@@ -275,6 +275,8 @@ class StateService(
                 val t = (from(topics)(t => where(t.partnerId === p.id) select(t))).toList
 
                 ps.map(ps => sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus, t))))
+            }.getOrElse {
+                sender ! ReadPartnerResponse(msg, Left(StateException(pcc.id)))
             }
 
 

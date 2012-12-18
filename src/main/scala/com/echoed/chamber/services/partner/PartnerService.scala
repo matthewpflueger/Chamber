@@ -99,6 +99,18 @@ class PartnerService(
                 accountManagerEmailTemplate,
                 model))
 
+        case msg @ ReadPartnerResponse(_, Left(se)) =>
+            partner = new Partner(se.message, se.message)
+            partnerSettings = new PartnerSettings(partner.id, partner.domain)
+
+            val password = UUID.randomUUID().toString
+            partnerUser = Some(new PartnerUser(partner.domain)
+                .copy(partnerId = partner.id)
+                .createPassword(password))
+
+            ep(PartnerCreated(partner, partnerSettings, partnerUser.get))
+            becomeOnlineAndRegister
+
         case msg @ ReadPartnerResponse(_, Right(pss)) =>
             partner = pss.partner
             partnerSettings = pss.partnerSettings

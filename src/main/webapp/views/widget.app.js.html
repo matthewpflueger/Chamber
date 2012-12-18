@@ -53,8 +53,7 @@
     {{/customization}}
 
 
-    EchoedSettings.partnerId = '{{partnerId}}';
-
+    EchoedSettings.partnerId = '{{partner.id}}';
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#dev}}
     es.src = "{{https.js}}/libs/require/require-2.1.1.js";

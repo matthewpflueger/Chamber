@@ -16,7 +16,6 @@ require(
         var body = $('body');
         EchoedSettings.useOpener = true;
         self.properties = EchoedSettings;
-        console.log(EchoedSettings);
         body.append($('<link rel="stylesheet" type="text/css"/>').attr("href", self.properties.urls.css + "/remote.css"));
 
         this.overlay = new Overlay({ properties: self.properties, EvAg: self.EventAggregator });

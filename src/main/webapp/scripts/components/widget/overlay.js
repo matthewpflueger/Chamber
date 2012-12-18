@@ -56,7 +56,7 @@ define(
                 data = typeof data == 'undefined' ? "#home" : data;
                 this.htmlEl.css({ "overflow" : "hidden" });
                 this.element.fadeIn();
-                this.socket.postMessage(JSON.stringify({ type:  type, data: data}));
+                this.socket.postMessage(JSON.stringify({ "type":  type, "data": data}));
             },
             parseHash: function(){
                 var hash = window.location.hash;

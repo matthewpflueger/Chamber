@@ -1,21 +1,6 @@
 (function(){
 
-if(typeof(window.EchoedSettings) ==='undefined') EchoedSettings = {};
-
-{{>partial_requirejs}}
-
-EchoedSettings.urls = {};
-
-{{#urls}}
-EchoedSettings.urls.api = "{{api}}";
-EchoedSettings.urls.cdn = "{{cdn}}";
-EchoedSettings.urls.js = "{{js}}";
-EchoedSettings.urls.css = "{{css}}";
-EchoedSettings.urls.images = "{{images}}";
-EchoedSettings.urls.views = "{{views}}";
-EchoedSettings.urls.site = "{{site}}";
-{{/urls}}
-    var i=0, domain = document.hostname;
+    var i=0, domain = window.location.hostname;
     var links = document.getElementsByTagName('link');
 
     for(i = 0; i < links.length; i++){
@@ -26,14 +11,9 @@ EchoedSettings.urls.site = "{{site}}";
             domain = a.hostname;
         }
     }
-    EchoedSettings.partnerDomain = domain;
+
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
-    {{#dev}}
-    es.src = "{{https.js}}/libs/require/require-2.1.1.js";
-    es.setAttribute('data-main',"{{https.js}}/loader.js");
-    {{/dev}}
-    {{^dev}}
-    es.src = "{{https.js}}/loader.js"
-    {{/dev}}
+    es.src = "{{https.site}}/widget/js?pid=" + domain;
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
+
 })();
