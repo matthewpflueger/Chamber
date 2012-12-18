@@ -143,6 +143,7 @@ case class PartnerSettings(
     def makeCustomizationOptions = {
             var customMap = Map(
                 "useGallery" -> false,
+                "showGallery" -> true,
                 "useRemote" -> true,
                 "hideOpener" -> false,
                 "remoteVertical" -> "top",

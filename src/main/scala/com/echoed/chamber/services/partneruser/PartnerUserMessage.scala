@@ -94,6 +94,7 @@ case class UpdatePartnerUserResponse(
 case class UpdatePartnerCustomization(
         credentials: PUCC,
         useGallery: Boolean,
+        showGallery: Boolean,
         useRemote: Boolean,
         remoteVertical: String,
         remoteHorizontal: String,

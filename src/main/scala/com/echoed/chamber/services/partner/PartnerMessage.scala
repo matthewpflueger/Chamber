@@ -93,6 +93,7 @@ case class GetTopicsResponse(
 case class PutPartnerCustomization(
         credentials: PCC,
         useGallery: Boolean,
+        showGallery: Boolean,
         useRemote: Boolean,
         remoteVertical: String,
         remoteHorizontal: String,

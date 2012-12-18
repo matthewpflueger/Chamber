@@ -7,6 +7,11 @@
     <script>
         {{>partial_requirejs}}
         {{>partial_urls}}
+        {{#customization}}
+            {{#showGallery}}
+                Echoed.showGallery = {{.}};
+            {{/showGallery}}
+        {{/customization}}
         Echoed.partnerId = '{{partnerId}}';
         Echoed.facebookLogin ={};
         Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
