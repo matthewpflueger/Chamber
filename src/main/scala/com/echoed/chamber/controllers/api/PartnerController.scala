@@ -1,26 +1,24 @@
 package com.echoed.chamber.controllers.api
 
-import scala.reflect.BeanProperty
-import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation._
-import com.echoed.chamber.controllers.{EchoedController, ErrorResult}
-import org.springframework.web.context.request.async.DeferredResult
-import com.echoed.chamber.services.partneruser._
-import scala.Right
-import com.echoed.chamber.services.state.{QueryStoriesForPartnerResponse, QueryStoriesForPartner}
 import com.echoed.chamber.controllers.interceptors.Secure
+import com.echoed.chamber.controllers.{EchoedController, ErrorResult}
+import com.echoed.chamber.domain.partner.PartnerSettings
+import com.echoed.chamber.domain.{Topic, StoryState}
+import com.echoed.chamber.services.partner.{GetTopicsResponse, GetTopics, PutTopicResponse, PartnerClientCredentials, PutTopic}
+import com.echoed.chamber.services.partneruser.GetPartnerSettings
+import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
+import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
 import com.echoed.chamber.services.partneruser.UpdatePartnerCustomization
+import com.echoed.chamber.services.partneruser._
 import com.echoed.chamber.services.state.QueryStoriesForPartner
 import com.echoed.chamber.services.state.QueryStoriesForPartnerResponse
-import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
-import com.echoed.chamber.services.partneruser.GetPartnerSettings
-import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
-import scala.Right
-import com.echoed.chamber.services.partner.{GetTopicsResponse, GetTopics, PutTopicResponse, PartnerClientCredentials, PutTopic}
-import java.util.Date
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.echoed.chamber.services.topic.ReadTopics
 import com.echoed.util.ScalaObjectMapper
+import java.util.Date
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation._
+import org.springframework.web.context.request.async.DeferredResult
+import scala.Right
+import scala.reflect.BeanProperty
 
 
 @Controller
@@ -31,12 +29,12 @@ class PartnerController extends EchoedController {
     @RequestMapping(value = Array("/settings"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getSettings(pucc: PartnerUserClientCredentials) = {
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[List[PartnerSettings]](null, ErrorResult.timeout)
 
         mp(GetPartnerSettings(pucc)).onSuccess {
             case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
                 log.debug("Successfully received partnerSettings for {}", pucc)
-                result.set(partnerSettings)
+                result.setResult(partnerSettings)
         }
 
         result
@@ -45,10 +43,10 @@ class PartnerController extends EchoedController {
     @RequestMapping(value = Array("/settings/topics"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getTopics(pucc: PartnerUserClientCredentials) = {
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[List[Topic]](null, ErrorResult.timeout)
 
         mp(GetTopics(PartnerClientCredentials(pucc.partnerId.get))).onSuccess {
-            case GetTopicsResponse(_, Right(topics)) => result.set(topics)
+            case GetTopicsResponse(_, Right(topics)) => result.setResult(topics)
         }
 
         result
@@ -79,7 +77,8 @@ class PartnerController extends EchoedController {
             pucc: PartnerUserClientCredentials,
             topic: TopicParams,
             id: Option[String] = None) = {
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[Topic](null, ErrorResult.timeout)
+
         mp(PutTopic(
                 PartnerClientCredentials(pucc.partnerId.get),
                 topic.title,
@@ -89,7 +88,7 @@ class PartnerController extends EchoedController {
                 id.orElse(Option(topic.id)),
                 Option(topic.community))).onSuccess {
             case PutTopicResponse(_, Right(topic)) =>
-                result.set(topic)
+                result.setResult(topic)
         }
         result
     }
@@ -97,10 +96,11 @@ class PartnerController extends EchoedController {
     @RequestMapping(value = Array("/settings/customization/*"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getCustomization(pucc: PartnerUserClientCredentials) = {
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[Map[String, Any]](null, ErrorResult.timeout)
+
         mp(GetPartnerSettings(pucc)).onSuccess {
             case GetPartnerSettingsResponse(_, Right(partnerSettings)) =>
-                result.set(partnerSettings.headOption.map(_.makeCustomizationOptions).orNull)
+                result.setResult(partnerSettings.headOption.map(_.makeCustomizationOptions).orNull)
         }
 
         result
@@ -115,13 +115,14 @@ class PartnerController extends EchoedController {
             @RequestBody cParams: CustomizationParams,
             pucc: PartnerUserClientCredentials) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[Map[String, Any]](null, ErrorResult.timeout)
         val params = new ScalaObjectMapper().convertValue(cParams, classOf[Map[String, Any]])
+
         mp(UpdatePartnerCustomization(
                 pucc,
                 params)).onSuccess {
             case UpdatePartnerCustomizationResponse(_, Right(customization)) =>
-                result.set(customization)
+                result.setResult(customization)
         }
         result
     }
@@ -134,11 +135,11 @@ class PartnerController extends EchoedController {
             @RequestParam(value = "moderated", required = false) moderated: String,
             pucc: PartnerUserClientCredentials) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[List[StoryState]](null, ErrorResult.timeout)
 
         mp(QueryStoriesForPartner(pucc, page, pageSize, Option(moderated).map(_.toBoolean))).onSuccess {
             case QueryStoriesForPartnerResponse(_, Right(stories)) =>
-                result.set(stories)
+                result.setResult(stories)
         }
 
         result

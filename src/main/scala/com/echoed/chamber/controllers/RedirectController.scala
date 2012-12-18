@@ -19,7 +19,7 @@ class RedirectController extends EchoedController {
 
     @RequestMapping(value = Array("partner/{pid}"), method = Array(RequestMethod.GET))
     def redirectPartner(pcc: PartnerClientCredentials) = {
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         mp(FetchPartner(pcc)).onSuccess {
             case FetchPartnerResponse(_, Right(p)) =>
@@ -27,7 +27,7 @@ class RedirectController extends EchoedController {
                 val domain = if (p.domain.startsWith("http")) p.domain else "http://" + p.domain
                 val modelAndView = new ModelAndView(v.redirectView)
                 modelAndView.addObject("redirectUrl" , domain + "/#echoed")
-                result.set(modelAndView)
+                result.setResult(modelAndView)
         }
 
         result
@@ -35,7 +35,7 @@ class RedirectController extends EchoedController {
 
     @RequestMapping(value = Array("/close"), method = Array(RequestMethod.GET))
     def close(eucc: EchoedUserClientCredentials) = {
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         mp(GetEchoedUser(eucc)).onSuccess {
             case GetEchoedUserResponse(_, Right(echoedUser)) =>
@@ -44,7 +44,7 @@ class RedirectController extends EchoedController {
                 modelAndView.addObject("echoedUserId", echoedUser.id)
                 modelAndView.addObject("facebookUserId", echoedUser.facebookId)
                 modelAndView.addObject("twitterUserId", echoedUser.twitterId)
-                result.set(modelAndView)
+                result.setResult(modelAndView)
         }
 
         result

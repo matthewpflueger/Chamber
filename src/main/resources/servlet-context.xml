@@ -98,7 +98,7 @@
             </list>
         </property>
         <property name="asyncRequestTimeout" value="30000" />
-        <property name="asyncTaskExecutor" ref="executor" />
+        <property name="taskExecutor" ref="executor" />
     </bean>
 
     <bean id="mustacheViewResolver" class="com.echoed.util.mustache.MustacheViewResolver">

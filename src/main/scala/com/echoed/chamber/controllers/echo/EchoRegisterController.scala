@@ -51,7 +51,7 @@ class EchoRegisterController extends EchoedController with FormController {
         if (bindingResult.hasErrors) {
             errorModelAndView
         } else {
-            val result = new DeferredResult(errorModelAndView)
+            val result = new DeferredResult[ModelAndView](null, errorModelAndView)
 
             mp(UpdateEchoedUserEmail(eucc, echoRegisterForm.getEmail)).foreach(_.cata(
                 _ match {
@@ -61,11 +61,11 @@ class EchoRegisterController extends EchoedController with FormController {
                         modelAndView.addObject("id", id)
                         if (close == true) modelAndView.addObject("close", "true")
                         modelAndView.addObject("error_email", "This Email Already Exists")
-                        result.set(modelAndView)
+                        result.setResult(modelAndView)
                 },
                 _ => {
-                    if (close) result.set(new ModelAndView(v.echoCloseViewUrl, "id", id))
-                    else result.set(new ModelAndView(v.echoEchoedViewUrl, "id", id))
+                    if (close) result.setResult(new ModelAndView(v.echoCloseViewUrl, "id", id))
+                    else result.setResult(new ModelAndView(v.echoEchoedViewUrl, "id", id))
                 }))
 
             result

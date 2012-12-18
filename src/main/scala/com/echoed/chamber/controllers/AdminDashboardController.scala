@@ -15,12 +15,12 @@ class AdminDashboardController extends EchoedController {
 
     @RequestMapping(Array("/admin/dashboard"))
     def dashboard(aucc: AdminUserClientCredentials) = {
-        val result = new DeferredResult(new ModelAndView(v.adminDashboardErrorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.adminDashboardErrorView))
 
         mp(GetAdminUser(aucc)).onSuccess {
             case GetAdminUserResponse(_, Right(au)) =>
                 log.debug("Got {}", au)
-                result.set(new ModelAndView(v.adminDashboardView, "adminUser", au))
+                result.setResult(new ModelAndView(v.adminDashboardView, "adminUser", au))
         }
 
         result
@@ -32,12 +32,12 @@ class AdminDashboardController extends EchoedController {
             request: HttpServletRequest,
             response: HttpServletResponse,
             aucc: AdminUserClientCredentials) = {
-        val result = new DeferredResult(new ModelAndView(v.adminDashboardErrorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.adminDashboardErrorView))
 
         mp(BecomePartnerUser(aucc, partnerUserId)).onSuccess {
             case BecomePartnerUserResponse(_, Right(pu)) =>
                 cookieManager.addPartnerUserCookie(response, pu, request)
-                result.set(new ModelAndView(v.partnerLoginView))
+                result.setResult(new ModelAndView(v.partnerLoginView))
         }
 
         result

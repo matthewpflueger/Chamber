@@ -19,7 +19,7 @@ class FacebookGraphController extends EchoedController {
     def story(
             @PathVariable(value = "storyId") storyId: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         log.debug("Retrieving Story Graph Story Page for Echo: {}", storyId)
         mp(GetStory(storyId, origin)).onSuccess {
@@ -29,7 +29,7 @@ class FacebookGraphController extends EchoedController {
                 modelAndView.addObject("storyFull", storyFull.get)
                 modelAndView.addObject("facebookClientId", facebookClientId)
                 modelAndView.addObject("facebookAppNameSpace", facebookAppNameSpace)
-                result.set(modelAndView)
+                result.setResult(modelAndView)
         }
 
         result
@@ -37,7 +37,7 @@ class FacebookGraphController extends EchoedController {
 
     @RequestMapping(value = Array("/product/{linkId}"), method = Array(RequestMethod.GET))
     def product(@PathVariable(value = "linkId") linkId: String) = {
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         log.debug("Retrieving Facebook Graph Product Page for Echo: {}", linkId)
         mp(GetEcho(linkId)).onSuccess {
@@ -47,7 +47,7 @@ class FacebookGraphController extends EchoedController {
                 modelAndView.addObject("echo", echoView.echo)
                 modelAndView.addObject("facebookClientId", facebookClientId)
                 modelAndView.addObject("facebookAppNameSpace", facebookAppNameSpace)
-                result.set(modelAndView)
+                result.setResult(modelAndView)
         }
 
         result

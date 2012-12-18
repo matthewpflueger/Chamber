@@ -72,7 +72,7 @@ class FacebookController extends EchoedController with NetworkController {
             request: HttpServletRequest,
             response: HttpServletResponse) = {
 
-        val result = new DeferredResult(new ModelAndView(v.facebookLoginErrorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.facebookLoginErrorView))
 
         log.debug("Requesting FacebookService with code {}", code)
 
@@ -86,7 +86,7 @@ class FacebookController extends EchoedController with NetworkController {
                 val redirectView = "%s?redirect=%s" format(v.postLoginView, Option(redirect).getOrElse(""))
                 log.debug("Redirecting to View: {} ", redirectView)
                 val modelAndView = new ModelAndView(redirectView)
-                result.set(modelAndView)
+                result.setResult(modelAndView)
         }
 
         result
@@ -99,7 +99,7 @@ class FacebookController extends EchoedController with NetworkController {
             request: HttpServletRequest,
             response: HttpServletResponse) = {
 
-        val result = new DeferredResult(new ModelAndView(v.facebookLoginErrorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.facebookLoginErrorView))
 
         val parts = signedRequest.split("\\.")
         val encodedSig = parts(0)
@@ -129,12 +129,12 @@ class FacebookController extends EchoedController with NetworkController {
                         val redirectView = "%s/%s" format(v.postLoginView, Option(redirect).getOrElse(""))
                         log.debug("Redirecting to View: {} ", redirectView)
                         val modelAndView = new ModelAndView(redirectView)
-                        result.set(modelAndView)
+                        result.setResult(modelAndView)
                 }
             },
             {
                 val canvasPage = URLEncoder.encode(facebookCanvasApp, "UTF-8")
-                result.set(new ModelAndView(
+                result.setResult(new ModelAndView(
                     "authredirect",
                     "authUrl",
                     authUrl format(limitedPermissions, facebookClientId, canvasPage)))

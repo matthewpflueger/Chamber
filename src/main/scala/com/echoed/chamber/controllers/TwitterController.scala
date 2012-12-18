@@ -22,7 +22,7 @@ class TwitterController extends EchoedController with NetworkController {
             @RequestParam(value = "redirect", required = false) redirect: String,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
 
         val callbackUrl = "%s/twitter/%s%s" format(
@@ -34,7 +34,7 @@ class TwitterController extends EchoedController with NetworkController {
 
         mp(GetTwitterAuthenticationUrl(callbackUrl)).onSuccess {
             case GetTwitterAuthenticationUrlResponse(_, Right(authenticationUrl)) =>
-                result.set(new ModelAndView("redirect:" + authenticationUrl))
+                result.setResult(new ModelAndView("redirect:" + authenticationUrl))
         }
 
         result
@@ -47,15 +47,11 @@ class TwitterController extends EchoedController with NetworkController {
             @RequestParam(value = "redirect", required = false) redirect: String,
             eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
-
         log.debug("Add/QueryString: {} ", redirect)
         val redirectView = v.postAddView + redirect
 
         mp(AddTwitter(eucc, oAuthToken, oAuthVerifier))
         new ModelAndView(redirectView)
-
-        result
     }
 
 
@@ -67,7 +63,7 @@ class TwitterController extends EchoedController with NetworkController {
               request: HttpServletRequest,
               response: HttpServletResponse) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         val queryString = request.getQueryString
 
@@ -82,7 +78,7 @@ class TwitterController extends EchoedController with NetworkController {
                         request)
                 val redirectView = "%s?redirect=%s" format(v.postLoginView, Option(redirect).getOrElse(""))
                 log.debug("Redirecting to View: {} ", redirectView)
-                result.set(new ModelAndView(redirectView))
+                result.setResult(new ModelAndView(redirectView))
         }
 
         result

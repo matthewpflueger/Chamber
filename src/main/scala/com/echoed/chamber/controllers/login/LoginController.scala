@@ -51,17 +51,17 @@ class LoginController extends EchoedController with FormController {
             errorModelAndView
         } else {
 
-            val result = new DeferredResult(errorModelAndView)
+            val result = new DeferredResult[ModelAndView](null, errorModelAndView)
 
             val view = "%s?redirect=%s" format(v.postLoginView, Option(redirect).getOrElse(""))
 
             mp(LoginWithPassword(EchoedUserClientCredentials(lf.cred, password = Some(lf.password)))).onSuccess {
                 case LoginWithPasswordResponse(_, Left(e)) =>
                     errorModelAndView.addError(e)
-                    result.set(errorModelAndView)
+                    result.setResult(errorModelAndView)
                 case LoginWithPasswordResponse(_, Right(echoedUser)) =>
                     cookieManager.addEchoedUserCookie(response, echoedUser, request)
-                    result.set(new ModelAndView(view))
+                    result.setResult(new ModelAndView(view))
             }
 
             result
@@ -106,7 +106,7 @@ class LoginController extends EchoedController with FormController {
             errorModelAndView
         } else {
 
-            val result = new DeferredResult(errorModelAndView)
+            val result = new DeferredResult[ModelAndView](null, errorModelAndView)
             val view = Option(redirect).map { redirect =>
                 "redirect:%s/%s" format (v.secureSiteUrl, redirect)
             }.getOrElse("redirect:%s" format v.siteUrl)
@@ -117,10 +117,10 @@ class LoginController extends EchoedController with FormController {
                 case RegisterLoginResponse(_, Left(e)) =>
                     bindingResult.addAllErrors(e.asErrors(Some("loginRegisterForm")))
 //                    errorModelAndView.addError(e, Some("loginRegisterForm"))
-                    result.set(errorModelAndView)
+                    result.setResult(errorModelAndView)
                 case RegisterLoginResponse(_, Right(echoedUser)) =>
                     cookieManager.addEchoedUserCookie(response, echoedUser, request)
-                    result.set(new ModelAndView(view))
+                    result.setResult(new ModelAndView(view))
             }
 
             result
@@ -178,15 +178,15 @@ class LoginController extends EchoedController with FormController {
             errorModelAndView
         } else {
 
-            val result = new DeferredResult(errorModelAndView)
+            val result = new DeferredResult[ModelAndView](null, errorModelAndView)
 
             mp(ResetPassword(EUCC(id), code, resetPasswordForm.password)).onSuccess {
                 case ResetPasswordResponse(_, Left(e)) =>
                     errorModelAndView.addError(e)
-                    result.set(errorModelAndView)
+                    result.setResult(errorModelAndView)
                 case ResetPasswordResponse(_, Right(echoedUser)) =>
                     cookieManager.addEchoedUserCookie(response, echoedUser, request)
-                    result.set(new ModelAndView("redirect:%s" format v.siteUrl))
+                    result.setResult(new ModelAndView("redirect:%s" format v.siteUrl))
             }
 
             result
@@ -201,12 +201,12 @@ class LoginController extends EchoedController with FormController {
             request: HttpServletRequest) = {
 
         val mv = new ModelAndView("redirect:%s" format v.siteUrl)
-        val result = new DeferredResult(mv)
+        val result = new DeferredResult[ModelAndView](null, mv)
 
         mp(VerifyEmail(EUCC(id), code)).onSuccess {
             case VerifyEmailResponse(_, Right(echoedUser)) =>
                 cookieManager.addEchoedUserCookie(response, echoedUser, request)
-                result.set(mv)
+                result.setResult(mv)
         }
 
         result

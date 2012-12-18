@@ -45,22 +45,22 @@ class ActivateController extends EchoedController with FormController {
         if (bindingResult.hasErrors) {
             errorModelAndView
         } else {
-            val result = new DeferredResult()
+            val result = new DeferredResult[ModelAndView]()
 
             log.debug("Activating partner user {}", id)
 
             mp(ActivatePartnerUser(new PartnerUserClientCredentials(id), code, activateForm.password)).onSuccess {
                 case ActivatePartnerUserResponse(_, Left(e: InvalidPassword)) =>
                     bindingResult.rejectValue("password", e.code.get, e.message)
-                    result.set(errorModelAndView)
+                    result.setResult(errorModelAndView)
                 case ActivatePartnerUserResponse(_, Right(pucc)) =>
                     val modelAndView = new ModelAndView(v.postActivateView)
                     modelAndView.addObject("partnerUser", pucc)
-                    result.set(modelAndView)
+                    result.setResult(modelAndView)
                     log.debug("Activated partner user {}: {}", pucc.id, pucc.name)
                 case ActivatePartnerUserResponse(_, Left(e)) =>
                     errorModelAndView.addError(e)
-                    result.set(errorModelAndView)
+                    result.setResult(errorModelAndView)
             }
 
             result

@@ -5,16 +5,17 @@
 	    xmlns:util="http://www.springframework.org/schema/util"
 	    xsi:schemaLocation="
 	        http://www.springframework.org/schema/beans
-	        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 	        http://www.springframework.org/schema/context
-	        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	        http://www.springframework.org/schema/context/spring-context-3.2.xsd
 	        http://www.springframework.org/schema/util
-	        http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+	        http://www.springframework.org/schema/util/spring-util-3.2.xsd"
 	    default-init-method="init"
 	    default-destroy-method="destroy">
 
 
     <context:property-placeholder
+                system-properties-mode="ENVIRONMENT"
                 location="classpath*:chamber*.properties,classpath:chamber-git.properties,classpath:${ENV_TYPE}.properties,classpath:${user.name}.properties"
                 ignore-resource-not-found="true"
                 local-override="false"
@@ -130,10 +131,6 @@
         <prop key="pool.removeAbandonedTimeout">60000</prop>
         <prop key="pool.logAbandoned">true</prop>
 
-        <prop key="mybatis.config">classpath:mybatis.xml</prop>
-        <prop key="mybatis.mappers">classpath*:com/echoed/chamber/dao/cache/*.xml</prop>
-        <prop key="mybatis.executorType">BATCH</prop>
-
 
         <prop key="geolocation.serviceUrl">http://www.ipaddressapi.com/l/50fef98b6b9e054b97e695187dde7a3d9a071e7881eb?h=</prop>
         <prop key="geolocation.lastUpdatedBeforeHours">24</prop>
@@ -214,10 +211,31 @@
     </util:properties>
 
 
+    <util:properties id="serverProperties">
+        <prop key="envType">${envType}</prop>
+        <prop key="port">${port}</prop>
+
+        <prop key="ssl.port">${ssl.port}</prop>
+        <prop key="ssl.keyPassword">${ssl.keyPassword}</prop>
+        <prop key="ssl.keystore">${ssl.keystore}</prop>
+
+        <prop key="context">${context}</prop>
+        <prop key="resourceBase">${resourceBase}</prop>
+
+        <prop key="springframework.applicationContext">${springframework.applicationContext}</prop>
+        <prop key="springframework.servletContext">${springframework.servletContext}</prop>
+
+        <prop key="executor.minThreads">${executor.minThreads}</prop>
+        <prop key="executor.maxThreads">${executor.maxThreads}</prop>
+        <prop key="executor.keepAlive">${executor.keepAlive}</prop>
+    </util:properties>
+
+
     <util:properties id="cacheProperties">
         <prop key="PartnerServices">${cache.PartnerServices}</prop>
         <prop key="MagentoGoSessions">${cache.MagentoGoSessions}</prop>
     </util:properties>
+
 
     <util:properties id="mailProperties">
         <prop key="mail.imap.host">${mail.imap.host}</prop>
@@ -235,6 +253,7 @@
         <prop key="mail.development">${mail.development}</prop>
         <prop key="mail.developmentRecipient">${mail.developmentRecipient}</prop>
     </util:properties>
+
 
     <util:properties id="urlsProperties">
         <prop key="http.urls.site">${http.urls.site}</prop>
@@ -286,12 +305,14 @@
         <prop key="appNameSpace">${facebook.appNameSpace}</prop>
     </util:properties>
 
+
     <!--suppress SpringModelInspection -->
     <util:properties id="twitterAccessProperties">
         <prop key="consumerKey">${twitter.consumerKey}</prop>
         <prop key="consumerSecret">${twitter.consumerSecret}</prop>
         <prop key="callbackUrl">${twitter.callbackUrl}</prop>
     </util:properties>
+
 
     <!--suppress SpringModelInspection -->
     <util:properties id="shopifyProperties">
@@ -300,6 +321,7 @@
         <prop key="accountManagerEmail">${accountManagerEmail}</prop>
     </util:properties>
 
+
     <!--suppress SpringModelInspection -->
     <util:properties id="networkSolutionsProperties">
         <prop key="application">${networksolutions.application}</prop>
@@ -307,15 +329,18 @@
         <prop key="accountManagerEmail">${accountManagerEmail}</prop>
     </util:properties>
 
+
     <!--suppress SpringModelInspection -->
     <util:properties id="bigCommerceProperties">
         <prop key="accountManagerEmail">${accountManagerEmail}</prop>
     </util:properties>
 
+
     <!--suppress SpringModelInspection -->
     <util:properties id="magentoGoProperties">
         <prop key="accountManagerEmail">${accountManagerEmail}</prop>
     </util:properties>
+
 
     <!--suppress SpringModelInspection -->
     <util:properties id="geoLocationProperties">
