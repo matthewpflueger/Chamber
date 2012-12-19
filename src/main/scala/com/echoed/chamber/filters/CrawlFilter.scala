@@ -38,15 +38,20 @@ class CrawlFilter extends Filter {
                             queryString.replace("&_escaped_fragment_=", "#!").replace("_escaped_fragment_=", "#!"))
 
                     log.debug("Serving crawl {}", url)
+                    var client: WebClient = null
                     try {
                         //CHROME_16 does not work but the default (IE 7) weirdly does...
-                        val client = new WebClient(BrowserVersion.FIREFOX_10)
+                        client = new WebClient(BrowserVersion.FIREFOX_10)
+                        client.setUseInsecureSSL(true)
+                        client.setThrowExceptionOnFailingStatusCode(false)
+                        client.setThrowExceptionOnScriptError(false)
                         val page: HtmlPage = client.getPage(url)
-                        client.waitForBackgroundJavaScript(20000)
+                        client.waitForBackgroundJavaScript(25000)
                         response.getOutputStream.println(page.asXml)
                     } catch {
                         case e => log.error("Error serving crawl %s" format url, e)
                     } finally {
+                        Option(client).map(_.closeAllWindows())
                         context.complete()
                         log.debug("Completed in {} milliseconds crawl {}", System.currentTimeMillis() - time, url)
                     }
