@@ -3,9 +3,10 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'easyXDM'
+        'easyXDM',
+        'json2'
     ],
-    function($, Backbone, _, easyXDM){
+    function($, Backbone, _, easyXDM, JSON){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
