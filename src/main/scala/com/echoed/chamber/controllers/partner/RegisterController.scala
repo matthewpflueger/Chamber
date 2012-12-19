@@ -28,7 +28,7 @@ class RegisterController extends EchoedController with FormController {
     @RequestMapping(value = Array("/partner/register"), method = Array(RequestMethod.GET))
     def registerGet = {
 
-        val result = new DeferredResult("error")
+        val result = new DeferredResult[ModelAndView](null, "error")
 
         mp(GetCommunities()).onSuccess {
             case GetCommunitiesResponse(_, Right(CommunityFeed(list))) =>
@@ -39,7 +39,7 @@ class RegisterController extends EchoedController with FormController {
                 val form = new RegisterForm
                 form.communities = communities
                 form.communitiesList = new ScalaObjectMapper().writeValueAsString(communities.map(_.name))
-                result.set(new ModelAndView(v.registerView, "registerForm", form))
+                result.setResult(new ModelAndView(v.registerView, "registerForm", form))
         }
 
         result
@@ -59,7 +59,7 @@ class RegisterController extends EchoedController with FormController {
             errorModelAndView
         } else {
 
-            val result = new DeferredResult(errorModelAndView)
+            val result = new DeferredResult[ModelAndView](null, errorModelAndView)
 
             mp(RegisterPartner(
                     form.userName,
@@ -70,12 +70,12 @@ class RegisterController extends EchoedController with FormController {
                     form.community)).onSuccess {
                 case RegisterPartnerResponse(_, Left(e)) =>
                     errorModelAndView.addError(e, Some("registerForm"))
-                    result.set(errorModelAndView)
+                    result.setResult(errorModelAndView)
                 case RegisterPartnerResponse(_, Right((partnerUser, partner))) =>
                     val mav = new ModelAndView(v.postRegisterView)
                     mav.addObject("partnerUser", partnerUser)
                     mav.addObject("partner", partner)
-                    result.set(mav)
+                    result.setResult(mav)
             }
 
             result

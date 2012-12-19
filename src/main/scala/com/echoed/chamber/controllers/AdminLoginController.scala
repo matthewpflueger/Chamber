@@ -24,13 +24,13 @@ class AdminLoginController extends EchoedController {
             @RequestParam(value="name", required = true) name: String,
             @RequestParam(value="token", required = true) token: String) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[AdminUser](null, ErrorResult.timeout)
 
         log.debug("Creating Admin Account for {}, {}", name, email)
         assert(token == "J0n1sR3tard3d")
 
         mp(CreateAdminUser(aucc, new AdminUser(name, email).createPassword(password))).onSuccess {
-            case CreateAdminUserResponse(_, Right(adminUser)) => result.set(adminUser)
+            case CreateAdminUserResponse(_, Right(adminUser)) => result.setResult(adminUser)
         }
 
         result
@@ -46,7 +46,7 @@ class AdminLoginController extends EchoedController {
         if (email == null || password == null) {
             new ModelAndView(v.adminLoginView)
         } else {
-            val result = new DeferredResult(new ModelAndView(v.adminLoginView))
+            val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.adminLoginView))
 
             mp(LoginWithEmailPassword(email, password)).onSuccess {
                 case LoginWithEmailPasswordResponse(_, Right(adminUser)) =>
@@ -54,7 +54,7 @@ class AdminLoginController extends EchoedController {
                             response,
                             adminUser,
                             request)
-                    result.set(new ModelAndView(v.adminDashboardUrl))
+                    result.setResult(new ModelAndView(v.adminDashboardUrl))
             }
 
             result

@@ -29,7 +29,7 @@ class StaticController extends EchoedController {
             @RequestParam(value = "phone", required = true) phone: String,
             @RequestParam(value = "message", required = true) message: String) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[ModelAndView](null, ErrorResult.timeout)
         val map = Map(
             "name" -> name,
             "email" -> email,
@@ -39,7 +39,7 @@ class StaticController extends EchoedController {
             case SendEmailResponse(_, Right(b)) =>
                 val modelAndView = new ModelAndView(v.contactUsView)
                 modelAndView.addObject("submit", true)
-                result.set(modelAndView)
+                result.setResult(modelAndView)
         }
         result
 

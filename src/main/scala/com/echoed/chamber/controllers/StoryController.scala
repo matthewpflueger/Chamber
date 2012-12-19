@@ -15,6 +15,7 @@ import javax.annotation.Nullable
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import org.springframework.web.servlet.ModelAndView
 import javax.servlet.http.HttpServletRequest
+import com.echoed.chamber.domain.{ModerationDescription, Comment, ChapterInfo, Chapter, Story, StoryInfo}
 
 
 @Controller
@@ -32,12 +33,12 @@ class StoryController extends EchoedController {
 
         log.debug("Initializing story for {}", eucc.id)
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[StoryInfo](null, ErrorResult.timeout)
 
         mp(InitStory(eucc, Option(storyId), Option(echoId), Option(partnerId), Option(topicId))).onSuccess {
             case InitStoryResponse(_, Right(storyInfo)) =>
                 log.debug("Successfully initialized story for {}", eucc)
-                result.set(storyInfo)
+                result.setResult(storyInfo)
         }
 
         result
@@ -59,7 +60,7 @@ class StoryController extends EchoedController {
 
         log.debug("Making story {} for {}", title, eucc)
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[Story](null, ErrorResult.timeout)
 
         mp(CreateStory(
                 eucc,
@@ -73,7 +74,7 @@ class StoryController extends EchoedController {
                 Option(topicId))).onSuccess {
             case CreateStoryResponse(_, Right(story)) =>
                 log.debug("Successfully made story {} for {}", title, eucc)
-                result.set(story)
+                result.setResult(story)
         }
 
         result
@@ -91,7 +92,7 @@ class StoryController extends EchoedController {
 
         log.debug("Updating story {} for {}", storyId, eucc)
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[Story](null, ErrorResult.timeout)
 
         mp(UpdateStory(
                 eucc,
@@ -102,7 +103,7 @@ class StoryController extends EchoedController {
                 Option(productInfo))).onSuccess {
             case UpdateStoryResponse(_, Right(story)) =>
                 log.debug("Successfully updated story {} for {}", storyId, eucc)
-                result.set(story)
+                result.setResult(story)
         }
 
         result
@@ -115,10 +116,10 @@ class StoryController extends EchoedController {
             @RequestParam(value = "communityId", required = true) communityId: String,
             @PathVariable(value = "storyId") storyId: String) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[Story](null, ErrorResult.timeout)
 
         mp(UpdateCommunity(eucc, storyId, communityId)).onSuccess {
-            case UpdateCommunityResponse(_, Right(story)) => result.set(story)
+            case UpdateCommunityResponse(_, Right(story)) => result.setResult(story)
         }
         result
     }
@@ -136,7 +137,7 @@ class StoryController extends EchoedController {
 
         log.debug("Making chapter {} for {}", chapterParams.title, eucc)
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[ChapterInfo](null, ErrorResult.timeout)
 
         mp(CreateChapter(
                 eucc,
@@ -147,7 +148,7 @@ class StoryController extends EchoedController {
                 Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
             case CreateChapterResponse(_, Right(chapter)) =>
                 log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
-                result.set(chapter)
+                result.setResult(chapter)
         }
 
         result
@@ -166,7 +167,7 @@ class StoryController extends EchoedController {
 
         log.debug("Updating chapter {} for {}", chapterId, eucc)
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[ChapterInfo](null, ErrorResult.timeout)
 
         mp(UpdateChapter(
                 eucc,
@@ -178,7 +179,7 @@ class StoryController extends EchoedController {
                 Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
             case UpdateChapterResponse(_, Right(chapter)) =>
                 log.debug("Successfully updated chapter {} for {}", chapterId, eucc)
-                result.set(chapter)
+                result.setResult(chapter)
         }
 
         result
@@ -196,7 +197,7 @@ class StoryController extends EchoedController {
 
         log.debug("Creating comment on chapter {} for {}", chapterId, credentials)
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[Comment](null, ErrorResult.timeout)
 
         mp(CreateComment(
                 credentials,
@@ -207,7 +208,7 @@ class StoryController extends EchoedController {
                 Option(parentCommentId))).onSuccess {
             case CreateCommentResponse(_, Right(comment)) =>
                 log.debug("Successfully created comment on chapter {} for {}", chapterId, credentials)
-                result.set(comment)
+                result.setResult(comment)
         }
 
         result
@@ -223,11 +224,11 @@ class StoryController extends EchoedController {
             @Nullable pucc: PartnerUserClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[ModerationDescription](null, ErrorResult.timeout)
 
         val ecc = Option(pucc).orElse(Option(aucc)).orElse(Option(eucc)).get
         mp(ModerateStory(new EchoedUserClientCredentials(storyOwnerId), storyId, ecc, moderated)).onSuccess {
-            case ModerateStoryResponse(_, Right(story)) => result.set(story)
+            case ModerateStoryResponse(_, Right(story)) => result.setResult(story)
         }
 
         result
@@ -241,14 +242,14 @@ class StoryController extends EchoedController {
             eucc: EchoedUserClientCredentials,
             request: HttpServletRequest) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[Map[String, String]](null, ErrorResult.timeout)
 
         val callback = Option(request.getAttribute("isSecure"))
                 .filter(_ == true)
                 .map(_ => "%s/%s" format(v.secureSiteUrl, "story/image/callback"))
                 .getOrElse("%s/%s" format(v.siteUrl, "story/image/callback"))
         mp(RequestImageUpload(eucc, storyId, callback)).onSuccess {
-            case RequestImageUploadResponse(_, Right(params)) => result.set(params)
+            case RequestImageUploadResponse(_, Right(params)) => result.setResult(params)
         }
 
         result

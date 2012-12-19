@@ -19,13 +19,13 @@ class DashboardController extends EchoedController with FormController {
     @RequestMapping(value = Array("/partner/dashboard"), method = Array(RequestMethod.GET))
     def dashboard(pucc: PartnerUserClientCredentials) = {
 
-        val result = new DeferredResult(new ModelAndView(v.partnerDashboardErrorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.partnerDashboardErrorView))
 
         log.debug("Showing dashboard for {}", pucc)
         mp(GetPartnerUser(pucc)).onSuccess {
             case GetPartnerUserResponse(_, Right(pu)) =>
                 log.debug("Got {}", pu)
-                result.set(new ModelAndView(v.partnerDashboardView, "partnerUser", pu))
+                result.setResult(new ModelAndView(v.partnerDashboardView, "partnerUser", pu))
         }
 
         result
@@ -51,12 +51,12 @@ class DashboardController extends EchoedController with FormController {
             errorModelAndView
         } else {
 
-            val result = new DeferredResult(errorModelAndView)
+            val result = new DeferredResult[ModelAndView](null, errorModelAndView)
 
             mp(UpdatePartnerUser(pucc, form.name, form.email, form.password)).onSuccess {
                 case UpdatePartnerUserResponse(_, Right(partnerUser)) =>
                     cookieManager.addPartnerUserCookie(response, partnerUser, request)
-                    result.set(new ModelAndView(v.postUpdatePartnerUserView))
+                    result.setResult(new ModelAndView(v.postUpdatePartnerUserView))
             }
 
             result

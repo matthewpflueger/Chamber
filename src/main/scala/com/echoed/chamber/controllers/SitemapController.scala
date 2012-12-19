@@ -25,11 +25,11 @@ class SitemapController extends EchoedController {
 
     @RequestMapping(value = Array("/sitemap_partners.xml"), method = Array(RequestMethod.GET))
     def partners = {
-        val result = new DeferredResult(new ModelAndView("sitemap_partners.xml"))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView("sitemap_partners.xml"))
 
         mp(GetPartnerIds()).onSuccess {
             case GetPartnerIdsResponse(_, Right(ids)) =>
-                result.set(new ModelAndView("sitemap_partners.xml", Map("partners" -> ids)))
+                result.setResult(new ModelAndView("sitemap_partners.xml", Map("partners" -> ids)))
         }
 
         result
@@ -37,11 +37,11 @@ class SitemapController extends EchoedController {
 
     @RequestMapping(value = Array("/sitemap_stories.xml"), method = Array(RequestMethod.GET))
     def stories = {
-        val result = new DeferredResult(new ModelAndView("sitemap_stories.xml"))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView("sitemap_stories.xml"))
 
         mp(GetStoryIds()).onSuccess {
             case GetStoryIdsResponse(_, Right(ids)) =>
-                result.set(new ModelAndView("sitemap_stories.xml", Map("stories" -> ids)))
+                result.setResult(new ModelAndView("sitemap_stories.xml", Map("stories" -> ids)))
         }
 
         result

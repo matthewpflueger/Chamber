@@ -25,21 +25,21 @@ class LoginController extends EchoedController {
         if (email == null || password == null) {
             errorModelAndView
         } else {
-            val result = new DeferredResult(errorModelAndView)
+            val result = new DeferredResult[ModelAndView](null, errorModelAndView)
 
             log.debug("Received login request for {}", email)
 
             mp(LoginWithEmailPassword(email, password)).onSuccess {
                 case LoginWithEmailPasswordResponse(_, Left(error)) =>
                     errorModelAndView.addError(error)
-                    result.set(errorModelAndView)
+                    result.setResult(errorModelAndView)
                 case LoginWithEmailPasswordResponse(_, Right(pu)) =>
                     log.debug("Successful login for {}", email)
                     cookieManager.addPartnerUserCookie(
                         response,
                         pu,
                         request)
-                    result.set(new ModelAndView(v.partnerLoginView))
+                    result.setResult(new ModelAndView(v.partnerLoginView))
             }
 
             result

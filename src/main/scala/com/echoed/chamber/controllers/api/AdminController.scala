@@ -29,6 +29,8 @@ import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import com.echoed.chamber.services.adminuser.UpdatePartnerSettingsResponse
 import com.echoed.chamber.services.adminuser.GetUsers
 import com.echoed.chamber.services.state.QueryPartners
+import com.echoed.chamber.domain.{EchoedUser, StoryState}
+import com.echoed.chamber.domain.partner.PartnerUser
 
 
 @Controller
@@ -46,11 +48,11 @@ class AdminController extends EchoedController with FormController {
             @RequestParam(value = "moderated", required = false) moderated: String,
             aucc: AdminUserClientCredentials) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[List[StoryState]](null, ErrorResult.timeout)
 
         mp(QueryStoriesForAdmin(aucc, page, pageSize, Option(moderated).map(_.toBoolean))).onSuccess {
             case QueryStoriesForAdminResponse(_, Right(stories)) =>
-                result.set(stories)
+                result.setResult(stories)
         }
 
         result
@@ -62,11 +64,11 @@ class AdminController extends EchoedController with FormController {
             aucc: AdminUserClientCredentials,
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int) = {
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[List[PartnerAndPartnerUsers]](null, ErrorResult.timeout)
 
         mp(QueryPartnersAndPartnerUsers(aucc, page, pageSize)).onSuccess {
             case QueryPartnersAndPartnerUsersResponse(_, Right(partners)) =>
-                result.set(partners)
+                result.setResult(partners)
         }
 
         result
@@ -79,11 +81,11 @@ class AdminController extends EchoedController with FormController {
             @RequestParam(value = "partnerId", required = true) partnerId: String,
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int) = {
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[List[PartnerUser]](null, ErrorResult.timeout)
 
         mp(QueryPartnerUsers(aucc, partnerId, page, pageSize)).onSuccess {
             case QueryPartnerUsersResponse(_, Right(partnerUsers)) =>
-                result.set(partnerUsers)
+                result.setResult(partnerUsers)
         }
 
         result
@@ -96,11 +98,11 @@ class AdminController extends EchoedController with FormController {
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult[List[EchoedUser]](null, ErrorResult.timeout)
 
         mp(QueryEchoedUsersForAdmin(aucc, page, pageSize)).onSuccess {
             case QueryEchoedUsersForAdminResponse(_, Right(echoedUsers)) =>
-                result.set(echoedUsers)
+                result.setResult(echoedUsers)
         }
 
         result

@@ -12,7 +12,6 @@ import com.echoed.chamber.services.echoeduser
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.partner._
 import com.echoed.chamber.domain.EchoClick
-import scala.collection.JavaConversions._
 import java.util.{Date, Map => JMap}
 import java.text.DateFormat
 import org.springframework.web.context.request.async.DeferredResult
@@ -57,7 +56,7 @@ class EchoController extends EchoedController {
             pcc: PartnerClientCredentials,
             request: HttpServletRequest) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult(null, ErrorResult.timeout)
 
         //browser id is required and should be set in the BrowserIdInterceptor...
         val bi = cookieManager.findBrowserIdCookie(request).get
@@ -88,7 +87,7 @@ class EchoController extends EchoedController {
             @Nullable eucc: EchoedUserClientCredentials,
             request: HttpServletRequest) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult(null, new ModelAndView(v.errorView))
 
         val ec = cookieManager.findEchoClickCookie(request)
 
@@ -154,7 +153,7 @@ class EchoController extends EchoedController {
             eucc: EchoedUserClientCredentials,
             request: HttpServletRequest) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult(null, new ModelAndView(v.errorView))
 
         val ec = cookieManager.findEchoClickCookie(request)
 
@@ -180,7 +179,7 @@ class EchoController extends EchoedController {
             eucc: EchoedUserClientCredentials,
             request: HttpServletRequest) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult(null, new ModelAndView(v.errorView))
 
         val ec = cookieManager.findEchoClickCookie(request)
 
@@ -221,7 +220,7 @@ class EchoController extends EchoedController {
             echoFinishParameters: EchoFinishParameters,
             eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult(ErrorResult.timeout)
+        val result = new DeferredResult(null, ErrorResult.timeout)
 
         log.debug("Echoing {}", echoFinishParameters)
 
@@ -254,7 +253,7 @@ class EchoController extends EchoedController {
             @RequestParam(value = "id", required = true) echoId: String,
             eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult(null, new ModelAndView(v.errorView))
 
         mp(echoeduser.GetEcho(eucc, echoId)).onSuccess {
             case echoeduser.GetEchoResponse(_, Right((echo, echoedUser, partner))) =>
@@ -283,7 +282,7 @@ class EchoController extends EchoedController {
             httpServletRequest: HttpServletRequest,
             httpServletResponse: HttpServletResponse) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult(null, new ModelAndView(v.errorView))
         val echoedUserId = Option(eucc).map(_.id).orNull
 
         val echoClick = new EchoClick(

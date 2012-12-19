@@ -26,7 +26,7 @@ class WidgetController extends EchoedController {
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
             case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
@@ -35,7 +35,7 @@ class WidgetController extends EchoedController {
                 modelAndView.addObject("customization", p.customization)
                 modelAndView.addObject("partnerId", pcc.partnerId)
                 modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
-                result.set(modelAndView)
+                result.setResult(modelAndView)
         }
         //FIXME should be requesting the widget view from the service which then publishes the event
         result
@@ -46,7 +46,7 @@ class WidgetController extends EchoedController {
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
             case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
@@ -54,7 +54,7 @@ class WidgetController extends EchoedController {
                 modelAndView.addObject("customization", p.customization)
                 modelAndView.addObject("partner", p.partner)
                 modelAndView.addObject("partnerId", pcc.partnerId)
-                result.set(modelAndView)
+                result.setResult(modelAndView)
         }
 
         result
@@ -78,7 +78,7 @@ class WidgetController extends EchoedController {
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult(new ModelAndView(v.errorView))
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
             case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
@@ -87,9 +87,7 @@ class WidgetController extends EchoedController {
                 modelAndView.addObject("partner", p.partner)
                 modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                 modelAndView.addObject("customization", p.customization)
-                result.set(modelAndView)
-
-
+                result.setResult(modelAndView)
         }
 
         result
