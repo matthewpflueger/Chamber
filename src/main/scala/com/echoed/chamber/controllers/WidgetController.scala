@@ -75,8 +75,6 @@ class WidgetController extends EchoedController {
             method = Array(RequestMethod.GET),
             produces = Array("application/x-javascript"))
     def js(
-            @RequestParam(value = "style", required = false, defaultValue = "black") style: String,
-            @RequestParam(value = "side", required = false, defaultValue = "left") side: String,
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
@@ -89,13 +87,6 @@ class WidgetController extends EchoedController {
                 modelAndView.addObject("partner", p.partner)
                 modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                 modelAndView.addObject("customization", p.customization)
-                modelAndView.addObject("side", side)
-                if(style.equals("white")){
-                    modelAndView.addObject("white", true)
-                } else {
-                    modelAndView.addObject("black", true)
-                }
-                //ep.publish(WidgetRequested(pcc.partnerId))
                 result.set(modelAndView)
 
 
