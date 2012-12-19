@@ -1,10 +1,11 @@
 require(
     [
+        'requireLib',
         'backbone',
         'marionette',
         'controllers/partnerController'
     ],
-    function(Backbone, Marionette, PartnerController) {
+    function(require, Backbone, Marionette, PartnerController) {
         var PartnerDashboard = new Marionette.Application();
         PartnerDashboard.addRegions({ content: "#content" });
 
