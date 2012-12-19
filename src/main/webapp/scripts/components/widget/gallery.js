@@ -11,15 +11,19 @@ define(
             el: 'body',
             initialize: function(options){
                 _.bindAll(this);
+                var self = this;
                 this.properties = options.properties;
                 this.element = $('body');
                 this.container = $('#gallery-container');
                 this.viewPort = $('#gallery-viewport');
                 this.header = $('#header');
-                this.socket = new easyXDM.Socket({});
                 this.closeEl = $('#close');
                 this.width = 220;
-                this.render();
+                this.socket = new easyXDM.Socket({
+                    onReady: function(){
+                        self.render();
+                    }
+                });
             },
             events: {
                 'mouseenter': "open",
@@ -97,8 +101,6 @@ define(
                         if(self.container.width() < self.viewPort.width()){
                             self.container.css({"left" : (self.viewPort.width() / 2) - (self.container.width() / 2)});
                         }
-
-                        console.log(self.properties);
                         if(self.properties.showGallery) self.open();
                         else self.close();
                     }
