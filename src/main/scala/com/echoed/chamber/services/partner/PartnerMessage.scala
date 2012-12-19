@@ -92,14 +92,7 @@ case class GetTopicsResponse(
 
 case class PutPartnerCustomization(
         credentials: PCC,
-        useGallery: Boolean,
-        showGallery: Boolean,
-        useRemote: Boolean,
-        remoteVertical: String,
-        remoteHorizontal: String,
-        remoteOrientation: String,
-        widgetTitle: String,
-        widgetShareMessage: String) extends PM with PI
+        customMap: Map[String,Any]) extends PM with PI
 case class PutPartnerCustomizationResponse(
         message: PutPartnerCustomization,
         value: Either[PE, Map[String, Any]]) extends PM with MR[Map[String, Any], PutPartnerCustomization, PE]
@@ -125,7 +118,7 @@ case class FetchPartnerResponse(
         message: FetchPartner,
         value: Either[PE, Partner]) extends PM with MR[Partner, FetchPartner, PE]
 
-case class PartnerAndPartnerSettings(partner: Partner, partnerSettings: PartnerSettings)
+case class PartnerAndPartnerSettings(partner: Partner, partnerSettings: PartnerSettings, customization: Map[String, Any])
 case class FetchPartnerAndPartnerSettings(credentials: PCC) extends PM with PI
 case class FetchPartnerAndPartnerSettingsResponse(
         message: FetchPartnerAndPartnerSettings,

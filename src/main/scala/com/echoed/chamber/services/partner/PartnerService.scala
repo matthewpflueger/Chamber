@@ -34,7 +34,7 @@ class PartnerService(
     private var partnerSettings: PartnerSettings = _
     private var partnerUser: Option[PartnerUser] = None
     private var topics = List[Topic]()
-
+    private var customization: Map[String, Any] = _
 
     private var followedByUsers = List[Follower]()
 
@@ -102,6 +102,7 @@ class PartnerService(
             partnerUser = pss.partnerUser
             followedByUsers = pss.followedByUsers
             topics = pss.topics
+            customization = pss.partnerSettings.makeCustomizationOptions
             becomeOnlineAndRegister
     }
 
@@ -114,7 +115,7 @@ class PartnerService(
         case msg: FetchPartnerAndPartnerSettings =>
             sender ! FetchPartnerAndPartnerSettingsResponse(
                     msg,
-                    Right(new PartnerAndPartnerSettings(partner, partnerSettings)))
+                    Right(new PartnerAndPartnerSettings(partner, partnerSettings, customization)))
 
         case msg @ ReadPartnerFeed(_, page, origin) =>
             val channel = sender
@@ -178,19 +179,11 @@ class PartnerService(
             }
 
 
-        case msg @ PutPartnerCustomization(_, useGallery, showGallery, useRemote, remoteVertical, remoteHorizontal, remoteOrientation, widgetTitle, widgetShareMessage) =>
-            var customization = partnerSettings.makeCustomizationOptions
-            customization += ("useGallery" -> useGallery)
-            customization += ("showGallery" -> showGallery)
-            customization += ("useRemote" -> useRemote)
-            customization += ("remoteVertical" -> remoteVertical)
-            customization += ("remoteHorizontal" -> remoteHorizontal)
-            customization += ("remoteOrientation" -> remoteOrientation)
-            customization += ("widgetTitle" -> widgetTitle)
-            customization += ("widgetShareMessage" -> widgetShareMessage)
+        case msg @ PutPartnerCustomization(_, customMap) =>
+            customMap foreach  { case (key, value) => customization += (key -> value)}
             partnerSettings = partnerSettings.copy(updatedOn = new Date, customization = new ScalaObjectMapper().writeValueAsString(customization))
             ep(PartnerSettingsUpdated(partnerSettings))
-            sender ! PutPartnerCustomizationResponse(msg, Right(partnerSettings.makeCustomizationOptions))
+            sender ! PutPartnerCustomizationResponse(msg, Right(customization))
 
     }
 }

@@ -20,6 +20,7 @@ import com.echoed.chamber.services.partner.{GetTopicsResponse, GetTopics, PutTop
 import java.util.Date
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.echoed.chamber.services.topic.ReadTopics
+import com.echoed.util.ScalaObjectMapper
 
 
 @Controller
@@ -115,16 +116,10 @@ class PartnerController extends EchoedController {
             pucc: PartnerUserClientCredentials) = {
 
         val result = new DeferredResult(ErrorResult.timeout)
+        val params = new ScalaObjectMapper().convertValue(cParams, classOf[Map[String, Any]])
         mp(UpdatePartnerCustomization(
                 pucc,
-                cParams.useGallery,
-                cParams.showGallery,
-                cParams.useRemote,
-                cParams.remoteVertical,
-                cParams.remoteHorizontal,
-                cParams.remoteOrientation,
-                cParams.widgetTitle,
-                cParams.widgetShareMessage)).onSuccess {
+                params)).onSuccess {
             case UpdatePartnerCustomizationResponse(_, Right(customization)) =>
                 result.set(customization)
         }
