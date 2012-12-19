@@ -11,15 +11,19 @@ define(
             el: 'body',
             initialize: function(options){
                 _.bindAll(this);
+                var self = this;
                 this.properties = options.properties;
                 this.element = $('body');
                 this.container = $('#gallery-container');
                 this.viewPort = $('#gallery-viewport');
                 this.header = $('#header');
-                this.socket = new easyXDM.Socket({});
                 this.closeEl = $('#close');
                 this.width = 220;
-                this.render();
+                this.socket = new easyXDM.Socket({
+                    onReady: function(){
+                        self.render();
+                    }
+                });
             },
             events: {
                 'mouseenter': "open",
