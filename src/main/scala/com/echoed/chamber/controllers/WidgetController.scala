@@ -15,6 +15,7 @@ import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.partner.FetchPartner
 import com.echoed.chamber.services.partner.PartnerClientCredentials
 import scala.Right
+import javax.servlet.http.HttpServletResponse
 
 
 @Controller
@@ -76,20 +77,21 @@ class WidgetController extends EchoedController {
             produces = Array("application/x-javascript"))
     def js(
             pcc: PartnerClientCredentials,
-            @Nullable eucc: EchoedUserClientCredentials) = {
+            @Nullable eucc: EchoedUserClientCredentials,
+            @RequestHeader("User-Agent") userAgent: String) = {
 
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
-
-        mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
-            case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
-                val modelAndView =  new ModelAndView(v.widgetAppJsView)
-                modelAndView.addObject("partnerId", pcc.partnerId)
-                modelAndView.addObject("partner", p.partner)
-                modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
-                modelAndView.addObject("customization", p.customization)
-                result.setResult(modelAndView)
+        if(!userAgent.contains("MSIE 8")){
+            mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
+                case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
+                    val modelAndView =  new ModelAndView(v.widgetAppJsView)
+                    modelAndView.addObject("partnerId", pcc.partnerId)
+                    modelAndView.addObject("partner", p.partner)
+                    modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
+                    modelAndView.addObject("customization", p.customization)
+                    result.setResult(modelAndView)
+            }
         }
-
         result
 
     }
