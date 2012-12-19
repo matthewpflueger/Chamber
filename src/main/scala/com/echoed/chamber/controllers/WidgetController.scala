@@ -32,7 +32,7 @@ class WidgetController extends EchoedController {
             case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
                 val modelAndView = new ModelAndView(v.widgetAppIFrameView)
                 modelAndView.addObject("partner", p.partner)
-                modelAndView.addObject("customization", p.partnerSettings.makeCustomizationOptions)
+                modelAndView.addObject("customization", p.customization)
                 modelAndView.addObject("partnerId", pcc.partnerId)
                 modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                 result.set(modelAndView)
@@ -51,7 +51,7 @@ class WidgetController extends EchoedController {
         mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
             case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
                 val modelAndView = new ModelAndView(v.widgetAppIFrameGalleryView)
-                modelAndView.addObject("customization", p.partnerSettings.makeCustomizationOptions)
+                modelAndView.addObject("customization", p.customization)
                 modelAndView.addObject("partner", p.partner)
                 modelAndView.addObject("partnerId", pcc.partnerId)
                 result.set(modelAndView)
@@ -75,8 +75,6 @@ class WidgetController extends EchoedController {
             method = Array(RequestMethod.GET),
             produces = Array("application/x-javascript"))
     def js(
-            @RequestParam(value = "style", required = false, defaultValue = "black") style: String,
-            @RequestParam(value = "side", required = false, defaultValue = "left") side: String,
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
@@ -88,14 +86,7 @@ class WidgetController extends EchoedController {
                 modelAndView.addObject("partnerId", pcc.partnerId)
                 modelAndView.addObject("partner", p.partner)
                 modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
-                modelAndView.addObject("customization", p.partnerSettings.makeCustomizationOptions)
-                modelAndView.addObject("side", side)
-                if(style.equals("white")){
-                    modelAndView.addObject("white", true)
-                } else {
-                    modelAndView.addObject("black", true)
-                }
-                //ep.publish(WidgetRequested(pcc.partnerId))
+                modelAndView.addObject("customization", p.customization)
                 result.set(modelAndView)
 
 

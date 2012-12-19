@@ -93,14 +93,7 @@ case class UpdatePartnerUserResponse(
 
 case class UpdatePartnerCustomization(
         credentials: PUCC,
-        useGallery: Boolean,
-        showGallery: Boolean,
-        useRemote: Boolean,
-        remoteVertical: String,
-        remoteHorizontal: String,
-        remoteOrientation: String,
-        widgetTitle: String,
-        widgetShareMessage: String) extends PUM with PUI
+        customMap: Map[String, Any]) extends PUM with PUI
 case class UpdatePartnerCustomizationResponse(
         message: UpdatePartnerCustomization,
         value: Either[PUE, Map[String, Any]])
