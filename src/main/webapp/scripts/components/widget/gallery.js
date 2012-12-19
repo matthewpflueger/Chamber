@@ -101,8 +101,6 @@ define(
                         if(self.container.width() < self.viewPort.width()){
                             self.container.css({"left" : (self.viewPort.width() / 2) - (self.container.width() / 2)});
                         }
-
-                        console.log(self.properties);
                         if(self.properties.showGallery) self.open();
                         else self.close();
                     }
