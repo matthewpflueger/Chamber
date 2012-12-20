@@ -34,7 +34,7 @@ class PartnerService(
     private var partnerSettings: PartnerSettings = _
     private var partnerUser: Option[PartnerUser] = None
     private var topics = List[Topic]()
-    private var customization: Map[String, Any] = _
+    private var customization = Map[String, Any]()
 
     private var followedByUsers = List[Follower]()
 
@@ -63,6 +63,7 @@ class PartnerService(
         case QueryUniqueResponse(QueryUnique(_, msg: RegisterPartner, Some(channel)), Right(true)) =>
             partner = new Partner(msg.siteName, msg.siteUrl, msg.shortName, msg.community).copy(secret = encrypter.generateSecretKey)
             partnerSettings = new PartnerSettings(partner.id, partner.handle)
+            customization = partnerSettings.makeCustomizationOptions
 
             val password = UUID.randomUUID().toString
             partnerUser = Some(new PartnerUser(msg.userName, msg.email)
