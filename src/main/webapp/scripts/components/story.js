@@ -381,13 +381,14 @@ define(
                 var self = this;
                 var textArea = self.element.find('.echo-s-b-text');
                 var chapterText = self.chapters.array[self.currentChapterIndex].chapter.text;
-
                 if (chapterText.length < 300) this.chapterType = 'photo';
                 else this.chapterType = 'text';
 
                 textArea.fadeOut(function(){
                     self.element.find('.echo-story-chapter-title').text(self.chapters.array[self.currentChapterIndex].chapter.title);
                     self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(self.chapters.array[self.currentChapterIndex].chapter.text)).replace(/\n/g, '<br />'));
+                    if(chapterText.length >0) self.chapterText.show();
+                    else self.chapterText.hide();
                     textArea.fadeIn();
                 });
 
