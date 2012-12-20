@@ -13,7 +13,7 @@ require(
         var self = this;
         self.EventAggregator = _.extend({}, Backbone.Events);
 
-        var body = $('body');
+        var body = $(document.body);
         EchoedSettings.useOpener = true;
         self.properties = EchoedSettings;
         body.append($('<link rel="stylesheet" type="text/css"/>').attr("href", self.properties.urls.css + "/remote.css"));
