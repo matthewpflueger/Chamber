@@ -12,8 +12,10 @@ import com.echoed.chamber.domain.views.TopicStoryFeed
 import com.echoed.chamber.services.partner.{TopicEvent, TopicUpdated, TopicCreated}
 
 class TopicService(
-    mp: MessageProcessor,
-    ep: EventProcessorActorSystem)  extends EchoedService {
+        mp: MessageProcessor,
+        ep: EventProcessorActorSystem)  extends EchoedService {
+
+    import context.dispatcher
 
     implicit object TopicOrdering extends Ordering[(String, String)] {
         def compare(a:(String, String), b:(String, String)) = {
@@ -24,7 +26,7 @@ class TopicService(
         }
     }
 
-    case class IndexKey(id: String, published: Boolean = true)
+    class IndexKey(val id: String, val published: Boolean = true)
     case class PartnerKey(_id: String) extends IndexKey(_id)
     case class CommunityKey(_id: String) extends IndexKey(_id)
     case class MainTreeKey() extends IndexKey(null)
@@ -57,7 +59,7 @@ class TopicService(
     }
 
     private def getTopicsFromLookup(indexKey: IndexKey) = {
-        lookup.get(indexKey).map(_.values).flatten.toList
+        lookup.get(indexKey).map(_.values).getOrElse(List[Topic]()).toList
     }
 
     override def preStart() {

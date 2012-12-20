@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.email.{SendEmailResponse, SendEmail}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

@@ -2,7 +2,6 @@ package com.echoed.chamber.services.facebook
 
 import com.echoed.chamber.services.EchoedService
 import com.echoed.chamber.domain.FacebookPost
-import akka.dispatch.Promise
 import akka.actor._
 
 
@@ -10,8 +9,7 @@ class FacebookPostCrawler(
         facebookAccessCreator: ActorContext => ActorRef,
         interval: Long = 60000,
         postedOnDaysBefore: Int = -8,
-        postedOnHoursBefore: Int = -1,
-        future: Option[Promise[GetPostDataResponse]] = None) extends EchoedService {
+        postedOnHoursBefore: Int = -1) extends EchoedService {
 
 
     private val facebookAccess = facebookAccessCreator(context)
@@ -19,11 +17,6 @@ class FacebookPostCrawler(
     private var scheduledMessage: Option[Cancellable] = None
 
     override def preStart() {
-        next
-    }
-
-    def next(response: GetPostDataResponse) {
-        future.foreach(_.success(response))
         next
     }
 
@@ -63,7 +56,7 @@ class FacebookPostCrawler(
 //            facebookPostDao.updatePostForCrawl(facebookPost.copy(crawledStatus = crawlStatus, crawledOn = new Date, retries = retries))
             f()
         } finally {
-            next(msg)
+            next
         }
     }
 
@@ -103,7 +96,7 @@ class FacebookPostCrawler(
                 log.debug("Received false response crawling FacebookPost {}", facebookPost.id)
             }
 
-        case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e @ GetPostDataError(_, _, _, _))) => //facebookPost, t, c, m))) =>
+        case msg @ GetPostDataResponse(GetPostData(facebookPostToCrawl), Left(e: GetPostDataError )) => //facebookPost, t, c, m))) =>
             val message = "%s, type %s, code %s" format(e.m, e.errorType, e.code)
             updateForCrawl(msg, e.facebookPost, message, retries = facebookPostToCrawl.facebookPost.retries + 1) { _ =>
                 log.debug("Received error response {} crawling FacebookPost {}", message, e.facebookPost.id)

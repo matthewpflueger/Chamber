@@ -6,7 +6,10 @@ import com.echoed.chamber.domain.GeoLocation
 
 sealed trait GeoLocationMessage extends Message
 
-sealed case class GeoLocationException(ipAddress: String, message: String = "", cause: Throwable = null) extends EchoedException(message, cause)
+sealed class GeoLocationException(
+        val ipAddress: String,
+        val message: String = "",
+        val cause: Throwable = null) extends EchoedException(message, cause)
 
 import com.echoed.chamber.services.geolocation.{GeoLocationMessage => GLM}
 import com.echoed.chamber.services.geolocation.{GeoLocationException => GLE}

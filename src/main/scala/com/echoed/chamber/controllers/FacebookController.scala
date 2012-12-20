@@ -17,6 +17,7 @@ import javax.crypto.spec.SecretKeySpec
 import org.springframework.web.context.request.async.DeferredResult
 import scala.Right
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

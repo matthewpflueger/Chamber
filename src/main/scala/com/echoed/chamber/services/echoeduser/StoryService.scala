@@ -1,6 +1,14 @@
 package com.echoed.chamber.services.echoeduser.story
 
 
+import com.echoed.chamber.domain.Chapter
+import com.echoed.chamber.domain.ChapterImage
+import com.echoed.chamber.domain.ChapterInfo
+import com.echoed.chamber.domain.Comment
+import com.echoed.chamber.domain.EchoedUser
+import com.echoed.chamber.domain.Notification
+import com.echoed.chamber.domain.StoryState
+import com.echoed.chamber.domain.Vote
 import com.echoed.chamber.domain._
 import com.echoed.chamber.services._
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
@@ -39,7 +47,6 @@ import echoeduser.RequestImageUpload
 import echoeduser.RequestImageUploadResponse
 import echoeduser.StoryCreated
 import echoeduser.StoryImageCreated
-import echoeduser.StoryImageCreated
 import echoeduser.StoryModerated
 import echoeduser.StoryUpdated
 import echoeduser.StoryViewed
@@ -57,29 +64,13 @@ import scala.Left
 import scala.Right
 import scala.Some
 import scala.collection.mutable.{Set => MSet}
-import state._
-import scala.Left
-import com.echoed.chamber.domain.ChapterInfo
-import com.echoed.chamber.domain.EchoedUser
-import com.echoed.chamber.services.partner.RequestStory
-import com.echoed.chamber.services.partner.NotifyPartnerFollowers
 import state.ReadStory
 import state.ReadStoryForEcho
 import state.ReadStoryForEchoResponse
 import state.ReadStoryResponse
-import scala.Some
-import com.echoed.chamber.domain.Vote
-import com.echoed.chamber.domain.StoryState
-import com.echoed.chamber.domain.Comment
-import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
-import com.echoed.chamber.services.partner.PartnerClientCredentials
 import state.StoryForEchoNotFound
 import state.StoryNotFound
-import com.echoed.chamber.domain.Chapter
-import scala.Right
-import com.echoed.chamber.domain.Notification
-import com.echoed.chamber.domain.ChapterImage
-import com.echoed.chamber.services.partner.RequestStoryResponse
+import state._
 
 
 class StoryService(
@@ -88,6 +79,8 @@ class StoryService(
         initMessage: Message,
         echoedUser: EchoedUser,
         cloudinaryProperties: Properties) extends OnlineOfflineService {
+
+    import context.dispatcher
 
     private var storyState: StoryState = _
 

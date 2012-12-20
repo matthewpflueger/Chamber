@@ -8,10 +8,10 @@ import com.echoed.chamber.services.partner.PartnerIdentifiable
 
 
 sealed trait PartnerUserMessage extends Message
-sealed case class PartnerUserException(
-        message: String = "",
-        cause: Throwable = null,
-        code: Option[String] = None) extends EchoedException(message, cause, code)
+sealed class PartnerUserException(
+        val message: String = "",
+        val cause: Throwable = null,
+        val code: Option[String] = None) extends EchoedException(message, cause, code)
 
 
 case class PartnerUserClientCredentials(

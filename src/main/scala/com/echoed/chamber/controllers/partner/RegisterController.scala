@@ -19,6 +19,7 @@ import com.echoed.chamber.domain.views.CommunityFeed
 import scala.Right
 import scala.Some
 import com.echoed.chamber.services.feed.GetCommunities
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

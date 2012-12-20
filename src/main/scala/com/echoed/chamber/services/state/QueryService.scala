@@ -103,7 +103,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             else {
                 val be = new BindException(ref, "EchoedUser")
                 results.foreach(be.addError(_))
-                sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))
+                sender ! QueryUniqueResponse(msg, Left(new EchoedException(msg = "Not unique", errs = Some(be))))
             }
 
         case msg @ QueryUnique(ref: RegisterPartner, _, _) =>
@@ -127,7 +127,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             else {
                 val be = new BindException(ref, "RegisterPartner")
                 results.foreach(be.addError(_))
-                sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))
+                sender ! QueryUniqueResponse(msg, Left(new EchoedException(msg = "Not unique", errs = Some(be))))
             }
 
         case msg @ QueryFollowersForPartner(pcc) =>

@@ -3,7 +3,7 @@ package com.echoed.chamber.services.email
 import com.echoed.util.DateUtils._
 import com.echoed.chamber.services._
 import com.echoed.chamber.services.scheduler._
-import akka.util.duration._
+import scala.concurrent.duration._
 import com.echoed.util.UUID
 import java.util.Date
 import com.echoed.chamber.services.scheduler.ScheduleOnceResponse
@@ -15,6 +15,7 @@ import scala.Right
 import org.joda.time.{Duration => JD, DateTime}
 
 
+
 class SchedulerService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem,
@@ -23,6 +24,8 @@ class SchedulerService(
         weekStartsAtDay: Int = 2, //Tuesday, Monday = 1, Sunday = 7
         sendIntervalInSeconds: Int = 5,
         sendImmediately: Boolean = false) extends OnlineOfflineService {
+
+    import context.dispatcher
 
     assert(weekStartsAtDay > 0, "weekStartsAtDay is %s which is not greater than zero" format weekStartsAtDay)
     assert(todayStartsAtHour > 0, "todayStartsAtHour is %s which is not greater than zero" format todayStartsAtHour)

@@ -1,21 +1,14 @@
 package com.echoed.chamber.controllers
 
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.partner._
+import javax.annotation.Nullable
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
-import org.springframework.web.servlet.ModelAndView
-import com.echoed.chamber.services.event.WidgetRequested
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import javax.annotation.Nullable
-import com.echoed.chamber.services.partner._
 import org.springframework.web.context.request.async.DeferredResult
-import com.echoed.chamber.services.partner.FetchPartnerAndPartnerSettings
-import com.echoed.chamber.services.event.WidgetRequested
-import com.echoed.chamber.services.partner.FetchPartnerResponse
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import com.echoed.chamber.services.partner.FetchPartner
-import com.echoed.chamber.services.partner.PartnerClientCredentials
+import org.springframework.web.servlet.ModelAndView
 import scala.Right
-import javax.servlet.http.HttpServletResponse
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

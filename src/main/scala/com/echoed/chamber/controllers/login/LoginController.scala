@@ -17,7 +17,7 @@ import com.echoed.chamber.services.echoeduser.RegisterLoginResponse
 import scala.Right
 import com.echoed.chamber.controllers.interceptors.Secure
 import javax.annotation.Nullable
-
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller("echoedUserLogin")

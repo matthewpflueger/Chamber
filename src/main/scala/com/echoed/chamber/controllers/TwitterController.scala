@@ -11,6 +11,7 @@ import scala.Right
 import javax.annotation.Nullable
 import scalaz._
 import Scalaz._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

@@ -2,7 +2,7 @@ package com.echoed.chamber.services
 
 import akka.event.LoggingReceive
 import akka.actor.{ReceiveTimeout, PoisonPill, ActorRef}
-import akka.util.duration._
+import scala.concurrent.duration._
 
 abstract class OnlineOfflineService extends EchoedService {
 

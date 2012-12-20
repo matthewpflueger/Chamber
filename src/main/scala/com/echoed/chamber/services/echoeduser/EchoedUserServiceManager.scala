@@ -27,6 +27,8 @@ class EchoedUserServiceManager(
         encrypter: Encrypter,
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
+    import context.dispatcher
+
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0) {
         case _: Throwable ⇒ Stop
     }

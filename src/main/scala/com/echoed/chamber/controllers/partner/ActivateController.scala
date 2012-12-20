@@ -12,6 +12,7 @@ import com.echoed.chamber.controllers.{FormController, EchoedController, Errors}
 import org.springframework.beans.factory.annotation.Autowired
 import com.echoed.chamber.controllers.interceptors.Secure
 import com.echoed.chamber.domain.InvalidPassword
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 

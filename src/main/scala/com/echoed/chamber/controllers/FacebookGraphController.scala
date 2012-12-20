@@ -7,6 +7,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.feed.{GetStory, GetStoryResponse}
 import com.echoed.chamber.services.partner.{GetEchoResponse, GetEcho}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Controller
 @RequestMapping(Array("/graph"))

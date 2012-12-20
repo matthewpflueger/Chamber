@@ -11,12 +11,12 @@ import java.util.Date
 
 
 trait PartnerMessage extends Message
-case class PartnerException(
-        message: String = "",
-        cause: Throwable = null,
-        code: Option[String] = None,
-        arguments: Option[Array[AnyRef]] = None,
-        errors: Option[Errors] = None) extends EchoedException(message, cause, code, arguments, errors)
+class PartnerException(
+        val message: String = "",
+        val cause: Throwable = null,
+        val code: Option[String] = None,
+        val arguments: Option[Array[AnyRef]] = None,
+        val errors: Option[Errors] = None) extends EchoedException(message, cause, code, arguments, errors)
 
 case class PartnerClientCredentials(partnerId: String) extends EchoedClientCredentials {
     val id = partnerId

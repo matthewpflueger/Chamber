@@ -8,12 +8,12 @@ import akka.actor.ActorRef
 
 sealed trait FacebookMessage extends Message
 
-sealed case class FacebookException(
-        message: String = "",
-        cause: Throwable = null,
-        errorType: String = null,
-        code: Int = 0,
-        subCode: Int = 0) extends EchoedException(message, cause) {
+sealed class FacebookException(
+        val message: String = "",
+        val cause: Throwable = null,
+        val errorType: String = null,
+        val code: Int = 0,
+        val subCode: Int = 0) extends EchoedException(message, cause) {
     val oauthError = code == 190
     val unauthorized = code == 190 && subCode == 458
 }
@@ -52,11 +52,11 @@ case class GetPostDataResponse(message: GetPostData, value: Either[FE, FacebookP
         extends FM
         with MR[FacebookPostData, GetPostData, FE]
 
-case class GetPostDataError(
-        facebookPost: FacebookPost,
-        _errorType: String,
-        _cde: Int,
-        m: String) extends FE(m)
+class GetPostDataError(
+        val facebookPost: FacebookPost,
+        val _errorType: String,
+        val _cde: Int,
+        val m: String) extends FE(m)
 
 case class GetPostDataOAuthError(
        _facebookPost: FacebookPost,

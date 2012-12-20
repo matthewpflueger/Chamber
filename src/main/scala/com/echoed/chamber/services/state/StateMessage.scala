@@ -12,12 +12,12 @@ import com.echoed.chamber.services.partner.{PartnerServiceState, PartnerClientCr
 
 
 private[services] sealed trait StateMessage extends Message
-private[services] sealed case class StateException(message: String = "", cause: Throwable = null)
+private[services] sealed class StateException(val message: String = "", val cause: Throwable = null)
         extends EchoedException(message, cause)
 
-private[services] sealed case class NotFoundException(
-        _message: String = "Not found",
-        _cause: Throwable = null)
+private[services] sealed class NotFoundException(
+        val _message: String = "Not found",
+        val _cause: Throwable = null)
         extends StateException(_message, _cause)
 
 import com.echoed.chamber.services.state.{StateMessage => SM}

@@ -22,6 +22,8 @@ class AdminUserService(
         ep: EventProcessorActorSystem,
         initMessage: Message) extends OnlineOfflineService {
 
+    import context.dispatcher
+
     private var adminUser: AdminUser = _
 
     private def setStateAndRegister(au: AdminUser) {

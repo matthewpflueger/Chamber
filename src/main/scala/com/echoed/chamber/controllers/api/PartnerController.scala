@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.context.request.async.DeferredResult
 import scala.Right
 import scala.reflect.BeanProperty
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

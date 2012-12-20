@@ -6,22 +6,14 @@ import com.echoed.chamber.services._
 import collection.immutable.TreeMap
 import com.echoed.chamber.services.echoeduser.StoryEvent
 import scala.collection.mutable.HashMap
-import com.echoed.chamber.services.state._
 import akka.pattern._
-import com.echoed.chamber.services.event.WidgetStoryOpened
 import com.echoed.chamber.services.state.QueryPartnerIdsResponse
-import com.echoed.chamber.services.event.WidgetOpened
-import com.echoed.chamber.domain.views._
-import scala.Left
-import com.echoed.chamber.domain.{Image, Topic, Community}
+import com.echoed.chamber.domain.{Image, Community}
 import com.echoed.chamber.domain.views.CommunityFeed
 import com.echoed.chamber.domain.views.PublicStoryFeed
-import com.echoed.chamber.domain.public.PartnerPublic
-import com.echoed.chamber.domain.public.{TopicPublic, PartnerPublic, StoryPublic}
-import state.FindAllStories
+import com.echoed.chamber.domain.public.StoryPublic
 import state.FindAllStoriesResponse
 import com.echoed.chamber.services.echoeduser.StoryViewed
-import com.echoed.chamber.domain.views.PartnerStoryFeed
 import scala.Right
 import com.echoed.chamber.services.state.QueryPartnerIds
 import com.echoed.chamber.services.state.FindAllStories
@@ -31,6 +23,8 @@ import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 class FeedService(
         mp: MessageProcessor,
         ep: EventProcessorActorSystem) extends EchoedService {
+
+    import context.dispatcher
 
     val pageSize = 30
 
@@ -52,7 +46,7 @@ class FeedService(
         }
     }
 
-    case class IndexKey(id: String, published: Boolean = true)
+    class IndexKey(val id: String, val published: Boolean = true)
     case class EchoedUserPublicKey(_id: String) extends IndexKey(_id)
     case class EchoedUserPrivateKey(_id: String) extends IndexKey(_id) //, false)
     case class PartnerKey(_id: String) extends IndexKey(_id)
@@ -86,7 +80,11 @@ class FeedService(
 
     private def getStoriesFromLookup(indexKey: IndexKey, page: Int) = {
         val start = page * pageSize
-        val stories = lookup.get(indexKey).map(_.values.map(s => if (indexKey.published) s.published else s)).flatten.toList
+        val stories = lookup
+                .get(indexKey)
+                .map(_.values.map(s => if (indexKey.published) s.published else s))
+                .getOrElse(List[StoryPublic]())
+                .toList
         val nextPage = getNextPage(start, page, stories)
         val image = getImageForKey(indexKey)
         PublicStoryFeed(image, stories.slice(start, start + pageSize), nextPage)
@@ -97,9 +95,7 @@ class FeedService(
     }
 
     private def getStoryIdsFromLookup(indexKey: IndexKey) = {
-        lookup.get(indexKey).map {
-            _.keys.map(_._2)
-        }.flatten.toArray
+        lookup.get(indexKey).map(_.keys.map(_._2)).getOrElse(List[String]()).toArray
     }
 
     private def getNextPage(start: Int, page: Int, list: List[StoryPublic]) = {
@@ -189,13 +185,11 @@ class FeedService(
             sender ! RequestTopicStoryFeedResponse(msg, Right(feed))
 
         case msg @ RequestPartnerStoryFeed(partnerId, page, origin) =>
-            if (origin != "echoed") mp(WidgetOpened(partnerId))
             val feed = getStoriesFromLookup(PartnerKey(partnerId), msg.page)
             sender ! RequestPartnerStoryFeedResponse(msg,  Right(feed))
 
 
         case msg @ GetStory(storyId, origin) =>
-            if (origin != "echoed") mp(WidgetStoryOpened(storyId))
             sender ! GetStoryResponse(msg, Right(storyMap.get(storyId).map { sp =>
                 mp(StoryViewed(EchoedUserClientCredentials(sp.echoedUser.id), storyId)); sp.published
             }))

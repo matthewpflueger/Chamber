@@ -8,7 +8,6 @@ import com.echoed.chamber.services.adminuser.{AdminUserService, AdminUserMessage
 import com.echoed.chamber.services.echoeduser.story.StoryService
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserMessage, EchoedUserServiceManager}
 import com.echoed.chamber.services.email.{SchedulerService, EmailMessage, EmailService}
-import com.echoed.chamber.services.event.{EventMessage, EventService}
 import com.echoed.chamber.services.facebook._
 import com.echoed.chamber.services.feed.{FeedMessage, FeedService}
 import com.echoed.chamber.services.partner.{PartnerService, PartnerMessage, PartnerServiceManager}
@@ -68,9 +67,6 @@ class ServiceConfig {
 
     @Bean def log = new LoggingActorSystem(actorSystem)
 
-
-    @Bean
-    def eventService = (ac: ActorContext) => ac.actorOf(Props(new EventService()), "EventService")
 
     @Bean
     def emailService = (ac: ActorContext) => ac.actorOf(Props(new EmailService(
@@ -195,7 +191,6 @@ class ServiceConfig {
             classOf[QueryMessage] -> queryService,
             classOf[StateMessage] -> stateService,
             classOf[SchedulerMessage] -> schedulerService,
-            classOf[EventMessage] -> eventService,
             classOf[EmailMessage] -> emailService,
             classOf[FeedMessage] -> feedService,
             classOf[TopicMessage] -> topicService,

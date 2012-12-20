@@ -7,7 +7,7 @@ import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
 import akka.pattern._
-import akka.util.duration._
+import scala.concurrent.duration._
 import akka.actor.SupervisorStrategy.Stop
 import java.util.Date
 import com.echoed.util.{ScalaObjectMapper, Encrypter, UUID, DateUtils}
@@ -29,7 +29,6 @@ import com.echoed.chamber.domain.FacebookUser
 import com.echoed.chamber.services.state.FacebookUserNotFound
 import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FacebookAccessToken
-import com.echoed.chamber.services.ScatterResponse
 import com.echoed.chamber.services.state.ReadForCredentials
 import scala.Left
 import com.echoed.chamber.services.twitter.FetchFollowers
@@ -42,7 +41,6 @@ import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state.ReadForCredentialsResponse
 import scala.Right
 import com.echoed.chamber.services.facebook.FetchFriendsResponse
-import com.echoed.chamber.services.Scatter
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
@@ -62,6 +60,7 @@ class EchoedUserService(
         encrypter: Encrypter,
         implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService {
 
+    import context.dispatcher
 
     private var echoedUser: EchoedUser = _
     private var echoedUserSettings: EchoedUserSettings = _

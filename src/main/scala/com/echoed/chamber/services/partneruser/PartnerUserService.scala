@@ -29,6 +29,8 @@ class PartnerUserService(
         encrypter: Encrypter,
         initMessage: Message) extends OnlineOfflineService {
 
+    import context.dispatcher
+
     private var partnerUser: PartnerUser = _
 
     private def setStateAndRegister(pu: PartnerUser) {
