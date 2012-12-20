@@ -14,9 +14,8 @@ define(
                 "click": "close"
             },
             close: function(){
-                window.setTimeout(function(){
-                    window.top.postMessage("echoed-close","*");
-                }, 0);
+                this.EvAg.trigger("msg/send", "close", null)
+
             }
         });
     }

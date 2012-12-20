@@ -67,16 +67,6 @@ require(
             document.getElementsByTagName('body')[0].appendChild(iFrameNode);
 
             this.messageHandler = new MessageHandler(this.options('#echoed-iframe'));
-            var socket = new easyXDM.Socket({
-                onMessage: function(message, origin){
-                    var msg = JSON.parse(message);
-                    switch(msg.type){
-                        case 'hash':
-                            window.location.hash = msg.data;
-                            break;
-                    }
-                }
-            });
 
             Backbone.history.start();
         });

@@ -23,8 +23,6 @@ define(
                         self.element.removeAttr('style');
                         self.parseHash();
                         window.onhashchange = self.parseHash;
-                        if(window.addEventListener) window.addEventListener('message', self.handleMessage, false);
-                        else window.attachEvent('onmessage', self.handleMessage);
                     },
                     onMessage: function(message, origin){
                         self.handleMessage(message, origin);
@@ -33,11 +31,18 @@ define(
                 this.EvAg.bind('overlay/show', this.showOverlay);
             },
             handleMessage: function(message, origin){
-                if(message.data === "echoed-close"){
-                    var hash = window.location.hash;
-                    var index = hash.indexOf('echoed');
-                    if(index > 0) window.location.hash = hash.substr(0, index);
-                    this.hideOverlay();
+                try{
+                    var msgObj = JSON.parse(message);
+                    switch(msgObj.type){
+                        case "close":
+                            var hash = window.location.hash;
+                            var index = hash.indexOf('echoed');
+                            if(index > 0) window.location.hash = hash.substr(0, index);
+                            this.hideOverlay();
+                            break;
+                    }
+                } catch(e){
+
                 }
             },
             hideOverlay: function(){

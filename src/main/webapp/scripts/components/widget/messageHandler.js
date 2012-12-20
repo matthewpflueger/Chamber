@@ -2,28 +2,41 @@ define(
     [
         'jquery',
         'backbone',
-        'underscore'
+        'underscore',
+        'easyXDM'
     ],
-    function($, Backbone, _){
+    function($, Backbone, _, easyXDM){
         return Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this, 'receiveMessageResponse');
+                _.bindAll(this);
                 this.EvAg = options.EvAg;
+                this.EvAg.bind('msg/send', this.sendMessage);
                 this.properties = options.properties;
+                this.socket = new easyXDM.Socket({
+                    onMessage: function(message, origin){
+                        try{
+                            var msg = JSON.parse(message);
+                            switch(msg.type){
+                                case 'hash':
+                                    window.location.hash = msg.data;
+                                    break;
+                            }
+                        } catch(e){
+                        }
+                    }
+                });
                 if(window.addEventListener){
                     window.addEventListener('message', this.receiveMessageResponse , false);
                 } else if (window.attachEvent) {
                     window.attachEvent('onmessage', this.receiveMessageResponse);
                 }
             },
+            sendMessage: function(type, data){
+                this.socket.postMessage(JSON.stringify({ type: type, data: data}));
+            },
             receiveMessageResponse:function (response) {
                 var self = this;
-                if(response.data === "echoed-open"){
-                    $('body').show();
-                    self.EvAg.trigger('exhibit/init', { endPoint : "/partner/" + this.properties.partnerId });
-                    _gaq.push(['_trackEvent', 'Widget', 'Open', this.properties.partnerId]);
-                    self.EvAg.trigger('isotope/relayout');
-                } else if(response.data){
+                if(response.data){
                     try {
                         var echoedUser = JSON.parse(response.data);
                         this.EvAg.trigger('login/complete', echoedUser);
@@ -31,6 +44,7 @@ define(
 
                     }
                 }
+
             }
         });
     }
