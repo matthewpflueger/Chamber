@@ -33,16 +33,10 @@
 </head>
 <body>
 <div id='echoed-head'>
-    <!--Real Stories From Our Customers-->
-    <div class="echoed-share-container">
-        <a class='echoed-share' href='#write/'>
-            {{#customization.widgetShareMessage}}
-            {{.}}
-            {{/customization.widgetShareMessage}}
-            {{^customization.widgetShareMessage}}
-            Share Your Story
-            {{/customization.widgetShareMessage}}
-        </a>
+    <div id="back">
+        See All From {{#partner}}{{name}}{{/partner}}
+    </div>
+    <div id="header-title">
     </div>
     <div id="close">
         Back to Website
@@ -50,6 +44,7 @@
         </div>
     </div>
 </div>
+<!--<div id="subnav"></div>-->
 <div id="story-container"></div>
 <div id="field-container"></div>
 <div id="login-container"></div>
