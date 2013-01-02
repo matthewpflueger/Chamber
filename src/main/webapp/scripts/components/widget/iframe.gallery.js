@@ -26,7 +26,6 @@ define(
                                 window.location.hash = "#echoed_" + msg.data ;
                                 break;
                             case 'resize':
-                                //$('#echoed-gallery-iframe').hide().height(msg.data).slideDown();
                                 $('#echoed-gallery-iframe').animate({
                                     height: msg.data
                                 });

@@ -24,6 +24,7 @@ define(
                         self.element.removeAttr('style');
                         if(self.properties.isPreview){
                             self.showOverlay();
+                            self.EvAg.trigger("background/show");
                         } else {
                             self.parseHash();
                             window.onhashchange = self.parseHash;
