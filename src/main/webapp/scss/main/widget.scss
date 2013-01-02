@@ -91,12 +91,23 @@ body {
 }
 
 #close{
-    z-index: 10002;
+    z-index: 10000;
     position: absolute;
-    @include sprite(0px, -28px, 15px, 15px);
     right: 10px;
-    top: 10px;
+    top:0px;
+    line-height: 40px;
+    padding-right: 20px;
     cursor: pointer;
+    @include fontTextBold(14px, #CCC);
+    &:hover{
+        color: #FFF;
+    }
+    #close-x{
+        @include sprite(0px, -28px, 15px, 15px);
+        top: 13px;
+        position: absolute;
+        right:0px;
+    }
 }
 
 #echo-story-gallery-container{
