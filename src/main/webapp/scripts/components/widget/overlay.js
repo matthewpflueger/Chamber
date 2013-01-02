@@ -22,8 +22,12 @@ define(
                     onReady: function(){
                         self.element = $('#echoed-overlay');
                         self.element.removeAttr('style');
-                        self.parseHash();
-                        window.onhashchange = self.parseHash;
+                        if(self.properties.isPreview){
+                            self.showOverlay();
+                        } else {
+                            self.parseHash();
+                            window.onhashchange = self.parseHash;
+                        }
                     },
                     onMessage: function(message, origin){
                         self.handleMessage(message, origin);
@@ -36,10 +40,14 @@ define(
                     var msgObj = JSON.parse(message);
                     switch(msgObj.type){
                         case "close":
-                            var hash = window.location.hash;
-                            var index = hash.indexOf('echoed');
-                            if(index > 0) window.location.hash = hash.substr(0, index);
-                            this.hideOverlay();
+                            if(self.properties.isPreview){
+                                window.location = this.properties.redirect;
+                            } else {
+                                var hash = window.location.hash;
+                                var index = hash.indexOf('echoed');
+                                if(index > 0) window.location.hash = hash.substr(0, index);
+                                this.hideOverlay();
+                            }
                             break;
                     }
                 } catch(e){
