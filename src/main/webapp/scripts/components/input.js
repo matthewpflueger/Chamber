@@ -40,12 +40,27 @@
                 'click #story-hide': "hideStoryClick",
                 'click #chapter-cancel': 'cancelChapterClick',
                 'click .chapter-thumb-x': 'removeChapterThumb',
-                'click .fade': "fadeClick"
+                'click .fade': "fadeClick",
+                'click .text': "textClick",
+                "click .photos": "photosClick",
+                "click .link": "linkClick"
             },
             fadeClick: function(ev){
                 if($(ev.target).hasClass("fade")){
                     this.close();
                 }
+            },
+            linkClick: function(ev){
+                $("#input-link").slideToggle('slow');
+                $(ev.currentTarget).toggleClass("on");
+            },
+            photosClick: function(ev){
+                $("#input-photos").slideToggle('slow');
+                $(ev.currentTarget).toggleClass("on");
+            },
+            textClick: function(ev){
+                $("#input-text").slideToggle('slow');
+                $(ev.currentTarget).toggleClass("on");
             },
             login: function(){
                 if(this.loaded === true) this.load(this.id, this.type);

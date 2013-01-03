@@ -42,82 +42,16 @@
         margin: 10px 10px 0px 10px;
     }
 
-    .field-main-title{
-        @include fontHeaderBold(20px);
-        text-align: center;
-        text-shadow: 0px 1px #FFF;
-        margin-bottom: 15px;
-    }
-
     .field-body{
         background-color: #F0F0F0;
         margin: 0px 10px 10px 10px;
         position: relative;
         @include transition;
     }
-    .story-login{
-        width: 460px;
-        background: #ffffff; /* Old browsers */
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMzclIiBzdG9wLWNvbG9yPSIjZmZmZmZmIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VkZWRlZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9yYWRpYWxHcmFkaWVudD4KICA8cmVjdCB4PSItNTAiIHk9Ii01MCIgd2lkdGg9IjEwMSIgaGVpZ2h0PSIxMDEiIGZpbGw9InVybCgjZ3JhZC11Y2dnLWdlbmVyYXRlZCkiIC8+Cjwvc3ZnPg==);
-        background: -moz-radial-gradient(center, ellipse cover,  #ffffff 37%, #ededed 100%); /* FF3.6+ */
-        background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(37%,#ffffff), color-stop(100%,#ededed)); /* Chrome,Safari4+ */
-        background: -webkit-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* Opera 12+ */
-        background: -ms-radial-gradient(center, ellipse cover,  #ffffff 37%,#ededed 100%); /* IE10+ */
-        background: radial-gradient(ellipse at center,  #ffffff 37%,#ededed 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
-        border-radius: 5px;
-        padding: 20px 0px;
-        .field-logo{
-            padding-top: 5px;
-            padding-bottom: 20px;
-            text-align:center;
-        }
-        .field-login-title{
-            margin: 0px 20px 15px 20px;
-            text-align: center;
-            @include fontText(20px);
-        }
-        .field-login-buttons{
-            text-align:center;
-            margin: 5px auto;
-        }
-
-        .field-login-email{
-            text-align: center;
-            @include fontTextBold(14px);
-            a{
-                @include fontTextBold(14px);
-                text-decoration: underline;
-                &:hover{
-                    color: $colorEC;
-                }
-            }
-        }
-
-        .field-login-body{
-            margin: 10px 20px 20px 20px;
-            .field-login-body-text{
-                text-align: left;
-                @include fontTextLight(16px);
-            }
-        }
-    }
-
-
 
     .story-summary {
         margin: 0 10px 10px 10px;
         padding: 10px;
-        .story-summary-header {
-            border: 1px solid #CCC;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            overflow-x: auto;
-
-        }
         #story-hide {
                 position: absolute;
                 right: 18px;
@@ -158,12 +92,8 @@
 
 }
 
-.field-add{
-
-}
-
 .field-text-input{
-    width: 500px;
+    width: 572px;
     resize: none;
     padding: 8px 5px;
     border: 1px solid #FFF;
@@ -188,22 +118,26 @@
 
 
 .story-detail-row{
-    display: table;
+    //display: table;
     padding: 5px 0px;
+    position: relative;
+    margin-left: 100px;
+    margin-right: 50px;
     label{
         vertical-align: top;
         @include fontTextBold(14px);
         margin-right: 10px;
     }
     .story-input-label{
-        display:table-cell;
-        width: 150px;
+        width: 100px;
+        position: absolute;
+        left: -110px;
         text-align:right;
         @include fontTextBold(14px, #444);
         padding-right: 10px;
     }
     .story-input-content{
-        display:table-cell;
+
         @include fontText(13px);
     }
 
@@ -242,15 +176,16 @@
     background-color: #bebebe;
     padding: 5px;
     .thumb{
-
+        border: 3px solid #FFF;
+        margin: 0px 5px 5px 0px;
         position: relative;
         float:left;
+
         img {
             height: 75px;
             display: block;
         }
-        border: 3px solid #FFF;
-        margin-right: 5px;
+
         .thumb-cancel{
             position: absolute;
             top: 5px;
@@ -296,7 +231,7 @@
         border-right: 1px solid #CCC;
         box-shadow: 1px 0px #FFF;
         cursor: pointer;
-        &:hover{
+        &:hover, &.on{
             background-color: #333;
             color: #FFF;
         }
