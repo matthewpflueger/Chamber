@@ -158,17 +158,23 @@
 
 }
 
+.field-add{
+
+}
+
 .field-text-input{
     width: 500px;
     resize: none;
     padding: 8px 5px;
-    border: 1px solid #CCC;
+    border: 1px solid #FFF;
     -webkit-appearance:none;
-    border-radius: 5px;
+    //border-radius: 5px;
+    background-color: #FFF;
+    @include dropShadowDown;
     @include fontText(14px);
     outline: none;
     &:focus, &:hover{
-        border: 1px solid #000;
+        //border: 1px solid #CCC;
     }
 }
 
@@ -193,9 +199,8 @@
         display:table-cell;
         width: 150px;
         text-align:right;
-        @include fontTextBold(14px);
+        @include fontTextBold(14px, #444);
         padding-right: 10px;
-        vertical-align: top;
     }
     .story-input-content{
         display:table-cell;
@@ -234,7 +239,8 @@
 }
 
 #story-input-thumbnails{
-    float:left;
+    background-color: #bebebe;
+    padding: 5px;
     .thumb{
 
         position: relative;
@@ -260,6 +266,48 @@
         background-color: #777;
         &.in{
             background-color: #000;
+        }
+    }
+}
+
+#input-add{
+    padding: 10px;
+    border-bottom: 1px solid #CCC;
+    ul{
+        float:left;
+        clear: left;
+        position: relative;
+        left: 50%;
+        text-align: center;
+    }
+    li{
+        display: block;
+        float:left;
+        list-style: none;
+        position: relative;
+        right: 50%;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        width: 120px;
+        height: 30px;
+        padding-top: 120px;
+        @include fontTextBold(14px, #666);
+        border-right: 1px solid #CCC;
+        box-shadow: 1px 0px #FFF;
+        cursor: pointer;
+        &:hover{
+            background-color: #333;
+            color: #FFF;
+        }
+        &.photos{
+            background-image: image-url('bk_photos_pad.png');
+        }
+        &.text{
+            background-image: image-url('bk_text_pad.png');
+        }
+        &.link{
+            background-image: image-url('bk_link_pad.png');
         }
     }
 }
