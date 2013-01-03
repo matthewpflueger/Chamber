@@ -12,6 +12,7 @@ define(
             initialize: function(options){
                 _.bindAll(this);
                 this.element = $(options.el);
+                this.titleEl = $('#title');
                 this.properties = options.properties;
                 this.EvAg = options.EvAg;
                 this.EvAg.bind('title/update', this.update);
@@ -52,22 +53,22 @@ define(
                 this.titleText.text(decodeURIComponent(options.title));
                 this.titleBody.empty();
                 if(options.image) {
-                    this.element.css('background-image', 'url("' + utils.scaleByWidth(options.image, 260).attr('src') + '")');
+                    this.titleEl.css('background-image', 'url("' + utils.scaleByWidth(options.image, 260).attr('src') + '")');
                 } else {
-                    this.element.css('background-image','');
+                    this.titleEl.css('background-image','');
                 }
                 switch(options.type){
                     case "partner":
                         this.topicEndPoint = "partner/" + options.partnerId;
-                        this.loadTopics();
+//                        this.loadTopics();
                         break;
                     case "community":
                         this.topicEndPoint = "community/" + options.communityId;
-                        this.loadTopics();
+//                        this.loadTopics();
                         break;
                     case "echoed":
                         this.topicEndPoint = "";
-                        this.loadTopics();
+//                        this.loadTopics();
 
                         break;
                     default:

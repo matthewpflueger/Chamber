@@ -47,7 +47,7 @@ body {
 
 #echoed-exhibit-container{
     position: relative;
-    padding-top: 80px;
+    padding-top: 40px;
     height: 100%;
     #exhibit{
         padding-top: 10px;
@@ -90,24 +90,31 @@ body {
     }
 }
 
-#back{
+#user{
     position:absolute;
-    left: 10px;
+    right: 20px;
     line-height: 40px;
-    @include fontTextBold(14px, #CCC);
-    cursor: pointer;
-    &:hover{
-        color: #FFF;
+    #user-what{
+        @include fontTextBold(12px, #FFF);
+        margin-right: 10px;
     }
+
+    #user-login{
+        @include fontTextBold(14px, $colorEC);
+        &:hover{
+            color: #FFF;
+        }
+    }
+    cursor: pointer;
 }
 
 #close{
     z-index: 10000;
     position: absolute;
-    right: 10px;
+    left: 10px;
     top:0px;
     line-height: 40px;
-    padding-right: 20px;
+    padding-left: 20px;
     cursor: pointer;
     @include fontTextBold(14px, #CCC);
     &:hover{
@@ -117,31 +124,10 @@ body {
         @include sprite(0px, -28px, 15px, 15px);
         top: 13px;
         position: absolute;
-        right:0px;
+        left:0px;
     }
 }
 
 #echo-story-gallery-container{
     top: 40px !important;
-}
-
-#subnav{
-    position:fixed;
-    right:0px;
-    left: 0px;
-    top: 41px;
-    height: 25px;
-    background-color: #CFCFCF;
-    @include dropShadowDown;
-    z-index: 1000000;
-    li{
-        padding: 5px 20px;
-        @include fontTextBold(14px);
-        list-style:none;
-        cursor: pointer;
-        text-shadow: 0px 1px 0px #FFF;
-        border-right: 1px solid #CCC;
-        box-shadow: 1px 0px #FFF;
-        float:left;
-    }
 }
