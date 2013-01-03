@@ -29,9 +29,12 @@ class RedirectController extends EchoedController {
                 log.debug("Redirecting to {}", p.domain)
                 val domain = if (p.domain.startsWith("http")) p.domain else "http://" + p.domain
                 val modelAndView = new ModelAndView(v.redirectView)
-                var redirectUrl = domain + "/#echoed"
 
-                if(storyId != null) redirectUrl += "_story/" + storyId
+                var redirectUrl = ""
+                if(p.handle != "Echoed") redirectUrl = v.siteUrl + "/#!"
+                else redirectUrl = domain + "/#echoed_"
+
+                if(storyId != null) redirectUrl += "story/" + storyId
 
                 modelAndView.addObject("redirectUrl" , redirectUrl)
                 result.setResult(modelAndView)
