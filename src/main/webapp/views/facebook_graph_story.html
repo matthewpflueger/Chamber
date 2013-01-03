@@ -15,11 +15,11 @@
     <meta property="og:title" content="{{title}}" />
     <meta property="og:url" content="{{urls.site}}/graph/story/{{id}}">
     {{#image}}
-    <meta property="og:image" content="{{preferredUrl}}" />
+    <meta property="og:image" content="{{preferredUrl}}{{#isCloudinary}}.jpg{{/isCloudinary}}" />
     {{/image}}
     {{#chapterImages}}
     {{#image}}
-    <meta property="og:image" content="{{preferredUrl}}" />
+        <meta property="og:image" content="{{preferredUrl}}{{#isCloudinary}}.jpg{{/isCloudinary}}" />
     {{/image}}
     {{/chapterImages}}
     {{#echoedUser}}
