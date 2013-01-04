@@ -135,7 +135,11 @@ case class Image(
 
     val isProcessed = processedOn > 0 && hasOriginal && hasStory && hasExhibit && hasSized && hasThumbnail
     
-    val preferredUrl = if (hasExhibit) exhibitUrl else if (hasSized) sizedUrl else if (hasStory) storyUrl else if (hasOriginal) originalUrl else url
+    val preferredUrl = {
+        var pUrl = if (hasExhibit) exhibitUrl else if (hasSized) sizedUrl else if (hasStory) storyUrl else if (hasOriginal) originalUrl else url
+        if(isCloudinary) pUrl += ".jpg"
+        pUrl
+    }
     val preferredWidth = if (hasExhibit) exhibitWidth else if (hasSized) sizedWidth else if (hasStory) storyWidth else if (hasOriginal) originalWidth else 0
     val preferredHeight = if (hasExhibit) exhibitHeight else if (hasSized) sizedHeight else if (hasStory) storyHeight else if (hasOriginal) originalHeight else 0
 
