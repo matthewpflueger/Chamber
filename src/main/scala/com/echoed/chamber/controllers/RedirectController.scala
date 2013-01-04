@@ -30,9 +30,7 @@ class RedirectController extends EchoedController {
                 val domain = if (p.domain.startsWith("http")) p.domain else "http://" + p.domain
                 val modelAndView = new ModelAndView(v.redirectView)
 
-                var redirectUrl = ""
-                if(p.handle != "Echoed") redirectUrl = v.siteUrl + "/#!"
-                else redirectUrl = domain + "/#echoed_"
+                var redirectUrl = if (p.isEchoed) v.siteUrl + "/#!" else domain + "/#echoed_"
 
                 if(storyId != null) redirectUrl += "story/" + storyId
 
