@@ -18,7 +18,10 @@ import scala.Right
 class RedirectController extends EchoedController {
 
     @RequestMapping(value = Array("partner/{pid}"), method = Array(RequestMethod.GET))
-    def redirectPartner(pcc: PartnerClientCredentials) = {
+    def redirectPartner(
+        @RequestParam(value = "id", required = false) storyId: String,
+        pcc: PartnerClientCredentials) = {
+
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         mp(FetchPartner(pcc)).onSuccess {
@@ -26,7 +29,12 @@ class RedirectController extends EchoedController {
                 log.debug("Redirecting to {}", p.domain)
                 val domain = if (p.domain.startsWith("http")) p.domain else "http://" + p.domain
                 val modelAndView = new ModelAndView(v.redirectView)
-                modelAndView.addObject("redirectUrl" , domain + "/#echoed")
+
+                var redirectUrl = if (p.isEchoed) v.siteUrl + "/#!" else domain + "/#echoed_"
+
+                if(storyId != null) redirectUrl += "story/" + storyId
+
+                modelAndView.addObject("redirectUrl" , redirectUrl)
                 result.setResult(modelAndView)
         }
 

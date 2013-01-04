@@ -17,20 +17,21 @@
     {{#image}}
     <meta property="og:image" content="{{preferredUrl}}" />
     {{/image}}
+    {{#chapterImages}}
+    {{#image}}
+        <meta property="og:image" content="{{preferredUrl}}" />
+    {{/image}}
+    {{/chapterImages}}
     {{#echoedUser}}
     <meta property="{{facebookAppNameSpace}}:author" content="{{name}}" />
     {{/echoedUser}}
-    {{#chapterImages}}
-        {{#image}}
-        <meta property="og:image" content="{{preferredUrl}}" />
-        {{/image}}
-    {{/chapterImages}}
     {{/story}}
 
 </head>
 <body>
 <script type="text/javascript">
-    window.location = "{{urls.site}}#story/{{id}}";
+    window.location = "{{urls.site}}/redirect/partner/{{story.partnerId}}?id={{id}}";
+//    window.location = "{{urls.site}}#story/{{id}}";
 </script>
 </body>
 </html>
