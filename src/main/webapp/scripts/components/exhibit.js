@@ -3,11 +3,12 @@ define(
         'jquery',
         'backbone',
         'underscore',
+        'models/story',
         'components/storyBrief',
         'components/utils',
         'isotope'
     ],
-    function($, Backbone, _, StoryBrief, utils, isotope ){
+    function($, Backbone, _, ModelStory, StoryBrief, utils, isotope ){
         return Backbone.View.extend({
             el: '#content',
             initialize: function(options){
@@ -129,7 +130,8 @@ define(
                             self.stories.hash[story.id] = self.stories.array.length;
                             self.stories.array.push(story.id);
                             var storyDiv = $('<div></div>').addClass('item_wrap');
-                            var storyComponent = new StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal, properties: self.properties, modelUser: self.modelUser});
+                            var modelStory = new ModelStory(story);
+                            var storyComponent = new StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal, properties: self.properties, modelUser: self.modelUser, modelStory: modelStory});
                             if(story.story.image !== null){
                                 if(story.story.image.originalUrl !== null){
                                     storiesFragment.append(storyDiv)

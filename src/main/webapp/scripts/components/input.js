@@ -68,7 +68,6 @@
             load: function(id, type){
                 this.id = id;
                 this.type = type;
-
                 var self = this;
                 var jsonUrl =  self.properties.urls.api + "/story";
                 var loadData = {};

@@ -1,18 +1,18 @@
 <div class="item_content story-brieftext">
     <div class="story-brief-text">
         <div class="story-brief-text-title">
-            {{ story.title }}
+            {{ storyFull.story.title }}
         </div>
         <div class="story-brief-text-by">
-            by <a class="link-black story-brief-text-user" href="#user/{{echoedUser.id}}">{{ echoedUser.name }}</a>
+            by <a class="link-black story-brief-text-user" href="#user/{{echoedUser.id}}">{{ storyFull.echoedUser.name }}</a>
         </div>
         {{^inComplete}}
         <div class="story-brief-text-quote">{{ chapterText }}</div>
         <div class="story-brief-indicator">
             <span>Votes: </span>
-            <span class="story-brief-indicator-value vote-counter"></span>
+            <span class="story-brief-indicator-value vote-counter">{{voteCount}}</span>
             <span>Comments: </span>
-            <span class="story-brief-indicator-value">{{ comments.length }}</span>
+            <span class="story-brief-indicator-value">{{ storyFull.comments.length }}</span>
             <span>Photos: </span>
             <span class="story-brief-indicator-value">{{ imageCount }}</span>
             <span class="s-b-i-c">
