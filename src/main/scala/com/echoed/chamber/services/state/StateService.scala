@@ -35,7 +35,7 @@ class StateService(
             .map(eu => (from(notifications)(n =>
                     where(n.echoedUserId === eu.id)
                     select(n)
-                    orderBy(n.createdOn asc))).toList)
+                    orderBy(n.createdOn.asc))).toList)
 //            .map(_.map(_.convertTo(eu.get)))
             .map(_.map(n => try { n.convertTo(eu.get) } catch { case e => log.error(e, "%s" format n); new com.echoed.chamber.domain.Notification() }))
             .map(_.filter(_.id != ""))
@@ -263,7 +263,7 @@ class StateService(
                 val ps = from(partnerSettings)(ps =>
                     where((ps.partnerId === p.id) and (ps.activeOn lte activeOn))
                         select(ps)
-                        orderBy(ps.activeOn desc)).page(0,1).toList.headOption
+                        orderBy(ps.activeOn.desc)).page(0,1).toList.headOption
                 val pu = from(partnerUsers)(pu => where(pu.partnerId === p.id) select(pu)).toList.headOption
 
                 val fbus = (from(followers)(f => where(f.ref === "Partner" and f.refId === p.id) select(f))).toList
@@ -276,7 +276,7 @@ class StateService(
 
                 ps.map(ps => sender ! ReadPartnerResponse(msg, Right(PartnerServiceState(p, ps, pu, fbus, t))))
             }.getOrElse {
-                sender ! ReadPartnerResponse(msg, Left(StateException(pcc.id)))
+                sender ! ReadPartnerResponse(msg, Left(new StateException(pcc.id)))
             }
 
 

@@ -146,7 +146,7 @@ class FacebookAccess(
 
 
                 override def preStart() {
-                    context.system.scheduler.scheduleOnce(1 minutes, context.self, 'timetodie)
+                    context.system.scheduler.scheduleOnce(1.minutes, context.self, 'timetodie)
                 }
 
                 def complete {
@@ -164,11 +164,11 @@ class FacebookAccess(
                 }
 
                 def receive = {
-                    case ('comments, cmts: List[FacebookComment]) => comments ++= cmts
+                    case ('comments, cmts: List[FacebookComment] @unchecked) => comments ++= cmts
                     case 'commentsDone =>
                         commentsDone = true
                         complete
-                    case ('likes, lks: List[FacebookLike]) => likes ++= lks
+                    case ('likes, lks: List[FacebookLike] @unchecked) => likes ++= lks
                     case 'likesDone =>
                         likesDone = true
                         complete

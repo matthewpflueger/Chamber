@@ -38,7 +38,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
         case msg @ QueryStoriesForAdmin(aucc, page, pageSize, moderated) =>
             val ss = from(stories)(s =>
                         select(s)
-                        orderBy(s.updatedOn desc))
+                        orderBy(s.updatedOn.desc))
                         .page(page * pageSize, pageSize)
                         .map(readStory(_))
                         .filter(moderated.isEmpty || _.isEchoedModerated == moderated.get)
@@ -49,7 +49,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
         case msg @ QueryEchoedUsersForAdmin(aucc, page, pageSize) =>
             val results = from(echoedUsers)(e =>
                             select(e)
-                            orderBy(e.createdOn desc))
+                            orderBy(e.createdOn.desc))
                             .page(page * pageSize, pageSize)
                             .toList
 
@@ -59,7 +59,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             val ss = from(stories)(s =>
                         where(s.partnerId === pucc.partnerId.get)
                         select(s)
-                        orderBy(s.updatedOn desc))
+                        orderBy(s.updatedOn.desc))
                         .page(page * pageSize, pageSize)
                         .map(readStory(_))
                         .filter(moderated.isEmpty || _.isModerated == moderated.get)

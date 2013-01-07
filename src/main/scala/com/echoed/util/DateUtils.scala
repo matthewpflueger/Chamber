@@ -4,6 +4,7 @@ import java.util.Date
 import java.text.{ParseException, SimpleDateFormat}
 import java.lang.Long.parseLong
 import scala.util.control.Exception._
+import scala.language.implicitConversions
 
 object DateUtils {
 

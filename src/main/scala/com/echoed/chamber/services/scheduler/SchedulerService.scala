@@ -42,7 +42,7 @@ class SchedulerService(
                 .withMinuteOfHour(hourStartsAtMinute)
         if (differenceInMinutes(todayStart) < 1) todayStart = todayStart.plusDays(1)
         context.system.scheduler.scheduleOnce(
-                differenceInMinutes(todayStart) minutes,
+                differenceInMinutes(todayStart).minutes,
                 context.self,
                 StartToday)
     }
@@ -50,7 +50,7 @@ class SchedulerService(
     private def scheduleStartHour {
         val hourStart = DateTime.now().plusHours(1).withMinuteOfHour(hourStartsAtMinute)
         context.system.scheduler.scheduleOnce(
-                differenceInMinutes(hourStart) minutes,
+                differenceInMinutes(hourStart).minutes,
                 context.self,
                 StartHour)
     }
@@ -63,7 +63,7 @@ class SchedulerService(
                 .withMinuteOfHour(hourStartsAtMinute)
         if (differenceInMinutes(weekStart) < 1) weekStart = weekStart.plusWeeks(1)
         context.system.scheduler.scheduleOnce(
-                differenceInMinutes(weekStart) minutes,
+                differenceInMinutes(weekStart).minutes,
                 context.self,
                 StartWeek)
     }
@@ -109,7 +109,7 @@ class SchedulerService(
             }
 
             context.system.scheduler.scheduleOnce(
-                    sendIntervalInSeconds seconds,
+                    sendIntervalInSeconds.seconds,
                     self,
                     Send(schedulesToSend - id))
         }
