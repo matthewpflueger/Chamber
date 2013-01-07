@@ -5,12 +5,12 @@ import org.springframework.validation._
 import collection.JavaConversions._
 
 
-case class EchoedException(
-        msg: String = "",
-        cse: Throwable = null,
-        cde: Option[String] = None,
-        args: Option[Array[AnyRef]] = None,
-        errs: Option[Errors] = None) extends AkkaException(msg, cse) {
+class EchoedException(
+        val msg: String = "",
+        val cse: Throwable = null,
+        val cde: Option[String] = None,
+        val args: Option[Array[AnyRef]] = None,
+        val errs: Option[Errors] = None) extends AkkaException(msg, cse) {
 
     def asErrors(objectName: Option[String] = None) =
         if (objectName.isDefined && errs.isDefined) {

@@ -10,7 +10,7 @@ import javax.annotation.Nullable
 import com.echoed.chamber.services.partner._
 import com.echoed.chamber.services.feed.GetCommunitiesResponse
 import com.echoed.chamber.services.feed.GetStoryResponse
-import com.echoed.chamber.services.echoeduser.{Follower, GetFeedResponse, FetchNotifications, UnFollowUser, GetUserFeedResponse, ReadSettingsResponse, ListFollowedByUsers, NewSettingsResponse, MarkNotificationsAsReadResponse, ListFollowedByUsersResponse, ReadSettings, GetExhibitResponse, FetchNotificationsResponse, ListFollowingUsers, GetFeed, MarkNotificationsAsRead, ListFollowingUsersResponse, GetUserFeed, EchoedUserClientCredentials, NewSettings, VoteStory, GetExhibit, FollowUser, PublishFacebookAction}
+import com.echoed.chamber.services.echoeduser.{Follower, GetFeedResponse, FetchNotifications, UnFollowUser, GetUserFeedResponse, ReadSettingsResponse, ListFollowedByUsers, NewSettingsResponse, MarkNotificationsAsReadResponse, ListFollowedByUsersResponse, ReadSettings, GetExhibitResponse, FetchNotificationsResponse, ListFollowingUsers, GetFeed, MarkNotificationsAsRead, ListFollowingUsersResponse, GetUserFeed, EchoedUserClientCredentials, NewSettings, VoteStory, GetExhibit, FollowUser}
 import com.echoed.chamber.services.feed.GetPublicStoryFeed
 import com.echoed.chamber.services.topic.ReadTopicsResponse
 import com.echoed.chamber.services.feed.GetCategoryStoryFeedResponse
@@ -32,6 +32,7 @@ import com.echoed.chamber.domain.{Topic, EchoedUserSettings, Notification}
 import scala.collection.immutable.Stack
 import com.echoed.chamber.domain.views.{CommunityFeed, EchoedUserStoryFeed, PartnerStoryFeed, TopicStoryFeed, ClosetPersonal, Feed, PublicStoryFeed}
 import com.echoed.chamber.domain.public.StoryPublic
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

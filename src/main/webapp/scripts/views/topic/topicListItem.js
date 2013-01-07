@@ -29,7 +29,7 @@ define(
 
             initialize: function(options) {
                 if (options.isCreateOnly) this.isEditing = this.isCreateOnly = true;
-                if (!this.model) this.model = new Topic();
+                if (!this.model) this.model = new Topic;
                 this.vent = options.vent;
             },
 
@@ -87,7 +87,7 @@ define(
                         success: function(model, response) {
                             if (self.isCreateOnly) {
                                 if (self.collection) self.collection.add(self.model);
-                                self.model = new Topic();
+                                self.model = new Topic;
                             } else {
                                 self.isEditing = false;
                             }
@@ -103,7 +103,7 @@ define(
 
             cancel: function() {
                 if (this.isCreateOnly) {
-                    this.model = new Topic();
+                    this.model = new Topic;
                 } else {
                     this.isEditing = false;
                 }

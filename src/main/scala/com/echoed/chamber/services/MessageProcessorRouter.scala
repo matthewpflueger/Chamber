@@ -14,7 +14,7 @@ import akka.routing.Destination
 class MessageProcessorRouter(
         router: ActorRef,
         implicit val timeout: Timeout = Timeout(20000)) extends MessageProcessor {
-    def apply(message: Message) = (router ? message).mapTo
+    def apply(message: Message) = router ? message
     def tell(message: Message, sender: ActorRef) = router.tell(message, sender)
 }
 
@@ -24,7 +24,7 @@ class MessageRouter(routeMap: scala.collection.Map[Class[_ <: Message], ActorCon
 
     def routerDispatcher = Dispatchers.DefaultDispatcherId
 
-    def createRoute(routeeProps: Props, routeeProvider: RouteeProvider) = {
+    def createRoute(routeeProvider: RouteeProvider) = {
         val log = Logging(routeeProvider.context.system, classOf[MessageRouter])
 
         val routes = asScalaConcurrentMap(CacheBuilder.newBuilder().concurrencyLevel(4).build[Class[_], ActorRef].asMap)
@@ -34,15 +34,17 @@ class MessageRouter(routeMap: scala.collection.Map[Class[_ <: Message], ActorCon
 
         {
             case (sender, msg: Message) =>
-                log.debug("Routing {}", msg)
-                Array(Destination(sender, routes.getOrElseUpdate(msg.getClass, {
-                    routes
+                val route = routes.getOrElseUpdate(msg.getClass, {
+                        routes
                             .keys
                             .filter(_.isAssignableFrom(msg.getClass))
                             .headOption
                             .map(routes(_))
                             .getOrElse(throw new RuntimeException("No route for %s" format msg))
-                })))
+                })
+
+                log.debug("Routing {} to {}", msg, route)
+                Array(Destination(sender, route))
         }
     }
 

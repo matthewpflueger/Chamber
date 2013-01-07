@@ -7,5 +7,5 @@ abstract class EchoedService extends Actor with ActorLogging {
 
     protected def handle: Receive
 
-    final protected def receive = LoggingReceive(handle)
+    final def receive = LoggingReceive(handle)
 }

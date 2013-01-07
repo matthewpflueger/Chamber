@@ -19,6 +19,8 @@ class PartnerUserServiceManager(
         encrypter: Encrypter,
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
+    import context.dispatcher
+
     private val active = HashMultimap.create[Identifiable, ActorRef]()
 
 

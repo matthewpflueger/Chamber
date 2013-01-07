@@ -7,6 +7,7 @@ import com.echoed.chamber.services.adminuser._
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.controllers.interceptors.Secure
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

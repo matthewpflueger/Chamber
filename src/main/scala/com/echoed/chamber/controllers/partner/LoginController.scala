@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.{RequestParam, RequestMapping}
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.controllers.{EchoedController, Errors}
 import com.echoed.chamber.controllers.interceptors.Secure
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller("partnerLogin")

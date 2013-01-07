@@ -7,8 +7,8 @@ import scala.Some
 import java.util.concurrent.Callable
 import com.github.mustachejava.Iteration
 import java.io.Writer
-import akka.dispatch.{Await, Future}
-import akka.util.duration._
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
 
 class EchoedObjectHandler  extends ReflectionObjectHandler {
 

@@ -30,6 +30,8 @@ class PartnerService(
         accountManagerEmail: String = "accountmanager@echoed.com",
         accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService {
 
+    import context.dispatcher
+
     protected var partner: Partner = _
     private var partnerSettings: PartnerSettings = _
     private var partnerUser: Option[PartnerUser] = None

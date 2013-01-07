@@ -2,7 +2,7 @@ package com.echoed.chamber.services.facebook
 
 import com.echoed.util.ScalaObjectMapper
 import akka.actor._
-import akka.util.duration._
+import scala.concurrent.duration._
 import dispatch._
 import com.ning.http.client.RequestBuilder
 import collection.mutable
@@ -25,6 +25,8 @@ class FacebookAccess(
         canvasApp: String,
         appNameSpace: String,
         httpClient: Http) extends EchoedService {
+
+    import context.dispatcher
 
     private def u = url("https://graph.facebook.com/")
 
@@ -161,7 +163,7 @@ class FacebookAccess(
                     }
                 }
 
-                protected def receive = {
+                def receive = {
                     case ('comments, cmts: List[FacebookComment]) => comments ++= cmts
                     case 'commentsDone =>
                         commentsDone = true
@@ -290,7 +292,7 @@ error object is error(Error validating access token: User 717551615 has not auth
 case class error(message: String, `type`: String, code: Int, error_subcode: Int) {
     def asFacebookException =
         if (code == 190) OAuthFacebookException(message, null, `type`, code, error_subcode)
-        else FacebookException(message, null, `type`, code, error_subcode)
+        else new FacebookException(message, null, `type`, code, error_subcode)
 }
 
 case class Me(

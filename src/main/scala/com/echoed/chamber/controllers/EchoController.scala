@@ -16,6 +16,7 @@ import java.util.{Date, Map => JMap}
 import java.text.DateFormat
 import org.springframework.web.context.request.async.DeferredResult
 import javax.annotation.Nullable
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Controller
 @RequestMapping(Array("/echo"))

@@ -11,12 +11,12 @@ import org.springframework.validation.Errors
 
 
 sealed trait EchoedUserMessage extends Message
-sealed case class EchoedUserException(
-        message: String = "",
-        cause: Throwable = null,
-        code: Option[String] = None,
-        arguments: Option[Array[AnyRef]] = None,
-        errors: Option[Errors] = None) extends EchoedException(message, cause, code, arguments, errors)
+sealed class EchoedUserException(
+        val message: String = "",
+        val cause: Throwable = null,
+        val code: Option[String] = None,
+        val arguments: Option[Array[AnyRef]] = None,
+        val errors: Option[Errors] = None) extends EchoedException(message, cause, code, arguments, errors)
 
 case class EchoedUserClientCredentials(
         id: String,

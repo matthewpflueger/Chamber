@@ -1,7 +1,7 @@
 package com.echoed.chamber.services
 
 import akka.actor.ActorRef
-import akka.dispatch.Future
+import scala.concurrent.Future
 
 
 trait Message extends Serializable
@@ -50,6 +50,7 @@ trait MessageResponse[R, M <: Message, E <: EchoedException] extends ResponseVal
 }
 
 trait MessageProcessor {
-    def apply(message: Message): Future[MessageResponse[_, _, _]]
+//    def apply(message: Message): Future[MessageResponse[_, _, _]]
+    def apply(message: Message): Future[Any]
     def tell(message: Message, sender: ActorRef): Unit
 }
