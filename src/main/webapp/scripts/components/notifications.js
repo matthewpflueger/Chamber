@@ -1,5 +1,4 @@
 define(
-    'components/notifications',
     [
         'jquery',
         'backbone',
