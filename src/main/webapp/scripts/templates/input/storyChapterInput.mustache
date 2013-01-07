@@ -1,18 +1,18 @@
 <form>
-    <div id="input-subtitle" class="story-detail-row" style="display:none;">
+    <div id="input-subtitle" class="story-detail-row">
         <div class="story-input-label">
             Subtitle
         </div>
         <div class="story-input-content">
-            <div id="chapter-title" class="field-select"></div>
+            <input id="chapter-title" class="field-text-input" value="{{chapter.title}}"/>
         </div>
     </div>
-    <div id="input-text" class="story-detail-row" style="display:none;">
-        <div class="story-input-label">
+    <div id="input-text" class="story-detail-row" {{^chapter.text}}style="display:none;"{{/chapter.text}}>
+            <div class="story-input-label">
             Text
         </div>
         <div class="story-input-content" style="vertical-align: top; padding-bottom: 20px;">
-            <textarea id="chapter-text" class="expanding field-text-input"></textarea>
+            <textarea id="chapter-text" class="expanding field-text-input">{{chapter.text}}</textarea>
         </div>
     </div>
     <div id="input-photos" class="story-detail-row" style="display:none;">
