@@ -7,7 +7,7 @@ define(
     function(Backbone, ModelNotification, utils){
         return Backbone.Collection.extend({
             model: ModelNotification,
-            initialize: function(options){
+            initialize: function(attr, options){
                 this.url = options.properties.urls.site + "/api/notifications"
             },
             markAsRead: function(){
@@ -20,7 +20,7 @@ define(
                             'ids': ids
                         },
                         traditional: true
-                    });
+                    })();
                 }
             }
         });

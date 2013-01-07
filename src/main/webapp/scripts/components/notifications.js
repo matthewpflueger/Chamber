@@ -6,10 +6,11 @@ define(
         'underscore',
         'components/utils',
         'collections/notifications',
+        'models/userSettings',
         'hgn!templates/notifications/notificationsList',
         'hgn!templates/notifications/notification'
     ],
-    function($, Backbone, _, utils, CollectionNotifications,  tmpNotificationsList, tmpNotification){
+    function($, Backbone, _, utils, CollectionNotifications, ModelUserSettings, tmpNotificationsList, tmpNotification){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this, 'init');
@@ -19,41 +20,43 @@ define(
                 this.modelUser = options.modelUser;
                 this.modelUser.on("change:id", this.init);
 
-                this.collectionNotifications = new CollectionNotifications({ properties: this.properties });
+                this.collectionNotifications = new CollectionNotifications(null, { properties: this.properties });
+                this.userSettings = new ModelUserSettings({}, { properties: this.properties });
+
                 var template = tmpNotificationsList();
                 this.element.html(template);
-
-                this.collectionNotifications.on("add", function(notification){
-                    var template = tmpNotification(notification);
-                    self.list.append(template);
-                });
 
                 this.list = $('#notifications-list');
                 this.menu = $('#notifications-menu');
                 this.header = $('#notifications-list-header');
                 this.text = $('#notifications-text');
                 this.checkbox = $('#receive-notification-email-cb');
+                this.render();
                 this.init();
             },
             render: function(){
+                var self = this;
                 this.text.text(this.collectionNotifications.length);
                 this.header.text('New Notifications (' + this.collectionNotifications.length + ")");
                 if(this.collectionNotifications.length > 0) this.text.removeClass('off');
                 else this.text.addClass("off");
+
+                this.collectionNotifications.each(function(notification){
+                    var template = tmpNotification({ notification: notification.toJSON() });
+                    self.list.append(template);
+                });
+
+                if(this.userSettings.get("receiveNotificationEmail") === true) this.checkbox.attr("checked", true);
                 this.element.show();
             },
             init: function(){
                 var self = this;
                 if(this.modelUser.isLoggedIn()){
-                    utils.AjaxFactory({
-                        url: Echoed.urls.api + "/api/me/settings",
-                        success: function(settings){
-                            if(settings.receiveNotificationEmail === true){
-                                self.checkbox.attr('checked',true)
-                            }
+                    this.userSettings.fetch({
+                        success: function(model, xhr, options){
+                            self.render();
                         }
-                    })();
-
+                    });
                     this.collectionNotifications.fetch({
                         success: function(collection, xhr, options){
                             self.render();
@@ -68,21 +71,8 @@ define(
             },
             setEmailSetting: function(){
                 var self = this;
-                var bNotify = self.checkbox.is(':checked');
-                utils.AjaxFactory({
-                    url: self.properties.urls.api + "/api/me/settings",
-                    type: 'POST',
-                    processData: false,
-                    contentType: "application/json",
-                    data: JSON.stringify({
-                        receiveNotificationEmail: bNotify
-                    }),
-                    success: function(response){
-                        if(response.receiveNotificationEmail === true){
-                            self.checkbox.attr('checked',true)
-                        }
-                    }
-                })();
+                this.userSettings.set("receiveNotificationEmail", self.checkbox.is(":checked"));
+                this.userSettings.saveSettings();
             },
             redirect: function(ev){
                 this.toggle();
@@ -107,4 +97,4 @@ define(
             }
         });
     }
-)
+);
