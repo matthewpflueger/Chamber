@@ -4,7 +4,7 @@ require.config({
 
         'easyXDM'              : 'libs/easyXDM-2.4.16.3',
         'json2'                : 'libs/json2-20111019',
-        'underscore'           : 'libs/underscore-1.4.1',
+        'underscore'           : 'libs/lodash-1.0.0-rc.3',
 
         'jquery'               : 'libs/jquery/jquery-1.8.3',
         'jqueryMobile'         : 'libs/jquery/jquery.mobile-1.2.0',
