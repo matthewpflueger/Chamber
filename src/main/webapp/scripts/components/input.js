@@ -6,7 +6,6 @@
         'expanding',
         'components/utils',
         'components/select',
-        'components/ajaxInput',
         'hgn!templates/input/storySummary',
         'hgn!templates/input/storyCoverInput',
         'hgn!templates/input/storyCover',
@@ -14,7 +13,7 @@
         'hgn!templates/input/storyChapterInput',
         'cloudinary'
     ],
-    function($, Backbone, _, expanding, utils, Select, AjaxInput, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput){
+    function($, Backbone, _, expanding, utils, Select, templateSummary, templateStoryCoverInput, templateStoryCover, templateChapter, templateChapterInput){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
