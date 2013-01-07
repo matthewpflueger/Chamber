@@ -3,9 +3,10 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'easyXDM'
+        'easyXDM',
+        'json2'
     ],
-    function($, Backbone, _, easyXDM){
+    function($, Backbone, _, easyXDM, JSON){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -21,8 +22,13 @@ define(
                     onReady: function(){
                         self.element = $('#echoed-overlay');
                         self.element.removeAttr('style');
-                        self.parseHash();
-                        window.onhashchange = self.parseHash;
+                        if(self.properties.isPreview){
+                            self.showOverlay();
+                            self.EvAg.trigger("background/show");
+                        } else {
+                            self.parseHash();
+                            window.onhashchange = self.parseHash;
+                        }
                     },
                     onMessage: function(message, origin){
                         self.handleMessage(message, origin);
@@ -35,10 +41,14 @@ define(
                     var msgObj = JSON.parse(message);
                     switch(msgObj.type){
                         case "close":
-                            var hash = window.location.hash;
-                            var index = hash.indexOf('echoed');
-                            if(index > 0) window.location.hash = hash.substr(0, index);
-                            this.hideOverlay();
+                            if(self.properties.isPreview){
+                                window.location = this.properties.redirect;
+                            } else {
+                                var hash = window.location.hash;
+                                var index = hash.indexOf('echoed');
+                                if(index > 0) window.location.hash = hash.substr(0, index);
+                                this.hideOverlay();
+                            }
                             break;
                     }
                 } catch(e){
@@ -56,7 +66,7 @@ define(
                 data = typeof data == 'undefined' ? "#home" : data;
                 this.htmlEl.css({ "overflow" : "hidden" });
                 this.element.fadeIn();
-                this.socket.postMessage(JSON.stringify({ type:  type, data: data}));
+                this.socket.postMessage(JSON.stringify({ "type":  type, "data": data}));
             },
             parseHash: function(){
                 var hash = window.location.hash;

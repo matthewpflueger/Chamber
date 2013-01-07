@@ -1,25 +1,30 @@
 <form>
-    <div class="story-detail-row">
+    <div id="input-subtitle" class="story-detail-row" style="display:none;">
         <div class="story-input-label">
-            Topic
+            Subtitle
         </div>
         <div class="story-input-content">
             <div id="chapter-title" class="field-select"></div>
         </div>
     </div>
-    <div class="story-detail-row">
+    <div id="input-text" class="story-detail-row" style="display:none;">
         <div class="story-input-label">
-            Your Story
+            Text
         </div>
-        <div class="story-input-content" style="vertical-align: top">
+        <div class="story-input-content" style="vertical-align: top; padding-bottom: 20px;">
             <textarea id="chapter-text" class="expanding field-text-input"></textarea>
         </div>
     </div>
-    <div class="story-detail-row">
+    <div id="input-photos" class="story-detail-row" style="display:none;">
         <div class="story-input-label">
             Photos<br/>
         </div>
-        <div class="story-input-content" style="vertical-align: top">
+        <div class="story-input-content" style="vertical-align: top;">
+            <div id="story-input-thumbnails" class="thumbnails clearfix">
+                <div id="thumbnail-placeholder">
+                    <img id="thumb-placeholder" height="75px" class="thumb" />
+                </div>
+            </div>
             <div class="photo-upload">
                 <div style="text-align: center;">
                     <div id="photo-upload-button">
@@ -38,12 +43,15 @@
                     </div>
                 </div>
             </div>
-            <div id="story-input-thumbnails" class="thumbnails">
-                <div id="thumbnail-placeholder">
-                    <img id="thumb-placeholder" height="75px" class="thumb" />
-                </div>
-            </div>
         </div>
+    </div>
+    <div id="input-add" class="clearfix">
+        <ul>
+            <li class="text">Add Text</li>
+            <li class="photos">Add Photos</li>
+            <li class="subtit">Add Subtitle</li>
+            <li class="link">Add Link</li>
+        </ul>
     </div>
     <div class="story-detail-row">
         <div class="story-input-label"></div>

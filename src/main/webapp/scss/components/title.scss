@@ -1,21 +1,27 @@
-    #title-container{
+#title-container{
     margin: 5px auto 5px;
-    @include dropShadowDown;
     display: none;
-    background-position: center center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-image: url(http://a5.res.cloudinary.com/echoed/image/upload/a_exif,c_fit,h_700,w_525/8c15baeb-d274-4433-b971-71fa4cd25d47.jpg);
+
+    #breadcrumbs{
+        padding: 10px 0px;
+        @include fontTextBold(14px, #FFF);
+    }
+
     .title-label{
         @include fontTextBold(20px, #000);
         text-shadow: 0px 1px #FFF;
         margin-bottom: 5px;
     }
     #title{
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        //background-image: url(http://a5.res.cloudinary.com/echoed/image/upload/a_exif,c_fit,h_700,w_525/8c15baeb-d274-4433-b971-71fa4cd25d47.jpg);
+        @include dropShadowDown;
 
         #title-header{
             position: relative;
-            padding: 5px 20px;
+            padding: 5px 10px;
             text-shadow: 0px -1px rgba(0, 0, 0, 0.8);
             background-color: #262626;
         }
@@ -32,7 +38,6 @@
                 padding: 5px 0px 10px;
             }
 
-            //background-color: rgba(0,0,0, 0.7);
             background-color: rgba(0, 0, 0, 0.7);
 
 
@@ -90,9 +95,31 @@
         }
     }
     .title-share{
-        //background-color: $colorEC;
         @include shareButton();
         cursor: pointer;
+    }
+    #title-nav{
+        background-color: #333;
+        padding: 5px 10px;
+        li{
+            list-style: none;
+            @include fontTextBold(14px, #FFF);
+            padding: 5px 7px;
+            border-radius: 5px;
+            margin-right: 5px;
+            float:left;
+            @include transition;
+            cursor: pointer;
+
+            &:hover{
+                background-color: rgba(255, 255, 255, 0.3);
+            }
+
+            &.selected{
+                background-color: rgba(255, 255, 255, 1);
+                color: #111;
+            }
+        }
     }
 }
 

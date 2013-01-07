@@ -12,7 +12,7 @@ abstract class OnlineOfflineService extends EchoedService {
 
     protected def offline: Receive = unhandledMessage
 
-    protected def lifespan = context.setReceiveTimeout(15 minutes)
+    protected def lifespan = context.setReceiveTimeout(15.minutes)
 
     //init our lifespan
     lifespan

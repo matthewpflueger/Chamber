@@ -107,7 +107,7 @@ object ReceiveTimeoutTest extends App {
 
 //        context.receiveTimeout
         import scala.concurrent.duration._
-        context.setReceiveTimeout(2 seconds)
+        context.setReceiveTimeout(2.seconds)
 
 //        def init = {
 //            case ReceiveTimeout =>

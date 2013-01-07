@@ -9195,7 +9195,8 @@ jQuery.fx.tick = function() {
 };
 
 jQuery.fx.timer = function( timer ) {
-	if ( timer() && jQuery.timers.push( timer ) && !timerId ) {
+    jQuery.timers.push(timer);
+	if ( timer() && jQuery.timers.length && !timerId ) {
 		timerId = setInterval( jQuery.fx.tick, jQuery.fx.interval );
 	}
 };

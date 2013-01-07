@@ -20,6 +20,17 @@ define(
                     success: function(data){
                     }
                 })();
+            },
+            isIncomplete: function(){
+                return this.get("chapters").length == 0
+            },
+            getImageCount: function(){
+                return 0;
+            },
+            getCoverImage: function(){
+                if(this.get("story").image) return this.get("story").image;
+                else if (this.get("chapterImages").length > 0) return this.get("chapterImages")[0].image;
+                else return null;
             }
         });
     }

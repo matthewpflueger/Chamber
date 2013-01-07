@@ -33,6 +33,12 @@ case class PartnerUser(
         name,
         email)
 
+    def this(partnerId: String) = this(
+        partnerId,
+        UUID(),
+        UUID()
+    )
+
 
     def createPassword(plainTextPassword: String) = {
         val (s, p) = createSaltAndPassword(plainTextPassword)

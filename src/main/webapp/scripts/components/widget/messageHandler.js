@@ -3,15 +3,22 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'easyXDM'
+        'easyXDM',
+        'json2'
     ],
-    function($, Backbone, _, easyXDM){
+    function($, Backbone, _, easyXDM, JSON){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.EvAg.bind('msg/send', this.sendMessage);
                 this.properties = options.properties;
+                if(window.addEventListener){
+                    window.addEventListener('message', this.receiveMessageResponse , false);
+                } else if (window.attachEvent) {
+                    window.attachEvent('onmessage', this.receiveMessageResponse);
+                }
+
                 this.socket = new easyXDM.Socket({
                     onMessage: function(message, origin){
                         try{
@@ -25,11 +32,7 @@ define(
                         }
                     }
                 });
-                if(window.addEventListener){
-                    window.addEventListener('message', this.receiveMessageResponse , false);
-                } else if (window.attachEvent) {
-                    window.attachEvent('onmessage', this.receiveMessageResponse);
-                }
+
             },
             sendMessage: function(type, data){
                 this.socket.postMessage(JSON.stringify({ type: type, data: data}));

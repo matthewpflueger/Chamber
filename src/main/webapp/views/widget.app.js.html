@@ -52,13 +52,15 @@
         {{/widgetShareMessage}}
     {{/customization}}
 
+
+    EchoedSettings.partnerId = '{{partner.id}}';
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#dev}}
     es.src = "{{https.js}}/libs/require/require-2.1.1.js";
-    es.setAttribute('data-main',"{{https.js}}/loader.js?pid={{partnerId}}");
+    es.setAttribute('data-main',"{{https.js}}/loader.js");
     {{/dev}}
     {{^dev}}
-    es.src = "{{https.js}}/loader.js?pid={{partnerId}}"
+    es.src = "{{https.js}}/loader.js"
     {{/dev}}
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
 })();

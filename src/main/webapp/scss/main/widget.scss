@@ -37,17 +37,17 @@ body {
     z-index: 999999;
     background-color: #333;
 
-    #title{
+    #header-title{
+        line-height: 40px;
         display: inline-block;
-        @include fontText(26px, #FFF);
-        vertical-align: middle;
+        @include fontTitle(26px, #FFF);
     }
 }
 
 
 #echoed-exhibit-container{
     position: relative;
-    padding-top: 50px;
+    padding-top: 40px;
     height: 100%;
     #exhibit{
         padding-top: 10px;
@@ -90,13 +90,42 @@ body {
     }
 }
 
-#close{
-    z-index: 10002;
-    position: absolute;
-    @include sprite(0px, -28px, 15px, 15px);
-    right: 10px;
-    top: 10px;
+#user{
+    position:absolute;
+    right: 20px;
+    line-height: 40px;
+    #user-what{
+        @include fontTextBold(12px, #FFF);
+        margin-right: 10px;
+    }
+
+    #user-login{
+        @include fontTextBold(14px, $colorEC);
+        &:hover{
+            color: #FFF;
+        }
+    }
     cursor: pointer;
+}
+
+#close{
+    z-index: 10000;
+    position: absolute;
+    left: 10px;
+    top:0px;
+    line-height: 40px;
+    padding-left: 20px;
+    cursor: pointer;
+    @include fontTextBold(14px, #CCC);
+    &:hover{
+        color: #FFF;
+    }
+    #close-x{
+        @include sprite(0px, -28px, 15px, 15px);
+        top: 13px;
+        position: absolute;
+        left:0px;
+    }
 }
 
 #echo-story-gallery-container{

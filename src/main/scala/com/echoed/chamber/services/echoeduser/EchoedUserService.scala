@@ -74,7 +74,7 @@ class EchoedUserService(
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
-    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1 minute) {
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1.minute) {
         case _: Throwable ⇒ Stop
     }
 
@@ -414,7 +414,7 @@ class EchoedUserService(
 
             val model = Map("notifications" -> toEmail.toList, "name" -> echoedUser.name)
 
-            if (!toEmail.isEmpty) nt match {
+            if (!toEmail.isEmpty) (nt: @unchecked) match {
                 case None =>
                     mp(SendEmail(
                         echoedUser.email,

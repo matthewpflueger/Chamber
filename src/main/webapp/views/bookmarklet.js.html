@@ -1,0 +1,19 @@
+(function(){
+
+    var i=0, domain = window.location.hostname;
+    var links = document.getElementsByTagName('link');
+
+    for(i = 0; i < links.length; i++){
+        if(links[i].getAttribute('rel') === 'canonical'){
+            var url = links[i].getAttribute('href');
+            var a = document.createElement('a');
+            a.href = url;
+            domain = a.hostname;
+        }
+    }
+
+    var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
+    es.src = "{{https.site}}/widget/js?pid=" + domain;
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
+
+})();

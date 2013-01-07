@@ -159,13 +159,13 @@
 // Create a JSON object only if one does not already exist. We create the
 // methods in a closure to avoid creating global variables.
 
-var JSON;
-if (!JSON) {
-    JSON = {};
-}
-
 (function () {
     'use strict';
+
+    var JSON;
+    if (!JSON) {
+        JSON = {};
+    }
 
     function f(n) {
         // Format integers to have at least two digits.
@@ -484,4 +484,12 @@ if (!JSON) {
             throw new SyntaxError('JSON.parse');
         };
     }
+
+    if ( typeof define === "function" && define.amd) {
+        define([], function () { return JSON; } );
+    }
+
+    if (typeof window.JSON.stringify !== 'function')  window.JSON.stringify = JSON.stringify;
+    if (typeof window.JSON.parse !== 'function')  window.JSON.parse = JSON.parse;
+
 }());

@@ -49,6 +49,15 @@ case class Partner(
         UUID(),
         UUID())
 
+    def this(name: String, domain: String) = this(
+        name,
+        domain,
+        UUID(),
+        UUID(),
+        UUID(),
+        UUID()
+    )
+
     def this(siteName: String, siteUrl: String, shortName: String, community: String) = this(
         siteName,
         siteUrl,
