@@ -90,9 +90,16 @@ define(
                     }
                 })();
             },
+            isFirstChapter: function(chapterId){
+                var chapters = this.get("chapters")
+                if(chapters.length) return chapters[0].id === chapterId;
+                else return false
+            },
             getChapterImages: function(chapterId){
                 var chapterImages = this.get("chapterImages");
                 var i = [];
+                //Fix for pushing in Cover Image
+                if(this.isFirstChapter(chapterId)) i.push({ image: this.get("story").image });
                 $.each(chapterImages, function(index, image){
                     if(image.chapterId === chapterId) i.push(image);
                 });
@@ -173,7 +180,8 @@ define(
             },
             getCurrentImage: function(){
                 var chapterImages = this.getChapterImages(this.getCurrentChapter().id);
-                return this.get("chapterImages")[this.currentChapterImageIndex].image;
+                if(chapterImages.length) return chapterImages[this.currentChapterImageIndex].image;
+                else return false;
             },
             nextChapter: function(){
                 var chapters = this.get("chapters");
