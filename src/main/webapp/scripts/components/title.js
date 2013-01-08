@@ -3,17 +3,19 @@ define(
         'jquery',
         'backbone',
         'underscore',
+        'models/context',
         'components/utils',
         'hgn!templates/title/title',
         'hgn!templates/title/topic'
     ],
-    function($, Backbone, _, utils, templateTitle, templateTopic){
+    function($, Backbone, _, ModelContext, utils, templateTitle, templateTopic){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
                 this.element = $(options.el);
                 this.titleEl = $('#title');
                 this.properties = options.properties;
+                this.modelContext = new ModelContext();
                 this.EvAg = options.EvAg;
                 this.EvAg.bind('title/update', this.update);
                 this.render(options);
@@ -44,14 +46,14 @@ define(
                 })();
             },
             render: function(options){
-                this.element.html(templateTitle());
+                this.element.html(templateTitle({context: this.modelContext.toJSON()}));
                 this.titleText = $('#title-text');
                 this.titleBody = $('#title-body');
                 this.element.show();
             },
             update: function(options){
-                this.titleText.text(decodeURIComponent(options.title));
-                this.titleBody.empty();
+//                this.titleText.text(decodeURIComponent(options.title));
+//              this.titleBody.empty();
                 if(options.image) {
                     this.titleEl.css('background-image', 'url("' + utils.scaleByWidth(options.image, 260).attr('src') + '")');
                 } else {
@@ -72,7 +74,7 @@ define(
 
                         break;
                     default:
-                        this.titleBody.hide();
+//                        this.titleBody.hide();
                         break;
                 }
             }
