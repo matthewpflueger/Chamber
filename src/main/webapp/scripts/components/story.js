@@ -3,11 +3,12 @@ define(
         'jquery',
         'backbone',
         'underscore',
+        'models/story',
         'hgn!templates/story/story',
-        'hgn!templates/story/login',
+        'hgn!templates/story/comment',
         'components/utils'
     ],
-    function($, Backbone, _, templateStory, templateLogin, utils){
+    function($, Backbone, _, ModelStory, templateStory, templateComment, utils){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -133,46 +134,23 @@ define(
             upVote: function(ev){
                 var self = this;
                 if(this.modelUser.isLoggedIn()){
-                    utils.AjaxFactory({
-                        url: self.properties.urls.api + "/api/upvote",
-                        data: {
-                            storyId: self.data.story.id,
-                            storyOwnerId: self.data.echoedUser.id
-                        },
-                        success: function(data){
-                            self.data.votes[self.modelUser.get("id")] = {
-                                echoedUserId: self.modelUser.get("id"),
-                                value: 1
-                            };
-                            self.renderVotes();
-                        }
-                    })();
+                    this.modelStory.upVote(function(model){
+                        self.renderVotes();
+                    });
                 } else{
                     self.showLogin();
                 }
             },
             downVote: function(ev){
                 var self = this;
-                var target = $(ev.currentTarget);
                 if(this.modelUser.isLoggedIn()){
-                    utils.AjaxFactory({
-                        url: self.properties.urls.api + "/api/downvote",
-                        data: {
-                            storyId: self.data.story.id,
-                            storyOwnerId: self.data.echoedUser.id
-                        },
-                        success: function(data){
-                            self.data.votes[self.modelUser.get('id')] = {
-                                echoedUserId: self.modelUser.get('id'),
-                                value: -1
-                            };
-                            self.renderVotes();
-                        }
-                    })();
-                }
-                else {
+                    this.modelStory.downVote(function(model){
+                        self.renderVotes();
+                    });
+                } else{
                     self.showLogin();
                 }
+
             },
             login: function(){
                 var self = this;
@@ -193,14 +171,12 @@ define(
             },
             load: function(id){
                 var self = this;
-                utils.AjaxFactory({
-                    url: self.properties.urls.api + "/api/story/" + id,
-                    success: function(data){
-                        self.data = data;
-                        self.EvAg.trigger('pagetitle/update', data.story.title);
+                this.modelStory = new ModelStory({ id: id }, { properties: this.properties });
+                this.modelStory.fetch({
+                    success: function(model, xhr, response){
                         self.render();
                     }
-                })();
+                });
             },
             renderViews: function(){
                 var self = this;
@@ -209,7 +185,7 @@ define(
             renderVotes: function(){
                 var self = this;
                 var upVotes = 0, downVotes = 0, key;
-                var votes = self.data.votes;
+                var votes = this.modelStory.get("votes");
                 self.element.find('.upvote').removeClass('on');
                 self.element.find('.downvote').removeClass('on');
                 for (key in votes){
@@ -219,7 +195,7 @@ define(
                 $('#upvote-counter').text(upVotes);
                 $('#downvote-counter').text(downVotes);
                 if(this.modelUser.isLoggedIn()){
-                    var vote = self.data.votes[this.modelUser.get("id")];
+                    var vote = votes[this.modelUser.get("id")];
                     if(vote !== undefined){
                         if(vote.value > 0) self.element.find('.upvote').addClass('on');
                         else if(vote.value < 0) self.element.find('.downvote').addClass('on');
@@ -254,72 +230,55 @@ define(
                 }
             },
             render: function(){
-
                 var self = this;
-                var template = templateStory(self.data);
-                self.element.html(template);
-                self.chapters = {
-                    array: [],
-                    hash: {}
+
+                var view = {
+                    story: this.modelStory.toJSON(),
+                    profilePhotoUrl: utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
+                    isWidget: this.properties.isWidget,
+                    isMine: this.modelUser.is(this.modelStory.get("echoedUser").id)
                 };
 
-                $.each(self.data.chapters, function(index,chapter){
-                    var hash = {
-                        chapter: chapter,
-                        images: []
-                    };
-                    if(index === 0 && self.data.story.image){
-                        hash.images.push(self.data.story.image);
-                    }
-                    $.each(self.data.chapterImages, function(index, chapterImage){
-                        if(chapterImage.chapterId === chapter.id) {
-                            hash.images.push(chapterImage.image);
-                        }
-                    });
-                    self.chapters.array.push(hash);
-                    self.chapters.hash[chapter.id] = index;
-                });
-                self.currentChapterIndex = 0;
-                self.currentImageIndex = 0;
+
+
+                var template = templateStory(view);
+                self.element.html(template);
 
                 self.text = self.element.find('.echo-s-b-text');
-                if(this.modelUser.is(self.data.echoedUser.id)){
-                        var header = self.element.find('.echo-story-header');
-                        $('#story-edit-tab').attr("href","#write/story/" + self.data.story.id).css("display","inline-block");
-                }
+
 
                 self.gallery = $('#echo-s-b-gallery');
 
-                $('#echo-s-h-t-n-i').attr("src", utils.getProfilePhotoUrl(self.data.echoedUser, self.properties.urls));
-                $('#story-follow').attr("echoedUserId", self.data.echoedUser.id);
-                if(self.properties.isWidget) $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id).attr('target',"_blank");
-                else $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id)
+                //$('#story-follow').attr("echoedUserId", self.data.echoedUser.id);
 
-                if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
-                    var from = $('#echo-story-from');
-                    var fromText = $('#echo-story-from-text');
-                    if(self.data.story.partnerHandle !== "Echoed"){
-                        var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-                        fromText.text(self.data.story.productInfo);
-                        from.show();
-                    }
-                }
 
-                self.itemNode = $("<div class='echo-s-b-item'></div>");
-                self.itemImageContainer = $("<div class='echo-s-b-i-c'></div>");
-                self.img = $("<img />");
-                self.itemNode.append(self.itemImageContainer.append(self.img)).appendTo(self.gallery);
+
+//                if(self.properties.isWidget) $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id).attr('target',"_blank");
+//                else $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id)
+
+//                if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
+//                    var from = $('#echo-story-from');
+//                    var fromText = $('#echo-story-from-text');
+//                    if(self.data.story.partnerHandle !== "Echoed"){
+//                        var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
+//                        fromText.text(self.data.story.productInfo);
+//                        from.show();
+//                    }
+//                }
+
+
+                self.itemImageContainer = $('#echo-s-b-i-c');
+                self.img = $("#echo-s-b-i-c-i");
                 self.galleryNode = $("#echo-story-gallery");
                 self.galleryNodeBody = $('#echo-story-gallery-body');
-                self.chapterText = $("<div class='echo-s-b-t-b'></div>");
-                self.text.append(self.chapterText);
+                self.chapterText = $("#echo-s-b-t-b");
                 self.story = $('#story');
                 self.renderGalleryNav();
                 self.renderComments();
                 self.renderChapter();
                 self.renderVotes();
-                self.renderFollowing();
-                self.renderViews();
+                //self.renderFollowing();
+                //self.renderViews();
                 self.scroll(0);
 
                 self.story.css({ "margin-left": -(self.story.width() / 2) });
@@ -328,78 +287,64 @@ define(
             },
             renderGalleryNav: function(){
                 var self = this;
+                var chapters = this.modelStory.get("chapters");
                 self.thumbnails = {};
                 self.titles = [];
                 self.galleryChapters = [];
-                $.each(self.chapters.array, function(index, chapter){
-                    self.galleryChapters[index]=  $('<div></div>').addClass('echo-gallery-chapter').attr("index", index);
-                    var title = $('<div></div>').addClass('echo-gallery-title').text(chapter.chapter.title);
+                $.each(chapters, function(index, chapter){
+                    self.galleryChapters[index] = $('<div></div>').addClass('echo-gallery-chapter').attr("index", index);
+                    var title = $('<div></div>').addClass('echo-gallery-title').text(chapter.title);
                     self.galleryChapters[index].append(title);
                     self.galleryNodeBody.append(self.galleryChapters[index]);
-                    $.each(chapter.images, function(index2, image){
+                    var chapterImages  = self.modelStory.getChapterImages(chapter.id);
+                    $.each(chapterImages, function(index2, ci){
                         var thumbNailHash = index + "-" + index2;
-                        self.thumbnails[thumbNailHash] = utils.scaleByWidth(image, 90).addClass("echo-s-b-thumbnail").attr("index", thumbNailHash);
+                        self.thumbnails[thumbNailHash] = utils.scaleByWidth(ci.image, 90).addClass("echo-s-b-thumbnail").attr("index", thumbNailHash);
                         self.galleryChapters[index].append(self.thumbnails[thumbNailHash]);
                     });
                 });
             },
             nextImage: function(){
-                var self = this;
-                self.currentImageIndex++;
-                if(self.currentImageIndex >= self.chapters.array[self.currentChapterIndex].images.length){
-                    self.nextChapter();
-                } else {
-                    self.renderImage(self.currentImageIndex);
-                }
+                this.modelStory.nextImage();
+                this.renderChapter();
             },
             nextChapter: function(){
-                var self = this;
-                self.currentChapterIndex++;
-                self.currentImageIndex = 0;
-                if(self.currentChapterIndex >= self.chapters.array.length){
-                    self.currentChapterIndex = 0;
-                }
-                self.renderChapter(self.currentChapterIndex);
+                this.modelStory.nextChapter();
+                this.renderChapter();
             },
             imageClick: function(e){
-                var self = this;
-                var index = $(e.target).attr("index");
-                self.currentChapterIndex = index.split("-")[0];
-                self.currentImageIndex = index.split("-")[1];
-                self.renderChapter();
+                var indices = $(e.target).attr("index").split("-");
+                this.modelStory.setCurrentImage(indices[0], indices[1]);
+                this.renderChapter();
             },
             chapterClick: function(e){
-                var self = this;
                 var target = $(e.target);
                 if(!target.is("img")){
-                    self.currentChapterIndex = $(e.currentTarget).attr("index");
-                    self.currentImageIndex = 0;
-                    self.renderChapter();
+                    this.modelStory.setCurrentChapter($(e.currentTarget).attr("index"));
+                    this.renderChapter();
                 }
             },
             renderChapter: function(){
                 var self = this;
                 var textArea = self.element.find('.echo-s-b-text');
-                var chapterText = self.chapters.array[self.currentChapterIndex].chapter.text;
+                var chapter = this.modelStory.getCurrentChapter();
+                var chapterText = chapter.text;
                 if (chapterText.length < 300) this.chapterType = 'photo';
                 else this.chapterType = 'text';
 
                 textArea.fadeOut(function(){
-                    self.element.find('.echo-story-chapter-title').text(self.chapters.array[self.currentChapterIndex].chapter.title);
-                    self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(self.chapters.array[self.currentChapterIndex].chapter.text)).replace(/\n/g, '<br />'));
+                    self.element.find('.echo-story-chapter-title').text(chapter.title);
+                    self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(chapter.text)).replace(/\n/g, '<br />'));
                     if(chapterText.length >0) self.chapterText.show();
                     else self.chapterText.hide();
                     textArea.fadeIn();
                 });
-
-                self.galleryNode.find('.echo-gallery-chapter').removeClass("highlight");
-                self.galleryChapters[self.currentChapterIndex].addClass("highlight");
-                self.scroll(self.galleryNode.scrollTop() + self.galleryChapters[self.currentChapterIndex].position().top);
+                //self.scroll(self.galleryNode.scrollTop() + self.galleryChapters[index].position().top);
                 self.renderImage();
             },
             renderImage: function(){
                 var self = this;
-                var currentImage = self.chapters.array[self.currentChapterIndex].images[self.currentImageIndex];
+                var currentImage = this.modelStory.getCurrentImage();
                 var imageSizing = {};
                 var imageUrl = "";
 
@@ -410,8 +355,7 @@ define(
                             width:i.attr('width'),
                             height:i.attr('height')
                         }
-                        imageUrl = i.attr('src')
-//                        utils.getMaxImageSizing(currentImage, 842, 700)
+                        imageUrl = i.attr('src');
                         self.gallery.addClass("gallery-photo");
                         self.gallery.removeClass('gallery-text');
                         self.chapterText.addClass('caption')
@@ -421,7 +365,7 @@ define(
                             width: i.attr('width'),
                             height: i.attr('height')
                         }
-                        imageUrl = i.attr('src')
+                        imageUrl = i.attr('src');
                         self.gallery.addClass("gallery-text");
                         self.gallery.removeClass('gallery-photo');
                         self.chapterText.removeClass('caption')
@@ -434,8 +378,6 @@ define(
                             'fast',
                             function(){
                                 self.img.css(imageSizing).attr('src', imageUrl).fadeIn();
-                                self.galleryNode.find('.echo-s-b-thumbnail').removeClass("highlight");
-                                self.thumbnails[self.currentChapterIndex + "-" + self.currentImageIndex].addClass("highlight");
                             });
                     });
 
@@ -449,44 +391,23 @@ define(
             renderComments: function(){
                 var self = this;
                 var commentListNode = self.element.find('.echo-s-c-l');
-                var comments = {
-                    children: []
-                };
-                $.each(self.data.comments, function(index, comment){
-                    var parentId = comment.parentCommentId;
-                    if(parentId == null){
-                        comments.children.push(comment);
-                    } else {
-                        if(comments[parentId] == null){
-                            comments[parentId] = {
-                                children: []
-                            }
-                        }
-                        comments[parentId].children.push(comment);
-                    }
-                });
                 commentListNode.empty();
                 $("#echo-story-comment-ta").val("");
 
-
-                $.each(self.data.comments, function(index,comment){
-                    var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(comment.createdOn.toString()));
-                    var elapsedNode = $('<span class="echo-s-c-l-c-d"></span>').append(elapsedString);
-                    var commentUserNode = $('<div class="echo-s-c-l-c-u"></div>').append($("<a class='story-link red-link'></a>").text(comment.echoedUser.name).attr("href","#user/" + comment.echoedUser.id)).append(elapsedNode);
-                    var img = $('<img class="echo-s-c-l-c-u-i" />').attr("src", utils.getProfilePhotoUrl(comment.echoedUser, self.properties.urls)).attr("align", "absmiddle");
-                    img.prependTo(commentUserNode);
-                    var commentText = $('<div class="echo-s-c-l-c-t"></div>').html(utils.replaceUrlsWithLink(utils.escapeHtml(comment.text).replace(/\n/g, '<br />')));
-                    var commentNode = $('<div class="echo-s-c-l-c"></div>').append(commentUserNode).append(commentText);
-                    commentListNode.append(commentNode);
+                var comments = this.modelStory.get("comments");
+                $('#echo-s-c-t-count').text("(" + comments.length + ")");
+                $.each(comments, function(index,comment){
+                    var view = {
+                        elapsedString: utils.timeElapsedString(utils.timeStampStringToDate(comment.createdOn.toString())),
+                        comment: comment,
+                        profilePhotoUrl: utils.getProfilePhotoUrl(comment.echoedUser, self.properties.urls)
+                    };
+                    var template = templateComment(view);
+                    commentListNode.append(template);
                 });
-                $('#echo-s-c-t-count').text("(" + self.data.comments.length + ")");
-                if(this.modelUser.isLoggedIn()) {
-                    self.element.find('.comment-submit').fadeIn();
-                } else{
-                    self.element.find('.comment-login-fb').attr("href", utils.getFacebookLoginUrl("redirect/close"));
-                    self.element.find('.comment-login-tw').attr("href", utils.getTwitterLoginUrl("redirect/close"));
-                    self.element.find('.comment-login').fadeIn();
-                }
+
+                if(this.modelUser.isLoggedIn()) self.element.find('.comment-submit').fadeIn();
+                else self.element.find('.comment-login').fadeIn();
             },
             commentLogin: function(ev){
                 var href = $(ev.currentTarget).attr("href");
@@ -495,26 +416,18 @@ define(
             },
             createComment: function(){
                 var self = this;
-                var storyId = self.data.story.id;
-                var chapterId = self.data.chapters[0].id;
                 var text = $.trim($("#echo-story-comment-ta").val());
                 if(text === ""){
                     alert("Please enter in a comment");
                 } else if(self.locked !== true){
                     self.locked = true;
-                    utils.AjaxFactory({
-                        url: self.properties.urls.api + "/story/" + storyId + "/chapter/" + chapterId + "/comment",
-                        type: "POST",
-                        data: {
-                            text: text,
-                            storyOwnerId: self.data.echoedUser.id
-                        },
-                        success: function(createCommentData) {
+                    this.modelStory.saveComment(
+                        text,
+                        function(model){
                             self.locked = false;
-                            self.data.comments.push(createCommentData);
                             self.renderComments();
                         }
-                    })();
+                    );
                 }
             },
             redirect: function(){

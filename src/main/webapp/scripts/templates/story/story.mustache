@@ -6,11 +6,11 @@
             <div id="echo-story-user-container">
                 <div id="echo-story-user">
                     <div class="echo-s-h-t-n">
-                        <img id="echo-s-h-t-n-i" class="echo-s-h-t-n-i" src="" />
+                        <img id="echo-s-h-t-n-i" class="echo-s-h-t-n-i" src="{{profilePhotoUrl}}" />
                         <div class='echo-s-h-t-n-t'>
-                            <a id="story-user-link" class="story-link link-white bold-link">{{ echoedUser.name }}</a>
+                            <a id="story-user-link" class="story-link link-white bold-link">{{ story.echoedUser.name }}</a>
                         </div>
-                        <span id="story-follow" style="display:none;">
+                        <span id="story-follow" echoedUserId="{{story.echoedUser.id}}" style="display:none;">
                         </span>
                     </div>
                     <div id="echo-s-vote">
@@ -33,16 +33,18 @@
                         Views:
                     </div>
                 </div>
+                {{#isMine}}
                 <div id="story-edit-container">
-                    <a id="story-edit-tab">
+                    <a id="story-edit-tab" href="#write/story/{{story.id}}">
                         Edit Story
                     </a>
                 </div>
+                {{/isMine}}
             </div>
             <div class="echo-story-header clearfix">
                 <div class="echo-s-h-title clearfix">
                     <div class="echo-s-h-t-t">
-                        {{ story.title }}
+                        {{ story.story.title }}
                     </div>
                 </div>
             </div>
@@ -52,8 +54,14 @@
                 </div>
                 <div class="echo-story-body clearfix">
                     <div id="echo-s-b-gallery" class="clearfix">
+                        <div id="echo-s-b-item" class="echo-s-b-item">
+                            <div id="echo-s-b-i-c" class='echo-s-b-i-c'>
+                                <img id="echo-s-b-i-c-i" />
+                            </div>
+                        </div>
                     </div>
                     <div class="echo-s-b-text">
+                        <div id="echo-s-b-t-b" class='echo-s-b-t-b'></div>
                     </div>
                 </div>
                 <div id="echo-story-from" class="clearfix">

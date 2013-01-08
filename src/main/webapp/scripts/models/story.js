@@ -9,6 +9,11 @@ define(
                 if(attr === null) {
                     this.initStory(options);
                     this.properties = options.properties;
+                } else {
+                    this.properties = options.properties;
+                    this.url = options.properties.urls.site + "/api/story/" + attr.id
+                    this.currentChapterIndex = 0;
+                    this.currentChapterImageIndex = 0;
                 }
             },
             initStory: function(options){
@@ -59,6 +64,32 @@ define(
                     }
                 })();
             },
+            upVote: function(callback){
+                var self = this;
+                utils.AjaxFactory({
+                    url: this.properties.urls.site + "/api/upvote",
+                    data: {
+                        storyId: this.id,
+                        storyOwnerId: this.get("echoedUser").id
+                    },
+                    success: function(){
+                        callback(self)
+                    }
+                })();
+            },
+            downVote: function(callback){
+                var self = this;
+                utils.AjaxFactory({
+                    url: this.properties.urls.site + "/api/downvote",
+                    data: {
+                        storyId: this.id,
+                        storyOwnerId: this.get("echoedUser").id
+                    },
+                    success: function(){
+                        callback(self)
+                    }
+                })();
+            },
             getChapterImages: function(chapterId){
                 var chapterImages = this.get("chapterImages");
                 var i = [];
@@ -92,6 +123,25 @@ define(
                     }
                 })();
             },
+            saveComment: function(text, callback){
+                var self = this;
+                var chapterId = this.getChapter(0).id;
+                var url = this.properties.urls.api + "/story/" + this.id + "/chapter/" + chapterId + "/comment";
+                utils.AjaxFactory({
+                    type: "POST",
+                    url: url,
+                    data: {
+                        text: text,
+                        storyOwnerId: this.get("echoedUser").id
+                    },
+                    success: function(response){
+                        var comments = self.get("comments");
+                        comments.push(response);
+                        self.set("comments", comments);
+                        callback(self, response);
+                    }
+                })();
+            },
             updateChapter: function(chapter, chapterImages){
                 var chapters = this.get("chapters");
                 var newImages = [];
@@ -117,6 +167,32 @@ define(
                 if(this.get("story").image) return this.get("story").image;
                 else if (this.get("chapterImages").length > 0) return this.get("chapterImages")[0].image;
                 else return null;
+            },
+            getCurrentChapter: function(){
+                return this.get("chapters")[this.currentChapterIndex];
+            },
+            getCurrentImage: function(){
+                var chapterImages = this.getChapterImages(this.getCurrentChapter().id);
+                return this.get("chapterImages")[this.currentChapterImageIndex].image;
+            },
+            nextChapter: function(){
+                var chapters = this.get("chapters");
+                this.currentChapterIndex++;
+                if(this.currentChapterIndex >= chapters.length ) this.currentChapterIndex = 0;
+                this.currentChapterImageIndex = 0;
+            },
+            nextImage: function(){
+                var chapterImages = this.getChapterImages(this.getCurrentChapter().id);
+                this.currentChapterImageIndex++;
+                if(this.currentChapterImageIndex >= chapterImages.length) this.nextChapter();
+            },
+            setCurrentChapter: function(chapterIndex){
+                this.currentChapterIndex = chapterIndex;
+                this.currentChapterImageIndex = 0;
+            },
+            setCurrentImage: function(chapterIndex, imageIndex){
+                this.currentChapterIndex = chapterIndex;
+                this.currentChapterImageIndex = imageIndex;
             }
         });
     }
