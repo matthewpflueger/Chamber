@@ -19,7 +19,6 @@ define(
                     dataType: 'jsonp',
                     success: function(response){
                         self.set(response.storyFull);
-                        console.log(response.storyFull);
                         self.set("partner", response.partner);
                         options.success(self)
                     }
@@ -28,14 +27,19 @@ define(
             submitCover: function(options, callback){
                 var self = this;
                 var type = "POST";
-                var url = this.properties.urls.site + "/story/" + this.id;
-                if(this.get("isNew") === false) type = "PUT";
+                var url = this.properties.urls.site + "/story";
+                if(this.get("isNew") === false){
+                    type = "PUT";
+                    url += "/" + this.id;
+                }
                 utils.AjaxFactory({
                     type: type,
                     url: url,
                     data: options,
                     success: function(response){
+                        console.log(response);
                         self.set("story", response);
+                        self.set("isNew", false);
                         callback(self)
                     }
                 })();
