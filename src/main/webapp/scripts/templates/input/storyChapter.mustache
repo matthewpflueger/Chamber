@@ -31,5 +31,11 @@
         Status
     </div>
     <div class="story-input-content story-input-publishedOn">
+        {{#publishedOn}}
+            Published
+        {{/publishedOn}}
+        {{^publishedOn}}
+            Draft
+        {{/publishedOn}}
     </div>
 </div>

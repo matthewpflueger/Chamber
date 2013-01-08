@@ -106,33 +106,30 @@
                 self.body = $('#story-summary-body');
 
                 if(this.modelStory.get("isNew")){
-                    self.loadStoryInputTemplate({ type: "Add" });
+                    self.loadStoryInputTemplate();
                 } else if(this.modelStory.get("chapters").length > 0){
                     self.loadStoryCoverTemplate();
                     self.loadChapterTemplates();
                 } else {
                     self.loadStoryCoverTemplate();
-                    self.loadChapterInputTemplate({ type: "Add" });
+                    self.loadChapterInputTemplate({});
                 }
                 self.show();
             },
             removeChapterThumb: function(e){
-                var self = this;
                 var target = $(e.currentTarget).parent();
-                var id = target.attr("imageId");
-                var i = 0;
-                for(i = 0; i < self.currentChapter.images.length; i++){
-                    if(self.currentChapter.images[i].id === id) self.currentChapter.images.splice(i, 1);
+                var id = $(e.currentTarget).parent().attr("imageId");
+                for(var i = 0; i < this.currentImages.length; i++){
+                    if(this.currentImages[i].id === id) this.currentImages.splice(i, 1);
                 }
                 target.fadeOut(function(){$(this).remove()});
             },
-            editStoryClick: function(ev){
-                this.loadStoryInputTemplate({ type: "Edit" });
+            editStoryClick: function(){
+                this.loadStoryInputTemplate();
             },
             editChapterClick: function(ev){
                 var chapterIndex = $(ev.currentTarget).attr('chapterIndex');
-                var chapterId = $(ev.currentTarget).attr('chapterId');
-                this.loadChapterInputTemplate({ type: "Edit", index: chapterIndex, chapterId: chapterId })
+                this.loadChapterInputTemplate({ index: chapterIndex })
             },
             loadStoryCoverTemplate: function(){
                 var self = this;
@@ -148,15 +145,15 @@
             loadChapterInputTemplate: function(option){
                 var self = this;
 
+                var cElement = function(opt){
+                    if(opt.index) return $("#chapter-row-" + opt.index);
+                    else return $('<div class="field-main-row clearfix"></div>').appendTo(self.body);
+                }(option);
+
                 var chapter = this.modelStory.getChapter(option.index);
                 var chapterImages = this.modelStory.getChapterImages(chapter.id);
                 this.currentImages = [];
                 this.editChapterId = chapter.id;
-
-                var cElement = function(opt){
-                    if(opt.type ==="Edit") return $("#chapter-row-" + opt.index);
-                    else return $('<div class="field-main-row clearfix"></div>').appendTo(self.body);
-                }(option);
 
                 cElement.fadeOut(function(){
                     var template = templateChapterInput({ chapter: chapter });
@@ -269,44 +266,35 @@
             loadChapterTemplates: function(){
                 var self = this;
                 $.each(self.modelStory.get("chapters"), function(index, chapter){
+
                     chapter.index = index;
+
                     var template = templateChapter(chapter);
-                    var chapterRow = $('<div class="field-main-row clearfix"></div>')
-                            .html(template)
-                            .appendTo(self.body)
-                            .attr('id','chapter-row-' + index);
+                    var chapterRow = $('<div class="field-main-row clearfix"></div>').html(template).appendTo(self.body).attr("id", "chapter-row-" + index);
                     var photos = chapterRow.find('.story-input-photos');
                     var imagesFound = false;
-                    $.each(self.modelStory.get("chapterImages"), function(index, chapterImage){
-                        if(chapterImage.chapterId === chapter.id){
-                            var chapterImg = utils.scaleByHeight(chapterImage.image, 50).addClass('story-summary-photo');
-                            photos.append(chapterImg);
-                            imagesFound = true
-                        }
+                    var chapterImages = self.modelStory.getChapterImages(chapter.id);
+
+                    $.each(chapterImages, function(index, chapterImage){
+                        photos.append(utils.scaleByHeight(chapterImage.image, 50).addClass('story-summary-photo'));
+                        imagesFound = true;
                     });
+
                     if (imagesFound === false) chapterRow.find('.story-input-photo-row').hide();
-                    if (chapter.publishedOn > 0) {
-                        chapterRow.find('.story-input-publishedOn').text("Published");
-                        $("#story-hide").hide();
-                    } else chapterRow.find('.story-input-publishedOn').text("Draft").addClass('highlight-text').addClass("bold");
+                    if (chapter.publishedOn > 0) $("#story-hide").hide();
                 });
             },
-            loadStoryInputTemplate: function(option){
+            loadStoryInputTemplate: function(){
                 var self = this;
-                var template = templateStoryCoverInput();
-                if(this.modelStory.get("topic")) $('#field-title').text(this.modelStory.get("topic"));
+
+                var topic = this.modelStory.get("topic");
+                var story = this.modelStory.get("story");
+                var partner  = this.modelStory.get("partner");
+
+                var template = templateStoryCoverInput({ story: story, topic: topic, partner: partner});
 
                 self.cover.fadeOut(function(){
                     $(this).html(template);
-
-                    var partner = self.modelStory.get("partner");
-                    var story = self.modelStory.get("story");
-
-                    $('#story-name').val(self.modelStory.get("story").title);
-                    $('#story-input-from-content').text(partner.name);
-                    $('#story-input-partnerId').val(partner.id);
-                    $('#story-input-from').show();
-
 
                     if(story.image !== null){
                         var photo = utils.scaleByWidth(story.image, 75);
@@ -404,14 +392,17 @@
                 if($.trim(title) === ""){
                     alert("Please include a title for your story");
                 } else if(self.locked !== true){
-                    var imageId = $('#story-input-imageId').val() ?  $('#story-input-imageId').val() : null;
+
                     var partnerId = $('#story-input-partnerId').val() ? $('#story-input-partnerId').val() : null;
                     var storyData = {
                         storyId: this.modelStory.id,
                         title: title,
-                        imageId: imageId,
                         partnerId: partnerId
                     };
+
+                    var imageId = $('#story-input-imageId').val();
+                    if(imageId) storyData.imageId = imageId;
+
                     this.modelStory.submitCover(storyData, function(model){
                         self.locked = false;
                         self.render();
@@ -419,7 +410,7 @@
                 }
             },
             addChapterClick: function(){
-                this.loadChapterInputTemplate({ type: "Add" });
+                this.loadChapterInputTemplate({});
             },
             publishChapterClick: function(){
                 this.updateChapter(true);

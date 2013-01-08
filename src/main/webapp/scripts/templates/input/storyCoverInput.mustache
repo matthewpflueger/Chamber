@@ -5,20 +5,13 @@
             <strong>Title</strong>
         </div>
         <div class="story-input-content">
-            <input class="field-text-input" id="story-name" type="text" placeholder="Give Your Story a Title">
+            <input class="field-text-input" id="story-name" type="text" placeholder="Give Your Story a Title" value="{{story.title}}">
         </div>
     </div>
-    <!--<div class="story-detail-row" id="story-input-from">-->
-        <!--<div class="story-input-label">-->
-              <!--From-->
-        <!--</div>-->
-        <!--<div class="story-input-content" id="story-input-from-content">-->
-        <!--</div>-->
-    <!--</div>-->
     <div class="story-detail-row">
         <input name="echoId" type="hidden" id="story-input-echoId"/>
-        <input name="partnerId" type="hidden" id="story-input-partnerId"/>
-        <input name="imageId" type="hidden" id="story-input-imageId" />
+        <input name="partnerId" type="hidden" id="story-input-partnerId" value="{{partner.id}}"/>
+        <input name="imageId" type="hidden" id="story-input-imageId" value="{{story.image.id}}"/>
     </div>
     <div class="story-detail-row">
         <div class="story-input-label">

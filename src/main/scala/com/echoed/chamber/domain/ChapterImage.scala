@@ -49,4 +49,21 @@ case class ChapterImage(
         imageId = imageId,
         image = new Image().copy(id = imageId))
 
+    def this(
+            chapter: Chapter,
+            image: Image)  = this(
+        UUID(),
+        new Date,
+        new Date,
+        chapter.storyId,
+        chapter.echoedUserId,
+        chapter.partnerId,
+        chapter.partnerHandle,
+        chapter.partnerSettingsId,
+        chapter.echoId,
+        chapter.id,
+        image.id,
+        image
+    )
+
 }

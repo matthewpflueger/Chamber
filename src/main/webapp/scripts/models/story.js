@@ -37,7 +37,6 @@ define(
                     url: url,
                     data: options,
                     success: function(response){
-                        console.log(response);
                         self.set("story", response);
                         self.set("isNew", false);
                         callback(self)
@@ -88,9 +87,25 @@ define(
                     contentType: "application/json",
                     data: JSON.stringify(options),
                     success: function(response){
+                        self.updateChapter(response.chapter, response.chapterImages);
                         callback(self, response)
                     }
                 })();
+            },
+            updateChapter: function(chapter, chapterImages){
+                var chapters = this.get("chapters");
+                var newImages = [];
+                $.each(chapters, function(index, c){
+                    if(c.id === chapter.id) chapters[index] = chapter;
+                });
+                $.each(this.get("chapterImages"), function(index, ci){
+                    if(ci.chapterId !== chapter.id) newImages.push(ci);
+                });
+                $.each(chapterImages, function(index, ci){
+                    newImages.push(ci);
+                });
+                this.set("chapters", chapters);
+                this.set("chapterImages", newImages);
             },
             isIncomplete: function(){
                 return this.get("chapters").length == 0
