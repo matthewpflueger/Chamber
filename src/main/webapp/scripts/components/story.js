@@ -37,7 +37,6 @@ define(
                 "click #echo-story-gallery-next": "next",
                 "click #echo-story-gallery-prev": "previous",
                 "click .story-share": "share",
-                "click #story-login-container": "closeLogin",
                 "click #comments-login": "showLogin",
                 "click .story-link": "redirect",
                 "click .fade" : "fadeClick"
@@ -52,11 +51,6 @@ define(
             },
             showLogin: function(){
                 this.EvAg.trigger("login/init", "story/login");
-            },
-            closeLogin: function(ev){
-                if($(ev.target).attr("id") === "story-login-container"){
-                    $('#story-login-container').fadeOut();
-                }
             },
             share: function(ev){
                 var self = this;
@@ -128,7 +122,6 @@ define(
                     });
                     $('#story-login-container').fadeOut();
                     self.renderVotes();
-                    self.renderFollowing();
                 }
             },
             navClick: function(ev){
@@ -166,9 +159,6 @@ define(
                     }
                 }
             },
-            renderFollowing: function(){
-                this.follow = new Follow({ el: '#story-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
-            },
             render: function(){
                 var self = this;
 
@@ -185,7 +175,7 @@ define(
                 self.element.html(template);
 
                 self.text = self.element.find('.echo-s-b-text');
-
+                self.follow = new Follow({ el: '#story-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
 
                 self.gallery = $('#echo-s-b-gallery');
 
@@ -217,9 +207,7 @@ define(
                 self.renderComments();
                 self.renderChapter();
                 self.renderVotes();
-                self.renderFollowing();
                 self.scroll(0);
-
                 self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
                 $("body").addClass("noScroll");
