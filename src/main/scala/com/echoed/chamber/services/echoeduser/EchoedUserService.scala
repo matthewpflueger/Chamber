@@ -487,8 +487,11 @@ class EchoedUserService(
 
 
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
-            mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value))
-            sender ! VoteStoryResponse(msg, Right(true))
+            val channel = sender
+            mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value)).onSuccess {
+                case NewVoteResponse(_, Right(votes)) =>
+                    channel ! VoteStoryResponse(msg, Right(votes))
+            }
             if(value > 0) self ! PublishFacebookAction(eucc, "upvote", "story", storyGraphUrl + storyId)
 
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>

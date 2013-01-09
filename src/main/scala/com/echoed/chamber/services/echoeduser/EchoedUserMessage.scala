@@ -197,9 +197,8 @@ case class VoteStory(
         storyOwnerId: String,
         storyId: String,
         value: Int) extends EUM with EUI with SI
-
-case class VoteStoryResponse(message: VoteStory, value: Either[EUE, Boolean])
-        extends EUM with MR[Boolean,  VoteStory, EUE]
+case class VoteStoryResponse(message: VoteStory, value: Either[EUE, Map[String, Vote]])
+        extends EUM with MR[Map[String, Vote],  VoteStory, EUE]
 
 case class NewVote(
         credentials: EUCC,
@@ -207,8 +206,8 @@ case class NewVote(
         storyId: String,
         value: Int) extends EUM with EUI with SI
 
-case class NewVoteResponse(message: NewVote, value: Either[EUE, Story])
-        extends EUM with MR[Story, NewVote, EUE]
+case class NewVoteResponse(message: NewVote, value: Either[EUE, Map[String, Vote]])
+        extends EUM with MR[Map[String, Vote], NewVote, EUE]
 
 
 case class CreateStory(

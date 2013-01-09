@@ -162,8 +162,7 @@ class StoryService(
                         "object" -> storyState.title,
                         "storyId" -> storyState.id))))
             }
-
-            sender ! NewVoteResponse(msg, Right(storyState.asStory))
+            sender ! NewVoteResponse(msg, Right(storyState.votes))
 
 
         case msg @ CreateChapter(eucc, storyId, title, text, imageIds, publish) =>

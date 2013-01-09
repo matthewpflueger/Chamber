@@ -10,7 +10,7 @@ import javax.annotation.Nullable
 import com.echoed.chamber.services.partner._
 import com.echoed.chamber.services.feed.GetCommunitiesResponse
 import com.echoed.chamber.services.feed.GetStoryResponse
-import com.echoed.chamber.services.echoeduser.{Follower, GetFeedResponse, FetchNotifications, UnFollowUser, GetUserFeedResponse, ReadSettingsResponse, ListFollowedByUsers, NewSettingsResponse, MarkNotificationsAsReadResponse, ListFollowedByUsersResponse, ReadSettings, GetExhibitResponse, FetchNotificationsResponse, ListFollowingUsers, GetFeed, MarkNotificationsAsRead, ListFollowingUsersResponse, GetUserFeed, EchoedUserClientCredentials, NewSettings, VoteStory, GetExhibit, FollowUser}
+import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.feed.GetPublicStoryFeed
 import com.echoed.chamber.services.topic.ReadTopicsResponse
 import com.echoed.chamber.services.feed.GetCategoryStoryFeedResponse
@@ -26,13 +26,117 @@ import com.echoed.chamber.services.feed.GetPublicStoryFeedResponse
 import com.echoed.chamber.services.topic.ReadCommunityTopics
 import com.echoed.chamber.services.topic.ReadTopicFeedResponse
 import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.echoeduser.PublishFacebookAction
 import javax.servlet.http.HttpServletResponse
-import com.echoed.chamber.domain.{Topic, EchoedUserSettings, Notification}
+import com.echoed.chamber.domain._
 import scala.collection.immutable.Stack
 import com.echoed.chamber.domain.views.{CommunityFeed, EchoedUserStoryFeed, PartnerStoryFeed, TopicStoryFeed, ClosetPersonal, Feed, PublicStoryFeed}
 import com.echoed.chamber.domain.public.StoryPublic
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.echoed.chamber.services.feed.GetStoryResponse
+import com.echoed.chamber.services.echoeduser.GetFeedResponse
+import com.echoed.chamber.services.echoeduser.FetchNotifications
+import com.echoed.chamber.services.echoeduser.ReadSettingsResponse
+import com.echoed.chamber.domain.views.CommunityFeed
+import com.echoed.chamber.services.partner.GetTopicsResponse
+import com.echoed.chamber.domain.views.PublicStoryFeed
+import com.echoed.chamber.domain.views.EchoedUserStoryFeed
+import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
+import com.echoed.chamber.services.partner.GetTopics
+import com.echoed.chamber.services.echoeduser.NewSettingsResponse
+import com.echoed.chamber.domain.views.TopicStoryFeed
+import com.echoed.chamber.services.topic.ReadTopicFeed
+import com.echoed.chamber.services.feed.GetCommunities
+import com.echoed.chamber.services.feed.GetStory
+import com.echoed.chamber.domain.views.Feed
+import com.echoed.chamber.services.echoeduser.MarkNotificationsAsRead
+import com.echoed.chamber.services.echoeduser.GetUserFeed
+import com.echoed.chamber.services.echoeduser.NewSettings
+import com.echoed.chamber.services.echoeduser.GetExhibit
+import com.echoed.chamber.services.partner.PartnerClientCredentials
+import com.echoed.chamber.services.topic.ReadTopics
+import com.echoed.chamber.services.feed.GetCommunitiesResponse
+import com.echoed.chamber.services.echoeduser.UnFollowUser
+import com.echoed.chamber.services.feed.GetPublicStoryFeed
+import com.echoed.chamber.services.echoeduser.GetUserFeedResponse
+import com.echoed.chamber.domain.views.ClosetPersonal
+import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.services.feed.GetCategoryStoryFeedResponse
+import com.echoed.chamber.domain.views.PartnerStoryFeed
+import com.echoed.chamber.services.feed.GetCategoryStoryFeed
+import com.echoed.chamber.services.topic.ReadCommunityTopicsResponse
+import com.echoed.chamber.services.partner.ReadPartnerFeed
+import com.echoed.chamber.services.echoeduser.MarkNotificationsAsReadResponse
+import com.echoed.chamber.services.echoeduser.ListFollowedByUsersResponse
+import com.echoed.chamber.services.echoeduser.ReadSettings
+import com.echoed.chamber.services.feed.GetPublicStoryFeedResponse
+import com.echoed.chamber.services.echoeduser.GetExhibitResponse
+import com.echoed.chamber.services.echoeduser.FetchNotificationsResponse
+import com.echoed.chamber.services.echoeduser.ListFollowingUsers
+import com.echoed.chamber.services.echoeduser.GetFeed
+import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.topic.ReadCommunityTopics
+import com.echoed.chamber.services.partner.ReadPartnerFeedResponse
+import com.echoed.chamber.services.echoeduser.VoteStory
+import com.echoed.chamber.services.echoeduser.VoteStoryResponse
+import com.echoed.chamber.services.topic.ReadTopicFeedResponse
+import com.echoed.chamber.services.echoeduser.FollowUser
+import com.echoed.chamber.services.topic.ReadTopicsResponse
+import com.echoed.chamber.services.echoeduser.PublishFacebookAction
+import com.echoed.chamber.services.feed.GetStoryResponse
+import com.echoed.chamber.services.echoeduser.GetFeedResponse
+import com.echoed.chamber.services.echoeduser.FetchNotifications
+import com.echoed.chamber.services.echoeduser.ReadSettingsResponse
+import views.ClosetPersonal
+import views.CommunityFeed
+import com.echoed.chamber.services.partner.GetTopicsResponse
+import views.EchoedUserStoryFeed
+import views.Feed
+import views.PartnerStoryFeed
+import views.PublicStoryFeed
+import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
+import com.echoed.chamber.services.partner.GetTopics
+import com.echoed.chamber.services.echoeduser.NewSettingsResponse
+import views.TopicStoryFeed
+import com.echoed.chamber.services.topic.ReadTopicFeed
+import com.echoed.chamber.services.feed.GetCommunities
+import com.echoed.chamber.services.feed.GetStory
+import com.echoed.chamber.services.echoeduser.MarkNotificationsAsRead
+import com.echoed.chamber.services.echoeduser.GetUserFeed
+import com.echoed.chamber.domain.EchoedUserSettings
+import com.echoed.chamber.services.echoeduser.NewSettings
+import com.echoed.chamber.services.echoeduser.GetExhibit
+import com.echoed.chamber.services.partner.PartnerClientCredentials
+import com.echoed.chamber.services.topic.ReadTopics
+import com.echoed.chamber.services.feed.GetCommunitiesResponse
+import com.echoed.chamber.services.echoeduser.VoteStoryResponse
+import com.echoed.chamber.services.echoeduser.UnFollowUser
+import com.echoed.chamber.services.feed.GetPublicStoryFeed
+import com.echoed.chamber.services.echoeduser.GetUserFeedResponse
+import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.services.feed.GetCategoryStoryFeedResponse
+import com.echoed.chamber.services.feed.GetCategoryStoryFeed
+import com.echoed.chamber.services.topic.ReadCommunityTopicsResponse
+import com.echoed.chamber.services.partner.ReadPartnerFeed
+import com.echoed.chamber.services.echoeduser.MarkNotificationsAsReadResponse
+import com.echoed.chamber.services.echoeduser.ListFollowedByUsersResponse
+import com.echoed.chamber.domain.Topic
+import com.echoed.chamber.domain.Notification
+import com.echoed.chamber.services.echoeduser.ReadSettings
+import com.echoed.chamber.services.feed.GetPublicStoryFeedResponse
+import com.echoed.chamber.services.echoeduser.GetExhibitResponse
+import com.echoed.chamber.services.echoeduser.FetchNotificationsResponse
+import com.echoed.chamber.services.echoeduser.ListFollowingUsers
+import com.echoed.chamber.services.echoeduser.GetFeed
+import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.topic.ReadCommunityTopics
+import com.echoed.chamber.services.partner.ReadPartnerFeedResponse
+import com.echoed.chamber.services.echoeduser.VoteStory
+import com.echoed.chamber.services.topic.ReadTopicFeedResponse
+import com.echoed.chamber.services.echoeduser.FollowUser
+import com.echoed.chamber.services.topic.ReadTopicsResponse
+import com.echoed.chamber.services.echoeduser.PublishFacebookAction
 
 
 @Controller
@@ -293,23 +397,36 @@ class UserController extends EchoedController {
     }
 
     @RequestMapping(value = Array("/upvote"), method = Array(RequestMethod.GET))
+    @ResponseBody
     def upVote(
               eucc: EchoedUserClientCredentials,
               response: HttpServletResponse,
               @RequestParam(value = "storyId", required = true) storyId: String,
-              @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) {
-        mp(VoteStory(eucc, storyOwnerId, storyId, 1))
-        response.setStatus(200)
+              @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
+
+        val result = new DeferredResult[Map[String, Vote]](null, ErrorResult.timeout)
+
+        mp(VoteStory(eucc, storyOwnerId, storyId, 1)).onSuccess {
+            case VoteStoryResponse(_, Right(votes)) =>
+                result.setResult(votes)
+        }
+        result
     }
 
     @RequestMapping(value = Array("/downvote"), method = Array(RequestMethod.GET))
+    @ResponseBody
     def downVote(
                 eucc: EchoedUserClientCredentials,
                 response: HttpServletResponse,
                 @RequestParam(value = "storyId", required = true) storyId: String,
-                @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) {
-        mp(VoteStory(eucc, storyOwnerId, storyId, -1))
-        response.setStatus(200)
+                @RequestParam(value = "storyOwnerId", required = true) storyOwnerId: String) = {
+
+        val result = new DeferredResult[Map[String, Vote]](null, ErrorResult.timeout)
+        mp(VoteStory(eucc, storyOwnerId, storyId, -1)).onSuccess {
+            case VoteStoryResponse(_, Right(votes)) =>
+                result.setResult(votes)
+        }
+        result
     }
 
     @RequestMapping(value = Array("/topics"), method = Array(RequestMethod.GET))

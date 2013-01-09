@@ -72,7 +72,8 @@ define(
                         storyId: this.id,
                         storyOwnerId: this.get("echoedUser").id
                     },
-                    success: function(){
+                    success: function(response){
+                        self.set("votes", response)
                         callback(self)
                     }
                 })();
@@ -85,7 +86,8 @@ define(
                         storyId: this.id,
                         storyOwnerId: this.get("echoedUser").id
                     },
-                    success: function(){
+                    success: function(response){
+                        self.set("votes", response)
                         callback(self)
                     }
                 })();
