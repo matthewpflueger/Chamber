@@ -38,7 +38,7 @@
     padding: 10px 0px;
 }
 
-.echo-story-container{
+#story-container-body{
     position:relative;
     background-image: image-url("bk_noise.jpg");
     background-color: #F7F7F7;
@@ -47,137 +47,63 @@
     border-radius: 3px;
     border-top-left-radius: 0px;
 
-    .echo-s-h-close{
-        position:absolute;
-        right: -155px;
-        top: -25px;
-        cursor: pointer;
-        @include sprite(-31px, -157px, 36px, 37px);
-    }
-    .echo-story-header{
-        position:relative;
-        .echo-s-h-title{
-            @include fontText(16px);
-            .echo-s-h-t-t{
-                @include fontTitle(30px, #FFF);
-                background-color: #222;
-                padding: 10px;
-                word-wrap: break-word;
-                border-bottom: 1px solid #CCC;
-            }
-            .echo-s-h-i-c{
-                float:left;
-                display: none;
-                margin-right: 10px;
-                .echo-s-h-i-i {
-                    height: 50px;
-                }
-            }
-        }
-    }
-    .echo-chapters{
-        width: 300px;
-        background-color: #F0F0F0;
-        box-shadow:         inset 0 0 1px #000000;
-        -moz-box-shadow:    inset 0 0 1px #000000;
-        -webkit-box-shadow: inset 0 0 1px #000000;
-
-
-
-        .echo-chapters-title{
-            padding: 3px 5px;
-            @include fontTextBold(14px);
-        }
-        .echo-chapter{
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            padding: 3px 20px;
-            cursor:pointer;
-            @include fontText(12px);
-
-            &.on, &:hover{
-                //background-color: #FFF;
-                @include fontTextBold(12px);
-            }
-        }
-    }
-    .echo-story-chapter-title{
+    #story-chapter-title{
         margin: 0px 10px;
         padding: 10px 0px 5px;
         @include fontTextBold(20px);
         text-shadow: 0px 1px 0px #FFF;
     }
-    .echo-story-body{
-        position: relative;
-        padding: 0px 10px 10px;
-        min-height: 290px;
-        border-bottom: 1px solid #CCC;
-        box-shadow: 0px 1px #FFF;
+    #story-main{
+
+        #story-body{
+            position: relative;
+            padding: 0px 10px 10px;
+            min-height: 290px;
+            border-bottom: 1px solid #CCC;
+            box-shadow: 0px 1px #FFF;
 
 
-        .echo-s-b-text{
-            display: inline;
-            padding: 0px 0px 0px 5px;
-
-            .echo-s-b-t-b{
-                @include transition;
-                @include fontText(13px, #333);
-                line-height: 1.5em;
-                word-wrap: break-word;
-                &.caption{
-                    @include fontTitle(16px, #111);
-                    padding: 5px;
-                    margin-top: 5px;
-                    background-color: #FFF;
-                    @include dropShadowDown;
-                }
-            }
-        }
-        .echo-s-b-segment{
-            position: absolute;
-            left: 0px;
-            bottom: 10px;
-            padding: 10px 0px;
-            background-color: #CCC;
-            .echo-s-b-s-t{
-                padding: 0px 10px;
-                @include fontTextBold(14px);
-            }
-        }
-        #echo-s-b-gallery{
-            @include transition;
-            &.gallery-photo{
-                display: block;
-                text-align: center;
-                .echo-s-b-item{
-                    cursor: pointer;
-                    display: inline-block;
-                    background-color:#FFF;
-                }
-                .echo-s-b-i-c{
-                    max-height: 700px;
-                    img{
-                        max-height: 700px;
-                        max-width: 842px;
-                        display: block;
+            #story-text-container{
+                display: inline;
+                padding: 0px 0px 0px 5px;
+                #story-text{
+                    @include transition;
+                    @include fontText(13px, #333);
+                    line-height: 1.5em;
+                    word-wrap: break-word;
+                    &.caption{
+                        @include fontTitle(16px, #111);
+                        padding: 5px;
+                        margin-top: 5px;
+                        background-color: #FFF;
                         @include dropShadowDown;
                     }
                 }
             }
-            &.gallery-text{
-                float: right;
-                width: 460px;
-                margin-left: 10px;
-                text-align:center;
-                .echo-s-b-item{
-                    cursor: pointer;
-                    display: table-cell;
-                    vertical-align: middle;
-                    text-align: left;
-                    //border: 5px solid #FFF;
-                    background-color:#FFF;
-                    .echo-s-b-i-c{
+            #story-gallery{
+                @include transition;
+                &.gallery-photo{
+                    display: block;
+                    text-align: center;
+                    #story-image-container{
+                        display: inline-block;
+                        max-height: 700px;
+                        background-color: #FFF;
+                        img{
+                            max-height: 700px;
+                            max-width: 842px;
+                            display: block;
+                            @include dropShadowDown;
+                        }
+                    }
+                }
+                &.gallery-text{
+                    float: right;
+                    width: 460px;
+                    margin-left: 10px;
+                    text-align:center;
+                    #story-image-container{
+                        background-color: #FFF;
                         margin: auto;
                         width: 450px;
                         overflow:hidden;
@@ -191,108 +117,15 @@
                         }
                     }
                 }
-            }
 
+
+            }
 
         }
-
-    }
-    .echo-story-footer{
-        padding: 10px;
-        .echo-story-nav{
-            margin: 5px 0px 10px 0px;
-            .echo-s-n-s{
-                margin-right: 5px;
-                cursor: pointer;
-                float:left;
-                border: 1px solid #CCC;
-
-                img {
-                    height: 40px;
-                    padding: 3px;
-                    background-color: #FFF;
-                }
-                .echo-s-n-s-tt {
-                    visibility: hidden;
-                    padding: 10px;
-                    border-radius: 5px;
-                    background-color: #000;
-                    color: #FFF;
-                    @include fontText(14px, #FFF);
-                    position:absolute;
-                }
-            }
-        }
-        .echo-story-comments{
-            .echo-s-c-t{
-                @include fontTextBold(24px);
-                text-shadow: 0px 1px 0px #FFF;
-                #echo-s-c-t-count{
-
-                }
-            }
-            .echo-s-c-ta{
-                margin: 10px 0px;
-                textarea{
-                    width: 830px;
-                    padding: 5px;
-                    border-radius: 5px;
-                    resize: none;
-                    height: 50px;
-                    border: 1px solid #CCC;
-                    @include fontText(14px);
-                    outline: none;
-                    &:focus{
-                        border-color: #333;
-                    }
-                }
-
-            }
-            .comment-submit{
-                cursor: pointer;
-                @include button;
-            }
-            .comment-login-title {
-                @include fontTextBold(14px);
-                margin: 5px;
-            }
-            .login-button{
-                cursor: pointer;
-            }
-            .echo-s-c-l{
-                margin-top: 5px;
-                border-top: 1px dotted #999;
-                .echo-s-c-l-c{
-                    padding: 10px 0px 10px 10px;
-                    .echo-s-c-l-c-u{
-                        @include fontText(14px, $colorEC);
-                    }
-                    .echo-s-c-l-c-d{
-                        margin-left: 10px;
-                        @include fontText(12px);
-                    }
-                    .echo-s-c-l-c-u-i{
-                        height: 25px;
-                        width: 25px;
-                        margin-right: 10px;
-                        border: 2px solid #FFF;
-                    }
-                    .echo-s-c-l-c-t{
-                        padding: 0px 37px 5px;
-                        @include fontText(13px, #000);
-                        border-bottom: 1px dotted #999;
-                        word-wrap: break-word;
-                    }
-
-                }
-
-            }
-        }
-
     }
 }
 
-.echo-story-main{
+#story-main{
     position: relative;
     overflow-x: hidden;
 }
@@ -338,18 +171,118 @@
 }
 
 
-#echo-story-user-container{
-    position:absolute;
-    top: -8px;
-    right: -138px;
+#story-header{
+    position: relative;
+    #story-header-title{
+        @include fontTitle(30px, #FFF);
+        background-color: #222;
+        padding: 10px;
+        word-wrap: break-word;
+        border-bottom: 1px solid #CCC;
+    }
 }
 
-#echo-story-user{
-    width: 122px;
-    background-color: rgba(20, 20, 20, 0.2);
-    border: 8px solid #FFF;
-    //height: 400px;
+#story-user{
+    position: relative;
+    background-color: #F0F0F0;
+    border-bottom: 1px solid #CCC;
+    box-shadow: 0px 1px #FFF;
+    padding: 5px;
+
+    #story-user-image{
+        float: left;
+        height: 50px;
+        width: 50px;
+        border: 2px solid #FFF;
+    }
+    #story-user-name{
+        line-height: 50px;
+        @include fontText(18px, #111);
+        float: left;
+        margin-left: 10px;
+    }
+    #story-user-follow{
+        position: absolute;
+        right: 10px;
+        top: 15px;
+        .button-follow{
+            text-align: center;
+        }
+    }
 }
+
+
+
+
+#story-footer{
+    padding: 10px;
+    #story-comments{
+        #story-comments-title{
+            @include fontTextBold(24px);
+            text-shadow: 0px 1px 0px #FFF;
+        }
+
+        #story-comments-input{
+            margin: 10px 0px;
+            textarea{
+                width: 830px;
+                padding: 5px;
+                border-radius: 5px;
+                resize: none;
+                height: 50px;
+                border: 1px solid #CCC;
+                @include fontText(14px);
+                outline: none;
+                &:focus{
+                    border-color: #333;
+                }
+            }
+        }
+        .comment-submit{
+            cursor: pointer;
+            @include button;
+        }
+        .comment-login-title {
+            @include fontTextBold(14px);
+            margin: 5px;
+        }
+        .login-button{
+            cursor: pointer;
+        }
+        #story-comments-list{
+            margin-top: 5px;
+            border-top: 1px dotted #999;
+            .echo-s-c-l-c{
+                padding: 10px 0px 10px 10px;
+                .echo-s-c-l-c-u{
+                    @include fontText(14px, $colorEC);
+                }
+                .echo-s-c-l-c-d{
+                    margin-left: 10px;
+                    @include fontText(12px);
+                }
+                .echo-s-c-l-c-u-i{
+                    height: 25px;
+                    width: 25px;
+                    margin-right: 10px;
+                    border: 2px solid #FFF;
+                }
+                .echo-s-c-l-c-t{
+                    padding: 0px 37px 5px;
+                    @include fontText(13px, #000);
+                    border-bottom: 1px dotted #999;
+                    word-wrap: break-word;
+                }
+
+            }
+
+        }
+    }
+
+}
+
+
+
 
 #echo-story-gallery-container{
     position: fixed;
@@ -394,30 +327,12 @@
     background-repeat: no-repeat;
 }
 
-.echo-s-h-t-n{
-    text-align: center;
-    border-bottom: 1px dotted #CCC;
-    padding: 10px;
-    .echo-s-h-t-n-i{
-        height: 100px;
-        width: 100px;
-        border: 2px solid #FFF;
-        margin: auto;
-    }
-}
-
-.echo-s-h-t-n-t{
-    @include fontText(14px);
-    text-shadow: 0px -1px #000;
-    margin: 10px 0px;
-}
-
 .echo-s-h-t-n-t-l{
     @include fontText(13px, $colorEC);
     text-decoration: underline;
 }
 
-#echo-story-from{
+#story-from{
     padding: 5px;
     text-align: left;
     border-bottom: 1px solid #CCC;
@@ -427,7 +342,7 @@
         cursor: pointer;
     }
 
-    #echo-story-from-logo-container{
+    #story-from-logo{
         height: 40px;
         width: 40px;
         margin-right: 10px;

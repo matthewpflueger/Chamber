@@ -175,15 +175,17 @@ define(
                 var template = templateStory(view);
                 self.element.html(template);
 
-                self.text = self.element.find('.echo-s-b-text');
-                self.follow = new Follow({ el: '#story-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
+                self.text = $('#story-text-container');
+                self.chapterText = $("#story-text");
 
-                self.gallery = $('#echo-s-b-gallery');
-                self.itemImageContainer = $('#echo-s-b-i-c');
-                self.img = $("#echo-s-b-i-c-i");
+                self.follow = new Follow({ el: '#story-user-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
+
+                self.gallery = $('#story-gallery');
+                self.itemImageContainer = $('#story-image-container');
+                self.img = $("#story-image");
                 self.galleryNode = $("#echo-story-gallery");
                 self.galleryNodeBody = $('#echo-story-gallery-body');
-                self.chapterText = $("#echo-s-b-t-b");
+
                 self.story = $('#story');
                 self.renderGalleryNav();
                 self.renderComments();
@@ -235,18 +237,17 @@ define(
             },
             renderChapter: function(){
                 var self = this;
-                var textArea = self.element.find('.echo-s-b-text');
                 var chapter = this.modelStory.getCurrentChapter();
                 var chapterText = chapter.text;
                 if (chapterText.length < 300) this.chapterType = 'photo';
                 else this.chapterType = 'text';
 
-                textArea.fadeOut(function(){
-                    self.element.find('.echo-story-chapter-title').text(chapter.title);
+                self.chapterText.fadeOut(function(){
+                    $('#story-chapter-title').text(chapter.title);
                     self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(chapter.text)).replace(/\n/g, '<br />'));
                     if(chapterText.length >0) self.chapterText.show();
                     else self.chapterText.hide();
-                    textArea.fadeIn();
+                    self.chapterText.fadeIn();
                 });
 
                 //self.scroll(self.galleryNode.scrollTop() + self.galleryChapters[index].position().top);
@@ -301,12 +302,12 @@ define(
             },
             renderComments: function(){
                 var self = this;
-                var commentListNode = self.element.find('.echo-s-c-l');
-                commentListNode.empty();
+                var commentListNode = $('#story-comments-list').empty();
                 $("#echo-story-comment-ta").val("");
 
                 var comments = this.modelStory.get("comments");
                 $('#echo-s-c-t-count').text("(" + comments.length + ")");
+
                 $.each(comments, function(index,comment){
                     var view = {
                         elapsedString: utils.timeElapsedString(utils.timeStampStringToDate(comment.createdOn.toString())),

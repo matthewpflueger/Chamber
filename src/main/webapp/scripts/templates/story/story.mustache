@@ -2,38 +2,29 @@
     <div id="story">
         <div act="previous" class="story-nav-button" style="left: 0px;">Previous Story</div>
         <div act="next" class="story-nav-button" style="right: 0px;">Next Story</div>
-        <div class="echo-story-container clearfix">
+        <div id="story-container-body" class="clearfix">
             <div id="echo-story-user-container">
-                <div id="echo-story-user">
-                    <div class="echo-s-h-t-n">
-                        <img id="echo-s-h-t-n-i" class="echo-s-h-t-n-i" src="{{profilePhotoUrl}}" />
-                        <div class='echo-s-h-t-n-t'>
-                            <a id="story-user-link" class="story-link link-white bold-link" href="{{userLink}}" {{#isWidget}}target="_blank"{{/isWidget}}>{{ story.echoedUser.name }}</a>
-                        </div>
-                        <div id="story-follow">
-                            TEST
-                        </div>
-                    </div>
-                    <div id="echo-s-vote">
-                        <div class="user-label">Votes</div>
-                        <div>
-                            <span class="upvote"></span>
-                            <span id="upvote-counter"></span>
-                        </div>
-                        <div>
-                            <span class="downvote"></span>
-                            <span id="downvote-counter"></span>
-                        </div>
-                    </div>
-                    <div id="story-actions" class="clearfix">
-                        <div class="story-share fb" type="fb"></div>
-                        <div class="story-share tw" type="tw"></div>
-                        <div class="story-share pinterest" type="pinterest"></div>
-                    </div>
-                    <div id="story-views">
-                        Views: {{ story.story.views }}
-                    </div>
-                </div>
+                <!--<div id="echo-story-user">-->
+                    <!--<div id="echo-s-vote">-->
+                        <!--<div class="user-label">Votes</div>-->
+                        <!--<div>-->
+                            <!--<span class="upvote"></span>-->
+                            <!--<span id="upvote-counter"></span>-->
+                        <!--</div>-->
+                        <!--<div>-->
+                            <!--<span class="downvote"></span>-->
+                            <!--<span id="downvote-counter"></span>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div id="story-actions" class="clearfix">-->
+                        <!--<div class="story-share fb" type="fb"></div>-->
+                        <!--<div class="story-share tw" type="tw"></div>-->
+                        <!--<div class="story-share pinterest" type="pinterest"></div>-->
+                    <!--</div>-->
+                    <!--<div id="story-views">-->
+                        <!--Views: {{ story.story.views }}-->
+                    <!--</div>-->
+                <!--</div>-->
                 {{#isMine}}
                 <div id="story-edit-container">
                     <a id="story-edit-tab" href="#write/story/{{story.id}}">
@@ -42,43 +33,47 @@
                 </div>
                 {{/isMine}}
             </div>
-            <div class="echo-story-header clearfix">
-                <div class="echo-s-h-title clearfix">
-                    <div class="echo-s-h-t-t">
-                        {{ story.story.title }}
-                    </div>
+            <div id="story-header">
+                <div id="story-header-title">
+                    {{ story.story.title }}
                 </div>
             </div>
-            <div class="echo-story-main">
-                <div class="echo-story-chapter-title">
+            <div id="story-user" class="clearfix">
+                <img id="story-user-image" src="{{profilePhotoUrl}}" />
+                <div id="story-user-name">
+                    <a id="story-user-link" class="story-link link-black bold-link" href="{{userLink}}" {{#isWidget}}target="_blank"{{/isWidget}}>{{ story.echoedUser.name }}</a>
+                </div>
+                <div id="story-user-follow">
+                </div>
+            </div>
+            <div id="story-main">
+                <div id="story-chapter-title">
 
                 </div>
-                <div class="echo-story-body clearfix">
-                    <div id="echo-s-b-gallery" class="clearfix">
-                        <div id="echo-s-b-item" class="echo-s-b-item">
-                            <div id="echo-s-b-i-c" class='echo-s-b-i-c'>
-                                <img id="echo-s-b-i-c-i" />
-                            </div>
+                <div id="story-body" class="clearfix">
+                    <div id="story-gallery" >
+                        <div id="story-image-container" >
+                            <img id="story-image" />
                         </div>
                     </div>
-                    <div class="echo-s-b-text">
-                        <div id="echo-s-b-t-b" class='echo-s-b-t-b'></div>
+                    <div id="story-text-container">
+                        <div id="story-text"></div>
                     </div>
                 </div>
                 {{^isWidget}}
                     {{#story.story.productInfo}}
-                <div id="echo-story-from" class="clearfix">
-                    <div id="echo-story-from-logo-container"></div>
-                    <div id="echo-story-from-text">{{story.story.productInfo}}</div>
+                <div id="story-from" class="clearfix">
+                    <div id="story-from-logo"></div>
+                    <div id="story-from-text">{{story.story.productInfo}}</div>
                 </div>
                     {{/story.story.productInfo}}
                 {{/isWidget}}
-                <div class="echo-story-footer clearfix">
-                    <div class="echo-story-comments">
-                        <div class="echo-s-c-t">
+                <div id="story-footer">
+                    <div id="story-comments">
+                        <div id="story-comments-title">
                             Discussion <span id="echo-s-c-t-count"></span>
                         </div>
-                        <div class="echo-s-c-ta">
+                        <div id="story-comments-input">
                             <textarea id="echo-story-comment-ta"></textarea>
                         </div>
                         <div class="comment-submit" style="display: none;">Submit Comment</div>
@@ -87,7 +82,7 @@
                                 Login to Discuss
                             </div>
                         </div>
-                        <div class="echo-s-c-l">
+                        <div id="story-comments-list">
                             <!-- Comment List -->
                         </div>
                     </div>
