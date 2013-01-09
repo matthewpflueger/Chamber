@@ -269,7 +269,7 @@ define(
                         imageUrl = i.attr('src');
                         self.gallery.addClass("gallery-photo");
                         self.gallery.removeClass('gallery-text');
-                        self.chapterText.addClass('caption')
+                        self.text.addClass('caption')
                     } else {
                         var i = utils.scaleByWidth(currentImage, 450);
                         imageSizing = {
@@ -279,7 +279,7 @@ define(
                         imageUrl = i.attr('src');
                         self.gallery.addClass("gallery-text");
                         self.gallery.removeClass('gallery-photo');
-                        self.chapterText.removeClass('caption')
+                        self.text.removeClass('caption')
                     }
 
                     self.gallery.show();

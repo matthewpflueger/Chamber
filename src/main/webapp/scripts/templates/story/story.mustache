@@ -3,27 +3,8 @@
         <div act="previous" class="story-nav-button" style="left: 0px;">Previous Story</div>
         <div act="next" class="story-nav-button" style="right: 0px;">Next Story</div>
         <div id="story-container-body" class="clearfix">
-            <div id="echo-story-user-container">
                 <!--<div id="echo-story-user">-->
-                    <!--<div id="echo-s-vote">-->
-                        <!--<div class="user-label">Votes</div>-->
-                        <!--<div>-->
-                            <!--<span class="upvote"></span>-->
-                            <!--<span id="upvote-counter"></span>-->
-                        <!--</div>-->
-                        <!--<div>-->
-                            <!--<span class="downvote"></span>-->
-                            <!--<span id="downvote-counter"></span>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                    <!--<div id="story-actions" class="clearfix">-->
-                        <!--<div class="story-share fb" type="fb"></div>-->
-                        <!--<div class="story-share tw" type="tw"></div>-->
-                        <!--<div class="story-share pinterest" type="pinterest"></div>-->
-                    <!--</div>-->
-                    <!--<div id="story-views">-->
-                        <!--Views: {{ story.story.views }}-->
-                    <!--</div>-->
+
                 <!--</div>-->
                 {{#isMine}}
                 <div id="story-edit-container">
@@ -32,7 +13,6 @@
                     </a>
                 </div>
                 {{/isMine}}
-            </div>
             <div id="story-header">
                 <div id="story-header-title">
                     {{ story.story.title }}
@@ -45,6 +25,22 @@
                 </div>
                 <div id="story-user-follow">
                 </div>
+            </div>
+            <div id="story-actions">
+                <div id="story-vote">
+                    <span class="upvote"></span>
+                    <span id="upvote-counter"></span>
+                    <span class="downvote"></span>
+                    <span id="downvote-counter"></span>
+                </div>
+                <!--<div id="story-actions" class="clearfix">-->
+                <!--<div class="story-share fb" type="fb"></div>-->
+                <!--<div class="story-share tw" type="tw"></div>-->
+                <!--<div class="story-share pinterest" type="pinterest"></div>-->
+                <!--</div>-->
+                <!--<div id="story-views">-->
+                <!--Views: {{ story.story.views }}-->
+                <!--</div>-->
             </div>
             <div id="story-main">
                 <div id="story-chapter-title">
@@ -68,6 +64,7 @@
                 </div>
                     {{/story.story.productInfo}}
                 {{/isWidget}}
+
                 <div id="story-footer">
                     <div id="story-comments">
                         <div id="story-comments-title">

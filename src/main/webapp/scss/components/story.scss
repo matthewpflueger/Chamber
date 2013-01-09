@@ -57,25 +57,30 @@
         #story-body{
             position: relative;
             padding: 0px 10px 10px;
-            min-height: 290px;
             border-bottom: 1px solid #CCC;
             box-shadow: 0px 1px #FFF;
 
             #story-text-container{
                 display: inline;
-                padding: 0px 0px 0px 5px;
+                @include transition;
+                &.caption{
+                    display: block;
+                    background-color: rgba(0, 0, 0, 0.8);
+                    position: relative;
+                    bottom: 0px;
+                    left: 0px;
+                    right: 0px;
+                    #story-text{
+                        color: #FFF;
+                        @include fontText(15px, #FFF);
+                        padding: 10px;
+                    }
+                }
                 #story-text{
                     @include transition;
                     @include fontText(13px, #333);
                     line-height: 1.5em;
                     word-wrap: break-word;
-                    &.caption{
-                        @include fontTitle(16px, #111);
-                        padding: 5px;
-                        margin-top: 5px;
-                        background-color: #FFF;
-                        @include dropShadowDown;
-                    }
                 }
             }
             #story-gallery{
@@ -211,6 +216,56 @@
     }
 }
 
+#story-actions{
+    border-bottom: 1px solid #CCC;
+    box-shadow: 0px 1px #FFF;
+    background-color: #F0F0F0;
+    line-height: 25px;
+    #story-vote{
+        padding: 5px 10px;
+        @include fontTextBold(14px);
+        width: 50%;
+    }
+
+    .upvote, .downvote{
+        cursor:pointer;
+        width: 25px;
+        height: 25px;
+        display: inline-block;
+        background-repeat: none;
+        vertical-align: middle;
+        background-size: cover;
+    }
+
+    #upvote-counter, #downvote-counter{
+        @include fontTextBold(14px);
+        vertical-align: middle;
+        text-align: right;
+        padding-right: 10px;
+        display: inline-block;
+    }
+
+    .upvote{
+        background-image: image-url("uparrow_off.png");
+        &:hover{
+            background-image: image-url("uparrow_hover.png");
+        }
+        &:active, &.on{
+            background-image: image-url("uparrow.png");
+        }
+
+    }
+
+    .downvote{
+        background-image: image-url("downarrow_off.png");
+        &:hover{
+            background-image: image-url("downarrow_hover.png");
+        }
+        &:active, &.on{
+            background-image: image-url("downarrow.png");
+        }
+    }
+}
 
 
 
@@ -397,85 +452,33 @@
     @include redButton;
 }
 
-#story-actions{
-    padding: 5px 7px;
-    .story-share{
-        border-radius: 3px;
-        cursor: pointer;
-        float:left;
-        margin: 2px;
-        border: 1px solid;
-        border-color: transparent;
-        &:hover{
-            border-color: #333;
-        }
-    }
-
-    .fb{
-        @include sprite(0px, -164px, 30px, 30px);
-        background-color: $colorFB;
-    }
-    .tw{
-        @include sprite(-73px, -164px, 30px, 30px);
-        background-color: $colorTW;
-    }
-    .pinterest{
-        width: 30px;
-        height: 30px;
-        background-image: image-url("bk_pinterest.png");
-        background-color: #FFF;
-    }
-    //border-bottom: 1px dotted #CCC;
-}
-
-.user-label{
-    text-align: center;
-    margin: 5px 0px;
-    @include fontTextBold(14px, #FFF);
-    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
-}
-
-#echo-s-vote{
-    padding: 0px 10px 5px;
-    border-bottom: 1px dotted #FFF;
-}
-
-.upvote, .downvote{
-    cursor:pointer;
-    width: 33px;
-    height: 33px;
-    display: inline-block;
-    background-repeat: none;
-    vertical-align: middle;
-}
-
-#upvote-counter, #downvote-counter{
-    @include fontTextBold(20px, #FFF);
-    vertical-align: middle;
-    width: 60px;
-    text-align: center;
-    display: inline-block;
-    height: 33px;
-    line-height: 33px;
-}
-
-.upvote{
-    background-image: image-url("uparrow_off.png");
-    &:hover{
-        background-image: image-url("uparrow_hover.png");
-    }
-    &:active, &.on{
-        background-image: image-url("uparrow.png");
-    }
-
-}
-
-.downvote{
-    background-image: image-url("downarrow_off.png");
-    &:hover{
-        background: image-url("downarrow_hover.png");
-    }
-    &:active, &.on{
-        background: image-url("downarrow.png");
-    }
-}
+//#story-actions{
+//    padding: 5px 7px;
+//    .story-share{
+//        border-radius: 3px;
+//        cursor: pointer;
+//        float:left;
+//        margin: 2px;
+//        border: 1px solid;
+//        border-color: transparent;
+//        &:hover{
+//            border-color: #333;
+//        }
+//    }
+//
+//    .fb{
+//        @include sprite(0px, -164px, 30px, 30px);
+//        background-color: $colorFB;
+//    }
+//    .tw{
+//        @include sprite(-73px, -164px, 30px, 30px);
+//        background-color: $colorTW;
+//    }
+//    .pinterest{
+//        width: 30px;
+//        height: 30px;
+//        background-image: image-url("bk_pinterest.png");
+//        background-color: #FFF;
+//    }
+//}
+//
