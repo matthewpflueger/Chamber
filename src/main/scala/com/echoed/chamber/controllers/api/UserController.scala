@@ -275,21 +275,33 @@ class UserController extends EchoedController {
     }
 
     @RequestMapping(value = Array("/me/following/{userToFollowId}"), method = Array(RequestMethod.PUT))
+    @ResponseBody
     def followUser(
             @PathVariable(value = "userToFollowId") userToFollowId: String,
             response: HttpServletResponse,
-            eucc: EchoedUserClientCredentials) {
-        mp(FollowUser(eucc, userToFollowId))
-        response.setStatus(200)
+            eucc: EchoedUserClientCredentials) = {
+
+        val result = new DeferredResult[List[Follower]](null, ErrorResult.timeout)
+
+        mp(FollowUser(eucc, userToFollowId)).onSuccess{
+            case FollowUserResponse(_, Right(fus)) => result.setResult(fus)
+        }
+        result
     }
 
     @RequestMapping(value = Array("/me/following/{userToUnFollowId}"), method = Array(RequestMethod.DELETE))
+    @ResponseBody
     def unFollowUser(
             @PathVariable(value = "userToUnFollowId") userToUnFollowId: String,
             response: HttpServletResponse,
-            eucc: EchoedUserClientCredentials) {
-        mp(UnFollowUser(eucc, userToUnFollowId))
-        response.setStatus(200)
+            eucc: EchoedUserClientCredentials)  = {
+
+        val result = new DeferredResult[List[Follower]](null, ErrorResult.timeout)
+        mp(UnFollowUser(eucc, userToUnFollowId)).onSuccess {
+            case UnFollowUserResponse(_, Right(fus)) =>
+                result.setResult(fus)
+        }
+        result
     }
 
 

@@ -73,7 +73,7 @@ define(
                         storyOwnerId: this.get("echoedUser").id
                     },
                     success: function(response){
-                        self.set("votes", response)
+                        self.set("votes", response);
                         callback(self)
                     }
                 })();
@@ -87,7 +87,7 @@ define(
                         storyOwnerId: this.get("echoedUser").id
                     },
                     success: function(response){
-                        self.set("votes", response)
+                        self.set("votes", response);
                         callback(self)
                     }
                 })();

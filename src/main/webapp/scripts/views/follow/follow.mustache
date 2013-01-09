@@ -1,0 +1,12 @@
+{{#isLoggedIn}}
+    {{#isFollowing}}
+    <span class="button-follow redButton">
+        Unfollow
+    </span>
+    {{/isFollowing}}
+    {{^isFollowing}}
+    <span class="button-follow greyButton">
+        Follow
+    </span>
+    {{/isFollowing}}
+{{/isLoggedIn}}

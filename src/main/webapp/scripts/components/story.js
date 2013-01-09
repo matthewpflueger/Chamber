@@ -3,12 +3,13 @@ define(
         'jquery',
         'backbone',
         'underscore',
+        'views/follow/follow',
         'models/story',
         'hgn!templates/story/story',
         'hgn!templates/story/comment',
         'components/utils'
     ],
-    function($, Backbone, _, ModelStory, templateStory, templateComment, utils){
+    function($, Backbone, _, Follow, ModelStory, templateStory, templateComment, utils){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -36,7 +37,6 @@ define(
                 "click #echo-story-gallery-next": "next",
                 "click #echo-story-gallery-prev": "previous",
                 "click .story-share": "share",
-                "click #story-follow": "followClick",
                 "click #story-login-container": "closeLogin",
                 "click #comments-login": "showLogin",
                 "click .story-link": "redirect",
@@ -45,38 +45,6 @@ define(
             fadeClick: function(ev){
                 if($(ev.target).hasClass("fade")){
                     this.close();
-                }
-            },
-            followClick: function(ev){
-                var self = this;
-                var request = {};
-                var currentTarget = $(ev.currentTarget);
-                var followId = currentTarget.attr("echoedUserId");
-                if(this.modelUser.isLoggedIn()){
-                    if(!this.modelUser.is(followId)) {
-                        if(self.following === false){
-                            request = {
-                                url: self.properties.urls.api + "/api/me/following/" + followId,
-                                type: "PUT",
-                                success: function(data){
-                                    self.following = true;
-                                    currentTarget.text("Unfollow").addClass("redButton").removeClass("greyButton");
-                                }
-                            }
-                        } else {
-                            request = {
-                                url: self.properties.urls.api + "/api/me/following/" + followId,
-                                type: "DELETE",
-                                success: function(data){
-                                    self.following = false;
-                                    currentTarget.text("Follow").removeClass("redButton").addClass("greyButton");
-                                }
-                            }
-                        }
-                        utils.AjaxFactory(request)();
-                    }
-                } else{
-                    self.showLogin();
                 }
             },
             fromClick: function(ev){
@@ -178,10 +146,6 @@ define(
                     }
                 });
             },
-            renderViews: function(){
-                var self = this;
-                $('#story-views').text("Views: " + self.data.story.views);
-            },
             renderVotes: function(){
                 var self = this;
                 var upVotes = 0, downVotes = 0, key;
@@ -203,31 +167,7 @@ define(
                 }
             },
             renderFollowing: function(){
-                var self = this;
-                self.following = false;
-                $('#story-follow').attr("echoedUserId", self.data.echoedUserId);
-                if(this.modelUser.isLoggedIn()){
-                    if(!this.modelUser.is(self.data.echoedUser.id)){
-                        utils.AjaxFactory({
-                            url: self.properties.urls.api + "/api/me/following",
-                            success: function(data){
-
-                                $.each(data, function(index, following){
-                                    if(following.echoedUserId === self.data.echoedUser.id ) self.following = true;
-                                });
-                                if(self.following === true){
-                                    $('#story-follow').text("Unfollow").removeClass("greyButton").addClass("redButton").fadeIn();
-                                } else {
-                                    $('#story-follow').addClass('greyButton').text("Follow").fadeIn();
-                                }
-                            }
-                        })();
-                    } else{
-                        $('#story-follow').fadeOut();
-                    }
-                } else {
-                    $('#story-follow').addClass('greyButton').text("Follow").fadeIn();
-                }
+                this.follow = new Follow({ el: '#story-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
             },
             render: function(){
                 var self = this;
@@ -277,8 +217,7 @@ define(
                 self.renderComments();
                 self.renderChapter();
                 self.renderVotes();
-                //self.renderFollowing();
-                //self.renderViews();
+                self.renderFollowing();
                 self.scroll(0);
 
                 self.story.css({ "margin-left": -(self.story.width() / 2) });

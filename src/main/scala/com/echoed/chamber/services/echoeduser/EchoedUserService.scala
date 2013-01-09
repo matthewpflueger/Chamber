@@ -443,8 +443,8 @@ class EchoedUserService(
             ep(PartnerFollowerCreated(echoedUser.id, followingPartners.head))
 
         case msg @ FollowUser(eucc, followerId) if (eucc.id != followerId) =>
-            sender ! FollowUserResponse(msg, Right(true))
             mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser), self)
+            sender ! FollowUserResponse(msg, Right(followingUsers))
 
         case AddFollowerResponse(_, Right(eu)) if (!followingUsers.exists(_.echoedUserId == eu.id)) =>
             followingUsers = Follower(eu) :: followingUsers
@@ -463,13 +463,14 @@ class EchoedUserService(
                     "followerId" -> eu.id))))
 
         case msg @ UnFollowUser(_, followingUserId) =>
-            sender ! UnFollowUserResponse(msg, Right(true))
+
             val (fu, fus) = followingUsers.partition(_.echoedUserId == followingUserId)
             followingUsers = fus
             fu.headOption.map { f =>
                 mp(RemoveFollower(EchoedUserClientCredentials(f.echoedUserId), echoedUser))
                 ep(FollowerDeleted(echoedUser.id, f))
             }
+            sender ! UnFollowUserResponse(msg, Right(followingUsers))
 
         case msg @ RemoveFollower(_, eu) => followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
 

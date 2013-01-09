@@ -10,8 +10,9 @@
                         <div class='echo-s-h-t-n-t'>
                             <a id="story-user-link" class="story-link link-white bold-link">{{ story.echoedUser.name }}</a>
                         </div>
-                        <span id="story-follow" echoedUserId="{{story.echoedUser.id}}" style="display:none;">
-                        </span>
+                        <div id="story-follow">
+                            TEST
+                        </div>
                     </div>
                     <div id="echo-s-vote">
                         <div class="user-label">Votes</div>
@@ -30,7 +31,7 @@
                         <div class="story-share pinterest" type="pinterest"></div>
                     </div>
                     <div id="story-views">
-                        Views:
+                        Views: {{ story.story.views }}
                     </div>
                 </div>
                 {{#isMine}}
