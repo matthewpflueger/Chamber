@@ -125,6 +125,8 @@ case class UnFollowUserResponse(message: UnFollowUser, value: Either[EUE, List[F
         extends EUM with MR[List[Follower], UnFollowUser, EUE]
 
 private[echoeduser] case class RemoveFollower(credentials: EUCC, echoedUser: EchoedUser) extends EUM with EUI
+private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, value: Either[EUE, EchoedUser])
+        extends EUM with MR[EchoedUser, RemoveFollower, EUE]
 
 case class PartnerFollower(partnerId: String, name: String, handle: String)
 

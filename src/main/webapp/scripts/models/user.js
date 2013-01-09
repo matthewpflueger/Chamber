@@ -28,7 +28,7 @@ define(
                         url: this.properties.urls.api + "/api/me/following/" + followId,
                         type: "PUT",
                         success: function(response){
-                            this.following = response;
+                            self.following = response;
                             callback(self, response)
                         }
                     };

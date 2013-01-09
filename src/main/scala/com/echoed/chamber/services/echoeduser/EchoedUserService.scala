@@ -443,15 +443,18 @@ class EchoedUserService(
             ep(PartnerFollowerCreated(echoedUser.id, followingPartners.head))
 
         case msg @ FollowUser(eucc, followerId) if (eucc.id != followerId) =>
-            mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser), self)
-            sender ! FollowUserResponse(msg, Right(followingUsers))
+            val channel = sender
+            mp(AddFollower(EchoedUserClientCredentials(followerId), echoedUser)).onSuccess{
+                case AddFollowerResponse(_, Right(eu)) =>
+                    followingUsers = Follower(eu) :: followingUsers
+                    channel ! FollowUserResponse(msg, Right(followingUsers))
+            }
 
         case AddFollowerResponse(_, Right(eu)) if (!followingUsers.exists(_.echoedUserId == eu.id)) =>
             followingUsers = Follower(eu) :: followingUsers
             ep(FollowerCreated(echoedUser.id, followingUsers.head))
 
         case msg @ AddFollower(eucc, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
-            sender ! AddFollowerResponse(msg, Right(echoedUser))
             followedByUsers = Follower(eu) :: followedByUsers
             mp(RegisterNotification(eucc, new Notification(
                 eu,
@@ -461,6 +464,7 @@ class EchoedUserService(
                     "action" -> "is following",
                     "object" -> "you",
                     "followerId" -> eu.id))))
+            sender ! AddFollowerResponse(msg, Right(echoedUser))
 
         case msg @ UnFollowUser(_, followingUserId) =>
 
@@ -472,7 +476,9 @@ class EchoedUserService(
             }
             sender ! UnFollowUserResponse(msg, Right(followingUsers))
 
-        case msg @ RemoveFollower(_, eu) => followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
+        case msg @ RemoveFollower(_, eu) =>
+            followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
+            sender ! RemoveFollowerResponse(msg, Right(eu))
 
         case NotifyFollowers(_, n) =>
             val notification = n.copy(origin = echoedUser)
