@@ -97,11 +97,11 @@ define(
                 if(chapters.length) return chapters[0].id === chapterId;
                 else return false
             },
-            getChapterImages: function(chapterId){
+            getChapterImages: function(chapterId, includeCover){
                 var chapterImages = this.get("chapterImages");
                 var i = [];
                 //Fix for pushing in Cover Image
-                //if(this.isFirstChapter(chapterId)) i.push({ image: this.get("story").image });
+                if(this.isFirstChapter(chapterId) && includeCover) i.push({ image: this.get("story").image });
 
                 $.each(chapterImages, function(index, image){
                     if(image.chapterId === chapterId) i.push(image);
@@ -181,8 +181,8 @@ define(
             getCurrentChapter: function(){
                 return this.get("chapters")[this.currentChapterIndex];
             },
-            getCurrentImage: function(){
-                var chapterImages = this.getChapterImages(this.getCurrentChapter().id);
+            getCurrentImage: function(includeCover){
+                var chapterImages = this.getChapterImages(this.getCurrentChapter().id, includeCover);
                 if(chapterImages.length) return chapterImages[this.currentChapterImageIndex].image;
                 else return false;
             },

@@ -127,7 +127,7 @@ define(
                 var self = this;
                 var target = $(ev.currentTarget);
                 var action = target.attr("act");
-                self.EvAg.trigger('exhibit/story/'+ action, self.data.story.id);
+                self.EvAg.trigger('exhibit/story/'+ action, this.modelStory.id);
             },
             load: function(id){
                 var self = this;
@@ -206,7 +206,8 @@ define(
                     var title = $('<div></div>').addClass('echo-gallery-title').text(chapter.title);
                     self.galleryChapters[index].append(title);
                     self.galleryNodeBody.append(self.galleryChapters[index]);
-                    var chapterImages  = self.modelStory.getChapterImages(chapter.id);
+                    var chapterImages  = self.modelStory.getChapterImages(chapter.id, true);
+                    console.log(chapterImages);
                     $.each(chapterImages, function(index2, ci){
                         var thumbNailHash = index + "-" + index2;
                         self.thumbnails[thumbNailHash] = utils.scaleByWidth(ci.image, 90).addClass("echo-s-b-thumbnail").attr("index", thumbNailHash);
@@ -255,7 +256,7 @@ define(
             },
             renderImage: function(){
                 var self = this;
-                var currentImage = this.modelStory.getCurrentImage();
+                var currentImage = this.modelStory.getCurrentImage(true);
                 var imageSizing = {};
                 var imageUrl = "";
 
