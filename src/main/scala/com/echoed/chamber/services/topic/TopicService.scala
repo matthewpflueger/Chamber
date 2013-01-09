@@ -64,7 +64,7 @@ class TopicService(
 
     override def preStart() {
         super.preStart()
-        ep.subscribe(context.self, classOf[Event])
+//      ep.subscribe(context.self, classOf[TopicEvent])
         mp.tell(FindAllTopics(), self)
     }
 
