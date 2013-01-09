@@ -24,16 +24,15 @@ define(
                 this.locked = false;
             },
             events: {
-                "click .echo-s-h-close" : "close",
                 "click .comment-submit": "createComment",
                 "click .login-button": "commentLogin",
                 "click .echo-gallery-chapter" : "chapterClick",
                 "click .echo-s-b-thumbnail": "imageClick",
-                "click .echo-s-b-item": "nextImage",
+                "click #story-image-container": "nextImage",
                 "click .story-nav-button": "navClick",
                 "click .upvote": "upVote",
                 "click .downvote": "downVote",
-                "click #echo-story-from": "fromClick",
+                "click #story-from": "fromClick",
                 "click #echo-story-gallery-next": "next",
                 "click #echo-story-gallery-prev": "previous",
                 "click .story-share": "share",

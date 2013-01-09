@@ -48,9 +48,8 @@
     border-top-left-radius: 0px;
 
     #story-chapter-title{
-        margin: 0px 10px;
-        padding: 10px 0px 5px;
-        @include fontTextBold(20px);
+        padding: 15px 10px ;
+        @include fontTitle(24px);
         text-shadow: 0px 1px 0px #FFF;
     }
     #story-main{
@@ -61,7 +60,6 @@
             min-height: 290px;
             border-bottom: 1px solid #CCC;
             box-shadow: 0px 1px #FFF;
-
 
             #story-text-container{
                 display: inline;
@@ -86,6 +84,7 @@
                     display: block;
                     text-align: center;
                     #story-image-container{
+                        cursor: pointer;
                         display: inline-block;
                         max-height: 700px;
                         background-color: #FFF;
@@ -104,6 +103,7 @@
                     text-align:center;
                     #story-image-container{
                         background-color: #FFF;
+                        cursor: pointer;
                         margin: auto;
                         width: 450px;
                         overflow:hidden;
@@ -252,22 +252,22 @@
         #story-comments-list{
             margin-top: 5px;
             border-top: 1px dotted #999;
-            .echo-s-c-l-c{
+            .story-comment{
                 padding: 10px 0px 10px 10px;
-                .echo-s-c-l-c-u{
+                .story-comment-user{
                     @include fontText(14px, $colorEC);
                 }
-                .echo-s-c-l-c-d{
+                .story-comment-user-date{
                     margin-left: 10px;
                     @include fontText(12px);
                 }
-                .echo-s-c-l-c-u-i{
+                .story-comment-user-image{
                     height: 25px;
                     width: 25px;
-                    margin-right: 10px;
+                    margin-right: 5px;
                     border: 2px solid #FFF;
                 }
-                .echo-s-c-l-c-t{
+                .story-comment-text{
                     padding: 0px 37px 5px;
                     @include fontText(13px, #000);
                     border-bottom: 1px dotted #999;
@@ -350,7 +350,7 @@
         float:left;
         display:none;
     }
-    #echo-story-from-text{
+    #story-from-text{
         @include fontTextBold(18px);
         line-height: 40px;
     }
