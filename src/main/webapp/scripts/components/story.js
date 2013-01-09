@@ -47,7 +47,7 @@ define(
                 }
             },
             fromClick: function(ev){
-                window.open(this.properties.urls.api + "/redirect/partner/" + this.data.story.partnerId);
+                window.open(this.properties.urls.api + "/redirect/partner/" + this.modelStory.get("story").partnerId);
             },
             showLogin: function(){
                 this.EvAg.trigger("login/init", "story/login");
@@ -166,7 +166,8 @@ define(
                     story: this.modelStory.toJSON(),
                     profilePhotoUrl: utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
                     isWidget: this.properties.isWidget,
-                    isMine: this.modelUser.is(this.modelStory.get("echoedUser").id)
+                    isMine: this.modelUser.is(this.modelStory.get("echoedUser").id),
+                    userLink: this.properties.urls.api + "#user/" + this.modelStory.get("echoedUser").id
                 };
 
 
@@ -178,25 +179,6 @@ define(
                 self.follow = new Follow({ el: '#story-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
 
                 self.gallery = $('#echo-s-b-gallery');
-
-                //$('#story-follow').attr("echoedUserId", self.data.echoedUser.id);
-
-
-
-//                if(self.properties.isWidget) $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id).attr('target',"_blank");
-//                else $('#story-user-link').attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id)
-
-//                if(self.properties.isWidget !== true && self.data.story.productInfo !== null){
-//                    var from = $('#echo-story-from');
-//                    var fromText = $('#echo-story-from-text');
-//                    if(self.data.story.partnerHandle !== "Echoed"){
-//                        var p = self.data.story.partnerHandle ? self.data.story.partnerHandle : self.data.story.partnerId;
-//                        fromText.text(self.data.story.productInfo);
-//                        from.show();
-//                    }
-//                }
-
-
                 self.itemImageContainer = $('#echo-s-b-i-c');
                 self.img = $("#echo-s-b-i-c-i");
                 self.galleryNode = $("#echo-story-gallery");
@@ -266,7 +248,9 @@ define(
                     else self.chapterText.hide();
                     textArea.fadeIn();
                 });
+
                 //self.scroll(self.galleryNode.scrollTop() + self.galleryChapters[index].position().top);
+
                 self.renderImage();
             },
             renderImage: function(){

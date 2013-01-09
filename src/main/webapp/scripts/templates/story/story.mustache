@@ -8,7 +8,7 @@
                     <div class="echo-s-h-t-n">
                         <img id="echo-s-h-t-n-i" class="echo-s-h-t-n-i" src="{{profilePhotoUrl}}" />
                         <div class='echo-s-h-t-n-t'>
-                            <a id="story-user-link" class="story-link link-white bold-link">{{ story.echoedUser.name }}</a>
+                            <a id="story-user-link" class="story-link link-white bold-link" href="{{userLink}}" {{#isWidget}}target="_blank"{{/isWidget}}>{{ story.echoedUser.name }}</a>
                         </div>
                         <div id="story-follow">
                             TEST
@@ -65,10 +65,14 @@
                         <div id="echo-s-b-t-b" class='echo-s-b-t-b'></div>
                     </div>
                 </div>
+                {{^isWidget}}
+                    {{#story.story.productInfo}}
                 <div id="echo-story-from" class="clearfix">
                     <div id="echo-story-from-logo-container"></div>
-                    <div id="echo-story-from-text"></div>
+                    <div id="echo-story-from-text">{{story.story.productInfo}}</div>
                 </div>
+                    {{/story.story.productInfo}}
+                {{/isWidget}}
                 <div class="echo-story-footer clearfix">
                     <div class="echo-story-comments">
                         <div class="echo-s-c-t">
