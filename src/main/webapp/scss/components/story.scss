@@ -38,7 +38,6 @@
     padding-bottom: 10px;
     border: 8px solid #FFF;
     border-radius: 3px;
-    border-top-left-radius: 0px;
 
     #story-chapter-title{
         padding: 15px 10px ;
@@ -209,20 +208,25 @@
     border-bottom: 1px solid #CCC;
     box-shadow: 0px 1px #FFF;
     background-color: #F0F0F0;
-    line-height: 25px;
+    line-height: 33px;
+    padding: 5px 0px;
     #story-vote{
-        padding: 5px 10px;
+
+        width: 66%;
+
         @include fontTextBold(14px);
         display: inline-block;
 
-        #vote-label{
+        #vote-label, #view-label{
+            padding-left: 10px;
             vertical-align: middle;
             display: inline-block;
+            @include fontText(14px);
         }
         .upvote, .downvote{
             cursor:pointer;
-            width: 25px;
-            height: 25px;
+            width: 33px;
+            height: 33px;
             display: inline-block;
             background-repeat: none;
             vertical-align: middle;
@@ -238,6 +242,8 @@
 
         .upvote{
             background-image: image-url("uparrow_off.png");
+            margin-left: 10px;
+
             &:hover{
                 background-image: image-url("uparrow_hover.png");
             }
@@ -259,6 +265,8 @@
     }
 
     #story-share{
+        width: 33%;
+        text-align: right;
         display: inline-block;
         @include fontTextBold(14px);
 
@@ -291,7 +299,9 @@
     }
 
     #story-views{
-        margin-left: 10px;
+        width: 33%;
+        text-align: left;
+        text-indent: 10px;
         display: inline-block;
         @include fontTextBold(14px);
         vertical-align: middle;
