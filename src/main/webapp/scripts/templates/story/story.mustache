@@ -1,7 +1,7 @@
 <div class="fade">
     <div id="story">
-        <div act="previous" class="story-nav-button" style="left: 0px;">Previous Story</div>
-        <div act="next" class="story-nav-button" style="right: 0px;">Next Story</div>
+        <div act="previous" class="story-nav-button" style="left: 0px;">Previous</div>
+        <div act="next" class="story-nav-button" style="right: 0px;">Next</div>
         <div id="story-container-body" class="clearfix">
                 <!--<div id="echo-story-user">-->
 
@@ -28,19 +28,21 @@
             </div>
             <div id="story-actions">
                 <div id="story-vote">
+                    <span id="vote-label">Vote:</span>
                     <span class="upvote"></span>
                     <span id="upvote-counter"></span>
                     <span class="downvote"></span>
                     <span id="downvote-counter"></span>
                 </div>
-                <!--<div id="story-actions" class="clearfix">-->
-                <!--<div class="story-share fb" type="fb"></div>-->
-                <!--<div class="story-share tw" type="tw"></div>-->
-                <!--<div class="story-share pinterest" type="pinterest"></div>-->
-                <!--</div>-->
-                <!--<div id="story-views">-->
-                <!--Views: {{ story.story.views }}-->
-                <!--</div>-->
+                <div id="story-share">
+                    <span id="share-label">Share:</span>
+                    <div class="story-share fb" type="fb"></div>
+                    <div class="story-share tw" type="tw"></div>
+                    <div class="story-share pinterest" type="pinterest"></div>
+                </div>
+                <div id="story-views">
+                    Views: {{  story.story.views }}
+                </div>
             </div>
             <div id="story-main">
                 <div id="story-chapter-title">

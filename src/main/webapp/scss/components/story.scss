@@ -31,13 +31,6 @@
     }
 }
 
-#story-views{
-    border-top: 1px dotted #FFF;
-    @include fontTextBold(15px, #FFF);
-    text-align: center;
-    padding: 10px 0px;
-}
-
 #story-container-body{
     position:relative;
     background-image: image-url("bk_noise.jpg");
@@ -224,46 +217,88 @@
     #story-vote{
         padding: 5px 10px;
         @include fontTextBold(14px);
-        width: 50%;
-    }
-
-    .upvote, .downvote{
-        cursor:pointer;
-        width: 25px;
-        height: 25px;
         display: inline-block;
-        background-repeat: none;
-        vertical-align: middle;
-        background-size: cover;
+
+        #vote-label{
+            vertical-align: middle;
+            display: inline-block;
+        }
+        .upvote, .downvote{
+            cursor:pointer;
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            background-repeat: none;
+            vertical-align: middle;
+            background-size: cover;
+        }
+
+        #upvote-counter, #downvote-counter{
+            @include fontTextBold(14px);
+            vertical-align: middle;
+            text-align: right;
+            display: inline-block;
+        }
+
+        .upvote{
+            background-image: image-url("uparrow_off.png");
+            &:hover{
+                background-image: image-url("uparrow_hover.png");
+            }
+            &:active, &.on{
+                background-image: image-url("uparrow.png");
+            }
+
+        }
+
+        .downvote{
+            background-image: image-url("downarrow_off.png");
+            &:hover{
+                background-image: image-url("downarrow_hover.png");
+            }
+            &:active, &.on{
+                background-image: image-url("downarrow.png");
+            }
+        }
     }
 
-    #upvote-counter, #downvote-counter{
+    #story-share{
+        display: inline-block;
+        @include fontTextBold(14px);
+
+        #share-label{
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .story-share{
+            display: inline-block;
+            vertical-align: middle;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .fb{
+            @include sprite(0px, -164px, 30px, 30px);
+            background-color: $colorFB;
+        }
+        .tw{
+            @include sprite(-73px, -164px, 30px, 30px);
+            background-color: $colorTW;
+        }
+        .pinterest{
+            width: 30px;
+            height: 30px;
+            background-image: image-url("bk_pinterest.png");
+            background-color: #FFF;
+        }
+    }
+
+    #story-views{
+        margin-left: 10px;
+        display: inline-block;
         @include fontTextBold(14px);
         vertical-align: middle;
-        text-align: right;
-        padding-right: 10px;
-        display: inline-block;
-    }
-
-    .upvote{
-        background-image: image-url("uparrow_off.png");
-        &:hover{
-            background-image: image-url("uparrow_hover.png");
-        }
-        &:active, &.on{
-            background-image: image-url("uparrow.png");
-        }
-
-    }
-
-    .downvote{
-        background-image: image-url("downarrow_off.png");
-        &:hover{
-            background-image: image-url("downarrow_hover.png");
-        }
-        &:active, &.on{
-            background-image: image-url("downarrow.png");
-        }
     }
 }
 
@@ -466,19 +501,6 @@
 //        }
 //    }
 //
-//    .fb{
-//        @include sprite(0px, -164px, 30px, 30px);
-//        background-color: $colorFB;
-//    }
-//    .tw{
-//        @include sprite(-73px, -164px, 30px, 30px);
-//        background-color: $colorTW;
-//    }
-//    .pinterest{
-//        width: 30px;
-//        height: 30px;
-//        background-image: image-url("bk_pinterest.png");
-//        background-color: #FFF;
-//    }
+
 //}
 //
