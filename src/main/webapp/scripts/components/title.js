@@ -15,10 +15,10 @@ define(
                 this.element = $(options.el);
                 this.titleEl = $('#title');
                 this.properties = options.properties;
-                this.modelContext = new ModelContext();
+                this.modelContext = options.modelContext;
+                this.modelContext.on("change", this.render);
                 this.EvAg = options.EvAg;
-                this.EvAg.bind('title/update', this.update);
-                this.render(options);
+//                this.render(options);
             },
             events: {
             },
@@ -45,7 +45,8 @@ define(
                     }
                 })();
             },
-            render: function(options){
+            render: function(){
+                console.log(this.modelContext.toJSON());
                 this.element.html(templateTitle({context: this.modelContext.toJSON()}));
                 this.titleText = $('#title-text');
                 this.titleBody = $('#title-body');

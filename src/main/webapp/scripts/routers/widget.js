@@ -6,6 +6,7 @@ define(
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
+                this.modelContext = options.modelContext;
                 this.EvAg.bind('hash/reset', this.resetHash);
                 this.EvAg.bind('router/me', this.reload);
                 this.page = null;
@@ -26,8 +27,8 @@ define(
             reload: function(){
                 var self = this;
                 this.requestFeed("/partner/" + this.properties.partnerId, function(jsonUrl, data){
+                    self.modelContext.set(data.context);
                     self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
-                    self.EvAg.trigger('title/update', { title: Echoed.title, type: "partner", partnerId: self.properties.partnerId, imageUrl: data.headerImageUrl});
                     self.page = "home";
                 });
                 _gaq.push(['_trackEvent', 'Widget', 'Open', this.properties.partnerId]);
@@ -35,8 +36,8 @@ define(
             topic: function(topicId){
                 var self = this;
                 this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
+                    self.modelContext.set(data.context);
                     self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
-                    self.EvAg.trigger("title/update", { title: data.topic.title, type: "topic", topicId: data.topic.id, imageUrl: data.headerImageUrl });
                 });
             },
             explore: function(){

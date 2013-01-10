@@ -5,4 +5,10 @@ import com.echoed.chamber.domain.public.PartnerPublic
 
 case class TopicContext(
     topic: Topic,
-    partner: PartnerPublic) extends Context(topic.id, topic.title, "Topic")
+    partner: PartnerPublic) extends Context{
+
+    val id = topic.id
+    val title = topic.title
+    val contextType = "Topic"
+
+}

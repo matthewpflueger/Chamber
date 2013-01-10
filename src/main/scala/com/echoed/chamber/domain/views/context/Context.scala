@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain.views.context
 
-class Context(
-    id: String,
-    title: String,
-    contextType: String)
+trait Context{
+    def id: String
+    def title: String
+    def contextType: String
+}

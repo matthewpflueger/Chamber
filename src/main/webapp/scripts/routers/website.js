@@ -66,6 +66,7 @@ define(
                 })();
             },
             loadPage: function(page, options){
+                this.modelContext.set(options.data.context);
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
                 _gaq.push(['_trackPageview', this.page]);
@@ -76,7 +77,6 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/tags", function(jsonUrl, data){
                         self.loadPage("communities", { jsonUrl: jsonUrl, data: data });
-                        self.EvAg.trigger('title/update', { title: "Communities", image: data.headerImage });
                     });
                 }
             },
@@ -86,7 +86,6 @@ define(
                     this.page = "#!";
                     this.requestFeed("/me/feed", function(jsonUrl, data){
                         self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
-                        self.EvAg.trigger('title/update', { type:"echoed", title: "Share Your Stories With the World", image: data.headerImage });
                     });
                 }
             },
@@ -96,7 +95,6 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/partner/" + partnerId, function(jsonUrl, data){
                         self.loadPage("partner", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "partner", partnerId: partnerId, title: "Stories from " + data.partner.name, image: data.headerImage });
                     });
                 }
             },
@@ -106,7 +104,6 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
                         self.loadPage("topic", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "topic", title: "Topic: " + data.topic.title, image: data.headerImage })
                     })
                 }
             },
@@ -116,7 +113,6 @@ define(
                     this.page = "#!me";
                     this.requestFeed("/me/exhibit", function(jsonUrl, data){
                         self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal: true} );
-                        self.EvAg.trigger('title/update', { title : "My Stories"});
                     });
                 }
             },
@@ -126,7 +122,6 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/me/following", function(jsonUrl, data){
                         self.loadPage("friends", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger("title/update", { title: "My Friends"});
                     });
                 }
             },
@@ -137,12 +132,10 @@ define(
                     if(this.modelUser.is(id)){
                         this.requestFeed("/me/exhibit", function(jsonUrl, data){
                             self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal : true});
-                            self.EvAg.trigger('title/update', { title : "My Stories"});
                         });
                     } else {
                         this.requestFeed("/user/" + id, function(jsonUrl, data){
                             self.loadPage("user", { jsonUrl: jsonUrl, data: data});
-                            self.EvAg.trigger('title/update', { title: data.echoedUser.name });
                         })
                     }
                 }
@@ -153,7 +146,6 @@ define(
                     this.page = window.location.hash;
                     this.requestFeed("/category/" + communityId, function(jsonUrl, data){
                         self.loadPage("category", {jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "community", communityId: communityId, title: "Stories in the " + communityId + " Community", image: data.headerImage});
                     });
                 }
             },

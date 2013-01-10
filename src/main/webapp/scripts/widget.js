@@ -16,10 +16,11 @@ require(
         'components/login',
         'routers/widget',
         'models/user',
+        'models/context',
         'easyXDM',
         'isotopeConfig'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser, easyXDM){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Story, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser, ModelContext, easyXDM){
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
@@ -33,7 +34,7 @@ require(
 
             //Initialize Models
             this.modelUser = new ModelUser(Echoed.echoedUser, {properties: this.properties });
-
+            this.modelContext = new ModelContext({}, {properties : this.properties });
             this.modelUser.isLoggedIn();
 
             //Options
@@ -41,6 +42,7 @@ require(
                 var opt = {
                     properties: this.properties,
                     modelUser: this.modelUser,
+                    modelContext: this.modelContext,
                     EvAg: this.EventAggregator
                 };
                 if(el) opt.el = el;

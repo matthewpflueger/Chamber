@@ -7,7 +7,11 @@ case class PartnerContext(
     partner: PartnerPublic,
     followers: Int,
     stories: Int
-) extends Context(partner.id, partner.name, "partner") {
+) extends Context {
+
+    val id = partner.id
+    val title = partner.name
+    val contextType = "Partner"
 
     def this(partner: Partner, followers: Int, stories: Int) = this(new PartnerPublic(partner), followers, stories)
 
