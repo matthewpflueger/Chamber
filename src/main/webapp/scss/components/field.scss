@@ -168,6 +168,8 @@
     @include fontTextBold(12px, $colorEC);
     text-decoration: underline;
     cursor: pointer;
+    float: right;
+    padding: 8px;
 }
 
 #story-input-thumbnails{
@@ -229,7 +231,11 @@
         border-right: 1px solid #CCC;
         box-shadow: 1px 0px #FFF;
         cursor: pointer;
-        &:hover, &.on{
+        &:hover{
+            background-color: #999;
+            color: #FFF;
+        }
+        &.on{
             background-color: #333;
             color: #FFF;
         }

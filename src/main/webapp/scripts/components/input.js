@@ -43,24 +43,30 @@
                 'click .fade': "fadeClick",
                 'click .text': "textClick",
                 "click .photos": "photosClick",
-                "click .link": "linkClick"
+                "click .link": "linkClick",
+                "click .subtit": "subtitleClick"
+
             },
             fadeClick: function(ev){
                 if($(ev.target).hasClass("fade")){
                     this.close();
                 }
             },
-            linkClick: function(ev){
-                $("#input-link").slideToggle('slow');
-                $(ev.currentTarget).toggleClass("on");
+            linkClick: function(){
+                $("#input-link").toggle();
+                $(".link").toggleClass("on");
             },
-            photosClick: function(ev){
-                $("#input-photos").slideToggle('slow');
-                $(ev.currentTarget).toggleClass("on");
+            photosClick: function(){
+                $("#input-photos").toggle();
+                $(".photos").toggleClass("on");
             },
-            textClick: function(ev){
-                $("#input-text").slideToggle('slow');
-                $(ev.currentTarget).toggleClass("on");
+            textClick: function(){
+                $("#input-text").toggle();
+                $(".text").toggleClass("on");
+            },
+            subtitleClick: function(){
+                $("#input-subtitle").toggle();
+                $(".subtit").toggleClass("on");
             },
             login: function(){
                 if(this.loaded === true) this.load(this.id, this.type);
@@ -158,6 +164,13 @@
                 cElement.fadeOut(function(){
                     var template = templateChapterInput({ chapter: chapter });
                     $(this).html(template);
+
+
+                    if(self.modelStory.get("chapterImages").length) self.photosClick();
+                    if(chapter.title) self.subtitleClick();
+                    if(chapter.text) self.textClick();
+
+
                     var chapterPhotos = $('#story-input-thumbnails');
                     var placeholder= $('#thumbnail-placeholder');
                     if(chapterImages.length) $('#input-photos').show();
@@ -262,6 +275,7 @@
 
                     $(this).fadeIn();
                 });
+                this.hideSubmits();
             },
             loadChapterTemplates: function(){
                 var self = this;
@@ -459,7 +473,7 @@
             },
             hideSubmits: function(){
                 this.element.find('.field-edit').hide();
-                this.element.find('.story-summary-buttons').hide();
+                $('#story-summary-buttons').hide();
             },
             show: function(){
                 var self = this;

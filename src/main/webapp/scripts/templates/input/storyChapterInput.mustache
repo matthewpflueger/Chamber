@@ -1,5 +1,5 @@
 <form>
-    <div id="input-subtitle" class="story-detail-row">
+    <div id="input-subtitle" class="story-detail-row" style="display: none;">
         <div class="story-input-label">
             Subtitle
         </div>
@@ -7,7 +7,7 @@
             <input id="chapter-title" class="field-text-input" value="{{chapter.title}}"/>
         </div>
     </div>
-    <div id="input-text" class="story-detail-row" {{^chapter.text}}style="display:none;"{{/chapter.text}}>
+    <div id="input-text" class="story-detail-row" style="display:none;">
         <div class="story-input-label">
             Text
         </div>
@@ -54,17 +54,8 @@
         </ul>
     </div>
     <div class="story-detail-row">
-        <div class="story-input-label"></div>
-        <div class="story-input-content">
-            <span id="chapter-publish" class='field-submit'>Save and Publish</span>
-            <span id="chapter-save" class='field-submit'>Save Draft</span>
-        </div>
-    </div>
-    <div class="story-detail-row">
-        <div class="story-input-label">
-        </div>
-        <div class="story-input-content">
-            <span id="chapter-cancel">Cancel</span>
-        </div>
+        <span id="chapter-publish" class='field-submit'>Save and Publish</span>
+        <span id="chapter-save" class='field-submit'>Save Draft</span>
+        <span id="chapter-cancel">Cancel</span>
     </div>
 </form>
