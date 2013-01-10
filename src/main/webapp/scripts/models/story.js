@@ -101,7 +101,7 @@ define(
                 var chapterImages = this.get("chapterImages");
                 var i = [];
                 //Fix for pushing in Cover Image
-                if(this.isFirstChapter(chapterId) && includeCover) i.push({ image: this.get("story").image });
+                if(this.isFirstChapter(chapterId) && includeCover && this.get("story").image) i.push({ image: this.get("story").image });
 
                 $.each(chapterImages, function(index, image){
                     if(image.chapterId === chapterId) i.push(image);
