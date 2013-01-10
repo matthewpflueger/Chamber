@@ -178,6 +178,12 @@ define(
                 else if (this.get("chapterImages").length > 0) return this.get("chapterImages")[0].image;
                 else return null;
             },
+            getCurrentChapterIndex: function(){
+                return this.currentChapterIndex;
+            },
+            getCurrentChapterImageIndex: function(){
+                return this.currentChapterImageIndex;
+            },
             getCurrentChapter: function(){
                 return this.get("chapters")[this.currentChapterIndex];
             },

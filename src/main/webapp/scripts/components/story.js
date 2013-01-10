@@ -26,15 +26,15 @@ define(
             events: {
                 "click .comment-submit": "createComment",
                 "click .login-button": "commentLogin",
-                "click .echo-gallery-chapter" : "chapterClick",
-                "click .echo-s-b-thumbnail": "imageClick",
+                "click .story-gallery-chapter" : "chapterClick",
+                "click .story-gallery-thumbnail": "imageClick",
                 "click #story-image-container": "nextImage",
                 "click .story-nav-button": "navClick",
                 "click .upvote": "upVote",
                 "click .downvote": "downVote",
                 "click #story-from": "fromClick",
-                "click #echo-story-gallery-next": "next",
-                "click #echo-story-gallery-prev": "previous",
+                "click #story-gallery-next": "next",
+                "click #story-gallery-prev": "previous",
                 "click .story-share": "share",
                 "click #comments-login": "showLogin",
                 "click .story-link": "redirect",
@@ -178,11 +178,11 @@ define(
 
                 self.follow = new Follow({ el: '#story-user-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
 
-                self.gallery = $('#story-gallery');
+                self.gallery = $('#story-image-main');
                 self.itemImageContainer = $('#story-image-container');
                 self.img = $("#story-image");
-                self.galleryNode = $("#echo-story-gallery");
-                self.galleryNodeBody = $('#echo-story-gallery-body');
+                self.galleryNode = $("#story-gallery");
+                self.galleryNodeBody = $('#story-gallery-body');
 
                 self.story = $('#story');
                 self.renderGalleryNav();
@@ -201,14 +201,14 @@ define(
                 self.titles = [];
                 self.galleryChapters = [];
                 $.each(chapters, function(index, chapter){
-                    self.galleryChapters[index] = $('<div></div>').addClass('echo-gallery-chapter').attr("index", index);
-                    var title = $('<div></div>').addClass('echo-gallery-title').text(chapter.title);
+                    self.galleryChapters[index] = $('<div></div>').addClass('story-gallery-chapter').attr("index", index).attr("id", "story-gallery-chapter-" + index);
+                    var title = $('<div></div>').addClass('story-gallery-title').text(chapter.title);
                     self.galleryChapters[index].append(title);
                     self.galleryNodeBody.append(self.galleryChapters[index]);
                     var chapterImages  = self.modelStory.getChapterImages(chapter.id, true);
                     $.each(chapterImages, function(index2, ci){
                         var thumbNailHash = index + "-" + index2;
-                        self.thumbnails[thumbNailHash] = utils.scaleByWidth(ci.image, 90).addClass("echo-s-b-thumbnail").attr("index", thumbNailHash);
+                        self.thumbnails[thumbNailHash] = utils.scaleByWidth(ci.image, 90).addClass("story-gallery-thumbnail").attr("index", thumbNailHash).attr("id", "story-gallery-thumbnail-" + thumbNailHash);
                         self.galleryChapters[index].append(self.thumbnails[thumbNailHash]);
                     });
                 });
@@ -248,9 +248,19 @@ define(
                     self.chapterText.fadeIn();
                 });
 
-                //self.scroll(self.galleryNode.scrollTop() + self.galleryChapters[index].position().top);
+
 
                 self.renderImage();
+                self.highlight();
+            },
+            highlight: function(){
+                var chapterIndex = this.modelStory.getCurrentChapterIndex();
+                var chapterImageIndex = this.modelStory.getCurrentChapterImageIndex();
+                $('.story-gallery-chapter').removeClass("highlight");
+                $('.story-gallery-thumbnail').removeClass("highlight");
+                var chapter = $("#story-gallery-chapter-" + chapterIndex).addClass("highlight");
+                $("#story-gallery-thumbnail-" + chapterIndex + "-" + chapterImageIndex).addClass("highlight");
+                this.scroll(this.galleryNode.scrollTop() + chapter.position().top);
             },
             renderImage: function(){
                 var self = this;

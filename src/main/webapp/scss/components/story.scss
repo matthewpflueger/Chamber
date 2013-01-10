@@ -76,7 +76,7 @@
                     word-wrap: break-word;
                 }
             }
-            #story-gallery{
+            #story-image-main{
                 @include transition;
                 &.gallery-photo{
                     display: block;
@@ -128,7 +128,7 @@
     overflow-x: hidden;
 }
 
-.echo-story-gallery{
+#story-gallery{
     position: absolute;
     padding: 0px 5px;
     top: 25px;
@@ -137,12 +137,8 @@
     overflow:hidden;
 
     text-align: center;
-    .echo-gallery-header{
-        @include fontTextBold(14px, #FFF);
-        margin-bottom: 5px;
-        text-align: left;
-    }
-    .echo-gallery-chapter{
+
+    .story-gallery-chapter{
         padding: 5px;
         margin-bottom: 5px;
         cursor: pointer;
@@ -153,12 +149,12 @@
             border-color: #FFF;
         }
     }
-    .echo-gallery-title{
+    .story-gallery-title{
         @include fontTextBold(12px, #000);
         text-shadow: 0px 1px #FFF;
         margin-bottom: 5px;
     }
-    .echo-s-b-thumbnail{
+    .story-gallery-thumbnail{
         margin: 5px 0px;
         border: 2px solid #666;
         cursor: pointer;
@@ -374,7 +370,7 @@
 
 
 
-#echo-story-gallery-container{
+#story-gallery-container{
     position: fixed;
     top: 0px;
     bottom: 0px;
@@ -382,40 +378,41 @@
     padding: 10px 5px;
     width: 105px;
     border-right: 1px solid #CCC;
-}
+    #story-gallery-prev, #story-gallery-next{
+        height: 20px;
+        width: 115px;
+        text-align: center;
+        position: fixed;
+        cursor:pointer;
+        opacity: .5;
+        transition:opacity 1s linear;
+        &:hover{
+            opacity: 1;
+        }
+    }
 
-#echo-story-gallery-prev, #echo-story-gallery-next{
-    height: 20px;
-    width: 115px;
-    text-align: center;
-    position: fixed;
-    cursor:pointer;
-    opacity: .5;
-    transition:opacity 1s linear;
-    &:hover{
-        opacity: 1;
+    #story-gallery-prev{
+        position:absolute;
+        left: 0px;
+        top: 0px;
+        border-bottom: 1px dotted #FFF;
+        background-image: image-url("bk_prevarrow.png");
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    #story-gallery-next{
+        border-top: 1px dotted #FFF;
+        position: absolute;
+        bottom:0px;
+        left: 0px;
+        background-image: image-url("bk_nextarrow.png");
+        background-position: center;
+        background-repeat: no-repeat;
     }
 }
 
-#echo-story-gallery-prev{
-    position:absolute;
-    left: 0px;
-    top: 0px;
-    border-bottom: 1px dotted #FFF;
-    background-image: image-url("bk_prevarrow.png");
-    background-position: center;
-    background-repeat: no-repeat;
-}
 
-#echo-story-gallery-next{
-    border-top: 1px dotted #FFF;
-    position: absolute;
-    bottom:0px;
-    left: 0px;
-    background-image: image-url("bk_nextarrow.png");
-    background-position: center;
-    background-repeat: no-repeat;
-}
 
 .echo-s-h-t-n-t-l{
     @include fontText(13px, $colorEC);
@@ -487,21 +484,3 @@
 .redButton{
     @include redButton;
 }
-
-//#story-actions{
-//    padding: 5px 7px;
-//    .story-share{
-//        border-radius: 3px;
-//        cursor: pointer;
-//        float:left;
-//        margin: 2px;
-//        border: 1px solid;
-//        border-color: transparent;
-//        &:hover{
-//            border-color: #333;
-//        }
-//    }
-//
-
-//}
-//
