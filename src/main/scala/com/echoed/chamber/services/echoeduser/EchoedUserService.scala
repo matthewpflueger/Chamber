@@ -26,6 +26,8 @@ import com.echoed.chamber.domain.EchoedUserSettings
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.domain.FacebookUser
+import com.echoed.chamber.domain.views.StoryFeed
+import com.echoed.chamber.domain.views.context.UserContext
 import com.echoed.chamber.services.state.FacebookUserNotFound
 import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FacebookAccessToken
@@ -36,7 +38,7 @@ import com.echoed.chamber.services.facebook.FetchFriends
 import com.echoed.chamber.services.state.TwitterUserNotFound
 import akka.actor.OneForOneStrategy
 import com.echoed.chamber.services.facebook.PublishAction
-import com.echoed.chamber.domain.views.{ClosetPersonal, Closet, EchoFull, EchoedUserStoryFeed}
+import com.echoed.chamber.domain.views.{ClosetPersonal, Closet, EchoFull}
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state.ReadForCredentialsResponse
 import scala.Right
@@ -48,6 +50,8 @@ import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUse
 import com.echoed.chamber.domain.public.EchoedUserPublic
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
+
+
 
 
 class EchoedUserService(
@@ -524,7 +528,15 @@ class EchoedUserService(
             val channel = sender
             mp(GetUserPublicStoryFeed(echoedUser.id, page)).onSuccess {
                 case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
-                    channel ! GetUserFeedResponse(msg, Right(new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), feed.stories, feed.nextPage)))
+                    val sf = new StoryFeed(
+                        new UserContext(
+                            echoedUser,
+                            followingUsers.length,
+                            followedByUsers.length,
+                            feed.stories.length),
+                        feed.stories,
+                        feed.nextPage)
+                    channel ! GetUserFeedResponse(msg, Right(sf))
             }
 
         case msg: StoryIdentifiable with EchoedUserIdentifiable with Message =>

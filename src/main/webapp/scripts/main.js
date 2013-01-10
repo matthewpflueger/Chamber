@@ -20,9 +20,10 @@ require(
         'components/nav',
         'components/login',
         'models/user',
+        'models/context',
         'isotopeConfig'
     ],
-    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, PageTitle, Title, Input, User, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav, Login, ModelUser){
+    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, PageTitle, Title, Input, User, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav, Login, ModelUser, ModelContext){
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
@@ -33,12 +34,14 @@ require(
 
             //Initialize Models
             this.modelUser = new ModelUser(Echoed.echoedUser, { properties: this.properties });
+            this.modelContext = new ModelContext(null, { properties: this.properties });
 
             //Options
             this.options = function(el){
                 var opt = {
                     properties: this.properties,
                     modelUser: this.modelUser,
+                    modelContext: this.modelContext,
                     EvAg: this.EventAggregator
                 };
                 if(el) opt.el = el;

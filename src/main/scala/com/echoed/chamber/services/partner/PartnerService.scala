@@ -19,7 +19,8 @@ import java.util.{Date, UUID}
 import scala.Left
 import scala.Right
 import scala.Some
-import com.echoed.chamber.domain.views.PartnerStoryFeed
+import com.echoed.chamber.domain.views.StoryFeed
+import com.echoed.chamber.domain.views.context.PartnerContext
 
 
 class PartnerService(
@@ -136,7 +137,15 @@ class PartnerService(
             val channel = sender
             mp(RequestPartnerStoryFeed(partner.id, page, origin)).onSuccess {
                 case RequestPartnerStoryFeedResponse(_, Right(feed)) =>
-                    channel ! ReadPartnerFeedResponse(msg, Right(new PartnerStoryFeed(partner, feed)))
+                    val sf = new StoryFeed(
+                        new PartnerContext(
+                            partner,
+                            followedByUsers.length,
+                            feed.stories.length),
+                        feed.stories,
+                        feed.nextPage
+                    )
+                    channel ! ReadPartnerFeedResponse(msg, Right(sf))
             }
 
         case msg: GetTopics =>

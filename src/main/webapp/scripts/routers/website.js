@@ -12,6 +12,7 @@ define(
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.modelUser = options.modelUser;
+                this.modelContext = options.modelContext;
                 this.EvAg.bind("hash/reset", this.resetHash);
                 this.EvAg.bind("router/me", this.me);
                 this.currentRequest = null;
