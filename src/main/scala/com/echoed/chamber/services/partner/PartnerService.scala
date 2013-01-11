@@ -21,6 +21,9 @@ import scala.Right
 import scala.Some
 import com.echoed.chamber.domain.views.StoryFeed
 import com.echoed.chamber.domain.views.context.PartnerContext
+import com.echoed.chamber.domain.public.StoryPublic
+import collection.immutable.TreeMap
+import java.util
 
 
 class PartnerService(
@@ -29,7 +32,7 @@ class PartnerService(
         encrypter: Encrypter,
         initMessage: Message,
         accountManagerEmail: String = "accountmanager@echoed.com",
-        accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService {
+        accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService with ContentService {
 
     import context.dispatcher
 
@@ -38,20 +41,20 @@ class PartnerService(
     private var partnerUser: Option[PartnerUser] = None
     private var topics = List[Topic]()
     private var customization = Map[String, Any]()
-
     private var followedByUsers = List[Follower]()
-
 
     override def preStart() {
         super.preStart()
         initMessage match {
-            case msg: PartnerIdentifiable => mp.tell(ReadPartner(msg.credentials), self)
+            case msg: PartnerIdentifiable =>
+                mp.tell(ReadPartner(msg.credentials), self)
             case msg: RegisterPartner => //handled in init
         }
     }
 
     private def becomeOnlineAndRegister {
         becomeOnline
+        mp.tell(RequestPartnerStoryFeed(partner.id), self)
         context.parent ! RegisterPartnerService(partner)
     }
 
@@ -133,20 +136,25 @@ class PartnerService(
                     msg,
                     Right(new PartnerAndPartnerSettings(partner, partnerSettings, customization)))
 
+        case msg @ RequestPartnerStoryFeedResponse(_, Right(f)) =>
+            f.stories.map {
+                updateStory(_)
+            }
+
         case msg @ ReadPartnerFeed(_, page, origin) =>
             val channel = sender
-            mp(RequestPartnerStoryFeed(partner.id, page, origin)).onSuccess {
-                case RequestPartnerStoryFeedResponse(_, Right(feed)) =>
-                    val sf = new StoryFeed(
-                        new PartnerContext(
-                            partner,
-                            followedByUsers.length,
-                            feed.stories.length),
-                        feed.stories,
-                        feed.nextPage
-                    )
-                    channel ! ReadPartnerFeedResponse(msg, Right(sf))
-            }
+            val stories = getStoriesFromTree(page)
+            val nextPage = getNextPage(page, stories)
+            val storyCount =  getStoryCount
+            val sf = new StoryFeed(
+                new PartnerContext(
+                    partner,
+                    followedByUsers.length,
+                    storyCount),
+                    stories,
+                    nextPage)
+
+            channel ! ReadPartnerFeedResponse(msg, Right(sf))
 
         case msg: GetTopics =>
             val now = new Date

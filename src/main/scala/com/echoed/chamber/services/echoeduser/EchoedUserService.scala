@@ -62,7 +62,7 @@ class EchoedUserService(
         storyGraphUrl: String,
         echoClickUrl: String,
         encrypter: Encrypter,
-        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService {
+        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService with ContentService {
 
     import context.dispatcher
 
@@ -174,6 +174,7 @@ class EchoedUserService(
 
     private def becomeOnlineAndRegister {
         becomeOnline
+        mp.tell(GetUserPublicStoryFeed(echoedUser.id), self)
         context.parent ! RegisterEchoedUserService(echoedUser)
     }
 
@@ -205,6 +206,7 @@ class EchoedUserService(
 
 
     def init = {
+
         case msg @ RegisterLogin(name, email, screenName, _, None) if (msg == initMessage) =>
             mp.tell(QueryUnique(new EchoedUser(name, email, screenName), msg, Option(sender)), self)
 
@@ -260,6 +262,9 @@ class EchoedUserService(
 
     def online = {
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
+
+        case msg @ UpdateUserStory(_, story) =>
+            updateStory(story)
 
         case msg @ VerifyEmail(_, code) =>
             val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
@@ -325,6 +330,11 @@ class EchoedUserService(
         case msg @ LoginWithTwitterUser(tu, correlation, correlationSender) =>
             handleLoginWithTwitterUser(msg)
             updated
+
+        case msg @ GetUserPublicStoryFeedResponse(_, Right(f)) =>
+            f.stories.map {
+                updateStory(_)
+            }
 
 
         case msg: ReadSettings =>
@@ -525,19 +535,17 @@ class EchoedUserService(
             self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
 
         case msg @ GetUserFeed(eucc, page) =>
-            val channel = sender
-            mp(GetUserPublicStoryFeed(echoedUser.id, page)).onSuccess {
-                case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
-                    val sf = new StoryFeed(
-                        new UserContext(
-                            echoedUser,
-                            followingUsers.length,
-                            followedByUsers.length,
-                            feed.stories.length),
-                        feed.stories,
-                        feed.nextPage)
-                    channel ! GetUserFeedResponse(msg, Right(sf))
-            }
+            val stories = getStoriesFromTree(page)
+            val nextPage = getNextPage(page, stories)
+            val sf = new StoryFeed(
+                new UserContext(
+                    echoedUser,
+                    followingUsers.length,
+                    followedByUsers.length,
+                    getStoryCount),
+                stories,
+                nextPage)
+            sender ! GetUserFeedResponse(msg, Right(sf))
 
         case msg: StoryIdentifiable with EchoedUserIdentifiable with Message =>
             forwardToStory(msg, StoryId(msg.storyId))

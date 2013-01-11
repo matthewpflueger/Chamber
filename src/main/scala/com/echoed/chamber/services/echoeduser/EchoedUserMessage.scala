@@ -8,7 +8,8 @@ import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
 import scala.collection.immutable.Stack
 import org.springframework.validation.Errors
-
+import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.services.OnlineOnlyMessage
 
 sealed trait EchoedUserMessage extends Message
 sealed class EchoedUserException(
@@ -237,7 +238,6 @@ case class UpdateStory(
 case class UpdateStoryResponse(message: UpdateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, UpdateStory, EUE]
 
-
 case class CreateChapter(
         credentials: EUCC,
         storyId: String,
@@ -388,6 +388,15 @@ case class GetUserFeedResponse(message: GetUserFeed, value: Either[EUE, StoryFee
 case class GetEchoedFriends(credentials: EUCC) extends EUM with EUI
 case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, FriendFeed])
     extends EUM with MR[FriendFeed, GetEchoedFriends, EUE]
+
+
+case class UpdateUserStory(
+        credentials: EUCC,
+        story: StoryPublic) extends EUM with EUI with OnlineOnlyMessage
+
+case class UpdateUserStoryResponse(
+        message: UpdateUserStory,
+        value: Either[EUE, Boolean]) extends EUM with MR[Boolean, UpdateUserStory, EUE]
 
 case class Logout(credentials: EUCC) extends EUM with EUI
 case class LogoutResponse(message: Logout, value: Either[EUE, Boolean])

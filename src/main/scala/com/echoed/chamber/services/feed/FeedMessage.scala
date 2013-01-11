@@ -40,7 +40,7 @@ case class GetCategoryStoryFeedResponse(
             message: GetCategoryStoryFeed,
             value: Either[FE, PublicStoryFeed]) extends FM with MR [PublicStoryFeed, GetCategoryStoryFeed, FE]
 
-case class GetUserPublicStoryFeed(echoedUserId: String, page: Int) extends FM
+case class GetUserPublicStoryFeed(echoedUserId: String) extends FM
 case class GetUserPublicStoryFeedResponse(
             message: GetUserPublicStoryFeed,
             value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, GetUserPublicStoryFeed, FE]
@@ -50,7 +50,7 @@ case class GetUserPrivateStoryFeedResponse(
             message: GetUserPrivateStoryFeed,
             value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, GetUserPrivateStoryFeed, FE]
 
-case class RequestPartnerStoryFeed(partnerId: String, page: Int, origin: String) extends FM
+case class RequestPartnerStoryFeed(partnerId: String) extends FM
 case class RequestPartnerStoryFeedResponse(
             message: RequestPartnerStoryFeed,
             value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, RequestPartnerStoryFeed, FE]

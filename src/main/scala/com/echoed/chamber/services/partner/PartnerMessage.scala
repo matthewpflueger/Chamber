@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.partner
 
-import com.echoed.chamber.services.{MessageResponse => MR, EchoedClientCredentials, EchoedException, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, OnlineOnlyMessage, EchoedClientCredentials, EchoedException, Message}
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
@@ -8,6 +8,7 @@ import akka.actor.ActorRef
 import com.echoed.chamber.services.echoeduser.{Follower, EchoedUserClientCredentials}
 import org.springframework.validation.Errors
 import java.util.Date
+import com.echoed.chamber.domain.public.StoryPublic
 
 
 trait PartnerMessage extends Message
@@ -70,6 +71,12 @@ case class UpdatePartnerResponse(
         message: UpdatePartner, 
         value: Either[PE, Partner]) extends PM with MR[Partner, UpdatePartner, PE]
 
+case class UpdatePartnerStory(
+        credentials: PCC,
+        story: StoryPublic) extends PM with PI with OnlineOnlyMessage
+case class UpdatePartnerStoryResponse(
+        message: UpdatePartnerStory,
+        value: Either[PE, Boolean]) extends PM with MR[Boolean, UpdatePartnerStory, PE]
 
 //private[services] case class GetPartnerSettings(credentials: PCC) extends PM with PI
 //private[services] case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerException, List[PartnerSettings]])

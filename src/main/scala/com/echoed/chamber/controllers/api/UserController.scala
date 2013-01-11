@@ -12,7 +12,7 @@ import scala.Right
 import javax.servlet.http.HttpServletResponse
 import com.echoed.chamber.domain._
 import scala.collection.immutable.Stack
-import com.echoed.chamber.domain.views.{CommunityFeed, EchoedUserStoryFeed, PartnerStoryFeed, TopicStoryFeed, ClosetPersonal, Feed, PublicStoryFeed}
+import com.echoed.chamber.domain.views.{CommunityFeed, TopicStoryFeed, ClosetPersonal, Feed, PublicStoryFeed}
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.echoed.chamber.services.feed.GetStoryResponse
 import com.echoed.chamber.services.echoeduser.GetFeedResponse
@@ -23,7 +23,6 @@ import views.CommunityFeed
 import com.echoed.chamber.services.partner.GetTopicsResponse
 import views.Feed
 import views.StoryFeed
-import views.PartnerStoryFeed
 import views.PublicStoryFeed
 import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
 import com.echoed.chamber.services.partner.GetTopics
