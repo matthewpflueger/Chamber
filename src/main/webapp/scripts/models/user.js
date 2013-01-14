@@ -34,7 +34,7 @@ define(
                         type: "PUT",
                         success: function(response){
                             if(type === "Partner") self.followingPartners = response;
-                            else self.following=response;
+                            else self.following = response;
                             callback(self, response)
                         }
                     };
