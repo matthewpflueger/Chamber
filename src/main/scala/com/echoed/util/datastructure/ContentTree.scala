@@ -17,7 +17,10 @@ class ContentTree {
     val pageSize = 30
     var viewCount = 0
     var voteCount = 0
+    var commentCount = 0
 
+    var mostViewed: StoryPublic = null
+    var mostCommented: StoryPublic = null
 
     protected var contentMap = Map[String, StoryPublic]()
     protected var contentTree =  new TreeMap[(Long, String), StoryPublic]()(DateOrdering)
@@ -39,12 +42,29 @@ class ContentTree {
             story =>
                 viewCount -= story.story.views
                 voteCount -= story.votes.size
+                commentCount -= s.comments.size
                 removeFromTree(story)
         }
         addToTree(s)
         contentMap += (s.id -> s)
         viewCount += s.story.views
         voteCount += s.votes.size
+        commentCount += s.comments.size
+
+        Option(mostViewed).map {
+            sp =>
+                if(sp.story.views <= s.story.views) mostViewed = s
+        }.getOrElse{
+            mostViewed = s
+        }
+
+        Option(mostCommented).map {
+            sp =>
+                if(sp.comments.size <= s.comments.size) mostCommented = s
+        }.getOrElse {
+            mostCommented = s
+        }
+
     }
 
     def getNextPage(page: Int) = {

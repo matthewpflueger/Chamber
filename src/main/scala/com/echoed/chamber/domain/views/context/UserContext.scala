@@ -1,6 +1,6 @@
 package com.echoed.chamber.domain.views.context
 
-import com.echoed.chamber.domain.public.EchoedUserPublic
+import com.echoed.chamber.domain.public.{StoryPublic, EchoedUserPublic}
 import com.echoed.chamber.domain.EchoedUser
 
 case class UserContext(
@@ -9,13 +9,25 @@ case class UserContext(
     following: Int,
     stories: Int,
     views: Int,
-    votes: Int
+    votes: Int,
+    comments: Int,
+    mostCommented: StoryPublic,
+    mostViewed: StoryPublic
+
 ) extends Context {
 
     val id = echoedUser.id
     val title = echoedUser.name
     val contextType = "User"
 
-    def this(echoedUser: EchoedUser, followers: Int, following: Int, stories: Int, views: Int, votes: Int) = this( new EchoedUserPublic(echoedUser), followers, following, stories, views, votes)
+    def this(echoedUser: EchoedUser,
+             followers: Int,
+             following: Int,
+             stories: Int,
+             views: Int,
+             votes: Int,
+             comments: Int,
+             mostCommented: StoryPublic,
+             mostViewed: StoryPublic) = this( new EchoedUserPublic(echoedUser), followers, following, stories, views, votes, comments, mostCommented, mostViewed)
 
 }

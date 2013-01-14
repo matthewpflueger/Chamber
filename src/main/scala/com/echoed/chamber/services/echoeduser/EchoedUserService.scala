@@ -606,7 +606,10 @@ class EchoedUserService(
                     followedByUsers.length,
                     contentTree.count,
                     contentTree.viewCount,
-                    contentTree.voteCount),
+                    contentTree.voteCount,
+                    contentTree.commentCount,
+                    contentTree.mostCommented,
+                    contentTree.mostViewed),
                 stories,
                 nextPage)
             sender ! GetUserFeedResponse(msg, Right(sf))

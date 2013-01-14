@@ -155,7 +155,8 @@ class PartnerService(
                     followedByUsers.length,
                     storyCount,
                     contentTree.viewCount,
-                    contentTree.voteCount),
+                    contentTree.voteCount,
+                    contentTree.commentCount),
                     stories,
                     nextPage)
 

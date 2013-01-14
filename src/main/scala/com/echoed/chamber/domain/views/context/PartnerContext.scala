@@ -8,7 +8,8 @@ case class PartnerContext(
     followers: Int,
     stories: Int,
     views: Int,
-    votes: Int
+    votes: Int,
+    comments: Int
 ) extends Context {
 
     val id = partner.id
@@ -19,7 +20,8 @@ case class PartnerContext(
              followers: Int,
              stories: Int,
              views: Int,
-             votes: Int) = this(new PartnerPublic(partner), followers, stories, views, votes)
+             votes: Int,
+             comments: Int) = this(new PartnerPublic(partner), followers, stories, views, votes, comments)
 
 }
 

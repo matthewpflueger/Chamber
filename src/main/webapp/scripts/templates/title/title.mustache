@@ -17,6 +17,11 @@
                 <li><strong>{{following}}</strong> Following</li>
                 <li><strong>{{views}}</strong> Views</li>
                 <li><strong>{{votes}}</strong> Votes</li>
+                <li><strong>{{comments}}</strong> Comments</li>
+            </ul>
+            <ul>
+                <li><strong>Most Viewed</strong> {{#mostViewed}}{{story.title}}{{/mostViewed}}</li>
+                <li><strong>Most Commented</strong> {{#mostCommented}}{{story.title}}{{/mostCommented}}</li>
             </ul>
         {{/echoedUser}}
         {{#partner}}
@@ -24,6 +29,7 @@
                 <li><strong>{{followers}}</strong> Followers</li>
                 <li><strong>{{views}}</strong> Views</li>
                 <li><strong>{{votes}}</strong> Votes</li>
+                <li><strong>{{comments}}</strong> Comments</li>
             </ul>
         {{/partner}}
 
