@@ -385,6 +385,10 @@ case class GetUserFeed(credentials: EUCC, page: Int) extends EUM with EUI
 case class GetUserFeedResponse(message: GetUserFeed, value: Either[EUE, StoryFeed])
     extends EUM with MR[StoryFeed, GetUserFeed, EUE]
 
+case class RequestCustomUserFeed(credentials: EUCC, page: Int)  extends EUM with EUI
+case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, StoryFeed])
+    extends EUM with MR[StoryFeed, RequestCustomUserFeed, EUE]
+
 case class GetEchoedFriends(credentials: EUCC) extends EUM with EUI
 case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, FriendFeed])
     extends EUM with MR[FriendFeed, GetEchoedFriends, EUE]

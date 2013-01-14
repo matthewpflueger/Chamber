@@ -46,7 +46,6 @@ define(
                 })();
             },
             render: function(){
-                console.log(this.modelContext.toJSON());
                 this.element.html(templateTitle({context: this.modelContext.toJSON()}));
                 this.titleText = $('#title-text');
                 this.titleBody = $('#title-body');

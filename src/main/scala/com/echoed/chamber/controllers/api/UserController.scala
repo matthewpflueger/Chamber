@@ -134,6 +134,22 @@ class UserController extends EchoedController {
 
     @RequestMapping(value = Array("/me/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
+    def customFeed(
+            @RequestParam(value = "page", required = false) page: String,
+            eucc: EchoedUserClientCredentials) = {
+
+        val result = new DeferredResult[StoryFeed](null, ErrorResult.timeout)
+
+        mp(RequestCustomUserFeed(eucc, parse(page))).onSuccess {
+            case RequestCustomUserFeedResponse(_, Right(sf)) =>
+                result.setResult(sf)
+        }
+
+        result
+    }
+
+    @RequestMapping(value = Array("/public/feed"), method = Array(RequestMethod.GET))
+    @ResponseBody
     def publicFeed(@RequestParam(value = "page", required = false) page: String): DeferredResult[PublicStoryFeed] = {
 
         val result = new DeferredResult[PublicStoryFeed](null, ErrorResult.timeout)

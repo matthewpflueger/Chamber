@@ -7,13 +7,15 @@ case class UserContext(
     echoedUser: EchoedUserPublic,
     followers: Int,
     following: Int,
-    stories: Int
+    stories: Int,
+    views: Int,
+    votes: Int
 ) extends Context {
 
     val id = echoedUser.id
     val title = echoedUser.name
     val contextType = "User"
 
-    def this(echoedUser: EchoedUser, followers: Int, following: Int, stories: Int) = this( new EchoedUserPublic(echoedUser), followers, following, stories)
+    def this(echoedUser: EchoedUser, followers: Int, following: Int, stories: Int, views: Int, votes: Int) = this( new EchoedUserPublic(echoedUser), followers, following, stories, views, votes)
 
 }

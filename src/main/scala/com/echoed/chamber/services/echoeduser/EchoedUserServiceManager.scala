@@ -25,7 +25,7 @@ class EchoedUserServiceManager(
         twitterAccessCreator: (ActorContext) => ActorRef,
         echoedUserServiceCreator: (ActorContext, Message) => ActorRef,
         encrypter: Encrypter,
-        implicit val timeout: Timeout = Timeout(20000)) extends EchoedService with ContentService{
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedService{
 
     import context.dispatcher
 

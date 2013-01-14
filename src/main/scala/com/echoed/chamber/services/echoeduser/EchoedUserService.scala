@@ -5,6 +5,8 @@ import Scalaz._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
+import com.echoed.chamber.services.feed.RequestPartnerStoryFeed
+import com.echoed.chamber.services.feed.RequestPartnerStoryFeedResponse
 import akka.actor._
 import akka.pattern._
 import scala.concurrent.duration._
@@ -47,11 +49,11 @@ import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
 import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
-import com.echoed.chamber.domain.public.EchoedUserPublic
+import com.echoed.chamber.domain.public.{StoryPublic, EchoedUserPublic}
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
-
-
+import scala.concurrent.Future
+import com.echoed.util.datastructure.ContentTree
 
 
 class EchoedUserService(
@@ -62,7 +64,7 @@ class EchoedUserService(
         storyGraphUrl: String,
         echoClickUrl: String,
         encrypter: Encrypter,
-        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService with ContentService {
+        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService {
 
     import context.dispatcher
 
@@ -75,6 +77,9 @@ class EchoedUserService(
     private var followedByUsers = List[Follower]()
     private var followingPartners = List[PartnerFollower]()
 
+
+    private val customTree = new ContentTree()
+    private val contentTree = new ContentTree()
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
@@ -174,8 +179,36 @@ class EchoedUserService(
 
     private def becomeOnlineAndRegister {
         becomeOnline
+        getCustomFeed
         mp.tell(GetUserPublicStoryFeed(echoedUser.id), self)
         context.parent ! RegisterEchoedUserService(echoedUser)
+    }
+
+    private def getCustomFeed {
+        val futureUserFeeds = for(fu <- followingUsers) yield {
+            mp(GetUserPublicStoryFeed(fu.echoedUserId))
+        }
+        val futurePartnerFeeds = for(fp <- followingPartners) yield {
+            mp(RequestPartnerStoryFeed(fp.partnerId))
+        }
+        val futures = futureUserFeeds ::: futurePartnerFeeds
+        val futuresList = Future.sequence(futures)
+
+        futuresList.map {
+            s =>
+                s.map{
+                    case r @ GetUserPublicStoryFeedResponse(_, Right(feed)) =>
+                        feed.stories.map(
+                            s => if(!s.isOwnedBy(echoedUser.id))
+                                customTree.updateStory(s)
+                        )
+                    case r @ RequestPartnerStoryFeedResponse(_, Right(feed)) =>
+                        feed.stories.map(
+                            s=> if(!s.isOwnedBy(echoedUser.id))
+                                customTree.updateStory(s)
+                        )
+                }
+        }
     }
 
     private def setStateAndRegister(euss: EchoedUserServiceState) {
@@ -263,8 +296,20 @@ class EchoedUserService(
     def online = {
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
+        case msg @ RequestCustomUserFeed(_, page) =>
+            val stories = customTree.getContentFromTree(page)
+            val nextPage = customTree.getNextPage(page)
+            val sf = new StoryFeed(
+                null,
+                stories,
+                nextPage)
+            sender ! RequestCustomUserFeedResponse(msg, Right(sf))
+
+
+
+
         case msg @ UpdateUserStory(_, story) =>
-            updateStory(story)
+            contentTree.updateStory(story)
 
         case msg @ VerifyEmail(_, code) =>
             val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
@@ -333,7 +378,7 @@ class EchoedUserService(
 
         case msg @ GetUserPublicStoryFeedResponse(_, Right(f)) =>
             f.stories.map {
-                updateStory(_)
+                contentTree.updateStory(_)
             }
 
 
@@ -535,14 +580,16 @@ class EchoedUserService(
             self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
 
         case msg @ GetUserFeed(eucc, page) =>
-            val stories = getStoriesFromTree(page)
-            val nextPage = getNextPage(page, stories)
+            val stories = contentTree.getContentFromTree(page)
+            val nextPage = contentTree.getNextPage(page)
             val sf = new StoryFeed(
                 new UserContext(
                     echoedUser,
                     followingUsers.length,
                     followedByUsers.length,
-                    getStoryCount),
+                    contentTree.count,
+                    contentTree.viewCount,
+                    contentTree.voteCount),
                 stories,
                 nextPage)
             sender ! GetUserFeedResponse(msg, Right(sf))

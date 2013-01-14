@@ -24,6 +24,7 @@ import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.StoryPublic
 import collection.immutable.TreeMap
 import java.util
+import com.echoed.util.datastructure.ContentTree
 
 
 class PartnerService(
@@ -32,7 +33,7 @@ class PartnerService(
         encrypter: Encrypter,
         initMessage: Message,
         accountManagerEmail: String = "accountmanager@echoed.com",
-        accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService with ContentService {
+        accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService {
 
     import context.dispatcher
 
@@ -42,6 +43,8 @@ class PartnerService(
     private var topics = List[Topic]()
     private var customization = Map[String, Any]()
     private var followedByUsers = List[Follower]()
+
+    private val contentTree = new ContentTree()
 
     override def preStart() {
         super.preStart()
@@ -138,14 +141,14 @@ class PartnerService(
 
         case msg @ RequestPartnerStoryFeedResponse(_, Right(f)) =>
             f.stories.map {
-                updateStory(_)
+                contentTree.updateStory(_)
             }
 
         case msg @ ReadPartnerFeed(_, page, origin) =>
             val channel = sender
-            val stories = getStoriesFromTree(page)
-            val nextPage = getNextPage(page, stories)
-            val storyCount =  getStoryCount
+            val stories = contentTree.getContentFromTree(page)
+            val nextPage = contentTree.getNextPage(page)
+            val storyCount =  contentTree.count
             val sf = new StoryFeed(
                 new PartnerContext(
                     partner,
