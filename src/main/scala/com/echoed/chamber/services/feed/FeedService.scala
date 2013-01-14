@@ -135,8 +135,7 @@ class FeedService(
             addToLookup(CommunityKey(storyFull.story.community), storyFull)
         }
 
-        mp.tell(UpdatePartnerStory(PartnerClientCredentials(storyFull.story.partnerId), storyFull), self)
-        mp.tell(UpdateUserStory(EchoedUserClientCredentials(storyFull.story.echoedUserId), storyFull), self)
+        //mp.tell(UpdateUserStory(EchoedUserClientCredentials(storyFull.story.echoedUserId), storyFull), self)
     }
 
     override def preStart() {
@@ -147,7 +146,10 @@ class FeedService(
 
     def handle = {
         case msg: StoryEvent =>
-            updateStory(new StoryPublic(msg.story.asStoryFull.get))
+            val s = new StoryPublic(msg.story.asStoryFull.get)
+            updateStory(s)
+            mp.tell(UpdateUserStory(EchoedUserClientCredentials(s.story.echoedUserId), s), self)
+            mp.tell(UpdatePartnerStory(PartnerClientCredentials(s.story.partnerId), s), self)
 
         case FindAllStoriesResponse(_, Right(all)) => all.map(s => updateStory(new StoryPublic(s.asStoryFull.get)))
 
