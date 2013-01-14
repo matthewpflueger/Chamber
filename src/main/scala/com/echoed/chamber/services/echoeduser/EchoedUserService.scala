@@ -51,7 +51,7 @@ import com.echoed.chamber.services.state.ReadForFacebookUserResponse
 import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
 import com.echoed.chamber.domain.public.{StoryPublic, EchoedUserPublic}
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
-import com.echoed.chamber.services.partner.{AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
+import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
 import scala.concurrent.Future
 import com.echoed.util.datastructure.ContentTree
 
@@ -494,8 +494,23 @@ class EchoedUserService(
         case msg: ListFollowingPartners => sender ! ListFollowingPartnersResponse(msg, Right(followingPartners))
 
         case msg @ FollowPartner(_, partnerId) =>
-            sender ! FollowPartnerResponse(msg, Right(true))
-            mp.tell(AddPartnerFollower(PartnerClientCredentials(partnerId), echoedUser), self)
+            val channel = sender
+            mp(AddPartnerFollower(PartnerClientCredentials(partnerId), echoedUser)).onSuccess{
+                case AddPartnerFollowerResponse(_, Right(partner)) =>
+                    if (!followingPartners.exists(_.partnerId == partner.id))
+                        followingPartners = PartnerFollower(partner.id, partner.name, partner.handle) :: followingPartners
+                    channel ! FollowPartnerResponse(msg, Right(followingPartners))
+            }
+
+        case msg @ UnFollowPartner(_, followingPartnerId) =>
+            val channel = sender
+            val (p, fps) = followingPartners.partition(_.partnerId == followingPartnerId)
+            followingPartners = fps
+            p.headOption.map {
+                partner =>
+                    mp(RemovePartnerFollower(PartnerClientCredentials(partner.partnerId), echoedUser))
+            }
+            channel ! UnFollowPartnerResponse(msg, Right(followingPartners))
 
         case AddPartnerFollowerResponse(_, Right(partner)) if (!followingPartners.exists(_.partnerId == partner.id)) =>
             followingPartners = PartnerFollower(partner.id, partner.name, partner.handle) :: followingPartners
@@ -524,6 +539,8 @@ class EchoedUserService(
                     "object" -> "you",
                     "followerId" -> eu.id))))
             sender ! AddFollowerResponse(msg, Right(echoedUser))
+
+
 
         case msg @ UnFollowUser(_, followingUserId) =>
 

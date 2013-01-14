@@ -153,7 +153,9 @@ class PartnerService(
                 new PartnerContext(
                     partner,
                     followedByUsers.length,
-                    storyCount),
+                    storyCount,
+                    contentTree.viewCount,
+                    contentTree.voteCount),
                     stories,
                     nextPage)
 
@@ -184,6 +186,11 @@ class PartnerService(
         case msg @ AddPartnerFollower(_, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! AddPartnerFollowerResponse(msg, Right(partner))
             followedByUsers = Follower(eu) :: followedByUsers
+
+        case msg @ RemovePartnerFollower(_, eu) if(followedByUsers.exists(_.echoedUserId == eu.id)) =>
+            sender ! RemovePartnerFollowerResponse(msg, Right(partner))
+            val (fu, fbu) = followedByUsers.partition(_.echoedUserId == eu.id)
+            followedByUsers = fbu
 
         case msg @ PutTopic(_, title, description, beginOn, endOn, topicId, community) =>
             try {

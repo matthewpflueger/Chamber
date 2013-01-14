@@ -137,6 +137,11 @@ private[services] case class AddPartnerFollowerResponse(
         message: AddPartnerFollower,
         value: Either[PE, Partner]) extends PM with MR[Partner, AddPartnerFollower, PE]
 
+private[services] case class RemovePartnerFollower(credentials: PCC, echoedUser: EchoedUser) extends PM with PI
+private[services] case class RemovePartnerFollowerResponse(
+        message: RemovePartnerFollower,
+        value: Either[PE, Partner]) extends PM with MR[Partner, RemovePartnerFollower, PE]
+
 
 private[services] case class PartnerFollowerNotification(category: String, value: Map[String, String])
 

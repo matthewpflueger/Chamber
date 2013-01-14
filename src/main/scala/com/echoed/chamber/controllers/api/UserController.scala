@@ -196,6 +196,46 @@ class UserController extends EchoedController {
         result
     }
 
+    @RequestMapping(value = Array("me/following/partners"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def listFollowingPartners(eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
+        mp(ListFollowingPartners(eucc)).onSuccess {
+            case ListFollowingPartnersResponse(_, Right(fp)) => result.setResult(fp)
+        }
+        result
+    }
+
+    @RequestMapping(value = Array("me/following/partners/{partnerToFollowId}"), method = Array(RequestMethod.PUT))
+    @ResponseBody
+    def followPartner(
+            @PathVariable(value = "partnerToFollowId") partnerToFollowId: String,
+            eucc: EchoedUserClientCredentials) = {
+
+        val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
+
+        mp(FollowPartner(eucc, partnerToFollowId)).onSuccess {
+            case FollowPartnerResponse(_, Right(fp)) => result.setResult(fp)
+        }
+        result
+
+    }
+
+    @RequestMapping(value = Array("me/following/partners/{partnerToUnFollowId}"), method = Array(RequestMethod.DELETE))
+    @ResponseBody
+    def unFollowPartner(
+                         @PathVariable(value = "partnerToUnFollowId") partnerToUnFollowId: String,
+                         eucc: EchoedUserClientCredentials) = {
+
+        val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
+
+        mp(UnFollowPartner(eucc, partnerToUnFollowId)).onSuccess {
+            case UnFollowPartnerResponse(_, Right(fp)) => result.setResult(fp)
+        }
+        result
+
+    }
+
     @RequestMapping(value = Array("/me/following"), method = Array(RequestMethod.GET))
     @ResponseBody
     def listFollowingUsers(eucc: EchoedUserClientCredentials) = {

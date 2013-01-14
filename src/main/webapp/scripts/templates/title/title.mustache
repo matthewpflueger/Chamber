@@ -8,22 +8,25 @@
                 <!--Seeds Now! → Basil-->
                 {{ title }}
         </span>
+        <div id="title-follow" style="float: right;"></div>
     </div>
     <div id="title-body" class="clearfix">
         {{#echoedUser}}
             <ul>
-                <li>Followers: {{followers}}</li>
-                <li>Following: {{following}}</li>
-                <li>Views: {{views}}</li>
-                <li>Votes: {{votes}}</li>
-
+                <li><strong>{{followers}}</strong> Followers</li>
+                <li><strong>{{following}}</strong> Following</li>
+                <li><strong>{{views}}</strong> Views</li>
+                <li><strong>{{votes}}</strong> Votes</li>
             </ul>
         {{/echoedUser}}
         {{#partner}}
             <ul>
-                <li>Followers: {{followers}}</li>
+                <li><strong>{{followers}}</strong> Followers</li>
+                <li><strong>{{views}}</strong> Views</li>
+                <li><strong>{{votes}}</strong> Votes</li>
             </ul>
         {{/partner}}
+
     </div>
     <div id="title-nav" class="clearfix">
         <ul>

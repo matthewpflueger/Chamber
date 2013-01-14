@@ -136,6 +136,7 @@ $fontTextColorDefault: #333;
 
     @mixin redButton($size: 14px){
         display: inline-block;
+        text-align: center;
         cursor: pointer;
         border-radius: 5px;
         height: 33px;
@@ -219,6 +220,7 @@ $fontTextColorDefault: #333;
 
     @mixin redButtonMobile($size: 14px){
         display: inline-block;
+        text-align: center;
         cursor: pointer;
         border-radius: 5px;
         height: 25px;

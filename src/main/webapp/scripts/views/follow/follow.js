@@ -13,6 +13,7 @@ define(
                 this.properties = options.properties;
                 this.modelUser = options.modelUser;
                 this.followId = options.followId;
+                this.type = options.type;
                 this.render();
             },
             events: {
@@ -22,6 +23,7 @@ define(
                 var self = this;
                 this.modelUser.follow(
                     this.followId,
+                    this.type,
                     function(model, response){
                         self.render();
                     }
@@ -31,7 +33,7 @@ define(
                 var view = {
                 };
                 if(this.modelUser.isLoggedIn() && !this.modelUser.is(this.followId)) {
-                    view.isFollowing = this.modelUser.isFollowing(this.followId);
+                    view.isFollowing = this.modelUser.isFollowing(this.followId, this.type);
                     view.isLoggedIn = true;
                 }
                 var template = templateFollow(view);

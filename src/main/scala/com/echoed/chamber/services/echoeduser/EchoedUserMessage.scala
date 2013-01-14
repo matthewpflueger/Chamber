@@ -114,8 +114,12 @@ case class FollowUserResponse(message: FollowUser, value: Either[EUE, List[Follo
         extends EUM with MR[List[Follower], FollowUser, EUE]
 
 case class FollowPartner(credentials: EUCC, partnerId: String) extends EUM with EUI
-case class FollowPartnerResponse(message: FollowPartner, value: Either[EUE, Boolean])
-        extends EUM with MR[Boolean, FollowPartner, EUE]
+case class FollowPartnerResponse(message: FollowPartner, value: Either[EUE, List[PartnerFollower]])
+        extends EUM with MR[List[PartnerFollower], FollowPartner, EUE]
+
+case class UnFollowPartner(credentials: EUCC, partnerId: String) extends EUM with EUI
+case class UnFollowPartnerResponse(message: UnFollowPartner, value: Either[EUE, List[PartnerFollower]])
+        extends EUM with MR[List[PartnerFollower], UnFollowPartner, EUE]
 
 private[echoeduser] case class AddFollower(credentials: EUCC, echoedUser: EchoedUser)extends EUM with EUI
 private[echoeduser] case class AddFollowerResponse(message: AddFollower, value: Either[EUE, EchoedUser])
