@@ -156,7 +156,9 @@ class PartnerService(
                     storyCount,
                     contentTree.viewCount,
                     contentTree.voteCount,
-                    contentTree.commentCount),
+                    contentTree.commentCount,
+                    contentTree.mostCommented,
+                    contentTree.mostViewed),
                     stories,
                     nextPage)
 

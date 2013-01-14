@@ -12,25 +12,37 @@
     </div>
     <div id="title-body" class="clearfix">
         {{#echoedUser}}
-            <ul>
-                <li><strong>{{followers}}</strong> Followers</li>
-                <li><strong>{{following}}</strong> Following</li>
-                <li><strong>{{views}}</strong> Views</li>
-                <li><strong>{{votes}}</strong> Votes</li>
-                <li><strong>{{comments}}</strong> Comments</li>
-            </ul>
-            <ul>
-                <li><strong>Most Viewed</strong> {{#mostViewed}}{{story.title}}{{/mostViewed}}</li>
-                <li><strong>Most Commented</strong> {{#mostCommented}}{{story.title}}{{/mostCommented}}</li>
-            </ul>
+            <div id="title-stats" style="float: left">
+                <ul>
+                    <li><span class="title-stats-label">{{followers}}</span><span class="title-stats-text">Followers</span></li>
+                    <li><span class="title-stats-label">{{following}}</span><span class="title-stats-text">Following</span></li>
+                    <li><span class="title-stats-label">{{views}}</span><span class="title-stats-text">Views</span></li>
+                    <li><span class="title-stats-label">{{votes}}</span><span class="title-stats-text">Votes</span></li>
+                    <li><span class="title-stats-label">{{comments}}</span><span class="title-stats-text">Comments</span></li>
+                </ul>
+            </div>
+            <div id="title-content" style="float: left">
+                <ul>
+                    {{#mostViewed}}<li><span class="title-content-label">Most Viewed</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostViewed}}
+                    {{#mostCommented}}<li><span class="title-content-label">Most Commented</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostCommented}}
+                </ul>
+            </div>
         {{/echoedUser}}
         {{#partner}}
+        <div id="title-stats" style="float: left">
             <ul>
-                <li><strong>{{followers}}</strong> Followers</li>
-                <li><strong>{{views}}</strong> Views</li>
-                <li><strong>{{votes}}</strong> Votes</li>
-                <li><strong>{{comments}}</strong> Comments</li>
+                <li><span class="title-stats-label">{{followers}}</span><span class="title-stats-text">Followers</span></li>
+                <li><span class="title-stats-label">{{views}}</span><span class="title-stats-text">Views</span></li>
+                <li><span class="title-stats-label">{{votes}}</span><span class="title-stats-text">Votes</span></li>
+                <li><span class="title-stats-label">{{comments}}</span><span class="title-stats-text">Comments</span></li>
             </ul>
+        </div>
+        <div id="title-content" style="float: left">
+            <ul>
+                {{#mostViewed}}<li><span class="title-content-label">Most Viewed</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostViewed}}
+                {{#mostCommented}}<li><span class="title-content-label">Most Commented</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostCommented}}
+            </ul>
+        </div>
         {{/partner}}
 
     </div>

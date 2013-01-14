@@ -33,12 +33,38 @@
             padding: 5px 10px;
             border-top: 1px solid #FFF;
             border-bottom: 1px solid #CCC;
+            #title-stats{
+                width: 300px;
+                .title-stats-label{
+                    width: 50px;
+                    display: inline-block;
+                    text-align: right;
+                    font-weight: bold;
+                    margin-right: 5px;
+                }
+            }
+            #title-content{
+                width: 450px;
+                .title-content-label{
+                    width: 130px;
+                    display: inline-block;
+                    text-align: left;
+                    font-weight: bold;
+                    margin-right: 5px;
+                }
+            }
             ul{
-                width: 250px;
             }
             li{
                 @include fontText(13px);
                 list-style: none;
+                a {
+                    &:hover{
+                        color: $colorEC;
+                    }
+                    color: inherit;
+                    text-decoration: none;
+                }
             }
         }
     }
