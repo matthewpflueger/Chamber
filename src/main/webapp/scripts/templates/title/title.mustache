@@ -8,12 +8,15 @@
                 <!--Seeds Now! → Basil-->
                 {{ title }}
         </span>
-        <div id="title-follow" style="float: right;"></div>
+        <a id="title-action-button" href="#">Add Story</a>
     </div>
     <div id="title-body" class="clearfix">
+        <div id="title-actions" style="float:left">
+            <div id="title-follow" style="float: right;"></div>
+        </div>
         {{#echoedUser}}
-            <div id="title-stats" style="float: left">
-                <div class="title-label">Statistics</div>
+            <div id="title-stats">
+                <!--<div class="title-label">Statistics</div>-->
                 <ul>
                     <li><span class="title-stats-label">{{followers}}</span><span class="title-stats-text">Followers</span></li>
                     <li><span class="title-stats-label">{{following}}</span><span class="title-stats-text">Following</span></li>
@@ -22,8 +25,8 @@
                     <li><span class="title-stats-label">{{comments}}</span><span class="title-stats-text">Comments</span></li>
                 </ul>
             </div>
-            <div id="title-content" style="float: left">
-                <div class="title-label">Top Content</div>
+            <div id="title-content">
+                <!--<div class="title-label">Top Content</div>-->
                 <ul>
                     {{#mostViewed}}<li><span class="title-content-label">Most Viewed</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostViewed}}
                     {{#mostCommented}}<li><span class="title-content-label">Most Commented</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostCommented}}
@@ -32,8 +35,8 @@
             </div>
         {{/echoedUser}}
         {{#partner}}
-        <div id="title-stats" style="float: left">
-            <div class="title-label">Top Content</div>
+        <div id="title-stats" >
+            <!--<div class="title-label">Top Content</div>-->
             <ul>
                 <li><span class="title-stats-label">{{followers}}</span><span class="title-stats-text">Followers</span></li>
                 <li><span class="title-stats-label">{{views}}</span><span class="title-stats-text">Views</span></li>
@@ -41,8 +44,8 @@
                 <li><span class="title-stats-label">{{comments}}</span><span class="title-stats-text">Comments</span></li>
             </ul>
         </div>
-        <div id="title-content" style="float: left">
-            <div class="title-label">Top Content</div>
+        <div id="title-content" >
+            <!--<div class="title-label">Top Content</div>-->
             <ul>
                 {{#mostViewed}}<li><span class="title-content-label">Most Viewed</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostViewed}}
                 {{#mostCommented}}<li><span class="title-content-label">Most Commented</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostCommented}}

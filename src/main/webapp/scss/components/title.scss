@@ -7,11 +7,11 @@
         @include fontTextBold(14px, #FFF);
     }
 
-    .title-label{
-        @include fontTextBold(20px, #000);
-        text-shadow: 0px 1px #FFF;
-        margin-bottom: 5px;
-    }
+    //.title-label{
+    //    @include fontTextBold(20px, #000);
+    //    text-shadow: 0px 1px #FFF;
+    //    margin-bottom: 5px;
+    //}
     #title{
         background-position: center center;
         background-size: cover;
@@ -36,9 +36,12 @@
             .title-label{
                 font-weight: bold;
                 text-align: left;
+                @include fontTextBold(13px);
             }
+
             #title-stats{
                 width: 300px;
+                float: right;
                 .title-stats-label{
                     width: 50px;
                     display: inline-block;
@@ -49,6 +52,7 @@
             }
             #title-content{
                 width: 450px;
+                float: right;
                 .title-content-label{
                     width: 130px;
                     display: inline-block;
@@ -115,4 +119,10 @@
 
 #title-login{
     text-align: center;
+}
+
+#title-action-button{
+    @include shareButton();
+    cursor: pointer;
+    float: right;
 }

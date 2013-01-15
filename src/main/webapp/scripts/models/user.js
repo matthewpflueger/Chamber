@@ -38,7 +38,7 @@ define(
                             callback(self, response)
                         }
                     };
-                    if(this.isFollowing(followId, "Partner")) request.type = "DELETE";
+                    if(this.isFollowing(followId, "Partner") || this.isFollowing(followId, "User")) request.type = "DELETE";
                     utils.AjaxFactory(request)();
                 }
             },
