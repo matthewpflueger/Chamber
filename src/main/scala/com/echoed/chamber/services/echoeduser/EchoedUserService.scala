@@ -322,8 +322,8 @@ class EchoedUserService(
                 val sf = new StoryFeed(
                             new UserContext(
                                     echoedUser,
-                                    followingUsers.length,
                                     followedByUsers.length,
+                                    followingUsers.length,
                                     contentTree.count,
                                     contentTree.viewCount,
                                     contentTree.voteCount,
