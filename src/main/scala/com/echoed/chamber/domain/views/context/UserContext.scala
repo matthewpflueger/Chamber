@@ -12,7 +12,8 @@ case class UserContext(
     votes: Int,
     comments: Int,
     mostCommented: StoryPublic,
-    mostViewed: StoryPublic
+    mostViewed: StoryPublic,
+    mostVoted: StoryPublic
 
 ) extends Context {
 
@@ -28,6 +29,7 @@ case class UserContext(
              votes: Int,
              comments: Int,
              mostCommented: StoryPublic,
-             mostViewed: StoryPublic) = this( new EchoedUserPublic(echoedUser), followers, following, stories, views, votes, comments, mostCommented, mostViewed)
+             mostViewed: StoryPublic,
+             mostVoted: StoryPublic) = this( new EchoedUserPublic(echoedUser), followers, following, stories, views, votes, comments, mostCommented, mostViewed, mostVoted)
 
 }

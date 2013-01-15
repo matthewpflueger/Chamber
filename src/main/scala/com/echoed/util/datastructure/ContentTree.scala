@@ -21,6 +21,7 @@ class ContentTree {
 
     var mostViewed: StoryPublic = null
     var mostCommented: StoryPublic = null
+    var mostVoted: StoryPublic = null
 
     protected var contentMap = Map[String, StoryPublic]()
     protected var contentTree =  new TreeMap[(Long, String), StoryPublic]()(DateOrdering)
@@ -63,6 +64,13 @@ class ContentTree {
                 if(sp.comments.size <= s.comments.size) mostCommented = s
         }.getOrElse {
             mostCommented = s
+        }
+
+        Option(mostVoted).map {
+            sp =>
+                if (sp.voteScore <= s.voteScore) mostVoted = s
+        }.getOrElse {
+            mostVoted = s
         }
 
     }

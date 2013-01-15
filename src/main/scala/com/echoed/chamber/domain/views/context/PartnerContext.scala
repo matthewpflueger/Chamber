@@ -11,7 +11,8 @@ case class PartnerContext(
     votes: Int,
     comments: Int,
     mostCommented: StoryPublic,
-    mostViewed: StoryPublic
+    mostViewed: StoryPublic,
+    mostVoted: StoryPublic
 ) extends Context {
 
     val id = partner.id
@@ -25,7 +26,8 @@ case class PartnerContext(
              votes: Int,
              comments: Int,
              mostCommented: StoryPublic,
-             mostViewed: StoryPublic) = this(new PartnerPublic(partner), followers, stories, views, votes, comments, mostCommented, mostViewed)
+             mostViewed: StoryPublic,
+             mostVoted: StoryPublic) = this(new PartnerPublic(partner), followers, stories, views, votes, comments, mostCommented, mostViewed, mostVoted)
 
 }
 

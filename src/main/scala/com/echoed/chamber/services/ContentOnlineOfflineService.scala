@@ -4,12 +4,12 @@ import akka.event.LoggingReceive
 
 abstract class ContentOnlineOfflineService extends OnlineOfflineService{
 
-    protected def contentLoaded: Receive
+    protected var contentLoaded = false
 
-    protected def customContentLoaded: Receive
+    protected var customContentLoaded = false
 
     protected def becomeCustomContentLoaded = {
-        context.become(LoggingReceive(customContentLoaded.orElse(receiveTimeout)), false)
+        customContentLoaded = true
         unhandledMessages.reverse.foreach{
             tuple =>
                 log.debug("Replaying {}", tuple._1)
@@ -19,7 +19,7 @@ abstract class ContentOnlineOfflineService extends OnlineOfflineService{
     }
 
     protected def becomeContentLoaded = {
-        context.become(LoggingReceive(contentLoaded.orElse(receiveTimeout)), false)
+        contentLoaded = true
         unhandledMessages.reverse.foreach {
             tuple =>
                 log.debug("Replaying {}", tuple._1)

@@ -179,8 +179,6 @@ class EchoedUserService(
 
     private def becomeOnlineAndRegister {
         becomeOnline
-        getCustomFeed
-        mp.tell(GetUserPublicStoryFeed(echoedUser.id), self)
         context.parent ! RegisterEchoedUserService(echoedUser)
     }
 
@@ -293,48 +291,51 @@ class EchoedUserService(
             updated
     }
 
-    def customContentLoaded = {
-        case msg @ RequestCustomUserFeed(_, page) =>
-            val stories = customTree.getContentFromTree(page)
-            val nextPage = customTree.getNextPage(page)
-            val sf = new StoryFeed(
-                null,
-                stories,
-                nextPage)
-            sender ! RequestCustomUserFeedResponse(msg, Right(sf))
-    }
-
-    def contentLoaded = {
-
-        case msg @ GetUserFeed(eucc, page) =>
-            val stories = contentTree.getContentFromTree(page)
-            val nextPage = contentTree.getNextPage(page)
-            val sf = new StoryFeed(
-                new UserContext(
-                    echoedUser,
-                    followingUsers.length,
-                    followedByUsers.length,
-                    contentTree.count,
-                    contentTree.viewCount,
-                    contentTree.voteCount,
-                    contentTree.commentCount,
-                    contentTree.mostCommented,
-                    contentTree.mostViewed),
-                stories,
-                nextPage)
-            sender ! GetUserFeedResponse(msg, Right(sf))
-
-    }
-
     def online = {
 
-        case msg : RequestCustomUserFeed =>
-            unhandledMessages = (msg, sender) :: unhandledMessages
-            getCustomFeed
+        case msg @ RequestCustomUserFeed(_, page) =>
+            if(!customContentLoaded){
+                unhandledMessages = (msg, sender) :: unhandledMessages
+                getCustomFeed
+            } else {
+                val stories = customTree.getContentFromTree(page)
+                val nextPage = customTree.getNextPage(page)
+                val sf = new StoryFeed(
+                    null,
+                    stories,
+                    nextPage)
+                sender ! RequestCustomUserFeedResponse(msg, Right(sf))
+            }
 
 
-        case msg : GetUserFeed =>
-            unhandledMessages = (msg, sender) :: unhandledMessages
+        case msg @ GetUserFeed(eucc, page) =>
+            if(!contentLoaded) {
+                unhandledMessages = (msg, sender) :: unhandledMessages
+                mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
+                    case GetUserPublicStoryFeedResponse(_, Right(f)) =>
+                        f.stories.map(contentTree.updateStory(_))
+                        becomeContentLoaded
+                }
+            } else {
+                val stories = contentTree.getContentFromTree(page)
+                val nextPage = contentTree.getNextPage(page)
+                val sf = new StoryFeed(
+                            new UserContext(
+                                    echoedUser,
+                                    followingUsers.length,
+                                    followedByUsers.length,
+                                    contentTree.count,
+                                    contentTree.viewCount,
+                                    contentTree.voteCount,
+                                    contentTree.commentCount,
+                                    contentTree.mostCommented,
+                                    contentTree.mostViewed,
+                                    contentTree.mostVoted),
+                            stories,
+                            nextPage)
+                sender ! GetUserFeedResponse(msg, Right(sf))
+            }
+
 
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
@@ -405,13 +406,6 @@ class EchoedUserService(
         case msg @ LoginWithTwitterUser(tu, correlation, correlationSender) =>
             handleLoginWithTwitterUser(msg)
             updated
-
-        case msg @ GetUserPublicStoryFeedResponse(_, Right(f)) =>
-            f.stories.map {
-                contentTree.updateStory(_)
-            }
-            becomeContentLoaded
-
 
         case msg: ReadSettings =>
             sender ! ReadSettingsResponse(msg, Right(echoedUserSettings))

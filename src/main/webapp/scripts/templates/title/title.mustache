@@ -13,6 +13,7 @@
     <div id="title-body" class="clearfix">
         {{#echoedUser}}
             <div id="title-stats" style="float: left">
+                <div class="title-label">Statistics</div>
                 <ul>
                     <li><span class="title-stats-label">{{followers}}</span><span class="title-stats-text">Followers</span></li>
                     <li><span class="title-stats-label">{{following}}</span><span class="title-stats-text">Following</span></li>
@@ -22,14 +23,17 @@
                 </ul>
             </div>
             <div id="title-content" style="float: left">
+                <div class="title-label">Top Content</div>
                 <ul>
                     {{#mostViewed}}<li><span class="title-content-label">Most Viewed</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostViewed}}
                     {{#mostCommented}}<li><span class="title-content-label">Most Commented</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostCommented}}
+                    {{#mostVoted}}<li><span class="title-content-label">Most Voted</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostVoted}}
                 </ul>
             </div>
         {{/echoedUser}}
         {{#partner}}
         <div id="title-stats" style="float: left">
+            <div class="title-label">Top Content</div>
             <ul>
                 <li><span class="title-stats-label">{{followers}}</span><span class="title-stats-text">Followers</span></li>
                 <li><span class="title-stats-label">{{views}}</span><span class="title-stats-text">Views</span></li>
@@ -38,9 +42,11 @@
             </ul>
         </div>
         <div id="title-content" style="float: left">
+            <div class="title-label">Top Content</div>
             <ul>
                 {{#mostViewed}}<li><span class="title-content-label">Most Viewed</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostViewed}}
                 {{#mostCommented}}<li><span class="title-content-label">Most Commented</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostCommented}}
+                {{#mostVoted}}<li><span class="title-content-label">Most Voted</span><a href="#!story/{{story.id}}">{{story.title}}</a></li>{{/mostVoted}}
             </ul>
         </div>
         {{/partner}}

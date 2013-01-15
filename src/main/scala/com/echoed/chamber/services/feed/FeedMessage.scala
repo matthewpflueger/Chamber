@@ -4,7 +4,6 @@ import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedExceptio
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.domain.{Topic, Community}
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 
 sealed trait FeedMessage extends Message
 

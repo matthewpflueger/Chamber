@@ -40,4 +40,6 @@ case class StoryPublic(
 
     def isOwnedBy(id: String) = echoedUser.id == id || echoedUser.screenName == id
 
+    def voteScore = votes.values.toList.foldLeft(0)((l, r) => l + r.value)
+
 }

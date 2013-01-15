@@ -158,7 +158,8 @@ class PartnerService(
                     contentTree.voteCount,
                     contentTree.commentCount,
                     contentTree.mostCommented,
-                    contentTree.mostViewed),
+                    contentTree.mostViewed,
+                    contentTree.mostVoted),
                     stories,
                     nextPage)
 
