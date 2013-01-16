@@ -13,11 +13,6 @@
             <span class="story-brief-indicator-value vote-counter">{{voteCount}}</span>
             <span>Comments: </span>
             <span class="story-brief-indicator-value">{{ storyFull.comments.length }}</span>
-            <span>Photos: </span>
-            <span class="story-brief-indicator-value">{{ imageCount }}</span>
-            <span class="s-b-i-c">
-                {{ elapsedString }}
-            </span>
         </div>
         {{/inComplete}}
         {{#inComplete}}
@@ -25,8 +20,8 @@
         {{/inComplete}}
     </div>
 </div>
-<div class="story-brief-edit" style="text-align: center;">
-    <a href="#write/story/{{ story.id }}" class="story-brief-edit-tab">
+<div class="story-brief-edit" style="text-align: center;{{#isSelf}}display:block;{{/isSelf}}">
+    <a href="#write/story/{{ storyFull.id }}" class="story-brief-edit-tab">
         {{^inComplete}}Edit Story{{/inComplete}}{{#inComplete}}Finish Story{{/inComplete}}
     </a>
 </div>

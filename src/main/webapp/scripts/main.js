@@ -32,9 +32,7 @@ require(
             };
 
             //Initialize Models
-            this.modelUser = new ModelUser(Echoed.echoedUser);
-
-            this.modelUser.isLoggedIn();
+            this.modelUser = new ModelUser(Echoed.echoedUser, { properties: this.properties });
 
             //Options
             this.options = function(el){

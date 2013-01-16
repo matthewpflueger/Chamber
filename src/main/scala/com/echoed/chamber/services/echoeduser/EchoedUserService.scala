@@ -443,15 +443,18 @@ class EchoedUserService(
             ep(PartnerFollowerCreated(echoedUser.id, followingPartners.head))
 
         case msg @ FollowUser(eucc, followerId) if (eucc.id != followerId) =>
-            sender ! FollowUserResponse(msg, Right(true))
-            mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser), self)
+            val channel = sender
+            mp(AddFollower(EchoedUserClientCredentials(followerId), echoedUser)).onSuccess{
+                case AddFollowerResponse(_, Right(eu)) =>
+                    followingUsers = Follower(eu) :: followingUsers
+                    channel ! FollowUserResponse(msg, Right(followingUsers))
+            }
 
         case AddFollowerResponse(_, Right(eu)) if (!followingUsers.exists(_.echoedUserId == eu.id)) =>
             followingUsers = Follower(eu) :: followingUsers
             ep(FollowerCreated(echoedUser.id, followingUsers.head))
 
         case msg @ AddFollower(eucc, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
-            sender ! AddFollowerResponse(msg, Right(echoedUser))
             followedByUsers = Follower(eu) :: followedByUsers
             mp(RegisterNotification(eucc, new Notification(
                 eu,
@@ -461,17 +464,21 @@ class EchoedUserService(
                     "action" -> "is following",
                     "object" -> "you",
                     "followerId" -> eu.id))))
+            sender ! AddFollowerResponse(msg, Right(echoedUser))
 
         case msg @ UnFollowUser(_, followingUserId) =>
-            sender ! UnFollowUserResponse(msg, Right(true))
+
             val (fu, fus) = followingUsers.partition(_.echoedUserId == followingUserId)
             followingUsers = fus
             fu.headOption.map { f =>
                 mp(RemoveFollower(EchoedUserClientCredentials(f.echoedUserId), echoedUser))
                 ep(FollowerDeleted(echoedUser.id, f))
             }
+            sender ! UnFollowUserResponse(msg, Right(followingUsers))
 
-        case msg @ RemoveFollower(_, eu) => followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
+        case msg @ RemoveFollower(_, eu) =>
+            followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
+            sender ! RemoveFollowerResponse(msg, Right(eu))
 
         case NotifyFollowers(_, n) =>
             val notification = n.copy(origin = echoedUser)
@@ -487,8 +494,11 @@ class EchoedUserService(
 
 
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
-            mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value))
-            sender ! VoteStoryResponse(msg, Right(true))
+            val channel = sender
+            mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value)).onSuccess {
+                case NewVoteResponse(_, Right(votes)) =>
+                    channel ! VoteStoryResponse(msg, Right(votes))
+            }
             if(value > 0) self ! PublishFacebookAction(eucc, "upvote", "story", storyGraphUrl + storyId)
 
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>

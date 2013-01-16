@@ -35,7 +35,7 @@ define(
                 var image = this.modelStory.getCoverImage();
                 var chapterText = "";
 
-                if(this.modelStory.has("chapters")){
+                if(this.modelStory.get("chapters").length){
                     chapterText = this.modelStory.get("chapters")[0].text;
                     if(image !== null){
                         var c  = chapterText.split(/[.!?]/)[0];
@@ -84,7 +84,7 @@ define(
 
                 if(self.properties.isWidget) self.element.find('.story-brief-text-user').attr("target","_blank").attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id);
 
-                self.element.attr("id", self.data.story.id);
+                self.element.attr("id", this.modelStory.id);
             },
             showOverlay: function(){
                 if(this.imageContainer) this.imageContainer.addClass('highlight');
@@ -97,9 +97,9 @@ define(
                 var target = $(ev.target);
                 if(!target.is('a')){
                     if(self.data.chapters.length > 0){
-                        window.location.hash = "#!story/" + self.data.story.id;
+                        window.location.hash = "#!story/" +  this.modelStory.id;
                     } else {
-                        window.location.hash = "#!write/story/" + self.data.story.id;
+                        window.location.hash = "#!write/story/" +  this.modelStory.id;
                     }
                 }
             }

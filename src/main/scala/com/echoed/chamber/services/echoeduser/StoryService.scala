@@ -162,8 +162,7 @@ class StoryService(
                         "object" -> storyState.title,
                         "storyId" -> storyState.id))))
             }
-
-            sender ! NewVoteResponse(msg, Right(storyState.asStory))
+            sender ! NewVoteResponse(msg, Right(storyState.votes))
 
 
         case msg @ CreateChapter(eucc, storyId, title, text, imageIds, publish) =>
@@ -173,7 +172,7 @@ class StoryService(
             val chapter = new Chapter(storyState.asStory, title, text).copy(publishedOn = publishedOn)
 
             val chapterImages = imageIds.map(processImage(_)).map { img =>
-                new ChapterImage(chapter, img.id)
+                new ChapterImage(chapter, img)
             }
 
             storyState = storyState.copy(
@@ -207,7 +206,7 @@ class StoryService(
             val existingChapterImages = storyState.chapterImages.filter(_.chapterId == chapterId)
             val chapterImages = imageIds.map { id =>
                 existingChapterImages.find(ci => id.contains(ci.imageId)).getOrElse {
-                    new ChapterImage(chapter, processImage(id).id)
+                    new ChapterImage(chapter, processImage(id))
                 }
             }
 

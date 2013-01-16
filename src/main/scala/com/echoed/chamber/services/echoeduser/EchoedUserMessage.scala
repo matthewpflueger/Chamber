@@ -109,8 +109,8 @@ private[echoeduser] case class LoginWithCredentials(
 
 
 case class FollowUser(credentials: EUCC, userToFollowerId: String) extends EUM with EUI
-case class FollowUserResponse(message: FollowUser, value: Either[EUE, Boolean])
-        extends EUM with MR[Boolean, FollowUser, EUE]
+case class FollowUserResponse(message: FollowUser, value: Either[EUE, List[Follower]])
+        extends EUM with MR[List[Follower], FollowUser, EUE]
 
 case class FollowPartner(credentials: EUCC, partnerId: String) extends EUM with EUI
 case class FollowPartnerResponse(message: FollowPartner, value: Either[EUE, Boolean])
@@ -121,10 +121,12 @@ private[echoeduser] case class AddFollowerResponse(message: AddFollower, value: 
         extends EUM with MR[EchoedUser, AddFollower, EUE]
 
 case class UnFollowUser(credentials: EUCC, followingUserId: String) extends EUM with EUI
-case class UnFollowUserResponse(message: UnFollowUser, value: Either[EUE, Boolean])
-        extends EUM with MR[Boolean, UnFollowUser, EUE]
+case class UnFollowUserResponse(message: UnFollowUser, value: Either[EUE, List[Follower]])
+        extends EUM with MR[List[Follower], UnFollowUser, EUE]
 
 private[echoeduser] case class RemoveFollower(credentials: EUCC, echoedUser: EchoedUser) extends EUM with EUI
+private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, value: Either[EUE, EchoedUser])
+        extends EUM with MR[EchoedUser, RemoveFollower, EUE]
 
 case class PartnerFollower(partnerId: String, name: String, handle: String)
 
@@ -197,9 +199,8 @@ case class VoteStory(
         storyOwnerId: String,
         storyId: String,
         value: Int) extends EUM with EUI with SI
-
-case class VoteStoryResponse(message: VoteStory, value: Either[EUE, Boolean])
-        extends EUM with MR[Boolean,  VoteStory, EUE]
+case class VoteStoryResponse(message: VoteStory, value: Either[EUE, Map[String, Vote]])
+        extends EUM with MR[Map[String, Vote],  VoteStory, EUE]
 
 case class NewVote(
         credentials: EUCC,
@@ -207,8 +208,8 @@ case class NewVote(
         storyId: String,
         value: Int) extends EUM with EUI with SI
 
-case class NewVoteResponse(message: NewVote, value: Either[EUE, Story])
-        extends EUM with MR[Story, NewVote, EUE]
+case class NewVoteResponse(message: NewVote, value: Either[EUE, Map[String, Vote]])
+        extends EUM with MR[Map[String, Vote], NewVote, EUE]
 
 
 case class CreateStory(

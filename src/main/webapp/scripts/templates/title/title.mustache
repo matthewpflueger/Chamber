@@ -1,20 +1,29 @@
 <div id="breadcrumbs">
-    Seeds Now!
-    →
-    Basil
+    Seeds Now! → Basil
 </div>
 <div id="title" class="clearfix">
     <div id="title-header">
         <span id="title-text">
+                Seeds Now! → Basil
         </span>
     </div>
-    <div id="title-body">
+    <div id="title-body" class="clearfix">
+        <!--<ul style="float:left;">-->
+            <!--<li>Subscribers: {{context.followers}}</li>-->
+            <!--<li>Views: 3000</li>-->
+            <!--<li>Karma: 4000</li>-->
+        <!--</ul>-->
+        <!--<ul style="float:right">-->
+            <!--<li>Founder: Brian Quinn</li>-->
+            <!--<li>First: Brian Quinn</li>-->
+            <!--<li>Top Contributor: Brian Quinn</li>-->
+        <!--</ul>-->
     </div>
     <div id="title-nav" class="clearfix">
         <ul>
-            <li class="selected">Stories (20)</li>
-            <li>Reviews (10)</li>
+            {{#context.content}}
+                <li {{#isDefault}}class="selected"{{/isDefault}}>{{type}} ({{count}})</li>
+            {{/context.content}}
         </ul>
     </div>
-
 </div>

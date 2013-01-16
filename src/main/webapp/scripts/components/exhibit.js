@@ -130,7 +130,7 @@ define(
                             self.stories.hash[story.id] = self.stories.array.length;
                             self.stories.array.push(story.id);
                             var storyDiv = $('<div></div>').addClass('item_wrap');
-                            var modelStory = new ModelStory(story);
+                            var modelStory = new ModelStory(story, { properties: self.properties});
                             var storyComponent = new StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal, properties: self.properties, modelUser: self.modelUser, modelStory: modelStory});
                             if(story.story.image !== null){
                                 if(story.story.image.originalUrl !== null){

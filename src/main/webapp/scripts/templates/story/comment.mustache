@@ -1,0 +1,10 @@
+<div class="story-comment">
+    <div class="story-comment-user">
+        <img class="story-comment-user-image" src="{{profilePhotoUrl}}" align="absmiddle"/>
+        <a class='story-link red-link' href="#user{{comment.echoedUser.id}}">{{ comment.echoedUser.name }}</a>
+        <span class="story-comment-user-date">{{elapsedString}}</span>
+    </div>
+    <div class="story-comment-text">
+        {{comment.text}}
+    </div>
+</div>
