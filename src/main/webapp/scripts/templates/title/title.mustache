@@ -60,10 +60,8 @@
     </div>
     <div id="title-nav" class="clearfix">
         <ul>
-            <li class="selected">Stories: {{stories}}</li>
-            <!--{{#context.content}}-->
-                <!--<li {{#isDefault}}class="selected"{{/isDefault}}>{{type}} ({{count}})</li>-->
-            <!--{{/context.content}}-->
+            <li class="selected"><a href="#{{baseUrl}}">Stories: {{stories}}</a></li>
+            <li><a href="#{{baseUrl}}photos/">Photos: {{#photos}}{{photos}}{{/photos}}</a></li>
         </ul>
     </div>
     {{/context}}

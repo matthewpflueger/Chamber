@@ -25,6 +25,9 @@ define(
                 "me/": "me",
                 "me": "me",
                 "user/:id": "user",
+                "user/:id/": "user",
+                "user/:id/:type": "user",
+                "user/:id/:type/": "user",
                 "community/:community": "community",
                 "partner/:name/": "partnerFeed",
                 "partner/:name": "partnerFeed",
@@ -125,7 +128,7 @@ define(
                     });
                 }
             },
-            user: function(id){
+            user: function(id, type){
                 var self = this;
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
@@ -134,7 +137,9 @@ define(
                             self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal : true});
                         });
                     } else {
-                        this.requestFeed("/user/" + id, function(jsonUrl, data){
+                        var endPoint = "/user/" + id;
+                        if(type) endPoint += "/" + type;
+                        this.requestFeed(endPoint, function(jsonUrl, data){
                             self.loadPage("user", { jsonUrl: jsonUrl, data: data});
                         })
                     }

@@ -52,4 +52,8 @@ case class StoryPublic (
 
     def voteScore = votes.values.toList.foldLeft(0)((l, r) => l + r.value)
 
+    def extractImages = {
+        chapterImages.map{ _.image }.toList
+    }
+
 }

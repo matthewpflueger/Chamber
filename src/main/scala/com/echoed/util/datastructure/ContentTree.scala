@@ -39,7 +39,7 @@ class ContentTree {
         contentTree -= ((c._updatedOn, c._id))
     }
 
-    def updateStory(c: Content){
+    def updateContent(c: Content){
         contentMap.get(c._id).map {
             story =>
                 viewCount -= c._views

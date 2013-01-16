@@ -16,6 +16,8 @@ define(
                 "": "explore",
                 "!": "explore",
                 "home": "reload",
+                "partner/:id/:type" : "partner",
+                "partner/:id/:type/" : "partner",
                 "topic/:id": "topic",
                 "story/:id": "story",
                 "write/:type/:id" : "writeStory",
@@ -23,6 +25,15 @@ define(
                 "write": "writePartner",
                 "!story/:id": "story",
                 "!topic/:id": "topic"
+            },
+            partner: function(id, type){
+                var self = this;
+                var endPoint = "/partner/" + id;
+                if(type) endPoint += "/" + type;
+                this.requestFeed(endPoint, function(jsonUrl, data){
+                    self.modelContext.set(data.context);
+                    self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
+                })
             },
             reload: function(){
                 var self = this;

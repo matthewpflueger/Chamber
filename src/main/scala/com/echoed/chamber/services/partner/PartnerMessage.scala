@@ -93,6 +93,11 @@ case class ReadPartnerFeedResponse(
         message: ReadPartnerFeed,
         value: Either[PE, ContentFeed[PartnerContext]]) extends PM with MR[ContentFeed[PartnerContext], ReadPartnerFeed, PE]
 
+case class RequestPartnerContentFeed(credentials: PCC, page: Int, origin: String, _type: String) extends PM with PI
+case class RequestPartnerContentFeedResponse(
+        message: RequestPartnerContentFeed,
+        value: Either[PE, ContentFeed[PartnerContext]]) extends PM with MR[ContentFeed[PartnerContext], RequestPartnerContentFeed, PE]
+
 case class GetTopics(credentials: PCC) extends PM with PI
 case class GetTopicsResponse(
         message: GetTopics,

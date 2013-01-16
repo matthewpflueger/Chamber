@@ -386,6 +386,11 @@ case class GetFeed(credentials: EUCC, page: Int) extends EUM with EUI
 case class GetFeedResponse(message: GetFeed, value: Either[EUE, Feed])
     extends EUM with MR[Feed, GetFeed, EUE]
 
+
+case class GetContentFeed(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
+case class GetContentFeedResponse(message: GetContentFeed, value: Either[EUE, ContentFeed[UserContext]])
+    extends EUM with MR[ContentFeed[UserContext], GetContentFeed, EUE]
+
 case class GetUserFeed(credentials: EUCC, page: Int) extends EUM with EUI
 case class GetUserFeedResponse(message: GetUserFeed, value: Either[EUE, ContentFeed[UserContext]])
     extends EUM with MR[ContentFeed[UserContext], GetUserFeed, EUE]

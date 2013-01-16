@@ -8,6 +8,7 @@ case class UserContext(
     followers: Int,
     following: Int,
     stories: Int,
+    photos: Int,
     views: Int,
     votes: Int,
     comments: Int,
@@ -25,11 +26,12 @@ case class UserContext(
              followers: Int,
              following: Int,
              stories: Int,
+             photos: Int,
              views: Int,
              votes: Int,
              comments: Int,
              mostCommented: Content,
              mostViewed: Content,
-             mostVoted: Content) = this( new EchoedUserPublic(echoedUser), followers, following, stories, views, votes, comments, mostCommented, mostViewed, mostVoted)
+             mostVoted: Content) = this( new EchoedUserPublic(echoedUser), followers, following, stories, photos, views, votes, comments, mostCommented, mostViewed, mostVoted)
 
 }

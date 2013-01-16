@@ -119,32 +119,37 @@ define(
             },
             addStories: function(data){
                 var self = this;
-                var storiesFragment = $('<div></div>');
+                var contentFragment = $('<div></div>');
                 var storiesAdded = false;
                 if(data.content){
-                    $.each(data.content, function(index, story){
-                        if(story.chapters.length > 0 || self.personal == true){
-                            self.stories.hash[story.id] = self.stories.array.length;
-                            self.stories.array.push(story.id);
-                            var storyDiv = $('<div></div>').addClass('item_wrap');
-                            var modelStory = new ModelStory(story, { properties: self.properties});
-                            var storyComponent = new StoryBrief({el : storyDiv, data: story, EvAg: self.EvAg, Personal: self.personal, properties: self.properties, modelUser: self.modelUser, modelStory: modelStory});
-                            if(story.story.image !== null){
-                                if(story.story.image.originalUrl !== null){
-                                    storiesFragment.append(storyDiv)
+                    $.each(data.content, function(index, content){
+                        if( content._type === "story"){
+                            if(content.chapters.length > 0 || self.personal == true){
+                                self.stories.hash[content.id] = self.stories.array.length;
+                                self.stories.array.push(content.id);
+                                var storyDiv = $('<div></div>').addClass('item_wrap');
+                                var modelStory = new ModelStory(content, { properties: self.properties});
+                                var storyComponent = new StoryBrief({el : storyDiv, data: content, EvAg: self.EvAg, Personal: self.personal, properties: self.properties, modelUser: self.modelUser, modelStory: modelStory});
+                                if(content.story.image !== null){
+                                    if(content.story.image.originalUrl !== null){
+                                        contentFragment.append(storyDiv)
+                                    } else {
+                                        storyDiv.imagesLoaded(function(){
+                                            self.exhibit.isotope('insert', storyDiv);
+                                        });
+                                    }
                                 } else {
-                                    storyDiv.imagesLoaded(function(){
-                                        self.exhibit.isotope('insert', storyDiv);
-                                    });
+                                    contentFragment.append(storyDiv);
                                 }
-                            } else {
-                                storiesFragment.append(storyDiv);
                             }
-
+                            storiesAdded = true;
+                        } else if ( content._type === "image") {
+                            var photoDiv = $('<div></div>').addClass('item_wrap');
+                            var img = utils.scaleByWidth(content.image, 300);
+                            contentFragment.append(photoDiv.append(img));
                         }
-                        storiesAdded = true;
                     });
-                    self.exhibit.isotope('insert', storiesFragment.children(), function(){
+                    self.exhibit.isotope('insert', contentFragment.children(), function(){
                         self.EvAg.trigger('infiniteScroll/unlock');
                     });
                 }

@@ -47,7 +47,7 @@ import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
 import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
-import com.echoed.chamber.domain.public.{StoryPublic, EchoedUserPublic}
+import com.echoed.chamber.domain.public.{PhotoPublic, StoryPublic, EchoedUserPublic}
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
 import scala.concurrent.Future
@@ -81,6 +81,7 @@ class EchoedUserService(
 
     private val customTree = new ContentTree()
     private val contentTree = new ContentTree()
+    private val photoTree = new ContentTree()
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
@@ -198,13 +199,17 @@ class EchoedUserService(
                 s.map{
                     case r @ GetUserPublicStoryFeedResponse(_, Right(feed)) =>
                         feed.stories.map(
-                            s => if(!s.isOwnedBy(echoedUser.id))
-                                customTree.updateStory(s)
+                            s => if(!s.isOwnedBy(echoedUser.id)){
+                                customTree.updateContent(s)
+                                s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
+                            }
                         )
                     case r @ RequestPartnerStoryFeedResponse(_, Right(feed)) =>
                         feed.stories.map(
-                            s=> if(!s.isOwnedBy(echoedUser.id))
-                                customTree.updateStory(s)
+                            s=> if(!s.isOwnedBy(echoedUser.id)){
+                                customTree.updateContent(s)
+                                s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
+                            }
                         )
                 }
                 becomeCustomContentLoaded
@@ -308,13 +313,51 @@ class EchoedUserService(
                 sender ! RequestCustomUserFeedResponse(msg, Right(sf))
             }
 
+        case msg @ GetContentFeed(eucc, page, _type) =>
+            if(!contentLoaded) {
+                unhandledMessages = (msg, sender) :: unhandledMessages
+                mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
+                    case GetUserPublicStoryFeedResponse(_, Right(f)) =>
+                        f.stories.map({
+                            s =>
+                                contentTree.updateContent(s)
+                                s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
+                        })
+                        becomeContentLoaded
+                }
+            } else {
+                val content = photoTree.getContentFromTree(page)
+                val nextPage = photoTree.getNextPage(page)
+                val sf = new ContentFeed(
+                    new UserContext(
+                        echoedUser,
+                        followedByUsers.length,
+                        followingUsers.length,
+                        contentTree.count,
+                        photoTree.count,
+                        contentTree.viewCount,
+                        contentTree.voteCount,
+                        contentTree.commentCount,
+                        contentTree.mostCommented,
+                        contentTree.mostViewed,
+                        contentTree.mostVoted),
+                    content,
+                    nextPage)
+                sender ! GetContentFeedResponse(msg, Right(sf))
+            }
+
 
         case msg @ GetUserFeed(eucc, page) =>
             if(!contentLoaded) {
                 unhandledMessages = (msg, sender) :: unhandledMessages
                 mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
                     case GetUserPublicStoryFeedResponse(_, Right(f)) =>
-                        f.stories.map(contentTree.updateStory(_))
+                        f.stories.map({
+                            s =>
+                                contentTree.updateContent(s)
+                                s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
+
+                        })
                         becomeContentLoaded
                 }
             } else {
@@ -326,6 +369,7 @@ class EchoedUserService(
                                     followedByUsers.length,
                                     followingUsers.length,
                                     contentTree.count,
+                                    photoTree.count,
                                     contentTree.viewCount,
                                     contentTree.voteCount,
                                     contentTree.commentCount,
@@ -341,7 +385,7 @@ class EchoedUserService(
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
         case msg @ UpdateUserStory(_, story) =>
-            contentTree.updateStory(story)
+            contentTree.updateContent(story)
 
         case msg @ VerifyEmail(_, code) =>
             val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])

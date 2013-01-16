@@ -21,7 +21,7 @@ import scala.Right
 import scala.Some
 import com.echoed.chamber.domain.views.ContentFeed
 import com.echoed.chamber.domain.views.context.PartnerContext
-import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.public.{PhotoPublic, StoryPublic}
 import collection.immutable.TreeMap
 import java.util
 import com.echoed.util.datastructure.ContentTree
@@ -45,6 +45,7 @@ class PartnerService(
     private var followedByUsers = List[Follower]()
 
     private val contentTree = new ContentTree()
+    private val photoTree = new ContentTree()
 
     override def preStart() {
         super.preStart()
@@ -141,12 +142,36 @@ class PartnerService(
 
         case msg @ RequestPartnerStoryFeedResponse(_, Right(f)) =>
             f.stories.map {
-                contentTree.updateStory(_)
+                s =>
+                    contentTree.updateContent(s)
+                    s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
             }
+
+        case msg @ RequestPartnerContentFeed(_, page, origin, _type) =>
+            val channel = sender
+            val content = photoTree.getContentFromTree(page)
+            val nextPage = photoTree.getNextPage(page)
+            val storyCount =  contentTree.count
+            val sf = new ContentFeed(
+                new PartnerContext(
+                    partner,
+                    followedByUsers.length,
+                    storyCount,
+                    photoTree.count,
+                    contentTree.viewCount,
+                    contentTree.voteCount,
+                    contentTree.commentCount,
+                    contentTree.mostCommented,
+                    contentTree.mostViewed,
+                    contentTree.mostVoted),
+                content,
+                nextPage)
+
+            channel ! RequestPartnerContentFeedResponse(msg, Right(sf))
 
         case msg @ ReadPartnerFeed(_, page, origin) =>
             val channel = sender
-            val stories = contentTree.getContentFromTree(page)
+            val content = contentTree.getContentFromTree(page)
             val nextPage = contentTree.getNextPage(page)
             val storyCount =  contentTree.count
             val sf = new ContentFeed(
@@ -154,13 +179,14 @@ class PartnerService(
                     partner,
                     followedByUsers.length,
                     storyCount,
+                    photoTree.count,
                     contentTree.viewCount,
                     contentTree.voteCount,
                     contentTree.commentCount,
                     contentTree.mostCommented,
                     contentTree.mostViewed,
                     contentTree.mostVoted),
-                    stories,
+                    content,
                     nextPage)
 
             channel ! ReadPartnerFeedResponse(msg, Right(sf))

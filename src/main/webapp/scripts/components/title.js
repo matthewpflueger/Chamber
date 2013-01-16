@@ -48,7 +48,11 @@ define(
                 })();
             },
             render: function(){
-                this.element.html(templateTitle({context: this.modelContext.toJSON()}));
+                var view = {
+                    context: this.modelContext.toJSON(),
+                    baseUrl: this.modelContext.get("contextType").toLowerCase() + "/" + this.modelContext.id + "/"
+                };
+                this.element.html(templateTitle(view));
                 this.follow = new Follow({ el: "#title-follow", properties: this.properties, modelUser: this.modelUser, followId: this.modelContext.id, type: this.modelContext.get("contextType") });
                 this.titleText = $('#title-text');
                 this.titleBody = $('#title-body');

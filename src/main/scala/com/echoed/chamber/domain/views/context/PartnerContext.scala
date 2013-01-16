@@ -8,6 +8,7 @@ case class PartnerContext(
     partner: PartnerPublic,
     followers: Int,
     stories: Int,
+    photos: Int,
     views: Int,
     votes: Int,
     comments: Int,
@@ -23,12 +24,13 @@ case class PartnerContext(
     def this(partner: Partner,
              followers: Int,
              stories: Int,
+             photos: Int,
              views: Int,
              votes: Int,
              comments: Int,
              mostCommented: Content,
              mostViewed: Content,
-             mostVoted: Content) = this(new PartnerPublic(partner), followers, stories, views, votes, comments, mostCommented, mostViewed, mostVoted)
+             mostVoted: Content) = this(new PartnerPublic(partner), followers, stories, photos, views, votes, comments, mostCommented, mostViewed, mostVoted)
 
 }
 
