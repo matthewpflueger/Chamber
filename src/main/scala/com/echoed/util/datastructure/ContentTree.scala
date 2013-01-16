@@ -1,6 +1,7 @@
 package com.echoed.util.datastructure
 
-import com.echoed.chamber.domain.public.StoryPublic
+//import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.public.Content
 import collection.immutable.TreeMap
 
 class ContentTree {
@@ -19,60 +20,56 @@ class ContentTree {
     var voteCount = 0
     var commentCount = 0
 
-    var mostViewed: StoryPublic = null
-    var mostCommented: StoryPublic = null
-    var mostVoted: StoryPublic = null
+    var mostViewed: Content = null
+    var mostCommented: Content = null
+    var mostVoted: Content = null
 
-    protected var contentMap = Map[String, StoryPublic]()
-    protected var contentTree =  new TreeMap[(Long, String), StoryPublic]()(DateOrdering)
+    protected var contentMap = Map[String, Content]()
+    protected var contentTree =  new TreeMap[(Long, String), Content]()(DateOrdering)
 
     protected def get(id: String) = {
         contentMap.get(id)
     }
 
-    protected def addToTree(s: StoryPublic){
-        contentTree += ((s.story.updatedOn, s.story.id) -> s)
+    protected def addToTree(c: Content){
+        contentTree += ((c._updatedOn, c._id) -> c)
     }
 
-    protected def removeFromTree(s: StoryPublic){
-        contentTree  -= ((s.story.updatedOn, s.story.id))
+    protected def removeFromTree(c: Content){
+        contentTree -= ((c._updatedOn, c._id))
     }
 
-    def updateStory(s: StoryPublic){
-        contentMap.get(s.id).map {
+    def updateStory(c: Content){
+        contentMap.get(c._id).map {
             story =>
-                viewCount -= story.story.views
-                voteCount -= story.votes.size
-                commentCount -= s.comments.size
+                viewCount -= c._views
+                voteCount -= c._votes
+                commentCount -= c._comments
                 removeFromTree(story)
         }
-        addToTree(s)
-        contentMap += (s.id -> s)
-        viewCount += s.story.views
-        voteCount += s.votes.size
-        commentCount += s.comments.size
+        addToTree(c)
+        contentMap += (c._id -> c)
+        viewCount += c._views
+        voteCount += c._votes
+        commentCount += c._comments
 
         Option(mostViewed).map {
-            sp =>
-                if(sp.story.views <= s.story.views) mostViewed = s
-        }.getOrElse{
-            mostViewed = s
+            content => if( content._views <= c._views ) mostViewed = c
+        }.getOrElse {
+            mostViewed = c
         }
 
         Option(mostCommented).map {
-            sp =>
-                if(sp.comments.size <= s.comments.size) mostCommented = s
+            content =>  if(content._comments <= c._views ) mostCommented = c
         }.getOrElse {
-            mostCommented = s
+            mostCommented = c
         }
 
         Option(mostVoted).map {
-            sp =>
-                if (sp.voteScore <= s.voteScore) mostVoted = s
+            content => if (content._votes <= c._votes) mostVoted = c
         }.getOrElse {
-            mostVoted = s
+            mostVoted = c
         }
-
     }
 
     def getNextPage(page: Int) = {
@@ -81,11 +78,11 @@ class ContentTree {
 
     def getContentFromTree(page: Int) = {
         val start = page * pageSize
-        val stories = contentTree.values.map(s => s.published).toList.slice(start, start + pageSize)
+        val stories = contentTree.values.toList.slice(start, start + pageSize)
         stories
     }
 
     def count = {
-        contentTree.values.map(s => s.published).toList.length
+        contentTree.values.toList.length
     }
 }

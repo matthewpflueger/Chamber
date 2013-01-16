@@ -121,8 +121,8 @@ define(
                 var self = this;
                 var storiesFragment = $('<div></div>');
                 var storiesAdded = false;
-                if(data.stories){
-                    $.each(data.stories, function(index, story){
+                if(data.content){
+                    $.each(data.content, function(index, story){
                         if(story.chapters.length > 0 || self.personal == true){
                             self.stories.hash[story.id] = self.stories.array.length;
                             self.stories.array.push(story.id);

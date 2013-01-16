@@ -1,6 +1,6 @@
 package com.echoed.chamber.domain.views.context
 
-import com.echoed.chamber.domain.public.{StoryPublic, EchoedUserPublic}
+import com.echoed.chamber.domain.public.{StoryPublic, EchoedUserPublic, Content}
 import com.echoed.chamber.domain.EchoedUser
 
 case class UserContext(
@@ -11,9 +11,9 @@ case class UserContext(
     views: Int,
     votes: Int,
     comments: Int,
-    mostCommented: StoryPublic,
-    mostViewed: StoryPublic,
-    mostVoted: StoryPublic
+    mostCommented: Content,
+    mostViewed: Content,
+    mostVoted: Content
 
 ) extends Context {
 
@@ -28,8 +28,8 @@ case class UserContext(
              views: Int,
              votes: Int,
              comments: Int,
-             mostCommented: StoryPublic,
-             mostViewed: StoryPublic,
-             mostVoted: StoryPublic) = this( new EchoedUserPublic(echoedUser), followers, following, stories, views, votes, comments, mostCommented, mostViewed, mostVoted)
+             mostCommented: Content,
+             mostViewed: Content,
+             mostVoted: Content) = this( new EchoedUserPublic(echoedUser), followers, following, stories, views, votes, comments, mostCommented, mostViewed, mostVoted)
 
 }

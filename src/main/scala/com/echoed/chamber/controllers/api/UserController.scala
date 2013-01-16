@@ -22,7 +22,7 @@ import views.ClosetPersonal
 import views.CommunityFeed
 import com.echoed.chamber.services.partner.GetTopicsResponse
 import views.Feed
-import views.StoryFeed
+import views.ContentFeed
 import views.PublicStoryFeed
 import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
 import com.echoed.chamber.services.partner.GetTopics
@@ -67,6 +67,7 @@ import com.echoed.chamber.services.topic.ReadTopicFeedResponse
 import com.echoed.chamber.services.echoeduser.FollowUser
 import com.echoed.chamber.services.topic.ReadTopicsResponse
 import com.echoed.chamber.services.echoeduser.PublishFacebookAction
+import com.echoed.chamber.domain.views.context._
 
 
 @Controller
@@ -138,7 +139,7 @@ class UserController extends EchoedController {
             @RequestParam(value = "page", required = false) page: String,
             eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[StoryFeed](null, ErrorResult.timeout)
+        val result = new DeferredResult[ContentFeed[SelfContext]](null, ErrorResult.timeout)
 
         mp(RequestCustomUserFeed(eucc, parse(page))).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
@@ -330,7 +331,7 @@ class UserController extends EchoedController {
             @RequestParam(value = "page", required = false) page: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        val result = new DeferredResult[StoryFeed](null, ErrorResult.timeout)
+        val result = new DeferredResult[ContentFeed[PartnerContext]](null, ErrorResult.timeout)
 
         log.debug("Requesting for Partner Feed for Partner {}", partnerId )
 
@@ -350,7 +351,7 @@ class UserController extends EchoedController {
 
         log.debug("Getting feed for {}", id)
 
-        val result = new DeferredResult[StoryFeed](null, ErrorResult.timeout)
+        val result = new DeferredResult[ContentFeed[UserContext]](null, ErrorResult.timeout)
 
         mp(GetUserFeed(new EchoedUserClientCredentials(id), parse(page))).onSuccess {
             case GetUserFeedResponse(_, Right(feed)) => result.setResult(feed)

@@ -6,6 +6,7 @@ import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.views._
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
+import context.{ UserContext, SelfContext }
 import scala.collection.immutable.Stack
 import org.springframework.validation.Errors
 import com.echoed.chamber.domain.public.StoryPublic
@@ -386,12 +387,12 @@ case class GetFeedResponse(message: GetFeed, value: Either[EUE, Feed])
     extends EUM with MR[Feed, GetFeed, EUE]
 
 case class GetUserFeed(credentials: EUCC, page: Int) extends EUM with EUI
-case class GetUserFeedResponse(message: GetUserFeed, value: Either[EUE, StoryFeed])
-    extends EUM with MR[StoryFeed, GetUserFeed, EUE]
+case class GetUserFeedResponse(message: GetUserFeed, value: Either[EUE, ContentFeed[UserContext]])
+    extends EUM with MR[ContentFeed[UserContext], GetUserFeed, EUE]
 
 case class RequestCustomUserFeed(credentials: EUCC, page: Int)  extends EUM with EUI
-case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, StoryFeed])
-    extends EUM with MR[StoryFeed, RequestCustomUserFeed, EUE]
+case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, ContentFeed[SelfContext]])
+    extends EUM with MR[ContentFeed[SelfContext], RequestCustomUserFeed, EUE]
 
 case class GetEchoedFriends(credentials: EUCC) extends EUM with EUI
 case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, FriendFeed])

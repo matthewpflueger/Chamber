@@ -8,7 +8,7 @@ import com.echoed.chamber.domain.ChapterImage
 import views.StoryFull
 import scala.collection.JavaConversions._
 
-case class StoryPublic(
+case class StoryPublic (
         id: String,
         story: Story,
         echoedUser: EchoedUserPublic,
@@ -17,7 +17,17 @@ case class StoryPublic(
         comments: List[CommentPublic],
         votes: Map[String, Vote],
         moderation: ModerationDescription,
-        topic: TopicPublic) {
+        topic: TopicPublic )  extends Content {
+
+    val _type =         "story"
+
+    def _createdOn =    story.createdOn
+    def _id =           id
+    def _updatedOn =    story.updatedOn
+    def _views =        story.views
+    def _comments =     comments.size
+    def _votes =        votes.values.toList.foldLeft(0)((l, r) => l + r.value)
+
 
     def this(story: StoryFull) = this(
         story.id,

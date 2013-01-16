@@ -5,8 +5,6 @@ import Scalaz._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
-import com.echoed.chamber.services.feed.RequestPartnerStoryFeed
-import com.echoed.chamber.services.feed.RequestPartnerStoryFeedResponse
 import akka.actor._
 import akka.pattern._
 import scala.concurrent.duration._
@@ -28,8 +26,8 @@ import com.echoed.chamber.domain.EchoedUserSettings
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.domain.FacebookUser
-import com.echoed.chamber.domain.views.StoryFeed
-import com.echoed.chamber.domain.views.context.UserContext
+import com.echoed.chamber.domain.views.ContentFeed
+import com.echoed.chamber.domain.views.context.{ UserContext, SelfContext }
 import com.echoed.chamber.services.state.FacebookUserNotFound
 import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FacebookAccessToken
@@ -54,6 +52,9 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EU
 import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
 import scala.concurrent.Future
 import com.echoed.util.datastructure.ContentTree
+import com.echoed.chamber.services.feed.RequestPartnerStoryFeed
+import com.echoed.chamber.services.feed.RequestPartnerStoryFeedResponse
+
 
 
 class EchoedUserService(
@@ -300,8 +301,8 @@ class EchoedUserService(
             } else {
                 val stories = customTree.getContentFromTree(page)
                 val nextPage = customTree.getNextPage(page)
-                val sf = new StoryFeed(
-                    null,
+                val sf = new ContentFeed(
+                    new SelfContext(echoedUser),
                     stories,
                     nextPage)
                 sender ! RequestCustomUserFeedResponse(msg, Right(sf))
@@ -319,7 +320,7 @@ class EchoedUserService(
             } else {
                 val stories = contentTree.getContentFromTree(page)
                 val nextPage = contentTree.getNextPage(page)
-                val sf = new StoryFeed(
+                val sf = new ContentFeed(
                             new UserContext(
                                     echoedUser,
                                     followedByUsers.length,

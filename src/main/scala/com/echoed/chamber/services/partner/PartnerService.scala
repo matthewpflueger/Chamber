@@ -19,7 +19,7 @@ import java.util.{Date, UUID}
 import scala.Left
 import scala.Right
 import scala.Some
-import com.echoed.chamber.domain.views.StoryFeed
+import com.echoed.chamber.domain.views.ContentFeed
 import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.StoryPublic
 import collection.immutable.TreeMap
@@ -149,7 +149,7 @@ class PartnerService(
             val stories = contentTree.getContentFromTree(page)
             val nextPage = contentTree.getNextPage(page)
             val storyCount =  contentTree.count
-            val sf = new StoryFeed(
+            val sf = new ContentFeed(
                 new PartnerContext(
                     partner,
                     followedByUsers.length,

@@ -6,6 +6,7 @@ import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor.ActorRef
 import com.echoed.chamber.services.echoeduser.{Follower, EchoedUserClientCredentials}
+import context.PartnerContext
 import org.springframework.validation.Errors
 import java.util.Date
 import com.echoed.chamber.domain.public.StoryPublic
@@ -90,7 +91,7 @@ case class GetPartnerResponse(
 case class ReadPartnerFeed(credentials: PCC, page: Int, origin: String) extends PM with PI
 case class ReadPartnerFeedResponse(
         message: ReadPartnerFeed,
-        value: Either[PE, StoryFeed]) extends PM with MR[StoryFeed, ReadPartnerFeed, PE]
+        value: Either[PE, ContentFeed[PartnerContext]]) extends PM with MR[ContentFeed[PartnerContext], ReadPartnerFeed, PE]
 
 case class GetTopics(credentials: PCC) extends PM with PI
 case class GetTopicsResponse(
