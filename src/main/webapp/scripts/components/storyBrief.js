@@ -54,7 +54,7 @@ define(
                 var inComplete = this.modelStory.isIncomplete();
                 var profilePhotoUrl = utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls);
                 var elapsedString = utils.timeElapsedString(utils.timeStampStringToDate(this.modelStory.get("story").updatedOn.toString()));
-                var isSelf = this.modelUser.is(self.data.echoedUser.id);
+                var isSelf = this.modelUser.is(this.modelStory.get("echoedUser").id);
                 var voteCount = utils.arraySize(this.modelStory.get("votes"));
 
                 var jsonModel = {
