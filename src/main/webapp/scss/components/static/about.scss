@@ -1,0 +1,26 @@
+#about-content{
+    width: 1200px;
+    margin: auto;
+    padding-top: 100px;
+}
+
+#about{
+    position: relative;
+}
+
+#about-left{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    li{
+
+        list-style:none;
+        @include fontTitleLight(18px);
+        padding: 10px 20px;
+    }
+}
+
+#about-right{
+    margin-left: 200px;
+    width: 660px;
+}

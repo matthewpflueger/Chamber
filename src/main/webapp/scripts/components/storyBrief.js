@@ -4,10 +4,9 @@ define(
         'backbone',
         'underscore',
         'hgn!templates/storyBrief/storyBrief',
-        'hgn!templates/storyBrief/storyBriefText',
         'components/utils'
     ],
-    function($, Backbone, _, templateStoryBrief, templateStoryBriefText, utils){
+    function($, Backbone, _, templateStoryBrief, utils){
         return  Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -30,7 +29,7 @@ define(
             render: function(){
                 var self = this;
 
-                self.element.addClass('item-story');
+
 
                 var image = this.modelStory.getCoverImage();
                 var chapterText = "";
@@ -77,10 +76,10 @@ define(
                         height: i.attr("height"),
                         width: i.attr("width")
                     };
-                    self.element.html(templateStoryBrief(jsonModel))
-                } else {
-                    self.element.html(templateStoryBriefText(jsonModel))
                 }
+
+                self.element.html(templateStoryBrief(jsonModel));
+                self.element.addClass('item-story');
 
                 if(self.properties.isWidget) self.element.find('.story-brief-text-user').attr("target","_blank").attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id);
 

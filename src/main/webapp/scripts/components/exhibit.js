@@ -40,10 +40,7 @@ define(
                 }
                 self.exhibit.empty();
                 self.exhibit.isotope({
-                    itemSelector: '.item_wrap,.no_filter',
-                    masonry:{
-                        columnWidth: 300
-                    }
+                    itemSelector: '.item_wrap'
                 });
                 self.isotopeOn = true;
                 self.render(data);

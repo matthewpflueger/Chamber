@@ -70,6 +70,13 @@
                 .title-content-text{
                     font-weight: bold;
                 }
+                li{
+                    display: block;
+                    width: 450px;
+                    white-space: nowrap;
+                    overflow-x: hidden;
+                    text-overflow: ellipsis;
+                }
             }
             ul{
             }
