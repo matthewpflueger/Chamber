@@ -270,7 +270,7 @@ h3{
     right: 225px;
     .action-button{
         cursor: pointer;
-        @include shareButton();
+        @include buttonRed();
     }
 }
 

@@ -133,7 +133,7 @@
         list-style: none;
         display: inline-block;
         a{
-            @include whiteButton;
+            @include buttonWhite();
         }
 
     }

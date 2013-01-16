@@ -128,7 +128,7 @@
 }
 
 #story-edit{
-    @include whiteButton;
+    @include            buttonWhite;
     vertical-align: middle;
 }
 
@@ -341,7 +341,7 @@
         }
         .comment-submit{
             cursor: pointer;
-            @include button;
+            @include buttonRed;
         }
         .comment-login-title {
             @include fontTextBold(14px);
@@ -493,9 +493,9 @@
 }
 
 .greyButton{
-    @include whiteButton;
+    @include    buttonWhite();
 }
 
 .redButton{
-    @include redButton;
+    @include    buttonRed();
 }
