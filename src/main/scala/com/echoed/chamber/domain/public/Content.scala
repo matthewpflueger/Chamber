@@ -9,6 +9,8 @@ trait Content {
     def _views:         Int
     def _votes:         Int
     def _comments:      Int
-
+    def _plural:        String
+    def _singular:      String
+    def _endPoint:      String
 
 }

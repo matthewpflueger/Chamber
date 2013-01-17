@@ -27,6 +27,10 @@ case class StoryPublic (
     def _views =        story.views
     def _comments =     comments.size
     def _votes =        votes.values.toList.foldLeft(0)((l, r) => l + r.value)
+    def _plural =       "Stories"
+    def _singular =     "Story"
+    def _endPoint =     "stories"
+
 
 
     def this(story: StoryFull) = this(

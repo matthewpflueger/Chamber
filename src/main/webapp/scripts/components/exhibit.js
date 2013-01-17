@@ -143,7 +143,7 @@ define(
                                 }
                             }
                             storiesAdded = true;
-                        } else if ( content._type === "image") {
+                        } else if ( content._type === "photo") {
                             var photoDiv = $('<div></div>').addClass('item_wrap');
                             var img = utils.scaleByWidth(content.image, 300);
                             contentFragment.append(photoDiv.append(img));

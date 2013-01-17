@@ -11,6 +11,7 @@ import scala.collection.immutable.Stack
 import org.springframework.validation.Errors
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.OnlineOnlyMessage
+import com.echoed.chamber.domain.public.Content
 
 sealed trait EchoedUserMessage extends Message
 sealed class EchoedUserException(
@@ -337,10 +338,6 @@ case class PublishFacebookAction(credentials: EUCC, action: String,  obj: String
 case class PublishFacebookActionResponse(message: PublishFacebookAction, value: Either[EUE, Boolean])
     extends EUM with MR[Boolean, PublishFacebookAction, EUE]
 
-private[echoeduser] case class GetFriendExhibit(echoedFriendUserId: String, page: Int) extends EUM
-private[echoeduser] case class GetFriendExhibitResponse(message: GetFriendExhibit,  value: Either[EUE, FriendCloset])
-    extends EUM with MR[FriendCloset, GetFriendExhibit, EUE]
-
 case class LoginWithPassword(credentials: EUCC) extends EUM with EUI
 case class LoginWithPasswordResponse(message: LoginWithPassword, value: Either[EUE, EUCC])
     extends EUM with MR[EUCC, LoginWithPassword, EUE]
@@ -374,43 +371,41 @@ case class UpdateEchoedUserEmail(credentials: EUCC, email: String) extends EUM w
 case class UpdateEchoedUserEmailResponse(message: UpdateEchoedUserEmail, value: Either[EUE, EchoedUser])
     extends EUM with MR[EchoedUser, UpdateEchoedUserEmail, EUE]
 
-case class GetExhibit(credentials: EUCC, page: Int, appType: Option[String] = None) extends EUM with EUI
-case class GetExhibitResponse(message: GetExhibit, value: Either[EUE, ClosetPersonal])
-    extends EUM with MR[ClosetPersonal, GetExhibit, EUE]
-
 case class GetEcho(credentials: EUCC, echoId: String) extends EUM with EUI
 case class GetEchoResponse(message: GetEcho, value: Either[EUE, (Echo, EchoedUser, Partner)])
         extends EUM with MR[(Echo, EchoedUser, Partner), GetEcho, EUE]
 
-case class GetFeed(credentials: EUCC, page: Int) extends EUM with EUI
-case class GetFeedResponse(message: GetFeed, value: Either[EUE, Feed])
-    extends EUM with MR[Feed, GetFeed, EUE]
+//Initialization Messages
+private[services] case class InitializeUserCustomFeed(credentials: EUCC, content: List[Content]) extends EUM with EUI
+private[services] case class InitializeUserCustomFeedResponse(message: InitializeUserCustomFeed, value: Either[EUE, Boolean] )
+    extends EUM with MR[Boolean, InitializeUserCustomFeed, EUE]
+
+private[services] case class InitializeUserContentFeed(credentials: EUCC, content: List[Content]) extends EUM with EUI
+private[services] case class InitializeUserContentFeedResponse(message: InitializeUserContentFeed, value: Either[EUE, Boolean])
+    extends EUM with MR[Boolean, InitializeUserContentFeed,  EUE]
 
 
-case class GetContentFeed(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
-case class GetContentFeedResponse(message: GetContentFeed, value: Either[EUE, ContentFeed[UserContext]])
-    extends EUM with MR[ContentFeed[UserContext], GetContentFeed, EUE]
-
-case class GetUserFeed(credentials: EUCC, page: Int) extends EUM with EUI
-case class GetUserFeedResponse(message: GetUserFeed, value: Either[EUE, ContentFeed[UserContext]])
-    extends EUM with MR[ContentFeed[UserContext], GetUserFeed, EUE]
+//Request Messages: Returns to controller
+case class RequestOwnContent(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
+case class RequestOwnContentResponse(message: RequestOwnContent, value: Either[EUE, ContentFeed[SelfContext]])
+    extends EUM with MR[ContentFeed[SelfContext], RequestOwnContent, EUE]
 
 case class RequestCustomUserFeed(credentials: EUCC, page: Int)  extends EUM with EUI
 case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, ContentFeed[SelfContext]])
     extends EUM with MR[ContentFeed[SelfContext], RequestCustomUserFeed, EUE]
+
+case class RequestUserContentFeed(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
+case class RequestUserContentFeedResponse(message: RequestUserContentFeed, value: Either[EUE, ContentFeed[UserContext]])
+    extends EUM with MR[ContentFeed[UserContext], RequestUserContentFeed, EUE]
 
 case class GetEchoedFriends(credentials: EUCC) extends EUM with EUI
 case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, FriendFeed])
     extends EUM with MR[FriendFeed, GetEchoedFriends, EUE]
 
 
-case class UpdateUserStory(
-        credentials: EUCC,
-        story: StoryPublic) extends EUM with EUI with OnlineOnlyMessage
-
-case class UpdateUserStoryResponse(
-        message: UpdateUserStory,
-        value: Either[EUE, Boolean]) extends EUM with MR[Boolean, UpdateUserStory, EUE]
+case class UpdateUserStory(credentials: EUCC, story: StoryPublic) extends EUM with EUI with OnlineOnlyMessage
+case class UpdateUserStoryResponse(message: UpdateUserStory, value: Either[EUE, Boolean])
+    extends EUM with MR[Boolean, UpdateUserStory, EUE]
 
 case class Logout(credentials: EUCC) extends EUM with EUI
 case class LogoutResponse(message: Logout, value: Either[EUE, Boolean])

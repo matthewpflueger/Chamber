@@ -24,7 +24,7 @@ import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.{PhotoPublic, StoryPublic}
 import collection.immutable.TreeMap
 import java.util
-import com.echoed.util.datastructure.ContentTree
+import com.echoed.util.datastructure.{ContentManager, ContentTree}
 
 
 class PartnerService(
@@ -44,8 +44,7 @@ class PartnerService(
     private var customization = Map[String, Any]()
     private var followedByUsers = List[Follower]()
 
-    private val contentTree = new ContentTree()
-    private val photoTree = new ContentTree()
+    private val contentManager = new ContentManager()
 
     override def preStart() {
         super.preStart()
@@ -143,51 +142,47 @@ class PartnerService(
         case msg @ RequestPartnerStoryFeedResponse(_, Right(f)) =>
             f.stories.map {
                 s =>
-                    contentTree.updateContent(s)
-                    s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
+                    contentManager.updateContent(s)
+                    s.extractImages.map { i => contentManager.updateContent(new PhotoPublic(i)) }
             }
 
         case msg @ RequestPartnerContentFeed(_, page, origin, _type) =>
             val channel = sender
-            val content = photoTree.getContentFromTree(page)
-            val nextPage = photoTree.getNextPage(page)
-            val storyCount =  contentTree.count
+            val content = contentManager.getContent(_type, page)
             val sf = new ContentFeed(
                 new PartnerContext(
                     partner,
                     followedByUsers.length,
-                    storyCount,
-                    photoTree.count,
-                    contentTree.viewCount,
-                    contentTree.voteCount,
-                    contentTree.commentCount,
-                    contentTree.mostCommented,
-                    contentTree.mostViewed,
-                    contentTree.mostVoted),
-                content,
-                nextPage)
+                    0,
+                    0,
+                    contentManager.getTotalViewCount,
+                    contentManager.getTotalVoteCount,
+                    contentManager.getTotalCommentCount,
+                    contentManager.getMostCommented(_type),
+                    contentManager.getMostViewed(_type),
+                    contentManager.getMostVoted(_type)),
+                content._1,
+                content._2)
 
             channel ! RequestPartnerContentFeedResponse(msg, Right(sf))
 
         case msg @ ReadPartnerFeed(_, page, origin) =>
             val channel = sender
-            val content = contentTree.getContentFromTree(page)
-            val nextPage = contentTree.getNextPage(page)
-            val storyCount =  contentTree.count
+            val content = contentManager.getContent( "story", page)
             val sf = new ContentFeed(
                 new PartnerContext(
                     partner,
                     followedByUsers.length,
-                    storyCount,
-                    photoTree.count,
-                    contentTree.viewCount,
-                    contentTree.voteCount,
-                    contentTree.commentCount,
-                    contentTree.mostCommented,
-                    contentTree.mostViewed,
-                    contentTree.mostVoted),
-                    content,
-                    nextPage)
+                    0,
+                    0,
+                    contentManager.getTotalViewCount,
+                    contentManager.getTotalVoteCount,
+                    contentManager.getTotalCommentCount,
+                    contentManager.getMostCommented( "story" ),
+                    contentManager.getMostViewed( "story" ),
+                    contentManager.getMostVoted( "story" )),
+                    content._1,
+                    content._2)
 
             channel ! ReadPartnerFeedResponse(msg, Right(sf))
 

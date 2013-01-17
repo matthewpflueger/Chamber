@@ -3,7 +3,7 @@ import com.echoed.chamber.domain.Image
 
 case class PhotoPublic( image: Image )  extends Content {
 
-    val _type = "image"
+    val _type = "photo"
 
     def _id = image.id
     def _createdOn = image.createdOn
@@ -11,5 +11,9 @@ case class PhotoPublic( image: Image )  extends Content {
     def _views = 0
     def _votes = 0
     def _comments = 0
+
+    def _plural = "Photos"
+    def _singular = "Photo"
+    def _endPoint = "photos"
 
 }

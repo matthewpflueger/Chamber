@@ -4,7 +4,7 @@ package com.echoed.util.datastructure
 import com.echoed.chamber.domain.public.Content
 import collection.immutable.TreeMap
 
-class ContentTree {
+case class ContentTree( singular: String, plural: String, endPoint: String ) {
 
     implicit object DateOrdering extends Ordering[(Long, String)] {
         def compare(a:(Long, String), b:(Long, String)) = {
@@ -14,6 +14,7 @@ class ContentTree {
                 b._2 compare a._2
         }
     }
+
 
     val pageSize = 30
     var viewCount = 0
@@ -79,7 +80,8 @@ class ContentTree {
     def getContentFromTree(page: Int) = {
         val start = page * pageSize
         val stories = contentTree.values.toList.slice(start, start + pageSize)
-        stories
+        val nextPage = getNextPage(page)
+        ( stories, nextPage )
     }
 
     def count = {

@@ -38,7 +38,6 @@ import com.echoed.chamber.services.facebook.FetchFriends
 import com.echoed.chamber.services.state.TwitterUserNotFound
 import akka.actor.OneForOneStrategy
 import com.echoed.chamber.services.facebook.PublishAction
-import com.echoed.chamber.domain.views.{ClosetPersonal, Closet, EchoFull}
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state.ReadForCredentialsResponse
 import scala.Right
@@ -47,11 +46,12 @@ import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
 import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
-import com.echoed.chamber.domain.public.{PhotoPublic, StoryPublic, EchoedUserPublic}
+import com.echoed.chamber.domain.public.{StoryPublic, PhotoPublic, Content}
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
 import scala.concurrent.Future
 import com.echoed.util.datastructure.ContentTree
+import com.echoed.util.datastructure.ContentManager
 import com.echoed.chamber.services.feed.RequestPartnerStoryFeed
 import com.echoed.chamber.services.feed.RequestPartnerStoryFeedResponse
 
@@ -78,10 +78,8 @@ class EchoedUserService(
     private var followedByUsers = List[Follower]()
     private var followingPartners = List[PartnerFollower]()
 
-
-    private val customTree = new ContentTree()
-    private val contentTree = new ContentTree()
-    private val photoTree = new ContentTree()
+    private val personalContentManager = new ContentManager()
+    private val contentManager = new ContentManager()
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
@@ -193,26 +191,17 @@ class EchoedUserService(
         }
         val futures = futureUserFeeds ::: futurePartnerFeeds
         val futuresList = Future.sequence(futures)
-
-        futuresList.map {
-            s =>
-                s.map{
+        futuresList.onSuccess {
+            case list =>
+                var contentList = List[Content]()
+                list.map {
                     case r @ GetUserPublicStoryFeedResponse(_, Right(feed)) =>
-                        feed.stories.map(
-                            s => if(!s.isOwnedBy(echoedUser.id)){
-                                customTree.updateContent(s)
-                                s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
-                            }
-                        )
+                        contentList = contentList ::: feed.stories
                     case r @ RequestPartnerStoryFeedResponse(_, Right(feed)) =>
-                        feed.stories.map(
-                            s=> if(!s.isOwnedBy(echoedUser.id)){
-                                customTree.updateContent(s)
-                                s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
-                            }
-                        )
+                        contentList = contentList ::: feed.stories
                 }
-                becomeCustomContentLoaded
+                self ! InitializeUserCustomFeed(EchoedUserClientCredentials(echoedUser.id), contentList)
+
         }
     }
 
@@ -299,93 +288,83 @@ class EchoedUserService(
 
     def online = {
 
+        case msg @ InitializeUserCustomFeed(_, content) =>
+            content.map {
+                case c: StoryPublic =>
+                    if( c.echoedUser.id != echoedUser.id ) {
+                        personalContentManager.updateContent(c)
+                        c.extractImages.map { i => personalContentManager.updateContent( new PhotoPublic(i)) }
+                    }
+                case _ =>
+                    personalContentManager.updateContent(_)
+            }
+            becomeCustomContentLoaded
+
+        case msg @ InitializeUserContentFeed(_, content) =>
+            content.map {
+                case c: StoryPublic =>
+                    contentManager.updateContent(c)
+                    c.extractImages.map { i => contentManager.updateContent(new PhotoPublic(i)) }
+                case _ =>
+                    contentManager.updateContent(_)
+            }
+            becomeContentLoaded
+
+
+        case msg @ RequestOwnContent(_, page, _type) =>
+            if(!contentLoaded) {
+                unhandledMessages = (msg, sender) :: unhandledMessages
+            } else {
+                val content = contentManager.getContent(_type, page)
+                val cf = new ContentFeed(
+                    new SelfContext(echoedUser),
+                    content._1,
+                    content._2)
+                sender ! RequestOwnContentResponse(msg, Right(cf))
+            }
+
         case msg @ RequestCustomUserFeed(_, page) =>
             if(!customContentLoaded){
                 unhandledMessages = (msg, sender) :: unhandledMessages
                 getCustomFeed
             } else {
-                val stories = customTree.getContentFromTree(page)
-                val nextPage = customTree.getNextPage(page)
+                val content = personalContentManager.getContent("story", page)
                 val sf = new ContentFeed(
                     new SelfContext(echoedUser),
-                    stories,
-                    nextPage)
+                    content._1,
+                    content._2)
                 sender ! RequestCustomUserFeedResponse(msg, Right(sf))
             }
 
-        case msg @ GetContentFeed(eucc, page, _type) =>
+        case msg @ RequestUserContentFeed(eucc, page, _type) =>
             if(!contentLoaded) {
                 unhandledMessages = (msg, sender) :: unhandledMessages
                 mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
-                    case GetUserPublicStoryFeedResponse(_, Right(f)) =>
-                        f.stories.map({
-                            s =>
-                                contentTree.updateContent(s)
-                                s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
-                        })
-                        becomeContentLoaded
+                    case GetUserPublicStoryFeedResponse(_, Right(f)) => self ! InitializeUserContentFeed(EchoedUserClientCredentials(echoedUser.id), f.stories)
                 }
             } else {
-                val content = photoTree.getContentFromTree(page)
-                val nextPage = photoTree.getNextPage(page)
+                val content = contentManager.getContent(_type, page)
                 val sf = new ContentFeed(
                     new UserContext(
                         echoedUser,
                         followedByUsers.length,
                         followingUsers.length,
-                        contentTree.count,
-                        photoTree.count,
-                        contentTree.viewCount,
-                        contentTree.voteCount,
-                        contentTree.commentCount,
-                        contentTree.mostCommented,
-                        contentTree.mostViewed,
-                        contentTree.mostVoted),
-                    content,
-                    nextPage)
-                sender ! GetContentFeedResponse(msg, Right(sf))
+                        contentManager.getTotalViewCount,
+                        contentManager.getTotalVoteCount,
+                        contentManager.getTotalCommentCount,
+                        contentManager.getMostCommented(_type),
+                        contentManager.getMostViewed(_type),
+                        contentManager.getMostVoted(_type),
+                        contentManager.getContentList),
+                    content._1,
+                    content._2)
+                sender ! RequestUserContentFeedResponse(msg, Right(sf))
             }
-
-
-        case msg @ GetUserFeed(eucc, page) =>
-            if(!contentLoaded) {
-                unhandledMessages = (msg, sender) :: unhandledMessages
-                mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
-                    case GetUserPublicStoryFeedResponse(_, Right(f)) =>
-                        f.stories.map({
-                            s =>
-                                contentTree.updateContent(s)
-                                s.extractImages.map { i => photoTree.updateContent(new PhotoPublic(i)) }
-
-                        })
-                        becomeContentLoaded
-                }
-            } else {
-                val stories = contentTree.getContentFromTree(page)
-                val nextPage = contentTree.getNextPage(page)
-                val sf = new ContentFeed(
-                            new UserContext(
-                                    echoedUser,
-                                    followedByUsers.length,
-                                    followingUsers.length,
-                                    contentTree.count,
-                                    photoTree.count,
-                                    contentTree.viewCount,
-                                    contentTree.voteCount,
-                                    contentTree.commentCount,
-                                    contentTree.mostCommented,
-                                    contentTree.mostViewed,
-                                    contentTree.mostVoted),
-                            stories,
-                            nextPage)
-                sender ! GetUserFeedResponse(msg, Right(sf))
-            }
-
 
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
         case msg @ UpdateUserStory(_, story) =>
-            contentTree.updateContent(story)
+            contentManager.updateContent(story)
 
         case msg @ VerifyEmail(_, code) =>
             val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
@@ -491,20 +470,8 @@ class EchoedUserService(
         case msg @ Logout(eucc) =>
             self ! PoisonPill
 
-
-        case msg: GetExhibit =>
-            mp(GetUserPrivateStoryFeed(echoedUser.id, msg.page))
-                    .mapTo[GetUserPrivateStoryFeedResponse]
-                    .map(_.resultOrException)
-                    .map { r =>
-                        val closet = new Closet(echoedUser.id, echoedUser).copy(stories = r.stories)
-                        GetExhibitResponse(msg, Right(new ClosetPersonal(closet)))
-                    }.pipeTo(sender)
-
-
         case msg: FetchNotifications =>
             sender ! FetchNotificationsResponse(msg, Right(notifications.filter(n => !n.hasRead && !n.isWeekly)))
-
 
         case msg @ MarkNotificationsAsRead(_, ids) =>
             var marked = false

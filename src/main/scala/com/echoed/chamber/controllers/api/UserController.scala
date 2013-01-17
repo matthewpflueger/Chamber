@@ -12,70 +12,15 @@ import scala.Right
 import javax.servlet.http.HttpServletResponse
 import com.echoed.chamber.domain._
 import scala.collection.immutable.Stack
-import com.echoed.chamber.domain.views.{CommunityFeed, TopicStoryFeed, ClosetPersonal, Feed, PublicStoryFeed}
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.echoed.chamber.services.feed.GetStoryResponse
-import com.echoed.chamber.services.echoeduser.GetFeedResponse
-import com.echoed.chamber.services.echoeduser.FetchNotifications
-import com.echoed.chamber.services.echoeduser.ReadSettingsResponse
 import views.ClosetPersonal
-import views.ClosetPersonal
-import views.CommunityFeed
 import com.echoed.chamber.services.partner._
 import views.CommunityFeed
 import views.ContentFeed
-import views.context.PartnerContext
-import views.context.SelfContext
-import views.context.UserContext
-import views.Feed
-import views.ContentFeed
-import views.Feed
 import views.PublicStoryFeed
-import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
-import com.echoed.chamber.services.echoeduser.NewSettingsResponse
-import views.PublicStoryFeed
-import views.TopicStoryFeed
-import com.echoed.chamber.services.topic.ReadTopicFeed
-import com.echoed.chamber.services.feed.GetCommunities
-import com.echoed.chamber.services.feed.GetStory
-import com.echoed.chamber.services.echoeduser.MarkNotificationsAsRead
-import com.echoed.chamber.services.echoeduser.GetUserFeed
-import com.echoed.chamber.domain.EchoedUserSettings
-import com.echoed.chamber.services.echoeduser.NewSettings
-import com.echoed.chamber.services.echoeduser.GetExhibit
-import com.echoed.chamber.services.topic.ReadTopics
-import com.echoed.chamber.services.feed.GetCommunitiesResponse
-import com.echoed.chamber.services.echoeduser.VoteStoryResponse
-import com.echoed.chamber.services.echoeduser.UnFollowUser
-import com.echoed.chamber.services.feed.GetPublicStoryFeed
-import com.echoed.chamber.services.echoeduser.GetUserFeedResponse
-import com.echoed.chamber.domain.public.StoryPublic
-import com.echoed.chamber.services.feed.GetCategoryStoryFeedResponse
-import com.echoed.chamber.services.feed.GetCategoryStoryFeed
-import com.echoed.chamber.services.topic.ReadCommunityTopicsResponse
-import com.echoed.chamber.services.echoeduser.MarkNotificationsAsReadResponse
-import com.echoed.chamber.services.echoeduser.ListFollowedByUsersResponse
-import com.echoed.chamber.domain.Topic
-import com.echoed.chamber.domain.Notification
-import com.echoed.chamber.services.echoeduser.ReadSettings
-import com.echoed.chamber.services.feed.GetPublicStoryFeedResponse
-import com.echoed.chamber.services.echoeduser.GetExhibitResponse
-import com.echoed.chamber.services.echoeduser.FetchNotificationsResponse
-import com.echoed.chamber.services.echoeduser.ListFollowingUsers
-import com.echoed.chamber.services.echoeduser.GetFeed
-import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import com.echoed.chamber.services.topic.ReadCommunityTopics
-import com.echoed.chamber.services.echoeduser.VoteStory
-import com.echoed.chamber.services.topic.ReadTopicFeedResponse
-import com.echoed.chamber.services.echoeduser.FollowUser
-import com.echoed.chamber.services.topic.ReadTopicsResponse
-import com.echoed.chamber.services.echoeduser.PublishFacebookAction
 import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.feed.GetStoryResponse
-import com.echoed.chamber.services.echoeduser.GetFeedResponse
 import com.echoed.chamber.services.echoeduser.FetchNotifications
-import com.echoed.chamber.services.echoeduser.GetContentFeed
 import com.echoed.chamber.services.echoeduser.ReadSettingsResponse
 import com.echoed.chamber.services.echoeduser.UnFollowPartnerResponse
 import com.echoed.chamber.services.partner.GetTopicsResponse
@@ -89,7 +34,6 @@ import com.echoed.chamber.services.feed.GetCommunities
 import com.echoed.chamber.services.feed.GetStory
 import com.echoed.chamber.domain.Vote
 import com.echoed.chamber.services.echoeduser.MarkNotificationsAsRead
-import com.echoed.chamber.services.echoeduser.GetUserFeed
 import com.echoed.chamber.domain.EchoedUserSettings
 import com.echoed.chamber.services.echoeduser.NewSettings
 import com.echoed.chamber.services.echoeduser.ListFollowingPartnersResponse
@@ -105,7 +49,6 @@ import com.echoed.chamber.services.echoeduser.VoteStoryResponse
 import com.echoed.chamber.services.echoeduser.UnFollowUser
 import com.echoed.chamber.services.feed.GetPublicStoryFeed
 import com.echoed.chamber.services.echoeduser.RequestCustomUserFeed
-import com.echoed.chamber.services.echoeduser.GetUserFeedResponse
 import com.echoed.chamber.services.echoeduser.FollowPartner
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.feed.GetCategoryStoryFeedResponse
@@ -122,18 +65,17 @@ import com.echoed.chamber.services.feed.GetPublicStoryFeedResponse
 import com.echoed.chamber.services.echoeduser.GetExhibitResponse
 import com.echoed.chamber.services.echoeduser.FetchNotificationsResponse
 import com.echoed.chamber.services.echoeduser.ListFollowingUsers
-import com.echoed.chamber.services.echoeduser.GetFeed
 import com.echoed.chamber.services.echoeduser.ListFollowingPartners
 import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.topic.ReadCommunityTopics
-import com.echoed.chamber.services.echoeduser.GetContentFeedResponse
 import com.echoed.chamber.services.partner.ReadPartnerFeedResponse
 import com.echoed.chamber.services.echoeduser.VoteStory
 import com.echoed.chamber.services.topic.ReadTopicFeedResponse
 import com.echoed.chamber.services.echoeduser.FollowUser
 import com.echoed.chamber.services.topic.ReadTopicsResponse
 import com.echoed.chamber.services.echoeduser.PublishFacebookAction
+import com.echoed.chamber.services.echoeduser.{ RequestUserContentFeed, RequestUserContentFeedResponse, RequestOwnContent, RequestOwnContentResponse }
 
 
 @Controller
@@ -228,39 +170,19 @@ class UserController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/feed/friends"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("me/exhibit"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def feed(
-            @RequestParam(value = "echoedUserId", required = false) echoedUserIdParam:String,
-            @RequestParam(value = "page", required = false) page: String,
-            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
-            eucc: EchoedUserClientCredentials) = {
-
-        val result = new DeferredResult[Feed](null, ErrorResult.timeout)
-
-        //FIXME WTF this returns the user's feed, not a friend's feed?!?!
-        mp(GetFeed(eucc, parse(page))).onSuccess {
-            case GetFeedResponse(_, Right(feed)) => result.setResult(feed)
-        }
-
-        result
-    }
-
-    @RequestMapping(value = Array("/me/exhibit"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def exhibit(
+    def ownFeed(
             @RequestParam(value = "page", required = false) page: String,
             eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[ClosetPersonal](null, ErrorResult.timeout)
-
-        mp(GetExhibit(eucc, parse(page))).onSuccess {
-            case GetExhibitResponse(_, Right(closet)) =>
-                log.debug("Received for {} exhibit of {} echoes", eucc, closet.echoes.size)
-                result.setResult(closet)
+        val result = new DeferredResult[ContentFeed[SelfContext]](null, ErrorResult.timeout)
+        mp(RequestOwnContent(eucc, parse(page), "story")).onSuccess {
+            case RequestOwnContentResponse(_, Right(cf)) =>
+                result.setResult(cf)
         }
-
         result
+
     }
 
     @RequestMapping(value = Array("me/following/partners"), method = Array(RequestMethod.GET))
@@ -419,7 +341,7 @@ class UserController extends EchoedController {
 
         log.debug("Requesting for Partner Feed for Partner {}", partnerId )
 
-        mp(RequestPartnerContentFeed(new PartnerClientCredentials(partnerId), parse(page), origin, "photos")).onSuccess {
+        mp(RequestPartnerContentFeed(new PartnerClientCredentials(partnerId), parse(page), origin, "photo")).onSuccess {
             case RequestPartnerContentFeedResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
         result
@@ -436,8 +358,8 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult[ContentFeed[UserContext]](null, ErrorResult.timeout)
 
-        mp(GetUserFeed(new EchoedUserClientCredentials(id), parse(page))).onSuccess {
-            case GetUserFeedResponse(_, Right(feed)) => result.setResult(feed)
+        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "story")).onSuccess {
+            case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 
         result
@@ -454,8 +376,8 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult[ContentFeed[UserContext]](null, ErrorResult.timeout)
 
-        mp(GetContentFeed(new EchoedUserClientCredentials(id), parse(page), "photos")).onSuccess {
-            case GetContentFeedResponse(_, Right(feed)) => result.setResult(feed)
+        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "photo")).onSuccess {
+            case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 
         result
