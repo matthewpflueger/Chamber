@@ -1,8 +1,8 @@
 package com.echoed.util.datastructure
 
 //import com.echoed.chamber.domain.public.StoryPublic
-import com.echoed.chamber.domain.public.Content
 import collection.immutable.TreeMap
+import com.echoed.chamber.domain.views.content.Content
 
 case class ContentTree( singular: String, plural: String, endPoint: String ) {
 
@@ -61,7 +61,7 @@ case class ContentTree( singular: String, plural: String, endPoint: String ) {
         }
 
         Option(mostCommented).map {
-            content =>  if(content._comments <= c._views ) mostCommented = c
+            content =>  if(content._comments <= c._comments ) mostCommented = c
         }.getOrElse {
             mostCommented = c
         }

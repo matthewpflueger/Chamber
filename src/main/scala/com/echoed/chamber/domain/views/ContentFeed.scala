@@ -1,6 +1,7 @@
 package com.echoed.chamber.domain.views
+
+import content.Content
 import context.Context
-import com.echoed.chamber.domain.public.Content
 
 case class ContentFeed[C <: Context](
     context:    C,

@@ -46,15 +46,14 @@ import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
 import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
-import com.echoed.chamber.domain.public.{StoryPublic, PhotoPublic, Content}
+import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
 import scala.concurrent.Future
-import com.echoed.util.datastructure.ContentTree
 import com.echoed.util.datastructure.ContentManager
 import com.echoed.chamber.services.feed.RequestPartnerStoryFeed
 import com.echoed.chamber.services.feed.RequestPartnerStoryFeedResponse
-
+import views.content.{PhotoContent, Content}
 
 
 class EchoedUserService(
@@ -85,6 +84,13 @@ class EchoedUserService(
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1.minute) {
         case _: Throwable ⇒ Stop
+    }
+
+    private def getStats = {
+        var stats = List[Map[String, Any]]()
+        stats = Map("name" -> "Followers", "value" -> followedByUsers.length) :: stats
+        stats = Map("name" -> "Following", "value" -> followingUsers.length) :: stats
+        stats
     }
 
 
@@ -137,7 +143,6 @@ class EchoedUserService(
                 msg.correlation,
                 Right(createCredentials(facebookUser))))
     }
-
 
     private def handleLoginWithTwitterUser(msg: LoginWithTwitterUser) {
         twitterUser = twitterUser
@@ -196,9 +201,9 @@ class EchoedUserService(
                 var contentList = List[Content]()
                 list.map {
                     case r @ GetUserPublicStoryFeedResponse(_, Right(feed)) =>
-                        contentList = contentList ::: feed.stories
+                        contentList = contentList ::: feed.content
                     case r @ RequestPartnerStoryFeedResponse(_, Right(feed)) =>
-                        contentList = contentList ::: feed.stories
+                        contentList = contentList ::: feed.content
                 }
                 self ! InitializeUserCustomFeed(EchoedUserClientCredentials(echoedUser.id), contentList)
 
@@ -293,7 +298,7 @@ class EchoedUserService(
                 case c: StoryPublic =>
                     if( c.echoedUser.id != echoedUser.id ) {
                         personalContentManager.updateContent(c)
-                        c.extractImages.map { i => personalContentManager.updateContent( new PhotoPublic(i)) }
+                        c.extractImages.map { i => personalContentManager.updateContent( new PhotoContent(i)) }
                     }
                 case _ =>
                     personalContentManager.updateContent(_)
@@ -304,7 +309,7 @@ class EchoedUserService(
             content.map {
                 case c: StoryPublic =>
                     contentManager.updateContent(c)
-                    c.extractImages.map { i => contentManager.updateContent(new PhotoPublic(i)) }
+                    c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i)) }
                 case _ =>
                     contentManager.updateContent(_)
             }
@@ -314,12 +319,21 @@ class EchoedUserService(
         case msg @ RequestOwnContent(_, page, _type) =>
             if(!contentLoaded) {
                 unhandledMessages = (msg, sender) :: unhandledMessages
+                mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
+                    case GetUserPublicStoryFeedResponse(_, Right(f)) => self ! InitializeUserContentFeed(EchoedUserClientCredentials(echoedUser.id), f.content)
+                }
             } else {
                 val content = contentManager.getContent(_type, page)
+                val stats = getStats ::: contentManager.getStats
                 val cf = new ContentFeed(
-                    new SelfContext(echoedUser),
-                    content._1,
-                    content._2)
+                            new SelfContext(
+                                echoedUser,
+                                stats,
+                                contentManager.getHighlights,
+                                contentManager.getContentList
+                            ),
+                            content._1,
+                            content._2)
                 sender ! RequestOwnContentResponse(msg, Right(cf))
             }
 
@@ -330,34 +344,40 @@ class EchoedUserService(
             } else {
                 val content = personalContentManager.getContent("story", page)
                 val sf = new ContentFeed(
-                    new SelfContext(echoedUser),
-                    content._1,
-                    content._2)
+                            new SelfContext(
+                                echoedUser,
+                                personalContentManager.getStats,
+                                personalContentManager.getHighlights,
+                                personalContentManager.getContentList
+                            ),
+                            content._1,
+                            content._2)
                 sender ! RequestCustomUserFeedResponse(msg, Right(sf))
             }
 
         case msg @ RequestUserContentFeed(eucc, page, _type) =>
             if(!contentLoaded) {
                 unhandledMessages = (msg, sender) :: unhandledMessages
-                mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
-                    case GetUserPublicStoryFeedResponse(_, Right(f)) => self ! InitializeUserContentFeed(EchoedUserClientCredentials(echoedUser.id), f.stories)
+                mp(FindAllUserStories(echoedUser.id)).onSuccess {
+                    case FindAllUserStoriesResponse(_, Right(content)) =>
+                        val contentList = content.map { c => new StoryPublic(c.asStoryFull.get) }.toList
+                        self ! InitializeUserContentFeed(EchoedUserClientCredentials(echoedUser.id), contentList)
                 }
+//                mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
+//                    case GetUserPublicStoryFeedResponse(_, Right(f)) => self ! InitializeUserContentFeed(EchoedUserClientCredentials(echoedUser.id), f.content)
+//                }
             } else {
-                val content = contentManager.getContent(_type, page)
-                val sf = new ContentFeed(
-                    new UserContext(
-                        echoedUser,
-                        followedByUsers.length,
-                        followingUsers.length,
-                        contentManager.getTotalViewCount,
-                        contentManager.getTotalVoteCount,
-                        contentManager.getTotalCommentCount,
-                        contentManager.getMostCommented(_type),
-                        contentManager.getMostViewed(_type),
-                        contentManager.getMostVoted(_type),
-                        contentManager.getContentList),
-                    content._1,
-                    content._2)
+                val content =   contentManager.getContent(_type, page)
+                val stats =     getStats ::: contentManager.getStats
+                val sf =        new ContentFeed(
+                                    new UserContext(
+                                        echoedUser,
+                                        stats,
+                                        contentManager.getHighlights,
+                                        contentManager.getContentList),
+                                    content._1,
+                                    content._2)
+
                 sender ! RequestUserContentFeedResponse(msg, Right(sf))
             }
 

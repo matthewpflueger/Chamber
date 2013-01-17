@@ -11,7 +11,7 @@ import scala.collection.immutable.Stack
 import org.springframework.validation.Errors
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.OnlineOnlyMessage
-import com.echoed.chamber.domain.public.Content
+import com.echoed.chamber.domain.views.content.Content
 
 sealed trait EchoedUserMessage extends Message
 sealed class EchoedUserException(

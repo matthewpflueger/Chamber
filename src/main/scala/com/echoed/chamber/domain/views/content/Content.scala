@@ -1,4 +1,4 @@
-package com.echoed.chamber.domain.public
+package com.echoed.chamber.domain.views.content
 
 trait Content {
 

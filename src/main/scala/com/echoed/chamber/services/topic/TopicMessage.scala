@@ -1,7 +1,8 @@
 package com.echoed.chamber.services.topic
 import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedException, Message}
 import com.echoed.chamber.domain.Topic
-import com.echoed.chamber.domain.views.TopicStoryFeed
+import com.echoed.chamber.domain.views.ContentFeed
+import com.echoed.chamber.domain.views.context.TopicContext
 
 sealed trait TopicMessage extends Message
 sealed case class TopicException(
@@ -22,7 +23,7 @@ case class ReadTopicsResponse(
 case class ReadTopicFeed(topicId: String, page: Int) extends TM
 case class ReadTopicFeedResponse(
             message: ReadTopicFeed,
-            value: Either[TE, TopicStoryFeed]) extends TM with MR [TopicStoryFeed, ReadTopicFeed, TE]
+            value: Either[TE, ContentFeed[TopicContext]]) extends TM with MR [ContentFeed[TopicContext], ReadTopicFeed, TE]
 
 case class ReadCommunityTopics(communityId: String) extends TM
 case class ReadCommunityTopicsResponse(

@@ -21,10 +21,11 @@ import scala.Right
 import scala.Some
 import com.echoed.chamber.domain.views.ContentFeed
 import com.echoed.chamber.domain.views.context.PartnerContext
-import com.echoed.chamber.domain.public.{PhotoPublic, StoryPublic}
+import com.echoed.chamber.domain.public.{StoryPublic}
 import collection.immutable.TreeMap
 import java.util
 import com.echoed.util.datastructure.{ContentManager, ContentTree}
+import com.echoed.chamber.domain.views.content.PhotoContent
 
 
 class PartnerService(
@@ -57,7 +58,7 @@ class PartnerService(
 
     private def becomeOnlineAndRegister {
         becomeOnline
-        mp.tell(RequestPartnerStoryFeed(partner.id), self)
+        mp.tell(FindAllPartnerStories(partner.id), self)
         context.parent ! RegisterPartnerService(partner)
     }
 
@@ -139,51 +140,40 @@ class PartnerService(
                     msg,
                     Right(new PartnerAndPartnerSettings(partner, partnerSettings, customization)))
 
-        case msg @ RequestPartnerStoryFeedResponse(_, Right(f)) =>
-            f.stories.map {
-                s =>
+        case msg @ FindAllPartnerStoriesResponse(_, Right(f)) =>
+            f.map( c => new StoryPublic(c.asStoryFull.get)).map {
+                case s: StoryPublic =>
                     contentManager.updateContent(s)
-                    s.extractImages.map { i => contentManager.updateContent(new PhotoPublic(i)) }
+                    s.extractImages.map { i => contentManager.updateContent(new PhotoContent(i)) }
+                case _ =>
+                    contentManager.updateContent(_)
             }
 
         case msg @ RequestPartnerContentFeed(_, page, origin, _type) =>
             val channel = sender
             val content = contentManager.getContent(_type, page)
             val sf = new ContentFeed(
-                new PartnerContext(
-                    partner,
-                    followedByUsers.length,
-                    0,
-                    0,
-                    contentManager.getTotalViewCount,
-                    contentManager.getTotalVoteCount,
-                    contentManager.getTotalCommentCount,
-                    contentManager.getMostCommented(_type),
-                    contentManager.getMostViewed(_type),
-                    contentManager.getMostVoted(_type)),
-                content._1,
-                content._2)
+                        new PartnerContext(
+                            partner,
+                            contentManager.getStats,
+                            contentManager.getHighlights,
+                            contentManager.getContentList),
+                        content._1,
+                        content._2)
 
             channel ! RequestPartnerContentFeedResponse(msg, Right(sf))
 
         case msg @ ReadPartnerFeed(_, page, origin) =>
-            val channel = sender
-            val content = contentManager.getContent( "story", page)
-            val sf = new ContentFeed(
-                new PartnerContext(
-                    partner,
-                    followedByUsers.length,
-                    0,
-                    0,
-                    contentManager.getTotalViewCount,
-                    contentManager.getTotalVoteCount,
-                    contentManager.getTotalCommentCount,
-                    contentManager.getMostCommented( "story" ),
-                    contentManager.getMostViewed( "story" ),
-                    contentManager.getMostVoted( "story" )),
-                    content._1,
-                    content._2)
-
+            val channel =   sender
+            val content =   contentManager.getContent( "story", page)
+            val sf =        new ContentFeed(
+                                new PartnerContext(
+                                    partner,
+                                    contentManager.getStats,
+                                    contentManager.getHighlights,
+                                    contentManager.getContentList),
+                                content._1,
+                                content._2)
             channel ! ReadPartnerFeedResponse(msg, Right(sf))
 
         case msg: GetTopics =>

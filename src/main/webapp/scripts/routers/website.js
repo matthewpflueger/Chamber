@@ -87,7 +87,9 @@ define(
                 var self = this;
                 if(this.page != window.location.hash){
                     this.page = "#!";
-                    this.requestFeed("/me/feed", function(jsonUrl, data){
+                    var url = "/me/feed";
+                    if(!this.modelUser.isLoggedIn()) url = "/public/feed";
+                    this.requestFeed(url, function(jsonUrl, data){
                         self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
                     });
                 }

@@ -28,13 +28,16 @@
         {{/inComplete}}
     </div>
 </div>
-{{^inComplete}}
+
 <div class="story-brief-actions">
     <ul class="clearfix">
+        {{^inComplete}}
         <li><a href="#">Like</a></li>
         <li><a href="#">Share</a></li>
-        {{#isSelf}}<li><a class="story-brief-action" href="#write/story/{{storyFull.id}}">Edit</a></li>{{/isSelf}}
-        {{^isSelf}}<li><a class="story-brief-action" href="#">Save</a></li>{{/isSelf}}
+            {{#isSelf}}<li><a class="story-brief-action" href="#write/story/{{storyFull.id}}">Edit</a></li>{{/isSelf}}
+            {{^isSelf}}<li><a class="story-brief-action" href="#">Save</a></li>{{/isSelf}}
+        {{/inComplete}}
+        {{#inComplete}}<li><a class="story-brief-action" href="#write/story/{{storyFull.id}}">Finish</a></li>{{/inComplete}}
     </ul>
 </div>
-{{/inComplete}}
+

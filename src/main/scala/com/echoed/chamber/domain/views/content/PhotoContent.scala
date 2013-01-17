@@ -1,7 +1,8 @@
-package com.echoed.chamber.domain.public
+package com.echoed.chamber.domain.views.content
+
 import com.echoed.chamber.domain.Image
 
-case class PhotoPublic( image: Image )  extends Content {
+case class PhotoContent( image: Image )  extends Content {
 
     val _type = "photo"
 

@@ -2,19 +2,13 @@ package com.echoed.chamber.domain.views.context
 
 import com.echoed.chamber.domain.public.{StoryPublic, PartnerPublic}
 import com.echoed.chamber.domain.partner.Partner
-import com.echoed.chamber.domain.public.Content
+import com.echoed.chamber.domain.views.content.Content
 
 case class PartnerContext(
     partner:        PartnerPublic,
-    followers:      Int,
-    stories:        Int,
-    photos:         Int,
-    views:          Int,
-    votes:          Int,
-    comments:       Int,
-    mostCommented:  Content,
-    mostViewed:     Content,
-    mostVoted:      Content) extends Context {
+    stats:          List[Map[String, Any]],
+    highlights:     List[Map[String, Any]],
+    content:        List[Map[String, Any]]) extends Context {
 
     val id =            partner.id
     val title =         partner.name
@@ -22,15 +16,9 @@ case class PartnerContext(
 
     def this(
         partner:        Partner,
-        followers:      Int,
-        stories:        Int,
-        photos:         Int,
-        views:          Int,
-        votes:          Int,
-        comments:       Int,
-        mostCommented:  Content,
-        mostViewed:     Content,
-        mostVoted:      Content) = this(new PartnerPublic(partner), followers, stories, photos, views, votes, comments, mostCommented, mostViewed, mostVoted)
+        stats:          List[Map[String, Any]],
+        highlights:     List[Map[String, Any]],
+        content:        List[Map[String, Any]]) = this(new PartnerPublic(partner), stats, highlights, content )
 
 }
 

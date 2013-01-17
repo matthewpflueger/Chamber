@@ -5,6 +5,7 @@ import java.util.{List => JList}
 import com.echoed.chamber.domain.Chapter
 import com.echoed.chamber.domain.Story
 import com.echoed.chamber.domain.ChapterImage
+import views.content.Content
 import views.StoryFull
 import scala.collection.JavaConversions._
 

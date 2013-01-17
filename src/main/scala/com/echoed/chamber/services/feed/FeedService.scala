@@ -9,15 +9,14 @@ import partner.{PartnerClientCredentials, UpdatePartnerStory}
 import scala.collection.mutable.HashMap
 import akka.pattern._
 import com.echoed.chamber.services.state.QueryPartnerIdsResponse
-import com.echoed.chamber.domain.{Image, Community}
-import com.echoed.chamber.domain.views.CommunityFeed
-import com.echoed.chamber.domain.views.PublicStoryFeed
-import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.Community
+import com.echoed.chamber.domain.views.{ContentFeed, CommunityFeed}
 import state.FindAllStoriesResponse
 import scala.Right
 import com.echoed.chamber.services.state.QueryPartnerIds
 import com.echoed.chamber.services.state.FindAllStories
 import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.views.context.PublicContext
 
 
 class FeedService(
@@ -58,15 +57,10 @@ class FeedService(
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
     var communityTree = new TreeMap[String, Community]()
 
-    var imageMap = HashMap.empty[IndexKey, Image]
 
     private def addToLookup(indexKey: IndexKey, s: StoryPublic){
         val tree =  lookup.get(indexKey).getOrElse(new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)) + ((s.story.updatedOn, s.story.id) -> s)
         lookup += (indexKey -> tree)
-
-        Option(s.story.image).map {
-            image => imageMap += (indexKey -> image)
-        }
     }
 
     private def removeFromLookup(indexKey: IndexKey, s: StoryPublic){
@@ -85,12 +79,7 @@ class FeedService(
                 .getOrElse(List[StoryPublic]())
                 .toList
         val nextPage = getNextPage(start, page, stories)
-        val image = getImageForKey(indexKey)
-        PublicStoryFeed(image, stories.slice(start, start + pageSize), nextPage)
-    }
-
-    private def getImageForKey(indexKey: IndexKey) = {
-        imageMap.get(indexKey).orNull
+        ContentFeed(new PublicContext(), stories.slice(start, start + pageSize), nextPage)
     }
 
     private def getStoryIdsFromLookup(indexKey: IndexKey) = {
@@ -135,7 +124,6 @@ class FeedService(
             addToLookup(CommunityKey(storyFull.story.community), storyFull)
         }
 
-        //mp.tell(UpdateUserStory(EchoedUserClientCredentials(storyFull.story.echoedUserId), storyFull), self)
     }
 
     override def preStart() {
@@ -156,8 +144,8 @@ class FeedService(
         case msg: GetCommunities =>
             sender ! GetCommunitiesResponse(msg, Right(new CommunityFeed(communityTree.values.toList)))
 
-        case msg @ GetPublicStoryFeed(page) =>
-            sender ! GetPublicStoryFeedResponse(msg, Right(getStoriesFromLookup(MainTreeKey(), msg.page)))
+        case msg @ RequestPublicContent(page) =>
+            sender ! RequestPublicContentResponse(msg, Right(getStoriesFromLookup(MainTreeKey(), msg.page)))
 
         case msg @ GetCategoryStoryFeed(categoryId, page) =>
             val feed = getStoriesFromLookup(CommunityKey(categoryId), msg.page)
