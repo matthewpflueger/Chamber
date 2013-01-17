@@ -269,7 +269,7 @@ define(
                 var imageUrl = "";
                 if(currentImage){
                     if(this.chapterType === 'photo') {
-                        var i = utils.fit(currentImage, 842, 700);
+                        var i = utils.fit(currentImage, 840, 700);
                         imageSizing = {
                             width:i.attr('width'),
                             height:i.attr('height')
@@ -283,7 +283,7 @@ define(
                         imageSizing = {
                             width: i.attr('width'),
                             height: i.attr('height')
-                        }
+                        };
                         imageUrl = i.attr('src');
                         self.gallery.addClass("gallery-text");
                         self.gallery.removeClass('gallery-photo');

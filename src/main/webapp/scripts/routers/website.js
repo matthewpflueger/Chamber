@@ -116,7 +116,7 @@ define(
                 var self = this;
                 if(this.page != window.location.hash){
                     this.page = "#!me";
-                    this.requestFeed("/me/exhibit", function(jsonUrl, data){
+                    this.requestFeed("/me/", function(jsonUrl, data){
                         self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal: true} );
                     });
                 }
@@ -131,15 +131,18 @@ define(
                 }
             },
             user: function(id, type){
-                var self = this;
+                var self =      this;
+                var endPoint;
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
                     if(this.modelUser.is(id)){
-                        this.requestFeed("/me/exhibit", function(jsonUrl, data){
+                        endPoint = "/me/";
+                        if(type) endPoint += "/" + type;
+                        this.requestFeed(endPoint, function(jsonUrl, data){
                             self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal : true});
                         });
                     } else {
-                        var endPoint = "/user/" + id;
+                        endPoint = "/user/" + id;
                         if(type) endPoint += "/" + type;
                         this.requestFeed(endPoint, function(jsonUrl, data){
                             self.loadPage("user", { jsonUrl: jsonUrl, data: data});
