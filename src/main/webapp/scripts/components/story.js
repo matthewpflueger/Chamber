@@ -13,35 +13,36 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
-                this.el = options.el;
-                this.element = $(this.el);
-                this.properties = options.properties;
-                this.EvAg = options.EvAg;
-                this.modelUser = options.modelUser;
+                this.el =           options.el;
+                this.element =      $(this.el);
+                this.properties =   options.properties;
+                this.EvAg =         options.EvAg;
+                this.modelUser =    options.modelUser;
+                this.locked =       false;
+
                 this.EvAg.bind('story/show', this.load);
                 this.EvAg.bind('story/hide', this.close);
-                if(this.modelUser) this.modelUser.on("change:id", this.login);
-                this.locked = false;
+                this.modelUser.on("change:id", this.login);
             },
             events: {
-                "click .comment-submit": "createComment",
-                "click .login-button": "commentLogin",
-                "click .story-gallery-chapter" : "chapterClick",
-                "click .story-gallery-thumbnail": "imageClick",
-                "click #story-image-container": "nextImage",
-                "click .story-nav-button": "navClick",
-                "click .upvote": "upVote",
-                "click .downvote": "downVote",
-                "click #story-from": "fromClick",
-                "click #story-gallery-next": "next",
-                "click #story-gallery-prev": "previous",
-                "click .story-share": "share",
-                "click #comments-login": "showLogin",
-                "click .story-link": "redirect",
-                "click .fade" : "fadeClick"
+                "click .comment-submit":            "createComment",
+                "click .login-button":              "commentLogin",
+                "click .story-gallery-chapter":     "chapterClick",
+                "click .story-gallery-thumbnail":   "imageClick",
+                "click #story-image-container":     "nextImage",
+                "click .story-nav-button":          "navClick",
+                "click .upvote":                    "upVote",
+                "click .downvote":                  "downVote",
+                "click #story-from":                "fromClick",
+                "click #story-gallery-next":        "next",
+                "click #story-gallery-prev":        "previous",
+                "click .story-share":               "share",
+                "click #comments-login":            "showLogin",
+                "click .story-link":                "redirect",
+                "click .fade" :                     "fadeClick"
             },
             fadeClick: function(ev){
-                if($(ev.target).hasClass("fade")){
+                if ($(ev.target).hasClass("fade") ){
                     this.close();
                 }
             },
@@ -247,9 +248,6 @@ define(
                     else self.chapterText.hide();
                     self.chapterText.fadeIn();
                 });
-
-
-
                 self.renderImage();
                 self.highlight();
             },
