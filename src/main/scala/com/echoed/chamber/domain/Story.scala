@@ -25,7 +25,9 @@ case class Story(
         upVotes: Int,
         downVotes: Int,
         community: String,
-        topicId: String) extends DomainObject {
+        topicId: String,
+        contentType: String,
+        contentPath: Option[String]) extends DomainObject {
 
     def this() = this(
             id = "",
@@ -46,7 +48,9 @@ case class Story(
             upVotes = 0,
             downVotes = 0,
             community = "",
-            topicId = null)
+            topicId = null,
+            contentType = "Story",
+            contentPath = Some(""))
 
     def this(
             echoedUser: EchoedUser,
@@ -74,6 +78,8 @@ case class Story(
         upVotes = 0,
         downVotes = 0,
         community = null,
-        topicId = null)
+        topicId = null,
+        contentType = "Story",
+        contentPath = None)
 
 }
