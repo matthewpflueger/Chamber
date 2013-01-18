@@ -50,7 +50,9 @@ private[state] object StateUtils {
                 e.map(_.convertTo(img.get)),
                 m,
                 v,
-                t)
+                t,
+                s.contentType,
+                s.contentPath)
     }
 }
 
