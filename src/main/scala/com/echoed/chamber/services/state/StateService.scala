@@ -131,7 +131,7 @@ class StateService(
             echoedUsers.insert(echoedUser)
             echoedUserSettings.insert(EchoedUserSettings(eus))
             facebookUsers.insert(facebookUser)
-            twitterUsers. insert(twitterUser)
+            twitterUsers.insert(twitterUser)
 
 
         case EchoedUserUpdated(echoedUser, eus, facebookUser, twitterUser) =>
