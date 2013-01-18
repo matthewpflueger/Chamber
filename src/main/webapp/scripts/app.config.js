@@ -17,11 +17,11 @@ require.config({
         'isotope'              : 'libs/jquery/jquery.isotope-1.5.21',
         'isotopeConfig'        : 'jquery.isotope.config',
 
-        'backbone'             : 'libs/backbone/backbone-0.9.9',
+        'backbone'             : 'libs/backbone/backbone-0.9.10',
         'backbone.wreqr'       : 'libs/backbone/backbone.wreqr-0.1.0',
         'backbone.eventbinder' : 'libs/backbone/backbone.eventbinder-1.0.2',
         'backbone.babysitter'  : 'libs/backbone/backbone.babysitter-0.0.4',
-        'marionette'           : 'libs/backbone/backbone.marionette-1.0.0-rc2',
+        'marionette'           : 'libs/backbone/backbone.marionette-1.0.0-rc3',
 
         'requireLib'           : 'libs/require/require-2.1.1',
         'hogan'                : 'libs/require/hogan-0.2.0',
