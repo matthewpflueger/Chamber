@@ -194,6 +194,7 @@ define(
                 self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
                 $("body").addClass("noScroll");
+                this.EvAg.trigger("msg/send", "contextChange", "http://www.cnn.com");
             },
             renderGalleryNav: function(){
                 var self = this;

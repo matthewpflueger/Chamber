@@ -1,8 +1,9 @@
-$colorEC:       #E31B23; //Echoed Color
-$colorECDark:   #a11a21; //Echoed Color
-$colorFB:       #3B5998; //Facebook Color
-$colorTW:       #4099FF; //Twitter Color
-
+$colorEC:           #E31B23; //Echoed Color
+$colorECDark:       #a11a21; //Echoed Color
+$colorFB:           #3B5998; //Facebook Color
+$colorTW:           #4099FF; //Twitter Color
+$colorGreen:        #7ee379;
+$colorGreenDark:    #55a155;
 
 //DEFAULT FONT SETTINGS
 $fontTextFamily:    'Open Sans', sans-serif;
@@ -99,7 +100,16 @@ $fontTextColorDefault:  #333;
     background-image:   linear-gradient( $color1, $color2 );
 }
 
-
+@mixin imageGradient($image, $color1: #fff,  $color2: #ddd){
+    background-color:   $color1;
+    background-image:   image-url($image), -khtml-gradient( linear, left top, left bottom, from( $color1 ), to( $color2 ) );
+    background-image:   image-url($image), -moz-linear-gradient( $color1, $color2 );
+    background-image:   image-url($image), -ms-linear-gradient( $color1, $color2 );
+    background-image:   image-url($image), -webkit-gradient( linear, left top, left bottom, color-stop( 0%, $color1 ), color-stop( 100%, $color2) );
+    background-image:   image-url($image), -webkit-linear-gradient( $color1, $color2 );
+    background-image:   image-url($image), -o-linear-gradient( $color1, $color2 );
+    background-image:   image-url($image), linear-gradient( $color1, $color2 );
+}
 
 @mixin button(){
     display:            inline-block;
@@ -132,6 +142,14 @@ $fontTextColorDefault:  #333;
     text-align:         center;
     border-radius:      5px;
     line-height:        1.2em;
+}
+
+@mixin buttonSquare(){
+    display:            inline-block;
+    cursor:             pointer;
+    width:              25px;
+    height:             25px;
+    border-radius:      2px;
 }
 
 @mixin buttonLargeRed( ){
@@ -224,7 +242,7 @@ $fontTextColorDefault:  #333;
 
 //RESET
 html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
-pre, form, fieldset, table, th, td {
+pre, form, fieldset, table, th, td, span {
     @include        fontText();
     margin:         0;
     padding:        0;

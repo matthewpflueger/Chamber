@@ -132,6 +132,7 @@
     li{
         list-style: none;
         display: inline-block;
+        vertical-align: middle;
         a{
             @include buttonWhite();
         }

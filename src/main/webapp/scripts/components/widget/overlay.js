@@ -50,6 +50,10 @@ define(
                                 this.hideOverlay();
                             }
                             break;
+                        case "contextChange":
+                            if(self.properties.isPreview){
+                                this.EvAg.trigger("background/update", msgObj.data);
+                            }
                     }
                 } catch(e){
 

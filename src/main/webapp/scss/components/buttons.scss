@@ -60,3 +60,38 @@
     &:hover{
     }
 }
+
+.upvote, .downvote{
+    @include                buttonSquare();
+    border-radius:          3px;
+    background-repeat:      no-repeat;
+    vertical-align:         middle;
+    background-position:    center;
+    border:                 1px solid #CCC;
+    margin:                 0px 2px;
+    vertical-align:         middle;
+}
+
+.upvote{
+    @include            imageGradient("bk_uparrow.png");
+    &:hover{
+        @include            imageGradient("bk_uparrow.png", $colorGreen, $colorGreenDark);
+        border:             1px solid #666;
+    }
+    &:active, &.on{
+        @include            imageGradient("bk_uparrow.png", $colorGreen, $colorGreenDark);
+        border:             1px solid #666;
+    }
+}
+
+.downvote{
+    @include            imageGradient("bk_downarrow.png");
+    &:hover{
+        @include            imageGradient("bk_downarrow.png", $colorEC, $colorECDark);
+        border:             1px solid #666;
+    }
+    &:active, &.on{
+        @include            imageGradient("bk_downarrow.png", $colorEC, $colorECDark);
+        border:             1px solid #666;
+    }
+}

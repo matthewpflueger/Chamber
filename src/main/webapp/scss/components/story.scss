@@ -228,44 +228,12 @@
             display: inline-block;
             @include fontText(14px);
         }
-        .upvote, .downvote{
-            cursor:pointer;
-            width: 33px;
-            height: 33px;
-            display: inline-block;
-            background-repeat: none;
-            vertical-align: middle;
-            background-size: cover;
-        }
 
         #upvote-counter, #downvote-counter{
             @include fontTextBold(14px);
             vertical-align: middle;
             text-align: right;
             display: inline-block;
-        }
-
-        .upvote{
-            background-image: image-url("uparrow_off.png");
-            margin-left: 10px;
-
-            &:hover{
-                background-image: image-url("uparrow_hover.png");
-            }
-            &:active, &.on{
-                background-image: image-url("uparrow.png");
-            }
-
-        }
-
-        .downvote{
-            background-image: image-url("downarrow_off.png");
-            &:hover{
-                background-image: image-url("downarrow_hover.png");
-            }
-            &:active, &.on{
-                background-image: image-url("downarrow.png");
-            }
         }
     }
 

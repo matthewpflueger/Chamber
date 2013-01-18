@@ -7,9 +7,11 @@ define(
     function($, Backbone, _){
         return Backbone.View.extend({
             initialize: function(options){
-                _.bindAll(this, 'receiveMessageResponse');
-                this.EvAg = options.EvAg;
-                this.properties = options.properties;
+                _.bindAll(this);
+
+                this.EvAg =         options.EvAg;
+                this.properties =   options.properties;
+
                 if(window.addEventListener){
                     window.addEventListener('message', this.receiveMessageResponse , false);
                 } else if (window.attachEvent) {
@@ -17,7 +19,6 @@ define(
                 }
             },
             receiveMessageResponse: function(response) {
-                var self = this;
                 var echoedUser = JSON.parse(response.data);
                 this.EvAg.trigger('user/login', echoedUser);
             }
