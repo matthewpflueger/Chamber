@@ -19,11 +19,12 @@ require(
         'components/infiniteScroll',
         'components/nav',
         'components/login',
+        'views/item/item',
         'models/user',
         'models/context',
         'isotopeConfig'
     ],
-    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, PageTitle, Title, Input, User, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav, Login, ModelUser, ModelContext){
+    function(require, $, _, Backbone, isotope, Router, Exhibit, Story, PageTitle, Title, Input, User, MessageHandler, Notifications, ErrorLog, Actions, InfiniteScroll, Nav, Login, Item, ModelUser, ModelContext){
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
@@ -52,7 +53,6 @@ require(
             this.router = new Router(this.options());
             this.infiniteScroll = new InfiniteScroll(this.options('#infiniteScroll'));
             this.nav = new Nav(this.options());
-            this.story = new Story(this.options('#story-container'));
             this.exhibit = new Exhibit(this.options('#content'));
             this.pageTitle = new PageTitle(this.options('title'));
             this.contentTitle = new Title(this.options('#title-container'));
@@ -61,6 +61,7 @@ require(
             this.user = new User(this.options('#user'));
             this.notifications = new Notifications(this.options("#notifications-container"));
             this.login = new Login(this.options("#login-container"));
+            this.item = new Item(this.options("#item-container"));
 
 
             var iFrameNode = document.createElement('iframe');

@@ -3,16 +3,18 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'components/utils'
+        'components/utils',
+        'collections/contents'
     ],
     function($, Backbone, _, utils){
         return Backbone.Router.extend({
             initialize: function(options) {
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
-                this.properties = options.properties;
-                this.modelUser = options.modelUser;
+                this.properties =   options.properties;
+                this.modelUser =    options.modelUser;
                 this.modelContext = options.modelContext;
+                this.colContent =   options.colContent;
                 this.EvAg.bind("hash/reset", this.resetHash);
                 this.EvAg.bind("router/me", this.me);
                 this.currentRequest = null;
@@ -189,7 +191,7 @@ define(
                 this.oldTitle = $('title').html();
                 _gaq.push(['_trackPageview', window.location.hash]);
 
-                this.EvAg.trigger("story/show", id);
+                this.EvAg.trigger("content:show", id);
                 this.EvAg.trigger("page/change", "story");
             },
             resetHash: function(){

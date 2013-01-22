@@ -1,93 +1,87 @@
-<div class="fade">
-    <div id="story">
-        <div act="previous" class="story-nav-button" style="left: 0px;">Previous</div>
-        <div act="next" class="story-nav-button" style="right: 0px;">Next</div>
-        <div id="story-container-body" class="clearfix">
-            <div id="story-header">
-                <div id="story-header-title">
-                    {{ story.story.title }}
-                </div>
-            </div>
-            <div id="story-actions">
-                <div id="story-vote">
-                    <!--<span id="vote-label">Vote:</span>-->
-                    <span class="upvote"></span>
-                    <span id="upvote-counter"></span>
-                    <span class="downvote"></span>
-                    <span id="downvote-counter"></span>
-                    <span id="view-label">{{  story.story.views }} Views</span>
+<div id="story-container-body" class="clearfix">
+    <div id="story-header">
+        <div id="story-header-title">
+            {{ story.story.title }}
+        </div>
+    </div>
+    <div id="story-actions">
+        <div id="story-vote">
+            <!--<span id="vote-label">Vote:</span>-->
+            <span class="upvote"></span>
+            <span id="upvote-counter"></span>
+            <span class="downvote"></span>
+            <span id="downvote-counter"></span>
+            <span id="view-label">{{  story.story.views }} Views</span>
 
-                </div>
-                <div id="story-share">
-                    <!--<span id="share-label">Share:</span>-->
-                    {{#isMine}}
-                    <a href="#write/story/{{story.id}}" id="story-edit">Edit</a>
-                    {{/isMine}}
-                    <div class="story-share fb" type="fb"></div>
-                    <div class="story-share tw" type="tw"></div>
-                    <div class="story-share pinterest" type="pinterest"></div>
-                </div>
-            </div>
-            <div id="story-main">
-                <div id="story-chapter-title">
+        </div>
+        <div id="story-share">
+            <!--<span id="share-label">Share:</span>-->
+            {{#isMine}}
+            <a href="#write/story/{{story.id}}" id="story-edit">Edit</a>
+            {{/isMine}}
+            <div class="story-share fb" type="fb"></div>
+            <div class="story-share tw" type="tw"></div>
+            <div class="story-share pinterest" type="pinterest"></div>
+        </div>
+    </div>
+    <div id="story-main">
+        <div id="story-chapter-title">
 
-                </div>
-                <div id="story-body" class="clearfix">
-                    <div id="story-image-main" >
-                        <div id="story-image-container" >
-                            <img id="story-image" />
-                        </div>
-                    </div>
-                    <div id="story-text-container">
-                        <div id="story-text"></div>
-                    </div>
-                </div>
-                <div id="story-user" class="clearfix">
-                    <img id="story-user-image" src="{{profilePhotoUrl}}" />
-                    <div id="story-user-name">
-                        <a id="story-user-link" class="story-link link-black bold-link" href="{{userLink}}" {{#isWidget}}target="_blank"{{/isWidget}}>{{ story.echoedUser.name }}</a>
-                    </div>
-                    <div id="story-user-follow">
-                    </div>
-                </div>
-                {{^isWidget}}
-                    {{#story.story.productInfo}}
-                <div id="story-from" class="clearfix">
-                    <div id="story-from-logo"></div>
-                    <div id="story-from-text">{{story.story.productInfo}}</div>
-                </div>
-                    {{/story.story.productInfo}}
-                {{/isWidget}}
-                <div id="story-footer">
-                    <div id="story-comments">
-                        <div id="story-comments-title">
-                            Discussion <span id="echo-s-c-t-count"></span>
-                        </div>
-                        <div id="story-comments-input">
-                            <textarea id="echo-story-comment-ta"></textarea>
-                        </div>
-                        <div class="comment-submit" style="display: none;">Submit Comment</div>
-                        <div class="comment-login" style="display: none;">
-                            <div id="comments-login" class="field-submit">
-                                Login to Discuss
-                            </div>
-                        </div>
-                        <div id="story-comments-list">
-                            <!-- Comment List -->
-                        </div>
-                    </div>
+        </div>
+        <div id="story-body" class="clearfix">
+            <div id="story-image-main" >
+                <div id="story-image-container" >
+                    <img id="story-image" />
                 </div>
             </div>
-            <div id="story-gallery-container">
-                <div id="story-gallery-prev"></div>
-                <div id="story-gallery">
-                    <div id="story-gallery-body">
-                    </div>
-                    <div style="height: 100%; width:100px">
-                    </div>
-                </div>
-                <div id="story-gallery-next"></div>
+            <div id="story-text-container">
+                <div id="story-text"></div>
             </div>
         </div>
+        <div id="story-user" class="clearfix">
+            <img id="story-user-image" src="{{profilePhotoUrl}}" />
+            <div id="story-user-name">
+                <a id="story-user-link" class="story-link link-black bold-link" href="{{userLink}}" {{#isWidget}}target="_blank"{{/isWidget}}>{{ story.echoedUser.name }}</a>
+            </div>
+            <div id="story-user-follow">
+            </div>
+        </div>
+        {{^isWidget}}
+            {{#story.story.productInfo}}
+        <div id="story-from" class="clearfix">
+            <div id="story-from-logo"></div>
+            <div id="story-from-text">{{story.story.productInfo}}</div>
+        </div>
+            {{/story.story.productInfo}}
+        {{/isWidget}}
+        <div id="story-footer">
+            <div id="story-comments">
+                <div id="story-comments-title">
+                    Discussion <span id="echo-s-c-t-count"></span>
+                </div>
+                <div id="story-comments-input">
+                    <textarea id="echo-story-comment-ta"></textarea>
+                </div>
+                <div class="comment-submit" style="display: none;">Submit Comment</div>
+                <div class="comment-login" style="display: none;">
+                    <div id="comments-login" class="field-submit">
+                        Login to Discuss
+                    </div>
+                </div>
+                <div id="story-comments-list">
+                    <!-- Comment List -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="story-gallery-container">
+        <div id="story-gallery-prev"></div>
+        <div id="story-gallery">
+            <div id="story-gallery-body">
+            </div>
+            <div style="height: 100%; width:100px">
+            </div>
+        </div>
+        <div id="story-gallery-next"></div>
     </div>
 </div>

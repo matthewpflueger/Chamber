@@ -10,10 +10,10 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
-                var self = this;
-                this.EvAg = options.EvAg;
-                this.properties = options.properties;
-                this.htmlEl = $('html');
+                var self =          this;
+                this.EvAg =         options.EvAg;
+                this.properties =   options.properties;
+                this.htmlEl =       $('html');
                 this.socket = new easyXDM.Socket({
                     remote: this.properties.urls.api + "/widget/iframe/?pid=" + this.properties.partnerId,
                     props: {

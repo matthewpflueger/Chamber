@@ -6,8 +6,11 @@ define(
     ],
     function(Backbone, ModelContent, utils){
         return Backbone.Collection.extend({
-            model: ModelContent,
             initialize: function(models, options){
+                this.url = options.url;
+            },
+            nextPage: function(){
+
             },
             nextItem: function(){
             },

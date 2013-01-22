@@ -4,6 +4,14 @@
     &.item-story{
         width: 286px;
     }
+    &.item-photo{
+        @include    dropShadowDown;
+
+        cursor:     pointer;
+        img{
+            display: block;
+        }
+    }
 }
 
 .item_content{

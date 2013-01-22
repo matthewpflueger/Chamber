@@ -19,18 +19,6 @@
     margin-bottom: 35px;
 }
 
-.story-nav-button{
-    position: absolute;
-    top: 0px;
-    margin-top: -44px;
-    padding: 10px 0px;
-    @include fontTextBold(16px, #F0F0F0);
-    cursor: pointer;
-    &:hover{
-        color: #FFF;
-    }
-}
-
 #story-container-body{
     position:relative;
     //background-image: image-url("bk_noise.jpg");

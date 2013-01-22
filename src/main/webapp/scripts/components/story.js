@@ -13,16 +13,18 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
+                var self = this;
                 this.el =           options.el;
                 this.element =      $(this.el);
                 this.properties =   options.properties;
                 this.EvAg =         options.EvAg;
                 this.modelUser =    options.modelUser;
-                this.locked =       false;
+                this.modelStory =   options.modelStory;
 
-                this.EvAg.bind('story/show', this.load);
-                this.EvAg.bind('story/hide', this.close);
+
+                this.locked =       false;
                 this.modelUser.on("change:id", this.login);
+                this.render();
             },
             events: {
                 "click .comment-submit":            "createComment",
@@ -30,7 +32,6 @@ define(
                 "click .story-gallery-chapter":     "chapterClick",
                 "click .story-gallery-thumbnail":   "imageClick",
                 "click #story-image-container":     "nextImage",
-                "click .story-nav-button":          "navClick",
                 "click .upvote":                    "upVote",
                 "click .downvote":                  "downVote",
                 "click #story-from":                "fromClick",
@@ -38,13 +39,7 @@ define(
                 "click #story-gallery-prev":        "previous",
                 "click .story-share":               "share",
                 "click #comments-login":            "showLogin",
-                "click .story-link":                "redirect",
-                "click .fade" :                     "fadeClick"
-            },
-            fadeClick: function(ev){
-                if ($(ev.target).hasClass("fade") ){
-                    this.close();
-                }
+                "click .story-link":                "redirect"
             },
             fromClick: function(ev){
                 window.open(this.properties.urls.api + "/redirect/partner/" + this.modelStory.get("story").partnerId);
@@ -123,21 +118,6 @@ define(
                     self.renderVotes();
                 }
             },
-            navClick: function(ev){
-                var self = this;
-                var target = $(ev.currentTarget);
-                var action = target.attr("act");
-                self.EvAg.trigger('exhibit/story/'+ action, this.modelStory.id);
-            },
-            load: function(id){
-                var self = this;
-                this.modelStory = new ModelStory({ id: id }, { properties: this.properties });
-                this.modelStory.fetch({
-                    success: function(model, xhr, response){
-                        self.render();
-                    }
-                });
-            },
             renderVotes: function(){
                 var self = this;
                 var upVotes = 0, downVotes = 0, key;
@@ -160,7 +140,6 @@ define(
             },
             render: function(){
                 var self = this;
-
                 var view = {
                     story: this.modelStory.toJSON(),
                     profilePhotoUrl: utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
@@ -173,6 +152,7 @@ define(
 
                 var template = templateStory(view);
                 self.element.html(template);
+
 
                 self.text = $('#story-text-container');
                 self.chapterText = $("#story-text");
@@ -353,12 +333,6 @@ define(
                 this.element.fadeOut(function(){
                     self.element.empty();
                 });
-            },
-            close: function(){
-                this.element.fadeOut();
-                this.element.empty();
-                $("body").removeClass("noScroll");
-                this.EvAg.trigger("hash/reset");
             }
         });
 

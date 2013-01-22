@@ -5,9 +5,10 @@ import com.echoed.chamber.domain.Image
 case class PhotoContent( image: Image, originalContent: Content )  extends Content {
 
     val _type = "photo"
-    def _title = null
+    val _id = image.id
+    val id = image.id
 
-    def _id = image.id
+    def _title = null
     def _createdOn = image.createdOn
     def _updatedOn = image.updatedOn
     def _views = 0
