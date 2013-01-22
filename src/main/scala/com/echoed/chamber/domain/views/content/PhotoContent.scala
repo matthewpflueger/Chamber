@@ -2,9 +2,10 @@ package com.echoed.chamber.domain.views.content
 
 import com.echoed.chamber.domain.Image
 
-case class PhotoContent( image: Image )  extends Content {
+case class PhotoContent( image: Image, originalContent: Content )  extends Content {
 
     val _type = "photo"
+    def _title = null
 
     def _id = image.id
     def _createdOn = image.createdOn

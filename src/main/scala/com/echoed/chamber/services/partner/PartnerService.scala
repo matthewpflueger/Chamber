@@ -144,7 +144,7 @@ class PartnerService(
             f.map( c => new StoryPublic(c.asStoryFull.get)).map {
                 case s: StoryPublic =>
                     contentManager.updateContent(s)
-                    s.extractImages.map { i => contentManager.updateContent(new PhotoContent(i)) }
+                    s.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, s)) }
                 case _ =>
                     contentManager.updateContent(_)
             }

@@ -4,6 +4,8 @@ trait Content {
 
     def _type:          String
     def _id:            String
+    def _title:         String
+
     def _updatedOn:     Long
     def _createdOn:     Long
     def _views:         Int

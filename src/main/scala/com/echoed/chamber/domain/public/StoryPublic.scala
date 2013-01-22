@@ -21,6 +21,7 @@ case class StoryPublic (
         topic: TopicPublic )  extends Content {
 
     val _type =         "story"
+    val _title =        story.title
 
     def _createdOn =    story.createdOn
     def _id =           id

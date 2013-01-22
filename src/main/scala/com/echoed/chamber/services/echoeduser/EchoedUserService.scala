@@ -298,7 +298,7 @@ class EchoedUserService(
                 case c: StoryPublic =>
                     if( c.echoedUser.id != echoedUser.id ) {
                         personalContentManager.updateContent(c)
-                        c.extractImages.map { i => personalContentManager.updateContent( new PhotoContent(i)) }
+                        c.extractImages.map { i => personalContentManager.updateContent( new PhotoContent(i, c)) }
                     }
                 case _ =>
                     personalContentManager.updateContent(_)
@@ -309,7 +309,7 @@ class EchoedUserService(
             content.map {
                 case c: StoryPublic =>
                     contentManager.updateContent(c)
-                    c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i)) }
+                    c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, c)) }
                 case _ =>
                     contentManager.updateContent(_)
             }
@@ -363,9 +363,6 @@ class EchoedUserService(
                         val contentList = content.map { c => new StoryPublic(c.asStoryFull.get) }.toList
                         self ! InitializeUserContentFeed(EchoedUserClientCredentials(echoedUser.id), contentList)
                 }
-//                mp(GetUserPublicStoryFeed(echoedUser.id)).onSuccess {
-//                    case GetUserPublicStoryFeedResponse(_, Right(f)) => self ! InitializeUserContentFeed(EchoedUserClientCredentials(echoedUser.id), f.content)
-//                }
             } else {
                 val content =   contentManager.getContent(_type, page)
                 val stats =     getStats ::: contentManager.getStats
