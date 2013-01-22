@@ -22,7 +22,7 @@ define(
                 this.exhibit =      $('#exhibit');
 
                 this.EvAg.bind('exhibit/init',      this.init);
-                this.EvAg.bind('infiniteScroll',    this.nextPage);
+                this.EvAg.bind('infiniteScroll',    this.more);
                 this.EvAg.bind('exhibit:next',      this.nextItem);
                 this.EvAg.bind('exhibit:previous',  this.prevItem);
 
@@ -37,23 +37,21 @@ define(
                     array: [],
                     hash: {}
                 };
-                if (self.isotopeOn === true) {
-                    self.exhibit.isotope("destroy")
-                }
+
+                if (self.isotopeOn === true) self.exhibit.isotope("destroy")
                 self.exhibit.empty();
-                self.exhibit.isotope({
-                    itemSelector: '.item_wrap'
-                });
+                self.exhibit.isotope({ itemSelector: '.item_wrap' });
                 self.isotopeOn = true;
                 self.render(data);
                 self.EvAg.trigger('infiniteScroll/on');
+
             },
             nextItem: function(storyId){
                 var self = this;
                 var index = this.content.hash[storyId];
                 if((index + 1) >= this.content.array.length){
-                    this.next(function(){
-                        if((index + 1) < this.content.array.length){
+                    this.more(function(){
+                        if((index + 1) < self.content.array.length){
                             self.EvAg.trigger("content:show", { modelContent: self.content.array[index + 1] });
                         }
                     });
@@ -74,8 +72,9 @@ define(
                 if(this.addContent(data) || this.addFriends(data) || this.addCommunities(data)){
                     this.EvAg.trigger('infiniteScroll/unlock');
                 }
+
             },
-            next: function(callback){
+            more: function(callback){
                 var self = this;
                 if(self.nextPage !== null){
                     self.EvAg.trigger('infiniteScroll/lock');
@@ -129,47 +128,47 @@ define(
                 var self = this;
                 var contentFragment = $('<div></div>');
                 var contentAdded = false;
-                if(data.content){
-                    $.each(data.content, function(index, content){
-                        switch( content._type ){
-                            case "story":
-                                var storyDiv = $('<div></div>').addClass('item_wrap');
-                                var modelStory = new ModelStory(content, { properties: self.properties});
-                                var storyComponent = new StoryBrief({
-                                    el:         storyDiv,
-                                    data:       content,
-                                    EvAg:       self.EvAg,
-                                    Personal:   self.personal,
-                                    properties: self.properties,
-                                    modelUser:  self.modelUser,
-                                    modelStory: modelStory
-                                });
-                                self.content.hash[content.id] = self.content.array.length;
-                                self.content.array.push(modelStory);
-                                contentFragment.append(storyDiv);
-                                break;
-                            case "photo":
-                                var photoDiv = $('<div></div>').addClass('item_wrap');
-                                var modelPhoto = new ModelPhoto(content, { properties: self.properties });
-                                var photoView = new PhotoBrief({
-                                    el:             photoDiv,
-                                    modelPhoto:     modelPhoto,
-                                    modelUser:      self.modelUser,
-                                    properties:     self.properties,
-                                    EvAg:           self.EvAg
-                                });
-                                self.content.hash[content._id] = self.content.array.length;
-                                self.content.array.push(modelPhoto);
-                                contentFragment.append(photoDiv);
-                                break;
-                            case "user":
-                                var friendDiv = $('<div></div>').addClass("item_wrap");
-                        }
-                    });
-                    self.exhibit.isotope('insert', contentFragment.children(), function(){
-                        self.EvAg.trigger('infiniteScroll/unlock');
-                    });
-                }
+                $.each(data.content, function(index, content){
+                    switch( content._type ){
+                        case "story":
+                            var storyDiv =                  $('<div></div>').addClass('item_wrap');
+                            var modelStory =                new ModelStory(content, { properties: self.properties});
+                            var storyComponent =            new StoryBrief({
+                                                                el:         storyDiv,
+                                                                data:       content,
+                                                                EvAg:       self.EvAg,
+                                                                Personal:   self.personal,
+                                                                properties: self.properties,
+                                                                modelUser:  self.modelUser,
+                                                                modelStory: modelStory
+                                                            });
+                            self.content.hash[content.id] = self.content.array.length;
+
+                            self.content.array.push(modelStory);
+                            contentFragment.append(storyDiv);
+                            break;
+                        case "photo":
+                            var photoDiv =                      $('<div></div>').addClass('item_wrap');
+                            var modelPhoto =                    new ModelPhoto(content, { properties: self.properties });
+                            var photoView =                     new PhotoBrief({
+                                                                    el:             photoDiv,
+                                                                    modelPhoto:     modelPhoto,
+                                                                    modelUser:      self.modelUser,
+                                                                    properties:     self.properties,
+                                                                    EvAg:           self.EvAg
+                                                                });
+                            self.content.hash[content._id] =    self.content.array.length;
+
+                            self.content.array.push(modelPhoto);
+                            contentFragment.append(photoDiv);
+                            break;
+                        case "user":
+                    }
+                    contentAdded = true;
+                });
+                self.exhibit.isotope('insert', contentFragment.children(), function(){
+                    self.EvAg.trigger('infiniteScroll/unlock');
+                });
                 return contentAdded;
             }
         });
