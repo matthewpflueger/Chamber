@@ -31,7 +31,7 @@ define(
                 var self =      this;
                 var data =      options.data;
                 self.jsonUrl =  options.jsonUrl;
-                self.EvAg.trigger('infiniteScroll/on');
+
                 self.nextPage = data.nextPage ? data.nextPage : null;
                 self.content = {
                     array: [],
@@ -46,29 +46,36 @@ define(
                 });
                 self.isotopeOn = true;
                 self.render(data);
+                self.EvAg.trigger('infiniteScroll/on');
             },
             nextItem: function(storyId){
+                var self = this;
                 var index = this.content.hash[storyId];
                 if((index + 1) >= this.content.array.length){
-                    this.next();
+                    this.next(function(){
+                        if((index + 1) < this.content.array.length){
+                            self.EvAg.trigger("content:show", { modelContent: self.content.array[index + 1] });
+                        }
+                    });
+                } else {
+                    if((index + 1) < this.content.array.length){
+                        self.EvAg.trigger("content:show", { modelContent: self.content.array[index + 1] });
+                    }
                 }
-                if((index + 1) < this.content.array.length){
-                    this.EvAg.trigger("content:show", { modelContent: this.content.array[index + 1] });
-                }
+
             },
             prevItem: function(storyId){
                 var index = this.content.hash[storyId];
-                if(index> 0){
+                if(index > 0){
                     this.EvAg.trigger("content:show", { modelContent: this.content.array[index - 1] });
                 }
             },
             render: function(data){
-                var self = this;
-                if(self.addContent(data) || self.addFriends(data) || self.addCommunities(data)){
-                    self.EvAg.trigger('infiniteScroll/unlock');
+                if(this.addContent(data) || this.addFriends(data) || this.addCommunities(data)){
+                    this.EvAg.trigger('infiniteScroll/unlock');
                 }
             },
-            next: function(){
+            next: function(callback){
                 var self = this;
                 if(self.nextPage !== null){
                     self.EvAg.trigger('infiniteScroll/lock');
@@ -81,6 +88,7 @@ define(
                                 self.nextPage = data.nextPage;
                             }
                             self.render(data);
+                            if(callback) callback();
                         }
                     })();
                 }
@@ -136,7 +144,7 @@ define(
                                     modelUser:  self.modelUser,
                                     modelStory: modelStory
                                 });
-                                self.content.hash[content._id] = self.content.array.length;
+                                self.content.hash[content.id] = self.content.array.length;
                                 self.content.array.push(modelStory);
                                 contentFragment.append(storyDiv);
                                 break;
