@@ -38,7 +38,7 @@ define(
                     hash: {}
                 };
 
-                if (self.isotopeOn === true) self.exhibit.isotope("destroy")
+                if (self.isotopeOn === true) self.exhibit.isotope("destroy");
                 self.exhibit.empty();
                 self.exhibit.isotope({ itemSelector: '.item_wrap' });
                 self.isotopeOn = true;
