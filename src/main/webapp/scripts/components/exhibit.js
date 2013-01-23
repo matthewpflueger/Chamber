@@ -146,6 +146,12 @@ define(
                             self.content.array.push(modelPhoto);
                             contentFragment.append(photoDiv);
                             break;
+                        case "Partner":
+                            var friendText =                    $('<div class="friend-text"></div>').text(content.name);
+                            var a =                             $('<a></a>').attr("href", "#partner/" + content.partnerId).addClass("item_wrap");
+                            $('<div class="item_content friend"></div>').append(friendText).appendTo(a);
+                            contentFragment.append(a);
+                            break;
                         case "User":
                             var friendImage =                   $('<div class="friend-img"></div>');
                             var friendText =                    $('<div class="friend-text"></div>').text(content.name);
@@ -159,6 +165,7 @@ define(
                                 .appendTo(a)
                                 .addClass('clearfix');
                             contentFragment.append(a);
+                            break;
                     }
                     contentAdded = true;
                 });

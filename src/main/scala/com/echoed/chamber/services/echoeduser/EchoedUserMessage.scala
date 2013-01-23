@@ -135,7 +135,11 @@ private[echoeduser] case class RemoveFollower(credentials: EUCC, echoedUser: Ech
 private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, value: Either[EUE, EchoedUser])
         extends EUM with MR[EchoedUser, RemoveFollower, EUE]
 
-case class PartnerFollower(partnerId: String, name: String, handle: String)
+case class PartnerFollower(partnerId: String, name: String, handle: String) extends FeedItem {
+    val id = partnerId
+    val title = name
+    val contentType = "Partner"
+}
 
 case class Follower(echoedUserId: String, name: String, screenName: String, facebookId: String, twitterId: String) extends FeedItem {
     val id = echoedUserId

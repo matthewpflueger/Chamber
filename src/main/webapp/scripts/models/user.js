@@ -46,7 +46,7 @@ define(
                 utils.AjaxFactory({
                     url: url,
                     success: function(response){
-                        self.followingPartners = response;
+                        self.followingPartners = response.content;
                     }
                 })();
             },

@@ -85,6 +85,17 @@ class UserController extends EchoedController {
         result
     }
 
+    @RequestMapping(value = Array("/{id}/following/partners"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def listFollowingPartners(@PathVariable(value ="id") id: String) = {
+        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
+
+        mp(ListFollowingPartners(new EchoedUserClientCredentials(id))).onSuccess {
+            case ListFollowingPartnersResponse(_, Right(fus)) => result.setResult(fus)
+        }
+        result
+    }
+
     @RequestMapping(value = Array("/{id}/followers"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getUserFollowers(@PathVariable(value ="id") id: String) = {

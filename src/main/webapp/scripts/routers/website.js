@@ -38,17 +38,19 @@ define(
                 ":context/:id":             "content",
                 ":context/:id/":            "content",
                 ":context/:id/:type":       "content",
-                ":context/:id/:type/":      "content"
+                ":context/:id/:type/":      "content",
+                ":context/:id/:type/:type2":"content"
             },
             fix: function(){
                 window.location.href = "#";
             },
-            content: function(context, id, type){
+            content: function(context, id, type, type2){
                 this.page = window.location.hash;
                 var self = this;
                 var url = context + "/" + id;
                 if(context === "user" && this.modelUser.is(id)) url = "/me";
                 if(type) url += "/" + type;
+                if(type2) url += "/" + type2;
                 this.requestFeed(url, function(jsonUrl, data){
                     self.loadPage(context, { jsonUrl: jsonUrl, data: data, personal: true} );
                 });
