@@ -69,10 +69,7 @@ define(
                 }
             },
             render: function(data){
-                if(this.addContent(data) || this.addFriends(data) || this.addCommunities(data)){
-                    this.EvAg.trigger('infiniteScroll/unlock');
-                }
-
+                this.addContent(data);
             },
             more: function(callback){
                 var self = this;
@@ -86,7 +83,7 @@ define(
                             if(data.nextPage !== null) {
                                 self.nextPage = data.nextPage;
                             }
-                            self.render(data);
+                            self.addContent(data);
                             if(callback) callback();
                         }
                     })();

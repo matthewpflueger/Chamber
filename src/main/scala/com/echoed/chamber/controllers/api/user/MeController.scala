@@ -92,7 +92,6 @@ class MeController extends EchoedController {
         mp(FetchNotifications(eucc)).onSuccess {
             case FetchNotificationsResponse(_, Right(notifications)) => result.setResult(notifications)
         }
-
         result
     }
 
@@ -106,7 +105,6 @@ class MeController extends EchoedController {
         mp(MarkNotificationsAsRead(eucc, ids.toSet)).onSuccess {
             case MarkNotificationsAsReadResponse(_, Right(boolean)) => result.setResult(boolean)
         }
-
         result
     }
 
@@ -133,23 +131,34 @@ class MeController extends EchoedController {
         mp(NewSettings(eucc, settings)).onSuccess {
             case NewSettingsResponse(_, Right(eus)) => result.setResult(eus)
         }
-
         result
     }
 
 
-    @RequestMapping(value = Array("/feed"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/feed", "/feed/stories"), method = Array(RequestMethod.GET))
     @ResponseBody
     def customFeed(
                       @RequestParam(value = "page", required = false) page: String,
                       eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[ContentFeed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page))).onSuccess {
+        val result = new DeferredResult[ContentFeed[PersonalizedContext]](null, ErrorResult.timeout)
+        mp(RequestCustomUserFeed(eucc, parse(page), "story")).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
         }
+        result
+    }
 
+    @RequestMapping(value = Array("/feed/photos"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def photoFeed(
+                    @RequestParam(value = "page", required = false) page: String,
+                    eucc: EchoedUserClientCredentials) = {
+        val result = new DeferredResult[ContentFeed[PersonalizedContext]](null, ErrorResult.timeout)
+        mp(RequestCustomUserFeed(eucc, parse(page), "photo")).onSuccess {
+            case RequestCustomUserFeedResponse(_, Right(sf)) =>
+                result.setResult(sf)
+        }
         result
     }
 
@@ -229,7 +238,6 @@ class MeController extends EchoedController {
         mp(ListFollowingUsers(eucc)).onSuccess {
             case ListFollowingUsersResponse(_, Right(fus)) => result.setResult(fus)
         }
-
         result
     }
 

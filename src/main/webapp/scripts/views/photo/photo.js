@@ -14,15 +14,17 @@ define(
                 this.modelUser =    options.modelUser;
                 this.EvAg =         options.EvAg;
                 this.element =      $(options.el);
+            },
+            load: function(options){
                 this.modelPhoto =   options.modelPhoto;
                 this.render();
             },
             render: function(){
-                var tmp = templatePhoto();
-                this.element.html(tmp);
-                var img = utils.fit(this.modelPhoto.get("image"), 866, 700);
-                this.element.addClass("item-photo");
-                this.element.append(img);
+                var tmp = templatePhoto(this.modelPhoto.toJSON());
+                var img = utils.scaleByWidth(this.modelPhoto.get("image"), 866);
+
+                this.element.html(tmp).addClass("item-photo");
+                $('#photo-image-container').append(img);
             }
         });
     }

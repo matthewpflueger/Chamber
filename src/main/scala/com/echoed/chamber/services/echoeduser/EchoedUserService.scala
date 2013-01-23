@@ -27,7 +27,7 @@ import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.domain.FacebookUser
 import com.echoed.chamber.domain.views.ContentFeed
-import com.echoed.chamber.domain.views.context.{ UserContext, SelfContext }
+import views.context.{PersonalizedContext, UserContext, SelfContext}
 import com.echoed.chamber.services.state.FacebookUserNotFound
 import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FacebookAccessToken
@@ -337,15 +337,14 @@ class EchoedUserService(
                 sender ! RequestOwnContentResponse(msg, Right(cf))
             }
 
-        case msg @ RequestCustomUserFeed(_, page) =>
+        case msg @ RequestCustomUserFeed(_, page, _type) =>
             if(!customContentLoaded){
                 unhandledMessages = (msg, sender) :: unhandledMessages
                 getCustomFeed
             } else {
-                val content = personalContentManager.getContent("story", page)
+                val content = personalContentManager.getContent(_type, page)
                 val sf = new ContentFeed(
-                            new SelfContext(
-                                echoedUser,
+                            new PersonalizedContext(
                                 personalContentManager.getStats,
                                 personalContentManager.getHighlights,
                                 personalContentManager.getContentList

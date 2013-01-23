@@ -81,7 +81,7 @@ define(
                     this.page = "#!";
                 }
                 this.oldPage = this.page;
-                this.EvAg.trigger("story/show", id);
+                this.EvAg.trigger("content:show", id);
                 _gaq.push(['_trackEvent', 'Widget', 'Story', this.properties.partnerId]);
                 _gaq.push(['_trackEvent', 'Story', 'Open', this.properties.partnerId]);
             },

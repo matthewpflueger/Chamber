@@ -1,12 +1,12 @@
 package com.echoed.chamber.services.echoeduser
 
 import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedClientCredentials, EchoedException, Message}
-import com.echoed.chamber.domain._
+import com.echoed.chamber .domain._
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.views._
 import akka.actor.ActorRef
 import com.echoed.chamber.services.facebook.{FacebookAccessToken, FacebookCode}
-import context.{ UserContext, SelfContext }
+import context.{PersonalizedContext, UserContext, SelfContext}
 import scala.collection.immutable.Stack
 import org.springframework.validation.Errors
 import com.echoed.chamber.domain.public.StoryPublic
@@ -390,18 +390,13 @@ case class RequestOwnContent(credentials: EUCC, page: Int, _type: String) extend
 case class RequestOwnContentResponse(message: RequestOwnContent, value: Either[EUE, ContentFeed[SelfContext]])
     extends EUM with MR[ContentFeed[SelfContext], RequestOwnContent, EUE]
 
-case class RequestCustomUserFeed(credentials: EUCC, page: Int)  extends EUM with EUI
-case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, ContentFeed[SelfContext]])
-    extends EUM with MR[ContentFeed[SelfContext], RequestCustomUserFeed, EUE]
+case class RequestCustomUserFeed(credentials: EUCC, page: Int, _type: String)  extends EUM with EUI
+case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, ContentFeed[PersonalizedContext]])
+    extends EUM with MR[ContentFeed[PersonalizedContext], RequestCustomUserFeed, EUE]
 
 case class RequestUserContentFeed(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
 case class RequestUserContentFeedResponse(message: RequestUserContentFeed, value: Either[EUE, ContentFeed[UserContext]])
     extends EUM with MR[ContentFeed[UserContext], RequestUserContentFeed, EUE]
-
-case class GetEchoedFriends(credentials: EUCC) extends EUM with EUI
-case class GetEchoedFriendsResponse(message: GetEchoedFriends, value: Either[EUE, FriendFeed])
-    extends EUM with MR[FriendFeed, GetEchoedFriends, EUE]
-
 
 case class UpdateUserStory(credentials: EUCC, story: StoryPublic) extends EUM with EUI with OnlineOnlyMessage
 case class UpdateUserStoryResponse(message: UpdateUserStory, value: Either[EUE, Boolean])

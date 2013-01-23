@@ -1,5 +1,5 @@
 @import "base";
-
+@import "item";
 @import "itemWrap";
 @import "story";
 @import "isotope";
@@ -72,7 +72,7 @@ body {
 }
 
 //STORY OVERRIDE
-#story{
+#item{
     top: 50px !important;
 }
 

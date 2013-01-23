@@ -19,11 +19,13 @@ define(
                 this.properties =   options.properties;
                 this.EvAg =         options.EvAg;
                 this.modelUser =    options.modelUser;
-                this.modelStory =   options.modelStory;
-
 
                 this.locked =       false;
                 this.modelUser.on("change:id", this.login);
+
+            },
+            load: function(options){
+                this.modelStory =   options.modelStory;
                 this.render();
             },
             events: {
@@ -38,8 +40,7 @@ define(
                 "click #story-gallery-next":        "next",
                 "click #story-gallery-prev":        "previous",
                 "click .story-share":               "share",
-                "click #comments-login":            "showLogin",
-                "click .story-link":                "redirect"
+                "click #comments-login":            "showLogin"
             },
             fromClick: function(ev){
                 window.open(this.properties.urls.api + "/redirect/partner/" + this.modelStory.get("story").partnerId);
@@ -221,7 +222,6 @@ define(
                 var chapterText = chapter.text;
                 if (chapterText.length < 300) this.chapterType = 'photo';
                 else this.chapterType = 'text';
-
                 self.chapterText.fadeOut(function(){
                     $('#story-chapter-title').text(chapter.title);
                     self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(chapter.text)).replace(/\n/g, '<br />'));
@@ -292,7 +292,7 @@ define(
                 $("#echo-story-comment-ta").val("");
 
                 var comments = this.modelStory.get("comments");
-                $('#echo-s-c-t-count').text("(" + comments.length + ")");
+                $('#story-comments-title').text("Discussion (" + comments.length + ")");
 
                 $.each(comments, function(index,comment){
                     var view = {
@@ -327,12 +327,6 @@ define(
                         }
                     );
                 }
-            },
-            redirect: function(){
-                var self = this;
-                this.element.fadeOut(function(){
-                    self.element.empty();
-                });
             }
         });
 

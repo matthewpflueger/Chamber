@@ -19,8 +19,9 @@ define(
                 this.properties =   options.properties;
 
                 this.element.html(tmpItem());
-                this.body =  $('#item-body');
-
+                this.body =         $('#item-body');
+                this.photoView =    new PhotoView({ el: this.body, modelUser: this.modelUser, EvAg: this.EvAg, properties: this.properties });
+                this.storyView =    new StoryView({ el: this.body, modelUser: this.modelUser, EvAg: this.EvAg, properties: this.properties });
                 this.EvAg.bind( "content:show", this.load );
 
             },
@@ -55,10 +56,11 @@ define(
                 this.body.removeClass();
                 switch( this.modelContent.get("_type") ){
                     case "photo":
-                        this.contentView = new PhotoView({ el: this.body, modelPhoto: this.modelContent, modelUser: this.modelUser, EvAg: this.EvAg, properties: this.properties });
+                        this.photoView.load({ modelPhoto: this.modelContent });
                         break;
                     case "story":
-                        this.contentView = new StoryView({ el: this.body, modelStory: this.modelContent, modelUser: this.modelUser, EvAg: this.EvAg, properties: this.properties })
+                        this.storyView.load({ modelStory: this.modelContent });
+                        break;
                 }
                 $("body").addClass("noScroll");
                 this.element.show();
@@ -69,7 +71,7 @@ define(
                     $("body").removeClass("noScroll");
                     self.body.empty();
                 });
-
+                this.EvAg.trigger('hash:reset');
             }
         });
     }

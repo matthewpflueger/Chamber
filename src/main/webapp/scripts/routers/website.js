@@ -15,17 +15,19 @@ define(
                 this.modelUser =    options.modelUser;
                 this.modelContext = options.modelContext;
                 this.colContent =   options.colContent;
-                this.EvAg.bind("hash/reset", this.resetHash);
+                this.EvAg.bind("hash:reset", this.resetHash);
                 this.EvAg.bind("router/me", this.me);
                 this.currentRequest = null;
                 this.page = null;
             },
             routes:{
-                "_=_" : "fix",
+                "_=_": "fix",
                 "": "explore",
                 "me/friends": "friends",
                 "me/": "me",
                 "me": "me",
+                "me/feed/:type": "feed",
+                "me/feed/:type/": "feed",
                 "user/:id": "user",
                 "user/:id/": "user",
                 "user/:id/:type": "user",
@@ -85,6 +87,17 @@ define(
                     });
                 }
             },
+            feed: function(type){
+                var self = this;
+                if(this.page != window.location.hash){
+                    this.page = window.location.hash;
+                    var url = "/me/feed";
+                    if(type) url += "/" + type;
+                    this.requestFeed(url, function(jsonUrl, data){
+                        self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
+                    });
+                }
+            },
             explore: function(){
                 var self = this;
                 if(this.page != window.location.hash){
@@ -92,7 +105,7 @@ define(
                     var url = "/me/feed";
                     if(!this.modelUser.isLoggedIn()) url = "/public/feed";
                     this.requestFeed(url, function(jsonUrl, data){
-                        self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
+                    self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
                     });
                 }
             },
