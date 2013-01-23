@@ -9,7 +9,7 @@ case class PersonalizedContext(
     content:    List[Map[String, Any]]) extends Context {
 
     val id =            "feed"
-    val title =         "My Content"
+    val title =         "Content From People and Places You Follow"
     val contextType =   "me"
 
 }

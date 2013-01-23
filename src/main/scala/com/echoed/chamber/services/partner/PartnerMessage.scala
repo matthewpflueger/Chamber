@@ -10,6 +10,7 @@ import context.PartnerContext
 import org.springframework.validation.Errors
 import java.util.Date
 import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.views.content.Content
 
 
 trait PartnerMessage extends Message
@@ -83,20 +84,25 @@ case class UpdatePartnerStoryResponse(
 //private[services] case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerException, List[PartnerSettings]])
 //        extends PM with MR[List[PartnerSettings], GetPartnerSettings, PE]
 
+private[services] case class InitializePartnerContent(credentials: PCC, content: List[Content]) extends PM
+private[services] case class InitializePartnerContentResponse(
+        message: InitializePartnerContent,
+        value: Either[PE, Boolean]) extends PM with MR[Boolean, InitializePartnerContent, PE]
+
 case class GetPartner() extends PM
 case class GetPartnerResponse(
         message: GetPartner,
         value: Either[PE, Partner]) extends PM with MR[Partner, GetPartner, PE]
 
-case class ReadPartnerFeed(credentials: PCC, page: Int, origin: String) extends PM with PI
-case class ReadPartnerFeedResponse(
-        message: ReadPartnerFeed,
-        value: Either[PE, ContentFeed[PartnerContext]]) extends PM with MR[ContentFeed[PartnerContext], ReadPartnerFeed, PE]
+private[services] case class ReadAllPartnerContent(credentials: PCC) extends PM with PI
+private[services] case class ReadAllPartnerContentResponse(
+        message: ReadAllPartnerContent,
+        value: Either[PE, List[Content]]) extends PM with MR[List[Content], ReadAllPartnerContent, PE]
 
-case class RequestPartnerContentFeed(credentials: PCC, page: Int, origin: String, _type: String) extends PM with PI
-case class RequestPartnerContentFeedResponse(
-        message: RequestPartnerContentFeed,
-        value: Either[PE, ContentFeed[PartnerContext]]) extends PM with MR[ContentFeed[PartnerContext], RequestPartnerContentFeed, PE]
+case class RequestPartnerContent(credentials: PCC, page: Int, origin: String, _type: String) extends PM with PI
+case class RequestPartnerContentResponse(
+        message: RequestPartnerContent,
+        value: Either[PE, ContentFeed[PartnerContext]]) extends PM with MR[ContentFeed[PartnerContext], RequestPartnerContent, PE]
 
 case class GetTopics(credentials: PCC) extends PM with PI
 case class GetTopicsResponse(

@@ -48,7 +48,7 @@ case class StoryPublic (
 
     def published = this.copy(chapters = chapters.filter(c => c.publishedOn != 0))
 
-    def isPublished = chapters.foldLeft(false)(_ || _.publishedOn != 0)
+    val isPublished = chapters.foldLeft(false)(_ || _.publishedOn != 0)
 
     def isModerated = moderation.moderated
     def isEchoedModerated = moderation.echoedModerated

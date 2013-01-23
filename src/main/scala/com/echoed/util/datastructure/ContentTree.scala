@@ -77,11 +77,15 @@ case class ContentTree( singular: String, plural: String, endPoint: String ) {
         if (page * pageSize + pageSize <= contentTree.size) (page + 1).toString else null
     }
 
+    def getAllContentFromTree = {
+        contentTree.values.toList
+    }
+
     def getContentFromTree(page: Int) = {
         val start = page * pageSize
-        val stories = contentTree.values.toList.slice(start, start + pageSize)
+        val content = contentTree.values.toList.slice(start, start + pageSize)
         val nextPage = getNextPage(page)
-        ( stories, nextPage )
+        ( content, nextPage )
     }
 
     def count = {

@@ -384,6 +384,10 @@ private[services] case class InitializeUserContentFeed(credentials: EUCC, conten
 private[services] case class InitializeUserContentFeedResponse(message: InitializeUserContentFeed, value: Either[EUE, Boolean])
     extends EUM with MR[Boolean, InitializeUserContentFeed,  EUE]
 
+case class ReadAllUserContent(credentials: EUCC) extends EUM with EUI
+case class ReadAllUserContentResponse(message: ReadAllUserContent, value: Either[EUE, List[Content]])
+    extends EUM with MR[List[Content], ReadAllUserContent, EUE]
+
 
 //Request Messages: Returns to controller
 case class RequestOwnContent(credentials: EUCC, page: Int, _type: String) extends EUM with EUI

@@ -11,11 +11,10 @@ import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
 import views.ContentFeed
 import com.echoed.chamber.domain.views.context._
-import com.echoed.chamber.services.partner.RequestPartnerContentFeed
+
 import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.partner.ReadPartnerFeed
-import com.echoed.chamber.services.partner.ReadPartnerFeedResponse
-import com.echoed.chamber.services.partner.RequestPartnerContentFeedResponse
+import com.echoed.chamber.services.partner.RequestPartnerContent
+import com.echoed.chamber.services.partner.RequestPartnerContentResponse
 
 
 @Controller
@@ -35,10 +34,10 @@ class PartnerUserController extends EchoedController {
 
         val result = new DeferredResult[ContentFeed[PartnerContext]](null, ErrorResult.timeout)
 
-        log.debug("Requesting for Partner Feed for Partner {}", partnerId )
+        log.debug("Requesting for Partner Content for Partner {}", partnerId )
 
-        mp(ReadPartnerFeed(new PartnerClientCredentials(partnerId), parse(page), origin)).onSuccess {
-            case ReadPartnerFeedResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
+        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, "story")).onSuccess {
+            case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
 
         result
@@ -53,10 +52,10 @@ class PartnerUserController extends EchoedController {
 
         val result = new DeferredResult[ContentFeed[PartnerContext]](null, ErrorResult.timeout)
 
-        log.debug("Requesting for Partner Feed for Partner {}", partnerId )
+        log.debug("Requesting for Partner Content for Partner {}", partnerId )
 
-        mp(RequestPartnerContentFeed(new PartnerClientCredentials(partnerId), parse(page), origin, "photo")).onSuccess {
-            case RequestPartnerContentFeedResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
+        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, "photo")).onSuccess {
+            case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
         result
     }

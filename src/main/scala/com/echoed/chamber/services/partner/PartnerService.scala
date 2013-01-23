@@ -14,17 +14,14 @@ import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state._
 import com.echoed.util.DateUtils._
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
-import feed.{RequestPartnerStoryFeedResponse, RequestPartnerStoryFeed}
 import java.util.{Date, UUID}
 import scala.Left
 import scala.Right
 import scala.Some
 import com.echoed.chamber.domain.views.ContentFeed
 import com.echoed.chamber.domain.views.context.PartnerContext
-import com.echoed.chamber.domain.public.{StoryPublic}
-import collection.immutable.TreeMap
-import java.util
-import com.echoed.util.datastructure.{ContentManager, ContentTree}
+import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.util.datastructure.ContentManager
 import com.echoed.chamber.domain.views.content.PhotoContent
 
 
@@ -34,7 +31,7 @@ class PartnerService(
         encrypter: Encrypter,
         initMessage: Message,
         accountManagerEmail: String = "accountmanager@echoed.com",
-        accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService {
+        accountManagerEmailTemplate: String = "partner_accountManager_email") extends ContentOnlineOfflineService {
 
     import context.dispatcher
 
@@ -58,8 +55,15 @@ class PartnerService(
 
     private def becomeOnlineAndRegister {
         becomeOnline
-        mp.tell(FindAllPartnerStories(partner.id), self)
         context.parent ! RegisterPartnerService(partner)
+    }
+
+    private def getContent {
+        mp(FindAllPartnerStories(partner.id)).onSuccess {
+            case FindAllPartnerStoriesResponse(_, Right(content)) =>
+                val contentList = content.map { c => new StoryPublic(c.asStoryFull.get) }.toList
+                self ! InitializePartnerContent(PartnerClientCredentials(partner.id), contentList)
+        }
     }
 
     def init = {
@@ -140,41 +144,43 @@ class PartnerService(
                     msg,
                     Right(new PartnerAndPartnerSettings(partner, partnerSettings, customization)))
 
-        case msg @ FindAllPartnerStoriesResponse(_, Right(f)) =>
-            f.map( c => new StoryPublic(c.asStoryFull.get)).map {
-                case s: StoryPublic =>
-                    contentManager.updateContent(s)
-                    s.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, s)) }
+        case msg @ InitializePartnerContent(_, content) =>
+            content.map {
+                case c: StoryPublic =>
+                    if(c.isPublished) {
+                        contentManager.updateContent(c)
+                        c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, c)) }
+                    }
                 case _ =>
                     contentManager.updateContent(_)
             }
+            becomeContentLoaded
 
-        case msg @ RequestPartnerContentFeed(_, page, origin, _type) =>
-            val channel = sender
-            val content = contentManager.getContent(_type, page)
-            val sf = new ContentFeed(
-                        new PartnerContext(
-                            partner,
-                            contentManager.getStats,
-                            contentManager.getHighlights,
-                            contentManager.getContentList),
-                        content._1,
-                        content._2)
+        case msg @ ReadAllPartnerContent(_) =>
+            if(!contentLoaded) {
+                unhandledMessages = (msg, sender) :: unhandledMessages
+                getContent
+            } else {
+                val content = contentManager.getAllContent
+                sender ! ReadAllPartnerContentResponse(msg, Right(content))
+            }
 
-            channel ! RequestPartnerContentFeedResponse(msg, Right(sf))
-
-        case msg @ ReadPartnerFeed(_, page, origin) =>
-            val channel =   sender
-            val content =   contentManager.getContent( "story", page)
-            val sf =        new ContentFeed(
-                                new PartnerContext(
-                                    partner,
-                                    contentManager.getStats,
-                                    contentManager.getHighlights,
-                                    contentManager.getContentList),
-                                content._1,
-                                content._2)
-            channel ! ReadPartnerFeedResponse(msg, Right(sf))
+        case msg @ RequestPartnerContent(_, page, origin, _type) =>
+            if(!contentLoaded){
+                unhandledMessages = (msg, sender) :: unhandledMessages
+                getContent
+            } else {
+                val content =   contentManager.getContent(_type, page)
+                val sf =        new ContentFeed(
+                                    new PartnerContext(
+                                        partner,
+                                        contentManager.getStats,
+                                        contentManager.getHighlights,
+                                        contentManager.getContentList),
+                                    content._1,
+                                    content._2)
+                sender ! RequestPartnerContentResponse(msg, Right(sf))
+            }
 
         case msg: GetTopics =>
             val now = new Date

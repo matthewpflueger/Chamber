@@ -22,6 +22,10 @@ class ContentManager {
         cache.get(_type).map(_.getContentFromTree(page)).getOrElse((List[Content](), null))
     }
 
+    def getAllContent = {
+        cache.values.foldLeft(List[Content]())((l, r) => r.getAllContentFromTree ::: l)
+    }
+
     def getTotalViewCount = {
         cache.values.foldLeft(0)((l, r) => l + r.viewCount)
     }
