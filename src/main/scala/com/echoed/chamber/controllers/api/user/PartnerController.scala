@@ -43,7 +43,7 @@ import com.echoed.chamber.services.partner.RequestPartnerFollowersResponse
 
 @Controller
 @RequestMapping(Array("/api/partner"))
-class PartnerUserController extends EchoedController {
+class PartnerController extends EchoedController {
 
 
     private val failAsZero = failAsValue(classOf[NFE])(0)
