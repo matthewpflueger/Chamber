@@ -40,7 +40,11 @@ define(
                 "click #story-gallery-next":        "next",
                 "click #story-gallery-prev":        "previous",
                 "click .story-share":               "share",
-                "click #comments-login":            "showLogin"
+                "click #comments-login":            "showLogin",
+                "click .story-link":                "linkClick"
+            },
+            linkClick: function(){
+                this.EvAg.trigger("content:hide");
             },
             fromClick: function(ev){
                 window.open(this.properties.urls.api + "/redirect/partner/" + this.modelStory.get("story").partnerId);
@@ -84,9 +88,7 @@ define(
             },
             scroll: function(position){
                 var self = this;
-                self.galleryNode.animate({
-                    scrollTop: position
-                });
+                self.galleryNode.animate({  scrollTop: position });
             },
             upVote: function(ev){
                 var self = this;
