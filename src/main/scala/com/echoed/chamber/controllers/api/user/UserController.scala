@@ -9,9 +9,23 @@ import java.lang.{NumberFormatException => NFE}
 import scala.Right
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
-import views.ContentFeed
+import views.Feed
 import com.echoed.chamber.domain.views.context._
-import com.echoed.chamber.services.echoeduser.{RequestUserContentFeedResponse, RequestUserContentFeed, EchoedUserClientCredentials}
+import com.echoed.chamber.services.echoeduser._
+import views.Feed
+import views.Feed
+import views.Feed
+import views.Feed
+import views.context.UserContext
+import views.context.UserContext
+import views.context.UserContext
+import com.echoed.chamber.services.echoeduser.ListFollowingUsers
+import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
+import views.context.UserContext
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.echoeduser.RequestUserContentFeedResponse
+import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
+import com.echoed.chamber.services.echoeduser.RequestUserContentFeed
 
 
 @Controller
@@ -31,7 +45,7 @@ class UserController extends EchoedController {
 
         log.debug("Getting feed for {}", id)
 
-        val result = new DeferredResult[ContentFeed[UserContext]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "Story")).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
@@ -49,12 +63,62 @@ class UserController extends EchoedController {
 
         log.debug("Getting feed for {}", id)
 
-        val result = new DeferredResult[ContentFeed[UserContext]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "Photo")).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 
+        result
+    }
+
+    @RequestMapping(value = Array("/{id}/following"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def listFollowingUsers(@PathVariable(value ="id") id: String) = {
+        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
+
+        mp(ListFollowingUsers(new EchoedUserClientCredentials(id))).onSuccess {
+            case ListFollowingUsersResponse(_, Right(fus)) => result.setResult(fus)
+        }
+        result
+    }
+
+    @RequestMapping(value = Array("/{id}/followers"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def listFollowedByUsers(@PathVariable(value ="id") id: String) = {
+        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
+
+        mp(ListFollowedByUsers(new EchoedUserClientCredentials(id))).onSuccess {
+            case ListFollowedByUsersResponse(_, Right(fbu)) => result.setResult(fbu)
+        }
+        result
+    }
+
+    @RequestMapping(value = Array("/{id}/followers"), method = Array(RequestMethod.PUT))
+    @ResponseBody
+    def followUser(
+        @PathVariable(value = "id") id: String,
+        eucc: EchoedUserClientCredentials) = {
+
+        val result = new DeferredResult[List[Follower]](null, ErrorResult.timeout)
+
+        mp(FollowUser(eucc, id)).onSuccess{
+            case FollowUserResponse(_, Right(fus)) => result.setResult(fus)
+        }
+        result
+    }
+
+    @RequestMapping(value = Array("/{id}/followers"), method = Array(RequestMethod.DELETE))
+    @ResponseBody
+    def unFollowUser(
+        @PathVariable(value = "id") id: String,
+        eucc: EchoedUserClientCredentials)  = {
+
+        val result = new DeferredResult[List[Follower]](null, ErrorResult.timeout)
+        mp(UnFollowUser(eucc, id)).onSuccess {
+            case UnFollowUserResponse(_, Right(fus)) =>
+                result.setResult(fus)
+        }
         result
     }
 

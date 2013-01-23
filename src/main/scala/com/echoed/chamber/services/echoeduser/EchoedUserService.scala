@@ -26,7 +26,7 @@ import com.echoed.chamber.domain.EchoedUserSettings
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.domain.FacebookUser
-import com.echoed.chamber.domain.views.ContentFeed
+import com.echoed.chamber.domain.views.Feed
 import views.context.{PersonalizedContext, UserContext, SelfContext}
 import com.echoed.chamber.services.state.FacebookUserNotFound
 import akka.actor.Terminated
@@ -45,13 +45,12 @@ import com.echoed.chamber.services.facebook.FetchFriendsResponse
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
-import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials, ReadAllPartnerContent, ReadAllPartnerContentResponse}
 import scala.concurrent.Future
 import com.echoed.util.datastructure.ContentManager
-import views.content.{PhotoContent, Content}
+import views.content.{ PhotoContent, Content }
 
 
 class EchoedUserService(
@@ -62,22 +61,35 @@ class EchoedUserService(
         storyGraphUrl: String,
         echoClickUrl: String,
         encrypter: Encrypter,
-        implicit val timeout: Timeout = Timeout(20000)) extends ContentOnlineOfflineService {
+        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService with Stash {
 
     import context.dispatcher
 
-    private var echoedUser: EchoedUser = _
+    private var echoedUser:         EchoedUser = _
     private var echoedUserSettings: EchoedUserSettings = _
-    private var facebookUser: Option[FacebookUser] = None
-    private var twitterUser: Option[TwitterUser] = None
-    private var notifications = Stack[Notification]()
-    private var followingUsers = List[Follower]()
-    private var followedByUsers = List[Follower]()
+    private var facebookUser:       Option[FacebookUser] = None
+    private var twitterUser:        Option[TwitterUser] = None
+    private var notifications =     Stack[Notification]()
+    private var followingUsers =    List[Follower]()
+    private var followedByUsers =   List[Follower]()
     private var followingPartners = List[PartnerFollower]()
 
-    private val personalContentManager = new ContentManager()
-    private val contentManager = new ContentManager()
-    private val privateContentManager = new ContentManager()
+    private val personalContentManager =    new ContentManager()
+    private val contentManager =            new ContentManager()
+    private val privateContentManager =     new ContentManager()
+
+    private var contentLoaded =         false
+    private var customContentLoaded = false
+
+    private def becomeContentLoaded {
+        contentLoaded = true
+        unstashAll()
+    }
+
+    private def becomeCustomContentLoaded {
+        customContentLoaded = true
+        unstashAll()
+    }
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
@@ -87,8 +99,8 @@ class EchoedUserService(
 
     private def getStats = {
         var stats = List[Map[String, Any]]()
-        stats = Map("name" -> "Followers", "value" -> followedByUsers.length) :: stats
-        stats = Map("name" -> "Following", "value" -> followingUsers.length) :: stats
+        stats = Map("name" -> "Followers", "value" -> followedByUsers.length, "path" -> "followers") :: stats
+        stats = Map("name" -> "Following", "value" -> followingUsers.length, "path" -> "following") :: stats
         stats
     }
 
@@ -330,12 +342,12 @@ class EchoedUserService(
 
         case msg @ RequestOwnContent(_, page, _type) =>
             if(!contentLoaded) {
-                unhandledMessages = (msg, sender) :: unhandledMessages
+                stash()
                 getContent
             } else {
                 val content = privateContentManager.getContent(_type, page)
                 val stats = getStats ::: privateContentManager.getStats
-                val cf = new ContentFeed(
+                val cf = new Feed(
                             new SelfContext(
                                 echoedUser,
                                 stats,
@@ -349,11 +361,11 @@ class EchoedUserService(
 
         case msg @ RequestCustomUserFeed(_, page, _type) =>
             if(!customContentLoaded){
-                unhandledMessages = (msg, sender) :: unhandledMessages
+                stash()
                 getCustomFeed
             } else {
                 val content = personalContentManager.getContent(_type, page)
-                val sf = new ContentFeed(
+                val sf = new Feed(
                             new PersonalizedContext(
                                 personalContentManager.getStats,
                                 personalContentManager.getHighlights,
@@ -366,7 +378,7 @@ class EchoedUserService(
 
         case msg : ReadAllUserContent =>
             if(!contentLoaded) {
-                unhandledMessages = (msg, sender) :: unhandledMessages
+                stash()
                 getContent
             } else {
                 val content = contentManager.getAllContent
@@ -375,12 +387,12 @@ class EchoedUserService(
 
         case msg @ RequestUserContentFeed(eucc, page, _type) =>
             if(!contentLoaded) {
-                unhandledMessages = (msg, sender) :: unhandledMessages
+                stash()
                 getContent
             } else {
                 val content =   contentManager.getContent(_type, page)
                 val stats =     getStats ::: contentManager.getStats
-                val sf =        new ContentFeed(
+                val sf =        new Feed(
                                     new UserContext(
                                         echoedUser,
                                         stats,
@@ -557,8 +569,26 @@ class EchoedUserService(
             }
 
 
-        case msg: ListFollowingUsers => sender ! ListFollowingUsersResponse(msg, Right(followingUsers))
-        case msg: ListFollowedByUsers => sender ! ListFollowedByUsersResponse(msg, Right(followedByUsers))
+        case msg: ListFollowingUsers =>
+            val f = new Feed(
+                        new UserContext(
+                            echoedUser,
+                            null,
+                            null,
+                            contentManager.getContentList),
+                        followingUsers,
+                        null)
+            sender ! ListFollowingUsersResponse(msg, Right(f))
+        case msg: ListFollowedByUsers =>
+            val f = new Feed(
+                        new UserContext(
+                            echoedUser,
+                            null,
+                            null,
+                            contentManager.getContentList),
+                        followedByUsers,
+                        null)
+            sender ! ListFollowedByUsersResponse(msg, Right(f))
         case msg: ListFollowingPartners => sender ! ListFollowingPartnersResponse(msg, Right(followingPartners))
 
         case msg @ FollowPartner(_, partnerId) =>

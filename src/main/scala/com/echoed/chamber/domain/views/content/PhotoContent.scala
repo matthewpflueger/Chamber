@@ -2,7 +2,7 @@ package com.echoed.chamber.domain.views.content
 
 import com.echoed.chamber.domain.Image
 
-case class PhotoContent( image: Image, originalContent: Content )  extends Content {
+case class PhotoContent( image: Image, originalContent: Content )  extends Content with FeedItem{
 
     val _type = "Photo"
     val _id = image.id

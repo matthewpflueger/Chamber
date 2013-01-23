@@ -121,7 +121,7 @@ class ServiceConfig {
             storyServiceCreator = storyService,
             storyGraphUrl = urlsProperties.getProperty("storyGraphUrl"),
             encrypter = encrypter,
-            echoClickUrl = urlsProperties.getProperty("echoClickUrl"))))
+            echoClickUrl = urlsProperties.getProperty("echoClickUrl"))).withDispatcher("default-stash-dispatcher"))
 
     @Bean
     def echoedUserServiceManager = (ac: ActorContext) => ac.actorOf(Props(new EchoedUserServiceManager(
@@ -164,7 +164,7 @@ class ServiceConfig {
             mp = messageProcessor,
             ep = eventProcessor,
             initMessage = msg,
-            encrypter = encrypter)))
+            encrypter = encrypter)).withDispatcher("default-stash-dispatcher"))
 
 
     @Bean

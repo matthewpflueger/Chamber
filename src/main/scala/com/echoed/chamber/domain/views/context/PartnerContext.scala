@@ -12,7 +12,7 @@ case class PartnerContext(
 
     val id =            partner.id
     val title =         partner.name
-    val contextType =   "Partner"
+    val contextType =   "partner"
 
     def this(
         partner:        Partner,

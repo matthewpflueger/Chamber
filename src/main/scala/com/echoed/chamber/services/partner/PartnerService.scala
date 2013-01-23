@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.partner
 
-import akka.actor.PoisonPill
+import akka.actor.{Stash, PoisonPill}
 import com.echoed.chamber.domain.{Topic, Notification}
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.partner.PartnerSettings
@@ -18,7 +18,7 @@ import java.util.{Date, UUID}
 import scala.Left
 import scala.Right
 import scala.Some
-import com.echoed.chamber.domain.views.ContentFeed
+import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.util.datastructure.ContentManager
@@ -31,7 +31,7 @@ class PartnerService(
         encrypter: Encrypter,
         initMessage: Message,
         accountManagerEmail: String = "accountmanager@echoed.com",
-        accountManagerEmailTemplate: String = "partner_accountManager_email") extends ContentOnlineOfflineService {
+        accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService with Stash {
 
     import context.dispatcher
 
@@ -43,6 +43,8 @@ class PartnerService(
     private var followedByUsers = List[Follower]()
 
     private val contentManager = new ContentManager()
+
+    private var contentLoaded = false
 
     override def preStart() {
         super.preStart()
@@ -56,6 +58,11 @@ class PartnerService(
     private def becomeOnlineAndRegister {
         becomeOnline
         context.parent ! RegisterPartnerService(partner)
+    }
+
+    private def becomeContentLoaded {
+        contentLoaded = true
+        unstashAll()
     }
 
     private def getContent {
@@ -158,7 +165,7 @@ class PartnerService(
 
         case msg @ ReadAllPartnerContent(_) =>
             if(!contentLoaded) {
-                unhandledMessages = (msg, sender) :: unhandledMessages
+                stash()
                 getContent
             } else {
                 val content = contentManager.getAllContent
@@ -167,11 +174,11 @@ class PartnerService(
 
         case msg @ RequestPartnerContent(_, page, origin, _type) =>
             if(!contentLoaded){
-                unhandledMessages = (msg, sender) :: unhandledMessages
+                stash()
                 getContent
             } else {
                 val content =   contentManager.getContent(_type, page)
-                val sf =        new ContentFeed(
+                val sf =        new Feed(
                                     new PartnerContext(
                                         partner,
                                         contentManager.getStats,
@@ -181,6 +188,13 @@ class PartnerService(
                                     content._2)
                 sender ! RequestPartnerContentResponse(msg, Right(sf))
             }
+
+        case msg : RequestPartnerFollowers =>
+            val feed = new Feed(
+                        new PartnerContext(partner, contentManager.getStats, contentManager.getHighlights, contentManager.getContentList),
+                        followedByUsers,
+                        null)
+            sender ! RequestPartnerFollowersResponse(msg, Right(feed))
 
         case msg: GetTopics =>
             val now = new Date

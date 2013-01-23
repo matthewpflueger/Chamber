@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse
 import com.echoed.chamber.domain._
 import scala.collection.immutable.Stack
 import scala.concurrent.ExecutionContext.Implicits.global
-import views.ContentFeed
+import views.Feed
 import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.echoeduser.FetchNotifications
 import com.echoed.chamber.services.echoeduser.ReadSettingsResponse
@@ -112,7 +112,7 @@ class MeController extends EchoedController {
                       @RequestParam(value = "page", required = false) page: String,
                       eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[ContentFeed[PersonalizedContext]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
         mp(RequestCustomUserFeed(eucc, parse(page), "Story")).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
@@ -125,7 +125,7 @@ class MeController extends EchoedController {
     def photoFeed(
                     @RequestParam(value = "page", required = false) page: String,
                     eucc: EchoedUserClientCredentials) = {
-        val result = new DeferredResult[ContentFeed[PersonalizedContext]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
         mp(RequestCustomUserFeed(eucc, parse(page), "Photo")).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
@@ -139,7 +139,7 @@ class MeController extends EchoedController {
                    @RequestParam(value = "page", required = false) page: String,
                    eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[ContentFeed[SelfContext]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[SelfContext]](null, ErrorResult.timeout)
         mp(RequestOwnContent(eucc, parse(page), "Story")).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
@@ -153,7 +153,7 @@ class MeController extends EchoedController {
                       @RequestParam(value = "page", required = false) page: String,
                       eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[ContentFeed[SelfContext]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[SelfContext]](null, ErrorResult.timeout)
         mp(RequestOwnContent(eucc, parse(page), "Photo")).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
@@ -171,40 +171,10 @@ class MeController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/following/partners/{partnerToFollowId}"), method = Array(RequestMethod.PUT))
-    @ResponseBody
-    def followPartner(
-                         @PathVariable(value = "partnerToFollowId") partnerToFollowId: String,
-                         eucc: EchoedUserClientCredentials) = {
-
-        val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
-
-        mp(FollowPartner(eucc, partnerToFollowId)).onSuccess {
-            case FollowPartnerResponse(_, Right(fp)) => result.setResult(fp)
-        }
-        result
-
-    }
-
-    @RequestMapping(value = Array("/following/partners/{partnerToUnFollowId}"), method = Array(RequestMethod.DELETE))
-    @ResponseBody
-    def unFollowPartner(
-                           @PathVariable(value = "partnerToUnFollowId") partnerToUnFollowId: String,
-                           eucc: EchoedUserClientCredentials) = {
-
-        val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
-
-        mp(UnFollowPartner(eucc, partnerToUnFollowId)).onSuccess {
-            case UnFollowPartnerResponse(_, Right(fp)) => result.setResult(fp)
-        }
-        result
-
-    }
-
     @RequestMapping(value = Array("/following"), method = Array(RequestMethod.GET))
     @ResponseBody
     def listFollowingUsers(eucc: EchoedUserClientCredentials) = {
-        val result = new DeferredResult[List[Follower]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(ListFollowingUsers(eucc)).onSuccess {
             case ListFollowingUsersResponse(_, Right(fus)) => result.setResult(fus)
@@ -215,7 +185,7 @@ class MeController extends EchoedController {
     @RequestMapping(value = Array("/followers"), method = Array(RequestMethod.GET))
     @ResponseBody
     def listFollowedByUsers(eucc: EchoedUserClientCredentials) = {
-        val result = new DeferredResult[List[Follower]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(ListFollowedByUsers(eucc)).onSuccess {
             case ListFollowedByUsersResponse(_, Right(fbu)) => result.setResult(fbu)
@@ -223,36 +193,5 @@ class MeController extends EchoedController {
 
         result
     }
-
-    @RequestMapping(value = Array("/following/{userToFollowId}"), method = Array(RequestMethod.PUT))
-    @ResponseBody
-    def followUser(
-                      @PathVariable(value = "userToFollowId") userToFollowId: String,
-                      response: HttpServletResponse,
-                      eucc: EchoedUserClientCredentials) = {
-
-        val result = new DeferredResult[List[Follower]](null, ErrorResult.timeout)
-
-        mp(FollowUser(eucc, userToFollowId)).onSuccess{
-            case FollowUserResponse(_, Right(fus)) => result.setResult(fus)
-        }
-        result
-    }
-
-    @RequestMapping(value = Array("/following/{userToUnFollowId}"), method = Array(RequestMethod.DELETE))
-    @ResponseBody
-    def unFollowUser(
-                        @PathVariable(value = "userToUnFollowId") userToUnFollowId: String,
-                        response: HttpServletResponse,
-                        eucc: EchoedUserClientCredentials)  = {
-
-        val result = new DeferredResult[List[Follower]](null, ErrorResult.timeout)
-        mp(UnFollowUser(eucc, userToUnFollowId)).onSuccess {
-            case UnFollowUserResponse(_, Right(fus)) =>
-                result.setResult(fus)
-        }
-        result
-    }
-
 
 }

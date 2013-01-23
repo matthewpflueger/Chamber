@@ -25,20 +25,18 @@ define(
             },
             follow: function(followId, type, callback){
                 var self = this;
-                var url = this.properties.urls.api + "/api/me/following/" + followId;
-                if(type === "Partner") url = this.properties.urls.api + "/api/me/following/partners/" + followId;
-                console.log(url);
+                var url = this.properties.urls.api + "/api/" + type + "/" + followId +"/followers";
                 if(this.id !== followId){
                     var request = {
                         url: url,
                         type: "PUT",
                         success: function(response){
-                            if(type === "Partner") self.followingPartners = response;
+                            if(type === "partner") self.followingPartners = response;
                             else self.following = response;
                             callback(self, response)
                         }
                     };
-                    if(this.isFollowing(followId, "Partner") || this.isFollowing(followId, "User")) request.type = "DELETE";
+                    if(this.isFollowing(followId, "partner") || this.isFollowing(followId, "user")) request.type = "DELETE";
                     utils.AjaxFactory(request)();
                 }
             },
@@ -58,13 +56,13 @@ define(
                 utils.AjaxFactory({
                     url: url,
                     success: function(response){
-                        self.following = response;
+                        self.following = response.content;
                     }
                 })();
             },
             isFollowing: function(followId, type){
                 var isFollowing = false;
-                if(type === "Partner"){
+                if(type === "partner"){
                     $.each(this.followingPartners, function(index, followingPartner){
                         if(followingPartner.partnerId === followId) isFollowing = true;
                     });

@@ -12,7 +12,7 @@ case class UserContext(
 
     val id =            echoedUser.id
     val title =         echoedUser.name
-    val contextType =   "User"
+    val contextType =   "user"
 
     def this(echoedUser:    EchoedUser,
              stats:         List[Map[String, Any]],

@@ -12,7 +12,7 @@ import scala.Right
 import javax.servlet.http.HttpServletResponse
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
-import views.ContentFeed
+import views.Feed
 import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.feed.GetStoryResponse
 import com.echoed.chamber.services.partner.GetTopicsResponse
@@ -51,7 +51,7 @@ class ApiController extends EchoedController {
             @RequestParam(value = "page", required = false) page: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        val result = new DeferredResult[ContentFeed[PublicContext]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[PublicContext]](null, ErrorResult.timeout)
 
         log.debug("Requesting for Category Feed for Category {}", categoryId )
 
@@ -67,7 +67,7 @@ class ApiController extends EchoedController {
     def topicFeed(
             @PathVariable(value = "topicId") topicId: String,
             @RequestParam(value = "page", required = false) page: String) = {
-        val result = new DeferredResult[ContentFeed[TopicContext]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[TopicContext]](null, ErrorResult.timeout)
 
         log.debug("Requesting Topic Feed for Topic {}", topicId)
         mp(ReadTopicFeed(topicId, parse(page))).onSuccess {

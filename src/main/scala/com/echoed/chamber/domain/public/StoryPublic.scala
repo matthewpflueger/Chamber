@@ -5,7 +5,7 @@ import java.util.{List => JList}
 import com.echoed.chamber.domain.Chapter
 import com.echoed.chamber.domain.Story
 import com.echoed.chamber.domain.ChapterImage
-import views.content.Content
+import views.content.{FeedItem, Content}
 import views.StoryFull
 import scala.collection.JavaConversions._
 
@@ -18,7 +18,7 @@ case class StoryPublic (
         comments: List[CommentPublic],
         votes: Map[String, Vote],
         moderation: ModerationDescription,
-        topic: TopicPublic )  extends Content {
+        topic: TopicPublic )  extends Content with FeedItem {
 
     val _type =         "Story"
     val _title =        story.title

@@ -11,7 +11,7 @@ import scala.collection.immutable.Stack
 import org.springframework.validation.Errors
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.OnlineOnlyMessage
-import com.echoed.chamber.domain.views.content.Content
+import content.{FeedItem, Content}
 
 sealed trait EchoedUserMessage extends Message
 sealed class EchoedUserException(
@@ -137,7 +137,11 @@ private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, v
 
 case class PartnerFollower(partnerId: String, name: String, handle: String)
 
-case class Follower(echoedUserId: String, name: String, screenName: String, facebookId: String, twitterId: String)
+case class Follower(echoedUserId: String, name: String, screenName: String, facebookId: String, twitterId: String) extends FeedItem {
+    val _id = echoedUserId
+    val _title = name
+    val _type = "User"
+}
 object Follower {
     def apply(eu: EchoedUser): Follower = Follower(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)
 }
@@ -146,12 +150,12 @@ object Follower {
 private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: Notification) extends EUM with EUI
 
 case class ListFollowingUsers(credentials: EUCC) extends EUM with EUI
-case class ListFollowingUsersResponse(message: ListFollowingUsers, value: Either[EUE, List[Follower]])
-        extends EUM with MR[List[Follower], ListFollowingUsers, EUE]
+case class ListFollowingUsersResponse(message: ListFollowingUsers, value: Either[EUE, Feed[UserContext]])
+        extends EUM with MR[Feed[UserContext], ListFollowingUsers, EUE]
 
 case class ListFollowedByUsers(credentials: EUCC) extends EUM with EUI
-case class ListFollowedByUsersResponse(message: ListFollowedByUsers, value: Either[EUE, List[Follower]])
-        extends EUM with MR[List[Follower], ListFollowedByUsers, EUE]
+case class ListFollowedByUsersResponse(message: ListFollowedByUsers, value: Either[EUE, Feed[UserContext]])
+        extends EUM with MR[Feed[UserContext], ListFollowedByUsers, EUE]
 
 case class ListFollowingPartners(credentials: EUCC) extends EUM with EUI
 case class ListFollowingPartnersResponse(message: ListFollowingPartners, value: Either[EUE, List[PartnerFollower]])
@@ -391,16 +395,16 @@ case class ReadAllUserContentResponse(message: ReadAllUserContent, value: Either
 
 //Request Messages: Returns to controller
 case class RequestOwnContent(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
-case class RequestOwnContentResponse(message: RequestOwnContent, value: Either[EUE, ContentFeed[SelfContext]])
-    extends EUM with MR[ContentFeed[SelfContext], RequestOwnContent, EUE]
+case class RequestOwnContentResponse(message: RequestOwnContent, value: Either[EUE, Feed[SelfContext]])
+    extends EUM with MR[Feed[SelfContext], RequestOwnContent, EUE]
 
 case class RequestCustomUserFeed(credentials: EUCC, page: Int, _type: String)  extends EUM with EUI
-case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, ContentFeed[PersonalizedContext]])
-    extends EUM with MR[ContentFeed[PersonalizedContext], RequestCustomUserFeed, EUE]
+case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, Feed[PersonalizedContext]])
+    extends EUM with MR[Feed[PersonalizedContext], RequestCustomUserFeed, EUE]
 
 case class RequestUserContentFeed(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
-case class RequestUserContentFeedResponse(message: RequestUserContentFeed, value: Either[EUE, ContentFeed[UserContext]])
-    extends EUM with MR[ContentFeed[UserContext], RequestUserContentFeed, EUE]
+case class RequestUserContentFeedResponse(message: RequestUserContentFeed, value: Either[EUE, Feed[UserContext]])
+    extends EUM with MR[Feed[UserContext], RequestUserContentFeed, EUE]
 
 case class UpdateUserStory(credentials: EUCC, story: StoryPublic) extends EUM with EUI with OnlineOnlyMessage
 case class UpdateUserStoryResponse(message: UpdateUserStory, value: Either[EUE, Boolean])

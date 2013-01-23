@@ -102,7 +102,12 @@ private[services] case class ReadAllPartnerContentResponse(
 case class RequestPartnerContent(credentials: PCC, page: Int, origin: String, _type: String) extends PM with PI
 case class RequestPartnerContentResponse(
         message: RequestPartnerContent,
-        value: Either[PE, ContentFeed[PartnerContext]]) extends PM with MR[ContentFeed[PartnerContext], RequestPartnerContent, PE]
+        value: Either[PE, Feed[PartnerContext]]) extends PM with MR[Feed[PartnerContext], RequestPartnerContent, PE]
+
+case class RequestPartnerFollowers(credentials: PCC) extends PM with PI
+case class RequestPartnerFollowersResponse(
+        message: RequestPartnerFollowers,
+        value: Either[PE, Feed[PartnerContext]]) extends PM with MR[Feed[PartnerContext], RequestPartnerFollowers, PE]
 
 case class GetTopics(credentials: PCC) extends PM with PI
 case class GetTopicsResponse(

@@ -1,11 +1,11 @@
 package com.echoed.chamber.domain.views
 
-import content.Content
+import content.FeedItem
 import context.Context
 
-case class ContentFeed[C <: Context](
+case class Feed[C <: Context](
     context:    C,
-    content:    List[Content],
+    content:    List[FeedItem],
     nextPage:   String) {
 
 }

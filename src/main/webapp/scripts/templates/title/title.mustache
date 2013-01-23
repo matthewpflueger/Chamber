@@ -19,7 +19,7 @@
             <!--<div class="title-label">Statistics</div>-->
             <ul>
                 {{#stats}}
-                <li><span class="title-stats-label">{{name}}</span><span class="title-stats-text">{{value}}</span></li>
+                <li><span class="title-stats-label">{{name}}</span><span class="title-stats-text">{{#path}}<a href="#{{baseUrl}}{{path}}">{{value}}</a></span>{{/path}}{{^path}}{{value}}{{/path}}</li>
                 {{/stats}}
             </ul>
         </div>

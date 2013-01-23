@@ -110,12 +110,7 @@ define(
                 var friendsAdded = false;
                 if(data && data.length > 0){
                     $.each(data, function(index, friend){
-                        var friendImage = $('<div class="friend-img"></div>');
-                        var friendText = $('<div class="friend-text"></div>').text(friend.name);
-                        var  a = $('<a></a>').attr("href","#user/" + friend.echoedUserId).addClass('item_wrap');
-                        $('<img />').attr("height","50px").attr("src",utils.getProfilePhotoUrl(friend, self.properties.urls)).appendTo(friendImage);
-                        $('<div class="item_content friend"></div>').append(friendImage).append(friendText).appendTo(a).addClass('clearfix');
-                        friendsFragment.append(a);
+
                         friendsAdded = true;
                     });
                     self.exhibit.isotope('insert', friendsFragment.children());
@@ -159,7 +154,19 @@ define(
                             self.content.array.push(modelPhoto);
                             contentFragment.append(photoDiv);
                             break;
-                        case "user":
+                        case "User":
+                            var friendImage =                   $('<div class="friend-img"></div>');
+                            var friendText =                    $('<div class="friend-text"></div>').text(content.name);
+                            var  a =                            $('<a></a>').attr("href","#user/" + content.echoedUserId).addClass('item_wrap');
+                            $('<img />').attr("height","50px")
+                                .attr("src",utils.getProfilePhotoUrl(content, self.properties.urls))
+                                .appendTo(friendImage);
+                            $('<div class="item_content friend"></div>')
+                                .append(friendImage)
+                                .append(friendText)
+                                .appendTo(a)
+                                .addClass('clearfix');
+                            contentFragment.append(a);
                     }
                     contentAdded = true;
                 });

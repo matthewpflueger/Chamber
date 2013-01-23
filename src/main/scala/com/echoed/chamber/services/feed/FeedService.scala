@@ -10,7 +10,7 @@ import scala.collection.mutable.HashMap
 import akka.pattern._
 import com.echoed.chamber.services.state.QueryPartnerIdsResponse
 import com.echoed.chamber.domain.Community
-import com.echoed.chamber.domain.views.{ContentFeed, CommunityFeed}
+import com.echoed.chamber.domain.views.{Feed, CommunityFeed}
 import state.FindAllStoriesResponse
 import scala.Right
 import com.echoed.chamber.services.state.QueryPartnerIds
@@ -79,7 +79,7 @@ class FeedService(
                 .getOrElse(List[StoryPublic]())
                 .toList
         val nextPage = getNextPage(start, page, stories)
-        ContentFeed(new PublicContext(), stories.slice(start, start + pageSize), nextPage)
+        Feed(new PublicContext(), stories.slice(start, start + pageSize), nextPage)
     }
 
     private def getStoryIdsFromLookup(indexKey: IndexKey) = {
