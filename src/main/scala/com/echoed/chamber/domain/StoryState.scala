@@ -107,7 +107,7 @@ case class StoryState(
             new StoryCommunities(),
             asStoryFull.orNull)
 
-    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription, topic.orNull))
+    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, partner, chapters, chapterImages, comments, votes, moderationDescription, topic.orNull))
 
     private def selfModeratedPredicate: Moderation => Boolean = _.moderatedRef == "EchoedUser"
     private def echoedModeratedPredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"
