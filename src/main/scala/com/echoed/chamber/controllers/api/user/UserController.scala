@@ -33,7 +33,7 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult[ContentFeed[UserContext]](null, ErrorResult.timeout)
 
-        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "story")).onSuccess {
+        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "Story")).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 
@@ -51,7 +51,7 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult[ContentFeed[UserContext]](null, ErrorResult.timeout)
 
-        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "photo")).onSuccess {
+        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "Photo")).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 

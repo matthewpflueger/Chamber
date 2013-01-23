@@ -127,7 +127,7 @@ define(
                 var contentAdded = false;
                 $.each(data.content, function(index, content){
                     switch( content._type ){
-                        case "story":
+                        case "Story":
                             var storyDiv =                  $('<div></div>').addClass('item_wrap');
                             var modelStory =                new ModelStory(content, { properties: self.properties});
                             var storyComponent =            new StoryBrief({
@@ -144,7 +144,7 @@ define(
                             self.content.array.push(modelStory);
                             contentFragment.append(storyDiv);
                             break;
-                        case "photo":
+                        case "Photo":
                             var photoDiv =                      $('<div></div>').addClass('item_wrap');
                             var modelPhoto =                    new ModelPhoto(content, { properties: self.properties });
                             var photoView =                     new PhotoBrief({

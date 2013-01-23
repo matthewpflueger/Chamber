@@ -4,7 +4,7 @@ import com.echoed.chamber.domain.Image
 
 case class PhotoContent( image: Image, originalContent: Content )  extends Content {
 
-    val _type = "photo"
+    val _type = "Photo"
     val _id = image.id
     val id = image.id
 

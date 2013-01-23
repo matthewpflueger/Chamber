@@ -113,7 +113,7 @@ class MeController extends EchoedController {
                       eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[ContentFeed[PersonalizedContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page), "story")).onSuccess {
+        mp(RequestCustomUserFeed(eucc, parse(page), "Story")).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
         }
@@ -126,7 +126,7 @@ class MeController extends EchoedController {
                     @RequestParam(value = "page", required = false) page: String,
                     eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[ContentFeed[PersonalizedContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page), "photo")).onSuccess {
+        mp(RequestCustomUserFeed(eucc, parse(page), "Photo")).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
         }
@@ -140,7 +140,7 @@ class MeController extends EchoedController {
                    eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[ContentFeed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestOwnContent(eucc, parse(page), "story")).onSuccess {
+        mp(RequestOwnContent(eucc, parse(page), "Story")).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
         }
@@ -154,7 +154,7 @@ class MeController extends EchoedController {
                       eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[ContentFeed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestOwnContent(eucc, parse(page), "photo")).onSuccess {
+        mp(RequestOwnContent(eucc, parse(page), "Photo")).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
         }

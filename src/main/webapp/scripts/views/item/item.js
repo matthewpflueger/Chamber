@@ -57,10 +57,10 @@ define(
             render: function(){
                 this.body.removeClass();
                 switch( this.modelContent.get("_type") ){
-                    case "photo":
+                    case "Photo":
                         this.photoView.load({ modelPhoto: this.modelContent });
                         break;
-                    case "story":
+                    case "Story":
                         this.storyView.load({ modelStory: this.modelContent });
                         break;
                 }

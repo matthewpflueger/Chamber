@@ -36,7 +36,7 @@ class PartnerUserController extends EchoedController {
 
         log.debug("Requesting for Partner Content for Partner {}", partnerId )
 
-        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, "story")).onSuccess {
+        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, "Story")).onSuccess {
             case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
 
@@ -54,7 +54,7 @@ class PartnerUserController extends EchoedController {
 
         log.debug("Requesting for Partner Content for Partner {}", partnerId )
 
-        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, "photo")).onSuccess {
+        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, "Photo")).onSuccess {
             case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
         result

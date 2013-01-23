@@ -4,7 +4,7 @@ import com.echoed.chamber.services.echoeduser.PartnerFollower
 
 class PartnerContent( partner: PartnerFollower)  extends Content{
 
-    val _type = "photo"
+    val _type = "Partner"
     val _id = partner.partnerId
     val id = partner.partnerId
 

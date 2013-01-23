@@ -20,7 +20,7 @@ case class StoryPublic (
         moderation: ModerationDescription,
         topic: TopicPublic )  extends Content {
 
-    val _type =         "story"
+    val _type =         "Story"
     val _title =        story.title
 
     def _createdOn =    story.createdOn
