@@ -21,43 +21,37 @@ define(
                 this.page = null;
             },
             routes:{
-                "_=_": "fix",
-                "": "explore",
-                "me/friends": "friends",
-                "me/": "me",
-                "me": "me",
-                "me/feed/:type": "feed",
-                "me/feed/:type/": "feed",
-                "user/:id": "user",
-                "user/:id/": "user",
-                "user/:id/:type": "user",
-                "user/:id/:type/": "user",
-                "community/:community": "community",
-                "partner/:name/": "partnerFeed",
-                "partner/:name": "partnerFeed",
-                "topic/:id": "topic",
-                "story/:id": "story",
-                "write/:type/:id" : "writeStory",
-                "write/" : "writeStory",
-                "write": "writeStory",
-                "communities" : "cList",
-                "topic/:topic": "topic",
-                "!": "explore",
-                "!me/friends": "friends",
-                "!me/": "me",
-                "!me": "me",
-                "!user/:id": "user",
-                "!communities": "cList",
-                "!partner/:name/": "partnerFeed",
-                "!partner/:name": "partnerFeed",
-                "!story/:id": "story",
-                "!write/:type/:id" : "writeStory",
-                "!write/" : "writeStory",
-                "!write": "writeStory",
-                "!topic/:id": "topic"
+                "_=_":                      "fix",
+                "!":                        "explore",
+                "":                         "explore",
+                "!me/":                     "me",
+                "!me":                      "me",
+                "!story/:id":               "story",
+                "story/:id":                "story",
+                "!write/" :                 "writeStory",
+                "!write":                   "writeStory",
+                "me/feed/:type":            "feed",
+                "me/feed/:type/":           "feed",
+                "write/:type/:id" :         "writeStory",
+                "write/":                   "writeStory",
+                "write":                    "writeStory",
+                ":context/:id":             "content",
+                ":context/:id/":            "content",
+                ":context/:id/:type":       "content",
+                ":context/:id/:type/":      "content"
             },
             fix: function(){
                 window.location.href = "#";
+            },
+            content: function(context, id, type){
+                this.page = window.location.hash;
+                var self = this;
+                var url = context + "/" + id;
+                if(context === "user" && this.modelUser.is(id)) url = "/me";
+                if(type) url += "/" + type;
+                this.requestFeed(url, function(jsonUrl, data){
+                    self.loadPage(context, { jsonUrl: jsonUrl, data: data, personal: true} );
+                });
             },
             requestFeed: function(endPoint, callback){
                 var self = this;
@@ -77,15 +71,6 @@ define(
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
                 _gaq.push(['_trackPageview', this.page]);
-            },
-            cList: function(){
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/tags", function(jsonUrl, data){
-                        self.loadPage("communities", { jsonUrl: jsonUrl, data: data });
-                    });
-                }
             },
             feed: function(type){
                 var self = this;
@@ -109,73 +94,9 @@ define(
                     });
                 }
             },
-            partnerFeed: function(partnerId) {
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/partner/" + partnerId, function(jsonUrl, data){
-                        self.loadPage("partner", { jsonUrl: jsonUrl, data: data});
-                    });
-                }
-            },
-            topic: function(topicId){
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
-                        self.loadPage("topic", { jsonUrl: jsonUrl, data: data});
-                    })
-                }
-            },
-            me: function() {
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = "#!me";
-                    this.requestFeed("/me/", function(jsonUrl, data){
-                        self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal: true} );
-                    });
-                }
-            },
-            friends: function() {
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/me/following", function(jsonUrl, data){
-                        self.loadPage("friends", { jsonUrl: jsonUrl, data: data});
-                    });
-                }
-            },
-            user: function(id, type){
-                var self =      this;
-                var endPoint;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    if(this.modelUser.is(id)){
-                        endPoint = "/me/";
-                        if(type) endPoint += "/" + type;
-                        this.requestFeed(endPoint, function(jsonUrl, data){
-                            self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal : true});
-                        });
-                    } else {
-                        endPoint = "/user/" + id;
-                        if(type) endPoint += "/" + type;
-                        this.requestFeed(endPoint, function(jsonUrl, data){
-                            self.loadPage("user", { jsonUrl: jsonUrl, data: data});
-                        })
-                    }
-                }
-            },
-            community: function(communityId){
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/category/" + communityId, function(jsonUrl, data){
-                        self.loadPage("category", {jsonUrl: jsonUrl, data: data});
-                    });
-                }
-            },
             writeStory: function(type, id){
                 if(this.page === null){
+
                     switch(type){
                         case "partner":
                             this.partnerFeed(id);
@@ -183,7 +104,7 @@ define(
                             break;
                         default:
                             if(this.modelUser.isLoggedIn()){
-                                this.me();
+                                this.content();
                                 this.page = "#!me";
                             } else {
                                 this.explore();
@@ -214,7 +135,6 @@ define(
                 } else {
                     window.location.hash = "#!";
                 }
-
             }
         });
     }

@@ -15,9 +15,9 @@ define(
                 _.bindAll(this);
                 this.element = $(options.el);
                 this.titleEl = $('#title');
-                this.properties = options.properties;
+                this.properties =   options.properties;
                 this.modelContext = options.modelContext;
-                this.modelUser = options.modelUser;
+                this.modelUser =    options.modelUser;
                 this.modelContext.on("change", this.render);
                 this.EvAg = options.EvAg;
             },
@@ -30,6 +30,7 @@ define(
                 this.follow = new Follow({ el: "#title-follow", properties: this.properties, modelUser: this.modelUser, followId: this.modelContext.id, type: this.modelContext.get("contextType") });
                 this.titleText = $('#title-text');
                 this.titleBody = $('#title-body');
+                if(view.context.contextType === "partner") this.EvAg.trigger("page:change", view.context.partner.domain);
                 this.element.show();
             }
         });

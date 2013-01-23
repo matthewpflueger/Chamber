@@ -15,6 +15,7 @@ define(
                 this.options.EvAg.bind('background/update', this.update);
             },
             update: function(url){
+                if(url.indexOf("http") === -1) url = "http://" + url;
                 this.element.attr("src", url);
             },
             show: function(){

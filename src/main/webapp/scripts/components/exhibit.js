@@ -43,8 +43,6 @@ define(
                 self.exhibit.isotope({
                     itemSelector: '.item_wrap',
                     onLayout: function(elems, instance){
-                        console.log(instance.width);
-                        console.log(instance);
                     }
                 });
                 self.isotopeOn = true;
@@ -109,18 +107,6 @@ define(
                     self.exhibit.isotope('insert', communityFragment.children());
                 }
                 return communityAdded;
-            },
-            addFriends: function(data){
-                var self = this;
-                var friendsFragment = $('<div></div>');
-                var friendsAdded = false;
-                if(data && data.length > 0){
-                    $.each(data, function(index, friend){
-
-                        friendsAdded = true;
-                    });
-                    self.exhibit.isotope('insert', friendsFragment.children());
-                }
             },
             addContent: function(data){
                 var self = this;

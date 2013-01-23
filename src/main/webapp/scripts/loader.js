@@ -16,6 +16,7 @@ require(
         var body = $(document.body);
         EchoedSettings.useOpener = true;
         self.properties = EchoedSettings;
+        self.properties.overlayUrl = this.properties.urls.api + "/widget/iframe/?pid=" + this.properties.partnerId;
         body.append($('<link rel="stylesheet" type="text/css"/>').attr("href", self.properties.urls.css + "/remote.css"));
 
         this.overlay = new Overlay({ properties: self.properties, EvAg: self.EventAggregator });

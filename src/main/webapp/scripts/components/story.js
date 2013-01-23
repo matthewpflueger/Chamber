@@ -13,7 +13,6 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
-                var self = this;
                 this.el =           options.el;
                 this.element =      $(this.el);
                 this.properties =   options.properties;
@@ -47,7 +46,9 @@ define(
                 this.EvAg.trigger("content:hide");
             },
             fromClick: function(ev){
-                window.open(this.properties.urls.api + "/redirect/partner/" + this.modelStory.get("story").partnerId);
+                this.EvAg.trigger("content:hide");
+                var url = "#partner/" + this.modelStory.get("story").partnerId +"/";
+                window.location.hash = url;
             },
             showLogin: function(){
                 this.EvAg.trigger("login/init", "story/login");
@@ -148,10 +149,9 @@ define(
                     profilePhotoUrl: utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
                     isWidget: this.properties.isWidget,
                     isMine: this.modelUser.is(this.modelStory.get("echoedUser").id),
-                    userLink: this.properties.urls.api + "#user/" + this.modelStory.get("echoedUser").id
+//                    userLink: this.properties.urls.api + "#user/" + this.modelStory.get("echoedUser").id
+                    userLink: "#user/" + this.modelStory.get("echoedUser").id
                 };
-
-
 
                 var template = templateStory(view);
                 self.element.html(template);
@@ -160,7 +160,7 @@ define(
                 self.text = $('#story-text-container');
                 self.chapterText = $("#story-text");
 
-                self.follow = new Follow({ el: '#story-user-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
+                self.follow = new Follow({ el: '#story-user-follow', properties: this.properties, modelUser: this.modelUser, type: "user", followId: this.modelStory.get("echoedUser").id });
 
                 self.gallery = $('#story-image-main');
                 self.itemImageContainer = $('#story-image-container');
@@ -177,7 +177,6 @@ define(
                 self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
                 $("body").addClass("noScroll");
-                this.EvAg.trigger("msg/send", "contextChange", "http://www.cnn.com");
             },
             renderGalleryNav: function(){
                 var self = this;

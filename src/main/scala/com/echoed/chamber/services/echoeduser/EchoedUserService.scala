@@ -108,8 +108,9 @@ class EchoedUserService(
 
     private def getStats = {
         var stats = List[Map[String, Any]]()
-        stats = Map("name" -> "Followers", "value" -> followedByUsers.length, "path" -> "followers") :: stats
+        stats = Map("name" -> "Sites Followed", "value" -> followingPartners.length, "path" -> "following/partners") :: stats
         stats = Map("name" -> "Following", "value" -> followingUsers.length, "path" -> "following") :: stats
+        stats = Map("name" -> "Followers", "value" -> followedByUsers.length, "path" -> "followers") :: stats
         stats
     }
 

@@ -15,7 +15,7 @@ define(
                 this.properties =   options.properties;
                 this.htmlEl =       $('html');
                 this.socket = new easyXDM.Socket({
-                    remote: this.properties.urls.api + "/widget/iframe/?pid=" + this.properties.partnerId,
+                    remote: this.properties.overlayUrl,
                     props: {
                         id: "echoed-overlay"
                     },
@@ -51,9 +51,7 @@ define(
                             }
                             break;
                         case "contextChange":
-                            if(self.properties.isPreview){
-                                this.EvAg.trigger("background/update", msgObj.data);
-                            }
+                            this.EvAg.trigger("background/update", msgObj.data);
                     }
                 } catch(e){
 

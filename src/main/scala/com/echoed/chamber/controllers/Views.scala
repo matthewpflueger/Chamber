@@ -94,7 +94,8 @@ class Views {
 
     @Required @BeanProperty var bookmarkletJsView: String = _
 
-    @Required @BeanProperty var widgetPreview: String = _
+    @Required @BeanProperty var appView: String = _
+    @Required @BeanProperty var appIFrameView: String = _
     
     @Required @BeanProperty var widgetAppJsView: String = _
     @Required @BeanProperty var widgetAppIFrameView: String = _
