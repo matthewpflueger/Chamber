@@ -24,9 +24,9 @@ define(
             // i.e. this.masonry.columnWidth = ...
             this.masonry.columnWidth = colW;
             //Title Container Resizing
-            $('#title-container').animate({
-                width: Math.max(cols * colW - 10, 890)
-            });
+//            $('#title-container').animate({
+//                width: Math.max(cols * colW - 10, 890)
+//            });
         };
 
         $.Isotope.prototype._masonryReset = function() {

@@ -40,7 +40,13 @@ define(
 
                 if (self.isotopeOn === true) self.exhibit.isotope("destroy");
                 self.exhibit.empty();
-                self.exhibit.isotope({ itemSelector: '.item_wrap' });
+                self.exhibit.isotope({
+                    itemSelector: '.item_wrap',
+                    onLayout: function(elems, instance){
+                        console.log(instance.width);
+                        console.log(instance);
+                    }
+                });
                 self.isotopeOn = true;
                 self.render(data);
                 self.EvAg.trigger('infiniteScroll/on');

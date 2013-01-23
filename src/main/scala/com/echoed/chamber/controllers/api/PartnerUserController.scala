@@ -25,7 +25,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @Controller
 @Secure
 @RequestMapping(Array("/partner"))
-class PartnerController extends EchoedController {
+class PartnerUserController extends EchoedController {
 
     @RequestMapping(value = Array("/settings"), method = Array(RequestMethod.GET))
     @ResponseBody
