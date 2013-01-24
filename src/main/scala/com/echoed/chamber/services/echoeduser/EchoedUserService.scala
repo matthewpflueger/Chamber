@@ -51,6 +51,7 @@ import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFol
 import scala.concurrent.Future
 import com.echoed.util.datastructure.ContentManager
 import views.content.{ PhotoContent, Content }
+import com.echoed.chamber.domain.partner.Partner
 
 
 class EchoedUserService(
@@ -594,11 +595,13 @@ class EchoedUserService(
         case msg @ FollowPartner(_, partnerId) =>
             val channel = sender
             mp(AddPartnerFollower(PartnerClientCredentials(partnerId), echoedUser)).onSuccess{
-                case AddPartnerFollowerResponse(_, Right(partner)) =>
-                    if (!followingPartners.exists(_.partnerId == partner.id))
-                        followingPartners = PartnerFollower(partner.id, partner.name, partner.handle) :: followingPartners
-                    channel ! FollowPartnerResponse(msg, Right(followingPartners))
+                case AddPartnerFollowerResponse(_, Right(partner)) => self.tell((msg, partner), channel)
             }
+
+        case (msg @ FollowPartner(_, partnerId), partner: Partner) =>
+            if (!followingPartners.exists(_.partnerId == partner.id)) followingPartners = PartnerFollower(partner.id, partner.name, partner.handle) :: followingPartners
+            sender ! FollowPartnerResponse(msg, Right(followingPartners))
+
 
         case msg @ UnFollowPartner(_, followingPartnerId) =>
             val channel = sender
@@ -617,10 +620,13 @@ class EchoedUserService(
         case msg @ FollowUser(eucc, followerId) if (eucc.id != followerId) =>
             val channel = sender
             mp(AddFollower(EchoedUserClientCredentials(followerId), echoedUser)).onSuccess{
-                case AddFollowerResponse(_, Right(eu)) =>
-                    followingUsers = Follower(eu) :: followingUsers
-                    channel ! FollowUserResponse(msg, Right(followingUsers))
+                case m @ AddFollowerResponse(_, Right(eu)) => self.tell((msg, eu), channel)
             }
+
+        case (msg @ FollowUser(_, followerId), eu: EchoedUser) =>
+            if (!followingUsers.exists(_.echoedUserId == eu.id)) followingUsers = Follower(eu) :: followingUsers
+            sender ! FollowUserResponse(msg, Right(followingUsers))
+
 
         case AddFollowerResponse(_, Right(eu)) if (!followingUsers.exists(_.echoedUserId == eu.id)) =>
             followingUsers = Follower(eu) :: followingUsers
