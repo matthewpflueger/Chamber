@@ -134,9 +134,11 @@ class PartnerController extends EchoedController {
         val result = new DeferredResult[List[Topic]](null, ErrorResult.timeout)
 
         mp(RequestTopics(new PartnerClientCredentials(partnerId))).onSuccess {
-            case RequestTopicsResponse(_, Right(topics)) => result.setResult(topics)
+            case GetTopicsResponse(_, Right(topics)) => result.setResult(topics)
         }
         result
     }
+
+
 
 }
