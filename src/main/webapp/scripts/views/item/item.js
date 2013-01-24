@@ -56,7 +56,7 @@ define(
             },
             render: function(){
                 this.body.removeClass();
-                switch( this.modelContent.get("_type") ){
+                switch( this.modelContent.get("contentType") ){
                     case "Photo":
                         this.photoView.load({ modelPhoto: this.modelContent });
                         break;
