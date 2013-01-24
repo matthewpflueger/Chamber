@@ -154,10 +154,15 @@ define(
             },
             updateChapter: function(chapter, chapterImages){
                 var chapters = this.get("chapters");
+                var newChapter = true;
                 var newImages = [];
                 $.each(chapters, function(index, c){
-                    if(c.id === chapter.id) chapters[index] = chapter;
+                    if(c.id === chapter.id) {
+                        chapters[index] = chapter;
+                        newChapter = false;
+                    }
                 });
+                if(newChapter) chapters.push(chapter);
                 $.each(this.get("chapterImages"), function(index, ci){
                     if(ci.chapterId !== chapter.id) newImages.push(ci);
                 });

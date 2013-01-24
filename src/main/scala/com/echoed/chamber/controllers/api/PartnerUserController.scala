@@ -4,7 +4,7 @@ import com.echoed.chamber.controllers.interceptors.Secure
 import com.echoed.chamber.controllers.{EchoedController, ErrorResult}
 import com.echoed.chamber.domain.partner.PartnerSettings
 import com.echoed.chamber.domain.{Topic, StoryState}
-import com.echoed.chamber.services.partner.{GetTopicsResponse, GetTopics, PutTopicResponse, PartnerClientCredentials, PutTopic}
+import com.echoed.chamber.services.partner._
 import com.echoed.chamber.services.partneruser.GetPartnerSettings
 import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
 import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
@@ -20,6 +20,18 @@ import org.springframework.web.context.request.async.DeferredResult
 import scala.Right
 import scala.reflect.BeanProperty
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.echoed.chamber.services.partner.PutTopic
+import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
+import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import com.echoed.chamber.domain.Topic
+import com.echoed.chamber.services.partneruser.UpdatePartnerCustomization
+import com.echoed.chamber.services.state.QueryStoriesForPartner
+import com.echoed.chamber.domain.StoryState
+import com.echoed.chamber.services.state.QueryStoriesForPartnerResponse
+import com.echoed.chamber.services.partneruser.GetPartnerSettings
+import com.echoed.chamber.services.partner.PutTopicResponse
+import com.echoed.chamber.services.partneruser.UpdatePartnerCustomizationResponse
+import com.echoed.chamber.services.partner.PartnerClientCredentials
 
 
 @Controller
@@ -46,8 +58,8 @@ class PartnerUserController extends EchoedController {
     def getTopics(pucc: PartnerUserClientCredentials) = {
         val result = new DeferredResult[List[Topic]](null, ErrorResult.timeout)
 
-        mp(GetTopics(PartnerClientCredentials(pucc.partnerId.get))).onSuccess {
-            case GetTopicsResponse(_, Right(topics)) => result.setResult(topics)
+        mp(RequestTopics(PartnerClientCredentials(pucc.partnerId.get))).onSuccess {
+            case RequestTopicsResponse(_, Right(topics)) => result.setResult(topics)
         }
 
         result
