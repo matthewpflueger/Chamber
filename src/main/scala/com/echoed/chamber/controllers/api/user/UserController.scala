@@ -10,22 +10,11 @@ import scala.Right
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
 import views.content.PhotoContent
-import views.Feed
-import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.echoeduser._
 import views.Feed
-import views.Feed
-import views.Feed
-import views.Feed
-import views.context.UserContext
-import views.context.UserContext
-import views.context.UserContext
-import com.echoed.chamber.services.echoeduser.ListFollowingUsers
-import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
 import views.context.UserContext
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.echoeduser.RequestUserContentFeedResponse
-import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
 import com.echoed.chamber.services.echoeduser.RequestUserContentFeed
 import com.echoed.chamber.domain.public.StoryPublic
 
