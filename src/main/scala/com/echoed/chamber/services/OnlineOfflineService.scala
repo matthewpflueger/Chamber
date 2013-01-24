@@ -1,10 +1,10 @@
 package com.echoed.chamber.services
 
 import akka.event.LoggingReceive
-import akka.actor.{ReceiveTimeout, PoisonPill, ActorRef}
+import akka.actor.{Stash, ReceiveTimeout, PoisonPill, ActorRef}
 import scala.concurrent.duration._
 
-abstract class OnlineOfflineService extends EchoedService {
+abstract class OnlineOfflineService extends EchoedService with Stash {
 
     protected def init: Receive
 
