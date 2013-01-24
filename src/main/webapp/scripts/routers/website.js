@@ -28,6 +28,8 @@ define(
                 "!me":                      "me",
                 "!story/:id":               "story",
                 "story/:id":                "story",
+                "!photo/:id":               "photo",
+                "photo/:id":                "photo",
                 "!write/" :                 "writeStory",
                 "!write":                   "writeStory",
                 "me/feed/:type":            "feed",
@@ -118,6 +120,14 @@ define(
                 this.oldPage = this.page;
                 this.EvAg.trigger("field/show",id , type);
             },
+            photo: function(id){
+                if(this.page === null) {
+                    this.explore();
+                    this.page = "#!";
+                }
+                this.oldPage = this.page;
+                this.EvAg.trigger("content:lookup", id);
+            },
             story: function(id){
                 if(this.page === null) {
                     this.explore();
@@ -126,9 +136,7 @@ define(
                 this.oldPage = this.page;
                 this.oldTitle = $('title').html();
                 _gaq.push(['_trackPageview', window.location.hash]);
-
-                this.EvAg.trigger("content:show", id);
-                this.EvAg.trigger("page/change", "story");
+                this.EvAg.trigger("content:lookup", id);
             },
             resetHash: function(){
                 if(this.oldPage){

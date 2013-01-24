@@ -25,29 +25,36 @@ define(
                 this.EvAg.bind('infiniteScroll',    this.more);
                 this.EvAg.bind('exhibit:next',      this.nextItem);
                 this.EvAg.bind('exhibit:previous',  this.prevItem);
+                this.EvAg.bind('content:lookup',    this.lookup);
 
             },
+            lookup: function(id){
+                var lookup = id;
+                if(this.content){
+                    if(this.content.hash[id]) lookup = { modelContent: this.content.array[this.content.hash[id]] };
+                }
+                this.EvAg.trigger('content:show', lookup);
+            },
             init: function(options){
-                var self =      this;
                 var data =      options.data;
-                self.jsonUrl =  options.jsonUrl;
+                this.jsonUrl =  options.jsonUrl;
 
-                self.nextPage = data.nextPage ? data.nextPage : null;
-                self.content = {
+                this.nextPage = data.nextPage ? data.nextPage : null;
+                this.content = {
                     array: [],
                     hash: {}
                 };
 
-                if (self.isotopeOn === true) self.exhibit.isotope("destroy");
-                self.exhibit.empty();
-                self.exhibit.isotope({
+                if (this.isotopeOn === true) this.exhibit.isotope("destroy");
+                this.exhibit.empty();
+                this.exhibit.isotope({
                     itemSelector: '.item_wrap',
                     onLayout: function(elems, instance){
                     }
                 });
-                self.isotopeOn = true;
-                self.render(data);
-                self.EvAg.trigger('infiniteScroll/on');
+                this.isotopeOn = true;
+                this.render(data);
+                this.EvAg.trigger('infiniteScroll/on');
 
             },
             nextItem: function(storyId){

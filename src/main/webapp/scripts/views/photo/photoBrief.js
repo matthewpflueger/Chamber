@@ -25,7 +25,7 @@ define(
                 this.element.append(img);
             },
             click: function(){
-                this.EvAg.trigger("content:show", { modelContent: this.modelPhoto } );
+                window.location.hash = "#!photo/" +  this.modelPhoto.id;
             }
         });
     }
