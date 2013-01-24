@@ -33,41 +33,41 @@ case class ContentTree( singular: String, plural: String, endPoint: String ) {
     }
 
     protected def addToTree(c: Content){
-        contentTree += ((c._updatedOn, c._id) -> c)
+        contentTree += ((c.updatedOn, c.id) -> c)
     }
 
     protected def removeFromTree(c: Content){
-        contentTree -= ((c._updatedOn, c._id))
+        contentTree -= ((c.updatedOn, c.id))
     }
 
     def updateContent(c: Content){
-        contentMap.get(c._id).map {
+        contentMap.get(c.id).map {
             story =>
-                viewCount -= c._views
-                voteCount -= c._votes
-                commentCount -= c._comments
+                viewCount -= c.numViews
+                voteCount -= c.numVotes
+                commentCount -= c.numComments
                 removeFromTree(story)
         }
         addToTree(c)
-        contentMap += (c._id -> c)
-        viewCount += c._views
-        voteCount += c._votes
-        commentCount += c._comments
+        contentMap += (c.id -> c)
+        viewCount += c.numViews
+        voteCount += c.numVotes
+        commentCount += c.numComments
 
         Option(mostViewed).map {
-            content => if( content._views <= c._views ) mostViewed = c
+            content => if( content.numViews <= c.numViews ) mostViewed = c
         }.getOrElse {
             mostViewed = c
         }
 
         Option(mostCommented).map {
-            content =>  if(content._comments <= c._comments ) mostCommented = c
+            content =>  if(content.numComments <= c.numComments ) mostCommented = c
         }.getOrElse {
             mostCommented = c
         }
 
         Option(mostVoted).map {
-            content => if (content._votes <= c._votes) mostVoted = c
+            content => if (content.numVotes <= c.numVotes) mostVoted = c
         }.getOrElse {
             mostVoted = c
         }

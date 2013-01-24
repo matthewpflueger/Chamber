@@ -18,20 +18,20 @@ case class StoryPublic (
         comments: List[CommentPublic],
         votes: Map[String, Vote],
         moderation: ModerationDescription,
-        topic: TopicPublic )  extends Content with FeedItem {
+        topic: TopicPublic )  extends Content {
 
-    val _type =         "Story"
-    val _title =        story.title
+    val contentType =         "Story"
+    val title =        story.title
 
-    def _createdOn =    story.createdOn
-    def _id =           id
-    def _updatedOn =    story.updatedOn
-    def _views =        story.views
-    def _comments =     comments.size
-    def _votes =        votes.values.toList.foldLeft(0)((l, r) => l + r.value)
-    def _plural =       "Stories"
-    def _singular =     "Story"
-    def _endPoint =     "stories"
+    def createdOn =    story.createdOn
+    def updatedOn =    story.updatedOn
+    def numViews =     story.views
+    def numVotes =     votes.values.toList.foldLeft(0)((l, r) => l + r.value)
+    def numComments =  comments.length
+
+    def plural =       "Stories"
+    def singular =     "Story"
+    def endPoint =     "stories"
 
 
 

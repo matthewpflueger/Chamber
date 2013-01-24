@@ -2,13 +2,15 @@ package com.echoed.chamber.domain.views.content
 
 trait Content extends FeedItem{
 
-    def _updatedOn:     Long
-    def _createdOn:     Long
-    def _views:         Int
-    def _votes:         Int
-    def _comments:      Int
-    def _plural:        String
-    def _singular:      String
-    def _endPoint:      String
+    def updatedOn:     Long
+    def createdOn:     Long
+
+    def numViews:         Int
+    def numVotes:         Int
+    def numComments:      Int
+
+    def plural:        String
+    def singular:      String
+    def endPoint:      String
 
 }

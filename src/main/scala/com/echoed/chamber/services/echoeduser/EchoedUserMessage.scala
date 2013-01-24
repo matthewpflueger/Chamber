@@ -138,9 +138,9 @@ private[echoeduser] case class RemoveFollowerResponse(message: RemoveFollower, v
 case class PartnerFollower(partnerId: String, name: String, handle: String)
 
 case class Follower(echoedUserId: String, name: String, screenName: String, facebookId: String, twitterId: String) extends FeedItem {
-    val _id = echoedUserId
-    val _title = name
-    val _type = "User"
+    val id = echoedUserId
+    val title = name
+    val contentType = "User"
 }
 object Follower {
     def apply(eu: EchoedUser): Follower = Follower(eu.id, eu.name, eu.screenName, eu.facebookId, eu.twitterId)
@@ -394,15 +394,15 @@ case class ReadAllUserContentResponse(message: ReadAllUserContent, value: Either
 
 
 //Request Messages: Returns to controller
-case class RequestOwnContent(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
+case class RequestOwnContent(credentials: EUCC, page: Int, c: Class[_]) extends EUM with EUI
 case class RequestOwnContentResponse(message: RequestOwnContent, value: Either[EUE, Feed[SelfContext]])
     extends EUM with MR[Feed[SelfContext], RequestOwnContent, EUE]
 
-case class RequestCustomUserFeed(credentials: EUCC, page: Int, _type: String)  extends EUM with EUI
+case class RequestCustomUserFeed(credentials: EUCC, page: Int, c: Class[_])  extends EUM with EUI
 case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, Feed[PersonalizedContext]])
     extends EUM with MR[Feed[PersonalizedContext], RequestCustomUserFeed, EUE]
 
-case class RequestUserContentFeed(credentials: EUCC, page: Int, _type: String) extends EUM with EUI
+case class RequestUserContentFeed(credentials: EUCC, page: Int, c: Class[_]) extends EUM with EUI
 case class RequestUserContentFeedResponse(message: RequestUserContentFeed, value: Either[EUE, Feed[UserContext]])
     extends EUM with MR[Feed[UserContext], RequestUserContentFeed, EUE]
 

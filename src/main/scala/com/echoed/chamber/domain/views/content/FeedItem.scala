@@ -1,7 +1,7 @@
 package com.echoed.chamber.domain.views.content
 
 trait FeedItem {
-    def _type:  String
-    def _id:    String
-    def _title: String
+    def contentType:  String
+    def id:    String
+    def title: String
 }

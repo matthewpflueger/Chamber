@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse
 import com.echoed.chamber.domain._
 import scala.collection.immutable.Stack
 import scala.concurrent.ExecutionContext.Implicits.global
+import views.content.PhotoContent
 import views.Feed
 import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.echoeduser.FetchNotifications
@@ -45,6 +46,7 @@ import com.echoed.chamber.services.echoeduser.ListFollowingPartners
 import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.echoeduser.FollowUser
+import com.echoed.chamber.domain.public.StoryPublic
 
 
 @Controller
@@ -113,7 +115,7 @@ class MeController extends EchoedController {
                       eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page), "Story")).onSuccess {
+        mp(RequestCustomUserFeed(eucc, parse(page), classOf[StoryPublic])).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
         }
@@ -126,7 +128,7 @@ class MeController extends EchoedController {
                     @RequestParam(value = "page", required = false) page: String,
                     eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page), "Photo")).onSuccess {
+        mp(RequestCustomUserFeed(eucc, parse(page), classOf[PhotoContent])).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
         }
@@ -140,7 +142,7 @@ class MeController extends EchoedController {
                    eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[Feed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestOwnContent(eucc, parse(page), "Story")).onSuccess {
+        mp(RequestOwnContent(eucc, parse(page), classOf[StoryPublic])).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
         }
@@ -154,7 +156,7 @@ class MeController extends EchoedController {
                       eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[Feed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestOwnContent(eucc, parse(page), "Photo")).onSuccess {
+        mp(RequestOwnContent(eucc, parse(page), classOf[PhotoContent])).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
         }

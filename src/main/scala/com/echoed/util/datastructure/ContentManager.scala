@@ -1,15 +1,16 @@
 package com.echoed.util.datastructure
 
 import com.echoed.chamber.domain.views.content.Content
+import com.echoed.chamber.domain.public.StoryPublic
 
 class ContentManager {
 
-    private var cache = Map[String, ContentTree]()
+    private var cache = Map[Class[_], ContentTree]()
 
     def updateContent( c: Content ) {
-        val tree = cache.get(c._type).getOrElse(new ContentTree( c._singular, c._plural, c._endPoint))
+        val tree = cache.get(c.getClass).getOrElse(new ContentTree( c.singular, c.plural, c.endPoint))
         tree.updateContent(c)
-        cache += (c._type -> tree)
+        cache += (c.getClass -> tree)
     }
 
     def getContentList = {
@@ -18,8 +19,8 @@ class ContentManager {
         }.toList
     }
 
-    def getContent(_type: String, page: Int) = {
-        cache.get(_type).map(_.getContentFromTree(page)).getOrElse((List[Content](), null))
+    def getContent(c: Class[_], page: Int) = {
+        cache.get(c).map(_.getContentFromTree(page)).getOrElse((List[Content](), null))
     }
 
     def getAllContent = {
@@ -40,9 +41,9 @@ class ContentManager {
 
     def getHighlights = {
         var s = List[Map[String, Any]]()
-        s = Map("name" -> "Highest Rated", "value" -> getMostVoted("Story")) :: s
-        s = Map("name" -> "Most Discussed", "value" -> getMostCommented("Story")) :: s
-        s = Map("name" -> "Most Viewed", "value" -> getMostViewed("Story")) :: s
+        s = Map("name" -> "Highest Rated", "value" -> getMostVoted(classOf[StoryPublic])) :: s
+        s = Map("name" -> "Most Discussed", "value" -> getMostCommented(classOf[StoryPublic])) :: s
+        s = Map("name" -> "Most Viewed", "value" -> getMostViewed(classOf[StoryPublic])) :: s
         s
     }
 
@@ -54,16 +55,16 @@ class ContentManager {
         s
     }
 
-    def getMostViewed( _type: String ) = {
-        cache.get( _type ).map(_.mostViewed).getOrElse(null)
+    def getMostViewed( c: Class[_] ) = {
+        cache.get(c).map(_.mostViewed).getOrElse(null)
     }
 
-    def getMostCommented( _type: String ) = {
-        cache.get( _type ).map(_.mostCommented).getOrElse(null)
+    def getMostCommented( c: Class[_]) = {
+        cache.get(c).map(_.mostCommented).getOrElse(null)
     }
 
-    def getMostVoted( _type: String ) = {
-        cache.get( _type ).map(_.mostVoted).getOrElse(null)
+    def getMostVoted( c: Class[_] ) = {
+        cache.get(c).map(_.mostVoted).getOrElse(null)
     }
 
 

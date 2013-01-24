@@ -9,6 +9,7 @@ import java.lang.{NumberFormatException => NFE}
 import scala.Right
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
+import views.content.PhotoContent
 import views.Feed
 import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.echoeduser._
@@ -26,6 +27,7 @@ import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.echoeduser.RequestUserContentFeedResponse
 import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
 import com.echoed.chamber.services.echoeduser.RequestUserContentFeed
+import com.echoed.chamber.domain.public.StoryPublic
 
 
 @Controller
@@ -47,7 +49,7 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "Story")).onSuccess {
+        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), classOf[StoryPublic])).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 
@@ -65,7 +67,7 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), "Photo")).onSuccess {
+        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), classOf[PhotoContent])).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 

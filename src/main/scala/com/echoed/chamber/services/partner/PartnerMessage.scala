@@ -99,7 +99,7 @@ private[services] case class ReadAllPartnerContentResponse(
         message: ReadAllPartnerContent,
         value: Either[PE, List[Content]]) extends PM with MR[List[Content], ReadAllPartnerContent, PE]
 
-case class RequestPartnerContent(credentials: PCC, page: Int, origin: String, _type: String) extends PM with PI
+case class RequestPartnerContent(credentials: PCC, page: Int, origin: String, c: Class[_]) extends PM with PI
 case class RequestPartnerContentResponse(
         message: RequestPartnerContent,
         value: Either[PE, Feed[PartnerContext]]) extends PM with MR[Feed[PartnerContext], RequestPartnerContent, PE]

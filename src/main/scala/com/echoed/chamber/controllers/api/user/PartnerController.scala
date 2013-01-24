@@ -9,6 +9,7 @@ import java.lang.{NumberFormatException => NFE}
 import scala.Right
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
+import views.content.PhotoContent
 import views.context.PartnerContext
 import views.context.PartnerContext
 import views.context.PartnerContext
@@ -39,6 +40,7 @@ import com.echoed.chamber.services.echoeduser.FollowPartnerResponse
 import com.echoed.chamber.services.partner.PartnerClientCredentials
 import com.echoed.chamber.services.echoeduser.PartnerFollower
 import com.echoed.chamber.services.partner.RequestPartnerFollowersResponse
+import com.echoed.chamber.domain.public.StoryPublic
 
 
 @Controller
@@ -60,7 +62,7 @@ class PartnerController extends EchoedController {
 
         log.debug("Requesting for Partner Content for Partner {}", partnerId )
 
-        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, "Story")).onSuccess {
+        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, classOf[StoryPublic])).onSuccess {
             case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
 
@@ -78,7 +80,7 @@ class PartnerController extends EchoedController {
 
         log.debug("Requesting for Partner Content for Partner {}", partnerId )
 
-        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, "Photo")).onSuccess {
+        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, classOf[PhotoContent])).onSuccess {
             case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
         result
