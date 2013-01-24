@@ -128,6 +128,15 @@ class PartnerController extends EchoedController {
 
     }
 
+    @RequestMapping(value = Array("/{partnerId}/topics}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getPartnerTopics(@PathVariable(value = "id") partnerId: String)= {
+        val result = new DeferredResult[List[Topic]](null, ErrorResult.timeout)
 
+        mp(RequestTopics(new PartnerClientCredentials(partnerId))).onSuccess {
+            case RequestTopicsResponse(_, Right(topics)) => result.setResult(topics)
+        }
+        result
+    }
 
 }

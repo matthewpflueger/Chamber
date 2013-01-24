@@ -109,10 +109,10 @@ case class RequestPartnerFollowersResponse(
         message: RequestPartnerFollowers,
         value: Either[PE, Feed[PartnerContext]]) extends PM with MR[Feed[PartnerContext], RequestPartnerFollowers, PE]
 
-case class GetTopics(credentials: PCC) extends PM with PI
-case class GetTopicsResponse(
-        message: GetTopics,
-        value: Either[PE, List[Topic]]) extends PM with MR[List[Topic], GetTopics, PE]
+case class RequestTopics(credentials: PCC) extends PM with PI
+case class RequestTopicsResponse(
+        message: RequestTopics,
+        value: Either[PE, List[Topic]]) extends PM with MR[List[Topic], RequestTopics, PE]
 
 case class PutPartnerCustomization(
         credentials: PCC,

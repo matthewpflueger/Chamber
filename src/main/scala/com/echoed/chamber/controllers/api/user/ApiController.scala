@@ -44,38 +44,6 @@ class ApiController extends EchoedController {
     private val failAsZero = failAsValue(classOf[NFE])(0)
     private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
 
-    @RequestMapping(value = Array("/category/{categoryId}"), method=Array(RequestMethod.GET))
-    @ResponseBody
-    def categoryFeed(
-            @PathVariable(value = "categoryId") categoryId: String,
-            @RequestParam(value = "page", required = false) page: String,
-            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
-
-        val result = new DeferredResult[Feed[PublicContext]](null, ErrorResult.timeout)
-
-        log.debug("Requesting for Category Feed for Category {}", categoryId )
-
-        mp(GetCategoryStoryFeed(categoryId, parse(page))).onSuccess {
-            case GetCategoryStoryFeedResponse(_, Right(feed)) => result.setResult(feed)
-        }
-
-        result
-    }
-
-    @RequestMapping(value = Array("/topic/{topicId}"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def topicFeed(
-            @PathVariable(value = "topicId") topicId: String,
-            @RequestParam(value = "page", required = false) page: String) = {
-        val result = new DeferredResult[Feed[TopicContext]](null, ErrorResult.timeout)
-
-        log.debug("Requesting Topic Feed for Topic {}", topicId)
-        mp(ReadTopicFeed(topicId, parse(page))).onSuccess {
-            case ReadTopicFeedResponse(_, Right(feed)) => result.setResult(feed)
-        }
-        result
-    }
-
     @RequestMapping(value = Array("/story/{id}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getStory(

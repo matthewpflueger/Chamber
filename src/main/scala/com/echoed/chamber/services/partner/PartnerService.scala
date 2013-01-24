@@ -196,10 +196,10 @@ class PartnerService(
                         null)
             sender ! RequestPartnerFollowersResponse(msg, Right(feed))
 
-        case msg: GetTopics =>
+        case msg: RequestTopics =>
             val now = new Date
 //            sender ! GetTopicsResponse(msg, Right(topics.filter(t => t.beginOn < now && t.endOn > now)))
-            sender ! GetTopicsResponse(msg, Right(topics))
+            sender ! RequestTopicsResponse(msg, Right(topics))
 
         case msg @ RequestStory(_, topicId) =>
             sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(
