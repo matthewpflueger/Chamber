@@ -38,7 +38,7 @@ class UserController extends EchoedController {
 
     @RequestMapping(value= Array("/{id}"), method=Array(RequestMethod.GET))
     @ResponseBody
-    def userFeed(
+    def getUserContent(
                     @PathVariable(value ="id") id: String,
                     @RequestParam(value = "page", required = false) page: String,
                     @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
@@ -56,7 +56,7 @@ class UserController extends EchoedController {
 
     @RequestMapping(value= Array("/{id}/photos"), method=Array(RequestMethod.GET))
     @ResponseBody
-    def userPhotoFeed(
+    def getUserContentPhotos(
                          @PathVariable(value ="id") id: String,
                          @RequestParam(value = "page", required = false) page: String,
                          @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
@@ -74,7 +74,7 @@ class UserController extends EchoedController {
 
     @RequestMapping(value = Array("/{id}/following"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def listFollowingUsers(@PathVariable(value ="id") id: String) = {
+    def getUserFollowing(@PathVariable(value ="id") id: String) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(ListFollowingUsers(new EchoedUserClientCredentials(id))).onSuccess {
@@ -85,7 +85,7 @@ class UserController extends EchoedController {
 
     @RequestMapping(value = Array("/{id}/followers"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def listFollowedByUsers(@PathVariable(value ="id") id: String) = {
+    def getUserFollowers(@PathVariable(value ="id") id: String) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(ListFollowedByUsers(new EchoedUserClientCredentials(id))).onSuccess {
@@ -96,7 +96,7 @@ class UserController extends EchoedController {
 
     @RequestMapping(value = Array("/{id}/followers"), method = Array(RequestMethod.PUT))
     @ResponseBody
-    def followUser(
+    def putUserFollower(
         @PathVariable(value = "id") id: String,
         eucc: EchoedUserClientCredentials) = {
 
@@ -110,7 +110,7 @@ class UserController extends EchoedController {
 
     @RequestMapping(value = Array("/{id}/followers"), method = Array(RequestMethod.DELETE))
     @ResponseBody
-    def unFollowUser(
+    def deleteUserFollower(
         @PathVariable(value = "id") id: String,
         eucc: EchoedUserClientCredentials)  = {
 

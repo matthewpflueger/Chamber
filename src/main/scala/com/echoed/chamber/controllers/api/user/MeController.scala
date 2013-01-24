@@ -57,7 +57,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def fetchNotifications(eucc: EchoedUserClientCredentials) = {
+    def getNotifications(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Stack[Notification]](null, ErrorResult.timeout)
 
         mp(FetchNotifications(eucc)).onSuccess {
@@ -68,7 +68,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
     @ResponseBody
-    def readNotifications(
+    def postNotifications(
                              @RequestParam(value = "ids", required = true) ids: Array[String],
                              eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Boolean](null, ErrorResult.timeout)
@@ -81,7 +81,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/settings"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def readSettings(eucc: EchoedUserClientCredentials) = {
+    def getSettings(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[EchoedUserSettings](null, ErrorResult.timeout)
 
         mp(ReadSettings(eucc)).onSuccess {
@@ -94,7 +94,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/settings"), method = Array(RequestMethod.POST))
     @ResponseBody
-    def newSettings(
+    def postSettings(
                        @RequestBody(required = true) settings: Map[String, AnyRef],
                        eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[EchoedUserSettings](null, ErrorResult.timeout)
@@ -108,7 +108,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/feed", "/feed/stories"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def customFeed(
+    def getFeedStories(
                       @RequestParam(value = "page", required = false) page: String,
                       eucc: EchoedUserClientCredentials) = {
 
@@ -122,7 +122,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/feed/photos"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def photoFeed(
+    def getFeedPhotos(
                     @RequestParam(value = "page", required = false) page: String,
                     eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
@@ -135,7 +135,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("", "/stories"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def ownFeed(
+    def getOwnStories(
                    @RequestParam(value = "page", required = false) page: String,
                    eucc: EchoedUserClientCredentials) = {
 
@@ -149,7 +149,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/photos"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def ownContent(
+    def getOwnPhotos(
                       @RequestParam(value = "page", required = false) page: String,
                       eucc: EchoedUserClientCredentials) = {
 
@@ -163,7 +163,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/following/partners"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def listFollowingPartners(eucc: EchoedUserClientCredentials) = {
+    def getOwnFollowingPartners(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
         mp(ListFollowingPartners(eucc)).onSuccess {
             case ListFollowingPartnersResponse(_, Right(fp)) => result.setResult(fp)
@@ -173,7 +173,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/following"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def listFollowingUsers(eucc: EchoedUserClientCredentials) = {
+    def getOwnFollowingUsers(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(ListFollowingUsers(eucc)).onSuccess {
@@ -184,7 +184,7 @@ class MeController extends EchoedController {
 
     @RequestMapping(value = Array("/followers"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def listFollowedByUsers(eucc: EchoedUserClientCredentials) = {
+    def getOwnFollowers(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(ListFollowedByUsers(eucc)).onSuccess {

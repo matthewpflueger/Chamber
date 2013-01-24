@@ -45,7 +45,7 @@ class PublicController extends EchoedController {
 
     @RequestMapping(value = Array("/public/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def publicFeed(@RequestParam(value = "page", required = false) page: String) = {
+    def getPublicContent(@RequestParam(value = "page", required = false) page: String) = {
         val result = new DeferredResult[Feed[PublicContext]](null, ErrorResult.timeout)
 
         mp(RequestPublicContent(parse(page))).onSuccess {

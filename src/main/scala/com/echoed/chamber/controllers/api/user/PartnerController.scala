@@ -51,7 +51,7 @@ class PartnerController extends EchoedController {
 
     @RequestMapping(value = Array("{partnerId}", "{partnerId}/stories"), method=Array(RequestMethod.GET))
     @ResponseBody
-    def partnerFeed(
+    def getPartnerContentStories(
                        @PathVariable(value = "partnerId") partnerId: String,
                        @RequestParam(value = "page", required = false) page: String,
                        @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
@@ -69,7 +69,7 @@ class PartnerController extends EchoedController {
 
     @RequestMapping(value = Array("{partnerId}/photos"), method=Array(RequestMethod.GET))
     @ResponseBody
-    def partnerFeedPhotos(
+    def getPartnerContentPhotos(
                              @PathVariable(value = "partnerId") partnerId: String,
                              @RequestParam(value = "page", required = false) page: String,
                              @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
@@ -86,7 +86,7 @@ class PartnerController extends EchoedController {
 
     @RequestMapping(value = Array("{partnerId}/followers"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def partnerFollowers( @PathVariable(value = "partnerId") partnerId: String) = {
+    def getPartnerFollowers( @PathVariable(value = "partnerId") partnerId: String) = {
 
         val result = new DeferredResult[Feed[PartnerContext]](null, ErrorResult.timeout)
 
@@ -99,7 +99,7 @@ class PartnerController extends EchoedController {
 
     @RequestMapping(value = Array("/{partnerId}/followers"), method = Array(RequestMethod.PUT))
     @ResponseBody
-    def followPartner(
+    def putPartnerFollower(
         @PathVariable(value = "partnerId") partnerId: String,
         eucc: EchoedUserClientCredentials) = {
 
@@ -113,7 +113,7 @@ class PartnerController extends EchoedController {
 
     @RequestMapping(value = Array("/{partnerId}/followers"), method = Array(RequestMethod.DELETE))
     @ResponseBody
-    def unFollowPartner(
+    def deletePartnerFollower(
         @PathVariable(value = "partnerId") partnerId: String,
         eucc: EchoedUserClientCredentials) = {
 
