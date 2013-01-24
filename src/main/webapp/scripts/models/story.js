@@ -11,7 +11,8 @@ define(
                     this.properties = options.properties;
                 } else {
                     this.properties = options.properties;
-                    this.url = options.properties.urls.site + "/api/story/" + attr.id
+                    if(options.properties) this.url = options.properties.urls.site + "/api/story/" + attr.id;
+                    else this.url = "/api/story/" + attr.id;
                     this.currentChapterIndex = 0;
                     this.currentChapterImageIndex = 0;
                 }

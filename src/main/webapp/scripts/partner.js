@@ -11,8 +11,12 @@ require(
 
         var properties = {
             urls: Echoed.urls,
+            exhibitShowLogin: true
+        };
+
+        var options = {
             partnerUser: Echoed.partnerUser,
-            exhibitShowLogin: true,
+            properties: properties,
             contentRegion: PartnerDashboard.content,
             vent: PartnerDashboard.vent
         };
@@ -29,7 +33,7 @@ require(
             }))();
         });
         PartnerDashboard.on("initialize:after", function(options) { Backbone.history.start(); });
-        PartnerDashboard.start(properties);
+        PartnerDashboard.start(options);
     }
 );
 
