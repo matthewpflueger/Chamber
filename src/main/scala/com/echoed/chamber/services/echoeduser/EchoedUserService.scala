@@ -591,7 +591,7 @@ class EchoedUserService(
         case (msg @ FollowPartner(_, partnerId), partner: Partner) =>
             if (!followingPartners.exists(_.partnerId == partner.id)) followingPartners = PartnerFollower(partner.id, partner.name, partner.handle) :: followingPartners
             sender ! FollowPartnerResponse(msg, Right(followingPartners))
-
+            ep(PartnerFollowerCreated(echoedUser.id, followingPartners.head))
 
         case msg @ UnFollowPartner(_, followingPartnerId) =>
             val channel = sender
@@ -616,6 +616,7 @@ class EchoedUserService(
         case (msg @ FollowUser(_, followerId), eu: EchoedUser) =>
             if (!followingUsers.exists(_.echoedUserId == eu.id)) followingUsers = Follower(eu) :: followingUsers
             sender ! FollowUserResponse(msg, Right(followingUsers))
+            ep(FollowerCreated(echoedUser.id, followingUsers.head))
 
 
         case AddFollowerResponse(_, Right(eu)) if (!followingUsers.exists(_.echoedUserId == eu.id)) =>
