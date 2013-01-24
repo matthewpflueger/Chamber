@@ -12,19 +12,20 @@ define(
                 this.page = null;
             },
             routes:{
-                "_=_" : "fix",
-                "": "explore",
-                "!": "explore",
-                "home": "reload",
-                "partner/:id/:type" : "partner",
-                "partner/:id/:type/" : "partner",
-                "topic/:id": "topic",
-                "story/:id": "story",
-                "write/:type/:id" : "writeStory",
-                "write/" : "writePartner",
-                "write": "writePartner",
-                "!story/:id": "story",
-                "!topic/:id": "topic"
+                "_=_":                  "fix",
+                "":                     "explore",
+                "!":                    "explore",
+                "home":                 "reload",
+                "partner/:id/:type":    "partner",
+                "partner/:id/:type/":   "partner",
+                "topic/:id":            "topic",
+                "story/:id":            "story",
+                "photo/:id":            "photo",
+                "!story/:id":           "story",
+                "!photo/:id":           "photo",
+                "write/:type/:id" :     "writeStory",
+                "write/":               "writePartner",
+                "write":                "writePartner"
             },
             partner: function(id, type){
                 var self = this;
@@ -75,13 +76,21 @@ define(
                 this.EvAg.trigger("field/show", id, type);
                 _gaq.push(['_trackEvent', 'Widget', 'Write', this.properties.partnerId]);
             },
+            photo: function(id){
+                if(this.page === null) {
+                    this.reload();
+                    this.page = "#!";
+                }
+                this.oldPage = this.page;
+                this.EvAg.trigger("content:lookup", id);
+            },
             story: function(id){
                 if(this.page === null) {
                     this.reload();
                     this.page = "#!";
                 }
                 this.oldPage = this.page;
-                this.EvAg.trigger("content:show", id);
+                this.EvAg.trigger("content:lookup", id);
                 _gaq.push(['_trackEvent', 'Widget', 'Story', this.properties.partnerId]);
                 _gaq.push(['_trackEvent', 'Story', 'Open', this.properties.partnerId]);
             },

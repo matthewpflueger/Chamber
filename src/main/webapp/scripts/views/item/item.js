@@ -41,7 +41,6 @@ define(
                 }
             },
             load: function(options){
-                console.log(options);
                 var self = this;
                 if(typeof(options) === "string"){
                     this.modelContent = new ModelStory({id: options}, { properties: this.properties });
