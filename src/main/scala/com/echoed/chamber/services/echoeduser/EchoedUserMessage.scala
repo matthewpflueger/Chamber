@@ -149,18 +149,6 @@ object Follower {
 
 private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: Notification) extends EUM with EUI
 
-case class ListFollowingUsers(credentials: EUCC) extends EUM with EUI
-case class ListFollowingUsersResponse(message: ListFollowingUsers, value: Either[EUE, Feed[UserContext]])
-        extends EUM with MR[Feed[UserContext], ListFollowingUsers, EUE]
-
-case class ListFollowedByUsers(credentials: EUCC) extends EUM with EUI
-case class ListFollowedByUsersResponse(message: ListFollowedByUsers, value: Either[EUE, Feed[UserContext]])
-        extends EUM with MR[Feed[UserContext], ListFollowedByUsers, EUE]
-
-case class ListFollowingPartners(credentials: EUCC) extends EUM with EUI
-case class ListFollowingPartnersResponse(message: ListFollowingPartners, value: Either[EUE, List[PartnerFollower]])
-        extends EUM with MR[List[PartnerFollower], ListFollowingPartners, EUE]
-
 case class FetchNotifications(credentials: EUCC) extends EUM with EUI
 case class FetchNotificationsResponse(message: FetchNotifications, value: Either[EUE, Stack[Notification]])
         extends EUM with MR[Stack[Notification], FetchNotifications, EUE]
@@ -405,6 +393,18 @@ case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: 
 case class RequestUserContentFeed(credentials: EUCC, page: Int, c: Class[_]) extends EUM with EUI
 case class RequestUserContentFeedResponse(message: RequestUserContentFeed, value: Either[EUE, Feed[UserContext]])
     extends EUM with MR[Feed[UserContext], RequestUserContentFeed, EUE]
+
+case class RequestFollowers(credentials: EUCC) extends EUM with EUI
+case class RequestFollowersResponse(message: RequestFollowers, value: Either[EUE, Feed[UserContext]])
+    extends EUM with MR[Feed[UserContext], RequestFollowers, EUE]
+
+case class RequestUsersFollowed(credentials: EUCC) extends EUM with EUI
+case class RequestUsersFollowedResponse(message: RequestUsersFollowed, value: Either[EUE, Feed[UserContext]])
+    extends EUM with MR[Feed[UserContext], RequestUsersFollowed, EUE]
+
+case class RequestPartnersFollowed(credentials: EUCC) extends EUM with EUI
+case class RequestPartnersFollowedResponse(message: RequestPartnersFollowed, value: Either[EUE, List[PartnerFollower]])
+    extends EUM with MR[List[PartnerFollower], RequestPartnersFollowed, EUE]
 
 case class UpdateUserStory(credentials: EUCC, story: StoryPublic) extends EUM with EUI with OnlineOnlyMessage
 case class UpdateUserStoryResponse(message: UpdateUserStory, value: Either[EUE, Boolean])

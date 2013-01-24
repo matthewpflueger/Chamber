@@ -79,8 +79,8 @@ class UserController extends EchoedController {
     def getUserFollowing(@PathVariable(value ="id") id: String) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(ListFollowingUsers(new EchoedUserClientCredentials(id))).onSuccess {
-            case ListFollowingUsersResponse(_, Right(fus)) => result.setResult(fus)
+        mp(RequestUsersFollowed(new EchoedUserClientCredentials(id))).onSuccess {
+            case RequestUsersFollowedResponse(_, Right(fus)) => result.setResult(fus)
         }
         result
     }
@@ -90,8 +90,8 @@ class UserController extends EchoedController {
     def getUserFollowers(@PathVariable(value ="id") id: String) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(ListFollowedByUsers(new EchoedUserClientCredentials(id))).onSuccess {
-            case ListFollowedByUsersResponse(_, Right(fbu)) => result.setResult(fbu)
+        mp(RequestFollowers(new EchoedUserClientCredentials(id))).onSuccess {
+            case RequestFollowersResponse(_, Right(fbu)) => result.setResult(fbu)
         }
         result
     }

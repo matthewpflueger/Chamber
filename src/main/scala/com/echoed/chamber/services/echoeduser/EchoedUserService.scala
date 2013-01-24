@@ -92,6 +92,14 @@ class EchoedUserService(
         unstashAll()
     }
 
+    private def userContext = {
+        new UserContext(
+            echoedUser,
+            getStats ::: contentManager.getStats,
+            contentManager.getHighlights,
+            contentManager.getContentList)
+    }
+
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1.minute) {
@@ -392,16 +400,7 @@ class EchoedUserService(
                 getContent
             } else {
                 val content =   contentManager.getContent(_type, page)
-                val stats =     getStats ::: contentManager.getStats
-                val sf =        new Feed(
-                                    new UserContext(
-                                        echoedUser,
-                                        stats,
-                                        contentManager.getHighlights,
-                                        contentManager.getContentList),
-                                    content._1,
-                                    content._2)
-
+                val sf =        new Feed(userContext, content._1, content._2)
                 sender ! RequestUserContentFeedResponse(msg, Right(sf))
             }
 
@@ -570,27 +569,15 @@ class EchoedUserService(
             }
 
 
-        case msg: ListFollowingUsers =>
-            val f = new Feed(
-                        new UserContext(
-                            echoedUser,
-                            null,
-                            null,
-                            contentManager.getContentList),
-                        followingUsers,
-                        null)
-            sender ! ListFollowingUsersResponse(msg, Right(f))
-        case msg: ListFollowedByUsers =>
-            val f = new Feed(
-                        new UserContext(
-                            echoedUser,
-                            null,
-                            null,
-                            contentManager.getContentList),
-                        followedByUsers,
-                        null)
-            sender ! ListFollowedByUsersResponse(msg, Right(f))
-        case msg: ListFollowingPartners => sender ! ListFollowingPartnersResponse(msg, Right(followingPartners))
+        case msg: RequestUsersFollowed =>
+            val f = new Feed(userContext, followingUsers, null)
+            sender ! RequestUsersFollowedResponse(msg, Right(f))
+
+        case msg: RequestFollowers =>
+            val f = new Feed(userContext, followedByUsers, null)
+            sender ! RequestFollowersResponse(msg, Right(f))
+
+        case msg: RequestPartnersFollowed => sender ! RequestPartnersFollowedResponse(msg, Right(followingPartners))
 
         case msg @ FollowPartner(_, partnerId) =>
             val channel = sender

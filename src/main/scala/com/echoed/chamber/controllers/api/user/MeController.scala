@@ -18,34 +18,20 @@ import views.Feed
 import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.echoeduser.FetchNotifications
 import com.echoed.chamber.services.echoeduser.ReadSettingsResponse
-import com.echoed.chamber.services.echoeduser.UnFollowPartnerResponse
-import com.echoed.chamber.services.echoeduser.UnFollowPartner
-import com.echoed.chamber.services.echoeduser.ListFollowedByUsers
 import com.echoed.chamber.services.echoeduser.NewSettingsResponse
 import com.echoed.chamber.services.echoeduser.MarkNotificationsAsRead
 import com.echoed.chamber.domain.EchoedUserSettings
 import com.echoed.chamber.services.echoeduser.RequestOwnContentResponse
 import com.echoed.chamber.services.echoeduser.NewSettings
-import com.echoed.chamber.services.echoeduser.ListFollowingPartnersResponse
-import com.echoed.chamber.services.echoeduser.FollowPartnerResponse
 import com.echoed.chamber.services.echoeduser.PartnerFollower
-import com.echoed.chamber.services.echoeduser.UnFollowUserResponse
-import com.echoed.chamber.services.echoeduser.FollowUserResponse
-import com.echoed.chamber.services.echoeduser.UnFollowUser
 import com.echoed.chamber.services.echoeduser.RequestCustomUserFeed
-import com.echoed.chamber.services.echoeduser.FollowPartner
 import com.echoed.chamber.services.echoeduser.RequestCustomUserFeedResponse
 import com.echoed.chamber.services.echoeduser.MarkNotificationsAsReadResponse
-import com.echoed.chamber.services.echoeduser.ListFollowedByUsersResponse
 import com.echoed.chamber.services.echoeduser.RequestOwnContent
 import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.services.echoeduser.ReadSettings
 import com.echoed.chamber.services.echoeduser.FetchNotificationsResponse
-import com.echoed.chamber.services.echoeduser.ListFollowingUsers
-import com.echoed.chamber.services.echoeduser.ListFollowingPartners
-import com.echoed.chamber.services.echoeduser.ListFollowingUsersResponse
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import com.echoed.chamber.services.echoeduser.FollowUser
 import com.echoed.chamber.domain.public.StoryPublic
 
 
@@ -167,8 +153,8 @@ class MeController extends EchoedController {
     @ResponseBody
     def getOwnFollowingPartners(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
-        mp(ListFollowingPartners(eucc)).onSuccess {
-            case ListFollowingPartnersResponse(_, Right(fp)) => result.setResult(fp)
+        mp(RequestPartnersFollowed(eucc)).onSuccess {
+            case RequestPartnersFollowedResponse(_, Right(fp)) => result.setResult(fp)
         }
         result
     }
@@ -178,8 +164,8 @@ class MeController extends EchoedController {
     def getOwnFollowingUsers(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(ListFollowingUsers(eucc)).onSuccess {
-            case ListFollowingUsersResponse(_, Right(fus)) => result.setResult(fus)
+        mp(RequestUsersFollowed(eucc)).onSuccess {
+            case RequestUsersFollowedResponse(_, Right(fus)) => result.setResult(fus)
         }
         result
     }
@@ -189,8 +175,8 @@ class MeController extends EchoedController {
     def getOwnFollowers(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(ListFollowedByUsers(eucc)).onSuccess {
-            case ListFollowedByUsersResponse(_, Right(fbu)) => result.setResult(fbu)
+        mp(RequestFollowers(eucc)).onSuccess {
+            case RequestFollowersResponse(_, Right(fbu)) => result.setResult(fbu)
         }
 
         result
