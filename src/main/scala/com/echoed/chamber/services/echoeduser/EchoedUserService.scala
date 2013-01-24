@@ -578,7 +578,9 @@ class EchoedUserService(
             val f = new Feed(userContext, followedByUsers, null)
             sender ! RequestFollowersResponse(msg, Right(f))
 
-        case msg: RequestPartnersFollowed => sender ! RequestPartnersFollowedResponse(msg, Right(followingPartners))
+        case msg: RequestPartnersFollowed =>
+            val f = new Feed(userContext, followingPartners, null)
+            sender ! RequestPartnersFollowedResponse(msg, Right(f))
 
         case msg @ FollowPartner(_, partnerId) =>
             val channel = sender

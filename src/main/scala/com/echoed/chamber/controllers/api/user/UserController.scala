@@ -90,8 +90,8 @@ class UserController extends EchoedController {
     def listFollowingPartners(@PathVariable(value ="id") id: String) = {
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(ListFollowingPartners(new EchoedUserClientCredentials(id))).onSuccess {
-            case ListFollowingPartnersResponse(_, Right(fus)) => result.setResult(fus)
+        mp(RequestPartnersFollowed(new EchoedUserClientCredentials(id))).onSuccess {
+            case RequestPartnersFollowedResponse(_, Right(fus)) => result.setResult(fus)
         }
         result
     }

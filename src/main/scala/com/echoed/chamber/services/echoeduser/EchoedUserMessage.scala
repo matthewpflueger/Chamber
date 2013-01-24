@@ -407,8 +407,8 @@ case class RequestUsersFollowedResponse(message: RequestUsersFollowed, value: Ei
     extends EUM with MR[Feed[UserContext], RequestUsersFollowed, EUE]
 
 case class RequestPartnersFollowed(credentials: EUCC) extends EUM with EUI
-case class RequestPartnersFollowedResponse(message: RequestPartnersFollowed, value: Either[EUE, List[PartnerFollower]])
-    extends EUM with MR[List[PartnerFollower], RequestPartnersFollowed, EUE]
+case class RequestPartnersFollowedResponse(message: RequestPartnersFollowed, value: Either[EUE, Feed[UserContext]])
+    extends EUM with MR[Feed[UserContext], RequestPartnersFollowed, EUE]
 
 case class UpdateUserStory(credentials: EUCC, story: StoryPublic) extends EUM with EUI with OnlineOnlyMessage
 case class UpdateUserStoryResponse(message: UpdateUserStory, value: Either[EUE, Boolean])

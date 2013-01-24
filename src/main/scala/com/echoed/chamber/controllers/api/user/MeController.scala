@@ -152,7 +152,7 @@ class MeController extends EchoedController {
     @RequestMapping(value = Array("/following/partners"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getOwnFollowingPartners(eucc: EchoedUserClientCredentials) = {
-        val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
         mp(RequestPartnersFollowed(eucc)).onSuccess {
             case RequestPartnersFollowedResponse(_, Right(fp)) => result.setResult(fp)
         }
