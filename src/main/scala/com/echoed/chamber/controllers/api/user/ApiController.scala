@@ -96,38 +96,4 @@ class ApiController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/topics"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def topics = {
-        val result = new DeferredResult[List[Topic]](null, ErrorResult.timeout)
-
-        mp(ReadTopics()).onSuccess {
-            case ReadTopicsResponse(_, Right(topics)) => result.setResult(topics)
-        }
-
-        result
-    }
-
-    @RequestMapping(value = Array("/topics/partner/{id}"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def topics(@PathVariable(value = "id") partnerId: String)= {
-        val result = new DeferredResult[List[Topic]](null, ErrorResult.timeout)
-
-        mp(GetTopics(new PartnerClientCredentials(partnerId))).onSuccess {
-            case GetTopicsResponse(_, Right(topics)) => result.setResult(topics)
-        }
-        result
-    }
-
-    @RequestMapping(value = Array("/topics/community/{id}"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def communityTopics(@PathVariable(value = "id") communityId: String) = {
-
-        val result = new DeferredResult[List[Topic]](null, ErrorResult.timeout)
-        mp(ReadCommunityTopics(communityId)).onSuccess {
-            case ReadCommunityTopicsResponse(_, Right(topics)) => result.setResult(topics)
-        }
-        result
-    }
-
 }
