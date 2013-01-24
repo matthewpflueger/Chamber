@@ -127,7 +127,7 @@ define(
                 var contentFragment = $('<div></div>');
                 var contentAdded = false;
                 $.each(data.content, function(index, content){
-                    switch( content._type ){
+                    switch( content.contentType ){
                         case "Story":
                             var storyDiv =                  $('<div></div>').addClass('item_wrap');
                             var modelStory =                new ModelStory(content, { properties: self.properties});
@@ -155,7 +155,7 @@ define(
                                                                     properties:     self.properties,
                                                                     EvAg:           self.EvAg
                                                                 });
-                            self.content.hash[content._id] =    self.content.array.length;
+                            self.content.hash[content.id] =    self.content.array.length;
 
                             self.content.array.push(modelPhoto);
                             contentFragment.append(photoDiv);
