@@ -28,21 +28,14 @@ abstract class OnlineOfflineService extends EchoedService with Stash {
     protected var unhandledMessages = List[(Message, ActorRef)]()
 
     protected def unhandledMessage: Receive = {
-        case m: Message =>
-            log.debug("Unhandled message received while not online {}", m)
-            unhandledMessages = (m, sender) :: unhandledMessages
+        case m: Message => stash()
     }
 
     protected def discardOldBehavior = true
 
     protected def becomeOnline = {
         context.become(LoggingReceive(online.orElse(receiveTimeout)), discardOldBehavior)
-        log.info("Now online, replaying {} unhandled messages", unhandledMessages.length)
-        unhandledMessages.reverse.foreach { tuple =>
-            log.debug("Replaying {}", tuple._1)
-            self.tell(tuple._1, tuple._2)
-        }
-        unhandledMessages = List[(Message, ActorRef)]()
+        unstashAll()
     }
 
     protected def becomeOffline = {

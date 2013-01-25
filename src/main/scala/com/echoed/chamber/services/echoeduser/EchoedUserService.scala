@@ -62,7 +62,7 @@ class EchoedUserService(
         storyGraphUrl: String,
         echoClickUrl: String,
         encrypter: Encrypter,
-        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService with Stash {
+        implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService {
 
     import context.dispatcher
 
@@ -80,7 +80,7 @@ class EchoedUserService(
     private val privateContentManager =     new ContentManager()
 
     private var contentLoaded =         false
-    private var customContentLoaded = false
+    private var customContentLoaded =   false
 
     private def becomeContentLoaded {
         contentLoaded = true
@@ -100,6 +100,8 @@ class EchoedUserService(
             contentManager.getContentList)
     }
 
+
+
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1.minute) {
@@ -108,9 +110,9 @@ class EchoedUserService(
 
     private def getStats = {
         var stats = List[Map[String, Any]]()
-        stats = Map("name" -> "Sites Followed", "value" -> followingPartners.length, "path" -> "following/partners") :: stats
-        stats = Map("name" -> "Following", "value" -> followingUsers.length, "path" -> "following") :: stats
-        stats = Map("name" -> "Followers", "value" -> followedByUsers.length, "path" -> "followers") :: stats
+        stats = Map("name" -> "Sites Followed", "value" -> followingPartners.length,  "path" -> "following/partners") :: stats
+        stats = Map("name" -> "Following",      "value" -> followingUsers.length,     "path" -> "following") :: stats
+        stats = Map("name" -> "Followers",      "value" -> followedByUsers.length,    "path" -> "followers") :: stats
         stats
     }
 
@@ -191,9 +193,9 @@ class EchoedUserService(
     }
 
     private def create(eu: EchoedUser, fu: Option[FacebookUser] = None, tu: Option[TwitterUser] = None) {
-        echoedUser = eu
-        facebookUser = fu.map(_.copy(echoedUserId = echoedUser.id))
-        twitterUser = tu.map(_.copy(echoedUserId = echoedUser.id))
+        echoedUser =    eu
+        facebookUser =  fu.map(_.copy(echoedUserId = echoedUser.id))
+        twitterUser =   tu.map(_.copy(echoedUserId = echoedUser.id))
         facebookUser.map(echoedUser.assignFacebookUser(_))
         twitterUser.map(echoedUser.assignTwitterUser(_))
         echoedUserSettings = new EchoedUserSettings(echoedUser)
@@ -245,22 +247,22 @@ class EchoedUserService(
     }
 
     private def setState(euss: EchoedUserServiceState) {
-        echoedUser = euss.echoedUser
-        echoedUserSettings = euss.echoedUserSettings
-        twitterUser = euss.twitterUser
-        facebookUser = euss.facebookUser
-        notifications = euss.notifications
-        followingUsers = euss.followingUsers
-        followedByUsers = euss.followedByUsers
-        followingPartners = euss.followingPartners
+        echoedUser =          euss.echoedUser
+        echoedUserSettings =  euss.echoedUserSettings
+        twitterUser =         euss.twitterUser
+        facebookUser =        euss.facebookUser
+        notifications =       euss.notifications
+        followingUsers =      euss.followingUsers
+        followedByUsers =     euss.followedByUsers
+        followingPartners =   euss.followingPartners
     }
 
     override def preStart() {
         super.preStart()
         initMessage match {
-            case LoginWithCredentials(credentials, _, _) => mp.tell(ReadForCredentials(credentials), self)
-            case LoginWithFacebookUser(facebookUser, _, _) => mp.tell(ReadForFacebookUser(facebookUser), self)
-            case LoginWithTwitterUser(twitterUser, _, _) => mp.tell(ReadForTwitterUser(twitterUser), self)
+            case LoginWithCredentials(credentials, _, _) =>     mp.tell(ReadForCredentials(credentials), self)
+            case LoginWithFacebookUser(facebookUser, _, _) =>   mp.tell(ReadForFacebookUser(facebookUser), self)
+            case LoginWithTwitterUser(twitterUser, _, _) =>     mp.tell(ReadForTwitterUser(twitterUser), self)
             case msg: RegisterLogin => //handled in init as we need to capture the sender
         }
     }

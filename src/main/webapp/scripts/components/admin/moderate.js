@@ -19,7 +19,6 @@ define(
                 this.pageSize = 30;
             },
             pageChange: function(option){
-                console.log("TEST");
                 if(option === "moderate"){
                     this.render();
                 } else {
