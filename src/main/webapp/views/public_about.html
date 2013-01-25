@@ -1,25 +1,30 @@
 {{<public_super}}
     {{$title}}Echoed | About Us{{/title}}
-    {{$bodyElement}}<body>{{/bodyElement}}
+    {{$bodyElement}}<body class="white">{{/bodyElement}}
     {{$public_content}}
     <div id="about-content">
-        <div id="about">
-            <div id="about-left">
-                <ul>
-                    <li>
-                        What is Echoed
-                    </li>
-                    <li>
-                        How to use Echoed
-                    </li>
-                    <li>
-                        For Websites
-                    </li>
-                </ul>
+        <div id="about-banner">
+            <div class="center">
+                <div id="about-shortcuts">
+                    <ul>
+                        <li>
+                            <a href="#">What is Echoed</a>
+                        </li>
+                        <li>
+                            <a href="#">How to use Echoed</a>
+                        </li>
+                        <li>
+                            <a href="#">For Websites</a>
+                        </li>
+                    </ul>
+                </div>
+                <h1>The Community That Goes With You</h1>
+                <p class="subheading">Share content and discussions everywhere on the web.</p>
             </div>
-            <div id="about-right">
-                <h1>The community that goes everywhere</h1>
-                <a href="javascript:void((function(d)%7Bvar%20e%3Dd.createElement(%27script%27)%3Be.setAttribute(%27type%27,%27text/javascript%27)%3Be.setAttribute(%27charset%27,%27UTF-8%27)%3Be.setAttribute(%27src%27,%27{{urls.site}}/bookmarklet/js%3Fr%3D%27%2BMath.random()*99999999)%3Bd.body.appendChild(e)%7D)(document))%3B">Bookmarklet</a>
+        </div>
+        <div id="about-body">
+            <div class="center">
+                <a onclick="alert('Drag me to your bookmarks bar'); return false;" class="bookmarklet" href="javascript:void((function(d)%7Bvar%20e%3Dd.createElement(%27script%27)%3Be.setAttribute(%27type%27,%27text/javascript%27)%3Be.setAttribute(%27charset%27,%27UTF-8%27)%3Be.setAttribute(%27src%27,%27{{urls.site}}/bookmarklet/js%3Fr%3D%27%2BMath.random()*99999999)%3Bd.body.appendChild(e)%7D)(document))%3B">{{bookmarkletName}}</a>
             </div>
         </div>
     </div>

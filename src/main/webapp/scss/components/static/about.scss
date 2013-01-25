@@ -1,26 +1,53 @@
-#about-content{
-    width: 1200px;
-    margin: auto;
-    padding-top: 100px;
-}
+#about-content {
 
-#about{
-    position: relative;
-}
+    padding-top:        40px;
 
-#about-left{
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    li{
+    #about-banner {
+        background-color:   #f0f0f0;
+        padding:            50px;
+        border-bottom:      1px solid #CCC;
 
-        list-style:none;
-        @include fontTitleLight(18px);
-        padding: 10px 20px;
+        h1 {
+            @include        fontTitle(60px);
+        }
+
+        .subheading{
+            @include        fontTitle(20px, #666666);
+        }
+
+        #about-shortcuts {
+            margin-top:     30px;
+            float:          right;
+            width:          300px;
+            border-radius:  5px;
+            border:         1px solid #CCC;
+            li {
+                list-style: none;
+                padding:    10px 20px;
+                a {
+                    @include            fontTitleLight(18px);
+                    text-decoration:    none;
+                }
+            }
+        }
+    }
+    #about-body{
+        padding: 20px
     }
 }
 
-#about-right{
-    margin-left: 200px;
-    width: 660px;
+.bookmarklet{
+    @include                fontTextBold(16px, #666666);
+    @include                dropShadowDown();
+    text-decoration:        none;
+    background-color:       #ffffff;
+    border-radius:          5px;
+    border:                 1px solid #ccc;
+    padding:                11px 15px;
+    display:                inline-block;
+    &:active{
+        border-color:       #666666;
+        color:              #333333
+    }
+
 }

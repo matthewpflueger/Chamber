@@ -25,13 +25,13 @@
 
 
 body{
-    background-color: rgba(226,229, 236, 1);
-    background-image: image-url("bk_noise_dark.jpg");
+    background-color:           rgba(226,229, 236, 1);
+    background-image:           image-url("bk_noise_dark.jpg");
     &.white{
-        background-color: #FFF;
+        background-color:       #FFF;
     }
     &.noScroll{
-        overflow: hidden;
+        overflow:               hidden;
     }
 }
 

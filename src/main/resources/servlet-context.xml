@@ -258,6 +258,11 @@
         <property name="facebookAppNameSpace" value="${facebook.appNameSpace}" />
     </bean>
 
+    <!--suppress DuplicatedBeanNamesInspection -->
+    <bean id="staticController" class="com.echoed.chamber.controllers.StaticController">
+        <property name="bookmarkletName"  value="${bookmarklet.name}" />
+    </bean>
+
     <util:list id="mobileUserAgents">
         <value>iPhone</value>
         <value>Android</value>

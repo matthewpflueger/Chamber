@@ -208,6 +208,8 @@
         <prop key="cloudinary.apiKey">921488723881834</prop>
         <prop key="cloudinary.secret">3t7CPs_VOcKQa7kGIloKpBI8Tk4</prop>
         <prop key="cloudinary.callback">${http.urls.site}/story/image/callback</prop>
+
+        <prop key="bookmarklet.name">Echo It</prop>
     </util:properties>
 
 

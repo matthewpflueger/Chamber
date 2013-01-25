@@ -286,21 +286,15 @@ body{
 #header-tabs{
     height: 40px;
     position:absolute;
-    left: 250px;
-    border-left: 1px solid #CCC;
+    left: 200px;
     li{
         float:left;
-        border-right: 1px solid #CCC;
-        box-shadow: 1px 0px #FFF;
         list-style: none;
         cursor: pointer;
-        &:hover{
-            background-color: rgba(100, 100, 100, 0.1);
-        }
         a{
             display: inline-block;
-            padding: 11px 10px 11px 10px;
-            @include fontTitle(15px);
+            padding: 12px 10px 11px 10px;
+            @include fontTextBold(13px);
             text-shadow: 0px 1px #FFF;
             text-decoration: none;
         }
