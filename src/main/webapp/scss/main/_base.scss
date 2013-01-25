@@ -254,76 +254,84 @@ img {
 
 .clearfix{
     zoom:   1;
-    &:before, &:after{
+
+    &:before,
+    &:after{
         content:    "";
         display:    table;
     }
+
     &:after{
         clear:      both;
     }
 }
 
 .red-link{
-    color: $colorEC;
-    font-weight: bold;
-    text-decoration: none;
+    color:              $colorEC;
+    font-weight:        bold;
+    text-decoration:    none;
+
     &:hover{
-        color: #333 !important;
+        color:          #333 !important;
     }
+
     &:visited{
-        color: $colorEC;
+        color:          $colorEC;
     }
 }
 
-.link-white{
-    color: #FFF;
-    text-decoration: none;
-    &visited, &:active{
-        color: #333;
+.link-white {
+    color:              #FFF;
+    text-decoration:    none;
+
+    &:visited,
+    &:active {
+        color:          #333;
     }
 }
 
 .link-black{
-    color: #333;
-    text-decoration: none;
-    &:visited, &:active{
-        color: #333;
+    color:              #333;
+    text-decoration:    none;
+
+    &:visited,
+    &:active{
+        color:          #333;
     }
 
 }
 
 .rightarrow{
-    border-width: 5px 0px 5px 5px;
-    display: inline-block;
-    border-style: solid;
-    border-color: transparent;
-    border-left-color: #333;
+    border-width:       5px 0px 5px 5px;
+    display:            inline-block;
+    border-style:       solid;
+    border-color:       transparent;
+    border-left-color:  #333;
 }
 
 
 .downarrow{
-    position: absolute;
-    top: 50%;
-    margin-top: -3px;
-    right: 10px;
-    border-style: solid dashed dashed;
-    border-color: transparent;
-    border-top-color: #999;
-    display: -moz-inline-box;
-    display: inline-block;
-    font-size: 0;
-    height: 0;
-    line-height: 0;
-    width: 0;
-    border-width: 5px 5px 0;
-    padding-top: 1px;
+    position:           absolute;
+    top:                50%;
+    margin-top:         -3px;
+    right:              10px;
+    border-style:       solid dashed dashed;
+    border-color:       transparent;
+    border-top-color:   #999;
+    display:            -moz-inline-box;
+    display:            inline-block;
+    font-size:          0;
+    height:             0;
+    line-height:        0;
+    width:              0;
+    border-width:       5px 5px 0;
+    padding-top:        1px;
 }
 
-
 .bold{
-    font-weight: bold !important;
+    font-weight:        bold !important;
 }
 
 .highlight-text{
-    color: $colorEC !important;
+    color:              $colorEC !important;
 }

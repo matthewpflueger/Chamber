@@ -31,7 +31,7 @@ define(
             lookup: function(id){
                 var lookup = id;
                 if(this.content){
-                    if(this.content.hash[id]) lookup = { modelContent: this.content.array[this.content.hash[id]] };
+                    if(this.content.hash[id] !== undefined) lookup = { modelContent: this.content.array[this.content.hash[id]] };
                 }
                 this.EvAg.trigger('content:show', lookup);
             },
@@ -58,7 +58,7 @@ define(
 
             },
             nextItem: function(storyId){
-                var self = this;
+                var self =  this;
                 var index = this.content.hash[storyId];
                 if((index + 1) >= this.content.array.length){
                     this.more(function(){
@@ -99,21 +99,6 @@ define(
                         }
                     })();
                 }
-            },
-            addCommunities: function(data){
-                var self = this;
-                var communityFragment = $('<div></div>');
-                var communityAdded = false;
-                if(data.communities){
-                    $.each(data.communities, function(index, community){
-                        var communityDiv = $('<div></div>').addClass("item_wrap");
-                        $('<a class="item_content community"></a>').text(community.id).appendTo(communityDiv).attr("href", "#community/" + community.id);
-                        communityFragment.append(communityDiv);
-                        communityAdded = true;
-                    });
-                    self.exhibit.isotope('insert', communityFragment.children());
-                }
-                return communityAdded;
             },
             addContent: function(data){
                 var self = this;
