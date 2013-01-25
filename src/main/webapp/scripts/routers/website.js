@@ -30,13 +30,12 @@ define(
                 "story/:id":                "story",
                 "!photo/:id":               "photo",
                 "photo/:id":                "photo",
-                "!write/" :                 "writeStory",
-                "!write":                   "writeStory",
+                "write/:id" :               "write",
+                "write":                    "write",
+                "!write/:id" :              "write",
+                "!write":                   "write",
                 "me/feed/:type":            "feed",
                 "me/feed/:type/":           "feed",
-                "write/:type/:id" :         "writeStory",
-                "write/":                   "writeStory",
-                "write":                    "writeStory",
                 ":context/:id":             "content",
                 ":context/:id/":            "content",
                 ":context/:id/:type":       "content",
@@ -98,27 +97,19 @@ define(
                     });
                 }
             },
-            writeStory: function(type, id){
+            writeStory: function(id){
                 if(this.page === null){
-
-                    switch(type){
-                        case "partner":
-                            this.partnerFeed(id);
-                            this.page = "#!partner/" + id;
-                            break;
-                        default:
-                            if(this.modelUser.isLoggedIn()){
-                                this.content();
-                                this.page = "#!me";
-                            } else {
-                                this.explore();
-                                this.page = "#";
-                            }
-                            break;
+                    if(this.modelUser.isLoggedIn()){
+                        this.content();
+                        this.page = "#!me";
+                    } else {
+                        this.explore();
+                        this.page = "#";
                     }
                 }
                 this.oldPage = this.page;
-                this.EvAg.trigger("field/show",id , type);
+                if(id)  this.EvAg.trigger("input:edit", id);
+                else    this.EvAg.trigger("input:write");
             },
             photo: function(id){
                 if(this.page === null) {

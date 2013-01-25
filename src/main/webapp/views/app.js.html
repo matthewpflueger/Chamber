@@ -1,0 +1,27 @@
+(function(){
+    if(typeof(window.Echoed) ==='undefined') Echoed = {};
+
+    {{>partial_requirejs}}
+    Echoed.urls = {};
+    {{#urls}}
+    Echoed.urls.api = "{{api}}";
+    Echoed.urls.cdn = "{{cdn}}";
+    Echoed.urls.js = "{{js}}";
+    Echoed.urls.css = "{{css}}";
+    Echoed.urls.images = "{{images}}";
+    Echoed.urls.views = "{{views}}";
+    Echoed.urls.site = "{{site}}";
+    {{/urls}}
+
+    Echoed.partnerId = '{{partner.id}}';
+    var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
+    {{#dev}}
+    es.src = "{{https.js}}/libs/require/require-2.1.1.js";
+    es.setAttribute('data-main',"{{https.js}}/applet.js");
+    {{/dev}}
+    {{^dev}}
+    es.src = "{{https.js}}/applet.js"
+    {{/dev}}
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
+
+})();

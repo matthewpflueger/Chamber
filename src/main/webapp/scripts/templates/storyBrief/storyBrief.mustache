@@ -35,10 +35,10 @@
         <li><span class="upvote"></span></li>
         <li><span class="downvote"></span></li>
         <li><a href="#">Share</a></li>
-            {{#isSelf}}<li><a class="story-brief-action" href="#write/story/{{storyFull.id}}">Edit</a></li>{{/isSelf}}
+            {{#isSelf}}<li><a class="story-brief-action" href="#write/{{storyFull.id}}">Edit</a></li>{{/isSelf}}
             {{^isSelf}}<li><a class="story-brief-action" href="#">Save</a></li>{{/isSelf}}
         {{/inComplete}}
-        {{#inComplete}}<li><a class="story-brief-action" href="#write/story/{{storyFull.id}}">Finish</a></li>{{/inComplete}}
+        {{#inComplete}}<li><a class="story-brief-action" href="#write/{{storyFull.id}}">Finish</a></li>{{/inComplete}}
     </ul>
 </div>
 

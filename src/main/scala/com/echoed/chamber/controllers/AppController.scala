@@ -5,13 +5,12 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.partner._
-import com.echoed.chamber.services.echoeduser.GetEchoedUser
-import com.echoed.chamber.services.echoeduser.GetEchoedUserResponse
 import com.echoed.chamber.services.partner.FetchPartnerResponse
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.partner.FetchPartner
 import scala.Right
 import scala.concurrent.ExecutionContext.Implicits.global
+import javax.annotation.Nullable
 
 
 @Controller
@@ -37,6 +36,32 @@ class AppController extends EchoedController {
         result
     }
 
+    @RequestMapping(value = Array("/js"), method = Array(RequestMethod.GET), produces = Array("application/x-javascript"))
+    def js(
+            pcc: PartnerClientCredentials,
+            @Nullable eucc: EchoedUserClientCredentials,
+            @RequestHeader("User-Agent") userAgent: String) = {
+
+        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
+        if(!userAgent.contains("MSIE 8")){
+            mp(FetchPartnerAndPartnerSettings(pcc)).onSuccess {
+                case FetchPartnerAndPartnerSettingsResponse(_, Right(p)) =>
+                    val modelAndView =  new ModelAndView(v.appJsView)
+                    modelAndView.addObject("partnerId", pcc.partnerId)
+                    modelAndView.addObject("partner", p.partner)
+                    modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
+                    modelAndView.addObject("customization", p.customization)
+                    result.setResult(modelAndView)
+            }
+        }
+        result
+
+    }
+
     @RequestMapping(value = Array("/iframe"), method = Array(RequestMethod.GET))
-    def appIframe = v.appIFrameView
+    def appIframe(eucc: EchoedUserClientCredentials) = {
+        val modelAndView = new ModelAndView(v.appIFrameView)
+        modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
+        modelAndView
+    }
 }

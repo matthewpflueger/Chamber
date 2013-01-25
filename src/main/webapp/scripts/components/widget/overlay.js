@@ -14,6 +14,7 @@ define(
                 this.EvAg =         options.EvAg;
                 this.properties =   options.properties;
                 this.htmlEl =       $('html');
+
                 this.socket = new easyXDM.Socket({
                     remote: this.properties.overlayUrl,
                     props: {
@@ -22,6 +23,18 @@ define(
                     onReady: function(){
                         self.element = $('#echoed-overlay');
                         self.element.removeAttr('style');
+                        if(options.showOverlay){
+                            self.element.css({
+                                position:   "fixed",
+                                top:        "0px",
+                                left:       "0px",
+                                bottom:     "0px",
+                                right:      "0px",
+                                height:     "100%",
+                                width:      "100%",
+                                "z-index":    "10000000"
+                            });
+                        }
                         if(self.properties.isPreview){
                             self.showOverlay();
                             self.EvAg.trigger("background/show");

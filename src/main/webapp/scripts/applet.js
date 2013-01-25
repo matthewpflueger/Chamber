@@ -17,7 +17,7 @@ require(
             redirect:   Echoed.redirect,
             overlayUrl: Echoed.urls.site + "/app/iframe#partner/" + Echoed.partnerId
         };
-        this.overlay =      new Overlay({ properties: this.properties, EvAg: this.EventAggregator });
+        this.overlay =      new Overlay({ properties: this.properties, EvAg: this.EventAggregator, showOverlay: true });
         this.background =   new Background({ el: "#background", properties: this.properties, EvAg: this.EventAggregator });
     }
 );

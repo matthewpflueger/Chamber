@@ -217,6 +217,7 @@
 
         <property name="appView" value="app" />
         <property name="appIFrameView" value ="app.iframe"/>
+        <property name="appJsView" value ="app.js"/>
 
         <property name="widgetAppJsView" value="widget.app.js"/>
         <property name="widgetAppIFrameView" value="widget.iframe.app" />

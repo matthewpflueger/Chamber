@@ -98,7 +98,7 @@ define(
                     if(self.data.chapters.length > 0){
                         window.location.hash = "#!story/" +  this.modelStory.id;
                     } else {
-                        window.location.hash = "#!write/story/" +  this.modelStory.id;
+                        window.location.hash = "#!write/" +  this.modelStory.id;
                     }
                 }
             }

@@ -21,9 +21,13 @@
                 this.element = $(options.el);
                 this.properties = options.properties;
                 this.modelUser = options.modelUser;
+                this.modelContext = options.modelContext;
                 this.EvAg = options.EvAg;
-                this.EvAg.bind("field/show", this.load);
                 this.modelUser.on("change:id", this.login);
+
+                this.EvAg.bind("input:write", this.write);
+                this.EvAg.bind("input:edit", this.edit);
+
                 this.locked = false;
                 this.cloudName = "";
                 this.prompts = [];
@@ -69,15 +73,22 @@
                 $(".subtit").toggleClass("on");
             },
             login: function(){
-                if(this.loaded === true) this.load(this.id, this.type);
+                if(this.loaded === true) this.load();
             },
-            load: function(id, type){
-                var self = this;
+            edit: function(id){
                 this.id = id;
-                this.type = type;
+                this.type = "story";
+                this.load();
+            },
+            write: function(){
+                this.id = this.modelContext.id;
+                this.type = this.modelContext.get("contextType");
+                this.load();
+            },
+            load: function(){
+                var self = this;
                 var loadData = {};
-                loadData[type + "Id"] = id;
-
+                loadData[this.type + "Id"] = this.id;
                 if(this.modelUser.isLoggedIn()){
                     this.modelStory = new ModelStory(null, {
                         loadData: loadData,
@@ -86,9 +97,6 @@
                             self.render();
                         }
                     });
-                } else if(type === "partner"){
-                    var text = this.properties.partner.name + " wants to hear your story. Share your story and have it featured.";
-                    this.EvAg.trigger("login/init", null, text, self.close);
                 } else {
                     this.EvAg.trigger("login/init", null, text, self.close);
                 }

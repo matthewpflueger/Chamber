@@ -23,9 +23,9 @@ define(
                 "photo/:id":            "photo",
                 "!story/:id":           "story",
                 "!photo/:id":           "photo",
-                "write/:type/:id" :     "writeStory",
-                "write/":               "writePartner",
-                "write":                "writePartner"
+                "write/:id" :           "write",
+                "write/":               "write",
+                "write":                "write"
             },
             partner: function(id, type){
                 var self = this;
@@ -54,9 +54,6 @@ define(
             },
             explore: function(){
             },
-            writePartner: function(){
-                this.writeStory('partner', this.properties.partnerId );
-            },
             requestFeed: function(endPoint, callback){
                 var jsonUrl = this.properties.urls.api + '/api/' + endPoint;
                 utils.AjaxFactory({
@@ -67,13 +64,15 @@ define(
                     }
                 })();
             },
-            writeStory: function(type, id){
+            write: function(id){
                 if(this.page === null){
                     this.reload();
                     this.page = "#!";
                 }
                 this.oldPage = this.page;
-                this.EvAg.trigger("field/show", id, type);
+                if(id)  this.EvAg.trigger("input:edit", id);
+                else    this.EvAg.trigger("input:write");
+
                 _gaq.push(['_trackEvent', 'Widget', 'Write', this.properties.partnerId]);
             },
             photo: function(id){
