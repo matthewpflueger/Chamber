@@ -1,26 +1,26 @@
 #static-masthead{
-    margin-top: 40px;
-    background-image: image-url("bk_hexabump.png");
-    border-bottom: 10px solid #8E98AC;
+    margin-top:         40px;
+    background-image:   image-url("bk_hexabump.png");
+    border-bottom:      10px solid #8E98AC;
     .masthead-overlay{
-        padding: 60px 0px;
+        padding:        60px 0px;
     }
     .masthead-subtitle{
-        width: 750px;
-        line-height: 1.5em;
-        @include fontTitleLight(28px, #FFF);
+        @include        fontTitleLight(28px, #FFF);
+        width:          750px;
+        line-height:    1.5em;
+
         .red-button{
-            @include buttonLargeRed();
-            text-decoration: none;
-            line-height: 1.2em;
+            @include            buttonLargeRed();
+            text-decoration:    none;
+            line-height:        1.2em;
         }
         .green-button{
-            @include buttonLargeGreen();
-            text-decoration: none;
-            line-height: 1.2em;
-            margin-right: 10px;
+            @include            buttonLargeGreen();
+            text-decoration:    none;
+            line-height:        1.2em;
+            margin-right:       10px;
         }
-
     }
 }
 
