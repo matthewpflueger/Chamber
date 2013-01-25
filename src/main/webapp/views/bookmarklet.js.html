@@ -1,6 +1,6 @@
 (function(){
 
-    var i=0, domain = window.location.hostname;
+    var i=0, domain = window.location.hostname, path;
     var links = document.getElementsByTagName('link');
 
     for(i = 0; i < links.length; i++){
@@ -9,11 +9,12 @@
             var a = document.createElement('a');
             a.href = url;
             domain = a.hostname;
+            path = encodeURIComponent(a.pathname);
         }
     }
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
-    es.src = "{{https.site}}/app/js?pid=" + domain;
+    es.src = "{{https.site}}/app/js?pid=" + domain + "&path=" + path;
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
 
 })();

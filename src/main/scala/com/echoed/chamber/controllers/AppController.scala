@@ -40,6 +40,7 @@ class AppController extends EchoedController {
     def js(
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials,
+            @RequestParam(value = "path") path: String,
             @RequestHeader("User-Agent") userAgent: String) = {
 
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
@@ -49,6 +50,7 @@ class AppController extends EchoedController {
                     val modelAndView =  new ModelAndView(v.appJsView)
                     modelAndView.addObject("partnerId", pcc.partnerId)
                     modelAndView.addObject("partner", p.partner)
+                    modelAndView.addObject("path", path)
                     modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                     modelAndView.addObject("customization", p.customization)
                     result.setResult(modelAndView)
