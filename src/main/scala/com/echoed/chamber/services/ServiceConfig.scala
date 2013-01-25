@@ -25,6 +25,7 @@ import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.mail.javamail.JavaMailSender
 import scala.collection.mutable.LinkedHashMap
 import topic.TopicService
+import akka.routing.{SmallestMailboxRouter, DefaultResizer}
 
 
 @Configuration
@@ -174,7 +175,9 @@ class ServiceConfig {
 
 
     @Bean
-    def queryService = (ac: ActorContext) => ac.actorOf(Props(new QueryService(squerylDataSource)), "QueryService")
+    def queryService = (ac: ActorContext) =>  ac.actorOf(Props(new QueryService(squerylDataSource))
+            .withRouter(SmallestMailboxRouter(resizer = Some(DefaultResizer(lowerBound = 10, upperBound = 20)))),
+            "QueryService")
 
     @Bean
     def stateService = (ac: ActorContext) => ac.actorOf(Props(new StateService(
