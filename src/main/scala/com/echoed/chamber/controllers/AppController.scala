@@ -61,7 +61,7 @@ class AppController extends EchoedController {
     }
 
     @RequestMapping(value = Array("/iframe"), method = Array(RequestMethod.GET))
-    def appIframe(eucc: EchoedUserClientCredentials) = {
+    def appIframe(@Nullable eucc: EchoedUserClientCredentials) = {
         val modelAndView = new ModelAndView(v.appIFrameView)
         modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
         modelAndView
