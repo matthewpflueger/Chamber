@@ -13,40 +13,42 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
-                this.el = options.el;
-                this.element = $(this.el);
-                this.properties = options.properties;
-                this.EvAg = options.EvAg;
-                this.modelUser = options.modelUser;
-                this.EvAg.bind('story/show', this.load);
-                this.EvAg.bind('story/hide', this.close);
-                if(this.modelUser) this.modelUser.on("change:id", this.login);
-                this.locked = false;
+                this.el =           options.el;
+                this.element =      $(this.el);
+                this.properties =   options.properties;
+                this.EvAg =         options.EvAg;
+                this.modelUser =    options.modelUser;
+
+                this.locked =       false;
+                this.modelUser.on("change:id", this.login);
+
+            },
+            load: function(options){
+                this.modelStory =   options.modelStory;
+                this.render();
             },
             events: {
-                "click .comment-submit": "createComment",
-                "click .login-button": "commentLogin",
-                "click .story-gallery-chapter" : "chapterClick",
-                "click .story-gallery-thumbnail": "imageClick",
-                "click #story-image-container": "nextImage",
-                "click .story-nav-button": "navClick",
-                "click .upvote": "upVote",
-                "click .downvote": "downVote",
-                "click #story-from": "fromClick",
-                "click #story-gallery-next": "next",
-                "click #story-gallery-prev": "previous",
-                "click .story-share": "share",
-                "click #comments-login": "showLogin",
-                "click .story-link": "redirect",
-                "click .fade" : "fadeClick"
+                "click .comment-submit":            "createComment",
+                "click .login-button":              "commentLogin",
+                "click .story-gallery-chapter":     "chapterClick",
+                "click .story-gallery-thumbnail":   "imageClick",
+                "click #story-image-container":     "nextImage",
+                "click .upvote":                    "upVote",
+                "click .downvote":                  "downVote",
+                "click #story-from":                "fromClick",
+                "click #story-gallery-next":        "next",
+                "click #story-gallery-prev":        "previous",
+                "click .story-share":               "share",
+                "click #comments-login":            "showLogin",
+                "click .story-link":                "linkClick"
             },
-            fadeClick: function(ev){
-                if($(ev.target).hasClass("fade")){
-                    this.close();
-                }
+            linkClick: function(){
+                this.EvAg.trigger("content:hide");
             },
             fromClick: function(ev){
-                window.open(this.properties.urls.api + "/redirect/partner/" + this.modelStory.get("story").partnerId);
+                this.EvAg.trigger("content:hide");
+                var url = "#partner/" + this.modelStory.get("story").partnerId +"/";
+                window.location.hash = url;
             },
             showLogin: function(){
                 this.EvAg.trigger("login/init", "story/login");
@@ -87,9 +89,7 @@ define(
             },
             scroll: function(position){
                 var self = this;
-                self.galleryNode.animate({
-                    scrollTop: position
-                });
+                self.galleryNode.animate({  scrollTop: position });
             },
             upVote: function(ev){
                 var self = this;
@@ -122,21 +122,6 @@ define(
                     self.renderVotes();
                 }
             },
-            navClick: function(ev){
-                var self = this;
-                var target = $(ev.currentTarget);
-                var action = target.attr("act");
-                self.EvAg.trigger('exhibit/story/'+ action, this.modelStory.id);
-            },
-            load: function(id){
-                var self = this;
-                this.modelStory = new ModelStory({ id: id }, { properties: this.properties });
-                this.modelStory.fetch({
-                    success: function(model, xhr, response){
-                        self.render();
-                    }
-                });
-            },
             renderVotes: function(){
                 var self = this;
                 var upVotes = 0, downVotes = 0, key;
@@ -159,24 +144,23 @@ define(
             },
             render: function(){
                 var self = this;
-
                 var view = {
                     story: this.modelStory.toJSON(),
                     profilePhotoUrl: utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
                     isWidget: this.properties.isWidget,
                     isMine: this.modelUser.is(this.modelStory.get("echoedUser").id),
-                    userLink: this.properties.urls.api + "#user/" + this.modelStory.get("echoedUser").id
+//                    userLink: this.properties.urls.api + "#user/" + this.modelStory.get("echoedUser").id
+                    userLink: "#user/" + this.modelStory.get("echoedUser").id
                 };
-
-
 
                 var template = templateStory(view);
                 self.element.html(template);
 
+
                 self.text = $('#story-text-container');
                 self.chapterText = $("#story-text");
 
-                self.follow = new Follow({ el: '#story-user-follow', properties: this.properties, modelUser: this.modelUser, followId: this.modelStory.get("echoedUser").id });
+                self.follow = new Follow({ el: '#story-user-follow', properties: this.properties, modelUser: this.modelUser, type: "user", followId: this.modelStory.get("echoedUser").id });
 
                 self.gallery = $('#story-image-main');
                 self.itemImageContainer = $('#story-image-container');
@@ -193,6 +177,7 @@ define(
                 self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
                 $("body").addClass("noScroll");
+                this.EvAg.trigger("page:change", this.modelStory.get("partner").domain);
             },
             renderGalleryNav: function(){
                 var self = this;
@@ -239,7 +224,6 @@ define(
                 var chapterText = chapter.text;
                 if (chapterText.length < 300) this.chapterType = 'photo';
                 else this.chapterType = 'text';
-
                 self.chapterText.fadeOut(function(){
                     $('#story-chapter-title').text(chapter.title);
                     self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(chapter.text)).replace(/\n/g, '<br />'));
@@ -247,9 +231,6 @@ define(
                     else self.chapterText.hide();
                     self.chapterText.fadeIn();
                 });
-
-
-
                 self.renderImage();
                 self.highlight();
             },
@@ -269,7 +250,7 @@ define(
                 var imageUrl = "";
                 if(currentImage){
                     if(this.chapterType === 'photo') {
-                        var i = utils.fit(currentImage, 842, 700);
+                        var i = utils.fit(currentImage, 840, 700);
                         imageSizing = {
                             width:i.attr('width'),
                             height:i.attr('height')
@@ -283,7 +264,7 @@ define(
                         imageSizing = {
                             width: i.attr('width'),
                             height: i.attr('height')
-                        }
+                        };
                         imageUrl = i.attr('src');
                         self.gallery.addClass("gallery-text");
                         self.gallery.removeClass('gallery-photo');
@@ -313,7 +294,7 @@ define(
                 $("#echo-story-comment-ta").val("");
 
                 var comments = this.modelStory.get("comments");
-                $('#echo-s-c-t-count').text("(" + comments.length + ")");
+                $('#story-comments-title').text("Discussion (" + comments.length + ")");
 
                 $.each(comments, function(index,comment){
                     var view = {
@@ -348,18 +329,6 @@ define(
                         }
                     );
                 }
-            },
-            redirect: function(){
-                var self = this;
-                this.element.fadeOut(function(){
-                    self.element.empty();
-                });
-            },
-            close: function(){
-                this.element.fadeOut();
-                this.element.empty();
-                $("body").removeClass("noScroll");
-                this.EvAg.trigger("hash/reset");
             }
         });
 

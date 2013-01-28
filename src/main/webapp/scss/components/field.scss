@@ -109,7 +109,7 @@
 }
 
 .field-submit{
-    @include button;
+    @include buttonRed();
 }
 
 .field-question-label{

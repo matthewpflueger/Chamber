@@ -1,338 +1,337 @@
-$colorEC: #E31B23; //Echoed Color
-$colorFB: #3B5998; //Facebook Color
-$colorTW: #4099FF; //Twitter Color
-
+$colorEC:           #E31B23; //Echoed Color
+$colorECDark:       #a11a21; //Echoed Color
+$colorFB:           #3B5998; //Facebook Color
+$colorTW:           #4099FF; //Twitter Color
+$colorGreen:        #7ee379;
+$colorGreenDark:    #55a155;
 
 //DEFAULT FONT SETTINGS
-$fontTextFamily: 'Open Sans', sans-serif;
-$fontTitleFamily: 'Lato', sans-serif;
-$fontHeaderFamily: 'Arvo', sans-serif;
+$fontTextFamily:    'Open Sans', sans-serif;
+$fontTitleFamily:   'Lato', sans-serif;
+$fontHeaderFamily:  'Arvo', sans-serif;
 
-$fontTextSizeDefault: 12px;
-$fontTextColorDefault: #333;
+$fontTextSizeDefault:   12px;
+$fontTextColorDefault:  #333;
 
 //MIXINS
-    @mixin sprite($posX, $posY, $width, $height){
-        background-image: image-url('sprites.png');
-        background-repeat: no-repeat;
-        background-position: $posX $posY;
-        width: $width;
-        height: $height;
+@mixin sprite($posX, $posY, $width, $height){
+    background-image:       image-url('sprites.png');
+    background-repeat:      no-repeat;
+    background-position:    $posX $posY;
+    width:                  $width;
+    height:                 $height;
+}
+
+@mixin fontTitle($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+    font-family: $fontTitleFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: normal;
+}
+
+@mixin fontTitleLight($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+    font-family: $fontTitleFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: 200;
+}
+
+@mixin fontText($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+    font-family: $fontTextFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: normal;
+}
+
+@mixin fontTextBold($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+    font-family: $fontTextFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: bold;
+}
+
+@mixin fontTextLight($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+    font-family: $fontTextFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: 300;
+}
+
+@mixin fontHeader($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+    font-family: $fontHeaderFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: normal;
+}
+
+@mixin fontHeaderBold($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
+    font-family: $fontHeaderFamily;
+    font-size: $size;
+    color: $color;
+    font-weight: bold;
+}
+
+@mixin grooveBottom(){
+    border-bottom:      1px solid #CCC;
+    box-shadow:         0px 1px 0px #FFF;
+}
+
+@mixin grooveTop(){
+    border-top:         1px solid #FFF;
+    box-shadow:         0px -1px 0px #CCC;
+}
+
+@mixin dropShadowDown( $px1: 0px, $px2: 2px, $px3: 2px ){
+    box-shadow:         $px1 $px2 $px3 rgba( 34, 25, 25, 0.2);
+    -moz-box-shadow:    $px1 $px2 $px3 rgba( 34, 25, 25, 0.2);
+    -webkit-box-shadow: $px1 $px2 $px3 rgba( 34, 25, 25, 0.2);
+    -ms-filter:         "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
+    filter:             progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
+}
+
+@mixin verticalGradient( $color1: #fff, $color2: #ddd) {
+    background-color:   $color1;
+    background-image:   -khtml-gradient( linear, left top, left bottom, from( $color1 ), to( $color2 ) );
+    background-image:   -moz-linear-gradient( $color1, $color2 );
+    background-image:   -ms-linear-gradient( $color1, $color2 );
+    background-image:   -webkit-gradient( linear, left top, left bottom, color-stop( 0%, $color1 ), color-stop( 100%, $color2) );
+    background-image:   -webkit-linear-gradient( $color1, $color2 );
+    background-image:   -o-linear-gradient( $color1, $color2 );
+    background-image:   linear-gradient( $color1, $color2 );
+}
+
+@mixin imageGradient($image, $color1: #fff,  $color2: #ddd){
+    background-color:   $color1;
+    background-image:   image-url($image), -khtml-gradient( linear, left top, left bottom, from( $color1 ), to( $color2 ) );
+    background-image:   image-url($image), -moz-linear-gradient( $color1, $color2 );
+    background-image:   image-url($image), -ms-linear-gradient( $color1, $color2 );
+    background-image:   image-url($image), -webkit-gradient( linear, left top, left bottom, color-stop( 0%, $color1 ), color-stop( 100%, $color2) );
+    background-image:   image-url($image), -webkit-linear-gradient( $color1, $color2 );
+    background-image:   image-url($image), -o-linear-gradient( $color1, $color2 );
+    background-image:   image-url($image), linear-gradient( $color1, $color2 );
+}
+
+@mixin button(){
+    display:            inline-block;
+    cursor:             pointer;
+    border-radius:      2px;
+    height:             25px;
+    line-height:        25px;
+    text-decoration:    none;
+    padding:            0px 10px;
+    min-width:          62px;
+    text-align:         center;
+}
+
+@mixin buttonMobile(){
+    display:            inline-block;
+    cursor:             pointer;
+    border-radius:      2px;
+    height:             20px;
+    line-height:        20px;
+    text-decoration:    none;
+    min-width:          82px;
+    text-align:         center;
+}
+
+@mixin buttonLarge(){
+    display:            inline-block;
+    cursor:             pointer;
+    padding:            5px 10px;
+    text-decoration:    none;
+    text-align:         center;
+    border-radius:      5px;
+    line-height:        1.2em;
+}
+
+@mixin buttonSquare(){
+    display:            inline-block;
+    cursor:             pointer;
+    width:              25px;
+    height:             25px;
+    border-radius:      2px;
+}
+
+@mixin buttonLargeRed( ){
+    @include            buttonLarge();
+    @include            fontTextBold( 15px, #FFF);
+    text-shadow:        0px -1px rgba( 0, 0, 0, 0.4);
+    background-color:   $colorECDark;
+    &:hover {
+        background-color:   $colorEC;
     }
+}
 
-    @mixin fontTitle($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
-        font-family: $fontTitleFamily;
-        font-size: $size;
-        color: $color;
-        font-weight: normal;
+@mixin buttonLargeGreen(){
+    @include            buttonLarge();
+    @include            fontTextBold( 15px, #FFF);
+    background-color:   rgb(31, 148, 38);
+    &:hover {
+        background-color:       rgb(38, 200, 52);
     }
+}
 
-    @mixin fontTitleLight($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
-        font-family: $fontTitleFamily;
-        font-size: $size;
-        color: $color;
-        font-weight: 200;
+@mixin buttonRed( $size: 12px ) {
+    @include            button;
+    @include            fontTextBold( $size, #FFF );
+    @include            verticalGradient( $colorEC, $colorECDark);
+    text-shadow:        0px -1px #000;
+    border:             1px solid #666;
+    &:hover{
+        border-color:       #CCC;
     }
-
-    @mixin fontText($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
-        font-family: $fontTextFamily;
-        font-size: $size;
-        color: $color;
-        font-weight: normal;
+    &:active{
+        text-shadow:        none;
+        border-color:       transparent;
     }
+}
 
-    @mixin fontTextBold($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
-        font-family: $fontTextFamily;
-        font-size: $size;
-        color: $color;
-        font-weight: bold;
+@mixin buttonWhite( $size: 12px ){
+    @include            button();
+    @include            fontTextBold($size);
+    @include            verticalGradient( #fff, #ddd );
+    text-shadow:        0px 1px #FFF;
+    border:             1px solid #CCC;
+    &:hover {
+        @include            verticalGradient( #fff, #ccc );
+        border-color:       #AAA;
     }
-
-    @mixin fontTextLight($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
-        font-family: $fontTextFamily;
-        font-size: $size;
-        color: $color;
-        font-weight: 300;
+    &:active {
+        @include            verticalGradient( $colorEC, $colorECDark);
+        color:              #FFF;
+        text-shadow:        none;
     }
+}
 
-    @mixin fontHeader($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
-        font-family: $fontHeaderFamily;
-        font-size: $size;
-        color: $color;
-        font-weight: normal;
+@mixin buttonMobileWhite( $size: 12px ){
+    @include        verticalGradient( #fff, #ddd);
+    @include        buttonMobile();
+    &:hover{
+        @include        verticalGradient( #fff, #ccc );
+        color:          #000;
     }
-
-    @mixin fontHeaderBold($size: $fontTextSizeDefault, $color: $fontTextColorDefault){
-        font-family: $fontHeaderFamily;
-        font-size: $size;
-        color: $color;
-        font-weight: bold;
+    &:active{
+        @include        verticalGradient( $colorEC, $colorECDark);
+        color:          #FFF;
+        text-shadow:    none;
     }
+}
 
-    @mixin grooveBottom(){
-        border-bottom: 1px solid #CCC;
-        box-shadow: 0px 1px 0px #FFF;
+@mixin buttonMobileRed( $size: 14px ){
+    @include        verticalGradient( $colorEC, $colorECDark );
+    @include        fontTextBold($size);
+    color:          #FFF;
+    text-shadow:    0px -1px #000;
+    border:         1px solid transparent;
+    &:hover{
+        border:         1px solid #FFF;
     }
-
-    @mixin grooveTop(){
-        border-top: 1px solid #FFF;
-        box-shadow: 0px -1px 0px #CCC;
+    &:active{
+        text-shadow:    none;
+        border-color:   transparent;
     }
-
-    @mixin dropShadowDown($px1: 0px, $px2: 2px, $px3: 2px){
-        box-shadow: $px1 $px2 $px3 rgba(34,25,25,0.2);
-        -moz-box-shadow: $px1 $px2 $px3 rgba(34,25,25,0.2);
-        -webkit-box-shadow: $px1 $px2 $px3 rgba(34,25,25,0.2);
-        -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666')";
-        filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#666666');
-    }
-
-    @mixin button($size: 13px){
-        display: inline-block;
-        cursor:pointer;
-        background-color: rgb(200, 45, 45);
-        border: 1px solid #000;
-        border-radius: 5px;
-        padding: 5px 10px;
-        text-decoration: none;
-        @include fontTextBold($size, #FFF);
-        text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
-        &:hover{
-            background-color: $colorEC;
-        }
-    }
-
-    @mixin buttonRed($size: 13px){
-        @include button($size);
-        background-color: rgb(200, 45, 45);
-        &:hover{
-            background-color: $colorEC;
-        }
-    }
-
-    @mixin buttonGreen($size: 13px){
-        @include button($size);
-        background-color: rgb(31, 148, 38);
-        &:hover{
-            background-color: rgb(38, 200, 52);
-        }
-    }
-
-
-    @mixin shareButton($size: 13px){
-        display: inline-block;
-        cursor: pointer;
-        background-color: rgb(200, 45, 45);
-        border: 1px solid #333;
-        border-radius: 2px;
-        padding: 5px;
-        text-decoration: none;
-        @include fontText($size, #FFF);
-        text-shadow: rgba(0, 0, 0, 0.4) 0px -1px;
-        &:hover{
-            background-color: $colorEC;
-        }
-    }
-
-    @mixin redButton($size: 14px){
-        display: inline-block;
-        cursor: pointer;
-        border-radius: 5px;
-        height: 33px;
-        line-height: 33px;
-        @include fontTextBold($size);
-        width: 82px;
-        background: $colorEC;
-        color: #FFF;
-        text-shadow: 0px -1px #000;
-        border: 1px solid transparent;
-        &:hover{
-            border: 1px solid #FFF;
-        }
-        &:active{
-            text-shadow: none;
-            border-color: transparent;
-        }
-    }
-
-
-
-    @mixin whiteButton($size: 14px){
-        display: inline-block;
-        cursor: pointer;
-        border-radius: 5px;
-        height: 33px;
-        line-height: 33px;
-        background-color: #CECECE;
-        color: #CCC;
-        @include fontTextBold($size);
-        text-shadow: 0px 1px #FFF;
-        text-align:center;
-        width: 82px;
-        background-color: #f0eded;
-        text-decoration: none;
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#BBBBBB');
-        background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#A0A0A0));
-        background: -moz-linear-gradient(top, #FFF, #A0A0A0);
-        &:hover{
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#BBBBBB');
-            background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#666666));
-            background: -moz-linear-gradient(top, #FFFFFF, #666666);
-            color: #000;
-        }
-        &:active{
-            background: $colorEC;
-            color: #FFF;
-            text-shadow: none;
-        }
-    }
-
-    @mixin whiteButtonMobile($size: 12px){
-        display: inline-block;
-        cursor: pointer;
-        border-radius: 5px;
-        height: 25px;
-        line-height: 25px;
-        background-color: #CECECE;
-        color: #CCC;
-        @include fontTextBold($size);
-        text-shadow: 0px 1px #FFF;
-        text-align:center;
-        width: 82px;
-        background-color: #f0eded;
-        text-decoration: none;
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#BBBBBB');
-        background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#A0A0A0));
-        background: -moz-linear-gradient(top, #FFF, #A0A0A0);
-        &:hover{
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#BBBBBB');
-            background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#666666));
-            background: -moz-linear-gradient(top, #FFFFFF, #666666);
-            color: #000;
-        }
-        &:active{
-            background: $colorEC;
-            color: #FFF;
-            text-shadow: none;
-        }
-    }
-
-    @mixin redButtonMobile($size: 14px){
-        display: inline-block;
-        cursor: pointer;
-        border-radius: 5px;
-        height: 25px;
-        line-height: 25px;
-        @include fontTextBold($size);
-        width: 82px;
-        background: $colorEC;
-        color: #FFF;
-        text-shadow: 0px -1px #000;
-        border: 1px solid transparent;
-        &:hover{
-            border: 1px solid #FFF;
-        }
-        &:active{
-            text-shadow: none;
-            border-color: transparent;
-        }
-    }
-
-
+}
 
 @mixin transition(){
-        -webkit-transition: all 0.5s ease-in-out;
-        -moz-transition: all 0.5s ease-in-out;
-        -o-transition: all 0.5s ease-in-out;
-        -ms-transition: all 0.5s ease-in-out;
-        transition: all 0.5s ease-in-out;
-    }
+    -webkit-transition:     all 0.5s ease-in-out;
+    -moz-transition:        all 0.5s ease-in-out;
+    -o-transition:          all 0.5s ease-in-out;
+    -ms-transition:         all 0.5s ease-in-out;
+    transition:             all 0.5s ease-in-out;
+}
 
 //RESET
 html, body, div, h1, h2, h3, h4, h5, h6 ,ul, ol ,dl, li ,dt ,dd ,p ,blockquote,
-pre, form, fieldset, table, th, td {
-    margin:0;
-    padding: 0;
-    @include fontText;
+pre, form, fieldset, table, th, td, span {
+    @include        fontText();
+    margin:         0;
+    padding:        0;
 }
 
 img {
-    border: none;
+    border:         none;
 }
 
-
 .clearfix{
-    zoom:1;
-    &:before,&:after{
-        content:"";
-        display:table;
-    }
+    zoom:   1;
+
+    &:before,
     &:after{
-        clear:both;
+        content:    "";
+        display:    table;
+    }
+
+    &:after{
+        clear:      both;
     }
 }
 
 .red-link{
-    color: $colorEC;
-    font-weight: bold;
-    text-decoration: none;
+    color:              $colorEC;
+    font-weight:        bold;
+    text-decoration:    none;
+
     &:hover{
-        color: #333 !important;
+        color:          #333 !important;
     }
+
     &:visited{
-        color: $colorEC;
+        color:          $colorEC;
     }
 }
 
-.link-white{
-    color: #FFF;
-    text-decoration: none;
-    &visited, &:active{
-        color: #333;
+.link-white {
+    color:              #FFF;
+    text-decoration:    none;
+
+    &:visited,
+    &:active {
+        color:          #333;
     }
 }
 
 .link-black{
-    color: #333;
-    text-decoration: none;
-    &:visited, &:active{
-        color: #333;
+    color:              #333;
+    text-decoration:    none;
+
+    &:visited,
+    &:active{
+        color:          #333;
     }
 
 }
 
 .rightarrow{
-    border-width: 5px 0px 5px 5px;
-    display: inline-block;
-    border-style: solid;
-    border-color: transparent;
-    border-left-color: #333;
+    border-width:       5px 0px 5px 5px;
+    display:            inline-block;
+    border-style:       solid;
+    border-color:       transparent;
+    border-left-color:  #333;
 }
 
 
 .downarrow{
-    position: absolute;
-    top: 50%;
-    margin-top: -3px;
-    right: 10px;
-    border-style: solid dashed dashed;
-    border-color: transparent;
-    border-top-color: #999;
-    display: -moz-inline-box;
-    display: inline-block;
-    font-size: 0;
-    height: 0;
-    line-height: 0;
-    width: 0;
-    border-width: 5px 5px 0;
-    padding-top: 1px;
+    position:           absolute;
+    top:                50%;
+    margin-top:         -3px;
+    right:              10px;
+    border-style:       solid dashed dashed;
+    border-color:       transparent;
+    border-top-color:   #999;
+    display:            -moz-inline-box;
+    display:            inline-block;
+    font-size:          0;
+    height:             0;
+    line-height:        0;
+    width:              0;
+    border-width:       5px 5px 0;
+    padding-top:        1px;
 }
 
-
 .bold{
-    font-weight: bold !important;
+    font-weight:        bold !important;
 }
 
 .highlight-text{
-    color: $colorEC !important;
+    color:              $colorEC !important;
 }

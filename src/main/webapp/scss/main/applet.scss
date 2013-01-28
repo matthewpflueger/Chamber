@@ -1,0 +1,154 @@
+@import "base";
+
+@import "itemWrap";
+@import "item";
+@import "story";
+@import "isotope";
+@import "field";
+@import "storyBrief";
+@import "fade";
+@import "buttons";
+@import "fileuploader";
+@import "expanding";
+@import "ajaxInput";
+@import "infiniteScroll";
+@import "notifications";
+@import "login";
+@import "loginForm";
+@import "categoryList";
+@import "static";
+@import "menu";
+@import "title";
+@import "select";
+
+
+body, html{
+    height: 100%;
+}
+
+body {
+    background-color: rgba(0, 0, 0, 0.5);
+    &.noScroll{
+        overflow: hidden;
+    }
+}
+
+
+#echoed-head{
+    text-align: center;
+    border-bottom: 1px solid #FFF;
+    height: 40px;
+    position: fixed;
+    width: 100%;
+    z-index: 999999;
+    background-color: #333;
+
+    #header-title{
+        line-height: 40px;
+        display: inline-block;
+        @include fontTitle(26px, #FFF);
+    }
+}
+
+
+#echoed-exhibit-container{
+    position: relative;
+    padding-top: 40px;
+    height: 100%;
+    #exhibit{
+        padding-top: 10px;
+        margin: auto;
+    }
+
+    #echoed-title{
+        width: 210px;
+        padding: 10px;
+        text-align:center;
+        @include fontText(24px, #FFF);
+        background-color: #333 !important;
+        .title-description{
+            @include fontText(18px, #FFF);
+        }
+        img {
+            width: 230px;
+            padding: 0px;
+            margin: 0px;
+        }
+    }
+
+}
+
+//STORY OVERRIDE
+#item{
+    top: 50px !important;
+}
+
+#field{
+    top: 75px !important;
+}
+
+#user{
+    position:absolute;
+    right: 20px;
+    line-height: 40px;
+    #user-what{
+        @include fontTextBold(12px, #FFF);
+        margin-right: 10px;
+    }
+
+    #user-login{
+        @include fontTextBold(14px, $colorEC);
+        &:hover{
+            color: #FFF;
+        }
+    }
+    cursor: pointer;
+}
+
+#close{
+    z-index: 10000;
+    position: absolute;
+    left: 10px;
+    top:0px;
+    line-height: 40px;
+    padding-left: 20px;
+    cursor: pointer;
+    @include fontTextBold(14px, #CCC);
+    &:hover{
+        color: #FFF;
+    }
+    #close-x{
+        @include sprite(0px, -28px, 15px, 15px);
+        top: 13px;
+        position: absolute;
+        left:0px;
+    }
+}
+
+#story-gallery-container{
+    top: 40px !important;
+}
+
+
+.friend{
+    width: 270px;
+    background-color: #FFF;
+    float:left;
+
+    &:hover{
+        border: 1px solid #000;
+    }
+
+    img{
+        width: 50px;
+        height: 50px;
+        float:left;
+    }
+    .friend-text{
+        float:left;
+        padding-left: 10px;
+        line-height: 50px;
+        width: 170px;
+        @include fontTextBold(14px);
+    }
+}

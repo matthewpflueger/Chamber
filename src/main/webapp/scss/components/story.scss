@@ -19,22 +19,9 @@
     margin-bottom: 35px;
 }
 
-.story-nav-button{
-    position: absolute;
-    top: 0px;
-    margin-top: -44px;
-    padding: 10px 0px;
-    @include fontTextBold(16px, #F0F0F0);
-    cursor: pointer;
-    &:hover{
-        color: #FFF;
-    }
-}
-
 #story-container-body{
     position:relative;
-    background-image: image-url("bk_noise.jpg");
-    background-color: #F7F7F7;
+    background-color: #F0F0F0;
     padding-bottom: 10px;
     border: 8px solid #FFF;
     border-radius: 3px;
@@ -87,7 +74,7 @@
                         background-color: #FFF;
                         img{
                             max-height: 700px;
-                            max-width: 842px;
+                            max-width: 840px;
                             display: block;
                             @include dropShadowDown;
                         }
@@ -125,6 +112,11 @@
 #story-main{
     position: relative;
     overflow-x: hidden;
+}
+
+#story-edit{
+    @include            buttonWhite;
+    vertical-align: middle;
 }
 
 #story-gallery{
@@ -223,44 +215,12 @@
             display: inline-block;
             @include fontText(14px);
         }
-        .upvote, .downvote{
-            cursor:pointer;
-            width: 33px;
-            height: 33px;
-            display: inline-block;
-            background-repeat: none;
-            vertical-align: middle;
-            background-size: cover;
-        }
 
         #upvote-counter, #downvote-counter{
             @include fontTextBold(14px);
             vertical-align: middle;
             text-align: right;
             display: inline-block;
-        }
-
-        .upvote{
-            background-image: image-url("uparrow_off.png");
-            margin-left: 10px;
-
-            &:hover{
-                background-image: image-url("uparrow_hover.png");
-            }
-            &:active, &.on{
-                background-image: image-url("uparrow.png");
-            }
-
-        }
-
-        .downvote{
-            background-image: image-url("downarrow_off.png");
-            &:hover{
-                background-image: image-url("downarrow_hover.png");
-            }
-            &:active, &.on{
-                background-image: image-url("downarrow.png");
-            }
         }
     }
 
@@ -336,7 +296,7 @@
         }
         .comment-submit{
             cursor: pointer;
-            @include button;
+            @include buttonRed;
         }
         .comment-login-title {
             @include fontTextBold(14px);
@@ -488,9 +448,9 @@
 }
 
 .greyButton{
-    @include whiteButton;
+    @include    buttonWhite();
 }
 
 .redButton{
-    @include redButton;
+    @include    buttonRed();
 }

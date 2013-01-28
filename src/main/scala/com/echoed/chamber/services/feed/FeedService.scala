@@ -4,20 +4,19 @@ import scala.collection.JavaConversions._
 import akka.actor._
 import com.echoed.chamber.services._
 import collection.immutable.TreeMap
-import com.echoed.chamber.services.echoeduser.StoryEvent
+import echoeduser.{UpdateUserStory, StoryEvent, StoryViewed, EchoedUserClientCredentials}
+import partner.{PartnerClientCredentials, UpdatePartnerStory}
 import scala.collection.mutable.HashMap
 import akka.pattern._
 import com.echoed.chamber.services.state.QueryPartnerIdsResponse
-import com.echoed.chamber.domain.{Image, Community}
-import com.echoed.chamber.domain.views.CommunityFeed
-import com.echoed.chamber.domain.views.PublicStoryFeed
-import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.Community
+import com.echoed.chamber.domain.views.{Feed, CommunityFeed}
 import state.FindAllStoriesResponse
-import com.echoed.chamber.services.echoeduser.StoryViewed
 import scala.Right
 import com.echoed.chamber.services.state.QueryPartnerIds
 import com.echoed.chamber.services.state.FindAllStories
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.views.context.PublicContext
 
 
 class FeedService(
@@ -47,8 +46,7 @@ class FeedService(
     }
 
     class IndexKey(val id: String, val published: Boolean = true)
-    case class EchoedUserPublicKey(_id: String) extends IndexKey(_id)
-    case class EchoedUserPrivateKey(_id: String) extends IndexKey(_id) //, false)
+    case class EchoedUserKey(_id: String) extends IndexKey(_id)
     case class PartnerKey(_id: String) extends IndexKey(_id)
     case class CommunityKey(_id: String) extends IndexKey(_id)
     case class TopicKey(_id: String) extends IndexKey(_id)
@@ -59,15 +57,10 @@ class FeedService(
     var topStoryTree = new TreeMap[(Int, String), StoryPublic]()(TopStoryOrdering)
     var communityTree = new TreeMap[String, Community]()
 
-    var imageMap = HashMap.empty[IndexKey, Image]
 
     private def addToLookup(indexKey: IndexKey, s: StoryPublic){
         val tree =  lookup.get(indexKey).getOrElse(new TreeMap[(Long, String), StoryPublic]()(StoryOrdering)) + ((s.story.updatedOn, s.story.id) -> s)
         lookup += (indexKey -> tree)
-
-        Option(s.story.image).map {
-            image => imageMap += (indexKey -> image)
-        }
     }
 
     private def removeFromLookup(indexKey: IndexKey, s: StoryPublic){
@@ -86,12 +79,7 @@ class FeedService(
                 .getOrElse(List[StoryPublic]())
                 .toList
         val nextPage = getNextPage(start, page, stories)
-        val image = getImageForKey(indexKey)
-        PublicStoryFeed(image, stories.slice(start, start + pageSize), nextPage)
-    }
-
-    private def getImageForKey(indexKey: IndexKey) = {
-        imageMap.get(indexKey).orNull
+        Feed(new PublicContext(), stories.slice(start, start + pageSize), nextPage)
     }
 
     private def getStoryIdsFromLookup(indexKey: IndexKey) = {
@@ -115,8 +103,7 @@ class FeedService(
             }
 
             removeFromLookup(MainTreeKey(), s)
-            removeFromLookup(EchoedUserPrivateKey(s.story.echoedUserId), s)
-            removeFromLookup(EchoedUserPublicKey(s.story.echoedUserId), s)
+            removeFromLookup(EchoedUserKey(s.story.echoedUserId), s)
             removeFromLookup(PartnerKey(s.story.partnerId), s)
             Option(s.story.topicId).map{ tId => removeFromLookup(TopicKey(tId), s) }
             removeFromLookup(CommunityKey(s.story.community), s)
@@ -129,25 +116,14 @@ class FeedService(
         }
 
         storyMap += (storyFull.id -> storyFull)
-
-        if(!storyFull.isSelfModerated){
-            addToLookup(EchoedUserPrivateKey(storyFull.story.echoedUserId), storyFull)
-
-            if(storyFull.isPublished){
-
-                addToLookup(EchoedUserPublicKey(storyFull.story.echoedUserId), storyFull)
-
-                if(!storyFull.isEchoedModerated) {
-                    addToLookup(MainTreeKey(), storyFull)
-                    Option(storyFull.story.topicId).map ( tId => addToLookup(TopicKey(tId), storyFull))
-                    addToLookup(CommunityKey(storyFull.story.community), storyFull)
-                }
-
-                if (!storyFull.isModerated) {
-                    addToLookup(PartnerKey(storyFull.story.partnerId), storyFull)
-                }
-            }
+        addToLookup(EchoedUserKey(storyFull.story.echoedUserId), storyFull)
+        addToLookup(PartnerKey(storyFull.story.partnerId), storyFull)
+        if(!storyFull.isEchoedModerated) {
+            addToLookup(MainTreeKey(), storyFull)
+            Option(storyFull.story.topicId).map ( tId => addToLookup(TopicKey(tId), storyFull))
+            addToLookup(CommunityKey(storyFull.story.community), storyFull)
         }
+
     }
 
     override def preStart() {
@@ -158,34 +134,37 @@ class FeedService(
 
     def handle = {
         case msg: StoryEvent =>
-            updateStory(new StoryPublic(msg.story.asStoryFull.get))
+            val s = new StoryPublic(msg.story.asStoryFull.get)
+            updateStory(s)
+            mp.tell(UpdateUserStory(EchoedUserClientCredentials(s.story.echoedUserId), s), self)
+            mp.tell(UpdatePartnerStory(PartnerClientCredentials(s.story.partnerId), s), self)
 
         case FindAllStoriesResponse(_, Right(all)) => all.map(s => updateStory(new StoryPublic(s.asStoryFull.get)))
 
         case msg: GetCommunities =>
             sender ! GetCommunitiesResponse(msg, Right(new CommunityFeed(communityTree.values.toList)))
 
-        case msg @ GetPublicStoryFeed(page) =>
-            sender ! GetPublicStoryFeedResponse(msg, Right(getStoriesFromLookup(MainTreeKey(), msg.page)))
+        case msg @ RequestPublicContent(page) =>
+            sender ! RequestPublicContentResponse(msg, Right(getStoriesFromLookup(MainTreeKey(), msg.page)))
 
         case msg @ GetCategoryStoryFeed(categoryId, page) =>
             val feed = getStoriesFromLookup(CommunityKey(categoryId), msg.page)
             sender ! GetCategoryStoryFeedResponse(msg, Right(feed))
 
         case msg @ GetUserPrivateStoryFeed(echoedUserId, page) =>
-            val feed = getStoriesFromLookup(EchoedUserPrivateKey(echoedUserId), msg.page)
+            val feed = getStoriesFromLookup(EchoedUserKey(echoedUserId), msg.page)
             sender ! GetUserPrivateStoryFeedResponse(msg, Right(feed))
 
-        case msg @ GetUserPublicStoryFeed(echoedUserId, page) =>
-            val feed = getStoriesFromLookup(EchoedUserPublicKey(echoedUserId), msg.page)
+            case msg @ GetUserPublicStoryFeed(echoedUserId) =>
+            val feed = getStoriesFromLookup(EchoedUserKey(echoedUserId), 0)
             sender ! GetUserPublicStoryFeedResponse(msg, Right(feed))
 
         case msg @ RequestTopicStoryFeed(topicId, page) =>
             val feed = getStoriesFromLookup(TopicKey(topicId), msg.page)
             sender ! RequestTopicStoryFeedResponse(msg, Right(feed))
 
-        case msg @ RequestPartnerStoryFeed(partnerId, page, origin) =>
-            val feed = getStoriesFromLookup(PartnerKey(partnerId), msg.page)
+        case msg @ RequestPartnerStoryFeed(partnerId) =>
+            val feed = getStoriesFromLookup(PartnerKey(partnerId), 0)
             sender ! RequestPartnerStoryFeedResponse(msg,  Right(feed))
 
 

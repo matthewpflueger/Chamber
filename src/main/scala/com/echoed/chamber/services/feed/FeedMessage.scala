@@ -4,7 +4,7 @@ import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedExceptio
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.domain.{Topic, Community}
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import context.PublicContext
 
 sealed trait FeedMessage extends Message
 
@@ -30,30 +30,25 @@ case class GetStory(storyId: String, origin: String) extends FM
 case class GetStoryResponse(message: GetStory, value: Either[FE, Option[StoryPublic]])
         extends FM with MR[Option[StoryPublic], GetStory, FE]
 
-case class GetPublicStoryFeed(page: Int) extends FM
-case class GetPublicStoryFeedResponse(
-            message: GetPublicStoryFeed,
-            value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, GetPublicStoryFeed, FE]
-
 case class GetCategoryStoryFeed(categoryId: String, page: Int) extends FM
 case class GetCategoryStoryFeedResponse(
             message: GetCategoryStoryFeed,
-            value: Either[FE, PublicStoryFeed]) extends FM with MR [PublicStoryFeed, GetCategoryStoryFeed, FE]
+            value: Either[FE, Feed[PublicContext]]) extends FM with MR [Feed[PublicContext], GetCategoryStoryFeed, FE]
 
-case class GetUserPublicStoryFeed(echoedUserId: String, page: Int) extends FM
+case class GetUserPublicStoryFeed(echoedUserId: String) extends FM
 case class GetUserPublicStoryFeedResponse(
             message: GetUserPublicStoryFeed,
-            value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, GetUserPublicStoryFeed, FE]
+            value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], GetUserPublicStoryFeed, FE]
 
 case class GetUserPrivateStoryFeed(echoedUserId: String, page: Int) extends FM
 case class GetUserPrivateStoryFeedResponse(
             message: GetUserPrivateStoryFeed,
-            value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, GetUserPrivateStoryFeed, FE]
+            value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], GetUserPrivateStoryFeed, FE]
 
-case class RequestPartnerStoryFeed(partnerId: String, page: Int, origin: String) extends FM
+case class RequestPartnerStoryFeed(partnerId: String) extends FM
 case class RequestPartnerStoryFeedResponse(
             message: RequestPartnerStoryFeed,
-            value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, RequestPartnerStoryFeed, FE]
+            value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], RequestPartnerStoryFeed, FE]
 
 case class GetCommunities() extends FM
 case class GetCommunitiesResponse(
@@ -63,4 +58,10 @@ case class GetCommunitiesResponse(
 private[services] case class RequestTopicStoryFeed(topicId: String, page: Int) extends FM
 private[services] case class RequestTopicStoryFeedResponse(
             message: RequestTopicStoryFeed,
-            value: Either[FE, PublicStoryFeed]) extends FM with MR[PublicStoryFeed, RequestTopicStoryFeed, FE]
+            value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], RequestTopicStoryFeed, FE]
+
+
+case class RequestPublicContent(page: Int) extends FM
+case class RequestPublicContentResponse(
+            message: RequestPublicContent,
+            value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], RequestPublicContent, FE]

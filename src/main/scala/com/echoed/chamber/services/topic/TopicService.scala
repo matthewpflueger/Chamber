@@ -8,8 +8,9 @@ import state.FindAllTopics
 import state.FindAllTopicsResponse
 import scala.Right
 import com.echoed.chamber.domain.Topic
-import com.echoed.chamber.domain.views.TopicStoryFeed
+import com.echoed.chamber.domain.views.{ Feed }
 import com.echoed.chamber.services.partner.{TopicEvent, TopicUpdated, TopicCreated}
+import com.echoed.chamber.domain.views.context.TopicContext
 
 class TopicService(
         mp: MessageProcessor,
@@ -90,8 +91,7 @@ class TopicService(
                 mp(RequestTopicStoryFeed(topicId, page))
                     .mapTo[RequestTopicStoryFeedResponse]
                     .map(_.resultOrException)
-                    .map(feed => sender ! ReadTopicFeedResponse(msg, Right(new TopicStoryFeed(topic, feed))))
+                    .map(feed => sender ! ReadTopicFeedResponse(msg, Right(new Feed[TopicContext](new TopicContext(topic), feed.content, feed.nextPage ))))
             }
     }
-
 }

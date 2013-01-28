@@ -1,0 +1,64 @@
+.item-nav-button{
+    @include    fontTextBold(16px, #F0F0F0);
+
+    position:   absolute;
+    top:        0px;
+    margin-top: -44px;
+    padding:    10px 0px;
+    cursor:     pointer;
+    &:hover{
+        color:      #FFF;
+    }
+}
+
+#item {
+    position:       absolute;
+    left:           50%;
+    z-index:        99999;
+    width:          876px;
+    margin-top:     45px;
+    margin-bottom:  35px;
+    margin-left:    -438px;
+}
+
+#item-body{
+    margin-bottom: 20px;
+    &.item-photo{
+        position:   relative;
+        img{
+            border:         5px solid #FFF;
+            border-radius:  5px;
+            display:        block;
+            margin:         auto;
+        }
+        #photo-image-link {
+            padding:    5px;
+            a {
+                @include            fontTitle(24px, #FFF);
+                text-decoration:    none;
+                &:hover{
+                    color:              $colorEC;
+                    text-decoration:    underline;
+                }
+            }
+        }
+
+    }
+    &.item-story{
+
+    }
+}
+
+#item-container{
+    z-index:    9999;
+    left:       0px;
+    bottom:     0px;
+    right:      0px;
+    height:     100%;
+    position:   fixed;
+    min-width:  1200px;
+    overflow:   hidden;
+    display:    none;
+}
+
+

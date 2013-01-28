@@ -2,7 +2,7 @@ package com.echoed.chamber.services.partner
 
 import scalaz._
 import Scalaz._
-import com.echoed.chamber.services.{Message, MessageProcessor, EchoedService}
+import com.echoed.chamber.services.{OnlineOnlyMessage, Message, MessageProcessor, EchoedService}
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -35,11 +35,15 @@ class PartnerServiceManager(
             active.get(msg.credentials.id).headOption.cata(
                 _.forward(msg),
                 {
-                    val partnerService = context.watch(partnerServiceCreator(context, msg))
-                    partnerService.forward(msg)
-                    active.put(msg.credentials.id, partnerService)
-                })
+                    msg match {
+                        case _: OnlineOnlyMessage =>
+                        case _ =>
+                            val partnerService = context.watch(partnerServiceCreator(context, msg))
+                            partnerService.forward(msg)
+                            active.put(msg.credentials.id, partnerService)
+                    }
 
+                })
         case msg: RegisterPartner => context.watch(partnerServiceCreator(context, msg)).forward(msg)
     }
 

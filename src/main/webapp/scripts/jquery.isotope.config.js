@@ -17,16 +17,16 @@ define(
                 parentWidth;
 
             var cols = Math.floor( parentWidth / colW );
-            cols = Math.max( cols, 3 );
+            cols = Math.max( cols, 4 );
 
             // i.e. this.masonry.cols = ....
             this.masonry.cols = cols;
             // i.e. this.masonry.columnWidth = ...
             this.masonry.columnWidth = colW;
             //Title Container Resizing
-            $('#title-container').animate({
-                width: Math.max(cols * colW - 10, 890)
-            });
+//            $('#title-container').animate({
+//                width: Math.max(cols * colW - 10, 890)
+//            });
         };
 
         $.Isotope.prototype._masonryReset = function() {

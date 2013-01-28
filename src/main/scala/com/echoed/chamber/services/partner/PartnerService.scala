@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.partner
 
-import akka.actor.PoisonPill
-import com.echoed.chamber.domain.{Topic, Notification}
+import akka.actor.{Stash, PoisonPill}
+import com.echoed.chamber.domain.{Story, Topic}
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.partner.PartnerSettings
 import com.echoed.chamber.domain.partner.PartnerUser
@@ -10,16 +10,22 @@ import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.echoeduser.FollowPartner
 import com.echoed.chamber.services.echoeduser.Follower
 import com.echoed.chamber.services.echoeduser.RegisterNotification
+import com.echoed.chamber.services.echoeduser.UpdateCustomFeed
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state._
 import com.echoed.util.DateUtils._
 import com.echoed.util.{ScalaObjectMapper, Encrypter}
-import feed.{RequestPartnerStoryFeedResponse, RequestPartnerStoryFeed}
 import java.util.{Date, UUID}
 import scala.Left
 import scala.Right
 import scala.Some
-import com.echoed.chamber.domain.views.PartnerStoryFeed
+import com.echoed.chamber.domain.views.Feed
+import com.echoed.chamber.domain.views.context.PartnerContext
+import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.util.datastructure.ContentManager
+import com.echoed.chamber.domain.views.content.PhotoContent
+
+
 
 
 class PartnerService(
@@ -37,14 +43,18 @@ class PartnerService(
     private var partnerUser: Option[PartnerUser] = None
     private var topics = List[Topic]()
     private var customization = Map[String, Any]()
-
     private var followedByUsers = List[Follower]()
 
+
+    private val contentManager = new ContentManager(List(Story.storyContentDescription))
+
+    private var contentLoaded = false
 
     override def preStart() {
         super.preStart()
         initMessage match {
-            case msg: PartnerIdentifiable => mp.tell(ReadPartner(msg.credentials), self)
+            case msg: PartnerIdentifiable =>
+                mp.tell(ReadPartner(msg.credentials), self)
             case msg: RegisterPartner => //handled in init
         }
     }
@@ -52,6 +62,19 @@ class PartnerService(
     private def becomeOnlineAndRegister {
         becomeOnline
         context.parent ! RegisterPartnerService(partner)
+    }
+
+    private def becomeContentLoaded {
+        contentLoaded = true
+        unstashAll()
+    }
+
+    private def getContent {
+        mp(FindAllPartnerStories(partner.id)).onSuccess {
+            case FindAllPartnerStoriesResponse(_, Right(content)) =>
+                val contentList = content.map { c => new StoryPublic(c.asStoryFull.get) }.toList
+                self ! InitializePartnerContent(PartnerClientCredentials(partner.id), contentList)
+        }
     }
 
     def init = {
@@ -132,17 +155,55 @@ class PartnerService(
                     msg,
                     Right(new PartnerAndPartnerSettings(partner, partnerSettings, customization)))
 
-        case msg @ ReadPartnerFeed(_, page, origin) =>
-            val channel = sender
-            mp(RequestPartnerStoryFeed(partner.id, page, origin)).onSuccess {
-                case RequestPartnerStoryFeedResponse(_, Right(feed)) =>
-                    channel ! ReadPartnerFeedResponse(msg, Right(new PartnerStoryFeed(partner, feed)))
+        case msg @ InitializePartnerContent(_, content) =>
+            content.map {
+                case c: StoryPublic =>
+                    if(c.isPublished) {
+                        contentManager.updateContent(c)
+                        c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, c)) }
+                    }
+                case _ =>
+                    contentManager.updateContent(_)
+            }
+            becomeContentLoaded
+
+        case msg @ ReadAllPartnerContent(_) =>
+            if(!contentLoaded) {
+                stash()
+                getContent
+            } else {
+                val content = contentManager.getAllContent
+                sender ! ReadAllPartnerContentResponse(msg, Right(content))
             }
 
-        case msg: GetTopics =>
+        case msg @ RequestPartnerContent(_, page, origin, _type) =>
+            if(!contentLoaded){
+                stash()
+                getContent
+            } else {
+                val content =   contentManager.getContent(_type, page)
+                val sf =        new Feed(
+                                    new PartnerContext(
+                                        partner,
+                                        contentManager.getStats,
+                                        contentManager.getHighlights,
+                                        contentManager.getContentList),
+                                    content._1,
+                                    content._2)
+                sender ! RequestPartnerContentResponse(msg, Right(sf))
+            }
+
+        case msg : RequestPartnerFollowers =>
+            val feed = new Feed(
+                        new PartnerContext(partner, contentManager.getStats, contentManager.getHighlights, contentManager.getContentList),
+                        followedByUsers,
+                        null)
+            sender ! RequestPartnerFollowersResponse(msg, Right(feed))
+
+        case msg: RequestTopics =>
             val now = new Date
 //            sender ! GetTopicsResponse(msg, Right(topics.filter(t => t.beginOn < now && t.endOn > now)))
-            sender ! GetTopicsResponse(msg, Right(topics))
+            sender ! RequestTopicsResponse(msg, Right(topics))
 
         case msg @ RequestStory(_, topicId) =>
             sender ! RequestStoryResponse(msg, Right(RequestStoryResponseEnvelope(
@@ -160,10 +221,19 @@ class PartnerService(
             }
             if (sendFollowRequest) mp(FollowPartner(eucc, partner.id))
 
+        case msg @ NotifyStoryUpdate(_, s) =>
+            contentManager.updateContent(s)
+            followedByUsers.map(f => mp.tell(UpdateCustomFeed(EchoedUserClientCredentials(f.echoedUserId), s), self))
+            mp.tell(NotifyPartnerFollowers(PartnerClientCredentials(partner.id), EchoedUserClientCredentials(s.echoedUser.id), s.storyUpdatedNotification), self)
 
         case msg @ AddPartnerFollower(_, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! AddPartnerFollowerResponse(msg, Right(partner))
             followedByUsers = Follower(eu) :: followedByUsers
+
+        case msg @ RemovePartnerFollower(_, eu) if(followedByUsers.exists(_.echoedUserId == eu.id)) =>
+            sender ! RemovePartnerFollowerResponse(msg, Right(partner))
+            val (fu, fbu) = followedByUsers.partition(_.echoedUserId == eu.id)
+            followedByUsers = fbu
 
         case msg @ PutTopic(_, title, description, beginOn, endOn, topicId, community) =>
             try {

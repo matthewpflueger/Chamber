@@ -25,7 +25,7 @@ class EchoedUserServiceManager(
         twitterAccessCreator: (ActorContext) => ActorRef,
         echoedUserServiceCreator: (ActorContext, Message) => ActorRef,
         encrypter: Encrypter,
-        implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
+        implicit val timeout: Timeout = Timeout(20000)) extends EchoedService{
 
     import context.dispatcher
 
@@ -44,11 +44,16 @@ class EchoedUserServiceManager(
         active.get(credentials.id).headOption.cata(
             _.forward(msg),
             {
-                val echoedUserService = context.watch(echoedUserServiceCreator(
-                        context,
-                        LoginWithCredentials(credentials, msg, Some(context.sender))))
-                echoedUserService.forward(msg)
-                active.put(credentials.id, echoedUserService)
+                msg match {
+                    case _: OnlineOnlyMessage =>
+                        //Ignore Messages that should be online only
+                    case _ =>
+                        val echoedUserService = context.watch(echoedUserServiceCreator(
+                                context,
+                                LoginWithCredentials(credentials, msg, Some(context.sender))))
+                        echoedUserService.forward(msg)
+                        active.put(credentials.id, echoedUserService)
+                }
             })
     }
 

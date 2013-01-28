@@ -20,7 +20,7 @@ require(
                 urls: Echoed.urls
             };
 
-            this.modelUser = new ModelUser({});
+            this.modelUser = new ModelUser(null, { properties: properties });
             this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
             this.router = new Router({ EvAg: EventAggregator, properties: properties });
             this.moderate = new Moderate({ el: "#moderate", EvAg: EventAggregator, properties: properties });

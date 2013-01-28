@@ -42,24 +42,6 @@ class RedirectController extends EchoedController {
         result
     }
 
-    @RequestMapping(value = Array("/preview/{storyId}/{pid}"), method = Array(RequestMethod.GET))
-    def preview(
-        @PathVariable(value = "storyId") storyId: String,
-        pcc: PartnerClientCredentials) = {
-        val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
-        mp(FetchPartner(pcc)).onSuccess {
-            case FetchPartnerResponse(_, Right(p)) =>
-                val domain = if (p.domain.startsWith("http")) p.domain else "http://" + p.domain
-                val modelAndView = new ModelAndView(v.widgetPreview)
-                modelAndView.addObject("storyId", storyId)
-                modelAndView.addObject("domain", domain)
-                modelAndView.addObject("partner", p)
-                result.setResult(modelAndView)
-        }
-        result
-    }
-
-
     @RequestMapping(value = Array("/close"), method = Array(RequestMethod.GET))
     def close(eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))

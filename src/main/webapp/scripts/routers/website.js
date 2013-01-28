@@ -3,53 +3,58 @@ define(
         'jquery',
         'backbone',
         'underscore',
-        'components/utils'
+        'components/utils',
+        'collections/contents'
     ],
     function($, Backbone, _, utils){
         return Backbone.Router.extend({
             initialize: function(options) {
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
-                this.properties = options.properties;
-                this.modelUser = options.modelUser;
-                this.EvAg.bind("hash/reset", this.resetHash);
+                this.properties =   options.properties;
+                this.modelUser =    options.modelUser;
+                this.modelContext = options.modelContext;
+                this.colContent =   options.colContent;
+                this.EvAg.bind("hash:reset", this.resetHash);
                 this.EvAg.bind("router/me", this.me);
                 this.currentRequest = null;
                 this.page = null;
             },
             routes:{
-                "_=_" : "fix",
-                "": "explore",
-                "me/friends": "friends",
-                "me/": "me",
-                "me": "me",
-                "user/:id": "user",
-                "community/:community": "community",
-                "partner/:name/": "partnerFeed",
-                "partner/:name": "partnerFeed",
-                "topic/:id": "topic",
-                "story/:id": "story",
-                "write/:type/:id" : "writeStory",
-                "write/" : "writeStory",
-                "write": "writeStory",
-                "communities" : "cList",
-                "topic/:topic": "topic",
-                "!": "explore",
-                "!me/friends": "friends",
-                "!me/": "me",
-                "!me": "me",
-                "!user/:id": "user",
-                "!communities": "cList",
-                "!partner/:name/": "partnerFeed",
-                "!partner/:name": "partnerFeed",
-                "!story/:id": "story",
-                "!write/:type/:id" : "writeStory",
-                "!write/" : "writeStory",
-                "!write": "writeStory",
-                "!topic/:id": "topic"
+                "_=_":                      "fix",
+                "!":                        "explore",
+                "":                         "explore",
+                "!me/":                     "me",
+                "!me":                      "me",
+                "!story/:id":               "story",
+                "story/:id":                "story",
+                "!photo/:id":               "photo",
+                "photo/:id":                "photo",
+                "write/:id" :               "write",
+                "write":                    "write",
+                "!write/:id" :              "write",
+                "!write":                   "write",
+                "me/feed/:type":            "feed",
+                "me/feed/:type/":           "feed",
+                ":context/:id":             "content",
+                ":context/:id/":            "content",
+                ":context/:id/:type":       "content",
+                ":context/:id/:type/":      "content",
+                ":context/:id/:type/:type2":"content"
             },
             fix: function(){
                 window.location.href = "#";
+            },
+            content: function(context, id, type, type2){
+                this.page = window.location.hash;
+                var self = this;
+                var url = context + "/" + id;
+                if(context === "user" && this.modelUser.is(id)) url = "/me";
+                if(type) url += "/" + type;
+                if(type2) url += "/" + type2;
+                this.requestFeed(url, function(jsonUrl, data){
+                    self.loadPage(context, { jsonUrl: jsonUrl, data: data, personal: true} );
+                });
             },
             requestFeed: function(endPoint, callback){
                 var self = this;
@@ -65,17 +70,19 @@ define(
                 })();
             },
             loadPage: function(page, options){
+                this.modelContext.set(options.data.context);
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
                 _gaq.push(['_trackPageview', this.page]);
             },
-            cList: function(){
+            feed: function(type){
                 var self = this;
                 if(this.page != window.location.hash){
                     this.page = window.location.hash;
-                    this.requestFeed("/tags", function(jsonUrl, data){
-                        self.loadPage("communities", { jsonUrl: jsonUrl, data: data });
-                        self.EvAg.trigger('title/update', { title: "Communities", image: data.headerImage });
+                    var url = "/me/feed";
+                    if(type) url += "/" + type;
+                    this.requestFeed(url, function(jsonUrl, data){
+                        self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
                     });
                 }
             },
@@ -83,99 +90,34 @@ define(
                 var self = this;
                 if(this.page != window.location.hash){
                     this.page = "#!";
-                    this.requestFeed("/me/feed", function(jsonUrl, data){
-                        self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
-                        self.EvAg.trigger('title/update', { type:"echoed", title: "Share Your Stories With the World", image: data.headerImage });
+                    var url = "/me/feed";
+                    if(!this.modelUser.isLoggedIn()) url = "/public/feed";
+                    this.requestFeed(url, function(jsonUrl, data){
+                    self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
                     });
                 }
             },
-            partnerFeed: function(partnerId) {
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/partner/" + partnerId, function(jsonUrl, data){
-                        self.loadPage("partner", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "partner", partnerId: partnerId, title: "Stories from " + data.partner.name, image: data.headerImage });
-                    });
-                }
-            },
-            topic: function(topicId){
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
-                        self.loadPage("topic", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "topic", title: "Topic: " + data.topic.title, image: data.headerImage })
-                    })
-                }
-            },
-            me: function() {
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = "#!me";
-                    this.requestFeed("/me/exhibit", function(jsonUrl, data){
-                        self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal: true} );
-                        self.EvAg.trigger('title/update', { title : "My Stories"});
-                    });
-                }
-            },
-            friends: function() {
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/me/following", function(jsonUrl, data){
-                        self.loadPage("friends", { jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger("title/update", { title: "My Friends"});
-                    });
-                }
-            },
-            user: function(id){
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    if(this.modelUser.is(id)){
-                        this.requestFeed("/me/exhibit", function(jsonUrl, data){
-                            self.loadPage("user", { jsonUrl: jsonUrl, data: data, personal : true});
-                            self.EvAg.trigger('title/update', { title : "My Stories"});
-                        });
-                    } else {
-                        this.requestFeed("/user/" + id, function(jsonUrl, data){
-                            self.loadPage("user", { jsonUrl: jsonUrl, data: data});
-                            self.EvAg.trigger('title/update', { title: data.echoedUser.name });
-                        })
-                    }
-                }
-            },
-            community: function(communityId){
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    this.requestFeed("/category/" + communityId, function(jsonUrl, data){
-                        self.loadPage("category", {jsonUrl: jsonUrl, data: data});
-                        self.EvAg.trigger('title/update', { type: "community", communityId: communityId, title: "Stories in the " + communityId + " Community", image: data.headerImage});
-                    });
-                }
-            },
-            writeStory: function(type, id){
+            writeStory: function(id){
                 if(this.page === null){
-                    switch(type){
-                        case "partner":
-                            this.partnerFeed(id);
-                            this.page = "#!partner/" + id;
-                            break;
-                        default:
-                            if(this.modelUser.isLoggedIn()){
-                                this.me();
-                                this.page = "#!me";
-                            } else {
-                                this.explore();
-                                this.page = "#";
-                            }
-                            break;
+                    if(this.modelUser.isLoggedIn()){
+                        this.content();
+                        this.page = "#!me";
+                    } else {
+                        this.explore();
+                        this.page = "#";
                     }
                 }
                 this.oldPage = this.page;
-                this.EvAg.trigger("field/show",id , type);
+                if(id)  this.EvAg.trigger("input:edit", id);
+                else    this.EvAg.trigger("input:write");
+            },
+            photo: function(id){
+                if(this.page === null) {
+                    this.explore();
+                    this.page = "#!";
+                }
+                this.oldPage = this.page;
+                this.EvAg.trigger("content:lookup", id);
             },
             story: function(id){
                 if(this.page === null) {
@@ -185,9 +127,7 @@ define(
                 this.oldPage = this.page;
                 this.oldTitle = $('title').html();
                 _gaq.push(['_trackPageview', window.location.hash]);
-
-                this.EvAg.trigger("story/show", id);
-                this.EvAg.trigger("page/change", "story");
+                this.EvAg.trigger("content:lookup", id);
             },
             resetHash: function(){
                 if(this.oldPage){
@@ -196,7 +136,6 @@ define(
                 } else {
                     window.location.hash = "#!";
                 }
-
             }
         });
     }

@@ -5,7 +5,7 @@ define(
     ],
     function(Backbone, Topic) {
         return Backbone.Collection.extend({
-            url: "settings/topics",
+            url: "/api/partner/topics",
             model: Topic
         });
     }

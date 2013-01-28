@@ -4,7 +4,7 @@ define(
     ],
     function(Backbone) {
         return Backbone.Model.extend({
-            urlRoot: "settings/topics",
+            urlRoot: "/api/partner/topics",
 
             validate: function(attr) {
                 if (attr.endOn && attr.beginOn > attr.endOn) {

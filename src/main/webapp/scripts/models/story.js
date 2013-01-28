@@ -11,7 +11,8 @@ define(
                     this.properties = options.properties;
                 } else {
                     this.properties = options.properties;
-                    this.url = options.properties.urls.site + "/api/story/" + attr.id
+                    if(options.properties) this.url = options.properties.urls.site + "/api/story/" + attr.id;
+                    else this.url = "/api/story/" + attr.id;
                     this.currentChapterIndex = 0;
                     this.currentChapterImageIndex = 0;
                 }
@@ -154,10 +155,15 @@ define(
             },
             updateChapter: function(chapter, chapterImages){
                 var chapters = this.get("chapters");
+                var newChapter = true;
                 var newImages = [];
                 $.each(chapters, function(index, c){
-                    if(c.id === chapter.id) chapters[index] = chapter;
+                    if(c.id === chapter.id) {
+                        chapters[index] = chapter;
+                        newChapter = false;
+                    }
                 });
+                if(newChapter) chapters.push(chapter);
                 $.each(this.get("chapterImages"), function(index, ci){
                     if(ci.chapterId !== chapter.id) newImages.push(ci);
                 });

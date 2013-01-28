@@ -1,10 +1,14 @@
 <div class="item_content story-brief">
+    {{#storyImage}}
     <div class="story-brief-image-container">
         <img class="story-brief-image" src="{{storyImage.url}}" style="height: {{storyImage.height}}px; width: {{storyImage.width}}px"/>
     </div>
+    {{/storyImage}}
     <div class="story-brief-text">
+        {{#storyImage}}
         <img class="story-brief-text-user-image" height="35px" width="35px" src="{{ profilePhotoUrl }}"/>
-        <div class="story-brief-text-title">
+        {{/storyImage}}
+        <div class="story-brief-text-title{{^storyImage}}-large{{/storyImage}}">
             {{ storyFull.story.title }}
         </div>
         <div class="story-brief-text-by">
@@ -24,8 +28,16 @@
         {{/inComplete}}
     </div>
 </div>
-<div class="story-brief-edit" style="text-align: center;{{#isSelf}}display:block;{{/isSelf}}">
-    <a href="#write/story/{{ storyFull.id }}" class="story-brief-edit-tab">
-        {{^inComplete}}Edit Story{{/inComplete}}{{#inComplete}}Finish Story{{/inComplete}}
-    </a>
-</div>
+<!--<div class="story-brief-actions">-->
+    <!--<ul class="clearfix">-->
+        <!--{{^inComplete}}-->
+        <!--<li><span class="upvote"></span></li>-->
+        <!--<li><span class="downvote"></span></li>-->
+        <!--<li><a href="#">Share</a></li>-->
+            <!--{{#isSelf}}<li><a class="story-brief-action" href="#write/{{storyFull.id}}">Edit</a></li>{{/isSelf}}-->
+            <!--{{^isSelf}}<li><a class="story-brief-action" href="#">Save</a></li>{{/isSelf}}-->
+        <!--{{/inComplete}}-->
+        <!--{{#inComplete}}<li><a class="story-brief-action" href="#write/{{storyFull.id}}">Finish</a></li>{{/inComplete}}-->
+    <!--</ul>-->
+<!--</div>-->
+

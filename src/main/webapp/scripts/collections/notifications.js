@@ -8,7 +8,7 @@ define(
         return Backbone.Collection.extend({
             model: ModelNotification,
             initialize: function(attr, options){
-                this.url = options.properties.urls.site + "/api/notifications"
+                this.url = options.properties.urls.site + "/api/me/notifications"
             },
             markAsRead: function(){
                 var ids = this.pluck("id");

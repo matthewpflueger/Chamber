@@ -10,7 +10,9 @@ define(
             initialize: function(attr, options){
                 this.properties = options.properties;
                 this.following = [];
+                this.followingPartners = [];
                 this.getFollowing();
+                this.getFollowingPartners();
             },
             is: function(id){
                 return this.id === id || this.get('screenName') === id
@@ -21,20 +23,32 @@ define(
             login: function(echoedUser){
                 this.set(echoedUser)
             },
-            follow: function(followId, callback){
+            follow: function(followId, type, callback){
                 var self = this;
+                var url = this.properties.urls.api + "/api/" + type + "/" + followId +"/followers";
                 if(this.id !== followId){
                     var request = {
-                        url: this.properties.urls.api + "/api/me/following/" + followId,
+                        url: url,
                         type: "PUT",
                         success: function(response){
-                            self.following = response;
+                            if(type === "partner") self.followingPartners = response;
+                            else self.following = response;
                             callback(self, response)
                         }
                     };
-                    if(this.isFollowing(followId)) request.type = "DELETE";
+                    if(this.isFollowing(followId, "partner") || this.isFollowing(followId, "user")) request.type = "DELETE";
                     utils.AjaxFactory(request)();
                 }
+            },
+            getFollowingPartners: function(){
+                var url = this.properties.urls.api + "/api/me/following/partners";
+                var self = this;
+                utils.AjaxFactory({
+                    url: url,
+                    success: function(response){
+                        self.followingPartners = response.content;
+                    }
+                })();
             },
             getFollowing: function(){
                 var url = this.properties.urls.api + "/api/me/following";
@@ -42,15 +56,21 @@ define(
                 utils.AjaxFactory({
                     url: url,
                     success: function(response){
-                        self.following = response;
+                        self.following = response.content;
                     }
                 })();
             },
-            isFollowing: function(followId){
+            isFollowing: function(followId, type){
                 var isFollowing = false;
-                $.each(this.following, function(index, following){
-                    if(following.echoedUserId === followId) isFollowing = true;
-                });
+                if(type === "partner"){
+                    $.each(this.followingPartners, function(index, followingPartner){
+                        if(followingPartner.partnerId === followId) isFollowing = true;
+                    });
+                } else {
+                    $.each(this.following, function(index, following){
+                        if(following.echoedUserId === followId) isFollowing = true;
+                    });
+                }
                 return isFollowing;
             }
         });

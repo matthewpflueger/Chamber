@@ -1,11 +1,11 @@
 @import "base";
 
 @import "itemWrap";
+@import "item";
 @import "story";
 @import "isotope";
 @import "field";
 @import "storyBrief";
-@import "storyBriefText";
 @import "fade";
 @import "buttons";
 @import "fileuploader";
@@ -21,16 +21,17 @@
 @import "title";
 @import "select";
 
+@import "static/about";
+
 
 body{
-    background-color: rgba(226,229, 236, 1);
-    background-image: image-url("bk_noise_dark.jpg");
-    //height: 100%;
+    background-color:           rgba(226,229, 236, 1);
+    background-image:           image-url("bk_noise_dark.jpg");
     &.white{
-        background-color: #FFF;
+        background-color:       #FFF;
     }
     &.noScroll{
-        overflow: hidden;
+        overflow:               hidden;
     }
 }
 
@@ -40,13 +41,11 @@ h1{
 
 h2{
     @include fontText(30px);
-    text-shadow: #FFF 1px 1px 0;
 }
 
 h3{
     @include fontText(24px, #FF0000);
     margin-bottom: 10px;
-    text-shadow: #fff 1px 1px 0;
 }
 
 #container{
@@ -269,7 +268,7 @@ h3{
     right: 225px;
     .action-button{
         cursor: pointer;
-        @include shareButton();
+        @include buttonRed();
     }
 }
 
@@ -280,3 +279,4 @@ h3{
 #login-content{
     padding: 50px 0px;
 }
+

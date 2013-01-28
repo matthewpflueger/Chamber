@@ -1,11 +1,10 @@
 @import "base";
-
+@import "item";
 @import "itemWrap";
 @import "story";
 @import "isotope";
 @import "field";
 @import "storyBrief";
-@import "storyBriefText";
 @import "fade";
 @import "buttons";
 @import "fileuploader";
@@ -73,21 +72,12 @@ body {
 }
 
 //STORY OVERRIDE
-#story{
+#item{
     top: 50px !important;
 }
 
 #field{
     top: 75px !important;
-}
-
-.echoed-share-container{
-    width: 200px;
-    text-align: center;
-    margin: 3px auto;
-    .echoed-share{
-        @include button(16px);
-    }
 }
 
 #user{

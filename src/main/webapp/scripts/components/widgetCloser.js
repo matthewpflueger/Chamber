@@ -15,7 +15,6 @@ define(
             },
             close: function(){
                 this.EvAg.trigger("msg/send", "close", null)
-
             }
         });
     }

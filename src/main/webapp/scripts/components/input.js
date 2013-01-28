@@ -21,9 +21,13 @@
                 this.element = $(options.el);
                 this.properties = options.properties;
                 this.modelUser = options.modelUser;
+                this.modelContext = options.modelContext;
                 this.EvAg = options.EvAg;
-                this.EvAg.bind("field/show", this.load);
                 this.modelUser.on("change:id", this.login);
+
+                this.EvAg.bind("input:write", this.write);
+                this.EvAg.bind("input:edit", this.edit);
+
                 this.locked = false;
                 this.cloudName = "";
                 this.prompts = [];
@@ -69,15 +73,22 @@
                 $(".subtit").toggleClass("on");
             },
             login: function(){
-                if(this.loaded === true) this.load(this.id, this.type);
+                if(this.loaded === true) this.load();
             },
-            load: function(id, type){
-                var self = this;
+            edit: function(id){
                 this.id = id;
-                this.type = type;
+                this.type = "story";
+                this.load();
+            },
+            write: function(){
+                this.id = this.modelContext.id;
+                this.type = this.modelContext.get("contextType");
+                this.load();
+            },
+            load: function(){
+                var self = this;
                 var loadData = {};
-                loadData[type + "Id"] = id;
-
+                loadData[this.type + "Id"] = this.id;
                 if(this.modelUser.isLoggedIn()){
                     this.modelStory = new ModelStory(null, {
                         loadData: loadData,
@@ -86,9 +97,6 @@
                             self.render();
                         }
                     });
-                } else if(type === "partner"){
-                    var text = this.properties.partner.name + " wants to hear your story. Share your story and have it featured.";
-                    this.EvAg.trigger("login/init", null, text, self.close);
                 } else {
                     this.EvAg.trigger("login/init", null, text, self.close);
                 }
@@ -318,84 +326,6 @@
                             height: photo.attr('height')});
                         $('#story-input-imageId').val(story.image.id);
                     }
-
-//                    $('#photo-upload-button').cloudinary_fileupload({
-//                        //dropZone: $('#photo-drop'),
-//                        dragover: function(e){
-//                            var dropZone = $('#photo-upload, #photo-preview'),
-//                                timeout = window.dropZoneTimeout;
-//                            if (!timeout) {
-//                                dropZone.addClass('in');
-//                            } else {
-//                                clearTimeout(timeout);
-//                            }
-//                            if (e.target === dropZone[0]) {
-//                                dropZone.addClass('hover');
-//                            } else {
-//                                dropZone.removeClass('hover');
-//                            }
-//                            window.dropZoneTimeout = setTimeout(function () {
-//                                window.dropZoneTimeout = null;
-//                                dropZone.removeClass('in hover');
-//                            }, 100);
-//                        },
-//                        progress: function(e,data){
-//                            var pct = data.loaded / data.total * 100;
-//                            $('#photo-upload-progress-fill').css({
-//                                width: pct + "%"
-//                            });
-//                        },
-//                        submit: function(e, data) {
-//                            $('#photo-upload-progress').show();
-//                            var storyId = self.data.storyFull.id;
-//                            var url = "/story/" + storyId + "/image";
-//                            var e = $(this);
-//                            $.ajax({
-//                                url: url,
-//                                type: "POST",
-//                                dataType: "json",
-//                                success: function(result) {
-//                                    e.fileupload('option', 'url', result.uploadUrl);
-//                                    data.formData = result;
-//                                    self.cloudName = result.cloudName;
-//                                    e.fileupload('send', data);
-//                                }
-//                            });
-//                            return false;
-//                        },
-//                        done: function(e, data) {
-//                            if (data.result.error) return;
-//
-//                            var imageUrl = utils.imageUrl(data.result.public_id, self.cloudName);
-//                            var width = parseInt(data.result.width);
-//                            var height = parseInt(data.result.height);
-//                            var image = {
-//                                id : data.result.public_id,
-//                                url : imageUrl,
-//                                width : width,
-//                                height : height,
-//                                originalWidth : width,
-//                                originalHeight : height,
-//                                originalUrl : imageUrl,
-//                                preferredWidth : width,
-//                                preferredHeight : height,
-//                                preferredUrl : imageUrl,
-//                                storyUrl: imageUrl,
-//                                cloudName: self.cloudName,
-//                                isCloudinary: true
-//                            };
-//                            var photo = utils.fit(image, 120, 120);
-//                            $("#story-input-photo").fadeOut().attr("src", photo.attr("src")).fadeIn(function(){
-//                                $('#photo-upload-progress').hide();
-//                            });
-//                            $('#story-input-imageId').val(JSON.stringify(image));
-//                            self.data.imageId = image.id;
-//                        },
-//                        failed: function(e, data) {
-//                            $('#photo-upload-progress-fill').addClass('failed');
-//                            $('#photo-upload-progress-text').text('Failed')
-//                        }});
-
                     self.hideSubmits();
                     $(this).addClass("highlight").fadeIn();
                 });
