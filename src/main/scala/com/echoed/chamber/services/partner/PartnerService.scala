@@ -34,7 +34,7 @@ class PartnerService(
         encrypter: Encrypter,
         initMessage: Message,
         accountManagerEmail: String = "accountmanager@echoed.com",
-        accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService with Stash {
+        accountManagerEmailTemplate: String = "partner_accountManager_email") extends OnlineOfflineService {
 
     import context.dispatcher
 

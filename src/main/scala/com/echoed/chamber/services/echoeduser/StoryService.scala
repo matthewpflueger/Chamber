@@ -357,19 +357,5 @@ class StoryService(
         val story = storyState.asStoryPublic
         mp(echoeduser.NotifyStoryUpdate(eucc, story))
         mp(PNSU(PartnerClientCredentials(storyState.partner.id), story))
-//        val notification = new Notification(
-//                echoedUser,
-//                "story updated",
-//                Map(
-//                    "subject" -> echoedUser.name,
-//                    "action" -> "updated story",
-//                    "object" -> storyState.title,
-//                    "storyId" -> storyState.id,
-//                    "partnerId" -> storyState.partner.id,
-//                    "partnerName" -> storyState.partner.name))
-//        mp(NotifyFollowers(eucc, notification))
-//        if (notifyPartnerFollowers)
-//            mp(NotifyPartnerFollowers(PartnerClientCredentials(storyState.partner.id), eucc, notification))
-//        notifyStoryFollowers(notification)
     }
 }
