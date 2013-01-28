@@ -11,7 +11,7 @@ import scala.collection.immutable.Stack
 import org.springframework.validation.Errors
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.OnlineOnlyMessage
-import content.{FeedItem, Content}
+import content.{ContentDescription, FeedItem, Content}
 
 sealed trait EchoedUserMessage extends Message
 sealed class EchoedUserException(
@@ -386,15 +386,15 @@ case class ReadAllUserContentResponse(message: ReadAllUserContent, value: Either
 
 
 //Request Messages: Returns to controller
-case class RequestOwnContent(credentials: EUCC, page: Int, c: Class[_]) extends EUM with EUI
+case class RequestOwnContent(credentials: EUCC, page: Int, c: ContentDescription) extends EUM with EUI
 case class RequestOwnContentResponse(message: RequestOwnContent, value: Either[EUE, Feed[SelfContext]])
     extends EUM with MR[Feed[SelfContext], RequestOwnContent, EUE]
 
-case class RequestCustomUserFeed(credentials: EUCC, page: Int, c: Class[_])  extends EUM with EUI
+case class RequestCustomUserFeed(credentials: EUCC, page: Int, c: ContentDescription)  extends EUM with EUI
 case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, Feed[PersonalizedContext]])
     extends EUM with MR[Feed[PersonalizedContext], RequestCustomUserFeed, EUE]
 
-case class RequestUserContentFeed(credentials: EUCC, page: Int, c: Class[_]) extends EUM with EUI
+case class RequestUserContentFeed(credentials: EUCC, page: Int, c: ContentDescription) extends EUM with EUI
 case class RequestUserContentFeedResponse(message: RequestUserContentFeed, value: Either[EUE, Feed[UserContext]])
     extends EUM with MR[Feed[UserContext], RequestUserContentFeed, EUE]
 

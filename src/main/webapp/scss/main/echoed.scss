@@ -41,13 +41,11 @@ h1{
 
 h2{
     @include fontText(30px);
-    text-shadow: #FFF 1px 1px 0;
 }
 
 h3{
     @include fontText(24px, #FF0000);
     margin-bottom: 10px;
-    text-shadow: #fff 1px 1px 0;
 }
 
 #container{

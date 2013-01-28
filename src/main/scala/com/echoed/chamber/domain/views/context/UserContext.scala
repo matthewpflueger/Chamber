@@ -16,7 +16,7 @@ case class UserContext(
 
     def this(echoedUser:    EchoedUser,
              stats:         List[Map[String, Any]],
-             highlights:     List[Map[String, Any]],
+             highlights:    List[Map[String, Any]],
              content:       List[Map[String, Any]]) = this( new EchoedUserPublic(echoedUser), stats, highlights, content )
 
 }

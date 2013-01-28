@@ -10,7 +10,7 @@ import context.PartnerContext
 import org.springframework.validation.Errors
 import java.util.Date
 import com.echoed.chamber.domain.public.StoryPublic
-import com.echoed.chamber.domain.views.content.Content
+import content.{ContentDescription, Content}
 
 
 trait PartnerMessage extends Message
@@ -99,7 +99,7 @@ private[services] case class ReadAllPartnerContentResponse(
         message: ReadAllPartnerContent,
         value: Either[PE, List[Content]]) extends PM with MR[List[Content], ReadAllPartnerContent, PE]
 
-case class RequestPartnerContent(credentials: PCC, page: Int, origin: String, c: Class[_]) extends PM with PI
+case class RequestPartnerContent(credentials: PCC, page: Int, origin: String, c: ContentDescription) extends PM with PI
 case class RequestPartnerContentResponse(
         message: RequestPartnerContent,
         value: Either[PE, Feed[PartnerContext]]) extends PM with MR[Feed[PartnerContext], RequestPartnerContent, PE]

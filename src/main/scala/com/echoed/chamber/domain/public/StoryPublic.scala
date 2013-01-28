@@ -19,9 +19,10 @@ case class StoryPublic (
         comments: List[CommentPublic],
         votes: Map[String, Vote],
         moderation: ModerationDescription,
-        topic: TopicPublic )  extends Content {
+        topic: TopicPublic)  extends Content {
 
-    val contentType =         "Story"
+//    val contentType =  "Story"
+    val contentType =  story.contentType
     val title =        story.title
 
     def createdOn =    story.createdOn
@@ -30,10 +31,7 @@ case class StoryPublic (
     def numVotes =     votes.values.toList.foldLeft(0)((l, r) => l + r.value)
     def numComments =  comments.length
 
-    def plural =       "Stories"
-    def singular =     "Story"
-    def endPoint =     "stories"
-
+    def contentDescription = story.contentDescription
 
 
     def this(story: StoryFull) = this(

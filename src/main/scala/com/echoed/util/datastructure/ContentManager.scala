@@ -1,25 +1,35 @@
 package com.echoed.util.datastructure
 
-import com.echoed.chamber.domain.views.content.Content
+import com.echoed.chamber.domain.views.content.{ContentDescription, Content}
 import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.Story
 
-class ContentManager {
+class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
 
-    private var cache = Map[Class[_], ContentTree]()
+    private var cache = Map[ContentDescription, ContentTree]()
+
+    defaultContentDescriptions.map(initContentTree(_))
+
+    def this() = this(List())
+
+    def initContentTree(c: ContentDescription) =  {
+        val tree = cache.get(c).getOrElse(new ContentTree(c))
+        cache += (c -> tree)
+        tree
+    }
+
 
     def updateContent( c: Content ) {
-        val tree = cache.get(c.getClass).getOrElse(new ContentTree( c.singular, c.plural, c.endPoint))
+        val tree = initContentTree(c.contentDescription)
         tree.updateContent(c)
-        cache += (c.getClass -> tree)
+        cache += (c.contentDescription -> tree)
     }
 
     def getContentList = {
-        cache.values.map {
-            t => Map( "name" -> t.plural, "count" -> t.count, "endPoint" -> t.endPoint )
-        }.toList
+        cache.values.map(_.getInfoMap).toList
     }
 
-    def getContent(c: Class[_], page: Int) = {
+    def getContent(c: ContentDescription, page: Int) = {
         cache.get(c).map(_.getContentFromTree(page)).getOrElse((List[Content](), null))
     }
 
@@ -41,9 +51,9 @@ class ContentManager {
 
     def getHighlights = {
         var s = List[Map[String, Any]]()
-        s = Map("name" -> "Highest Rated", "value" -> getMostVoted(classOf[StoryPublic])) :: s
-        s = Map("name" -> "Most Discussed", "value" -> getMostCommented(classOf[StoryPublic])) :: s
-        s = Map("name" -> "Most Viewed", "value" -> getMostViewed(classOf[StoryPublic])) :: s
+        s = Map("name" -> "Highest Rated", "value" -> getMostVoted(Story.storyContentDescription)) :: s
+        s = Map("name" -> "Most Discussed", "value" -> getMostCommented(Story.storyContentDescription)) :: s
+        s = Map("name" -> "Most Viewed", "value" -> getMostViewed(Story.storyContentDescription)) :: s
         s
     }
 
@@ -55,15 +65,15 @@ class ContentManager {
         s
     }
 
-    def getMostViewed( c: Class[_] ) = {
+    def getMostViewed( c: ContentDescription ) = {
         cache.get(c).map(_.mostViewed).getOrElse(null)
     }
 
-    def getMostCommented( c: Class[_]) = {
+    def getMostCommented( c: ContentDescription) = {
         cache.get(c).map(_.mostCommented).getOrElse(null)
     }
 
-    def getMostVoted( c: Class[_] ) = {
+    def getMostVoted( c: ContentDescription ) = {
         cache.get(c).map(_.mostVoted).getOrElse(null)
     }
 

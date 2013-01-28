@@ -1,14 +1,6 @@
 package com.echoed.chamber.services.echoeduser.story
 
 
-import com.echoed.chamber.domain.Chapter
-import com.echoed.chamber.domain.ChapterImage
-import com.echoed.chamber.domain.ChapterInfo
-import com.echoed.chamber.domain.Comment
-import com.echoed.chamber.domain.EchoedUser
-import com.echoed.chamber.domain.Notification
-import com.echoed.chamber.domain.StoryState
-import com.echoed.chamber.domain.Vote
 import com.echoed.chamber.domain._
 import com.echoed.chamber.services._
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
@@ -64,12 +56,6 @@ import scala.Left
 import scala.Right
 import scala.Some
 import scala.collection.mutable.{Set => MSet}
-import state.ReadStory
-import state.ReadStoryForEcho
-import state.ReadStoryForEchoResponse
-import state.ReadStoryResponse
-import state.StoryForEchoNotFound
-import state.StoryNotFound
 import state._
 
 
@@ -105,6 +91,10 @@ class StoryService(
         becomeOnline
     }
 
+    private def storyUpdated {
+        context.parent ! StoryUpdated(storyState)
+    }
+
     def init = {
         case ReadStoryResponse(_, Left(StoryNotFound(_, _))) if (initMessage.isInstanceOf[CreateStory]) =>
              requestStory(initMessage.asInstanceOf[CreateStory].partnerId)
@@ -126,7 +116,7 @@ class StoryService(
             val image = imageId.map(processImage(_))
             storyState = storyState.create(title, productInfo.orNull, community.orNull, image)
             ep(StoryCreated(storyState))
-
+            storyUpdated
             sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
 
@@ -140,7 +130,8 @@ class StoryService(
                     community = community,
                     productInfo = productInfo.orNull,
                     updatedOn = new Date)
-            ep(new StoryUpdated(storyState))
+            storyUpdated
+            ep(StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
 
 
@@ -181,6 +172,7 @@ class StoryService(
                     updatedOn = new Date)
 
             ep(ChapterCreated(storyState, chapter, chapterImages))
+            storyUpdated
             sender ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
             if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc, notifyPartnerFollowers)
 
@@ -216,6 +208,7 @@ class StoryService(
                     updatedOn = new Date)
 
             ep(ChapterUpdated(storyState, chapter, chapterImages))
+            storyUpdated
             sender ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
 
 
@@ -232,6 +225,7 @@ class StoryService(
             ep(CommentCreated(storyState, comment))
 
             sender ! NewCommentResponse(msg, Right(comment))
+            storyUpdated
 
             notifyStoryFollowers(new Notification(
                     byEchoedUser,

@@ -101,7 +101,7 @@ class MeController extends EchoedController {
                       eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page), classOf[StoryPublic])).onSuccess {
+        mp(RequestCustomUserFeed(eucc, parse(page), Story.storyContentDescription)).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
         }
@@ -114,7 +114,7 @@ class MeController extends EchoedController {
                     @RequestParam(value = "page", required = false) page: String,
                     eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page), classOf[PhotoContent])).onSuccess {
+        mp(RequestCustomUserFeed(eucc, parse(page), PhotoContent.contentDescription)).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
         }
@@ -128,7 +128,7 @@ class MeController extends EchoedController {
                    eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[Feed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestOwnContent(eucc, parse(page), classOf[StoryPublic])).onSuccess {
+        mp(RequestOwnContent(eucc, parse(page), Story.storyContentDescription)).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
         }
@@ -142,7 +142,7 @@ class MeController extends EchoedController {
                       eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[Feed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestOwnContent(eucc, parse(page), classOf[PhotoContent])).onSuccess {
+        mp(RequestOwnContent(eucc, parse(page), PhotoContent.contentDescription)).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
         }

@@ -2,9 +2,9 @@ package com.echoed.util.datastructure
 
 //import com.echoed.chamber.domain.public.StoryPublic
 import collection.immutable.TreeMap
-import com.echoed.chamber.domain.views.content.Content
+import com.echoed.chamber.domain.views.content.{ContentDescription, Content}
 
-case class ContentTree( singular: String, plural: String, endPoint: String ) {
+case class ContentTree(c: ContentDescription) {
 
     implicit object DateOrdering extends Ordering[(Long, String)] {
         def compare(a:(Long, String), b:(Long, String)) = {
@@ -15,6 +15,10 @@ case class ContentTree( singular: String, plural: String, endPoint: String ) {
         }
     }
 
+
+    def getInfoMap = {
+        Map( "name" -> c.plural, "count" -> count, "endPoint" -> c.endPoint )
+    }
 
     val pageSize = 30
     var viewCount = 0

@@ -4,6 +4,7 @@ import java.util.Date
 import partner.{PartnerSettings, Partner}
 import com.echoed.util.UUID
 import com.echoed.util.DateUtils._
+import views.content.ContentDescription
 
 
 case class Story(
@@ -82,4 +83,16 @@ case class Story(
         contentType = "Story",
         contentPath = None)
 
+    def contentDescription =
+        contentType match {
+            case "Story" =>  Story.storyContentDescription
+            case "Review" => Story.reviewContentDescription
+        }
+
+
+}
+
+object Story {
+    val storyContentDescription =   new ContentDescription("Story", "Stories" ,"stories")
+    val reviewContentDescription =  new ContentDescription("Review", "Reviews" ,"reviews")
 }

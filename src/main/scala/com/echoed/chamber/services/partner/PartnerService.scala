@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.partner
 
 import akka.actor.{Stash, PoisonPill}
-import com.echoed.chamber.domain.{Topic, Notification}
+import com.echoed.chamber.domain.{Story, Topic, Notification}
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.partner.PartnerSettings
 import com.echoed.chamber.domain.partner.PartnerUser
@@ -42,7 +42,8 @@ class PartnerService(
     private var customization = Map[String, Any]()
     private var followedByUsers = List[Follower]()
 
-    private val contentManager = new ContentManager()
+
+    private val contentManager = new ContentManager(List(Story.storyContentDescription))
 
     private var contentLoaded = false
 

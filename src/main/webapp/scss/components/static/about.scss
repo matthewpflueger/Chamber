@@ -2,8 +2,10 @@
 
     padding-top:        40px;
 
+
+
     #about-banner {
-        background-color:   #f0f0f0;
+        background-color:   #fafafa;
         padding:            50px;
         border-bottom:      1px solid #CCC;
 
@@ -16,23 +18,60 @@
         }
 
         #about-shortcuts {
-            margin-top:     30px;
-            float:          right;
-            width:          300px;
-            border-radius:  5px;
-            border:         1px solid #CCC;
+            margin-top:         30px;
+            float:              right;
+            width:              300px;
+            border-radius:      5px;
+            border:             1px solid #CCC;
+            background-color:   rgba(255, 255, 255, 0.7);
             li {
                 list-style: none;
                 padding:    10px 20px;
                 a {
                     @include            fontTitleLight(18px);
                     text-decoration:    none;
+                    &:hover {
+                        color:          $colorEC;
+                    }
                 }
             }
         }
     }
+    #about-bookmarklet {
+        padding:            25px;
+        background-color:   #e2eefd;
+        border-bottom:      1px solid #CCC;
+
+        h2 {
+            @include        fontTitleLight(24px);
+        }
+
+        .about-installation{
+            margin-top:         10px;
+            h3 {
+                @include        fontTitleLight(20px);
+                text-align:     center;
+            }
+            ol {
+                width:          600px;
+                margin:         auto;
+            }
+
+            ol li{
+                @include        fontTitle(16px);
+                padding:        5px 0px;
+            }
+
+
+        }
+    }
+
     #about-body{
-        padding: 20px
+        padding:            25px;
+        h2 {
+            @include        fontTitleLight(24px);
+        }
+
     }
 }
 
@@ -42,9 +81,11 @@
     text-decoration:        none;
     background-color:       #ffffff;
     border-radius:          5px;
-    border:                 1px solid #ccc;
+    border:                 1px solid #999999;
     padding:                11px 15px;
     display:                inline-block;
+    min-width:              160px;
+    text-align:             center;
     &:active{
         border-color:       #666666;
         color:              #333333
