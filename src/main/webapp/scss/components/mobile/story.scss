@@ -323,13 +323,13 @@
     }
 }
 
-.greyButton{
-    @include whiteButtonMobile;
-}
-
-.redButton{
-    @include redButtonMobile;
-}
+//.greyButton{
+//    @include whiteButtonMobile;
+//}
+//
+//.redButton{
+//    @include redButtonMobile;
+//}
 
 #story-actions{
     padding: 5px 7px;
