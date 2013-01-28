@@ -6,6 +6,7 @@ import scala.collection.JavaConversions._
 import com.echoed.util.UUID
 import com.echoed.util.DateUtils._
 import java.util.Date
+import com.echoed.chamber.domain.public.StoryPublic
 
 case class StoryState(
         id: String,
@@ -108,6 +109,8 @@ case class StoryState(
             asStoryFull.orNull)
 
     def asStoryFull = Option(StoryFull(id, asStory, echoedUser, partner, chapters, chapterImages, comments, votes, moderationDescription, topic.orNull))
+
+    def asStoryPublic = new StoryPublic(asStoryFull.get)
 
     private def selfModeratedPredicate: Moderation => Boolean = _.moderatedRef == "EchoedUser"
     private def echoedModeratedPredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"

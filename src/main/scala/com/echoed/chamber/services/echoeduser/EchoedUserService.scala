@@ -3,7 +3,7 @@ package com.echoed.chamber.services.echoeduser
 import scalaz._
 import Scalaz._
 import scala.collection.JavaConversions._
-import scala.collection.mutable.{ListBuffer => MList}
+import collection.mutable.{ListBuffer => MList, Set => MSet}
 import com.echoed.chamber.services._
 import akka.actor._
 import akka.pattern._
@@ -45,7 +45,7 @@ import com.echoed.chamber.services.facebook.FetchFriendsResponse
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
-import com.echoed.chamber.domain.public.StoryPublic
+import com.echoed.chamber.domain.public.{CommentPublic, StoryPublic}
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials, ReadAllPartnerContent, ReadAllPartnerContentResponse}
 import scala.concurrent.Future
@@ -656,6 +656,18 @@ class EchoedUserService(
         case NotifyFollowers(_, n) =>
             val notification = n.copy(origin = echoedUser)
             followedByUsers.map(f => mp.tell(RegisterNotification(EUCC(f.echoedUserId), notification), self))
+
+        case NotifyStoryUpdate(_, s) =>
+            contentManager.updateContent(s)
+            val notification = s.storyUpdatedNotification
+            mp(NotifyFollowers(EUCC(echoedUser.id), notification))
+            s.comments
+                    .foldLeft(MSet[String]() += echoedUser.id)((eus: MSet[String], c: CommentPublic) => eus += c.echoedUser.id)
+                    .filterNot(_ == notification.origin.id)
+                    .map(id => mp.tell(RegisterNotification(EUCC(id), notification), self))
+
+            followedByUsers.map(f => mp.tell(UpdateCustomFeed(EUCC(f.echoedUserId), s), self))
+
 
         case RegisterStory(story) =>
             activeStories.put(StoryId(story.id), sender)

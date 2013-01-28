@@ -166,6 +166,7 @@ private[services] case class NotifyPartnerFollowers(
         credentials: PCC,
         echoedUserClientCredentials: EchoedUserClientCredentials,
         notification: Notification) extends PM with PI
+private[services] case class NotifyStoryUpdate(credentials: PCC, story: StoryPublic) extends PM with PI
 
 
 case class Locate(partnerId: String) extends PM

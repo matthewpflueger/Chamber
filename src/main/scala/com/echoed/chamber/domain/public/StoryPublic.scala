@@ -62,4 +62,15 @@ case class StoryPublic (
         chapterImages.map{ _.image }.toList
     }
 
+    def storyUpdatedNotification = new Notification(
+        echoedUser,
+        "story updated",
+        Map(
+            "subject" -> echoedUser.name,
+            "action" -> "updated story",
+            "object" -> title,
+            "storyId" -> id,
+            "partnerId" -> partner.id,
+            "partnerName" -> partner.name))
+
 }

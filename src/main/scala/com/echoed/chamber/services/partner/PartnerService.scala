@@ -1,7 +1,7 @@
 package com.echoed.chamber.services.partner
 
 import akka.actor.{Stash, PoisonPill}
-import com.echoed.chamber.domain.{Story, Topic, Notification}
+import com.echoed.chamber.domain.{Story, Topic}
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.partner.PartnerSettings
 import com.echoed.chamber.domain.partner.PartnerUser
@@ -10,6 +10,7 @@ import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.echoeduser.FollowPartner
 import com.echoed.chamber.services.echoeduser.Follower
 import com.echoed.chamber.services.echoeduser.RegisterNotification
+import com.echoed.chamber.services.echoeduser.UpdateCustomFeed
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state._
 import com.echoed.util.DateUtils._
@@ -23,6 +24,8 @@ import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.util.datastructure.ContentManager
 import com.echoed.chamber.domain.views.content.PhotoContent
+
+
 
 
 class PartnerService(
@@ -218,6 +221,10 @@ class PartnerService(
             }
             if (sendFollowRequest) mp(FollowPartner(eucc, partner.id))
 
+        case msg @ NotifyStoryUpdate(_, s) =>
+            contentManager.updateContent(s)
+            followedByUsers.map(f => mp.tell(UpdateCustomFeed(EchoedUserClientCredentials(f.echoedUserId), s), self))
+            mp.tell(NotifyPartnerFollowers(PartnerClientCredentials(partner.id), EchoedUserClientCredentials(s.echoedUser.id), s.storyUpdatedNotification), self)
 
         case msg @ AddPartnerFollower(_, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! AddPartnerFollowerResponse(msg, Right(partner))

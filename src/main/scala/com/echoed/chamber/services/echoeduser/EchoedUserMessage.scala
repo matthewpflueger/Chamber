@@ -152,6 +152,7 @@ object Follower {
 
 
 private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: Notification) extends EUM with EUI
+private[echoeduser] case class NotifyStoryUpdate(credentials: EUCC, story: StoryPublic) extends EUM with EUI
 
 case class FetchNotifications(credentials: EUCC) extends EUM with EUI
 case class FetchNotificationsResponse(message: FetchNotifications, value: Either[EUE, Stack[Notification]])
@@ -375,6 +376,8 @@ case class GetEchoResponse(message: GetEcho, value: Either[EUE, (Echo, EchoedUse
 private[services] case class InitializeUserCustomFeed(credentials: EUCC, content: List[Content]) extends EUM with EUI
 private[services] case class InitializeUserCustomFeedResponse(message: InitializeUserCustomFeed, value: Either[EUE, Boolean] )
     extends EUM with MR[Boolean, InitializeUserCustomFeed, EUE]
+
+private[services] case class UpdateCustomFeed(credentials: EUCC, content: Content) extends EUM with EUI with OnlineOnlyMessage
 
 private[services] case class InitializeUserContentFeed(credentials: EUCC, content: List[Content]) extends EUM with EUI
 private[services] case class InitializeUserContentFeedResponse(message: InitializeUserContentFeed, value: Either[EUE, Boolean])

@@ -6,9 +6,9 @@ import com.echoed.chamber.services._
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
-import com.echoed.chamber.services.partner.NotifyPartnerFollowers
 import com.echoed.chamber.services.partner.PartnerClientCredentials
 import com.echoed.chamber.services.partner.RequestStory
+import com.echoed.chamber.services.partner.{NotifyStoryUpdate => PNSU}
 import com.echoed.chamber.services.partner.RequestStoryResponse
 import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
@@ -30,7 +30,6 @@ import echoeduser.NewComment
 import echoeduser.NewCommentResponse
 import echoeduser.NewVote
 import echoeduser.NewVoteResponse
-import echoeduser.NotifyFollowers
 import echoeduser.ProcessImage
 import echoeduser.ProcessImageResponse
 import echoeduser.RegisterNotification
@@ -174,7 +173,7 @@ class StoryService(
             ep(ChapterCreated(storyState, chapter, chapterImages))
             storyUpdated
             sender ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
-            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc, notifyPartnerFollowers)
+            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc)
 
 
         case msg @ UpdateCommunity(eucc, storyId, communityId) =>
@@ -191,7 +190,7 @@ class StoryService(
 
             chapter =
                 if (!chapter.isPublished && publish.getOrElse(false)) {
-                    notifyFollowersOfStoryUpdate(eucc, !storyState.isPublished && !storyState.partner.isEchoed)
+                    notifyFollowersOfStoryUpdate(eucc)
                     chapter.copy(publishedOn = new Date)
                 } else chapter
 
@@ -343,32 +342,34 @@ class StoryService(
         sender ! ModerateStoryResponse(msg, Right(storyState.moderationDescription))
     }
 
-
     private def notifyStoryFollowers(notification: Notification) {
         //anybody that has commented on a Story implicitly follows the Story...
         storyState.comments
-            .foldLeft(MSet[String]() += echoedUser.id)((eus: MSet[String], c: Comment) => eus += c.byEchoedUserId)
-            .filterNot(_ == notification.origin.id)
-            .map(id => mp.tell(RegisterNotification(EUCC(id), notification), self))
+                .foldLeft(MSet[String]() += echoedUser.id)((eus: MSet[String], c: Comment) => eus += c.byEchoedUserId)
+                .filterNot(_ == notification.origin.id)
+                .map(id => mp.tell(RegisterNotification(EUCC(id), notification), self))
     }
 
     private def notifyFollowersOfStoryUpdate(
-            eucc: EchoedUserClientCredentials,
-            notifyPartnerFollowers: Boolean = false) {
-        val notification = new Notification(
-                echoedUser,
-                "story updated",
-                Map(
-                    "subject" -> echoedUser.name,
-                    "action" -> "updated story",
-                    "object" -> storyState.title,
-                    "storyId" -> storyState.id,
-                    "partnerId" -> storyState.partner.id,
-                    "partnerName" -> storyState.partner.name))
-        mp(NotifyFollowers(eucc, notification))
-        if (notifyPartnerFollowers)
-            mp(NotifyPartnerFollowers(PartnerClientCredentials(storyState.partner.id), eucc, notification))
+            eucc: EchoedUserClientCredentials) {
 
-        notifyStoryFollowers(notification)
+
+        val story = storyState.asStoryPublic
+        mp(echoeduser.NotifyStoryUpdate(eucc, story))
+        mp(PNSU(PartnerClientCredentials(storyState.partner.id), story))
+//        val notification = new Notification(
+//                echoedUser,
+//                "story updated",
+//                Map(
+//                    "subject" -> echoedUser.name,
+//                    "action" -> "updated story",
+//                    "object" -> storyState.title,
+//                    "storyId" -> storyState.id,
+//                    "partnerId" -> storyState.partner.id,
+//                    "partnerName" -> storyState.partner.name))
+//        mp(NotifyFollowers(eucc, notification))
+//        if (notifyPartnerFollowers)
+//            mp(NotifyPartnerFollowers(PartnerClientCredentials(storyState.partner.id), eucc, notification))
+//        notifyStoryFollowers(notification)
     }
 }
