@@ -17,7 +17,7 @@ case class ContentTree(c: ContentDescription) {
 
 
     def getInfoMap = {
-        Map( "name" -> c.plural, "count" -> count, "endPoint" -> c.endPoint )
+        Map("name" -> c.plural, "count" -> count, "endPoint" -> c.endPoint)
     }
 
     val pageSize = 30
@@ -30,28 +30,31 @@ case class ContentTree(c: ContentDescription) {
     var mostVoted: Content = null
 
     protected var contentMap = Map[String, Content]()
-    protected var contentTree =  new TreeMap[(Long, String), Content]()(DateOrdering)
+    protected var contentTree = new TreeMap[(Long, String), Content]()(DateOrdering)
 
     protected def get(id: String) = {
         contentMap.get(id)
     }
 
-    protected def addToTree(c: Content){
+    protected def addToTree(c: Content) {
         contentTree += ((c.updatedOn, c.id) -> c)
     }
 
-    protected def removeFromTree(c: Content){
+    protected def removeFromTree(c: Content) {
         contentTree -= ((c.updatedOn, c.id))
     }
 
-    def updateContent(c: Content){
-        contentMap.get(c.id).map {
-            story =>
-                viewCount -= c.numViews
-                voteCount -= c.numVotes
-                commentCount -= c.numComments
-                removeFromTree(story)
+    def deleteContent(c: Content) {
+        contentMap.get(c.id).map { story =>
+            viewCount -= c.numViews
+            voteCount -= c.numVotes
+            commentCount -= c.numComments
+            removeFromTree(story)
         }
+    }
+
+    def updateContent(c: Content){
+        deleteContent(c)
         addToTree(c)
         contentMap += (c.id -> c)
         viewCount += c.numViews

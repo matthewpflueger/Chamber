@@ -12,17 +12,19 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
 
     def this() = this(List())
 
-    def initContentTree(c: ContentDescription) =  {
-        val tree = cache.get(c).getOrElse(new ContentTree(c))
-        cache += (c -> tree)
-        tree
-    }
+    def initContentTree(c: ContentDescription) =
+            cache.get(c).getOrElse {
+                val tree = new ContentTree(c)
+                cache += (c -> tree)
+                tree
+            }
 
+    def deleteContent(c: Content): Unit =
+            cache.get(c.contentDescription).foreach(_.deleteContent(c))
 
-    def updateContent( c: Content ) {
+    def updateContent(c: Content) {
         val tree = initContentTree(c.contentDescription)
         tree.updateContent(c)
-        cache += (c.contentDescription -> tree)
     }
 
     def getContentList = {
