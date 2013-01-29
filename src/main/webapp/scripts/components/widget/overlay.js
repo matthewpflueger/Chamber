@@ -32,7 +32,7 @@ define(
                                 right:      "0px",
                                 height:     "100%",
                                 width:      "100%",
-                                "z-index":    "10000000"
+                                "z-index":    "99999999999999"
                             });
                         }
                         if(self.properties.isPreview){

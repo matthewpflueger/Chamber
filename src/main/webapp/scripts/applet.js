@@ -15,9 +15,12 @@ require(
             urls:       Echoed.urls,
             partnerId:  Echoed.partnerId,
             isPreview:  true,
-            redirect:   Echoed.redirect,
             overlayUrl: Echoed.urls.site + "/app/iframe#partner/" + Echoed.partnerId
         };
+
+        if(Echoed.redirect) this.properties.redirect = Echoed.redirect
+        else this.properties.redirect = window.location;
+
         this.overlay =      new Overlay({ properties: this.properties, EvAg: this.EventAggregator, showOverlay: true });
         var background = document.getElementById("echoed-background");
         if(!background) {

@@ -18,37 +18,34 @@
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
-                this.element = $(options.el);
-                this.properties = options.properties;
-                this.modelUser = options.modelUser;
+                this.element =      $(options.el);
+                this.properties =   options.properties;
+                this.modelUser =    options.modelUser;
                 this.modelContext = options.modelContext;
-                this.EvAg = options.EvAg;
-                this.modelUser.on("change:id", this.login);
-
-                this.EvAg.bind("input:write", this.write);
-                this.EvAg.bind("input:edit", this.edit);
-
-                this.locked = false;
-                this.cloudName = "";
-                this.prompts = [];
+                this.EvAg =         options.EvAg;
+                this.modelUser.on("change:id",  this.login);
+                this.EvAg.bind("input:write",   this.write);
+                this.EvAg.bind("input:edit",    this.edit);
+                this.locked =               false;
+                this.cloudName =            "";
             },
             events: {
-                "click .field-close" : "close",
-                "click #edit-cover": "editStoryClick",
-                "click .edit-chapter" : "editChapterClick",
-                'click #submit-cover': "submitCover",
-                'click #chapter-publish': "publishChapterClick",
-                'click #chapter-save': 'saveChapterClick',
-                'click #chapter-add': 'addChapterClick',
-                'click #story-finish': 'finishStoryClick',
-                'click #story-hide': "hideStoryClick",
-                'click #chapter-cancel': 'cancelChapterClick',
-                'click .chapter-thumb-x': 'removeChapterThumb',
-                'click .fade': "fadeClick",
-                'click .text': "textClick",
-                "click .photos": "photosClick",
-                "click .link": "linkClick",
-                "click .subtit": "subtitleClick"
+                "click .field-close" :      "close",
+                "click #edit-cover":        "editStoryClick",
+                "click .edit-chapter" :     "editChapterClick",
+                'click #submit-cover':      "submitCover",
+                'click #chapter-publish':   "publishChapterClick",
+                'click #chapter-save':      'saveChapterClick',
+                'click #chapter-add':       'addChapterClick',
+                'click #story-finish':      'finishStoryClick',
+                'click #story-hide':        "hideStoryClick",
+                'click #chapter-cancel':    'cancelChapterClick',
+                'click .chapter-thumb-x':   'removeChapterThumb',
+                'click .fade':              "fadeClick",
+                'click .text':              "textClick",
+                "click .photos":            "photosClick",
+                "click .link":              "linkClick",
+                "click .subtit":            "subtitleClick"
 
             },
             fadeClick: function(ev){
@@ -146,15 +143,14 @@
                 this.loadChapterInputTemplate({ index: chapterIndex })
             },
             loadStoryCoverTemplate: function(){
-                var self = this;
                 var story = this.modelStory.get("story");
                 var template = templateStoryCover(this.modelStory.get("story"));
-                self.cover.html(template);
+                this.cover.html(template);
                 if (story.image !== null) {
                     utils.scaleByHeight(story.image, 50)
                             .addClass("story-summary-photo")
                             .appendTo(self.cover.find('.story-input-photo'));
-                } else self.cover.find('.story-input-photo-row').hide();
+                } else this.cover.find('.story-input-photo-row').hide();
             },
             loadChapterInputTemplate: function(option){
                 var self = this;
@@ -164,28 +160,26 @@
                     else return $('<div class="field-main-row clearfix"></div>').appendTo(self.body);
                 }(option);
 
-                var chapter = this.modelStory.getChapter(option.index);
-                var chapterImages = this.modelStory.getChapterImages(chapter.id);
-                this.currentImages = [];
-                this.editChapterId = chapter.id;
+                var chapter =           this.modelStory.getChapter(option.index);
+                var chapterImages =     this.modelStory.getChapterImages(chapter.id);
+                this.currentImages =    [];
+                this.editChapterId =    chapter.id;
 
                 cElement.fadeOut(function(){
-                    var template = templateChapterInput({ chapter: chapter });
+                    var template =      templateChapterInput({ chapter: chapter });
                     $(this).html(template);
-
-
                     if(self.modelStory.get("chapterImages").length) self.photosClick();
                     if(chapter.title) self.subtitleClick();
-                    if(chapter.text) self.textClick();
+                    self.textClick();
 
 
-                    var chapterPhotos = $('#story-input-thumbnails');
-                    var placeholder= $('#thumbnail-placeholder');
-                    if(chapterImages.length) $('#input-photos').show();
+                    var chapterPhotos =         $('#story-input-thumbnails');
+                    var placeholder =           $('#thumbnail-placeholder');
+                    if(chapterImages.length)    $('#input-photos').show();
 
                     $.each(chapterImages, function(index, chapterImage){
-                        var thumbDiv = $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index).attr("imageId",chapterImage.image.id);
-                        var thumbX = $('<div></div>').addClass('chapter-thumb-x');
+                        var thumbDiv =  $('<div></div>').addClass("thumb").addClass('chapter-thumb').attr("index", index).attr("imageId",chapterImage.image.id);
+                        var thumbX =    $('<div></div>').addClass('chapter-thumb-x');
                         thumbDiv.append(thumbX);
                         var photo = utils.scaleByHeight(chapterImage.image, 75);
                         placeholder.before(thumbDiv.append(photo));
@@ -290,7 +284,7 @@
                 $.each(self.modelStory.get("chapters"), function(index, chapter){
 
                     chapter.index = index;
-
+                    if(chapter.title === "") chapter.title = null;
                     var template = templateChapter(chapter);
                     var chapterRow = $('<div class="field-main-row clearfix"></div>').html(template).appendTo(self.body).attr("id", "chapter-row-" + index);
                     var photos = chapterRow.find('.story-input-photos');
@@ -406,17 +400,15 @@
                 $('#story-summary-buttons').hide();
             },
             show: function(){
-                var self = this;
-                self.element.fadeIn();
+                this.element.fadeIn();
                 $("body").addClass("noScroll");
                 $("#story-name").focus();
             },
             close: function(){
-                var self = this;
                 this.loaded = false;
-                self.element.fadeOut().empty();
+                this.element.fadeOut().empty();
                 $("body").removeClass("noScroll");
-                self.EvAg.trigger('hash/reset');
+                this.EvAg.trigger('hash:reset');
             }
         });
 

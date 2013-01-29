@@ -16,16 +16,15 @@ define(
                 this.modelContext = options.modelContext;
                 this.colContent =   options.colContent;
                 this.EvAg.bind("hash:reset", this.resetHash);
-                this.EvAg.bind("router/me", this.me);
+                this.EvAg.bind("router/me",  this.feed);
+                this.modelUser.on("change",  this.login);
                 this.currentRequest = null;
                 this.page = null;
             },
             routes:{
                 "_=_":                      "fix",
-                "!":                        "explore",
-                "":                         "explore",
-                "!me/":                     "me",
-                "!me":                      "me",
+                "!":                        "feed",
+                "":                         "feed",
                 "!story/:id":               "story",
                 "story/:id":                "story",
                 "!photo/:id":               "photo",
@@ -46,15 +45,18 @@ define(
                 window.location.href = "#";
             },
             content: function(context, id, type, type2){
-                this.page = window.location.hash;
-                var self = this;
-                var url = context + "/" + id;
+                var self =      this;
+                var url =       context + "/" + id;
                 if(context === "user" && this.modelUser.is(id)) url = "/me";
                 if(type) url += "/" + type;
                 if(type2) url += "/" + type2;
-                this.requestFeed(url, function(jsonUrl, data){
-                    self.loadPage(context, { jsonUrl: jsonUrl, data: data, personal: true} );
-                });
+                var page = url;
+                if(this.page !== page){
+                    this.page = page;
+                    this.requestFeed(url, function(jsonUrl, data){
+                        self.loadPage(context, { jsonUrl: jsonUrl, data: data, personal: true} );
+                    });
+                }
             },
             requestFeed: function(endPoint, callback){
                 var self = this;
@@ -77,34 +79,42 @@ define(
             },
             feed: function(type){
                 var self = this;
-                if(this.page != window.location.hash){
-                    this.page = window.location.hash;
-                    var url = "/me/feed";
+                if(typeof(type) === "object") type = undefined;
+                if(!this.modelUser.isLoggedIn()){
+                    this.explore(type);
+                } else {
+                    var url = "me/feed";
                     if(type) url += "/" + type;
+                    if(this.page != url){
+                        this.page = url;
+                        this.requestFeed(url, function(jsonUrl, data){
+                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
+                        });
+                    }
+                }
+            },
+            login: function(){
+                if(this.page === "public/feed" || this.page === "me/feed"){
+                    this.feed();
+                }
+            },
+            explore: function(type){
+                var self = this;
+                var url = "public/feed"
+                if(type) url += "/" + type;
+                if(this.page != url){
+                    this.page = url
                     this.requestFeed(url, function(jsonUrl, data){
                         self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
                     });
                 }
             },
-            explore: function(){
-                var self = this;
-                if(this.page != window.location.hash){
-                    this.page = "#!";
-                    var url = "/me/feed";
-                    if(!this.modelUser.isLoggedIn()) url = "/public/feed";
-                    this.requestFeed(url, function(jsonUrl, data){
-                    self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
-                    });
-                }
-            },
-            writeStory: function(id){
+            write: function(id){
                 if(this.page === null){
                     if(this.modelUser.isLoggedIn()){
                         this.content();
-                        this.page = "#!me";
                     } else {
                         this.explore();
-                        this.page = "#";
                     }
                 }
                 this.oldPage = this.page;
@@ -122,7 +132,6 @@ define(
             story: function(id){
                 if(this.page === null) {
                     this.explore();
-                    this.page = "#!";
                 }
                 this.oldPage = this.page;
                 this.oldTitle = $('title').html();
