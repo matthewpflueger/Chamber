@@ -136,8 +136,6 @@ class FeedService(
         case msg: StoryEvent =>
             val s = new StoryPublic(msg.story.asStoryFull.get)
             updateStory(s)
-            mp.tell(UpdateUserStory(EchoedUserClientCredentials(s.story.echoedUserId), s), self)
-            mp.tell(UpdatePartnerStory(PartnerClientCredentials(s.story.partnerId), s), self)
 
         case FindAllStoriesResponse(_, Right(all)) => all.map(s => updateStory(new StoryPublic(s.asStoryFull.get)))
 

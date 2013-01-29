@@ -201,8 +201,6 @@ class PartnerService(
             sender ! RequestPartnerFollowersResponse(msg, Right(feed))
 
         case msg: RequestTopics =>
-            val now = new Date
-//            sender ! GetTopicsResponse(msg, Right(topics.filter(t => t.beginOn < now && t.endOn > now)))
             sender ! RequestTopicsResponse(msg, Right(topics))
 
         case msg @ RequestStory(_, topicId) =>
@@ -222,9 +220,9 @@ class PartnerService(
             if (sendFollowRequest) mp(FollowPartner(eucc, partner.id))
 
         case msg @ NotifyStoryUpdate(_, s) =>
-            contentManager.updateContent(s)
-            followedByUsers.map(f => mp.tell(UpdateCustomFeed(EchoedUserClientCredentials(f.echoedUserId), s), self))
-            mp.tell(NotifyPartnerFollowers(PartnerClientCredentials(partner.id), EchoedUserClientCredentials(s.echoedUser.id), s.storyUpdatedNotification), self)
+            if (s.isModerated) contentManager.deleteContent(s)
+            else contentManager.updateContent(s)
+            followedByUsers.map(f => mp.tell(echoeduser.NotifyStoryUpdate(EchoedUserClientCredentials(f.echoedUserId), s), self))
 
         case msg @ AddPartnerFollower(_, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! AddPartnerFollowerResponse(msg, Right(partner))
@@ -232,7 +230,7 @@ class PartnerService(
 
         case msg @ RemovePartnerFollower(_, eu) if(followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! RemovePartnerFollowerResponse(msg, Right(partner))
-            val (fu, fbu) = followedByUsers.partition(_.echoedUserId == eu.id)
+            val (_, fbu) = followedByUsers.partition(_.echoedUserId == eu.id)
             followedByUsers = fbu
 
         case msg @ PutTopic(_, title, description, beginOn, endOn, topicId, community) =>

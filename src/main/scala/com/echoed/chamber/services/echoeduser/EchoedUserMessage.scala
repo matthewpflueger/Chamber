@@ -152,7 +152,7 @@ object Follower {
 
 
 private[echoeduser] case class NotifyFollowers(credentials: EUCC, notification: Notification) extends EUM with EUI
-private[echoeduser] case class NotifyStoryUpdate(credentials: EUCC, story: StoryPublic) extends EUM with EUI
+private[services] case class NotifyStoryUpdate(credentials: EUCC, story: StoryPublic) extends EUM with EUI with OnlineOnlyMessage
 
 case class FetchNotifications(credentials: EUCC) extends EUM with EUI
 case class FetchNotificationsResponse(message: FetchNotifications, value: Either[EUE, Stack[Notification]])

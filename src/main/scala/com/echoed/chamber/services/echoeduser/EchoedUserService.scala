@@ -3,7 +3,7 @@ package com.echoed.chamber.services.echoeduser
 import scalaz._
 import Scalaz._
 import scala.collection.JavaConversions._
-import collection.mutable.{ListBuffer => MList, Set => MSet}
+import collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
 import akka.pattern._
@@ -45,13 +45,14 @@ import com.echoed.chamber.services.facebook.FetchFriendsResponse
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
-import com.echoed.chamber.domain.public.{CommentPublic, StoryPublic}
+import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
 import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials, ReadAllPartnerContent, ReadAllPartnerContentResponse}
 import scala.concurrent.Future
 import com.echoed.util.datastructure.ContentManager
-import views.content.{ PhotoContent, Content }
+import views.content.{PhotoContent, Content}
 import com.echoed.chamber.domain.partner.Partner
+import com.echoed.chamber.services.partner.{NotifyStoryUpdate => PNSU}
 
 
 class EchoedUserService(
@@ -75,8 +76,8 @@ class EchoedUserService(
     private var followedByUsers =   List[Follower]()
     private var followingPartners = List[PartnerFollower]()
 
-    private val personalContentManager =    new ContentManager()
-    private val contentManager =            new ContentManager()
+    private val followingContentManager =   new ContentManager()
+    private val publicContentManager =      new ContentManager()
     private val privateContentManager =     new ContentManager()
 
     private var contentLoaded =         false
@@ -95,9 +96,9 @@ class EchoedUserService(
     private def userContext = {
         new UserContext(
             echoedUser,
-            getStats ::: contentManager.getStats,
-            contentManager.getHighlights,
-            contentManager.getContentList)
+            getStats ::: publicContentManager.getStats,
+            publicContentManager.getHighlights,
+            publicContentManager.getContentList)
     }
 
 
@@ -328,11 +329,11 @@ class EchoedUserService(
             content.map {
                 case c: StoryPublic =>
                     if( c.echoedUser.id != echoedUser.id ) {
-                        personalContentManager.updateContent(c)
-                        c.extractImages.map { i => personalContentManager.updateContent( new PhotoContent(i, c)) }
+                        followingContentManager.updateContent(c)
+                        c.extractImages.map { i => followingContentManager.updateContent(new PhotoContent(i, c)) }
                     }
                 case _ =>
-                    personalContentManager.updateContent(_)
+                    followingContentManager.updateContent(_)
             }
             becomeCustomContentLoaded
 
@@ -340,14 +341,14 @@ class EchoedUserService(
             content.map {
                 case c: StoryPublic =>
                     if(c.isPublished){
-                        contentManager.updateContent(c)
-                        c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, c)) }
+                        publicContentManager.updateContent(c.published)
+                        c.extractImages.map { i => publicContentManager.updateContent(new PhotoContent(i, c)) }
                     }
-                        privateContentManager.updateContent(c)
-                        c.extractImages.map { i => privateContentManager.updateContent(new PhotoContent(i, c)) }
+                    privateContentManager.updateContent(c)
+                    c.extractImages.map { i => privateContentManager.updateContent(new PhotoContent(i, c)) }
 
                 case _ =>
-                    contentManager.updateContent(_)
+                    publicContentManager.updateContent(_)
             }
             becomeContentLoaded
 
@@ -376,24 +377,24 @@ class EchoedUserService(
                 stash()
                 getCustomFeed
             } else {
-                val content = personalContentManager.getContent(_type, page)
+                val content = followingContentManager.getContent(_type, page)
                 val sf = new Feed(
                             new PersonalizedContext(
-                                personalContentManager.getStats,
-                                personalContentManager.getHighlights,
-                                personalContentManager.getContentList
+                                followingContentManager.getStats,
+                                followingContentManager.getHighlights,
+                                followingContentManager.getContentList
                             ),
                             content._1,
                             content._2)
                 sender ! RequestCustomUserFeedResponse(msg, Right(sf))
             }
 
-        case msg : ReadAllUserContent =>
+        case msg: ReadAllUserContent =>
             if(!contentLoaded) {
                 stash()
                 getContent
             } else {
-                val content = contentManager.getAllContent
+                val content = publicContentManager.getAllContent
                 sender ! ReadAllUserContentResponse(msg, Right(content))
             }
 
@@ -402,15 +403,13 @@ class EchoedUserService(
                 stash()
                 getContent
             } else {
-                val content =   contentManager.getContent(_type, page)
+                val content =   publicContentManager.getContent(_type, page)
                 val sf =        new Feed(userContext, content._1, content._2)
                 sender ! RequestUserContentFeedResponse(msg, Right(sf))
             }
 
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
-        case msg @ UpdateUserStory(_, story) =>
-            contentManager.updateContent(story)
 
         case msg @ VerifyEmail(_, code) =>
             val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
@@ -657,17 +656,21 @@ class EchoedUserService(
             val notification = n.copy(origin = echoedUser)
             followedByUsers.map(f => mp.tell(RegisterNotification(EUCC(f.echoedUserId), notification), self))
 
-        case NotifyStoryUpdate(_, s) =>
-            contentManager.updateContent(s)
-            val notification = s.storyUpdatedNotification
-            mp(NotifyFollowers(EUCC(echoedUser.id), notification))
-            s.comments
-                    .foldLeft(MSet[String]() += echoedUser.id)((eus: MSet[String], c: CommentPublic) => eus += c.echoedUser.id)
-                    .filterNot(_ == notification.origin.id)
-                    .map(id => mp.tell(RegisterNotification(EUCC(id), notification), self))
+        case NotifyStoryUpdate(_, s) if (s.isOwnedBy(echoedUser.id)) =>
+            if (s.isSelfModerated) privateContentManager.deleteContent(s)
+            else privateContentManager.updateContent(s)
 
-            followedByUsers.map(f => mp.tell(UpdateCustomFeed(EUCC(f.echoedUserId), s), self))
+            if (s.isPublished) {
+                val sp = s.published
+                if (s.isModerated) publicContentManager.deleteContent(sp)
+                else publicContentManager.updateContent(sp)
+                followedByUsers.map(f => mp.tell(NotifyStoryUpdate(EUCC(f.echoedUserId), sp), self))
+                mp.tell(PNSU(PartnerClientCredentials(sp.partner.id), sp), self)
+            }
 
+        case NotifyStoryUpdate(_, s) if (!s.isOwnedBy(echoedUser.id)) =>
+            if (s.isModerated) followingContentManager.deleteContent(s)
+            else followingContentManager.updateContent(s)
 
         case RegisterStory(story) =>
             activeStories.put(StoryId(story.id), sender)

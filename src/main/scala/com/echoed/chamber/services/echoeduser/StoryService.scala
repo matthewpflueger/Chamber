@@ -6,11 +6,7 @@ import com.echoed.chamber.services._
 import com.echoed.chamber.services.adminuser.{AdminUserClientCredentials => AUCC}
 import com.echoed.chamber.services.echoeduser._
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
-import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.partner.RequestStory
-import com.echoed.chamber.services.partner.{NotifyStoryUpdate => PNSU}
-import com.echoed.chamber.services.partner.RequestStoryResponse
-import com.echoed.chamber.services.partner.RequestStoryResponseEnvelope
+import com.echoed.chamber.services.partner.{NotifyPartnerFollowers, PartnerClientCredentials, RequestStory, RequestStoryResponse, RequestStoryResponseEnvelope}
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.util.DateUtils._
 import com.echoed.util.{ScalaObjectMapper, UUID}
@@ -90,10 +86,6 @@ class StoryService(
         becomeOnline
     }
 
-    private def storyUpdated {
-        context.parent ! StoryUpdated(storyState)
-    }
-
     def init = {
         case ReadStoryResponse(_, Left(StoryNotFound(_, _))) if (initMessage.isInstanceOf[CreateStory]) =>
              requestStory(initMessage.asInstanceOf[CreateStory].partnerId)
@@ -111,17 +103,16 @@ class StoryService(
         case msg: InitStory => sender ! InitStoryResponse(msg, Right(storyState.asStoryInfo))
         case msg: CreateStory if (storyState.isCreated) => sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
-        case msg @ CreateStory(_, storyId, title, imageId, _, productInfo, community, _, topicId) =>
+        case msg @ CreateStory(eucc, storyId, title, imageId, _, productInfo, community, _, topicId) =>
             val image = imageId.map(processImage(_))
             storyState = storyState.create(title, productInfo.orNull, community.orNull, image)
             ep(StoryCreated(storyState))
-            storyUpdated
             sender ! CreateStoryResponse(msg, Right(storyState.asStory))
+            notifyStoryUpdate(eucc)
 
 
-        case msg @ UpdateStory(_, storyId, title, imageId, community, productInfo) =>
+        case msg @ UpdateStory(eucc, storyId, title, imageId, community, productInfo) =>
             val image = imageId.map(processImage(_))
-
             storyState = storyState.copy(
                     title = title,
                     imageId = image.map(_.id).orNull,
@@ -129,9 +120,9 @@ class StoryService(
                     community = community,
                     productInfo = productInfo.orNull,
                     updatedOn = new Date)
-            storyUpdated
             ep(StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))
+            notifyStoryUpdate(eucc)
 
 
         case msg @ NewVote(eucc, byEchoedUser, storyId, value) =>
@@ -143,16 +134,17 @@ class StoryService(
             storyState = storyState.copy(votes = storyState.votes + (vote.echoedUserId -> vote), updatedOn = new Date)
             if (vote.isUpdated) ep(VoteUpdated(storyState, vote)) else ep(VoteCreated(storyState, vote))
             if (value > 0 && !vote.isUpdated && (eucc.id != byEchoedUser.id)) {
-                mp(RegisterNotification(eucc, new Notification(
+                mp.tell(RegisterNotification(eucc, new Notification(
                     byEchoedUser,
                     "upvoted",
                     Map(
                         "subject" -> byEchoedUser.name,
                         "action" -> "upvoted",
                         "object" -> storyState.title,
-                        "storyId" -> storyState.id))))
+                        "storyId" -> storyState.id))), self)
             }
             sender ! NewVoteResponse(msg, Right(storyState.votes))
+            notifyStoryUpdate(eucc)
 
 
         case msg @ CreateChapter(eucc, storyId, title, text, imageIds, publish) =>
@@ -171,15 +163,16 @@ class StoryService(
                     updatedOn = new Date)
 
             ep(ChapterCreated(storyState, chapter, chapterImages))
-            storyUpdated
             sender ! CreateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
-            if (publishedOn > 0) notifyFollowersOfStoryUpdate(eucc)
+            notifyStoryUpdate(eucc)
+            if (publishedOn > 0) notifyFollowers(eucc, notifyPartnerFollowers)
 
 
         case msg @ UpdateCommunity(eucc, storyId, communityId) =>
             storyState = storyState.copy(community = communityId)
             ep(StoryUpdated(storyState))
             sender ! UpdateCommunityResponse(msg, Right(storyState.asStory))
+            notifyStoryUpdate(eucc)
 
 
         case msg @ UpdateChapter(eucc, storyId, chapterId, title, text, imageIds, publish) =>
@@ -190,7 +183,9 @@ class StoryService(
 
             chapter =
                 if (!chapter.isPublished && publish.getOrElse(false)) {
-                    notifyFollowersOfStoryUpdate(eucc)
+                    //notify followers of new chapter and the partner's followers only if story has never been
+                    //published before...
+                    notifyFollowers(eucc, !storyState.isPublished && !storyState.partner.isEchoed)
                     chapter.copy(publishedOn = new Date)
                 } else chapter
 
@@ -207,8 +202,8 @@ class StoryService(
                     updatedOn = new Date)
 
             ep(ChapterUpdated(storyState, chapter, chapterImages))
-            storyUpdated
             sender ! UpdateChapterResponse(msg, Right(ChapterInfo(chapter, chapterImages)))
+            notifyStoryUpdate(eucc)
 
 
         case msg @ NewComment(eucc, byEchoedUser, storyId, chapterId, text, parentCommentId) =>
@@ -224,8 +219,6 @@ class StoryService(
             ep(CommentCreated(storyState, comment))
 
             sender ! NewCommentResponse(msg, Right(comment))
-            storyUpdated
-
             notifyStoryFollowers(new Notification(
                     byEchoedUser,
                     "comment",
@@ -234,6 +227,7 @@ class StoryService(
                         "action" -> "commented on",
                         "object" -> storyState.title,
                         "storyId" -> storyState.id)))
+            notifyStoryUpdate(eucc)
 
 
         case msg @ ModerateStory(_, _, eucc: EUCC, mo) if (eucc.id == echoedUser.id) =>
@@ -247,6 +241,7 @@ class StoryService(
             //we are not updating the updatedOn on purpose so the FeedService does not push the story to the top :(
             storyState = storyState.copy(views = storyState.views + 1) /*, updatedOn = new Date) */
             ep(StoryUpdated(storyState))
+            notifyStoryUpdate(msg.credentials)
 
 
         case msg @ RequestImageUpload(eucc, storyId, callback) =>
@@ -338,24 +333,39 @@ class StoryService(
         if (moderatedRefId != echoedUser.id || !storyState.isPublished) {
             storyState = storyState.moderate(moderatedBy, moderatedRef, moderatedRefId, moderated)
             ep(StoryModerated(storyState, storyState.moderations.head))
+            notifyStoryUpdate(msg.credentials)
         }
         sender ! ModerateStoryResponse(msg, Right(storyState.moderationDescription))
     }
 
+
+    private def notifyFollowers(eucc: EchoedUserClientCredentials, notifyPartnerFollowers: Boolean = false) {
+        val notification = new Notification(
+            echoedUser,
+            "story updated",
+            Map(
+                "subject" -> echoedUser.name,
+                "action" -> "updated story",
+                "object" -> storyState.title,
+                "storyId" -> storyState.id,
+                "partnerId" -> storyState.partner.id,
+                "partnerName" -> storyState.partner.name))
+        mp.tell(NotifyFollowers(eucc, notification), self)
+        if (notifyPartnerFollowers)
+            mp.tell(NotifyPartnerFollowers(PartnerClientCredentials(storyState.partner.id), eucc, notification), self)
+
+        notifyStoryFollowers(notification)
+    }
+
     private def notifyStoryFollowers(notification: Notification) {
-        //anybody that has commented on a Story implicitly follows the Story...
+        //anybody that has commented on a Story implicitly follows the Story (including the owner)
         storyState.comments
                 .foldLeft(MSet[String]() += echoedUser.id)((eus: MSet[String], c: Comment) => eus += c.byEchoedUserId)
                 .filterNot(_ == notification.origin.id)
                 .map(id => mp.tell(RegisterNotification(EUCC(id), notification), self))
     }
 
-    private def notifyFollowersOfStoryUpdate(
-            eucc: EchoedUserClientCredentials) {
-
-
-        val story = storyState.asStoryPublic
-        mp(echoeduser.NotifyStoryUpdate(eucc, story))
-        mp(PNSU(PartnerClientCredentials(storyState.partner.id), story))
+    private def notifyStoryUpdate(eucc: EchoedUserClientCredentials) {
+        mp.tell(echoeduser.NotifyStoryUpdate(eucc, storyState.asStoryPublic), self)
     }
 }
