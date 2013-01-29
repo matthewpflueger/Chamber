@@ -97,7 +97,7 @@ define(
                     });
                 }
             },
-            writeStory: function(id){
+            write: function(id){
                 if(this.page === null){
                     if(this.modelUser.isLoggedIn()){
                         this.content();

@@ -28,6 +28,14 @@
         {{/inComplete}}
     </div>
 </div>
+{{#isSelf}}
+<div class="story-brief-actions">
+    <ul class="clearfix">
+        <li><a class="story-brief-action" href="#write/{{storyFull.id}}">Edit</a></li>
+    </ul>
+</div>
+{{/isSelf}}
+
 <!--<div class="story-brief-actions">-->
     <!--<ul class="clearfix">-->
         <!--{{^inComplete}}-->
