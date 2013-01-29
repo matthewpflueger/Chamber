@@ -187,10 +187,16 @@ define(
                 self.galleryChapters = [];
                 $.each(chapters, function(index, chapter){
                     self.galleryChapters[index] = $('<div></div>').addClass('story-gallery-chapter').attr("index", index).attr("id", "story-gallery-chapter-" + index);
-                    var title = $('<div></div>').addClass('story-gallery-title').text(chapter.title);
+
+                    var chapterImages  =    self.modelStory.getChapterImages(chapter.id, true);
+                    var chapterTitle =      chapter.title;
+                    if(chapterImages.length === 0 && chapter.title === ""){
+                        chapterTitle =      chapter.text.substr(0, 25) + "...";
+                    }
+                    var title = $('<div></div>').addClass('story-gallery-title').text(chapterTitle);
                     self.galleryChapters[index].append(title);
                     self.galleryNodeBody.append(self.galleryChapters[index]);
-                    var chapterImages  = self.modelStory.getChapterImages(chapter.id, true);
+
                     $.each(chapterImages, function(index2, ci){
                         var thumbNailHash = index + "-" + index2;
                         self.thumbnails[thumbNailHash] = utils.scaleByWidth(ci.image, 90).addClass("story-gallery-thumbnail").attr("index", thumbNailHash).attr("id", "story-gallery-thumbnail-" + thumbNailHash);
