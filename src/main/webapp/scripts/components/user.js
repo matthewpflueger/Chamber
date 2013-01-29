@@ -20,8 +20,13 @@ define(
             },
             render: function(){
                 var echoedUser = this.modelUser.toJSON();
-                echoedUser.imageUrl = utils.getProfilePhotoUrl(echoedUser);
-                this.element.html(templateUser(echoedUser));
+                var view = {
+                    echoedUser: echoedUser,
+                    isOverlay:  this.properties.isOverlay
+                }
+                view.echoedUser.imageUrl = utils.getProfilePhotoUrl(echoedUser);
+                console.log(view);
+                this.element.html(templateUser(view));
                 this.list = $('#user-list');
             },
             events: {

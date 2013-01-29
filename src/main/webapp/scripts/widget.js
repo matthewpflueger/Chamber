@@ -29,7 +29,8 @@ require(
                 urls: Echoed.urls,
                 echoedUser: Echoed.echoedUser,
                 partnerId: Echoed.partnerId,
-                isWidget: true
+                isWidget: true,
+                isOverlay: true
             };
 
             //Initialize Models

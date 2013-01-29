@@ -16,11 +16,15 @@
         Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
         Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
         Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
-        {{#echoedUserId}}
+        {{#echoedUser}}
         Echoed.echoedUser = {
-            id: '{{.}}'
+            id: '{{id}}',
+            screenName: '{{screenName}}',
+            facebookId: '{{facebookId}}',
+            twitterId: '{{twitterId}}',
+            name: '{{name}}'
         }
-        {{/echoedUserId}}
+        {{/echoedUser}}
     </script>
     {{$jsHead}}
     {{#scriptTag}}applet.iframe.js{{/scriptTag}}

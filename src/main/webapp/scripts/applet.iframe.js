@@ -14,20 +14,22 @@ require(
         'components/widgetCloser',
         'components/title',
         'components/login',
+        'components/user',
         'routers/app',
         'models/user',
         'models/context',
         'easyXDM',
         'isotopeConfig'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Item, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser, ModelContext, easyXDM){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Item, Input, MessageHandler, WidgetCloser, Title, Login, User, Router, ModelUser, ModelContext, easyXDM){
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
 
             this.properties = {
                 urls: Echoed.urls,
-                echoedUser: Echoed.echoedUser
+                echoedUser: Echoed.echoedUser,
+                isOverlay:  true
             };
 
             //Initialize Models
@@ -50,6 +52,7 @@ require(
             this.exhibit = new Exhibit(this.options('#exhibit'));
             this.infiniteScroll = new InfiniteScroll(this.options('#infiniteScroll'));
             this.input = new Input(this.options('#field-container'));
+            this.user = new User(this.options('#user'));
             this.item = new Item(this.options('#item-container'));
             this.closer = new WidgetCloser(this.options('#close'));
             this.titleNav = new Title(this.options('#title-container'));
