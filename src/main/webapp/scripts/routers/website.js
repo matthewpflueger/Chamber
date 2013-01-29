@@ -16,7 +16,8 @@ define(
                 this.modelContext = options.modelContext;
                 this.colContent =   options.colContent;
                 this.EvAg.bind("hash:reset", this.resetHash);
-                this.EvAg.bind("router/me",  this.me);
+                this.EvAg.bind("router/me",  this.feed);
+                this.modelUser.on("change",  this.login);
                 this.currentRequest = null;
                 this.page = null;
             },
@@ -78,8 +79,8 @@ define(
             },
             feed: function(type){
                 var self = this;
+                if(typeof(type) === "object") type = undefined;
                 if(!this.modelUser.isLoggedIn()){
-                    console.log("Explore");
                     this.explore(type);
                 } else {
                     var url = "me/feed";
@@ -90,6 +91,11 @@ define(
                             self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
                         });
                     }
+                }
+            },
+            login: function(){
+                if(this.page === "public/feed" || this.page === "me/feed"){
+                    this.feed();
                 }
             },
             explore: function(type){
