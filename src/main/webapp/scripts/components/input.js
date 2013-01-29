@@ -400,17 +400,15 @@
                 $('#story-summary-buttons').hide();
             },
             show: function(){
-                var self = this;
-                self.element.fadeIn();
+                this.element.fadeIn();
                 $("body").addClass("noScroll");
                 $("#story-name").focus();
             },
             close: function(){
-                var self = this;
                 this.loaded = false;
-                self.element.fadeOut().empty();
+                this.element.fadeOut().empty();
                 $("body").removeClass("noScroll");
-                self.EvAg.trigger('hash/reset');
+                this.EvAg.trigger('hash:reset');
             }
         });
 
