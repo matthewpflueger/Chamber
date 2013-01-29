@@ -86,10 +86,9 @@ define(
                 if(this.imageContainer) this.imageContainer.removeClass('highlight');
             },
             click: function(ev){
-                var self =      this;
                 var target =    $(ev.target);
                 if(!target.is('a')){
-                    if(self.data.chapters.length > 0){
+                    if(this.modelStory.get("chapters").length > 0){
                         window.location.hash = "#!story/" +  this.modelStory.id;
                     } else {
                         window.location.hash = "#!write/" +  this.modelStory.id;
