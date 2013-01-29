@@ -16,7 +16,7 @@ define(
                 this.modelContext = options.modelContext;
                 this.colContent =   options.colContent;
                 this.EvAg.bind("hash:reset", this.resetHash);
-                this.EvAg.bind("router/me", this.me);
+                this.EvAg.bind("router/me",  this.me);
                 this.currentRequest = null;
                 this.page = null;
             },
@@ -24,8 +24,6 @@ define(
                 "_=_":                      "fix",
                 "!":                        "feed",
                 "":                         "feed",
-                "!me/":                     "feed",
-                "!me":                      "feed",
                 "!story/:id":               "story",
                 "story/:id":                "story",
                 "!photo/:id":               "photo",

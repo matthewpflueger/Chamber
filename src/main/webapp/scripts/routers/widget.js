@@ -38,19 +38,15 @@ define(
             },
             reload: function(){
                 var self = this;
-                this.requestFeed("/partner/" + this.properties.partnerId, function(jsonUrl, data){
-                    self.modelContext.set(data.context);
-                    self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
-                    self.page = "home";
-                });
+                var url = "/partner/" + this.properties.partnerId;
+                if(this.page !== url){
+                    this.page = url;
+                    this.requestFeed(url, function(jsonUrl, data){
+                        self.modelContext.set(data.context);
+                        self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
+                    });
+                }
                 _gaq.push(['_trackEvent', 'Widget', 'Open', this.properties.partnerId]);
-            },
-            topic: function(topicId){
-                var self = this;
-                this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
-                    self.modelContext.set(data.context);
-                    self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
-                });
             },
             explore: function(){
             },
@@ -67,7 +63,6 @@ define(
             write: function(id){
                 if(this.page === null){
                     this.reload();
-                    this.page = "#!";
                 }
                 this.oldPage = this.page;
                 if(id)  this.EvAg.trigger("input:edit", id);
@@ -78,7 +73,6 @@ define(
             photo: function(id){
                 if(this.page === null) {
                     this.reload();
-                    this.page = "#!";
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("content:lookup", id);
@@ -86,15 +80,14 @@ define(
             story: function(id){
                 if(this.page === null) {
                     this.reload();
-                    this.page = "#!";
                 }
                 this.oldPage = this.page;
                 this.EvAg.trigger("content:lookup", id);
-                _gaq.push(['_trackEvent', 'Widget', 'Story', this.properties.partnerId]);
-                _gaq.push(['_trackEvent', 'Story', 'Open', this.properties.partnerId]);
+                _gaq.push(['_trackEvent', 'Widget', 'Story',    this.properties.partnerId]);
+                _gaq.push(['_trackEvent', 'Story',  'Open',     this.properties.partnerId]);
             },
             resetHash: function(){
-                window.location.hash = "#!";
+                window.location.hash = this.oldPage;
             }
         });
     }
