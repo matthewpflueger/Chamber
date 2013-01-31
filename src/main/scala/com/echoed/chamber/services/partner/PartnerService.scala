@@ -6,11 +6,7 @@ import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.partner.PartnerSettings
 import com.echoed.chamber.domain.partner.PartnerUser
 import com.echoed.chamber.services._
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import com.echoed.chamber.services.echoeduser.FollowPartner
-import com.echoed.chamber.services.echoeduser.Follower
-import com.echoed.chamber.services.echoeduser.RegisterNotification
-import com.echoed.chamber.services.echoeduser.UpdateCustomFeed
+import com.echoed.chamber.services.echoeduser.{EchoedUserMessageGroup, EchoedUserClientCredentials, FollowPartner, Follower, RegisterNotification, UpdateCustomFeed}
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state._
 import com.echoed.util.DateUtils._
@@ -222,7 +218,7 @@ class PartnerService(
         case msg @ NotifyStoryUpdate(_, s) =>
             if (s.isModerated) contentManager.deleteContent(s)
             else contentManager.updateContent(s)
-            followedByUsers.map(f => mp.tell(echoeduser.NotifyStoryUpdate(EchoedUserClientCredentials(f.echoedUserId), s), self))
+            mp.tell(EchoedUserMessageGroup(followedByUsers.map(f => echoeduser.NotifyStoryUpdate(EchoedUserClientCredentials(f.echoedUserId), s))), self)
 
         case msg @ AddPartnerFollower(_, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! AddPartnerFollowerResponse(msg, Right(partner))

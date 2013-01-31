@@ -1,6 +1,6 @@
 package com.echoed.chamber.services.echoeduser
 
-import com.echoed.chamber.services.{MessageResponse => MR, Correlated, EchoedClientCredentials, EchoedException, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, MessageGroup, Correlated, EchoedClientCredentials, EchoedException, Message, OnlineOnlyMessage}
 import com.echoed.chamber .domain._
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.domain.views._
@@ -10,10 +10,12 @@ import context.{PersonalizedContext, UserContext, SelfContext}
 import scala.collection.immutable.Stack
 import org.springframework.validation.Errors
 import com.echoed.chamber.domain.public.StoryPublic
-import com.echoed.chamber.services.OnlineOnlyMessage
 import content.{ContentDescription, FeedItem, Content}
 
 sealed trait EchoedUserMessage extends Message
+sealed case class EchoedUserMessageGroup[EUM <: EchoedUserMessage](messages: List[EUM])
+    extends EchoedUserMessage with MessageGroup[EUM]
+
 sealed class EchoedUserException(
         val message: String = "",
         val cause: Throwable = null,

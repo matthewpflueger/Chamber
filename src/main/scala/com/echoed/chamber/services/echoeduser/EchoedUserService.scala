@@ -664,7 +664,7 @@ class EchoedUserService(
                 val sp = s.published
                 if (s.isModerated) publicContentManager.deleteContent(sp)
                 else publicContentManager.updateContent(sp)
-                followedByUsers.map(f => mp.tell(NotifyStoryUpdate(EUCC(f.echoedUserId), sp), self))
+                mp.tell(EchoedUserMessageGroup(followedByUsers.map(f => NotifyStoryUpdate(EUCC(f.echoedUserId), sp))), self)
                 mp.tell(PNSU(PartnerClientCredentials(sp.partner.id), sp), self)
             }
 

@@ -5,7 +5,13 @@ import scala.concurrent.Future
 
 
 trait Message extends Serializable
-trait OnlineOnlyMessage
+trait MessageGroup[M <: Message] extends Message {
+    def messages: List[M]
+}
+
+trait OnlineOnlyMessage {
+    this: Message =>
+}
 
 trait Correlated[M <: Message] {
     def correlation: M
