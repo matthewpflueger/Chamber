@@ -25,8 +25,6 @@ abstract class OnlineOfflineService extends EchoedService with Stash {
 
     final protected def handle: Receive = init.orElse(receiveTimeout).orElse(unhandledMessage)
 
-    protected var unhandledMessages = List[(Message, ActorRef)]()
-
     protected def unhandledMessage: Receive = {
         case m: Message => stash()
     }
@@ -34,12 +32,12 @@ abstract class OnlineOfflineService extends EchoedService with Stash {
     protected def discardOldBehavior = true
 
     protected def becomeOnline = {
-        context.become(LoggingReceive(online.orElse(receiveTimeout)), discardOldBehavior)
+        context.become(EchoedLoggingReceive(Some(this), online.orElse(receiveTimeout)), discardOldBehavior)
         unstashAll()
     }
 
     protected def becomeOffline = {
-        context.become(LoggingReceive(offline.orElse(receiveTimeout).orElse(unhandledMessage)), discardOldBehavior)
+        context.become(EchoedLoggingReceive(Some(this), offline.orElse(receiveTimeout).orElse(unhandledMessage)), discardOldBehavior)
         log.info("Now offline")
     }
 }
