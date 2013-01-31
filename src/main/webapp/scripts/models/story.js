@@ -1,9 +1,10 @@
 define(
     [
+        'jquery',
         'backbone',
         'components/utils'
     ],
-    function(Backbone, utils) {
+    function($, Backbone, utils) {
         return Backbone.Model.extend({
             initialize: function(attr, options){
                 if(attr === null) {
