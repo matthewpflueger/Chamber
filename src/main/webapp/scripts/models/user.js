@@ -40,25 +40,29 @@ define(
                     utils.AjaxFactory(request)();
                 }
             },
-            getFollowingPartners: function(){
-                var url = this.properties.urls.api + "/api/me/following/partners";
-                var self = this;
-                utils.AjaxFactory({
-                    url: url,
-                    success: function(response){
-                        self.followingPartners = response.content;
-                    }
-                })();
+            getFollowingPartners: function() {
+                if (this.isLoggedIn()) {
+                    var url = this.properties.urls.api + "/api/me/following/partners";
+                    var self = this;
+                    utils.AjaxFactory({
+                        url: url,
+                        success: function(response){
+                            self.followingPartners = response.content;
+                        }
+                    })();
+                }
             },
-            getFollowing: function(){
-                var url = this.properties.urls.api + "/api/me/following";
-                var self  = this;
-                utils.AjaxFactory({
-                    url: url,
-                    success: function(response){
-                        self.following = response.content;
-                    }
-                })();
+            getFollowing: function() {
+                if (this.isLoggedIn()) {
+                    var url = this.properties.urls.api + "/api/me/following";
+                    var self  = this;
+                    utils.AjaxFactory({
+                        url: url,
+                        success: function(response){
+                            self.following = response.content;
+                        }
+                    })();
+                }
             },
             isFollowing: function(followId, type){
                 var isFollowing = false;
