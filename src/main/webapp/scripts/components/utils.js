@@ -84,9 +84,9 @@ define(
                 else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
             getProfilePhotoUrl: function(echoedUser, urls){
-                if(echoedUser.facebookId !== null){
+                if (echoedUser.facebookId) {
                     return "http://graph.facebook.com/" + echoedUser.facebookId + "/picture";
-                } else if(echoedUser.twitterId !== null) {
+                } else if (echoedUser.twitterId) {
                     return "http://api.twitter.com/1/users/profile_image/" + echoedUser.twitterId;
                 } else {
                     return urls.images + "/profile_default.jpg";
