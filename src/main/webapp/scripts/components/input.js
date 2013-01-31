@@ -149,7 +149,7 @@
                 if (story.image !== null) {
                     utils.scaleByHeight(story.image, 50)
                             .addClass("story-summary-photo")
-                            .appendTo(self.cover.find('.story-input-photo'));
+                            .appendTo(this.cover.find('.story-input-photo'));
                 } else this.cover.find('.story-input-photo-row').hide();
             },
             loadChapterInputTemplate: function(option){
@@ -360,7 +360,7 @@
                 var self = this;
                 self.unload(function(){
                     self.EvAg.trigger('router/me');
-                    window.location.hash = "#!story/" + this.modelStory.id
+                    window.location.hash = "#!story/" + self.modelStory.id
                 });
             },
             cancelChapterClick: function(){
