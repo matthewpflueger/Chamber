@@ -122,6 +122,7 @@ class EchoedUserServiceManager(
                 forwardForCredentials(msg, _),
                 context.watch(echoedUserServiceCreator(context, msg)).forward(msg))
 
+        case EchoedUserMessageGroup(messages) => messages.foreach(this.handle(_))
 
         case msg: EchoedUserIdentifiable with EchoedUserMessage => forwardForCredentials(msg, msg.credentials)
     }
