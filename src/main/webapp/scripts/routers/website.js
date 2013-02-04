@@ -91,7 +91,7 @@ define(
                     if(this.page != url){
                         this.page = url;
                         this.requestFeed(url, function(jsonUrl, data){
-                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
+                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data, personalized: true });
                         });
                     }
                 }

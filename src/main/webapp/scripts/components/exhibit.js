@@ -39,7 +39,22 @@ define(
                 var data =      options.data;
                 this.jsonUrl =  options.jsonUrl;
 
-                this.nextPage = data.nextPage ? data.nextPage : null;
+                if(options.personalized === true){
+                    this.personalized = true;
+                } else {
+                    $('#exhibit-message').hide();
+                    this.personalized = false;
+                }
+
+
+
+
+                if(data.nextPage){
+                    this.nextPage = data.nextPage;
+                } else {
+                    if(this.personalized) $('#exhibit-message').show();
+                    this.nextPage = null;
+                }
                 this.content = {
                     array: [],
                     hash: {}
@@ -93,6 +108,9 @@ define(
                         success: function(data){
                             if(data.nextPage !== null) {
                                 self.nextPage = data.nextPage;
+                            } else {
+                                if(this.personalized) $('#exhibit-message').show();
+                                $('#exhibit-message').show();
                             }
                             self.addContent(data);
                             if(callback) callback();
