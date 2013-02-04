@@ -25,7 +25,6 @@ define(
                     isOverlay:  this.properties.isOverlay
                 }
                 view.echoedUser.imageUrl = utils.getProfilePhotoUrl(echoedUser, this.properties.urls);
-                console.log(view);
                 this.element.html(templateUser(view));
                 this.list = $('#user-list');
             },
