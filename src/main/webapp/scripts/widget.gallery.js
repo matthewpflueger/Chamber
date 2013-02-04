@@ -4,7 +4,7 @@ require(
         'jquery',
         'components/widget/gallery'
     ],
-    function(requireLib, jquery, Gallery){
+    function(requireLib, $, Gallery){
 
         $(document).ready(function(){
             var properties = Echoed;
