@@ -50,7 +50,7 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EU
 import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials, ReadAllPartnerContent, ReadAllPartnerContentResponse}
 import scala.concurrent.Future
 import com.echoed.util.datastructure.ContentManager
-import views.content.{PhotoContent, Content}
+import com.echoed.chamber.domain.views.content.{ContentDescription, PhotoContent, Content}
 import com.echoed.chamber.domain.partner.Partner
 import com.echoed.chamber.services.partner.{NotifyStoryUpdate => PNSU}
 
@@ -76,9 +76,9 @@ class EchoedUserService(
     private var followedByUsers =   List[Follower]()
     private var followingPartners = List[PartnerFollower]()
 
-    private val followingContentManager =   new ContentManager()
-    private val publicContentManager =      new ContentManager()
-    private val privateContentManager =     new ContentManager()
+    private val followingContentManager =   new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
+    private val publicContentManager =      new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
+    private val privateContentManager =     new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
 
     private var contentLoaded =         false
     private var customContentLoaded =   false
