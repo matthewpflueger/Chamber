@@ -75,25 +75,25 @@
 }
 
 .upvote{
-    @include            imageGradient("bk_uparrow.png");
+    @include            imageGradient("uparrow_bk.png");
     &:hover{
-        @include            imageGradient("bk_uparrow.png", $colorGreen, $colorGreenDark);
+        @include            imageGradient("uparrow_bk.png", $colorGreen, $colorGreenDark);
         border:             1px solid #666;
     }
     &:active, &.on{
-        @include            imageGradient("bk_uparrow.png", $colorGreen, $colorGreenDark);
+        @include            imageGradient("uparrow_bk.png", $colorGreen, $colorGreenDark);
         border:             1px solid #666;
     }
 }
 
 .downvote{
-    @include            imageGradient("bk_downarrow.png");
+    @include            imageGradient("downarrow_bk.png");
     &:hover{
-        @include            imageGradient("bk_downarrow.png", $colorEC, $colorECDark);
+        @include            imageGradient("downarrow_bk.png", $colorEC, $colorECDark);
         border:             1px solid #666;
     }
     &:active, &.on{
-        @include            imageGradient("bk_downarrow.png", $colorEC, $colorECDark);
+        @include            imageGradient("downarrow_bk.png", $colorEC, $colorECDark);
         border:             1px solid #666;
     }
 }
