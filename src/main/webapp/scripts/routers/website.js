@@ -35,6 +35,8 @@ define(
                 "!write":                   "write",
                 "me/feed/:type":            "feed",
                 "me/feed/:type/":           "feed",
+                "explore":                  "explore",
+                "!explore":                 "explore",
                 ":context/:id":             "content",
                 ":context/:id/":            "content",
                 ":context/:id/:type":       "content",
@@ -72,6 +74,7 @@ define(
                 })();
             },
             loadPage: function(page, options){
+                this.modelContext.clear();
                 this.modelContext.set(options.data.context);
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
@@ -88,7 +91,7 @@ define(
                     if(this.page != url){
                         this.page = url;
                         this.requestFeed(url, function(jsonUrl, data){
-                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
+                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data, personalized: true });
                         });
                     }
                 }

@@ -1,0 +1,10 @@
+#exhibit-message{
+    @include        fontTitleLight(32px);
+    margin:         10px 100px;
+    text-align:     center;
+    text-shadow:    0px 1px #FFF;
+    display:        none;
+    a {
+        color:      $colorEC;
+    }
+}
