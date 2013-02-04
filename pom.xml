@@ -446,14 +446,16 @@
                                     <directory>${basedir}/src/main/webapp/scripts_build</directory>
                                     <filtering>false</filtering>
                                     <includes>
+                                        <include>admin.js</include>
+                                        <include>applet.iframe.js</include>
+                                        <include>applet.js</include>
                                         <include>loader.js</include>
                                         <include>main.js</include>
-                                        <include>widget.js</include>
-                                        <include>partner.js</include>
-                                        <include>admin.js</include>
-                                        <include>static.js</include>
                                         <include>mobile.js</include>
+                                        <include>partner.js</include>
+                                        <include>static.js</include>
                                         <include>widget.gallery.js</include>
+                                        <include>widget.js</include>
                                         <include>widget.preview.js</include>
                                     </includes>
                                 </resource>
