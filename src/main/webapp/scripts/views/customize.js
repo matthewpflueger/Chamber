@@ -1,10 +1,11 @@
 define(
     [
+        'jquery',
         'marionette',
         'models/customization',
         'hgn!templates/partner/customize'
     ],
-    function(Marionette, Customization, templateCustomize){
+    function($, Marionette, Customization, templateCustomize){
         return Marionette.ItemView.extend({
             id: "customize",
             className: "content-container",
