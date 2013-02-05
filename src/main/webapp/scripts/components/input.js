@@ -364,9 +364,7 @@
                 });
             },
             cancelChapterClick: function(){
-                var self = this;
-                if(self.data.storyFull.chapters.length > 0) self.load(self.data.storyFull.story.id, "story");
-                else self.close();
+                this.load();
             },
             hideStoryClick: function() {
                 var v = confirm("Are you sure you want to hide this story?");
