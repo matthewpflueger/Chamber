@@ -218,7 +218,11 @@ class PartnerService(
         case msg @ NotifyStoryUpdate(_, s) =>
             if (s.isModerated) contentManager.deleteContent(s)
             else contentManager.updateContent(s)
-            mp.tell(EchoedUserMessageGroup(followedByUsers.map(f => echoeduser.NotifyStoryUpdate(EchoedUserClientCredentials(f.echoedUserId), s))), self)
+
+            val messages = followedByUsers
+                    .filterNot(f =>s.isOwnedBy(f.id))
+                    .map(f => echoeduser.NotifyStoryUpdate(EchoedUserClientCredentials(f.echoedUserId), s))
+            mp.tell(EchoedUserMessageGroup(messages), self)
 
         case msg @ AddPartnerFollower(_, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
             sender ! AddPartnerFollowerResponse(msg, Right(partner))
