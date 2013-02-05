@@ -46,9 +46,9 @@ case class ContentTree(c: ContentDescription) {
 
     def deleteContent(c: Content) {
         contentMap.get(c.id).map { story =>
-            viewCount -= c.numViews
-            voteCount -= c.numVotes
-            commentCount -= c.numComments
+            viewCount -= story.numViews
+            voteCount -= story.numVotes
+            commentCount -= story.numComments
             removeFromTree(story)
         }
     }
