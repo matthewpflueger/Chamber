@@ -49,11 +49,11 @@ define(
             content: function(context, id, type, type2){
                 var self =      this;
                 var url =       context + "/" + id;
-                if(context === "user" && this.modelUser.is(id)) url = "/me";
-                if(type) url += "/" + type;
-                if(type2) url += "/" + type2;
+                
+                if (type) url += "/" + type;
+                if (type2) url += "/" + type2;
                 var page = url;
-                if(this.page !== page){
+                if (this.page !== page) {
                     this.page = page;
                     this.requestFeed(url, function(jsonUrl, data){
                         self.loadPage(context, { jsonUrl: jsonUrl, data: data, personal: true} );
