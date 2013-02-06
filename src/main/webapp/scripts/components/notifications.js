@@ -30,7 +30,6 @@ define(
                 this.header = $('#notifications-list-header');
                 this.text = $('#notifications-text');
                 this.checkbox = $('#receive-notification-email-cb');
-                this.render();
                 this.init();
             },
             render: function(){
