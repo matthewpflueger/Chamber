@@ -65,6 +65,7 @@ define(
                             break;
                         case "contextChange":
                             this.EvAg.trigger("background/update", msgObj.data);
+                            this.properties.redirect = msgObj.data;
                     }
                 } catch(e){
 
