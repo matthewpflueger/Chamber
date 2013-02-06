@@ -75,7 +75,7 @@ define(
                 self.element.html(templateStoryBrief(jsonModel));
                 self.element.addClass('item-story');
 
-                if(self.properties.isWidget) self.element.find('.story-brief-text-user').attr("target","_blank").attr("href", self.properties.urls.api + "#user/" + self.data.echoedUser.id);
+                if(self.properties.isWidget) self.element.find('.story-brief-text-user').attr("target","_blank").attr("href", self.properties.urls.api + "#user/" + this.modelStory.get("echoedUser").id);
 
                 self.element.attr("id", this.modelStory.id);
             },
