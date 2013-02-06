@@ -21,7 +21,7 @@ define(
             login: function(echoedUser){
                 this.modelUser.login(echoedUser);
                 if(this.options.callback) {
-                    this.EvAg.trigger(this.options.callback);
+                    this.options.callback();
                     this.reset();
                 }
                 this.element.fadeOut();

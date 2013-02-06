@@ -1,14 +1,10 @@
-{{#isFollowable}}
-    {{#isLoggedIn}}
-        {{#isFollowing}}
-        <span class="button-follow greyButton">
-            Unfollow
-        </span>
-        {{/isFollowing}}
-        {{^isFollowing}}
-        <span class="button-follow redButton">
-            Follow
-        </span>
-        {{/isFollowing}}
-    {{/isLoggedIn}}
-{{/isFollowable}}
+{{#isFollowing}}
+<span class="button-follow greyButton">
+    Unfollow
+</span>
+{{/isFollowing}}
+{{^isFollowing}}
+<span class="button-follow redButton">
+    Follow
+</span>
+{{/isFollowing}}
