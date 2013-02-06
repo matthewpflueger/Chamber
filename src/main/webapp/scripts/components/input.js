@@ -95,7 +95,7 @@
                         }
                     });
                 } else {
-                    this.EvAg.trigger("login/init", null, text, self.close);
+                    this.EvAg.trigger("login/init", null, "", self.close);
                 }
             },
             unload: function(callback){
