@@ -35,15 +35,11 @@ define(
                     });
             },
             render: function(){
-                var view = {};
-                if(this.modelUser.isLoggedIn() && !this.modelUser.is(this.followId)) {
-                    view.isFollowing = this.modelUser.isFollowing(this.followId, this.type);
-                    view.isLoggedIn = true;
-                }
-                if(this.followId !== "feed"){
-                    view.isFollowable = true;
-                }
-                var template = templateFollow(view);
+                if (this.followId === "feed" || this.modelUser.id === this.followId) return;
+
+                var template = templateFollow({
+                    isFollowing: this.modelUser.isFollowing(this.followId, this.type)
+                });
                 this.element.html(template);
             }
         })
