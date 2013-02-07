@@ -12,12 +12,21 @@ define(
                 this.element =      $(options.el);
                 this.properties =   options.properties;
                 this.modelUser =    options.modelUser;
+                this.EvAg =         options.EvAg;
+                this.modelUser.on("change", this.render);
                 this.followId =     options.followId;
                 this.type =         options.type;
                 this.render();
             },
             events: {
-                "click .button-follow" : "follow"
+                "click .button-follow" : "followClick"
+            },
+            followClick: function(){
+                if(this.modelUser.isLoggedIn()){
+                    this.follow();
+                } else {
+                    this.EvAg.trigger("login/init", this.follow, null);
+                }
             },
             follow: function(){
                 var self = this;

@@ -18,7 +18,7 @@
 {{/echoedUser}}
 {{^echoedUser.id}}
 {{#isOverlay}}
-    (<span id="user-what">What Is This?</span>)
+    <a id="user-what" href="{{aboutUrl}}" target="_blank">What Is This?</a>
     <span id="user-login" class="user-login">Login</span>
 {{/isOverlay}}
 {{^isOverlay}}

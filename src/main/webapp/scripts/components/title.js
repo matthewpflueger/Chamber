@@ -33,7 +33,7 @@ define(
                     baseUrl: this.modelContext.baseUrl()
                 };
                 this.element.html(templateTitle(view));
-                this.follow = new Follow({ el: "#title-follow", properties: this.properties, modelUser: this.modelUser, followId: this.modelContext.id, type: this.modelContext.get("contextType") });
+                this.follow = new Follow({ el: "#title-follow", EvAg: this.EvAg, properties: this.properties, modelUser: this.modelUser, followId: this.modelContext.id, type: this.modelContext.get("contextType") });
                 if(view.context.contextType === "partner") this.EvAg.trigger("page:change", view.context.partner.domain);
                 this.element.show();
             },
