@@ -64,6 +64,10 @@ define(
                             }
                             break;
                         case "contextChange":
+                            var p = "http://";
+                            if (msgObj.data.substring(0, p.length) !== p) {
+                                msgObj.data = p + msgObj.data;
+                            }
                             this.EvAg.trigger("background/update", msgObj.data);
                             this.properties.redirect = msgObj.data;
                     }
