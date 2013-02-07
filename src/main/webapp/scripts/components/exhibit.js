@@ -64,7 +64,8 @@ define(
                 this.exhibit.empty();
                 this.exhibit.isotope({
                     itemSelector: '.item_wrap',
-                    onLayout: function(elems, instance){
+                    onLayout: function(elems, instance){                       
+                        $('#title-container').animate({ width: instance.element[0].offsetWidth - 12 }); 
                     }
                 });
                 this.isotopeOn = true;
