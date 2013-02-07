@@ -27,7 +27,7 @@ class UserController extends EchoedController {
     private val failAsZero = failAsValue(classOf[NFE])(0)
     private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
 
-    @RequestMapping(value= Array("/{id}"), method=Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/{id}", "{id}/stories"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getUserContent(
                     @PathVariable(value ="id") id: String,
@@ -45,7 +45,7 @@ class UserController extends EchoedController {
         result
     }
 
-    @RequestMapping(value= Array("/{id}/photos"), method=Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/{id}/photos"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getUserContentPhotos(
                          @PathVariable(value ="id") id: String,
