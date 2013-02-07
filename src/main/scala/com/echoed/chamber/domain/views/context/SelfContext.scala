@@ -11,7 +11,7 @@ case class SelfContext(
 
     val id =            echoedUser.id
     val title =         "My Content"
-    val contextType =   "user"
+    val contextType =   "me"
 
 
 
