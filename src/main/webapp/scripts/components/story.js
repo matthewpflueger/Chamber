@@ -160,7 +160,7 @@ define(
                 self.text = $('#story-text-container');
                 self.chapterText = $("#story-text");
 
-                self.follow = new Follow({ el: '#story-user-follow', properties: this.properties, modelUser: this.modelUser, type: "user", followId: this.modelStory.get("echoedUser").id });
+                self.follow = new Follow({ el: '#story-user-follow', EvAg: this.EvAg, properties: this.properties, modelUser: this.modelUser, type: "user", followId: this.modelStory.get("echoedUser").id });
 
                 self.gallery = $('#story-image-main');
                 self.itemImageContainer = $('#story-image-container');
