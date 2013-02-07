@@ -50,14 +50,14 @@ class RegisterForm {
     def setShortName(shortName: String) { this.shortName = shortName }
 
 
-    var community: String = _
+    var community: String = "Other"
 
     @NotBlank
     def getCommunity = community
-    def setCommunity(community: String) { this.community = community }
+    def setCommunity(community: String) { }
 
 
-    var communities = List[Community]()
+    var communities = List(Community(community, Some(true)))
     @BeanProperty var communitiesList: String = _
 }
 
