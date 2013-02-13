@@ -19,7 +19,7 @@ import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.util.datastructure.ContentManager
-import com.echoed.chamber.domain.views.content.PhotoContent
+import com.echoed.chamber.domain.views.content.{Content, PhotoContent}
 
 
 
@@ -140,6 +140,18 @@ class PartnerService(
             becomeOnlineAndRegister
     }
 
+    private def updateContentManager(content: Content) {
+        content match {
+            case c: StoryPublic =>
+                if(c.isPublished) {
+                    contentManager.updateContent(c)
+                    c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, c)) }
+                }
+            case _ =>
+                contentManager.updateContent(_)
+        }
+    }
+
     def online = {
 
         case QueryFollowersForPartnerResponse(_, Right(f)) => followedByUsers = followedByUsers ++ f
@@ -152,15 +164,7 @@ class PartnerService(
                     Right(new PartnerAndPartnerSettings(partner, partnerSettings, customization)))
 
         case msg @ InitializePartnerContent(_, content) =>
-            content.map {
-                case c: StoryPublic =>
-                    if(c.isPublished) {
-                        contentManager.updateContent(c)
-                        c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, c)) }
-                    }
-                case _ =>
-                    contentManager.updateContent(_)
-            }
+            content.map(updateContentManager(_))
             becomeContentLoaded
 
         case msg @ ReadAllPartnerContent(_) =>
@@ -217,7 +221,7 @@ class PartnerService(
 
         case msg @ NotifyStoryUpdate(_, s) =>
             if (s.isModerated) contentManager.deleteContent(s)
-            else contentManager.updateContent(s)
+            else updateContentManager(s)
 
             val messages = followedByUsers
                     .filterNot(f =>s.isOwnedBy(f.id))
