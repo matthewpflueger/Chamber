@@ -390,6 +390,9 @@
                     this.modelStory.saveChapter(options, function(model, response){
                         self.locked = false;
                         self.render();
+                        if (options.publish) {
+                            self.EvAg.trigger("exhibit/reload");
+                        }
                     });
                }
             },

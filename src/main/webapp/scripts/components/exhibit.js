@@ -26,7 +26,7 @@ define(
                 this.EvAg.bind('exhibit:next',      this.nextItem);
                 this.EvAg.bind('exhibit:previous',  this.prevItem);
                 this.EvAg.bind('content:lookup',    this.lookup);
-
+                this.EvAg.bind('exhibit/reload',    this.reload);
             },
             lookup: function(id){
                 var lookup = id;
@@ -39,44 +39,19 @@ define(
                 var data =      options.data;
                 this.jsonUrl =  options.jsonUrl;
 
-                if(options.personalized === true){
+                if (options.personalized === true) {
                     this.personalized = true;
                 } else {
                     $('#exhibit-message').hide();
                     this.personalized = false;
                 }
 
-
-
-
-                if(data.nextPage){
-                    this.nextPage = data.nextPage;
-                } else {
-                    if(this.personalized) $('#exhibit-message').show();
-                    this.nextPage = null;
-                }
-                this.content = {
-                    array: [],
-                    hash: {}
-                };
-
-                if (this.isotopeOn === true) this.exhibit.isotope("destroy");
-                this.exhibit.empty();
-                this.exhibit.isotope({
-                    itemSelector: '.item_wrap',
-                    onLayout: function(elems, instance){                       
-                        $('#title-container').animate({ width: instance.element[0].offsetWidth - 12 }); 
-                    }
-                });
-                this.isotopeOn = true;
                 this.render(data);
-                this.EvAg.trigger('infiniteScroll/on');
-
             },
             nextItem: function(storyId){
                 var self =  this;
                 var index = this.content.hash[storyId];
-                if((index + 1) >= this.content.array.length){
+                if ((index + 1) >= this.content.array.length) {
                     this.more(function(){
                         if((index + 1) < self.content.array.length){
                             self.EvAg.trigger("content:show", { modelContent: self.content.array[index + 1] });
@@ -87,16 +62,37 @@ define(
                         self.EvAg.trigger("content:show", { modelContent: self.content.array[index + 1] });
                     }
                 }
-
             },
             prevItem: function(storyId){
                 var index = this.content.hash[storyId];
-                if(index > 0){
+                if (index > 0) {
                     this.EvAg.trigger("content:show", { modelContent: this.content.array[index - 1] });
                 }
             },
             render: function(data){
+                if (data.nextPage) {
+                    this.nextPage = data.nextPage;
+                } else {
+                    if (this.personalized) $('#exhibit-message').show();
+                    this.nextPage = null;
+                }
+
+                this.content = {
+                    array: [],
+                    hash: {}
+                };
+
+                if (this.isotopeOn === true) this.exhibit.isotope("destroy");
+                this.exhibit.empty();
+                this.exhibit.isotope({
+                    itemSelector: '.item_wrap',
+                    onLayout: function(elems, instance){
+                        $('#title-container').animate({ width: instance.element[0].offsetWidth - 12 });
+                    }
+                });
+                this.isotopeOn = true;
                 this.addContent(data);
+                this.EvAg.trigger('infiniteScroll/on');
             },
             more: function(callback){
                 var self = this;
@@ -110,14 +106,25 @@ define(
                             if(data.nextPage !== null) {
                                 self.nextPage = data.nextPage;
                             } else {
-                                if(this.personalized) $('#exhibit-message').show();
-                                $('#exhibit-message').show();
+                                if (this.personalized) $('#exhibit-message').show();
                             }
                             self.addContent(data);
-                            if(callback) callback();
+                            if (callback) callback();
                         }
                     })();
                 }
+            },
+            reload: function(){
+                var self = this;
+                self.EvAg.trigger('infiniteScroll/lock');
+                var url = self.jsonUrl;
+                self.nextPage = null;
+                utils.AjaxFactory({
+                    url: url,
+                    success: function(data) {
+                        self.render(data);
+                    }
+                })();
             },
             addContent: function(data){
                 var self = this;
