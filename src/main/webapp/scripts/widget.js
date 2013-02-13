@@ -14,13 +14,14 @@ require(
         'components/widgetCloser',
         'components/title',
         'components/login',
+        'components/user',
         'routers/widget',
         'models/user',
         'models/context',
         'easyXDM',
         'isotopeConfig'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Item, Input, MessageHandler, WidgetCloser, Title, Login, Router, ModelUser, ModelContext, easyXDM){
+    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Item, Input, MessageHandler, WidgetCloser, Title, Login, User, Router, ModelUser, ModelContext, easyXDM){
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
@@ -59,6 +60,7 @@ require(
             this.titleNav = new Title(this.options('#title-container'));
             this.login = new Login(this.options("#login-container"));
             this.router = new Router(this.options());
+            this.user = new User(this.options('#user'));
 
             var iFrameNode = document.createElement('iframe');
 
