@@ -51,6 +51,8 @@ define(
                     })
                 } else {
                     this.modelContent = options.modelContent;
+                    this.hasNext = options.hasNext;
+                    this.hasPrevious = options.hasPrevious;
                     this.render();
                 }
             },
@@ -65,6 +67,13 @@ define(
                         break;
                 }
                 $("body").addClass("noScroll");
+                
+                if (!this.hasNext) $("div[act='next']").hide();
+                else $("div[act='next']").show();
+                
+                if (!this.hasPrevious) $("div[act='previous']").hide();
+                else $("div[act='previous']").show();
+                
                 this.element.show();
             },
             close: function(){

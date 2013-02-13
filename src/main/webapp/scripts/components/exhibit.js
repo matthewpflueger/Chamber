@@ -29,11 +29,17 @@ define(
                 this.EvAg.bind('exhibit/reload',    this.reload);
             },
             lookup: function(id){
-                var lookup = id;
-                if(this.content){
-                    if(this.content.hash[id] !== undefined) lookup = { modelContent: this.content.array[this.content.hash[id]] };
+                if (!this.content || this.content.hash[id] === undefined) this.EvAg.trigger('content:show', id)
+                else {
+                    var index = this.content.hash[id];
+
+                    var hasNext = (index + 1) < this.content.array.length;
+                    var hasPrevious = (index - 1) >= 0;
+                    
+                    if ((index - 1) >= 0) this.nextItem(this.content.array[index - 1].id);
+                    else if ((index + 1) < this.content.array.length) this.prevItem(this.content.array[index + 1].id);
+                    else this.EvAg.trigger('content:show', { modelContent: self.content.array[index] });
                 }
-                this.EvAg.trigger('content:show', lookup);
             },
             init: function(options){
                 var data =      options.data;
@@ -49,24 +55,32 @@ define(
                 this.render(data);
             },
             nextItem: function(storyId){
-                var self =  this;
-                var index = this.content.hash[storyId];
-                if ((index + 1) >= this.content.array.length) {
-                    this.more(function(){
-                        if((index + 1) < self.content.array.length){
-                            self.EvAg.trigger("content:show", { modelContent: self.content.array[index + 1] });
-                        }
+                if (this.content.hash[storyId] === undefined) return;
+
+                var self =  this;                
+                var index = this.content.hash[storyId] + 1;
+                var hasNext = (index + 1) < this.content.array.length;
+                
+                function showNext() {
+                    if (index >= self.content.array.length) return;
+                    
+                    self.EvAg.trigger("content:show", { 
+                        modelContent: self.content.array[index],
+                        hasNext: (index + 1) < self.content.array.length,
+                        hasPrevious: true 
                     });
-                } else {
-                    if((index + 1) < this.content.array.length){
-                        self.EvAg.trigger("content:show", { modelContent: self.content.array[index + 1] });
-                    }
                 }
+
+                if (!hasNext) this.more(showNext);
+                else showNext();
             },
             prevItem: function(storyId){
-                var index = this.content.hash[storyId];
-                if (index > 0) {
-                    this.EvAg.trigger("content:show", { modelContent: this.content.array[index - 1] });
+                var index = this.content.hash[storyId] - 1;
+                if (index >= 0) {
+                    this.EvAg.trigger("content:show", { 
+                        modelContent: this.content.array[index],
+                        hasNext: true,
+                        hasPrevious: (index - 1) >= 0 });
                 }
             },
             render: function(data){
@@ -110,9 +124,9 @@ define(
                             }
                             self.addContent(data);
                             if (callback) callback();
-                        }
+                        }    
                     })();
-                }
+                } else if (callback) callback();
             },
             reload: function(){
                 var self = this;
