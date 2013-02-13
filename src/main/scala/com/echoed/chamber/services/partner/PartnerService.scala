@@ -147,8 +147,8 @@ class PartnerService(
                     contentManager.updateContent(c)
                     c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, c)) }
                 }
-            case _ =>
-                contentManager.updateContent(_)
+            case c: Content =>
+                contentManager.updateContent(c)
         }
     }
 
