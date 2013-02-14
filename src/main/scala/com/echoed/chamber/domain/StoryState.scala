@@ -6,6 +6,7 @@ import scala.collection.JavaConversions._
 import com.echoed.util.UUID
 import com.echoed.util.DateUtils._
 import java.util.Date
+import com.echoed.chamber.domain.public.StoryPublic
 
 case class StoryState(
         id: String,
@@ -26,7 +27,9 @@ case class StoryState(
         echo: Option[Echo],
         moderations: List[Moderation],
         votes: Map[String, Vote],
-        topic: Option[Topic]) extends DomainObject {
+        topic: Option[Topic],
+        contentType: String,
+        contentPath: Option[String]) extends DomainObject {
 
     def this(
             eu: EchoedUser,
@@ -35,7 +38,9 @@ case class StoryState(
             e: Option[Echo] = None,
             img: Option[Image] = None,
             topic: Option[Topic] = None,
-            community: Option[String] = None) = this(
+            community: Option[String] = None,
+            contentType: String = "Story",
+            contentPath: Option[String] = None) = this(
         UUID(),
         0L,
         0L,
@@ -54,7 +59,9 @@ case class StoryState(
         e,
         List.empty[Moderation],
         Map.empty[String, Vote],
-        topic)
+        topic,
+        contentType,
+        contentPath)
 
     def isCreated = createdOn > 0
     def create(title: String, productInfo: String, community: String, image: Option[Image]) = {
@@ -89,7 +96,9 @@ case class StoryState(
             upVotes,
             downVotes,
             community,
-            topic.map(_.id).orNull)
+            topic.map(_.id).orNull,
+            contentType,
+            contentPath)
 
     def asStoryInfo = StoryInfo(
             echoedUser,
@@ -99,7 +108,9 @@ case class StoryState(
             new StoryCommunities(),
             asStoryFull.orNull)
 
-    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, chapters, chapterImages, comments, votes, moderationDescription, topic.orNull))
+    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, partner, chapters, chapterImages, comments, votes, moderationDescription, topic.orNull))
+
+    def asStoryPublic = new StoryPublic(asStoryFull.get)
 
     private def selfModeratedPredicate: Moderation => Boolean = _.moderatedRef == "EchoedUser"
     private def echoedModeratedPredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"

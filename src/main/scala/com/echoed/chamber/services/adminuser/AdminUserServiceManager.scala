@@ -106,8 +106,8 @@ object ReceiveTimeoutTest extends App {
     val ref = sys.actorOf(Props(new EchoedService {
 
 //        context.receiveTimeout
-        import akka.util.duration._
-        context.setReceiveTimeout(2 seconds)
+        import scala.concurrent.duration._
+        context.setReceiveTimeout(2.seconds)
 
 //        def init = {
 //            case ReceiveTimeout =>

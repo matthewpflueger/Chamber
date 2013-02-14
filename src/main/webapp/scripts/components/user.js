@@ -20,8 +20,13 @@ define(
             },
             render: function(){
                 var echoedUser = this.modelUser.toJSON();
-                echoedUser.imageUrl = utils.getProfilePhotoUrl(echoedUser);
-                this.element.html(templateUser(echoedUser));
+                var view = {
+                    echoedUser: echoedUser,
+                    isOverlay:  this.properties.isOverlay,
+                    aboutUrl:   this.properties.urls.site + "/about"
+                }
+                view.echoedUser.imageUrl = utils.getProfilePhotoUrl(echoedUser, this.properties.urls);
+                this.element.html(templateUser(view));
                 this.list = $('#user-list');
             },
             events: {
@@ -40,7 +45,14 @@ define(
                 this.list.hide();
             },
             click: function(ev){
-                window.location = $(ev.currentTarget).attr('href');
+                if(!this.properties.isOverlay){
+                    window.location = $(ev.currentTarget).attr('href');
+                } else {
+                    this.modelUser.clear();
+                    utils.AjaxFactory({
+                        url: this.properties.urls.site + "/logout"
+                    })();
+                }
             }
         });
     }

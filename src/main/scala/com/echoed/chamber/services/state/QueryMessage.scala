@@ -24,12 +24,23 @@ case class FindAllTopicsResponse(
         value: Either[QE, List[Topic]])
         extends QM with MR[List[Topic], FindAllTopics, QE]
 
-
 case class FindAllStories(page: Int = 0, pageSize: Int = 30) extends QM
 case class FindAllStoriesResponse(
         message: FindAllStories,
         value: Either[QE, List[StoryState]])
         extends QM with MR[List[StoryState], FindAllStories, QE]
+
+case class FindAllUserStories(echoedUserId: String) extends QM
+case class FindAllUserStoriesResponse(
+        message: FindAllUserStories,
+        value: Either[QE, List[StoryState]])
+        extends QM with MR[List[StoryState], FindAllUserStories, QE]
+
+case class FindAllPartnerStories(partnerId: String) extends QM
+case class FindAllPartnerStoriesResponse(
+        message: FindAllPartnerStories,
+        value: Either[QE, List[StoryState]])
+        extends QM with MR[List[StoryState], FindAllPartnerStories, QE]
 
 case class QueryStoriesForAdmin(
         aucc: AdminUserClientCredentials,

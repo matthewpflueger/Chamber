@@ -25,7 +25,7 @@ define(
 
             initialize: function(options) {
                 this.itemViewOptions = options;
-
+                this.collection = new Stories(null, options);
                 var self = this;
 
                 if (!Marionette.getOption(this, "noFetchOnInit")) {

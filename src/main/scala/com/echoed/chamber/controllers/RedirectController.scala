@@ -11,6 +11,7 @@ import com.echoed.chamber.services.partner.FetchPartnerResponse
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.partner.FetchPartner
 import scala.Right
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

@@ -1,11 +1,10 @@
 @import "base";
-
+@import "item";
 @import "itemWrap";
 @import "story";
 @import "isotope";
 @import "field";
 @import "storyBrief";
-@import "storyBriefText";
 @import "fade";
 @import "buttons";
 @import "fileuploader";
@@ -37,17 +36,17 @@ body {
     z-index: 999999;
     background-color: #333;
 
-    #title{
+    #header-title{
+        line-height: 40px;
         display: inline-block;
-        @include fontText(26px, #FFF);
-        vertical-align: middle;
+        @include fontTitle(26px, #FFF);
     }
 }
 
 
 #echoed-exhibit-container{
     position: relative;
-    padding-top: 50px;
+    padding-top: 40px;
     height: 100%;
     #exhibit{
         padding-top: 10px;
@@ -73,7 +72,7 @@ body {
 }
 
 //STORY OVERRIDE
-#story{
+#item{
     top: 50px !important;
 }
 
@@ -81,24 +80,97 @@ body {
     top: 75px !important;
 }
 
-.echoed-share-container{
-    width: 200px;
-    text-align: center;
-    margin: 3px auto;
-    .echoed-share{
-        @include button(16px);
+#user{
+    position: absolute;
+    right: 0px;
+    width: 180px;
+    height: 40px;
+    cursor: pointer;
+    background-position: right;
+    background-repeat: no-repeat;
+    &:hover{
+        .downarrow{
+            border-top-color: #FFF;
+        }
+        border-left: 1px solid #333;
     }
+    #user-text{
+        display: inline-block;
+        width: 110px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align:left;
+        vertical-align: top;
+        color: #fff;
+        padding: 0px 15px;
+        line-height: 40px;
+    }
+
+    #user-image{
+        display: inline-block;
+        margin: 4px 0px 0px 4px;
+        #u-i-i{
+            display: block;
+            border: 1px #CCC solid;
+        }
+    }
+
+    #user-list{
+        position:absolute;
+        top: 40px;
+        display: none;
+        width: 180px;
+        border-right: 0;
+        right: 0px;
+        background-color: #333;
+        border-top: 1px solid #FFF;
+        .user-list-item{
+            color: #FFF;
+            list-style: none;
+            cursor: pointer;
+            padding: 7px 5px;
+            &:hover{
+            }
+        }
+    }
+
+    #user-what{
+        @include fontTextBold(12px, #FFF);
+        margin-right: 10px;
+        line-height: 40px;
+    }
+
+    #user-login{
+        @include fontTextBold(14px, $colorEC);
+        line-height: 40px;
+        &:hover{
+            color: #FFF;
+        }
+    }
+
 }
 
 #close{
-    z-index: 10002;
+    z-index: 10000;
     position: absolute;
-    @include sprite(0px, -28px, 15px, 15px);
-    right: 10px;
-    top: 10px;
+    left: 10px;
+    top:0px;
+    line-height: 40px;
+    padding-left: 20px;
     cursor: pointer;
+    @include fontTextBold(14px, #CCC);
+    &:hover{
+        color: #FFF;
+    }
+    #close-x{
+        @include sprite(0px, -28px, 15px, 15px);
+        top: 13px;
+        position: absolute;
+        left:0px;
+    }
 }
 
-#echo-story-gallery-container{
+#story-gallery-container{
     top: 40px !important;
 }

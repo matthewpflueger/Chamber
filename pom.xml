@@ -20,8 +20,9 @@
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
 
         <org.springframework.version>3.2.0.RELEASE</org.springframework.version>
-        <scala.version>2.9.2</scala.version>
-        <akka.version>2.0.4</akka.version>
+        <scala.version>2.10</scala.version>
+        <scala.library>2.10.0</scala.library>
+        <akka.version>2.1.0</akka.version>
     </properties>
 
     <dependencies>
@@ -144,45 +145,45 @@
         <!-- Scala dependencies -->
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala</artifactId>
-            <version>2.1.1</version>
+            <artifactId>jackson-module-scala_${scala.version}</artifactId>
+            <version>2.1.3</version>
         </dependency>
         <dependency>
             <groupId>org.squeryl</groupId>
             <artifactId>squeryl_${scala.version}</artifactId>
-            <version>0.9.5-5</version>
+            <version>0.9.5-6</version>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
+            <version>${scala.library}</version>
             <scope>compile</scope>
         </dependency>
         <dependency> 
             <groupId>org.scala-lang</groupId> 
             <artifactId>jline</artifactId> 
-            <version>${scala.version}</version> 
+            <version>${scala.library}</version> 
         </dependency> 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor</artifactId>
+            <artifactId>akka-actor_${scala.version}</artifactId>
             <version>${akka.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-slf4j</artifactId>
+            <artifactId>akka-slf4j_${scala.version}</artifactId>
             <version>${akka.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.scalaz</groupId>
             <artifactId>scalaz-core_${scala.version}</artifactId>
-            <version>6.0.3</version>
+            <version>7.0.0-M7</version>
         </dependency>
         <dependency>
             <groupId>net.databinder.dispatch</groupId>
-            <artifactId>dispatch-core_${scala.version}</artifactId>
+            <artifactId>dispatch-core_2.10.0-RC5</artifactId>
             <version>0.9.5</version>
         </dependency>
 
@@ -265,12 +266,12 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.version}</artifactId>
-            <version>1.6.1</version>
+            <version>2.0.M5b</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit</artifactId>
+            <artifactId>akka-testkit_${scala.version}</artifactId>
             <version>${akka.version}</version>
             <scope>test</scope>
         </dependency>
@@ -341,8 +342,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArguments>
                         <endorseddirs>${endorsed.dir}</endorseddirs>
@@ -445,14 +446,16 @@
                                     <directory>${basedir}/src/main/webapp/scripts_build</directory>
                                     <filtering>false</filtering>
                                     <includes>
+                                        <include>admin.js</include>
+                                        <include>applet.iframe.js</include>
+                                        <include>applet.js</include>
                                         <include>loader.js</include>
                                         <include>main.js</include>
-                                        <include>widget.js</include>
-                                        <include>partner.js</include>
-                                        <include>admin.js</include>
-                                        <include>static.js</include>
                                         <include>mobile.js</include>
+                                        <include>partner.js</include>
+                                        <include>static.js</include>
                                         <include>widget.gallery.js</include>
+                                        <include>widget.js</include>
                                         <include>widget.preview.js</include>
                                     </includes>
                                 </resource>

@@ -4,6 +4,7 @@ import java.util.Date
 import partner.{PartnerSettings, Partner}
 import com.echoed.util.UUID
 import com.echoed.util.DateUtils._
+import views.content.ContentDescription
 
 
 case class Story(
@@ -25,7 +26,9 @@ case class Story(
         upVotes: Int,
         downVotes: Int,
         community: String,
-        topicId: String) extends DomainObject {
+        topicId: String,
+        contentType: String,
+        contentPath: Option[String]) extends DomainObject {
 
     def this() = this(
             id = "",
@@ -46,7 +49,9 @@ case class Story(
             upVotes = 0,
             downVotes = 0,
             community = "",
-            topicId = null)
+            topicId = null,
+            contentType = "Story",
+            contentPath = Some(""))
 
     def this(
             echoedUser: EchoedUser,
@@ -74,6 +79,20 @@ case class Story(
         upVotes = 0,
         downVotes = 0,
         community = null,
-        topicId = null)
+        topicId = null,
+        contentType = "Story",
+        contentPath = None)
 
+    def contentDescription =
+        contentType match {
+            case "Story" =>  Story.storyContentDescription
+            case "Review" => Story.reviewContentDescription
+        }
+
+
+}
+
+object Story {
+    val storyContentDescription =   new ContentDescription("Story", "Stories" ,"stories")
+    val reviewContentDescription =  new ContentDescription("Review", "Reviews" ,"reviews")
 }

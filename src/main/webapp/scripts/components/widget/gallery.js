@@ -4,9 +4,10 @@ define(
         'backbone',
         'underscore',
         'components/utils',
-        'easyXDM'
+        'easyXDM',
+        'json2'
     ],
-    function($, Backbone, _, utils, easyXDM){
+    function($, Backbone, _, utils, easyXDM, JSON){
         return Backbone.View.extend({
             el: 'body',
             initialize: function(options){
@@ -84,7 +85,7 @@ define(
                     dataType: 'json',
                     success: function(response){
                         self.container.width(0);
-                        $.each(response.stories, function(index, storyFull){
+                        $.each(response.content, function(index, storyFull){
                             if(storyFull.story.image || storyFull.chapterImages.length > 0){
                                 var image = storyFull.story.image ? storyFull.story.image : storyFull.chapterImages[0].image;
                                 var gic = $('<div></div>').addClass('gallery-image-container').attr("id", storyFull.id);

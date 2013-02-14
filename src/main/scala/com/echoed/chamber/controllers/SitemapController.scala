@@ -12,6 +12,7 @@ import com.echoed.chamber.services.feed.GetPartnerIdsResponse
 import com.echoed.chamber.services.feed.GetPartnerIds
 import com.echoed.chamber.services.feed.GetStoryIdsResponse
 import scala.Right
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

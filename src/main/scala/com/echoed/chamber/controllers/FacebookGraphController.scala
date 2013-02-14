@@ -7,18 +7,20 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.feed.{GetStory, GetStoryResponse}
 import com.echoed.chamber.services.partner.{GetEchoResponse, GetEcho}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Controller
 @RequestMapping(Array("/graph"))
 class FacebookGraphController extends EchoedController {
 
-    @BeanProperty var facebookClientId: String = _
+    @BeanProperty var facebookClientId:     String = _
     @BeanProperty var facebookAppNameSpace: String = _
 
     @RequestMapping(value = Array("/story/{storyId}"), method = Array(RequestMethod.GET))
     def story(
             @PathVariable(value = "storyId") storyId: String,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
+
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         log.debug("Retrieving Story Graph Story Page for Echo: {}", storyId)
@@ -37,6 +39,7 @@ class FacebookGraphController extends EchoedController {
 
     @RequestMapping(value = Array("/product/{linkId}"), method = Array(RequestMethod.GET))
     def product(@PathVariable(value = "linkId") linkId: String) = {
+
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         log.debug("Retrieving Facebook Graph Product Page for Echo: {}", linkId)

@@ -8,7 +8,6 @@ import com.echoed.chamber.services.adminuser.{AdminUserService, AdminUserMessage
 import com.echoed.chamber.services.echoeduser.story.StoryService
 import com.echoed.chamber.services.echoeduser.{EchoedUserService, EchoedUserMessage, EchoedUserServiceManager}
 import com.echoed.chamber.services.email.{SchedulerService, EmailMessage, EmailService}
-import com.echoed.chamber.services.event.{EventMessage, EventService}
 import com.echoed.chamber.services.facebook._
 import com.echoed.chamber.services.feed.{FeedMessage, FeedService}
 import com.echoed.chamber.services.partner.{PartnerService, PartnerMessage, PartnerServiceManager}
@@ -26,6 +25,7 @@ import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.mail.javamail.JavaMailSender
 import scala.collection.mutable.LinkedHashMap
 import topic.TopicService
+import akka.routing.{SmallestMailboxRouter, DefaultResizer}
 
 
 @Configuration
@@ -68,9 +68,6 @@ class ServiceConfig {
 
     @Bean def log = new LoggingActorSystem(actorSystem)
 
-
-    @Bean
-    def eventService = (ac: ActorContext) => ac.actorOf(Props(new EventService()), "EventService")
 
     @Bean
     def emailService = (ac: ActorContext) => ac.actorOf(Props(new EmailService(
@@ -178,7 +175,9 @@ class ServiceConfig {
 
 
     @Bean
-    def queryService = (ac: ActorContext) => ac.actorOf(Props(new QueryService(squerylDataSource)), "QueryService")
+    def queryService = (ac: ActorContext) =>  ac.actorOf(Props(new QueryService(squerylDataSource))
+            .withRouter(SmallestMailboxRouter(resizer = Some(DefaultResizer(lowerBound = 10, upperBound = 20)))),
+            "QueryService")
 
     @Bean
     def stateService = (ac: ActorContext) => ac.actorOf(Props(new StateService(
@@ -195,7 +194,6 @@ class ServiceConfig {
             classOf[QueryMessage] -> queryService,
             classOf[StateMessage] -> stateService,
             classOf[SchedulerMessage] -> schedulerService,
-            classOf[EventMessage] -> eventService,
             classOf[EmailMessage] -> emailService,
             classOf[FeedMessage] -> feedService,
             classOf[TopicMessage] -> topicService,

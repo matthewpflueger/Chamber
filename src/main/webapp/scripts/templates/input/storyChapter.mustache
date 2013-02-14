@@ -1,7 +1,9 @@
 <div class="field-edit edit-chapter" chapterIndex="{{ index }}" chapterId="{{ id }}">
     Edit
 </div>
+{{#title}}
 <div class="story-detail-row">
+
     <div class="story-input-label">
         Subtitle
     </div>
@@ -9,14 +11,7 @@
         {{ title }}
     </div>
 </div>
-<div class="story-detail-row">
-    <div class="story-input-label">
-        Status
-    </div>
-    <div class="story-input-content story-input-publishedOn">
-
-    </div>
-</div>
+{{/title}}
 <div class="story-detail-row">
     {{#text}}
     <div class="story-input-label">
@@ -32,6 +27,18 @@
         Photos
     </div>
     <div class="story-input-content story-input-photos clearfix" style="vertical-align: top;" >
-
+    </div>
+</div>
+<div class="story-detail-row">
+    <div class="story-input-label">
+        Status
+    </div>
+    <div class="story-input-content story-input-publishedOn">
+        {{#publishedOn}}
+            Published
+        {{/publishedOn}}
+        {{^publishedOn}}
+            Draft
+        {{/publishedOn}}
     </div>
 </div>

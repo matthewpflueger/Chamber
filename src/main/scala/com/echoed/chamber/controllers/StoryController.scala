@@ -16,6 +16,7 @@ import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import org.springframework.web.servlet.ModelAndView
 import javax.servlet.http.HttpServletRequest
 import com.echoed.chamber.domain.{ModerationDescription, Comment, ChapterInfo, Chapter, Story, StoryInfo}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

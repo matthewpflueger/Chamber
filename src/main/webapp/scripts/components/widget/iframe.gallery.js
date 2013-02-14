@@ -4,9 +4,10 @@ define(
         'backbone',
         'underscore',
         'components/utils',
-        'easyXDM'
+        'easyXDM',
+        'json2'
     ],
-    function($, Backbone, _, utils, easyXDM){
+    function($, Backbone, _, utils, easyXDM, JSON2){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -25,7 +26,6 @@ define(
                                 window.location.hash = "#echoed_" + msg.data ;
                                 break;
                             case 'resize':
-                                //$('#echoed-gallery-iframe').hide().height(msg.data).slideDown();
                                 $('#echoed-gallery-iframe').animate({
                                     height: msg.data
                                 });

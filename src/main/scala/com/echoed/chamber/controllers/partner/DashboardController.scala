@@ -10,6 +10,7 @@ import com.echoed.chamber.controllers.interceptors.Secure
 import javax.validation.Valid
 import org.springframework.validation.BindingResult
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

@@ -1,0 +1,15 @@
+Auto detect text files and perform LF normalization
+*        text=auto
+
+*.cs     text diff=csharp
+*.java   text diff=java
+*.html   text diff=html
+*.scala  text
+*.css    text
+*.js     text
+*.sql    text
+
+*.png    binary
+*.gif    binary
+*.jpg    binary
+*.jpeg   binary

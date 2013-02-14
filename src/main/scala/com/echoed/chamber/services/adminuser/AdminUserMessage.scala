@@ -12,7 +12,9 @@ import com.echoed.chamber.services.EchoedException
 
 
 sealed trait AdminUserMessage extends Message
-sealed case class AdminUserException(message: String = "", cause: Throwable = null) extends EchoedException(message, cause)
+sealed class AdminUserException(
+        val message: String = "",
+        val cause: Throwable = null) extends EchoedException(message, cause)
 
 
 case class AdminUserClientCredentials(

@@ -2,12 +2,10 @@
     display: inline-block;
     margin-bottom: 10px;
     textarea, .textareaClone{
-        border-radius: 5px;
         min-height: 10em;
-        padding: 5px 6px;
+        padding: 8px 5px;
         @include fontText(13px);
         resize: none;
-        outline: 0px;
-        border: 1px solid #CCC;
+        height: 100%;
     }
 }

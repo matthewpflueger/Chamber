@@ -6,43 +6,49 @@ define(
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
+                this.modelContext = options.modelContext;
                 this.EvAg.bind('hash/reset', this.resetHash);
                 this.EvAg.bind('router/me', this.reload);
                 this.page = null;
             },
             routes:{
-                "_=_" : "fix",
-                "": "explore",
-                "!": "explore",
-                "home": "reload",
-                "topic/:id": "topic",
-                "story/:id": "story",
-                "write/:type/:id" : "writeStory",
-                "write/" : "writePartner",
-                "write": "writePartner",
-                "!story/:id": "story",
-                "!topic/:id": "topic"
+                "_=_":                  "fix",
+                "":                     "explore",
+                "!":                    "explore",
+                "home":                 "reload",
+                "partner/:id/:type":    "partner",
+                "partner/:id/:type/":   "partner",
+                "topic/:id":            "topic",
+                "story/:id":            "story",
+                "photo/:id":            "photo",
+                "!story/:id":           "story",
+                "!photo/:id":           "photo",
+                "write/:id" :           "write",
+                "write/":               "write",
+                "write":                "write"
+            },
+            partner: function(id, type){
+                var self = this;
+                var endPoint = "/partner/" + id;
+                if(type) endPoint += "/" + type;
+                this.requestFeed(endPoint, function(jsonUrl, data){
+                    self.modelContext.set(data.context);
+                    self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
+                })
             },
             reload: function(){
                 var self = this;
-                this.requestFeed("/partner/" + this.properties.partnerId, function(jsonUrl, data){
-                    self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
-                    self.EvAg.trigger('title/update', { title: Echoed.title, type: "partner", partnerId: self.properties.partnerId, imageUrl: data.headerImageUrl});
-                    self.page = "home";
-                });
+                var url = "/partner/" + this.properties.partnerId;
+                if(this.page !== url){
+                    this.page = url;
+                    this.requestFeed(url, function(jsonUrl, data){
+                        self.modelContext.set(data.context);
+                        self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
+                    });
+                }
                 _gaq.push(['_trackEvent', 'Widget', 'Open', this.properties.partnerId]);
             },
-            topic: function(topicId){
-                var self = this;
-                this.requestFeed("/topic/" + topicId, function(jsonUrl, data){
-                    self.EvAg.trigger("exhibit/init", { jsonUrl: jsonUrl, data: data });
-                    self.EvAg.trigger("title/update", { title: data.topic.title, type: "topic", topicId: data.topic.id, imageUrl: data.headerImageUrl });
-                });
-            },
             explore: function(){
-            },
-            writePartner: function(){
-                this.writeStory('partner', this.properties.partnerId );
             },
             requestFeed: function(endPoint, callback){
                 var jsonUrl = this.properties.urls.api + '/api/' + endPoint;
@@ -54,27 +60,34 @@ define(
                     }
                 })();
             },
-            writeStory: function(type, id){
+            write: function(id){
                 if(this.page === null){
                     this.reload();
-                    this.page = "#!";
                 }
                 this.oldPage = this.page;
-                this.EvAg.trigger("field/show", id, type);
+                if(id)  this.EvAg.trigger("input:edit", id);
+                else    this.EvAg.trigger("input:write");
+
                 _gaq.push(['_trackEvent', 'Widget', 'Write', this.properties.partnerId]);
+            },
+            photo: function(id){
+                if(this.page === null) {
+                    this.reload();
+                }
+                this.oldPage = this.page;
+                this.EvAg.trigger("content:lookup", id);
             },
             story: function(id){
                 if(this.page === null) {
                     this.reload();
-                    this.page = "#!";
                 }
                 this.oldPage = this.page;
-                this.EvAg.trigger("story/show", id);
-                _gaq.push(['_trackEvent', 'Widget', 'Story', this.properties.partnerId]);
-                _gaq.push(['_trackEvent', 'Story', 'Open', this.properties.partnerId]);
+                this.EvAg.trigger("content:lookup", id);
+                _gaq.push(['_trackEvent', 'Widget', 'Story',    this.properties.partnerId]);
+                _gaq.push(['_trackEvent', 'Story',  'Open',     this.properties.partnerId]);
             },
             resetHash: function(){
-                window.location.hash = "#!";
+                window.location.hash = this.oldPage;
             }
         });
     }

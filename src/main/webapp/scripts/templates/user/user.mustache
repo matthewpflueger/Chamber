@@ -1,23 +1,29 @@
-{{#id}}
-<div id="user-image">
-    <img id="u-i-i" height="30px" width="30px" src="{{imageUrl}}" />
-</div>
-{{/id}}
-<div id="user-text" {{^id}}class="user-login"{{/id}}>
+{{#echoedUser}}
     {{#id}}
+    <div id="user-image">
+        <img id="u-i-i" height="30px" width="30px" src="{{imageUrl}}" />
+    </div>
+    <div id="user-text" {{^id}}class="user-login"{{/id}}>
         {{name}}
+    </div>
+    <span class="downarrow"></span>
+    <div id="user-list">
+        <ul>
+            {{#id}}
+            <li class="user-list-item" href="logout"><strong>Logout</strong></li>
+            {{/id}}
+        </ul>
+    </div>
     {{/id}}
-    {{^id}}
-    Login
-    {{/id}}
-</div>
-{{#id}}
-<span class="downarrow"></span>
-<div id="user-list">
-    <ul>
-        {{#id}}
-        <li class="user-list-item" href="logout"><strong>Logout</strong></li>
-        {{/id}}
-    </ul>
-</div>
-{{/id}}
+{{/echoedUser}}
+{{^echoedUser.id}}
+{{#isOverlay}}
+    <a id="user-what" href="{{aboutUrl}}" target="_blank">What Is This?</a>
+    <span id="user-login" class="user-login">Login</span>
+{{/isOverlay}}
+{{^isOverlay}}
+    <div id="user-text" class="user-login">
+        Login
+    </div>
+{{/isOverlay}}
+{{/echoedUser.id}}

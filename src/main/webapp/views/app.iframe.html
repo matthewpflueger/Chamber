@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title></title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Lato:200,300,400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Arvo:200,300,400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{{urls.css}}/applet.css"/>
+    <script>
+        {{>partial_requirejs}}
+        {{>partial_urls}}
+        Echoed.partnerId = '{{partnerId}}';
+        Echoed.facebookLogin ={};
+        Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
+        Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
+        Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
+        Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
+        {{#echoedUser}}
+        Echoed.echoedUser = {
+            id: '{{id}}',
+            screenName: '{{screenName}}',
+            facebookId: '{{facebookId}}',
+            twitterId: '{{twitterId}}',
+            name: '{{name}}'
+        }
+        {{/echoedUser}}
+    </script>
+    {{$jsHead}}
+    {{#scriptTag}}applet.iframe.js{{/scriptTag}}
+    {{/jsHead}}
+</head>
+<body>
+<div id='echoed-head'>
+    <div id="close">
+        Go to Website
+        <div id="close-x">
+        </div>
+    </div>
+    <div id="header-title">
+    </div>
+    <div id="user">
+        (<span id="user-what">What Is This?</span>)
+        <span id="user-login">Login</span>
+    </div>
+</div>
+<div id="item-container"></div>
+<div id="field-container"></div>
+<div id="login-container"></div>
+<div id="echoed-exhibit-container">
+    <div id="content">
+        <div id="title-container"></div>
+        <div id='exhibit'></div>
+        <div id="infiniteScroll" style="display:none;">
+            Loading <img align="absmiddle" src="{{urls.images}}/bk_loader_circle.gif" />
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    function postMessageInterface(data){
+        self.postMessage(data, "*");
+    }
+</script>
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28093745-1']);
+    _gaq.push(['_setDomainName', 'echoed.com']);
+    _gaq.push(['_trackEvent', 'Widget', 'Load', '{{#partner}}{{id}}{{/partner}}']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+</script>

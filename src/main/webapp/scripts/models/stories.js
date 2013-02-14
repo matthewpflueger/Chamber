@@ -5,7 +5,7 @@ define(
     ],
     function(Backbone, Story) {
         return Backbone.Collection.extend({
-            url: "stories",
+            url: "/api/partner/stories",
             model: Story
         });
     }

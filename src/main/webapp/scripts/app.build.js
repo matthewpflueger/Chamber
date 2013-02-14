@@ -9,20 +9,24 @@
     stubModules : ['text', 'hgn'],
     pragmasOnSave : {
         // you can use this pragma to exclude compiler logic from Hogan.js in
-        // case you don't need to compile any templates after buid
+        // case you don't need to compile any templates after build
         excludeHogan : true
     },
     modules: [
         {
+            name: "admin",
+            include: ['requireLib']
+        },
+        {
+            name: "applet.iframe",
+            include: ['requireLib']
+        },
+        {
+            name: "applet",
+            include: ['requireLib']
+        },
+        {
             name: "loader",
-            include: ['requireLib']
-        },
-        {
-            name: 'mobile',
-            include: ['requireLib']
-        },
-        {
-            name: "widget",
             include: ['requireLib']
         },
         {
@@ -30,11 +34,11 @@
             include: ['requireLib']
         },
         {
-            name: "partner",
+            name: 'mobile',
             include: ['requireLib']
         },
         {
-            name: "admin",
+            name: "partner",
             include: ['requireLib']
         },
         {
@@ -42,11 +46,15 @@
             include: ['requireLib']
         },
         {
-            name: "widget.preview",
+            name: "widget.gallery",
             include: ['requireLib']
         },
         {
-            name: "widget.gallery",
+            name: "widget",
+            include: ['requireLib']
+        },
+        {
+            name: "widget.preview",
             include: ['requireLib']
         }
     ]

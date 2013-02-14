@@ -13,7 +13,7 @@ private[state] object StateUtils {
             images.lookup(ci.imageId).map(img => ci.copy(image = img.convertTo))
         }.filter(_.isDefined).map(_.get).toList
 
-        val cm = from(comments)(cm => where(cm.storyId === s.id) select(cm) orderBy(cm.createdOn asc)).toList.map { cm =>
+        val cm = from(comments)(cm => where(cm.storyId === s.id) select(cm) orderBy(cm.createdOn.asc)).toList.map { cm =>
             echoedUsers.lookup(cm.byEchoedUserId).map(eu => cm.copy(echoedUser = eu)).get
         }.toList
 
@@ -50,7 +50,9 @@ private[state] object StateUtils {
                 e.map(_.convertTo(img.get)),
                 m,
                 v,
-                t)
+                t,
+                s.contentType,
+                s.contentPath)
     }
 }
 

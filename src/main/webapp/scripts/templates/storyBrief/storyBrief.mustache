@@ -1,28 +1,26 @@
 <div class="item_content story-brief">
+    {{#storyImage}}
     <div class="story-brief-image-container">
-        <img class="story-brief-image" />
+        <img class="story-brief-image" src="{{storyImage.url}}" style="height: {{storyImage.height}}px; width: {{storyImage.width}}px"/>
     </div>
+    {{/storyImage}}
     <div class="story-brief-text">
-
+        {{#storyImage}}
         <img class="story-brief-text-user-image" height="35px" width="35px" src="{{ profilePhotoUrl }}"/>
-        <div class="story-brief-text-title">
-            {{ story.title }}
+        {{/storyImage}}
+        <div class="story-brief-text-title{{^storyImage}}-large{{/storyImage}}">
+            {{ storyFull.story.title }}
         </div>
         <div class="story-brief-text-by">
-            by <a class="link-black story-brief-text-user" href="#user/{{echoedUser.id}}">{{ echoedUser.name }}</a>
+            by <a class="link-black story-brief-text-user" href="#user/{{storyFull.echoedUser.id}}">{{ storyFull.echoedUser.name }}</a>
         </div>
         {{^inComplete}}
         <div class="story-brief-text-quote">{{ chapterText }}</div>
         <div class="story-brief-indicator">
             <span>Votes: </span>
-            <span class="story-brief-indicator-value vote-counter"></span>
+            <span class="story-brief-indicator-value vote-counter">{{voteCount}}</span>
             <span>Comments: </span>
-            <span class="story-brief-indicator-value">{{ comments.length }}</span>
-            <span>Photos: </span>
-            <span class="story-brief-indicator-value">{{ imageCount }}</span>
-            <span class="s-b-i-c">
-                {{ elapsedString }}
-            </span>
+            <span class="story-brief-indicator-value">{{ storyFull.comments.length }}</span>
         </div>
         {{/inComplete}}
         {{#inComplete}}
@@ -30,8 +28,24 @@
         {{/inComplete}}
     </div>
 </div>
-<div class="story-brief-edit" style="text-align: center;">
-    <a href="#write/story/{{ story.id }}" class="story-brief-edit-tab">
-        {{^inComplete}}Edit Story{{/inComplete}}{{#inComplete}}Finish Story{{/inComplete}}
-    </a>
+{{#isSelf}}
+<div class="story-brief-actions">
+    <ul class="clearfix">
+        <li><a class="story-brief-action" href="#write/{{storyFull.id}}">Edit</a></li>
+    </ul>
 </div>
+{{/isSelf}}
+
+<!--<div class="story-brief-actions">-->
+    <!--<ul class="clearfix">-->
+        <!--{{^inComplete}}-->
+        <!--<li><span class="upvote"></span></li>-->
+        <!--<li><span class="downvote"></span></li>-->
+        <!--<li><a href="#">Share</a></li>-->
+            <!--{{#isSelf}}<li><a class="story-brief-action" href="#write/{{storyFull.id}}">Edit</a></li>{{/isSelf}}-->
+            <!--{{^isSelf}}<li><a class="story-brief-action" href="#">Save</a></li>{{/isSelf}}-->
+        <!--{{/inComplete}}-->
+        <!--{{#inComplete}}<li><a class="story-brief-action" href="#write/{{storyFull.id}}">Finish</a></li>{{/inComplete}}-->
+    <!--</ul>-->
+<!--</div>-->
+

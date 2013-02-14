@@ -1,22 +1,25 @@
 package com.echoed.chamber.services.partner
 
-import com.echoed.chamber.services.{MessageResponse => MR, EchoedClientCredentials, EchoedException, Message}
+import com.echoed.chamber.services.{MessageResponse => MR, OnlineOnlyMessage, EchoedClientCredentials, EchoedException, Message}
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain._
 import com.echoed.chamber.domain.partner.{PartnerSettings, PartnerUser, Partner}
 import akka.actor.ActorRef
 import com.echoed.chamber.services.echoeduser.{Follower, EchoedUserClientCredentials}
+import context.PartnerContext
 import org.springframework.validation.Errors
 import java.util.Date
+import com.echoed.chamber.domain.public.StoryPublic
+import content.{ContentDescription, Content}
 
 
 trait PartnerMessage extends Message
-case class PartnerException(
-        message: String = "",
-        cause: Throwable = null,
-        code: Option[String] = None,
-        arguments: Option[Array[AnyRef]] = None,
-        errors: Option[Errors] = None) extends EchoedException(message, cause, code, arguments, errors)
+class PartnerException(
+        val message: String = "",
+        val cause: Throwable = null,
+        val code: Option[String] = None,
+        val arguments: Option[Array[AnyRef]] = None,
+        val errors: Option[Errors] = None) extends EchoedException(message, cause, code, arguments, errors)
 
 case class PartnerClientCredentials(partnerId: String) extends EchoedClientCredentials {
     val id = partnerId
@@ -70,25 +73,46 @@ case class UpdatePartnerResponse(
         message: UpdatePartner, 
         value: Either[PE, Partner]) extends PM with MR[Partner, UpdatePartner, PE]
 
+case class UpdatePartnerStory(
+        credentials: PCC,
+        story: StoryPublic) extends PM with PI with OnlineOnlyMessage
+case class UpdatePartnerStoryResponse(
+        message: UpdatePartnerStory,
+        value: Either[PE, Boolean]) extends PM with MR[Boolean, UpdatePartnerStory, PE]
 
 //private[services] case class GetPartnerSettings(credentials: PCC) extends PM with PI
 //private[services] case class GetPartnerSettingsResponse(message: GetPartnerSettings, value: Either[PartnerException, List[PartnerSettings]])
 //        extends PM with MR[List[PartnerSettings], GetPartnerSettings, PE]
+
+private[services] case class InitializePartnerContent(credentials: PCC, content: List[Content]) extends PM
+private[services] case class InitializePartnerContentResponse(
+        message: InitializePartnerContent,
+        value: Either[PE, Boolean]) extends PM with MR[Boolean, InitializePartnerContent, PE]
 
 case class GetPartner() extends PM
 case class GetPartnerResponse(
         message: GetPartner,
         value: Either[PE, Partner]) extends PM with MR[Partner, GetPartner, PE]
 
-case class ReadPartnerFeed(credentials: PCC, page: Int, origin: String) extends PM with PI
-case class ReadPartnerFeedResponse(
-        message: ReadPartnerFeed,
-        value: Either[PE, PartnerStoryFeed]) extends PM with MR[PartnerStoryFeed, ReadPartnerFeed, PE]
+private[services] case class ReadAllPartnerContent(credentials: PCC) extends PM with PI
+private[services] case class ReadAllPartnerContentResponse(
+        message: ReadAllPartnerContent,
+        value: Either[PE, List[Content]]) extends PM with MR[List[Content], ReadAllPartnerContent, PE]
 
-case class GetTopics(credentials: PCC) extends PM with PI
-case class GetTopicsResponse(
-        message: GetTopics,
-        value: Either[PE, List[Topic]]) extends PM with MR[List[Topic], GetTopics, PE]
+case class RequestPartnerContent(credentials: PCC, page: Int, origin: String, c: ContentDescription) extends PM with PI
+case class RequestPartnerContentResponse(
+        message: RequestPartnerContent,
+        value: Either[PE, Feed[PartnerContext]]) extends PM with MR[Feed[PartnerContext], RequestPartnerContent, PE]
+
+case class RequestPartnerFollowers(credentials: PCC) extends PM with PI
+case class RequestPartnerFollowersResponse(
+        message: RequestPartnerFollowers,
+        value: Either[PE, Feed[PartnerContext]]) extends PM with MR[Feed[PartnerContext], RequestPartnerFollowers, PE]
+
+case class RequestTopics(credentials: PCC) extends PM with PI
+case class RequestTopicsResponse(
+        message: RequestTopics,
+        value: Either[PE, List[Topic]]) extends PM with MR[List[Topic], RequestTopics, PE]
 
 case class PutPartnerCustomization(
         credentials: PCC,
@@ -130,6 +154,11 @@ private[services] case class AddPartnerFollowerResponse(
         message: AddPartnerFollower,
         value: Either[PE, Partner]) extends PM with MR[Partner, AddPartnerFollower, PE]
 
+private[services] case class RemovePartnerFollower(credentials: PCC, echoedUser: EchoedUser) extends PM with PI
+private[services] case class RemovePartnerFollowerResponse(
+        message: RemovePartnerFollower,
+        value: Either[PE, Partner]) extends PM with MR[Partner, RemovePartnerFollower, PE]
+
 
 private[services] case class PartnerFollowerNotification(category: String, value: Map[String, String])
 
@@ -137,6 +166,7 @@ private[services] case class NotifyPartnerFollowers(
         credentials: PCC,
         echoedUserClientCredentials: EchoedUserClientCredentials,
         notification: Notification) extends PM with PI
+private[services] case class NotifyStoryUpdate(credentials: PCC, story: StoryPublic) extends PM with PI
 
 
 case class Locate(partnerId: String) extends PM

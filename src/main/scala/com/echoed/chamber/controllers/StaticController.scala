@@ -5,13 +5,21 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
 import com.echoed.chamber.services.email.{SendEmailResponse, SendEmail}
+import scala.concurrent.ExecutionContext.Implicits.global
+import reflect.BeanProperty
 
 
 @Controller
 class StaticController extends EchoedController {
 
+    @BeanProperty var bookmarkletName: String = _
+
     @RequestMapping(value = Array("/about*"), method = Array(RequestMethod.GET))
-    def howItWorks = new ModelAndView(v.whatIsEchoedView)
+    def getAbout = {
+        val modelAndView = new ModelAndView(v.whatIsEchoedView)
+        modelAndView.addObject("bookmarkletName", bookmarkletName)
+        modelAndView
+    }
 
     @RequestMapping(value = Array("/101*"), method = Array(RequestMethod.GET))
     def storyTelling = new ModelAndView(v.storyTellingView)

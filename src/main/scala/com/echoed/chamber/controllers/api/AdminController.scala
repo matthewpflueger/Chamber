@@ -1,36 +1,19 @@
 package com.echoed.chamber.controllers.api
 
-import com.echoed.chamber.controllers.api.admin.{AdminUpdatePartnerSettingsFormValidator, AdminUpdatePartnerSettingsForm}
-import org.springframework.stereotype.Controller
-import reflect.BeanProperty
-import com.echoed.chamber.services.adminuser._
+import com.echoed.chamber.controllers.api.admin.AdminUpdatePartnerSettingsFormValidator
 import com.echoed.chamber.controllers.{FormController, EchoedController, ErrorResult}
-import org.springframework.web.bind.annotation._
-import org.springframework.validation.BindingResult
-import javax.validation.Valid
-import org.springframework.web.context.request.async.DeferredResult
-import com.echoed.chamber.services.state._
-import com.echoed.chamber.controllers.api.admin.AdminUpdatePartnerSettingsForm
-import com.echoed.chamber.services.adminuser.GetPartnerSettingsResponse
-import com.echoed.chamber.services.state.QueryStoriesForAdminResponse
-import com.echoed.chamber.services.state.QueryPartnersResponse
-import com.echoed.chamber.services.adminuser.GetUsersResponse
-import com.echoed.chamber.services.adminuser.UpdatePartnerHandleAndCategory
-import com.echoed.chamber.services.adminuser.UpdatePartnerHandleAndCategoryResponse
-import scala.Right
-import com.echoed.chamber.services.adminuser.GetPartner
-import com.echoed.chamber.services.adminuser.GetCurrentPartnerSettings
-import com.echoed.chamber.services.adminuser.GetCurrentPartnerSettingsResponse
-import com.echoed.chamber.services.adminuser.UpdatePartnerSettings
-import com.echoed.chamber.services.state.QueryStoriesForAdmin
-import com.echoed.chamber.services.adminuser.GetPartnerResponse
-import com.echoed.chamber.services.adminuser.GetPartnerSettings
-import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
-import com.echoed.chamber.services.adminuser.UpdatePartnerSettingsResponse
-import com.echoed.chamber.services.adminuser.GetUsers
-import com.echoed.chamber.services.state.QueryPartners
-import com.echoed.chamber.domain.{EchoedUser, StoryState}
 import com.echoed.chamber.domain.partner.PartnerUser
+import com.echoed.chamber.domain.{EchoedUser, StoryState}
+import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
+import com.echoed.chamber.services.state.QueryStoriesForAdmin
+import com.echoed.chamber.services.state.QueryStoriesForAdminResponse
+import com.echoed.chamber.services.state._
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation._
+import org.springframework.web.context.request.async.DeferredResult
+import reflect.BeanProperty
+import scala.Right
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @Controller

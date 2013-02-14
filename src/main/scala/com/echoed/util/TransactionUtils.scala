@@ -3,6 +3,7 @@ package com.echoed.util
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.TransactionCallback
 import org.squeryl.PrimitiveTypeMode._
+import scala.language.implicitConversions
 
 object TransactionUtils {
 

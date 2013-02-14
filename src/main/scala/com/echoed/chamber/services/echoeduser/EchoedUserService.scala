@@ -3,11 +3,11 @@ package com.echoed.chamber.services.echoeduser
 import scalaz._
 import Scalaz._
 import scala.collection.JavaConversions._
-import scala.collection.mutable.{ListBuffer => MList}
+import collection.mutable.{ListBuffer => MList}
 import com.echoed.chamber.services._
 import akka.actor._
 import akka.pattern._
-import akka.util.duration._
+import scala.concurrent.duration._
 import akka.actor.SupervisorStrategy.Stop
 import java.util.Date
 import com.echoed.util.{ScalaObjectMapper, Encrypter, UUID, DateUtils}
@@ -26,10 +26,11 @@ import com.echoed.chamber.domain.EchoedUserSettings
 import com.echoed.chamber.services.state.ReadForFacebookUser
 import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.domain.FacebookUser
+import com.echoed.chamber.domain.views.Feed
+import views.context.{PersonalizedContext, UserContext, SelfContext}
 import com.echoed.chamber.services.state.FacebookUserNotFound
 import akka.actor.Terminated
 import com.echoed.chamber.services.facebook.FacebookAccessToken
-import com.echoed.chamber.services.ScatterResponse
 import com.echoed.chamber.services.state.ReadForCredentials
 import scala.Left
 import com.echoed.chamber.services.twitter.FetchFollowers
@@ -37,19 +38,21 @@ import com.echoed.chamber.services.facebook.FetchFriends
 import com.echoed.chamber.services.state.TwitterUserNotFound
 import akka.actor.OneForOneStrategy
 import com.echoed.chamber.services.facebook.PublishAction
-import com.echoed.chamber.domain.views.{ClosetPersonal, Closet, EchoFull, EchoedUserStoryFeed}
 import com.echoed.chamber.services.email.SendEmail
 import com.echoed.chamber.services.state.ReadForCredentialsResponse
 import scala.Right
 import com.echoed.chamber.services.facebook.FetchFriendsResponse
-import com.echoed.chamber.services.Scatter
 import com.echoed.chamber.services.state.ReadForTwitterUser
 import com.echoed.chamber.services.state.ReadForTwitterUserResponse
 import com.echoed.chamber.services.state.ReadForFacebookUserResponse
-import com.echoed.chamber.services.feed.{GetUserPrivateStoryFeedResponse, GetUserPrivateStoryFeed, GetUserPublicStoryFeed, GetUserPublicStoryFeedResponse}
-import com.echoed.chamber.domain.public.EchoedUserPublic
+import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EUCC}
-import com.echoed.chamber.services.partner.{AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials}
+import com.echoed.chamber.services.partner.{RemovePartnerFollower, AddPartnerFollowerResponse, AddPartnerFollower, PartnerClientCredentials, ReadAllPartnerContent, ReadAllPartnerContentResponse}
+import scala.concurrent.Future
+import com.echoed.util.datastructure.ContentManager
+import com.echoed.chamber.domain.views.content.{ContentDescription, PhotoContent, Content}
+import com.echoed.chamber.domain.partner.Partner
+import com.echoed.chamber.services.partner.{NotifyStoryUpdate => PNSU}
 
 
 class EchoedUserService(
@@ -62,21 +65,56 @@ class EchoedUserService(
         encrypter: Encrypter,
         implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService {
 
+    import context.dispatcher
 
-    private var echoedUser: EchoedUser = _
+    private var echoedUser:         EchoedUser = _
     private var echoedUserSettings: EchoedUserSettings = _
-    private var facebookUser: Option[FacebookUser] = None
-    private var twitterUser: Option[TwitterUser] = None
-    private var notifications = Stack[Notification]()
-    private var followingUsers = List[Follower]()
-    private var followedByUsers = List[Follower]()
+    private var facebookUser:       Option[FacebookUser] = None
+    private var twitterUser:        Option[TwitterUser] = None
+    private var notifications =     Stack[Notification]()
+    private var followingUsers =    List[Follower]()
+    private var followedByUsers =   List[Follower]()
     private var followingPartners = List[PartnerFollower]()
+
+    private val followingContentManager =   new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
+    private val publicContentManager =      new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
+    private val privateContentManager =     new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
+
+    private var contentLoaded =         false
+    private var customContentLoaded =   false
+
+    private def becomeContentLoaded {
+        contentLoaded = true
+        unstashAll()
+    }
+
+    private def becomeCustomContentLoaded {
+        customContentLoaded = true
+        unstashAll()
+    }
+
+    private def userContext = {
+        new UserContext(
+            echoedUser,
+            getStats ::: publicContentManager.getStats,
+            publicContentManager.getHighlights,
+            publicContentManager.getContentList)
+    }
+
 
 
     private val activeStories = HashMultimap.create[Identifiable, ActorRef]()
 
-    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1 minute) {
+    override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0, withinTimeRange = 1.minute) {
         case _: Throwable ⇒ Stop
+    }
+
+    private def getStats = {
+        var stats = List[Map[String, Any]]()
+        stats = Map("name" -> "Sites Followed", "value" -> followingPartners.length,  "path" -> "following/partners") :: stats
+        stats = Map("name" -> "Following",      "value" -> followingUsers.length,     "path" -> "following") :: stats
+        stats = Map("name" -> "Followers",      "value" -> followedByUsers.length,    "path" -> "followers") :: stats
+        stats
     }
 
 
@@ -130,7 +168,6 @@ class EchoedUserService(
                 Right(createCredentials(facebookUser))))
     }
 
-
     private def handleLoginWithTwitterUser(msg: LoginWithTwitterUser) {
         twitterUser = twitterUser
             .map {
@@ -157,9 +194,9 @@ class EchoedUserService(
     }
 
     private def create(eu: EchoedUser, fu: Option[FacebookUser] = None, tu: Option[TwitterUser] = None) {
-        echoedUser = eu
-        facebookUser = fu.map(_.copy(echoedUserId = echoedUser.id))
-        twitterUser = tu.map(_.copy(echoedUserId = echoedUser.id))
+        echoedUser =    eu
+        facebookUser =  fu.map(_.copy(echoedUserId = echoedUser.id))
+        twitterUser =   tu.map(_.copy(echoedUserId = echoedUser.id))
         facebookUser.map(echoedUser.assignFacebookUser(_))
         twitterUser.map(echoedUser.assignTwitterUser(_))
         echoedUserSettings = new EchoedUserSettings(echoedUser)
@@ -174,34 +211,66 @@ class EchoedUserService(
         context.parent ! RegisterEchoedUserService(echoedUser)
     }
 
+    private def getContent {
+        mp(FindAllUserStories(echoedUser.id)).onSuccess {
+            case FindAllUserStoriesResponse(_, Right(content)) =>
+                val contentList = content.map { c => new StoryPublic(c.asStoryFull.get) }.toList
+                self ! InitializeUserContentFeed(EchoedUserClientCredentials(echoedUser.id), contentList)
+        }
+    }
+
+    private def getCustomFeed {
+        val futureUserFeeds = for(fu <- followingUsers) yield {
+            mp(ReadAllUserContent(EchoedUserClientCredentials(fu.echoedUserId)))
+        }
+        val futurePartnerFeeds = for(fp <- followingPartners) yield {
+            mp(ReadAllPartnerContent(PartnerClientCredentials(fp.partnerId)))
+        }
+        val futures = futureUserFeeds ::: futurePartnerFeeds
+        val futuresList = Future.sequence(futures)
+        futuresList.onSuccess {
+            case list =>
+                var contentList = List[Content]()
+                list.map {
+                    case r @ ReadAllUserContentResponse(_, Right(content)) =>
+                        contentList = contentList ::: content
+                    case r @ ReadAllPartnerContentResponse(_, Right(content)) =>
+                        contentList = contentList ::: content
+                }
+                self ! InitializeUserCustomFeed(EchoedUserClientCredentials(echoedUser.id), contentList)
+
+        }
+    }
+
     private def setStateAndRegister(euss: EchoedUserServiceState) {
         setState(euss)
         becomeOnlineAndRegister
     }
 
     private def setState(euss: EchoedUserServiceState) {
-        echoedUser = euss.echoedUser
-        echoedUserSettings = euss.echoedUserSettings
-        twitterUser = euss.twitterUser
-        facebookUser = euss.facebookUser
-        notifications = euss.notifications
-        followingUsers = euss.followingUsers
-        followedByUsers = euss.followedByUsers
-        followingPartners = euss.followingPartners
+        echoedUser =          euss.echoedUser
+        echoedUserSettings =  euss.echoedUserSettings
+        twitterUser =         euss.twitterUser
+        facebookUser =        euss.facebookUser
+        notifications =       euss.notifications
+        followingUsers =      euss.followingUsers
+        followedByUsers =     euss.followedByUsers
+        followingPartners =   euss.followingPartners
     }
 
     override def preStart() {
         super.preStart()
         initMessage match {
-            case LoginWithCredentials(credentials, _, _) => mp.tell(ReadForCredentials(credentials), self)
-            case LoginWithFacebookUser(facebookUser, _, _) => mp.tell(ReadForFacebookUser(facebookUser), self)
-            case LoginWithTwitterUser(twitterUser, _, _) => mp.tell(ReadForTwitterUser(twitterUser), self)
+            case LoginWithCredentials(credentials, _, _) =>     mp.tell(ReadForCredentials(credentials), self)
+            case LoginWithFacebookUser(facebookUser, _, _) =>   mp.tell(ReadForFacebookUser(facebookUser), self)
+            case LoginWithTwitterUser(twitterUser, _, _) =>     mp.tell(ReadForTwitterUser(twitterUser), self)
             case msg: RegisterLogin => //handled in init as we need to capture the sender
         }
     }
 
 
     def init = {
+
         case msg @ RegisterLogin(name, email, screenName, _, None) if (msg == initMessage) =>
             mp.tell(QueryUnique(new EchoedUser(name, email, screenName), msg, Option(sender)), self)
 
@@ -254,9 +323,93 @@ class EchoedUserService(
             updated
     }
 
-
     def online = {
+
+        case msg @ InitializeUserCustomFeed(_, content) =>
+            content.map {
+                case c: StoryPublic =>
+                    if( c.echoedUser.id != echoedUser.id ) {
+                        followingContentManager.updateContent(c)
+                        c.extractImages.map { i => followingContentManager.updateContent(new PhotoContent(i, c)) }
+                    }
+                case _ =>
+                    followingContentManager.updateContent(_)
+            }
+            becomeCustomContentLoaded
+
+        case msg @ InitializeUserContentFeed(_, content) =>
+            content.map {
+                case c: StoryPublic =>
+                    if(c.isPublished){
+                        publicContentManager.updateContent(c.published)
+                        c.extractImages.map { i => publicContentManager.updateContent(new PhotoContent(i, c)) }
+                    }
+                    privateContentManager.updateContent(c)
+                    c.extractImages.map { i => privateContentManager.updateContent(new PhotoContent(i, c)) }
+
+                case _ =>
+                    publicContentManager.updateContent(_)
+            }
+            becomeContentLoaded
+
+
+        case msg @ RequestOwnContent(_, page, _type) =>
+            if(!contentLoaded) {
+                stash()
+                getContent
+            } else {
+                val content = privateContentManager.getContent(_type, page)
+                val stats = getStats ::: privateContentManager.getStats
+                val cf = new Feed(
+                            new SelfContext(
+                                echoedUser,
+                                stats,
+                                privateContentManager.getHighlights,
+                                privateContentManager.getContentList
+                            ),
+                            content._1,
+                            content._2)
+                sender ! RequestOwnContentResponse(msg, Right(cf))
+            }
+
+        case msg @ RequestCustomUserFeed(_, page, _type) =>
+            if(!customContentLoaded){
+                stash()
+                getCustomFeed
+            } else {
+                val content = followingContentManager.getContent(_type, page)
+                val sf = new Feed(
+                            new PersonalizedContext(
+                                followingContentManager.getStats,
+                                followingContentManager.getHighlights,
+                                followingContentManager.getContentList
+                            ),
+                            content._1,
+                            content._2)
+                sender ! RequestCustomUserFeedResponse(msg, Right(sf))
+            }
+
+        case msg: ReadAllUserContent =>
+            if(!contentLoaded) {
+                stash()
+                getContent
+            } else {
+                val content = publicContentManager.getAllContent
+                sender ! ReadAllUserContentResponse(msg, Right(content))
+            }
+
+        case msg @ RequestUserContentFeed(eucc, page, _type) =>
+            if(!contentLoaded) {
+                stash()
+                getContent
+            } else {
+                val content =   publicContentManager.getContent(_type, page)
+                val sf =        new Feed(userContext, content._1, content._2)
+                sender ! RequestUserContentFeedResponse(msg, Right(sf))
+            }
+
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
+
 
         case msg @ VerifyEmail(_, code) =>
             val map = ScalaObjectMapper(encrypter.decrypt(code), classOf[Map[String, String]])
@@ -323,7 +476,6 @@ class EchoedUserService(
             handleLoginWithTwitterUser(msg)
             updated
 
-
         case msg: ReadSettings =>
             sender ! ReadSettingsResponse(msg, Right(echoedUserSettings))
 
@@ -363,20 +515,8 @@ class EchoedUserService(
         case msg @ Logout(eucc) =>
             self ! PoisonPill
 
-
-        case msg: GetExhibit =>
-            mp(GetUserPrivateStoryFeed(echoedUser.id, msg.page))
-                    .mapTo[GetUserPrivateStoryFeedResponse]
-                    .map(_.resultOrException)
-                    .map { r =>
-                        val closet = new Closet(echoedUser.id, echoedUser).copy(stories = r.stories)
-                        GetExhibitResponse(msg, Right(new ClosetPersonal(closet)))
-                    }.pipeTo(sender)
-
-
         case msg: FetchNotifications =>
             sender ! FetchNotificationsResponse(msg, Right(notifications.filter(n => !n.hasRead && !n.isWeekly)))
-
 
         case msg @ MarkNotificationsAsRead(_, ids) =>
             var marked = false
@@ -415,7 +555,7 @@ class EchoedUserService(
 
             val model = Map("notifications" -> toEmail.toList, "name" -> echoedUser.name)
 
-            if (!toEmail.isEmpty) nt match {
+            if (!toEmail.isEmpty) (nt: @unchecked) match {
                 case None =>
                     mp(SendEmail(
                         echoedUser.email,
@@ -431,28 +571,60 @@ class EchoedUserService(
             }
 
 
-        case msg: ListFollowingUsers => sender ! ListFollowingUsersResponse(msg, Right(followingUsers))
-        case msg: ListFollowedByUsers => sender ! ListFollowedByUsersResponse(msg, Right(followedByUsers))
-        case msg: ListFollowingPartners => sender ! ListFollowingPartnersResponse(msg, Right(followingPartners))
+        case msg: RequestUsersFollowed =>
+            val f = new Feed(userContext, followingUsers, null)
+            sender ! RequestUsersFollowedResponse(msg, Right(f))
+
+        case msg: RequestFollowers =>
+            val f = new Feed(userContext, followedByUsers, null)
+            sender ! RequestFollowersResponse(msg, Right(f))
+
+        case msg: RequestPartnersFollowed =>
+            val f = new Feed(userContext, followingPartners, null)
+            sender ! RequestPartnersFollowedResponse(msg, Right(f))
 
         case msg @ FollowPartner(_, partnerId) =>
-            sender ! FollowPartnerResponse(msg, Right(true))
-            mp.tell(AddPartnerFollower(PartnerClientCredentials(partnerId), echoedUser), self)
+            val channel = sender
+            mp(AddPartnerFollower(PartnerClientCredentials(partnerId), echoedUser)).onSuccess{
+                case AddPartnerFollowerResponse(_, Right(partner)) => self.tell((msg, partner), channel)
+            }
+
+        case (msg @ FollowPartner(_, partnerId), partner: Partner) =>
+            if (!followingPartners.exists(_.partnerId == partner.id)) followingPartners = PartnerFollower(partner.id, partner.name, partner.handle) :: followingPartners
+            sender ! FollowPartnerResponse(msg, Right(followingPartners))
+            ep(PartnerFollowerCreated(echoedUser.id, followingPartners.head))
+
+        case msg @ UnFollowPartner(_, followingPartnerId) =>
+            val channel = sender
+            val (p, fps) = followingPartners.partition(_.partnerId == followingPartnerId)
+            followingPartners = fps
+            p.headOption.map {
+                partner =>
+                    mp(RemovePartnerFollower(PartnerClientCredentials(partner.partnerId), echoedUser))
+            }
+            channel ! UnFollowPartnerResponse(msg, Right(followingPartners))
 
         case AddPartnerFollowerResponse(_, Right(partner)) if (!followingPartners.exists(_.partnerId == partner.id)) =>
             followingPartners = PartnerFollower(partner.id, partner.name, partner.handle) :: followingPartners
             ep(PartnerFollowerCreated(echoedUser.id, followingPartners.head))
 
         case msg @ FollowUser(eucc, followerId) if (eucc.id != followerId) =>
-            sender ! FollowUserResponse(msg, Right(true))
-            mp.tell(AddFollower(EchoedUserClientCredentials(followerId), echoedUser), self)
+            val channel = sender
+            mp(AddFollower(EchoedUserClientCredentials(followerId), echoedUser)).onSuccess{
+                case m @ AddFollowerResponse(_, Right(eu)) => self.tell((msg, eu), channel)
+            }
+
+        case (msg @ FollowUser(_, followerId), eu: EchoedUser) =>
+            if (!followingUsers.exists(_.echoedUserId == eu.id)) followingUsers = Follower(eu) :: followingUsers
+            sender ! FollowUserResponse(msg, Right(followingUsers))
+            ep(FollowerCreated(echoedUser.id, followingUsers.head))
+
 
         case AddFollowerResponse(_, Right(eu)) if (!followingUsers.exists(_.echoedUserId == eu.id)) =>
             followingUsers = Follower(eu) :: followingUsers
             ep(FollowerCreated(echoedUser.id, followingUsers.head))
 
         case msg @ AddFollower(eucc, eu) if (!followedByUsers.exists(_.echoedUserId == eu.id)) =>
-            sender ! AddFollowerResponse(msg, Right(echoedUser))
             followedByUsers = Follower(eu) :: followedByUsers
             mp(RegisterNotification(eucc, new Notification(
                 eu,
@@ -462,21 +634,43 @@ class EchoedUserService(
                     "action" -> "is following",
                     "object" -> "you",
                     "followerId" -> eu.id))))
+            sender ! AddFollowerResponse(msg, Right(echoedUser))
+
+
 
         case msg @ UnFollowUser(_, followingUserId) =>
-            sender ! UnFollowUserResponse(msg, Right(true))
+
             val (fu, fus) = followingUsers.partition(_.echoedUserId == followingUserId)
             followingUsers = fus
             fu.headOption.map { f =>
                 mp(RemoveFollower(EchoedUserClientCredentials(f.echoedUserId), echoedUser))
                 ep(FollowerDeleted(echoedUser.id, f))
             }
+            sender ! UnFollowUserResponse(msg, Right(followingUsers))
 
-        case msg @ RemoveFollower(_, eu) => followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
+        case msg @ RemoveFollower(_, eu) =>
+            followedByUsers = followedByUsers.filterNot(_.echoedUserId == eu.id)
+            sender ! RemoveFollowerResponse(msg, Right(eu))
 
         case NotifyFollowers(_, n) =>
             val notification = n.copy(origin = echoedUser)
             followedByUsers.map(f => mp.tell(RegisterNotification(EUCC(f.echoedUserId), notification), self))
+
+        case NotifyStoryUpdate(_, s) if (s.isOwnedBy(echoedUser.id)) =>
+            if (s.isSelfModerated) privateContentManager.deleteContent(s)
+            else privateContentManager.updateContent(s)
+
+            if (s.isPublished) {
+                val sp = s.published
+                if (s.isModerated) publicContentManager.deleteContent(sp)
+                else publicContentManager.updateContent(sp)
+                mp.tell(EchoedUserMessageGroup(followedByUsers.map(f => NotifyStoryUpdate(EUCC(f.echoedUserId), sp))), self)
+                mp.tell(PNSU(PartnerClientCredentials(sp.partner.id), sp), self)
+            }
+
+        case NotifyStoryUpdate(_, s) if (!s.isOwnedBy(echoedUser.id)) =>
+            if (s.isModerated) followingContentManager.deleteContent(s)
+            else followingContentManager.updateContent(s)
 
         case RegisterStory(story) =>
             activeStories.put(StoryId(story.id), sender)
@@ -488,8 +682,11 @@ class EchoedUserService(
 
 
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>
-            mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value))
-            sender ! VoteStoryResponse(msg, Right(true))
+            val channel = sender
+            mp(new NewVote(new EchoedUserClientCredentials(storyOwnerId), echoedUser, storyId, value)).onSuccess {
+                case NewVoteResponse(_, Right(votes)) =>
+                    channel ! VoteStoryResponse(msg, Right(votes))
+            }
             if(value > 0) self ! PublishFacebookAction(eucc, "upvote", "story", storyGraphUrl + storyId)
 
         case msg @ CreateComment(eucc, storyOwnerId, storyId, chapterId, text, parentCommentId) =>
@@ -510,13 +707,6 @@ class EchoedUserService(
         case msg @ CreateChapter(eucc, storyId, _, _, _, _) =>
             forwardToStory(msg, StoryId(storyId))
             self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
-
-        case msg @ GetUserFeed(eucc, page) =>
-            val channel = sender
-            mp(GetUserPublicStoryFeed(echoedUser.id, page)).onSuccess {
-                case GetUserPublicStoryFeedResponse(_, Right(feed)) =>
-                    channel ! GetUserFeedResponse(msg, Right(new EchoedUserStoryFeed(new EchoedUserPublic(echoedUser), feed.stories, feed.nextPage)))
-            }
 
         case msg: StoryIdentifiable with EchoedUserIdentifiable with Message =>
             forwardToStory(msg, StoryId(msg.storyId))

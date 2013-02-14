@@ -91,6 +91,12 @@ class Views {
     
     @Required @BeanProperty var facebookGraphProductView: String = _
     @Required @BeanProperty var facebookGraphStoryView: String = _
+
+    @Required @BeanProperty var bookmarkletJsView: String = _
+
+    @Required @BeanProperty var appView: String = _
+    @Required @BeanProperty var appIFrameView: String = _
+    @Required @BeanProperty var appJsView: String = _
     
     @Required @BeanProperty var widgetAppJsView: String = _
     @Required @BeanProperty var widgetAppIFrameView: String = _

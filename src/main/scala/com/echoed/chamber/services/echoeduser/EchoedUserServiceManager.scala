@@ -27,6 +27,8 @@ class EchoedUserServiceManager(
         encrypter: Encrypter,
         implicit val timeout: Timeout = Timeout(20000)) extends EchoedService {
 
+    import context.dispatcher
+
     override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 0) {
         case _: Throwable ⇒ Stop
     }
@@ -42,11 +44,16 @@ class EchoedUserServiceManager(
         active.get(credentials.id).headOption.cata(
             _.forward(msg),
             {
-                val echoedUserService = context.watch(echoedUserServiceCreator(
-                        context,
-                        LoginWithCredentials(credentials, msg, Some(context.sender))))
-                echoedUserService.forward(msg)
-                active.put(credentials.id, echoedUserService)
+                msg match {
+                    case _: OnlineOnlyMessage =>
+                        //Ignore Messages that should be online only
+                    case _ =>
+                        val echoedUserService = context.watch(echoedUserServiceCreator(
+                                context,
+                                LoginWithCredentials(credentials, msg, Some(context.sender))))
+                        echoedUserService.forward(msg)
+                        active.put(credentials.id, echoedUserService)
+                }
             })
     }
 
@@ -115,6 +122,7 @@ class EchoedUserServiceManager(
                 forwardForCredentials(msg, _),
                 context.watch(echoedUserServiceCreator(context, msg)).forward(msg))
 
+        case EchoedUserMessageGroup(messages) => messages.foreach(this.handle(_))
 
         case msg: EchoedUserIdentifiable with EchoedUserMessage => forwardForCredentials(msg, msg.credentials)
     }

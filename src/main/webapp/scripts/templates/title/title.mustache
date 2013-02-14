@@ -1,8 +1,43 @@
+<div id="breadcrumbs">
+    <!--Seeds Now! → Basil-->
+</div>
 <div id="title" class="clearfix">
+    {{#context}}
     <div id="title-header">
         <span id="title-text">
+            {{ title }}
         </span>
+        <a id="title-action-button" href="#write">Add Story</a>
     </div>
-    <div id="title-body">
+    <div id="title-body" class="clearfix">
+        <div id="title-photo">
+        </div>
+        <div id="title-actions" style="float:left">
+            <div id="title-follow" style="float: right;"></div>
+        </div>
+        <div id="title-stats">
+            <!--<div class="title-label">Statistics</div>-->
+            <ul>
+                {{#stats}}
+                <li><span class="title-stats-label">{{name}}</span><span class="title-stats-text">{{#path}}<a href="#{{baseUrl}}{{path}}">{{value}}</a></span>{{/path}}{{^path}}{{value}}{{/path}}</li>
+                {{/stats}}
+            </ul>
+        </div>
+        <div id="title-content">
+            <!--<div class="title-label">Top Content</div>-->
+            <ul>
+                {{#highlights}}
+                    <li><span class="title-content-label">{{name}}</span><a class="title-content-text" href="#!story/{{value.story.id}}">{{value.story.title}}</a></li>
+                {{/highlights}}
+            </ul>
+        </div>
     </div>
+    <div id="title-nav" class="clearfix">
+        <ul>
+            {{#content}}
+                <li><a href="#{{baseUrl}}{{endPoint}}">{{name}}: {{count}}</a></li>
+            {{/content}}
+        </ul>
+    </div>
+    {{/context}}
 </div>

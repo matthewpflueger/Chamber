@@ -24,12 +24,21 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
                     sender ! LookupImageResponse(msg, Right(i.convertTo))
             }
 
-
         case msg @ FindAllStories(page, pageSize) =>
             val now = System.currentTimeMillis()
             from(stories)(s => select(s)).foreach(s => sender ! FindAllStoriesResponse(msg, Right(List(readStory(s)))))
 //            sender ! FindAllStoriesResponse(msg, Right(from(stories)(s => select(s)).map(readStory(_)).toList))
             log.error("Querying all stories took %s" format System.currentTimeMillis() - now)
+
+        case msg @ FindAllUserStories(echoedUserId: String) =>
+            val now = System.currentTimeMillis()
+            sender ! FindAllUserStoriesResponse(msg, Right(from(stories)(s => where(s.echoedUserId === echoedUserId) select(s)).map(readStory(_)).toList))
+            log.error("Querying user stories took %s" format System.currentTimeMillis() - now)
+
+        case msg @ FindAllPartnerStories(partnerId: String) =>
+            val now = System.currentTimeMillis()
+            sender ! FindAllPartnerStoriesResponse(msg, Right(from(stories)(s => where(s.partnerId === partnerId) select(s)).map(readStory(_)).toList))
+            log.error("Querying partner stories took %s" format System.currentTimeMillis() - now)
 
         case msg @ FindAllTopics(page, pageSize) =>
             val results = from(topics)(t => select(t)).toList
@@ -38,7 +47,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
         case msg @ QueryStoriesForAdmin(aucc, page, pageSize, moderated) =>
             val ss = from(stories)(s =>
                         select(s)
-                        orderBy(s.updatedOn desc))
+                        orderBy(s.updatedOn.desc))
                         .page(page * pageSize, pageSize)
                         .map(readStory(_))
                         .filter(moderated.isEmpty || _.isEchoedModerated == moderated.get)
@@ -49,7 +58,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
         case msg @ QueryEchoedUsersForAdmin(aucc, page, pageSize) =>
             val results = from(echoedUsers)(e =>
                             select(e)
-                            orderBy(e.createdOn desc))
+                            orderBy(e.createdOn.desc))
                             .page(page * pageSize, pageSize)
                             .toList
 
@@ -59,7 +68,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             val ss = from(stories)(s =>
                         where(s.partnerId === pucc.partnerId.get)
                         select(s)
-                        orderBy(s.updatedOn desc))
+                        orderBy(s.updatedOn.desc))
                         .page(page * pageSize, pageSize)
                         .map(readStory(_))
                         .filter(moderated.isEmpty || _.isModerated == moderated.get)
@@ -103,7 +112,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             else {
                 val be = new BindException(ref, "EchoedUser")
                 results.foreach(be.addError(_))
-                sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))
+                sender ! QueryUniqueResponse(msg, Left(new EchoedException(msg = "Not unique", errs = Some(be))))
             }
 
         case msg @ QueryUnique(ref: RegisterPartner, _, _) =>
@@ -127,7 +136,7 @@ class QueryService(val dataSource: DataSource) extends EchoedService with Squery
             else {
                 val be = new BindException(ref, "RegisterPartner")
                 results.foreach(be.addError(_))
-                sender ! QueryUniqueResponse(msg, Left(EchoedException(msg = "Not unique", errs = Some(be))))
+                sender ! QueryUniqueResponse(msg, Left(new EchoedException(msg = "Not unique", errs = Some(be))))
             }
 
         case msg @ QueryFollowersForPartner(pcc) =>

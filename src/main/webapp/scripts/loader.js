@@ -12,33 +12,11 @@ require(
     function(require, $, Backbone, _,  Remote, Overlay, Gallery, Opener){
         var self = this;
         self.EventAggregator = _.extend({}, Backbone.Events);
-        var scriptUrl = "";
 
-        function gup(a){
-            var b = a.split("?");
-            if(b.length === 0) return {};
-
-            else {
-                var c = b[1].split("&");
-                var d = {};
-                for(var i = 0; i < c.length; i++){
-                    var e = c[i].split("=");
-                    d[e[0]] = e[1];
-                }
-                return d;
-            }
-        }
-
-        if($('script[data-main*="loader.js"]').length > 0) scriptUrl = $('script[data-main*="loader.js"]').attr("data-main");
-        else if($('script[src*="loader.js"]').length > 0) scriptUrl = $('script[src*="loader.js"]').attr('src');
-
-        var parameters = gup(scriptUrl);
-
-        var body = $('body');
+        var body = $(document.body);
         EchoedSettings.useOpener = true;
         self.properties = EchoedSettings;
-        self.properties.partnerId = parameters['pid'];
-
+        self.properties.overlayUrl = this.properties.urls.api + "/widget/iframe/?pid=" + this.properties.partnerId;
         body.append($('<link rel="stylesheet" type="text/css"/>').attr("href", self.properties.urls.css + "/remote.css"));
 
         this.overlay = new Overlay({ properties: self.properties, EvAg: self.EventAggregator });

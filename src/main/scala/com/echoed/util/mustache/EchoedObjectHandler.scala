@@ -7,8 +7,8 @@ import scala.Some
 import java.util.concurrent.Callable
 import com.github.mustachejava.Iteration
 import java.io.Writer
-import akka.dispatch.{Await, Future}
-import akka.util.duration._
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
 
 class EchoedObjectHandler  extends ReflectionObjectHandler {
 
@@ -20,14 +20,14 @@ class EchoedObjectHandler  extends ReflectionObjectHandler {
     override def coerce(value: Object) = {
         value match {
             case m: Map[_, _] => mapAsJavaMap(m)
-            case o: Option[_] => o match {
+            case o: Option[_] => (o: @unchecked) match {
                 case Some(some: Object) => coerce(some)
                 case None => null
             }
             case f: Future[_] => {
                 new Callable[Any]() {
                     def call() = {
-                        val value = Await.result(f, 20 seconds).asInstanceOf[Object]
+                        val value = Await.result(f, 20.seconds).asInstanceOf[Object]
                         coerce(value)
                     }
                 }
@@ -38,7 +38,7 @@ class EchoedObjectHandler  extends ReflectionObjectHandler {
 
     override def iterate(iteration: Iteration, writer: Writer, value: Object, scopes: Array[Object]) = {
         value match {
-            case t: Traversable[AnyRef] => {
+            case (t: Traversable[AnyRef] @unchecked) => {
                 var newWriter = writer
                 t map {
                     next =>
@@ -53,7 +53,7 @@ class EchoedObjectHandler  extends ReflectionObjectHandler {
 
     override def falsey(iteration: Iteration, writer: Writer, value: Object, scopes: Array[Object]) = {
         value match {
-            case t: Traversable[AnyRef] => {
+            case t: Traversable[_] => {
                 if (t.isEmpty) {
                     iteration.next(writer, value, scopes)
                 } else {
