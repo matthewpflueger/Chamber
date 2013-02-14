@@ -13,11 +13,15 @@
         Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
         Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
         Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
-        {{#echoedUserId}}
+        {{#echoedUser}}
         Echoed.echoedUser = {
-            id: '{{.}}'
-        }
-        {{/echoedUserId}}
+            id: '{{id}}',
+            screenName: '{{screenName}}',
+            facebookId: '{{facebookId}}',
+            twitterId: '{{twitterId}}',
+            name: '{{name}}'
+        };
+        {{/echoedUser}}
         {{#customization.title}}
             Echoed.title = '{{.}}';
         {{/customization.title}}
