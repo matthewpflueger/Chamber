@@ -11,11 +11,14 @@ require(
 
         this.EventAggregator = _.extend({}, Backbone.Events);
 
+        var overlayUrl = Echoed.urls.site + "/app/iframe";
+        if(Echoed.partnerId !== "") overlayUrl += "#partner/" + Echoed.partnerId;
+
         this.properties = {
             urls:       Echoed.urls,
             partnerId:  Echoed.partnerId,
             isPreview:  true,
-            overlayUrl: Echoed.urls.site + "/app/iframe#partner/" + Echoed.partnerId
+            overlayUrl: overlayUrl
         };
 
         if(Echoed.redirect) this.properties.redirect = Echoed.redirect

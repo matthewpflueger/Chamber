@@ -78,8 +78,8 @@ define(
             },
             feed: function(type){
                 var self = this;
+                if(typeof(type) === "object") type = undefined;
                 if(!this.modelUser.isLoggedIn()){
-                    console.log("Explore");
                     this.explore(type);
                 } else {
                     var url = "me/feed";
@@ -87,7 +87,7 @@ define(
                     if(this.page != url){
                         this.page = url;
                         this.requestFeed(url, function(jsonUrl, data){
-                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
+                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data, personalized: true });
                         });
                     }
                 }

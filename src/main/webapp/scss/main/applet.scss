@@ -27,9 +27,13 @@ body, html{
 }
 
 body {
-    background-color: rgba(0, 0, 0, 0.5);
+
+    @include transition;
     &.noScroll{
         overflow: hidden;
+    }
+    &.fade{
+        background-color: rgba(0, 0, 0, 0.5);
     }
 }
 
