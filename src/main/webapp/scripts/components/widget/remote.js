@@ -75,11 +75,11 @@ define(
                     url: this.properties.urls.api + "/api/partner/" + this.properties.partnerId,
                     dataType: 'jsonp',
                     success: function(response){
-                        self.stories = response.stories;
+                        self.content = response.content;
                         self.storyIndex = 0;
                         var i = 0, counter = 0;
-                        while(i < self.stories.length && counter < 4){
-                            var story = self.stories[i];
+                        while(i < self.content.length && counter < 4){
+                            var story = self.content[i];
                             if(story.story.image) {
                                 var link = $('<div></div>').attr("href", "#echoed_story/" + story.id).append(utils.fit(story.story.image, 40 , 40)).attr('index', i).addClass("echoed-story").addClass('echoed-option');
                                 $('#echoed-options').prepend(link);
