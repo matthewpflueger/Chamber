@@ -33,12 +33,9 @@ define(
                 else {
                     var index = this.content.hash[id];
 
-                    var hasNext = (index + 1) < this.content.array.length;
-                    var hasPrevious = (index - 1) >= 0;
-                    
                     if ((index - 1) >= 0) this.nextItem(this.content.array[index - 1].id);
                     else if ((index + 1) < this.content.array.length) this.prevItem(this.content.array[index + 1].id);
-                    else this.EvAg.trigger('content:show', { modelContent: self.content.array[index] });
+                    else this.EvAg.trigger('content:show', { modelContent: this.content.array[index] });
                 }
             },
             init: function(options){
