@@ -123,7 +123,7 @@ define(
                 this.oldPage = this.page;
                 this.oldTitle = $('title').html();
                 _gaq.push(['_trackPageview', window.location.hash]);
-                this.EvAg.trigger("content:show", id);
+                this.EvAg.trigger("content:lookup", id);
                 this.EvAg.trigger("page/change", "story");
             },
             resetHash: function(){
