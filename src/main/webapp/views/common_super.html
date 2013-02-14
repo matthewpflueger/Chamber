@@ -4,36 +4,8 @@
     <link rel="shortcut icon" href="{{urls.images}}/favicon.png" type="image/png">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-
     <script type="text/javascript">
-        {{>partial_requirejs}}
-        {{>partial_urls}}
-
-        Echoed.errors = {};
-        Echoed.errors.global = new Array();
-        //{{#errors.global}}//
-        Echoed.errors.global.push("{{this}}");
-        //{{/errors.global}}//
-
-        //{{#errors.fieldErrors}}//
-        Echoed.errors["{{object}}"] = {}
-        //{{/errors.fieldErrors}}//
-
-        //{{#errors.fieldErrors}}//
-        Echoed.errors["{{object}}"]["{{field}}"] = "{{message}}"
-        //{{/errors.fieldErrors}}//
-
-        Echoed.messages = {};
-        Echoed.messages.global = new Array();
-        //{{#messages.global}}//
-        Echoed.messages.global.push("{{this}}");
-        ///{{/messages.global}}//
-
-        Echoed.facebookLogin ={};
-        Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
-        Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
-        Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
-        Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
+        //{{>echoed_setup}}//
     </script>
     {{$jsHead}}
     {{/jsHead}}
@@ -54,13 +26,19 @@
     _gaq.push(['_setDomainName', 'echoed.com']);
     _gaq.push(['_trackPageview']);
 
-    {{#prod}}
+    //{{#prod}}//
     (function() {
         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
-    {{/prod}}
+
+    //CrazyEgg!!!
+    setTimeout(function(){var a=document.createElement("script");
+        var b=document.getElementsByTagName("script")[0];
+        a.src=document.location.protocol+"//dnn506yrbagrg.cloudfront.net/pages/scripts/0014/0648.js?"+Math.floor(new Date().getTime()/3600000);
+        a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+    //{{/prod}}//
 </script>
 </body>
 </html>
