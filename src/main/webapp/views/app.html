@@ -2,38 +2,8 @@
 <html style="height: 100%; width: 100%">
 <head>
     <title></title>
-    <script>
-        {{>partial_requirejs}}
-        {{>partial_urls}}
-
-        Echoed.errors = {};
-        Echoed.errors.global = new Array();
-        //{{#errors.global}}//
-        Echoed.errors.global.push("{{this}}");
-        //{{/errors.global}}//
-
-        //{{#errors.fieldErrors}}//
-        Echoed.errors["{{object}}"] = {}
-        //{{/errors.fieldErrors}}//
-
-        //{{#errors.fieldErrors}}//
-        Echoed.errors["{{object}}"]["{{field}}"] = "{{message}}"
-        //{{/errors.fieldErrors}}//
-
-        Echoed.messages = {};
-        Echoed.messages.global = new Array();
-        //{{#messages.global}}//
-        Echoed.messages.global.push("{{this}}");
-        ///{{/messages.global}}//
-
-        Echoed.facebookLogin ={};
-        Echoed.facebookLogin.head = "https://www.facebook.com/dialog/oauth?client_id={{facebookClientId}}&redirect_uri=";
-        Echoed.facebookLogin.redirect = "{{https.site}}/facebook/login?redirect=";
-        Echoed.facebookLogin.tail = "&scope=email,user_birthday,publish_actions";
-        Echoed.twitterUrl = "{{urls.site}}/twitter?redirect=";
-        Echoed.partnerId = '{{partner.id}}';
-        Echoed.redirect = '{{domain}}';
-        Echoed.contentId = '{{id}}';
+    <script type="text/javascript">
+        //{{>echoed_setup}}//
     </script>
     {{#scriptTag}}applet.js{{/scriptTag}}
     <style>
