@@ -59,7 +59,8 @@ case class StoryPublic (
     def voteScore = votes.values.toList.foldLeft(0)((l, r) => l + r.value)
 
     def extractImages = {
-        chapterImages.map{ _.image }.toList
+        val images = chapterImages.map(_.image).toList
+        Option(story.image).map(_ :: images).getOrElse(images)
     }
 
     def storyUpdatedNotification = new Notification(
