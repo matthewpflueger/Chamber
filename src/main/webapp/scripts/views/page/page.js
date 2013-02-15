@@ -17,9 +17,9 @@ define(
             },
             toggle: function(domain){
                 if(domain === "echoed.com"){
-                    this.element.removeClass("fade")
+                    this.element.removeClass("black")
                 } else {
-                    this.element.addClass("fade")
+                    this.element.addClass("black")
                 }
             }
         });

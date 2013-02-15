@@ -74,7 +74,11 @@ define(
                 this.modelContext.set(options.data.context);
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
-                _gaq.push(['_trackPageview', this.page]);
+                try{
+                    _gaq.push(['_trackPageview', this.page]);
+                } catch(e) {
+
+                }
             },
             feed: function(type){
                 var self = this;
@@ -122,9 +126,13 @@ define(
                 }
                 this.oldPage = this.page;
                 this.oldTitle = $('title').html();
-                _gaq.push(['_trackPageview', window.location.hash]);
                 this.EvAg.trigger("content:lookup", id);
                 this.EvAg.trigger("page/change", "story");
+                try {
+                    _gaq.push(['_trackPageview', window.location.hash]);
+                } catch(e) {
+
+                }
             },
             resetHash: function(){
                 if(this.oldPage){
