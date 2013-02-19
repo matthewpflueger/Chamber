@@ -33,7 +33,6 @@ body {
         overflow: hidden;
     }
     &.black{
-        background-color: rgba(0, 0, 0, 0.5);
     }
     &.blue{
         background-image: image-url("bk_noise_dark.jpg");
@@ -120,7 +119,7 @@ body {
 }
 
 #header-container.black{
-    background-color:   #333;
+    background-color:   rgba(0, 0, 0, 0.8);
     border-bottom:      1px solid #FFF;
 
     #logo {
@@ -241,7 +240,7 @@ body {
 }
 
 #nav-container.black {
-    background-color: #333;
+    background-color:   rgba(0, 0, 0, 0.8);
     border-bottom: 1px solid #FFFFFF;
     li {
         @include fontTextBold(14px, #CCC);

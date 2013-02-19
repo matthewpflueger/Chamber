@@ -16,7 +16,6 @@ define(
                 this.render();
             },
             render: function(){
-                console.log(this.modelPartner.toJSON());
                 var template = templateLogo({ properties: this.properties, partner: this.modelPartner.toJSON() });
                 this.element.html(template)
             }

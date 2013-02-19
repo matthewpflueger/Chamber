@@ -74,8 +74,8 @@ define(
                 
                 if (!this.hasPrevious) $("div[act='previous']").hide();
                 else $("div[act='previous']").show();
-                
                 this.element.show();
+                $('#content').hide();
             },
             close: function(){
                 var self = this;
@@ -83,6 +83,7 @@ define(
                     $("body").removeClass("noScroll");
                     self.body.empty();
                 });
+                $('#content').show();
                 this.EvAg.trigger('hash:reset');
             }
         });

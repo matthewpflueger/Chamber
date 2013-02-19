@@ -6,10 +6,9 @@ define(
         'models/context',
         'components/utils',
         'views/follow/follow',
-        'hgn!templates/title/title',
-        'hgn!templates/title/topic'
+        'hgn!templates/title/title'
     ],
-    function($, Backbone, _, ModelContext, utils, Follow, templateTitle, templateTopic){
+    function($, Backbone, _, ModelContext, utils, Follow, templateTitle){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -34,11 +33,21 @@ define(
                     baseUrl: this.modelContext.baseUrl()
                 };
                 this.element.html(templateTitle(view));
-                this.follow = new Follow({ el: "#title-follow", EvAg: this.EvAg, properties: this.properties, modelUser: this.modelUser, followId: this.modelContext.id, type: this.modelContext.get("contextType") });
+                this.follow = new Follow({
+                    el: "#title-follow",
+                    EvAg: this.EvAg,
+                    properties: this.properties,
+                    modelUser: this.modelUser,
+                    followId: this.modelContext.id,
+                    type: this.modelContext.get("contextType")
+                });
                 if(view.context.contextType === "partner") {
                     this.modelPartner.set(view.context.partner);
                 } else {
-                    this.modelPartner.set({ name: "Echoed", domain: "www.echoed.com"});
+                    this.modelPartner.set({
+                        name: "Echoed",
+                        domain: "www.echoed.com"
+                    });
                 }
                 this.element.show();
             },
