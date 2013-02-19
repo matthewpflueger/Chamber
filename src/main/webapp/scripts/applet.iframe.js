@@ -49,17 +49,20 @@ require(
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
+            this.urls = Echoed.urls;
+
+            //Initialize Models
+            this.modelUser = new ModelUser(Echoed.echoedUser,   { urls: this.urls });
+            this.modelContext = new ModelContext({},            { urls: this.urls });
+            this.modelPartner = new ModelPartner({},            { urls: this.urls });
 
             this.properties = {
-                urls: Echoed.urls,
+                urls: this.urls,
                 echoedUser: Echoed.echoedUser,
                 isOverlay:  true
             };
 
-            //Initialize Models
-            this.modelUser = new ModelUser(Echoed.echoedUser, { properties: this.properties });
-            this.modelContext = new ModelContext({}, { properties : this.properties });
-            this.modelPartner = new ModelPartner({}, { properties: this.properties });
+
 
             //Options
             this.options = function(el){

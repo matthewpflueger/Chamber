@@ -8,7 +8,7 @@ define(
     function($, Backbone, _, utils){
         return Backbone.Model.extend({
             initialize: function(attr, options){
-                this.properties = options.properties;
+                this.urls = options.urls;
                 this.following = [];
                 this.followingPartners = [];
                 this.getFollowing();
@@ -25,7 +25,7 @@ define(
             },
             follow: function(followId, type, callback){
                 var self = this;
-                var url = this.properties.urls.api + "/api/" + type + "/" + followId +"/followers";
+                var url = this.urls.api + "/api/" + type + "/" + followId +"/followers";
                 if(this.id !== followId){
                     var request = {
                         url: url,
@@ -42,7 +42,7 @@ define(
             },
             getFollowingPartners: function() {
                 if (this.isLoggedIn()) {
-                    var url = this.properties.urls.api + "/api/me/following/partners";
+                    var url = this.urls.api + "/api/me/following/partners";
                     var self = this;
                     utils.AjaxFactory({
                         url: url,
@@ -54,7 +54,7 @@ define(
             },
             getFollowing: function() {
                 if (this.isLoggedIn()) {
-                    var url = this.properties.urls.api + "/api/me/following";
+                    var url = this.urls.api + "/api/me/following";
                     var self  = this;
                     utils.AjaxFactory({
                         url: url,
