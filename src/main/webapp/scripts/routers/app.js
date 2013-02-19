@@ -34,6 +34,8 @@ define(
                 "write":                    "write",
                 "me/feed/:type":            "feed",
                 "me/feed/:type/":           "feed",
+                "explore":                  "explore",
+                "!explore":                 "explore",
                 ":context/:id":             "content",
                 ":context/:id/":            "content",
                 ":context/:id/:type":       "content",
