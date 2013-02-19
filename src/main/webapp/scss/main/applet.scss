@@ -35,10 +35,14 @@ body {
     &.black{
         background-color: rgba(0, 0, 0, 0.5);
     }
+    &.blue{
+        background-image: image-url("bk_noise_dark.jpg");
+    }
 }
 
 
 #header-container{
+    @include transition;
     text-align: center;
     height: 40px;
     position: fixed;
@@ -94,10 +98,11 @@ body {
             width: 180px;
             border-right: 0;
             right: 0px;
+            text-align: left;
             .user-list-item{
                 list-style: none;
                 cursor: pointer;
-                padding: 7px 5px;
+                padding: 4px 5px;
                 &:hover{
                 }
             }
@@ -109,11 +114,7 @@ body {
         }
 
         #user-login{
-            @include fontTextBold(14px, $colorEC);
             line-height: 40px;
-            &:hover{
-                color: #FFF;
-            }
         }
     }
 }
@@ -137,6 +138,13 @@ body {
         color:          #FFF;
     }
 
+    #user-login{
+        @include fontTextBold(14px, $colorEC);
+        &:hover{
+            color: #FFF;
+        }
+    }
+
     #user-list{
         background-color:   #333;
         border-top:         1px solid #FFF;
@@ -148,8 +156,8 @@ body {
 }
 
 #header-container.white{
-    @include            dropShadowDown();
     background-color:   #FFF;
+    border-bottom:      1px solid #CCC;
 
     #close {
         display: none;
@@ -173,11 +181,67 @@ body {
             }
         }
     }
+
+    #user-login{
+        @include fontTextBold(14px);
+        &:hover{
+            color: $colorEC;
+        }
+    }
 }
+
+
+
+#nav-container{
+    position:fixed;
+    right:0px;
+    left: 0px;
+    top: 41px;
+    z-index: 10;
+    li{
+        padding: 5px 20px;
+        float:left;
+        list-style:none;
+        cursor: pointer;
+    }
+
+}
+
+#nav-container.white {
+    background-color: #F0F0F0;
+    border-bottom: 1px solid #A0A0A0;
+    @include dropShadowDown;
+    li {
+        @include fontTextBold(14px);
+
+        text-shadow: 0px 1px 0px #FFF;
+        border-right: 1px solid #CCC;
+        box-shadow: 1px 0px #FFF;
+    }
+
+    li:hover, .current{
+        color: $colorEC;
+    }
+}
+
+#nav-container.black {
+    background-color: #333;
+    border-bottom: 1px solid #FFFFFF;
+    li {
+        @include fontTextBold(14px, #FFF);
+        border-right: 1px solid #FFF;
+    }
+
+    li:hover, .current{
+        color: $colorEC;
+    }
+}
+
+
 
 #echoed-exhibit-container{
     position: relative;
-    padding-top: 40px;
+    padding-top: 75px;
     height: 100%;
     #exhibit{
         padding-top: 10px;

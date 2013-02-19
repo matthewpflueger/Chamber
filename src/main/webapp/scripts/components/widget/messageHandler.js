@@ -13,9 +13,6 @@ define(
                 this.EvAg = options.EvAg;
                 this.modelPartner = options.modelPartner;
                 this.modelPartner.on("change", this.pageChange);
-
-
-
                 this.EvAg.bind('msg/send', this.sendMessage);
                 this.properties = options.properties;
                 if(window.addEventListener){

@@ -15,6 +15,7 @@ require(
         'components/title',
         'components/login',
         'components/user',
+        'components/nav',
         'views/page/page',
         'views/header/header',
         'routers/app',
@@ -39,6 +40,7 @@ require(
              Title,
              Login,
              User,
+             Nav,
              Page,
              Header,
              Router,
@@ -79,6 +81,7 @@ require(
             this.errorLog = new ErrorLog(this.options());
             this.exhibit = new Exhibit(this.options('#exhibit'));
             this.infiniteScroll = new InfiniteScroll(this.options('#infiniteScroll'));
+            this.nav = new Nav(this.options());
             this.input = new Input(this.options('#field-container'));
             this.item = new Item(this.options('#item-container'));
             this.titleNav = new Title(this.options('#title-container'));

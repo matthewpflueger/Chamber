@@ -8,6 +8,11 @@
     {{#scriptTag}}applet.js{{/scriptTag}}
 </head>
 <body style="height: 100%; width: 100%; overflow: hidden;" >
-    <iframe src="{{domain}}" id="background" frameborder="0" scrolling="no" style="display: none;"></iframe>
+    <iframe sandbox="" src="{{domain}}" id="echoed-background" frameborder="0" scrolling="no" style="display: none;"></iframe>
 </body>
 </html>
+<script type="text/javascript">
+    window.onbeforeunload = function(){
+    }
+</script>
+
