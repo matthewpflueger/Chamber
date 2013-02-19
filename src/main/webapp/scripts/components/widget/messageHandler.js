@@ -12,7 +12,11 @@ define(
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
                 this.modelPartner = options.modelPartner;
-                this.modelPartner.on("change", this.pageChange);
+
+                if(this.modelPartner){
+                    this.modelPartner.on("change", this.pageChange);
+                }
+
                 this.EvAg.bind('msg/send', this.sendMessage);
                 this.properties = options.properties;
                 if(window.addEventListener){
