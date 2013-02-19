@@ -6,10 +6,11 @@ define(
         'hgn!views/header/header',
         'components/user',
         'components/notifications',
-        'components/widgetCloser'
+        'components/widgetCloser',
+        'views/logo/logo'
 
     ],
-    function($, Backbone, _, templateHeader, User, Notifications, WidgetCloser){
+    function($, Backbone, _, templateHeader, User, Notifications, WidgetCloser, Logo){
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
@@ -48,6 +49,14 @@ define(
                     properties:     this.properties,
                     modelUser:      this.modelUser,
                     modelContext:   this.modelContext,
+                    EvAg:           this.EvAg
+                });
+                this.logo = new Logo({
+                    el:             "#logo",
+                    properties:     this.properties,
+                    modelUser:      this.modelUser,
+                    modelContext:   this.modelContext,
+                    modelPartner:   this.modelPartner,
                     EvAg:           this.EvAg
                 });
                 this.element.addClass("white");

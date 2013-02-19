@@ -124,7 +124,14 @@ body {
     border-bottom:      1px solid #FFF;
 
     #logo {
-        display: none;
+        #partner-logo{
+            display: block;
+            line-height: 40px;
+            @include fontTitleLight(26px, #FFF);
+        }
+        #echoed-logo {
+            display: none;
+        }
     }
 
     #user {
@@ -158,6 +165,15 @@ body {
 #header-container.white{
     background-color:   #FFF;
     border-bottom:      1px solid #CCC;
+
+    #logo{
+        #partner-logo{
+            display: none;
+        }
+        #echoed-logo {
+            display: block;
+        }
+    }
 
     #close {
         display: none;
