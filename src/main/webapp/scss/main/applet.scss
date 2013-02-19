@@ -38,22 +38,142 @@ body {
 }
 
 
-#echoed-head{
+#header-container{
     text-align: center;
-    border-bottom: 1px solid #FFF;
     height: 40px;
     position: fixed;
     width: 100%;
     z-index: 999999;
-    background-color: #333;
+
+    #logo{
+        height: 40px;
+        text-align:center;
+    }
 
     #header-title{
         line-height: 40px;
         display: inline-block;
-        @include fontTitle(26px, #FFF);
+        @include fontTitleLight(26px);
+    }
+
+    #user{
+        position: absolute;
+        right: 0px;
+        width: 180px;
+        top: 0px;
+        height: 40px;
+        cursor: pointer;
+        background-position: right;
+        background-repeat: no-repeat;
+
+        #user-text{
+            display: inline-block;
+            width: 110px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align:left;
+            vertical-align: top;
+            padding: 0px 15px;
+            line-height: 40px;
+        }
+
+        #user-image{
+            display: inline-block;
+            margin: 4px 0px 0px 4px;
+            #u-i-i{
+                display: block;
+                border: 1px #CCC solid;
+            }
+        }
+
+        #user-list{
+            position:absolute;
+            top: 40px;
+            display: none;
+            width: 180px;
+            border-right: 0;
+            right: 0px;
+            .user-list-item{
+                list-style: none;
+                cursor: pointer;
+                padding: 7px 5px;
+                &:hover{
+                }
+            }
+        }
+
+        #user-what{
+            margin-right: 10px;
+            line-height: 40px;
+        }
+
+        #user-login{
+            @include fontTextBold(14px, $colorEC);
+            line-height: 40px;
+            &:hover{
+                color: #FFF;
+            }
+        }
     }
 }
 
+#header-container.black{
+    background-color:   #333;
+    border-bottom:      1px solid #FFF;
+
+    #logo {
+        display: none;
+    }
+
+    #user {
+        #user-text {
+            color:      #FFF;
+        }
+    }
+
+    #user-what{
+        @include        fontTextBold;
+        color:          #FFF;
+    }
+
+    #user-list{
+        background-color:   #333;
+        border-top:         1px solid #FFF;
+
+        .user-list-item {
+            color:          #FFF;
+        }
+    }
+}
+
+#header-container.white{
+    @include            dropShadowDown();
+    background-color:   #FFF;
+
+    #close {
+        display: none;
+    }
+
+    #user {
+        border-left:    1px solid #CCC;
+        box-shadow:     -1px -1px #FFF;
+    }
+    #user-what{
+        display: none;
+    }
+    #user-list{
+        background-color:   #FFF;
+        border-top:         1px solid #999;
+
+        .user-list-item {
+            &:hover {
+                background-color:   rgba(255, 255, 200, 1);
+                color:              colorEC;
+            }
+        }
+    }
+}
 
 #echoed-exhibit-container{
     position: relative;
@@ -138,76 +258,4 @@ body {
         width: 170px;
         @include fontTextBold(14px);
     }
-}
-
-#user{
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    width: 180px;
-    height: 40px;
-    cursor: pointer;
-    background-position: right;
-    background-repeat: no-repeat;
-    &:hover{
-        .downarrow{
-            border-top-color: #FFF;
-        }
-        border-left: 1px solid #333;
-    }
-    #user-text{
-        display: inline-block;
-        width: 110px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-align:left;
-        vertical-align: top;
-        color: #fff;
-        padding: 0px 15px;
-        line-height: 40px;
-    }
-
-    #user-image{
-        display: inline-block;
-        margin: 4px 0px 0px 4px;
-        #u-i-i{
-            display: block;
-            border: 1px #CCC solid;
-        }
-    }
-
-    #user-list{
-        position:absolute;
-        top: 40px;
-        display: none;
-        width: 180px;
-        border-right: 0;
-        right: 0px;
-        background-color: #333;
-        border-top: 1px solid #FFF;
-        .user-list-item{
-            color: #FFF;
-            list-style: none;
-            cursor: pointer;
-            padding: 7px 5px;
-            &:hover{
-            }
-        }
-    }
-
-    #user-what{
-        @include fontTextBold(12px, #FFF);
-        margin-right: 10px;
-        line-height: 40px;
-    }
-
-    #user-login{
-        @include fontTextBold(14px, $colorEC);
-        line-height: 40px;
-        &:hover{
-            color: #FFF;
-        }
-    }
-
 }

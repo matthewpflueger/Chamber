@@ -18,6 +18,7 @@ define(
                 this.properties =   options.properties;
                 this.EvAg =         options.EvAg;
                 this.modelUser =    options.modelUser;
+                this.modelPartner = options.modelPartner;
 
                 this.locked =       false;
                 this.modelUser.on("change:id", this.login);
@@ -149,7 +150,6 @@ define(
                     profilePhotoUrl: utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
                     isWidget: this.properties.isWidget,
                     isMine: this.modelUser.is(this.modelStory.get("echoedUser").id),
-//                    userLink: this.properties.urls.api + "#user/" + this.modelStory.get("echoedUser").id
                     userLink: "#user/" + this.modelStory.get("echoedUser").id
                 };
 
@@ -177,7 +177,7 @@ define(
                 self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
                 $("body").addClass("noScroll");
-                this.EvAg.trigger("page:change", this.modelStory.get("partner").domain);
+                this.modelPartner.set(this.modelStory.get("partner"));
             },
             renderGalleryNav: function(){
                 var self = this;

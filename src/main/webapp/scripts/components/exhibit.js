@@ -98,7 +98,6 @@ define(
                 this.exhibit.isotope({
                     itemSelector: '.item_wrap',
                     onLayout: function(elems, instance){
-                        console.log(instance);
                         if(instance.element[0].offsetWidth < instance.width){
                             $('#title-container').animate({ width: instance.element[0].offsetWidth - 12 });
                         }

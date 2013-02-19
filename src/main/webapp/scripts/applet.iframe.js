@@ -16,9 +16,11 @@ require(
         'components/login',
         'components/user',
         'views/page/page',
+        'views/header/header',
         'routers/app',
         'models/user',
         'models/context',
+        'models/partner',
         'easyXDM',
         'isotopeConfig'
     ],
@@ -38,9 +40,11 @@ require(
              Login,
              User,
              Page,
+             Header,
              Router,
              ModelUser,
              ModelContext,
+             ModelPartner,
              easyXDM){
 
         $(document).ready(function(){
@@ -53,16 +57,17 @@ require(
             };
 
             //Initialize Models
-            this.modelUser = new ModelUser(Echoed.echoedUser, {properties: this.properties });
-            this.modelContext = new ModelContext({}, {properties : this.properties });
-            this.modelUser.isLoggedIn();
+            this.modelUser = new ModelUser(Echoed.echoedUser, { properties: this.properties });
+            this.modelContext = new ModelContext({}, { properties : this.properties });
+            this.modelPartner = new ModelPartner({}, { properties: this.properties });
 
             //Options
             this.options = function(el){
                 var opt = {
-                    properties: this.properties,
-                    modelUser: this.modelUser,
-                    modelContext: this.modelContext,
+                    properties:     this.properties,
+                    modelUser:      this.modelUser,
+                    modelContext:   this.modelContext,
+                    modelPartner:      this.modelPartner,
                     EvAg: this.EventAggregator
                 };
                 if(el) opt.el = el;
@@ -72,13 +77,12 @@ require(
             this.exhibit = new Exhibit(this.options('#exhibit'));
             this.infiniteScroll = new InfiniteScroll(this.options('#infiniteScroll'));
             this.input = new Input(this.options('#field-container'));
-            this.user = new User(this.options('#user'));
             this.item = new Item(this.options('#item-container'));
-            this.closer = new WidgetCloser(this.options('#close'));
             this.titleNav = new Title(this.options('#title-container'));
             this.login = new Login(this.options("#login-container"));
             this.page = new Page(this.options());
             this.router = new Router(this.options());
+            this.header = new Header(this.options("#header-container"));
 
             var iFrameNode = document.createElement('iframe');
 

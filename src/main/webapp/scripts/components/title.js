@@ -34,7 +34,9 @@ define(
                 };
                 this.element.html(templateTitle(view));
                 this.follow = new Follow({ el: "#title-follow", EvAg: this.EvAg, properties: this.properties, modelUser: this.modelUser, followId: this.modelContext.id, type: this.modelContext.get("contextType") });
-                if(view.context.contextType === "partner") this.EvAg.trigger("page:change", view.context.partner.domain);
+                if(view.context.contextType === "partner") {
+                    this.EvAg.trigger("page:change", view.context.partner);
+                }
                 this.element.show();
             },
             hide: function(){
