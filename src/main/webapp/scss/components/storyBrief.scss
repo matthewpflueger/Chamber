@@ -85,6 +85,8 @@
         }
         .story-brief-text-partner{
             font-weight: bold;
+            color: #333;
+            text-decoration: none;
             &:hover{
                 color: $colorEC;
             }

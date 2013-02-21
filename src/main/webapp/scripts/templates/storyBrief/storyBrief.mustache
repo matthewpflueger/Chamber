@@ -14,6 +14,9 @@
         <div class="story-brief-text-by">
             by <a class="link-black story-brief-text-user" href="#user/{{storyFull.echoedUser.id}}">{{ storyFull.echoedUser.name }}</a>
         </div>
+        <div>
+            (<a class="story-brief-text-partner" href="#partner/{{storyFull.partner.handle}}">{{storyFull.partner.name}}</a>)
+        </div>
         {{^inComplete}}
         <div class="story-brief-text-quote">{{ chapterText }}</div>
         <div class="story-brief-indicator">
