@@ -15,6 +15,7 @@ define(
                 this.modelUser =    options.modelUser;
                 this.modelContext = options.modelContext;
                 this.colContent =   options.colContent;
+                this.modelUser.on("change", this.change);
                 this.EvAg.bind("hash:reset", this.resetHash);
                 this.EvAg.bind("router/me", this.me);
                 this.currentRequest = null;
@@ -45,6 +46,9 @@ define(
             fix: function(){
                 window.location.href = "#";
             },
+            change: function(){
+                this.feed();
+            },
             content: function(context, id, type, type2){
                 var self =      this;
                 var url =       context + "/" + id;
@@ -64,16 +68,22 @@ define(
                 var jsonUrl = this.properties.urls.api + '/api/' + endPoint;
                 var timeStamp = new Date().getTime().toString();
                 self.currentRequest = timeStamp;
+                self.EvAg.trigger('infiniteScroll/lock');
                 utils.AjaxFactory({
                     url: jsonUrl,
                     dataType: 'json',
                     success: function(data){
+                        self.EvAg.trigger('infiniteScroll/unlock');
                         if(self.currentRequest === timeStamp) callback(jsonUrl, data, timeStamp);
                     }
                 })();
             },
             loadPage: function(page, options){
-                this.modelContext.set(options.data.context);
+                if(_.isEmpty(options.data.context)){
+                    this.modelContext.clear();
+                } else {
+                    this.modelContext.set(options.data.context);
+                }
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
                 try{

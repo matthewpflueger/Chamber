@@ -56,7 +56,7 @@ require(
             //Initialize Models
             this.modelUser = new ModelUser(Echoed.echoedUser,   { urls: this.urls });
             this.modelContext = new ModelContext({},            { urls: this.urls });
-            this.modelPartner = new ModelPartner({},            { urls: this.urls });
+            this.modelPartner = new ModelPartner({ name: "Echoed" },            { urls: this.urls });
 
             this.properties = {
                 urls: this.urls,

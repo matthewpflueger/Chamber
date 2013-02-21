@@ -21,7 +21,7 @@ define(
                 this.EvAg = options.EvAg;
             },
             update: function(){
-                if($.isEmptyObject(this.modelContext.toJSON())){
+                if(_.isEmpty(this.modelContext.toJSON())){
                     this.hide();
                 } else {
                     this.render();
