@@ -48,6 +48,7 @@ define(
                     properties:     this.properties,
                     modelUser:      this.modelUser,
                     modelContext:   this.modelContext,
+                    modelPartner:   this.modelPartner,
                     EvAg:           this.EvAg
                 });
                 this.logo = new Logo({

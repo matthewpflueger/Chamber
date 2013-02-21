@@ -55,6 +55,21 @@ class PartnerService(
         }
     }
 
+    private def partnerContext = {
+        new PartnerContext(
+            partner,
+            getStats ::: contentManager.getStats,
+            contentManager.getHighlights,
+            contentManager.getContentList)
+    }
+
+    private def getStats = {
+        var stats = List[Map[String, Any]]()
+        stats = Map("name" -> "Followers",      "value" -> followedByUsers.length,    "path" -> "followers") :: stats
+        stats
+    }
+
+
     private def becomeOnlineAndRegister {
         becomeOnline
         context.parent ! RegisterPartnerService(partner)
@@ -183,11 +198,7 @@ class PartnerService(
             } else {
                 val content =   contentManager.getContent(_type, page)
                 val sf =        new Feed(
-                                    new PartnerContext(
-                                        partner,
-                                        contentManager.getStats,
-                                        contentManager.getHighlights,
-                                        contentManager.getContentList),
+                                    partnerContext,
                                     content._1,
                                     content._2)
                 sender ! RequestPartnerContentResponse(msg, Right(sf))
@@ -195,7 +206,7 @@ class PartnerService(
 
         case msg : RequestPartnerFollowers =>
             val feed = new Feed(
-                        new PartnerContext(partner, contentManager.getStats, contentManager.getHighlights, contentManager.getContentList),
+                        partnerContext,
                         followedByUsers,
                         null)
             sender ! RequestPartnerFollowersResponse(msg, Right(feed))

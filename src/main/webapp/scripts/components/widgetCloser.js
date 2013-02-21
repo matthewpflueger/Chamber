@@ -7,7 +7,10 @@ define(
     function($, Backbone, _){
         return Backbone.View.extend({
             initialize: function(options){
+                _.bindAll(this);
                 this.EvAg = options.EvAg;
+                this.modelPartner = options.modelPartner;
+                this.modelPartner.on("change", this.partnerChange);
                 this.element = $(options.el);
             },
             events: {
@@ -15,6 +18,13 @@ define(
             },
             close: function(){
                 this.EvAg.trigger("msg/send", "close", null)
+            },
+            partnerChange: function(){
+                if(this.modelPartner.isEchoed()){
+                    this.element.hide();
+                } else {
+                    this.element.show();
+                }
             }
         });
     }
