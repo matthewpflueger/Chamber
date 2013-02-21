@@ -33,6 +33,7 @@ body {
         overflow: hidden;
     }
     &.black{
+        background-color: rgba(0, 0, 0, 0.5);
     }
     &.blue{
         background-image: image-url("bk_noise_dark.jpg");
@@ -334,10 +335,17 @@ body {
         float:left;
     }
     .friend-text{
-        float:left;
-        padding-left: 10px;
-        line-height: 50px;
-        width: 170px;
-        @include fontTextBold(14px);
+        @include        fontTextBold(14px);
+        float:          left;
+        padding-left:   10px;
+        line-height:    50px;
+        width:          170px;
+        overflow:       hidden;
+        text-overflow:  ellipsis;
+        white-space:    nowrap;
     }
+}
+
+#content {
+    padding-bottom:     10px;
 }
