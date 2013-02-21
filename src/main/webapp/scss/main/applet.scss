@@ -47,6 +47,7 @@ body {
     position: fixed;
     width: 100%;
     z-index: 999999;
+    background-color: #FFF;
 
     #logo{
         height: 40px;
@@ -101,7 +102,7 @@ body {
             .user-list-item{
                 list-style: none;
                 cursor: pointer;
-                padding: 4px 5px;
+                padding: 7px 5px;
                 &:hover{
                 }
             }
@@ -154,6 +155,7 @@ body {
     #user-list{
         background-color:   #333;
         border-top:         1px solid #FFF;
+        border-left:        1px solid #FFF;
 
         .user-list-item {
             color:          #FFF;
@@ -167,15 +169,13 @@ body {
 
     #logo{
         #partner-logo{
-            display: none;
+            display: block;
+            line-height: 40px;
+            @include fontTitleLight(26px);
         }
         #echoed-logo {
             display: block;
         }
-    }
-
-    #close {
-        display: none;
     }
 
     #user {
@@ -188,6 +188,7 @@ body {
     #user-list{
         background-color:   #FFF;
         border-top:         1px solid #999;
+        border-left:        1px solid #999;
 
         .user-list-item {
             &:hover {
@@ -213,6 +214,7 @@ body {
     left: 0px;
     top: 41px;
     z-index: 10;
+    z-index: 99999;
     li{
         padding: 5px 20px;
         float:left;
@@ -242,6 +244,7 @@ body {
 #nav-container.black {
     background-color:   rgba(0, 0, 0, 0.8);
     border-bottom: 1px solid #FFFFFF;
+
     li {
         @include fontTextBold(14px, #CCC);
         border-right: 1px solid #FFF;
@@ -283,7 +286,7 @@ body {
 
 //STORY OVERRIDE
 #item{
-    top: 50px !important;
+    top: 75px !important;
 }
 
 #field{
@@ -292,16 +295,16 @@ body {
 
 
 #close{
-    z-index: 10000;
+    z-index: 100000;
     position: absolute;
     left: 10px;
     top:0px;
     line-height: 40px;
     padding-left: 20px;
     cursor: pointer;
-    @include fontTextBold(14px, #CCC);
+    @include fontTextBold(14px);
     &:hover{
-        color: #FFF;
+        color: $colorEC;
     }
     #close-x{
         @include sprite(0px, -28px, 15px, 15px);
@@ -312,7 +315,7 @@ body {
 }
 
 #story-gallery-container{
-    top: 40px !important;
+    top: 70px !important;
 }
 
 

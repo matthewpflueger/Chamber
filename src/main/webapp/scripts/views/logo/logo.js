@@ -16,7 +16,9 @@ define(
                 this.render();
             },
             render: function(){
-                var template = templateLogo({ properties: this.properties, partner: this.modelPartner.toJSON() });
+                var partner = this.modelPartner.toJSON();
+                var isEchoed = partner.name === "Echoed" ? true : false;
+                var template = templateLogo({ properties: this.properties, partner: partner, isEchoed: isEchoed });
                 this.element.html(template)
             }
         })

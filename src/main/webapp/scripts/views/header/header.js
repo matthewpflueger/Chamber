@@ -21,7 +21,6 @@ define(
                 this.modelUser =    options.modelUser;
                 this.modelContext = options.modelContext;
                 this.modelPartner = options.modelPartner;
-                this.modelPartner.on("change", this.change);
                 this.render();
             },
             render: function(){
@@ -60,16 +59,6 @@ define(
                     EvAg:           this.EvAg
                 });
                 this.element.addClass("white");
-            },
-            change: function(){
-                var partner = this.modelPartner.toJSON();
-                if(partner.name === "Echoed"){
-                    this.element.removeClass("black");
-                    this.element.addClass("white");
-                } else{
-                    this.element.addClass("black");
-                    this.element.removeClass("white");
-                }
             }
         });
     }

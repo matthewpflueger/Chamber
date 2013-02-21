@@ -32,8 +32,8 @@ define(
                     this.element.addClass('white');
                     this.element.removeClass('black');
                 } else {
-                    this.element.addClass('black');
-                    this.element.removeClass('white');
+//                    this.element.addClass('black');
+//                    this.element.removeClass('white');
                 }
             }
         });
