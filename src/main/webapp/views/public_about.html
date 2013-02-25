@@ -14,17 +14,17 @@
                             <a href="#">Ways you can use Echoed</a>
                         </li>
                         <li>
-                            <a href="#">For Websites</a>
+                            <a href="/websites">For Websites</a>
                         </li>
                     </ul>
                 </div>
-                <h1>The Community That Goes With You</h1>
+                <h1>Your Voice... Everywhere!</h1>
                 <p class="subheading">Share content and discussions everywhere on the web.</p>
             </div>
         </div>
         <div id="about-bookmarklet">
             <div class="center">
-                <h2>Use our bookmarklet to start a conversation on any website, on any page</h2>
+                <h2>Use our bookmarklet to start a conversation on any page, any website</h2>
                 <br/>
                 <div>
                 <a onclick="alert('Drag me to your bookmarks bar'); return false;" class="bookmarklet" href="javascript:void((function(d)%7Bvar%20e%3Dd.createElement(%27script%27)%3Be.setAttribute(%27type%27,%27text/javascript%27)%3Be.setAttribute(%27charset%27,%27UTF-8%27)%3Be.setAttribute(%27src%27,%27{{https.site}}/bookmarklet/js%3Fr%3D%27%2BMath.random()*99999999)%3Bd.body.appendChild(e)%7D)(document))%3B">{{bookmarkletName}}</a>
@@ -60,9 +60,29 @@
                     </ol>
                 </div>
                 {{/isSafari}}
+                {{#isFirefox}}
+                <div class="about-installation">
+                    <h3>Installing and Using the bookmarklet on Firefox</h3>
+                    <ol>
+                        <li>Display your bookmarks</li>
+                        <li>Drag the {{bookmarkletName}} button to your favorites bar</li>
+                        <li>Click the {{bookmarkletName}} in your bookmarks bar anytime you want to launch Echoed</li>
+                    </ol>
+                </div>
+                {{/isFirefox}}
             </div>
         </div>
         <div id="about-body">
+            <div class="center">
+                <h3>
+                    Ways you can use Echoed
+                </h3>
+                <div class="about-divider">
+                    <p>
+                        Follow
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
     {{/public_content}}

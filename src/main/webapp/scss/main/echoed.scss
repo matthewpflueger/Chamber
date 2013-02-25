@@ -45,7 +45,7 @@ h2{
 }
 
 h3{
-    @include fontText(24px, #FF0000);
+    @include fontTitleLight(24px);
     margin-bottom: 10px;
 }
 
