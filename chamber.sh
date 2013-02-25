@@ -270,7 +270,9 @@ function service_cmd() {
             echo
             echo "Enter the following on the command line:"
             echo
-            echo "mvn -Dclean.dryRun=true -Dclean.deleteVersion=xxxxxx -Dclean.verbose=true com.echoed:cloud-maven-plugin:clean"
+            #echo "mvn -Dclean.dryRun=true -Dclean.deleteVersion=xxxxxx -Dclean.verbose=true com.echoed:cloud-maven-plugin:clean"
+            echo "sh -c \"mvn -e -X -Dclean.dryRun=false -Dclean.verbose=true com.echoed:cloud-maven-plugin:clean >./clean.log 2>&1 & APID=\\\"\\\$!\\\"; echo \\\$APID > clean.pid\""
+            echo
             ;;
 
         *)

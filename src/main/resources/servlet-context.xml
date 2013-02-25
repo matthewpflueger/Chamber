@@ -129,16 +129,12 @@
         <property name="echoRegisterView" value="echo_register" />
 
         <property name="echoJsView" value="echo.js" />
-        <property name="echoJsErrorView" value="echo_error.js" />
         <property name="echoJsNotActiveView" value="echo.js.inactive" />
         <property name="echoLoginView" value="echo_login" />
-        <property name="echoCouponView" value="echo_coupon" />
         <property name="echoLoginNotNeededView" value="redirect:${echoConfirmUrl}" />
         <property name="echoRegisterUrl" value = "redirect:${echoRegisterUrl}" />
         <property name="echoEchoedUrl" value = "redirect:${echoEchoedUrl}" />
 
-        <property name="echoConfirmView" value="echo_confirm" />
-        <property name="echoFinishView" value="echo_finish" />
         <property name="echoIframe" value="echo_iframe" />
         <property name="echoAuthComplete" value="echo_auth_complete" />
 
@@ -235,15 +231,6 @@
     <context:component-scan base-package="com.echoed.chamber.controllers"/>
 
 
-    <!--suppress DuplicatedBeanNamesInspection -->
-    <bean id="echoController" class="com.echoed.chamber.controllers.EchoController">
-        <property name="networkControllers">
-            <map>
-                <entry key="facebook" value-ref="facebookController" />
-                <entry key="twitter" value-ref="twitterController" />
-            </map>
-        </property>
-    </bean>
 
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="facebookController" class="com.echoed.chamber.controllers.FacebookController">

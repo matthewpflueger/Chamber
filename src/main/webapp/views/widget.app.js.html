@@ -1,59 +1,6 @@
 (function(){
-    if(typeof(window.EchoedSettings) ==='undefined') EchoedSettings = {};
+    {{>echoed_setup}}
 
-    {{>partial_requirejs}}
-
-    EchoedSettings.urls = {};
-    {{#urls}}
-    EchoedSettings.urls.api = "{{api}}";
-    EchoedSettings.urls.cdn = "{{cdn}}";
-    EchoedSettings.urls.js = "{{js}}";
-    EchoedSettings.urls.css = "{{css}}";
-    EchoedSettings.urls.images = "{{images}}";
-    EchoedSettings.urls.views = "{{views}}";
-    EchoedSettings.urls.site = "{{site}}";
-    {{/urls}}
-
-    {{#side}}
-    EchoedSettings.openerSide = '{{.}}';
-    {{/side}}
-
-    {{#customization}}
-        {{#useGallery}}
-            EchoedSettings.useGallery = {{.}};
-        {{/useGallery}}
-        {{^useGallery}}
-            EchoedSettings.useGallery = false;
-        {{/useGallery}}
-        {{#useRemote}}
-            EchoedSettings.useRemote = true;
-            EchoedSettings.remote = {};
-            EchoedSettings.remote.vert = "{{remoteVertical}}";
-            EchoedSettings.remote.hor = "{{remoteHorizontal}}";
-            EchoedSettings.remote.orientation = "{{remoteOrientation}}";
-        {{/useRemote}}
-        {{^useRemote}}
-            EchoedSettings.useRemote = false;
-        {{/useRemote}}
-        {{#hideOpener}}
-            EchoedSettings.hideOpener = {{.}};
-        {{/hideOpener}}
-        {{#widgetTitle}}
-            EchoedSettings.widgetTitle = '{{.}}';
-        {{/widgetTitle}}
-        {{^widgetTitle}}
-            EchoedSettings.widgetTitle = 'Stories By The {{#partner}}{{name}}{{/partner}} Community';
-        {{/widgetTitle}}
-        {{#widgetShareMessage}}
-            EchoedSettings.widgetShareMessage = '{{.}}';
-        {{/widgetShareMessage}}
-        {{^widgetShareMessage}}
-            EchoedSettings.widgetShareMessage = 'Share Your Story';
-        {{/widgetShareMessage}}
-    {{/customization}}
-
-
-    EchoedSettings.partnerId = '{{partner.id}}';
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     {{#dev}}
     es.src = "{{https.js}}/libs/require/require-2.1.1.js";
