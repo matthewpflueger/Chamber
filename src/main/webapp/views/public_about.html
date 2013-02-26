@@ -27,10 +27,22 @@
                 <h2>Use our bookmarklet to start a conversation on any page, any website</h2>
                 <br/>
                 <div>
-                <a onclick="alert('Drag me to your bookmarks bar'); return false;" class="bookmarklet" href="javascript:void((function(d)%7Bvar%20e%3Dd.createElement(%27script%27)%3Be.setAttribute(%27type%27,%27text/javascript%27)%3Be.setAttribute(%27charset%27,%27UTF-8%27)%3Be.setAttribute(%27src%27,%27{{https.site}}/bookmarklet/js%3Fr%3D%27%2BMath.random()*99999999)%3Bd.body.appendChild(e)%7D)(document))%3B">{{bookmarkletName}}</a>
-                ← Drag this bookmarklet to your bookmarks bar in your browser
+                    <a style="vertical-align: middle;" onclick="alert('Drag me to your bookmarks bar'); return false;" class="bookmarklet" href="javascript:void((function(d)%7Bvar%20e%3Dd.createElement(%27script%27)%3Be.setAttribute(%27type%27,%27text/javascript%27)%3Be.setAttribute(%27charset%27,%27UTF-8%27)%3Be.setAttribute(%27src%27,%27{{https.site}}/bookmarklet/js%3Fr%3D%27%2BMath.random()*99999999)%3Bd.body.appendChild(e)%7D)(document))%3B">{{bookmarkletName}}</a>
+                    {{#isChrome}}
+                    <img src="{{urls.images}}/bookmark_chrome.png" style="vertical-align: middle; margin-left: 150px;"/>
+                    {{/isChrome}}
+                    {{#isIE}}
+                    <img src="{{urls.images}}/bookmark_ie.png" style="vertical-align: middle; margin-left: 150px;"/>
+                    {{/isIE}}
+                    {{#isSafari}}
+                    <img src="{{urls.images}}/bookmark_safari.png" style="vertical-align: middle; margin-left: 150px;"/>
+                    {{/isSafari}}
+                    {{#isFirefox}}
+                    <img src="{{urls.images}}/bookmark_firefox.png" style="vertical-align: middle; margin-left: 150px;"/>
+                    {{/isFirefox}}
                 </div>
                 {{#isChrome}}
+                <!--← Drag this bookmarklet to your bookmarks bar in your browser-->
                 <div class="about-installation">
                     <h3>Installing and Using the bookmarklet on Chrome</h3>
                     <ol>
@@ -38,6 +50,9 @@
                         <li>Drag the {{bookmarkletName}} button to your bookmarks bar</li>
                         <li>Click the {{bookmarkletName}} in your bookmarks bar anytime you want to launch Echoed</li>
                     </ol>
+                </div>
+                <div style="text-align: center;">
+
                 </div>
                 {{/isChrome}}
                 {{#isIE}}
@@ -55,7 +70,7 @@
                     <h3>Installing and Using the bookmarklet on Safari</h3>
                     <ol>
                         <li>Display your bookmarks</li>
-                        <li>Drag the {{bookmarkletName}} button to your favorites bar</li>
+                        <li>Drag the {{bookmarkletName}} button to your bookmarks bar</li>
                         <li>Click the {{bookmarkletName}} in your bookmarks bar anytime you want to launch Echoed</li>
                     </ol>
                 </div>
@@ -65,7 +80,7 @@
                     <h3>Installing and Using the bookmarklet on Firefox</h3>
                     <ol>
                         <li>Display your bookmarks</li>
-                        <li>Drag the {{bookmarkletName}} button to your favorites bar</li>
+                        <li>Drag the {{bookmarkletName}} button to your bookmarks bar</li>
                         <li>Click the {{bookmarkletName}} in your bookmarks bar anytime you want to launch Echoed</li>
                     </ol>
                 </div>
