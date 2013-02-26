@@ -22,7 +22,7 @@
         <org.springframework.version>3.2.0.RELEASE</org.springframework.version>
         <scala.version>2.10</scala.version>
         <scala.library>2.10.0</scala.library>
-        <akka.version>2.1.0</akka.version>
+        <akka.version>2.1.1</akka.version>
     </properties>
 
     <dependencies>
