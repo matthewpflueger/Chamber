@@ -93,9 +93,10 @@ class EchoedUserService(
         unstashAll()
     }
 
-    private def userContext = {
+    private def userContext(contentType: ContentDescription) = {
         new UserContext(
             echoedUser,
+            contentType,
             getStats ::: publicContentManager.getStats,
             publicContentManager.getHighlights,
             publicContentManager.getContentList)
@@ -363,6 +364,7 @@ class EchoedUserService(
                 val cf = new Feed(
                             new SelfContext(
                                 echoedUser,
+                                _type,
                                 stats,
                                 privateContentManager.getHighlights,
                                 privateContentManager.getContentList
@@ -380,6 +382,7 @@ class EchoedUserService(
                 val content = followingContentManager.getContent(_type, page)
                 val sf = new Feed(
                             new PersonalizedContext(
+                                _type,
                                 followingContentManager.getStats,
                                 followingContentManager.getHighlights,
                                 followingContentManager.getContentList
@@ -404,7 +407,7 @@ class EchoedUserService(
                 getContent
             } else {
                 val content =   publicContentManager.getContent(_type, page)
-                val sf =        new Feed(userContext, content._1, content._2)
+                val sf =        new Feed(userContext(_type), content._1, content._2)
                 sender ! RequestUserContentFeedResponse(msg, Right(sf))
             }
 
@@ -572,15 +575,15 @@ class EchoedUserService(
 
 
         case msg: RequestUsersFollowed =>
-            val f = new Feed(userContext, followingUsers, null)
+            val f = new Feed(userContext(null), followingUsers, null)
             sender ! RequestUsersFollowedResponse(msg, Right(f))
 
         case msg: RequestFollowers =>
-            val f = new Feed(userContext, followedByUsers, null)
+            val f = new Feed(userContext(null), followedByUsers, null)
             sender ! RequestFollowersResponse(msg, Right(f))
 
         case msg: RequestPartnersFollowed =>
-            val f = new Feed(userContext, followingPartners, null)
+            val f = new Feed(userContext(null), followingPartners, null)
             sender ! RequestPartnersFollowedResponse(msg, Right(f))
 
         case msg @ FollowPartner(_, partnerId) =>

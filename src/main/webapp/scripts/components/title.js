@@ -28,9 +28,19 @@ define(
                 }
             },
             render: function(){
+
+                var content = this.modelContext.get("content");
+                var contentType = this.modelContext.get("contentType");
+                if(contentType !== null){
+                    $.each(content, function(index, c) {
+                        if(c.name === contentType.plural) content[index].isActive = true;
+                    });
+                }
+
                 var view = {
                     context: this.modelContext.toJSON(),
-                    baseUrl: this.modelContext.baseUrl()
+                    baseUrl: this.modelContext.baseUrl(),
+                    c: content
                 };
                 this.element.html(templateTitle(view));
                 this.follow = new Follow({

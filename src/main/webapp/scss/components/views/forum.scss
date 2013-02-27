@@ -31,6 +31,9 @@
             .forumUserImage{
                 vertical-align: middle;
                 border: 1px solid #CCC;
+                &:hover{
+                    border-color: $colorEC;
+                }
             }
 
         }

@@ -83,12 +83,14 @@ case class Story(
         contentType = "Story",
         contentPath = None)
 
-    def contentDescription =
-        contentType match {
+    def contentDescription = getContentDescription(contentType)
+
+    def getContentDescription(cType: String) = {
+        cType match {
             case "Story" =>  Story.storyContentDescription
             case "Review" => Story.reviewContentDescription
         }
-
+    }
 
 }
 

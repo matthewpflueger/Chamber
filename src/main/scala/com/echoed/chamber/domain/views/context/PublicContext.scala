@@ -1,6 +1,9 @@
 package com.echoed.chamber.domain.views.context
 
-class PublicContext extends Context{
+import com.echoed.chamber.domain.views.content.ContentDescription
+
+case class PublicContext(
+    contentType:    ContentDescription) extends Context{
 
     val id =            null
     val title =         null

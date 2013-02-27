@@ -19,7 +19,7 @@ import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.util.datastructure.ContentManager
-import com.echoed.chamber.domain.views.content.{Content, PhotoContent}
+import com.echoed.chamber.domain.views.content.{ContentDescription, Content, PhotoContent}
 
 
 
@@ -42,7 +42,7 @@ class PartnerService(
     private var followedByUsers = List[Follower]()
 
 
-    private val contentManager = new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
+    private val contentManager = new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription, Story.reviewContentDescription))
 
     private var contentLoaded = false
 
@@ -55,9 +55,10 @@ class PartnerService(
         }
     }
 
-    private def partnerContext = {
+    private def partnerContext(contentType: ContentDescription) = {
         new PartnerContext(
             partner,
+            contentType,
             getStats ::: contentManager.getStats,
             contentManager.getHighlights,
             contentManager.getContentList)
@@ -198,7 +199,7 @@ class PartnerService(
             } else {
                 val content =   contentManager.getContent(_type, page)
                 val sf =        new Feed(
-                                    partnerContext,
+                                    partnerContext(_type),
                                     content._1,
                                     content._2)
                 sender ! RequestPartnerContentResponse(msg, Right(sf))
@@ -206,7 +207,7 @@ class PartnerService(
 
         case msg : RequestPartnerFollowers =>
             val feed = new Feed(
-                        partnerContext,
+                        partnerContext(null),
                         followedByUsers,
                         null)
             sender ! RequestPartnerFollowersResponse(msg, Right(feed))

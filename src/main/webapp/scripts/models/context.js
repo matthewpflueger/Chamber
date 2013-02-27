@@ -14,7 +14,6 @@ define(
                 } else {
                     return false;
                 }
-
             }
         })
     }
