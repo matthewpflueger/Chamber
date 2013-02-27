@@ -18,7 +18,10 @@ require(
                         switch(msg.type){
                             case "story":
                                 var story = msg.data;
-                                if(story.story.image) self.img.html(utils.fill(story.story.image, 40, 40));
+                                if (story.story.image || story.chapterImages.length > 0) {
+                                    var image = story.story.image ? story.story.image : story.chapterImages[0].image;
+                                    self.img.html(utils.fill(image, 40, 40));
+                                }
                                 self.img.show();
                                 self.contentText.text(story.story.title);
                                 self.contentTextContainer.removeClass("text-only");
