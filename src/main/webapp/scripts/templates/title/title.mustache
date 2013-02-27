@@ -7,7 +7,9 @@
         <span id="title-text">
             {{ title }}
         </span>
-        <a id="title-action-button" href="#write">Add Story</a>
+        {{#contentType}}
+        <a id="title-action-button" href="#write">Add {{singular}}</a>
+        {{/contentType}}
     </div>
     <div id="title-body" class="clearfix">
         <div id="title-photo">
@@ -16,7 +18,6 @@
             <div id="title-follow" style="float: right;"></div>
         </div>
         <div id="title-stats">
-            <!--<div class="title-label">Statistics</div>-->
             <ul>
                 {{#stats}}
                 <li><span class="title-stats-label">{{name}}</span><span class="title-stats-text">{{#path}}<a href="#{{baseUrl}}{{path}}">{{value}}</a></span>{{/path}}{{^path}}{{value}}{{/path}}</li>
@@ -24,7 +25,6 @@
             </ul>
         </div>
         <div id="title-content">
-            <!--<div class="title-label">Top Content</div>-->
             <ul>
                 {{#highlights}}
                     <li><span class="title-content-label">{{name}}</span><a class="title-content-text" href="#!story/{{value.story.id}}">{{value.story.title}}</a></li>

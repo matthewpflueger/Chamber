@@ -110,7 +110,7 @@
                 var self = this;
                 self.element.empty();
                 self.locked = false;
-                self.template = templateSummary();
+                self.template = templateSummary({ context: this.modelContext.toJSON()});
                 self.element.html(self.template);
 
                 self.cover = $('#field-summary-cover');
