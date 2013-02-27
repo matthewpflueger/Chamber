@@ -183,7 +183,7 @@
         </dependency>
         <dependency>
             <groupId>net.databinder.dispatch</groupId>
-            <artifactId>dispatch-core_2.10.0-RC5</artifactId>
+            <artifactId>dispatch-core_${scala.version}</artifactId>
             <version>0.9.5</version>
         </dependency>
 

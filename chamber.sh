@@ -276,7 +276,7 @@ function service_cmd() {
             ;;
 
         *)
-            echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|git_rev|compass|compass_compile|requirejs|migrate_status|migrate_up|migrate_down|dump|cloud_clean}" >&2
+            echo "Usage: $NAME {start|stop|restart|reload|status|verify|scalatest|console|targz|package|clean|git_rev|compass|compass_compile|requirejs|migrate_status|migrate_up|migrate_down|migrate_new|dump|cloud_clean}" >&2
             exit 1
             ;;
     esac
