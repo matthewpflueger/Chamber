@@ -12,7 +12,7 @@ define(
                     this.properties = options.properties;
                 } else {
                     this.properties = options.properties;
-                    if(options.properties) this.url = options.properties.urls.site + "/api/story/" + attr.id;
+                    if (options.properties) this.url = options.properties.urls.site + "/api/story/" + attr.id;
                     else this.url = "/api/story/" + attr.id;
                     this.currentChapterIndex = 0;
                     this.currentChapterImageIndex = 0;
@@ -99,7 +99,10 @@ define(
                 if(chapters.length) return chapters[0].id === chapterId;
                 else return false
             },
-            getChapterImages: function(chapterId, includeCover){
+            getChapterImages: function(chapter, includeCover) {
+                if (!chapter || !chapter.id) return [];
+
+                var chapterId = chapter.id;
                 var chapterImages = this.get("chapterImages");
                 var i = [];
                 //Fix for pushing in Cover Image
@@ -195,8 +198,8 @@ define(
                 return this.get("chapters")[this.currentChapterIndex];
             },
             getCurrentImage: function(includeCover){
-                var chapterImages = this.getChapterImages(this.getCurrentChapter().id, includeCover);
-                if(chapterImages.length) return chapterImages[this.currentChapterImageIndex].image;
+                var chapterImages = this.getChapterImages(this.getCurrentChapter(), includeCover);
+                if (chapterImages.length) return chapterImages[this.currentChapterImageIndex].image;
                 else return false;
             },
             nextChapter: function(){
@@ -206,9 +209,9 @@ define(
                 this.currentChapterImageIndex = 0;
             },
             nextImage: function(){
-                var chapterImages = this.getChapterImages(this.getCurrentChapter().id);
+                var chapterImages = this.getChapterImages(this.getCurrentChapter());
                 this.currentChapterImageIndex++;
-                if(this.currentChapterImageIndex >= chapterImages.length) this.nextChapter();
+                if (this.currentChapterImageIndex >= chapterImages.length) this.nextChapter();
             },
             setCurrentChapter: function(chapterIndex){
                 this.currentChapterIndex = chapterIndex;

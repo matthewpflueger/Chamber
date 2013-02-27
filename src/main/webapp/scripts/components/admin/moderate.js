@@ -63,7 +63,7 @@ define(
             preview: function(ev){
                 var target = $(ev.currentTarget);
                 var id = target.attr('storyId');
-                this.EvAg.trigger('story/show', id);
+                this.EvAg.trigger('content:show', id);
             },
             check: function(ev){
                 var target = $(ev.currentTarget);

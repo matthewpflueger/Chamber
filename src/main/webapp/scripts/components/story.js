@@ -188,7 +188,7 @@ define(
                 $.each(chapters, function(index, chapter){
                     self.galleryChapters[index] = $('<div></div>').addClass('story-gallery-chapter').attr("index", index).attr("id", "story-gallery-chapter-" + index);
 
-                    var chapterImages  =    self.modelStory.getChapterImages(chapter.id, true);
+                    var chapterImages  =    self.modelStory.getChapterImages(chapter, true);
                     var chapterTitle =      chapter.title;
                     if(chapterImages.length === 0 && chapter.title === ""){
                         chapterTitle =      chapter.text.substr(0, 25) + "...";
@@ -227,13 +227,15 @@ define(
             renderChapter: function(){
                 var self = this;
                 var chapter = this.modelStory.getCurrentChapter();
-                var chapterText = chapter.text;
+                var chapterText = chapter ? chapter.text : "";
+                var chapterTitle = chapter ? chapter.title : "";
+                
                 if (chapterText.length < 300) this.chapterType = 'photo';
                 else this.chapterType = 'text';
                 self.chapterText.fadeOut(function(){
-                    $('#story-chapter-title').text(chapter.title);
-                    self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(chapter.text)).replace(/\n/g, '<br />'));
-                    if(chapterText.length >0) self.chapterText.show();
+                    $('#story-chapter-title').text(chapterTitle);
+                    self.chapterText.html(utils.replaceUrlsWithLink(utils.escapeHtml(chapterText)).replace(/\n/g, '<br />'));
+                    if (chapterText.length >0) self.chapterText.show();
                     else self.chapterText.hide();
                     self.chapterText.fadeIn();
                 });
@@ -247,7 +249,8 @@ define(
                 $('.story-gallery-thumbnail').removeClass("highlight");
                 var chapter = $("#story-gallery-chapter-" + chapterIndex).addClass("highlight");
                 $("#story-gallery-thumbnail-" + chapterIndex + "-" + chapterImageIndex).addClass("highlight");
-                this.scroll(this.galleryNode.scrollTop() + chapter.position().top);
+                var top = chapter.position() ? chapter.position().top : 0;
+                this.scroll(this.galleryNode.scrollTop() + top);
             },
             renderImage: function(){
                 var self = this;
