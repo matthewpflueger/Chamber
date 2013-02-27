@@ -80,8 +80,8 @@ define(
                         var i = 0, counter = 0;
                         while(i < self.content.length && counter < 4){
                             var story = self.content[i];
-                            if(story.story.image || story.story.chapterImages.length > 0) {
-                                var image = story.story.image ? story.story.image : story.story.chapterImages[0].image;
+                            if(story.story.image || story.chapterImages.length > 0) {
+                                var image = story.story.image ? story.story.image : story.chapterImages[0].image;
                                 var link = $('<div></div>').attr("href", "#echoed_story/" + story.id).append(utils.fit(image, 40 , 40)).attr('index', i).addClass("echoed-story").addClass('echoed-option');
                                 $('#echoed-options').prepend(link);
                                 counter++;
