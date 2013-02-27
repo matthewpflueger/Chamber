@@ -16,6 +16,7 @@ private[state] object StateUtils {
         val cm = from(comments)(cm => where(cm.storyId === s.id) select(cm) orderBy(cm.createdOn.asc)).toList.map { cm =>
             echoedUsers.lookup(cm.byEchoedUserId).map(eu => cm.copy(echoedUser = eu)).get
         }.toList
+        val lk = from(links)(lk => where(lk.storyId === s.id) select(lk) orderBy(lk.createdOn.asc)).toList
 
         val eu = echoedUsers.lookup(s.echoedUserId).get
         val img = Option(s.imageId).map(images.lookup(_).get.convertTo).orElse(None)
@@ -45,6 +46,7 @@ private[state] object StateUtils {
                 c,
                 ci,
                 cm,
+                lk,
                 p,
                 ps,
                 e.map(_.convertTo(img.get)),

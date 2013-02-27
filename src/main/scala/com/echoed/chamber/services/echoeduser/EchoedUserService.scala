@@ -60,8 +60,8 @@ class EchoedUserService(
         ep: EventProcessorActorSystem,
         initMessage: Message,
         storyServiceCreator: (ActorContext, Message, EchoedUser) => ActorRef,
-        storyGraphUrl: String,
         echoClickUrl: String,
+        storyGraphUrl: String,
         encrypter: Encrypter,
         implicit val timeout: Timeout = Timeout(20000)) extends OnlineOfflineService {
 
@@ -642,7 +642,6 @@ class EchoedUserService(
 
 
         case msg @ UnFollowUser(_, followingUserId) =>
-
             val (fu, fus) = followingUsers.partition(_.echoedUserId == followingUserId)
             followingUsers = fus
             fu.headOption.map { f =>
@@ -706,10 +705,6 @@ class EchoedUserService(
                     me ! PublishFacebookAction(eucc, "comment_on", "story", storyGraphUrl + storyId)
                     CreateCommentResponse(msg, ncr.value)
                 }.pipeTo(context.sender)
-
-        case msg @ CreateChapter(eucc, storyId, _, _, _, _) =>
-            forwardToStory(msg, StoryId(storyId))
-            self ! PublishFacebookAction(eucc, "update", "story", storyGraphUrl + storyId)
 
         case msg: StoryIdentifiable with EchoedUserIdentifiable with Message =>
             forwardToStory(msg, StoryId(msg.storyId))

@@ -2,7 +2,8 @@
 
 # Set this to the root of your project when deployed:
 http_path = "/"
-http_images_path = "http://localhost.com:8080/images/"
+#http_images_path = "http://localhost.com:8080/images/"
+http_images_path = "/images/"
 css_dir = "src/main/webapp/css"
 sass_dir = "src/main/webapp/scss/main"
 images_dir = "src/main/webapp/images"

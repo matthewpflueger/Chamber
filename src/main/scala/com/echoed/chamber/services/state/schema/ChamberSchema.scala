@@ -18,6 +18,7 @@ private[state] object ChamberSchema extends Schema {
     val chapters = table[domain.Chapter]
     val chapterImages = table[domain.ChapterImage]
     val comments = table[domain.Comment]
+    val links = table[domain.Link]
     val moderations = table[domain.Moderation]
 
     val notifications = table[Notification]

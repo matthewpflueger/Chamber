@@ -15,6 +15,23 @@
             <textarea id="chapter-text" class="expanding field-text-input">{{chapter.text}}</textarea>
         </div>
     </div>
+    <div id="input-link" class="story-detail-row" style="display:none;">
+        <div id="link-thumbnail-placeholder"> </div>
+        <div style="width: 450px; position: static;">
+            <div class="story-input-label">
+                Url
+            </div>
+            <div class="story-input-content" style="vertical-align: top; padding-bottom: 20px;">
+                <input id="link-url" class="field-text-input-skinny" value="{{link.url}}"/>
+            </div>
+            <div class="story-input-label">
+                Description
+            </div>
+            <div class="story-input-content" style="vertical-align: top; padding-bottom: 20px;">
+                <input id="link-description" class="field-text-input-skinny" value="{{link.title}}"/>
+            </div>
+        </div>
+    </div>
     <div id="input-photos" class="story-detail-row" style="display:none;">
         <div class="story-input-label">
             Photos<br/>
@@ -50,7 +67,7 @@
             <li class="text">Add Text</li>
             <li class="photos">Add Photos</li>
             <li class="subtit">Add Subtitle</li>
-            <!--<li class="link">Add Link</li>-->
+            <li class="link">Add Link</li>
         </ul>
     </div>
     <div class="story-detail-row">

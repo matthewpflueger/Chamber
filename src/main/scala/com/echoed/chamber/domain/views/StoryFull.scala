@@ -2,9 +2,7 @@ package com.echoed.chamber.domain.views
 
 import com.echoed.chamber.domain._
 
-import java.util.{ArrayList, List => JList}
 import partner.Partner
-import scala.collection.JavaConversions._
 import com.echoed.chamber.domain.public.CommentPublic
 
 case class StoryFull(
@@ -12,9 +10,10 @@ case class StoryFull(
         story: Story,
         echoedUser: EchoedUser,
         partner: Partner,
-        chapters: JList[Chapter],
-        chapterImages: JList[ChapterImage],
-        comments: JList[Comment],
+        chapters: List[Chapter],
+        chapterImages: List[ChapterImage],
+        comments: List[Comment],
+        links: List[Link],
         votes: Map[String, Vote],
         moderation: ModerationDescription,
         topic: Topic) {
@@ -24,9 +23,10 @@ case class StoryFull(
             story,
             echoedUser,
             partner,
-            new ArrayList[Chapter],
-            new ArrayList[ChapterImage],
-            new ArrayList[Comment],
+            List[Chapter](),
+            List[ChapterImage](),
+            List[Comment](),
+            List[Link](),
             Map.empty[String, Vote],
             new ModerationDescription(),
             null)

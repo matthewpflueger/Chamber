@@ -15,9 +15,10 @@ import com.echoed.chamber.services.echoeduser.{StoryEvent => SE}
 case class StoryUpdated(story: StoryState) extends SE with UpdatedEvent
 case class StoryCreated(story: StoryState) extends SE with CreatedEvent
 case class StoryTagged(story: StoryState, originalTag: String, newTag: String) extends SE with UpdatedEvent
-case class ChapterCreated(story: StoryState, chapter: Chapter, chapterImages: List[ChapterImage]) extends SE with CreatedEvent
-case class ChapterUpdated(story: StoryState, chapter: Chapter, chapterImages: List[ChapterImage]) extends SE with UpdatedEvent
+case class ChapterCreated(story: StoryState, chapter: Chapter, chapterImages: List[ChapterImage], links: List[Link]) extends SE with CreatedEvent
+case class ChapterUpdated(story: StoryState, chapter: Chapter, chapterImages: List[ChapterImage], links: List[Link]) extends SE with UpdatedEvent
 case class CommentCreated(story: StoryState, comment: Comment) extends SE with UpdatedEvent
+case class LinkCreated(story: StoryState, link: Link) extends SE with CreatedEvent
 case class StoryModerated(story: StoryState, moderation: Moderation) extends SE with CreatedEvent
 
 case class VoteUpdated(story: StoryState, vote: Vote) extends SE with UpdatedEvent
