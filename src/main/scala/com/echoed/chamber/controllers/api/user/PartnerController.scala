@@ -9,38 +9,7 @@ import java.lang.{NumberFormatException => NFE}
 import scala.Right
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
-import views.content.PhotoContent
-import views.context.PartnerContext
-import views.context.PartnerContext
-import views.context.PartnerContext
-import views.Feed
-import com.echoed.chamber.domain.views.context._
-
-import com.echoed.chamber.services.partner._
-import com.echoed.chamber.services.partner.RequestPartnerFollowers
-import views.Feed
-import com.echoed.chamber.services.partner.RequestPartnerContentResponse
-import com.echoed.chamber.services.partner.RequestPartnerContent
-import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.echoeduser._
-import com.echoed.chamber.services.partner.RequestPartnerFollowers
-import views.Feed
-import com.echoed.chamber.services.partner.RequestPartnerContentResponse
-import com.echoed.chamber.services.partner.RequestPartnerContent
-import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.partner.RequestPartnerFollowersResponse
-import com.echoed.chamber.services.partner.RequestPartnerFollowers
-import views.Feed
-import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import com.echoed.chamber.services.echoeduser.FollowPartner
-import com.echoed.chamber.services.partner.RequestPartnerContentResponse
-import com.echoed.chamber.services.echoeduser.UnFollowPartner
-import com.echoed.chamber.services.partner.RequestPartnerContent
-import com.echoed.chamber.services.echoeduser.FollowPartnerResponse
-import com.echoed.chamber.services.partner.PartnerClientCredentials
-import com.echoed.chamber.services.echoeduser.PartnerFollower
-import com.echoed.chamber.services.partner.RequestPartnerFollowersResponse
-import com.echoed.chamber.domain.public.StoryPublic
+import views.content.{ContentDescription, PhotoContent}
 import com.echoed.chamber.services.partneruser._
 import scala.beans.BeanProperty
 import java.util.Date
@@ -52,11 +21,9 @@ import com.echoed.chamber.services.partner.RequestPartnerContentResponse
 import com.echoed.chamber.services.echoeduser.UnFollowPartnerResponse
 import com.echoed.chamber.services.echoeduser.UnFollowPartner
 import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
-import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.partner.RequestTopics
 import com.echoed.chamber.domain.Topic
 import com.echoed.chamber.services.partneruser.UpdatePartnerCustomization
-import com.echoed.chamber.domain.views.content.PhotoContent
 import com.echoed.chamber.services.partner.RequestPartnerFollowers
 import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
@@ -87,15 +54,8 @@ class PartnerController extends EchoedController {
                        @RequestParam(value = "page", required = false) page: String,
                        @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        val result = new DeferredResult[Feed[PartnerContext]](null, ErrorResult.timeout)
+        getPartnerContent(Story.storyContentDescription, partnerId, page, origin)
 
-        log.debug("Requesting for Partner Content for Partner {}", partnerId )
-
-        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, Story.storyContentDescription)).onSuccess {
-            case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
-        }
-
-        result
     }
 
     @RequestMapping(value = Array("{partnerId}/photos"), method=Array(RequestMethod.GET))
@@ -105,15 +65,43 @@ class PartnerController extends EchoedController {
                              @RequestParam(value = "page", required = false) page: String,
                              @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
+        getPartnerContent(PhotoContent.contentDescription, partnerId, page, origin)
+
+    }
+
+    @RequestMapping(value = Array("{partnerId}/reviews"), method=Array(RequestMethod.GET))
+    @ResponseBody
+    def getPartnerContentReview(
+                                       @PathVariable(value = "partnerId") partnerId: String,
+                                       @RequestParam(value = "page", required = false) page: String,
+                                       @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
+
+        getPartnerContent(Story.reviewContentDescription, partnerId, page, origin)
+
+    }
+
+    def getPartnerContent(
+        contentType:    ContentDescription,
+        partnerId:      String,
+        page:           String,
+        origin:         String) = {
+
         val result = new DeferredResult[Feed[PartnerContext]](null, ErrorResult.timeout)
 
         log.debug("Requesting for Partner Content for Partner {}", partnerId )
 
-        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, PhotoContent.contentDescription)).onSuccess {
+        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, contentType)).onSuccess {
             case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
         result
+
     }
+
+
+
+
+
+
 
     @RequestMapping(value = Array("{partnerId}/followers"), method = Array(RequestMethod.GET))
     @ResponseBody
