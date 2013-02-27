@@ -6,11 +6,12 @@ define(
         'models/story',
         'models/photo',
         'components/storyBrief',
+        'views/forum/forum',
         'views/photo/photoBrief',
         'components/utils',
         'isotope'
     ],
-    function($, Backbone, _, ModelStory, ModelPhoto, StoryBrief, PhotoBrief, utils, isotope ){
+    function($, Backbone, _, ModelStory, ModelPhoto, StoryBrief, Forum, PhotoBrief, utils, isotope ){
         return Backbone.View.extend({
             el: '#content',
             initialize: function(options){
@@ -148,7 +149,7 @@ define(
                         case "Story":
                             var storyDiv =                  $('<div></div>').addClass('item_wrap');
                             var modelStory =                new ModelStory(content, { properties: self.properties});
-                            var storyComponent =            new StoryBrief({
+                            var storyComponent =            new Forum({
                                                                 el:         storyDiv,
                                                                 data:       content,
                                                                 EvAg:       self.EvAg,

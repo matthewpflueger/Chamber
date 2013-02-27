@@ -20,6 +20,7 @@
 @import "menu";
 @import "title";
 @import "select";
+@import "views/forum";
 
 
 body, html{
@@ -347,5 +348,5 @@ body {
 }
 
 #content {
-    padding-bottom:     10px;
+    padding: 0px 10px 10px 10px;
 }
